@@ -1,4 +1,4 @@
-PHONY: lint format
+PHONY: lint format dev
 
 lint:
 	uv run ruff check --fix
@@ -6,3 +6,6 @@ lint:
 
 format:
 	uv run ruff format
+
+dev:
+	uv run litestar run -r

@@ -34,3 +34,21 @@ code formatter, written in Rust."
 Ruff is used both for:
 - linting: `uv run ruff check --fix`
 - formatting: `uv run ruff format`
+
+### API
+
+[litestar](https://docs.litestar.dev/latest/index.html) "is a powerful,
+flexible, highly performant, and opinionated ASGI framework."
+
+Start it using:
+	uv run litestar --app-dir src run
+
+or simply:
+  make dev # With live reloading
+
+Then access http://127.0.0.1:8000, or open one of:
+- http://localhost:8000/schema (for ReDoc)
+- http://localhost:8000/schema/swagger (for Swagger UI)
+- http://localhost:8000/schema/elements (for Stoplight Elements)
+- http://localhost:8000/schema/rapidoc (for RapiDoc)
+

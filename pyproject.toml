@@ -4,7 +4,9 @@ version = "0.1.0"
 description = "AMI notifications API"
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = []
+dependencies = [
+    "litestar[standard]>=2.15.1",
+]
 
 [dependency-groups]
 dev = [
