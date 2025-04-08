@@ -52,6 +52,7 @@ const registerServiceWorker = async () => {
       }
       console.log(status);
       loadingText.innerHTML = status;
+      registration.update();
       return registration;
     } catch (error) {
       console.error(`Registration failed with ${error}`);
@@ -64,13 +65,19 @@ const registerServiceWorker = async () => {
 const subscribePush = async () => {
   const registration = await navigator.serviceWorker.ready;
   try {
-    const pushSubscription = await registration.pushManager.subscribe();
-    console.log("pushSubscription.endpoint", pushSubscription.endpoint);
+    const applicationKeyResponse = await fetch("/notification/key");
+    const applicationKey = await applicationKeyResponse.text();
+    console.log("applicationKey:", applicationKey);
+    const options = { userVisibleOnly: true, applicationServerKey: applicationKey };
+    const pushSubscription = await registration.pushManager.subscribe(options);
+    console.log("pushSubscription", pushSubscription);
+    console.debug("auth key:", pushSubscription.toJSON().keys.auth);
+    console.debug("p256dh:", pushSubscription.toJSON().keys.p256dh);
     // The push subscription details needed by the application
     // server are now available, and can be sent to it using,
     // for example, the fetch() API.
     loadingText.innerHTML = "subcribed to the push manager";
-    return pushSubscription.endpoint;
+    return pushSubscription;
   } catch (error) {
     // During development it often helps to log errors to the
     // console. In a production environment it might make sense to
@@ -88,8 +95,10 @@ const updateButtonsStates = async () => {
   pushSubURL.disabled = !isGranted;
 
   if (isGranted) {
-    const pushURL = await subscribePush();
-    pushSubURL.innerText = pushURL;
+    const pushSubscription = await subscribePush();
+    pushSubURL.innerText = pushSubscription.endpoint;
+    pushSubAuth.value = pushSubscription.toJSON().keys.auth;
+    pushSubP256DH.value = pushSubscription.toJSON().keys.p256dh;
   }
 };
 
@@ -99,6 +108,8 @@ askNotificationsBtn.addEventListener("click", askForNotificationPermission);
 const notifyMeBtn = document.querySelector("#notify-me-btn");
 notifyMeBtn.addEventListener("click", notifyMe);
 const pushSubURL = document.querySelector("#push-sub-url");
+const pushSubAuth = document.querySelector("#push-sub-auth");
+const pushSubP256DH = document.querySelector("#push-sub-p256dh");
 
 updateButtonsStates();
 
