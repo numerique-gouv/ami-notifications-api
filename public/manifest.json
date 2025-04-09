@@ -1,0 +1,21 @@
+{
+  "name": "Push notification test",
+  "short_name": "Notify test",
+  "start_url": "/notify-test/?source=pwa",
+  "display": "standalone",
+  "display_override": ["tabbed"],
+  "icons": [
+    {
+      "src": "/notify-test/icon-192.jpg",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/notify-test/icon-512.jpg",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
