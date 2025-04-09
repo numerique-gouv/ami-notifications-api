@@ -25,7 +25,8 @@ class Registration:
     email: str
 
 
-REGISTRATIONS: dict[str, Registration] = {}
+Registrations = dict[str, Registration]
+REGISTRATIONS: Registrations = {}
 
 
 @dataclass
@@ -79,6 +80,11 @@ async def notify(
     return data
 
 
+@get("/notification/users")
+async def list_users() -> Registrations:
+    return REGISTRATIONS
+
+
 @get("/notifications/{email:str}")
 async def get_notifications(email: str) -> list[str]:
     return []
@@ -94,6 +100,7 @@ app = Litestar(
         get_application_key,
         register,
         notify,
+        list_users,
         get_notifications,
     ]
 )
