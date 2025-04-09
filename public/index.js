@@ -69,7 +69,7 @@ const subscribePush = async () => {
     const applicationKey = await applicationKeyResponse.text();
     console.log("applicationKey:", applicationKey);
     const options = { userVisibleOnly: true, applicationServerKey: applicationKey };
-    const pushSubscription = await registration.pushManager.subscribe(options);
+    pushSubscription = await registration.pushManager.subscribe(options);
     console.log("pushSubscription", pushSubscription);
     console.debug("auth key:", pushSubscription.toJSON().keys.auth);
     console.debug("p256dh:", pushSubscription.toJSON().keys.p256dh);
@@ -87,12 +87,34 @@ const subscribePush = async () => {
   }
 };
 
+const registerWithAMI = async () => {
+  const payload = {
+    subscription: {
+      endpoint: pushSubscription.endpoint,
+      keys: {
+        auth: pushSubscription.toJSON().keys.auth,
+        p256dh: pushSubscription.toJSON().keys.p256dh,
+      },
+    },
+    email: registerEmailInput.value,
+  }
+  console.log("registering with AMI:", payload);
+  const response = await fetch(
+    "/notification/register",
+    {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }
+  );
+  console.log("response from AMI:", response);
+};
+
 const updateButtonsStates = async () => {
   const isGranted = await checkNotificationPermission();
   console.log("inside updateButtonsStates, isGranted:", isGranted);
   askNotificationsBtn.disabled = isGranted;
   notifyMeBtn.disabled = !isGranted;
-  pushSubURL.disabled = !isGranted;
+  registerBtn.disabled = !isGranted;
 
   if (isGranted) {
     const pushSubscription = await subscribePush();
@@ -102,6 +124,8 @@ const updateButtonsStates = async () => {
   }
 };
 
+let pushSubscription;
+
 const loadingText = document.querySelector("#loading-text");
 const askNotificationsBtn = document.querySelector("#ask-for-notifications");
 askNotificationsBtn.addEventListener("click", askForNotificationPermission);
@@ -110,6 +134,9 @@ notifyMeBtn.addEventListener("click", notifyMe);
 const pushSubURL = document.querySelector("#push-sub-url");
 const pushSubAuth = document.querySelector("#push-sub-auth");
 const pushSubP256DH = document.querySelector("#push-sub-p256dh");
+const registerEmailInput = document.querySelector("#register-email");
+const registerBtn = document.querySelector("#register-with-ami");
+registerBtn.addEventListener("click", registerWithAMI);
 
 updateButtonsStates();
 
