@@ -1,7 +1,7 @@
 import os
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, cast
 
 import requests
 from litestar import Litestar, get, post
@@ -26,7 +26,6 @@ class Registration:
 
 
 Registrations = dict[str, Registration]
-REGISTRATIONS: Registrations = {}
 
 
 @dataclass
@@ -53,7 +52,7 @@ async def register(
 ) -> Registration:
     WebPushSubscription.model_validate(data.subscription)
     # TODO: Store the registration in memory => change to store in database
-    REGISTRATIONS[data.email] = data
+    app.state.registrations[data.email] = data
     return data
 
 
@@ -67,7 +66,9 @@ async def notify(
         ),
     ],
 ) -> Notification:
-    registration: Registration | None = REGISTRATIONS.get(data.email)
+    if app.state.registrations is None:
+        app.state.registrations = {}
+    registration: Registration | None = app.state.registrations.get(data.email)
     if registration is None:
         raise NotFoundException
 
@@ -82,12 +83,19 @@ async def notify(
 
 @get("/notification/users")
 async def list_users() -> Registrations:
-    return REGISTRATIONS
+    registrations: Registrations = app.state.registrations
+    return registrations
 
 
 @get("/notifications/{email:str}")
 async def get_notifications(email: str) -> list[str]:
     return []
+
+
+def in_memory_db(app: Litestar) -> Registrations:
+    if not getattr(app.state, "registrations", None):
+        app.state.registrations = {}
+    return cast("Registrations", app.state.registrations)
 
 
 app = Litestar(
@@ -102,5 +110,6 @@ app = Litestar(
         notify,
         list_users,
         get_notifications,
-    ]
+    ],
+    on_startup=[in_memory_db],
 )
