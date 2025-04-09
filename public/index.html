@@ -3,22 +3,27 @@
 <head>
   <title>Notification test</title>
   <meta charset="UTF-8" />
-  <link rel="manifest" href="/manifest.json">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="pico.min.css">
 </head>
 <body>
-<p>Status: <span id="loading-text">Loading, waiting for the service worker registration</span></p>
-<button id="ask-for-notifications">
-  Ask notifications auth
-</button>
-<button id="notify-me-btn">
-  Notify me
-</button>
-<br />
-<p><label><textarea type="text" id="push-sub-url" cols="100" disabled></textarea> pushURL</label> </p>
-<p><label><input type="text" id="push-sub-auth" disabled /> auth</label></p>
-<p><label><input type="text" id="push-sub-p256dh" disabled /> p256dh</label></p>
-<p><label><input type="text" id="register-email" /> Email for the registration</label></p>
-<p><button id="register-with-ami">Register with AMI</button>
-<script type="text/javascript" src="/index.js"></script>
+<main class="container">
+  <form>
+    <p>Status: <span id="loading-text">Loading, waiting for the service worker registration</span></p>
+    <button id="ask-for-notifications">
+      Ask notifications auth
+    </button>
+    <button id="notify-me-btn">
+      Notify me
+    </button>
+    <br />
+    <p><label>pushURL <textarea type="text" id="push-sub-url" cols="100" disabled></textarea></label> </p>
+    <p><label>auth <input type="text" id="push-sub-auth" disabled /></label></p>
+    <p><label>p256dh <input type="text" id="push-sub-p256dh" disabled /></label></p>
+    <p><label>Email for the registration <input type="text" id="register-email" /></label></p>
+    <p><button id="register-with-ami">Register with AMI</button>
+  </form>
+</main>
+<script type="text/javascript" src="index.js"></script>
 </body>
 </html>
