@@ -10,10 +10,10 @@
 <main class="container">
   <form>
     <p>Status: <span id="loading-text">Loading, waiting for the service worker registration</span></p>
-    <button id="ask-for-notifications">
+    <button type="button" id="ask-for-notifications">
       Ask notifications auth
     </button>
-    <button id="notify-me-btn">
+    <button type="button" id="notify-me-btn">
       Notify me
     </button>
     <br />
@@ -21,7 +21,7 @@
     <p><label>auth <input type="text" id="push-sub-auth" disabled /></label></p>
     <p><label>p256dh <input type="text" id="push-sub-p256dh" disabled /></label></p>
     <p><label>Email for the registration <input type="text" id="register-email" /></label></p>
-    <p><button id="register-with-ami">Register with AMI</button>
+    <p><button type="button" id="register-with-ami">Register with AMI</button>
   </form>
 </main>
 <script type="text/javascript" src="index.js"></script>
