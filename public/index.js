@@ -1,7 +1,7 @@
 const checkNotificationPermission = async () => {
   // Check if the browser supports notifications
   if (!("Notification" in window)) {
-    alert("This browser does not support notifications.");
+    alert("Add this website to your home screen!");
     return false;
   }
   const permission = await Notification.permission;
