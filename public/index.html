@@ -13,15 +13,19 @@
     <button type="button" id="ask-for-notifications">
       Ask notifications auth
     </button>
-    <button type="button" id="notify-me-btn">
-      Notify me
-    </button>
     <br />
-    <p><label>pushURL <textarea type="text" id="push-sub-url" cols="100" disabled></textarea></label> </p>
+    <p><label>pushURL <textarea type="text" id="push-sub-url" cols="100" disabled></textarea></label></p>
     <p><label>auth <input type="text" id="push-sub-auth" disabled /></label></p>
     <p><label>p256dh <input type="text" id="push-sub-p256dh" disabled /></label></p>
     <p><label>Email for the registration <input type="text" id="register-email" /></label></p>
     <p><button type="button" id="register-with-ami">Register with AMI</button> <span id="registration-status"></span></p>
+  </form>
+
+  <hr />
+  <h1>RDV-SP</h1>
+  <form>
+    <p><label>Message to notify <input type="text" id="notify-message-input" /></label></p>
+    <p><button type="button" id="notify-message">Notify me</button> <span id="notify-message-status"></span></p>
   </form>
 </main>
 <script type="text/javascript" src="index.js"></script>
