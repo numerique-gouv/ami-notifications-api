@@ -99,6 +99,8 @@ const registerWithAMI = async () => {
     email: registerEmailInput.value,
   }
   console.log("registering with AMI:", payload);
+  registerBtn.disabled = true;
+  registrationStatus.innerText = "Registering...";
   const response = await fetch(
     "/notification/register",
     {
@@ -107,6 +109,16 @@ const registerWithAMI = async () => {
     }
   );
   console.log("response from AMI:", response);
+  registerBtn.disabled = false;
+  if (response.status < 400) {
+    registrationStatus.innerText = "Done!";
+  } else {
+    registrationStatus.innerText = `error ${response.status}: ${response.statusText}, ${response.body}`;
+  }
+
+  const users_response = await fetch("/notification/users");
+  const users = await users_response.json();
+  console.log("users:", users);
 };
 
 const updateButtonsStates = async () => {
@@ -137,6 +149,7 @@ const pushSubP256DH = document.querySelector("#push-sub-p256dh");
 const registerEmailInput = document.querySelector("#register-email");
 const registerBtn = document.querySelector("#register-with-ami");
 registerBtn.addEventListener("click", registerWithAMI);
+const registrationStatus = document.querySelector("#registration-status");
 
 updateButtonsStates();
 
