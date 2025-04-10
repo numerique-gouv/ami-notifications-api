@@ -19,25 +19,6 @@ const askForNotificationPermission = async () => {
   updateButtonsStates();
 };
 
-const notifyMe = async () => {
-  const registration = await navigator.serviceWorker.ready;
-  const permissionGranted = await checkNotificationPermission();
-  if (!permissionGranted || !registration) {
-    console.log("No notification: missing permission or missing service worker registration");
-    return;
-  }
-
-  let notificationMsg = `LOCAL notification with the date: ${new Date()}`
-  console.log("notifying local message:", notificationMsg);
-  registration.showNotification("Local notification", {
-    body: notificationMsg,
-    //icon: "../images/touch/chrome-touch-icon-192x192.png",
-    //vibrate: [200, 100, 200, 100, 200, 100, 200],
-    //tag: "vibration-sample",
-  });
-  loadingText.innerHTML = "Displayed local notification";
-};
-
 const registerServiceWorker = async () => {
   if ('serviceWorker' in navigator) {
     try {
@@ -115,17 +96,36 @@ const registerWithAMI = async () => {
   } else {
     registrationStatus.innerText = `error ${response.status}: ${response.statusText}, ${response.body}`;
   }
-
-  const users_response = await fetch("/notification/users");
-  const users = await users_response.json();
-  console.log("users:", users);
 };
+
+const notifyMessage = async () => {
+  const payload = {
+    message: notifyMessageInput.value,
+    email: registerEmailInput.value,
+  }
+  console.log("notifying a message");
+  notifyMessageBtn.disabled = true;
+  notifyMessageStatus.innerText = "Notifying...";
+  const response = await fetch(
+    "/notification/send",
+    {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }
+  );
+  console.log("response from AMI:", response);
+  notifyMessageBtn.disabled = false;
+  if (response.status < 400) {
+    notifyMessageStatus.innerText = "Done!";
+  } else {
+    notifyMessageStatus.innerText = `error ${response.status}: ${response.statusText}, ${response.body}`;
+  }
+}
 
 const updateButtonsStates = async () => {
   const isGranted = await checkNotificationPermission();
   console.log("inside updateButtonsStates, isGranted:", isGranted);
   askNotificationsBtn.disabled = isGranted;
-  notifyMeBtn.disabled = !isGranted;
   registerBtn.disabled = !isGranted;
 
   if (isGranted) {
@@ -141,8 +141,6 @@ let pushSubscription;
 const loadingText = document.querySelector("#loading-text");
 const askNotificationsBtn = document.querySelector("#ask-for-notifications");
 askNotificationsBtn.addEventListener("click", askForNotificationPermission);
-const notifyMeBtn = document.querySelector("#notify-me-btn");
-notifyMeBtn.addEventListener("click", notifyMe);
 const pushSubURL = document.querySelector("#push-sub-url");
 const pushSubAuth = document.querySelector("#push-sub-auth");
 const pushSubP256DH = document.querySelector("#push-sub-p256dh");
@@ -150,6 +148,10 @@ const registerEmailInput = document.querySelector("#register-email");
 const registerBtn = document.querySelector("#register-with-ami");
 registerBtn.addEventListener("click", registerWithAMI);
 const registrationStatus = document.querySelector("#registration-status");
+const notifyMessageInput = document.querySelector("#notify-message-input");
+const notifyMessageBtn = document.querySelector("#notify-message");
+notifyMessageBtn.addEventListener("click", notifyMessage);
+const notifyMessageStatus = document.querySelector("#notify-message-status");
 
 updateButtonsStates();
 
