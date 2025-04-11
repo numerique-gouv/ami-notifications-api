@@ -1,3 +1,4 @@
 .mypy_cache/
 .venv/
 private_key.pem
+database.sqlite
