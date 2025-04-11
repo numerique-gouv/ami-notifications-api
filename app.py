@@ -1,13 +1,21 @@
 import os
-from dataclasses import dataclass
+from collections.abc import AsyncGenerator
+from datetime import datetime
 from pathlib import Path
-from typing import Annotated, cast
+from typing import Annotated, Any
 
 import requests
 from litestar import Litestar, get, post
-from litestar.exceptions import NotFoundException
+from litestar.di import Provide
+from litestar.exceptions import ClientException, NotFoundException
 from litestar.params import Body
 from litestar.static_files import create_static_files_router
+from litestar.status_codes import HTTP_409_CONFLICT
+from sqlalchemy.exc import IntegrityError, NoResultFound
+from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.types import JSON
+from sqlmodel import Column, Field, SQLModel, col, select
+from sqlmodel.ext.asyncio.session import AsyncSession
 from webpush import WebPush, WebPushSubscription
 
 wp = WebPush(
@@ -19,19 +27,23 @@ wp = WebPush(
 HTML_DIR = "public"
 
 
-@dataclass
-class Registration:
-    subscription: WebPushSubscription
+#### MODELS
+
+
+class Registration(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
     email: str
+    subscription: dict[str, Any] = Field(sa_column=Column(JSON), default={"all": "true"})
 
 
-Registrations = dict[str, Registration]
-
-
-@dataclass
-class Notification:
+class Notification(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    date: datetime = Field(default_factory=datetime.now)
     email: str
     message: str
+
+
+#### ENDPOINTS
 
 
 @get("/notification/key")
@@ -42,6 +54,7 @@ async def get_application_key() -> str:
 
 @post("/notification/register")
 async def register(
+    session: AsyncSession,
     data: Annotated[
         Registration,
         Body(
@@ -51,13 +64,25 @@ async def register(
     ],
 ) -> Registration:
     WebPushSubscription.model_validate(data.subscription)
-    # TODO: Store the registration in memory => change to store in database
-    app.state.registrations[data.email] = data
-    return data
+    registration = data
+    session.add(registration)
+    await session.commit()
+    await session.refresh(registration)
+    return registration
+
+
+async def get_user_by_email(email: str, session: AsyncSession) -> Registration:
+    query = select(Registration).where(col(Registration.email) == "foobar")
+    result = await session.exec(query)
+    try:
+        return result.one()
+    except NoResultFound as e:
+        raise NotFoundException(detail=f"User {email!r} not found") from e
 
 
 @post("/notification/send")
 async def notify(
+    session: AsyncSession,
     data: Annotated[
         Notification,
         Body(
@@ -66,37 +91,62 @@ async def notify(
         ),
     ],
 ) -> Notification:
-    if app.state.registrations is None:
-        app.state.registrations = {}
-    registration: Registration | None = app.state.registrations.get(data.email)
-    if registration is None:
-        raise NotFoundException
+    registration = await get_user_by_email(data.email, session)
 
-    message = wp.get(message=data.message, subscription=registration.subscription)
+    subscription = WebPushSubscription.model_validate(registration.subscription)
+    message = wp.get(message=data.message, subscription=subscription)
 
     response = requests.post(
-        registration.subscription.endpoint, data=message.encrypted, headers=message.headers
+        registration.subscription["endpoint"], data=message.encrypted, headers=message.headers
     )
-    print("response", response)
+    if response.ok:
+        session.add(data)
+        await session.commit()
+        await session.refresh(data)
     return data
 
 
+async def get_user_list(session: AsyncSession) -> list[Registration]:
+    query = select(Registration)
+    result = await session.exec(query)
+    return list(result.all())
+
+
 @get("/notification/users")
-async def list_users() -> Registrations:
-    registrations: Registrations = app.state.registrations
-    return registrations
+async def list_users(session: AsyncSession) -> list[Registration]:
+    return await get_user_list(session)
 
 
 @get("/notifications/{email:str}")
-async def get_notifications(email: str) -> list[str]:
-    return []
+async def get_notifications(session: AsyncSession, email: str) -> list[Notification]:
+    query = select(Notification).where(col(Notification.email) == email)
+    result = await session.exec(query)
+    return list(result.all())
 
 
-def in_memory_db(app: Litestar) -> Registrations:
-    if not getattr(app.state, "registrations", None):
-        app.state.registrations = {}
-    return cast("Registrations", app.state.registrations)
+#### DATABASE
 
+engine = create_async_engine("sqlite+aiosqlite:///database.sqlite", echo=True)
+
+
+async def session() -> AsyncGenerator[AsyncSession, None]:
+    try:
+        async with AsyncSession(engine) as session:
+            yield session
+
+    except IntegrityError as exc:
+        raise ClientException(
+            status_code=HTTP_409_CONFLICT,
+            detail=str(exc),
+        ) from exc
+
+
+async def create_all_db_and_tables():
+    async with engine.begin() as conn:
+        await conn.run_sync(SQLModel.metadata.create_all)
+
+
+#### APP
 
 app = Litestar(
     route_handlers=[
@@ -111,5 +161,6 @@ app = Litestar(
         list_users,
         get_notifications,
     ],
-    on_startup=[in_memory_db],
+    dependencies={"session": Provide(session)},
+    on_startup=[create_all_db_and_tables],
 )
