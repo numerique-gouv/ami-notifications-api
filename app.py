@@ -72,7 +72,7 @@ async def register(
 
 
 async def get_user_by_email(email: str, session: AsyncSession) -> Registration:
-    query = select(Registration).where(col(Registration.email) == "foobar")
+    query = select(Registration).where(col(Registration.email) == email)
     result = await session.exec(query)
     try:
         return result.one()
