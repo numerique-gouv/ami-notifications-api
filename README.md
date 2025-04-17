@@ -41,14 +41,16 @@ Ruff is used both for:
 flexible, highly performant, and opinionated ASGI framework."
 
 Start it using:
+
 	uv run litestar --app-dir src run
 
 or simply:
+
   make dev # With live reloading
 
 Then access http://127.0.0.1:8000, or open one of:
-- http://localhost:8000/schema (for ReDoc)
-- http://localhost:8000/schema/swagger (for Swagger UI)
-- http://localhost:8000/schema/elements (for Stoplight Elements)
-- http://localhost:8000/schema/rapidoc (for RapiDoc)
+- http://127.0.0.1:8000/schema (for ReDoc)
+- http://127.0.0.1:8000/schema/swagger (for Swagger UI)
+- http://127.0.0.1:8000/schema/elements (for Stoplight Elements)
+- http://127.0.0.1:8000/schema/rapidoc (for RapiDoc)
 
