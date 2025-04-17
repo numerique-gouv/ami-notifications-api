@@ -56,3 +56,20 @@ Then access http://127.0.0.1:8000, or open one of:
 - http://127.0.0.1:8000/schema/elements (for Stoplight Elements)
 - http://127.0.0.1:8000/schema/rapidoc (for RapiDoc)
 
+### Database: postgresql
+
+[postgresql](https://www.postgresql.org/) with
+[asyncpg](https://magicstack.github.io/asyncpg/current/).
+
+If developping locally, and no `DATABASE_URL` env variable is set, it'll default
+back to using sqlite.
+
+The `DATABASE_URL` should look like the following:
+```
+postgresql+asyncpg://[user]:[password]@[url]:[port]/[dbname]
+```
+
+For example for a `postgres` database running locally:
+```
+postgresql+asyncpg://postgres:some_password@localhost:5432/postgres
+```
