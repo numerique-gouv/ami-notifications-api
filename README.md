@@ -41,12 +41,14 @@ Ruff is used both for:
 flexible, highly performant, and opinionated ASGI framework."
 
 Start it using:
-
+```sh
 	uv run litestar --app-dir src run
+```
 
 or simply:
-
+```sh
   make dev # With live reloading
+```
 
 Then access http://127.0.0.1:8000, or open one of:
 - http://127.0.0.1:8000/schema (for ReDoc)
