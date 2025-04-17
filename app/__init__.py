@@ -24,6 +24,12 @@ wp = WebPush(
     subscriber="mathieu@agopian.info",
 )
 
+DATABASE_URL_RAW = os.getenv("DATABASE_URL", "")
+# If we get a url with extra options like ?sslmode=prefer or not using the
+# propper protocol `postgresql+asyncpg`, fix it.
+DATABASE_URL = DATABASE_URL_RAW.replace("postgresql://", "postgresql+asyncpg://").replace(
+    "?sslmode=prefer", ""
+)
 HTML_DIR = "public"
 
 
@@ -127,7 +133,7 @@ async def get_notifications(session: AsyncSession, email: str) -> list[Notificat
 
 #### DATABASE
 
-engine = create_async_engine("sqlite+aiosqlite:///database.sqlite", echo=True)
+engine = create_async_engine(DATABASE_URL, echo=True)
 
 
 async def session() -> AsyncGenerator[AsyncSession, None]:
