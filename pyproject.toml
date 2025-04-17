@@ -5,7 +5,7 @@ description = "AMI notifications API"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "aiosqlite>=0.21.0",
+    "asyncpg>=0.30.0",
     "litestar[sqlalchemy,standard]>=2.15.1",
     "requests>=2.32.3",
     "sqlmodel>=0.0.24",
@@ -15,6 +15,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "aiosqlite>=0.21.0",
     "ipdb>=0.13.13",
     "pytest>=8.3.5",
     "ruff>=0.11.2",
