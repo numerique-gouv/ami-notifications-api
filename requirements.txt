@@ -4,10 +4,6 @@ advanced-alchemy==1.1.1 \
     --hash=sha256:d5876586259f9173a6fed74cbeab5ecd5ba71725cd8d36e5d0b73ef887f2cd79 \
     --hash=sha256:da96ce25892c3895cc5d98a038044ca35480badbb8f238e04ec45a0b9303e276
     # via litestar
-aiosqlite==0.21.0 \
-    --hash=sha256:131bb8056daa3bc875608c631c678cda73922a2d4ba8aec373b19f18c17e7aa3 \
-    --hash=sha256:2549cf4057f95f53dcba16f2b64e8e2791d7e1adedb13197dd8ed77bb226d7d0
-    # via ami-notifications-api
 alembic==1.15.2 \
     --hash=sha256:1c72391bbdeffccfe317eefba686cb9a3c078005478885413b95c3b26c57a8a7 \
     --hash=sha256:2e76bd916d547f6900ec4bb5a90aeac1485d2c92536923d0b138c02b126edc53
@@ -23,6 +19,17 @@ anyio==4.9.0 \
     #   httpx
     #   litestar
     #   watchfiles
+asyncpg==0.30.0 \
+    --hash=sha256:04ff0785ae7eed6cc138e73fc67b8e51d54ee7a3ce9b63666ce55a0bf095f7ba \
+    --hash=sha256:05b185ebb8083c8568ea8a40e896d5f7af4b8554b64d7719c0eaa1eb5a5c3a70 \
+    --hash=sha256:46973045b567972128a27d40001124fbc821c87a6cade040cfcd4fa8a30bcdc4 \
+    --hash=sha256:9110df111cabc2ed81aad2f35394a00cadf4f2e0635603db6ebbd0fc896f46a4 \
+    --hash=sha256:9b6fde867a74e8c76c71e2f64f80c64c0f3163e687f1763cfaf21633ec24ec33 \
+    --hash=sha256:ae374585f51c2b444510cdf3595b97ece4f233fde739aa14b50e0d64e8a7a590 \
+    --hash=sha256:c47806b1a8cbb0a0db896f4cd34d89942effe353a5035c62734ab13b9f938da3 \
+    --hash=sha256:c551e9928ab6707602f44811817f82ba3c446e018bfe1d3abecc8ba5f3eac851 \
+    --hash=sha256:f59b430b8e27557c3fb9869222559f7417ced18688375825f8f12302c34e915e
+    # via ami-notifications-api
 certifi==2025.1.31 \
     --hash=sha256:3d5da6925056f6f18f119200434a4780a94263f10d1c21d032a6f6b2baa20651 \
     --hash=sha256:ca78db4565a652026a4db2bcdf68f2fb589ea80d0be70e03929ed730746b84fe
@@ -399,7 +406,6 @@ typing-extensions==4.13.0 \
     --hash=sha256:c8dd92cc0d6425a97c18fbb9d1954e5ff92c1ca881a309c45f06ebc0b79058e5
     # via
     #   advanced-alchemy
-    #   aiosqlite
     #   alembic
     #   litestar
     #   polyfactory
