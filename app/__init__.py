@@ -27,8 +27,10 @@ wp = WebPush(
 DATABASE_URL_RAW = os.getenv("DATABASE_URL", "")
 # If we get a url with extra options like ?sslmode=prefer or not using the
 # propper protocol `postgresql+asyncpg`, fix it.
-DATABASE_URL = DATABASE_URL_RAW.replace("postgresql://", "postgresql+asyncpg://").replace(
-    "?sslmode=prefer", ""
+DATABASE_URL = (
+    DATABASE_URL_RAW.replace("postgresql://", "postgresql+asyncpg://")
+    .replace("postgres://", "postgresql+asyncpg://")
+    .replace("?sslmode=prefer", "")
 )
 HTML_DIR = "public"
 
