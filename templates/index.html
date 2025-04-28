@@ -1,13 +1,6 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <title>Notification test</title>
-  <meta charset="UTF-8" />
-  <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="pico.min.css">
-</head>
-<body>
-<main class="container">
+{% extends "base.html" %}
+
+{% block container %}
   <form>
     <p>Status: <span id="loading-text">Loading, waiting for the service worker registration</span></p>
     <button type="button" id="ask-for-notifications">
@@ -27,7 +20,12 @@
     <p><label>Message to notify <input type="text" id="notify-message-input" /></label></p>
     <p><button type="button" id="notify-message">Notify me</button> <span id="notify-message-status"></span></p>
   </form>
-</main>
-<script type="text/javascript" src="index.js"></script>
-</body>
-</html>
+
+  <h2>Historique global</h2>
+  <ul>
+    {% for notification in notifications %}
+      <li>{{ notification }}</li>
+    {% endfor %}
+  </ul>
+{% endblock container %}
+

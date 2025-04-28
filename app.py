@@ -6,11 +6,14 @@ from typing import Annotated, Any
 
 import requests
 from litestar import Litestar, get, post
+from litestar.contrib.jinja import JinjaTemplateEngine
 from litestar.di import Provide
 from litestar.exceptions import ClientException, NotFoundException
 from litestar.params import Body
+from litestar.response import Template
 from litestar.static_files import create_static_files_router
 from litestar.status_codes import HTTP_409_CONFLICT
+from litestar.template.config import TemplateConfig
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.types import JSON
@@ -46,6 +49,13 @@ class Notification(SQLModel, table=True):
 #### ENDPOINTS
 
 
+@get(path="/", sync_to_thread=False)
+async def home(session: AsyncSession) -> Template:
+    query = select(Notification).order_by(Notification.date.desc())
+    result = await session.exec(query)
+    return Template(template_name="index.html", context={"notifications": list(result.all())})
+
+
 @get("/notification/key")
 async def get_application_key() -> str:
     with open("applicationServerKey", "r") as applicationServerKey:
@@ -75,7 +85,7 @@ async def get_user_by_email(email: str, session: AsyncSession) -> Registration:
     query = select(Registration).where(col(Registration.email) == email)
     result = await session.exec(query)
     try:
-        return result.one()
+        return result.first()
     except NoResultFound as e:
         raise NotFoundException(detail=f"User {email!r} not found") from e
 
@@ -150,11 +160,8 @@ async def create_all_db_and_tables():
 
 app = Litestar(
     route_handlers=[
-        create_static_files_router(
-            path="/",
-            directories=[HTML_DIR],
-            html_mode=True,
-        ),
+        create_static_files_router(path="/static/", directories=[HTML_DIR], html_mode=True),
+        home,
         get_application_key,
         register,
         notify,
@@ -163,4 +170,5 @@ app = Litestar(
     ],
     dependencies={"session": Provide(session)},
     on_startup=[create_all_db_and_tables],
+    template_config=TemplateConfig(directory=Path("templates"), engine=JinjaTemplateEngine),
 )
