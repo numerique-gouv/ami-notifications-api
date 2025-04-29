@@ -7,6 +7,10 @@ lint:
 format:
 	uv run ruff format
 
+.PHONY: test
+test:
+	uv run --with pytest pytest
+
 .PHONY: dev
 dev:
 	RELOAD="-r" DEBUG="--debug" HOSTNAME="127.0.0.1" bin/start.sh
