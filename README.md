@@ -56,6 +56,15 @@ Then access http://127.0.0.1:8000, or open one of:
 - http://127.0.0.1:8000/schema/elements (for Stoplight Elements)
 - http://127.0.0.1:8000/schema/rapidoc (for RapiDoc)
 
+If you need or want to define env variables, you may add them in your local `.env` file.
+Here's an example:
+
+```env
+DATABASE_URL="sqlite+aiosqlite:///database.sqlite"
+PORT="8000"
+HOSTNAME="127.0.0.1"
+```
+
 ### Database: postgresql
 
 [postgresql](https://www.postgresql.org/) with

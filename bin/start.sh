@@ -16,4 +16,4 @@ then
 fi
 
 
-uv run litestar run -p ${PORT} -H ${HOSTNAME} ${RELOAD} ${DEBUG}
+uv run ${ENV_FILE} litestar run -p ${PORT} -H ${HOSTNAME} ${RELOAD} ${DEBUG}
