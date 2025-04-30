@@ -40,7 +40,12 @@ Ruff is used both for:
 [litestar](https://docs.litestar.dev/latest/index.html) "is a powerful,
 flexible, highly performant, and opinionated ASGI framework."
 
-Start it using:
+First, you need a local `.env` file:
+```sh
+cp .env.template .env
+```
+
+Then start the server using:
 ```sh
 uv run litestar run
 ```
@@ -55,15 +60,6 @@ Then access http://127.0.0.1:8000, or open one of:
 - http://127.0.0.1:8000/schema/swagger (for Swagger UI)
 - http://127.0.0.1:8000/schema/elements (for Stoplight Elements)
 - http://127.0.0.1:8000/schema/rapidoc (for RapiDoc)
-
-If you need or want to define env variables, you may add them in your local `.env` file.
-Here's an example:
-
-```env
-DATABASE_URL="sqlite+aiosqlite:///database.sqlite"
-PORT="8000"
-HOSTNAME="127.0.0.1"
-```
 
 ### Database: postgresql
 

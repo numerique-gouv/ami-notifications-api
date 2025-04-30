@@ -13,7 +13,7 @@ test:
 
 .PHONY: dev
 dev:
-	RELOAD="-r" DEBUG="--debug" HOSTNAME="127.0.0.1" ENV_FILE="--env-file .env" bin/start.sh
+	RELOAD="-r" DEBUG="--debug" HOSTNAME="127.0.0.1" bin/start.sh
 
 .PHONY: serve
 serve:
