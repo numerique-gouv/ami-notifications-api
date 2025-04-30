@@ -4,3 +4,4 @@ private_key.pem
 database.sqlite
 __pycache__
 *.egg-info
+.env
