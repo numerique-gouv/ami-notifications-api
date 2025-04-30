@@ -42,7 +42,7 @@ flexible, highly performant, and opinionated ASGI framework."
 
 Start it using:
 ```sh
-uv run litestar --app-dir src run
+uv run litestar run
 ```
 
 or simply:

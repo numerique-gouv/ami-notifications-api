@@ -9,7 +9,7 @@ format:
 
 .PHONY: test
 test:
-	uv run --with pytest pytest
+	uv run pytest
 
 .PHONY: dev
 dev:
