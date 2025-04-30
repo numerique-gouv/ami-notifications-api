@@ -28,9 +28,21 @@ DATABASE_URL_RAW = os.getenv("DATABASE_URL", "")
 # If we get a url with extra options like ?sslmode=prefer or not using the
 # propper protocol `postgresql+asyncpg`, fix it.
 DATABASE_URL = (
-    DATABASE_URL_RAW.replace("postgresql://", "postgresql+asyncpg://")
-    .replace("postgres://", "postgresql+asyncpg://")
-    .replace("?sslmode=prefer", "")
+    DATABASE_URL_RAW.replace(
+        # SqlAlchemy has deprecated the use of `postgres` in favor of `postgresql`: https://github.com/sqlalchemy/sqlalchemy/issues/6083#issuecomment-801478013
+        "postgres://",
+        "postgresql://",
+    )
+    .replace(
+        # We use litestar which is an async web framework, but scalingo auto configures a connection string with `postgres://"
+        "postgresql://",
+        "postgresql+asyncpg://",
+    )
+    .replace(
+        # ssl mode doesn't seem to play well with SqlAlchemy.
+        "?sslmode=prefer",
+        "",
+    )
 )
 HTML_DIR = "public"
 
