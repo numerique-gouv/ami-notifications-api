@@ -2,7 +2,7 @@ import os
 from collections.abc import AsyncGenerator
 from datetime import datetime
 from pathlib import Path
-from typing import Annotated, Any
+from typing import Annotated, Any, cast
 
 import requests
 from litestar import Litestar, get, post
@@ -95,9 +95,10 @@ async def notify(
 
     subscription = WebPushSubscription.model_validate(registration.subscription)
     message = wp.get(message=data.message, subscription=subscription)
+    headers = cast(dict, message.headers)
 
     response = requests.post(
-        registration.subscription["endpoint"], data=message.encrypted, headers=message.headers
+        registration.subscription["endpoint"], data=message.encrypted, headers=headers
     )
     if response.ok:
         session.add(data)
