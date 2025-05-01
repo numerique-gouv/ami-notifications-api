@@ -18,6 +18,7 @@ dev = [
     "aiosqlite>=0.21.0",
     "ipdb>=0.13.13",
     "pytest>=8.3.5",
+    "pytest-asyncio>=0.26.0",
     "ruff>=0.11.2",
 ]
 
@@ -30,3 +31,6 @@ line-length = 100
 
 [tool.ruff.lint]
 extend-select = ["I"] # also sort imports with an isort rule
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
