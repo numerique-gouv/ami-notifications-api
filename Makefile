@@ -9,7 +9,7 @@ format:
 
 .PHONY: test
 test:
-	uv run pytest
+	DATABASE_URL=sqlite+aiosqlite:///database_test.sqlite uv run pytest
 
 .PHONY: dev
 dev:

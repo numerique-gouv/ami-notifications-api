@@ -1,7 +1,7 @@
 .mypy_cache/
 .venv/
 private_key.pem
-database.sqlite
+database*.sqlite
 __pycache__
 *.egg-info
 .env
