@@ -78,3 +78,21 @@ For example for a `postgres` database running locally:
 ```
 postgresql+asyncpg://postgres:some_password@localhost:5432/postgres
 ```
+
+### Tests
+
+The easiest way to run tests is to use the Makefile target:
+```
+make test
+```
+
+If you'd rather run the tests manually, make sure to specify the `DATABASE_URL`:
+```
+DATABASE_URL="sqlite+aiosqlite:///database_test.sqlite" uv run pytest
+```
+
+
+To run a single test, you would use something like:
+```
+DATABASE_URL="sqlite+aiosqlite:///database_test.sqlite" uv run pytest -v tests/test_basic.py::test_homepage_title
+```
