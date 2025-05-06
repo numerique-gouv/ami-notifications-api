@@ -86,13 +86,13 @@ The easiest way to run tests is to use the Makefile target:
 make test
 ```
 
-If you'd rather run the tests manually, make sure to specify the `DATABASE_URL`:
+If you'd rather run the tests manually, copy and paste the command from the Makefile:
 ```
-DATABASE_URL="sqlite+aiosqlite:///database_test.sqlite" uv run pytest
+uv run --env-file .env.tests pytest
 ```
 
 
 To run a single test, you would use something like:
 ```
-DATABASE_URL="sqlite+aiosqlite:///database_test.sqlite" uv run pytest -v tests/test_basic.py::test_homepage_title
+uv run --env-file .env.tests pytest tests/test_basic.py::test_homepage_title
 ```
