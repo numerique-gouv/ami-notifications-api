@@ -14,7 +14,7 @@ then
   source "$HOME/.local/bin/env"
 fi
 
-if ! -f .env
+if [ ! -f .env ]
 then
   # Create an empty file so uv won't fail on a missing file
   touch .env
