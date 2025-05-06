@@ -1,5 +1,4 @@
 import os
-from collections.abc import AsyncGenerator
 from datetime import datetime
 from pathlib import Path
 from typing import Annotated, Any, cast
@@ -7,16 +6,16 @@ from typing import Annotated, Any, cast
 import requests
 from litestar import Litestar, get, post
 from litestar.di import Provide
-from litestar.exceptions import ClientException, NotFoundException
+from litestar.exceptions import NotFoundException
 from litestar.params import Body
 from litestar.static_files import create_static_files_router
-from litestar.status_codes import HTTP_409_CONFLICT
-from sqlalchemy.exc import IntegrityError, NoResultFound
-from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.types import JSON
 from sqlmodel import Column, Field, SQLModel, col, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 from webpush import WebPush, WebPushSubscription
+
+from .database import db_connection, provide_db_session
 
 wp = WebPush(
     public_key=Path("./public_key.pem"),
@@ -24,26 +23,6 @@ wp = WebPush(
     subscriber="mathieu@agopian.info",
 )
 
-DATABASE_URL_RAW = os.getenv("DATABASE_URL", "")
-# If we get a url with extra options like ?sslmode=prefer or not using the
-# propper protocol `postgresql+asyncpg`, fix it.
-DATABASE_URL = (
-    DATABASE_URL_RAW.replace(
-        # SqlAlchemy has deprecated the use of `postgres` in favor of `postgresql`: https://github.com/sqlalchemy/sqlalchemy/issues/6083#issuecomment-801478013
-        "postgres://",
-        "postgresql://",
-    )
-    .replace(
-        # We use litestar which is an async web framework, but scalingo auto configures a connection string with `postgres://"
-        "postgresql://",
-        "postgresql+asyncpg://",
-    )
-    .replace(
-        # ssl mode doesn't seem to play well with SqlAlchemy.
-        "?sslmode=prefer",
-        "",
-    )
-)
 HTML_DIR = "public"
 
 
@@ -74,7 +53,7 @@ async def get_application_key() -> str:
 
 @post("/notification/register")
 async def register(
-    session: AsyncSession,
+    db_session: AsyncSession,
     data: Annotated[
         Registration,
         Body(
@@ -85,15 +64,15 @@ async def register(
 ) -> Registration:
     WebPushSubscription.model_validate(data.subscription)
     registration = data
-    session.add(registration)
-    await session.commit()
-    await session.refresh(registration)
+    db_session.add(registration)
+    await db_session.commit()
+    await db_session.refresh(registration)
     return registration
 
 
-async def get_user_by_email(email: str, session: AsyncSession) -> Registration:
+async def get_user_by_email(email: str, db_session: AsyncSession) -> Registration:
     query = select(Registration).where(col(Registration.email) == email)
-    result = await session.exec(query)
+    result = await db_session.exec(query)
     try:
         return result.one()
     except NoResultFound as e:
@@ -102,7 +81,7 @@ async def get_user_by_email(email: str, session: AsyncSession) -> Registration:
 
 @post("/notification/send")
 async def notify(
-    session: AsyncSession,
+    db_session: AsyncSession,
     data: Annotated[
         Notification,
         Body(
@@ -111,7 +90,7 @@ async def notify(
         ),
     ],
 ) -> Notification:
-    registration = await get_user_by_email(data.email, session)
+    registration = await get_user_by_email(data.email, db_session)
 
     subscription = WebPushSubscription.model_validate(registration.subscription)
     message = wp.get(message=data.message, subscription=subscription)
@@ -121,67 +100,47 @@ async def notify(
         registration.subscription["endpoint"], data=message.encrypted, headers=headers
     )
     if response.ok:
-        session.add(data)
-        await session.commit()
-        await session.refresh(data)
+        db_session.add(data)
+        await db_session.commit()
+        await db_session.refresh(data)
     return data
 
 
-async def get_user_list(session: AsyncSession) -> list[Registration]:
+async def get_user_list(db_session: AsyncSession) -> list[Registration]:
     query = select(Registration)
-    result = await session.exec(query)
+    result = await db_session.exec(query)
     return list(result.all())
 
 
 @get("/notification/users")
-async def list_users(session: AsyncSession) -> list[Registration]:
-    return await get_user_list(session)
+async def list_users(db_session: AsyncSession) -> list[Registration]:
+    return await get_user_list(db_session)
 
 
 @get("/notifications/{email:str}")
-async def get_notifications(session: AsyncSession, email: str) -> list[Notification]:
+async def get_notifications(db_session: AsyncSession, email: str) -> list[Notification]:
     query = select(Notification).where(col(Notification.email) == email)
-    result = await session.exec(query)
+    result = await db_session.exec(query)
     return list(result.all())
-
-
-#### DATABASE
-
-engine = create_async_engine(DATABASE_URL, echo=True)
-
-
-async def session() -> AsyncGenerator[AsyncSession, None]:
-    try:
-        async with AsyncSession(engine) as session:
-            yield session
-
-    except IntegrityError as exc:
-        raise ClientException(
-            status_code=HTTP_409_CONFLICT,
-            detail=str(exc),
-        ) from exc
-
-
-async def create_all_db_and_tables():
-    async with engine.begin() as conn:
-        await conn.run_sync(SQLModel.metadata.create_all)
 
 
 #### APP
 
-app = Litestar(
-    route_handlers=[
-        create_static_files_router(
-            path="/",
-            directories=[HTML_DIR],
-            html_mode=True,
-        ),
-        get_application_key,
-        register,
-        notify,
-        list_users,
-        get_notifications,
-    ],
-    dependencies={"session": Provide(session)},
-    on_startup=[create_all_db_and_tables],
-)
+
+def create_app(database_connection=db_connection) -> Litestar:
+    return Litestar(
+        route_handlers=[
+            create_static_files_router(
+                path="/",
+                directories=[HTML_DIR],
+                html_mode=True,
+            ),
+            get_application_key,
+            register,
+            notify,
+            list_users,
+            get_notifications,
+        ],
+        dependencies={"db_session": Provide(provide_db_session)},
+        lifespan=[database_connection],
+    )
