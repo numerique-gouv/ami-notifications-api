@@ -3,7 +3,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Annotated, Any, cast
 
-import requests
+import httpx
 from litestar import Litestar, get, post
 from litestar.di import Provide
 from litestar.exceptions import NotFoundException
@@ -96,7 +96,7 @@ async def notify(
     message = wp.get(message=data.message, subscription=subscription)
     headers = cast(dict, message.headers)
 
-    response = requests.post(
+    response = httpx.post(
         registration.subscription["endpoint"], data=message.encrypted, headers=headers
     )
     if response.ok:
