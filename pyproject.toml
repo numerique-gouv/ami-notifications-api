@@ -6,8 +6,8 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "asyncpg>=0.30.0",
+    "httpx>=0.28.1",
     "litestar[sqlalchemy,standard]>=2.15.1",
-    "requests>=2.32.3",
     "sqlmodel>=0.0.24",
     "types-requests>=2.32.0.20250328",
     "webpush>=1.0.5",
@@ -19,6 +19,7 @@ dev = [
     "ipdb>=0.13.13",
     "pytest>=8.3.5",
     "pytest-asyncio>=0.26.0",
+    "pytest-httpx>=0.35.0",
     "ruff>=0.11.2",
 ]
 
