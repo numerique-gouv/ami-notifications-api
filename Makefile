@@ -9,7 +9,7 @@ format:
 
 .PHONY: test
 test:
-	DATABASE_URL=sqlite+aiosqlite:///database_test.sqlite uv run pytest
+	uv run --env-file .env.tests pytest
 
 .PHONY: dev
 dev:
