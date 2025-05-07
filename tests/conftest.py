@@ -7,14 +7,16 @@ from litestar.testing import TestClient
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlmodel import SQLModel
 from sqlmodel.ext.asyncio.session import AsyncSession
+from webpush import WebPush
+from webpush.vapid import VAPID
 
-from app import Notification, create_app
+from app import Notification, Registration, create_app
 from app.database import DATABASE_URL
 
 
 @pytest.fixture
 async def app():
-    app_ = create_app(database_connection=test_db_connection)
+    app_ = create_app(database_connection=test_db_connection, webpush_init=test_webpush)
     app_.debug = True
     return app_
 
@@ -35,6 +37,16 @@ async def test_db_connection(app: Litestar) -> AsyncGenerator[None, None]:
         await engine.dispose()
 
 
+def test_webpush() -> WebPush:
+    private_key, public_key, _ = VAPID.generate_keys()
+
+    return WebPush(
+        private_key=private_key,
+        public_key=public_key,
+        subscriber="administrator@example.com",
+    )
+
+
 @pytest.fixture
 def test_client(app) -> Iterator[TestClient[Litestar]]:
     with TestClient(app=app) as client:
@@ -50,8 +62,28 @@ async def db_session(app) -> AsyncGenerator[AsyncSession, None]:
 
 
 @pytest.fixture
-async def notification1(app, db_session) -> Notification:
-    notification_1 = Notification(email="foo@example.com", message="Hello notification 1")
-    db_session.add(notification_1)
+async def notification(db_session, registration) -> Notification:
+    notification = Notification(email=registration.email, message="Hello notification")
+    db_session.add(notification)
     await db_session.commit()
-    return notification_1
+    return notification
+
+
+@pytest.fixture
+async def registration(db_session, webpushsubscription) -> Registration:
+    registration_ = Registration(email="user@example.com", subscription=webpushsubscription)
+    db_session.add(registration_)
+    await db_session.commit()
+    return registration_
+
+
+@pytest.fixture
+async def webpushsubscription() -> dict:
+    subscription = {
+        "endpoint": "https://example.com",
+        "keys": {
+            "auth": "ribfIxhEOtCZ0lkcbB4yCg",
+            "p256dh": "BGsTJAJDhGijvPLi0DVPHB86MGLmW1Y6VzjX-FpTlKbhhOtCmU0Vffaj1djCXzR6vkUYrwkOTmh1dgbIQHEyy1k",
+        },
+    }
+    return subscription
