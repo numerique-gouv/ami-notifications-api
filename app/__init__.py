@@ -17,12 +17,6 @@ from webpush import WebPush, WebPushSubscription
 
 from .database import db_connection, provide_db_session
 
-wp = WebPush(
-    public_key=Path("./public_key.pem"),
-    private_key=os.getenv("VAPID_PRIVATE_KEY", "").encode(),
-    subscriber="mathieu@agopian.info",
-)
-
 HTML_DIR = "public"
 
 
@@ -82,6 +76,7 @@ async def get_user_by_email(email: str, db_session: AsyncSession) -> Registratio
 @post("/notification/send")
 async def notify(
     db_session: AsyncSession,
+    webpush: WebPush,
     data: Annotated[
         Notification,
         Body(
@@ -93,16 +88,16 @@ async def notify(
     registration = await get_user_by_email(data.email, db_session)
 
     subscription = WebPushSubscription.model_validate(registration.subscription)
-    message = wp.get(message=data.message, subscription=subscription)
+    message = webpush.get(message=data.message, subscription=subscription)
     headers = cast(dict, message.headers)
 
     response = httpx.post(
-        registration.subscription["endpoint"], data=message.encrypted, headers=headers
+        registration.subscription["endpoint"], content=message.encrypted, headers=headers
     )
-    if response.ok:
-        db_session.add(data)
-        await db_session.commit()
-        await db_session.refresh(data)
+    response.raise_for_status()
+    db_session.add(data)
+    await db_session.commit()
+    await db_session.refresh(data)
     return data
 
 
@@ -127,7 +122,16 @@ async def get_notifications(db_session: AsyncSession, email: str) -> list[Notifi
 #### APP
 
 
-def create_app(database_connection=db_connection) -> Litestar:
+def provide_webpush() -> WebPush:
+    webpush = WebPush(
+        public_key=Path("./public_key.pem"),
+        private_key=os.getenv("VAPID_PRIVATE_KEY", "").encode(),
+        subscriber="contact.ami@numerique.gouv.fr",
+    )
+    return webpush
+
+
+def create_app(database_connection=db_connection, webpush_init=provide_webpush) -> Litestar:
     return Litestar(
         route_handlers=[
             create_static_files_router(
@@ -141,6 +145,9 @@ def create_app(database_connection=db_connection) -> Litestar:
             list_users,
             get_notifications,
         ],
-        dependencies={"db_session": Provide(provide_db_session)},
+        dependencies={
+            "db_session": Provide(provide_db_session),
+            "webpush": Provide(webpush_init, use_cache=True, sync_to_thread=True),
+        },
         lifespan=[database_connection],
     )
