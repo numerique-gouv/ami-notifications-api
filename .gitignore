@@ -7,3 +7,6 @@ database*.sqlite
 __pycache__
 *.egg-info
 .env
+
+*/node_modules
+package-lock.json
