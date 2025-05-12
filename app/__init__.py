@@ -6,6 +6,7 @@ from typing import Annotated, Any, cast
 
 import httpx
 from litestar import Litestar, get, post
+from litestar.config.cors import CORSConfig
 from litestar.contrib.jinja import JinjaTemplateEngine
 from litestar.di import Provide
 from litestar.exceptions import NotFoundException
@@ -20,6 +21,8 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from webpush import WebPush, WebPushSubscription
 
 from .database import db_connection, provide_db_session
+
+cors_config = CORSConfig(allow_origins=["*"])
 
 HTML_DIR = "public"
 
@@ -177,4 +180,5 @@ def create_app(database_connection=db_connection, webpush_init=provide_webpush) 
         },
         lifespan=[database_connection],
         template_config=TemplateConfig(directory=Path("templates"), engine=JinjaTemplateEngine),
+        cors_config=cors_config,
     )
