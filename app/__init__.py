@@ -5,10 +5,14 @@ from typing import Annotated, Any, cast
 
 import httpx
 from litestar import Litestar, get, post
+from litestar.contrib.jinja import JinjaTemplateEngine
 from litestar.di import Provide
 from litestar.exceptions import NotFoundException
 from litestar.params import Body
+from litestar.response import Template
 from litestar.static_files import create_static_files_router
+from litestar.template.config import TemplateConfig
+from sqlalchemy import desc
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.types import JSON
 from sqlmodel import Column, Field, SQLModel, col, select
@@ -118,6 +122,23 @@ async def get_notifications(db_session: AsyncSession, email: str) -> list[Notifi
     return list(result.all())
 
 
+#### VIEWS
+
+
+@get(path="/admin/", sync_to_thread=False)
+async def admin(db_session: AsyncSession) -> Template:
+    registration_query = select(Registration).order_by(desc(Registration.email))
+    registration_result = await db_session.exec(registration_query)
+    registrations = list(registration_result.all())
+    notification_query = select(Notification).order_by(desc(Notification.date))
+    notification_result = await db_session.exec(notification_query)
+    notifications = list(notification_result.all())
+    return Template(
+        template_name="admin.html",
+        context={"registrations": registrations, "notifications": notifications},
+    )
+
+
 #### APP
 
 
@@ -143,10 +164,12 @@ def create_app(database_connection=db_connection, webpush_init=provide_webpush) 
             notify,
             list_users,
             get_notifications,
+            admin,
         ],
         dependencies={
             "db_session": Provide(provide_db_session),
             "webpush": Provide(webpush_init, use_cache=True, sync_to_thread=True),
         },
         lifespan=[database_connection],
+        template_config=TemplateConfig(directory=Path("templates"), engine=JinjaTemplateEngine),
     )
