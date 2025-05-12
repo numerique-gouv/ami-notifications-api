@@ -41,8 +41,7 @@ class Notification(SQLModel, table=True):
 
 @get("/notification/key")
 async def get_application_key() -> str:
-    with open("applicationServerKey", "r") as applicationServerKey:
-        return applicationServerKey.read()
+    return os.getenv("VAPID_APPLICATION_SERVER_KEY", "")
 
 
 @post("/notification/register")
@@ -124,7 +123,7 @@ async def get_notifications(db_session: AsyncSession, email: str) -> list[Notifi
 
 def provide_webpush() -> WebPush:
     webpush = WebPush(
-        public_key=Path("./public_key.pem"),
+        public_key=os.getenv("VAPID_PUBLIC_KEY", "").encode(),
         private_key=os.getenv("VAPID_PRIVATE_KEY", "").encode(),
         subscriber="contact.ami@numerique.gouv.fr",
     )

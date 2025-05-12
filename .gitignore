@@ -1,5 +1,7 @@
 .mypy_cache/
 .venv/
+applicationServerKey
+public_key.pem
 private_key.pem
 database*.sqlite
 __pycache__
