@@ -3,14 +3,6 @@
 PORT="${PORT:-8000}"
 HOSTNAME="${HOSTNAME:-127.0.0.1}"
 
-if ! command -v uv 2>&1 >/dev/null
-then
-  curl -LsSf "https://astral.sh/uv/0.6.13/install.sh" | sh 2>&1
-
-  # Make the uv commands available
-  source "$HOME/.local/bin/env"
-fi
-
 # Only works when developping locally...
 VAPID_PUBLIC_KEY_FILE="public_key.pem"
 VAPID_PRIVATE_KEY_FILE="private_key.pem"
