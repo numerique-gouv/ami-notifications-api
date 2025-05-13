@@ -1,56 +1,50 @@
-// const notifyMessage = async () => {
-//   const payload = {
-//     message: notifyMessageInput.value,
-//     email: registerEmailInput.value,
-//   }
-//   console.log("notifying a message");
-//   notifyMessageBtn.disabled = true;
-//   notifyMessageStatus.innerText = "Notifying...";
-//   const response = await fetch(
-//     "/notification/send",
-//     {
-//       method: "POST",
-//       body: JSON.stringify(payload),
-//     }
-//   );
-//   console.log("response from AMI:", response);
-//   notifyMessageBtn.disabled = false;
-//   if (response.status < 400) {
-//     notifyMessageStatus.innerText = "Done!";
-//   } else {
-//     notifyMessageStatus.innerText = `error ${response.status}: ${response.statusText}, ${response.body}`;
-//   }
-// }
-
-// const notifyMessageInput = document.querySelector("#notify-message-input");
-// const notifyMessageBtn = document.querySelector("#notify-message");
-// notifyMessageBtn.addEventListener("click", notifyMessage);
-// const notifyMessageStatus = document.querySelector("#notify-message-status");
-
-
-import * as db from '$lib/database.js';
-
-export function load({ cookies }) {
-	let id = cookies.get('userid');
-
-	if (!id) {
-		id = crypto.randomUUID();
-		cookies.set('userid', id, { path: '/' });
-	}
-
-	return {
-		todos: db.getTodos(id)
-	};
-}
+import { fail } from '@sveltejs/kit';
 
 export const actions = {
-	create: async ({ cookies, request }) => {
+	notifyMessage: async ({ request }) => {
 		const data = await request.formData();
-		db.createTodo(cookies.get('userid'), data.get('description'));
-	},
+		
+		const userEmail = data.get('user-email');
+		const notifyMessage = data.get('notify-message');
 
-	delete: async ({ cookies, request }) => {
-		const data = await request.formData();
-		db.deleteTodo(cookies.get('userid'), data.get('id'));
+		let error = new Error('');
+		if (userEmail === '') {
+			error = new Error('user email must be filled');
+			return fail(422, {
+				userEmail: data.get('userEmail'),
+				notifyMessage: data.get('notifyMessage'),
+				error: error.message
+			});
+		}
+		if (notifyMessage === '') {
+			error = new Error('notify message must be filled');
+			return fail(422, {
+				userEmail: data.get('userEmail'),
+				notifyMessage: data.get('notifyMessage'),
+				error: error.message
+			});
+		}
+
+		const payload = {
+			message: notifyMessage,
+			email: userEmail,
+		}
+		console.log("notifying a message");
+		
+		const response = await fetch(
+			"http://localhost:8000/notification/send",
+			{
+				method: "POST",
+				body: JSON.stringify(payload),
+			}
+		);
+		console.log("response from AMI:", response);
+		if (response.status >= 400) {
+			return fail(422, {
+				userEmail: data.get('userEmail'),
+				notifyMessage: data.get('notifyMessage'),
+				error: `error ${response.status}: ${response.statusText}, ${response.body}`
+			});
+		}
 	}
 };

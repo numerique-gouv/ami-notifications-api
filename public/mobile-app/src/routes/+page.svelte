@@ -1,48 +1,64 @@
-<!-- <h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation</p>
+<div>
+    <h1>Welcome to the Mobile App</h1>
+    
+Bouton pour accepter les notifyMessage
+Les 3 champs disabled) en console.log
+Email for registration
 
-<form method="POST" action="?/notifyMessage">
-    <p><label>Message to notify <input type="text" id="notify-message-input"/></label></p>
-    <p><button type="button" id="notify-message">Notify me</button> <span id="notify-message-status"></span></p>
-</form> -->
+    {#if form?.error}
+        <p class="error">{form.error}</p>
+    {/if}
 
+    <form 
+        method="POST"
+        action="?/notifyMessage"
+        use:enhance={() => {
+            creating = true;
 
-<script>
-	let { data } = $props();
-</script>
+            return async ({ update }) => {
+                await update();
+                creating = false;
+            };
+        }}
+    >
+        <p>
+            <label>User to notify
+                <input
+                    type="text"
+                    name="user-email"
+                    value={form?.userEmail ?? ''}
+                    disabled={creating}/>
+            </label>
+        </p>
+        <p>
+            <label>Message to notify
+                <input
+                    type="text"
+                    name="notify-message"
+                    value={form?.notifyMessage ?? ''}
+                    disabled={creating}/>
+            </label>
+        </p>
+        <p>
+            <button id="notify-message">Notify me</button> 
+            <span id="notify-message-status"></span>
+        </p>
 
-<div class="centered">
-	<h1>todos</h1>
-
-    <form method="POST" action="?/create">
-        <label>
-            add a todo:
-            <input
-                name="description"
-                autocomplete="off"
-            />
-        </label>
+        {#if creating}
+            <span class="saving">Notifying...</span>
+        {/if}
     </form>
-
-	<ul class="todos">
-        {#each data.todos as todo (todo.id)}
-            <li>
-                <form method="POST" action="?/delete">
-                    <input type="hidden" name="id" value={todo.id} />
-                    <span>{todo.description}</span>
-                    <button aria-label="Mark as complete"></button>
-                </form>
-            </li>
-        {/each}
-    </ul>
 </div>
 
-<style>
-	.centered {
-		max-width: 20em;
-		margin: 0 auto;
-	}
+<script lang="ts">
+    import { enhance } from '$app/forms';
 
+    let { data, form } = $props();
+
+	let creating = $state(false);
+</script>
+
+<style>
 	label {
 		width: 100%;
 	}
