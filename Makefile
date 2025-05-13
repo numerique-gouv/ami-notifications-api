@@ -18,6 +18,3 @@ dev:
 .PHONY: serve
 serve:
 	bin/start.sh
-
-update_deps:
-	uv export --output-file requirements.txt --no-dev --no-emit-project --frozen
