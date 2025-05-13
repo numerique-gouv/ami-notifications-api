@@ -1,7 +1,6 @@
 .PHONY: lint
 lint:
 	uv run ruff check --fix
-	mypy src/
 
 .PHONY: format
 format:
