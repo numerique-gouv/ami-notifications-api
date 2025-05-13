@@ -35,6 +35,13 @@ Ruff is used both for:
 - linting: `uv run ruff check --fix`
 - formatting: `uv run ruff format`
 
+### Linter: biome
+
+[Biome](https://biomejs.dev/) is "One toolchain for your web project"
+
+Biome is used for:
+- formatting: `npx @biomejs/biome format --write`
+
 ### API
 
 [litestar](https://docs.litestar.dev/latest/index.html) "is a powerful,

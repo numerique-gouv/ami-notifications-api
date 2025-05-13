@@ -6,6 +6,7 @@ lint:
 .PHONY: format
 format:
 	uv run ruff format
+	npx @biomejs/biome format --write
 
 .PHONY: test
 test:
