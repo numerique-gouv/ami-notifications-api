@@ -105,13 +105,13 @@ async def notify(
 
 
 async def get_registration_list(db_session: AsyncSession) -> list[Registration]:
-    query = select(Registration).order_by(desc(Registration.email))
+    query = select(Registration).order_by(col(Registration.email).desc())
     result = await db_session.exec(query)
     return list(result.all())
 
 
 async def get_notification_list(db_session: AsyncSession) -> list[Notification]:
-    query = select(Notification).order_by(desc(Notification.date))
+    query = select(Notification).order_by(col(Notification.date).desc())
     result = await db_session.exec(query)
     return list(result.all())
 
