@@ -17,6 +17,7 @@ dependencies = [
 dev = [
     "aiosqlite>=0.21.0",
     "ipdb>=0.13.13",
+    "pre-commit>=4.2.0",
     "pytest>=8.3.5",
     "pytest-asyncio>=0.26.0",
     "pytest-httpx>=0.35.0",
@@ -26,7 +27,6 @@ dev = [
 [tool.mypy]
 warn_return_any = true
 warn_unused_configs = true
-
 [tool.ruff]
 line-length = 100
 
