@@ -104,15 +104,21 @@ async def notify(
     return data
 
 
-async def get_user_list(db_session: AsyncSession) -> list[Registration]:
-    query = select(Registration)
+async def get_registration_list(db_session: AsyncSession) -> list[Registration]:
+    query = select(Registration).order_by(desc(Registration.email))
+    result = await db_session.exec(query)
+    return list(result.all())
+
+
+async def get_notification_list(db_session: AsyncSession) -> list[Notification]:
+    query = select(Notification).order_by(desc(Notification.date))
     result = await db_session.exec(query)
     return list(result.all())
 
 
 @get("/notification/users")
 async def list_users(db_session: AsyncSession) -> list[Registration]:
-    return await get_user_list(db_session)
+    return await get_registration_list(db_session)
 
 
 @get("/notifications/{email:str}")
@@ -127,12 +133,8 @@ async def get_notifications(db_session: AsyncSession, email: str) -> list[Notifi
 
 @get(path="/admin/", sync_to_thread=False)
 async def admin(db_session: AsyncSession) -> Template:
-    registration_query = select(Registration).order_by(desc(Registration.email))
-    registration_result = await db_session.exec(registration_query)
-    registrations = list(registration_result.all())
-    notification_query = select(Notification).order_by(desc(Notification.date))
-    notification_result = await db_session.exec(notification_query)
-    notifications = list(notification_result.all())
+    registrations = await get_registration_list(db_session)
+    notifications = await get_notification_list(db_session)
     return Template(
         template_name="admin.html",
         context={"registrations": registrations, "notifications": notifications},
