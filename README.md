@@ -134,4 +134,4 @@ uv run --env-file .env.tests pytest tests/test_basic.py::test_homepage_title
 
 ### Contributing
 
-Please check the [CONTRIBUTING.md](/CONTRIBUTING.md) file.
+Please check the [CONTRIBUTING.md](CONTRIBUTING.md) file.
