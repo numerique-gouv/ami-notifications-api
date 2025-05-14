@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "lint-and-format": "node_modules/@biomejs/biome/bin/biome format --write"
+  },
   "devDependencies": {
     "@biomejs/biome": "1.9.4"
   }
