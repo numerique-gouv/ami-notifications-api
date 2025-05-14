@@ -1,11 +1,11 @@
-.PHONY: lint
-lint:
-	uv run ruff check --fix
+.PHONY: install
+install:
+	npm ci
 
-.PHONY: format
-format:
-	uv run ruff format
-	npx @biomejs/biome format --write
+.PHONY: lint-and-format
+lint-and-format: install
+	uv run pre-commit run --all-files
+	npm run lint-and-format
 
 .PHONY: test
 test:

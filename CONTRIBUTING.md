@@ -25,9 +25,8 @@ To run it manually:
 uv run pre-commit run --all-files
 ```
 
-Or if you're only interested in formatting or linting:
+Or simply use the `Makefile` target:
 
 ```shell
-make lint
-make format
+make lint-and-format
 ```

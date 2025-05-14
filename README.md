@@ -26,14 +26,15 @@ Once it's installed, it should be used for everything project related:
 - running a script (or editor) in the project's python environment: `uv run
 <command, eg: code>`
 
-### Linter: ruff
+### Linter and formatter: ruff
 
 [ruff](https://docs.astral.sh/ruff/) is "An extremely fast Python linter and
 code formatter, written in Rust."
 
-Ruff is used both for:
-- linting: `uv run ruff check --fix`
-- formatting: `uv run ruff format`
+Ruff is used both for linting and formatting:
+```shell
+make lint-and-format
+```
 
 ### Linter: biome
 

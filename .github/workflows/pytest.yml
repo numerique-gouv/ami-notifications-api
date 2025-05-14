@@ -1,29 +1,29 @@
 name: Python tests
 on: [push]
 jobs:
+
   lint-and-format:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/ruff-action@v3
-      - run: ruff check --fix
-      - run: ruff format
-
-  run-tests:
-    name: python
-    runs-on: ubuntu-latest
-    needs: [lint-and-format]
-
-    steps:
-      - uses: actions/checkout@v4
-
       - name: Install uv
         uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
           cache-dependency-glob: "uv.lock"
+      - run: make lint-and-format
 
+  run-tests:
+    name: python
+    runs-on: ubuntu-latest
+    needs: [lint-and-format]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
       - name: "Set up Python"
         uses: actions/setup-python@v5
         with:
