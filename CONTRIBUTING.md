@@ -30,3 +30,6 @@ Or simply use the `Makefile` target:
 ```shell
 make lint-and-format
 ```
+
+The commands executed by the `pre-commit` call are all configured in the
+[.pre-commit-config.yaml](.pre-commit-config.yaml) file.
