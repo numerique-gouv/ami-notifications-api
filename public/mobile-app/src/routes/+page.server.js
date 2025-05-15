@@ -2,9 +2,9 @@ import { fail } from '@sveltejs/kit';
 
 export const actions = {
 	registerWithAmi: async ({ request }) => {
-		console.log("registerWithAmi");
+		console.log('registerWithAmi');
 		const data = await request.formData();
-		
+
 		const registerEmail = data.get('register-email');
 
 		let error = new Error('');
@@ -16,7 +16,7 @@ export const actions = {
 			});
 		}
 
-    // const payload = {
+		// const payload = {
 		// 	subscription: {
 		// 		endpoint: pushSubscription.endpoint,
 		// 		keys: {
@@ -31,32 +31,29 @@ export const actions = {
 				endpoint: data.get('push-sub-url'),
 				keys: {
 					auth: data.get('push-sub-auth'),
-					p256dh: data.get('push-sub-p256dh'),
-				},
+					p256dh: data.get('push-sub-p256dh')
+				}
 			},
-			email: registerEmail,
-		}
-		console.log("registering with AMI:", payload);
-		
-		const response = await fetch(
-			"http://localhost:8000/notification/register",
-			{
-				method: "POST",
-				body: JSON.stringify(payload),
-			}
-		);
-		console.log("response from AMI:", response);
+			email: registerEmail
+		};
+		console.log('registering with AMI:', payload);
+
+		const response = await fetch('http://localhost:8000/notification/register', {
+			method: 'POST',
+			body: JSON.stringify(payload)
+		});
+		console.log('response from AMI:', response);
 		if (response.status >= 400) {
 			return fail(422, {
 				registerEmail: data.get('register-email'),
 				error: `error ${response.status}: ${response.statusText}, ${response.body}`
 			});
 		}
-	},
+	}
 
 	// notifyMessage: async ({ request }) => {
 	// 	const data = await request.formData();
-		
+
 	// 	const userEmail = data.get('user-email');
 	// 	const notifyMessage = data.get('notify-message');
 
@@ -83,7 +80,7 @@ export const actions = {
 	// 		email: userEmail,
 	// 	}
 	// 	console.log("notifying a message");
-		
+
 	// 	const response = await fetch(
 	// 		"http://localhost:8000/notification/send",
 	// 		{
