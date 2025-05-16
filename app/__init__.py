@@ -37,6 +37,8 @@ class Notification(SQLModel, table=True):
     date: datetime = Field(default_factory=datetime.now)
     email: str
     message: str
+    sender: str | None = Field(default=None)
+    title: str | None = Field(default=None)
 
 
 #### ENDPOINTS
