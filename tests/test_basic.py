@@ -26,6 +26,8 @@ async def test_homepage_notifications(
     assert len(response.json()) == 1
     assert response.json()[0]["email"] == notification.email
     assert response.json()[0]["message"] == notification.message
+    assert response.json()[0]["title"] == notification.title
+    assert response.json()[0]["sender"] == notification.sender
 
 
 async def test_create_notification_from_test_and_from_app_context(
@@ -41,7 +43,12 @@ async def test_create_notification_from_test_and_from_app_context(
     """
     # Make sure we don't even try sending a notification to a push server.
     httpx_mock.add_response(url=registration.subscription["endpoint"])
-    notification_data = {"email": registration.email, "message": "Hello notification 2"}
+    notification_data = {
+        "email": registration.email,
+        "message": "Hello notification 2",
+        "title": "Some notification title",
+        "sender": "Jane Doe",
+    }
     response = test_client.post("/notification/send", json=notification_data)
     assert response.status_code == HTTP_201_CREATED
     response = test_client.get(f"/notifications/{registration.email}")
@@ -49,5 +56,9 @@ async def test_create_notification_from_test_and_from_app_context(
     assert len(response.json()) == 2
     assert response.json()[0]["email"] == registration.email
     assert response.json()[0]["message"] == notification.message
+    assert response.json()[0]["title"] == notification.title
+    assert response.json()[0]["sender"] == notification.sender
     assert response.json()[1]["email"] == registration.email
     assert response.json()[1]["message"] == "Hello notification 2"
+    assert response.json()[1]["title"] == "Some notification title"
+    assert response.json()[1]["sender"] == "Jane Doe"
