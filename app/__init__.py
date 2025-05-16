@@ -1,3 +1,4 @@
+import json
 import os
 from datetime import datetime
 from pathlib import Path
@@ -92,7 +93,8 @@ async def notify(
     registration = await get_user_by_email(data.email, db_session)
 
     subscription = WebPushSubscription.model_validate(registration.subscription)
-    message = webpush.get(message=data.message, subscription=subscription)
+    json_data = {"title": data.title, "message": data.message, "sender": data.sender}
+    message = webpush.get(message=json.dumps(json_data), subscription=subscription)
     headers = cast(dict, message.headers)
 
     response = httpx.post(
