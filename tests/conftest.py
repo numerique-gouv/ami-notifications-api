@@ -63,7 +63,12 @@ async def db_session(app) -> AsyncGenerator[AsyncSession, None]:
 
 @pytest.fixture
 async def notification(db_session, registration) -> Notification:
-    notification = Notification(email=registration.email, message="Hello notification")
+    notification = Notification(
+        email=registration.email,
+        message="Hello notification",
+        title="Notification title",
+        sender="John Doe",
+    )
     db_session.add(notification)
     await db_session.commit()
     return notification
