@@ -59,6 +59,7 @@ dependencies = [
 [package.dev-dependencies]
 dev = [
     { name = "aiosqlite" },
+    { name = "alembic" },
     { name = "ipdb" },
     { name = "pre-commit" },
     { name = "pre-commit-uv" },
@@ -81,6 +82,7 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "aiosqlite", specifier = ">=0.21.0" },
+    { name = "alembic", specifier = ">=1.15.2" },
     { name = "ipdb", specifier = ">=0.13.13" },
     { name = "pre-commit", specifier = ">=4.2.0" },
     { name = "pre-commit-uv", specifier = ">=4.1.4" },
