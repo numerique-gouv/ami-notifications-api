@@ -129,10 +129,12 @@ or simpler:
 make migrate
 ```
 
+##### Changing the database schema
+
 When changing the models, create a new migration to reflect those changes in
 the database:
 ```sh
-uv run --env-file .env alembic revision -m "Explicit message here"
+uv run --env-file .env alembic revision --autogenerate -m "Explicit message here"
 ```
 
 This should generate a migration file in `migrations/versions/<some
@@ -141,6 +143,18 @@ needs.
 
 It should already have some code automatically generated to accomodate the
 changes.
+
+##### Rolling back a schema change
+
+To list the existing migrations:
+```sh
+uv run --env-file .env alembic history
+```
+
+Then, to rollback (downgrade) to a previous revision (version):
+```sh
+uv run --env-file .env alembic downgrade <revision>
+```
 
 ### Tests
 
