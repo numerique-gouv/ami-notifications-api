@@ -100,6 +100,20 @@ async def get_user_by_email(
         raise NotFoundException(detail=f"User {email!r} not found") from e
 
 
+async def get_user_by_id(
+    user_id: int, db_session: AsyncSession, options: ExecutableOption | None = None
+) -> User:
+    if options:
+        query = select(User).where(col(User.id) == user_id).options(options)
+    else:
+        query = select(User).where(col(User.id) == user_id)
+    result = await db_session.exec(query)
+    try:
+        return result.one()
+    except NoResultFound as e:
+        raise NotFoundException(detail=f"User with id {user_id!r} not found") from e
+
+
 @post("/notification/send")
 async def notify(
     db_session: AsyncSession,
@@ -112,7 +126,7 @@ async def notify(
         ),
     ],
 ) -> Notification:
-    user = await get_user_by_email(data.user.email, db_session)
+    user = await get_user_by_id(data.user_id, db_session, options=selectinload(User.registrations))
 
     for registration in user.registrations:
         subscription = WebPushSubscription.model_validate(registration.subscription)
@@ -149,9 +163,12 @@ async def list_users(db_session: AsyncSession) -> list[Registration]:
 
 @get("/notifications/{email:str}")
 async def get_notifications(db_session: AsyncSession, email: str) -> list[Notification]:
-    user: User = await get_user_by_email(
-        email, db_session, options=selectinload(User.notifications)
-    )
+    try:
+        user: User = await get_user_by_email(
+            email, db_session, options=selectinload(User.notifications)
+        )
+    except NotFoundException:
+        return []
     return user.notifications
 
 
