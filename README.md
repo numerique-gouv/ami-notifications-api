@@ -114,6 +114,34 @@ For example for a `postgres` database running locally:
 postgresql+asyncpg://postgres:some_password@localhost:5432/postgres
 ```
 
+#### Migrations
+
+We use [alembic](https://alembic.sqlalchemy.org) for database migrations
+(changing from one database schema to another).
+
+The base command to run the migrations and update to the latest database schema is:
+```sh
+uv run --env-file .env alembic upgrade head
+```
+
+or simpler:
+```sh
+make migrate
+```
+
+When changing the models, create a new migration to reflect those changes in
+the database:
+```sh
+uv run --env-file .env alembic revision -m "Explicit message here"
+```
+
+This should generate a migration file in `migrations/versions/<some
+id>_explicit_message_here.py...`, which you'll then modify according to your
+needs.
+
+It should already have some code automatically generated to accomodate the
+changes.
+
 ### Tests
 
 The easiest way to run tests is to use the Makefile target:
