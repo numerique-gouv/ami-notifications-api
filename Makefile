@@ -18,3 +18,7 @@ dev:
 .PHONY: serve
 serve:
 	bin/start.sh
+
+.PHONY: migrate
+migrate:
+	uv run --env-file .env alembic upgrade head
