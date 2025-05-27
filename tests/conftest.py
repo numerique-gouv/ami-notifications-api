@@ -10,7 +10,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from webpush import WebPush
 from webpush.vapid import VAPID
 
-from app import Notification, Registration, create_app
+from app import Notification, Registration, User, create_app
 from app.database import DATABASE_URL
 
 
@@ -62,21 +62,29 @@ async def db_session(app) -> AsyncGenerator[AsyncSession, None]:
 
 
 @pytest.fixture
+async def user(db_session) -> User:
+    user_ = User(email="user@example.com")
+    db_session.add(user_)
+    await db_session.commit()
+    return user_
+
+
+@pytest.fixture
 async def notification(db_session, registration) -> Notification:
-    notification = Notification(
-        email=registration.email,
+    notification_ = Notification(
+        user_id=registration.user.id,
         message="Hello notification",
         title="Notification title",
         sender="John Doe",
     )
-    db_session.add(notification)
+    db_session.add(notification_)
     await db_session.commit()
-    return notification
+    return notification_
 
 
 @pytest.fixture
-async def registration(db_session, webpushsubscription) -> Registration:
-    registration_ = Registration(email="user@example.com", subscription=webpushsubscription)
+async def registration(db_session, user, webpushsubscription) -> Registration:
+    registration_ = Registration(user_id=user.id, subscription=webpushsubscription)
     db_session.add(registration_)
     await db_session.commit()
     return registration_
