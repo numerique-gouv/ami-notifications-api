@@ -14,7 +14,7 @@ from litestar.response import Template
 from litestar.static_files import create_static_files_router
 from litestar.template.config import TemplateConfig
 from sqlalchemy.exc import NoResultFound
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import InstrumentedAttribute, selectinload
 from sqlalchemy.sql.base import ExecutableOption
 from sqlalchemy.types import JSON
 from sqlmodel import Column, Field, Relationship, SQLModel, col, select
@@ -122,7 +122,11 @@ async def notify(
         ),
     ],
 ) -> Notification:
-    user = await get_user_by_id(data.user_id, db_session, options=selectinload(User.registrations))
+    user = await get_user_by_id(
+        data.user_id,
+        db_session,
+        options=selectinload(cast(InstrumentedAttribute, User.registrations)),
+    )
 
     for registration in user.registrations:
         subscription = WebPushSubscription.model_validate(registration.subscription)
@@ -161,7 +165,7 @@ async def list_users(db_session: AsyncSession) -> list[Registration]:
 async def get_notifications(db_session: AsyncSession, email: str) -> list[Notification]:
     try:
         user: User = await get_user_by_email(
-            email, db_session, options=selectinload(User.notifications)
+            email, db_session, options=selectinload(cast(InstrumentedAttribute, User.notifications))
         )
     except NotFoundException:
         return []
