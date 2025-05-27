@@ -19,7 +19,10 @@ dev:
 serve:
 	bin/start.sh
 
-
 .PHONY: build-app
 build-app:
 	cd public/mobile-app && npm ci && npm run build
+
+.PHONY: migrate
+migrate:
+	uv run --env-file .env alembic upgrade head
