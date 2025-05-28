@@ -5,7 +5,6 @@ from contextlib import asynccontextmanager
 from litestar import Litestar
 from litestar.datastructures import State
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
-from sqlmodel import SQLModel
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 DATABASE_URL_RAW = os.getenv("DATABASE_URL", "")
@@ -36,8 +35,6 @@ async def db_connection(app: Litestar) -> AsyncGenerator[None, None]:
     if engine is None:
         engine = create_async_engine(DATABASE_URL)
         app.state.engine = engine
-    async with engine.begin() as conn:
-        await conn.run_sync(SQLModel.metadata.create_all)
     try:
         yield
     finally:
