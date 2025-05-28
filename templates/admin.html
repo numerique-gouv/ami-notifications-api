@@ -7,9 +7,9 @@
   <form>
     <p>
       <label>User to notify
-        <select id="register-email">
-          {% for registration in registrations %}
-            <option value="{{ registration.email }}">{{ registration.email }}</option>
+        <select id="user-id">
+          {% for user in users %}
+            <option value="{{ user.id }}">{{ user.email }}</option>
           {% endfor %}
         </select>
       </label>

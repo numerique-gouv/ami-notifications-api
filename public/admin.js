@@ -3,7 +3,7 @@ const notifyMessage = async () => {
     title: notifyTitleInput.value,
     message: notifyMessageInput.value,
     sender: notifySenderInput.value,
-    email: registerEmailInput.value,
+    user_id: userIdInput.value,
   }
   console.log('notifying a message')
   notifyMessageBtn.disabled = true
@@ -21,7 +21,7 @@ const notifyMessage = async () => {
   }
 }
 
-const registerEmailInput = document.querySelector('#register-email')
+const userIdInput = document.querySelector('#user-id')
 const notifyTitleInput = document.querySelector('#notify-title-input')
 const notifyMessageInput = document.querySelector('#notify-message-input')
 const notifySenderInput = document.querySelector('#notify-sender-input')
