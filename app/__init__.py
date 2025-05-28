@@ -46,7 +46,12 @@ class Registration(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     user_id: int = Field(foreign_key="ami_user.id")
     user: User = Relationship(back_populates="registrations")
-    subscription: dict[str, Any] = Field(sa_column=Column(JSON), default={"all": "true"})
+    subscription: dict[str, Any] = Field(sa_column=Column(JSON))
+
+
+class RegistrationCreation(SQLModel, table=False):
+    subscription: dict[str, Any] = Field(sa_column=Column(JSON))
+    email: str
 
 
 class Notification(SQLModel, table=True):
@@ -71,7 +76,7 @@ async def get_application_key() -> str:
 async def register(
     db_session: AsyncSession,
     data: Annotated[
-        Registration,
+        RegistrationCreation,
         Body(
             title="Register to receive notifications",
             description="Register with a push subscription and an email to receive notifications",
@@ -79,7 +84,15 @@ async def register(
     ],
 ) -> Registration:
     WebPushSubscription.model_validate(data.subscription)
-    registration = data
+    try:
+        user = await get_user_by_email(data.email, db_session)
+    except NotFoundException:
+        user = User(email=data.email)
+        db_session.add(user)
+        await db_session.commit()
+        await db_session.refresh(user)
+
+    registration = Registration(subscription=data.subscription, user_id=user.id)
     db_session.add(registration)
     await db_session.commit()
     await db_session.refresh(registration)
@@ -148,8 +161,28 @@ async def notify(
     return data
 
 
-async def get_registration_list(db_session: AsyncSession) -> list[Registration]:
-    query = select(Registration)  # .order_by(col(Registration.user.email).desc())
+async def get_user_list(
+    db_session: AsyncSession,
+    options: ExecutableOption | None = None,
+) -> list[User]:
+    if options:
+        query = select(User).options(options)
+    else:
+        query = select(User)
+    query = query.order_by(col(User.id))
+    result = await db_session.exec(query)
+    return list(result.all())
+
+
+async def get_registration_list(
+    db_session: AsyncSession,
+    options: ExecutableOption | None = None,
+) -> list[Registration]:
+    if options:
+        query = select(Registration).options(options)
+    else:
+        query = select(Registration)
+    query = query.order_by(col(Registration.user_id))
     result = await db_session.exec(query)
     return list(result.all())
 
@@ -162,6 +195,7 @@ async def get_notification_list(db_session: AsyncSession) -> list[Notification]:
 
 @get("/notification/users")
 async def list_users(db_session: AsyncSession) -> list[Registration]:
+    # TODO: this should instead return a list of users, and thus use `get_user_list`.
     return await get_registration_list(db_session)
 
 
@@ -181,11 +215,11 @@ async def get_notifications(db_session: AsyncSession, email: str) -> list[Notifi
 
 @get(path="/admin/", sync_to_thread=False)
 async def admin(db_session: AsyncSession) -> Template:
-    registrations = await get_registration_list(db_session)
+    users = await get_user_list(db_session)
     notifications = await get_notification_list(db_session)
     return Template(
         template_name="admin.html",
-        context={"registrations": registrations, "notifications": notifications},
+        context={"users": users, "notifications": notifications},
     )
 
 
