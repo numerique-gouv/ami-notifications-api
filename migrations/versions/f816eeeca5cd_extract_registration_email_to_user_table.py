@@ -35,12 +35,13 @@ def upgrade() -> None:
     """)
 
     # Add the `registration.user_id` column, nullable for now.
-    op.add_column("registration", sa.Column("user_id", sa.Integer(), nullable=True))
-    op.create_foreign_key(
-        "fk_registration_user_id_ami_user", "registration", "ami_user", ["user_id"], ["id"]
-    )
+    with op.batch_alter_table("registration") as batch_op:
+        batch_op.add_column(sa.Column("user_id", sa.Integer(), nullable=True))
+        batch_op.create_foreign_key(
+            "fk_registration_user_id_ami_user", "ami_user", ["user_id"], ["id"]
+        )
     # Update the `registration.user_id` column from the `ami_user` table.
-    op.execute("""
+    batch_op.execute("""
         UPDATE registration
         SET user_id = (
             SELECT id
@@ -48,16 +49,18 @@ def upgrade() -> None:
             WHERE registration.email = ami_user.email)
     """)
     # Set the `registration.user_id` column to be not nullable.
-    op.alter_column("registration", "user_id", nullable=False)
-    op.drop_column("registration", "email")
+    with op.batch_alter_table("registration") as batch_op:
+        batch_op.alter_column("user_id", nullable=False)
+        batch_op.drop_column("email")
 
     # Add the `notification.user_id` column, nullable for now.
-    op.add_column("notification", sa.Column("user_id", sa.Integer(), nullable=True))
-    op.create_foreign_key(
-        "fk_notification_user_id_ami_user", "notification", "ami_user", ["user_id"], ["id"]
-    )
+    with op.batch_alter_table("notification") as batch_op:
+        batch_op.add_column(sa.Column("user_id", sa.Integer(), nullable=True))
+        batch_op.create_foreign_key(
+            "fk_notification_user_id_ami_user", "ami_user", ["user_id"], ["id"]
+        )
     # Update the `notification.user_id` column from the `ami_user` table.
-    op.execute("""
+    batch_op.execute("""
         UPDATE notification
         SET user_id = (
             SELECT id
@@ -65,8 +68,9 @@ def upgrade() -> None:
             WHERE notification.email = ami_user.email)
     """)
     # Set the `notification.user_id` column to be not nullable.
-    op.alter_column("notification", "user_id", nullable=False)
-    op.drop_column("notification", "email")
+    with op.batch_alter_table("notification") as batch_op:
+        batch_op.alter_column("user_id", nullable=False)
+        batch_op.drop_column("email")
 
 
 def downgrade() -> None:
@@ -82,9 +86,9 @@ def downgrade() -> None:
             FROM ami_user
             WHERE registration.user_id = ami_user.id)
     """)
-    op.alter_column("registration", "user_id", nullable=False)
-    op.drop_constraint("fk_registration_user_id_ami_user", "registration", type_="foreignkey")
-    op.drop_column("registration", "user_id")
+    with op.batch_alter_table("registration") as batch_op:
+        batch_op.drop_constraint("fk_registration_user_id_ami_user", type_="foreignkey")
+        batch_op.drop_column("user_id")
 
     op.add_column(
         "notification", sa.Column("email", sa.VARCHAR(), autoincrement=False, nullable=True)
@@ -97,9 +101,10 @@ def downgrade() -> None:
             FROM ami_user
             WHERE notification.user_id = ami_user.id)
     """)
-    op.alter_column("notification", "user_id", nullable=False)
-    op.drop_constraint("fk_notification_user_id_ami_user", "notification", type_="foreignkey")
-    op.drop_column("notification", "user_id")
+    with op.batch_alter_table("notification") as batch_op:
+        batch_op.alter_column("user_id", nullable=False)
+        batch_op.drop_constraint("fk_notification_user_id_ami_user", type_="foreignkey")
+        batch_op.drop_column("user_id")
 
     # Drop the User table that was automatically created with SQLModel.metadata.create_all
     op.drop_table("ami_user")
