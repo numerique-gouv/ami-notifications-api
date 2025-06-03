@@ -29,6 +29,7 @@ def upgrade() -> None:
         sa.Column("sender", sa.VARCHAR(), nullable=True),
         sa.Column("title", sa.VARCHAR(), nullable=True),
         sa.PrimaryKeyConstraint("id"),
+        if_not_exists=True,
     )
     op.create_table(
         "registration",
@@ -36,6 +37,7 @@ def upgrade() -> None:
         sa.Column("email", sa.VARCHAR(), nullable=False),
         sa.Column("subscription", sa.JSON(), nullable=True),
         sa.PrimaryKeyConstraint("id"),
+        if_not_exists=True,
     )
 
 
