@@ -15,24 +15,25 @@
 		</main>
 		<script>
 			if ('serviceWorker' in navigator) {
-		        try {
-					const registration = navigator.serviceWorker.register(
-						'%sveltekit.assets%/service-worker.js'
-					);
-					let status;
-					if (registration.installing) {
-						status = 'Service worker installing';
-					} else if (registration.waiting) {
-						status = 'Service worker installed';
-					} else if (registration.active) {
-						status = 'Service worker active';
+				navigator.serviceWorker.register('%sveltekit.assets%/service-worker.js')
+				.then(
+					registration => {
+						let status;
+						if (registration.installing) {
+							status = 'Service worker installing';
+						} else if (registration.waiting) {
+							status = 'Service worker installed';
+						} else if (registration.active) {
+							status = 'Service worker active';
+						}
+						console.log('status', status);
+						console.log('registration', registration);
+						registration.update();
+					},
+					error => {
+						console.error(`Registration failed with ${error}`);
 					}
-					console.log('status', status);
-					console.log('registration', registration);
-					registration.update();
-				} catch (error) {
-					console.error(`Registration failed with ${error}`);
-				}
+				);
 			} else {
 				alert('Service workers are not supported');
 			}
