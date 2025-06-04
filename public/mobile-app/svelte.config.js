@@ -14,6 +14,10 @@ const config = {
 		adapter: adapter(),
 		serviceWorker: {
 			register: false
+		},
+		env: {
+			// Pick up the project's global .env file, based on the .env.template example file.
+			dir: "../../",
 		}
 	}
 };

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { PageProps } from './$types';
 
-	let { data }: PageProps = $props();
+	import { PUBLIC_API_HOSTNAME, PUBLIC_API_PORT } from '$env/static/public';
 
 	let subscriptionStatus = $state('');
 	let isAuthenticatedForNotifications = $state(false);
@@ -28,7 +28,7 @@
 	const subscribePush = async () => {
 		const registration = await navigator.serviceWorker.ready;
 		try {
-			const applicationKeyResponse = await fetch(data.notifications_api_host + '/notification/key');
+			const applicationKeyResponse = await fetch(`//${PUBLIC_API_HOSTNAME}:${PUBLIC_API_PORT}/notification/key`);
 			const applicationKey = await applicationKeyResponse.text();
 			const options = { userVisibleOnly: true, applicationServerKey: applicationKey };
 			pushSubscription = await registration.pushManager.subscribe(options);
@@ -91,7 +91,7 @@
         isRegisteredWithAmi = true;
         registrationStatus = 'Registering...';
 
-		const response = await fetch(data.notifications_api_host + '/notification/register', {
+		const response = await fetch(`//${PUBLIC_API_HOSTNAME}:${PUBLIC_API_PORT}/notification/register`, {
 			method: 'POST',
 			body: JSON.stringify(payload)
 		});
