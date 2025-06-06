@@ -3,7 +3,6 @@
 <head>
   <title>Notification test</title>
   <meta charset="UTF-8" />
-  <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="pico.min.css">
   <link rel="icon" href="/favicon.ico" sizes="32x32">
   <link rel="icon" href="/icon.svg" type="image/svg+xml">
@@ -11,19 +10,8 @@
 </head>
 <body>
 <main class="container">
-  <form>
-    <p>Status: <span id="loading-text">Loading, waiting for the service worker registration</span></p>
-    <button type="button" id="ask-for-notifications">
-      Ask notifications auth
-    </button>
-    <br />
-    <p><label>pushURL <textarea type="text" id="push-sub-url" cols="100" disabled></textarea></label></p>
-    <p><label>auth <input type="text" id="push-sub-auth" disabled /></label></p>
-    <p><label>p256dh <input type="text" id="push-sub-p256dh" disabled /></label></p>
-    <p><label>Email for the registration <input type="text" id="register-email" /></label></p>
-    <p><button type="button" id="register-with-ami">Register with AMI</button> <span id="registration-status"></span></p>
-  </form>
+  <h1>Welcome to the AMI back-end</h1>
+  <a href="/admin">Go to the admin page</a>
 </main>
-<script type="text/javascript" src="index.js"></script>
 </body>
 </html>
