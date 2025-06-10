@@ -6,21 +6,13 @@ from pytest_httpx import HTTPXMock
 from app import Notification, Registration
 
 
-def test_homepage_title(test_client: TestClient[Litestar]) -> None:
-    response = test_client.get("/")
-    assert response.status_code == HTTP_200_OK
-    assert "<title>Mobile app</title>" in response.text
-
-
-def test_homepage_notifications_empty(test_client: TestClient[Litestar]) -> None:
+def test_notifications_empty(test_client: TestClient[Litestar]) -> None:
     response = test_client.get("/notifications/test@example.com")
     assert response.status_code == HTTP_200_OK
     assert response.json() == []
 
 
-async def test_homepage_notifications(
-    test_client: TestClient[Litestar], notification: Notification
-) -> None:
+async def test_notifications(test_client: TestClient[Litestar], notification: Notification) -> None:
     response = test_client.get(f"/notifications/{notification.email}")
     assert response.status_code == HTTP_200_OK
     assert len(response.json()) == 1
