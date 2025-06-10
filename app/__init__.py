@@ -24,7 +24,8 @@ from .database import db_connection, provide_db_session
 
 cors_config = CORSConfig(allow_origins=["*"])
 
-HTML_DIR = "public"
+# This is the folder where the svelte PWA is built statically.
+HTML_DIR = "public/mobile-app/build"
 
 
 #### MODELS
