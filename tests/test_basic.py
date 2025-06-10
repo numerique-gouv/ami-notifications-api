@@ -9,7 +9,7 @@ from app import Notification, Registration
 def test_homepage_title(test_client: TestClient[Litestar]) -> None:
     response = test_client.get("/")
     assert response.status_code == HTTP_200_OK
-    assert "<title>Notification test</title>" in response.text
+    assert "<title>Mobile app</title>" in response.text
 
 
 def test_homepage_notifications_empty(test_client: TestClient[Litestar]) -> None:
