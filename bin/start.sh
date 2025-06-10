@@ -22,6 +22,11 @@ then
   export VAPID_APPLICATION_SERVER_KEY=$(cat ${VAPID_APPLICATION_SERVER_KEY_FILE})
 fi
 
+if [ ! -z "$CONTAINER" ]
+then
+  # We're on scalingo, so automatically build the front app
+  make build-app
+fi
 
 if [ ! -f .env ]
 then

@@ -5,7 +5,7 @@ self.addEventListener('push', (event) => {
     return
   }
 
-  const json_data = event.data?.json();
+  const json_data = event.data?.json()
 
   // Keep the service worker alive until the notification is created.
   event.waitUntil(

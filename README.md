@@ -132,6 +132,24 @@ To run a single test, you would use something like:
 uv run --env-file .env.tests pytest tests/test_basic.py::test_homepage_title
 ```
 
+### Mobile app
+
+The current mobile app is a
+[PWA](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps), built
+using [Svelte](https://svelte.dev/).
+
+To build it, either:
+```
+cd public/mobile-app
+npm ci
+npm run build
+```
+
+Or simpler:
+```
+make build-app
+```
+
 ### Contributing
 
 Please check the [CONTRIBUTING.md](CONTRIBUTING.md) file.

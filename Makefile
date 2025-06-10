@@ -18,3 +18,8 @@ dev:
 .PHONY: serve
 serve:
 	bin/start.sh
+
+
+.PHONY: build-app
+build-app:
+	cd public/mobile-app && npm ci && npm run build
