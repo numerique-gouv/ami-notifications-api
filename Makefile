@@ -21,7 +21,7 @@ serve:
 
 .PHONY: build-app
 build-app:
-	cd public/mobile-app && npm ci && npm run build
+	cd public/mobile-app && npm ci --include "dev" && npm run build
 
 .PHONY: migrate
 migrate:
