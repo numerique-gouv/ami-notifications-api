@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Annotated, Any, cast
 
 import httpx
+import sentry_sdk
 from litestar import Litestar, get, post
 from litestar.config.cors import CORSConfig
 from litestar.contrib.jinja import JinjaTemplateEngine
@@ -25,6 +26,15 @@ from webpush import WebPush, WebPushSubscription
 from .database import db_connection, provide_db_session
 
 cors_config = CORSConfig(allow_origins=["*"])
+
+
+sentry_sdk.init(
+    dsn=os.getenv("SENTRY_DSN", ""),
+    environment=os.getenv("SENTRY_ENV", ""),
+    # Add data like request headers and IP for users, if applicable;
+    # see https://docs.sentry.io/platforms/python/data-management/data-collected/ for more info
+    # send_default_pii=True,
+)
 
 # This is the folder where the svelte PWA is built statically.
 HTML_DIR = "public/mobile-app/build"
