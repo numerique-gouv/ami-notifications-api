@@ -8,6 +8,7 @@ dependencies = [
     "asyncpg>=0.30.0",
     "httpx>=0.28.1",
     "litestar[sqlalchemy,standard]>=2.15.1",
+    "sentry-sdk[litestar]>=2.29.1",
     "sqlmodel>=0.0.24",
     "types-requests>=2.32.0.20250328",
     "webpush>=1.0.5",
