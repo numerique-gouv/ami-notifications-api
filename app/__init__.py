@@ -213,7 +213,7 @@ async def get_notifications(db_session: AsyncSession, email: str) -> list[Notifi
 #### VIEWS
 
 
-@get(path="/admin/", sync_to_thread=False)
+@get(path="/admin/", include_in_schema=False)
 async def admin(db_session: AsyncSession) -> Template:
     users = await get_user_list(db_session)
     notifications = await get_notification_list(db_session)
