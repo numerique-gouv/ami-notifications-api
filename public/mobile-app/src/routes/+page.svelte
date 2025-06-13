@@ -19,20 +19,21 @@ let userNotifications: [] = $state([])
 onMount(async() => {
   console.log('registerEmailValue', registerEmailValue)
   if (registerEmailValue) {
-    userEmail = registerEmailValue
+    retrieveNotifications()
+  }
+});
 
-    const result = await retrieveNotifications(userEmail)
+const retrieveNotifications = async () => {
+  userEmail = registerEmailValue
+
+  try {
+    const result = await fetch(`//${PUBLIC_API_HOSTNAME}:${PUBLIC_API_PORT}/notifications/${userEmail}`)
+    
     if (result) {
       userNotifications = await result.json()
       userNotifications.forEach((notification) => notification.formattedDate = new Date(notification.date).toLocaleDateString('fr-FR'));
       console.log('userNotifications', userNotifications)
     }
-  }
-});
-
-const retrieveNotifications = async (userEmail: string) => {
-  try {
-    return await fetch(`//${PUBLIC_API_HOSTNAME}:${PUBLIC_API_PORT}/notifications/${userEmail}`)
   } catch (error) {
     console.error(error)
   }
@@ -181,6 +182,7 @@ const registerWithAmi = async () => {
 
   <div>
     <h2>Historique des notifications</h2>
+    <button onclick={retrieveNotifications}>Rafraîchir la liste des notifications</button>
     {#if userNotifications.length === 0}
       <p>Vous n'avez pas reçu de notification pour l'instant</p>
     {:else}
