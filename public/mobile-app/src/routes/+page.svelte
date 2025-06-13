@@ -33,8 +33,9 @@ const subscribePush = async () => {
     const options = { userVisibleOnly: true, applicationServerKey: applicationKey }
     pushSubscription = await registration.pushManager.subscribe(options)
     console.log('pushSubscription', pushSubscription)
-    console.debug('auth key:', pushSubscription.toJSON().keys.auth)
-    console.debug('p256dh:', pushSubscription.toJSON().keys.p256dh)
+    console.debug('pushSubscription pushSubURL:', pushSubscription.toJSON().endpoint)
+    console.debug('pushSubscription auth:', pushSubscription.toJSON().keys.auth)
+    console.debug('pushSubscription p256dh:', pushSubscription.toJSON().keys.p256dh)
     // The push subscription details needed by the application
     // server are now available, and can be sent to it using,
     // for example, the fetch() API.
@@ -121,12 +122,6 @@ const registerWithAmi = async () => {
 		Ask notifications auth
 	</button>
 	<span id="subscription-status">{subscriptionStatus}</span>
-
-	<p>
-		<label>pushURL<input id="push-sub-url" bind:value={pushSubURL} disabled /></label>
-		<label>auth<input id="push-sub-auth" bind:value={pushSubAuth} disabled /></label>
-		<label>p256dh<input id="push-sub-p256dh" bind:value={pushSubP256DH} disabled /></label>
-	</p>
 
 	<div>
 		<p>
