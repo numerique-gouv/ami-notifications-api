@@ -11,7 +11,7 @@ from webpush import WebPush
 from webpush.vapid import VAPID
 
 from app import Notification, Registration, User, create_app
-from app.database import DATABASE_URL
+from app.infrastructure.database import DATABASE_URL
 
 
 @pytest.fixture

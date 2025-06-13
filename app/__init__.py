@@ -23,7 +23,7 @@ from sqlmodel import Column, Field, Relationship, SQLModel, col, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 from webpush import WebPush, WebPushSubscription
 
-from .database import db_connection, provide_db_session
+from .infrastructure.database import db_connection, provide_db_session
 
 cors_config = CORSConfig(allow_origins=["*"])
 
@@ -37,12 +37,13 @@ sentry_sdk.init(
 )
 
 # This is the folder where the svelte PWA is built statically.
-HTML_DIR = "public/mobile-app/build"
+HTML_DIR = "public"
 
 
 #### MODELS
 
 
+# dans infra
 class User(SQLModel, table=True):
     __tablename__ = "ami_user"  # type: ignore
 
@@ -52,6 +53,7 @@ class User(SQLModel, table=True):
     notifications: list["Notification"] = Relationship(back_populates="user")
 
 
+# dans infra
 class Registration(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     user_id: int = Field(foreign_key="ami_user.id")
@@ -64,6 +66,7 @@ class RegistrationCreation(SQLModel, table=False):
     email: str
 
 
+# dans infra
 class Notification(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     date: datetime = Field(default_factory=datetime.now)
@@ -77,11 +80,13 @@ class Notification(SQLModel, table=True):
 #### ENDPOINTS
 
 
+# dans infra
 @get("/notification/key")
 async def get_application_key() -> str:
     return os.getenv("VAPID_APPLICATION_SERVER_KEY", "")
 
 
+# dans infra
 @post("/notification/register")
 async def register(
     db_session: AsyncSession,
@@ -109,6 +114,7 @@ async def register(
     return registration
 
 
+# dans infra
 async def get_user_by_email(
     email: str, db_session: AsyncSession, options: ExecutableOption | None = None
 ) -> User:
@@ -123,6 +129,7 @@ async def get_user_by_email(
         raise NotFoundException(detail=f"User {email!r} not found") from e
 
 
+# dans infra
 async def get_user_by_id(
     user_id: int, db_session: AsyncSession, options: ExecutableOption | None = None
 ) -> User:
@@ -137,6 +144,7 @@ async def get_user_by_id(
         raise NotFoundException(detail=f"User with id {user_id!r} not found") from e
 
 
+# dans infra
 @post("/notification/send")
 async def notify(
     db_session: AsyncSession,
@@ -171,6 +179,7 @@ async def notify(
     return data
 
 
+# dans infra
 async def get_user_list(
     db_session: AsyncSession,
     options: ExecutableOption | None = None,
@@ -184,6 +193,7 @@ async def get_user_list(
     return list(result.all())
 
 
+# dans infra
 async def get_registration_list(
     db_session: AsyncSession,
     options: ExecutableOption | None = None,
@@ -197,18 +207,21 @@ async def get_registration_list(
     return list(result.all())
 
 
+# dans infra
 async def get_notification_list(db_session: AsyncSession) -> list[Notification]:
     query = select(Notification).order_by(col(Notification.date).desc())
     result = await db_session.exec(query)
     return list(result.all())
 
 
+# dans infra
 @get("/notification/users")
 async def list_users(db_session: AsyncSession) -> list[Registration]:
     # TODO: this should instead return a list of users, and thus use `get_user_list`.
     return await get_registration_list(db_session)
 
 
+# dans infra
 @get("/notifications/{email:str}")
 async def get_notifications(db_session: AsyncSession, email: str) -> list[Notification]:
     try:
@@ -223,6 +236,7 @@ async def get_notifications(db_session: AsyncSession, email: str) -> list[Notifi
 #### VIEWS
 
 
+# dans infra
 @get(path="/admin/", include_in_schema=False)
 async def admin(db_session: AsyncSession) -> Template:
     users = await get_user_list(db_session)
