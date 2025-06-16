@@ -163,15 +163,25 @@ The easiest way to run tests is to use the Makefile target:
 make test
 ```
 
+Those tests will be run against a (postgres) database on the same server as the
+one configured for your application, with the `_test` suffix.
+
+So for example if you're using
+`DATABASE_URL="postgresql+asyncpg://postgres:some_password@localhost:5432/postgres"`
+for your application, the tests will be running on
+`DATABASE_URL="postgresql+asyncpg://postgres:some_password@localhost:5432/postgres_test"`.
+
+This test database must be created beforehand.
+
 If you'd rather run the tests manually, copy and paste the command from the Makefile:
 ```
-uv run --env-file .env.tests pytest
+uv run --env-file .env pytest
 ```
 
 
 To run a single test, you would use something like:
 ```
-uv run --env-file .env.tests pytest tests/test_basic.py::test_homepage_title
+uv run --env-file .env pytest tests/test_basic.py::test_homepage_title
 ```
 
 ### Mobile app

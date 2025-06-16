@@ -9,7 +9,7 @@ lint-and-format: install
 
 .PHONY: test
 test:
-	uv run --env-file .env.tests pytest
+	uv run --env-file .env pytest
 
 .PHONY: dev
 dev:
