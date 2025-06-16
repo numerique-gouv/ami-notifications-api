@@ -211,12 +211,9 @@ async def list_users(db_session: AsyncSession) -> list[Registration]:
 
 @get("/notifications/{email:str}")
 async def get_notifications(db_session: AsyncSession, email: str) -> list[Notification]:
-    try:
-        user: User = await get_user_by_email(
-            email, db_session, options=selectinload(cast(InstrumentedAttribute, User.notifications))
-        )
-    except NotFoundException:
-        return []
+    user: User = await get_user_by_email(
+        email, db_session, options=selectinload(cast(InstrumentedAttribute, User.notifications))
+    )
     return user.notifications
 
 

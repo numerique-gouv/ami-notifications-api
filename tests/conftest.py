@@ -28,7 +28,7 @@ def test_webpush() -> WebPush:
 
 @asynccontextmanager
 async def test_db_connection(app: Litestar) -> AsyncGenerator[None, None]:
-    """Database connection for the app."""
+    """Database connection for the app's lifespan."""
     engine = create_async_engine(TEST_DATABASE_URL)
     app.state.engine = engine
 
@@ -59,7 +59,16 @@ def test_client(app) -> Iterator[TestClient[Litestar]]:
 
 @pytest.fixture
 async def test_engine() -> AsyncGenerator[AsyncEngine, None]:
-    """Create a fresh database engine for each test with proper cleanup."""
+    """Create a fresh database engine for each test with proper cleanup.
+
+    This is a duplication of the `test_db_connection` to avoid some bug around event loops:
+
+    https://github.com/litestar-org/litestar/issues/1920#issuecomment-2592572498
+
+    So we create an engine to be used by the `db_session` fixture, created in the context/scope
+    of the tests event loop, instead of using the `app.state.engine`.
+
+    """
     engine = create_async_engine(TEST_DATABASE_URL)
 
     # Create all tables
