@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 import pytest
 from litestar import Litestar
 from litestar.testing import TestClient
-from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker, create_async_engine
 from sqlmodel import SQLModel
 from sqlmodel.ext.asyncio.session import AsyncSession
 from webpush import WebPush
@@ -13,20 +13,25 @@ from webpush.vapid import VAPID
 from app import Notification, Registration, User, create_app
 from app.database import DATABASE_URL
 
+TEST_DATABASE_URL = f"{DATABASE_URL}_test"
 
-@pytest.fixture
-async def app():
-    app_ = create_app(database_connection=test_db_connection, webpush_init=test_webpush)
-    app_.debug = True
-    return app_
+
+def test_webpush() -> WebPush:
+    """Create a test WebPush instance with generated keys."""
+    private_key, public_key, _ = VAPID.generate_keys()
+    return WebPush(
+        private_key=private_key,
+        public_key=public_key,
+        subscriber="administrator@example.com",
+    )
 
 
 @asynccontextmanager
 async def test_db_connection(app: Litestar) -> AsyncGenerator[None, None]:
-    engine = getattr(app.state, "engine", None)
-    if engine is None:
-        engine = create_async_engine(DATABASE_URL)
-        app.state.engine = engine
+    """Database connection for the app."""
+    engine = create_async_engine(TEST_DATABASE_URL)
+    app.state.engine = engine
+
     async with engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.create_all)
     try:
@@ -37,27 +42,44 @@ async def test_db_connection(app: Litestar) -> AsyncGenerator[None, None]:
         await engine.dispose()
 
 
-def test_webpush() -> WebPush:
-    private_key, public_key, _ = VAPID.generate_keys()
-
-    return WebPush(
-        private_key=private_key,
-        public_key=public_key,
-        subscriber="administrator@example.com",
-    )
+@pytest.fixture
+async def app():
+    """Create app with test database connection."""
+    app_ = create_app(database_connection=test_db_connection, webpush_init=test_webpush)
+    app_.debug = True
+    return app_
 
 
 @pytest.fixture
 def test_client(app) -> Iterator[TestClient[Litestar]]:
+    """Create a sync test client for the app."""
     with TestClient(app=app) as client:
         yield client
 
 
 @pytest.fixture
-async def db_session(app) -> AsyncGenerator[AsyncSession, None]:
-    sessionmaker = async_sessionmaker(class_=AsyncSession, expire_on_commit=False)
+async def test_engine() -> AsyncGenerator[AsyncEngine, None]:
+    """Create a fresh database engine for each test with proper cleanup."""
+    engine = create_async_engine(TEST_DATABASE_URL)
 
-    async with sessionmaker(bind=app.state.engine) as session:
+    # Create all tables
+    async with engine.begin() as conn:
+        await conn.run_sync(SQLModel.metadata.create_all)
+
+    try:
+        yield engine
+    finally:
+        # Clean up - drop tables and dispose engine
+        async with engine.begin() as conn:
+            await conn.run_sync(SQLModel.metadata.drop_all)
+        await engine.dispose()
+
+
+@pytest.fixture
+async def db_session(test_engine) -> AsyncGenerator[AsyncSession, None]:
+    """Create a database session using the test engine."""
+    sessionmaker = async_sessionmaker(bind=test_engine, class_=AsyncSession, expire_on_commit=False)
+    async with sessionmaker() as session:
         yield session
 
 
