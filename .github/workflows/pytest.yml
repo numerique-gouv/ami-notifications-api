@@ -17,6 +17,19 @@ jobs:
     name: python
     runs-on: ubuntu-latest
     needs: [lint-and-format]
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: some_password
+          POSTGRES_DB: postgres_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
     steps:
       - uses: actions/checkout@v4
       - name: Install uv
@@ -31,6 +44,9 @@ jobs:
 
       - name: Install the project
         run: uv sync --locked --all-extras --dev
+
+      - name: Create .env file
+        run: cp .env.template .env
 
       - name: Run tests
         run: make test
