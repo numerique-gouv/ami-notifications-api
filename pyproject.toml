@@ -16,7 +16,6 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "aiosqlite>=0.21.0",
     "alembic>=1.15.2",
     "ipdb>=0.13.13",
     "pre-commit>=4.2.0",

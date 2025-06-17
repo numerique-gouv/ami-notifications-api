@@ -101,8 +101,6 @@ existing registrations are now obsolete, and can't be used anymore.
 [postgresql](https://www.postgresql.org/) with
 [asyncpg](https://magicstack.github.io/asyncpg/current/).
 
-If developping locally, and no `DATABASE_URL` env variable is set, it'll default
-back to using sqlite.
 
 The `DATABASE_URL` should look like the following:
 ```
