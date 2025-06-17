@@ -101,7 +101,6 @@ existing registrations are now obsolete, and can't be used anymore.
 [postgresql](https://www.postgresql.org/) with
 [asyncpg](https://magicstack.github.io/asyncpg/current/).
 
-
 The `DATABASE_URL` should look like the following:
 ```
 postgresql+asyncpg://[user]:[password]@[url]:[port]/[dbname]
@@ -112,47 +111,16 @@ For example for a `postgres` database running locally:
 postgresql+asyncpg://postgres:some_password@localhost:5432/postgres
 ```
 
+#### Setting up PostgreSQL with Docker
+
+The easiest way to run PostgreSQL locally for development is using Docker,
+please check the relevant entry in the [CONTRIBUTING.md](CONTRIBUTING.md) file.
+
 #### Migrations
 
 We use [alembic](https://alembic.sqlalchemy.org) for database migrations
 (changing from one database schema to another).
-
-The base command to run the migrations and update to the latest database schema is:
-```sh
-uv run --env-file .env alembic upgrade head
-```
-
-or simpler:
-```sh
-make migrate
-```
-
-##### Changing the database schema
-
-When changing the models, create a new migration to reflect those changes in
-the database:
-```sh
-uv run --env-file .env alembic revision --autogenerate -m "Explicit message here"
-```
-
-This should generate a migration file in `migrations/versions/<some
-id>_explicit_message_here.py...`, which you'll then modify according to your
-needs.
-
-It should already have some code automatically generated to accomodate the
-changes.
-
-##### Rolling back a schema change
-
-To list the existing migrations:
-```sh
-uv run --env-file .env alembic history
-```
-
-Then, to rollback (downgrade) to a previous revision (version):
-```sh
-uv run --env-file .env alembic downgrade <revision>
-```
+You'll find detailed commands and usage in the [CONTRIBUTING.md](CONTRIBUTING.md) file.
 
 ### Tests
 
@@ -161,26 +129,7 @@ The easiest way to run tests is to use the Makefile target:
 make test
 ```
 
-Those tests will be run against a (postgres) database on the same server as the
-one configured for your application, with the `_test` suffix.
-
-So for example if you're using
-`DATABASE_URL="postgresql+asyncpg://postgres:some_password@localhost:5432/postgres"`
-for your application, the tests will be running on
-`DATABASE_URL="postgresql+asyncpg://postgres:some_password@localhost:5432/postgres_test"`.
-
-This test database must be created beforehand.
-
-If you'd rather run the tests manually, copy and paste the command from the Makefile:
-```
-uv run --env-file .env pytest
-```
-
-
-To run a single test, you would use something like:
-```
-uv run --env-file .env pytest tests/test_basic.py::test_homepage_title
-```
+You'll find detailed commands and usage in the [CONTRIBUTING.md](CONTRIBUTING.md) file.
 
 ### Mobile app
 
