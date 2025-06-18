@@ -1,8 +1,9 @@
 import json
 import os
+from contextlib import AbstractAsyncContextManager
 from datetime import datetime
 from pathlib import Path
-from typing import Annotated, Any, cast
+from typing import Annotated, Any, Callable, cast
 
 import httpx
 import sentry_sdk
@@ -13,7 +14,9 @@ from litestar.di import Provide
 from litestar.exceptions import NotFoundException
 from litestar.params import Body
 from litestar.response import Template
-from litestar.static_files import create_static_files_router
+from litestar.static_files import (
+    create_static_files_router,  # type: ignore[reportUnknownVariableType]
+)
 from litestar.template.config import TemplateConfig
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import InstrumentedAttribute, selectinload
@@ -105,6 +108,7 @@ async def register(
         await db_session.commit()
         await db_session.refresh(user)
 
+    assert user.id is not None, "User ID should be set after commit"
     registration = Registration(subscription=data.subscription, user_id=user.id)
     db_session.add(registration)
     await db_session.commit()
@@ -155,14 +159,14 @@ async def notify(
     user = await get_user_by_id(
         data.user_id,
         db_session,
-        options=selectinload(cast(InstrumentedAttribute, User.registrations)),
+        options=selectinload(cast(InstrumentedAttribute[Any], User.registrations)),
     )
 
     for registration in user.registrations:
         subscription = WebPushSubscription.model_validate(registration.subscription)
         json_data = {"title": data.title, "message": data.message, "sender": data.sender}
         message = webpush.get(message=json.dumps(json_data), subscription=subscription)
-        headers = cast(dict, message.headers)
+        headers = cast(dict[str, str], message.headers)
 
         response = httpx.post(
             registration.subscription["endpoint"], content=message.encrypted, headers=headers
@@ -215,7 +219,9 @@ async def list_users(db_session: AsyncSession) -> list[Registration]:
 @get("/notifications/{email:str}")
 async def get_notifications(db_session: AsyncSession, email: str) -> list[Notification]:
     user: User = await get_user_by_email(
-        email, db_session, options=selectinload(cast(InstrumentedAttribute, User.notifications))
+        email,
+        db_session,
+        options=selectinload(cast(InstrumentedAttribute[Any], User.notifications)),
     )
     return user.notifications
 
@@ -245,7 +251,10 @@ def provide_webpush() -> WebPush:
     return webpush
 
 
-def create_app(database_connection=db_connection, webpush_init=provide_webpush) -> Litestar:
+def create_app(
+    database_connection: Callable[[Litestar], AbstractAsyncContextManager[None]] = db_connection,
+    webpush_init: Callable[[], WebPush] = provide_webpush,
+) -> Litestar:
     return Litestar(
         route_handlers=[
             create_static_files_router(

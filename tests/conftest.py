@@ -1,5 +1,6 @@
 from collections.abc import AsyncGenerator, Iterator
 from contextlib import asynccontextmanager
+from typing import Any
 
 import pytest
 from litestar import Litestar
@@ -14,16 +15,6 @@ from app import Notification, Registration, User, create_app
 from app.database import DATABASE_URL
 
 TEST_DATABASE_URL = f"{DATABASE_URL}_test"
-
-
-def test_webpush() -> WebPush:
-    """Create a test WebPush instance with generated keys."""
-    private_key, public_key, _ = VAPID.generate_keys()
-    return WebPush(
-        private_key=private_key,
-        public_key=public_key,
-        subscriber="administrator@example.com",
-    )
 
 
 @asynccontextmanager
@@ -42,8 +33,17 @@ async def test_db_connection(app: Litestar) -> AsyncGenerator[None, None]:
         await engine.dispose()
 
 
+def test_webpush() -> WebPush:
+    private_key, public_key, _ = VAPID.generate_keys()
+    return WebPush(
+        private_key=private_key,
+        public_key=public_key,
+        subscriber="administrator@example.com",
+    )
+
+
 @pytest.fixture
-async def app():
+async def app() -> Litestar:
     """Create app with test database connection."""
     app_ = create_app(database_connection=test_db_connection, webpush_init=test_webpush)
     app_.debug = True
@@ -51,8 +51,7 @@ async def app():
 
 
 @pytest.fixture
-def test_client(app) -> Iterator[TestClient[Litestar]]:
-    """Create a sync test client for the app."""
+def test_client(app: Litestar) -> Iterator[TestClient[Litestar]]:
     with TestClient(app=app) as client:
         yield client
 
@@ -93,7 +92,7 @@ async def db_session(test_engine) -> AsyncGenerator[AsyncSession, None]:
 
 
 @pytest.fixture
-async def user(db_session) -> User:
+async def user(db_session: AsyncSession) -> User:
     user_ = User(email="user@example.com")
     db_session.add(user_)
     await db_session.commit()
@@ -101,7 +100,8 @@ async def user(db_session) -> User:
 
 
 @pytest.fixture
-async def notification(db_session, registration) -> Notification:
+async def notification(db_session: AsyncSession, registration: Registration) -> Notification:
+    assert registration.user.id is not None, "Registration user ID should be set"
     notification_ = Notification(
         user_id=registration.user.id,
         message="Hello notification",
@@ -114,7 +114,10 @@ async def notification(db_session, registration) -> Notification:
 
 
 @pytest.fixture
-async def registration(db_session, user, webpushsubscription) -> Registration:
+async def registration(
+    db_session: AsyncSession, user: User, webpushsubscription: dict[str, Any]
+) -> Registration:
+    assert user.id is not None, "User ID should be set"
     registration_ = Registration(user_id=user.id, subscription=webpushsubscription)
     db_session.add(registration_)
     await db_session.commit()
@@ -122,7 +125,7 @@ async def registration(db_session, user, webpushsubscription) -> Registration:
 
 
 @pytest.fixture
-async def webpushsubscription() -> dict:
+async def webpushsubscription() -> dict[str, Any]:
     subscription = {
         "endpoint": "https://example.com",
         "keys": {
