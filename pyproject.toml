@@ -20,15 +20,42 @@ dev = [
     "ipdb>=0.13.13",
     "pre-commit>=4.2.0",
     "pre-commit-uv>=4.1.4",
+    "pyright>=1.1.390",
     "pytest>=8.3.5",
     "pytest-asyncio>=0.26.0",
     "pytest-httpx>=0.35.0",
     "ruff>=0.11.2",
 ]
 
-[tool.mypy]
-warn_return_any = true
-warn_unused_configs = true
+[tool.pyright]
+# Python version and environment
+pythonVersion = "3.13"
+include = ["app", "tests"]
+exclude = [".venv", "node_modules", "public/mobile-app"]
+
+# Type checking mode
+typeCheckingMode = "strict"
+
+# Enable specific checks
+reportMissingImports = true
+reportMissingTypeStubs = false
+reportUnusedImport = true
+reportUnusedClass = true
+reportUnusedFunction = true
+reportUnusedVariable = true
+reportDuplicateImport = true
+reportOptionalSubscript = true
+reportOptionalMemberAccess = true
+reportOptionalCall = true
+reportOptionalIterable = true
+reportOptionalContextManager = true
+reportOptionalOperand = true
+reportTypedDictNotRequiredAccess = false
+
+# Relaxed settings for tests
+[tool.pyright.defineConstant]
+# Allow more flexible typing in test files
+
 [tool.ruff]
 line-length = 100
 
