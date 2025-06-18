@@ -8,3 +8,23 @@ repos:
       args: [ --fix ]
     # Run the formatter.
     - id: ruff-format
+
+# JavaScript/TypeScript linting and formatting
+- repo: local
+  hooks:
+    - id: npm-lint-and-format
+      name: npm lint and format
+      entry: npm run lint-and-format
+      language: system
+      files: \.(js|ts|svelte|json)$
+      require_serial: true
+
+# Python type checking
+- repo: local
+  hooks:
+    - id: pyright
+      name: pyright type checking
+      entry: uv run pyright
+      language: system
+      files: \.py$
+      require_serial: true

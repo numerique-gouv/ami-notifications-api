@@ -5,7 +5,6 @@ install:
 .PHONY: lint-and-format
 lint-and-format: install
 	uv run pre-commit run --all-files
-	npm run lint-and-format
 
 .PHONY: test
 test:

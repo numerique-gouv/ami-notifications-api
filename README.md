@@ -10,7 +10,7 @@ registered from clients (web or mobile).
 ### Language: python
 
 [python](https://docs.python.org) using
-[mypy](https://mypy.readthedocs.io/en/latest/).
+[pyright](https://github.com/microsoft/pyright).
 
 ### Package and project manager: uv
 
