@@ -1,4 +1,4 @@
-class UserRepository():
+class UserRawRepository():
     @abstractmethod
     async def get(self, **filters: Any) -> User | None:
         pass

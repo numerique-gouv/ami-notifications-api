@@ -9,7 +9,7 @@ class SqliteDatabaseUserRepository(UserRepository):
 
 async def get_user_by_id(
     user_id: int, db_session: AsyncSession, options: ExecutableOption | None = None
-) -> User:
+) -> UserRaw:
     if options:
         query = select(User).where(col(User.id) == user_id).options(options)
     else:

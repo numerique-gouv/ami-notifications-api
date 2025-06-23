@@ -1,7 +1,7 @@
 # controller ou endpoint ?
 
-UserRepository userRepository
 SendNotificationToUser sendNotificationToUser
+GetNotifications getNotifications
 
 
 @post("/notification/send")
@@ -16,6 +16,9 @@ async def notify(
         ),
     ],
 ) -> Notification:
+    sendNotificationToUser.execute()
+
+///////////////
     user = await userRepository.get_user_by_id(
         data.user_id,
         db_session,

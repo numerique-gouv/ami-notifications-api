@@ -1,9 +1,9 @@
-class RegistrationRepository():
+class NotificationRawRepository():
     @abstractmethod
     async def get(self, **filters: Any) -> Notification | None:
         pass
 
 
     @abstractmethod
-    async def create_registration(self, user: User) -> None:
+    async def get_notification_list(self, user: User) -> None:
         pass
