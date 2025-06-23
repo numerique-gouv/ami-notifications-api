@@ -1,8 +1,10 @@
+from typing import Any
+
 from litestar import Litestar
 from litestar.status_codes import HTTP_200_OK, HTTP_201_CREATED, HTTP_404_NOT_FOUND
 from litestar.testing import TestClient
 from pytest_httpx import HTTPXMock
-from sqlalchemy import select
+from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app import Notification, Registration, User
@@ -61,7 +63,7 @@ async def test_create_notification_from_test_and_from_app_context(
 async def test_database_isolation_test_one(
     test_client: TestClient[Litestar],
     db_session: AsyncSession,
-    webpushsubscription: dict,
+    webpushsubscription: dict[str, Any],
 ) -> None:
     """Test 1: Create user 'alice@example.com' and verify only this user exists."""
     # Create a user directly in the test database
@@ -88,11 +90,11 @@ async def test_database_isolation_test_one(
     assert response.json() == []  # User exists (no 404) but has no notifications
 
     # Check that only those users exists (no leakage from other tests)
-    all_users = await db_session.exec(select(User))
-    all_users_list = all_users.all()
+    all_users_result = await db_session.exec(select(User))
+    all_users_list = list(all_users_result.all())
     assert len(all_users_list) == 2
-    assert all_users_list[0][0].email == "alice@example.com"
-    assert all_users_list[1][0].email == "apiuser@example.com"
+    assert all_users_list[0].email == "alice@example.com"
+    assert all_users_list[1].email == "apiuser@example.com"
     # Importantly, bob@example.com should NOT be here, nor apiuser2@example.com
 
     # Verify only those users exists through API calls
@@ -105,7 +107,7 @@ async def test_database_isolation_test_one(
 async def test_database_isolation_test_two(
     test_client: TestClient[Litestar],
     db_session: AsyncSession,
-    webpushsubscription: dict,
+    webpushsubscription: dict[str, Any],
 ) -> None:
     """Test 2: Create user 'bob@example.com' and verify only this user exists (no alice)."""
     # Create a different user directly in the test database
@@ -132,11 +134,11 @@ async def test_database_isolation_test_two(
     assert response.json() == []  # User exists (no 404) but has no notifications
 
     # Check that only those users exists (proving no leakage from test_one)
-    all_users = await db_session.exec(select(User))
-    all_users_list = all_users.all()
+    all_users_result = await db_session.exec(select(User))
+    all_users_list = list(all_users_result.all())
     assert len(all_users_list) == 2
-    assert all_users_list[0][0].email == "bob@example.com"
-    assert all_users_list[1][0].email == "apiuser2@example.com"
+    assert all_users_list[0].email == "bob@example.com"
+    assert all_users_list[1].email == "apiuser2@example.com"
     # Importantly, alice@example.com should NOT be here, nor apiuser@example.com
 
     # Verify only those users exists through API calls
