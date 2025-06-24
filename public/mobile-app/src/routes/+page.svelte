@@ -19,7 +19,26 @@ let userNotifications: [] = $state([])
 onMount(async () => {
   console.log('registerEmailValue', registerEmailValue)
   if (registerEmailValue) {
-    retrieveNotifications()
+    await retrieveNotifications()
+  }
+
+  checkNotificationPermission().then((isGranted) => {
+    isAuthenticatedForNotifications = isGranted === true
+  })
+
+  if (navigator.permissions) {
+    let permissionStatusPromise = navigator.permissions.query({ name: 'notifications' })
+    permissionStatusPromise.then((permissionStatus) => {
+      isAuthenticatedForNotifications = permissionStatus.state == 'granted'
+      console.log(`notifications permission status is ${permissionStatus.state}`)
+
+      permissionStatus.onchange = () => {
+        isAuthenticatedForNotifications = permissionStatus.state == 'granted'
+        console.log(
+          `notifications permission status has changed to ${permissionStatus.state}`
+        )
+      }
+    })
   }
 })
 
@@ -47,7 +66,7 @@ const retrieveNotifications = async () => {
 const checkNotificationPermission = async () => {
   // Check if the browser supports notifications
   if (!('Notification' in window)) {
-    alert('Add this website to your home screen!')
+    console.error('Add this website to your home screen!')
     return false
   }
   const permission = await Notification.permission
@@ -122,7 +141,7 @@ const registerWithAmi = async () => {
   }
   console.log('isRegistered with AMI:', payload)
   isRegisteredWithAmi = true
-  registrationStatus = 'Registering...'
+  registrationStatus = "En cours d'enregistrement..."
 
   const response = await fetch(`${PUBLIC_API_URL}/notification/register`, {
     method: 'POST',
@@ -131,7 +150,7 @@ const registerWithAmi = async () => {
   console.log('response from AMI:', response)
   isRegisteredWithAmi = false
   if (response.status < 400) {
-    registrationStatus = 'Done!'
+    registrationStatus = 'Enregistrement réussi !'
     userEmail = registerEmailValue
   } else {
     registrationStatus = `error ${response.status}: ${response.statusText}, ${response.body}`
@@ -140,67 +159,67 @@ const registerWithAmi = async () => {
 </script>
 
 <div>
-	{#if userEmail}
-	  <h1>Bienvenue {userEmail} sur l'application AMI</h1>
+  {#if userEmail}
+    <h1>Bienvenue {userEmail} sur l'application AMI</h1>
   {:else}
     <h1>Bienvenue sur l'application AMI</h1>
   {/if}
 
-	<button
-		type="button"
-		onclick={askForNotificationPermission}
-		disabled={isAuthenticatedForNotifications}
-	>
-		S'authentifier pour recevoir des notifications
-	</button>
-	<span id="subscription-status">{subscriptionStatus}</span>
+  <button
+      type="button"
+      onclick={askForNotificationPermission}
+      disabled={isAuthenticatedForNotifications}
+  >
+    S'authentifier pour recevoir des notifications
+  </button>
+  <span id="subscription-status">{subscriptionStatus}</span>
 
-	<div>
-		<p>
-			<label
-				>Email
-				<input
-					bind:value={registerEmailValue}
-					type="text"
-					id="register-email"
-					name="register-email"
-				/>
-			</label>
-		</p>
-		<p>
-			<button
-				type="button"
-				id="register-with-ami"
-				onclick={registerWithAmi}
-				disabled={isRegisteredWithAmi}
-			>
-				S'enregistrer auprès d'AMI
-			</button>
-			<span id="registration-status">{registrationStatus}</span>
-		</p>
-	</div>
+  <div>
+    <p>
+      <label
+      >Email
+        <input
+            bind:value={registerEmailValue}
+            type="text"
+            id="register-email"
+            name="register-email"
+        />
+      </label>
+    </p>
+    <p>
+      <button
+          type="button"
+          id="register-with-ami"
+          onclick={registerWithAmi}
+          disabled={isRegisteredWithAmi}
+      >
+        S'enregistrer auprès d'AMI
+      </button>
+      <span id="registration-status">{registrationStatus}</span>
+    </p>
+  </div>
 
   <div>
     <h2>Historique des notifications</h2>
     <button
-				type="button"
-				onclick={retrieveNotifications}
-		>
-			Rafraîchir la liste des notifications
-		</button>
+        type="button"
+        onclick={retrieveNotifications}
+    >
+      Rafraîchir la liste des notifications
+    </button>
     {#if userNotifications.length === 0}
       <p>Vous n'avez pas reçu de notification pour l'instant</p>
     {:else}
-    <ul>
-      {#each userNotifications as notification}
-        <li>
-          <p>Notification reçue le {notification.formattedDate}</p>
-          <p>Titre : {notification.title}</p>
-          <p>Message : {notification.message}</p>
-          <p>Expéditeur : {notification.sender}</p>
-        </li>
-      {/each}
-    </ul>
+      <ul>
+        {#each userNotifications as notification}
+          <li>
+            <p>Notification reçue le {notification.formattedDate}</p>
+            <p>Titre : {notification.title}</p>
+            <p>Message : {notification.message}</p>
+            <p>Expéditeur : {notification.sender}</p>
+          </li>
+        {/each}
+      </ul>
     {/if}
   </div>
 </div>
