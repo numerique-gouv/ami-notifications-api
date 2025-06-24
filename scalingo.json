@@ -1,0 +1,8 @@
+{
+  "env": {
+    "PUBLIC_API_URL": {
+      "generator": "url"
+    }
+  }
+}
+

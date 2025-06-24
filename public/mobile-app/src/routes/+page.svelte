@@ -1,5 +1,5 @@
 <script lang="ts">
-import { PUBLIC_API_HOSTNAME, PUBLIC_API_PORT } from '$env/static/public'
+import { PUBLIC_API_URL } from '$env/static/public'
 import { onMount } from 'svelte'
 
 let subscriptionStatus = $state('')
@@ -27,9 +27,7 @@ const retrieveNotifications = async () => {
   userEmail = registerEmailValue
 
   try {
-    const response = await fetch(
-      `//${PUBLIC_API_HOSTNAME}:${PUBLIC_API_PORT}/notifications/${userEmail}`
-    )
+    const response = await fetch(`${PUBLIC_API_URL}/notifications/${userEmail}`)
 
     if (response.status == 200) {
       userNotifications = await response.json()
@@ -60,9 +58,7 @@ const checkNotificationPermission = async () => {
 const subscribePush = async () => {
   const registration = await navigator.serviceWorker.ready
   try {
-    const applicationKeyResponse = await fetch(
-      `//${PUBLIC_API_HOSTNAME}:${PUBLIC_API_PORT}/notification/key`
-    )
+    const applicationKeyResponse = await fetch(`${PUBLIC_API_URL}/notification/key`)
     const applicationKey = await applicationKeyResponse.text()
     const options = { userVisibleOnly: true, applicationServerKey: applicationKey }
     pushSubscription = await registration.pushManager.subscribe(options)
@@ -128,13 +124,10 @@ const registerWithAmi = async () => {
   isRegisteredWithAmi = true
   registrationStatus = 'Registering...'
 
-  const response = await fetch(
-    `//${PUBLIC_API_HOSTNAME}:${PUBLIC_API_PORT}/notification/register`,
-    {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    }
-  )
+  const response = await fetch(`${PUBLIC_API_URL}/notification/register`, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
   console.log('response from AMI:', response)
   isRegisteredWithAmi = false
   if (response.status < 400) {
