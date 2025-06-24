@@ -1,5 +1,6 @@
 <script lang="ts">
 import { PUBLIC_API_HOSTNAME, PUBLIC_API_PORT } from '$env/static/public'
+import { onMount } from 'svelte'
 
 let subscriptionStatus = $state('')
 let isAuthenticatedForNotifications = $state(false)
@@ -11,6 +12,39 @@ let pushSubP256DH = $state('pushSubP256DH')
 let registerEmailValue = $state('')
 let registrationStatus = $state('')
 let pushSubscription
+
+let userEmail: string = $state('')
+let userNotifications: [] = $state([])
+
+onMount(async () => {
+  console.log('registerEmailValue', registerEmailValue)
+  if (registerEmailValue) {
+    retrieveNotifications()
+  }
+})
+
+const retrieveNotifications = async () => {
+  userEmail = registerEmailValue
+
+  try {
+    const response = await fetch(
+      `//${PUBLIC_API_HOSTNAME}:${PUBLIC_API_PORT}/notifications/${userEmail}`
+    )
+
+    if (response.status == 200) {
+      userNotifications = await response.json()
+      userNotifications.forEach(
+        (notification) =>
+          (notification.formattedDate = new Date(notification.date).toLocaleDateString(
+            'fr-FR'
+          ))
+      )
+      console.log('userNotifications', userNotifications)
+    }
+  } catch (error) {
+    console.error(error)
+  }
+}
 
 const checkNotificationPermission = async () => {
   // Check if the browser supports notifications
@@ -33,13 +67,14 @@ const subscribePush = async () => {
     const options = { userVisibleOnly: true, applicationServerKey: applicationKey }
     pushSubscription = await registration.pushManager.subscribe(options)
     console.log('pushSubscription', pushSubscription)
-    console.debug('auth key:', pushSubscription.toJSON().keys.auth)
-    console.debug('p256dh:', pushSubscription.toJSON().keys.p256dh)
+    console.debug('pushSubscription pushSubURL:', pushSubscription.toJSON().endpoint)
+    console.debug('pushSubscription auth:', pushSubscription.toJSON().keys.auth)
+    console.debug('pushSubscription p256dh:', pushSubscription.toJSON().keys.p256dh)
     // The push subscription details needed by the application
     // server are now available, and can be sent to it using,
     // for example, the fetch() API.
     console.log('Subscribed to the push manager')
-    subscriptionStatus = 'Subscribed to the push manager'
+    subscriptionStatus = 'Inscription réussie au serveur de notifications'
     return pushSubscription
   } catch (error) {
     // During development it often helps to log errors to the
@@ -104,6 +139,7 @@ const registerWithAmi = async () => {
   isRegisteredWithAmi = false
   if (response.status < 400) {
     registrationStatus = 'Done!'
+    userEmail = registerEmailValue
   } else {
     registrationStatus = `error ${response.status}: ${response.statusText}, ${response.body}`
   }
@@ -111,27 +147,25 @@ const registerWithAmi = async () => {
 </script>
 
 <div>
-	<h1>Welcome to the Mobile App</h1>
+	{#if userEmail}
+	  <h1>Bienvenue {userEmail} sur l'application AMI</h1>
+  {:else}
+    <h1>Bienvenue sur l'application AMI</h1>
+  {/if}
 
 	<button
 		type="button"
 		onclick={askForNotificationPermission}
 		disabled={isAuthenticatedForNotifications}
 	>
-		Ask notifications auth
+		S'authentifier pour recevoir des notifications
 	</button>
 	<span id="subscription-status">{subscriptionStatus}</span>
-
-	<p>
-		<label>pushURL<input id="push-sub-url" bind:value={pushSubURL} disabled /></label>
-		<label>auth<input id="push-sub-auth" bind:value={pushSubAuth} disabled /></label>
-		<label>p256dh<input id="push-sub-p256dh" bind:value={pushSubP256DH} disabled /></label>
-	</p>
 
 	<div>
 		<p>
 			<label
-				>Email for the registration
+				>Email
 				<input
 					bind:value={registerEmailValue}
 					type="text"
@@ -147,9 +181,33 @@ const registerWithAmi = async () => {
 				onclick={registerWithAmi}
 				disabled={isRegisteredWithAmi}
 			>
-				Register with AMI
+				S'enregistrer auprès d'AMI
 			</button>
 			<span id="registration-status">{registrationStatus}</span>
 		</p>
 	</div>
+
+  <div>
+    <h2>Historique des notifications</h2>
+    <button
+				type="button"
+				onclick={retrieveNotifications}
+		>
+			Rafraîchir la liste des notifications
+		</button>
+    {#if userNotifications.length === 0}
+      <p>Vous n'avez pas reçu de notification pour l'instant</p>
+    {:else}
+    <ul>
+      {#each userNotifications as notification}
+        <li>
+          <p>Notification reçue le {notification.formattedDate}</p>
+          <p>Titre : {notification.title}</p>
+          <p>Message : {notification.message}</p>
+          <p>Expéditeur : {notification.sender}</p>
+        </li>
+      {/each}
+    </ul>
+    {/if}
+  </div>
 </div>
