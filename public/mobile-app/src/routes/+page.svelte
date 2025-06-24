@@ -1,6 +1,6 @@
 <script lang="ts">
 import { PUBLIC_API_HOSTNAME, PUBLIC_API_PORT } from '$env/static/public'
-	import { onMount } from 'svelte'
+import { onMount } from 'svelte'
 
 let subscriptionStatus = $state('')
 let isAuthenticatedForNotifications = $state(false)
@@ -16,22 +16,29 @@ let pushSubscription
 let userEmail: string = $state('')
 let userNotifications: [] = $state([])
 
-onMount(async() => {
+onMount(async () => {
   console.log('registerEmailValue', registerEmailValue)
   if (registerEmailValue) {
     retrieveNotifications()
   }
-});
+})
 
 const retrieveNotifications = async () => {
   userEmail = registerEmailValue
 
   try {
-    const result = await fetch(`//${PUBLIC_API_HOSTNAME}:${PUBLIC_API_PORT}/notifications/${userEmail}`)
-    
-    if (result) {
-      userNotifications = await result.json()
-      userNotifications.forEach((notification) => notification.formattedDate = new Date(notification.date).toLocaleDateString('fr-FR'));
+    const response = await fetch(
+      `//${PUBLIC_API_HOSTNAME}:${PUBLIC_API_PORT}/notifications/${userEmail}`
+    )
+
+    if (response.status == 200) {
+      userNotifications = await response.json()
+      userNotifications.forEach(
+        (notification) =>
+          (notification.formattedDate = new Date(notification.date).toLocaleDateString(
+            'fr-FR'
+          ))
+      )
       console.log('userNotifications', userNotifications)
     }
   } catch (error) {
@@ -182,7 +189,12 @@ const registerWithAmi = async () => {
 
   <div>
     <h2>Historique des notifications</h2>
-    <button onclick={retrieveNotifications}>Rafraîchir la liste des notifications</button>
+    <button
+				type="button"
+				onclick={retrieveNotifications}
+		>
+			Rafraîchir la liste des notifications
+		</button>
     {#if userNotifications.length === 0}
       <p>Vous n'avez pas reçu de notification pour l'instant</p>
     {:else}
