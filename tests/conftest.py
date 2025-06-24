@@ -23,11 +23,17 @@ async def test_db_connection(app: Litestar) -> AsyncGenerator[None, None]:
     engine = create_async_engine(TEST_DATABASE_URL)
     app.state.engine = engine
 
+    # Make sure the database is empty when we start.
+    async with engine.begin() as conn:
+        await conn.run_sync(SQLModel.metadata.drop_all)
+
+    # Create all tables.
     async with engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.create_all)
     try:
         yield
     finally:
+        # Clean up - drop tables and dispose engine.
         async with engine.begin() as conn:
             await conn.run_sync(SQLModel.metadata.drop_all)
         await engine.dispose()
@@ -70,14 +76,18 @@ async def test_engine() -> AsyncGenerator[AsyncEngine, None]:
     """
     engine = create_async_engine(TEST_DATABASE_URL)
 
-    # Create all tables
+    # Make sure the database is empty when we start.
+    async with engine.begin() as conn:
+        await conn.run_sync(SQLModel.metadata.drop_all)
+
+    # Create all tables.
     async with engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.create_all)
 
     try:
         yield engine
     finally:
-        # Clean up - drop tables and dispose engine
+        # Clean up - drop tables and dispose engine.
         async with engine.begin() as conn:
             await conn.run_sync(SQLModel.metadata.drop_all)
         await engine.dispose()

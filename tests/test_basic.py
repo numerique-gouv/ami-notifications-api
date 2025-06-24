@@ -10,7 +10,9 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from app import Notification, Registration, User
 
 
-async def test_notifications_empty(test_client: TestClient[Litestar], user: User) -> None:
+async def test_notifications_empty(
+    test_client: TestClient[Litestar], user: User
+) -> None:  # The `user` fixture is needed so we don't get a 404 when asking for notifications.
     response = test_client.get("/notifications/user@example.com")
     assert response.status_code == HTTP_200_OK
     assert response.json() == []
@@ -146,3 +148,19 @@ async def test_database_isolation_test_two(
     assert response.status_code == HTTP_404_NOT_FOUND
     response = test_client.get("/notifications/apiuser@example.com")
     assert response.status_code == HTTP_404_NOT_FOUND
+
+
+async def test_register(
+    test_client: TestClient[Litestar],
+    db_session: AsyncSession,
+    registration: Registration,
+) -> None:
+    all_registrations = await db_session.exec(select(Registration))
+    assert len(all_registrations.all()) == 1  # The registration from the fixture.
+    register_data = {"email": registration.user.email, "subscription": registration.subscription}
+    response = test_client.post("/notification/register", json=register_data)
+    assert response.status_code == HTTP_200_OK  # NOT HTTP_201_CREATED.
+
+    # Still only one registration, no duplicates.
+    all_registrations = await db_session.exec(select(Registration))
+    assert len(all_registrations.all()) == 1  # The registration from the fixture.

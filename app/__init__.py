@@ -7,7 +7,7 @@ from typing import Annotated, Any, Callable, cast
 
 import httpx
 import sentry_sdk
-from litestar import Litestar, get, post
+from litestar import Litestar, Response, get, post
 from litestar.config.cors import CORSConfig
 from litestar.contrib.jinja import JinjaTemplateEngine
 from litestar.di import Provide
@@ -17,11 +17,12 @@ from litestar.response import Template
 from litestar.static_files import (
     create_static_files_router,  # type: ignore[reportUnknownVariableType]
 )
+from litestar.status_codes import HTTP_200_OK, HTTP_201_CREATED
 from litestar.template.config import TemplateConfig
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import InstrumentedAttribute, selectinload
 from sqlalchemy.sql.base import ExecutableOption
-from sqlalchemy.types import JSON
 from sqlmodel import Column, Field, Relationship, SQLModel, col, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 from webpush import WebPush, WebPushSubscription
@@ -62,11 +63,11 @@ class Registration(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     user_id: int = Field(foreign_key="ami_user.id")
     user: User = Relationship(back_populates="registrations")
-    subscription: dict[str, Any] = Field(sa_column=Column(JSON))
+    subscription: dict[str, Any] = Field(sa_column=Column(JSONB))
 
 
 class RegistrationCreation(SQLModel, table=False):
-    subscription: dict[str, Any] = Field(sa_column=Column(JSON))
+    subscription: dict[str, Any] = Field(sa_column=Column(JSONB))
     email: str
 
 
@@ -98,7 +99,7 @@ async def register(
             description="Register with a push subscription and an email to receive notifications",
         ),
     ],
-) -> Registration:
+) -> Response[Registration]:
     WebPushSubscription.model_validate(data.subscription)
     try:
         user = await get_user_by_email(data.email, db_session)
@@ -109,11 +110,20 @@ async def register(
         await db_session.refresh(user)
 
     assert user.id is not None, "User ID should be set after commit"
+    query = select(Registration).where(
+        col(Registration.user) == user, col(Registration.subscription) == data.subscription
+    )
+    result = await db_session.exec(query)
+    existing_registration = result.first()
+    if existing_registration:
+        # This registration already exists, don't duplicate it.
+        return Response(existing_registration, status_code=HTTP_200_OK)
+
     registration = Registration(subscription=data.subscription, user_id=user.id)
     db_session.add(registration)
     await db_session.commit()
     await db_session.refresh(registration)
-    return registration
+    return Response(registration, status_code=HTTP_201_CREATED)
 
 
 async def get_user_by_email(
