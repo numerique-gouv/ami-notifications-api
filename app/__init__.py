@@ -257,22 +257,22 @@ def create_app(
 ) -> Litestar:
     return Litestar(
         route_handlers=[
-            create_static_files_router(
-                path="/",
-                directories=[HTML_DIR],
-                html_mode=True,
-            ),
-            create_static_files_router(
-                path="/admin/static",
-                directories=[HTML_DIR_ADMIN],
-                html_mode=True,
-            ),
             get_application_key,
             register,
             notify,
             list_users,
             get_notifications,
             admin,
+            create_static_files_router(
+                path="/admin/static",
+                directories=[HTML_DIR_ADMIN],
+                html_mode=True,
+            ),
+            create_static_files_router(
+                path="/",
+                directories=[HTML_DIR],
+                html_mode=True,
+            ),
         ],
         dependencies={
             "db_session": Provide(provide_db_session),
