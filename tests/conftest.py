@@ -18,10 +18,8 @@ TEST_DATABASE_URL = f"{DATABASE_URL}_test"
 
 
 @asynccontextmanager
-async def test_db_connection(app: Litestar) -> AsyncGenerator[None, None]:
-    """Database connection for the app's lifespan."""
+async def yield_engine() -> AsyncGenerator[AsyncEngine, None]:
     engine = create_async_engine(TEST_DATABASE_URL)
-    app.state.engine = engine
 
     # Make sure the database is empty when we start.
     async with engine.begin() as conn:
@@ -30,13 +28,22 @@ async def test_db_connection(app: Litestar) -> AsyncGenerator[None, None]:
     # Create all tables.
     async with engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.create_all)
+
     try:
-        yield
+        yield engine
     finally:
         # Clean up - drop tables and dispose engine.
         async with engine.begin() as conn:
             await conn.run_sync(SQLModel.metadata.drop_all)
         await engine.dispose()
+
+
+@asynccontextmanager
+async def test_db_connection(app: Litestar) -> AsyncGenerator[None, None]:
+    """Database connection for the app's lifespan."""
+    async with yield_engine() as engine:
+        app.state.engine = engine
+        yield
 
 
 def test_webpush() -> WebPush:
@@ -74,23 +81,8 @@ async def test_engine() -> AsyncGenerator[AsyncEngine, None]:
     of the tests event loop, instead of using the `app.state.engine`.
 
     """
-    engine = create_async_engine(TEST_DATABASE_URL)
-
-    # Make sure the database is empty when we start.
-    async with engine.begin() as conn:
-        await conn.run_sync(SQLModel.metadata.drop_all)
-
-    # Create all tables.
-    async with engine.begin() as conn:
-        await conn.run_sync(SQLModel.metadata.create_all)
-
-    try:
+    async with yield_engine() as engine:
         yield engine
-    finally:
-        # Clean up - drop tables and dispose engine.
-        async with engine.begin() as conn:
-            await conn.run_sync(SQLModel.metadata.drop_all)
-        await engine.dispose()
 
 
 @pytest.fixture
