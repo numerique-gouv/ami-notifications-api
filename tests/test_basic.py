@@ -150,14 +150,21 @@ async def test_database_isolation_test_two(
     assert response.status_code == HTTP_404_NOT_FOUND
 
 
-async def test_register(
+async def test_do_not_register_again_when_user_and_subscription_already_exist(
     test_client: TestClient[Litestar],
     db_session: AsyncSession,
-    registration: Registration,
+    webpushsubscription: dict[str, Any],
 ) -> None:
     all_registrations = await db_session.exec(select(Registration))
-    assert len(all_registrations.all()) == 1  # The registration from the fixture.
-    register_data = {"email": registration.user.email, "subscription": registration.subscription}
+    assert len(all_registrations.all()) == 0
+
+    # First registration, we're expecting a 201 CREATED.
+    register_data = {"email": "foo@bar.baz", "subscription": webpushsubscription}
+    response = test_client.post("/notification/register", json=register_data)
+    assert response.status_code == HTTP_201_CREATED
+
+    # Second registration, we're expecting a 200 OK, not 201 CREATED.
+    register_data = {"email": "foo@bar.baz", "subscription": webpushsubscription}
     response = test_client.post("/notification/register", json=register_data)
     assert response.status_code == HTTP_200_OK  # NOT HTTP_201_CREATED.
 
