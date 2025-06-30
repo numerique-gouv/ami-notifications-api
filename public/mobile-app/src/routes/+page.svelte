@@ -190,7 +190,7 @@ const registerWithAmi = async () => {
   >
     S'authentifier pour recevoir des notifications
   </button>
-  <span id="subscription-status">{authenticationStatus}</span>
+  <span id="authentication-status" title="authentication-status-title">{authenticationStatus}</span>
 
   <div>
     <p>
