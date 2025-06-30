@@ -73,6 +73,8 @@ class Registration(SQLModel, table=True):
 class RegistrationCreation(SQLModel, table=False):
     subscription: dict[str, Any] = Field(sa_column=Column(JSONB))
     email: str
+    label: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    enabled: bool = Field(default=True)
 
 
 class Notification(SQLModel, table=True):
@@ -123,7 +125,9 @@ async def register(
         # This registration already exists, don't duplicate it.
         return Response(existing_registration, status_code=HTTP_200_OK)
 
-    registration = Registration(subscription=data.subscription, user_id=user.id)
+    registration = Registration(
+        subscription=data.subscription, label=data.label, enabled=data.enabled, user_id=user.id
+    )
     db_session.add(registration)
     await db_session.commit()
     await db_session.refresh(registration)
