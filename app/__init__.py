@@ -1,5 +1,6 @@
 import json
 import os
+import uuid
 from contextlib import AbstractAsyncContextManager
 from datetime import datetime
 from pathlib import Path
@@ -64,6 +65,9 @@ class Registration(SQLModel, table=True):
     user_id: int = Field(foreign_key="ami_user.id")
     user: User = Relationship(back_populates="registrations")
     subscription: dict[str, Any] = Field(sa_column=Column(JSONB))
+    label: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    enabled: bool = Field(default=True)
+    created_at: datetime = Field(default_factory=datetime.now)
 
 
 class RegistrationCreation(SQLModel, table=False):
