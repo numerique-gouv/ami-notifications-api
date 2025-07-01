@@ -2,7 +2,8 @@
 import { PUBLIC_API_URL } from '$env/static/public'
 import { onMount } from 'svelte'
 
-const isAppInstalled: boolean = 'Notification' in window
+const isAppInstalled: boolean =
+  typeof window !== 'undefined' && 'Notification' in window
 
 let isAuthenticatedForNotifications: boolean = $state(false)
 let authenticationStatus: string = $state('')
