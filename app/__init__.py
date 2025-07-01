@@ -209,19 +209,6 @@ async def get_user_list(
     return list(result.all())
 
 
-async def get_registration_list(
-    db_session: AsyncSession,
-    options: ExecutableOption | None = None,
-) -> list[Registration]:
-    if options:
-        query = select(Registration).options(options)
-    else:
-        query = select(Registration)
-    query = query.order_by(col(Registration.user_id))
-    result = await db_session.exec(query)
-    return list(result.all())
-
-
 async def get_notification_list(db_session: AsyncSession) -> list[Notification]:
     query = select(Notification).order_by(col(Notification.date).desc())
     result = await db_session.exec(query)
@@ -229,9 +216,8 @@ async def get_notification_list(db_session: AsyncSession) -> list[Notification]:
 
 
 @get("/notification/users")
-async def list_users(db_session: AsyncSession) -> list[Registration]:
-    # TODO: this should instead return a list of users, and thus use `get_user_list`.
-    return await get_registration_list(db_session)
+async def list_users(db_session: AsyncSession) -> list[User]:
+    return await get_user_list(db_session)
 
 
 @get("/notifications/{email:str}")
@@ -242,6 +228,16 @@ async def get_notifications(db_session: AsyncSession, email: str) -> list[Notifi
         options=selectinload(cast(InstrumentedAttribute[Any], User.notifications)),
     )
     return user.notifications
+
+
+@get("/registrations/{email:str}")
+async def list_registrations(db_session: AsyncSession, email: str) -> list[Registration]:
+    user: User = await get_user_by_email(
+        email,
+        db_session,
+        options=selectinload(cast(InstrumentedAttribute[Any], User.registrations)),
+    )
+    return user.registrations
 
 
 #### VIEWS
@@ -279,6 +275,7 @@ def create_app(
             register,
             notify,
             list_users,
+            list_registrations,
             get_notifications,
             admin,
             create_static_files_router(
