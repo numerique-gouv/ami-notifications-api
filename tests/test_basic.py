@@ -271,3 +271,23 @@ async def test_rename_registration(
     assert response.status_code == HTTP_200_OK
     registrations = response.json()
     assert registrations["label"] == "new label"
+
+
+async def test_enable_registration(
+    test_client: TestClient[Litestar],
+    registration: Registration,
+) -> None:
+    # Test disabling the registration
+    assert registration.enabled is True
+    response = test_client.patch(
+        f"/registrations/{registration.id}/enable", json={"enabled": False}
+    )
+    assert response.status_code == HTTP_200_OK
+    result = response.json()
+    assert result["enabled"] is False
+
+    # Test enabling the registration
+    response = test_client.patch(f"/registrations/{registration.id}/enable", json={"enabled": True})
+    assert response.status_code == HTTP_200_OK
+    result = response.json()
+    assert result["enabled"] is True
