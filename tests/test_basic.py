@@ -1,9 +1,13 @@
-from typing import Any
+import datetime
+import uuid
+from typing import Any, cast
 
+import pytest
 from litestar import Litestar
 from litestar.status_codes import HTTP_200_OK, HTTP_201_CREATED, HTTP_404_NOT_FOUND
 from litestar.testing import TestClient
 from pytest_httpx import HTTPXMock
+from sqlalchemy.orm import InstrumentedAttribute, selectinload
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
@@ -171,3 +175,119 @@ async def test_do_not_register_again_when_user_and_subscription_already_exist(
     # Still only one registration, no duplicates.
     all_registrations = await db_session.exec(select(Registration))
     assert len(all_registrations.all()) == 1  # The registration from the fixture.
+
+
+async def test_registration_default_fields(
+    test_client: TestClient[Litestar],
+    db_session: AsyncSession,
+    webpushsubscription: dict[str, Any],
+) -> None:
+    all_registrations = await db_session.exec(select(Registration))
+    assert len(all_registrations.all()) == 0
+
+    # First registration, we're expecting a 201 CREATED.
+    register_data = {"email": "foo@bar.baz", "subscription": webpushsubscription}
+    response = test_client.post("/notification/register", json=register_data)
+    assert response.status_code == HTTP_201_CREATED
+
+    # Make sure the registration has all the default fields set properly.
+    all_registrations = await db_session.exec(
+        select(Registration).options(
+            selectinload(cast(InstrumentedAttribute[Any], Registration.user))
+        )
+    )
+    registration = all_registrations.one()
+    assert registration.user.email == "foo@bar.baz"
+    try:
+        uuid.UUID(registration.label, version=4)
+    except ValueError:
+        pytest.fail(
+            f"Label should be initialized with a uuid4, but instead is set to: '{registration.label}'"
+        )
+    assert registration.enabled  # By default the registration is enabled.
+    assert registration.created_at < datetime.datetime.now()
+
+
+async def test_registration_custom_fields(
+    test_client: TestClient[Litestar],
+    db_session: AsyncSession,
+    webpushsubscription: dict[str, Any],
+) -> None:
+    all_registrations = await db_session.exec(select(Registration))
+    assert len(all_registrations.all()) == 0
+
+    # First registration, we're expecting a 201 CREATED.
+    register_data = {
+        "email": "foo@bar.baz",
+        "label": "foobar",
+        "enabled": False,
+        "subscription": webpushsubscription,
+    }
+    response = test_client.post("/notification/register", json=register_data)
+    assert response.status_code == HTTP_201_CREATED
+
+    # Make sure the registration has all the default fields set properly.
+    all_registrations = await db_session.exec(
+        select(Registration).options(
+            selectinload(cast(InstrumentedAttribute[Any], Registration.user))
+        )
+    )
+    registration = all_registrations.one()
+    assert registration.user.email == "foo@bar.baz"
+    assert registration.label == "foobar"
+    assert not registration.enabled
+    assert registration.created_at < datetime.datetime.now()
+
+
+async def test_list_users(
+    test_client: TestClient[Litestar],
+    user: User,
+) -> None:
+    response = test_client.get("/notification/users")
+    assert response.status_code == HTTP_200_OK
+    users = response.json()
+    assert len(users) == 1
+    assert users[0]["email"] == user.email
+
+
+async def test_list_registrations(
+    test_client: TestClient[Litestar],
+    registration: Registration,
+) -> None:
+    response = test_client.get(f"/registrations/{registration.user.email}")
+    assert response.status_code == HTTP_200_OK
+    registrations = response.json()
+    assert len(registrations) == 1
+
+
+async def test_rename_registration(
+    test_client: TestClient[Litestar],
+    registration: Registration,
+) -> None:
+    assert registration.label != "new label"
+    response = test_client.patch(
+        f"/registrations/{registration.id}/rename", json={"label": "new label"}
+    )
+    assert response.status_code == HTTP_200_OK
+    registrations = response.json()
+    assert registrations["label"] == "new label"
+
+
+async def test_enable_registration(
+    test_client: TestClient[Litestar],
+    registration: Registration,
+) -> None:
+    # Test disabling the registration
+    assert registration.enabled is True
+    response = test_client.patch(
+        f"/registrations/{registration.id}/enable", json={"enabled": False}
+    )
+    assert response.status_code == HTTP_200_OK
+    result = response.json()
+    assert result["enabled"] is False
+
+    # Test enabling the registration
+    response = test_client.patch(f"/registrations/{registration.id}/enable", json={"enabled": True})
+    assert response.status_code == HTTP_200_OK
+    result = response.json()
+    assert result["enabled"] is True
