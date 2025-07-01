@@ -81,6 +81,10 @@ class RegistrationRename(SQLModel, table=False):
     label: str
 
 
+class RegistrationEnable(SQLModel, table=False):
+    enabled: bool
+
+
 class Notification(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     date: datetime = Field(default_factory=datetime.now)
@@ -263,6 +267,25 @@ async def rename_registration(
     return registration
 
 
+@patch("/registrations/{pk:int}/enable")
+async def enable_registration(
+    db_session: AsyncSession,
+    pk: int,
+    data: Annotated[RegistrationEnable, Body(description="Enable or disable the registration")],
+) -> Registration:
+    query = select(Registration).where(col(Registration.id) == pk)
+    result = await db_session.exec(query)
+    try:
+        registration: Registration = result.one()
+    except NoResultFound as e:
+        raise NotFoundException(detail=f"Registration {pk!r} not found") from e
+    registration.enabled = data.enabled
+    db_session.add(registration)
+    await db_session.commit()
+    await db_session.refresh(registration)
+    return registration
+
+
 #### VIEWS
 
 
@@ -300,6 +323,7 @@ def create_app(
             list_users,
             list_registrations,
             rename_registration,
+            enable_registration,
             get_notifications,
             admin,
             create_static_files_router(
