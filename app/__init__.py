@@ -8,7 +8,7 @@ from typing import Annotated, Any, Callable, cast
 
 import httpx
 import sentry_sdk
-from litestar import Litestar, Response, get, post
+from litestar import Litestar, Response, get, patch, post
 from litestar.config.cors import CORSConfig
 from litestar.contrib.jinja import JinjaTemplateEngine
 from litestar.di import Provide
@@ -75,6 +75,10 @@ class RegistrationCreation(SQLModel, table=False):
     email: str
     label: str = Field(default_factory=lambda: str(uuid.uuid4()))
     enabled: bool = Field(default=True)
+
+
+class RegistrationRename(SQLModel, table=False):
+    label: str
 
 
 class Notification(SQLModel, table=True):
@@ -240,6 +244,25 @@ async def list_registrations(db_session: AsyncSession, email: str) -> list[Regis
     return user.registrations
 
 
+@patch("/registrations/{pk:int}/rename")
+async def rename_registration(
+    db_session: AsyncSession,
+    pk: int,
+    data: Annotated[RegistrationRename, Body(description="New label for the registration")],
+) -> Registration:
+    query = select(Registration).where(col(Registration.id) == pk)
+    result = await db_session.exec(query)
+    try:
+        registration: Registration = result.one()
+    except NoResultFound as e:
+        raise NotFoundException(detail=f"Registration {pk!r} not found") from e
+    registration.label = data.label
+    db_session.add(registration)
+    await db_session.commit()
+    await db_session.refresh(registration)
+    return registration
+
+
 #### VIEWS
 
 
@@ -276,6 +299,7 @@ def create_app(
             notify,
             list_users,
             list_registrations,
+            rename_registration,
             get_notifications,
             admin,
             create_static_files_router(
