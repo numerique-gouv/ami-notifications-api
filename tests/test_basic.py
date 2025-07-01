@@ -258,3 +258,16 @@ async def test_list_registrations(
     assert response.status_code == HTTP_200_OK
     registrations = response.json()
     assert len(registrations) == 1
+
+
+async def test_rename_registration(
+    test_client: TestClient[Litestar],
+    registration: Registration,
+) -> None:
+    assert registration.label != "new label"
+    response = test_client.patch(
+        f"/registrations/{registration.id}/rename", json={"label": "new label"}
+    )
+    assert response.status_code == HTTP_200_OK
+    registrations = response.json()
+    assert registrations["label"] == "new label"
