@@ -17,17 +17,23 @@ let registerEmailInputValue: string = $state('')
 let userEmailState: string = $state('')
 let userNotifications: [] = $state([])
 
+const getSubscription = async () => {
+  console.log("refreshing the push subscription, if it's there")
+  const registration = await navigator.serviceWorker.ready
+  if (registration) {
+    const sub = await registration.pushManager.getSubscription()
+    console.log('refreshed subscription:', sub)
+    return sub
+  }
+}
+
 onMount(async () => {
   const emailLocalStorage: string | null =
     window.localStorage.getItem('emailLocalStorage')
-  const pushSubscriptionLocalStorage: Object | null = window.localStorage.getItem(
-    'pushSubscriptionLocalStorage'
-  )
 
-  if (emailLocalStorage && pushSubscriptionLocalStorage) {
+  if (emailLocalStorage) {
     userEmailState = emailLocalStorage
     registerEmailInputValue = emailLocalStorage
-    pushSubscription = pushSubscriptionLocalStorage
     await retrieveNotifications()
   }
 
@@ -36,22 +42,24 @@ onMount(async () => {
   })
 
   if (navigator.permissions) {
-    let permissionStatusPromise = navigator.permissions.query({ name: 'notifications' })
-    permissionStatusPromise.then((permissionStatus) => {
-      isAuthenticatedForNotifications = permissionStatus.state == 'granted'
-      console.log(`notifications permission status is ${permissionStatus.state}`)
-
-      permissionStatus.onchange = () => {
-        if (permissionStatus.state == 'granted') {
-          isAuthenticatedForNotifications = true
-        } else {
-          resetElements()
-        }
-        console.log(
-          `notifications permission status has changed to ${permissionStatus.state}`
-        )
-      }
+    const permissionStatus = await navigator.permissions.query({
+      name: 'notifications',
     })
+    isAuthenticatedForNotifications = permissionStatus.state == 'granted'
+    pushSubscription = await getSubscription()
+    console.log(`notifications permission status is ${permissionStatus.state}`)
+
+    permissionStatus.onchange = async () => {
+      if (permissionStatus.state == 'granted') {
+        isAuthenticatedForNotifications = true
+        pushSubscription = await getSubscription()
+      } else {
+        resetElements()
+      }
+      console.log(
+        `notifications permission status has changed to ${permissionStatus.state}`
+      )
+    }
   }
 })
 
@@ -92,7 +100,6 @@ const resetElements = () => {
   userEmailState = ''
   userNotifications = []
   window.localStorage.setItem('emailLocalStorage', '')
-  window.localStorage.setItem('pushSubscriptionLocalStorage', '')
 }
 
 const subscribePush = async () => {
@@ -173,7 +180,6 @@ const registerWithAmi = async () => {
       userEmailState = registerEmailInputValue
       userNotifications = []
       window.localStorage.setItem('emailLocalStorage', userEmailState)
-      window.localStorage.setItem('pushSubscriptionLocalStorage', pushSubscription)
     } else {
       registrationStatus = `error ${response.status}: ${response.statusText}, ${response.body}`
     }
