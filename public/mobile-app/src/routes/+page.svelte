@@ -2,10 +2,13 @@
 import { PUBLIC_API_URL } from '$env/static/public'
 import { onMount } from 'svelte'
 
+const isAppInstalled: boolean = 'Notification' in window
+
 let isAuthenticatedForNotifications: boolean = $state(false)
 let authenticationStatus: string = $state('')
 let isRegisteredWithAmi: boolean = $state(false)
 let registrationStatus: string = $state('')
+let userEmailValidationStatus: string = $state('')
 
 let pushSubscription
 let registerEmailInputValue: string = $state('')
@@ -52,30 +55,27 @@ onMount(async () => {
 })
 
 const retrieveNotifications = async () => {
-  try {
-    const response = await fetch(`${PUBLIC_API_URL}/notifications/${userEmailState}`)
+  if (userEmailState !== '') {
+    try {
+      const response = await fetch(`${PUBLIC_API_URL}/notifications/${userEmailState}`)
 
-    if (response.status == 200) {
-      userNotifications = await response.json()
-      userNotifications.forEach(
-        (notification) =>
-          (notification.formattedDate = new Date(notification.date).toLocaleDateString(
-            'fr-FR'
-          ))
-      )
-      console.log('userNotifications', userNotifications)
+      if (response.status == 200) {
+        userNotifications = await response.json()
+        userNotifications.forEach(
+          (notification) =>
+            (notification.formattedDate = new Date(
+              notification.date
+            ).toLocaleDateString('fr-FR'))
+        )
+        console.log('userNotifications', userNotifications)
+      }
+    } catch (error) {
+      console.error(error)
     }
-  } catch (error) {
-    console.error(error)
   }
 }
 
 const checkNotificationPermission = async () => {
-  // Check if the browser supports notifications
-  if (!('Notification' in window)) {
-    console.error('Add this website to your home screen!')
-    return false
-  }
   const permission = await Notification.permission
   console.log('permission:', permission)
   return permission == 'granted'
@@ -140,104 +140,122 @@ const askForNotificationPermission = async () => {
 }
 
 const registerWithAmi = async () => {
-  const pushSubURL = pushSubscription.endpoint
-  const pushSubAuth = pushSubscription.toJSON().keys.auth
-  const pushSubP256DH = pushSubscription.toJSON().keys.p256dh
+  if (registerEmailInputValue !== '') {
+    userEmailValidationStatus = ''
 
-  const payload = {
-    subscription: {
-      endpoint: pushSubURL,
-      keys: {
-        auth: pushSubAuth,
-        p256dh: pushSubP256DH,
+    const pushSubURL = pushSubscription.endpoint
+    const pushSubAuth = pushSubscription.toJSON().keys.auth
+    const pushSubP256DH = pushSubscription.toJSON().keys.p256dh
+
+    const payload = {
+      subscription: {
+        endpoint: pushSubURL,
+        keys: {
+          auth: pushSubAuth,
+          p256dh: pushSubP256DH,
+        },
       },
-    },
-    email: registerEmailInputValue,
-  }
-  console.log('payload:', payload)
-  isRegisteredWithAmi = true
-  registrationStatus = "En cours d'enregistrement..."
+      email: registerEmailInputValue,
+    }
+    console.log('payload:', payload)
+    isRegisteredWithAmi = true
+    registrationStatus = "En cours d'enregistrement..."
 
-  const response = await fetch(`${PUBLIC_API_URL}/notification/register`, {
-    method: 'POST',
-    body: JSON.stringify(payload),
-  })
-  console.log('response:', response)
-  isRegisteredWithAmi = false
-  if (response.status < 400) {
-    registrationStatus = 'Enregistrement réussi !'
-    userEmailState = registerEmailInputValue
-    userNotifications = []
-    window.localStorage.setItem('emailLocalStorage', userEmailState)
-    window.localStorage.setItem('pushSubscriptionLocalStorage', pushSubscription)
+    const response = await fetch(`${PUBLIC_API_URL}/notification/register`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    })
+    console.log('response:', response)
+    isRegisteredWithAmi = false
+    if (response.status < 400) {
+      registrationStatus = 'Enregistrement réussi !'
+      userEmailState = registerEmailInputValue
+      userNotifications = []
+      window.localStorage.setItem('emailLocalStorage', userEmailState)
+      window.localStorage.setItem('pushSubscriptionLocalStorage', pushSubscription)
+    } else {
+      registrationStatus = `error ${response.status}: ${response.statusText}, ${response.body}`
+    }
   } else {
-    registrationStatus = `error ${response.status}: ${response.statusText}, ${response.body}`
+    userEmailValidationStatus = 'Veuillez remplir le champ Email'
   }
 }
 </script>
 
 <div>
-  {#if userEmailState}
-    <h1>Bienvenue {userEmailState} sur l'application AMI</h1>
-  {:else}
-    <h1>Bienvenue sur l'application AMI</h1>
+	{#if !isAppInstalled}
+	<p>
+		Veuillez ajouter cette application sur l'écran d'accueil de votre téléphone, puis cliquez sur cette nouvelle icône pour ouvrir l'application
+	</p>
+	{:else}
+
+	<div>
+		{#if userEmailState}
+			<h1>Bienvenue {userEmailState} sur l'application AMI</h1>
+		{:else}
+			<h1>Bienvenue sur l'application AMI</h1>
+		{/if}
+
+		<button
+				type="button"
+				onclick={askForNotificationPermission}
+				disabled={isAuthenticatedForNotifications}
+		>
+			S'authentifier pour recevoir des notifications
+		</button>
+		<span id="authentication-status" title="authentication-status-title">{authenticationStatus}</span>
+
+		<div>
+			<p>
+				<label
+				>Email
+					<input
+							bind:value={registerEmailInputValue}
+							type="text"
+							id="register-email"
+							name="register-email"
+					/>
+				</label>
+			</p>
+			<p>
+				<span id="email-validation-status">{userEmailValidationStatus}</span>
+			</p>
+			<p>
+				<button
+						type="button"
+						id="register-with-ami"
+						onclick={registerWithAmi}
+						disabled={isRegisteredWithAmi}
+				>
+					S'enregistrer auprès d'AMI
+				</button>
+				<span id="registration-status">{registrationStatus}</span>
+			</p>
+		</div>
+
+		<div>
+			<h2>Historique des notifications</h2>
+			<button
+					type="button"
+					onclick={retrieveNotifications}
+			>
+				Rafraîchir la liste des notifications reçues
+			</button>
+			{#if userNotifications.length === 0}
+				<p>Vous n'avez pas reçu de notification pour l'instant</p>
+			{:else}
+				<ul>
+					{#each userNotifications as notification}
+						<li>
+							<p>Notification reçue le {notification.formattedDate}</p>
+							<p>Titre : {notification.title}</p>
+							<p>Message : {notification.message}</p>
+							<p>Expéditeur : {notification.sender}</p>
+						</li>
+					{/each}
+				</ul>
+			{/if}
+		</div>
+	</div>
   {/if}
-
-  <button
-      type="button"
-      onclick={askForNotificationPermission}
-      disabled={isAuthenticatedForNotifications}
-  >
-    S'authentifier pour recevoir des notifications
-  </button>
-  <span id="authentication-status" title="authentication-status-title">{authenticationStatus}</span>
-
-  <div>
-    <p>
-      <label
-      >Email
-        <input
-            bind:value={registerEmailInputValue}
-            type="text"
-            id="register-email"
-            name="register-email"
-        />
-      </label>
-    </p>
-    <p>
-      <button
-          type="button"
-          id="register-with-ami"
-          onclick={registerWithAmi}
-          disabled={isRegisteredWithAmi}
-      >
-        S'enregistrer auprès d'AMI
-      </button>
-      <span id="registration-status">{registrationStatus}</span>
-    </p>
-  </div>
-
-  <div>
-    <h2>Historique des notifications</h2>
-    <button
-        type="button"
-        onclick={retrieveNotifications}
-    >
-      Rafraîchir la liste des notifications reçues
-    </button>
-    {#if userNotifications.length === 0}
-      <p>Vous n'avez pas reçu de notification pour l'instant</p>
-    {:else}
-      <ul>
-        {#each userNotifications as notification}
-          <li>
-            <p>Notification reçue le {notification.formattedDate}</p>
-            <p>Titre : {notification.title}</p>
-            <p>Message : {notification.message}</p>
-            <p>Expéditeur : {notification.sender}</p>
-          </li>
-        {/each}
-      </ul>
-    {/if}
-  </div>
 </div>

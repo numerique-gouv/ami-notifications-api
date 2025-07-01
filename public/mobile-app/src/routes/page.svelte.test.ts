@@ -1,9 +1,14 @@
-import { describe, test, expect, vi } from 'vitest'
+import { describe, test, expect, vi, beforeEach } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 import { render, screen, waitFor } from '@testing-library/svelte'
 import Page from './+page.svelte'
 
 describe('/+page.svelte', () => {
+  beforeEach(() => {
+    // TODO check how to reset mocks
+    globalThis.Notification = {}
+  })
+
   test('should render h1 without user email when email and pushSubscription are not set', () => {
     // When
     render(Page)
