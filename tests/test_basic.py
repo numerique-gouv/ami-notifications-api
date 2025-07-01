@@ -237,3 +237,24 @@ async def test_registration_custom_fields(
     assert registration.label == "foobar"
     assert not registration.enabled
     assert registration.created_at < datetime.datetime.now()
+
+
+async def test_list_users(
+    test_client: TestClient[Litestar],
+    user: User,
+) -> None:
+    response = test_client.get("/notification/users")
+    assert response.status_code == HTTP_200_OK
+    users = response.json()
+    assert len(users) == 1
+    assert users[0]["email"] == user.email
+
+
+async def test_list_registrations(
+    test_client: TestClient[Litestar],
+    registration: Registration,
+) -> None:
+    response = test_client.get(f"/registrations/{registration.user.email}")
+    assert response.status_code == HTTP_200_OK
+    registrations = response.json()
+    assert len(registrations) == 1
