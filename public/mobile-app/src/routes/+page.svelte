@@ -1,6 +1,7 @@
 <script lang="ts">
 import { PUBLIC_API_URL } from '$env/static/public'
 import { onMount } from 'svelte'
+import Installation from '$lib/Installation.svelte'
 
 const isAppInstalled: boolean =
   typeof window !== 'undefined' && 'Notification' in window
@@ -190,12 +191,9 @@ const registerWithAmi = async () => {
 </script>
 
 <div>
-	{#if !isAppInstalled}
-	<p>
-		Veuillez ajouter cette application sur l'écran d'accueil de votre téléphone, puis cliquez sur cette nouvelle icône pour ouvrir l'application
-	</p>
-	{:else}
-
+{#if !isAppInstalled}
+  <Installation />
+{:else}
 	<div>
 		{#if userEmailState}
 			<h1>Bienvenue {userEmailState} sur l'application AMI</h1>
@@ -264,5 +262,5 @@ const registerWithAmi = async () => {
 			{/if}
 		</div>
 	</div>
-  {/if}
+{/if}
 </div>
