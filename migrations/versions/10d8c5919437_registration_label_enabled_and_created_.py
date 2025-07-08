@@ -14,7 +14,7 @@ import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.orm import Session
 
-from app import Registration
+from app.database_operations import Registration
 
 # revision identifiers, used by Alembic.
 revision: str = "10d8c5919437"
