@@ -63,12 +63,12 @@ HTML_DIR_ADMIN = "public"
 #### ENDPOINTS
 
 
-@get("/notification/key")
+@get("/application-key")
 async def get_application_key() -> str:
     return os.getenv("VAPID_APPLICATION_SERVER_KEY", "")
 
 
-@post("/notification/register")
+@post("/registrations")
 async def register(
     db_session: AsyncSession,
     data: Annotated[
@@ -99,7 +99,7 @@ async def register(
     return Response(registration, status_code=HTTP_201_CREATED)
 
 
-@post("/notification/send")
+@post("/notifications")
 async def notify(
     db_session: AsyncSession,
     webpush: WebPush,
@@ -110,7 +110,7 @@ async def notify(
             description="Send the notification message to a registered user",
         ),
     ],
-) -> Notification:
+) -> Response[Notification]:
     user = await get_user_by_id_from_database(
         data.user_id,
         db_session,
@@ -128,32 +128,33 @@ async def notify(
         )
         response.raise_for_status()
     notification = await create_notification_in_database(data, db_session)
-    return notification
+    return Response(notification, status_code=HTTP_201_CREATED)
 
 
-@get("/notification/users")
-async def list_users(db_session: AsyncSession) -> list[User]:
-    return await get_user_list_from_database(db_session)
+@get("/users")
+async def list_users(db_session: AsyncSession) -> Response[list[User]]:
+    users = await get_user_list_from_database(db_session)
+    return Response(users, status_code=HTTP_200_OK)
 
 
-@get("/notifications/{email:str}")
-async def get_notifications(db_session: AsyncSession, email: str) -> list[Notification]:
+@get("/users/{email:str}/notifications")
+async def get_notifications(db_session: AsyncSession, email: str) -> Response[list[Notification]]:
     user: User = await get_user_by_email_from_database(
         email,
         db_session,
         options=selectinload(cast(InstrumentedAttribute[Any], User.notifications)),
     )
-    return user.notifications
+    return Response(user.notifications, status_code=HTTP_200_OK)
 
 
-@get("/registrations/{email:str}")
-async def list_registrations(db_session: AsyncSession, email: str) -> list[Registration]:
+@get("/users/{email:str}/registrations")
+async def list_registrations(db_session: AsyncSession, email: str) -> Response[list[Registration]]:
     user: User = await get_user_by_email_from_database(
         email,
         db_session,
         options=selectinload(cast(InstrumentedAttribute[Any], User.registrations)),
     )
-    return user.registrations
+    return Response(user.registrations, status_code=HTTP_200_OK)
 
 
 @patch("/registrations/{pk:int}/rename")
@@ -161,11 +162,11 @@ async def rename_registration(
     db_session: AsyncSession,
     pk: int,
     data: Annotated[RegistrationRename, Body(description="New label for the registration")],
-) -> Registration:
+) -> Response[Registration]:
     registration = await get_registration_by_id_from_database(db_session, pk)
     registration.label = data.label
     registration = await update_registration_in_database(db_session, registration)
-    return registration
+    return Response(registration, status_code=HTTP_200_OK)
 
 
 @patch("/registrations/{pk:int}/enable")
@@ -173,11 +174,11 @@ async def enable_registration(
     db_session: AsyncSession,
     pk: int,
     data: Annotated[RegistrationEnable, Body(description="Enable or disable the registration")],
-) -> Registration:
+) -> Response[Registration]:
     registration = await get_registration_by_id_from_database(db_session, pk)
     registration.enabled = data.enabled
     registration = await update_registration_in_database(db_session, registration)
-    return registration
+    return Response(registration, status_code=HTTP_200_OK)
 
 
 #### VIEWS

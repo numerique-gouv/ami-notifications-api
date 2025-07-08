@@ -67,7 +67,9 @@ onMount(async () => {
 const retrieveNotifications = async () => {
   if (userEmailState !== '') {
     try {
-      const response = await fetch(`${PUBLIC_API_URL}/notifications/${userEmailState}`)
+      const response = await fetch(
+        `${PUBLIC_API_URL}/users/${userEmailState}/notifications`
+      )
 
       if (response.status == 200) {
         userNotifications = await response.json()
@@ -106,7 +108,7 @@ const resetElements = () => {
 const subscribePush = async () => {
   const registration = await navigator.serviceWorker.ready
   try {
-    const applicationKeyResponse = await fetch(`${PUBLIC_API_URL}/notification/key`)
+    const applicationKeyResponse = await fetch(`${PUBLIC_API_URL}/application-key`)
     const applicationKey = await applicationKeyResponse.text()
     const options = { userVisibleOnly: true, applicationServerKey: applicationKey }
     const pushSubscription = await registration.pushManager.subscribe(options)
@@ -170,7 +172,7 @@ const registerWithAmi = async () => {
     isRegisteredWithAmi = true
     registrationStatus = "En cours d'enregistrement..."
 
-    const response = await fetch(`${PUBLIC_API_URL}/notification/register`, {
+    const response = await fetch(`${PUBLIC_API_URL}/registrations`, {
       method: 'POST',
       body: JSON.stringify(payload),
     })
