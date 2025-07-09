@@ -1,58 +1,106 @@
 <script lang="ts">
 import { PUBLIC_API_URL } from '$env/static/public'
 import { onMount } from 'svelte'
+import Installation from '$lib/Installation.svelte'
 
-let subscriptionStatus = $state('')
-let isAuthenticatedForNotifications = $state(false)
-let isRegisteredWithAmi = $state(false)
+const isAppInstalled: boolean =
+  typeof window !== 'undefined' && 'Notification' in window
 
-let pushSubURL = $state('pushSubURL')
-let pushSubAuth = $state('pushSubAuth')
-let pushSubP256DH = $state('pushSubP256DH')
-let registerEmailValue = $state('')
-let registrationStatus = $state('')
+let isAuthenticatedForNotifications: boolean = $state(false)
+let authenticationStatus: string = $state('')
+let isRegisteredWithAmi: boolean = $state(false)
+let registrationStatus: string = $state('')
+let userEmailValidationStatus: string = $state('')
+
 let pushSubscription
+let registerEmailInputValue: string = $state('')
 
-let userEmail: string = $state('')
+let userEmailState: string = $state('')
 let userNotifications: [] = $state([])
 
+const getSubscription = async () => {
+  console.log("refreshing the push subscription, if it's there")
+  const registration = await navigator.serviceWorker.ready
+  if (registration) {
+    const sub = await registration.pushManager.getSubscription()
+    console.log('refreshed subscription:', sub)
+    return sub
+  }
+}
+
 onMount(async () => {
-  console.log('registerEmailValue', registerEmailValue)
-  if (registerEmailValue) {
-    retrieveNotifications()
+  const emailLocalStorage: string | null =
+    window.localStorage.getItem('emailLocalStorage')
+
+  if (emailLocalStorage) {
+    userEmailState = emailLocalStorage
+    registerEmailInputValue = emailLocalStorage
+    await retrieveNotifications()
+  }
+
+  checkNotificationPermission().then((isGranted) => {
+    isAuthenticatedForNotifications = isGranted === true
+  })
+
+  if (navigator.permissions) {
+    const permissionStatus = await navigator.permissions.query({
+      name: 'notifications',
+    })
+    isAuthenticatedForNotifications = permissionStatus.state == 'granted'
+    pushSubscription = await getSubscription()
+    console.log(`notifications permission status is ${permissionStatus.state}`)
+
+    permissionStatus.onchange = async () => {
+      if (permissionStatus.state == 'granted') {
+        isAuthenticatedForNotifications = true
+        pushSubscription = await getSubscription()
+      } else {
+        resetElements()
+      }
+      console.log(
+        `notifications permission status has changed to ${permissionStatus.state}`
+      )
+    }
   }
 })
 
 const retrieveNotifications = async () => {
-  userEmail = registerEmailValue
+  if (userEmailState !== '') {
+    try {
+      const response = await fetch(`${PUBLIC_API_URL}/notifications/${userEmailState}`)
 
-  try {
-    const response = await fetch(`${PUBLIC_API_URL}/notifications/${userEmail}`)
-
-    if (response.status == 200) {
-      userNotifications = await response.json()
-      userNotifications.forEach(
-        (notification) =>
-          (notification.formattedDate = new Date(notification.date).toLocaleDateString(
-            'fr-FR'
-          ))
-      )
-      console.log('userNotifications', userNotifications)
+      if (response.status == 200) {
+        userNotifications = await response.json()
+        userNotifications.forEach(
+          (notification) =>
+            (notification.formattedDate = new Date(
+              notification.date
+            ).toLocaleDateString('fr-FR'))
+        )
+        console.log('userNotifications', userNotifications)
+      }
+    } catch (error) {
+      console.error(error)
     }
-  } catch (error) {
-    console.error(error)
   }
 }
 
 const checkNotificationPermission = async () => {
-  // Check if the browser supports notifications
-  if (!('Notification' in window)) {
-    alert('Add this website to your home screen!')
-    return false
-  }
   const permission = await Notification.permission
   console.log('permission:', permission)
   return permission == 'granted'
+}
+
+const resetElements = () => {
+  isAuthenticatedForNotifications = false
+  authenticationStatus = ''
+  isRegisteredWithAmi = false
+  registrationStatus = ''
+  pushSubscription = null
+  registerEmailInputValue = ''
+  userEmailState = ''
+  userNotifications = []
+  window.localStorage.setItem('emailLocalStorage', '')
 }
 
 const subscribePush = async () => {
@@ -61,16 +109,13 @@ const subscribePush = async () => {
     const applicationKeyResponse = await fetch(`${PUBLIC_API_URL}/notification/key`)
     const applicationKey = await applicationKeyResponse.text()
     const options = { userVisibleOnly: true, applicationServerKey: applicationKey }
-    pushSubscription = await registration.pushManager.subscribe(options)
-    console.log('pushSubscription', pushSubscription)
-    console.debug('pushSubscription pushSubURL:', pushSubscription.toJSON().endpoint)
-    console.debug('pushSubscription auth:', pushSubscription.toJSON().keys.auth)
-    console.debug('pushSubscription p256dh:', pushSubscription.toJSON().keys.p256dh)
+    const pushSubscription = await registration.pushManager.subscribe(options)
+    console.log('pushSubscription:', pushSubscription)
+    console.log('Subscribed to the push manager')
     // The push subscription details needed by the application
     // server are now available, and can be sent to it using,
     // for example, the fetch() API.
-    console.log('Subscribed to the push manager')
-    subscriptionStatus = 'Inscription réussie au serveur de notifications'
+    authenticationStatus = 'Inscription réussie au serveur de notifications'
     return pushSubscription
   } catch (error) {
     // During development it often helps to log errors to the
@@ -83,15 +128,11 @@ const subscribePush = async () => {
 
 const updateButtonsStates = async () => {
   const isGranted = await checkNotificationPermission()
-  console.log('inside updateButtonsStates, isGranted:', isGranted)
   isAuthenticatedForNotifications = isGranted
   isRegisteredWithAmi = !isGranted
 
   if (isGranted) {
-    const pushSubscription = await subscribePush()
-    pushSubURL = pushSubscription.endpoint
-    pushSubAuth = pushSubscription.toJSON().keys.auth
-    pushSubP256DH = pushSubscription.toJSON().keys.p256dh
+    pushSubscription = await subscribePush()
   }
 }
 
@@ -108,99 +149,118 @@ const askForNotificationPermission = async () => {
 }
 
 const registerWithAmi = async () => {
-  console.log('registerWithAmi')
+  if (registerEmailInputValue !== '') {
+    userEmailValidationStatus = ''
 
-  const payload = {
-    subscription: {
-      endpoint: pushSubURL,
-      keys: {
-        auth: pushSubAuth,
-        p256dh: pushSubP256DH,
+    const pushSubURL = pushSubscription.endpoint
+    const pushSubAuth = pushSubscription.toJSON().keys.auth
+    const pushSubP256DH = pushSubscription.toJSON().keys.p256dh
+
+    const payload = {
+      subscription: {
+        endpoint: pushSubURL,
+        keys: {
+          auth: pushSubAuth,
+          p256dh: pushSubP256DH,
+        },
       },
-    },
-    email: registerEmailValue,
-  }
-  console.log('isRegistered with AMI:', payload)
-  isRegisteredWithAmi = true
-  registrationStatus = 'Registering...'
+      email: registerEmailInputValue,
+    }
+    console.log('payload:', payload)
+    isRegisteredWithAmi = true
+    registrationStatus = "En cours d'enregistrement..."
 
-  const response = await fetch(`${PUBLIC_API_URL}/notification/register`, {
-    method: 'POST',
-    body: JSON.stringify(payload),
-  })
-  console.log('response from AMI:', response)
-  isRegisteredWithAmi = false
-  if (response.status < 400) {
-    registrationStatus = 'Done!'
-    userEmail = registerEmailValue
+    const response = await fetch(`${PUBLIC_API_URL}/notification/register`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    })
+    console.log('response:', response)
+    isRegisteredWithAmi = false
+    if (response.status < 400) {
+      registrationStatus = 'Enregistrement réussi !'
+      userEmailState = registerEmailInputValue
+      userNotifications = []
+      window.localStorage.setItem('emailLocalStorage', userEmailState)
+    } else {
+      registrationStatus = `error ${response.status}: ${response.statusText}, ${response.body}`
+    }
   } else {
-    registrationStatus = `error ${response.status}: ${response.statusText}, ${response.body}`
+    userEmailValidationStatus = 'Veuillez remplir le champ Email'
   }
 }
 </script>
 
 <div>
-	{#if userEmail}
-	  <h1>Bienvenue {userEmail} sur l'application AMI</h1>
-  {:else}
-    <h1>Bienvenue sur l'application AMI</h1>
-  {/if}
-
-	<button
-		type="button"
-		onclick={askForNotificationPermission}
-		disabled={isAuthenticatedForNotifications}
-	>
-		S'authentifier pour recevoir des notifications
-	</button>
-	<span id="subscription-status">{subscriptionStatus}</span>
-
+{#if !isAppInstalled}
+  <Installation />
+{:else}
 	<div>
-		<p>
-			<label
-				>Email
-				<input
-					bind:value={registerEmailValue}
-					type="text"
-					id="register-email"
-					name="register-email"
-				/>
-			</label>
-		</p>
-		<p>
-			<button
-				type="button"
-				id="register-with-ami"
-				onclick={registerWithAmi}
-				disabled={isRegisteredWithAmi}
-			>
-				S'enregistrer auprès d'AMI
-			</button>
-			<span id="registration-status">{registrationStatus}</span>
-		</p>
-	</div>
+		{#if userEmailState}
+			<h1>Bienvenue {userEmailState} sur l'application AMI</h1>
+		{:else}
+			<h1>Bienvenue sur l'application AMI</h1>
+		{/if}
 
-  <div>
-    <h2>Historique des notifications</h2>
-    <button
+		<button
 				type="button"
-				onclick={retrieveNotifications}
+				onclick={askForNotificationPermission}
+				disabled={isAuthenticatedForNotifications}
 		>
-			Rafraîchir la liste des notifications
+			S'authentifier pour recevoir des notifications
 		</button>
-    {#if userNotifications.length === 0}
-      <p>Vous n'avez pas reçu de notification pour l'instant</p>
-    {:else}
-    <ul>
-      {#each userNotifications as notification}
-        <li>
-          <p>Notification reçue le {notification.formattedDate}</p>
-          <p>Titre : {notification.title}</p>
-          <p>Message : {notification.message}</p>
-          <p>Expéditeur : {notification.sender}</p>
-        </li>
-      {/each}
-    </ul>
-    {/if}
-  </div>
+		<span id="authentication-status" title="authentication-status-title">{authenticationStatus}</span>
+
+		<div>
+			<p>
+				<label
+				>Email
+					<input
+							bind:value={registerEmailInputValue}
+							type="text"
+							id="register-email"
+							name="register-email"
+					/>
+				</label>
+			</p>
+			<p>
+				<span id="email-validation-status">{userEmailValidationStatus}</span>
+			</p>
+			<p>
+				<button
+						type="button"
+						id="register-with-ami"
+						onclick={registerWithAmi}
+						disabled={isRegisteredWithAmi}
+				>
+					S'enregistrer auprès d'AMI
+				</button>
+				<span id="registration-status">{registrationStatus}</span>
+			</p>
+		</div>
+
+		<div>
+			<h2>Historique des notifications</h2>
+			<button
+					type="button"
+					onclick={retrieveNotifications}
+			>
+				Rafraîchir la liste des notifications reçues
+			</button>
+			{#if userNotifications.length === 0}
+				<p>Vous n'avez pas reçu de notification pour l'instant</p>
+			{:else}
+				<ul>
+					{#each userNotifications as notification}
+						<li>
+							<p>Notification reçue le {notification.formattedDate}</p>
+							<p>Titre : {notification.title}</p>
+							<p>Message : {notification.message}</p>
+							<p>Expéditeur : {notification.sender}</p>
+						</li>
+					{/each}
+				</ul>
+			{/if}
+		</div>
+	</div>
+{/if}
 </div>

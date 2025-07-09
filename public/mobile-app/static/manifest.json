@@ -1,6 +1,6 @@
 {
   "name": "Push notification test",
-  "short_name": "Notify test",
+  "short_name": "AMI",
   "start_url": "/?source=pwa",
   "display": "standalone",
   "display_override": ["tabbed"],
