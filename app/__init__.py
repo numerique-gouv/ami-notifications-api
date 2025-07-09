@@ -1,5 +1,6 @@
 import json
 import os
+import uuid
 from contextlib import AbstractAsyncContextManager
 from datetime import datetime
 from pathlib import Path
@@ -7,7 +8,7 @@ from typing import Annotated, Any, Callable, cast
 
 import httpx
 import sentry_sdk
-from litestar import Litestar, Response, get, post
+from litestar import Litestar, Response, get, patch, post
 from litestar.config.cors import CORSConfig
 from litestar.contrib.jinja import JinjaTemplateEngine
 from litestar.di import Provide
@@ -64,11 +65,24 @@ class Registration(SQLModel, table=True):
     user_id: int = Field(foreign_key="ami_user.id")
     user: User = Relationship(back_populates="registrations")
     subscription: dict[str, Any] = Field(sa_column=Column(JSONB))
+    label: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    enabled: bool = Field(default=True)
+    created_at: datetime = Field(default_factory=datetime.now)
 
 
 class RegistrationCreation(SQLModel, table=False):
     subscription: dict[str, Any] = Field(sa_column=Column(JSONB))
     email: str
+    label: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    enabled: bool = Field(default=True)
+
+
+class RegistrationRename(SQLModel, table=False):
+    label: str
+
+
+class RegistrationEnable(SQLModel, table=False):
+    enabled: bool
 
 
 class Notification(SQLModel, table=True):
@@ -119,7 +133,9 @@ async def register(
         # This registration already exists, don't duplicate it.
         return Response(existing_registration, status_code=HTTP_200_OK)
 
-    registration = Registration(subscription=data.subscription, user_id=user.id)
+    registration = Registration(
+        subscription=data.subscription, label=data.label, enabled=data.enabled, user_id=user.id
+    )
     db_session.add(registration)
     await db_session.commit()
     await db_session.refresh(registration)
@@ -201,19 +217,6 @@ async def get_user_list(
     return list(result.all())
 
 
-async def get_registration_list(
-    db_session: AsyncSession,
-    options: ExecutableOption | None = None,
-) -> list[Registration]:
-    if options:
-        query = select(Registration).options(options)
-    else:
-        query = select(Registration)
-    query = query.order_by(col(Registration.user_id))
-    result = await db_session.exec(query)
-    return list(result.all())
-
-
 async def get_notification_list(db_session: AsyncSession) -> list[Notification]:
     query = select(Notification).order_by(col(Notification.date).desc())
     result = await db_session.exec(query)
@@ -221,9 +224,8 @@ async def get_notification_list(db_session: AsyncSession) -> list[Notification]:
 
 
 @get("/notification/users")
-async def list_users(db_session: AsyncSession) -> list[Registration]:
-    # TODO: this should instead return a list of users, and thus use `get_user_list`.
-    return await get_registration_list(db_session)
+async def list_users(db_session: AsyncSession) -> list[User]:
+    return await get_user_list(db_session)
 
 
 @get("/notifications/{email:str}")
@@ -234,6 +236,54 @@ async def get_notifications(db_session: AsyncSession, email: str) -> list[Notifi
         options=selectinload(cast(InstrumentedAttribute[Any], User.notifications)),
     )
     return user.notifications
+
+
+@get("/registrations/{email:str}")
+async def list_registrations(db_session: AsyncSession, email: str) -> list[Registration]:
+    user: User = await get_user_by_email(
+        email,
+        db_session,
+        options=selectinload(cast(InstrumentedAttribute[Any], User.registrations)),
+    )
+    return user.registrations
+
+
+@patch("/registrations/{pk:int}/rename")
+async def rename_registration(
+    db_session: AsyncSession,
+    pk: int,
+    data: Annotated[RegistrationRename, Body(description="New label for the registration")],
+) -> Registration:
+    query = select(Registration).where(col(Registration.id) == pk)
+    result = await db_session.exec(query)
+    try:
+        registration: Registration = result.one()
+    except NoResultFound as e:
+        raise NotFoundException(detail=f"Registration {pk!r} not found") from e
+    registration.label = data.label
+    db_session.add(registration)
+    await db_session.commit()
+    await db_session.refresh(registration)
+    return registration
+
+
+@patch("/registrations/{pk:int}/enable")
+async def enable_registration(
+    db_session: AsyncSession,
+    pk: int,
+    data: Annotated[RegistrationEnable, Body(description="Enable or disable the registration")],
+) -> Registration:
+    query = select(Registration).where(col(Registration.id) == pk)
+    result = await db_session.exec(query)
+    try:
+        registration: Registration = result.one()
+    except NoResultFound as e:
+        raise NotFoundException(detail=f"Registration {pk!r} not found") from e
+    registration.enabled = data.enabled
+    db_session.add(registration)
+    await db_session.commit()
+    await db_session.refresh(registration)
+    return registration
 
 
 #### VIEWS
@@ -271,6 +321,9 @@ def create_app(
             register,
             notify,
             list_users,
+            list_registrations,
+            rename_registration,
+            enable_registration,
             get_notifications,
             admin,
             create_static_files_router(
