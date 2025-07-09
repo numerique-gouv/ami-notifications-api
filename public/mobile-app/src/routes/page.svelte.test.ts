@@ -20,6 +20,7 @@ describe('/+page.svelte', () => {
 
   test('should render h1 with user email when email and pushSubscription are set', () => {
     // Given
+    window.localStorage.setItem('userIdLocalStorage', '11')
     window.localStorage.setItem('emailLocalStorage', 'test@email.fr')
     window.localStorage.setItem('pushSubscriptionLocalStorage', '{}')
 

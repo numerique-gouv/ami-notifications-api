@@ -137,20 +137,22 @@ async def list_users(db_session: AsyncSession) -> Response[list[User]]:
     return Response(users, status_code=HTTP_200_OK)
 
 
-@get("/users/{email:str}/notifications")
-async def get_notifications(db_session: AsyncSession, email: str) -> Response[list[Notification]]:
-    user: User = await get_user_by_email_from_database(
-        email,
+@get("/users/{user_id:int}/notifications")
+async def get_notifications(db_session: AsyncSession, user_id: int) -> Response[list[Notification]]:
+    user: User = await get_user_by_id_from_database(
+        user_id,
         db_session,
         options=selectinload(cast(InstrumentedAttribute[Any], User.notifications)),
     )
     return Response(user.notifications, status_code=HTTP_200_OK)
 
 
-@get("/users/{email:str}/registrations")
-async def list_registrations(db_session: AsyncSession, email: str) -> Response[list[Registration]]:
-    user: User = await get_user_by_email_from_database(
-        email,
+@get("/users/{user_id:int}/registrations")
+async def list_registrations(
+    db_session: AsyncSession, user_id: int
+) -> Response[list[Registration]]:
+    user: User = await get_user_by_id_from_database(
+        user_id,
         db_session,
         options=selectinload(cast(InstrumentedAttribute[Any], User.registrations)),
     )

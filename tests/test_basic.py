@@ -17,13 +17,13 @@ from app import Notification, Registration, User
 async def test_notifications_empty(
     test_client: TestClient[Litestar], user: User
 ) -> None:  # The `user` fixture is needed so we don't get a 404 when asking for notifications.
-    response = test_client.get("/users/user@example.com/notifications")
+    response = test_client.get("/users/1/notifications")
     assert response.status_code == HTTP_200_OK
     assert response.json() == []
 
 
 async def test_notifications(test_client: TestClient[Litestar], notification: Notification) -> None:
-    response = test_client.get(f"/users/{notification.user.email}/notifications")
+    response = test_client.get(f"/users/{notification.user.id}/notifications")
     assert response.status_code == HTTP_200_OK
     assert len(response.json()) == 1
     assert response.json()[0]["user_id"] == notification.user.id
@@ -53,7 +53,7 @@ async def test_create_notification_from_test_and_from_app_context(
     }
     response = test_client.post("/notifications", json=notification_data)
     assert response.status_code == HTTP_201_CREATED
-    response = test_client.get(f"/users/{registration.user.email}/notifications")
+    response = test_client.get(f"/users/{registration.user.id}/notifications")
     assert response.status_code == HTTP_200_OK
     assert len(response.json()) == 2
     assert response.json()[0]["user_id"] == registration.user.id
@@ -85,13 +85,14 @@ async def test_database_isolation_test_one(
 
     # Verify those users exists in our test database
     assert user.id is not None
+    assert user.id == 1
     assert user.email == "alice@example.com"
 
     # Verify those users exists through API calls
-    response = test_client.get("/users/alice@example.com/notifications")
+    response = test_client.get("/users/1/notifications")
     assert response.status_code == HTTP_200_OK
     assert response.json() == []  # User exists (no 404) but has no notifications
-    response = test_client.get("/users/apiuser@example.com/notifications")
+    response = test_client.get("/users/2/notifications")
     assert response.status_code == HTTP_200_OK
     assert response.json() == []  # User exists (no 404) but has no notifications
 
@@ -99,14 +100,16 @@ async def test_database_isolation_test_one(
     all_users_result = await db_session.exec(select(User))
     all_users_list = list(all_users_result.all())
     assert len(all_users_list) == 2
+    assert all_users_list[0].id == 1
     assert all_users_list[0].email == "alice@example.com"
+    assert all_users_list[1].id == 2
     assert all_users_list[1].email == "apiuser@example.com"
-    # Importantly, bob@example.com should NOT be here, nor apiuser2@example.com
+    # Importantly, user 3 should NOT be here, nor user 4
 
     # Verify only those users exists through API calls
-    response = test_client.get("/users/bob@example.com/notifications")
+    response = test_client.get("/users/3/notifications")
     assert response.status_code == HTTP_404_NOT_FOUND
-    response = test_client.get("/users/apiuser2@example.com/notifications")
+    response = test_client.get("/users/4/notifications")
     assert response.status_code == HTTP_404_NOT_FOUND
 
 
@@ -129,13 +132,14 @@ async def test_database_isolation_test_two(
 
     # Verify those users exists in our test database
     assert user.id is not None
+    assert user.id == 1
     assert user.email == "bob@example.com"
 
     # Verify those users exists through API calls
-    response = test_client.get("/users/bob@example.com/notifications")
+    response = test_client.get("/users/1/notifications")
     assert response.status_code == HTTP_200_OK
     assert response.json() == []  # User exists (no 404) but has no notifications
-    response = test_client.get("/users/apiuser2@example.com/notifications")
+    response = test_client.get("/users/2/notifications")
     assert response.status_code == HTTP_200_OK
     assert response.json() == []  # User exists (no 404) but has no notifications
 
@@ -143,14 +147,16 @@ async def test_database_isolation_test_two(
     all_users_result = await db_session.exec(select(User))
     all_users_list = list(all_users_result.all())
     assert len(all_users_list) == 2
+    assert all_users_list[0].id == 1
     assert all_users_list[0].email == "bob@example.com"
+    assert all_users_list[1].id == 2
     assert all_users_list[1].email == "apiuser2@example.com"
-    # Importantly, alice@example.com should NOT be here, nor apiuser@example.com
+    # Importantly, user 3 should NOT be here, nor user 4
 
     # Verify only those users exists through API calls
-    response = test_client.get("/users/alice@example.com/notifications")
+    response = test_client.get("/users/3/notifications")
     assert response.status_code == HTTP_404_NOT_FOUND
-    response = test_client.get("/users/apiuser@example.com/notifications")
+    response = test_client.get("/users/4/notifications")
     assert response.status_code == HTTP_404_NOT_FOUND
 
 
@@ -254,7 +260,7 @@ async def test_list_registrations(
     test_client: TestClient[Litestar],
     registration: Registration,
 ) -> None:
-    response = test_client.get(f"/users/{registration.user.email}/registrations")
+    response = test_client.get(f"/users/{registration.user.id}/registrations")
     assert response.status_code == HTTP_200_OK
     registrations = response.json()
     assert len(registrations) == 1
