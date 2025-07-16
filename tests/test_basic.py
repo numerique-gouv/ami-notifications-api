@@ -272,7 +272,7 @@ async def test_rename_registration(
 ) -> None:
     assert registration.label != "new label"
     response = test_client.patch(
-        f"/registrations/{registration.id}/rename", json={"label": "new label"}
+        f"/registrations/{registration.id}/label", json={"label": "new label"}
     )
     assert response.status_code == HTTP_200_OK
     registrations = response.json()
@@ -286,14 +286,16 @@ async def test_enable_registration(
     # Test disabling the registration
     assert registration.enabled is True
     response = test_client.patch(
-        f"/registrations/{registration.id}/enable", json={"enabled": False}
+        f"/registrations/{registration.id}/enabled", json={"enabled": False}
     )
     assert response.status_code == HTTP_200_OK
     result = response.json()
     assert result["enabled"] is False
 
     # Test enabling the registration
-    response = test_client.patch(f"/registrations/{registration.id}/enable", json={"enabled": True})
+    response = test_client.patch(
+        f"/registrations/{registration.id}/enabled", json={"enabled": True}
+    )
     assert response.status_code == HTTP_200_OK
     result = response.json()
     assert result["enabled"] is True

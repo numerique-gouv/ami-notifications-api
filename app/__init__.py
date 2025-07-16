@@ -159,7 +159,7 @@ async def list_registrations(
     return Response(user.registrations, status_code=HTTP_200_OK)
 
 
-@patch("/registrations/{pk:int}/rename")
+@patch("/registrations/{pk:int}/label")
 async def rename_registration(
     db_session: AsyncSession,
     pk: int,
@@ -171,7 +171,7 @@ async def rename_registration(
     return Response(registration, status_code=HTTP_200_OK)
 
 
-@patch("/registrations/{pk:int}/enable")
+@patch("/registrations/{pk:int}/enabled")
 async def enable_registration(
     db_session: AsyncSession,
     pk: int,
