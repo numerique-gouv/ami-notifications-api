@@ -39,5 +39,9 @@
     "typescript-eslint": "^8.20.0",
     "vite": "^6.2.6",
     "vitest": "^3.0.0"
+  },
+  "devDependencies": {
+    "@cucumber/cucumber": "^12.1.0",
+    "@vitejs/plugin-basic-ssl": "^2.1.0"
   }
 }

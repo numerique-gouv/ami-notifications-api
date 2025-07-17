@@ -2,7 +2,7 @@
 
 This is the AMI (Application Mobile Interministérielle) notifications API,
 providing entry points to create and list notifications, and to store push URLs
-registered from clients (web or mobile).
+registered from clients (web or mobile) amongst other things.
 
 
 ## Tech stack
@@ -148,6 +148,12 @@ Or simpler:
 ```
 make build-app
 ```
+
+### User connection
+
+We're using France Connect to identify and authorize users, check the
+[CONTRIBUTING.md](CONTRIBUTING.md) file for more information on how to use it
+locally during development.
 
 ### Contributing
 

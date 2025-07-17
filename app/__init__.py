@@ -5,18 +5,34 @@ from pathlib import Path
 from typing import Annotated, Any, Callable, cast
 
 import httpx
+import jwt
 import sentry_sdk
-from litestar import Litestar, Response, get, patch, post
+from litestar import (
+    Litestar,
+    Request,
+    Response,
+    get,
+    patch,
+    post,
+)
 from litestar.config.cors import CORSConfig
 from litestar.contrib.jinja import JinjaTemplateEngine
 from litestar.di import Provide
 from litestar.exceptions import NotFoundException
+from litestar.middleware.session.server_side import ServerSideSessionConfig
 from litestar.params import Body
 from litestar.response import Template
+from litestar.response.redirect import Redirect
 from litestar.static_files import (
     create_static_files_router,  # type: ignore[reportUnknownVariableType]
 )
-from litestar.status_codes import HTTP_200_OK, HTTP_201_CREATED
+from litestar.status_codes import (
+    HTTP_200_OK,
+    HTTP_201_CREATED,
+    HTTP_403_FORBIDDEN,
+    HTTP_500_INTERNAL_SERVER_ERROR,
+)
+from litestar.stores.file import FileStore
 from litestar.template.config import TemplateConfig
 from sqlalchemy.orm import InstrumentedAttribute, selectinload
 from sqlmodel.ext.asyncio.session import AsyncSession
@@ -59,6 +75,13 @@ HTML_DIR = "public/mobile-app/build"
 # This is the folder where the "admin" (test API client) is.
 HTML_DIR_ADMIN = "public"
 
+PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID = os.getenv("PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID", "")
+FC_SERVICE_PROVIDER_CLIENT_SECRET = os.getenv("FC_SERVICE_PROVIDER_CLIENT_SECRET", "")
+PUBLIC_FC_BASE_URL = os.getenv("PUBLIC_FC_BASE_URL", "")
+PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL = os.getenv("PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL", "")
+PUBLIC_FC_TOKEN_ENDPOINT = os.getenv("PUBLIC_FC_TOKEN_ENDPOINT", "")
+PUBLIC_FC_JWKS_ENDPOINT = os.getenv("PUBLIC_FC_JWKS_ENDPOINT", "")
+PUBLIC_FC_USERINFO_ENDPOINT = os.getenv("PUBLIC_FC_USERINFO_ENDPOINT", "")
 
 #### ENDPOINTS
 
@@ -183,6 +206,18 @@ async def enable_registration(
     return Response(registration, status_code=HTTP_200_OK)
 
 
+@get(path="/api/v1/userinfo")
+async def get_userinfo(
+    request: Request[Any, Any, Any],
+) -> Response[str]:
+    # FC - Step 16.2
+    if "userinfo" not in request.session:
+        return Response('{ "error": "User not connected" }', status_code=HTTP_403_FORBIDDEN)
+
+    userinfo = request.session["userinfo"]
+    return Response(userinfo, status_code=HTTP_200_OK)
+
+
 #### VIEWS
 
 
@@ -194,6 +229,81 @@ async def admin(db_session: AsyncSession) -> Template:
         template_name="admin.html",
         context={"users": users, "notifications": notifications},
     )
+
+
+@get(path="/ami-fs-test-login-callback", include_in_schema=False)
+async def ami_fs_test_login_callback(
+    code: str,
+    request: Request[Any, Any, Any],
+) -> Response[Any]:
+    # FC - Step 5
+    redirect_uri: str = f"{PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL}"
+    client_id: str = PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID
+    client_secret: str = FC_SERVICE_PROVIDER_CLIENT_SECRET
+    data: dict[str, str] = {
+        "grant_type": "authorization_code",
+        "redirect_uri": redirect_uri,
+        "client_id": client_id,
+        "client_secret": client_secret,
+        "code": code,
+    }
+
+    if client_secret == "":
+        return error_from_message(
+            {"error": "Client secret not provided in .env file"}, HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+    # FC - Step 6
+    token_endpoint_headers: dict[str, str] = {"Content-Type": "application/x-www-form-urlencoded"}
+    response: Any = httpx.post(
+        f"{PUBLIC_FC_BASE_URL}{PUBLIC_FC_TOKEN_ENDPOINT}",
+        headers=token_endpoint_headers,
+        data=data,
+    )
+    if response.status_code != 200:
+        return error_from_response(response, ami_details="FC - Step 6 with " + str(data))
+    response_token_data: dict[str, str] = response.json()
+
+    # FC - Step 8
+    httpx.get(f"{PUBLIC_FC_BASE_URL}{PUBLIC_FC_JWKS_ENDPOINT}")
+
+    # FC - Step 11
+    access_token = response_token_data["access_token"]
+    userinfo_endpoint_headers = {"Authorization": f"Bearer {access_token}"}
+    response = httpx.get(
+        f"{PUBLIC_FC_BASE_URL}{PUBLIC_FC_USERINFO_ENDPOINT}",
+        headers=userinfo_endpoint_headers,
+    )
+    userinfo_jws = response.text
+    userinfo = jwt.decode(userinfo_jws, options={"verify_signature": False}, algorithms=["ES256"])
+
+    # FC - Step 16.1
+    request.session["userinfo"] = userinfo
+    return Redirect("/")
+
+
+@get(path="/sector_identifier_url", include_in_schema=False)
+async def get_sector_identifier_url() -> Response[Any]:
+    redirect_uris: list[str] = [
+        "https://ami-back-staging.osc-fr1.scalingo.io/ami-fs-test-login-callback",
+        "https://ami-back-staging-pr75.osc-fr1.scalingo.io/ami-fs-test-login-callback",
+        "https://localhost:5173/ami-fs-test-login-callback",
+    ]
+
+    return Response(redirect_uris)
+
+
+def error_from_response(response: Response[str], ami_details: str | None = None) -> Response[str]:
+    details = response.json()  # type: ignore[reportUnknownVariableType]
+    if ami_details is not None:
+        details["ami_details"] = ami_details
+    return Response(details, status_code=response.status_code)  # type: ignore[reportUnknownVariableType]
+
+
+def error_from_message(
+    message: dict[str, str], status_code: int | None
+) -> Response[dict[str, str]]:
+    return Response(message, status_code=status_code)
 
 
 #### APP
@@ -223,6 +333,9 @@ def create_app(
             enable_registration,
             get_notifications,
             admin,
+            ami_fs_test_login_callback,
+            get_sector_identifier_url,
+            get_userinfo,
             create_static_files_router(
                 path="/admin/static",
                 directories=[HTML_DIR_ADMIN],
@@ -241,4 +354,6 @@ def create_app(
         lifespan=[database_connection],
         template_config=TemplateConfig(directory=Path("templates"), engine=JinjaTemplateEngine),
         cors_config=cors_config,
+        middleware=[ServerSideSessionConfig().middleware],
+        stores={"sessions": FileStore(path=Path("session_data"))},
     )

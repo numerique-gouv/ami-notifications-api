@@ -8,3 +8,4 @@ __pycache__
 *.egg-info
 .env
 node_modules
+session_data

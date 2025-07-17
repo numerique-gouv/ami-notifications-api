@@ -49,6 +49,8 @@ jobs:
         run: cp .env.template .env
 
       - name: Run tests
+        env:
+          FC_SERVICE_PROVIDER_CLIENT_SECRET: ${{ secrets.FC_SERVICE_PROVIDER_CLIENT_SECRET }}
         run: make test
 
   mobile-app-tests:
