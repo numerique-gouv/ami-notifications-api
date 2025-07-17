@@ -5,18 +5,29 @@ from pathlib import Path
 from typing import Annotated, Any, Callable, cast
 
 import httpx
+import jwt
 import sentry_sdk
-from litestar import Litestar, Response, get, patch, post
+from litestar import (
+    Litestar,
+    Request,  # type: ignore[reportUnknownVariableType]
+    Response,
+    get,
+    patch,
+    post,
+)
 from litestar.config.cors import CORSConfig
 from litestar.contrib.jinja import JinjaTemplateEngine
 from litestar.di import Provide
 from litestar.exceptions import NotFoundException
+from litestar.middleware.session.server_side import ServerSideSessionConfig
 from litestar.params import Body
 from litestar.response import Template
+from litestar.response.redirect import Redirect
 from litestar.static_files import (
     create_static_files_router,  # type: ignore[reportUnknownVariableType]
 )
 from litestar.status_codes import HTTP_200_OK, HTTP_201_CREATED
+from litestar.stores.file import FileStore
 from litestar.template.config import TemplateConfig
 from sqlalchemy.orm import InstrumentedAttribute, selectinload
 from sqlmodel.ext.asyncio.session import AsyncSession
@@ -58,6 +69,9 @@ HTML_DIR = "public/mobile-app/build"
 
 # This is the folder where the "admin" (test API client) is.
 HTML_DIR_ADMIN = "public"
+
+TEST_FS_CLIENT_ID = os.getenv("TEST_FS_CLIENT_ID", "")
+TEST_FS_CLIENT_SECRET = os.getenv("TEST_FS_CLIENT_SECRET", "")
 
 
 #### ENDPOINTS
@@ -196,6 +210,79 @@ async def admin(db_session: AsyncSession) -> Template:
     )
 
 
+@get(path="/ami-fs-test-login", include_in_schema=False)
+async def ami_fs_test_login() -> Template:
+    print(cors_config)
+    return Template(
+        template_name="ami-fs-test-login.html",
+        context={},
+    )
+
+
+@get(path="/ami-fs-test-login-callback", include_in_schema=False)
+async def ami_fs_test_login_callback(
+    code: str,
+    request: Request,  # type: ignore
+) -> Response[Any]:
+    # FC - Step 5
+    FC_URL = "https://fcp-low.sbx.dev-franceconnect.fr"
+    TOKEN_FC_PATH = "/api/v2/token"
+    JWKS_FC_PATH = "/api/v2/jwks"
+    USERINFO_FC_PATH = "/api/v2/userinfo"
+    token_endpoint_headers = {"Content-Type": "application/x-www-form-urlencoded"}
+    FS_URL = "https://localhost:8000"
+    DATA_CALLBACK_FS_PATH = "/ami-fs-test-login-callback"
+    redirect_uri = f"{FS_URL}{DATA_CALLBACK_FS_PATH}"
+    client_id = TEST_FS_CLIENT_ID
+    client_secret = TEST_FS_CLIENT_SECRET
+    data = {
+        "grant_type": "authorization_code",
+        "redirect_uri": redirect_uri,
+        "client_id": client_id,
+        "client_secret": client_secret,
+        "code": code,
+    }
+
+    # FC - Step 6
+    async with httpx.AsyncClient() as client:
+        response = await client.post(
+            f"{FC_URL}{TOKEN_FC_PATH}", headers=token_endpoint_headers, data=data
+        )
+        response_token_data = response.json()
+
+    # FC - Step 8
+    async with httpx.AsyncClient() as client:
+        await client.get(f"{FC_URL}{JWKS_FC_PATH}")
+
+    # FC - Step 11
+    access_token = response_token_data["access_token"]
+    userinfo_endpoint_headers = {"Authorization": f"Bearer {access_token}"}
+    async with httpx.AsyncClient() as client:
+        response = await client.get(
+            f"{FC_URL}{USERINFO_FC_PATH}", headers=userinfo_endpoint_headers
+        )
+        userinfo_jws = response.text
+        userinfo = jwt.decode(
+            userinfo_jws, options={"verify_signature": False}, algorithms=["ES256"]
+        )
+
+    # FC - Step 16.1
+    request.session["userinfo"] = userinfo
+    return Redirect("/ami-fs-test-connected")
+
+
+@get(path="/ami-fs-test-connected", include_in_schema=False)
+async def ami_fs_test_connected(
+    request: Request,  # type: ignore
+) -> Template:
+    # FC - Step 16.2
+    userinfo = request.session["userinfo"]
+    return Template(
+        template_name="ami-fs-test-connected.html",
+        context={"userinfo": userinfo},
+    )
+
+
 #### APP
 
 
@@ -223,6 +310,9 @@ def create_app(
             enable_registration,
             get_notifications,
             admin,
+            ami_fs_test_login,
+            ami_fs_test_login_callback,
+            ami_fs_test_connected,
             create_static_files_router(
                 path="/admin/static",
                 directories=[HTML_DIR_ADMIN],
@@ -241,4 +331,6 @@ def create_app(
         lifespan=[database_connection],
         template_config=TemplateConfig(directory=Path("templates"), engine=JinjaTemplateEngine),
         cors_config=cors_config,
+        middleware=[ServerSideSessionConfig().middleware],
+        stores={"sessions": FileStore(path=Path("session_data"))},
     )
