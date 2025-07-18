@@ -17,13 +17,13 @@ from app import Notification, Registration, User
 async def test_notifications_empty(
     test_client: TestClient[Litestar], user: User
 ) -> None:  # The `user` fixture is needed so we don't get a 404 when asking for notifications.
-    response = test_client.get("/users/1/notifications")
+    response = test_client.get(f"/api/v1/users/{user.id}/notifications")
     assert response.status_code == HTTP_200_OK
     assert response.json() == []
 
 
 async def test_notifications(test_client: TestClient[Litestar], notification: Notification) -> None:
-    response = test_client.get(f"/users/{notification.user.id}/notifications")
+    response = test_client.get(f"/api/v1/users/{notification.user.id}/notifications")
     assert response.status_code == HTTP_200_OK
     assert len(response.json()) == 1
     assert response.json()[0]["user_id"] == notification.user.id
@@ -51,9 +51,9 @@ async def test_create_notification_from_test_and_from_app_context(
         "title": "Some notification title",
         "sender": "Jane Doe",
     }
-    response = test_client.post("/notifications", json=notification_data)
+    response = test_client.post("/api/v1/notifications", json=notification_data)
     assert response.status_code == HTTP_201_CREATED
-    response = test_client.get(f"/users/{registration.user.id}/notifications")
+    response = test_client.get(f"/api/v1/users/{registration.user.id}/notifications")
     assert response.status_code == HTTP_200_OK
     assert len(response.json()) == 2
     assert response.json()[0]["user_id"] == registration.user.id
@@ -80,7 +80,7 @@ async def test_database_isolation_test_one(
 
     # Create a user using the test client (through the API)
     register_data = {"email": "apiuser@example.com", "subscription": webpushsubscription}
-    response = test_client.post("/registrations", json=register_data)
+    response = test_client.post("/api/v1/registrations", json=register_data)
     assert response.status_code == HTTP_201_CREATED
 
     # Verify those users exists in our test database
@@ -89,10 +89,10 @@ async def test_database_isolation_test_one(
     assert user.email == "alice@example.com"
 
     # Verify those users exists through API calls
-    response = test_client.get("/users/1/notifications")
+    response = test_client.get(f"/api/v1/users/{user.id}/notifications")
     assert response.status_code == HTTP_200_OK
     assert response.json() == []  # User exists (no 404) but has no notifications
-    response = test_client.get("/users/2/notifications")
+    response = test_client.get("/api/v1/users/2/notifications")
     assert response.status_code == HTTP_200_OK
     assert response.json() == []  # User exists (no 404) but has no notifications
 
@@ -107,9 +107,9 @@ async def test_database_isolation_test_one(
     # Importantly, user 3 should NOT be here, nor user 4
 
     # Verify only those users exists through API calls
-    response = test_client.get("/users/3/notifications")
+    response = test_client.get("/api/v1/users/3/notifications")
     assert response.status_code == HTTP_404_NOT_FOUND
-    response = test_client.get("/users/4/notifications")
+    response = test_client.get("/api/v1/users/4/notifications")
     assert response.status_code == HTTP_404_NOT_FOUND
 
 
@@ -127,7 +127,7 @@ async def test_database_isolation_test_two(
 
     # Create a user using the test client (through the API)
     register_data = {"email": "apiuser2@example.com", "subscription": webpushsubscription}
-    response = test_client.post("/registrations", json=register_data)
+    response = test_client.post("/api/v1/registrations", json=register_data)
     assert response.status_code == HTTP_201_CREATED
 
     # Verify those users exists in our test database
@@ -136,10 +136,10 @@ async def test_database_isolation_test_two(
     assert user.email == "bob@example.com"
 
     # Verify those users exists through API calls
-    response = test_client.get("/users/1/notifications")
+    response = test_client.get(f"/api/v1/users/{user.id}/notifications")
     assert response.status_code == HTTP_200_OK
     assert response.json() == []  # User exists (no 404) but has no notifications
-    response = test_client.get("/users/2/notifications")
+    response = test_client.get("/api/v1/users/2/notifications")
     assert response.status_code == HTTP_200_OK
     assert response.json() == []  # User exists (no 404) but has no notifications
 
@@ -154,9 +154,9 @@ async def test_database_isolation_test_two(
     # Importantly, user 3 should NOT be here, nor user 4
 
     # Verify only those users exists through API calls
-    response = test_client.get("/users/3/notifications")
+    response = test_client.get("/api/v1/users/3/notifications")
     assert response.status_code == HTTP_404_NOT_FOUND
-    response = test_client.get("/users/4/notifications")
+    response = test_client.get("/api/v1/users/4/notifications")
     assert response.status_code == HTTP_404_NOT_FOUND
 
 
@@ -170,12 +170,12 @@ async def test_do_not_register_again_when_user_and_subscription_already_exist(
 
     # First registration, we're expecting a 201 CREATED.
     register_data = {"email": "foo@bar.baz", "subscription": webpushsubscription}
-    response = test_client.post("/registrations", json=register_data)
+    response = test_client.post("/api/v1/registrations", json=register_data)
     assert response.status_code == HTTP_201_CREATED
 
     # Second registration, we're expecting a 200 OK, not 201 CREATED.
     register_data = {"email": "foo@bar.baz", "subscription": webpushsubscription}
-    response = test_client.post("/registrations", json=register_data)
+    response = test_client.post("/api/v1/registrations", json=register_data)
     assert response.status_code == HTTP_200_OK  # NOT HTTP_201_CREATED.
 
     # Still only one registration, no duplicates.
@@ -193,7 +193,7 @@ async def test_registration_default_fields(
 
     # First registration, we're expecting a 201 CREATED.
     register_data = {"email": "foo@bar.baz", "subscription": webpushsubscription}
-    response = test_client.post("/registrations", json=register_data)
+    response = test_client.post("/api/v1/registrations", json=register_data)
     assert response.status_code == HTTP_201_CREATED
 
     # Make sure the registration has all the default fields set properly.
@@ -229,7 +229,7 @@ async def test_registration_custom_fields(
         "enabled": False,
         "subscription": webpushsubscription,
     }
-    response = test_client.post("/registrations", json=register_data)
+    response = test_client.post("/api/v1/registrations", json=register_data)
     assert response.status_code == HTTP_201_CREATED
 
     # Make sure the registration has all the default fields set properly.
@@ -249,7 +249,7 @@ async def test_list_users(
     test_client: TestClient[Litestar],
     user: User,
 ) -> None:
-    response = test_client.get("/users")
+    response = test_client.get("/api/v1/users")
     assert response.status_code == HTTP_200_OK
     users = response.json()
     assert len(users) == 1
@@ -260,7 +260,7 @@ async def test_list_registrations(
     test_client: TestClient[Litestar],
     registration: Registration,
 ) -> None:
-    response = test_client.get(f"/users/{registration.user.id}/registrations")
+    response = test_client.get(f"/api/v1/users/{registration.user.id}/registrations")
     assert response.status_code == HTTP_200_OK
     registrations = response.json()
     assert len(registrations) == 1
@@ -272,7 +272,7 @@ async def test_rename_registration(
 ) -> None:
     assert registration.label != "new label"
     response = test_client.patch(
-        f"/registrations/{registration.id}/label", json={"label": "new label"}
+        f"/api/v1/registrations/{registration.id}/label", json={"label": "new label"}
     )
     assert response.status_code == HTTP_200_OK
     registrations = response.json()
@@ -286,7 +286,7 @@ async def test_enable_registration(
     # Test disabling the registration
     assert registration.enabled is True
     response = test_client.patch(
-        f"/registrations/{registration.id}/enabled", json={"enabled": False}
+        f"/api/v1/registrations/{registration.id}/enabled", json={"enabled": False}
     )
     assert response.status_code == HTTP_200_OK
     result = response.json()
@@ -294,7 +294,7 @@ async def test_enable_registration(
 
     # Test enabling the registration
     response = test_client.patch(
-        f"/registrations/{registration.id}/enabled", json={"enabled": True}
+        f"/api/v1/registrations/{registration.id}/enabled", json={"enabled": True}
     )
     assert response.status_code == HTTP_200_OK
     result = response.json()

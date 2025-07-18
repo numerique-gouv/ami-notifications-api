@@ -8,7 +8,7 @@ const notifyMessage = async () => {
   console.log('notifying a message')
   notifyMessageBtn.disabled = true
   notifyMessageStatus.innerText = 'Notifying...'
-  const response = await fetch('/notifications', {
+  const response = await fetch('/api/v1/notifications', {
     method: 'POST',
     body: JSON.stringify(payload),
   })

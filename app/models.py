@@ -54,21 +54,10 @@ class Notification(SQLModel, table=True):
     title: str | None = Field(default=None)
 
 
-async def get_user_by_email_from_database(
-    email: str, db_session: AsyncSession, options: ExecutableOption | None = None
-) -> User:
-    if options:
-        query = select(User).where(col(User.email) == email).options(options)
-    else:
-        query = select(User).where(col(User.email) == email)
-    result = await db_session.exec(query)
-    try:
-        return result.one()
-    except NoResultFound as e:
-        raise NotFoundException(detail=f"User {email!r} not found") from e
+#### USERS
 
 
-async def get_user_by_id_from_database(
+async def get_user_by_id(
     user_id: int, db_session: AsyncSession, options: ExecutableOption | None = None
 ) -> User:
     if options:
@@ -82,7 +71,21 @@ async def get_user_by_id_from_database(
         raise NotFoundException(detail=f"User with id {user_id!r} not found") from e
 
 
-async def get_user_list_from_database(
+async def get_user_by_email(
+    email: str, db_session: AsyncSession, options: ExecutableOption | None = None
+) -> User:
+    if options:
+        query = select(User).where(col(User.email) == email).options(options)
+    else:
+        query = select(User).where(col(User.email) == email)
+    result = await db_session.exec(query)
+    try:
+        return result.one()
+    except NoResultFound as e:
+        raise NotFoundException(detail=f"User {email!r} not found") from e
+
+
+async def get_user_list(
     db_session: AsyncSession,
     options: ExecutableOption | None = None,
 ) -> list[User]:
@@ -95,13 +98,7 @@ async def get_user_list_from_database(
     return list(result.all())
 
 
-async def get_notification_list_from_database(db_session: AsyncSession) -> list[Notification]:
-    query = select(Notification).order_by(col(Notification.date).desc())
-    result = await db_session.exec(query)
-    return list(result.all())
-
-
-async def create_user_in_database(email: str, db_session: AsyncSession) -> User:
+async def create_user(email: str, db_session: AsyncSession) -> User:
     user = User(email=email)
     db_session.add(user)
     await db_session.commit()
@@ -109,7 +106,36 @@ async def create_user_in_database(email: str, db_session: AsyncSession) -> User:
     return user
 
 
-async def get_registration_by_user_and_subscription_from_database(
+#### NOTIFICATIONS
+
+
+async def get_notification_list(db_session: AsyncSession) -> list[Notification]:
+    query = select(Notification).order_by(col(Notification.date).desc())
+    result = await db_session.exec(query)
+    return list(result.all())
+
+
+async def create_notification(notification: Notification, db_session: AsyncSession) -> Notification:
+    db_session.add(notification)
+    await db_session.commit()
+    await db_session.refresh(notification)
+    return notification
+
+
+#### REGISTRATIONS
+
+
+async def get_registration_by_id(db_session: AsyncSession, pk: int) -> Registration:
+    query = select(Registration).where(col(Registration.id) == pk)
+    result = await db_session.exec(query)
+    try:
+        registration: Registration = result.one()
+    except NoResultFound as e:
+        raise NotFoundException(detail=f"Registration {pk!r} not found") from e
+    return registration
+
+
+async def get_registration_by_user_and_subscription(
     subscription: dict[str, Any], db_session: AsyncSession, user: User
 ) -> Registration | None:
     query = select(Registration).where(
@@ -120,7 +146,7 @@ async def get_registration_by_user_and_subscription_from_database(
     return existing_registration
 
 
-async def create_registration_in_database(
+async def create_registration(
     subscription: dict[str, Any],
     label: str,
     enabled: bool,
@@ -136,29 +162,8 @@ async def create_registration_in_database(
     return registration
 
 
-async def update_registration_in_database(
-    db_session: AsyncSession, registration: Registration
-) -> Registration:
+async def update_registration(db_session: AsyncSession, registration: Registration) -> Registration:
     db_session.add(registration)
     await db_session.commit()
     await db_session.refresh(registration)
-    return registration
-
-
-async def create_notification_in_database(
-    notification: Notification, db_session: AsyncSession
-) -> Notification:
-    db_session.add(notification)
-    await db_session.commit()
-    await db_session.refresh(notification)
-    return notification
-
-
-async def get_registration_by_id_from_database(db_session: AsyncSession, pk: int) -> Registration:
-    query = select(Registration).where(col(Registration.id) == pk)
-    result = await db_session.exec(query)
-    try:
-        registration: Registration = result.one()
-    except NoResultFound as e:
-        raise NotFoundException(detail=f"Registration {pk!r} not found") from e
     return registration
