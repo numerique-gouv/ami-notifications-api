@@ -159,3 +159,40 @@ To run a single test, you would use something like:
 uv run --env-file .env pytest tests/test_basic.py::test_homepage_title
 ```
 
+## Converting the PWA mobile app to Android and iOS apps
+
+This is done using [capacitorjs](https://capacitorjs.com/).
+
+First follow the installation guide](https://capacitorjs.com/docs), up until the point
+where you add the Android and iOS apps with:
+
+```
+npx cap add android
+npx cap add ios
+```
+
+Then whenever you want to export the PWA to the `public/mobile-app/android` and
+`public/mobile-app/ios` apps, first build the mobile app:
+
+```npm run build
+```
+
+Then have capacitorjs sync it with the installed platforms (Android and iOS):
+
+```
+npm run cap-sync
+```
+
+You can then open the projects using:
+
+```
+npm run open-ios
+npm run open-android
+```
+
+And run them using:
+
+```
+npm run ios
+npm run android
+```

@@ -149,6 +149,13 @@ Or simpler:
 make build-app
 ```
 
+### Store app
+
+To convert the PWA (mobile app) to be installable from the Apple App Store and
+the Google Play Store, we use [capacitorjs](https://capacitorjs.com/).
+
+See the [CONTRIBUTING.md](CONTRIBUTING.md) file for more information.
+
 ### Contributing
 
 Please check the [CONTRIBUTING.md](CONTRIBUTING.md) file.
