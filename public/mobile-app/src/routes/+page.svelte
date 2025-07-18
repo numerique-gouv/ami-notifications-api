@@ -2,6 +2,7 @@
 import { PUBLIC_API_URL } from '$env/static/public'
 import { onMount } from 'svelte'
 import Installation from '$lib/Installation.svelte'
+import CapacitorTest from '$lib/CapacitorTest.svelte'
 
 const isAppInstalled: boolean =
   typeof window !== 'undefined' && 'Notification' in window
@@ -201,6 +202,7 @@ const registerWithAmi = async () => {
 </script>
 
 <div>
+  <CapacitorTest />
 {#if !isAppInstalled}
   <Installation />
 {:else}
