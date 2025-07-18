@@ -1,8 +1,6 @@
 import json
 import os
-import uuid
 from contextlib import AbstractAsyncContextManager
-from datetime import datetime
 from pathlib import Path
 from typing import Annotated, Any, Callable, cast
 
@@ -20,15 +18,29 @@ from litestar.static_files import (
 )
 from litestar.status_codes import HTTP_200_OK, HTTP_201_CREATED
 from litestar.template.config import TemplateConfig
-from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import InstrumentedAttribute, selectinload
-from sqlalchemy.sql.base import ExecutableOption
-from sqlmodel import Column, Field, Relationship, SQLModel, col, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 from webpush import WebPush, WebPushSubscription
 
 from .database import db_connection, provide_db_session
+from .models import (
+    Notification,
+    Registration,
+    RegistrationCreation,
+    RegistrationEnable,
+    RegistrationRename,
+    User,
+    create_notification,
+    create_registration,
+    create_user,
+    get_notification_list,
+    get_registration_by_id,
+    get_registration_by_user_and_subscription,
+    get_user_by_email,
+    get_user_by_id,
+    get_user_list,
+    update_registration,
+)
 
 cors_config = CORSConfig(allow_origins=["*"])
 
@@ -48,62 +60,15 @@ HTML_DIR = "public/mobile-app/build"
 HTML_DIR_ADMIN = "public"
 
 
-#### MODELS
-
-
-class User(SQLModel, table=True):
-    __tablename__ = "ami_user"  # type: ignore
-
-    id: int | None = Field(default=None, primary_key=True)
-    email: str
-    registrations: list["Registration"] = Relationship(back_populates="user")
-    notifications: list["Notification"] = Relationship(back_populates="user")
-
-
-class Registration(SQLModel, table=True):
-    id: int | None = Field(default=None, primary_key=True)
-    user_id: int = Field(foreign_key="ami_user.id")
-    user: User = Relationship(back_populates="registrations")
-    subscription: dict[str, Any] = Field(sa_column=Column(JSONB))
-    label: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    enabled: bool = Field(default=True)
-    created_at: datetime = Field(default_factory=datetime.now)
-
-
-class RegistrationCreation(SQLModel, table=False):
-    subscription: dict[str, Any] = Field(sa_column=Column(JSONB))
-    email: str
-    label: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    enabled: bool = Field(default=True)
-
-
-class RegistrationRename(SQLModel, table=False):
-    label: str
-
-
-class RegistrationEnable(SQLModel, table=False):
-    enabled: bool
-
-
-class Notification(SQLModel, table=True):
-    id: int | None = Field(default=None, primary_key=True)
-    date: datetime = Field(default_factory=datetime.now)
-    user_id: int = Field(foreign_key="ami_user.id")
-    user: User = Relationship(back_populates="notifications")
-    message: str
-    sender: str | None = Field(default=None)
-    title: str | None = Field(default=None)
-
-
 #### ENDPOINTS
 
 
-@get("/notification/key")
-async def get_application_key() -> str:
+@get("/notification-key")
+async def get_notification_key() -> str:
     return os.getenv("VAPID_APPLICATION_SERVER_KEY", "")
 
 
-@post("/notification/register")
+@post("/api/v1/registrations")
 async def register(
     db_session: AsyncSession,
     data: Annotated[
@@ -118,59 +83,23 @@ async def register(
     try:
         user = await get_user_by_email(data.email, db_session)
     except NotFoundException:
-        user = User(email=data.email)
-        db_session.add(user)
-        await db_session.commit()
-        await db_session.refresh(user)
+        user = await create_user(data.email, db_session)
 
     assert user.id is not None, "User ID should be set after commit"
-    query = select(Registration).where(
-        col(Registration.user) == user, col(Registration.subscription) == data.subscription
+    existing_registration = await get_registration_by_user_and_subscription(
+        data.subscription, db_session, user
     )
-    result = await db_session.exec(query)
-    existing_registration = result.first()
     if existing_registration:
         # This registration already exists, don't duplicate it.
         return Response(existing_registration, status_code=HTTP_200_OK)
 
-    registration = Registration(
-        subscription=data.subscription, label=data.label, enabled=data.enabled, user_id=user.id
+    registration = await create_registration(
+        data.subscription, data.label, data.enabled, db_session, user.id
     )
-    db_session.add(registration)
-    await db_session.commit()
-    await db_session.refresh(registration)
     return Response(registration, status_code=HTTP_201_CREATED)
 
 
-async def get_user_by_email(
-    email: str, db_session: AsyncSession, options: ExecutableOption | None = None
-) -> User:
-    if options:
-        query = select(User).where(col(User.email) == email).options(options)
-    else:
-        query = select(User).where(col(User.email) == email)
-    result = await db_session.exec(query)
-    try:
-        return result.one()
-    except NoResultFound as e:
-        raise NotFoundException(detail=f"User {email!r} not found") from e
-
-
-async def get_user_by_id(
-    user_id: int, db_session: AsyncSession, options: ExecutableOption | None = None
-) -> User:
-    if options:
-        query = select(User).where(col(User.id) == user_id).options(options)
-    else:
-        query = select(User).where(col(User.id) == user_id)
-    result = await db_session.exec(query)
-    try:
-        return result.one()
-    except NoResultFound as e:
-        raise NotFoundException(detail=f"User with id {user_id!r} not found") from e
-
-
-@post("/notification/send")
+@post("/api/v1/notifications")
 async def notify(
     db_session: AsyncSession,
     webpush: WebPush,
@@ -181,7 +110,7 @@ async def notify(
             description="Send the notification message to a registered user",
         ),
     ],
-) -> Notification:
+) -> Response[Notification]:
     user = await get_user_by_id(
         data.user_id,
         db_session,
@@ -198,92 +127,60 @@ async def notify(
             registration.subscription["endpoint"], content=message.encrypted, headers=headers
         )
         response.raise_for_status()
-    db_session.add(data)
-    await db_session.commit()
-    await db_session.refresh(data)
-    return data
+    notification = await create_notification(data, db_session)
+    return Response(notification, status_code=HTTP_201_CREATED)
 
 
-async def get_user_list(
-    db_session: AsyncSession,
-    options: ExecutableOption | None = None,
-) -> list[User]:
-    if options:
-        query = select(User).options(options)
-    else:
-        query = select(User)
-    query = query.order_by(col(User.id))
-    result = await db_session.exec(query)
-    return list(result.all())
+@get("/api/v1/users")
+async def list_users(db_session: AsyncSession) -> Response[list[User]]:
+    users = await get_user_list(db_session)
+    return Response(users, status_code=HTTP_200_OK)
 
 
-async def get_notification_list(db_session: AsyncSession) -> list[Notification]:
-    query = select(Notification).order_by(col(Notification.date).desc())
-    result = await db_session.exec(query)
-    return list(result.all())
-
-
-@get("/notification/users")
-async def list_users(db_session: AsyncSession) -> list[User]:
-    return await get_user_list(db_session)
-
-
-@get("/notifications/{email:str}")
-async def get_notifications(db_session: AsyncSession, email: str) -> list[Notification]:
-    user: User = await get_user_by_email(
-        email,
+@get("/api/v1/users/{user_id:int}/notifications")
+async def get_notifications(db_session: AsyncSession, user_id: int) -> Response[list[Notification]]:
+    user: User = await get_user_by_id(
+        user_id,
         db_session,
         options=selectinload(cast(InstrumentedAttribute[Any], User.notifications)),
     )
-    return user.notifications
+    return Response(user.notifications, status_code=HTTP_200_OK)
 
 
-@get("/registrations/{email:str}")
-async def list_registrations(db_session: AsyncSession, email: str) -> list[Registration]:
-    user: User = await get_user_by_email(
-        email,
+@get("/api/v1/users/{user_id:int}/registrations")
+async def list_registrations(
+    db_session: AsyncSession, user_id: int
+) -> Response[list[Registration]]:
+    user: User = await get_user_by_id(
+        user_id,
         db_session,
         options=selectinload(cast(InstrumentedAttribute[Any], User.registrations)),
     )
-    return user.registrations
+    return Response(user.registrations, status_code=HTTP_200_OK)
 
 
-@patch("/registrations/{pk:int}/rename")
+@patch("/api/v1/registrations/{pk:int}/label")
 async def rename_registration(
     db_session: AsyncSession,
     pk: int,
     data: Annotated[RegistrationRename, Body(description="New label for the registration")],
-) -> Registration:
-    query = select(Registration).where(col(Registration.id) == pk)
-    result = await db_session.exec(query)
-    try:
-        registration: Registration = result.one()
-    except NoResultFound as e:
-        raise NotFoundException(detail=f"Registration {pk!r} not found") from e
+) -> Response[Registration]:
+    registration = await get_registration_by_id(db_session, pk)
     registration.label = data.label
-    db_session.add(registration)
-    await db_session.commit()
-    await db_session.refresh(registration)
-    return registration
+    registration = await update_registration(db_session, registration)
+    return Response(registration, status_code=HTTP_200_OK)
 
 
-@patch("/registrations/{pk:int}/enable")
+@patch("/api/v1/registrations/{pk:int}/enabled")
 async def enable_registration(
     db_session: AsyncSession,
     pk: int,
     data: Annotated[RegistrationEnable, Body(description="Enable or disable the registration")],
-) -> Registration:
-    query = select(Registration).where(col(Registration.id) == pk)
-    result = await db_session.exec(query)
-    try:
-        registration: Registration = result.one()
-    except NoResultFound as e:
-        raise NotFoundException(detail=f"Registration {pk!r} not found") from e
+) -> Response[Registration]:
+    registration = await get_registration_by_id(db_session, pk)
     registration.enabled = data.enabled
-    db_session.add(registration)
-    await db_session.commit()
-    await db_session.refresh(registration)
-    return registration
+    registration = await update_registration(db_session, registration)
+    return Response(registration, status_code=HTTP_200_OK)
 
 
 #### VIEWS
@@ -317,7 +214,7 @@ def create_app(
 ) -> Litestar:
     return Litestar(
         route_handlers=[
-            get_application_key,
+            get_notification_key,
             register,
             notify,
             list_users,

@@ -16,6 +16,7 @@ let pushSubscription
 let registerEmailInputValue: string = $state('')
 
 let userEmailState: string = $state('')
+let userIdState: number = $state(0)
 let userNotifications: [] = $state([])
 
 const getSubscription = async () => {
@@ -29,10 +30,13 @@ const getSubscription = async () => {
 }
 
 onMount(async () => {
+  const userIdLocalStorage: string | null =
+    window.localStorage.getItem('userIdLocalStorage')
   const emailLocalStorage: string | null =
     window.localStorage.getItem('emailLocalStorage')
 
-  if (emailLocalStorage) {
+  if (userIdLocalStorage && emailLocalStorage) {
+    userIdState = parseInt(userIdLocalStorage)
     userEmailState = emailLocalStorage
     registerEmailInputValue = emailLocalStorage
     await retrieveNotifications()
@@ -65,9 +69,11 @@ onMount(async () => {
 })
 
 const retrieveNotifications = async () => {
-  if (userEmailState !== '') {
+  if (userIdState != 0 && userEmailState !== '') {
     try {
-      const response = await fetch(`${PUBLIC_API_URL}/notifications/${userEmailState}`)
+      const response = await fetch(
+        `${PUBLIC_API_URL}/api/v1/users/${userIdState}/notifications`
+      )
 
       if (response.status == 200) {
         userNotifications = await response.json()
@@ -97,6 +103,7 @@ const resetElements = () => {
   isRegisteredWithAmi = false
   registrationStatus = ''
   pushSubscription = null
+  userIdState = 0
   registerEmailInputValue = ''
   userEmailState = ''
   userNotifications = []
@@ -106,7 +113,7 @@ const resetElements = () => {
 const subscribePush = async () => {
   const registration = await navigator.serviceWorker.ready
   try {
-    const applicationKeyResponse = await fetch(`${PUBLIC_API_URL}/notification/key`)
+    const applicationKeyResponse = await fetch(`${PUBLIC_API_URL}/notification-key`)
     const applicationKey = await applicationKeyResponse.text()
     const options = { userVisibleOnly: true, applicationServerKey: applicationKey }
     const pushSubscription = await registration.pushManager.subscribe(options)
@@ -170,7 +177,7 @@ const registerWithAmi = async () => {
     isRegisteredWithAmi = true
     registrationStatus = "En cours d'enregistrement..."
 
-    const response = await fetch(`${PUBLIC_API_URL}/notification/register`, {
+    const response = await fetch(`${PUBLIC_API_URL}/api/v1/registrations`, {
       method: 'POST',
       body: JSON.stringify(payload),
     })
@@ -178,8 +185,11 @@ const registerWithAmi = async () => {
     isRegisteredWithAmi = false
     if (response.status < 400) {
       registrationStatus = 'Enregistrement réussi !'
+      const registration = await response.json()
+      userIdState = registration.user_id
       userEmailState = registerEmailInputValue
       userNotifications = []
+      window.localStorage.setItem('userIdState', userIdState.toString())
       window.localStorage.setItem('emailLocalStorage', userEmailState)
     } else {
       registrationStatus = `error ${response.status}: ${response.statusText}, ${response.body}`
