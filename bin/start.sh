@@ -34,4 +34,4 @@ then
   touch .env
 fi
 
-make migrate && uv run --env-file .env litestar run -p ${PORT} -H ${HOSTNAME} ${RELOAD} ${DEBUG}
+make migrate && uv run --env-file .env litestar run -p ${PORT} -H ${HOSTNAME} ${RELOAD} ${DEBUG} --ssl-keyfile=ssl-key.pem --ssl-certfile=ssl-cert.pem

@@ -42,7 +42,7 @@ from .models import (
     update_registration,
 )
 
-cors_config = CORSConfig(allow_origins=["*"])
+cors_config = CORSConfig(allow_origins=["https://fcp-low.sbx.dev-franceconnect.fr"])
 
 
 sentry_sdk.init(
@@ -196,6 +196,14 @@ async def admin(db_session: AsyncSession) -> Template:
     )
 
 
+@get(path="/ami-fs-test-login/", include_in_schema=False)
+async def ami_fs_test_login() -> Template:
+    return Template(
+        template_name="ami-fs-test-login.html",
+        context={},
+    )
+
+
 #### APP
 
 
@@ -223,6 +231,7 @@ def create_app(
             enable_registration,
             get_notifications,
             admin,
+            ami_fs_test_login,
             create_static_files_router(
                 path="/admin/static",
                 directories=[HTML_DIR_ADMIN],
