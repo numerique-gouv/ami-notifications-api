@@ -42,13 +42,7 @@ from .models import (
     update_registration,
 )
 
-cors_config = CORSConfig(
-    allow_origins=[
-        "*",
-        "https://fcp-low.sbx.dev-franceconnect.fr",
-        "https://fcp-low.sbx.dev-franceconnect.fr/api/v2/authorize",
-    ]
-)
+cors_config = CORSConfig(allow_origins=["*"])
 
 
 sentry_sdk.init(
