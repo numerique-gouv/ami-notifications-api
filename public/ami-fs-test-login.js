@@ -10,4 +10,5 @@ const franceConnect = async () => {
 }
 
 const franceConnectBtn = document.querySelector('#fr-connect-button')
+// Step 3
 franceConnectBtn.addEventListener('click', franceConnect)
