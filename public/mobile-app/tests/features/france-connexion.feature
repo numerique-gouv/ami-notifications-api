@@ -50,3 +50,5 @@ Feature: France Connect
     Brief UI:
         - la WPA AMI permet 1) d'activer les notifications sur son device 2) de se connecter via FranceConnect 3) d'accéder à toutes ses notifications 4) d'accéder à ses rendez-vous avec un bouton permettant d'annuler un rendez-vous allant vers le fournisseur de service partenaire
         - l'application fictive MesRendezVous permet de 1) se connecter via FranceConnect, 1) d'accéder à un rendez-vous juste en mettant les trois premières lettres de son nom, 3) d'afficher le détail d'un rendez-vous avec un bouton permettant de l'annuler
+
+Next : faire référence et si besoin confronter ça avec / s'intégrer aux scenarios UX présentés sur les deux miro (fonc et tech)
