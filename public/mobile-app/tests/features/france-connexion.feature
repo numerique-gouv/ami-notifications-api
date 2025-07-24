@@ -12,7 +12,7 @@ Fonctionnalité: France Connect
     #     - une application fictive MesRendezVous de prise de rendez-vous pour les usagers
     #     - une application d'administration de ce service fictif permettant de notifier un usager de la création de rendez-vous
 
-    Scénario: enregistrement d'un usager au service de notification via France Connect
+    Scénario: enregistrement d'un usager au service de notification d'AMI via France Connect
         Etant donné que l'usager est sur la home page de l'application AMI, non connecté
         Quand l'usager se connecte sur AMI via France Connect en tant que "Camille" et suit le process de france connexion 
         Alors l'usager devrait arriver sur la page de l'application
@@ -24,7 +24,7 @@ Fonctionnalité: France Connect
         # - une première itération peut sauter tout le process FC pour juste renvoyer des données en dur / aléatoire.
         # - l'usager est notifiable même s'il n'a pas accepté les notifications
 
-    Scénario: notification 
+    Scénario: notification sur AMI via le service MesRendezVous
         Etant donné que l'usager "Camille" est enregistré dans AMI dans les usagers notifiables
         Et que l'usager "Camille" autorise les notifications dans AMI
         Et que un admin se connecte au back-office de MesRendezVous
