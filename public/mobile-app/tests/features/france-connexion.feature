@@ -33,6 +33,7 @@ Fonctionnalité: France Connect
 
         # Questions : comment MesRendezVous connait les usagers notifiables ? Est-ce le même ID partagé par tous les services, en l'occurence MesRendezVous et AMI ? Ici, on va utiliser le même service fictif chez FranceConnect donc on ne pourra s'en assurer. (cf rem. https://github.com/numerique-gouv/ami-notifications-api/issues/68#issuecomment-3078592712)
         # - peut-on demander à France Connect la création d'un autre bac à sable por valider cela ?
+        # Que se passe-t-il si l'usager n'a pas encore AMI ? Peut-on récupérer les rendez-vous existant ? cf Atelier TECH 6/05 https://miro.com/app/board/uXjVI5hoo5o=/ et Scénario 2 de https://miro.com/app/board/uXjVI_HCqng=/?moveToWidget=3458764630638239223&cot=14
 
     Scénario: accès au détail du rendez-vous sur MesRendezVous via authentification France Connect
         Etant donné que aucun usager n'est authentifié sur l'application MesRendezVous
@@ -59,5 +60,4 @@ Fonctionnalité: France Connect
     #     - la WPA AMI permet 1) d'activer les notifications sur son device 2) de se connecter via FranceConnect 3) d'accéder à toutes ses notifications 4) d'accéder à ses rendez-vous avec un bouton permettant d'annuler un rendez-vous allant vers le fournisseur de service partenaire
     #     - l'application fictive MesRendezVous permet de 1) se connecter via FranceConnect, 2) d'accéder à un rendez-vous juste en mettant les trois premières lettres de son nom, 3) d'afficher le détail d'un rendez-vous avec un bouton permettant de l'annuler
     #     - l'application fictive d'admin MesRendezVous qui permet de notifier un usager de la création d'un rendez-vous
-
-# Next : faire référence et si besoin confronter ça avec / s'intégrer aux scenarios UX présentés sur les deux miro (fonc et tech)
+    
