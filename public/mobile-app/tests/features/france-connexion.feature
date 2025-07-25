@@ -2,10 +2,10 @@
 
 Fonctionnalité: France Connect
 
-    # Objectif :
-    #     - Se connecter sur AMI via France Connect
-    #     - Identifier les rupture de parcours quand on passe d'AMI à un fournisseur de service partenaire
-    #     - Apprendre à travailler ensemble
+    # Objectif (dans quel ordre ?) :
+    #     - Tech: Se connecter sur AMI via France Connect
+    #     - UX: Identifier les rupture de parcours quand on passe d'AMI à un fournisseur de service partenaire
+    #     - Orga: Apprendre à travailler ensemble
 
     # Contexte : Soient trois applicatifs
     #     - la WPA AMI permettant de s'enregistrer aux notifications
@@ -15,7 +15,7 @@ Fonctionnalité: France Connect
     Scénario: enregistrement d'un usager au service de notification d'AMI via France Connect
         Etant donné que l'usager est sur la home page de l'application AMI, non connecté
         Quand l'usager se connecte sur AMI via France Connect en tant que "Camille" et suit le process de france connexion 
-        Alors l'usager devrait arriver sur la page de l'application
+        Alors l'usager devrait arriver sur la page de l'application AMI
         Et l'usager "Camille" devrait être enregistré dans les usagers notifiables avec son Id Pivot
 
         # Questions : comment rajouter la notion d'application pour éviter d'avoir une relation 1:1 entre usager et app ?
@@ -56,7 +56,7 @@ Fonctionnalité: France Connect
         Et l'usager ne devrait pas être connecté sur MesRendezVous
 
 
-    # Brief UI:
+    # Ce qui mener à ce brief UI:
     #     - la WPA AMI permet 1) d'activer les notifications sur son device 2) de se connecter via FranceConnect 3) d'accéder à toutes ses notifications 4) d'accéder à ses rendez-vous avec un bouton permettant d'annuler un rendez-vous allant vers le fournisseur de service partenaire
     #     - l'application fictive MesRendezVous permet de 1) se connecter via FranceConnect, 2) d'accéder à un rendez-vous juste en mettant les trois premières lettres de son nom, 3) d'afficher le détail d'un rendez-vous avec un bouton permettant de l'annuler
     #     - l'application fictive d'admin MesRendezVous qui permet de notifier un usager de la création d'un rendez-vous
