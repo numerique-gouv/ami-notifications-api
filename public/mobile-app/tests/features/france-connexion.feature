@@ -2,13 +2,13 @@
 
 Fonctionnalité: France Connect
 
-    # Objectif (dans quel ordre ?) :
+    # Objectifs (dans quel ordre ?) :
     #     - Tech: Se connecter sur AMI via France Connect
     #     - UX: Identifier les rupture de parcours quand on passe d'AMI à un fournisseur de service partenaire
     #     - Orga: Apprendre à travailler ensemble
 
     # Contexte : Soient trois applicatifs
-    #     - la WPA AMI permettant de s'enregistrer aux notifications
+    #     - la PWA AMI permettant de s'enregistrer aux notifications #commencer par un site web classique ?
     #     - une application fictive MesRendezVous de prise de rendez-vous pour les usagers
     #     - une application d'administration de ce service fictif permettant de notifier un usager de la création de rendez-vous
 
@@ -31,18 +31,20 @@ Fonctionnalité: France Connect
         Quand l'admin notifie l'usager "Camille" avec le message Un rendez-vous "xxx" a été créé
         Alors l'usager "Camille" devrait recevoir une notification avec un lien lui permettant de visiter le page du rendez-vous "xxx" sur AMI
 
-        # Questions : comment MesRendezVous connait les usagers notifiables ? Est-ce le même ID partagé par tous les services, en l'occurence MesRendezVous et AMI ? Ici, on va utiliser le même service fictif chez FranceConnect donc on ne pourra s'en assurer. (cf rem. https://github.com/numerique-gouv/ami-notifications-api/issues/68#issuecomment-3078592712)
-        # - peut-on demander à France Connect la création d'un autre bac à sable por valider cela ?
-        # Que se passe-t-il si l'usager n'a pas encore AMI ? Peut-on récupérer les rendez-vous existant ? cf Atelier TECH 6/05 https://miro.com/app/board/uXjVI5hoo5o=/ et Scénario 2 de https://miro.com/app/board/uXjVI_HCqng=/?moveToWidget=3458764630638239223&cot=14
+        # Questions : comment MesRendezVous connait les usagers notifiables ? Est-ce le même ID partagé par tous les services, en l'occurence MesRendezVous et AMI ? Ici, on va utiliser le même bac-à-sable chez FranceConnect donc on ne pourra s'en assurer. (cf rem. https://github.com/numerique-gouv/ami-notifications-api/issues/68#issuecomment-3078592712)
+        # - peut-on demander à France Connect la création d'un autre bac-à-sable pour valider cela ?
+        # Que se passe-t-il si l'usager n'a pas encore AMI ? Peut-on récupérer les rendez-vous existant ? cf Atelier TECH 6/05 https://miro.com/app/board/uXjVI5hoo5o=/ et Scénario 2 de https://miro.com/app/board/uXjVI_HCqng=/?moveToWidget=3458764630638239223&cot=14. Comment gérer les stocks / les incohérences ? Ou faut-il faire appel à une API en //. Ou n'avons nous que des notif et pas l'encours ?
 
     Scénario: accès au détail du rendez-vous sur MesRendezVous via authentification France Connect
         Etant donné que aucun usager n'est authentifié sur l'application MesRendezVous
         Et que l'usager se connecte sur AMI via France Connect en tant que "Camille" et suit le process de france connexion
         Et que l'usager visite le page de rendez-vous "xxx" sur AMI
         Quand l'usager demande la suppression du rendez-vous "xxx" sur AMI
-        Alors l'usager devrait arriver sur la page de connexion de MesRendezVous
-        Quand l'usager se connecte sur MesRendezVous via France Connect en tant que "Camille" et suit le process de france connexion 
-        Alors l'usager devrait voir le détail du rendez-vous "xxx" sur MesRendezVous et pouvoir l'annuler
+        Alors l'usager devrait arriver sur la page de connexion de MesRendezVous 
+        # dans l'appli ou dans un onglet nouvellement ouvert du navigateur par défaut ?
+        Quand l'usager se connecte sur MesRendezVous via France Connect en tant que "Camille" et suit le process de france connexion
+        # diffère si > ou < à 30 min depuis la dernière france connexion 
+        Alors l'usager devrait voir le détail du rendez-vous "xxx" sur MesRendezVous et pouvoir le supprimer
         Et l'usager devrait être connecté sur MesRendezVous en tant que "Camille"
 
     Scénario: alternative : accès au détail du rendez-vous sur MesRendezVous via authentification allégée
@@ -56,8 +58,8 @@ Fonctionnalité: France Connect
         Et l'usager ne devrait pas être connecté sur MesRendezVous
 
 
-    # Ce qui mener à ce brief UI:
-    #     - la WPA AMI permet 1) d'activer les notifications sur son device 2) de se connecter via FranceConnect 3) d'accéder à toutes ses notifications 4) d'accéder à ses rendez-vous avec un bouton permettant d'annuler un rendez-vous allant vers le fournisseur de service partenaire
+    # Ce qui mène à ce brief UI:
+    #     - la PWA AMI permet 1) d'activer les notifications sur son device 2) de se connecter via FranceConnect 3) d'accéder à toutes ses notifications 4) d'accéder à ses rendez-vous avec un bouton permettant d'annuler un rendez-vous allant vers le fournisseur de service partenaire
     #     - l'application fictive MesRendezVous permet de 1) se connecter via FranceConnect, 2) d'accéder à un rendez-vous juste en mettant les trois premières lettres de son nom, 3) d'afficher le détail d'un rendez-vous avec un bouton permettant de l'annuler
     #     - l'application fictive d'admin MesRendezVous qui permet de notifier un usager de la création d'un rendez-vous
     
