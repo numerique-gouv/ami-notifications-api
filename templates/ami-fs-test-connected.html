@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block container %}
+  <h2>Vous êtes France Connecté.e !</h2>
+
+  <ul>
+    <li>userinfo: {{ userinfo }}</li>
+    <li>sub: {{ userinfo.sub }}</li>
+    <li>given_name: {{ userinfo.given_name }}</li>
+    <li>given_name_array: {{ userinfo.given_name_array }}</li>
+    <li>family_name: {{ userinfo.family_name }}</li>
+    <li>birthdate: {{ userinfo.birthdate }}</li>
+    <li>gender: {{ userinfo.gender }}</li>
+    <li>aud: {{ userinfo.aud }}</li>
+    <li>exp: {{ userinfo.exp }}</li>
+    <li>iat: {{ userinfo.iat }}</li>
+    <li>iss: {{ userinfo.iss }}</li>
+  </ul>
+{% endblock container %}
