@@ -10,18 +10,17 @@ Given(
 	}
 );
 
-Given("l'usager est sur la home page de l'application AMI, non connecté", function () {
+Given("l'usager est sur la home page non connectée de l'application AMI", function () {
 	// Write code here that turns the phrase above into concrete actions
 });
 
-Then("l'usager devrait arriver sur la page de l'application AMI", function () {
+Then("l'usager devrait arriver sur la home page connectée de l'application AMI", function () {
 	// Write code here that turns the phrase above into concrete actions
 });
 
 Then(
-	"l'usager {string} devrait être enregistré(|e) dans les usagers notifiables avec son Id Pivot",
+	"l'usager {string} devrait être notifiable",
 	function (s) {
 		console.log(s);
 	}
 );
-
