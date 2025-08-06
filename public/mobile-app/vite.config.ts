@@ -1,9 +1,21 @@
 import { svelteTesting } from '@testing-library/svelte/vite'
 import { sveltekit } from '@sveltejs/kit/vite'
 import { defineConfig } from 'vite'
+import basicSsl from '@vitejs/plugin-basic-ssl'
 
 export default defineConfig({
-  plugins: [sveltekit()],
+  plugins: [
+    sveltekit(),
+    basicSsl({
+      certDir: '../ssl_files',
+    }),
+  ],
+  server: {
+    proxy: {
+      '/notification-key': 'http://localhost:8000',
+      '/api/*': 'http://localhost:8000',
+    },
+  },
   test: {
     workspace: [
       {

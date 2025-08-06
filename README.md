@@ -76,10 +76,7 @@ Generate the SSL files with the following command:
 openssl req -x509 -newkey rsa:4096 -keyout ssl-key.pem -out ssl-cert.pem -days 365 -nodes -subj "/CN=localhost"
 ```
 
-Update the last line of the bin/start.sh file to load these two files with:
-```sh
-make migrate && uv run --env-file .env litestar run -p ${PORT} -H ${HOSTNAME} ${RELOAD} ${DEBUG} --ssl-keyfile=ssl-key.pem --ssl-certfile=ssl-cert.pem
-```
+Copy the two files into the `ssl_files` folder
 
 ### Webpush
 
