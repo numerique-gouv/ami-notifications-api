@@ -14,6 +14,8 @@ export default defineConfig({
     proxy: {
       '/notification-key': 'http://localhost:8000',
       '/api/*': 'http://localhost:8000',
+      '/ami-fs-test-login-callback': 'http://localhost:8000',
+      '/ami-fs-test-connected': 'http://localhost:8000',
     },
   },
   test: {
