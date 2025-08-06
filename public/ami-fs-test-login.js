@@ -9,7 +9,8 @@ const franceConnect = async () => {
   const AUTHORIZATION_FC_PATH = '/api/v2/authorize'
 
   const query = {
-    scope: 'openid given_name family_name preferred_username birthdate gender',
+    scope:
+      'openid given_name family_name preferred_username birthdate gender birthplace birthcountry sub email given_name_array',
     redirect_uri: `${FS_URL}${DATA_CALLBACK_FS_PATH}`,
     response_type: 'code',
     client_id: DATA_CLIENT_ID,
