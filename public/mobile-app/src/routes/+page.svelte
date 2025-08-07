@@ -1,276 +1,93 @@
 <script lang="ts">
 import { PUBLIC_API_URL } from '$env/static/public'
 import { onMount } from 'svelte'
-import Installation from '$lib/Installation.svelte'
 
-const isAppInstalled: boolean =
-  typeof window !== 'undefined' && 'Notification' in window
-
-let isAuthenticatedForNotifications: boolean = $state(false)
-let authenticationStatus: string = $state('')
-let isRegisteredWithAmi: boolean = $state(false)
-let registrationStatus: string = $state('')
-let userEmailValidationStatus: string = $state('')
-
-let pushSubscription
-let registerEmailInputValue: string = $state('')
-
-let userEmailState: string = $state('')
-let userIdState: number = $state(0)
-let userNotifications: [] = $state([])
-
-const getSubscription = async () => {
-  console.log("refreshing the push subscription, if it's there")
-  const registration = await navigator.serviceWorker.ready
-  if (registration) {
-    const sub = await registration.pushManager.getSubscription()
-    console.log('refreshed subscription:', sub)
-    return sub
-  }
-}
+let userinfo: Object = $state({})
+let isFranceConnected: boolean = $state(false)
 
 onMount(async () => {
-  const userIdLocalStorage: string | null =
-    window.localStorage.getItem('userIdLocalStorage')
-  const emailLocalStorage: string | null =
-    window.localStorage.getItem('emailLocalStorage')
+  try {
+    const response = await fetch(`${PUBLIC_API_URL}/api/v1/userinfo`)
 
-  if (userIdLocalStorage && emailLocalStorage) {
-    userIdState = parseInt(userIdLocalStorage)
-    userEmailState = emailLocalStorage
-    registerEmailInputValue = emailLocalStorage
-    await retrieveNotifications()
-  }
+    if (response.status == 200) {
+      isFranceConnected = true
+      userinfo = await response.json()
 
-  checkNotificationPermission().then((isGranted) => {
-    isAuthenticatedForNotifications = isGranted === true
-  })
-
-  if (navigator.permissions) {
-    const permissionStatus = await navigator.permissions.query({
-      name: 'notifications',
-    })
-    isAuthenticatedForNotifications = permissionStatus.state == 'granted'
-    pushSubscription = await getSubscription()
-    console.log(`notifications permission status is ${permissionStatus.state}`)
-
-    permissionStatus.onchange = async () => {
-      if (permissionStatus.state == 'granted') {
-        isAuthenticatedForNotifications = true
-        pushSubscription = await getSubscription()
-      } else {
-        resetElements()
-      }
-      console.log(
-        `notifications permission status has changed to ${permissionStatus.state}`
-      )
+      console.log('userinfo', userinfo)
     }
+  } catch (error) {
+    console.error(error)
   }
 })
 
-const retrieveNotifications = async () => {
-  if (userIdState != 0 && userEmailState !== '') {
-    try {
-      const response = await fetch(
-        `${PUBLIC_API_URL}/api/v1/users/${userIdState}/notifications`
-      )
+// FC - Step 3
+const franceConnect = async () => {
+  const FS_URL = 'https://localhost:5173'
+  const DATA_CALLBACK_FS_PATH = '/ami-fs-test-login-callback'
+  const DATA_CLIENT_ID =
+    '88d6fc32244b89e2617388fb111e668fec7b7383c841a08eefbd58fd11637eec'
+  const STATE = 'stateazertyuiopqsdfghjklmwxcvbn012345'
+  const NONCE = 'nonceazertyuiopqsdfghjklmwxcvbn012345'
+  const FC_URL = 'https://fcp-low.sbx.dev-franceconnect.fr'
+  const AUTHORIZATION_FC_PATH = '/api/v2/authorize'
 
-      if (response.status == 200) {
-        userNotifications = await response.json()
-        userNotifications.forEach(
-          (notification) =>
-            (notification.formattedDate = new Date(
-              notification.date
-            ).toLocaleDateString('fr-FR'))
-        )
-        console.log('userNotifications', userNotifications)
-      }
-    } catch (error) {
-      console.error(error)
-    }
+  const query = {
+    scope:
+      'openid given_name family_name preferred_username birthdate gender birthplace birthcountry sub email given_name_array',
+    redirect_uri: `${FS_URL}${DATA_CALLBACK_FS_PATH}`,
+    response_type: 'code',
+    client_id: DATA_CLIENT_ID,
+    state: STATE,
+    nonce: NONCE,
+    acr_values: 'eidas1',
+    prompt: 'login',
   }
-}
 
-const checkNotificationPermission = async () => {
-  const permission = await Notification.permission
-  console.log('permission:', permission)
-  return permission == 'granted'
-}
+  const url = `${FC_URL}${AUTHORIZATION_FC_PATH}`
+  const params = new URLSearchParams(query).toString()
 
-const resetElements = () => {
-  isAuthenticatedForNotifications = false
-  authenticationStatus = ''
-  isRegisteredWithAmi = false
-  registrationStatus = ''
-  pushSubscription = null
-  userIdState = 0
-  registerEmailInputValue = ''
-  userEmailState = ''
-  userNotifications = []
-  window.localStorage.setItem('emailLocalStorage', '')
-}
+  window.location.href = `${url}?${params}`
 
-const subscribePush = async () => {
-  const registration = await navigator.serviceWorker.ready
-  try {
-    const applicationKeyResponse = await fetch(`${PUBLIC_API_URL}/notification-key`)
-    const applicationKey = await applicationKeyResponse.text()
-    const options = { userVisibleOnly: true, applicationServerKey: applicationKey }
-    const pushSubscription = await registration.pushManager.subscribe(options)
-    console.log('pushSubscription:', pushSubscription)
-    console.log('Subscribed to the push manager')
-    // The push subscription details needed by the application
-    // server are now available, and can be sent to it using,
-    // for example, the fetch() API.
-    authenticationStatus = 'Inscription réussie au serveur de notifications'
-    return pushSubscription
-  } catch (error) {
-    // During development it often helps to log errors to the
-    // console. In a production environment it might make sense to
-    // also report information about errors back to the
-    // application server.
-    console.error(error)
-  }
-}
-
-const updateButtonsStates = async () => {
-  const isGranted = await checkNotificationPermission()
-  isAuthenticatedForNotifications = isGranted
-  isRegisteredWithAmi = !isGranted
-
-  if (isGranted) {
-    pushSubscription = await subscribePush()
-  }
-}
-
-const askForNotificationPermission = async () => {
-  const permissionGranted = await Notification.requestPermission()
-  const registration = await navigator.serviceWorker.ready
-  if (!permissionGranted || !registration) {
-    console.log(
-      'No notification: missing permission or missing service worker registration'
-    )
-    return
-  }
-  await updateButtonsStates()
-}
-
-const registerWithAmi = async () => {
-  if (registerEmailInputValue !== '') {
-    userEmailValidationStatus = ''
-
-    const pushSubURL = pushSubscription.endpoint
-    const pushSubAuth = pushSubscription.toJSON().keys.auth
-    const pushSubP256DH = pushSubscription.toJSON().keys.p256dh
-
-    const payload = {
-      subscription: {
-        endpoint: pushSubURL,
-        keys: {
-          auth: pushSubAuth,
-          p256dh: pushSubP256DH,
-        },
-      },
-      email: registerEmailInputValue,
-    }
-    console.log('payload:', payload)
-    isRegisteredWithAmi = true
-    registrationStatus = "En cours d'enregistrement..."
-
-    const response = await fetch(`${PUBLIC_API_URL}/api/v1/registrations`, {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    })
-    console.log('response:', response)
-    isRegisteredWithAmi = false
-    if (response.status < 400) {
-      registrationStatus = 'Enregistrement réussi !'
-      const registration = await response.json()
-      userIdState = registration.user_id
-      userEmailState = registerEmailInputValue
-      userNotifications = []
-      window.localStorage.setItem('userIdState', userIdState.toString())
-      window.localStorage.setItem('emailLocalStorage', userEmailState)
-    } else {
-      registrationStatus = `error ${response.status}: ${response.statusText}, ${response.body}`
-    }
-  } else {
-    userEmailValidationStatus = 'Veuillez remplir le champ Email'
-  }
+  return Response.redirect(`${url}?${params}`)
 }
 </script>
 
 <div>
-{#if !isAppInstalled}
-  <Installation />
-{:else}
-	<div>
-		{#if userEmailState}
-			<h1>Bienvenue {userEmailState} sur l'application AMI</h1>
-		{:else}
-			<h1>Bienvenue sur l'application AMI</h1>
-		{/if}
+{#if !isFranceConnected}
+	<h1>Bienvenue sur l'application AMI</h1>
 
+	<div class="fr-connect-group">
 		<button
+				class="fr-connect"
 				type="button"
-				onclick={askForNotificationPermission}
-				disabled={isAuthenticatedForNotifications}
+				id="fr-connect-button"
+				onclick={franceConnect}
 		>
-			S'authentifier pour recevoir des notifications
+			<span class="fr-connect__login">S’identifier avec</span>
+			<span class="fr-connect__brand">FranceConnect</span>
 		</button>
-		<span id="authentication-status" title="authentication-status-title">{authenticationStatus}</span>
-
-		<div>
-			<p>
-				<label
-				>Email
-					<input
-							bind:value={registerEmailInputValue}
-							type="text"
-							id="register-email"
-							name="register-email"
-					/>
-				</label>
-			</p>
-			<p>
-				<span id="email-validation-status">{userEmailValidationStatus}</span>
-			</p>
-			<p>
-				<button
-						type="button"
-						id="register-with-ami"
-						onclick={registerWithAmi}
-						disabled={isRegisteredWithAmi}
-				>
-					S'enregistrer auprès d'AMI
-				</button>
-				<span id="registration-status">{registrationStatus}</span>
-			</p>
-		</div>
-
-		<div>
-			<h2>Historique des notifications</h2>
-			<button
-					type="button"
-					onclick={retrieveNotifications}
-			>
-				Rafraîchir la liste des notifications reçues
-			</button>
-			{#if userNotifications.length === 0}
-				<p>Vous n'avez pas reçu de notification pour l'instant</p>
-			{:else}
-				<ul>
-					{#each userNotifications as notification}
-						<li>
-							<p>Notification reçue le {notification.formattedDate}</p>
-							<p>Titre : {notification.title}</p>
-							<p>Message : {notification.message}</p>
-							<p>Expéditeur : {notification.sender}</p>
-						</li>
-					{/each}
-				</ul>
-			{/if}
-		</div>
+		<p>
+			<a href="https://franceconnect.gouv.fr/" target="_blank" rel="noopener" title="Qu’est-ce que FranceConnect ? - nouvelle fenêtre">Qu’est-ce que FranceConnect ?</a>
+		</p>
 	</div>
+{:else}
+  <h1>Bonjour { userinfo.given_name }</h1>
+
+  <ul>
+    <li>userinfo: { userinfo }</li>
+    <li>sub: { userinfo.sub }</li>
+    <li>given_name: { userinfo.given_name }</li>
+    <li>given_name_array: { userinfo.given_name_array }</li>
+    <li>family_name: { userinfo.family_name }</li>
+    <li>birthdate: { userinfo.birthdate }</li>
+    <li>gender: { userinfo.gender }</li>
+    <li>birthplace: { userinfo.birthplace }</li>
+    <li>birthcountry: { userinfo.birthcountry }</li>
+    <li>email: { userinfo.email }</li>
+    <li>aud: { userinfo.aud }</li>
+    <li>exp: { userinfo.exp }</li>
+    <li>iat: { userinfo.iat }</li>
+    <li>iss: { userinfo.iss }</li>
+  </ul>
 {/if}
 </div>

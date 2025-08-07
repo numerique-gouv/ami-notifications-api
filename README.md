@@ -69,6 +69,15 @@ Then access http://127.0.0.1:8000, or open one of:
 - http://127.0.0.1:8000/schema/elements (for Stoplight Elements)
 - http://127.0.0.1:8000/schema/rapidoc (for RapiDoc)
 
+#### Serve localhost with https
+
+Generate the SSL files with the following command:
+```sh
+openssl req -x509 -newkey rsa:4096 -keyout ssl-key.pem -out ssl-cert.pem -days 365 -nodes -subj "/CN=localhost"
+```
+
+Copy the two files into the `ssl_files` folder
+
 ### Webpush
 
 Web push is the technology/protocol used to send notifications to a web browser,

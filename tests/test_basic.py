@@ -7,6 +7,7 @@ from litestar import Litestar
 from litestar.status_codes import HTTP_200_OK, HTTP_201_CREATED, HTTP_404_NOT_FOUND
 from litestar.testing import TestClient
 from pytest_httpx import HTTPXMock
+from pytest_mock import MockerFixture
 from sqlalchemy.orm import InstrumentedAttribute, selectinload
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
@@ -299,3 +300,47 @@ async def test_enable_registration(
     assert response.status_code == HTTP_200_OK
     result = response.json()
     assert result["enabled"] is True
+
+
+async def test_ami_fs_test_login_callback(
+    test_client: TestClient[Litestar], httpx_mock: HTTPXMock, mocker: MockerFixture
+) -> None:
+    fake_token_json_response = {
+        "access_token": "fake access token",
+        "expires_in": 60,
+        "id_token": "fake id token",
+        "scope": "openid",
+        "token_type": "Bearer",
+    }
+    httpx_mock.add_response(
+        method="POST",
+        url="https://fcp-low.sbx.dev-franceconnect.fr/api/v2/token",
+        json=fake_token_json_response,
+    )
+    httpx_mock.add_response(
+        method="GET", url="https://fcp-low.sbx.dev-franceconnect.fr/api/v2/jwks"
+    )
+    httpx_mock.add_response(
+        method="GET", url="https://fcp-low.sbx.dev-franceconnect.fr/api/v2/userinfo"
+    )
+    fake_userinfo = {
+        "sub": "fake sub",
+        "given_name": "Angela Claire Louise",
+        "given_name_array": ["Angela", "Claire", "Louise"],
+        "family_name": "DUBOIS",
+        "birthdate": "1962-08-24",
+        "gender": "female",
+        "aud": "fake aud",
+        "exp": 1753877658,
+        "iat": 1753877598,
+        "iss": "https://fcp-low.sbx.dev-franceconnect.fr/api/v2",
+    }
+    mock_decode = mocker.patch("jwt.decode")
+    mock_decode.return_value = fake_userinfo
+
+    response = test_client.get(
+        "/ami-fs-test-login-callback?code=ASErqUZHo3lsJmZXyR14OUTUrcLy8zQbZBUahMoAlW1"
+    )
+
+    assert response.request.url == "http://testserver.local/ami-fs-test-connected"
+    assert response.status_code == HTTP_200_OK
