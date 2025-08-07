@@ -4,12 +4,7 @@ import { defineConfig } from 'vite'
 import basicSsl from '@vitejs/plugin-basic-ssl'
 
 export default defineConfig({
-  plugins: [
-    sveltekit(),
-    basicSsl({
-      certDir: '../ssl_files',
-    }),
-  ],
+  plugins: [sveltekit(), basicSsl()],
   server: {
     proxy: {
       '/notification-key': 'http://localhost:8000',
