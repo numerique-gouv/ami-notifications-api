@@ -26,7 +26,7 @@ from litestar.response.redirect import Redirect
 from litestar.static_files import (
     create_static_files_router,  # type: ignore[reportUnknownVariableType]
 )
-from litestar.status_codes import HTTP_200_OK, HTTP_201_CREATED
+from litestar.status_codes import HTTP_200_OK, HTTP_201_CREATED, HTTP_403_FORBIDDEN
 from litestar.stores.file import FileStore
 from litestar.template.config import TemplateConfig
 from sqlalchemy.orm import InstrumentedAttribute, selectinload
@@ -197,6 +197,18 @@ async def enable_registration(
     return Response(registration, status_code=HTTP_200_OK)
 
 
+@get(path="/api/v1/userinfo")
+async def get_userinfo(
+    request: Request,  # type: ignore
+) -> Response[str]:
+    # FC - Step 16.2
+    if "userinfo" not in request.session:
+        return Response('{ "error": "User not connected" }', status_code=HTTP_403_FORBIDDEN)
+
+    userinfo = request.session["userinfo"]
+    return Response(userinfo, status_code=HTTP_200_OK)
+
+
 #### VIEWS
 
 
@@ -207,15 +219,6 @@ async def admin(db_session: AsyncSession) -> Template:
     return Template(
         template_name="admin.html",
         context={"users": users, "notifications": notifications},
-    )
-
-
-@get(path="/ami-fs-test-login", include_in_schema=False)
-async def ami_fs_test_login() -> Template:
-    print(cors_config)
-    return Template(
-        template_name="ami-fs-test-login.html",
-        context={},
     )
 
 
@@ -230,7 +233,7 @@ async def ami_fs_test_login_callback(
     JWKS_FC_PATH = "/api/v2/jwks"
     USERINFO_FC_PATH = "/api/v2/userinfo"
     token_endpoint_headers = {"Content-Type": "application/x-www-form-urlencoded"}
-    FS_URL = "https://localhost:8000"
+    FS_URL = "https://localhost:5173"
     DATA_CALLBACK_FS_PATH = "/ami-fs-test-login-callback"
     redirect_uri = f"{FS_URL}{DATA_CALLBACK_FS_PATH}"
     client_id = TEST_FS_CLIENT_ID
@@ -268,19 +271,7 @@ async def ami_fs_test_login_callback(
 
     # FC - Step 16.1
     request.session["userinfo"] = userinfo
-    return Redirect("/ami-fs-test-connected")
-
-
-@get(path="/ami-fs-test-connected", include_in_schema=False)
-async def ami_fs_test_connected(
-    request: Request,  # type: ignore
-) -> Template:
-    # FC - Step 16.2
-    userinfo = request.session["userinfo"]
-    return Template(
-        template_name="ami-fs-test-connected.html",
-        context={"userinfo": userinfo},
-    )
+    return Redirect("/")
 
 
 #### APP
@@ -310,9 +301,8 @@ def create_app(
             enable_registration,
             get_notifications,
             admin,
-            ami_fs_test_login,
             ami_fs_test_login_callback,
-            ami_fs_test_connected,
+            get_userinfo,
             create_static_files_router(
                 path="/admin/static",
                 directories=[HTML_DIR_ADMIN],

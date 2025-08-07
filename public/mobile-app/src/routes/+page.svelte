@@ -1,7 +1,28 @@
 <script lang="ts">
+import { PUBLIC_API_URL } from '$env/static/public'
+import { onMount } from 'svelte'
+
+let userinfo: Object = $state({})
+let isFranceConnected: boolean = $state(false)
+
+onMount(async () => {
+  try {
+    const response = await fetch(`${PUBLIC_API_URL}/api/v1/userinfo`)
+
+    if (response.status == 200) {
+      isFranceConnected = true
+      userinfo = await response.json()
+
+      console.log('userinfo', userinfo)
+    }
+  } catch (error) {
+    console.error(error)
+  }
+})
+
 // FC - Step 3
 const franceConnect = async () => {
-  const FS_URL = 'https://localhost:8000'
+  const FS_URL = 'https://localhost:5173'
   const DATA_CALLBACK_FS_PATH = '/ami-fs-test-login-callback'
   const DATA_CLIENT_ID =
     '88d6fc32244b89e2617388fb111e668fec7b7383c841a08eefbd58fd11637eec'
@@ -32,6 +53,7 @@ const franceConnect = async () => {
 </script>
 
 <div>
+{#if !isFranceConnected}
 	<h1>Bienvenue sur l'application AMI</h1>
 
 	<div class="fr-connect-group">
@@ -48,4 +70,24 @@ const franceConnect = async () => {
 			<a href="https://franceconnect.gouv.fr/" target="_blank" rel="noopener" title="Qu’est-ce que FranceConnect ? - nouvelle fenêtre">Qu’est-ce que FranceConnect ?</a>
 		</p>
 	</div>
+{:else}
+  <h1>Bonjour { userinfo.given_name }</h1>
+
+  <ul>
+    <li>userinfo: { userinfo }</li>
+    <li>sub: { userinfo.sub }</li>
+    <li>given_name: { userinfo.given_name }</li>
+    <li>given_name_array: { userinfo.given_name_array }</li>
+    <li>family_name: { userinfo.family_name }</li>
+    <li>birthdate: { userinfo.birthdate }</li>
+    <li>gender: { userinfo.gender }</li>
+    <li>birthplace: { userinfo.birthplace }</li>
+    <li>birthcountry: { userinfo.birthcountry }</li>
+    <li>email: { userinfo.email }</li>
+    <li>aud: { userinfo.aud }</li>
+    <li>exp: { userinfo.exp }</li>
+    <li>iat: { userinfo.iat }</li>
+    <li>iss: { userinfo.iss }</li>
+  </ul>
+{/if}
 </div>
