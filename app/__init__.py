@@ -26,7 +26,7 @@ from litestar.response.redirect import Redirect
 from litestar.static_files import (
     create_static_files_router,  # type: ignore[reportUnknownVariableType]
 )
-from litestar.status_codes import HTTP_200_OK, HTTP_201_CREATED, HTTP_403_FORBIDDEN
+from litestar.status_codes import HTTP_200_OK, HTTP_201_CREATED, HTTP_403_FORBIDDEN, HTTP_500_INTERNAL_SERVER_ERROR
 from litestar.stores.file import FileStore
 from litestar.template.config import TemplateConfig
 from sqlalchemy.orm import InstrumentedAttribute, selectinload
@@ -246,11 +246,16 @@ async def ami_fs_test_login_callback(
         "code": code,
     }
 
+    if client_secret == "":
+        return error_from_message({"error": "Client secret not provided in .env file"}, HTTP_500_INTERNAL_SERVER_ERROR)
+
     # FC - Step 6
     async with httpx.AsyncClient() as client:
         response = await client.post(
             f"{FC_URL}{TOKEN_FC_PATH}", headers=token_endpoint_headers, data=data
         )
+        if response.status_code != 200:
+            return error_from_response(response, ami_details ="FC - Step 6 with " + str(data))
         response_token_data = response.json()
 
     # FC - Step 8
@@ -273,6 +278,16 @@ async def ami_fs_test_login_callback(
     request.session["userinfo"] = userinfo
     return Redirect("/")
 
+
+def error_from_response(response, ami_details=None):
+    details = response.json()
+    if ami_details is not None:
+        details["ami_details"] = ami_details
+    err_response = Response(details, status_code=response.status_code)
+    return err_response
+
+def error_from_message(message, status_code):
+    return Response(message, status_code=status_code)
 
 #### APP
 
