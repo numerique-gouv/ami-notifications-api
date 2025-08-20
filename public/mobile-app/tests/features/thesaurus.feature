@@ -1,3 +1,7 @@
+# language: fr
+
+Fonctionnalité: France Connect
+
     Scénario: usager notifiable
         Etant donné que l'usager "Camille" est notifiable
         Alors l'usager "Camille" devrait être enregistré dans les usagers connus d'AMI avec son Id Pivot
