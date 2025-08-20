@@ -2,7 +2,7 @@
 
 This is the AMI (Application Mobile Interministérielle) notifications API,
 providing entry points to create and list notifications, and to store push URLs
-registered from clients (web or mobile).
+registered from clients (web or mobile) amongst other things.
 
 
 ## Tech stack
