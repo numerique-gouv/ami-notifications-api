@@ -1,6 +1,7 @@
 <script lang="ts">
 import { PUBLIC_API_URL } from '$env/static/public'
 import { onMount } from 'svelte'
+import FranceConnectSvgIcon from './FranceConnectSvgIcon.svelte'
 
 let userinfo: Object = $state({})
 let isFranceConnected: boolean = $state(false)
@@ -52,24 +53,32 @@ const franceConnect = async () => {
 }
 </script>
 
-<div>
+<div class="homepage">
 {#if !isFranceConnected}
-	<h1>Bienvenue sur l'application AMI</h1>
+  <div class="france-connect-svg-icon">
+    <svelte:component this={FranceConnectSvgIcon} />
+  </div>
 
-	<div class="fr-connect-group">
-		<button
-				class="fr-connect"
-				type="button"
-				id="fr-connect-button"
-				onclick={franceConnect}
-		>
-			<span class="fr-connect__login">S’identifier avec</span>
-			<span class="fr-connect__brand">FranceConnect</span>
-		</button>
-		<p>
-			<a href="https://franceconnect.gouv.fr/" target="_blank" rel="noopener" title="Qu’est-ce que FranceConnect ? - nouvelle fenêtre">Qu’est-ce que FranceConnect ?</a>
-		</p>
-	</div>
+  <div class="france-connect-text">
+    <p>Pour pouvoir accéder à <strong>vos droits, à des conseils, et aux échéances</strong> liées à votre situation personnelle, veuillez vous connecter via <strong>France Connect</strong>.</p>
+  </div>
+
+  <div class="fr-connect-group-wrapper">
+    <div class="fr-connect-group">
+      <button
+          class="fr-connect"
+          type="button"
+          id="fr-connect-button"
+          onclick={franceConnect}
+      >
+        <span class="fr-connect__login">S’identifier avec</span>
+        <span class="fr-connect__brand">FranceConnect</span>
+      </button>
+      <p>
+        <a href="https://franceconnect.gouv.fr/" target="_blank" rel="noopener" title="Qu’est-ce que FranceConnect ? - nouvelle fenêtre">Qu’est-ce que FranceConnect ?</a>
+      </p>
+    </div>
+  </div>
 {:else}
   <h1>Bonjour { userinfo.given_name }</h1>
 
@@ -91,3 +100,38 @@ const franceConnect = async () => {
   </ul>
 {/if}
 </div>
+
+<style>
+	div.homepage {
+		padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+	}
+
+  div.france-connect-text {
+    margin-bottom: 20px;
+  }
+
+  div.fr-connect-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+	}
+
+  button.fr-connect {
+    padding-left: 6em !important;
+    padding-right: 4em !important;
+  }
+
+  button.fr-connect:before {
+    width: 3em !important;
+    left: 2.5em !important;
+  }
+
+  h1 {
+    font-weight: 700;
+    font-size: 28px;
+    line-height: 36px;
+  }
+</style>
