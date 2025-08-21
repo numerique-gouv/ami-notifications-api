@@ -56,7 +56,7 @@ const franceConnect = async () => {
 <div class="homepage">
 {#if !isFranceConnected}
   <div class="france-connect-svg-icon">
-    <svelte:component this={FranceConnectSvgIcon} />
+	  <FranceConnectSvgIcon />
   </div>
 
   <div class="france-connect-text">
