@@ -7,7 +7,6 @@ from litestar import Litestar
 from litestar.status_codes import HTTP_200_OK, HTTP_201_CREATED, HTTP_404_NOT_FOUND
 from litestar.testing import TestClient
 from pytest_httpx import HTTPXMock
-from pytest_mock import MockerFixture
 from sqlalchemy.orm import InstrumentedAttribute, selectinload
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
@@ -303,13 +302,15 @@ async def test_enable_registration(
 
 
 async def test_ami_fs_test_login_callback(
-    test_client: TestClient[Litestar], httpx_mock: HTTPXMock, mocker: MockerFixture
+    test_client: TestClient[Litestar],
+    httpx_mock: HTTPXMock,
+    monkeypatch,  # type: ignore[reportUnknownParameterType]
 ) -> None:
     fake_token_json_response = {
         "access_token": "fake access token",
         "expires_in": 60,
         "id_token": "fake id token",
-        "scope": "openid",
+        "scope": "openid given_name family_name preferred_username birthdate gender birthplace birthcountry email",
         "token_type": "Bearer",
     }
     httpx_mock.add_response(
@@ -319,9 +320,6 @@ async def test_ami_fs_test_login_callback(
     )
     httpx_mock.add_response(
         method="GET", url="https://fcp-low.sbx.dev-franceconnect.fr/api/v2/jwks"
-    )
-    httpx_mock.add_response(
-        method="GET", url="https://fcp-low.sbx.dev-franceconnect.fr/api/v2/userinfo"
     )
     fake_userinfo = {
         "sub": "fake sub",
@@ -335,8 +333,16 @@ async def test_ami_fs_test_login_callback(
         "iat": 1753877598,
         "iss": "https://fcp-low.sbx.dev-franceconnect.fr/api/v2",
     }
-    mock_decode = mocker.patch("jwt.decode")
-    mock_decode.return_value = fake_userinfo
+    httpx_mock.add_response(
+        method="GET",
+        url="https://fcp-low.sbx.dev-franceconnect.fr/api/v2/userinfo",
+        json=fake_userinfo,
+    )
+
+    def fake_jwt_decode(userinfo_jws: str, options: Any, algorithms: Any = ["ES256"]):
+        return fake_userinfo
+
+    monkeypatch.setattr("jwt.decode", fake_jwt_decode)  # type: ignore[reportUnknownMemberType]
 
     response = test_client.get("/ami-fs-test-login-callback?code=fake-code")
 
