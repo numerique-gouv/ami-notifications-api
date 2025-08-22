@@ -30,8 +30,8 @@ onMount(async () => {
 
 // FC - Step 3
 const franceConnect = async () => {
-  const STATE = 'stateazertyuiopqsdfghjklmwxcvbn012345'
-  const NONCE = 'nonceazertyuiopqsdfghjklmwxcvbn012345'
+  const STATE = 'not-implemented-yet-and-has-more-than-32-chars'
+  const NONCE = 'not-implemented-yet-and-has-more-than-32-chars'
 
   const query = {
     scope:
