@@ -1,5 +1,12 @@
 <script lang="ts">
-import { PUBLIC_API_URL } from '$env/static/public'
+import {
+  PUBLIC_API_URL,
+  PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID,
+  PUBLIC_FC_SANDBOX_BASE_URL,
+  PUBLIC_FC_SERVICE_PROVIDER_URL,
+  PUBLIC_FC_SERVICE_PROVIDER_DATA_CALLBACK,
+  PUBLIC_FC_AUTHORIZATION_ENDPOINT,
+} from '$env/static/public'
 import { onMount } from 'svelte'
 import FranceConnectSvgIcon from './FranceConnectSvgIcon.svelte'
 
@@ -23,28 +30,22 @@ onMount(async () => {
 
 // FC - Step 3
 const franceConnect = async () => {
-  const FS_URL = 'https://localhost:5173'
-  const DATA_CALLBACK_FS_PATH = '/ami-fs-test-login-callback'
-  const DATA_CLIENT_ID =
-    '88d6fc32244b89e2617388fb111e668fec7b7383c841a08eefbd58fd11637eec'
   const STATE = 'stateazertyuiopqsdfghjklmwxcvbn012345'
   const NONCE = 'nonceazertyuiopqsdfghjklmwxcvbn012345'
-  const FC_URL = 'https://fcp-low.sbx.dev-franceconnect.fr'
-  const AUTHORIZATION_FC_PATH = '/api/v2/authorize'
 
   const query = {
     scope:
       'openid given_name family_name preferred_username birthdate gender birthplace birthcountry sub email given_name_array',
-    redirect_uri: `${FS_URL}${DATA_CALLBACK_FS_PATH}`,
+    redirect_uri: `${PUBLIC_FC_SERVICE_PROVIDER_URL}${PUBLIC_FC_SERVICE_PROVIDER_DATA_CALLBACK}`,
     response_type: 'code',
-    client_id: DATA_CLIENT_ID,
+    client_id: PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID,
     state: STATE,
     nonce: NONCE,
     acr_values: 'eidas1',
     prompt: 'login',
   }
 
-  const url = `${FC_URL}${AUTHORIZATION_FC_PATH}`
+  const url = `${PUBLIC_FC_SANDBOX_BASE_URL}${PUBLIC_FC_AUTHORIZATION_ENDPOINT}`
   const params = new URLSearchParams(query).toString()
 
   window.location.href = `${url}?${params}`
@@ -55,28 +56,30 @@ const franceConnect = async () => {
 
 <div class="homepage">
 {#if !isFranceConnected}
-  <div class="france-connect-svg-icon">
-	  <FranceConnectSvgIcon />
-  </div>
+  <div class="homepage-not-connected">
+    <div class="france-connect-svg-icon">
+      <FranceConnectSvgIcon />
+    </div>
 
-  <div class="france-connect-text">
-    <p>Pour pouvoir accéder à <strong>vos droits, à des conseils, et aux échéances</strong> liées à votre situation personnelle, veuillez vous connecter via <strong>France Connect</strong>.</p>
-  </div>
+    <div class="france-connect-text">
+      <p>Pour pouvoir accéder à <strong>vos droits, à des conseils, et aux échéances</strong> liées à votre situation personnelle, veuillez vous connecter via <strong>France Connect</strong>.</p>
+    </div>
 
-  <div class="fr-connect-group-wrapper">
-    <div class="fr-connect-group">
-      <button
-          class="fr-connect"
-          type="button"
-          id="fr-connect-button"
-          onclick={franceConnect}
-      >
-        <span class="fr-connect__login">S’identifier avec</span>
-        <span class="fr-connect__brand">FranceConnect</span>
-      </button>
-      <p>
-        <a href="https://franceconnect.gouv.fr/" target="_blank" rel="noopener" title="Qu’est-ce que FranceConnect ? - nouvelle fenêtre">Qu’est-ce que FranceConnect ?</a>
-      </p>
+    <div class="fr-connect-group-wrapper">
+      <div class="fr-connect-group">
+        <button
+            class="fr-connect"
+            type="button"
+            id="fr-connect-button"
+            onclick={franceConnect}
+        >
+          <span class="fr-connect__login">S’identifier avec</span>
+          <span class="fr-connect__brand">FranceConnect</span>
+        </button>
+        <p>
+          <a href="https://franceconnect.gouv.fr/" target="_blank" rel="noopener" title="Qu’est-ce que FranceConnect ? - nouvelle fenêtre">Qu’est-ce que FranceConnect ?</a>
+        </p>
+      </div>
     </div>
   </div>
 {:else}
@@ -102,8 +105,11 @@ const franceConnect = async () => {
 </div>
 
 <style>
-	div.homepage {
+  div.homepage {
 		padding: 24px 16px;
+  }
+
+	div.homepage-not-connected {
     display: flex;
     flex-direction: column;
     align-items: center;

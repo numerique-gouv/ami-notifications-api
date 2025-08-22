@@ -338,9 +338,7 @@ async def test_ami_fs_test_login_callback(
     mock_decode = mocker.patch("jwt.decode")
     mock_decode.return_value = fake_userinfo
 
-    response = test_client.get(
-        "/ami-fs-test-login-callback?code=ASErqUZHo3lsJmZXyR14OUTUrcLy8zQbZBUahMoAlW1"
-    )
+    response = test_client.get("/ami-fs-test-login-callback?code=fake-code")
 
     assert response.request.url == "http://testserver.local/"
     assert response.status_code == HTTP_200_OK

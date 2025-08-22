@@ -9,7 +9,7 @@ import jwt
 import sentry_sdk
 from litestar import (
     Litestar,
-    Request,  # type: ignore[reportUnknownVariableType]
+    Request,
     Response,
     get,
     patch,
@@ -75,9 +75,14 @@ HTML_DIR = "public/mobile-app/build"
 # This is the folder where the "admin" (test API client) is.
 HTML_DIR_ADMIN = "public"
 
-TEST_FS_CLIENT_ID = os.getenv("TEST_FS_CLIENT_ID", "")
-TEST_FS_CLIENT_SECRET = os.getenv("TEST_FS_CLIENT_SECRET", "")
-
+PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID = os.getenv("PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID", "")
+FC_SERVICE_PROVIDER_CLIENT_SECRET = os.getenv("FC_SERVICE_PROVIDER_CLIENT_SECRET", "")
+PUBLIC_FC_SANDBOX_BASE_URL = os.getenv("PUBLIC_FC_SANDBOX_BASE_URL", "")
+PUBLIC_FC_SERVICE_PROVIDER_URL = os.getenv("PUBLIC_FC_SERVICE_PROVIDER_URL", "")
+PUBLIC_FC_SERVICE_PROVIDER_DATA_CALLBACK = os.getenv("PUBLIC_FC_SERVICE_PROVIDER_DATA_CALLBACK", "")
+FC_TOKEN_ENDPOINT = os.getenv("FC_TOKEN_ENDPOINT", "")
+FC_JWKS_ENDPOINT = os.getenv("FC_JWKS_ENDPOINT", "")
+FC_USERINFO_ENDPOINT = os.getenv("FC_USERINFO_ENDPOINT", "")
 
 #### ENDPOINTS
 
@@ -204,7 +209,7 @@ async def enable_registration(
 
 @get(path="/api/v1/userinfo")
 async def get_userinfo(
-    request: Request,  # type: ignore
+    request: Request[Any, Any, Any],
 ) -> Response[str]:
     # FC - Step 16.2
     if "userinfo" not in request.session:
@@ -230,19 +235,15 @@ async def admin(db_session: AsyncSession) -> Template:
 @get(path="/ami-fs-test-login-callback", include_in_schema=False)
 async def ami_fs_test_login_callback(
     code: str,
-    request: Request,  # type: ignore
+    request: Request[Any, Any, Any],
 ) -> Response[Any]:
     # FC - Step 5
-    FC_URL: str = "https://fcp-low.sbx.dev-franceconnect.fr"
-    TOKEN_FC_PATH: str = "/api/v2/token"
-    JWKS_FC_PATH: str = "/api/v2/jwks"
-    USERINFO_FC_PATH: str = "/api/v2/userinfo"
     token_endpoint_headers: dict[str, str] = {"Content-Type": "application/x-www-form-urlencoded"}
-    FS_URL: str = "https://localhost:5173"
-    DATA_CALLBACK_FS_PATH: str = "/ami-fs-test-login-callback"
-    redirect_uri: str = f"{FS_URL}{DATA_CALLBACK_FS_PATH}"
-    client_id: str = TEST_FS_CLIENT_ID
-    client_secret: str = TEST_FS_CLIENT_SECRET
+    redirect_uri: str = (
+        f"{PUBLIC_FC_SERVICE_PROVIDER_URL}{PUBLIC_FC_SERVICE_PROVIDER_DATA_CALLBACK}"
+    )
+    client_id: str = PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID
+    client_secret: str = FC_SERVICE_PROVIDER_CLIENT_SECRET
     data: dict[str, str] = {
         "grant_type": "authorization_code",
         "redirect_uri": redirect_uri,
@@ -257,29 +258,26 @@ async def ami_fs_test_login_callback(
         )
 
     # FC - Step 6
-    async with httpx.AsyncClient() as client:
-        response: Any = await client.post(
-            f"{FC_URL}{TOKEN_FC_PATH}", headers=token_endpoint_headers, data=data
-        )
-        if response.status_code != 200:
-            return error_from_response(response, ami_details="FC - Step 6 with " + str(data))
-        response_token_data: dict[str, str] = response.json()
+    response: Any = httpx.post(
+        f"{PUBLIC_FC_SANDBOX_BASE_URL}{FC_TOKEN_ENDPOINT}",
+        headers=token_endpoint_headers,
+        data=data,
+    )
+    if response.status_code != 200:
+        return error_from_response(response, ami_details="FC - Step 6 with " + str(data))
+    response_token_data: dict[str, str] = response.json()
 
     # FC - Step 8
-    async with httpx.AsyncClient() as client:
-        await client.get(f"{FC_URL}{JWKS_FC_PATH}")
+    httpx.get(f"{PUBLIC_FC_SANDBOX_BASE_URL}{FC_JWKS_ENDPOINT}")
 
     # FC - Step 11
     access_token = response_token_data["access_token"]
     userinfo_endpoint_headers = {"Authorization": f"Bearer {access_token}"}
-    async with httpx.AsyncClient() as client:
-        response = await client.get(
-            f"{FC_URL}{USERINFO_FC_PATH}", headers=userinfo_endpoint_headers
-        )
-        userinfo_jws = response.text
-        userinfo = jwt.decode(
-            userinfo_jws, options={"verify_signature": False}, algorithms=["ES256"]
-        )
+    response = httpx.get(
+        f"{PUBLIC_FC_SANDBOX_BASE_URL}{FC_USERINFO_ENDPOINT}", headers=userinfo_endpoint_headers
+    )
+    userinfo_jws = response.text
+    userinfo = jwt.decode(userinfo_jws, options={"verify_signature": False}, algorithms=["ES256"])
 
     # FC - Step 16.1
     request.session["userinfo"] = userinfo
