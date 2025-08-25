@@ -7,9 +7,9 @@ export default defineConfig({
   plugins: [sveltekit(), basicSsl()],
   server: {
     proxy: {
-      '/notification-key': 'http://localhost:8000',
-      '/api/v1/': 'http://localhost:8000',
-      '/ami-fs-test-login-callback': 'http://localhost:8000',
+      '/notification-key': 'http://127.0.0.1:8000',
+      '/api/v1/': 'http://127.0.0.1:8000',
+      '/ami-fs-test-login-callback': 'http://127.0.0.1:8000',
     },
   },
   test: {
