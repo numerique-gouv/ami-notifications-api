@@ -77,12 +77,12 @@ HTML_DIR_ADMIN = "public"
 
 PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID = os.getenv("PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID", "")
 FC_SERVICE_PROVIDER_CLIENT_SECRET = os.getenv("FC_SERVICE_PROVIDER_CLIENT_SECRET", "")
-PUBLIC_FC_SANDBOX_BASE_URL = os.getenv("PUBLIC_FC_SANDBOX_BASE_URL", "")
+PUBLIC_FC_BASE_URL = os.getenv("PUBLIC_FC_BASE_URL", "")
 PUBLIC_FC_SERVICE_PROVIDER_URL = os.getenv("PUBLIC_FC_SERVICE_PROVIDER_URL", "")
 PUBLIC_FC_SERVICE_PROVIDER_DATA_CALLBACK = os.getenv("PUBLIC_FC_SERVICE_PROVIDER_DATA_CALLBACK", "")
-FC_TOKEN_ENDPOINT = os.getenv("FC_TOKEN_ENDPOINT", "")
-FC_JWKS_ENDPOINT = os.getenv("FC_JWKS_ENDPOINT", "")
-FC_USERINFO_ENDPOINT = os.getenv("FC_USERINFO_ENDPOINT", "")
+PUBLIC_FC_TOKEN_ENDPOINT = os.getenv("PUBLIC_FC_TOKEN_ENDPOINT", "")
+PUBLIC_FC_JWKS_ENDPOINT = os.getenv("PUBLIC_FC_JWKS_ENDPOINT", "")
+PUBLIC_FC_USERINFO_ENDPOINT = os.getenv("PUBLIC_FC_USERINFO_ENDPOINT", "")
 
 #### ENDPOINTS
 
@@ -238,7 +238,6 @@ async def ami_fs_test_login_callback(
     request: Request[Any, Any, Any],
 ) -> Response[Any]:
     # FC - Step 5
-    token_endpoint_headers: dict[str, str] = {"Content-Type": "application/x-www-form-urlencoded"}
     redirect_uri: str = (
         f"{PUBLIC_FC_SERVICE_PROVIDER_URL}{PUBLIC_FC_SERVICE_PROVIDER_DATA_CALLBACK}"
     )
@@ -258,8 +257,9 @@ async def ami_fs_test_login_callback(
         )
 
     # FC - Step 6
+    token_endpoint_headers: dict[str, str] = {"Content-Type": "application/x-www-form-urlencoded"}
     response: Any = httpx.post(
-        f"{PUBLIC_FC_SANDBOX_BASE_URL}{FC_TOKEN_ENDPOINT}",
+        f"{PUBLIC_FC_BASE_URL}{PUBLIC_FC_TOKEN_ENDPOINT}",
         headers=token_endpoint_headers,
         data=data,
     )
@@ -268,13 +268,14 @@ async def ami_fs_test_login_callback(
     response_token_data: dict[str, str] = response.json()
 
     # FC - Step 8
-    httpx.get(f"{PUBLIC_FC_SANDBOX_BASE_URL}{FC_JWKS_ENDPOINT}")
+    httpx.get(f"{PUBLIC_FC_BASE_URL}{PUBLIC_FC_JWKS_ENDPOINT}")
 
     # FC - Step 11
     access_token = response_token_data["access_token"]
     userinfo_endpoint_headers = {"Authorization": f"Bearer {access_token}"}
     response = httpx.get(
-        f"{PUBLIC_FC_SANDBOX_BASE_URL}{FC_USERINFO_ENDPOINT}", headers=userinfo_endpoint_headers
+        f"{PUBLIC_FC_BASE_URL}{PUBLIC_FC_USERINFO_ENDPOINT}",
+        headers=userinfo_endpoint_headers,
     )
     userinfo_jws = response.text
     userinfo = jwt.decode(userinfo_jws, options={"verify_signature": False}, algorithms=["ES256"])

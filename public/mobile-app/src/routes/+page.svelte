@@ -2,7 +2,7 @@
 import {
   PUBLIC_API_URL,
   PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID,
-  PUBLIC_FC_SANDBOX_BASE_URL,
+  PUBLIC_FC_BASE_URL,
   PUBLIC_FC_SERVICE_PROVIDER_URL,
   PUBLIC_FC_SERVICE_PROVIDER_DATA_CALLBACK,
   PUBLIC_FC_AUTHORIZATION_ENDPOINT,
@@ -45,7 +45,7 @@ const franceConnect = async () => {
     prompt: 'login',
   }
 
-  const url = `${PUBLIC_FC_SANDBOX_BASE_URL}${PUBLIC_FC_AUTHORIZATION_ENDPOINT}`
+  const url = `${PUBLIC_FC_BASE_URL}${PUBLIC_FC_AUTHORIZATION_ENDPOINT}`
   const params = new URLSearchParams(query).toString()
 
   window.location.href = `${url}?${params}`
