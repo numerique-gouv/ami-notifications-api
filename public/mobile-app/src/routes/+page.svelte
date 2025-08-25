@@ -19,9 +19,10 @@ onMount(async () => {
 
     if (response.status == 200) {
       isFranceConnected = true
-      userinfo = await response.json()
+      const userData = await response.json()
+      userinfo = userData
 
-      console.log('userinfo', userinfo)
+      console.log(userData)
     }
   } catch (error) {
     console.error(error)
@@ -86,7 +87,7 @@ const franceConnect = async () => {
   <h1>Bonjour { userinfo.given_name }</h1>
 
   <ul>
-    <li>userinfo: { userinfo }</li>
+    <li>userinfo: <pre>{ JSON.stringify(userinfo, null, 2) }</pre></li>
     <li>sub: { userinfo.sub }</li>
     <li>given_name: { userinfo.given_name }</li>
     <li>given_name_array: { userinfo.given_name_array }</li>
