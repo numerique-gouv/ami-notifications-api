@@ -346,5 +346,5 @@ async def test_ami_fs_test_login_callback(
 
     response = test_client.get("/ami-fs-test-login-callback?code=fake-code")
 
-    assert response.request.url == "http://testserver.local/"
     assert response.status_code == HTTP_200_OK
+    assert response.request.url == "http://testserver.local/"
