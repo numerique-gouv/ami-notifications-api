@@ -1,78 +1,42 @@
-import { describe, test, expect, vi, beforeEach } from 'vitest'
+import { describe, test, expect } from 'vitest'
 import '@testing-library/jest-dom/vitest'
-import { render, screen, waitFor } from '@testing-library/svelte'
+import { render, screen } from '@testing-library/svelte'
 import Page from './+page.svelte'
 
 describe('/+page.svelte', () => {
-  beforeEach(() => {
-    // TODO check how to reset mocks
-    globalThis.Notification = {}
-  })
-
-  test('should render h1 without user email when email and pushSubscription are not set', () => {
+  test('should render France Connect button', () => {
     // When
     render(Page)
 
     // Then
-    const title = screen.getByRole('heading', { level: 1 })
-    expect(title).toHaveTextContent("Bienvenue sur l'application AMI")
+    const franceConnectButton = screen.getByRole('button', {
+      name: 'S’identifier avec FranceConnect',
+    })
+    expect(franceConnectButton).toHaveTextContent('S’identifier avec FranceConnect')
   })
 
-  test('should render h1 with user email when email and pushSubscription are set', () => {
+  test('should call authorize endpoint when click on France Connect button', async () => {
     // Given
-    // 'userIdLocalStorage' should be set in the localStorage to update the title
-    window.localStorage.setItem('userIdLocalStorage', 'random-id')
-    window.localStorage.setItem('emailLocalStorage', 'test@email.fr')
-    window.localStorage.setItem('pushSubscriptionLocalStorage', '{}')
-
-    // When
-    render(Page)
-
-    // Then
-    const title = screen.getByRole('heading', { level: 1 })
-    expect(title).toHaveTextContent("Bienvenue test@email.fr sur l'application AMI")
-  })
-
-  test('should display authentication status message when user clicks on authentication button and authentication works', async () => {
-    // Given
-    globalThis.Notification = {
-      requestPermission: () => true,
-      permission: 'granted',
+    globalThis.Response = {
+      redirect: () => true,
     }
-    const registration = {
-      pushManager: {
-        subscribe: vi.fn(() => Promise.resolve('fake pushSubscription')),
-      },
-    }
-    globalThis.navigator = {
-      serviceWorker: {
-        ready: new Promise((resolve) => {
-          resolve(registration)
-        }),
+    globalThis.window = {
+      location: {
+        href: 'fake-link',
       },
     }
 
-    const mockFetchResponse = {
-      text: () => Promise.resolve('fake applicationKeyResponse'),
-    }
-    globalThis.fetch = vi.fn(() => Promise.resolve(mockFetchResponse))
-
     render(Page)
-    const authenticationButton = screen.getByRole('button', {
-      name: "S'authentifier pour recevoir des notifications",
+    const franceConnectButton = screen.getByRole('button', {
+      name: 'S’identifier avec FranceConnect',
     })
 
     // When
-    await authenticationButton.click()
+    await franceConnectButton.click()
 
     // Then
-    await waitFor(() => {
-      const element = screen.getByTitle('authentication-status-title', {})
-
-      expect(element).toBeInTheDocument()
-      expect(element).toHaveTextContent(
-        'Inscription réussie au serveur de notifications'
-      )
-    })
+    expect(globalThis.window.location.href).equal(
+      'https://fcp-low.sbx.dev-franceconnect.fr/api/v2/authorize?scope=openid+given_name+family_name+preferred_username+birthdate+gender+birthplace+birthcountry+sub+email+given_name_array&redirect_uri=https%3A%2F%2Flocalhost%3A5173%2Fami-fs-test-login-callback&response_type=code&client_id=88d6fc32244b89e2617388fb111e668fec7b7383c841a08eefbd58fd11637eec&state=not-implemented-yet-and-has-more-than-32-chars&nonce=not-implemented-yet-and-has-more-than-32-chars&acr_values=eidas1&prompt=login'
+    )
   })
 })

@@ -159,3 +159,32 @@ To run a single test, you would use something like:
 uv run --env-file .env pytest tests/test_basic.py::test_homepage_title
 ```
 
+## France Connect
+
+We're using [France Connect](https://docs.partenaires.franceconnect.gouv.fr/)
+to identify and authorize users. During development and on the CI, we have a
+sandbox available, with the URLs and Client ID specified in the `.env` file
+(copied from the `.env.template` file, see above).
+
+The Client Secret however, is... well, secret, and is available on the sandbox
+[partner's page](https://espace.partenaires.franceconnect.gouv.fr).
+
+You'll need to request access to this partner's page and/or ask us for the
+Client Secret before being able to France Connect locally while developping.
+
+At the moment, France Connect is only used in a "test Service provider"
+scenario:
+
+### The test Service Provider scenario
+
+- the France Connect button is displayed in the mobile app/PWA
+- clicking on it will start the France connection, by redirecting to the France
+Connect service
+- check the [FC demo users](https://github.com/france-connect/sources/blob/main/docker/volumes/fcp-low/mocks/idp/databases/citizen/base.csv)
+for some demo credentials
+- at the end of the connection, if successful, the user will be redirected to
+the test service provider (on the backend) with the FC auth code, which it'll
+use to get the user auth token, which in turn will allow retrieving the user
+information from FC, which will finally be stored on the session in the backend,
+making it available to query from the mobile app using the `/api/v1/userinfo`
+endpoint.

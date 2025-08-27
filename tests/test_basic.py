@@ -299,3 +299,51 @@ async def test_enable_registration(
     assert response.status_code == HTTP_200_OK
     result = response.json()
     assert result["enabled"] is True
+
+
+async def test_ami_fs_test_login_callback(
+    test_client: TestClient[Litestar],
+    httpx_mock: HTTPXMock,
+    monkeypatch,  # type: ignore[reportUnknownParameterType]
+) -> None:
+    fake_token_json_response = {
+        "access_token": "fake access token",
+        "expires_in": 60,
+        "id_token": "fake id token",
+        "scope": "openid given_name family_name preferred_username birthdate gender birthplace birthcountry email",
+        "token_type": "Bearer",
+    }
+    httpx_mock.add_response(
+        method="POST",
+        url="https://fcp-low.sbx.dev-franceconnect.fr/api/v2/token",
+        json=fake_token_json_response,
+    )
+    httpx_mock.add_response(
+        method="GET", url="https://fcp-low.sbx.dev-franceconnect.fr/api/v2/jwks"
+    )
+    fake_userinfo = {
+        "sub": "fake sub",
+        "given_name": "Angela Claire Louise",
+        "given_name_array": ["Angela", "Claire", "Louise"],
+        "family_name": "DUBOIS",
+        "birthdate": "1962-08-24",
+        "gender": "female",
+        "aud": "fake aud",
+        "exp": 1753877658,
+        "iat": 1753877598,
+        "iss": "https://fcp-low.sbx.dev-franceconnect.fr/api/v2",
+    }
+    httpx_mock.add_response(
+        method="GET",
+        url="https://fcp-low.sbx.dev-franceconnect.fr/api/v2/userinfo",
+        json=fake_userinfo,
+    )
+
+    def fake_jwt_decode(userinfo_jws: str, options: Any, algorithms: Any = ["ES256"]):
+        return fake_userinfo
+
+    monkeypatch.setattr("jwt.decode", fake_jwt_decode)  # type: ignore[reportUnknownMemberType]
+
+    response = test_client.get("/ami-fs-test-login-callback?code=fake-code")
+
+    assert response.request.url == "http://testserver.local/"
