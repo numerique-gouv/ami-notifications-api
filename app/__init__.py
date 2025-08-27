@@ -286,7 +286,7 @@ async def ami_fs_test_login_callback(
 async def get_sector_identifier_url() -> Response[Any]:
     redirect_uris: list[str] = [
         "https://ami-back-staging.osc-fr1.scalingo.io/ami-fs-test-login-callback",
-        "https://ami-back-staging-pr75.osc-fr1.scalingo.io/ami-fs-test-login-callback",
+        "https://ami-back-staging-pr90.osc-fr1.scalingo.io/ami-fs-test-login-callback",
         "https://localhost:5173/ami-fs-test-login-callback",
     ]
 
