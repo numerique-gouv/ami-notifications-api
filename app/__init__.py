@@ -59,6 +59,7 @@ from .models import (
 )
 
 cors_config = CORSConfig(allow_origins=["*"])
+session_config = ServerSideSessionConfig()
 
 
 sentry_sdk.init(
@@ -269,6 +270,7 @@ async def ami_fs_test_login_callback(
 
     # FC - Step 11
     access_token = response_token_data["access_token"]
+    id_token = response_token_data["id_token"]
     userinfo_endpoint_headers = {"Authorization": f"Bearer {access_token}"}
     response = httpx.get(
         f"{PUBLIC_FC_BASE_URL}{PUBLIC_FC_USERINFO_ENDPOINT}",
@@ -279,6 +281,7 @@ async def ami_fs_test_login_callback(
 
     # FC - Step 16.1
     request.session["userinfo"] = userinfo
+    request.session["id_token"] = id_token
     return Redirect("/")
 
 
@@ -354,6 +357,6 @@ def create_app(
         lifespan=[database_connection],
         template_config=TemplateConfig(directory=Path("templates"), engine=JinjaTemplateEngine),
         cors_config=cors_config,
-        middleware=[ServerSideSessionConfig().middleware],
+        middleware=[session_config.middleware],
         stores={"sessions": FileStore(path=Path("session_data"))},
     )
