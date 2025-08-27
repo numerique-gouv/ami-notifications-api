@@ -279,6 +279,17 @@ async def get_fc_userinfo(
     return Response(response.content, status_code=response.status_code)
 
 
+@get(path="/sector_identifier_url", include_in_schema=False)
+async def get_sector_identifier_url() -> Response[Any]:
+    redirect_uris: list[str] = [
+        "https://ami-back-staging.osc-fr1.scalingo.io/ami-fs-test-login-callback",
+        "https://ami-back-staging-pr90.osc-fr1.scalingo.io/ami-fs-test-login-callback",
+        "https://localhost:5173/ami-fs-test-login-callback",
+    ]
+
+    return Response(redirect_uris)
+
+
 def error_from_response(response: Response[str], ami_details: str | None = None) -> Response[str]:
     details = response.json()  # type: ignore[reportUnknownVariableType]
     if ami_details is not None:
