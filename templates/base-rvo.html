@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <title>Notification test</title>
+  <meta charset="UTF-8" />
+  <link rel="icon" href="/favicon.ico" sizes="32x32">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/dsfr-v1.14.0/dsfr.min.css" />
+  <link rel="stylesheet" href="/dsfr-v1.14.0/utility/utility.min.css" />
+</head>
+<body>
+<main class="container">
+  <div class="fr-container">
+    <div class="fr-grid-row">
+      <div class="fr-col">
+        <h1>MES RENDEZ-VOUS</h1>
+        {% block container %}{% endblock container %}
+      </div>
+    </div>
+  </div>
+</main>
+{% block extra_body %}{% endblock extra_body %}
+<script type="module" src="/dsfr-v1.14.0/dsfr.module.min.js"></script>
+<script type="text/javascript" nomodule src="/dsfr-v1.14.0/dsfr.nomodule.min.js"></script>
+</body>
+</html>
