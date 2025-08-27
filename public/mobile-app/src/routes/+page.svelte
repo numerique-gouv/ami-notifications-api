@@ -1,4 +1,6 @@
 <script lang="ts">
+import { page } from '$app/stores'
+import { browser } from '$app/environment'
 import {
   PUBLIC_API_URL,
   PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID,
@@ -55,6 +57,17 @@ const franceConnect = async () => {
 </script>
 
 <div class="homepage">
+{#if browser && $page.url?.search.includes('logged_out')}
+  <div class="fr-notice fr-notice--info">
+    <div class="fr-container">
+      <div class="fr-notice__body">
+        <p>
+          <span class="fr-notice__title">Vous avez été déconnecté</span>
+        </p>
+      </div>
+    </div>
+  </div>
+{/if}
 {#if !isFranceConnected}
   <div class="homepage-not-connected">
     <div class="france-connect-svg-icon">
@@ -181,6 +194,16 @@ const franceConnect = async () => {
         </ul>
       </div>
     </section>
+
+    <p>
+      <a
+          class="fr-link"
+          href="/ami-fs-test-logout"
+      >
+        <span class="fr-connect__login">Se déconnecter de</span>
+        <span class="fr-connect__brand">FranceConnect</span>
+      </a>
+    </p>
 
     <nav class="fr-nav" role="navigation" aria-label="Menu principal">
       <ul class="fr-nav__list">
