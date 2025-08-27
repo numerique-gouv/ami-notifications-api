@@ -57,6 +57,7 @@ from .models import (
     get_user_list,
     update_registration,
 )
+from .rvo import rvo_router
 
 cors_config = CORSConfig(allow_origins=["*"])
 session_config = ServerSideSessionConfig()
@@ -377,6 +378,7 @@ def create_app(
                 directories=[HTML_DIR],
                 html_mode=True,
             ),
+            rvo_router,
         ],
         dependencies={
             "db_session": Provide(provide_db_session),
