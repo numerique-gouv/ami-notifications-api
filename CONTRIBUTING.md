@@ -190,3 +190,32 @@ use to get the user auth token, which in turn will allow retrieving the user
 information from FC, which will finally be stored on the session in the backend,
 making it available to query from the mobile app using the `/api/v1/userinfo`
 endpoint.
+
+### Creating a PR with access to the FC service
+
+A new PR will be deployed as a review app by Scalingo. However,
+this review app won't have the proper
+[URLs de redirection de connexion](https://docs.partenaires.franceconnect.gouv.fr/fs/devenir-fs/projet-bac-a-sable/#configuration-de-votre-instance-de-test).
+
+For the FranceConnect button to work on your PR, you'll need to:
+- modify the sandbox's configuration in the [partner's
+page](https://espace.partenaires.franceconnect.gouv.fr) (or
+ask us to do it) to add the redirect url for your PR, eg
+`https://ami-back-staging-prXX.osc-fr1.scalingo.io/ami-fs-test-login-callback`
+(Replace `XX` with your PR number)
+- update [the PR](https://github.com/numerique-gouv/ami-notifications-api/pull/90)
+that manages the content of the
+[sector_identifier_url](https://docs.partenaires.franceconnect.gouv.fr/fs/fs-technique/fs-technique-sector_identifier/)
+to add your PR's redirect url to the list of already authorized ones in
+[app/__init__.py:get_sector_identifier_url](https://github.com/numerique-gouv/ami-notifications-api/blob/DO-NOT-MERGE-sector_identifier_url-manager/app/__init__.py#L287-L291)
+, eg:
+
+```diff
+@get(path="/sector_identifier_url", include_in_schema=False)
+async def get_sector_identifier_url() -> Response[Any]:
+    redirect_uris: list[str] = [
+        "https://ami-back-staging.osc-fr1.scalingo.io/ami-fs-test-login-callback",
++       "https://ami-back-staging-prXX.osc-fr1.scalingo.io/ami-fs-test-login-callback", # Replace `XX` with your PR number
+        "https://localhost:5173/ami-fs-test-login-callback",
+    ]
+```
