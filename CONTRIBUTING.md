@@ -199,6 +199,9 @@ page](https://espace.partenaires.franceconnect.gouv.fr) (or
 ask us to do it) to add the redirect url for your PR, eg
 `https://ami-back-staging-prXX.osc-fr1.scalingo.io/ami-fs-test-login-callback`
 (Replace `XX` with your PR number)
+
+<img width="899" height="682" alt="Capture d’écran 2025-08-27 à 16 34 50" src="https://github.com/user-attachments/assets/5a569cb4-791b-4c84-8a1f-013622c8e81d" />
+
 - update [the PR](https://github.com/numerique-gouv/ami-notifications-api/pull/90)
 that manages the content of the
 [sector_identifier_url](https://docs.partenaires.franceconnect.gouv.fr/fs/fs-technique/fs-technique-sector_identifier/)
