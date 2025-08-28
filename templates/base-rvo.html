@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <title>Notification test</title>
+  <title>Rendez-Vous Officiels</title>
   <meta charset="UTF-8" />
   <link rel="icon" href="/favicon.ico" sizes="32x32">
   <link rel="icon" href="/icon.svg" type="image/svg+xml">
@@ -10,6 +10,33 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="/dsfr-v1.14.0/dsfr.min.css" />
   <link rel="stylesheet" href="/dsfr-v1.14.0/utility/utility.min.css" />
+  <script lang="ts">
+      // FC - Step 3
+      const franceConnect = async () => {
+          const STATE = 'not-implemented-yet-and-has-more-than-32-chars'
+          const NONCE = 'not-implemented-yet-and-has-more-than-32-chars'
+
+          const query = {
+              scope:
+                  'openid given_name family_name preferred_username birthdate gender birthplace birthcountry sub email given_name_array',
+              redirect_uri: '{{ PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL }}',
+              response_type: 'code',
+              client_id: '{{ PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID }}',
+              state: STATE,
+              nonce: NONCE,
+              acr_values: 'eidas1',
+              prompt: 'login',
+          }
+
+          const url = `{{ PUBLIC_FC_BASE_URL }}{{ PUBLIC_FC_AUTHORIZATION_ENDPOINT }}`
+          const params = new URLSearchParams(query).toString()
+
+          window.location.href = `${url}?${params}`
+
+          return Response.redirect(`${url}?${params}`)
+      }
+  </script>
+
 </head>
 <body>
 <main class="container">
@@ -17,7 +44,26 @@
     <div class="fr-grid-row">
       <div class="fr-col">
         <h1>MES RENDEZ-VOUS</h1>
-        {% block container %}{% endblock container %}
+        {%if not isFranceConnected %}
+          <div class="homepage-not-connected">
+            <div class="fr-connect-group">
+              <button
+                      class="fr-connect"
+                      type="button"
+                      id="fr-connect-button"
+                      onclick="franceConnect()"
+              >
+                <span class="fr-connect__login">S’identifier avec</span>
+                <span class="fr-connect__brand">FranceConnect</span>
+              </button>
+              <p>
+                <a href="https://franceconnect.gouv.fr/" target="_blank" rel="noopener" title="Qu’est-ce que FranceConnect ? - nouvelle fenêtre">Qu’est-ce que FranceConnect ?</a>
+              </p>
+            </div>
+          </div>
+        {% else %}
+          {% block container %}{% endblock container %}
+        {% endif %}
       </div>
     </div>
   </div>

@@ -12,6 +12,7 @@ export default defineConfig({
       '/ami-fs-test-login-callback': 'http://127.0.0.1:8000',
       '/ami-fs-test-logout': 'http://127.0.0.1:8000',
       '/ami-fs-test-logout-callback': 'http://127.0.0.1:8000',
+      '/rvo': 'http://127.0.0.1:8000',
     },
   },
   test: {
