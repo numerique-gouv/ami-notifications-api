@@ -1,13 +1,18 @@
 {% extends "base-rvo.html" %}
 
 {% block container %}
-  <button class="fr-btn" type="button">Nouveau rendez-vous</button>
   <ul >
-    <li class="fr-callout">
-      <h3 class="fr-callout__title">2 août 2025 à 15H15</h3>
-      <p class="fr-callout__text">France Travail.</p>
-      <p class="fr-callout__text">Rendez-vous dans votre <strong>Agence France Travail Paris 18e Ney</strong></p>
-      <button type="button" class="fr-btn">Détail</button>
+    <li>
+      <button class="fr-btn rvo" type="button">+ Nouveau rendez-vous</button>
+    </li>
+    <li class="fr-tile rvo">
+      <div class="fr-tile__body">
+        <div class="fr-tile__content">
+          <h3 class="fr-tile__title"><a href="/">2 août 2025 à 15H15</a></h3>
+          <p class="fr-tile__desc">France Travail.</p>
+          <p class="fr-tile__detail">Rendez-vous dans votre <strong> Agence France Travail Paris 18e Ney</strong></p>
+        </div>
+      </div>
     </li>
   </ul>
 {% endblock container %}
