@@ -16,7 +16,7 @@ async def home() -> Template:
         template_name="rvo-liste.html",
         context={
             "encours": encours,
-            "isFranceConnected": False,
+            "isFranceConnected": True,
             "PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID": PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID,
             "PUBLIC_FC_BASE_URL": PUBLIC_FC_BASE_URL,
             "PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL": PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL,
