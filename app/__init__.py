@@ -288,17 +288,6 @@ async def ami_fs_test_login_callback(
     return Redirect("/")
 
 
-@get(path="/sector_identifier_url", include_in_schema=False)
-async def get_sector_identifier_url() -> Response[Any]:
-    redirect_uris: list[str] = [
-        "https://ami-back-staging.osc-fr1.scalingo.io/ami-fs-test-login-callback",
-        "https://ami-back-staging-pr90.osc-fr1.scalingo.io/ami-fs-test-login-callback",
-        "https://localhost:5173/ami-fs-test-login-callback",
-    ]
-
-    return Response(redirect_uris)
-
-
 @get(path="/ami-fs-test-logout", include_in_schema=False)
 async def ami_fs_test_logout(request: Request[Any, Any, Any]) -> Response[Any]:
     if "userinfo" not in request.session or "id_token" not in request.session:
@@ -308,13 +297,31 @@ async def ami_fs_test_logout(request: Request[Any, Any, Any]) -> Response[Any]:
     data: dict[str, str] = {
         "id_token_hint": request.session.get("id_token", ""),
         "state": "not-implemented-yet-and-has-more-than-32-chars",
-        "post_logout_redirect_uri": f"{PUBLIC_API_URL}/?logged_out",
+        "post_logout_redirect_uri": f"{PUBLIC_API_URL}/ami-fs-test-logout-callback",
     }
     params: str = urlencode(data)
     del request.session["userinfo"]
     del request.session["id_token"]
 
-    return Redirect(f"{logout_url}?{params}")
+    httpx.get(logout_url, params=params)
+
+    return Redirect("/")
+
+
+@get(path="/ami-fs-test-logout-callback", include_in_schema=False)
+async def ami_fs_test_logout_callback() -> Response[Any]:
+    return Response(True, status_code=HTTP_200_OK)
+
+
+@get(path="/sector_identifier_url", include_in_schema=False)
+async def get_sector_identifier_url() -> Response[Any]:
+    redirect_uris: list[str] = [
+        "https://ami-back-staging.osc-fr1.scalingo.io/ami-fs-test-login-callback",
+        "https://ami-back-staging-pr90.osc-fr1.scalingo.io/ami-fs-test-login-callback",
+        "https://localhost:5173/ami-fs-test-login-callback",
+    ]
+
+    return Response(redirect_uris)
 
 
 def error_from_response(response: Response[str], ami_details: str | None = None) -> Response[str]:

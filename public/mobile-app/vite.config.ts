@@ -11,6 +11,7 @@ export default defineConfig({
       '/api/v1/': 'http://127.0.0.1:8000',
       '/ami-fs-test-login-callback': 'http://127.0.0.1:8000',
       '/ami-fs-test-logout': 'http://127.0.0.1:8000',
+      '/ami-fs-test-logout-callback': 'http://127.0.0.1:8000',
     },
   },
   test: {
