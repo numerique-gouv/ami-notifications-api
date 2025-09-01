@@ -2,7 +2,7 @@
 
 Fonctionnalité: France Connect
 
-    Règle: (@TODO - orienté partenaires et permettant de générer la documentation publique)
+  Règle: (@TODO - orienté partenaires et permettant de générer la documentation publique)
 
     # Objectifs (dans quel ordre ?) :
     #     - Tech: Se connecter sur AMI via France Connect
@@ -33,7 +33,7 @@ Fonctionnalité: France Connect
 
 
     Scénario: notification sur AMI via le service MesRendezVous
-        Etant donné que l'usager "Camille" est "notifiable"
+        Etant donné que l'usager "Camille" est notifiable
         Et que l'usager "Camille" autorise les notifications venant d'AMI
         Et que un admin se connecte au back-office de MesRendezVous
         Quand l'admin envoie à l'usager "Camille" un message Un rendez-vous "xxx" a été créé
@@ -52,7 +52,7 @@ Fonctionnalité: France Connect
         Alors la page de détail du rendez-vous "xxx" devrait s'afficher
         Quand l'usager demande l'annulation du rendez-vous "xxx" sur AMI
         Alors l'usager devrait arriver sur la page de connexion de MesRendezVous 
-        # dans l'appli ou dans un onglet nouvellement ouvert du navigateur par défaut ?
+        # pour l'instant dans un onglet nouvellement ouvert du navigateur par défaut
         Quand l'usager se connecte sur MesRendezVous via France Connect en tant que "Camille" et suit le process de france connexion
         # diffère si > ou < à 30 min depuis la dernière france connexion 
         Alors l'usager devrait voir le détail du rendez-vous "xxx" sur MesRendezVous et pouvoir l'annuler
