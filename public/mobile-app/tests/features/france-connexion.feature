@@ -36,8 +36,9 @@ Fonctionnalité: France Connect
         Etant donné que l'usager "Camille" est "notifiable"
         Et que l'usager "Camille" autorise les notifications venant d'AMI
         Et que un admin se connecte au back-office de MesRendezVous
-        Quand l'admin notifie l'usager "Camille" avec le message Un rendez-vous "xxx" a été créé
+        Quand l'admin envoie à l'usager "Camille" un message Un rendez-vous "xxx" a été créé
         Alors l'usager "Camille" devrait recevoir une notification avec un lien lui permettant de visiter le page du rendez-vous "xxx" sur AMI
+        Et le rendez-vous "xxx" apparait dans l'encours de l'usager "Camille" sur AMI
 
         # Questions : comment MesRendezVous connait les usagers notifiables ? Est-ce le même ID partagé par tous les services, en l'occurence MesRendezVous et AMI ? Ici, on va utiliser le même bac-à-sable chez FranceConnect donc on ne pourra s'en assurer. (cf rem. https://github.com/numerique-gouv/ami-notifications-api/issues/68#issuecomment-3078592712)
         # - peut-on demander à France Connect la création d'un autre bac-à-sable pour valider cela ?
