@@ -11,6 +11,11 @@ Fonctionnalité: France Connect
 
     # Contexte : on imagine, en plus d'AMI, un fournisseur de service (FS) fictif de prise de rendez-vous "MesRendezVous". Ce FS permet à un usager de voir le détail d'un rendez-vous avec la possibilité de le supprimer, et d'autre part à un agent d'envoyer au nom de "MesRendezVous" une notification, via une interface propre à eux qui appellera AMI.
 
+    Scénario:
+      Etant donné que l'usager est sur la home page non connectée de l'application AMI
+      Quand l'usager clique sur le lien allant vers la démo
+      Alors l'usager va vers la démo
+
     Scénario: enregistrement d'un usager au service de notification d'AMI via France Connect
       Etant donné que l'usager est sur la home page non connectée de l'application AMI
       Quand l'usager se connecte sur AMI via France Connect en tant que "Camille" et suit le process de france connexion
