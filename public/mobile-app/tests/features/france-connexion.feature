@@ -19,6 +19,19 @@ Fonctionnalité: France Connect
 
         # Remarque : une première itération peut ignorer tout le process FC pour juste renvoyer des données en dur / aléatoire.
 
+    Scénario: déconnexion d'un usager
+        Etant donné que un admin se connecte au back-office de MesRendezVous
+        Et que l'admin envoie à l'usager "Camille" un message Un rendez-vous "xxx" a été créé
+        Etant donné que l'usager est sur la home page non connectée de l'application AMI
+        Et que l'usager se connecte sur AMI via France Connect en tant que "Camille" et suit le process de france connexion
+        Quand l'usager accède au détail du rendez-vous "xxx" sur AMI
+        Alors la page de détail du rendez-vous "xxx" devrait s'afficher
+        Quand l'usager se déconnecte
+        Alors l'usage devrait être sur la home page non connectée de l'application AMI
+        Quand l'usager accède au détail du rendez-vous "xxx" sur AMI
+        Alors une page accès interdit devrait s'afficher
+
+
     Scénario: notification sur AMI via le service MesRendezVous
         Etant donné que l'usager "Camille" est "notifiable"
         Et que l'usager "Camille" autorise les notifications venant d'AMI
@@ -35,6 +48,7 @@ Fonctionnalité: France Connect
         Etant donné que aucun usager n'est authentifié sur l'application MesRendezVous
         Et que l'usager se connecte sur AMI via France Connect en tant que "Camille" et suit le process de france connexion
         Et que l'usager accède au détail du rendez-vous "xxx" sur AMI
+        Alors la page de détail du rendez-vous "xxx" devrait s'afficher
         Quand l'usager demande l'annulation du rendez-vous "xxx" sur AMI
         Alors l'usager devrait arriver sur la page de connexion de MesRendezVous 
         # dans l'appli ou dans un onglet nouvellement ouvert du navigateur par défaut ?
