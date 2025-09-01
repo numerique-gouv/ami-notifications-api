@@ -17,3 +17,26 @@ Fonctionnalité: France Connect
         # Que se passe-t-il si l'usager n'est pas encore notifiable ? Peut-on récupérer les rendez-vous existant ? cf Atelier TECH 6/05 https://miro.com/app/board/uXjVI5hoo5o=/ et Scénario 2 de https://miro.com/app/board/uXjVI_HCqng=/?moveToWidget=3458764630638239223&cot=14. Comment gérer les stocks / les incohérences ? Ou faut-il faire appel à une API en //. Ou n'avons nous que des notif et pas l'encours ?
         # Question : peut-on enregistrer le fait que l'usager a accepté les notifications ?
 
+    Scénario: accès au détail du rendez-vous sur MesRendezVous via authentification France Connect
+      Etant donné que aucun usager n'est authentifié sur l'application MesRendezVous
+      Et que l'usager se connecte sur AMI via France Connect en tant que "Camille" et suit le process de france connexion
+      Et que l'usager accède au détail du rendez-vous "xxx" sur AMI
+      Alors la page de détail du rendez-vous "xxx" devrait s'afficher
+      Quand l'usager demande l'annulation du rendez-vous "xxx" sur AMI
+      Alors l'usager devrait arriver sur la page de connexion de MesRendezVous
+        # pour l'instant dans un onglet nouvellement ouvert du navigateur par défaut
+      Quand l'usager se connecte sur MesRendezVous via France Connect en tant que "Camille" et suit le process de france connexion
+        # diffère si > ou < à 30 min depuis la dernière france connexion
+      Alors l'usager devrait voir le détail du rendez-vous "xxx" sur MesRendezVous et pouvoir l'annuler
+      Et l'usager devrait être connecté sur MesRendezVous en tant que "Camille"
+
+    Scénario: alternative : accès au détail du rendez-vous sur MesRendezVous via authentification allégée
+      Etant donné que aucun usager n'est authentifié sur l'application MesRendezVous
+      Et que l'usager se connecte sur AMI via France Connect en tant que "Camille" et suit le process de france connexion
+      Et que l'usager accède au détail du rendez-vous "xxx" sur AMI
+      Quand l'usager demande l'annulation du rendez-vous "xxx" sur AMI
+      Alors l'usager devrait voir le détail du rendez-vous "xxx" sur MesRendezVous et pouvoir l'annuler
+      Et l'usager ne devrait pas être connecté sur MesRendezVous
+
+        # et si MesRendezVous nous fait suffisement confiance, il pourrait même considérer que le lien venant d'AMI vaut pour authentification de niveau FranceConnect et alors l'usager devrait être connecté sur MesRendezVous en tant que "Camille"
+
