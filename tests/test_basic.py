@@ -1,6 +1,7 @@
 import datetime
 import uuid
 from typing import Any, cast
+from urllib.parse import urlencode
 
 import pytest
 from litestar import Litestar
@@ -359,9 +360,17 @@ async def test_ami_fs_test_logout(
     httpx_mock: HTTPXMock,
 ) -> None:
     test_client.set_session_data({"id_token": "fake id token", "userinfo": FAKE_USERINFO})
+    data: dict[str, str] = {
+        "id_token_hint": "fake id token",
+        "state": "not-implemented-yet-and-has-more-than-32-chars",
+        "post_logout_redirect_uri": "https://localhost:5173/ami-fs-test-logout-callback",
+    }
+    params: str = urlencode(data)
+    httpx_mock.add_response(
+        method="GET", url=f"https://fcp-low.sbx.dev-franceconnect.fr/api/v2/session/end?{params}"
+    )
+
     response = test_client.get("/ami-fs-test-logout", follow_redirects=False)
     assert response.status_code == 302
-    assert response.headers["location"].startswith(
-        "https://fcp-low.sbx.dev-franceconnect.fr/api/v2/session/end"
-    )
+    assert response.headers["location"] == "/"
     assert test_client.get_session_data() == {}
