@@ -20,7 +20,7 @@ Fonctionnalité: France Connect
       Etant donné que l'usager est sur la home page non connectée de l'application AMI
       Quand l'usager se connecte sur AMI via France Connect en tant que "Camille" et suit le process de france connexion
       Alors l'usager devrait arriver sur la home page connectée de l'application AMI
-      Et l'usager "Camille" devrait être notifiable
+      Et l'usager "Camille" devrait être enregistrée
 
         # Remarque : une première itération peut ignorer tout le process FC pour juste renvoyer des données en dur / aléatoire.
 
