@@ -32,7 +32,7 @@ Fonctionnalité: France Connect
       Quand l'usager accède au détail du rendez-vous "xxx" sur AMI
       Alors la page de détail du rendez-vous "xxx" devrait s'afficher
       Quand l'usager se déconnecte
-      Alors l'usage devrait être sur la home page non connectée de l'application AMI
+      Alors l'usager devrait être sur la home page non connectée de l'application AMI
       Quand l'usager accède au détail du rendez-vous "xxx" sur AMI
       Alors une page accès interdit devrait s'afficher
 
