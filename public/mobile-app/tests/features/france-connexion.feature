@@ -25,10 +25,10 @@ Fonctionnalité: France Connect
         # Remarque : une première itération peut ignorer tout le process FC pour juste renvoyer des données en dur / aléatoire.
 
     Scénario: déconnexion d'un usager
-      Etant donné que un admin se connecte au back-office de MesRendezVous
-      Et que l'admin envoie à l'usager "Camille" un message Un rendez-vous "xxx" a été créé
       Etant donné que l'usager est sur la home page non connectée de l'application AMI
       Et que l'usager se connecte sur AMI via France Connect en tant que "Camille" et suit le process de france connexion
+      Et que un admin se connecte au back-office de MesRendezVous
+      Et que l'admin envoie à l'usager "Camille" un message Un rendez-vous "xxx" a été créé
       Quand l'usager accède au détail du rendez-vous "xxx" sur AMI
       Alors la page de détail du rendez-vous "xxx" devrait s'afficher
       Quand l'usager se déconnecte
