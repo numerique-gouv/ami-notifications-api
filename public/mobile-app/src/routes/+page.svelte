@@ -8,10 +8,10 @@ import {
   PUBLIC_FC_AUTHORIZATION_ENDPOINT,
 } from '$env/static/public'
 import { onMount } from 'svelte'
+import { globalState } from '$lib/state.svelte.ts'
 
 let userinfo: Object = $state({})
 let isFranceConnected: boolean = $state(false)
-let isLoggedOut: boolean = $state(false)
 
 onMount(async () => {
   try {
@@ -19,7 +19,6 @@ onMount(async () => {
 
     if (response.status == 200) {
       isFranceConnected = true
-      isLoggedOut = false
       const userData = await response.json()
       userinfo = userData
 
@@ -57,7 +56,7 @@ const franceConnectLogin = async () => {
 </script>
 
 <div class="homepage">
-{#if isLoggedOut}
+{#if globalState.isLoggedOut}
   <div class="fr-notice fr-notice--info">
     <div class="fr-container">
       <div class="fr-notice__body">
@@ -94,7 +93,7 @@ const franceConnectLogin = async () => {
     </div>
   </div>
 {:else}
-  <ConnectedHomepage userinfo bind:isLoggedOut bind:isFranceConnected/>
+  <ConnectedHomepage userinfo />
 {/if}
 </div>
 

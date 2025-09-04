@@ -1,18 +1,14 @@
 <script lang="ts">
 import { PUBLIC_API_URL } from '$env/static/public'
+import { goto } from '$app/navigation'
 
-let { userinfo, isLoggedOut = $bindable(), isFranceConnected = $bindable() } = $props()
+let { userinfo } = $props()
 
 const franceConnectLogout = async () => {
-  try {
-    const response = await fetch(`${PUBLIC_API_URL}/ami-fs-test-logout`)
-    if (response.status == 200) {
-      isLoggedOut = true
-      isFranceConnected = false
-    }
-  } catch (error) {
-    console.error(error)
-  }
+  // The FC logout feature needs the user's browser to be redirected to it.
+  // It also needs some token hint that's stored in the session on the backend, so
+  // redirect the user to the backend's endpoint, which will in turn redirect to FC.
+  goto(`${PUBLIC_API_URL}/ami-fs-test-logout`)
 }
 </script>
 

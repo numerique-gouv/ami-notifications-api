@@ -366,11 +366,25 @@ async def test_ami_fs_test_logout(
         "post_logout_redirect_uri": "https://localhost:5173/ami-fs-test-logout-callback",
     }
     params: str = urlencode(data)
-    httpx_mock.add_response(
-        method="GET", url=f"https://fcp-low.sbx.dev-franceconnect.fr/api/v2/session/end?{params}"
-    )
+    url: str = f"https://fcp-low.sbx.dev-franceconnect.fr/api/v2/session/end?{params}"
 
     response = test_client.get("/ami-fs-test-logout", follow_redirects=False)
     assert response.status_code == 302
-    assert response.headers["location"] == "/"
+    assert response.headers["location"] == url
+    # Session data is still present, so if logging out from FC failed, the user can try again.
+    assert test_client.get_session_data() == {
+        "id_token": "fake id token",
+        "userinfo": FAKE_USERINFO,
+    }
+
+
+async def test_ami_fs_test_logout_callback(
+    test_client: TestClient[Litestar],
+    httpx_mock: HTTPXMock,
+) -> None:
+    test_client.set_session_data({"id_token": "fake id token", "userinfo": FAKE_USERINFO})
+    response = test_client.get("/ami-fs-test-logout-callback", follow_redirects=False)
+    assert response.status_code == 302
+    # As the user was properly logged out from FC, the local session is now emptied, and the user redirected to the app.
+    assert response.headers["location"] == "/#/logged_out"
     assert test_client.get_session_data() == {}
