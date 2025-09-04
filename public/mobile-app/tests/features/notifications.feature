@@ -1,6 +1,6 @@
 # language: fr
 
-Fonctionnalité: France Connect
+Fonctionnalité: Notifications
 
   Règle: (@TODO - orienté partenaires et permettant de générer la documentation publique)
 
