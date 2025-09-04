@@ -7,7 +7,6 @@ import {
   PUBLIC_FC_AUTHORIZATION_ENDPOINT,
 } from '$env/static/public'
 import { onMount } from 'svelte'
-import FranceConnectSvgIcon from './FranceConnectSvgIcon.svelte'
 
 let userinfo: Object = $state({})
 let isFranceConnected: boolean = $state(false)
@@ -36,7 +35,7 @@ const franceConnect = async () => {
   const query = {
     scope:
       'openid given_name family_name preferred_username birthdate gender birthplace birthcountry sub email given_name_array',
-    redirect_uri: PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL,
+    redirect_uri: encodeURI(PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL),
     response_type: 'code',
     client_id: PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID,
     state: STATE,
