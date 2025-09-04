@@ -2,6 +2,12 @@ import { describe, test, expect, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 import { render, screen } from '@testing-library/svelte'
 import ConnectedHomepage from './ConnectedHomepage.svelte'
+import { goto } from '$app/navigation'
+
+// Mock the goto function
+vi.mock('$app/navigation', () => ({
+  goto: vi.fn(),
+}))
 
 describe('/ConnectedHomepage.svelte', () => {
   test('should call logout endpoint when click on France Connect logout button', async () => {
@@ -17,18 +23,12 @@ describe('/ConnectedHomepage.svelte', () => {
       iat: 1753877598,
       iss: 'https://fcp-low.sbx.dev-franceconnect.fr/api/v2',
     }
-    globalThis.fetch = vi.fn(() =>
-      Promise.resolve({
-        status: 200,
-        json: () => Promise.resolve(userinfo),
-      })
-    )
-
     const fakeProps = {
       userinfo: userinfo,
       isLoggedOut: false,
       isFranceConnected: true,
     }
+
     render(ConnectedHomepage, fakeProps)
     const franceConnectLogoutButton = await screen.getByRole('button', {
       name: 'Se déconnecter de FranceConnect',
@@ -38,7 +38,6 @@ describe('/ConnectedHomepage.svelte', () => {
     await franceConnectLogoutButton.click()
 
     // Then
-    expect(fetch).toHaveBeenCalledTimes(1)
-    expect(fetch).toHaveBeenCalledWith('https://localhost:5173/ami-fs-test-logout')
+    expect(goto).toHaveBeenCalledWith('https://localhost:5173/ami-fs-test-logout')
   })
 })

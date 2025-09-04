@@ -3,7 +3,6 @@ import os
 from contextlib import AbstractAsyncContextManager
 from pathlib import Path
 from typing import Annotated, Any, Callable, cast
-from urllib.parse import urlencode
 
 import httpx
 import jwt
@@ -299,18 +298,17 @@ async def ami_fs_test_logout(request: Request[Any, Any, Any]) -> Response[Any]:
         "state": "not-implemented-yet-and-has-more-than-32-chars",
         "post_logout_redirect_uri": f"{PUBLIC_API_URL}/ami-fs-test-logout-callback",
     }
-    params: str = urlencode(data)
-    del request.session["userinfo"]
-    del request.session["id_token"]
 
-    httpx.get(logout_url, params=params)
-
-    return Redirect("/")
+    # Redirect the user to FC's logout service. The local session cleanup happends in `/ami-fs-test-logout-callback`.
+    return Redirect(logout_url, query_params=data)
 
 
 @get(path="/ami-fs-test-logout-callback", include_in_schema=False)
-async def ami_fs_test_logout_callback() -> Response[Any]:
-    return Response(True, status_code=HTTP_200_OK)
+async def ami_fs_test_logout_callback(request: Request[Any, Any, Any]) -> Response[Any]:
+    # Local session cleanup: the user was logged out from FC.
+    del request.session["userinfo"]
+    del request.session["id_token"]
+    return Redirect("/#/logged_out")
 
 
 @get(path="/sector_identifier_url", include_in_schema=False)
@@ -368,6 +366,7 @@ def create_app(
             get_sector_identifier_url,
             get_userinfo,
             ami_fs_test_logout,
+            ami_fs_test_logout_callback,
             create_static_files_router(
                 path="/admin/static",
                 directories=[HTML_DIR_ADMIN],
