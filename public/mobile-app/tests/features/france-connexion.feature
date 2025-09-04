@@ -27,13 +27,11 @@ Fonctionnalité: France Connect
     Scénario: déconnexion d'un usager
       Etant donné que l'usager est sur la home page non connectée de l'application AMI
       Et que l'usager se connecte sur AMI via France Connect en tant que "Camille" et suit le process de france connexion
-      Et que un admin se connecte au back-office de MesRendezVous
-      Et que l'admin envoie à l'usager "Camille" un message Un rendez-vous "xxx" a été créé
-      Quand l'usager accède au détail du rendez-vous "xxx" sur AMI
-      Alors la page de détail du rendez-vous "xxx" devrait s'afficher
+      Quand l'usager accède au détail du rendez-vous "France Travail" sur AMI
+      Alors la page de détail du rendez-vous "France Travail" devrait s'afficher
       Quand l'usager se déconnecte
       Alors l'usager devrait être sur la home page non connectée de l'application AMI
-      Quand l'usager accède au détail du rendez-vous "xxx" sur AMI
+      Quand l'usager accède au détail du rendez-vous "France Travail" sur AMI
       Alors une page accès interdit devrait s'afficher
 
     # Ce qui mène à ce brief UI:

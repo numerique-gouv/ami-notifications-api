@@ -8,9 +8,9 @@ Fonctionnalité: Notifications
       Etant donné que l'usager "Camille" est enregistrée
       Et que l'usager "Camille" autorise les notifications venant d'AMI
       Et que un admin se connecte au back-office de MesRendezVous
-      Quand l'admin envoie à l'usager "Camille" un message Un rendez-vous "xxx" a été créé
-      Alors l'usager "Camille" devrait recevoir une notification avec un lien lui permettant de visiter le page du rendez-vous "xxx" sur AMI
-      Et le rendez-vous "xxx" apparait dans l'encours de l'usager "Camille" sur AMI
+      Quand l'admin envoie à l'usager "Camille" un message de rappel de son rendez-vous "France Travail"
+      Alors l'usager "Camille" devrait recevoir une notification avec un lien lui permettant de visiter le page du rendez-vous "France Travail" sur AMI
+      Et le rendez-vous "France Travail" apparait dans l'encours de l'usager "Camille" sur AMI
 
         # Questions : comment MesRendezVous connait les usagers enregistrés ? Est-ce le même ID partagé par tous les services, en l'occurence MesRendezVous et AMI ? Ici, on va utiliser le même bac-à-sable chez FranceConnect donc on ne pourra s'en assurer. (cf rem. https://github.com/numerique-gouv/ami-notifications-api/issues/68#issuecomment-3078592712)
         # - peut-on demander à France Connect la création d'un autre bac-à-sable pour valider cela ?
@@ -20,22 +20,22 @@ Fonctionnalité: Notifications
     Scénario: accès au détail du rendez-vous sur MesRendezVous via authentification France Connect
       Etant donné que aucun usager n'est authentifié sur l'application MesRendezVous
       Et que l'usager se connecte sur AMI via France Connect en tant que "Camille" et suit le process de france connexion
-      Et que l'usager accède au détail du rendez-vous "xxx" sur AMI
-      Alors la page de détail du rendez-vous "xxx" devrait s'afficher
-      Quand l'usager demande l'annulation du rendez-vous "xxx" sur AMI
+      Et que l'usager accède au détail du rendez-vous "France Travail" sur AMI
+      Alors la page de détail du rendez-vous "France Travail" devrait s'afficher
+      Quand l'usager demande l'annulation du rendez-vous "France Travail" sur AMI
       Alors l'usager devrait arriver sur la page de connexion de MesRendezVous
         # pour l'instant dans un onglet nouvellement ouvert du navigateur par défaut
       Quand l'usager se connecte sur MesRendezVous via France Connect en tant que "Camille" et suit le process de france connexion
         # diffère si > ou < à 30 min depuis la dernière france connexion
-      Alors l'usager devrait voir le détail du rendez-vous "xxx" sur MesRendezVous et pouvoir l'annuler
+      Alors l'usager devrait voir le détail du rendez-vous "France Travail" sur MesRendezVous et pouvoir l'annuler
       Et l'usager devrait être connecté sur MesRendezVous en tant que "Camille"
 
     Scénario: alternative : accès au détail du rendez-vous sur MesRendezVous via authentification allégée
       Etant donné que aucun usager n'est authentifié sur l'application MesRendezVous
       Et que l'usager se connecte sur AMI via France Connect en tant que "Camille" et suit le process de france connexion
-      Et que l'usager accède au détail du rendez-vous "xxx" sur AMI
-      Quand l'usager demande l'annulation du rendez-vous "xxx" sur AMI
-      Alors l'usager devrait voir le détail du rendez-vous "xxx" sur MesRendezVous et pouvoir l'annuler
+      Et que l'usager accède au détail du rendez-vous "France Travail" sur AMI
+      Quand l'usager demande l'annulation du rendez-vous "France Travail" sur AMI
+      Alors l'usager devrait voir le détail du rendez-vous "France Travail" sur MesRendezVous et pouvoir l'annuler
       Et l'usager ne devrait pas être connecté sur MesRendezVous
 
         # et si MesRendezVous nous fait suffisement confiance, il pourrait même considérer que le lien venant d'AMI vaut pour authentification de niveau FranceConnect et alors l'usager devrait être connecté sur MesRendezVous en tant que "Camille"
