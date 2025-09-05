@@ -35,6 +35,13 @@ Fonctionnalité: France Connect
       Quand l'usager accède au détail du rendez-vous "France Travail" sur AMI
       Alors l'usager devrait être sur la home page non connectée de l'application AMI
 
+    Scénario: redirection vers la page demandée après reconnexion
+      Etant donné que l'usager est sur la home page non connectée de l'application AMI
+      Quand l'usager accède au détail du rendez-vous "France Travail" sur AMI
+      Alors l'usager devrait être sur la home page non connectée de l'application AMI
+      Et un message devrait être affiché indiquant "pour accéder à cette page, merci de vous connecter"
+      Quand l'usager se connecte sur AMI via France Connect en tant que "Camille" et suit le process de france connexion
+      Alors la page de détail du rendez-vous "France Travail" devrait s'afficher
 
     # Ce qui mène à ce brief UI:
     #     - la PWA AMI permet 1) d'activer les notifications sur son device 2) de se connecter via FranceConnect 3) d'accéder à toutes ses notifications 4) d'accéder à son encours de rendez-vous avec un bouton permettant d'annuler un rendez-vous allant vers le fournisseur de service partenaire
