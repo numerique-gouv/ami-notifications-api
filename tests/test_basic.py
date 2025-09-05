@@ -341,7 +341,7 @@ async def test_ami_fs_test_login_callback(
         json=FAKE_USERINFO,
     )
 
-    def fake_jwt_decode(userinfo_jws: str, options: Any, algorithms: Any = ["ES256"]):
+    def fake_jwt_decode(*args: Any, **params: Any):
         return FAKE_USERINFO
 
     monkeypatch.setattr("jwt.decode", fake_jwt_decode)  # type: ignore[reportUnknownMemberType]
@@ -357,7 +357,6 @@ async def test_ami_fs_test_login_callback(
 
 async def test_ami_fs_test_logout(
     test_client: TestClient[Litestar],
-    httpx_mock: HTTPXMock,
 ) -> None:
     test_client.set_session_data({"id_token": "fake id token", "userinfo": FAKE_USERINFO})
     data: dict[str, str] = {
@@ -380,7 +379,6 @@ async def test_ami_fs_test_logout(
 
 async def test_ami_fs_test_logout_callback(
     test_client: TestClient[Litestar],
-    httpx_mock: HTTPXMock,
 ) -> None:
     test_client.set_session_data({"id_token": "fake id token", "userinfo": FAKE_USERINFO})
     response = test_client.get("/ami-fs-test-logout-callback", follow_redirects=False)

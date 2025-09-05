@@ -25,8 +25,6 @@ describe('/ConnectedHomepage.svelte', () => {
     }
     const fakeProps = {
       userinfo: userinfo,
-      isLoggedOut: false,
-      isFranceConnected: true,
     }
 
     render(ConnectedHomepage, fakeProps)
