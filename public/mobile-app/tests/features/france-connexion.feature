@@ -31,8 +31,10 @@ Fonctionnalité: France Connect
       Alors la page de détail du rendez-vous "France Travail" devrait s'afficher
       Quand l'usager se déconnecte
       Alors l'usager devrait être sur la home page non connectée de l'application AMI
+      #L'usager y accède par son historique, en cliquant back, ou en cliquant sur une notification concernant ce rdv par exemple
       Quand l'usager accède au détail du rendez-vous "France Travail" sur AMI
-      Alors une page accès interdit devrait s'afficher
+      Alors l'usager devrait être sur la home page non connectée de l'application AMI
+
 
     # Ce qui mène à ce brief UI:
     #     - la PWA AMI permet 1) d'activer les notifications sur son device 2) de se connecter via FranceConnect 3) d'accéder à toutes ses notifications 4) d'accéder à son encours de rendez-vous avec un bouton permettant d'annuler un rendez-vous allant vers le fournisseur de service partenaire
