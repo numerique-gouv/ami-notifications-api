@@ -26,6 +26,10 @@ if [ ! -z "$CONTAINER" ]
 then
   # We're on scalingo, so automatically build the front app
   make build-app
+else
+  # We're on local dev, FranceConnect needs HTTPS so start backend server with SSL
+  # On Scalingo, the backend is already on HTTPS
+  SSL="${SSL:---ssl-keyfile=ssl-key.pem --ssl-certfile=ssl-cert.pem}"
 fi
 
 if [ ! -f .env ]
@@ -34,4 +38,4 @@ then
   touch .env
 fi
 
-make migrate && uv run --env-file .env litestar run -p ${PORT} -H ${HOSTNAME} ${RELOAD} ${DEBUG}
+make migrate && uv run --env-file .env litestar run -p ${PORT} -H ${HOSTNAME} ${RELOAD} ${DEBUG} ${SSL}
