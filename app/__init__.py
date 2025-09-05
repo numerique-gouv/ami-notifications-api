@@ -77,10 +77,10 @@ HTML_DIR = "public/mobile-app/build"
 # This is the folder where the "admin" (test API client) is.
 HTML_DIR_ADMIN = "public"
 
-PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID = os.getenv("PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID", "")
-FC_SERVICE_PROVIDER_CLIENT_SECRET = os.getenv("FC_SERVICE_PROVIDER_CLIENT_SECRET", "")
+PUBLIC_FC_AMI_CLIENT_ID = os.getenv("PUBLIC_FC_AMI_CLIENT_ID", "")
+FC_AMI_CLIENT_SECRET = os.getenv("FC_AMI_CLIENT_SECRET", "")
 PUBLIC_FC_BASE_URL = os.getenv("PUBLIC_FC_BASE_URL", "")
-PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL = os.getenv("PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL", "")
+PUBLIC_FC_AMI_REDIRECT_URL = os.getenv("PUBLIC_FC_AMI_REDIRECT_URL", "")
 PUBLIC_FC_TOKEN_ENDPOINT = os.getenv("PUBLIC_FC_TOKEN_ENDPOINT", "")
 PUBLIC_FC_JWKS_ENDPOINT = os.getenv("PUBLIC_FC_JWKS_ENDPOINT", "")
 PUBLIC_FC_USERINFO_ENDPOINT = os.getenv("PUBLIC_FC_USERINFO_ENDPOINT", "")
@@ -235,15 +235,15 @@ async def admin(db_session: AsyncSession) -> Template:
     )
 
 
-@get(path="/ami-fs-test-login-callback", include_in_schema=False)
-async def ami_fs_test_login_callback(
+@get(path="/login-callback", include_in_schema=False)
+async def login_callback(
     code: str,
     request: Request[Any, Any, Any],
 ) -> Response[Any]:
     # FC - Step 5
-    redirect_uri: str = f"{PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL}"
-    client_id: str = PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID
-    client_secret: str = FC_SERVICE_PROVIDER_CLIENT_SECRET
+    redirect_uri: str = f"{PUBLIC_FC_AMI_REDIRECT_URL}"
+    client_id: str = PUBLIC_FC_AMI_CLIENT_ID
+    client_secret: str = FC_AMI_CLIENT_SECRET
     data: dict[str, str] = {
         "grant_type": "authorization_code",
         "redirect_uri": redirect_uri,
@@ -288,8 +288,8 @@ async def ami_fs_test_login_callback(
     return Redirect("/")
 
 
-@get(path="/ami-fs-test-logout", include_in_schema=False)
-async def ami_fs_test_logout(request: Request[Any, Any, Any]) -> Response[Any]:
+@get(path="/logout", include_in_schema=False)
+async def logout(request: Request[Any, Any, Any]) -> Response[Any]:
     if "userinfo" not in request.session or "id_token" not in request.session:
         return Redirect("/")
 
@@ -297,30 +297,19 @@ async def ami_fs_test_logout(request: Request[Any, Any, Any]) -> Response[Any]:
     data: dict[str, str] = {
         "id_token_hint": request.session.get("id_token", ""),
         "state": "not-implemented-yet-and-has-more-than-32-chars",
-        "post_logout_redirect_uri": f"{PUBLIC_API_URL}/ami-fs-test-logout-callback",
+        "post_logout_redirect_uri": f"{PUBLIC_API_URL}/logout-callback",
     }
 
-    # Redirect the user to FC's logout service. The local session cleanup happends in `/ami-fs-test-logout-callback`.
+    # Redirect the user to FC's logout service. The local session cleanup happens in `/logout-callback`.
     return Redirect(logout_url, query_params=data)
 
 
-@get(path="/ami-fs-test-logout-callback", include_in_schema=False)
-async def ami_fs_test_logout_callback(request: Request[Any, Any, Any]) -> Response[Any]:
+@get(path="/logout-callback", include_in_schema=False)
+async def logout_callback(request: Request[Any, Any, Any]) -> Response[Any]:
     # Local session cleanup: the user was logged out from FC.
     del request.session["userinfo"]
     del request.session["id_token"]
     return Redirect("/#/logged_out")
-
-
-@get(path="/sector_identifier_url", include_in_schema=False)
-async def get_sector_identifier_url() -> Response[Any]:
-    redirect_uris: list[str] = [
-        "https://ami-back-staging.osc-fr1.scalingo.io/ami-fs-test-login-callback",
-        "https://ami-back-staging-pr90.osc-fr1.scalingo.io/ami-fs-test-login-callback",
-        "https://localhost:5173/ami-fs-test-login-callback",
-    ]
-
-    return Response(redirect_uris)
 
 
 def error_from_response(response: Response[str], ami_details: str | None = None) -> Response[str]:
@@ -363,11 +352,10 @@ def create_app(
             enable_registration,
             get_notifications,
             admin,
-            ami_fs_test_login_callback,
-            get_sector_identifier_url,
+            login_callback,
             get_userinfo,
-            ami_fs_test_logout,
-            ami_fs_test_logout_callback,
+            logout,
+            logout_callback,
             create_static_files_router(
                 path="/admin/static",
                 directories=[HTML_DIR_ADMIN],

@@ -219,3 +219,6 @@ async def get_sector_identifier_url() -> Response[Any]:
         "https://localhost:5173/ami-fs-test-login-callback",
     ]
 ```
+
+# TODO: il y a 2 FCxion différentes. 1 pour un fake SP et un pour AMI
+# + MAJ § FC

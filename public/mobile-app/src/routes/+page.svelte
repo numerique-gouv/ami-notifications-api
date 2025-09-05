@@ -2,9 +2,9 @@
 import ConnectedHomepage from '$lib/ConnectedHomepage.svelte'
 import {
   PUBLIC_API_URL,
-  PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID,
+  PUBLIC_FC_AMI_CLIENT_ID,
   PUBLIC_FC_BASE_URL,
-  PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL,
+  PUBLIC_FC_AMI_REDIRECT_URL,
   PUBLIC_FC_AUTHORIZATION_ENDPOINT,
 } from '$env/static/public'
 import { onMount } from 'svelte'
@@ -37,9 +37,9 @@ const franceConnectLogin = async () => {
   const query = {
     scope:
       'openid given_name family_name preferred_username birthdate gender birthplace birthcountry sub email given_name_array',
-    redirect_uri: PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL,
+    redirect_uri: PUBLIC_FC_AMI_REDIRECT_URL,
     response_type: 'code',
-    client_id: PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID,
+    client_id: PUBLIC_FC_AMI_CLIENT_ID,
     state: STATE,
     nonce: NONCE,
     acr_values: 'eidas1',
