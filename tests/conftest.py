@@ -11,7 +11,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from webpush import WebPush
 from webpush.vapid import VAPID
 
-from app import Notification, Registration, User, create_app
+from app import Notification, Registration, User, create_app, session_config
 from app.database import DATABASE_URL
 
 TEST_DATABASE_URL = f"{DATABASE_URL}_test"
@@ -65,7 +65,7 @@ async def app() -> Litestar:
 
 @pytest.fixture
 def test_client(app: Litestar) -> Iterator[TestClient[Litestar]]:
-    with TestClient(app=app) as client:
+    with TestClient(app=app, session_config=session_config) as client:
         yield client
 
 

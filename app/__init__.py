@@ -59,6 +59,7 @@ from .models import (
 )
 
 cors_config = CORSConfig(allow_origins=["*"])
+session_config = ServerSideSessionConfig()
 
 
 sentry_sdk.init(
@@ -82,6 +83,8 @@ PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL = os.getenv("PUBLIC_FC_SERVICE_PROVIDER_
 PUBLIC_FC_TOKEN_ENDPOINT = os.getenv("PUBLIC_FC_TOKEN_ENDPOINT", "")
 PUBLIC_FC_JWKS_ENDPOINT = os.getenv("PUBLIC_FC_JWKS_ENDPOINT", "")
 PUBLIC_FC_USERINFO_ENDPOINT = os.getenv("PUBLIC_FC_USERINFO_ENDPOINT", "")
+PUBLIC_FC_LOGOUT_ENDPOINT = os.getenv("PUBLIC_FC_LOGOUT_ENDPOINT", "")
+PUBLIC_API_URL = os.getenv("PUBLIC_API_URL", "")
 
 #### ENDPOINTS
 
@@ -269,6 +272,7 @@ async def ami_fs_test_login_callback(
 
     # FC - Step 11
     access_token = response_token_data["access_token"]
+    id_token = response_token_data["id_token"]
     userinfo_endpoint_headers = {"Authorization": f"Bearer {access_token}"}
     response = httpx.get(
         f"{PUBLIC_FC_BASE_URL}{PUBLIC_FC_USERINFO_ENDPOINT}",
@@ -279,7 +283,32 @@ async def ami_fs_test_login_callback(
 
     # FC - Step 16.1
     request.session["userinfo"] = userinfo
+    request.session["id_token"] = id_token
     return Redirect("/")
+
+
+@get(path="/ami-fs-test-logout", include_in_schema=False)
+async def ami_fs_test_logout(request: Request[Any, Any, Any]) -> Response[Any]:
+    if "userinfo" not in request.session or "id_token" not in request.session:
+        return Redirect("/")
+
+    logout_url: str = f"{PUBLIC_FC_BASE_URL}{PUBLIC_FC_LOGOUT_ENDPOINT}"
+    data: dict[str, str] = {
+        "id_token_hint": request.session.get("id_token", ""),
+        "state": "not-implemented-yet-and-has-more-than-32-chars",
+        "post_logout_redirect_uri": f"{PUBLIC_API_URL}/ami-fs-test-logout-callback",
+    }
+
+    # Redirect the user to FC's logout service. The local session cleanup happends in `/ami-fs-test-logout-callback`.
+    return Redirect(logout_url, query_params=data)
+
+
+@get(path="/ami-fs-test-logout-callback", include_in_schema=False)
+async def ami_fs_test_logout_callback(request: Request[Any, Any, Any]) -> Response[Any]:
+    # Local session cleanup: the user was logged out from FC.
+    del request.session["userinfo"]
+    del request.session["id_token"]
+    return Redirect("/#/logged_out")
 
 
 @get(path="/sector_identifier_url", include_in_schema=False)
@@ -337,6 +366,8 @@ def create_app(
             ami_fs_test_login_callback,
             get_sector_identifier_url,
             get_userinfo,
+            ami_fs_test_logout,
+            ami_fs_test_logout_callback,
             create_static_files_router(
                 path="/admin/static",
                 directories=[HTML_DIR_ADMIN],
@@ -355,6 +386,6 @@ def create_app(
         lifespan=[database_connection],
         template_config=TemplateConfig(directory=Path("templates"), engine=JinjaTemplateEngine),
         cors_config=cors_config,
-        middleware=[ServerSideSessionConfig().middleware],
+        middleware=[session_config.middleware],
         stores={"sessions": FileStore(path=Path("session_data"))},
     )

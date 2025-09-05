@@ -18,9 +18,6 @@ Then("l'usager devrait arriver sur la home page connectée de l'application AMI"
 	// Write code here that turns the phrase above into concrete actions
 });
 
-Then(
-	"l'usager {string} devrait être notifiable",
-	function (s) {
-		console.log(s);
-	}
-);
+Then("l'usager {string} devrait être enregistré(e)", function (s) {
+	console.log(s);
+});

@@ -1,4 +1,5 @@
 <script lang="ts">
+import ConnectedHomepage from '$lib/ConnectedHomepage.svelte'
 import {
   PUBLIC_API_URL,
   PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID,
@@ -7,7 +8,7 @@ import {
   PUBLIC_FC_AUTHORIZATION_ENDPOINT,
 } from '$env/static/public'
 import { onMount } from 'svelte'
-import FranceConnectSvgIcon from './FranceConnectSvgIcon.svelte'
+import { globalState } from '$lib/state.svelte.ts'
 
 let userinfo: Object = $state({})
 let isFranceConnected: boolean = $state(false)
@@ -29,7 +30,7 @@ onMount(async () => {
 })
 
 // FC - Step 3
-const franceConnect = async () => {
+const franceConnectLogin = async () => {
   const STATE = 'not-implemented-yet-and-has-more-than-32-chars'
   const NONCE = 'not-implemented-yet-and-has-more-than-32-chars'
 
@@ -55,6 +56,17 @@ const franceConnect = async () => {
 </script>
 
 <div class="homepage">
+{#if globalState.isLoggedOut}
+  <div class="fr-notice fr-notice--info">
+    <div class="fr-container">
+      <div class="fr-notice__body">
+        <p>
+          <span class="fr-notice__title">Vous avez été déconnecté</span>
+        </p>
+      </div>
+    </div>
+  </div>
+{/if}
 {#if !isFranceConnected}
   <div class="homepage-not-connected">
     <div class="france-connect-svg-icon">
@@ -70,7 +82,7 @@ const franceConnect = async () => {
           class="fr-connect"
           type="button"
           id="fr-connect-button"
-          onclick={franceConnect}
+          onclick={franceConnectLogin}
       >
         <span class="fr-connect__login">S’identifier avec</span>
         <span class="fr-connect__brand">FranceConnect</span>
@@ -81,67 +93,44 @@ const franceConnect = async () => {
     </div>
   </div>
 {:else}
-  <h1>Bonjour { userinfo.given_name }</h1>
-
-  <ul>
-    <li>userinfo: <pre>{ JSON.stringify(userinfo, null, 2) }</pre></li>
-    <li>sub: { userinfo.sub }</li>
-    <li>given_name: { userinfo.given_name }</li>
-    <li>given_name_array: { userinfo.given_name_array }</li>
-    <li>family_name: { userinfo.family_name }</li>
-    <li>birthdate: { userinfo.birthdate }</li>
-    <li>gender: { userinfo.gender }</li>
-    <li>birthplace: { userinfo.birthplace }</li>
-    <li>birthcountry: { userinfo.birthcountry }</li>
-    <li>email: { userinfo.email }</li>
-    <li>aud: { userinfo.aud }</li>
-    <li>exp: { userinfo.exp }</li>
-    <li>iat: { userinfo.iat }</li>
-    <li>iss: { userinfo.iss }</li>
-  </ul>
+  <ConnectedHomepage userinfo />
 {/if}
 </div>
 
 <style>
   .homepage {
-		margin: 24px 16px;
+    margin: 24px 16px;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-  }
 
-	.homepage-not-connected {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-	}
+    .homepage-not-connected {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
 
-  .france-connect-svg-icon {
-    margin-bottom: 16px;
-  }
+      .france-connect-svg-icon {
+        margin-bottom: 16px;
+      }
 
-  .france-connect-text {
-    margin-bottom: 40px;
-  }
+      .france-connect-text {
+        margin-bottom: 40px;
+      }
 
-  .fr-connect-group {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-	}
+      .fr-connect-group {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
 
-  .fr-connect {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-  }
-
-  h1 {
-    font-weight: 700;
-    font-size: 28px;
-    line-height: 36px;
+        .fr-connect {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          width: 100%;
+        }
+      }
+    }
   }
 </style>

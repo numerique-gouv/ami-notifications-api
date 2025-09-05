@@ -2,6 +2,8 @@
 
 Thanks for wanting to contribute to the project!
 
+If, as a non tech people, you wish to contribute to the behavior scenario, please visit [this page](./CONTRIBUTING-BEHAVIOR.md)!
+
 ## Initial Setup
 
 The very first thing you'll need to do is to install

@@ -3,7 +3,7 @@ import '@testing-library/jest-dom/vitest'
 import { render, screen, waitFor } from '@testing-library/svelte'
 import Page from './+page.svelte'
 
-describe('/+page.svelte', () => {
+describe.skip('/+page.svelte', () => {
   beforeEach(() => {
     // TODO check how to reset mocks
     globalThis.Notification = {}

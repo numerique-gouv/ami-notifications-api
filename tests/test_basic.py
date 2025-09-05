@@ -1,6 +1,7 @@
 import datetime
 import uuid
 from typing import Any, cast
+from urllib.parse import urlencode
 
 import pytest
 from litestar import Litestar
@@ -12,6 +13,19 @@ from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app import Notification, Registration, User
+
+FAKE_USERINFO = {
+    "sub": "fake sub",
+    "given_name": "Angela Claire Louise",
+    "given_name_array": ["Angela", "Claire", "Louise"],
+    "family_name": "DUBOIS",
+    "birthdate": "1962-08-24",
+    "gender": "female",
+    "aud": "fake aud",
+    "exp": 1753877658,
+    "iat": 1753877598,
+    "iss": "https://fcp-low.sbx.dev-franceconnect.fr/api/v2",
+}
 
 
 async def test_notifications_empty(
@@ -321,29 +335,54 @@ async def test_ami_fs_test_login_callback(
     httpx_mock.add_response(
         method="GET", url="https://fcp-low.sbx.dev-franceconnect.fr/api/v2/jwks"
     )
-    fake_userinfo = {
-        "sub": "fake sub",
-        "given_name": "Angela Claire Louise",
-        "given_name_array": ["Angela", "Claire", "Louise"],
-        "family_name": "DUBOIS",
-        "birthdate": "1962-08-24",
-        "gender": "female",
-        "aud": "fake aud",
-        "exp": 1753877658,
-        "iat": 1753877598,
-        "iss": "https://fcp-low.sbx.dev-franceconnect.fr/api/v2",
-    }
     httpx_mock.add_response(
         method="GET",
         url="https://fcp-low.sbx.dev-franceconnect.fr/api/v2/userinfo",
-        json=fake_userinfo,
+        json=FAKE_USERINFO,
     )
 
-    def fake_jwt_decode(userinfo_jws: str, options: Any, algorithms: Any = ["ES256"]):
-        return fake_userinfo
+    def fake_jwt_decode(*args: Any, **params: Any):
+        return FAKE_USERINFO
 
     monkeypatch.setattr("jwt.decode", fake_jwt_decode)  # type: ignore[reportUnknownMemberType]
 
     response = test_client.get("/ami-fs-test-login-callback?code=fake-code")
 
     assert response.request.url == "http://testserver.local/"
+    assert test_client.get_session_data() == {
+        "id_token": "fake id token",
+        "userinfo": FAKE_USERINFO,
+    }
+
+
+async def test_ami_fs_test_logout(
+    test_client: TestClient[Litestar],
+) -> None:
+    test_client.set_session_data({"id_token": "fake id token", "userinfo": FAKE_USERINFO})
+    data: dict[str, str] = {
+        "id_token_hint": "fake id token",
+        "state": "not-implemented-yet-and-has-more-than-32-chars",
+        "post_logout_redirect_uri": "https://localhost:5173/ami-fs-test-logout-callback",
+    }
+    params: str = urlencode(data)
+    url: str = f"https://fcp-low.sbx.dev-franceconnect.fr/api/v2/session/end?{params}"
+
+    response = test_client.get("/ami-fs-test-logout", follow_redirects=False)
+    assert response.status_code == 302
+    assert response.headers["location"] == url
+    # Session data is still present, so if logging out from FC failed, the user can try again.
+    assert test_client.get_session_data() == {
+        "id_token": "fake id token",
+        "userinfo": FAKE_USERINFO,
+    }
+
+
+async def test_ami_fs_test_logout_callback(
+    test_client: TestClient[Litestar],
+) -> None:
+    test_client.set_session_data({"id_token": "fake id token", "userinfo": FAKE_USERINFO})
+    response = test_client.get("/ami-fs-test-logout-callback", follow_redirects=False)
+    assert response.status_code == 302
+    # As the user was properly logged out from FC, the local session is now emptied, and the user redirected to the app.
+    assert response.headers["location"] == "/#/logged_out"
+    assert test_client.get_session_data() == {}
