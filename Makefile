@@ -8,7 +8,7 @@ lint-and-format: install
 
 .PHONY: test
 test:
-	uv run --env-file .env pytest
+	uv run --env-file .env --env-file .env.local pytest
 
 .PHONY: dev
 dev:
@@ -24,4 +24,4 @@ build-app:
 
 .PHONY: migrate
 migrate:
-	uv run --env-file .env alembic upgrade head
+	uv run --env-file .env --env-file .env.local alembic upgrade head

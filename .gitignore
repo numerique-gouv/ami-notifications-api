@@ -6,6 +6,6 @@ private_key.pem
 database*.sqlite
 __pycache__
 *.egg-info
-.env
+.env.local
 node_modules
 session_data

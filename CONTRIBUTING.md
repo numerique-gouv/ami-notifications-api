@@ -62,16 +62,12 @@ docker exec -it ami-postgres psql -U postgres -c "CREATE DATABASE postgres_test;
 
 ### 3. Configure Environment
 
-Copy the environment template and ensure it matches your PostgreSQL setup:
+There's a `.env` file that holds all the default env variable values.
+For any specific env variables, create (or edit) a `.env.local` file. Anything in here
+will overload what's in the `.env` file.
 
-```shell
-cp .env.template .env
-```
-
-The `.env` file should contain:
-```
-DATABASE_URL="postgresql+asyncpg://postgres:some_password@localhost:5432/postgres"
-```
+For example you'll need to overload the FranceConnect secrets for AMI and RVO in
+your `.env.local` file.
 
 ### 4. Run Database Migrations
 
@@ -99,7 +95,7 @@ make test
 
 The base command to run the migrations and update to the latest database schema is:
 ```sh
-uv run --env-file .env alembic upgrade head
+uv run --env-file .env --env-file .env.local alembic upgrade head
 ```
 
 or simpler:
@@ -112,7 +108,7 @@ make migrate
 When changing the models, create a new migration to reflect those changes in
 the database:
 ```sh
-uv run --env-file .env alembic revision --autogenerate -m "Explicit message here"
+uv run --env-file .env --env-file .env.local alembic revision --autogenerate -m "Explicit message here"
 ```
 
 This should generate a migration file in `migrations/versions/<some
@@ -126,12 +122,12 @@ changes.
 
 To list the existing migrations:
 ```sh
-uv run --env-file .env alembic history
+uv run --env-file .env --env-file .env.local alembic history
 ```
 
 Then, to rollback (downgrade) to a previous revision (version):
 ```sh
-uv run --env-file .env alembic downgrade <revision>
+uv run --env-file .env --env-file .env.local alembic downgrade <revision>
 ```
 
 ## Running tests
@@ -153,20 +149,20 @@ This test database must be created beforehand.
 
 If you'd rather run the tests manually, copy and paste the command from the Makefile:
 ```
-uv run --env-file .env pytest
+uv run --env-file .env --env-file .env.local pytest
 ```
 
 To run a single test, you would use something like:
 ```
-uv run --env-file .env pytest tests/test_basic.py::test_homepage_title
+uv run --env-file .env --env-file .env.local pytest tests/test_basic.py::test_homepage_title
 ```
 
 ## France Connect
 
 We're using [France Connect](https://docs.partenaires.franceconnect.gouv.fr/)
 to identify and authorize users. During development and on the CI, we have a
-sandbox available, with the URLs and Client ID specified in the `.env` file
-(copied from the `.env.template` file, see above).
+sandbox available, with the URLs and Client ID specified in the `.env` file,
+and the secrets need to be specified in the `.env.local`.
 
 The Client Secret however, is... well, secret, and is available on the sandbox
 [partner's page](https://espace.partenaires.franceconnect.gouv.fr).
