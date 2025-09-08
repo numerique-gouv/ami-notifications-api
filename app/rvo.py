@@ -23,16 +23,16 @@ PUBLIC_FC_AUTHORIZATION_ENDPOINT = os.getenv("PUBLIC_FC_AUTHORIZATION_ENDPOINT",
 PUBLIC_FC_TOKEN_ENDPOINT = os.getenv("PUBLIC_FC_TOKEN_ENDPOINT", "")
 PUBLIC_FC_JWKS_ENDPOINT = os.getenv("PUBLIC_FC_JWKS_ENDPOINT", "")
 PUBLIC_FC_USERINFO_ENDPOINT = os.getenv("PUBLIC_FC_USERINFO_ENDPOINT", "")
+PUBLIC_FC_LOGOUT_ENDPOINT = os.getenv("PUBLIC_FC_LOGOUT_ENDPOINT", "")
+PUBLIC_API_URL = os.getenv("PUBLIC_API_URL", "")
 
 
 @get(path="/", include_in_schema=False)
-async def home() -> Template:
-    encours = []
+async def home(request: Request[Any, Any, Any]) -> Template:
     return Template(
         template_name="rvo-liste.html",
         context={
-            "encours": encours,
-            "isFranceConnected": True,
+            "isFranceConnected": "userinfo" in request.session and "id_token" in request.session,
             "PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID": PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID,
             "PUBLIC_FC_BASE_URL": PUBLIC_FC_BASE_URL,
             "PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL": PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL,
@@ -41,8 +41,8 @@ async def home() -> Template:
     )
 
 
-@get(path="/ami-fs-test-login-callback", include_in_schema=False)
-async def ami_fs_test_login_callback(
+@get(path="/login-callback", include_in_schema=False)
+async def login_callback(
     code: str,
     request: Request[Any, Any, Any],
 ) -> Response[Any]:
@@ -79,6 +79,7 @@ async def ami_fs_test_login_callback(
 
     # FC - Step 11
     access_token = response_token_data["access_token"]
+    id_token = response_token_data["id_token"]
     userinfo_endpoint_headers = {"Authorization": f"Bearer {access_token}"}
     response = httpx.get(
         f"{PUBLIC_FC_BASE_URL}{PUBLIC_FC_USERINFO_ENDPOINT}",
@@ -89,7 +90,37 @@ async def ami_fs_test_login_callback(
 
     # FC - Step 16.1
     request.session["userinfo"] = userinfo
+    request.session["id_token"] = id_token
     return Redirect("/rvo")
+
+
+@get(path="/logout", include_in_schema=False)
+async def logout(request: Request[Any, Any, Any]) -> Response[Any]:
+    if "userinfo" not in request.session or "id_token" not in request.session:
+        return Redirect("/")
+
+    logout_url: str = f"{PUBLIC_FC_BASE_URL}{PUBLIC_FC_LOGOUT_ENDPOINT}"
+    data: dict[str, str] = {
+        "id_token_hint": request.session.get("id_token", ""),
+        "state": "not-implemented-yet-and-has-more-than-32-chars",
+        "post_logout_redirect_uri": f"{PUBLIC_API_URL}/rvo/logout-callback",
+    }
+
+    # Redirect the user to FC's logout service. The local session cleanup happens in `/logout-callback`.
+    return Redirect(logout_url, query_params=data)
+
+
+@get(path="/logout-callback", include_in_schema=False)
+async def logout_callback(request: Request[Any, Any, Any]) -> Response[Any]:
+    # Local session cleanup: the user was logged out from FC.
+    del request.session["userinfo"]
+    del request.session["id_token"]
+    return Redirect("/rvo/logged_out")
+
+
+@get(path="/logged_out", include_in_schema=False)
+async def logged_out() -> Template:
+    return Template(template_name="rvo-logged-out.html")
 
 
 def error_from_response(response: Response[str], ami_details: str | None = None) -> Response[str]:
@@ -105,5 +136,6 @@ def error_from_message(
     return Response(message, status_code=status_code)
 
 
-rvo_router = Router(path="/rvo", route_handlers=[home])
-# TODO : route ami_fs_test_login_callback
+rvo_router = Router(
+    path="/rvo", route_handlers=[home, login_callback, logout, logout_callback, logged_out]
+)

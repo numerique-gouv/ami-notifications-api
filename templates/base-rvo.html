@@ -50,26 +50,34 @@
     <div class="fr-grid-row">
       <div class="fr-col">
         <h1>MES RENDEZ-VOUS</h1>
-        {%if not isFranceConnected %}
-          <div class="homepage-not-connected">
-            <div class="fr-connect-group">
-              <button
-                      class="fr-connect"
-                      type="button"
-                      id="fr-connect-button"
-                      onclick="franceConnect()"
-              >
-                <span class="fr-connect__login">S’identifier avec</span>
-                <span class="fr-connect__brand">FranceConnect</span>
-              </button>
-              <p>
-                <a href="https://franceconnect.gouv.fr/" target="_blank" rel="noopener" title="Qu’est-ce que FranceConnect ? - nouvelle fenêtre">Qu’est-ce que FranceConnect ?</a>
-              </p>
+        {% block wrapper %}
+          {%if not isFranceConnected %}
+            <div class="homepage-not-connected">
+              <div class="fr-connect-group">
+                <button
+                        class="fr-connect"
+                        type="button"
+                        id="fr-connect-button"
+                        onclick="franceConnect()"
+                >
+                  <span class="fr-connect__login">S’identifier avec</span>
+                  <span class="fr-connect__brand">FranceConnect</span>
+                </button>
+                <p>
+                  <a href="https://franceconnect.gouv.fr/" target="_blank" rel="noopener" title="Qu’est-ce que FranceConnect ? - nouvelle fenêtre">Qu’est-ce que FranceConnect ?</a>
+                </p>
+              </div>
             </div>
-          </div>
-        {% else %}
-          {% block container %}{% endblock container %}
-        {% endif %}
+          {% else %}
+            {% block container %}{% endblock container %}
+            <form action="/rvo/logout">
+              <button type="submit">
+                <img src="/dsfr-v1.14.0/icons/system/logout-box-r-line.svg" alt="Icône de déconnexion" />
+                <span class="fr-connect__login">Se déconnecter</span>
+              </button>
+            </form>
+          {% endif %}
+        {% endblock wrapper %}
       </div>
     </div>
   </div>
