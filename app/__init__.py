@@ -292,6 +292,7 @@ async def get_sector_identifier_url() -> Response[Any]:
         "https://localhost:5173/login-callback",
         "https://localhost:8000/login-callback",  # This is needed to test FC on a statically typed SPA (with `make build-app`).
         "https://localhost:8000/rvo/login-callback",
+        "https://ami-back-staging.osc-fr1.scalingo.io/rvo/login-callback",
     ]
 
     return Response(redirect_uris)
