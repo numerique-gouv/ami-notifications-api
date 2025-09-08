@@ -46,7 +46,7 @@ jobs:
         run: uv sync --locked --all-extras --dev
 
       - name: Create .env file
-        run: cp .env.template .env
+        run: cp .env .env.local
 
       - name: Run tests
         run: make test
@@ -69,7 +69,7 @@ jobs:
         run: npm ci
 
       - name: Create .env file
-        run: cp .env.template .env
+        run: cp .env .env.local
 
       - name: Install Playwright Browsers
         working-directory: ./public/mobile-app

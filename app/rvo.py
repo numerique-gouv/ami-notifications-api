@@ -60,7 +60,8 @@ async def login_callback(
 
     if client_secret == "":
         return error_from_message(
-            {"error": "Client secret not provided in .env file"}, HTTP_500_INTERNAL_SERVER_ERROR
+            {"error": "Client secret not provided in .env.local file"},
+            HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
     # FC - Step 6
