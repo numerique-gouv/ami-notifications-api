@@ -5,7 +5,6 @@ from pathlib import Path
 from typing import Annotated, Any, Callable, cast
 
 import httpx
-import jwt
 import sentry_sdk
 from litestar import (
     Litestar,
@@ -239,7 +238,6 @@ async def admin(db_session: AsyncSession) -> Template:
 @get(path="/login-callback", include_in_schema=False)
 async def login_callback(
     code: str,
-    request: Request[Any, Any, Any],
 ) -> Response[Any]:
     # FC - Step 5
     redirect_uri: str = f"{PUBLIC_FC_AMI_REDIRECT_URL}"
@@ -269,8 +267,12 @@ async def login_callback(
     if response.status_code != 200:
         return error_from_response(response, ami_details="FC - Step 6 with " + str(data))
     response_token_data: dict[str, str] = response.json()
+    params: dict[str, str] = {
+        **response_token_data,
+        "is_logged_in": "true",
+    }
 
-    return Redirect(f"{PUBLIC_APP_URL}/#/login-callback", query_params=response_token_data)
+    return Redirect(f"{PUBLIC_APP_URL}/", query_params=params)
 
 
 @get(path="/logout", include_in_schema=False)

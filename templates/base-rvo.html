@@ -70,12 +70,14 @@
             </div>
           {% else %}
             {% block container %}{% endblock container %}
-            <form action="/rvo/logout">
-              <button type="submit">
-                <img src="/dsfr-v1.14.0/icons/system/logout-box-r-line.svg" alt="Icône de déconnexion" />
-                <span class="fr-connect__login">Se déconnecter</span>
-              </button>
-            </form>
+              <form action="/rvo/logout" class="fr-connect-logout">
+                <div class="fr-connect-group">
+                  <button type="submit">
+                    <img src="/dsfr-v1.14.0/icons/system/logout-box-r-line.svg" alt="Icône de déconnexion" />
+                    <span class="fr-connect__logout">Se déconnecter</span>
+                  </button>
+                </div>
+              </form>
           {% endif %}
         {% endblock wrapper %}
       </div>
