@@ -14,6 +14,18 @@
     .container {
       background-color: var(--background-alt-grey);
     }
+    .fr-container {
+      padding: 2rem 0 0 0;
+    }
+    .rvo-title, .wrapper {
+      padding: 0 1rem;
+    }
+    .rvo-title-logo {
+      text-align: right;
+    }
+    .rvo-title-label {
+      line-height: 3.5rem;
+    }
     .fr-connect-logout {
       padding: 8px 12px;
       font-size: 14px;
@@ -63,7 +75,18 @@
 <body>
   <main class="container">
   <div class="fr-container">
-    <h1>MES RENDEZ-VOUS</h1>
+    <div class="fr-grid-row rvo-title">
+      <div class="fr-col-2 rvo-title-logo">
+        <svg aria-hidden="true" class="fr-artwork" viewBox="0 0 80 80" width="60px" height="60px">
+          <use class="fr-artwork-decorative" href="/dsfr-v1.14.0//artwork/pictograms/digital/calendar.svg#artwork-decorative"></use>
+          <use class="fr-artwork-major" href="/dsfr-v1.14.0//artwork/pictograms/digital/calendar.svg#artwork-minor"></use>
+          <use class="fr-artwork-minor" href="/dsfr-v1.14.0//artwork/pictograms/digital/calendar.svg#artwork-major"></use>
+        </svg>
+      </div>
+      <div class="fr-col-10">
+        <h1 class="rvo-title-label">MES RENDEZ-VOUS</h1>
+      </div>
+    </div>
     {% block wrapper %}
       {%if not isFranceConnected %}
         <div class="homepage-not-connected">
@@ -83,12 +106,14 @@
           </div>
         </div>
       {% else %}
-        {% block container %}{% endblock container %}
-        <form action="/rvo/logout" class="fr-connect-logout">
-          <button type="submit">
-            <span>Me déconnecter</span>
-          </button>
-        </form>
+        <div class="wrapper">
+          {% block container %}{% endblock container %}
+          <form action="/rvo/logout" class="fr-connect-logout">
+            <button type="submit">
+              <span>Me déconnecter</span>
+            </button>
+          </form>
+        </div>
       {% endif %}
     {% endblock wrapper %}
   </div>
