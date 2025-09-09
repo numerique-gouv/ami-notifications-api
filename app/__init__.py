@@ -209,24 +209,6 @@ async def enable_registration(
     return Response(registration, status_code=HTTP_200_OK)
 
 
-@get(path="/api/v1/userinfo")
-async def get_userinfo(
-    request: Request[Any, Any, Any],
-) -> Response[Any]:
-    """This endpoint "forwards" the request coming from the frontend (the app).
-
-    The app doesn't seem to be allowed to query FranceConnect servers directly, so this endpoint is acting as a proxy.
-
-    """
-    access_token = request.headers["authorization"].replace("Bearer ", "")
-    userinfo_endpoint_headers = f"Bearer {access_token}"
-    response = httpx.get(
-        f"{PUBLIC_FC_BASE_URL}{PUBLIC_FC_USERINFO_ENDPOINT}",
-        headers={"authorization": userinfo_endpoint_headers},
-    )
-    return Response(response.json(), status_code=response.status_code)
-
-
 #### VIEWS
 
 
@@ -280,28 +262,23 @@ async def login_callback(
     return Redirect(f"{PUBLIC_APP_URL}/", query_params=params)
 
 
-@get(path="/logout", include_in_schema=False)
-async def logout(request: Request[Any, Any, Any]) -> Response[Any]:
-    if "userinfo" not in request.session or "id_token" not in request.session:
-        return Redirect("/")
+@get(path="/fc_userinfo", include_in_schema=False)
+async def get_fc_userinfo(
+    request: Request[Any, Any, Any],
+) -> Response[Any]:
+    """This endpoint "forwards" the request coming from the frontend (the app).
 
-    logout_url: str = f"{PUBLIC_FC_BASE_URL}{PUBLIC_FC_LOGOUT_ENDPOINT}"
-    data: dict[str, str] = {
-        "id_token_hint": request.session.get("id_token", ""),
-        "state": "not-implemented-yet-and-has-more-than-32-chars",
-        "post_logout_redirect_uri": f"{PUBLIC_API_URL}/logout-callback",
-    }
+    FranceConnect doesn't implement CORS, so the app can't directly query it for the user info.
+    We thus have this endpoint to act as some kind of proxy.
 
-    # Redirect the user to FC's logout service. The local session cleanup happens in `/logout-callback`.
-    return Redirect(logout_url, query_params=data)
-
-
-@get(path="/logout-callback", include_in_schema=False)
-async def logout_callback(request: Request[Any, Any, Any]) -> Response[Any]:
-    # Local session cleanup: the user was logged out from FC.
-    del request.session["userinfo"]
-    del request.session["id_token"]
-    return Redirect(f"{PUBLIC_APP_URL}/#/logged_out")
+    """
+    access_token = request.headers["authorization"].replace("Bearer ", "")
+    userinfo_endpoint_headers = f"Bearer {access_token}"
+    response = httpx.get(
+        f"{PUBLIC_FC_BASE_URL}{PUBLIC_FC_USERINFO_ENDPOINT}",
+        headers={"authorization": userinfo_endpoint_headers},
+    )
+    return Response(response.content, status_code=response.status_code)
 
 
 def error_from_response(response: Response[str], ami_details: str | None = None) -> Response[str]:
@@ -345,9 +322,7 @@ def create_app(
             get_notifications,
             admin,
             login_callback,
-            get_userinfo,
-            logout,
-            logout_callback,
+            get_fc_userinfo,
             create_static_files_router(
                 path="/admin/static",
                 directories=[HTML_DIR_ADMIN],
