@@ -1,8 +1,33 @@
 <script lang="ts">
-import { PUBLIC_API_URL } from '$env/static/public'
+import {
+  PUBLIC_API_URL,
+  PUBLIC_FC_BASE_URL,
+  PUBLIC_FC_USERINFO_ENDPOINT,
+} from '$env/static/public'
 import { goto } from '$app/navigation'
+import { onMount } from 'svelte'
 
-let { userinfo } = $props()
+let userinfo: Object = {}
+
+onMount(async () => {
+  try {
+    const access_token = localStorage.getItem('access_token')
+    const userinfo_endpoint_headers = {
+      Authorization: `Bearer ${access_token}`,
+      'Access-Control-Allow-Origin': '*',
+    }
+    const response = await fetch(
+      `${PUBLIC_FC_BASE_URL}${PUBLIC_FC_USERINFO_ENDPOINT}`,
+      { headers: userinfo_endpoint_headers }
+    )
+    const userData = await response.json()
+    userinfo = userData
+
+    console.log(userData)
+  } catch (error) {
+    console.error(error)
+  }
+})
 
 const franceConnectLogout = async () => {
   // The FC logout feature needs the user's browser to be redirected to it.

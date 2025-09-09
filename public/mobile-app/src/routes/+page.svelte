@@ -1,7 +1,6 @@
 <script lang="ts">
 import ConnectedHomepage from '$lib/ConnectedHomepage.svelte'
 import {
-  PUBLIC_API_URL,
   PUBLIC_FC_AMI_CLIENT_ID,
   PUBLIC_FC_BASE_URL,
   PUBLIC_FC_AMI_REDIRECT_URL,
@@ -9,20 +8,27 @@ import {
 } from '$env/static/public'
 import { onMount } from 'svelte'
 import { globalState } from '$lib/state.svelte.ts'
+import { page } from '$app/state'
 
-let userinfo: Object = $state({})
 let isFranceConnected: boolean = $state(false)
 
 onMount(async () => {
   try {
-    const response = await fetch(`${PUBLIC_API_URL}/api/v1/userinfo`)
-
-    if (response.status == 200) {
+    if (page.url.searchParams.has('is_logged_in')) {
       isFranceConnected = true
-      const userData = await response.json()
-      userinfo = userData
-
-      console.log(userData)
+      console.log(page.url.searchParams)
+      localStorage.setItem(
+        'access_token',
+        page.url.searchParams.get('access_token') || ''
+      )
+      localStorage.setItem('expires_in', page.url.searchParams.get('expires_in') || '')
+      localStorage.setItem('id_token', page.url.searchParams.get('id_token') || '')
+      localStorage.setItem('scope', page.url.searchParams.get('scope') || '')
+      localStorage.setItem('token_type', page.url.searchParams.get('token_type') || '')
+      localStorage.setItem(
+        'is_logged_in',
+        page.url.searchParams.get('is_logged_in') || ''
+      )
     }
   } catch (error) {
     console.error(error)
@@ -93,7 +99,7 @@ const franceConnectLogin = async () => {
     </div>
   </div>
 {:else}
-  <ConnectedHomepage userinfo />
+  <ConnectedHomepage />
 {/if}
 </div>
 
