@@ -8,6 +8,7 @@ import { goto } from '$app/navigation'
 import { onMount } from 'svelte'
 
 let userinfo: Object = {}
+let isMenuDisplayed = $state(false)
 
 onMount(async () => {
   try {
@@ -30,6 +31,10 @@ onMount(async () => {
   }
 })
 
+const toggleMenu = () => {
+  isMenuDisplayed = !isMenuDisplayed
+}
+
 const franceConnectLogout = async () => {
   // The FC logout feature needs the user's browser to be redirected to it.
   // It also needs some token hint that's stored in the session on the backend, so
@@ -40,13 +45,11 @@ const franceConnectLogout = async () => {
 
 <div class="homepage-connected">
   <div class="header">
-    <div class="header-left">
-      <div class="user-profile-container">
-        <div class="user-profile">
-          AS
-        </div>
+    <button class="header-left" onclick={toggleMenu}>
+      <div class="user-profile">
+        AS
       </div>
-    </div>
+    </button>
 
     <div class="header-right">
       <div class="message-svg-icon">
@@ -57,6 +60,16 @@ const franceConnectLogout = async () => {
         <img src="/remixicons/notification-3.svg" alt="Icône de notification" />
       </div>
     </div>
+  </div>
+
+  <div class="menu {isMenuDisplayed ? '' : 'is-hidden'}">
+    <button
+        class="fr-connect-logout"
+        type="button"
+        onclick={franceConnectLogout}
+    >
+      <span>Me déconnecter</span>
+    </button>
   </div>
 
   <div class="rubrique-container qr-code-scan-container">
@@ -139,15 +152,6 @@ const franceConnectLogout = async () => {
     </div>
   </section>
 
-  <button
-      class="fr-connect"
-      type="button"
-      onclick={franceConnectLogout}
-  >
-    <span class="fr-connect__login">Se déconnecter de</span>
-    <span class="fr-connect__brand">FranceConnect</span>
-  </button>
-
   <nav class="fr-nav" aria-label="Menu principal">
     <ul class="fr-nav__list">
       <li class="fr-nav__item">
@@ -171,13 +175,17 @@ const franceConnectLogout = async () => {
 </div>
 
 <style>
+  .is-hidden {
+    display: none;
+  }
+
   .homepage-connected {
     .header {
       display: flex;
       justify-content: space-between;
       margin-bottom: 24px;
 
-      .user-profile-container {
+      .header-left {
         display: flex;
         justify-content: center;
         align-items: center;
@@ -202,6 +210,23 @@ const franceConnectLogout = async () => {
         .message-svg-icon {
           margin-right: 16px;
         }
+      }
+    }
+
+    .menu {
+      position: absolute;
+      z-index: 1;
+      margin-top: -20px;
+      padding: 8px;
+      background-color: white;
+      border-radius: 4px;
+      box-shadow: 2px 2px 2px gray;
+
+      .fr-connect-logout {
+        padding: 8px 12px;
+
+        font-size: 14px;
+        line-height: 24px;
       }
     }
 
