@@ -13,6 +13,8 @@ import { page } from '$app/state'
 let isFranceConnected: boolean = $state(false)
 
 onMount(async () => {
+  // TODO: check if isFranceConnected depending on the localStorage content
+  // isFranceConnected = localStorage.getItem("access_token", false);
   try {
     if (page.url.searchParams.has('is_logged_in')) {
       isFranceConnected = true
