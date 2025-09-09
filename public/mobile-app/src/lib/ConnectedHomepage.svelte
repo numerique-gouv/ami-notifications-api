@@ -1,14 +1,30 @@
 <script lang="ts">
 import {
-  PUBLIC_API_URL,
+  PUBLIC_APP_URL,
   PUBLIC_FC_BASE_URL,
-  PUBLIC_FC_USERINFO_ENDPOINT,
+  PUBLIC_FC_LOGOUT_ENDPOINT,
 } from '$env/static/public'
 import { goto } from '$app/navigation'
 import { onMount } from 'svelte'
 
-let userinfo: Object = {}
+let userinfo: Object = $state({})
 let isMenuDisplayed = $state(false)
+
+function parseJwt(token) {
+  var base64Url = token.split('.')[1]
+  var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+  var jsonPayload = decodeURIComponent(
+    window
+      .atob(base64)
+      .split('')
+      .map(function (c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+      })
+      .join('')
+  )
+
+  return JSON.parse(jsonPayload)
+}
 
 onMount(async () => {
   try {
@@ -18,14 +34,10 @@ onMount(async () => {
     const userinfo_endpoint_headers = {
       Authorization: `${token_type} ${access_token}`,
     }
-    const response = await fetch(
-      `${PUBLIC_FC_BASE_URL}${PUBLIC_FC_USERINFO_ENDPOINT}`,
-      { headers: userinfo_endpoint_headers }
-    )
-    const userData = await response.json()
-    userinfo = userData
+    const userData = localStorage.getItem('user_data')
+    userinfo = parseJwt(userData)
 
-    console.log(userData)
+    console.log(userinfo)
   } catch (error) {
     console.error(error)
   }
@@ -36,10 +48,14 @@ const toggleMenu = () => {
 }
 
 const franceConnectLogout = async () => {
-  // The FC logout feature needs the user's browser to be redirected to it.
-  // It also needs some token hint that's stored in the session on the backend, so
-  // redirect the user to the backend's endpoint, which will in turn redirect to FC.
-  window.location = `${PUBLIC_API_URL}/logout`
+  const params = new URLSearchParams({
+    id_token_hint: localStorage.getItem('id_token', ''),
+    state: 'not-implemented-yet-and-has-more-than-32-chars',
+    post_logout_redirect_uri: `${PUBLIC_APP_URL}/?is_logged_out`,
+  })
+  const url = new URL(`${PUBLIC_FC_BASE_URL}${PUBLIC_FC_LOGOUT_ENDPOINT}`)
+  url.search = params
+  window.location = url.toString()
 }
 </script>
 
@@ -215,7 +231,7 @@ const franceConnectLogout = async () => {
 
     .menu {
       position: absolute;
-      z-index: 1;
+      z-index: 1000;
       margin-top: -20px;
       padding: 8px;
       background-color: white;
