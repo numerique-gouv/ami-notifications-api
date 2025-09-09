@@ -28,7 +28,6 @@ from litestar.static_files import (
 from litestar.status_codes import (
     HTTP_200_OK,
     HTTP_201_CREATED,
-    HTTP_403_FORBIDDEN,
     HTTP_500_INTERNAL_SERVER_ERROR,
 )
 from litestar.stores.file import FileStore
@@ -213,13 +212,19 @@ async def enable_registration(
 @get(path="/api/v1/userinfo")
 async def get_userinfo(
     request: Request[Any, Any, Any],
-) -> Response[str]:
-    # FC - Step 16.2
-    if "userinfo" not in request.session:
-        return Response('{ "error": "User not connected" }', status_code=HTTP_403_FORBIDDEN)
+) -> Response[Any]:
+    """This endpoint "forwards" the request coming from the frontend (the app).
 
-    userinfo = request.session["userinfo"]
-    return Response(userinfo, status_code=HTTP_200_OK)
+    The app doesn't seem to be allowed to query FranceConnect servers directly, so this endpoint is acting as a proxy.
+
+    """
+    access_token = request.headers["authorization"].replace("Bearer ", "")
+    userinfo_endpoint_headers = f"Bearer {access_token}"
+    response = httpx.get(
+        f"{PUBLIC_FC_BASE_URL}{PUBLIC_FC_USERINFO_ENDPOINT}",
+        headers={"authorization": userinfo_endpoint_headers},
+    )
+    return Response(response.json(), status_code=response.status_code)
 
 
 #### VIEWS

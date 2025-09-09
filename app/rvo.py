@@ -137,6 +137,6 @@ def error_from_message(
     return Response(message, status_code=status_code)
 
 
-rvo_router = Router(
+rvo_router: Router = Router(
     path="/rvo", route_handlers=[home, login_callback, logout, logout_callback, logged_out]
 )
