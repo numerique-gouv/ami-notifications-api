@@ -11,9 +11,11 @@
   <link rel="stylesheet" href="/dsfr-v1.14.0/dsfr.min.css" />
   <link rel="stylesheet" href="/dsfr-v1.14.0/utility/utility.min.css" />
   <style>
-    .rvo {
-        border-radius: 8px;
-        border: 1px solid #000;
+    .fr-connect-logout {
+      padding: 8px 12px;
+
+      font-size: 14px;
+      line-height: 24px;
     }
   </style>
   <script lang="ts">
@@ -71,12 +73,9 @@
           {% else %}
             {% block container %}{% endblock container %}
               <form action="/rvo/logout" class="fr-connect-logout">
-                <div class="fr-connect-group">
-                  <button type="submit">
-                    <img src="/dsfr-v1.14.0/icons/system/logout-box-r-line.svg" alt="Icône de déconnexion" />
-                    <span class="fr-connect__logout">Se déconnecter</span>
-                  </button>
-                </div>
+                <button type="submit">
+                  <span>Me déconnecter</span>
+                </button>
               </form>
           {% endif %}
         {% endblock wrapper %}
