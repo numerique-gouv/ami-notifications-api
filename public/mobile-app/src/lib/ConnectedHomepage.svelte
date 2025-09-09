@@ -12,9 +12,10 @@ let userinfo: Object = {}
 onMount(async () => {
   try {
     const access_token = localStorage.getItem('access_token')
+    const token_type = localStorage.getItem('token_type')
+    const id_token = localStorage.getItem('id_token')
     const userinfo_endpoint_headers = {
-      Authorization: `Bearer ${access_token}`,
-      'Access-Control-Allow-Origin': '*',
+      Authorization: `${token_type} ${access_token}`,
     }
     const response = await fetch(
       `${PUBLIC_FC_BASE_URL}${PUBLIC_FC_USERINFO_ENDPOINT}`,
@@ -33,7 +34,7 @@ const franceConnectLogout = async () => {
   // The FC logout feature needs the user's browser to be redirected to it.
   // It also needs some token hint that's stored in the session on the backend, so
   // redirect the user to the backend's endpoint, which will in turn redirect to FC.
-  goto(`${PUBLIC_API_URL}/logout`)
+  window.location = `${PUBLIC_API_URL}/logout`
 }
 </script>
 
