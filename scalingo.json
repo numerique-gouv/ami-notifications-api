@@ -3,6 +3,9 @@
     "PUBLIC_API_URL": {
       "generator": "url"
     },
+    "PUBLIC_APP_URL": {
+      "generator": "url"
+    },
     "PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL": {
       "generator": "url",
       "template": "%URL%/ami-fs-test-login-callback"

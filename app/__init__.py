@@ -86,6 +86,7 @@ PUBLIC_FC_JWKS_ENDPOINT = os.getenv("PUBLIC_FC_JWKS_ENDPOINT", "")
 PUBLIC_FC_USERINFO_ENDPOINT = os.getenv("PUBLIC_FC_USERINFO_ENDPOINT", "")
 PUBLIC_FC_LOGOUT_ENDPOINT = os.getenv("PUBLIC_FC_LOGOUT_ENDPOINT", "")
 PUBLIC_API_URL = os.getenv("PUBLIC_API_URL", "")
+PUBLIC_APP_URL = os.getenv("PUBLIC_APP_URL", "")
 
 #### ENDPOINTS
 
@@ -269,24 +270,7 @@ async def login_callback(
         return error_from_response(response, ami_details="FC - Step 6 with " + str(data))
     response_token_data: dict[str, str] = response.json()
 
-    # FC - Step 8
-    httpx.get(f"{PUBLIC_FC_BASE_URL}{PUBLIC_FC_JWKS_ENDPOINT}")
-
-    # FC - Step 11
-    access_token = response_token_data["access_token"]
-    id_token = response_token_data["id_token"]
-    userinfo_endpoint_headers = {"Authorization": f"Bearer {access_token}"}
-    response = httpx.get(
-        f"{PUBLIC_FC_BASE_URL}{PUBLIC_FC_USERINFO_ENDPOINT}",
-        headers=userinfo_endpoint_headers,
-    )
-    userinfo_jws = response.text
-    userinfo = jwt.decode(userinfo_jws, options={"verify_signature": False}, algorithms=["ES256"])
-
-    # FC - Step 16.1
-    request.session["userinfo"] = userinfo
-    request.session["id_token"] = id_token
-    return Redirect("/")
+    return Redirect(f"{PUBLIC_APP_URL}/#/login-callback", query_params=response_token_data)
 
 
 @get(path="/logout", include_in_schema=False)
@@ -310,7 +294,7 @@ async def logout_callback(request: Request[Any, Any, Any]) -> Response[Any]:
     # Local session cleanup: the user was logged out from FC.
     del request.session["userinfo"]
     del request.session["id_token"]
-    return Redirect("/#/logged_out")
+    return Redirect(f"{PUBLIC_APP_URL}/#/logged_out")
 
 
 def error_from_response(response: Response[str], ami_details: str | None = None) -> Response[str]:
