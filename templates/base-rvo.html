@@ -11,11 +11,25 @@
   <link rel="stylesheet" href="/dsfr-v1.14.0/dsfr.min.css" />
   <link rel="stylesheet" href="/dsfr-v1.14.0/utility/utility.min.css" />
   <style>
+    .container {
+      background-color: var(--background-alt-grey);
+    }
     .fr-connect-logout {
       padding: 8px 12px;
-
       font-size: 14px;
       line-height: 24px;
+    }
+    .with-radius {
+      border-radius: 10px;
+    }
+    .rvo-item .fr-tile__title::before {
+      background: none;
+    }
+    .rvo-item .fr-tile__title a::before {
+      background: none;
+    }
+    .rvo-item .fr-tile__title a::after {
+      width: 0;
     }
   </style>
   <script lang="ts">
@@ -47,40 +61,36 @@
 
 </head>
 <body>
-<main class="container">
+  <main class="container">
   <div class="fr-container">
-    <div class="fr-grid-row">
-      <div class="fr-col">
-        <h1>MES RENDEZ-VOUS</h1>
-        {% block wrapper %}
-          {%if not isFranceConnected %}
-            <div class="homepage-not-connected">
-              <div class="fr-connect-group">
-                <button
-                        class="fr-connect"
-                        type="button"
-                        id="fr-connect-button"
-                        onclick="franceConnect()"
-                >
-                  <span class="fr-connect__login">S’identifier avec</span>
-                  <span class="fr-connect__brand">FranceConnect</span>
-                </button>
-                <p>
-                  <a href="https://franceconnect.gouv.fr/" target="_blank" rel="noopener" title="Qu’est-ce que FranceConnect ? - nouvelle fenêtre">Qu’est-ce que FranceConnect ?</a>
-                </p>
-              </div>
-            </div>
-          {% else %}
-            {% block container %}{% endblock container %}
-              <form action="/rvo/logout" class="fr-connect-logout">
-                <button type="submit">
-                  <span>Me déconnecter</span>
-                </button>
-              </form>
-          {% endif %}
-        {% endblock wrapper %}
-      </div>
-    </div>
+    <h1>MES RENDEZ-VOUS</h1>
+    {% block wrapper %}
+      {%if not isFranceConnected %}
+        <div class="homepage-not-connected">
+          <div class="fr-connect-group">
+            <button
+                    class="fr-connect"
+                    type="button"
+                    id="fr-connect-button"
+                    onclick="franceConnect()"
+            >
+              <span class="fr-connect__login">S’identifier avec</span>
+              <span class="fr-connect__brand">FranceConnect</span>
+            </button>
+            <p>
+              <a href="https://franceconnect.gouv.fr/" target="_blank" rel="noopener" title="Qu’est-ce que FranceConnect ? - nouvelle fenêtre">Qu’est-ce que FranceConnect ?</a>
+            </p>
+          </div>
+        </div>
+      {% else %}
+        {% block container %}{% endblock container %}
+        <form action="/rvo/logout" class="fr-connect-logout">
+          <button type="submit">
+            <span>Me déconnecter</span>
+          </button>
+        </form>
+      {% endif %}
+    {% endblock wrapper %}
   </div>
 </main>
 {% block extra_body %}{% endblock extra_body %}
