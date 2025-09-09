@@ -8,7 +8,7 @@ const franceConnectLogout = async () => {
   // The FC logout feature needs the user's browser to be redirected to it.
   // It also needs some token hint that's stored in the session on the backend, so
   // redirect the user to the backend's endpoint, which will in turn redirect to FC.
-  goto(`${PUBLIC_API_URL}/ami-fs-test-logout`)
+  goto(`${PUBLIC_API_URL}/logout`)
 }
 </script>
 
