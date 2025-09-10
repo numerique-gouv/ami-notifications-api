@@ -1,6 +1,11 @@
 # Contributing to Behavior-Driven Development
 
-## As a business contributor
+## Distinguishing BDD from Automated Testing
+It is important to distinguish between **BDD** and **automated testing**. Automated tests usually come later in the process: they are heavier to maintain, require a significant amount of code, and can easily lead to legacy issues. They are most valuable in complex cases, such as when dealing with combinatorial business rules or integrating multiple heterogeneous components.  
+
+BDD, on the other hand, is useful from the very beginning. By fostering collaboration between developers, testers, and business stakeholders to produce Gherkin scenarios, it encourages early and detailed conversations. As Liz Keogh put it: *“Having conversations is more important than capturing conversations, which in turn is more important than automating conversations.”*  
+
+## Contributing as a business people
 
 This project uses [Cucumber](https://cucumber.io/) and Gherkin for behavior-driven development. Below are instructions for setting up your environment and working with feature files.
 
@@ -22,7 +27,7 @@ This project uses [Cucumber](https://cucumber.io/) and Gherkin for behavior-driv
 - The plugin provides autocompletion for steps if they are registered in your step definition files.
 - When writing scenarios, start typing a step and suggestions will appear if the step exists.
 
-## As a developer
+## Contributing as a developer
 
 No IDE is recommended over another, instructions are provided below to help you 
 integrate everything into your preferred IDE. Feel free to complete this section with tips, feedback, or 
