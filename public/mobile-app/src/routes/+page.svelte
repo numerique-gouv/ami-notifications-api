@@ -72,8 +72,6 @@ const franceConnectLogin = async () => {
   const params = new URLSearchParams(query).toString()
 
   window.location.href = `${url}?${params}`
-
-  return Response.redirect(`${url}?${params}`)
 }
 </script>
 
