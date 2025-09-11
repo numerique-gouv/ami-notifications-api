@@ -315,7 +315,7 @@ async def test_enable_registration(
     assert result["enabled"] is True
 
 
-async def test_ami_fs_test_login_callback(
+async def test_rvo_login_callback(
     test_client: TestClient[Litestar],
     httpx_mock: HTTPXMock,
     monkeypatch,  # type: ignore[reportUnknownParameterType]
@@ -346,28 +346,28 @@ async def test_ami_fs_test_login_callback(
 
     monkeypatch.setattr("jwt.decode", fake_jwt_decode)  # type: ignore[reportUnknownMemberType]
 
-    response = test_client.get("/ami-fs-test-login-callback?code=fake-code")
+    response = test_client.get("/rvo/login-callback?code=fake-code")
 
-    assert response.request.url == "http://testserver.local/"
+    assert response.request.url == "http://testserver.local/rvo"
     assert test_client.get_session_data() == {
         "id_token": "fake id token",
         "userinfo": FAKE_USERINFO,
     }
 
 
-async def test_ami_fs_test_logout(
+async def test_rvo_logout(
     test_client: TestClient[Litestar],
 ) -> None:
     test_client.set_session_data({"id_token": "fake id token", "userinfo": FAKE_USERINFO})
     data: dict[str, str] = {
         "id_token_hint": "fake id token",
         "state": "not-implemented-yet-and-has-more-than-32-chars",
-        "post_logout_redirect_uri": "https://localhost:5173/ami-fs-test-logout-callback",
+        "post_logout_redirect_uri": "https://localhost:8000/rvo/logout-callback",
     }
     params: str = urlencode(data)
     url: str = f"https://fcp-low.sbx.dev-franceconnect.fr/api/v2/session/end?{params}"
 
-    response = test_client.get("/ami-fs-test-logout", follow_redirects=False)
+    response = test_client.get("/rvo/logout", follow_redirects=False)
     assert response.status_code == 302
     assert response.headers["location"] == url
     # Session data is still present, so if logging out from FC failed, the user can try again.
@@ -377,12 +377,12 @@ async def test_ami_fs_test_logout(
     }
 
 
-async def test_ami_fs_test_logout_callback(
+async def test_rvo_logout_callback(
     test_client: TestClient[Litestar],
 ) -> None:
     test_client.set_session_data({"id_token": "fake id token", "userinfo": FAKE_USERINFO})
-    response = test_client.get("/ami-fs-test-logout-callback", follow_redirects=False)
+    response = test_client.get("/rvo/logout-callback", follow_redirects=False)
     assert response.status_code == 302
-    # As the user was properly logged out from FC, the local session is now emptied, and the user redirected to the app.
-    assert response.headers["location"] == "/#/logged_out"
+    # As the user was properly logged out from FC, the local session is now emptied, and the user redirected to the fake service provider.
+    assert response.headers["location"] == "/rvo/logged_out"
     assert test_client.get_session_data() == {}
