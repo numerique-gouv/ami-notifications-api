@@ -15,6 +15,9 @@ from litestar.status_codes import (
     HTTP_404_NOT_FOUND,
     HTTP_500_INTERNAL_SERVER_ERROR,
 )
+from sqlmodel.ext.asyncio.session import AsyncSession
+
+from app.models.database import get_notification_list, get_user_list
 
 PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID = os.getenv("PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID", "")
 FC_SERVICE_PROVIDER_CLIENT_SECRET = os.getenv("FC_SERVICE_PROVIDER_CLIENT_SECRET", "")
@@ -49,7 +52,7 @@ MEETING_LIST: list[dict[str, str]] = [
 @get(path="/", include_in_schema=False)
 async def home(request: Request[Any, Any, Any]) -> Template:
     return Template(
-        template_name="rvo-liste.html",
+        template_name="rvo/liste.html",
         context={
             "isFranceConnected": "userinfo" in request.session and "id_token" in request.session,
             "PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID": PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID,
@@ -143,7 +146,26 @@ async def logout_callback(request: Request[Any, Any, Any]) -> Response[Any]:
 
 @get(path="/logged_out", include_in_schema=False)
 async def logged_out() -> Template:
-    return Template(template_name="rvo-logged-out.html")
+    return Template(template_name="rvo/logged-out.html")
+
+
+@get(path="/liste-des-usagers/", include_in_schema=False)
+async def list_users(db_session: AsyncSession) -> Template:
+    users = await get_user_list(db_session)
+    notifications = await get_notification_list(db_session)
+    return Template(
+        template_name="rvo/list-users.html",
+        context={"users": users, "notifications": notifications},
+    )
+
+
+@get(path="/envoi-d-un-message/", include_in_schema=False)
+async def send_message(db_session: AsyncSession) -> Template:
+    users = await get_user_list(db_session)
+    return Template(
+        template_name="rvo/send-message.html",
+        context={"users": users},
+    )
 
 
 @get(path="/detail/{detail_id: str}", include_in_schema=False)
@@ -188,5 +210,15 @@ def error_from_message(
 
 
 rvo_router: Router = Router(
-    path="/rvo", route_handlers=[home, login_callback, logout, logout_callback, logged_out, detail]
+    path="/rvo",
+    route_handlers=[
+        home,
+        login_callback,
+        logout,
+        logout_callback,
+        logged_out,
+        list_users,
+        send_message,
+        detail,
+    ],
 )

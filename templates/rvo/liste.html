@@ -1,4 +1,4 @@
-{% extends "base-rvo.html" %}
+{% extends "rvo/base.html" %}
 
 {% block footer_nav_current %}rvo{% endblock %}
 
@@ -20,4 +20,10 @@
       </div>
     </div>
   {% endfor %}
+  <div>
+    <a href="/rvo/liste-des-usagers/">Lister les usagers et leurs messages</a>
+  </div>
+  <div>
+    <a href="/rvo/envoi-d-un-message/">Envoyer un message</a>
+  </div>
 {% endblock container %}
