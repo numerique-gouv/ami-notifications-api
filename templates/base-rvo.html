@@ -43,6 +43,16 @@
     .rvo-item .fr-tile__title a::after {
       width: 0;
     }
+    .footer-nav {
+      background-color: var(--background-default-grey);
+      text-align: center;
+    }
+    .footer-nav a {
+      background: none;
+    }
+    .footer-nav.rvo .footer-nav-item-rvo {
+      background-color: var(--background-action-low-blue-france);
+    }
   </style>
   <script lang="ts">
       // FC - Step 3
@@ -117,6 +127,22 @@
       {% endif %}
     {% endblock wrapper %}
   </div>
+  {% if isFranceConnected %}
+  <div class="footer-nav fr-py-2v {% block footer_nav_current %}{% endblock %}">
+    <div class="fr-grid-row">
+      <div class="fr-col-6">
+        <a href="/" class="fr-icon-calendar-event-fill fr-tag fr-tag--icon-right footer-nav-item-rvo"></a>
+        <br />
+        rendez-vous
+      </div>
+      <div class="fr-col-6">
+        <a href="/" class="fr-icon-test-tube-fill fr-tag fr-tag--icon-right footer-nav-item-test"></a>
+        <br />
+        tester
+      </div>
+    </div>
+  </div>
+  {% endif %}
 </main>
 {% block extra_body %}{% endblock extra_body %}
 <script type="module" src="/dsfr-v1.14.0/dsfr.module.min.js"></script>
