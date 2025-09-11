@@ -35,8 +35,9 @@ onMount(async () => {
       const response = await fetch(`${PUBLIC_API_URL}/fc_userinfo`, {
         headers: userinfo_endpoint_headers,
       })
-      const userData = await response.text()
-      localStorage.setItem('user_data', userData)
+      const result = await response.json()
+      localStorage.setItem('user_data', result.user_data)
+      localStorage.setItem('user_id', result.user_id)
       isFranceConnected = true
       goto('/')
     }
