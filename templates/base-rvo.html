@@ -130,23 +130,25 @@
         </div>
         <div class="homepage-not-connected-wrapper">
           <div class="homepage-not-connected">
-            <p>
-              Pour prendre un rendez-vous ou accéder à vos rendez-vous à venir:
-            </p>
-            <div class="fr-connect-group">
-              <button
-                      class="fr-connect"
-                      type="button"
-                      id="fr-connect-button"
-                      onclick="franceConnect()"
-              >
-                <span class="fr-connect__login">S’identifier avec</span>
-                <span class="fr-connect__brand">FranceConnect</span>
-              </button>
+            {% block not_connected_container %}
               <p>
-                <a href="https://franceconnect.gouv.fr/" target="_blank" rel="noopener" title="Qu’est-ce que FranceConnect ? - nouvelle fenêtre">Qu’est-ce que FranceConnect ?</a>
+                Pour prendre un rendez-vous ou accéder à vos rendez-vous à venir:
               </p>
-            </div>
+              <div class="fr-connect-group">
+                <button
+                        class="fr-connect"
+                        type="button"
+                        id="fr-connect-button"
+                        onclick="franceConnect()"
+                >
+                  <span class="fr-connect__login">S’identifier avec</span>
+                  <span class="fr-connect__brand">FranceConnect</span>
+                </button>
+                <p>
+                  <a href="https://franceconnect.gouv.fr/" target="_blank" rel="noopener" title="Qu’est-ce que FranceConnect ? - nouvelle fenêtre">Qu’est-ce que FranceConnect ?</a>
+                </p>
+              </div>
+            {% endblock not_connected_container %}
           </div>
         </div>
       {% else %}
