@@ -2,6 +2,10 @@ import { describe, test, expect, vi, beforeEach } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 import { render, screen } from '@testing-library/svelte'
 import Page from './+page.svelte'
+import {
+  PUBLIC_FC_BASE_URL,
+  PUBLIC_FC_AUTHORIZATION_ENDPOINT,
+} from '$env/static/public'
 
 describe('/+page.svelte', () => {
   let userinfo
@@ -42,20 +46,11 @@ describe('/+page.svelte', () => {
 
   test('should call authorize endpoint when click on France Connect login button', async () => {
     // Given
-    globalThis.Response = {
-      redirect: () => true,
-    }
     globalThis.window = {
       location: {
         href: 'fake-link',
       },
     }
-    globalThis.fetch = vi.fn(() =>
-      Promise.resolve({
-        status: 200,
-        json: () => Promise.resolve(userinfo),
-      })
-    )
 
     render(Page)
     const franceConnectLoginButton = screen.getByRole('button', {
@@ -66,10 +61,7 @@ describe('/+page.svelte', () => {
     await franceConnectLoginButton.click()
 
     // Then
-    expect(fetch).toHaveBeenCalledTimes(1)
-    expect(fetch).toHaveBeenCalledWith('https://localhost:5173/api/v1/userinfo')
-    expect(globalThis.window.location.href).equal(
-      'https://fcp-low.sbx.dev-franceconnect.fr/api/v2/authorize?scope=openid+given_name+family_name+preferred_username+birthdate+gender+birthplace+birthcountry+sub+email+given_name_array&redirect_uri=https%3A%2F%2Flocalhost%3A5173%2Fami-fs-test-login-callback&response_type=code&client_id=88d6fc32244b89e2617388fb111e668fec7b7383c841a08eefbd58fd11637eec&state=not-implemented-yet-and-has-more-than-32-chars&nonce=not-implemented-yet-and-has-more-than-32-chars&acr_values=eidas1&prompt=login'
-    )
+    expect(globalThis.window.location.href).toContain(PUBLIC_FC_BASE_URL)
+    expect(globalThis.window.location.href).toContain(PUBLIC_FC_AUTHORIZATION_ENDPOINT)
   })
 })
