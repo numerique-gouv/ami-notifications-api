@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Annotated, Any, Callable, cast
 
 import httpx
+import jwt
 import sentry_sdk
 from litestar import (
     Litestar,
@@ -20,7 +21,6 @@ from litestar.di import Provide
 from litestar.exceptions import NotFoundException
 from litestar.middleware.session.server_side import ServerSideSessionConfig
 from litestar.params import Body
-from litestar.response import Template
 from litestar.response.redirect import Redirect
 from litestar.static_files import (
     create_static_files_router,  # type: ignore[reportUnknownVariableType]
@@ -28,6 +28,7 @@ from litestar.static_files import (
 from litestar.status_codes import (
     HTTP_200_OK,
     HTTP_201_CREATED,
+    HTTP_404_NOT_FOUND,
     HTTP_500_INTERNAL_SERVER_ERROR,
 )
 from litestar.stores.file import FileStore
@@ -36,25 +37,23 @@ from sqlalchemy.orm import InstrumentedAttribute, selectinload
 from sqlmodel.ext.asyncio.session import AsyncSession
 from webpush import WebPush, WebPushSubscription
 
-from .database import db_connection, provide_db_session
-from .models import (
+from app.models.database import (
     Notification,
     Registration,
-    RegistrationCreation,
-    RegistrationEnable,
-    RegistrationRename,
     User,
     create_notification,
     create_registration,
-    create_user,
-    get_notification_list,
+    create_user_from_userinfo,
     get_registration_by_id,
     get_registration_by_user_and_subscription,
-    get_user_by_email,
     get_user_by_id,
+    get_user_by_userinfo,
     get_user_list,
     update_registration,
 )
+from app.models.endpoints import RegistrationEnable, RegistrationRename, Userinfo
+
+from .database import db_connection, provide_db_session
 from .rvo import rvo_router
 
 cors_config = CORSConfig(allow_origins=["*"])
@@ -98,31 +97,26 @@ async def get_notification_key() -> str:
 @post("/api/v1/registrations")
 async def register(
     db_session: AsyncSession,
-    data: Annotated[
-        RegistrationCreation,
-        Body(
-            title="Register to receive notifications",
-            description="Register with a push subscription and an email to receive notifications",
-        ),
-    ],
-) -> Response[Registration]:
-    WebPushSubscription.model_validate(data.subscription)
+    data: dict[str, Any],
+) -> Response[Any]:
+    WebPushSubscription.model_validate(data["subscription"])
     try:
-        user = await get_user_by_email(data.email, db_session)
+        user = await get_user_by_id(data["user_id"], db_session)
     except NotFoundException:
-        user = await create_user(data.email, db_session)
+        return error_from_message(
+            {"error": "User not found"},
+            HTTP_404_NOT_FOUND,
+        )
 
     assert user.id is not None, "User ID should be set after commit"
     existing_registration = await get_registration_by_user_and_subscription(
-        data.subscription, db_session, user
+        data["subscription"], db_session, user
     )
     if existing_registration:
         # This registration already exists, don't duplicate it.
         return Response(existing_registration, status_code=HTTP_200_OK)
 
-    registration = await create_registration(
-        data.subscription, data.label, data.enabled, db_session, user.id
-    )
+    registration = await create_registration(data["subscription"], db_session, user.id)
     return Response(registration, status_code=HTTP_201_CREATED)
 
 
@@ -213,14 +207,14 @@ async def enable_registration(
 #### VIEWS
 
 
-@get(path="/admin/", include_in_schema=False)
-async def admin(db_session: AsyncSession) -> Template:
-    users = await get_user_list(db_session)
-    notifications = await get_notification_list(db_session)
-    return Template(
-        template_name="admin.html",
-        context={"users": users, "notifications": notifications},
-    )
+# @get(path="/admin/", include_in_schema=False)
+# async def admin(db_session: AsyncSession) -> Template:
+#     users = await get_user_list(db_session)
+#     notifications = await get_notification_list(db_session)
+#     return Template(
+#         template_name="admin.html",
+#         context={"users": users, "notifications": notifications},
+#     )
 
 
 @get(path="/login-callback", include_in_schema=False)
@@ -265,6 +259,7 @@ async def login_callback(
 
 @get(path="/fc_userinfo", include_in_schema=False)
 async def get_fc_userinfo(
+    db_session: AsyncSession,
     request: Request[Any, Any, Any],
 ) -> Response[Any]:
     """This endpoint "forwards" the request coming from the frontend (the app).
@@ -277,7 +272,23 @@ async def get_fc_userinfo(
         f"{PUBLIC_FC_BASE_URL}{PUBLIC_FC_USERINFO_ENDPOINT}",
         headers={"authorization": request.headers["authorization"]},
     )
-    return Response(response.content, status_code=response.status_code)
+
+    userinfo_jws = response.text
+    decoded_userinfo = jwt.decode(
+        userinfo_jws, options={"verify_signature": False}, algorithms=["ES256"]
+    )
+
+    userinfo = Userinfo(decoded_userinfo)
+    try:
+        user = await get_user_by_userinfo(userinfo, db_session)
+    except NotFoundException:
+        user = await create_user_from_userinfo(userinfo, db_session)
+    result: dict[str, Any] = {
+        "user_id": user.id,
+        "user_data": userinfo_jws,
+    }
+
+    return Response(result, status_code=response.status_code)
 
 
 @get(path="/sector_identifier_url", include_in_schema=False)
@@ -327,7 +338,7 @@ def create_app(
             rename_registration,
             enable_registration,
             get_notifications,
-            admin,
+            # admin,
             login_callback,
             get_fc_userinfo,
             get_sector_identifier_url,
