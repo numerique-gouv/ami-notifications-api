@@ -28,13 +28,3 @@ class Userinfo:
 class RegistrationCreation:
     subscription: dict[str, Any]
     user_id: str
-    label: str  # used?
-    enabled: bool  # used?
-
-
-class RegistrationRename:
-    label: str
-
-
-class RegistrationEnable:
-    enabled: bool

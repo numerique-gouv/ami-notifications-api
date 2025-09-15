@@ -164,16 +164,6 @@ async def create_notification(notification: Notification, db_session: AsyncSessi
 #### REGISTRATIONS
 
 
-async def get_registration_by_id(db_session: AsyncSession, pk: int) -> Registration:
-    query = select(Registration).where(col(Registration.id) == pk)
-    result = await db_session.exec(query)
-    try:
-        registration: Registration = result.one()
-    except NoResultFound as e:
-        raise NotFoundException(detail=f"Registration {pk!r} not found") from e
-    return registration
-
-
 async def get_registration_by_user_and_subscription(
     subscription: dict[str, Any], db_session: AsyncSession, user: User
 ) -> Registration | None:
@@ -191,13 +181,6 @@ async def create_registration(
     user_id: int,
 ) -> Registration:
     registration = Registration(subscription=subscription, user_id=user_id)
-    db_session.add(registration)
-    await db_session.commit()
-    await db_session.refresh(registration)
-    return registration
-
-
-async def update_registration(db_session: AsyncSession, registration: Registration) -> Registration:
     db_session.add(registration)
     await db_session.commit()
     await db_session.refresh(registration)
