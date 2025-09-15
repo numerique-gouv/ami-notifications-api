@@ -1,4 +1,4 @@
-from datetime import datetime
+import datetime
 from typing import Any
 
 from litestar.exceptions import NotFoundException
@@ -25,12 +25,12 @@ class DonneesPivot(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     user_id: int = Field(foreign_key="ami_user.id", unique=True)
     user: User = Relationship(back_populates="donnees_pivot")
-    given_name: str  # (spaces as separator)
-    family_name: str  #
-    birthdate: datetime  # (format YYY-MM-DD)
-    gender: str  # (male / female)
-    birthplace: int  # (code INSEE du lieu de naissance sur 5 chiffres)
-    birthcountry: int  # (code INSEE du pays sur 5 chiffres)
+    given_name: str
+    family_name: str
+    birthdate: datetime.date
+    gender: str
+    birthplace: int
+    birthcountry: int
 
 
 class Registration(SQLModel, table=True):
@@ -38,12 +38,12 @@ class Registration(SQLModel, table=True):
     user_id: int = Field(foreign_key="ami_user.id")
     user: User = Relationship(back_populates="registrations")
     subscription: dict[str, Any] = Field(sa_column=Column(JSONB))
-    created_at: datetime = Field(default_factory=datetime.now)
+    created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
 
 
 class Notification(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
-    date: datetime = Field(default_factory=datetime.now)
+    date: datetime.datetime = Field(default_factory=datetime.datetime.now)
     user_id: int = Field(foreign_key="ami_user.id")
     user: User = Relationship(back_populates="notifications")
     message: str
