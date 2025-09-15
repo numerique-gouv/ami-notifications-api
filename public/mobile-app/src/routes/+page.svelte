@@ -73,6 +73,11 @@ const franceConnectLogin = async () => {
 
   window.location.href = `${url}?${params}`
 }
+
+// Dismiss notice
+function dismissNotice() {
+  isLoggedOut = false
+}
 </script>
 
 <div class="homepage">
@@ -83,6 +88,7 @@ const franceConnectLogin = async () => {
         <p>
           <span class="fr-notice__title">Vous avez été déconnecté</span>
         </p>
+        <button onclick="{dismissNotice}" title="Masquer le message" type="button" class="fr-btn--close fr-btn">Masquer le message</button>
       </div>
     </div>
   </div>
