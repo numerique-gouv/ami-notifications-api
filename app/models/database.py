@@ -137,6 +137,7 @@ async def create_user_from_userinfo(userinfo: Userinfo, db_session: AsyncSession
         birthcountry=userinfo.birthcountry,
     )
     user = User(
+        email=userinfo.email,
         donnees_pivot=donnees_pivot,
     )
     db_session.add(user)

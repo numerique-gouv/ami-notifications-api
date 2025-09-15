@@ -1,3 +1,4 @@
+import datetime
 import json
 from typing import Any
 from urllib.parse import urlencode
@@ -10,7 +11,7 @@ from pytest_httpx import HTTPXMock
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app import Notification, Registration, User
+from app.models.database import DonneesPivot, Notification, Registration, User
 
 FAKE_USERINFO = {
     "sub": "fake sub",
@@ -200,6 +201,7 @@ async def test_ami_login_callback(
 
 async def test_ami_fc_get_userinfo(
     test_client: TestClient[Litestar],
+    db_session: AsyncSession,
     httpx_mock: HTTPXMock,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -210,6 +212,7 @@ async def test_ami_fc_get_userinfo(
         url="https://fcp-low.sbx.dev-franceconnect.fr/api/v2/userinfo",
         match_headers=auth,
         text=fake_userinfo_token,
+        is_reusable=True,
     )
 
     def fake_jwt_decode(*args: Any, **params: Any):
@@ -224,6 +227,34 @@ async def test_ami_fc_get_userinfo(
         "user_id": 1,
         "user_data": fake_userinfo_token,
     }
+
+    all_users = (await db_session.exec(select(User, DonneesPivot).join(DonneesPivot))).all()
+    assert len(all_users) == 1
+    user, donnees_pivot = all_users[0]
+    assert user.id == 1
+    assert user.email == "angela@dubois.fr"
+    assert donnees_pivot.id == 1
+    assert donnees_pivot.user_id == 1
+    assert donnees_pivot.given_name == "Angela Claire Louise"
+    assert donnees_pivot.family_name == "DUBOIS"
+    assert donnees_pivot.birthdate == datetime.datetime(1962, 8, 24, 0, 0)
+    assert donnees_pivot.gender == "female"
+    assert donnees_pivot.birthplace == 75107
+    assert donnees_pivot.birthcountry == 99100
+
+    response = test_client.get("/fc_userinfo", headers=auth)
+
+    assert response.status_code == 200
+    assert json.loads(response.text) == {
+        "user_id": 1,
+        "user_data": fake_userinfo_token,
+    }
+    all_users = (await db_session.exec(select(User, DonneesPivot).join(DonneesPivot))).all()
+    assert len(all_users) == 1
+    user, donnees_pivot = all_users[0]
+    assert user.id == 1
+    assert donnees_pivot.id == 1
+    assert donnees_pivot.user_id == 1
 
 
 async def test_rvo_login_callback(
