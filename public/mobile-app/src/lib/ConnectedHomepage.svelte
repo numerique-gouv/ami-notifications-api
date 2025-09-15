@@ -4,16 +4,15 @@ import {
   PUBLIC_FC_BASE_URL,
   PUBLIC_FC_LOGOUT_ENDPOINT,
 } from '$env/static/public'
-import { goto } from '$app/navigation'
 import { onMount } from 'svelte'
 
 let userinfo: Object = $state({})
 let isMenuDisplayed = $state(false)
 
 function parseJwt(token) {
-  var base64Url = token.split('.')[1]
-  var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
-  var jsonPayload = decodeURIComponent(
+  const base64Url = token.split('.')[1]
+  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+  const jsonPayload = decodeURIComponent(
     window
       .atob(base64)
       .split('')
@@ -31,9 +30,6 @@ onMount(async () => {
     const access_token = localStorage.getItem('access_token')
     const token_type = localStorage.getItem('token_type')
     const id_token = localStorage.getItem('id_token')
-    const userinfo_endpoint_headers = {
-      Authorization: `${token_type} ${access_token}`,
-    }
     const userData = localStorage.getItem('user_data')
     userinfo = parseJwt(userData)
 
@@ -49,12 +45,12 @@ const toggleMenu = () => {
 
 const franceConnectLogout = async () => {
   const params = new URLSearchParams({
-    id_token_hint: localStorage.getItem('id_token', ''),
+    id_token_hint: localStorage.getItem('id_token') || '',
     state: 'not-implemented-yet-and-has-more-than-32-chars',
     post_logout_redirect_uri: `${PUBLIC_APP_URL}/?is_logged_out`,
   })
   const url = new URL(`${PUBLIC_FC_BASE_URL}${PUBLIC_FC_LOGOUT_ENDPOINT}`)
-  url.search = params
+  url.search = params.toString()
   window.location = url.toString()
 }
 </script>
@@ -62,9 +58,9 @@ const franceConnectLogout = async () => {
 <div class="homepage-connected">
   <div class="header">
     <button class="header-left" onclick={toggleMenu}>
-      <div class="user-profile">
+      <span class="user-profile">
         AS
-      </div>
+      </span>
     </button>
 
     <div class="header-right">

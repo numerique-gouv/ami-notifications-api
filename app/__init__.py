@@ -272,11 +272,9 @@ async def get_fc_userinfo(
     We thus have this endpoint to act as some kind of proxy.
 
     """
-    access_token = request.headers["authorization"].replace("Bearer ", "")
-    userinfo_endpoint_headers = f"Bearer {access_token}"
     response = httpx.get(
         f"{PUBLIC_FC_BASE_URL}{PUBLIC_FC_USERINFO_ENDPOINT}",
-        headers={"authorization": userinfo_endpoint_headers},
+        headers={"authorization": request.headers["authorization"]},
     )
     return Response(response.content, status_code=response.status_code)
 
