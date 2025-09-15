@@ -1,3 +1,4 @@
+import json
 from typing import Any
 from urllib.parse import urlencode
 
@@ -17,7 +18,10 @@ FAKE_USERINFO = {
     "given_name_array": ["Angela", "Claire", "Louise"],
     "family_name": "DUBOIS",
     "birthdate": "1962-08-24",
+    "birthcountry": "99100",
+    "birthplace": "75107",
     "gender": "female",
+    "email": "angela@dubois.fr",
     "aud": "fake aud",
     "exp": 1753877658,
     "iat": 1753877598,
@@ -197,6 +201,7 @@ async def test_ami_login_callback(
 async def test_ami_fc_get_userinfo(
     test_client: TestClient[Litestar],
     httpx_mock: HTTPXMock,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     fake_userinfo_token = "fake userinfo jwt token"
     auth = {"authorization": "Bearer foobar_access_token"}
@@ -206,10 +211,19 @@ async def test_ami_fc_get_userinfo(
         match_headers=auth,
         text=fake_userinfo_token,
     )
+
+    def fake_jwt_decode(*args: Any, **params: Any):
+        return FAKE_USERINFO
+
+    monkeypatch.setattr("jwt.decode", fake_jwt_decode)
+
     response = test_client.get("/fc_userinfo", headers=auth)
 
     assert response.status_code == 200
-    assert response.text == fake_userinfo_token
+    assert json.loads(response.text) == {
+        "user_id": 1,
+        "user_data": fake_userinfo_token,
+    }
 
 
 async def test_rvo_login_callback(
