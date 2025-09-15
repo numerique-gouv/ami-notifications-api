@@ -98,7 +98,7 @@ async def register(
 ) -> Response[Any]:
     WebPushSubscription.model_validate(data["subscription"])
     try:
-        user = await get_user_by_id(data["user_id"], db_session)
+        user = await get_user_by_id(int(data["user_id"]), db_session)
     except NotFoundException:
         return error_from_message(
             {"error": "User not found"},
