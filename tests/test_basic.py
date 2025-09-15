@@ -237,7 +237,7 @@ async def test_ami_fc_get_userinfo(
     assert donnees_pivot.user_id == 1
     assert donnees_pivot.given_name == "Angela Claire Louise"
     assert donnees_pivot.family_name == "DUBOIS"
-    assert donnees_pivot.birthdate == datetime.datetime(1962, 8, 24, 0, 0)
+    assert donnees_pivot.birthdate == datetime.date(1962, 8, 24)
     assert donnees_pivot.gender == "female"
     assert donnees_pivot.birthplace == 75107
     assert donnees_pivot.birthcountry == 99100
