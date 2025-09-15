@@ -1,7 +1,6 @@
 import datetime
 import json
 from typing import Any
-from urllib.parse import urlencode
 
 import pytest
 from litestar import Litestar
@@ -28,58 +27,6 @@ FAKE_USERINFO = {
     "iat": 1753877598,
     "iss": "https://fcp-low.sbx.dev-franceconnect.fr/api/v2",
 }
-
-
-async def test_notifications_empty(
-    test_client: TestClient[Litestar], user: User
-) -> None:  # The `user` fixture is needed so we don't get a 404 when asking for notifications.
-    response = test_client.get(f"/api/v1/users/{user.id}/notifications")
-    assert response.status_code == HTTP_200_OK
-    assert response.json() == []
-
-
-async def test_notifications(test_client: TestClient[Litestar], notification: Notification) -> None:
-    response = test_client.get(f"/api/v1/users/{notification.user.id}/notifications")
-    assert response.status_code == HTTP_200_OK
-    assert len(response.json()) == 1
-    assert response.json()[0]["user_id"] == notification.user.id
-    assert response.json()[0]["message"] == notification.message
-    assert response.json()[0]["title"] == notification.title
-    assert response.json()[0]["sender"] == notification.sender
-
-
-async def test_create_notification_from_test_and_from_app_context(
-    test_client: TestClient[Litestar],
-    notification: Notification,
-    registration: Registration,
-    httpx_mock: HTTPXMock,
-) -> None:
-    """This test makes sure we're using the same database session in tests and through the API.
-
-    Validate that we can create entries in the database from the test itself (using a fixture)
-    and from the API, and both are using the same database session.
-    """
-    # Make sure we don't even try sending a notification to a push server.
-    httpx_mock.add_response(url=registration.subscription["endpoint"])
-    notification_data = {
-        "user_id": registration.user.id,
-        "message": "Hello notification 2",
-        "title": "Some notification title",
-        "sender": "Jane Doe",
-    }
-    response = test_client.post("/api/v1/notifications", json=notification_data)
-    assert response.status_code == HTTP_201_CREATED
-    response = test_client.get(f"/api/v1/users/{registration.user.id}/notifications")
-    assert response.status_code == HTTP_200_OK
-    assert len(response.json()) == 2
-    assert response.json()[0]["user_id"] == registration.user.id
-    assert response.json()[0]["message"] == notification.message
-    assert response.json()[0]["title"] == notification.title
-    assert response.json()[0]["sender"] == notification.sender
-    assert response.json()[1]["user_id"] == registration.user.id
-    assert response.json()[1]["message"] == "Hello notification 2"
-    assert response.json()[1]["title"] == "Some notification title"
-    assert response.json()[1]["sender"] == "Jane Doe"
 
 
 async def test_register_user_does_not_exist(
@@ -147,6 +94,40 @@ async def test_register(
     assert registration.id == 1
 
 
+async def test_notify_create_notification_from_test_and_from_app_context(
+    test_client: TestClient[Litestar],
+    notification: Notification,
+    registration: Registration,
+    httpx_mock: HTTPXMock,
+) -> None:
+    """This test makes sure we're using the same database session in tests and through the API.
+
+    Validate that we can create entries in the database from the test itself (using a fixture)
+    and from the API, and both are using the same database session.
+    """
+    # Make sure we don't even try sending a notification to a push server.
+    httpx_mock.add_response(url=registration.subscription["endpoint"])
+    notification_data = {
+        "user_id": registration.user.id,
+        "message": "Hello notification 2",
+        "title": "Some notification title",
+        "sender": "Jane Doe",
+    }
+    response = test_client.post("/api/v1/notifications", json=notification_data)
+    assert response.status_code == HTTP_201_CREATED
+    response = test_client.get(f"/api/v1/users/{registration.user.id}/notifications")
+    assert response.status_code == HTTP_200_OK
+    assert len(response.json()) == 2
+    assert response.json()[0]["user_id"] == registration.user.id
+    assert response.json()[0]["message"] == notification.message
+    assert response.json()[0]["title"] == notification.title
+    assert response.json()[0]["sender"] == notification.sender
+    assert response.json()[1]["user_id"] == registration.user.id
+    assert response.json()[1]["message"] == "Hello notification 2"
+    assert response.json()[1]["title"] == "Some notification title"
+    assert response.json()[1]["sender"] == "Jane Doe"
+
+
 async def test_list_users(
     test_client: TestClient[Litestar],
     user: User,
@@ -156,6 +137,26 @@ async def test_list_users(
     users = response.json()
     assert len(users) == 1
     assert users[0]["email"] == user.email
+
+
+async def test_get_notifications_should_return_empty_list_by_default(
+    test_client: TestClient[Litestar], user: User
+) -> None:  # The `user` fixture is needed so we don't get a 404 when asking for notifications.
+    response = test_client.get(f"/api/v1/users/{user.id}/notifications")
+    assert response.status_code == HTTP_200_OK
+    assert response.json() == []
+
+
+async def test_get_notifications_should_return_notifications_for_given_user_id(
+    test_client: TestClient[Litestar], notification: Notification
+) -> None:
+    response = test_client.get(f"/api/v1/users/{notification.user.id}/notifications")
+    assert response.status_code == HTTP_200_OK
+    assert len(response.json()) == 1
+    assert response.json()[0]["user_id"] == notification.user.id
+    assert response.json()[0]["message"] == notification.message
+    assert response.json()[0]["title"] == notification.title
+    assert response.json()[0]["sender"] == notification.sender
 
 
 async def test_list_registrations(
@@ -168,7 +169,7 @@ async def test_list_registrations(
     assert len(registrations) == 1
 
 
-async def test_ami_login_callback(
+async def test_login_callback(
     test_client: TestClient[Litestar],
     httpx_mock: HTTPXMock,
     monkeypatch: pytest.MonkeyPatch,
@@ -199,7 +200,7 @@ async def test_ami_login_callback(
     assert "is_logged_in" in redirected_url
 
 
-async def test_ami_fc_get_userinfo(
+async def test_fc_get_userinfo(
     test_client: TestClient[Litestar],
     db_session: AsyncSession,
     httpx_mock: HTTPXMock,
@@ -255,117 +256,6 @@ async def test_ami_fc_get_userinfo(
     assert user.id == 1
     assert donnees_pivot.id == 1
     assert donnees_pivot.user_id == 1
-
-
-async def test_rvo_login_callback(
-    test_client: TestClient[Litestar],
-    httpx_mock: HTTPXMock,
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    fake_token_json_response = {
-        "access_token": "fake access token",
-        "expires_in": 60,
-        "id_token": "fake id token",
-        "scope": "openid given_name family_name preferred_username birthdate gender birthplace birthcountry email",
-        "token_type": "Bearer",
-    }
-    httpx_mock.add_response(
-        method="POST",
-        url="https://fcp-low.sbx.dev-franceconnect.fr/api/v2/token",
-        json=fake_token_json_response,
-    )
-    httpx_mock.add_response(
-        method="GET", url="https://fcp-low.sbx.dev-franceconnect.fr/api/v2/jwks"
-    )
-    httpx_mock.add_response(
-        method="GET",
-        url="https://fcp-low.sbx.dev-franceconnect.fr/api/v2/userinfo",
-        json=FAKE_USERINFO,
-    )
-
-    def fake_jwt_decode(*args: Any, **params: Any):
-        return FAKE_USERINFO
-
-    monkeypatch.setattr("jwt.decode", fake_jwt_decode)
-
-    response = test_client.get("/rvo/login-callback?code=fake-code")
-
-    assert response.request.url == "http://testserver.local/rvo"
-    assert test_client.get_session_data() == {
-        "id_token": "fake id token",
-        "userinfo": FAKE_USERINFO,
-    }
-
-
-async def test_rvo_logout(
-    test_client: TestClient[Litestar],
-) -> None:
-    test_client.set_session_data({"id_token": "fake id token", "userinfo": FAKE_USERINFO})
-    data: dict[str, str] = {
-        "id_token_hint": "fake id token",
-        "state": "not-implemented-yet-and-has-more-than-32-chars",
-        "post_logout_redirect_uri": "https://localhost:8000/rvo/logout-callback",
-    }
-    params: str = urlencode(data)
-    url: str = f"https://fcp-low.sbx.dev-franceconnect.fr/api/v2/session/end?{params}"
-
-    response = test_client.get("/rvo/logout", follow_redirects=False)
-    assert response.status_code == 302
-    assert response.headers["location"] == url
-    # Session data is still present, so if logging out from FC failed, the user can try again.
-    assert test_client.get_session_data() == {
-        "id_token": "fake id token",
-        "userinfo": FAKE_USERINFO,
-    }
-
-
-async def test_rvo_logout_callback(
-    test_client: TestClient[Litestar],
-) -> None:
-    test_client.set_session_data({"id_token": "fake id token", "userinfo": FAKE_USERINFO})
-    response = test_client.get("/rvo/logout-callback", follow_redirects=False)
-    assert response.status_code == 302
-    # As the user was properly logged out from FC, the local session is now emptied, and the user redirected to the fake service provider.
-    assert response.headers["location"] == "/rvo/logged_out"
-    assert test_client.get_session_data() == {}
-
-
-async def test_rvo_home_when_logged_in(
-    test_client: TestClient[Litestar],
-) -> None:
-    test_client.set_session_data({"id_token": "fake id token", "userinfo": FAKE_USERINFO})
-    response = test_client.get("/rvo", follow_redirects=False)
-    assert response.status_code == 200
-    assert "/rvo/detail/1" in response.text
-    assert "/rvo/detail/2" in response.text
-
-
-async def test_rvo_detail_when_logged_in(
-    test_client: TestClient[Litestar],
-) -> None:
-    test_client.set_session_data({"id_token": "fake id token", "userinfo": FAKE_USERINFO})
-    response = test_client.get("/rvo/detail/1", follow_redirects=False)
-    assert "Rendez-vous dans votre Agence France Travail Paris 18e Ney" in response.text
-    assert response.status_code == 200
-    assert "Annuler le RDV" in response.text
-
-    response = test_client.get("/rvo/detail/2", follow_redirects=False)
-    assert "Rendez-vous dans votre Maison France Services" in response.text
-    assert response.status_code == 200
-    assert "Annuler le RDV" in response.text
-
-
-async def test_rvo_detail_when_logged_out(
-    test_client: TestClient[Litestar],
-) -> None:
-    detail_url = "/rvo/detail/1"
-    response = test_client.get(detail_url, follow_redirects=False)
-    assert response.status_code == 302
-    assert "redirect_once_connected" in test_client.get_session_data()
-    assert (
-        test_client.get_session_data()["redirect_once_connected"]
-        == f"http://testserver.local{detail_url}"
-    )
 
 
 async def test_get_sector_identifier_url(
