@@ -42,6 +42,8 @@ The following plugins have been tested
 
 Don't forget to tag the language in the first line of the feature file if a language other than English is used.
 
+To launch a Cucumber scenario from PyCharm, don't use a ~~Behave~~ configuration but a **Cucumber.js** configuration, 
+after having launched `npm install` if needed.
 
 ## 5. Launching Acceptance Tests
 
