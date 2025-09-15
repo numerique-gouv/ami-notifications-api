@@ -94,11 +94,17 @@ async def get_notification_key() -> str:
 @post("/api/v1/registrations")
 async def register(
     db_session: AsyncSession,
-    data: dict[str, Any],
+    data: Annotated[
+        Registration,
+        Body(
+            title="Register to receive notifications",
+            description="Register with a push subscription and an email to receive notifications",
+        ),
+    ],
 ) -> Response[Any]:
-    WebPushSubscription.model_validate(data["subscription"])
+    WebPushSubscription.model_validate(data.subscription)
     try:
-        user = await get_user_by_id(int(data["user_id"]), db_session)
+        user = await get_user_by_id(data.user_id, db_session)
     except NotFoundException:
         return error_from_message(
             {"error": "User not found"},
@@ -107,13 +113,13 @@ async def register(
 
     assert user.id is not None, "User ID should be set after commit"
     existing_registration = await get_registration_by_user_and_subscription(
-        data["subscription"], db_session, user
+        data.subscription, db_session, user
     )
     if existing_registration:
         # This registration already exists, don't duplicate it.
         return Response(existing_registration, status_code=HTTP_200_OK)
 
-    registration = await create_registration(data["subscription"], db_session, user.id)
+    registration = await create_registration(data.subscription, db_session, user.id)
     return Response(registration, status_code=HTTP_201_CREATED)
 
 
