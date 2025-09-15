@@ -12,7 +12,6 @@ from litestar import (
     Request,
     Response,
     get,
-    patch,
     post,
 )
 from litestar.config.cors import CORSConfig
@@ -44,14 +43,12 @@ from app.models.database import (
     create_notification,
     create_registration,
     create_user_from_userinfo,
-    get_registration_by_id,
     get_registration_by_user_and_subscription,
     get_user_by_id,
     get_user_by_userinfo,
     get_user_list,
-    update_registration,
 )
-from app.models.endpoints import RegistrationEnable, RegistrationRename, Userinfo
+from app.models.endpoints import Userinfo
 
 from .database import db_connection, provide_db_session
 from .rvo import rvo_router
@@ -178,30 +175,6 @@ async def list_registrations(
         options=selectinload(cast(InstrumentedAttribute[Any], User.registrations)),
     )
     return Response(user.registrations, status_code=HTTP_200_OK)
-
-
-@patch("/api/v1/registrations/{pk:int}/label")
-async def rename_registration(
-    db_session: AsyncSession,
-    pk: int,
-    data: Annotated[RegistrationRename, Body(description="New label for the registration")],
-) -> Response[Registration]:
-    registration = await get_registration_by_id(db_session, pk)
-    registration.label = data.label
-    registration = await update_registration(db_session, registration)
-    return Response(registration, status_code=HTTP_200_OK)
-
-
-@patch("/api/v1/registrations/{pk:int}/enabled")
-async def enable_registration(
-    db_session: AsyncSession,
-    pk: int,
-    data: Annotated[RegistrationEnable, Body(description="Enable or disable the registration")],
-) -> Response[Registration]:
-    registration = await get_registration_by_id(db_session, pk)
-    registration.enabled = data.enabled
-    registration = await update_registration(db_session, registration)
-    return Response(registration, status_code=HTTP_200_OK)
 
 
 #### VIEWS
@@ -335,8 +308,6 @@ def create_app(
             notify,
             list_users,
             list_registrations,
-            rename_registration,
-            enable_registration,
             get_notifications,
             # admin,
             login_callback,
