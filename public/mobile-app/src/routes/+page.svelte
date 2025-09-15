@@ -15,7 +15,7 @@ let isFranceConnected: boolean = $state(false)
 let isLoggedOut: boolean = $state(false)
 
 onMount(async () => {
-  isFranceConnected = localStorage.getItem('access_token', false)
+  isFranceConnected = !!localStorage.getItem('access_token')
   try {
     if (page.url.searchParams.has('is_logged_in')) {
       const access_token = page.url.searchParams.get('access_token') || ''
