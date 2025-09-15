@@ -39,7 +39,7 @@ async def test_register_user_does_not_exist(
     await db_session.commit()
     await db_session.refresh(user)
 
-    fake_id: int = 0
+    fake_id: str = "0"
     register_data = {
         "email": "foo@bar.baz",
         "subscription": webpushsubscription,
@@ -69,7 +69,7 @@ async def test_register(
     register_data = {
         "email": "foo@bar.baz",
         "subscription": webpushsubscription,
-        "user_id": user.id,
+        "user_id": str(user.id),
     }
     response = test_client.post("/api/v1/registrations", json=register_data)
     assert response.status_code == HTTP_201_CREATED
@@ -83,7 +83,7 @@ async def test_register(
     register_data = {
         "email": "foo@bar.baz",
         "subscription": webpushsubscription,
-        "user_id": user.id,
+        "user_id": str(user.id),
     }
     response = test_client.post("/api/v1/registrations", json=register_data)
     assert response.status_code == HTTP_200_OK
