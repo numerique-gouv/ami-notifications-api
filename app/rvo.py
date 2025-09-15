@@ -185,7 +185,7 @@ async def detail(detail_id: str, request: Request[Any, Any, Any]) -> Response[An
         )
     detail: dict[str, str] = meeting_list[detail_id]
     return Template(
-        template_name="rvo-detail.html",
+        template_name="rvo/detail.html",
         context={
             "detail": detail,
         },
