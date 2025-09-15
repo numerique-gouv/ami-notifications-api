@@ -6,6 +6,10 @@
     "PUBLIC_APP_URL": {
       "generator": "url"
     },
+    "PUBLIC_FC_AMI_REDIRECT_URL": {
+      "generator": "url",
+      "template": "%URL%/login-callback"
+    },
     "PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL": {
       "generator": "url",
       "template": "%URL%/ami-fs-test-login-callback"
