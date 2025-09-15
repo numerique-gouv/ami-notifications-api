@@ -23,8 +23,3 @@ class Userinfo:
         self.family_name = data["family_name"]
         self.gender = data["gender"]
         self.given_name = data["given_name"]
-
-
-class RegistrationCreation:
-    subscription: dict[str, Any]
-    user_id: str
