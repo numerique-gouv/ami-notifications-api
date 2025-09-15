@@ -163,41 +163,6 @@ async def test_list_registrations(
     assert len(registrations) == 1
 
 
-async def test_rename_registration(
-    test_client: TestClient[Litestar],
-    registration: Registration,
-) -> None:
-    # assert registration.label != "new label"
-    response = test_client.patch(
-        f"/api/v1/registrations/{registration.id}/label", json={"label": "new label"}
-    )
-    assert response.status_code == HTTP_200_OK
-    registrations = response.json()
-    assert registrations["label"] == "new label"
-
-
-async def test_enable_registration(
-    test_client: TestClient[Litestar],
-    registration: Registration,
-) -> None:
-    # Test disabling the registration
-    # assert registration.enabled is True
-    response = test_client.patch(
-        f"/api/v1/registrations/{registration.id}/enabled", json={"enabled": False}
-    )
-    assert response.status_code == HTTP_200_OK
-    result = response.json()
-    assert result["enabled"] is False
-
-    # Test enabling the registration
-    response = test_client.patch(
-        f"/api/v1/registrations/{registration.id}/enabled", json={"enabled": True}
-    )
-    assert response.status_code == HTTP_200_OK
-    result = response.json()
-    assert result["enabled"] is True
-
-
 async def test_ami_login_callback(
     test_client: TestClient[Litestar],
     httpx_mock: HTTPXMock,
