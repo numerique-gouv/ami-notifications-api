@@ -288,6 +288,8 @@ async def get_sector_identifier_url() -> Response[Any]:
         "https://ami-back-staging-pr90.osc-fr1.scalingo.io/login-callback",
         "https://ami-back-staging-pr91.osc-fr1.scalingo.io/ami-fs-test-login-callback",
         "https://ami-back-staging-pr91.osc-fr1.scalingo.io/login-callback",
+        "https://ami-back-staging-pr121.osc-fr1.scalingo.io/rvo/login-callback",
+        "https://ami-back-staging-pr121.osc-fr1.scalingo.io/login-callback",
         "https://localhost:5173/ami-fs-test-login-callback",
         "https://localhost:5173/login-callback",
         "https://localhost:8000/login-callback",  # This is needed to test FC on a statically typed SPA (with `make build-app`).
