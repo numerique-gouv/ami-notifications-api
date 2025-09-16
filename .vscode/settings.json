@@ -1,13 +1,9 @@
 {
-    "cucumberautocomplete.steps": [
-        "public/mobile-app/tests/features/step_definitions/*.cjs"
-    ],
-    "cucumberautocomplete.syncfeatures": "public/mobile-app/tests/features/*.feature",
-    "cucumberautocomplete.smartSnippets": true,
-    "cucumber.features": [
-        "public/mobile-app/tests/features*.feature"
-    ],
-    "cucumber.glue": [
-        "public/mobile-app/tests/features/step_definitions/*.js"
-    ]
+  "cucumberautocomplete.steps": [
+    "public/mobile-app/tests/features/step_definitions/*.cjs"
+  ],
+  "cucumberautocomplete.syncfeatures": "public/mobile-app/tests/features/*.feature",
+  "cucumberautocomplete.smartSnippets": true,
+  "cucumber.features": ["public/mobile-app/tests/features*.feature"],
+  "cucumber.glue": ["public/mobile-app/tests/features/step_definitions/*.js"]
 }
