@@ -1,11 +1,18 @@
 <script lang="ts">
 import { parseJwt, franceConnectLogout } from '$lib/france-connect'
 import { onMount } from 'svelte'
-import { retrieveNotifications, askForNotificationPermission } from '$lib/notifications'
+import {
+  retrieveNotifications,
+  askForNotificationPermission,
+  checkNotificationPermission,
+  getSubscription
+} from '$lib/notifications'
 
 let userinfo: Object = $state({})
 let initials: String = $state('')
 let isMenuDisplayed = $state(false)
+let isAuthenticatedForNotifications: boolean = $state(false)
+let pushSubscription
 let messages = $state([])
 
 const getInitials: (given_name_array: []) => String = (given_name_array: []) => {
@@ -25,10 +32,46 @@ onMount(async () => {
     initials = getInitials(userinfo.given_name_array)
 
     messages = await retrieveNotifications()
+
+    checkNotificationPermission().then((isGranted) => {
+      isAuthenticatedForNotifications = isGranted === true
+    })
+
+    if (navigator.permissions) {
+      const permissionStatus = await navigator.permissions.query({
+        name: 'notifications',
+      })
+      isAuthenticatedForNotifications = permissionStatus.state == 'granted'
+      pushSubscription = await getSubscription()
+      console.log(`notifications permission status is ${permissionStatus.state}`)
+
+      permissionStatus.onchange = async () => {
+        if (permissionStatus.state == 'granted') {
+          isAuthenticatedForNotifications = true
+          pushSubscription = await getSubscription()
+        } else {
+          resetElements()
+        }
+        console.log(
+          `notifications permission status has changed to ${permissionStatus.state}`
+        )
+      }
+    }
   } catch (error) {
     console.error(error)
   }
 })
+
+const clickOnNotificationPermission = async () => {
+  const isGranted = await checkNotificationPermission()
+  isAuthenticatedForNotifications = isGranted
+  await askForNotificationPermission(isGranted)
+}
+
+const resetElements = () => {
+  isAuthenticatedForNotifications = false
+  pushSubscription = null
+}
 
 const toggleMenu = () => {
   isMenuDisplayed = !isMenuDisplayed
@@ -55,20 +98,23 @@ const toggleMenu = () => {
   </div>
 
   <div class="menu {isMenuDisplayed ? '' : 'is-hidden'}">
-    <button
-				type="button"
-				onclick={askForNotificationPermission}
-		>
-			Recevoir des notifications sur ce terminal
-		</button>
+    <div class="container">
+      <button
+          type="button"
+          onclick={clickOnNotificationPermission}
+          disabled={isAuthenticatedForNotifications}
+      >
+        Recevoir des notifications sur ce terminal
+      </button>
 
-    <button
-        class="fr-connect-logout"
-        type="button"
-        onclick={franceConnectLogout}
-    >
-      <span>Me déconnecter</span>
-    </button>
+      <button
+          class="fr-connect-logout"
+          type="button"
+          onclick={franceConnectLogout}
+      >
+        <span>Me déconnecter</span>
+      </button>
+    </div>
   </div>
 
   <div class="rubrique-container qr-code-scan-container">
@@ -253,17 +299,24 @@ const toggleMenu = () => {
     .menu {
       position: absolute;
       z-index: 1000;
+
       margin-top: -20px;
       padding: 8px;
       background-color: white;
       border-radius: 4px;
       box-shadow: 2px 2px 2px gray;
 
-      .fr-connect-logout {
-        padding: 8px 12px;
+      .container {
+        display: flex;
+        flex-direction: column;
+        align-items: start;
 
-        font-size: 14px;
-        line-height: 24px;
+        button {
+          padding: 8px 12px;
+
+          font-size: 14px;
+          line-height: 24px;
+        }
       }
     }
 
