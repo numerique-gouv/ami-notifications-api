@@ -2,7 +2,6 @@
   "formatter": {
     "enabled": true,
     "formatWithErrors": false,
-    "ignore": [],
     "attributePosition": "auto",
     "indentStyle": "space",
     "indentWidth": 2,
@@ -35,11 +34,8 @@
       "trailingCommas": "none"
     }
   },
-  "organizeImports": {
-    "enabled": true
-  },
+  "assist": { "actions": { "source": { "organizeImports": "on" } } },
   "files": {
-    "include": ["public/"],
-    "ignore": ["*.min.*"]
+    "includes": ["**/*.js", "**/*.json", "!**/*.min.*", "!.venv"]
   }
 }
