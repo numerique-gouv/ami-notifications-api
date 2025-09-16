@@ -85,6 +85,7 @@ PUBLIC_FC_USERINFO_ENDPOINT = os.getenv("PUBLIC_FC_USERINFO_ENDPOINT", "")
 PUBLIC_FC_LOGOUT_ENDPOINT = os.getenv("PUBLIC_FC_LOGOUT_ENDPOINT", "")
 PUBLIC_API_URL = os.getenv("PUBLIC_API_URL", "")
 PUBLIC_APP_URL = os.getenv("PUBLIC_APP_URL", "")
+PUBLIC_SECTOR_IDENTIFIER_URL = os.getenv("PUBLIC_SECTOR_IDENTIFIER_URL", "")
 
 #### ENDPOINTS
 
@@ -282,21 +283,8 @@ async def get_fc_userinfo(
 @get(path="/sector_identifier_url", include_in_schema=False)
 async def get_sector_identifier_url() -> Response[Any]:
     redirect_uris: list[str] = [
-        "https://ami-back-staging.osc-fr1.scalingo.io/ami-fs-test-login-callback",
-        "https://ami-back-staging.osc-fr1.scalingo.io/login-callback",
-        "https://ami-back-staging-pr90.osc-fr1.scalingo.io/ami-fs-test-login-callback",
-        "https://ami-back-staging-pr90.osc-fr1.scalingo.io/login-callback",
-        "https://ami-back-staging-pr91.osc-fr1.scalingo.io/ami-fs-test-login-callback",
-        "https://ami-back-staging-pr91.osc-fr1.scalingo.io/login-callback",
-        "https://ami-back-staging-pr121.osc-fr1.scalingo.io/rvo/login-callback",
-        "https://ami-back-staging-pr121.osc-fr1.scalingo.io/login-callback",
-        "https://localhost:5173/ami-fs-test-login-callback",
-        "https://localhost:5173/login-callback",
-        "https://localhost:8000/login-callback",  # This is needed to test FC on a statically typed SPA (with `make build-app`).
-        "https://localhost:8000/rvo/login-callback",
-        "https://ami-back-staging.osc-fr1.scalingo.io/rvo/login-callback",
+        url.strip() for url in PUBLIC_SECTOR_IDENTIFIER_URL.strip().split("\n")
     ]
-
     return Response(redirect_uris)
 
 
@@ -342,6 +330,7 @@ def create_app(
             admin,
             login_callback,
             get_fc_userinfo,
+            get_sector_identifier_url,
             create_static_files_router(
                 path="/admin/static",
                 directories=[HTML_DIR_ADMIN],
