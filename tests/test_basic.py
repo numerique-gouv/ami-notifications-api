@@ -435,3 +435,12 @@ async def test_rvo_logout_callback(
     # As the user was properly logged out from FC, the local session is now emptied, and the user redirected to the fake service provider.
     assert response.headers["location"] == "/rvo/logged_out"
     assert test_client.get_session_data() == {}
+
+
+async def test_get_sector_identifier_url(
+    test_client: TestClient[Litestar],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr("app.PUBLIC_SECTOR_IDENTIFIER_URL", "  https://example.com  \nfoobar \n")
+    response = test_client.get("/sector_identifier_url")
+    assert response.json() == ["https://example.com", "foobar"]

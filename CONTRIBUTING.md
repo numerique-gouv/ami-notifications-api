@@ -202,22 +202,31 @@ ask us to do it) to add the redirect url for your PR, eg
 
 <img width="899" height="682" alt="Capture d’écran 2025-08-27 à 16 34 50" src="https://github.com/user-attachments/assets/5a569cb4-791b-4c84-8a1f-013622c8e81d" />
 
-- update [the PR](https://github.com/numerique-gouv/ami-notifications-api/pull/90)
-that manages the content of the
-[sector_identifier_url](https://docs.partenaires.franceconnect.gouv.fr/fs/fs-technique/fs-technique-sector_identifier/)
-to add your PR's redirect url to the list of already authorized ones in
-[app/__init__.py:get_sector_identifier_url](https://github.com/numerique-gouv/ami-notifications-api/blob/DO-NOT-MERGE-sector_identifier_url-manager/app/__init__.py#L287-L291)
-, eg:
+- update the `PUBLIC_SECTOR_IDENTIFIER_URL` env variable in Scalingo
+that will be used by the
+[https://ami-back-staging.osc-fr1.scalingo.io/sector_identifier_url](https://ami-back-staging.osc-fr1.scalingo.io/sector_identifier_url)
+endpoint to serve the 
+[sector_identifier_url](https://docs.partenaires.franceconnect.gouv.fr/fs/fs-technique/fs-technique-sector_identifier/):
+Add your PR's redirect url to the list of already authorized ones
+[in scalingo](https://dashboard.scalingo.com/apps/osc-fr1/ami-back-staging/environment)
+eg:
 
 ```diff
-@get(path="/sector_identifier_url", include_in_schema=False)
-async def get_sector_identifier_url() -> Response[Any]:
-    redirect_uris: list[str] = [
-        "https://ami-back-staging.osc-fr1.scalingo.io/ami-fs-test-login-callback",
-+       "https://ami-back-staging-prXX.osc-fr1.scalingo.io/ami-fs-test-login-callback", # Replace `XX` with your PR number
-        "https://localhost:5173/ami-fs-test-login-callback",
-    ]
+PUBLIC_SECTOR_IDENTIFIER_URL="""
+  https://ami-back-staging.osc-fr1.scalingo.io/login-callback
+  https://ami-back-staging.osc-fr1.scalingo.io/rvo/login-callback
++ https://ami-back-staging-prXX.osc-fr1.scalingo.io/login-callback
++ https://ami-back-staging-prXX.osc-fr1.scalingo.io/rvo/login-callback
+  https://localhost:5173/login-callback
+  https://localhost:8000/rvo/login-callback
 ```
 
-# TODO: il y a 2 FCxion différentes. 1 pour un fake SP et un pour AMI
-# + MAJ § FC
+We now have two different FranceConnect buttons:
+- AMI as a service provider
+- RVO (Rendez-Vous Officiel) as a fake service provider
+
+You will thus need to add the two login redirect URLs, one for each, as shown above.
+
+Once the env variable is updated, make sure to
+[restart the web container](https://dashboard.scalingo.com/apps/osc-fr1/ami-back-staging/resources)
+so it's taken into account.
