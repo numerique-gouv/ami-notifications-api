@@ -1,6 +1,14 @@
 import { PUBLIC_API_URL } from '$env/static/public'
 
-let pushSubscription
+export const getSubscription = async () => {
+  console.log("refreshing the push subscription, if it's there")
+  const registration = await navigator.serviceWorker.ready
+  if (registration) {
+    const sub = await registration.pushManager.getSubscription()
+    console.log('refreshed subscription:', sub)
+    return sub
+  }
+}
 
 export const retrieveNotifications = async () => {
   let messages = []
@@ -54,44 +62,39 @@ export const subscribePush = async () => {
   }
 }
 
-export const updateButtonsStates = async () => {
-  const isGranted = await checkNotificationPermission()
-  // isAuthenticatedForNotifications = isGranted
+export const updateButtonsStates = async (isGranted) => {
+  const pushSubscription = await subscribePush()
 
-  if (isGranted) {
-    pushSubscription = await subscribePush()
+  const pushSubURL = pushSubscription.endpoint
+  const pushSubAuth = pushSubscription.toJSON().keys.auth
+  const pushSubP256DH = pushSubscription.toJSON().keys.p256dh
 
-    const pushSubURL = pushSubscription.endpoint
-    const pushSubAuth = pushSubscription.toJSON().keys.auth
-    const pushSubP256DH = pushSubscription.toJSON().keys.p256dh
-
-    const payload = {
-      subscription: {
-        endpoint: pushSubURL,
-        keys: {
-          auth: pushSubAuth,
-          p256dh: pushSubP256DH,
-        },
+  const payload = {
+    subscription: {
+      endpoint: pushSubURL,
+      keys: {
+        auth: pushSubAuth,
+        p256dh: pushSubP256DH,
       },
-      user_id: localStorage.getItem('user_id'),
-    }
-    console.log('payload:', payload)
+    },
+    user_id: localStorage.getItem('user_id'),
+  }
+  console.log('payload:', payload)
 
-    const response = await fetch(`${PUBLIC_API_URL}/api/v1/registrations`, {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    })
-    console.log('response:', response)
-    if (response.status < 400) {
-      const registration = await response.json()
-      console.log('registration', registration)
-    } else {
-      console.log(`error ${response.status}: ${response.statusText}, ${response.body}`)
-    }
+  const response = await fetch(`${PUBLIC_API_URL}/api/v1/registrations`, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+  console.log('response:', response)
+  if (response.status < 400) {
+    const registration = await response.json()
+    console.log('registration', registration)
+  } else {
+    console.log(`error ${response.status}: ${response.statusText}, ${response.body}`)
   }
 }
 
-export const askForNotificationPermission = async () => {
+export const askForNotificationPermission = async (isGranted) => {
   const permissionGranted = await Notification.requestPermission()
   const registration = await navigator.serviceWorker.ready
   if (!permissionGranted || !registration) {
@@ -100,5 +103,7 @@ export const askForNotificationPermission = async () => {
     )
     return
   }
-  await updateButtonsStates()
+  if (isGranted) {
+    await updateButtonsStates(isGranted)
+  }
 }
