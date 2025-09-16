@@ -1,69 +1,30 @@
 <script lang="ts">
-import {
-  PUBLIC_API_URL,
-  PUBLIC_APP_URL,
-  PUBLIC_FC_BASE_URL,
-  PUBLIC_FC_LOGOUT_ENDPOINT,
-} from '$env/static/public'
+import { parseJwt, franceConnectLogout } from '$lib/france-connect'
 import { onMount } from 'svelte'
+import { retrieveNotifications, askForNotificationPermission } from '$lib/notifications'
 
 let userinfo: Object = $state({})
+let initials: String = $state('')
 let isMenuDisplayed = $state(false)
 let messages = $state([])
 
-let isAuthenticatedForNotifications: boolean = $state(false)
-let pushSubscription
-
-function parseJwt(token) {
-  const base64Url = token.split('.')[1]
-  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
-  const jsonPayload = decodeURIComponent(
-    window
-      .atob(base64)
-      .split('')
-      .map(function (c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
-      })
-      .join('')
-  )
-
-  return JSON.parse(jsonPayload)
-}
-
-const retrieveNotifications = async () => {
-  const userId = localStorage.getItem('user_id')
-  if (userId) {
-    try {
-      const response = await fetch(
-        `${PUBLIC_API_URL}/api/v1/users/${userId}/notifications`
-      )
-
-      if (response.status == 200) {
-        messages = await response.json()
-        messages.forEach(
-          (message) =>
-            (message.formattedDate = new Date(message.date).toLocaleDateString('fr-FR'))
-        )
-        console.log('messages', messages)
-      }
-    } catch (error) {
-      console.error(error)
-    }
-  }
+const getInitials: (given_name_array: []) => String = (given_name_array: []) => {
+  let initials: String = ''
+  given_name_array.forEach((given_name) => {
+    initials += given_name.substring(0, 1)
+  })
+  return initials
 }
 
 onMount(async () => {
   try {
-    const access_token = localStorage.getItem('access_token')
-    const token_type = localStorage.getItem('token_type')
-    const id_token = localStorage.getItem('id_token')
     const userData = localStorage.getItem('user_data')
     console.log(userData)
     userinfo = parseJwt(userData)
-
     console.log(userinfo)
+    initials = getInitials(userinfo.given_name_array)
 
-    await retrieveNotifications()
+    messages = await retrieveNotifications()
   } catch (error) {
     console.error(error)
   }
@@ -72,101 +33,13 @@ onMount(async () => {
 const toggleMenu = () => {
   isMenuDisplayed = !isMenuDisplayed
 }
-
-const franceConnectLogout = async () => {
-  const params = new URLSearchParams({
-    id_token_hint: localStorage.getItem('id_token') || '',
-    state: 'not-implemented-yet-and-has-more-than-32-chars',
-    post_logout_redirect_uri: `${PUBLIC_APP_URL}/?is_logged_out`,
-  })
-  const url = new URL(`${PUBLIC_FC_BASE_URL}${PUBLIC_FC_LOGOUT_ENDPOINT}`)
-  url.search = params.toString()
-  window.location = url.toString()
-}
-
-const checkNotificationPermission = async () => {
-  const permission = await Notification.permission
-  console.log('permission:', permission)
-  return permission == 'granted'
-}
-
-const subscribePush = async () => {
-  const registration = await navigator.serviceWorker.ready
-  try {
-    const applicationKeyResponse = await fetch(`${PUBLIC_API_URL}/notification-key`)
-    const applicationKey = await applicationKeyResponse.text()
-    const options = { userVisibleOnly: true, applicationServerKey: applicationKey }
-    const pushSubscription = await registration.pushManager.subscribe(options)
-    console.log('pushSubscription:', pushSubscription)
-    console.log('Subscribed to the push manager')
-    // The push subscription details needed by the application
-    // server are now available, and can be sent to it using,
-    // for example, the fetch() API.
-    return pushSubscription
-  } catch (error) {
-    // During development it often helps to log errors to the
-    // console. In a production environment it might make sense to
-    // also report information about errors back to the
-    // application server.
-    console.error(error)
-  }
-}
-
-const updateButtonsStates = async () => {
-  const isGranted = await checkNotificationPermission()
-  isAuthenticatedForNotifications = isGranted
-
-  if (isGranted) {
-    pushSubscription = await subscribePush()
-
-    const pushSubURL = pushSubscription.endpoint
-    const pushSubAuth = pushSubscription.toJSON().keys.auth
-    const pushSubP256DH = pushSubscription.toJSON().keys.p256dh
-
-    const payload = {
-      subscription: {
-        endpoint: pushSubURL,
-        keys: {
-          auth: pushSubAuth,
-          p256dh: pushSubP256DH,
-        },
-      },
-      user_id: localStorage.getItem('user_id'),
-    }
-    console.log('payload:', payload)
-
-    const response = await fetch(`${PUBLIC_API_URL}/api/v1/registrations`, {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    })
-    console.log('response:', response)
-    if (response.status < 400) {
-      const registration = await response.json()
-      console.log('registration', registration)
-    } else {
-      console.log(`error ${response.status}: ${response.statusText}, ${response.body}`)
-    }
-  }
-}
-
-const askForNotificationPermission = async () => {
-  const permissionGranted = await Notification.requestPermission()
-  const registration = await navigator.serviceWorker.ready
-  if (!permissionGranted || !registration) {
-    console.log(
-      'No notification: missing permission or missing service worker registration'
-    )
-    return
-  }
-  await updateButtonsStates()
-}
 </script>
 
 <div class="homepage-connected">
   <div class="header">
     <button class="header-left" onclick={toggleMenu}>
       <span class="user-profile">
-        AS
+        {initials}
       </span>
     </button>
 
