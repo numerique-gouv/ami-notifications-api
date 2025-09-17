@@ -437,6 +437,28 @@ async def test_rvo_logout_callback(
     assert test_client.get_session_data() == {}
 
 
+async def test_rvo_detail_when_logged_in(
+    test_client: TestClient[Litestar],
+) -> None:
+    test_client.set_session_data({"id_token": "fake id token", "userinfo": FAKE_USERINFO})
+    response = test_client.get("/rvo/detail/1", follow_redirects=False)
+    assert response.status_code == 200
+    assert "Annuler le RDV" in response.content.decode("utf8")
+
+
+async def test_rvo_detail_when_logged_out(
+    test_client: TestClient[Litestar],
+) -> None:
+    detail_url = "/rvo/detail/1"
+    response = test_client.get(detail_url, follow_redirects=False)
+    assert response.status_code == 302
+    assert "redirect_once_connected" in test_client.get_session_data()
+    assert (
+        test_client.get_session_data()["redirect_once_connected"]
+        == f"http://testserver.local{detail_url}"
+    )
+
+
 async def test_get_sector_identifier_url(
     test_client: TestClient[Litestar],
     monkeypatch: pytest.MonkeyPatch,
