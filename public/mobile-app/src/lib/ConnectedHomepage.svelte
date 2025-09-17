@@ -101,6 +101,34 @@ const franceConnectLogout = async () => {
 
   <div class="rubrique-container">
     <div class="header-container">
+      <span class="title">Mes rendez-vous</span>
+      <a title="Voir toutes mes rendez-vous" href="/">
+        <span class="see-all">Voir tout</span>
+        <img class="arrow-line" src="/remixicons/arrow-line.svg" alt="Icône de flèche" />
+      </a>
+    </div>
+    <div class="rubrique-content-container">
+      <div class="fr-tile fr-tile-sm fr-tile--horizontal fr-enlarge-link">
+        <div class="fr-tile__body">
+          <div class="fr-tile__content">
+            <h3 class="fr-tile__title">
+              <a href="/#/rdv/">2 août 2025 à 15H15</a>
+            </h3>
+            <p class="fr-tile__desc">Rendez-vous dans votre Agence France Travail Paris 18e Ney</p>
+            <div class="fr-tile__start">
+              <p class="fr-badge">
+                <img src="/remixicons/calendar-event-line.svg" alt="Icône de calendrier" />
+                RDV
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="rubrique-container">
+    <div class="header-container">
       <span class="title">Mes échéances</span>
       <a title="Voir toutes les échéances" href="/">
         <span class="see-all">Voir tout</span>
