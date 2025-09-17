@@ -92,6 +92,8 @@ async def login_callback(
     # FC - Step 16.1
     request.session["userinfo"] = userinfo
     request.session["id_token"] = id_token
+    if "redirect_once_connected" in request.session:
+        return Redirect(request.session["redirect_once_connected"])
     return Redirect("/rvo")
 
 
@@ -125,7 +127,15 @@ async def logged_out() -> Template:
 
 
 @get(path="/detail/{detail_id: str}", include_in_schema=False)
-async def detail(detail_id: str, request: Request[Any, Any, Any]) -> Template:
+async def detail(detail_id: str, request: Request[Any, Any, Any]) -> Response[Any] | Template:
+    if "userinfo" not in request.session or "id_token" not in request.session:
+        request.session["redirect_once_connected"] = str(request.url)
+        print("redirect_once_connected", request.url)
+        return Redirect("/rvo")
+
+    if "redirect_once_connected" in request.session:
+        del request.session["redirect_once_connected"]  # Not useful anymore.
+
     detail: dict[str, str] = {
         "id": detail_id,
         "when": "2 août 2025 à 15H15",
@@ -136,11 +146,6 @@ async def detail(detail_id: str, request: Request[Any, Any, Any]) -> Template:
         template_name="rvo-detail.html",
         context={
             "detail": detail,
-            "isFranceConnected": "userinfo" in request.session and "id_token" in request.session,
-            "PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID": PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID,
-            "PUBLIC_FC_BASE_URL": PUBLIC_FC_BASE_URL,
-            "PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL": PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL,
-            "PUBLIC_FC_AUTHORIZATION_ENDPOINT": PUBLIC_FC_AUTHORIZATION_ENDPOINT,
         },
     )
 
