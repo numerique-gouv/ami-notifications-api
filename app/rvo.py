@@ -98,7 +98,7 @@ async def login_callback(
 @get(path="/logout", include_in_schema=False)
 async def logout(request: Request[Any, Any, Any]) -> Response[Any]:
     if "userinfo" not in request.session or "id_token" not in request.session:
-        return Redirect("/")
+        return Redirect("/rvo")
 
     logout_url: str = f"{PUBLIC_FC_BASE_URL}{PUBLIC_FC_LOGOUT_ENDPOINT}"
     data: dict[str, str] = {
@@ -124,6 +124,27 @@ async def logged_out() -> Template:
     return Template(template_name="rvo-logged-out.html")
 
 
+@get(path="/detail/{detail_id: str}", include_in_schema=False)
+async def detail(detail_id: str, request: Request[Any, Any, Any]) -> Template:
+    detail: dict[str, str] = {
+        "id": detail_id,
+        "when": "2 août 2025 à 15H15",
+        "who": "France Travail",
+        "where": "dans votre Agence France Travail Paris 18e Ney",
+    }
+    return Template(
+        template_name="rvo-detail.html",
+        context={
+            "detail": detail,
+            "isFranceConnected": "userinfo" in request.session and "id_token" in request.session,
+            "PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID": PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID,
+            "PUBLIC_FC_BASE_URL": PUBLIC_FC_BASE_URL,
+            "PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL": PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL,
+            "PUBLIC_FC_AUTHORIZATION_ENDPOINT": PUBLIC_FC_AUTHORIZATION_ENDPOINT,
+        },
+    )
+
+
 def error_from_response(response: Response[str], ami_details: str | None = None) -> Response[str]:
     details = response.json()  # type: ignore[reportUnknownVariableType]
     if ami_details is not None:
@@ -138,5 +159,5 @@ def error_from_message(
 
 
 rvo_router: Router = Router(
-    path="/rvo", route_handlers=[home, login_callback, logout, logout_callback, logged_out]
+    path="/rvo", route_handlers=[home, login_callback, logout, logout_callback, logged_out, detail]
 )
