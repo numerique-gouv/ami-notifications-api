@@ -10,6 +10,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="/dsfr-v1.14.0/dsfr.min.css" />
   <link rel="stylesheet" href="/dsfr-v1.14.0/utility/utility.min.css" />
+{% block style %}
   <style>
     .container {
       background-color: var(--background-alt-grey);
@@ -130,6 +131,7 @@
       width: 80px;
     }
   </style>
+{% endblock style %}
   <script lang="ts">
       // FC - Step 3
       const franceConnect = async () => {
@@ -160,6 +162,7 @@
 </head>
 <body>
   <main class="container {% if not isFranceConnected %}not-connected{% endif %}">
+    {% block out_wrapper %}
     <div class="fr-container">
       {% block wrapper %}
         {% if not isFranceConnected %}
@@ -225,6 +228,7 @@
       </div>
     </div>
     {% endif %}
+    {% endblock out_wrapper %}
   </main>
 {% block extra_body %}{% endblock extra_body %}
 <script type="module" src="/dsfr-v1.14.0/dsfr.module.min.js"></script>
