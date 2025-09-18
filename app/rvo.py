@@ -12,6 +12,7 @@ from litestar import (
 from litestar.response import Template
 from litestar.response.redirect import Redirect
 from litestar.status_codes import (
+    HTTP_404_NOT_FOUND,
     HTTP_500_INTERNAL_SERVER_ERROR,
 )
 
@@ -27,6 +28,24 @@ PUBLIC_FC_LOGOUT_ENDPOINT = os.getenv("PUBLIC_FC_LOGOUT_ENDPOINT", "")
 PUBLIC_API_URL = os.getenv("PUBLIC_API_URL", "")
 
 
+MEETING_LIST: list[dict[str, str]] = [
+    {
+        "id": "1",
+        "when": "2 août 2025 à 15H15",
+        "who": "France Travail",
+        "where": "dans votre Agence France Travail Paris 18e Ney",
+        "text": "Rendez-vous dans votre Agence France Travail Paris 18e Ney",
+    },
+    {
+        "id": "2",
+        "when": "25 novembre 2025 à 14H00",
+        "who": "France Services",
+        "where": "dans votre Maison France Services",
+        "text": "Rendez-vous dans votre Maison France Services",
+    },
+]
+
+
 @get(path="/", include_in_schema=False)
 async def home(request: Request[Any, Any, Any]) -> Template:
     return Template(
@@ -37,6 +56,7 @@ async def home(request: Request[Any, Any, Any]) -> Template:
             "PUBLIC_FC_BASE_URL": PUBLIC_FC_BASE_URL,
             "PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL": PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL,
             "PUBLIC_FC_AUTHORIZATION_ENDPOINT": PUBLIC_FC_AUTHORIZATION_ENDPOINT,
+            "object_list": MEETING_LIST,
         },
     )
 
@@ -136,12 +156,13 @@ async def detail(detail_id: str, request: Request[Any, Any, Any]) -> Response[An
     if "redirect_once_connected" in request.session:
         del request.session["redirect_once_connected"]  # Not useful anymore.
 
-    detail: dict[str, str] = {
-        "id": detail_id,
-        "when": "2 août 2025 à 15H15",
-        "who": "France Travail",
-        "where": "dans votre Agence France Travail Paris 18e Ney",
-    }
+    meeting_list: dict[str, dict[str, str]] = {m["id"]: m for m in MEETING_LIST}
+    if detail_id not in meeting_list:
+        return error_from_message(
+            {"error": "Not found."},
+            HTTP_404_NOT_FOUND,
+        )
+    detail: dict[str, str] = meeting_list[detail_id]
     return Template(
         template_name="rvo-detail.html",
         context={
