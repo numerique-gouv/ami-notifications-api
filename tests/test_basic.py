@@ -437,13 +437,29 @@ async def test_rvo_logout_callback(
     assert test_client.get_session_data() == {}
 
 
+async def test_rvo_home_when_logged_in(
+    test_client: TestClient[Litestar],
+) -> None:
+    test_client.set_session_data({"id_token": "fake id token", "userinfo": FAKE_USERINFO})
+    response = test_client.get("/rvo", follow_redirects=False)
+    assert response.status_code == 200
+    assert "/rvo/detail/1" in response.text
+    assert "/rvo/detail/2" in response.text
+
+
 async def test_rvo_detail_when_logged_in(
     test_client: TestClient[Litestar],
 ) -> None:
     test_client.set_session_data({"id_token": "fake id token", "userinfo": FAKE_USERINFO})
     response = test_client.get("/rvo/detail/1", follow_redirects=False)
+    assert "Rendez-vous dans votre Agence France Travail Paris 18e Ney" in response.text
     assert response.status_code == 200
-    assert "Annuler le RDV" in response.content.decode("utf8")
+    assert "Annuler le RDV" in response.text
+
+    response = test_client.get("/rvo/detail/2", follow_redirects=False)
+    assert "Rendez-vous dans votre Maison France Services" in response.text
+    assert response.status_code == 200
+    assert "Annuler le RDV" in response.text
 
 
 async def test_rvo_detail_when_logged_out(
