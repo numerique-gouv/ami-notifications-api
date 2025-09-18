@@ -40,6 +40,9 @@ def downgrade() -> None:
         ),
     )
     op.add_column(
-        "registration", sa.Column("label", sa.VARCHAR(), autoincrement=False, nullable=False)
+        "registration",
+        sa.Column(
+            "label", sa.VARCHAR(), server_default="label", autoincrement=False, nullable=False
+        ),
     )
     # ### end Alembic commands ###
