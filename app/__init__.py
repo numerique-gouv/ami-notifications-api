@@ -186,16 +186,6 @@ async def list_registrations(
 #### VIEWS
 
 
-# @get(path="/admin/", include_in_schema=False)
-# async def admin(db_session: AsyncSession) -> Template:
-#     users = await get_user_list(db_session)
-#     notifications = await get_notification_list(db_session)
-#     return Template(
-#         template_name="admin.html",
-#         context={"users": users, "notifications": notifications},
-#     )
-
-
 @get(path="/login-callback", include_in_schema=False)
 async def login_callback(
     code: str,
@@ -315,7 +305,6 @@ def create_app(
             list_users,
             list_registrations,
             get_notifications,
-            # admin,
             login_callback,
             get_fc_userinfo,
             get_sector_identifier_url,
