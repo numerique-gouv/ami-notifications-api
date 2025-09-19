@@ -1,15 +1,5 @@
 import { PUBLIC_API_URL } from '$env/static/public'
 
-export const getSubscription = async () => {
-  console.log("refreshing the push subscription, if it's there")
-  const registration = await navigator.serviceWorker.ready
-  if (registration) {
-    const sub = await registration.pushManager.getSubscription()
-    console.log('refreshed subscription:', sub)
-    return sub
-  }
-}
-
 export const retrieveNotifications = async () => {
   let messages = []
   const userId = localStorage.getItem('user_id')
@@ -18,13 +8,8 @@ export const retrieveNotifications = async () => {
       const response = await fetch(
         `${PUBLIC_API_URL}/api/v1/users/${userId}/notifications`
       )
-
-      if (response.status == 200) {
+      if (response.status === 200) {
         messages = await response.json()
-        messages.forEach(
-          (message) =>
-            (message.formattedDate = new Date(message.date).toLocaleDateString('fr-FR'))
-        )
         console.log('messages', messages)
         return messages
       }
@@ -34,35 +19,32 @@ export const retrieveNotifications = async () => {
   }
 }
 
-export const checkNotificationPermission = async () => {
-  const permission = await Notification.permission
-  console.log('permission:', permission)
-  return permission == 'granted'
+export const getSubscription = async () => {
+  console.log("refreshing the push subscription, if it's there")
+  const registration = await getServiceWorkerRegistration()
+  if (registration) {
+    const sub = await registration.pushManager.getSubscription()
+    console.log('refreshed subscription:', sub)
+    return sub
+  }
 }
 
 export const subscribePush = async () => {
-  const registration = await navigator.serviceWorker.ready
+  const registration = await getServiceWorkerRegistration()
   try {
     const applicationKeyResponse = await fetch(`${PUBLIC_API_URL}/notification-key`)
     const applicationKey = await applicationKeyResponse.text()
     const options = { userVisibleOnly: true, applicationServerKey: applicationKey }
     const pushSubscription = await registration.pushManager.subscribe(options)
     console.log('pushSubscription:', pushSubscription)
-    console.log('Subscribed to the push manager')
-    // The push subscription details needed by the application
-    // server are now available, and can be sent to it using,
-    // for example, the fetch() API.
+    console.log('subscribed to the push manager')
     return pushSubscription
   } catch (error) {
-    // During development it often helps to log errors to the
-    // console. In a production environment it might make sense to
-    // also report information about errors back to the
-    // application server.
     console.error(error)
   }
 }
 
-export const updateButtonsStates = async (isGranted) => {
+export const registerUser = async () => {
   const pushSubscription = await subscribePush()
 
   const pushSubURL = pushSubscription.endpoint
@@ -94,16 +76,18 @@ export const updateButtonsStates = async (isGranted) => {
   }
 }
 
-export const askForNotificationPermission = async (isGranted) => {
+export const clickOnNotificationPermission = async () => {
   const permissionGranted = await Notification.requestPermission()
-  const registration = await navigator.serviceWorker.ready
+  const registration = await getServiceWorkerRegistration()
   if (!permissionGranted || !registration) {
     console.log(
       'No notification: missing permission or missing service worker registration'
     )
-    return
+  } else {
+    await registerUser()
   }
-  if (isGranted) {
-    await updateButtonsStates(isGranted)
-  }
+}
+
+const getServiceWorkerRegistration = async () => {
+  return await navigator.serviceWorker.ready
 }
