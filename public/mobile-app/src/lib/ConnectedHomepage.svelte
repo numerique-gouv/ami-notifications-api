@@ -2,10 +2,12 @@
 import { parseJwt, franceConnectLogout } from '$lib/france-connect'
 import { onMount } from 'svelte'
 import {
+  clickOnNotificationPermission,
   retrieveNotifications,
-  askForNotificationPermission,
-  checkNotificationPermission,
-  getSubscription
+  // askForNotificationPermission,
+  // checkNotificationPermission,
+  getSubscription,
+  registerUser
 } from '$lib/notifications'
 
 let userinfo: Object = $state({})
@@ -26,35 +28,22 @@ const getInitials: (given_name_array: []) => String = (given_name_array: []) => 
 onMount(async () => {
   try {
     const userData = localStorage.getItem('user_data')
-    console.log(userData)
     userinfo = parseJwt(userData)
     console.log(userinfo)
+
     initials = getInitials(userinfo.given_name_array)
-
     messages = await retrieveNotifications()
-
-    checkNotificationPermission().then((isGranted) => {
-      isAuthenticatedForNotifications = isGranted === true
-    })
 
     if (navigator.permissions) {
       const permissionStatus = await navigator.permissions.query({
         name: 'notifications',
       })
-      isAuthenticatedForNotifications = permissionStatus.state == 'granted'
-      pushSubscription = await getSubscription()
-      console.log(`notifications permission status is ${permissionStatus.state}`)
+
+      await updateButtonAndPushSubscription(permissionStatus.state)
 
       permissionStatus.onchange = async () => {
-        if (permissionStatus.state == 'granted') {
-          isAuthenticatedForNotifications = true
-          pushSubscription = await getSubscription()
-        } else {
-          resetElements()
-        }
-        console.log(
-          `notifications permission status has changed to ${permissionStatus.state}`
-        )
+        console.log('notifications permission status has changed')
+        await updateButtonAndPushSubscription(permissionStatus.state)
       }
     }
   } catch (error) {
@@ -62,15 +51,15 @@ onMount(async () => {
   }
 })
 
-const clickOnNotificationPermission = async () => {
-  const isGranted = await checkNotificationPermission()
-  isAuthenticatedForNotifications = isGranted
-  await askForNotificationPermission(isGranted)
-}
-
-const resetElements = () => {
-  isAuthenticatedForNotifications = false
-  pushSubscription = null
+const updateButtonAndPushSubscription = async (permissionStatusState) => {
+  if (permissionStatusState == 'granted') {
+    isAuthenticatedForNotifications = true
+    pushSubscription = await getSubscription()
+  } else {
+    isAuthenticatedForNotifications = false
+    pushSubscription = null
+  }
+  console.log(`notifications permission status is ${permissionStatusState}`)
 }
 
 const toggleMenu = () => {
