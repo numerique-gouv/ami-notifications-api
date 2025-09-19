@@ -119,7 +119,7 @@ async def login_callback(
 
 @get(path="/logout", include_in_schema=False)
 async def logout(request: Request[Any, Any, Any]) -> Response[Any]:
-    if "userinfo" not in request.session or "id_token" not in request.session:
+    if is_not_connected(request.session):
         return Redirect("/rvo")
 
     logout_url: str = f"{PUBLIC_FC_BASE_URL}{PUBLIC_FC_LOGOUT_ENDPOINT}"
@@ -148,7 +148,7 @@ async def logged_out() -> Template:
 
 @get(path="/detail/{detail_id: str}", include_in_schema=False)
 async def detail(detail_id: str, request: Request[Any, Any, Any]) -> Response[Any] | Template:
-    if "userinfo" not in request.session or "id_token" not in request.session:
+    if is_not_connected(request.session):
         request.session["redirect_once_connected"] = str(request.url)
         print("redirect_once_connected", request.url)
         return Redirect("/rvo")
@@ -156,7 +156,7 @@ async def detail(detail_id: str, request: Request[Any, Any, Any]) -> Response[An
     if "redirect_once_connected" in request.session:
         del request.session["redirect_once_connected"]  # Not useful anymore.
 
-    meeting_list: dict[str, dict[str, str]] = {m["id"]: m for m in MEETING_LIST}
+    meeting_list: dict[str, dict[str, str]] = {meeting["id"]: meeting for meeting in MEETING_LIST}
     if detail_id not in meeting_list:
         return error_from_message(
             {"error": "Not found."},
@@ -169,6 +169,10 @@ async def detail(detail_id: str, request: Request[Any, Any, Any]) -> Response[An
             "detail": detail,
         },
     )
+
+
+def is_not_connected(session: dict[str, Any]) -> bool:
+    return "userinfo" not in session or "id_token" not in session
 
 
 def error_from_response(response: Response[str], ami_details: str | None = None) -> Response[str]:

@@ -21,7 +21,7 @@ const detail = {
 
 <nav>
   <div class="back-link">
-    <a href="/" title="Retour à la page d'accueil">
+    <a href="/" title="Retour à la page d'accueil" aria-label="Retour à la page d'accueil">
       <span aria-hidden="true" class="fr-icon-arrow-left-line"></span>
     </a>
   </div>
