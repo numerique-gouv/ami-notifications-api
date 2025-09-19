@@ -68,20 +68,6 @@ async def get_user_by_id(
         raise NotFoundException(detail=f"User with id {user_id!r} not found") from e
 
 
-async def get_user_by_email(
-    email: str, db_session: AsyncSession, options: ExecutableOption | None = None
-) -> User:
-    if options:
-        query = select(User).where(col(User.email) == email).options(options)
-    else:
-        query = select(User).where(col(User.email) == email)
-    result = await db_session.exec(query)
-    try:
-        return result.one()
-    except NoResultFound as e:
-        raise NotFoundException(detail=f"User {email!r} not found") from e
-
-
 async def get_user_by_userinfo(
     userinfo: Userinfo, db_session: AsyncSession, options: ExecutableOption | None = None
 ) -> User:
@@ -117,14 +103,6 @@ async def get_user_list(
     query = query.order_by(col(User.id))
     result = await db_session.exec(query)
     return list(result.all())
-
-
-async def create_user(email: str, db_session: AsyncSession) -> User:
-    user = User(email=email)
-    db_session.add(user)
-    await db_session.commit()
-    await db_session.refresh(user)
-    return user
 
 
 async def create_user_from_userinfo(userinfo: Userinfo, db_session: AsyncSession) -> User:
