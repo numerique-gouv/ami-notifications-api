@@ -1,57 +1,66 @@
 <script lang="ts">
-import {
-  PUBLIC_APP_URL,
-  PUBLIC_FC_BASE_URL,
-  PUBLIC_FC_LOGOUT_ENDPOINT,
-} from '$env/static/public'
+import { parseJwt, franceConnectLogout } from '$lib/france-connect'
 import { onMount } from 'svelte'
+import {
+  clickOnNotificationPermission,
+  retrieveNotifications,
+  getSubscription
+} from '$lib/notifications'
 
 let userinfo: Object = $state({})
+let initials: String = $state('')
 let isMenuDisplayed = $state(false)
+let isAuthenticatedForNotifications: boolean = $state(false)
+let pushSubscription
+let messages = $state([])
 
-function parseJwt(token) {
-  const base64Url = token.split('.')[1]
-  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
-  const jsonPayload = decodeURIComponent(
-    window
-      .atob(base64)
-      .split('')
-      .map(function (c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
-      })
-      .join('')
-  )
-
-  return JSON.parse(jsonPayload)
+const getInitials: (given_name_array: []) => String = (given_name_array: []) => {
+  let initials: String = ''
+  given_name_array.forEach((given_name) => {
+    initials += given_name.substring(0, 1)
+  })
+  return initials
 }
 
 onMount(async () => {
   try {
-    const access_token = localStorage.getItem('access_token')
-    const token_type = localStorage.getItem('token_type')
-    const id_token = localStorage.getItem('id_token')
     const userData = localStorage.getItem('user_data')
     userinfo = parseJwt(userData)
-
     console.log(userinfo)
+
+    initials = getInitials(userinfo.given_name_array)
+    messages = await retrieveNotifications()
+
+    if (navigator.permissions) {
+      const permissionStatus = await navigator.permissions.query({
+        name: 'notifications',
+      })
+
+      await updateButtonAndPushSubscription(permissionStatus.state)
+
+      permissionStatus.onchange = async () => {
+        console.log('notifications permission status has changed')
+        await updateButtonAndPushSubscription(permissionStatus.state)
+      }
+    }
   } catch (error) {
     console.error(error)
   }
 })
 
-const toggleMenu = () => {
-  isMenuDisplayed = !isMenuDisplayed
+const updateButtonAndPushSubscription = async (permissionStatusState) => {
+  if (permissionStatusState == 'granted') {
+    isAuthenticatedForNotifications = true
+    pushSubscription = await getSubscription()
+  } else {
+    isAuthenticatedForNotifications = false
+    pushSubscription = null
+  }
+  console.log(`notifications permission status is ${permissionStatusState}`)
 }
 
-const franceConnectLogout = async () => {
-  const params = new URLSearchParams({
-    id_token_hint: localStorage.getItem('id_token') || '',
-    state: 'not-implemented-yet-and-has-more-than-32-chars',
-    post_logout_redirect_uri: `${PUBLIC_APP_URL}/?is_logged_out`,
-  })
-  const url = new URL(`${PUBLIC_FC_BASE_URL}${PUBLIC_FC_LOGOUT_ENDPOINT}`)
-  url.search = params.toString()
-  window.location = url.toString()
+const toggleMenu = () => {
+  isMenuDisplayed = !isMenuDisplayed
 }
 </script>
 
@@ -59,7 +68,7 @@ const franceConnectLogout = async () => {
   <div class="header">
     <button class="header-left" onclick={toggleMenu}>
       <span class="user-profile">
-        AS
+        {initials}
       </span>
     </button>
 
@@ -75,13 +84,23 @@ const franceConnectLogout = async () => {
   </div>
 
   <div class="menu {isMenuDisplayed ? '' : 'is-hidden'}">
-    <button
-        class="fr-connect-logout"
-        type="button"
-        onclick={franceConnectLogout}
-    >
-      <span>Me déconnecter</span>
-    </button>
+    <div class="container">
+      <button
+          type="button"
+          onclick={clickOnNotificationPermission}
+          disabled={isAuthenticatedForNotifications}
+      >
+        Recevoir des notifications sur ce terminal
+      </button>
+
+      <button
+          class="fr-connect-logout"
+          type="button"
+          onclick={franceConnectLogout}
+      >
+        <span>Me déconnecter</span>
+      </button>
+    </div>
   </div>
 
   <div class="rubrique-container qr-code-scan-container">
@@ -190,6 +209,16 @@ const franceConnectLogout = async () => {
         <li>iss: { userinfo.iss }</li>
       </ul>
     </div>
+    <h3 class="fr-accordion__title">
+      <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-2">Messages de l'utilisateur</button>
+    </h3>
+    <div id="accordion-2" class="fr-collapse">
+      <ul>
+        {#each messages as message}
+          <li>Message #{ message.id } reçu à { message.date } de la part de { message.sender } : { message.title } - { message.message }</li>
+        {/each}
+      </ul>
+    </div>
   </section>
 
   <nav class="fr-nav" aria-label="Menu principal">
@@ -256,17 +285,24 @@ const franceConnectLogout = async () => {
     .menu {
       position: absolute;
       z-index: 1000;
+
       margin-top: -20px;
       padding: 8px;
       background-color: white;
       border-radius: 4px;
       box-shadow: 2px 2px 2px gray;
 
-      .fr-connect-logout {
-        padding: 8px 12px;
+      .container {
+        display: flex;
+        flex-direction: column;
+        align-items: start;
 
-        font-size: 14px;
-        line-height: 24px;
+        button {
+          padding: 8px 12px;
+
+          font-size: 14px;
+          line-height: 24px;
+        }
       }
     }
 
