@@ -150,7 +150,6 @@ async def logged_out() -> Template:
 async def detail(detail_id: str, request: Request[Any, Any, Any]) -> Response[Any] | Template:
     if is_not_connected(request.session):
         request.session["redirect_once_connected"] = str(request.url)
-        print("redirect_once_connected", request.url)
         return Redirect("/rvo")
 
     if "redirect_once_connected" in request.session:
