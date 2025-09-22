@@ -34,6 +34,30 @@ Fonctionnalité: France Connect
       Quand l'usager accède au détail du rendez-vous "France Travail" sur AMI
       Alors une page accès interdit devrait s'afficher
 
+    Scénario: accès au détail du rendez-vous sur MesRendezVous via authentification France Connect
+      Etant donné que aucun usager n'est authentifié sur l'application MesRendezVous
+      Et que l'usager se connecte sur AMI via France Connect en tant que "Camille" et suit le process de france connexion
+      Et que l'usager accède au détail du rendez-vous "France Travail" sur AMI
+      Alors la page de détail du rendez-vous "France Travail" devrait s'afficher
+      Quand l'usager demande l'annulation du rendez-vous "France Travail" sur AMI
+      Alors l'usager devrait arriver sur la page de connexion de MesRendezVous
+        # pour l'instant dans un onglet nouvellement ouvert du navigateur par défaut
+      Quand l'usager se connecte sur MesRendezVous via France Connect en tant que "Camille" et suit le process de france connexion
+        # diffère si > ou < à 30 min depuis la dernière france connexion
+      Alors l'usager devrait voir le détail du rendez-vous "France Travail" sur MesRendezVous et pouvoir l'annuler
+      Et l'usager devrait être connecté sur MesRendezVous en tant que "Camille"
+
+    Scénario: alternative : accès au détail du rendez-vous sur MesRendezVous via authentification allégée
+      Etant donné que aucun usager n'est authentifié sur l'application MesRendezVous
+      Et que l'usager se connecte sur AMI via France Connect en tant que "Camille" et suit le process de france connexion
+      Et que l'usager accède au détail du rendez-vous "France Travail" sur AMI
+      Quand l'usager demande l'annulation du rendez-vous "France Travail" sur AMI
+      Alors l'usager devrait voir le détail du rendez-vous "France Travail" sur MesRendezVous et pouvoir l'annuler
+      Et l'usager ne devrait pas être connecté sur MesRendezVous
+
+        # et si MesRendezVous nous fait suffisement confiance, il pourrait même considérer que le lien venant d'AMI vaut pour authentification de niveau FranceConnect et alors l'usager devrait être connecté sur MesRendezVous en tant que "Camille"
+
+
     # Ce qui mène à ce brief UI:
     #     - la PWA AMI permet 1) d'activer les notifications sur son device 2) de se connecter via FranceConnect 3) d'accéder à toutes ses notifications 4) d'accéder à son encours de rendez-vous avec un bouton permettant d'annuler un rendez-vous allant vers le fournisseur de service partenaire
     #     - l'application fictive MesRendezVous permet de 1) se connecter via FranceConnect, 2) d'afficher le détail d'un rendez-vous avec un bouton permettant de l'annuler
