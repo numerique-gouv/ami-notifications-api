@@ -42,9 +42,8 @@ The following plugins have been tested
 
 Don't forget to tag the language in the first line of the feature file if a language other than English is used.
 
-To launch a Cucumber scenario from PyCharm, don't use a ~~Behave~~ configuration but a **Cucumber.js** configuration, 
-after having launched `npm install` if needed.
-
 ## 5. Launching Acceptance Tests
 
-Currently, there is no automated test execution integrated into the CI/CD pipeline. However, you can manually run acceptance tests using PyCharm with the Cucumber.js and Gherkin plugins installed. Simply open your feature files in PyCharm and use the provided tools to execute and debug your scenarios.
+Currently, there is no automated test execution integrated into the CI/CD pipeline. However, you can manually run acceptance tests 
+- using **PyCharm** with the Cucumber.js and Gherkin plugins installed : After having launched `npm install` if needed, simply open your feature files in PyCharm and use the provided tools to execute and debug your scenarios. Don't use a ~~Behave~~ configuration but a **Cucumber.js** configuration.
+- in a **terminal** : go to directory `/public/mobile-app directory` and launch `npx cucumber-js tests/features` or `npm test:cucumber`.
