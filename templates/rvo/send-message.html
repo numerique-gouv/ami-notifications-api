@@ -1,0 +1,73 @@
+<script lang="ts">
+  const sendMessage = async () => {
+    const userIdInput = document.querySelector('#user-id')
+    const notifyTitleInput = document.querySelector('#notify-title-input')
+    const notifyMessageInput = document.querySelector('#notify-message-input')
+    const notifySenderInput = document.querySelector('#notify-sender-input')
+    const notifyMessageBtn = document.querySelector('#notify-message')
+    const notifyMessageStatus = document.querySelector('#notify-message-status')
+
+    const payload = {
+      title: notifyTitleInput.value,
+      message: notifyMessageInput.value,
+      sender: notifySenderInput.value,
+      user_id: userIdInput.value,
+    }
+    console.log(payload)
+    console.log('notifying a message')
+    notifyMessageBtn.disabled = true
+    notifyMessageStatus.innerText = 'Notifying...'
+    const response = await fetch('/api/v1/notifications', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    })
+    console.log('response from AMI:', response)
+    notifyMessageBtn.disabled = false
+    if (response.status < 400) {
+      notifyMessageStatus.innerText = 'Done!'
+    } else {
+      notifyMessageStatus.innerText = `error ${response.status}: ${response.statusText}, ${response.body}`
+    }
+  }
+</script>
+{% extends "rvo/base.html" %}
+
+{% block wrapper %}
+  <h2>Envoyer une notification</h2>
+
+  <form action="" method="post">
+    <div class="fr-select-group">
+      <label class="fr-label" for="user-id">Usager</label>
+      <select class="fr-select" aria-describedby="select-hint-messages" id="user-id" name="user-id">
+        {% for user in users %}
+          <option value="{{ user.id }}">{{ user.email }}</option>
+        {% endfor %}
+      </select>
+      <div class="fr-messages-group" id="select-hint-messages" aria-live="polite">
+      </div>
+    </div>
+    <div class="fr-input-group">
+      <label class="fr-label" for="notify-title-input">Titre</label>
+      <input class="fr-input" aria-describedby="input-messages" id="notify-title-input" type="text">
+      <div class="fr-messages-group" id="input-messages" aria-live="polite">
+      </div>
+    </div>
+    <div class="fr-input-group">
+      <label class="fr-label" for="notify-message-input">Message</label>
+      <input class="fr-input" aria-describedby="input-messages" id="notify-message-input" type="text">
+      <div class="fr-messages-group" id="input-messages" aria-live="polite">
+      </div>
+    </div>
+    <div class="fr-input-group">
+      <label class="fr-label" for="notify-sender-input">Expéditeur</label>
+      <input class="fr-input" aria-describedby="input-messages" id="notify-sender-input" type="text">
+      <div class="fr-messages-group" id="input-messages" aria-live="polite">
+      </div>
+    </div>
+
+    <button class="fr-btn" type="submit" id="notify-message" onclick="sendMessage()">
+      Envoyer
+    </button>
+    <span id="notify-message-status"></span>
+  </form>
+{% endblock wrapper %}

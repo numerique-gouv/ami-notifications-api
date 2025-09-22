@@ -1,0 +1,10 @@
+{% extends "rvo/base.html" %}
+
+{% block wrapper %}
+  <h2>Usagers et messages</h2>
+  <ul>
+    {% for user in users %}
+      <li>ID : {{ user.id }}, email : {{ user.email }}</li>
+    {% endfor %}
+  </ul>
+{% endblock wrapper %}
