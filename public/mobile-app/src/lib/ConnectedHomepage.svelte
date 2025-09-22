@@ -4,7 +4,7 @@ import { onMount } from 'svelte'
 import {
   clickOnNotificationPermission,
   retrieveNotifications,
-  getSubscription
+  getSubscription,
 } from '$lib/notifications'
 
 let userinfo: Object = $state({})
