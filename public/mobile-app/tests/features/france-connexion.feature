@@ -1,6 +1,6 @@
 # language: fr
 
-Fonctionnalité: France Connect
+Fonctionnalité: France Connect et Initialisation des données usager
 
   Règle: (@TODO - orienté partenaires et permettant de générer la documentation publique)
 
@@ -20,6 +20,8 @@ Fonctionnalité: France Connect
       Etant donné que l'usager est sur la home page non connectée de l'application AMI
       Quand l'usager se connecte sur AMI via France Connect en tant que "Camille" et suit le process de france connexion
       Alors l'usager devrait arriver sur la home page connectée de l'application AMI
+      # Quand on aura une donnée précise (adresse particulière ?) on le précisera dans le step ci-dessous
+      Et les données de l'usager "Camille" récupérées depuis l'API Particulier devraient être affichées
       Et l'usager "Camille" devrait être enregistrée
 
         # Remarque : une première itération peut ignorer tout le process FC pour juste renvoyer des données en dur / aléatoire.
