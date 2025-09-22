@@ -75,7 +75,6 @@ const franceConnectLogin = async () => {
   window.location.href = `${url}?${params}`
 }
 
-// Dismiss notice
 function dismissNotice() {
   isLoggedOut = false
 }
@@ -83,16 +82,15 @@ function dismissNotice() {
 
 <div class="homepage">
 {#if isLoggedOut}
-  <div class="fr-notice fr-notice--info">
-    <div class="fr-container">
-      <div class="fr-notice__body">
-        <p>
-          <span class="fr-notice__title">Vous avez été déconnecté</span>
-        </p>
-        <button onclick="{dismissNotice}" title="Masquer le message" type="button" class="fr-btn--close fr-btn">Masquer le message</button>
-      </div>
+  <div class="logout-notice fr-py-3v fr-px-4v">
+    <div class="container-left">
+      <img src="/icons/fr--success-line-green.svg" class="fr-mr-2v" alt="Icône de succès" />
+      <span>Vous avez bien été déconnecté</span>
     </div>
-  </div>
+    <div class="container-right">
+      <button onclick="{dismissNotice}" title="Masquer le message" aria-label="Masquer le message" type="button" class="fr-btn--close fr-btn"></button>
+    </div>
+   </div>
 {/if}
 {#if !isFranceConnected}
   <div class="homepage-not-connected">
@@ -126,10 +124,44 @@ function dismissNotice() {
 
 <style>
   .homepage {
+    position: relative;
     margin: 24px 16px;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+
+    .logout-notice {
+      position: absolute;
+      width: 100%;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      background-color: var(--grey-200-850);
+      color: white;
+      border-left: 3px solid #58B77D;
+      border-radius: 0.25rem;
+
+      .container-left {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+
+        img {
+          width: 1.25rem;
+          height: 1.25rem;
+        }
+
+        span {
+          font-size: 14px;
+          font-weight: 500;
+        }
+      }
+
+      .fr-btn--close {
+        color: white;
+      }
+    }
 
     .homepage-not-connected {
       display: flex;
@@ -138,7 +170,8 @@ function dismissNotice() {
       width: 100%;
 
       .france-connect-svg-icon {
-        margin-bottom: 16px;
+        margin-top: 7.5rem;
+        margin-bottom: 1rem;
       }
 
       .france-connect-text {
