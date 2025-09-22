@@ -11,3 +11,5 @@ node_modules
 session_data
 ssl-cert.pem
 ssl-key.pem
+.idea
+.tool-versions
