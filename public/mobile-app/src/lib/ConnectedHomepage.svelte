@@ -79,7 +79,9 @@ const toggleMenu = () => {
       </div>
 
       <div class="notification-svg-icon">
-        <img src="/remixicons/notification-3.svg" alt="Icône de notification" />
+        <a href="/#/notifications">
+          <img src="/remixicons/notification-3.svg" alt="Icône de notification" />
+        </a>
       </div>
     </div>
   </div>
@@ -279,6 +281,10 @@ const toggleMenu = () => {
 
         .notification-svg-icon {
           margin-right: 16px;
+        }
+
+        .notification-svg-icon a[href]{
+          background: none;
         }
       }
     }
