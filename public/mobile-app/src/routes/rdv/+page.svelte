@@ -19,14 +19,14 @@ const detail = {
 }
 </script>
 
-<nav>
-  <div class="back-link">
+<nav class="fr-py-6v fr-px-4v">
+  <div class="back-link fr-mb-6v">
     <a href="/" title="Retour à la page d'accueil" aria-label="Retour à la page d'accueil">
       <span aria-hidden="true" class="fr-icon-arrow-left-line"></span>
     </a>
   </div>
   <div class="title">
-    <p>Rendez-vous {detail.where}</p>
+    <h3 class="fr-mb-0">Rendez-vous {detail.where}</h3>
   </div>
 </nav>
 
@@ -61,7 +61,7 @@ const detail = {
     border-bottom: 4px solid var(--border-plain-blue-france);
   }
   nav .back-link {
-    margin-bottom: 24px;
+    color: var(--text-active-blue-france);
   }
   nav .back-link a {
     text-decoration: none;
@@ -69,12 +69,6 @@ const detail = {
   }
   nav .title {
     display: flex;
-  }
-  nav .title p {
-    flex-grow: 1;
-    font-size: 24px;
-    font-weight: bold;
-    line-height: 32px;
   }
   .detail,
   .actions {
