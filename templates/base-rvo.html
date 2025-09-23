@@ -1,237 +1,237 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <title>Rendez-Vous Officiel</title>
-  <meta charset="UTF-8" />
-  <link rel="icon" href="/favicon.ico" sizes="32x32">
-  <link rel="icon" href="/icon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-  <link rel="manifest" href="/manifest.json" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="/dsfr-v1.14.0/dsfr.min.css" />
-  <link rel="stylesheet" href="/dsfr-v1.14.0/utility/utility.min.css" />
-{% block style %}
-  <style>
-    .container {
-      background-color: var(--background-alt-grey);
-    }
-    .fr-container {
-      padding-top: 24px;
-    }
-    .rvo-title {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-    }
-    .rvo-title-logo {
-      margin-right: 16px;
-    }
-    .rvo-title-label {
-      margin: 0;
-      font-size: 20px;
-      font-weight: 700;
-      line-height: 28px;
-    }
+  <head>
+    <title>Rendez-Vous Officiel</title>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="/dsfr-v1.14.0/dsfr.min.css" />
+    <link rel="stylesheet" href="/dsfr-v1.14.0/utility/utility.min.css" />
+    {% block style %}
+      <style>
+        .container {
+          background-color: var(--background-alt-grey);
+        }
+        .fr-container {
+          padding-top: 24px;
+        }
+        .rvo-title {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+        }
+        .rvo-title-logo {
+          margin-right: 16px;
+        }
+        .rvo-title-label {
+          margin: 0;
+          font-size: 20px;
+          font-weight: 700;
+          line-height: 28px;
+        }
 
-    .rvo-item-add {
-      width: 100%;
-      justify-content: center;
-      font-size: 18px;
-      font-weight: 500;
-      line-height: 28px
-    }
+        .rvo-item-add {
+          width: 100%;
+          justify-content: center;
+          font-size: 18px;
+          font-weight: 500;
+          line-height: 28px
+        }
 
-    .fr-tile {
-      padding: 24px;
-    }
+        .fr-tile {
+          padding: 24px;
+        }
 
-    .fr-tile.fr-enlarge-link:not(.fr-tile--no-icon) .fr-tile__content {
-      padding-bottom: 0;
-    }
+        .fr-tile.fr-enlarge-link:not(.fr-tile--no-icon) .fr-tile__content {
+          padding-bottom: 0;
+        }
 
-    .fr-tile__title {
-      font-size: 12px;
-      text-transform: uppercase;
-    }
+        .fr-tile__title {
+          font-size: 12px;
+          text-transform: uppercase;
+        }
 
-    .fr-tile__desc {
-      font-size: 16px;
-      font-weight: 700;
-      line-height: 24px
-    }
+        .fr-tile__desc {
+          font-size: 16px;
+          font-weight: 700;
+          line-height: 24px
+        }
 
-    .fr-tile__detail {
-      margin-top: 0;
-      margin-bottom: 0;
+        .fr-tile__detail {
+          margin-top: 0;
+          margin-bottom: 0;
 
-      font-size: 14px;
-      font-weight: 400;
-      line-height: 24px
-    }
+          font-size: 14px;
+          font-weight: 400;
+          line-height: 24px
+        }
 
-    .fr-tile--horizontal:not(.fr-tile--no-icon) .fr-tile__detail {
-      margin-top: 0;
-    }
+        .fr-tile--horizontal:not(.fr-tile--no-icon) .fr-tile__detail {
+          margin-top: 0;
+        }
 
-    .container.not-connected {
-      background-color: var(--red-marianne-950-100);
-        padding: 0;
-    }
-    .not-connected .fr-container {
-      padding-left: 0;
-      padding-right: 0;
-    }
-    .not-connected .rvo-title {
-      justify-content: center;
-    }
-    .homepage-not-connected-wrapper {
-      background-color: #fff;
-      border-top-left-radius: 20px;
-      border-top-right-radius: 20px;
-      padding: 2rem 1rem 2rem 1rem;
-    }
+        .container.not-connected {
+          background-color: var(--red-marianne-950-100);
+          padding: 0;
+        }
+        .not-connected .fr-container {
+          padding-left: 0;
+          padding-right: 0;
+        }
+        .not-connected .rvo-title {
+          justify-content: center;
+        }
+        .homepage-not-connected-wrapper {
+          background-color: #fff;
+          border-top-left-radius: 20px;
+          border-top-right-radius: 20px;
+          padding: 2rem 1rem 2rem 1rem;
+        }
 
-    .fr-connect-group, .fr-connect {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      width: 100%;
-    }
-    .fr-connect-logout {
-      padding: 8px 12px;
-      font-size: 14px;
-      line-height: 24px;
-    }
-    .with-radius {
-      border-radius: 10px;
-    }
-    .rvo-item .fr-tile__title::before {
-      background: none;
-    }
-    .rvo-item .fr-tile__title a::before {
-      background: none;
-    }
-    .rvo-item .fr-tile__title a::after {
-      width: 0;
-    }
-    .footer-nav {
-      background-color: var(--background-default-grey);
-      text-align: center;
-    }
-    .footer-nav-item-container {
-      font-size: 12px;
-    }
-    .footer-nav a {
-      background: none;
-      color: #666666;
-    }
-    .footer-nav.rvo .footer-nav-item-rvo {
-      background-color: var(--background-action-low-blue-france);
-      color: var(--blue-france-sun-113-625);
-      width: 80px;
-    }
-  </style>
-{% endblock style %}
-  <script lang="ts">
+        .fr-connect-group, .fr-connect {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          width: 100%;
+        }
+        .fr-connect-logout {
+          padding: 8px 12px;
+          font-size: 14px;
+          line-height: 24px;
+        }
+        .with-radius {
+          border-radius: 10px;
+        }
+        .rvo-item .fr-tile__title::before {
+          background: none;
+        }
+        .rvo-item .fr-tile__title a::before {
+          background: none;
+        }
+        .rvo-item .fr-tile__title a::after {
+          width: 0;
+        }
+        .footer-nav {
+          background-color: var(--background-default-grey);
+          text-align: center;
+        }
+        .footer-nav-item-container {
+          font-size: 12px;
+        }
+        .footer-nav a {
+          background: none;
+          color: #666666;
+        }
+        .footer-nav.rvo .footer-nav-item-rvo {
+          background-color: var(--background-action-low-blue-france);
+          color: var(--blue-france-sun-113-625);
+          width: 80px;
+        }
+      </style>
+    {% endblock style %}
+    <script lang="ts">
       // FC - Step 3
       const franceConnect = async () => {
-          const STATE = 'not-implemented-yet-and-has-more-than-32-chars'
-          const NONCE = 'not-implemented-yet-and-has-more-than-32-chars'
+        const STATE = 'not-implemented-yet-and-has-more-than-32-chars'
+        const NONCE = 'not-implemented-yet-and-has-more-than-32-chars'
 
-          const query = {
-              scope:
-                  'openid given_name family_name preferred_username birthdate gender birthplace birthcountry sub email given_name_array',
-              redirect_uri: '{{ PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL }}',
-              response_type: 'code',
-              client_id: '{{ PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID }}',
-              state: STATE,
-              nonce: NONCE,
-              acr_values: 'eidas1',
-              prompt: 'login',
-          }
+        const query = {
+          scope:
+            'openid given_name family_name preferred_username birthdate gender birthplace birthcountry sub email given_name_array',
+          redirect_uri: '{{ PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL }}',
+          response_type: 'code',
+          client_id: '{{ PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID }}',
+          state: STATE,
+          nonce: NONCE,
+          acr_values: 'eidas1',
+          prompt: 'login',
+        }
 
-          const url = `{{ PUBLIC_FC_BASE_URL }}{{ PUBLIC_FC_AUTHORIZATION_ENDPOINT }}`
-          const params = new URLSearchParams(query).toString()
+        const url = `{{ PUBLIC_FC_BASE_URL }}{{ PUBLIC_FC_AUTHORIZATION_ENDPOINT }}`
+        const params = new URLSearchParams(query).toString()
 
-          window.location.href = `${url}?${params}`
+        window.location.href = `${url}?${params}`
 
-          return Response.redirect(`${url}?${params}`)
+        return Response.redirect(`${url}?${params}`)
       }
-  </script>
+    </script>
 
-</head>
-<body>
-  <main class="container {% if not isFranceConnected %}not-connected{% endif %}">
-    {% block out_wrapper %}
-    <div class="fr-container">
-      {% block wrapper %}
-        {% if not isFranceConnected %}
-          <div class="rvo-title fr-mt-4v fr-mb-10v">
-            <img src="/icons/rvo-logo-not-connected.svg" alt="Logo de RVO" />
-          </div>
-          <div class="homepage-not-connected-wrapper fr-mt-10v fr-pt-10v">
-            <div class="homepage-not-connected">
-              {% block not_connected_container %}
-                <p>
-                  Pour prendre un rendez-vous ou accéder à vos rendez-vous à venir:
-                </p>
-                <div class="fr-connect-group">
-                  <button
-                          class="fr-connect"
-                          type="button"
-                          id="fr-connect-button"
-                          onclick="franceConnect()"
-                  >
-                    <span class="fr-connect__login">S’identifier avec</span>
-                    <span class="fr-connect__brand">FranceConnect</span>
-                  </button>
-                  <p>
-                    <a href="https://franceconnect.gouv.fr/" target="_blank" rel="noopener" title="Qu’est-ce que FranceConnect ? - nouvelle fenêtre">Qu’est-ce que FranceConnect ?</a>
-                  </p>
+  </head>
+  <body>
+    <main class="container {% if not isFranceConnected %}not-connected{% endif %}">
+      {% block out_wrapper %}
+        <div class="fr-container">
+          {% block wrapper %}
+            {% if not isFranceConnected %}
+              <div class="rvo-title fr-mt-4v fr-mb-10v">
+                <img src="/icons/rvo-logo-not-connected.svg" alt="Logo de RVO" />
+              </div>
+              <div class="homepage-not-connected-wrapper fr-mt-10v fr-pt-10v">
+                <div class="homepage-not-connected">
+                  {% block not_connected_container %}
+                    <p>
+                      Pour prendre un rendez-vous ou accéder à vos rendez-vous à venir:
+                    </p>
+                    <div class="fr-connect-group">
+                      <button
+                        class="fr-connect"
+                        type="button"
+                        id="fr-connect-button"
+                        onclick="franceConnect()"
+                      >
+                        <span class="fr-connect__login">S’identifier avec</span>
+                        <span class="fr-connect__brand">FranceConnect</span>
+                      </button>
+                      <p>
+                        <a href="https://franceconnect.gouv.fr/" target="_blank" rel="noopener" title="Qu’est-ce que FranceConnect ? - nouvelle fenêtre">Qu’est-ce que FranceConnect ?</a>
+                      </p>
+                    </div>
+                  {% endblock not_connected_container %}
                 </div>
-              {% endblock not_connected_container %}
+              </div>
+            {% else %}
+              <div class="rvo-title fr-mb-6v">
+                <div class="rvo-title-logo">
+                  <img src="/icons/rvo-logo-connected.svg" alt="Logo de RVO" />
+                </div>
+                <div>
+                  <h1 class="rvo-title-label">MES RENDEZ-VOUS</h1>
+                </div>
+              </div>
+              <div class="wrapper">
+                {% block container %}{% endblock container %}
+                <form action="/rvo/logout" class="fr-connect-logout">
+                  <button type="submit">
+                    <span>Me déconnecter</span>
+                  </button>
+                </form>
+              </div>
+            {% endif %}
+          {% endblock wrapper %}
+        </div>
+        {% if isFranceConnected %}
+          <div class="footer-nav fr-py-2v {% block footer_nav_current %}{% endblock %}">
+            <div class="fr-grid-row">
+              <div class="fr-col-6 footer-nav-item-container">
+                <a href="/" class="fr-icon-calendar-event-fill fr-tag fr-tag--icon-right footer-nav-item-rvo"></a>
+                <br />
+                rendez-vous
+              </div>
+              <div class="fr-col-6 footer-nav-item-container">
+                <a href="/" class="fr-icon-test-tube-fill fr-tag fr-tag--icon-right footer-nav-item-test"></a>
+                <br />
+                tester
+              </div>
             </div>
-          </div>
-        {% else %}
-          <div class="rvo-title fr-mb-6v">
-            <div class="rvo-title-logo">
-              <img src="/icons/rvo-logo-connected.svg" alt="Logo de RVO" />
-            </div>
-            <div>
-              <h1 class="rvo-title-label">MES RENDEZ-VOUS</h1>
-            </div>
-          </div>
-          <div class="wrapper">
-            {% block container %}{% endblock container %}
-            <form action="/rvo/logout" class="fr-connect-logout">
-              <button type="submit">
-                <span>Me déconnecter</span>
-              </button>
-            </form>
           </div>
         {% endif %}
-      {% endblock wrapper %}
-    </div>
-    {% if isFranceConnected %}
-    <div class="footer-nav fr-py-2v {% block footer_nav_current %}{% endblock %}">
-      <div class="fr-grid-row">
-        <div class="fr-col-6 footer-nav-item-container">
-          <a href="/" class="fr-icon-calendar-event-fill fr-tag fr-tag--icon-right footer-nav-item-rvo"></a>
-          <br />
-          rendez-vous
-        </div>
-        <div class="fr-col-6 footer-nav-item-container">
-          <a href="/" class="fr-icon-test-tube-fill fr-tag fr-tag--icon-right footer-nav-item-test"></a>
-          <br />
-          tester
-        </div>
-      </div>
-    </div>
-    {% endif %}
-    {% endblock out_wrapper %}
-  </main>
-{% block extra_body %}{% endblock extra_body %}
-<script type="module" src="/dsfr-v1.14.0/dsfr.module.min.js"></script>
-<script type="text/javascript" nomodule src="/dsfr-v1.14.0/dsfr.nomodule.min.js"></script>
-</body>
+      {% endblock out_wrapper %}
+    </main>
+    {% block extra_body %}{% endblock extra_body %}
+    <script type="module" src="/dsfr-v1.14.0/dsfr.module.min.js"></script>
+    <script type="text/javascript" nomodule src="/dsfr-v1.14.0/dsfr.nomodule.min.js"></script>
+  </body>
 </html>

@@ -10,14 +10,14 @@
     </a>
   </div>
   {% for meeting in object_list %}
-  <div class="fr-tile fr-tile--shadow fr-tile--horizontal fr-enlarge-link fr-mb-6v rvo-item with-radius">
-    <div class="fr-tile__body">
-      <div class="fr-tile__content">
-        <h3 class="fr-tile__title fr-mb-1v"><a href="/rvo/detail/{{ meeting.id }}">{{ meeting.when }}</a></h3>
-        <p class="fr-tile__desc fr-mb-1v">{{ meeting.who }}</p>
-        <p class="fr-tile__detail fr-mb-1v">{{ meeting.text }}</p>
+    <div class="fr-tile fr-tile--shadow fr-tile--horizontal fr-enlarge-link fr-mb-6v rvo-item with-radius">
+      <div class="fr-tile__body">
+        <div class="fr-tile__content">
+          <h3 class="fr-tile__title fr-mb-1v"><a href="/rvo/detail/{{ meeting.id }}">{{ meeting.when }}</a></h3>
+          <p class="fr-tile__desc fr-mb-1v">{{ meeting.who }}</p>
+          <p class="fr-tile__detail fr-mb-1v">{{ meeting.text }}</p>
+        </div>
       </div>
     </div>
-  </div>
   {% endfor %}
 {% endblock container %}
