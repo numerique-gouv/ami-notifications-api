@@ -30,24 +30,24 @@ const detail = {
   </div>
 </nav>
 
-<div class="detail">
-  <h2>Quand&nbsp;?</h2>
-  <p>{detail.when}</p>
+<div class="detail fr-py-6v fr-px-4v">
+  <h2 class="fr-mb-4v">Quand&nbsp;?</h2>
+  <p class="fr-mb-8v">{detail.when}</p>
 
-  <h2>Comment m'y rendre&nbsp;?</h2>
-  <p>{detail.where}</p>
+  <h2 class="fr-mb-4v">Comment m'y rendre&nbsp;?</h2>
+  <p class="fr-mb-8v">{detail.where}</p>
 
-  <h2>Rappel</h2>
-  <p>48h avant</p>
+  <h2 class="fr-mb-4v">Rappel</h2>
+  <p class="fr-mb-8v">48h avant</p>
 
-  <h2>Préparer mon rdv / pièces à fournir&nbsp;:</h2>
+  <h2 class="fr-mb-4v">Préparer mon rdv / pièces à fournir&nbsp;:</h2>
   <ul>
     <li>lorem ipsum</li>
     <li>dolor amet</li>
     <li>molestie euismod</li>
   </ul>
 </div>
-<div class="actions">
+<div class="actions fr-p-4v">
   <a
     href="{PUBLIC_API_URL}/rvo/detail/1"
     title="annulez votre rendez-vous"
@@ -70,9 +70,14 @@ const detail = {
   nav .title {
     display: flex;
   }
-  .detail,
-  .actions {
-    padding: 24px 16px;
+  .detail h2 {
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 28px;
+    color: var(--text-default-grey)
+  }
+  .detail p {
+    color: var(--text-default-grey)
   }
   .actions a {
     display: inline-block;
