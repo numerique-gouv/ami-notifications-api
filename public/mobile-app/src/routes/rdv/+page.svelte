@@ -74,6 +74,10 @@ const detail = {
     font-size: 18px;
     font-weight: bold;
     line-height: 28px;
+    color: var(--text-default-grey)
+  }
+  .detail p {
+    color: var(--text-default-grey)
   }
   .actions a {
     display: inline-block;
