@@ -26,7 +26,7 @@ const detail = {
     </a>
   </div>
   <div class="title">
-    <p class="fr-mb-0">Rendez-vous {detail.where}</p>
+    <h3 class="fr-mb-0">Rendez-vous {detail.where}</h3>
   </div>
 </nav>
 
@@ -69,12 +69,6 @@ const detail = {
   }
   nav .title {
     display: flex;
-  }
-  nav .title p {
-    flex-grow: 1;
-    font-size: 24px;
-    font-weight: bold;
-    line-height: 32px;
   }
   .detail h2 {
     font-size: 18px;
