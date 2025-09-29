@@ -62,16 +62,12 @@ docker exec -it ami-postgres psql -U postgres -c "CREATE DATABASE postgres_test;
 
 ### 3. Configure Environment
 
-Copy the environment template and ensure it matches your PostgreSQL setup:
+There's a `.env` file that holds all the default env variable values.
+For any specific env variables, create (or edit) a `.env.local` file. Anything in here
+will overload what's in the `.env` file.
 
-```shell
-cp .env.template .env
-```
-
-The `.env` file should contain:
-```
-DATABASE_URL="postgresql+asyncpg://postgres:some_password@localhost:5432/postgres"
-```
+For example you'll need to overload the FranceConnect secrets for AMI and RVO in
+your `.env.local` file.
 
 ### 4. Run Database Migrations
 
@@ -99,7 +95,7 @@ make test
 
 The base command to run the migrations and update to the latest database schema is:
 ```sh
-uv run --env-file .env alembic upgrade head
+uv run --env-file .env --env-file .env.local alembic upgrade head
 ```
 
 or simpler:
@@ -112,7 +108,7 @@ make migrate
 When changing the models, create a new migration to reflect those changes in
 the database:
 ```sh
-uv run --env-file .env alembic revision --autogenerate -m "Explicit message here"
+uv run --env-file .env --env-file .env.local alembic revision --autogenerate -m "Explicit message here"
 ```
 
 This should generate a migration file in `migrations/versions/<some
@@ -126,12 +122,12 @@ changes.
 
 To list the existing migrations:
 ```sh
-uv run --env-file .env alembic history
+uv run --env-file .env --env-file .env.local alembic history
 ```
 
 Then, to rollback (downgrade) to a previous revision (version):
 ```sh
-uv run --env-file .env alembic downgrade <revision>
+uv run --env-file .env --env-file .env.local alembic downgrade <revision>
 ```
 
 ## Running tests
@@ -153,20 +149,20 @@ This test database must be created beforehand.
 
 If you'd rather run the tests manually, copy and paste the command from the Makefile:
 ```
-uv run --env-file .env pytest
+uv run --env-file .env --env-file .env.local pytest
 ```
 
 To run a single test, you would use something like:
 ```
-uv run --env-file .env pytest tests/test_basic.py::test_homepage_title
+uv run --env-file .env --env-file .env.local pytest tests/test_basic.py::test_homepage_title
 ```
 
 ## France Connect
 
 We're using [France Connect](https://docs.partenaires.franceconnect.gouv.fr/)
 to identify and authorize users. During development and on the CI, we have a
-sandbox available, with the URLs and Client ID specified in the `.env` file
-(copied from the `.env.template` file, see above).
+sandbox available, with the URLs and Client ID specified in the `.env` file,
+and the secrets need to be specified in the `.env.local`.
 
 The Client Secret however, is... well, secret, and is available on the sandbox
 [partner's page](https://espace.partenaires.franceconnect.gouv.fr).
@@ -203,19 +199,34 @@ page](https://espace.partenaires.franceconnect.gouv.fr) (or
 ask us to do it) to add the redirect url for your PR, eg
 `https://ami-back-staging-prXX.osc-fr1.scalingo.io/ami-fs-test-login-callback`
 (Replace `XX` with your PR number)
-- update [the PR](https://github.com/numerique-gouv/ami-notifications-api/pull/90)
-that manages the content of the
-[sector_identifier_url](https://docs.partenaires.franceconnect.gouv.fr/fs/fs-technique/fs-technique-sector_identifier/)
-to add your PR's redirect url to the list of already authorized ones in
-[app/__init__.py:get_sector_identifier_url](https://github.com/numerique-gouv/ami-notifications-api/blob/DO-NOT-MERGE-sector_identifier_url-manager/app/__init__.py#L287-L291)
-, eg:
+
+<img width="899" height="682" alt="Capture d’écran 2025-08-27 à 16 34 50" src="https://github.com/user-attachments/assets/5a569cb4-791b-4c84-8a1f-013622c8e81d" />
+
+- update the `PUBLIC_SECTOR_IDENTIFIER_URL` env variable in Scalingo
+that will be used by the
+[https://ami-back-staging.osc-fr1.scalingo.io/sector_identifier_url](https://ami-back-staging.osc-fr1.scalingo.io/sector_identifier_url)
+endpoint to serve the 
+[sector_identifier_url](https://docs.partenaires.franceconnect.gouv.fr/fs/fs-technique/fs-technique-sector_identifier/):
+Add your PR's redirect url to the list of already authorized ones
+[in scalingo](https://dashboard.scalingo.com/apps/osc-fr1/ami-back-staging/environment)
+eg:
 
 ```diff
-@get(path="/sector_identifier_url", include_in_schema=False)
-async def get_sector_identifier_url() -> Response[Any]:
-    redirect_uris: list[str] = [
-        "https://ami-back-staging.osc-fr1.scalingo.io/ami-fs-test-login-callback",
-+       "https://ami-back-staging-prXX.osc-fr1.scalingo.io/ami-fs-test-login-callback", # Replace `XX` with your PR number
-        "https://localhost:5173/ami-fs-test-login-callback",
-    ]
+PUBLIC_SECTOR_IDENTIFIER_URL="""
+  https://ami-back-staging.osc-fr1.scalingo.io/login-callback
+  https://ami-back-staging.osc-fr1.scalingo.io/rvo/login-callback
++ https://ami-back-staging-prXX.osc-fr1.scalingo.io/login-callback
++ https://ami-back-staging-prXX.osc-fr1.scalingo.io/rvo/login-callback
+  https://localhost:5173/login-callback
+  https://localhost:8000/rvo/login-callback
 ```
+
+We now have two different FranceConnect buttons:
+- AMI as a service provider
+- RVO (Rendez-Vous Officiel) as a fake service provider
+
+You will thus need to add the two login redirect URLs, one for each, as shown above.
+
+Once the env variable is updated, make sure to
+[restart the web container](https://dashboard.scalingo.com/apps/osc-fr1/ami-back-staging/resources)
+so it's taken into account.

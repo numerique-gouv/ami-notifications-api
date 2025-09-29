@@ -1,0 +1,99 @@
+{% extends "base-rvo.html" %}
+
+{% block footer_nav_current %}rvo{% endblock %}
+
+{% block style %}
+  <style>
+    .container > * {
+      padding: 24px 16px;
+    }
+    nav .back-link {
+      margin-bottom: 24px;
+    }
+    nav .back-link a {
+      text-decoration: none;
+      --underline-img: none;
+    }
+    nav .title {
+      display: flex;
+    }
+    nav .title p {
+      flex-grow: 1;
+      font-size: 24px;
+      font-weight: bold;
+      line-height: 32px;
+    }
+    nav .title svg {
+      flex-shrink: 1;
+    }
+    .actions {
+      display: flex;
+      gap: 12px;
+    }
+    .actions > button {
+      border-radius: 4px;
+      flex-grow: 1;
+      font-weight: bold;
+      line-height: 24px;
+      padding: 8px 16px;
+    }
+    .actions .btn-info {
+      background-color: var(--artwork-decorative-blue-france);
+      color: var(--background-action-high-blue-france);
+    }
+    .actions .btn-cancel {
+      background-color: var(--red-marianne-950-100);
+      color: var(--artwork-minor-red-marianne);
+    }
+  </style>
+{% endblock style %}
+
+{% block out_wrapper %}
+  <nav>
+    <div class="back-link">
+      <a href="/rvo" title="Retour à la page d'accueil">
+        <span aria-hidden="true" class="fr-icon-arrow-left-line"></span>
+      </a>
+    </div>
+    <div class="title">
+      <p>Rendez-vous {{detail.where}}</p>
+      <svg aria-hidden="true" class="fr-artwork" viewBox="0 0 80 80" width="60px" height="60px">
+        <use class="fr-artwork-decorative" href="/dsfr-v1.14.0//artwork/pictograms/digital/calendar.svg#artwork-decorative"></use>
+        <use class="fr-artwork-major" href="/dsfr-v1.14.0//artwork/pictograms/digital/calendar.svg#artwork-minor"></use>
+        <use class="fr-artwork-minor" href="/dsfr-v1.14.0//artwork/pictograms/digital/calendar.svg#artwork-major"></use>
+      </svg>
+    </div>
+  </nav>
+
+  <div>
+    <h2>Quand&nbsp;?</h2>
+    <p>{{detail.when}}</p>
+
+    <h2>Comment m'y rendre&nbsp;?</h2>
+    <p>{{detail.where}}</p>
+
+    <h2>Rappel</h2>
+    <p>48h avant</p>
+
+    <h2>Préparer mon rdv / pièces à fournir&nbsp;:</h2>
+    <ul>
+      <li>lorem ipsum</li>
+      <li>dolor amet</li>
+      <li>molestie euismod</li>
+    </ul>
+  </div>
+  <div class="actions">
+    <button
+      class="btn-info"
+      type="button"
+    >
+      Modifier le RDV
+    </button>
+    <button
+      class="btn-cancel"
+      type="button"
+    >
+      Annuler le RDV
+    </button>
+  </div>
+{% endblock out_wrapper %}

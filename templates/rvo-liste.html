@@ -1,0 +1,23 @@
+{% extends "base-rvo.html" %}
+
+{% block footer_nav_current %}rvo{% endblock %}
+
+{% block container %}
+  <div class="fr-mb-6v">
+    <a class="fr-btn rvo-item-add with-radius" href="/">
+      <span aria-hidden="true" class="fr-icon-add-line fr-mr-2v"></span>
+      Nouveau rendez-vous
+    </a>
+  </div>
+  {% for meeting in object_list %}
+    <div class="fr-tile fr-tile--shadow fr-tile--horizontal fr-enlarge-link fr-mb-6v rvo-item with-radius">
+      <div class="fr-tile__body">
+        <div class="fr-tile__content">
+          <h3 class="fr-tile__title fr-mb-1v"><a href="/rvo/detail/{{ meeting.id }}">{{ meeting.when }}</a></h3>
+          <p class="fr-tile__desc fr-mb-1v">{{ meeting.who }}</p>
+          <p class="fr-tile__detail fr-mb-1v">{{ meeting.text }}</p>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+{% endblock container %}

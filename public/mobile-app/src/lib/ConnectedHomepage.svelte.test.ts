@@ -1,41 +1,33 @@
-import { describe, test, expect, vi } from 'vitest'
+import { beforeEach, describe, test, expect, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 import { render, screen } from '@testing-library/svelte'
 import ConnectedHomepage from './ConnectedHomepage.svelte'
-import { goto } from '$app/navigation'
-
-// Mock the goto function
-vi.mock('$app/navigation', () => ({
-  goto: vi.fn(),
-}))
+import { PUBLIC_FC_BASE_URL, PUBLIC_FC_LOGOUT_ENDPOINT } from '$env/static/public'
 
 describe('/ConnectedHomepage.svelte', () => {
-  test('should call logout endpoint when click on France Connect logout button', async () => {
-    const userinfo = {
-      sub: 'fake sub',
-      given_name: 'Angela Claire Louise',
-      given_name_array: ['Angela', 'Claire', 'Louise'],
-      family_name: 'DUBOIS',
-      birthdate: '1962-08-24',
-      gender: 'female',
-      aud: 'fake aud',
-      exp: 1753877658,
-      iat: 1753877598,
-      iss: 'https://fcp-low.sbx.dev-franceconnect.fr/api/v2',
-    }
-    const fakeProps = {
-      userinfo: userinfo,
-    }
+  beforeEach(() => {
+    localStorage.clear()
+  })
 
-    render(ConnectedHomepage, fakeProps)
+  test('should call logout endpoint when click on France Connect logout button', async () => {
+    // Given
+    localStorage.setItem('id_token', 'fake-id-token')
+    globalThis.window = {
+      location: {
+        href: 'fake-link',
+      },
+    }
+    render(ConnectedHomepage)
     const franceConnectLogoutButton = await screen.getByRole('button', {
-      name: 'Se déconnecter de FranceConnect',
+      name: 'Me déconnecter',
     })
 
     // When
     await franceConnectLogoutButton.click()
 
     // Then
-    expect(goto).toHaveBeenCalledWith('https://localhost:5173/ami-fs-test-logout')
+    expect(globalThis.window.location).equal(
+      `${PUBLIC_FC_BASE_URL}${PUBLIC_FC_LOGOUT_ENDPOINT}?id_token_hint=fake-id-token&state=not-implemented-yet-and-has-more-than-32-chars&post_logout_redirect_uri=https%3A%2F%2Flocalhost%3A5173%2F%3Fis_logged_out`
+    )
   })
 })

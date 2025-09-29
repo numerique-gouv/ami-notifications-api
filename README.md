@@ -48,17 +48,7 @@ Biome is used for:
 [litestar](https://docs.litestar.dev/latest/index.html) "is a powerful,
 flexible, highly performant, and opinionated ASGI framework."
 
-First, you need a local `.env` file:
-```sh
-cp .env.template .env
-```
-
-Then start the server using:
-```sh
-uv run litestar run
-```
-
-or simply:
+Start the server using:
 ```sh
 make dev # With live reloading
 ```
@@ -68,6 +58,9 @@ Then access http://127.0.0.1:8000, or open one of:
 - http://127.0.0.1:8000/schema/swagger (for Swagger UI)
 - http://127.0.0.1:8000/schema/elements (for Stoplight Elements)
 - http://127.0.0.1:8000/schema/rapidoc (for RapiDoc)
+
+For any specific env variables, create (or edit) a `.env.local` file. Anything in here
+will overload what's in the `.env` file.
 
 ### Webpush
 

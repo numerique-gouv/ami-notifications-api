@@ -315,10 +315,59 @@ async def test_enable_registration(
     assert result["enabled"] is True
 
 
-async def test_ami_fs_test_login_callback(
+async def test_ami_login_callback(
     test_client: TestClient[Litestar],
     httpx_mock: HTTPXMock,
-    monkeypatch,  # type: ignore[reportUnknownParameterType]
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    fake_token_json_response = {
+        "access_token": "fake access token",
+        "expires_in": 60,
+        "id_token": "fake id token",
+        "scope": "openid given_name family_name preferred_username birthdate gender birthplace birthcountry email",
+        "token_type": "Bearer",
+    }
+    httpx_mock.add_response(
+        method="POST",
+        url="https://fcp-low.sbx.dev-franceconnect.fr/api/v2/token",
+        json=fake_token_json_response,
+    )
+    monkeypatch.setattr("app.FC_AMI_CLIENT_SECRET", "fake-client-secret")
+
+    response = test_client.get("/login-callback?code=fake-code", follow_redirects=False)
+
+    assert response.status_code == 302
+    redirected_url = response.headers["location"]
+    assert redirected_url.startswith("https://localhost:5173")
+    assert "access_token" in redirected_url
+    assert "scope" in redirected_url
+    assert "id_token" in redirected_url
+    assert "token_type" in redirected_url
+    assert "is_logged_in" in redirected_url
+
+
+async def test_ami_fc_get_userinfo(
+    test_client: TestClient[Litestar],
+    httpx_mock: HTTPXMock,
+) -> None:
+    fake_userinfo_token = "fake userinfo jwt token"
+    auth = {"authorization": "Bearer foobar_access_token"}
+    httpx_mock.add_response(
+        method="GET",
+        url="https://fcp-low.sbx.dev-franceconnect.fr/api/v2/userinfo",
+        match_headers=auth,
+        text=fake_userinfo_token,
+    )
+    response = test_client.get("/fc_userinfo", headers=auth)
+
+    assert response.status_code == 200
+    assert response.text == fake_userinfo_token
+
+
+async def test_rvo_login_callback(
+    test_client: TestClient[Litestar],
+    httpx_mock: HTTPXMock,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     fake_token_json_response = {
         "access_token": "fake access token",
@@ -344,30 +393,30 @@ async def test_ami_fs_test_login_callback(
     def fake_jwt_decode(*args: Any, **params: Any):
         return FAKE_USERINFO
 
-    monkeypatch.setattr("jwt.decode", fake_jwt_decode)  # type: ignore[reportUnknownMemberType]
+    monkeypatch.setattr("jwt.decode", fake_jwt_decode)
 
-    response = test_client.get("/ami-fs-test-login-callback?code=fake-code")
+    response = test_client.get("/rvo/login-callback?code=fake-code")
 
-    assert response.request.url == "http://testserver.local/"
+    assert response.request.url == "http://testserver.local/rvo"
     assert test_client.get_session_data() == {
         "id_token": "fake id token",
         "userinfo": FAKE_USERINFO,
     }
 
 
-async def test_ami_fs_test_logout(
+async def test_rvo_logout(
     test_client: TestClient[Litestar],
 ) -> None:
     test_client.set_session_data({"id_token": "fake id token", "userinfo": FAKE_USERINFO})
     data: dict[str, str] = {
         "id_token_hint": "fake id token",
         "state": "not-implemented-yet-and-has-more-than-32-chars",
-        "post_logout_redirect_uri": "https://localhost:5173/ami-fs-test-logout-callback",
+        "post_logout_redirect_uri": "https://localhost:8000/rvo/logout-callback",
     }
     params: str = urlencode(data)
     url: str = f"https://fcp-low.sbx.dev-franceconnect.fr/api/v2/session/end?{params}"
 
-    response = test_client.get("/ami-fs-test-logout", follow_redirects=False)
+    response = test_client.get("/rvo/logout", follow_redirects=False)
     assert response.status_code == 302
     assert response.headers["location"] == url
     # Session data is still present, so if logging out from FC failed, the user can try again.
@@ -377,12 +426,59 @@ async def test_ami_fs_test_logout(
     }
 
 
-async def test_ami_fs_test_logout_callback(
+async def test_rvo_logout_callback(
     test_client: TestClient[Litestar],
 ) -> None:
     test_client.set_session_data({"id_token": "fake id token", "userinfo": FAKE_USERINFO})
-    response = test_client.get("/ami-fs-test-logout-callback", follow_redirects=False)
+    response = test_client.get("/rvo/logout-callback", follow_redirects=False)
     assert response.status_code == 302
-    # As the user was properly logged out from FC, the local session is now emptied, and the user redirected to the app.
-    assert response.headers["location"] == "/#/logged_out"
+    # As the user was properly logged out from FC, the local session is now emptied, and the user redirected to the fake service provider.
+    assert response.headers["location"] == "/rvo/logged_out"
     assert test_client.get_session_data() == {}
+
+
+async def test_rvo_home_when_logged_in(
+    test_client: TestClient[Litestar],
+) -> None:
+    test_client.set_session_data({"id_token": "fake id token", "userinfo": FAKE_USERINFO})
+    response = test_client.get("/rvo", follow_redirects=False)
+    assert response.status_code == 200
+    assert "/rvo/detail/1" in response.text
+    assert "/rvo/detail/2" in response.text
+
+
+async def test_rvo_detail_when_logged_in(
+    test_client: TestClient[Litestar],
+) -> None:
+    test_client.set_session_data({"id_token": "fake id token", "userinfo": FAKE_USERINFO})
+    response = test_client.get("/rvo/detail/1", follow_redirects=False)
+    assert "Rendez-vous dans votre Agence France Travail Paris 18e Ney" in response.text
+    assert response.status_code == 200
+    assert "Annuler le RDV" in response.text
+
+    response = test_client.get("/rvo/detail/2", follow_redirects=False)
+    assert "Rendez-vous dans votre Maison France Services" in response.text
+    assert response.status_code == 200
+    assert "Annuler le RDV" in response.text
+
+
+async def test_rvo_detail_when_logged_out(
+    test_client: TestClient[Litestar],
+) -> None:
+    detail_url = "/rvo/detail/1"
+    response = test_client.get(detail_url, follow_redirects=False)
+    assert response.status_code == 302
+    assert "redirect_once_connected" in test_client.get_session_data()
+    assert (
+        test_client.get_session_data()["redirect_once_connected"]
+        == f"http://testserver.local{detail_url}"
+    )
+
+
+async def test_get_sector_identifier_url(
+    test_client: TestClient[Litestar],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr("app.PUBLIC_SECTOR_IDENTIFIER_URL", "  https://example.com  \nfoobar \n")
+    response = test_client.get("/sector_identifier_url")
+    assert response.json() == ["https://example.com", "foobar"]

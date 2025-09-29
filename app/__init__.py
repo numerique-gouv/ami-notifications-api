@@ -5,7 +5,6 @@ from pathlib import Path
 from typing import Annotated, Any, Callable, cast
 
 import httpx
-import jwt
 import sentry_sdk
 from litestar import (
     Litestar,
@@ -29,7 +28,6 @@ from litestar.static_files import (
 from litestar.status_codes import (
     HTTP_200_OK,
     HTTP_201_CREATED,
-    HTTP_403_FORBIDDEN,
     HTTP_500_INTERNAL_SERVER_ERROR,
 )
 from litestar.stores.file import FileStore
@@ -57,6 +55,7 @@ from .models import (
     get_user_list,
     update_registration,
 )
+from .rvo import rvo_router
 
 cors_config = CORSConfig(allow_origins=["*"])
 session_config = ServerSideSessionConfig()
@@ -76,15 +75,17 @@ HTML_DIR = "public/mobile-app/build"
 # This is the folder where the "admin" (test API client) is.
 HTML_DIR_ADMIN = "public"
 
-PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID = os.getenv("PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID", "")
-FC_SERVICE_PROVIDER_CLIENT_SECRET = os.getenv("FC_SERVICE_PROVIDER_CLIENT_SECRET", "")
+PUBLIC_FC_AMI_CLIENT_ID = os.getenv("PUBLIC_FC_AMI_CLIENT_ID", "")
+FC_AMI_CLIENT_SECRET = os.getenv("FC_AMI_CLIENT_SECRET", "")
 PUBLIC_FC_BASE_URL = os.getenv("PUBLIC_FC_BASE_URL", "")
-PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL = os.getenv("PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL", "")
+PUBLIC_FC_AMI_REDIRECT_URL = os.getenv("PUBLIC_FC_AMI_REDIRECT_URL", "")
 PUBLIC_FC_TOKEN_ENDPOINT = os.getenv("PUBLIC_FC_TOKEN_ENDPOINT", "")
 PUBLIC_FC_JWKS_ENDPOINT = os.getenv("PUBLIC_FC_JWKS_ENDPOINT", "")
 PUBLIC_FC_USERINFO_ENDPOINT = os.getenv("PUBLIC_FC_USERINFO_ENDPOINT", "")
 PUBLIC_FC_LOGOUT_ENDPOINT = os.getenv("PUBLIC_FC_LOGOUT_ENDPOINT", "")
 PUBLIC_API_URL = os.getenv("PUBLIC_API_URL", "")
+PUBLIC_APP_URL = os.getenv("PUBLIC_APP_URL", "")
+PUBLIC_SECTOR_IDENTIFIER_URL = os.getenv("PUBLIC_SECTOR_IDENTIFIER_URL", "")
 
 #### ENDPOINTS
 
@@ -209,18 +210,6 @@ async def enable_registration(
     return Response(registration, status_code=HTTP_200_OK)
 
 
-@get(path="/api/v1/userinfo")
-async def get_userinfo(
-    request: Request[Any, Any, Any],
-) -> Response[str]:
-    # FC - Step 16.2
-    if "userinfo" not in request.session:
-        return Response('{ "error": "User not connected" }', status_code=HTTP_403_FORBIDDEN)
-
-    userinfo = request.session["userinfo"]
-    return Response(userinfo, status_code=HTTP_200_OK)
-
-
 #### VIEWS
 
 
@@ -234,15 +223,14 @@ async def admin(db_session: AsyncSession) -> Template:
     )
 
 
-@get(path="/ami-fs-test-login-callback", include_in_schema=False)
-async def ami_fs_test_login_callback(
+@get(path="/login-callback", include_in_schema=False)
+async def login_callback(
     code: str,
-    request: Request[Any, Any, Any],
 ) -> Response[Any]:
     # FC - Step 5
-    redirect_uri: str = f"{PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL}"
-    client_id: str = PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID
-    client_secret: str = FC_SERVICE_PROVIDER_CLIENT_SECRET
+    redirect_uri: str = f"{PUBLIC_FC_AMI_REDIRECT_URL}"
+    client_id: str = PUBLIC_FC_AMI_CLIENT_ID
+    client_secret: str = FC_AMI_CLIENT_SECRET
     data: dict[str, str] = {
         "grant_type": "authorization_code",
         "redirect_uri": redirect_uri,
@@ -253,7 +241,8 @@ async def ami_fs_test_login_callback(
 
     if client_secret == "":
         return error_from_message(
-            {"error": "Client secret not provided in .env file"}, HTTP_500_INTERNAL_SERVER_ERROR
+            {"error": "Client secret not provided in .env.local file"},
+            HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
     # FC - Step 6
@@ -266,59 +255,36 @@ async def ami_fs_test_login_callback(
     if response.status_code != 200:
         return error_from_response(response, ami_details="FC - Step 6 with " + str(data))
     response_token_data: dict[str, str] = response.json()
-
-    # FC - Step 8
-    httpx.get(f"{PUBLIC_FC_BASE_URL}{PUBLIC_FC_JWKS_ENDPOINT}")
-
-    # FC - Step 11
-    access_token = response_token_data["access_token"]
-    id_token = response_token_data["id_token"]
-    userinfo_endpoint_headers = {"Authorization": f"Bearer {access_token}"}
-    response = httpx.get(
-        f"{PUBLIC_FC_BASE_URL}{PUBLIC_FC_USERINFO_ENDPOINT}",
-        headers=userinfo_endpoint_headers,
-    )
-    userinfo_jws = response.text
-    userinfo = jwt.decode(userinfo_jws, options={"verify_signature": False}, algorithms=["ES256"])
-
-    # FC - Step 16.1
-    request.session["userinfo"] = userinfo
-    request.session["id_token"] = id_token
-    return Redirect("/")
-
-
-@get(path="/ami-fs-test-logout", include_in_schema=False)
-async def ami_fs_test_logout(request: Request[Any, Any, Any]) -> Response[Any]:
-    if "userinfo" not in request.session or "id_token" not in request.session:
-        return Redirect("/")
-
-    logout_url: str = f"{PUBLIC_FC_BASE_URL}{PUBLIC_FC_LOGOUT_ENDPOINT}"
-    data: dict[str, str] = {
-        "id_token_hint": request.session.get("id_token", ""),
-        "state": "not-implemented-yet-and-has-more-than-32-chars",
-        "post_logout_redirect_uri": f"{PUBLIC_API_URL}/ami-fs-test-logout-callback",
+    params: dict[str, str] = {
+        **response_token_data,
+        "is_logged_in": "true",
     }
 
-    # Redirect the user to FC's logout service. The local session cleanup happends in `/ami-fs-test-logout-callback`.
-    return Redirect(logout_url, query_params=data)
+    return Redirect(f"{PUBLIC_APP_URL}/", query_params=params)
 
 
-@get(path="/ami-fs-test-logout-callback", include_in_schema=False)
-async def ami_fs_test_logout_callback(request: Request[Any, Any, Any]) -> Response[Any]:
-    # Local session cleanup: the user was logged out from FC.
-    del request.session["userinfo"]
-    del request.session["id_token"]
-    return Redirect("/#/logged_out")
+@get(path="/fc_userinfo", include_in_schema=False)
+async def get_fc_userinfo(
+    request: Request[Any, Any, Any],
+) -> Response[Any]:
+    """This endpoint "forwards" the request coming from the frontend (the app).
+
+    FranceConnect doesn't implement CORS, so the app can't directly query it for the user info.
+    We thus have this endpoint to act as some kind of proxy.
+
+    """
+    response = httpx.get(
+        f"{PUBLIC_FC_BASE_URL}{PUBLIC_FC_USERINFO_ENDPOINT}",
+        headers={"authorization": request.headers["authorization"]},
+    )
+    return Response(response.content, status_code=response.status_code)
 
 
 @get(path="/sector_identifier_url", include_in_schema=False)
 async def get_sector_identifier_url() -> Response[Any]:
     redirect_uris: list[str] = [
-        "https://ami-back-staging.osc-fr1.scalingo.io/ami-fs-test-login-callback",
-        "https://ami-back-staging-pr90.osc-fr1.scalingo.io/ami-fs-test-login-callback",
-        "https://localhost:5173/ami-fs-test-login-callback",
+        url.strip() for url in PUBLIC_SECTOR_IDENTIFIER_URL.strip().split("\n")
     ]
-
     return Response(redirect_uris)
 
 
@@ -362,11 +328,9 @@ def create_app(
             enable_registration,
             get_notifications,
             admin,
-            ami_fs_test_login_callback,
+            login_callback,
+            get_fc_userinfo,
             get_sector_identifier_url,
-            get_userinfo,
-            ami_fs_test_logout,
-            ami_fs_test_logout_callback,
             create_static_files_router(
                 path="/admin/static",
                 directories=[HTML_DIR_ADMIN],
@@ -377,6 +341,7 @@ def create_app(
                 directories=[HTML_DIR],
                 html_mode=True,
             ),
+            rvo_router,
         ],
         dependencies={
             "db_session": Provide(provide_db_session),

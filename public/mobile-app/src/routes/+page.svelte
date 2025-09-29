@@ -2,27 +2,49 @@
 import ConnectedHomepage from '$lib/ConnectedHomepage.svelte'
 import {
   PUBLIC_API_URL,
-  PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID,
+  PUBLIC_FC_AMI_CLIENT_ID,
   PUBLIC_FC_BASE_URL,
-  PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL,
+  PUBLIC_FC_AMI_REDIRECT_URL,
   PUBLIC_FC_AUTHORIZATION_ENDPOINT,
 } from '$env/static/public'
 import { onMount } from 'svelte'
-import { globalState } from '$lib/state.svelte.ts'
+import { page } from '$app/state'
+import { goto } from '$app/navigation'
 
-let userinfo: Object = $state({})
 let isFranceConnected: boolean = $state(false)
+let isLoggedOut: boolean = $state(false)
 
 onMount(async () => {
+  isFranceConnected = !!localStorage.getItem('access_token')
   try {
-    const response = await fetch(`${PUBLIC_API_URL}/api/v1/userinfo`)
-
-    if (response.status == 200) {
+    if (page.url.searchParams.has('is_logged_in')) {
+      const access_token = page.url.searchParams.get('access_token') || ''
+      const token_type = page.url.searchParams.get('token_type') || ''
+      localStorage.setItem('access_token', access_token)
+      localStorage.setItem('expires_in', page.url.searchParams.get('expires_in') || '')
+      localStorage.setItem('id_token', page.url.searchParams.get('id_token') || '')
+      localStorage.setItem('scope', page.url.searchParams.get('scope') || '')
+      localStorage.setItem('token_type', token_type)
+      localStorage.setItem(
+        'is_logged_in',
+        page.url.searchParams.get('is_logged_in') || ''
+      )
+      const userinfo_endpoint_headers = {
+        Authorization: `${token_type} ${access_token}`,
+      }
+      const response = await fetch(`${PUBLIC_API_URL}/fc_userinfo`, {
+        headers: userinfo_endpoint_headers,
+      })
+      const userData = await response.text()
+      localStorage.setItem('user_data', userData)
       isFranceConnected = true
-      const userData = await response.json()
-      userinfo = userData
-
-      console.log(userData)
+      goto('/')
+    }
+    if (page.url.searchParams.has('is_logged_out')) {
+      localStorage.clear()
+      isFranceConnected = false
+      isLoggedOut = true
+      goto('/')
     }
   } catch (error) {
     console.error(error)
@@ -37,9 +59,9 @@ const franceConnectLogin = async () => {
   const query = {
     scope:
       'openid given_name family_name preferred_username birthdate gender birthplace birthcountry sub email given_name_array',
-    redirect_uri: PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL,
+    redirect_uri: PUBLIC_FC_AMI_REDIRECT_URL,
     response_type: 'code',
-    client_id: PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID,
+    client_id: PUBLIC_FC_AMI_CLIENT_ID,
     state: STATE,
     nonce: NONCE,
     acr_values: 'eidas1',
@@ -50,19 +72,23 @@ const franceConnectLogin = async () => {
   const params = new URLSearchParams(query).toString()
 
   window.location.href = `${url}?${params}`
+}
 
-  return Response.redirect(`${url}?${params}`)
+// Dismiss notice
+function dismissNotice() {
+  isLoggedOut = false
 }
 </script>
 
 <div class="homepage">
-{#if globalState.isLoggedOut}
+{#if isLoggedOut}
   <div class="fr-notice fr-notice--info">
     <div class="fr-container">
       <div class="fr-notice__body">
         <p>
           <span class="fr-notice__title">Vous avez été déconnecté</span>
         </p>
+        <button onclick="{dismissNotice}" title="Masquer le message" type="button" class="fr-btn--close fr-btn">Masquer le message</button>
       </div>
     </div>
   </div>
@@ -93,7 +119,7 @@ const franceConnectLogin = async () => {
     </div>
   </div>
 {:else}
-  <ConnectedHomepage userinfo />
+  <ConnectedHomepage />
 {/if}
 </div>
 
