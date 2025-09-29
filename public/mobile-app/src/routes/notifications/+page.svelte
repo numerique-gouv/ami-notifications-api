@@ -9,6 +9,28 @@ onMount(async () => {
     goto('/')
   }
 })
+
+const notifications = [
+  {
+    title: 'Rendez-vous confirmé ✅',
+    description:
+      'Votre rendez-vous à la mairie de Colombes le mardi 3 septembre à 11H45 est confirmé',
+    age: '1 h',
+    status: 'unread',
+  },
+  {
+    title: 'J-2 avant votre rendez-vous France Travail ⌛️',
+    description:
+      'Consultez les détails de votre rendez-vous pour le préparer sereinement',
+    age: '6 h',
+  },
+  {
+    title: 'Jour J de votre rendez-vous à la Mairie de Saint-Ouen',
+    description:
+      'Vous avez rendez-vous aujourd’hui à 14h30 au service état civil de la mairie de Saint-Ouen',
+    age: '14 j',
+  },
+]
 </script>
 
 <nav class="fr-p-4v fr-pt-6v">
@@ -24,6 +46,30 @@ onMount(async () => {
     </div>
   </div>
 </nav>
+
+<div class="notifications-content-container">
+  {#each notifications as notification}
+  <div class="fr-tile fr-tile-sm fr-tile--horizontal fr-enlarge-link fr-p-3v notification {notification.status}">
+    <div class="fr-tile__header">
+      <span class="notification__status {notification.status}" aria-hidden="true"><i>•</i></span>
+      <span class="notification__icon fr-icon-calendar-event-fill" aria-hidden="true"></span>
+    </div>
+    <div class="fr-tile__body">
+      <div class="fr-tile__content fr-pb-0">
+        <div class="notification__title">
+          <h3 class="fr-tile__title fr-mb-0">
+            <a href="/">{notification.title}</a>
+          </h3>
+          <span class="notification__age">
+            {notification.age}
+          </span>
+        </div>
+        <p class="fr-tile__desc">{notification.description}</p>
+      </div>
+    </div>
+  </div>
+  {/each}
+</div>
 
 <style>
   nav {
@@ -46,6 +92,68 @@ onMount(async () => {
           height: 20px;
         }
       }
+    }
+  }
+  .notifications-content-container {
+    .notification {
+      background: none;
+      border-bottom: 1px solid var(--background-alt-grey-active);
+      &.unread {
+        background-color: var(--background-contrast-blue-france);
+      }
+      .fr-tile__header {
+        display: flex;
+        margin-right: 12px;
+        .notification__status {
+          width: 16px;
+          font-size: 22px;
+          color: var(--red-marianne-main-472);
+          &:not(.unread) i {
+            display: none;
+          }
+        }
+        .notification__icon {
+          line-height: 32px;
+          color: var(--blue-france-sun-113-625);
+          &::before {
+            --icon-size: 20px;
+          }
+        }
+      }
+      .notification__title {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        .fr-tile__title {
+          order: 1;
+          width: 100%;
+          &::before {
+            background: none;
+          }
+          a {
+            font-size: 14px;
+            color: var(--text-black-white-grey);
+            &::before {
+              background: none;
+            }
+            &::after {
+              width: 0;
+            }
+          }
+        }
+        .notification__age {
+          order: 2;
+          font-size: 12px;
+          color: var(--text-mention-grey);
+          width: 32px;
+          text-align: right;
+        }
+      }
+    }
+    .fr-tile__desc {
+      font-size: 12px;
+      line-height: 20px;
+      color: var(--text-black-white-grey);
     }
   }
 </style>
