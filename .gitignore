@@ -9,5 +9,3 @@ __pycache__
 .env
 node_modules
 session_data
-.idea
-.tool-versions
