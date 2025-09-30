@@ -1,5 +1,5 @@
 import { PUBLIC_API_URL } from '$env/static/public'
-import { subscribePush } from '$lib/notifications.js'
+import { subscribePush } from '$lib/notifications.ts'
 
 export const registerUser = async () => {
   const pushSubscription = await subscribePush()

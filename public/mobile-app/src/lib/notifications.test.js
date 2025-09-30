@@ -1,14 +1,14 @@
 import { describe, test, expect, vi, afterEach } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 import {
-  clickOnNotificationPermission,
+  enableNotifications,
   getSubscription,
   retrieveNotifications,
   subscribePush,
-} from '$lib/notifications.js'
+} from '$lib/notifications.ts'
 import * as registrationMethods from '$lib/registration.js'
 
-describe('/notifications.js', () => {
+describe('/notifications.ts', () => {
   afterEach(() => {
     window.localStorage.clear()
   })
@@ -104,7 +104,7 @@ describe('/notifications.js', () => {
     })
   })
 
-  describe('clickOnNotificationPermission', () => {
+  describe('enableNotifications', () => {
     test('should call registerUser permission is granted and is registered to service worker', async () => {
       // Given
       globalThis.Notification = {
@@ -130,7 +130,7 @@ describe('/notifications.js', () => {
       const spy = vi.spyOn(registrationMethods, 'registerUser')
 
       // When
-      await clickOnNotificationPermission()
+      await enableNotifications()
 
       // Then
       expect(spy).toHaveBeenCalled()
