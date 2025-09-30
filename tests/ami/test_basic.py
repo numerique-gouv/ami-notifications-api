@@ -10,7 +10,7 @@ from pytest_httpx import HTTPXMock
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.models.database import DonneesPivot, Notification, Registration, User
+from app.models.database import Notification, PivotalData, Registration, User
 
 FAKE_USERINFO = {
     "sub": "fake sub",
@@ -229,7 +229,7 @@ async def test_fc_get_userinfo(
         "user_data": fake_userinfo_token,
     }
 
-    all_users = (await db_session.exec(select(User, DonneesPivot).join(DonneesPivot))).all()
+    all_users = (await db_session.exec(select(User, PivotalData).join(PivotalData))).all()
     assert len(all_users) == 1
     user, donnees_pivot = all_users[0]
     assert user.id == 1
@@ -250,7 +250,7 @@ async def test_fc_get_userinfo(
         "user_id": 1,
         "user_data": fake_userinfo_token,
     }
-    all_users = (await db_session.exec(select(User, DonneesPivot).join(DonneesPivot))).all()
+    all_users = (await db_session.exec(select(User, PivotalData).join(PivotalData))).all()
     assert len(all_users) == 1
     user, donnees_pivot = all_users[0]
     assert user.id == 1

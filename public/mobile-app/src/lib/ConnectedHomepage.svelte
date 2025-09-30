@@ -10,16 +10,16 @@ import {
 let userinfo: Object = $state({})
 let initials: String = $state('')
 let isMenuDisplayed = $state(false)
-let isAuthenticatedForNotifications: boolean = $state(false)
+let notificationsEnabled: boolean = $state(false)
 let pushSubscription
 let messages = $state([])
 
-const getInitials: (given_name_array: []) => String = (given_name_array: []) => {
-  let initials: String = ''
+const getInitials = (given_name_array: []): String => {
+  let initials_: String = ''
   given_name_array.forEach((given_name) => {
-    initials += given_name.substring(0, 1)
+    initials_ += given_name.substring(0, 1)
   })
-  return initials
+  return initials_
 }
 
 onMount(async () => {
@@ -50,10 +50,10 @@ onMount(async () => {
 
 const updateButtonAndPushSubscription = async (permissionStatusState) => {
   if (permissionStatusState == 'granted') {
-    isAuthenticatedForNotifications = true
+    notificationsEnabled = true
     pushSubscription = await getSubscription()
   } else {
-    isAuthenticatedForNotifications = false
+    notificationsEnabled = false
     pushSubscription = null
   }
   console.log(`notifications permission status is ${permissionStatusState}`)
@@ -88,7 +88,7 @@ const toggleMenu = () => {
       <button
           type="button"
           onclick={clickOnNotificationPermission}
-          disabled={isAuthenticatedForNotifications}
+          disabled={notificationsEnabled}
       >
         Recevoir des notifications sur ce terminal
       </button>
