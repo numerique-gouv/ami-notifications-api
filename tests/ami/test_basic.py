@@ -12,22 +12,6 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.models.database import Notification, PivotalData, Registration, User
 
-FAKE_USERINFO = {
-    "sub": "fake sub",
-    "given_name": "Angela Claire Louise",
-    "given_name_array": ["Angela", "Claire", "Louise"],
-    "family_name": "DUBOIS",
-    "birthdate": "1962-08-24",
-    "birthcountry": "99100",
-    "birthplace": "75107",
-    "gender": "female",
-    "email": "angela@dubois.fr",
-    "aud": "fake aud",
-    "exp": 1753877658,
-    "iat": 1753877598,
-    "iss": "https://fcp-low.sbx.dev-franceconnect.fr/api/v2",
-}
-
 
 async def test_register_user_does_not_exist(
     test_client: TestClient[Litestar],
@@ -205,6 +189,7 @@ async def test_fc_get_userinfo(
     db_session: AsyncSession,
     httpx_mock: HTTPXMock,
     monkeypatch: pytest.MonkeyPatch,
+    userinfo: dict[str, Any],
 ) -> None:
     fake_userinfo_token = "fake userinfo jwt token"
     auth = {"authorization": "Bearer foobar_access_token"}
@@ -217,7 +202,7 @@ async def test_fc_get_userinfo(
     )
 
     def fake_jwt_decode(*args: Any, **params: Any):
-        return FAKE_USERINFO
+        return userinfo
 
     monkeypatch.setattr("jwt.decode", fake_jwt_decode)
 

@@ -6,27 +6,12 @@ from litestar import Litestar
 from litestar.testing import TestClient
 from pytest_httpx import HTTPXMock
 
-FAKE_USERINFO = {
-    "sub": "fake sub",
-    "given_name": "Angela Claire Louise",
-    "given_name_array": ["Angela", "Claire", "Louise"],
-    "family_name": "DUBOIS",
-    "birthdate": "1962-08-24",
-    "birthcountry": "99100",
-    "birthplace": "75107",
-    "gender": "female",
-    "email": "angela@dubois.fr",
-    "aud": "fake aud",
-    "exp": 1753877658,
-    "iat": 1753877598,
-    "iss": "https://fcp-low.sbx.dev-franceconnect.fr/api/v2",
-}
-
 
 async def test_rvo_login_callback(
     test_client: TestClient[Litestar],
     httpx_mock: HTTPXMock,
     monkeypatch: pytest.MonkeyPatch,
+    userinfo: dict[str, Any],
 ) -> None:
     fake_token_json_response = {
         "access_token": "fake access token",
@@ -46,11 +31,11 @@ async def test_rvo_login_callback(
     httpx_mock.add_response(
         method="GET",
         url="https://fcp-low.sbx.dev-franceconnect.fr/api/v2/userinfo",
-        json=FAKE_USERINFO,
+        json=userinfo,
     )
 
     def fake_jwt_decode(*args: Any, **params: Any):
-        return FAKE_USERINFO
+        return userinfo
 
     monkeypatch.setattr("jwt.decode", fake_jwt_decode)
 
@@ -59,14 +44,15 @@ async def test_rvo_login_callback(
     assert response.request.url == "http://testserver.local/rvo"
     assert test_client.get_session_data() == {
         "id_token": "fake id token",
-        "userinfo": FAKE_USERINFO,
+        "userinfo": userinfo,
     }
 
 
 async def test_rvo_logout(
     test_client: TestClient[Litestar],
+    userinfo: dict[str, Any],
 ) -> None:
-    test_client.set_session_data({"id_token": "fake id token", "userinfo": FAKE_USERINFO})
+    test_client.set_session_data({"id_token": "fake id token", "userinfo": userinfo})
     data: dict[str, str] = {
         "id_token_hint": "fake id token",
         "state": "not-implemented-yet-and-has-more-than-32-chars",
@@ -81,14 +67,15 @@ async def test_rvo_logout(
     # Session data is still present, so if logging out from FC failed, the user can try again.
     assert test_client.get_session_data() == {
         "id_token": "fake id token",
-        "userinfo": FAKE_USERINFO,
+        "userinfo": userinfo,
     }
 
 
 async def test_rvo_logout_callback(
     test_client: TestClient[Litestar],
+    userinfo: dict[str, Any],
 ) -> None:
-    test_client.set_session_data({"id_token": "fake id token", "userinfo": FAKE_USERINFO})
+    test_client.set_session_data({"id_token": "fake id token", "userinfo": userinfo})
     response = test_client.get("/rvo/logout-callback", follow_redirects=False)
     assert response.status_code == 302
     # As the user was properly logged out from FC, the local session is now emptied, and the user redirected to the fake service provider.
@@ -98,8 +85,9 @@ async def test_rvo_logout_callback(
 
 async def test_rvo_home_when_logged_in(
     test_client: TestClient[Litestar],
+    userinfo: dict[str, Any],
 ) -> None:
-    test_client.set_session_data({"id_token": "fake id token", "userinfo": FAKE_USERINFO})
+    test_client.set_session_data({"id_token": "fake id token", "userinfo": userinfo})
     response = test_client.get("/rvo", follow_redirects=False)
     assert response.status_code == 200
     assert "/rvo/detail/1" in response.text
@@ -108,8 +96,9 @@ async def test_rvo_home_when_logged_in(
 
 async def test_rvo_detail_when_logged_in(
     test_client: TestClient[Litestar],
+    userinfo: dict[str, Any],
 ) -> None:
-    test_client.set_session_data({"id_token": "fake id token", "userinfo": FAKE_USERINFO})
+    test_client.set_session_data({"id_token": "fake id token", "userinfo": userinfo})
     response = test_client.get("/rvo/detail/1", follow_redirects=False)
     assert "Rendez-vous dans votre Agence France Travail Paris 18e Ney" in response.text
     assert response.status_code == 200
