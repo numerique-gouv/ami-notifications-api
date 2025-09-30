@@ -12,7 +12,7 @@ let initials: String = $state('')
 let isMenuDisplayed = $state(false)
 let notificationsEnabled: boolean = $state(false)
 let pushSubscription
-let messages = $state([])
+let notifications = $state([])
 
 const getInitials = (given_name_array: []): String => {
   let initials_: String = ''
@@ -29,7 +29,7 @@ onMount(async () => {
     console.log(userinfo)
 
     initials = getInitials(userinfo.given_name_array)
-    messages = await retrieveNotifications()
+    notifications = await retrieveNotifications()
 
     if (navigator.permissions) {
       const permissionStatus = await navigator.permissions.query({
@@ -74,7 +74,7 @@ const toggleMenu = () => {
     </button>
 
     <div class="header-right">
-      <div class="message-svg-icon">
+      <div class="notification-svg-icon">
         <img src="/remixicons/message-3.svg" alt="Icône de message" />
       </div>
 
@@ -211,12 +211,12 @@ const toggleMenu = () => {
       </ul>
     </div>
     <h3 class="fr-accordion__title">
-      <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-2">Messages de l'utilisateur</button>
+      <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-2">Notifications de l'utilisateur</button>
     </h3>
     <div id="accordion-2" class="fr-collapse">
       <ul>
-        {#each messages as message}
-          <li>Message #{ message.id } reçu à { message.date } de la part de { message.sender } : { message.title } - { message.message }</li>
+        {#each notifications as notification}
+          <li>Message #{ notification.id } reçu à { notification.date } de la part de { notification.sender } : { notification.title } - { notification.message }</li>
         {/each}
       </ul>
     </div>
@@ -277,7 +277,7 @@ const toggleMenu = () => {
         display: flex;
         align-items: center;
 
-        .message-svg-icon {
+        .notification-svg-icon {
           margin-right: 16px;
         }
       }
