@@ -1,4 +1,4 @@
-import { describe, test, expect, vi, afterEach } from 'vitest'
+import { describe, test, expect, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 import {
   enableNotifications,
@@ -9,10 +9,6 @@ import {
 import * as registrationMethods from '$lib/registration.js'
 
 describe('/notifications.ts', () => {
-  afterEach(() => {
-    window.localStorage.clear()
-  })
-
   describe('retrieveNotifications', () => {
     test('should get messages from API', async () => {
       // Given

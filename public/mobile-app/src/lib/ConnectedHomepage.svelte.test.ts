@@ -4,10 +4,6 @@ import { render } from '@testing-library/svelte'
 import ConnectedHomepage from './ConnectedHomepage.svelte'
 
 describe('/ConnectedHomepage.svelte', () => {
-  beforeEach(() => {
-    localStorage.clear()
-  })
-
   test("should display user's initials on menu", () => {
     // Given
     globalThis.Notification = {}
@@ -34,9 +30,9 @@ describe('/ConnectedHomepage.svelte', () => {
       franceConnectLogout: vi.fn(),
     }))
 
-    localStorage.setItem('user_data', 'fake-user-data')
-    localStorage.setItem('emailLocalStorage', 'test@email.fr')
-    localStorage.setItem('pushSubscriptionLocalStorage', '{}')
+    window.localStorage.setItem('user_data', 'fake-user-data')
+    window.localStorage.setItem('emailLocalStorage', 'test@email.fr')
+    window.localStorage.setItem('pushSubscriptionLocalStorage', '{}')
 
     // When
     const { container } = render(ConnectedHomepage)

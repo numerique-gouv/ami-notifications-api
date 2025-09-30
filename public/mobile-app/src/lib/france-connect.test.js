@@ -6,23 +6,11 @@ describe('/france-connect.js', () => {
   describe('franceConnectLogout', () => {
     test('should call logout endpoint when click on France Connect logout button', async () => {
       // Given
-      globalThis.window = {
-        location: {
-          href: 'fake-link',
-        },
-      }
       globalThis.localStorage = {
         getItem: vi.fn().mockImplementation(() => {
           return 'fake-id-token'
         }),
       }
-      vi.mock('$env/static/public', () => {
-        return {
-          PUBLIC_APP_URL: 'https://localhost:5173',
-          PUBLIC_FC_BASE_URL: 'https://fcp-low.sbx.dev-franceconnect.fr',
-          PUBLIC_FC_LOGOUT_ENDPOINT: '/api/v2/session/end',
-        }
-      })
 
       // When
       await franceConnectLogout()

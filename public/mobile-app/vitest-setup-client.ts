@@ -1,5 +1,9 @@
 import '@testing-library/jest-dom/vitest'
-import { vi } from 'vitest'
+import {beforeEach, vi} from 'vitest'
+
+beforeEach(() => {
+  window.localStorage.clear()
+});
 
 // required for svelte5 + jsdom as jsdom does not support matchMedia
 Object.defineProperty(window, 'matchMedia', {
