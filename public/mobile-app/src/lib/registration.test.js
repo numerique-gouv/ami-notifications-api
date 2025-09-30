@@ -1,12 +1,8 @@
-import { describe, test, expect, vi, afterEach } from 'vitest'
+import { describe, test, expect, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 import { registerUser } from '$lib/registration.js'
 
 describe('/registration.js', () => {
-  afterEach(() => {
-    window.localStorage.clear()
-  })
-
   describe('registerUser', () => {
     test('should call registrations endpoint from API', async () => {
       // Given
