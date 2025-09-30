@@ -2,15 +2,15 @@ import { PUBLIC_API_URL } from '$env/static/public'
 import { registerUser } from '$lib/registration.js'
 
 export type Notification = {
-    id: number;
-    date: Date;
-    user_id: number;
-    message: string;
-    sender?: string;
-    title?: string;
+  id: number
+  date: Date
+  user_id: number
+  message: string
+  sender?: string
+  title?: string
 }
 
-export const retrieveNotifications = async () : Promise<Notification[]> => {
+export const retrieveNotifications = async (): Promise<Notification[]> => {
   let notifications = [] as Notification[]
   const userId = localStorage.getItem('user_id')
   if (userId) {
