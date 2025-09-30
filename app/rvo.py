@@ -159,11 +159,11 @@ async def list_users(db_session: AsyncSession) -> Template:
     )
 
 
-@get(path="/envoi-d-un-message/", include_in_schema=False)
-async def send_message(db_session: AsyncSession) -> Template:
+@get(path="/envoi-d-une-notification/", include_in_schema=False)
+async def send_notification(db_session: AsyncSession) -> Template:
     users = await get_user_list(db_session)
     return Template(
-        template_name="rvo/send-message.html",
+        template_name="rvo/send-notification.html",
         context={"users": users},
     )
 
@@ -218,7 +218,7 @@ rvo_router: Router = Router(
         logout_callback,
         logged_out,
         list_users,
-        send_message,
+        send_notification,
         detail,
     ],
 )

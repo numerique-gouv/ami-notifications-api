@@ -10,10 +10,10 @@ import * as registrationMethods from '$lib/registration.js'
 
 describe('/notifications.ts', () => {
   describe('retrieveNotifications', () => {
-    test('should get messages from API', async () => {
+    test('should get notifications from API', async () => {
       // Given
       window.localStorage.setItem('user_id', 'fake-user-id')
-      const messages = [
+      const notifications = [
         {
           date: '2025-09-19T12:59:04.950812',
           user_id: 42,
@@ -34,7 +34,7 @@ describe('/notifications.ts', () => {
       globalThis.fetch = vi.fn(() =>
         Promise.resolve({
           status: 200,
-          json: () => Promise.resolve(messages),
+          json: () => Promise.resolve(notifications),
         })
       )
 
@@ -42,7 +42,7 @@ describe('/notifications.ts', () => {
       const result = await retrieveNotifications()
 
       // Then
-      expect(result).toEqual(messages)
+      expect(result).toEqual(notifications)
     })
   })
 

@@ -39,40 +39,40 @@
       </div>
     </div>
     <div class="fr-input-group">
-      <label class="fr-label" for="notify-title-input">Titre</label>
-      <input class="fr-input" aria-describedby="input-messages" id="notify-title-input" type="text">
+      <label class="fr-label" for="send-notification-title-input">Titre</label>
+      <input class="fr-input" aria-describedby="input-messages" id="send-notification-title-input" type="text">
       <div class="fr-messages-group" id="input-messages" aria-live="polite">
       </div>
     </div>
     <div class="fr-input-group">
-      <label class="fr-label" for="notify-message-input">Message</label>
-      <input class="fr-input" aria-describedby="input-messages" id="notify-message-input" type="text">
+      <label class="fr-label" for="send-notification-message-input">Message</label>
+      <input class="fr-input" aria-describedby="input-messages" id="send-notification-message-input" type="text">
       <div class="fr-messages-group" id="input-messages" aria-live="polite">
       </div>
     </div>
     <div class="fr-input-group">
-      <label class="fr-label" for="notify-sender-input">Expéditeur</label>
-      <input class="fr-input" aria-describedby="input-messages" id="notify-sender-input" type="text">
+      <label class="fr-label" for="send-notification-sender-input">Expéditeur</label>
+      <input class="fr-input" aria-describedby="input-messages" id="send-notification-sender-input" type="text">
       <div class="fr-messages-group" id="input-messages" aria-live="polite">
       </div>
     </div>
 
-    <button class="fr-btn" type="submit" id="notify-message" onclick="sendMessage()">
+    <button class="fr-btn" type="submit" id="send-notification-button" onclick="sendNotification()">
       Envoyer
     </button>
-    <span id="notify-message-status"></span>
+    <span id="send-notification-status"></span>
   </form>
 {% endblock wrapper %}
 
 {% block extra_body %}
 <script lang="ts">
-  const sendMessage = async () => {
+  const sendNotification = async () => {
     const userIdInput = document.querySelector('#user-id')
-    const notifyTitleInput = document.querySelector('#notify-title-input')
-    const notifyMessageInput = document.querySelector('#notify-message-input')
-    const notifySenderInput = document.querySelector('#notify-sender-input')
-    const notifyMessageBtn = document.querySelector('#notify-message')
-    const notifyMessageStatus = document.querySelector('#notify-message-status')
+    const notifyTitleInput = document.querySelector('#send-notification-title-input')
+    const notifyMessageInput = document.querySelector('#send-notification-message-input')
+    const notifySenderInput = document.querySelector('#send-notification-sender-input')
+    const notifyMessageBtn = document.querySelector('#send-notification-button')
+    const notifyMessageStatus = document.querySelector('#send-notification-status')
 
     const payload = {
       title: notifyTitleInput.value,
