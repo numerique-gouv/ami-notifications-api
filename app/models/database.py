@@ -16,15 +16,17 @@ class User(SQLModel, table=True):
 
     id: int | None = Field(default=None, primary_key=True)
     email: str | None = Field(default=None)
-    donnees_pivot: "DonneesPivot" = Relationship(back_populates="user")
+    donnees_pivot: "PivotalData" = Relationship(back_populates="user")
     registrations: list["Registration"] = Relationship(back_populates="user")
     notifications: list["Notification"] = Relationship(back_populates="user")
 
 
-class DonneesPivot(SQLModel, table=True):
+class PivotalData(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     user_id: int = Field(foreign_key="ami_user.id", unique=True)
-    user: User = Relationship(back_populates="donnees_pivot")
+    user: User = Relationship(
+        back_populates="donnees_pivot", sa_relationship_kwargs={"uselist": False}
+    )
     given_name: str
     family_name: str
     birthdate: datetime.date
@@ -75,12 +77,12 @@ async def get_user_by_userinfo(
         select(User)
         .join(User.donnees_pivot)  # pyright: ignore[reportArgumentType]
         .where(
-            col(DonneesPivot.given_name) == userinfo.given_name,
-            col(DonneesPivot.family_name) == userinfo.family_name,
-            col(DonneesPivot.birthdate) == userinfo.birthdate,
-            col(DonneesPivot.gender) == userinfo.gender,
-            col(DonneesPivot.birthplace) == userinfo.birthplace,
-            col(DonneesPivot.birthcountry) == userinfo.birthcountry,
+            col(PivotalData.given_name) == userinfo.given_name,
+            col(PivotalData.family_name) == userinfo.family_name,
+            col(PivotalData.birthdate) == userinfo.birthdate,
+            col(PivotalData.gender) == userinfo.gender,
+            col(PivotalData.birthplace) == userinfo.birthplace,
+            col(PivotalData.birthcountry) == userinfo.birthcountry,
         )
     )
     if options:
@@ -106,7 +108,7 @@ async def get_user_list(
 
 
 async def create_user_from_userinfo(userinfo: Userinfo, db_session: AsyncSession) -> User:
-    donnees_pivot = DonneesPivot(  # pyright: ignore[reportCallIssue]
+    donnees_pivot = PivotalData(  # pyright: ignore[reportCallIssue]
         given_name=userinfo.given_name,
         family_name=userinfo.family_name,
         birthdate=userinfo.birthdate,

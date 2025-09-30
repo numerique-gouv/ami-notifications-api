@@ -11,13 +11,13 @@ export const retrieveNotifications = async () => {
       )
       if (response.status === 200) {
         messages = await response.json()
-        console.log('messages', messages)
-        return messages
       }
     } catch (error) {
       console.error(error)
     }
   }
+  console.log('messages', messages)
+  return messages
 }
 
 export const getSubscription = async () => {

@@ -1,38 +1,30 @@
-<script lang="ts">
-  const sendMessage = async () => {
-    const userIdInput = document.querySelector('#user-id')
-    const notifyTitleInput = document.querySelector('#notify-title-input')
-    const notifyMessageInput = document.querySelector('#notify-message-input')
-    const notifySenderInput = document.querySelector('#notify-sender-input')
-    const notifyMessageBtn = document.querySelector('#notify-message')
-    const notifyMessageStatus = document.querySelector('#notify-message-status')
-
-    const payload = {
-      title: notifyTitleInput.value,
-      message: notifyMessageInput.value,
-      sender: notifySenderInput.value,
-      user_id: userIdInput.value,
-    }
-    console.log(payload)
-    console.log('notifying a message')
-    notifyMessageBtn.disabled = true
-    notifyMessageStatus.innerText = 'Notifying...'
-    const response = await fetch('/api/v1/notifications', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    })
-    console.log('response from AMI:', response)
-    notifyMessageBtn.disabled = false
-    if (response.status < 400) {
-      notifyMessageStatus.innerText = 'Done!'
-    } else {
-      notifyMessageStatus.innerText = `error ${response.status}: ${response.statusText}, ${response.body}`
-    }
-  }
-</script>
 {% extends "rvo/base.html" %}
 
+{% block style %}
+<style>
+  .container > * {
+    padding: 24px 16px;
+  }
+
+  nav .back-link {
+    margin-bottom: 24px;
+  }
+  nav .back-link a {
+    text-decoration: none;
+    --underline-img: none;
+  }
+</style>
+{% endblock style %}
+
 {% block wrapper %}
+  <nav>
+    <div class="back-link">
+      <a href="/rvo" title="Retour à la page d'accueil">
+        <span aria-hidden="true" class="fr-icon-arrow-left-line"></span>
+      </a>
+    </div>
+  </nav>
+
   <h2>Envoyer une notification</h2>
 
   <form action="" method="post">
@@ -71,3 +63,38 @@
     <span id="notify-message-status"></span>
   </form>
 {% endblock wrapper %}
+
+{% block extra_body %}
+<script lang="ts">
+  const sendMessage = async () => {
+    const userIdInput = document.querySelector('#user-id')
+    const notifyTitleInput = document.querySelector('#notify-title-input')
+    const notifyMessageInput = document.querySelector('#notify-message-input')
+    const notifySenderInput = document.querySelector('#notify-sender-input')
+    const notifyMessageBtn = document.querySelector('#notify-message')
+    const notifyMessageStatus = document.querySelector('#notify-message-status')
+
+    const payload = {
+      title: notifyTitleInput.value,
+      message: notifyMessageInput.value,
+      sender: notifySenderInput.value,
+      user_id: userIdInput.value,
+    }
+    console.log(payload)
+    console.log('notifying a message')
+    notifyMessageBtn.disabled = true
+    notifyMessageStatus.innerText = 'Notifying...'
+    const response = await fetch('/api/v1/notifications', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    })
+    console.log('response from AMI:', response)
+    notifyMessageBtn.disabled = false
+    if (response.status < 400) {
+      notifyMessageStatus.innerText = 'Done!'
+    } else {
+      notifyMessageStatus.innerText = `error ${response.status}: ${response.statusText}, ${response.body}`
+    }
+  }
+</script>
+{% endblock extra_body %}
