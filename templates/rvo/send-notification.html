@@ -1,19 +1,19 @@
 {% extends "rvo/base.html" %}
 
 {% block style %}
-<style>
-  .container > * {
-    padding: 24px 16px;
-  }
+  <style>
+    .container > * {
+      padding: 24px 16px;
+    }
 
-  nav .back-link {
-    margin-bottom: 24px;
-  }
-  nav .back-link a {
-    text-decoration: none;
-    --underline-img: none;
-  }
-</style>
+    nav .back-link {
+      margin-bottom: 24px;
+    }
+    nav .back-link a {
+      text-decoration: none;
+      --underline-img: none;
+    }
+  </style>
 {% endblock style %}
 
 {% block wrapper %}
@@ -65,36 +65,36 @@
 {% endblock wrapper %}
 
 {% block extra_body %}
-<script lang="ts">
-  const sendNotification = async () => {
-    const userIdInput = document.querySelector('#user-id')
-    const notifyTitleInput = document.querySelector('#send-notification-title-input')
-    const notifyMessageInput = document.querySelector('#send-notification-message-input')
-    const notifySenderInput = document.querySelector('#send-notification-sender-input')
-    const notifyMessageBtn = document.querySelector('#send-notification-button')
-    const notifyMessageStatus = document.querySelector('#send-notification-status')
+  <script lang="ts">
+    const sendNotification = async () => {
+      const userIdInput = document.querySelector('#user-id')
+      const notifyTitleInput = document.querySelector('#send-notification-title-input')
+      const notifyMessageInput = document.querySelector('#send-notification-message-input')
+      const notifySenderInput = document.querySelector('#send-notification-sender-input')
+      const notifyMessageBtn = document.querySelector('#send-notification-button')
+      const notifyMessageStatus = document.querySelector('#send-notification-status')
 
-    const payload = {
-      title: notifyTitleInput.value,
-      message: notifyMessageInput.value,
-      sender: notifySenderInput.value,
-      user_id: userIdInput.value,
+      const payload = {
+        title: notifyTitleInput.value,
+        message: notifyMessageInput.value,
+        sender: notifySenderInput.value,
+        user_id: userIdInput.value,
+      }
+      console.log(payload)
+      console.log('notifying a message')
+      notifyMessageBtn.disabled = true
+      notifyMessageStatus.innerText = 'Notifying...'
+      const response = await fetch('/api/v1/notifications', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      })
+      console.log('response from AMI:', response)
+      notifyMessageBtn.disabled = false
+      if (response.status < 400) {
+        notifyMessageStatus.innerText = 'Done!'
+      } else {
+        notifyMessageStatus.innerText = `error ${response.status}: ${response.statusText}, ${response.body}`
+      }
     }
-    console.log(payload)
-    console.log('notifying a message')
-    notifyMessageBtn.disabled = true
-    notifyMessageStatus.innerText = 'Notifying...'
-    const response = await fetch('/api/v1/notifications', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    })
-    console.log('response from AMI:', response)
-    notifyMessageBtn.disabled = false
-    if (response.status < 400) {
-      notifyMessageStatus.innerText = 'Done!'
-    } else {
-      notifyMessageStatus.innerText = `error ${response.status}: ${response.statusText}, ${response.body}`
-    }
-  }
-</script>
+  </script>
 {% endblock extra_body %}
