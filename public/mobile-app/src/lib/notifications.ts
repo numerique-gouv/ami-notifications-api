@@ -1,8 +1,17 @@
 import { PUBLIC_API_URL } from '$env/static/public'
 import { registerUser } from '$lib/registration.js'
 
-export const retrieveNotifications = async () => {
-  let messages = []
+export type Notification = {
+    id: number;
+    date: Date;
+    user_id: number;
+    message: string;
+    sender?: string;
+    title?: string;
+}
+
+export const retrieveNotifications = async () : Promise<Notification[]> => {
+  let notifications = [] as Notification[]
   const userId = localStorage.getItem('user_id')
   if (userId) {
     try {
@@ -10,14 +19,14 @@ export const retrieveNotifications = async () => {
         `${PUBLIC_API_URL}/api/v1/users/${userId}/notifications`
       )
       if (response.status === 200) {
-        messages = await response.json()
+        notifications = await response.json()
       }
     } catch (error) {
       console.error(error)
     }
   }
-  console.log('messages', messages)
-  return messages
+  console.log('notifications', notifications)
+  return notifications
 }
 
 export const getSubscription = async () => {
@@ -45,7 +54,7 @@ export const subscribePush = async () => {
   }
 }
 
-export const clickOnNotificationPermission = async () => {
+export const enableNotifications = async () => {
   const permissionGranted = await Notification.requestPermission()
   const registration = await getServiceWorkerRegistration()
   if (!permissionGranted || !registration) {

@@ -1,9 +1,13 @@
-import { describe, test, expect, vi } from 'vitest'
+import { beforeEach, describe, test, expect, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 import { render } from '@testing-library/svelte'
 import ConnectedHomepage from './ConnectedHomepage.svelte'
 
 describe('/ConnectedHomepage.svelte', () => {
+  beforeEach(() => {
+    localStorage.clear()
+  })
+
   test("should display user's initials on menu", () => {
     // Given
     globalThis.Notification = {}

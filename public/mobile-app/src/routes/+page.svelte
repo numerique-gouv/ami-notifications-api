@@ -137,7 +137,7 @@ function dismissNotice() {
       flex-direction: row;
       align-items: center;
       justify-content: space-between;
-      background-color: var(--grey-200-850);
+      background-color: var(--background-flat-grey);
       color: white;
       border-left: 3px solid #58B77D;
       border-radius: 0.25rem;

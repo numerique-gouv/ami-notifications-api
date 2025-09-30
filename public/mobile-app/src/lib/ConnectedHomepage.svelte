@@ -2,7 +2,7 @@
 import { parseJwt, franceConnectLogout } from '$lib/france-connect'
 import { onMount } from 'svelte'
 import {
-  clickOnNotificationPermission,
+  enableNotifications,
   retrieveNotifications,
   getSubscription,
 } from '$lib/notifications'
@@ -87,7 +87,7 @@ const toggleMenu = () => {
     <div class="container">
       <button
           type="button"
-          onclick={clickOnNotificationPermission}
+          onclick={enableNotifications}
           disabled={notificationsEnabled}
       >
         Recevoir des notifications sur ce terminal
