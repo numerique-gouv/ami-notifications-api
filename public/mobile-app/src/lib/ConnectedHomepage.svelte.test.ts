@@ -1,4 +1,4 @@
-import { beforeEach, describe, test, expect, vi } from 'vitest'
+import { describe, test, expect, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 import { render } from '@testing-library/svelte'
 import ConnectedHomepage from './ConnectedHomepage.svelte'
@@ -19,8 +19,8 @@ describe('/ConnectedHomepage.svelte', () => {
           exp: 1758012270,
           family_name: 'MERCIER',
           gender: 'male',
-          given_name: 'Pierre',
-          given_name_array: ['Pierre'],
+          given_name: 'Pierre Arthur Félix',
+          given_name_array: ['Pierre', 'Arthur', 'Félix'],
           iat: 1758012216,
           iss: 'https://fcp-low.sbx.dev-franceconnect.fr/api/v2',
           preferred_username: 'DUBOIS',
@@ -39,6 +39,6 @@ describe('/ConnectedHomepage.svelte', () => {
 
     // Then
     const initials = container.querySelector('.user-profile')
-    expect(initials).toHaveTextContent('P')
+    expect(initials).toHaveTextContent('PAF')
   })
 })
