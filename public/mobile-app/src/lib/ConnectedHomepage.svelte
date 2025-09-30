@@ -57,6 +57,7 @@ const updateButtonAndPushSubscription = async (permissionStatusState) => {
     pushSubscription = null
   }
   console.log(`notifications permission status is ${permissionStatusState}`)
+  console.log(`pushSubscription is ${pushSubscription}`)
 }
 
 const toggleMenu = () => {
