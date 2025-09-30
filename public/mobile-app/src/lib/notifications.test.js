@@ -49,7 +49,15 @@ describe('/notifications.ts', () => {
   describe('getSubscription', () => {
     test('should get subscription from pushManager when user is registered in service worker', async () => {
       // Given
-      let pushSubscription
+      const pushSubscription = {
+        endpoint: 'fake-endpoint',
+        toJSON: () => ({
+          keys: {
+            auth: 'fake-auth',
+            p256dh: 'fake-p256dh',
+          },
+        }),
+      }
       const registration = {
         pushManager: {
           getSubscription: vi.fn(() => pushSubscription),
@@ -68,13 +76,24 @@ describe('/notifications.ts', () => {
 
       // Then
       expect(result).toEqual(pushSubscription)
+      expect(result.endpoint).toEqual('fake-endpoint')
+      expect(result.toJSON().keys.auth).toEqual('fake-auth')
+      expect(result.toJSON().keys.p256dh).toEqual('fake-p256dh')
     })
   })
 
   describe('subscribePush', () => {
     test('should return PushSubscription when user subscribes to PushManager', async () => {
       // Given
-      let pushSubscription
+      const pushSubscription = {
+        endpoint: 'fake-endpoint',
+        toJSON: () => ({
+          keys: {
+            auth: 'fake-auth',
+            p256dh: 'fake-p256dh',
+          },
+        }),
+      }
       const registration = {
         pushManager: {
           subscribe: vi.fn(() => pushSubscription),
@@ -97,6 +116,9 @@ describe('/notifications.ts', () => {
 
       // Then
       expect(result).toEqual(pushSubscription)
+      expect(result.endpoint).toEqual('fake-endpoint')
+      expect(result.toJSON().keys.auth).toEqual('fake-auth')
+      expect(result.toJSON().keys.p256dh).toEqual('fake-p256dh')
     })
   })
 
@@ -106,7 +128,7 @@ describe('/notifications.ts', () => {
       globalThis.Notification = {
         requestPermission: () => true,
       }
-      let pushSubscription
+      const pushSubscription = {}
       const registration = {
         pushManager: {
           subscribe: vi.fn(() => pushSubscription),
