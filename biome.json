@@ -36,6 +36,13 @@
   },
   "assist": { "actions": { "source": { "organizeImports": "on" } } },
   "files": {
-    "includes": ["**/*.js", "**/*.json", "!**/*.min.*", "!.venv", "**/*.svelte"]
+    "includes": [
+      "**/*.js",
+      "**/*.json",
+      "!**/*.min.*",
+      "!.venv",
+      "**/*.svelte",
+      "**/*.ts"
+    ]
   }
 }
