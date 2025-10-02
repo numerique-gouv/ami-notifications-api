@@ -60,7 +60,7 @@ const franceConnectLogin = async () => {
 
   const query = {
     scope:
-      'openid given_name family_name preferred_username birthdate gender birthplace birthcountry sub email given_name_array',
+      'openid given_name family_name preferred_username birthdate gender birthplace birthcountry sub email given_name_array cnaf_quotient_familial',
     redirect_uri: PUBLIC_FC_AMI_REDIRECT_URL,
     response_type: 'code',
     client_id: PUBLIC_FC_AMI_CLIENT_ID,
