@@ -26,7 +26,7 @@ onMount(async () => {
   try {
     const userData = localStorage.getItem('user_data')
     userinfo = parseJwt(userData)
-    console.log(userinfo)
+    $inspect(userinfo)
 
     initials = getInitials(userinfo.given_name_array)
     notifications = await retrieveNotifications()
