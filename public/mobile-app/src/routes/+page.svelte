@@ -1,5 +1,6 @@
 <script lang="ts">
 import ConnectedHomepage from '$lib/ConnectedHomepage.svelte'
+import Navigation from '$lib/Navigation.svelte'
 import {
   PUBLIC_API_URL,
   PUBLIC_FC_AMI_CLIENT_ID,
@@ -118,6 +119,7 @@ function dismissNotice() {
     </div>
   </div>
 {:else}
+  <Navigation />
   <ConnectedHomepage />
 {/if}
 </div>
