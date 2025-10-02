@@ -76,6 +76,9 @@ PUBLIC_FC_TOKEN_ENDPOINT = os.getenv("PUBLIC_FC_TOKEN_ENDPOINT", "")
 PUBLIC_FC_JWKS_ENDPOINT = os.getenv("PUBLIC_FC_JWKS_ENDPOINT", "")
 PUBLIC_FC_USERINFO_ENDPOINT = os.getenv("PUBLIC_FC_USERINFO_ENDPOINT", "")
 PUBLIC_FC_LOGOUT_ENDPOINT = os.getenv("PUBLIC_FC_LOGOUT_ENDPOINT", "")
+PUBLIC_API_PARTICULIER_BASE_URL = os.getenv("PUBLIC_API_PARTICULIER_BASE_URL", "")
+PUBLIC_API_PARTICULIER_QUOTIENT_ENDPOINT = os.getenv("PUBLIC_API_PARTICULIER_QUOTIENT_ENDPOINT", "")
+PUBLIC_API_PARTICULIER_RECIPIENT_ID = os.getenv("PUBLIC_API_PARTICULIER_RECIPIENT_ID", "")
 PUBLIC_API_URL = os.getenv("PUBLIC_API_URL", "")
 PUBLIC_APP_URL = os.getenv("PUBLIC_APP_URL", "")
 PUBLIC_SECTOR_IDENTIFIER_URL = os.getenv("PUBLIC_SECTOR_IDENTIFIER_URL", "")
@@ -265,6 +268,23 @@ async def get_fc_userinfo(
     return Response(result, status_code=response.status_code)
 
 
+@get(path="/api-particulier/quotient", include_in_schema=False)
+async def get_api_particulier_quotient(
+    request: Request[Any, Any, Any],
+) -> Response[Any]:
+    """This endpoint "forwards" the request coming from the frontend (the app).
+
+    API Particulier doesn't implement CORS, so the app can't directly query it.
+    We thus have this endpoint to act as some kind of proxy.
+
+    """
+    response = httpx.get(
+        f"{PUBLIC_API_PARTICULIER_BASE_URL}{PUBLIC_API_PARTICULIER_QUOTIENT_ENDPOINT}?recipient={PUBLIC_API_PARTICULIER_RECIPIENT_ID}",
+        headers={"authorization": request.headers["authorization"]},
+    )
+    return Response(response.content, status_code=response.status_code)
+
+
 @get(path="/sector_identifier_url", include_in_schema=False)
 async def get_sector_identifier_url() -> Response[Any]:
     redirect_uris: list[str] = [
@@ -312,6 +332,7 @@ def create_app(
             get_notifications,
             login_callback,
             get_fc_userinfo,
+            get_api_particulier_quotient,
             get_sector_identifier_url,
             create_static_files_router(
                 path="/",
