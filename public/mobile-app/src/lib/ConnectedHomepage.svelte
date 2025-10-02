@@ -8,6 +8,7 @@ import {
 } from '$lib/notifications'
 
 let userinfo: Object = $state({})
+let quotientinfo: Object = $state({})
 let initials: String = $state('')
 let isMenuDisplayed = $state(false)
 let notificationsEnabled: boolean = $state(false)
@@ -25,8 +26,15 @@ const getInitials = (given_name_array: []): String => {
 onMount(async () => {
   try {
     const userData = localStorage.getItem('user_data')
+    const quotientData = localStorage.getItem('quotient_data')
+
     userinfo = parseJwt(userData)
     $inspect(userinfo)
+
+    if (quotientData) {
+      quotientinfo = JSON.parse(quotientData)
+      $inspect(quotientinfo)
+    }
 
     initials = getInitials(userinfo.given_name_array)
     notifications = await retrieveNotifications()
@@ -210,6 +218,7 @@ const toggleMenu = () => {
         <li>exp: { userinfo.exp }</li>
         <li>iat: { userinfo.iat }</li>
         <li>iss: { userinfo.iss }</li>
+        <li>quotientinfo: <pre>{ JSON.stringify(quotientinfo, null, 2) }</pre></li>
       </ul>
     </div>
     <h3 class="fr-accordion__title">
