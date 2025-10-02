@@ -3,8 +3,10 @@ import { parseJwt, franceConnectLogout } from '$lib/france-connect'
 import { onMount } from 'svelte'
 import { enableNotifications, getSubscription } from '$lib/notifications'
 import bankIcon from '@gouvfr/dsfr/dist/icons/buildings/bank-line.svg'
+import { PUBLIC_API_URL } from '$env/static/public'
 
 let userinfo: Object = $state({})
+let quotientinfo: Object = $state({})
 let initials: String = $state('')
 let isMenuDisplayed = $state(false)
 let notificationsEnabled: boolean = $state(false)
@@ -21,6 +23,7 @@ const getInitials = (given_name_array: []): String => {
 onMount(async () => {
   try {
     const userData = localStorage.getItem('user_data')
+
     userinfo = parseJwt(userData)
     $inspect(userinfo)
 
@@ -37,6 +40,26 @@ onMount(async () => {
         console.log('notifications permission status has changed')
         await updateButtonAndPushSubscription(permissionStatus.state)
       }
+    }
+
+    let quotientData = localStorage.getItem('quotient_data')
+    if (!quotientData) {
+      const access_token = localStorage.getItem('access_token')
+      const token_type = localStorage.getItem('token_type')
+      const quotient_endpoint_headers = {
+        Authorization: `${token_type} ${access_token}`,
+      }
+      const response = await fetch(`${PUBLIC_API_URL}/api-particulier/quotient`, {
+        headers: quotient_endpoint_headers,
+      })
+      quotientData = await response.text()
+      if (response.ok) {
+        localStorage.setItem('quotient_data', quotientData)
+      }
+    }
+    if (!!quotientData) {
+      quotientinfo = JSON.parse(quotientData)
+      console.log($state.snapshot(quotientinfo))
     }
   } catch (error) {
     console.error(error)
@@ -205,6 +228,7 @@ const toggleMenu = () => {
         <li>exp: { userinfo.exp }</li>
         <li>iat: { userinfo.iat }</li>
         <li>iss: { userinfo.iss }</li>
+        <li>quotientinfo: <pre>{ JSON.stringify(quotientinfo, null, 2) }</pre></li>
       </ul>
     </div>
   </section>
