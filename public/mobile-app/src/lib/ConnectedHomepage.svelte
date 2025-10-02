@@ -215,27 +215,6 @@ const toggleMenu = () => {
       </ul>
     </div>
   </section>
-
-  <nav class="fr-nav" aria-label="Menu principal">
-    <ul class="fr-nav__list">
-      <li class="fr-nav__item">
-        <img class="arrow-line" src="/remixicons/home-4-fill.svg" alt="Icône de flèche" />
-        <a class="fr-nav__link" href="/" target="_self" aria-current="page">Accueil</a>
-      </li>
-      <li class="fr-nav__item">
-        <img class="arrow-line" src="/remixicons/calendar-event-line.svg" alt="Icône de flèche" />
-        <a class="fr-nav__link" href="/" target="_self">Échéancier</a>
-      </li>
-      <li class="fr-nav__item">
-        <img class="arrow-line" src="/remixicons/list-check.svg" alt="Icône de flèche" />
-        <a class="fr-nav__link" href="/" target="_self">Listes</a>
-      </li>
-      <li class="fr-nav__item">
-        <img class="arrow-line" src="/remixicons/edit-line.svg" alt="Icône de flèche" />
-        <a class="fr-nav__link" href="/" target="_self">Demandes</a>
-      </li>
-    </ul>
-  </nav>
 </div>
 
 <style>
@@ -244,6 +223,8 @@ const toggleMenu = () => {
   }
 
   .homepage-connected {
+    margin: 24px 16px;
+
     .header {
       display: flex;
       justify-content: space-between;
@@ -376,32 +357,6 @@ const toggleMenu = () => {
 
     .fr-accordion {
       margin-bottom: 24px;
-    }
-
-    nav {
-      .fr-nav__list {
-        flex-direction: row;
-        justify-content: space-around;
-
-        .fr-nav__item::before {
-           content: none;
-        }
-
-        .fr-nav__item {
-          align-items: center;
-
-          img {
-            width: 24px;
-          }
-
-          a {
-            color: var(--grey-200-850);
-            font-size: 12px;
-            font-weight: 400;
-            line-height: 20px;
-          }
-        }
-      }
     }
   }
 </style>
