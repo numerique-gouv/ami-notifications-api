@@ -145,7 +145,7 @@ const franceConnectLogout = async () => {
             <p class="fr-tile__desc">Le ramassage mensuel des encombrants aura lieu ce jeudi 4 avril</p>
             <div class="fr-tile__start">
               <p class="fr-badge">
-                <img src="/dsfr-v1.14.0/icons/buildings/bank-line.svg" alt="Icône de banque" />
+                <span class="fr-icon-bank-line" aria-hidden="true"></span>
                 Municipalité
               </p>
             </div>
@@ -331,6 +331,11 @@ const franceConnectLogout = async () => {
             background-color: var(--green-bourgeon-975-75);
 
             img {
+              width: 12px;
+              margin-right: 4px;
+            }
+
+            span:before {
               width: 12px;
               margin-right: 4px;
             }
