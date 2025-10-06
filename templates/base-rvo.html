@@ -8,8 +8,8 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/manifest.json" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="/dsfr-v1.14.0/dsfr.min.css" />
-    <link rel="stylesheet" href="/dsfr-v1.14.0/utility/utility.min.css" />
+    <link rel="stylesheet" href="/rvo-static/dsfr-v1.14.0/dsfr.min.css" />
+    <link rel="stylesheet" href="/rvo-static/dsfr-v1.14.0/utility/utility.min.css" />
     {% block style %}
       <style>
         .container {
@@ -167,7 +167,7 @@
           {% block wrapper %}
             {% if not isFranceConnected %}
               <div class="rvo-title fr-mt-4v fr-mb-10v">
-                <img src="/icons/rvo-logo-not-connected.svg" alt="Logo de RVO" />
+                <img src="/rvo-static/icons/rvo-logo-not-connected.svg" alt="Logo de RVO" />
               </div>
               <div class="homepage-not-connected-wrapper fr-mt-10v fr-pt-10v">
                 <div class="homepage-not-connected">
@@ -195,7 +195,7 @@
             {% else %}
               <div class="rvo-title fr-mb-6v">
                 <div class="rvo-title-logo">
-                  <img src="/icons/rvo-logo-connected.svg" alt="Logo de RVO" />
+                  <img src="/rvo-static/icons/rvo-logo-connected.svg" alt="Logo de RVO" />
                 </div>
                 <div>
                   <h1 class="rvo-title-label">MES RENDEZ-VOUS</h1>
@@ -231,7 +231,7 @@
       {% endblock out_wrapper %}
     </main>
     {% block extra_body %}{% endblock extra_body %}
-    <script type="module" src="/dsfr-v1.14.0/dsfr.module.min.js"></script>
-    <script type="text/javascript" nomodule src="/dsfr-v1.14.0/dsfr.nomodule.min.js"></script>
+    <script type="module" src="/rvo-static/dsfr-v1.14.0/dsfr.module.min.js"></script>
+    <script type="text/javascript" nomodule src="/rvo-static/dsfr-v1.14.0/dsfr.nomodule.min.js"></script>
   </body>
 </html>
