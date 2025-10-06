@@ -9,3 +9,4 @@ __pycache__
 .env.local
 node_modules
 session_data
+public/mobile-app/static/pictograms

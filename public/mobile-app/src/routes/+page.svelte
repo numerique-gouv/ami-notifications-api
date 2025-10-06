@@ -1,4 +1,7 @@
 <script lang="ts">
+import '@gouvfr/dsfr/dist/dsfr.min.css'
+import '@gouvfr/dsfr/dist/utility/utility.min.css'
+
 import ConnectedHomepage from '$lib/ConnectedHomepage.svelte'
 import {
   PUBLIC_API_URL,
@@ -96,7 +99,11 @@ function dismissNotice() {
 {#if !isFranceConnected}
   <div class="homepage-not-connected">
     <div class="france-connect-svg-icon">
-      <img src="/dsfr-v1.14.0/artwork/pictograms/digital/application.svg" alt="Icône de notification" />
+      <svg class="fr-artwork" aria-hidden="true" viewBox="0 0 80 80" width="80px" height="80px">
+        <use class="fr-artwork-decorative" href="/pictograms/digital/application.svg#artwork-decorative"></use>
+        <use class="fr-artwork-minor" href="/pictograms/digital/application.svg#artwork-minor"></use>
+        <use class="fr-artwork-major" href="/pictograms/digital/application.svg#artwork-major"></use>
+      </svg>
     </div>
 
     <div class="france-connect-text">
