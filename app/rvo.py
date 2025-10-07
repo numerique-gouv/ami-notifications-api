@@ -17,7 +17,7 @@ from litestar.status_codes import (
 )
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.models.database import get_notification_list, get_user_list
+from app.models import get_notification_list, get_user_list
 
 PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID = os.getenv("PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID", "")
 FC_SERVICE_PROVIDER_CLIENT_SECRET = os.getenv("FC_SERVICE_PROVIDER_CLIENT_SECRET", "")

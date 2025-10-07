@@ -8,31 +8,23 @@ from sqlalchemy.sql.base import ExecutableOption
 from sqlmodel import Column, Field, Relationship, SQLModel, col, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.models.endpoints import Userinfo
+
+class FCUserInfo(SQLModel, table=False):
+    birthcountry: int | None = Field(default=None)
+    birthdate: datetime.date | None = Field(default=None)
+    birthplace: int | None = Field(default=None)
+    email: str | None = Field(default=None)
+    family_name: str | None = Field(default=None)
+    gender: str | None = Field(default=None)
+    given_name: str | None = Field(default=None)
 
 
-class User(SQLModel, table=True):
+class User(FCUserInfo, table=True):
     __tablename__ = "ami_user"  # type: ignore
 
     id: int | None = Field(default=None, primary_key=True)
-    email: str | None = Field(default=None)
-    donnees_pivot: "PivotalData" = Relationship(back_populates="user")
     registrations: list["Registration"] = Relationship(back_populates="user")
     notifications: list["Notification"] = Relationship(back_populates="user")
-
-
-class PivotalData(SQLModel, table=True):
-    id: int | None = Field(default=None, primary_key=True)
-    user_id: int = Field(foreign_key="ami_user.id", unique=True)
-    user: User = Relationship(
-        back_populates="donnees_pivot", sa_relationship_kwargs={"uselist": False}
-    )
-    given_name: str
-    family_name: str
-    birthdate: datetime.date
-    gender: str
-    birthplace: int
-    birthcountry: int
 
 
 class Registration(SQLModel, table=True):
@@ -71,20 +63,10 @@ async def get_user_by_id(
 
 
 async def get_user_by_userinfo(
-    userinfo: Userinfo, db_session: AsyncSession, options: ExecutableOption | None = None
+    userinfo: FCUserInfo, db_session: AsyncSession, options: ExecutableOption | None = None
 ) -> User:
-    query = (
-        select(User)
-        .join(User.donnees_pivot)  # pyright: ignore[reportArgumentType]
-        .where(
-            col(PivotalData.given_name) == userinfo.given_name,
-            col(PivotalData.family_name) == userinfo.family_name,
-            col(PivotalData.birthdate) == userinfo.birthdate,
-            col(PivotalData.gender) == userinfo.gender,
-            col(PivotalData.birthplace) == userinfo.birthplace,
-            col(PivotalData.birthcountry) == userinfo.birthcountry,
-        )
-    )
+    constraints = [col(getattr(User, field)) == value for (field, value) in vars(userinfo).items()]
+    query = select(User).where(*constraints)
     if options:
         query = query.options(options)
     result = await db_session.exec(query)
@@ -107,19 +89,7 @@ async def get_user_list(
     return list(result.all())
 
 
-async def create_user_from_userinfo(userinfo: Userinfo, db_session: AsyncSession) -> User:
-    donnees_pivot = PivotalData(  # pyright: ignore[reportCallIssue]
-        given_name=userinfo.given_name,
-        family_name=userinfo.family_name,
-        birthdate=userinfo.birthdate,
-        gender=userinfo.gender,
-        birthplace=userinfo.birthplace,
-        birthcountry=userinfo.birthcountry,
-    )
-    user = User(
-        email=userinfo.email,
-        donnees_pivot=donnees_pivot,
-    )
+async def create_user_from_userinfo(user: User, db_session: AsyncSession) -> User:
     db_session.add(user)
     await db_session.commit()
     await db_session.refresh(user)

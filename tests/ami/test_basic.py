@@ -10,7 +10,7 @@ from pytest_httpx import HTTPXMock
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.models.database import Notification, PivotalData, Registration, User
+from app.models import Notification, Registration, User
 
 
 async def test_register_user_does_not_exist(
@@ -214,19 +214,18 @@ async def test_fc_get_userinfo(
         "user_data": fake_userinfo_token,
     }
 
-    all_users = (await db_session.exec(select(User, PivotalData).join(PivotalData))).all()
+    all_users = (await db_session.exec(select(User))).all()
     assert len(all_users) == 1
-    user, donnees_pivot = all_users[0]
+    user = all_users[0]
     assert user.id == 1
     assert user.email == "angela@dubois.fr"
-    assert donnees_pivot.id == 1
-    assert donnees_pivot.user_id == 1
-    assert donnees_pivot.given_name == "Angela Claire Louise"
-    assert donnees_pivot.family_name == "DUBOIS"
-    assert donnees_pivot.birthdate == datetime.date(1962, 8, 24)
-    assert donnees_pivot.gender == "female"
-    assert donnees_pivot.birthplace == 75107
-    assert donnees_pivot.birthcountry == 99100
+    assert user.id == 1
+    assert user.given_name == "Angela Claire Louise"
+    assert user.family_name == "DUBOIS"
+    assert user.birthdate == datetime.date(1962, 8, 24)
+    assert user.gender == "female"
+    assert user.birthplace == 75107
+    assert user.birthcountry == 99100
 
     response = test_client.get("/fc_userinfo", headers=auth)
 
@@ -235,12 +234,6 @@ async def test_fc_get_userinfo(
         "user_id": 1,
         "user_data": fake_userinfo_token,
     }
-    all_users = (await db_session.exec(select(User, PivotalData).join(PivotalData))).all()
-    assert len(all_users) == 1
-    user, donnees_pivot = all_users[0]
-    assert user.id == 1
-    assert donnees_pivot.id == 1
-    assert donnees_pivot.user_id == 1
 
 
 async def test_get_sector_identifier_url(
