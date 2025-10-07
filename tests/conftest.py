@@ -97,7 +97,7 @@ async def db_session(
 
 @pytest.fixture
 async def user(db_session: AsyncSession) -> User:
-    user_ = User(email="user@example.com")
+    user_ = User(email="user@example.com", family_name="AMI", given_name="Test User")
     db_session.add(user_)
     await db_session.commit()
     return user_

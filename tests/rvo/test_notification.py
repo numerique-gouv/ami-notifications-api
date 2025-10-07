@@ -2,14 +2,16 @@ from typing import Any
 
 from litestar import Litestar
 from litestar.testing import TestClient
+from sqlmodel.ext.asyncio.session import AsyncSession
 
-from app.models import User
+from app.models import Notification, User
 
 from .utils import check_url_when_logged_out
 
 
 async def test_rvo_test_list_users_when_logged_in(
     test_client: TestClient[Litestar],
+    db_session: AsyncSession,
     userinfo: dict[str, Any],
     user: User,
 ) -> None:
@@ -20,7 +22,21 @@ async def test_rvo_test_list_users_when_logged_in(
 
     response = test_client.get("/rvo/test")
     assert response.status_code == 200
-    assert f"ID : {user.id}, email : {user.email}" in response.text
+    assert f"{user.id} AMI Test User <span>user@example.com, notifications envoyées: 0"
+
+    assert user.id is not None, "User ID should be set"
+    notification_ = Notification(
+        user_id=user.id,
+        message="Hello notification",
+        title="Notification title",
+        sender="John Doe",
+    )
+    db_session.add(notification_)
+    await db_session.commit()
+
+    response = test_client.get("/rvo/test")
+    assert response.status_code == 200
+    assert f"{user.id} AMI Test User <span>user@example.com, notifications envoyées: 1"
 
 
 async def test_rvo_test_list_users_when_logged_out(

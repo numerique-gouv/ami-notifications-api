@@ -1,12 +1,24 @@
 {% extends "rvo/base.html" %}
 
+{% block style %}
+  {{ super() }}
+  <style>
+    .users--item {
+      span {
+        color: var(--text-disabled-grey);
+        font-size: 12px;
+      }
+    }
+  </style>
+{% endblock style %}
+
 {% block footer_nav_current %}test{% endblock %}
 
 {% block wrapper %}
   <h2>Usagers</h2>
-  <ul>
+  <ul class="users">
     {% for user in users %}
-      <li>ID : {{ user.id }}, email : {{ user.email }}</li>
+      <li class="users--item">#{{ user.id }} {{ user.name }} <span>{{ user.email }}, notifications envoyées: {{ user.notifications|length }}</span></li>
     {% endfor %}
   </ul>
 {% endblock wrapper %}

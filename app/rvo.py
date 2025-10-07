@@ -15,10 +15,11 @@ from litestar.status_codes import (
     HTTP_404_NOT_FOUND,
     HTTP_500_INTERNAL_SERVER_ERROR,
 )
+from sqlalchemy.orm import selectinload
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app import rvo_auth
-from app.models import get_user_list
+from app.models import User, get_user_list
 
 PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID = os.getenv("PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID", "")
 FC_SERVICE_PROVIDER_CLIENT_SECRET = os.getenv("FC_SERVICE_PROVIDER_CLIENT_SECRET", "")
@@ -152,7 +153,10 @@ async def logged_out() -> Template:
 
 @get(path="/test", guards=[rvo_auth.authenticated_guard], include_in_schema=False)
 async def list_users(db_session: AsyncSession) -> Template:
-    users = await get_user_list(db_session)
+    users = await get_user_list(
+        db_session,
+        options=selectinload(User.notifications),
+    )
     return Template(
         template_name="rvo/list-users.html",
         context={"users": users, "isFranceConnected": True},
