@@ -36,7 +36,8 @@ from sqlalchemy.orm import InstrumentedAttribute, selectinload
 from sqlmodel.ext.asyncio.session import AsyncSession
 from webpush import WebPush, WebPushSubscription
 
-from app.models.database import (
+from app.models import (
+    FCUserInfo,
     Notification,
     Registration,
     User,
@@ -48,7 +49,6 @@ from app.models.database import (
     get_user_by_userinfo,
     get_user_list,
 )
-from app.models.endpoints import Userinfo
 
 from .database import db_connection, provide_db_session
 from .rvo import rvo_router
@@ -246,12 +246,16 @@ async def get_fc_userinfo(
     decoded_userinfo = jwt.decode(
         userinfo_jws, options={"verify_signature": False}, algorithms=["ES256"]
     )
+    ignore_keys = ["aud", "nonce", "exp", "iat", "auth_time", "iss"]
+    useful_userinfo = {key: val for key, val in decoded_userinfo.items() if key not in ignore_keys}
 
-    userinfo = Userinfo(decoded_userinfo)
+    userinfo = FCUserInfo(**useful_userinfo)
+
     try:
         user = await get_user_by_userinfo(userinfo, db_session)
     except NotFoundException:
-        user = await create_user_from_userinfo(userinfo, db_session)
+        user_ = User(**vars(userinfo))
+        user = await create_user_from_userinfo(user_, db_session)
     result: dict[str, Any] = {
         "user_id": user.id,
         "user_data": userinfo_jws,
