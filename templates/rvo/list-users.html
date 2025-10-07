@@ -18,7 +18,7 @@
   <h2>Usagers</h2>
   <ul class="users">
     {% for user in users %}
-      <li class="users--item">#{{ user.id }} {{ user.name }} <span>{{ user.email }}, notifications envoyées: {{ user.notifications|length }}</span></li>
+      <li class="users--item"><a href="/rvo/test/user/{{ user.id }}/send-notification">#{{ user.id }} {{ user.name }}</a> <span>{{ user.email }}, notifications envoyées: {{ user.notifications|length }}</span></li>
     {% endfor %}
   </ul>
 {% endblock wrapper %}

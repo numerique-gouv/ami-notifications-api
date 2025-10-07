@@ -56,10 +56,9 @@ class Notification(SQLModel, table=True):
 async def get_user_by_id(
     user_id: int, db_session: AsyncSession, options: ExecutableOption | None = None
 ) -> User:
+    query = select(User).where(col(User.id) == user_id)
     if options:
-        query = select(User).where(col(User.id) == user_id).options(options)
-    else:
-        query = select(User).where(col(User.id) == user_id)
+        query = query.options(options)
     result = await db_session.exec(query)
     try:
         return result.one()

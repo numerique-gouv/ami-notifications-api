@@ -1,11 +1,8 @@
 {% extends "rvo/base.html" %}
 
 {% block style %}
+  {{ super() }}
   <style>
-    .container > * {
-      padding: 24px 16px;
-    }
-
     nav .back-link {
       margin-bottom: 24px;
     }
@@ -13,31 +10,29 @@
       text-decoration: none;
       --underline-img: none;
     }
+    .notifications--item {
+      span {
+        color: var(--text-disabled-grey);
+        font-size: 12px;
+      }
+    }
   </style>
 {% endblock style %}
+
+{% block footer_nav_current %}test{% endblock %}
 
 {% block wrapper %}
   <nav>
     <div class="back-link">
-      <a href="/rvo" title="Retour à la page d'accueil">
+      <a href="/rvo/test" title="Retour à la page de test">
         <span aria-hidden="true" class="fr-icon-arrow-left-line"></span>
       </a>
     </div>
   </nav>
 
-  <h2>Envoyer une notification</h2>
+  <h2>Envoyer une notification à {{ user.email }}</h2>
 
-  <form action="" method="post">
-    <div class="fr-select-group">
-      <label class="fr-label" for="user-id">Usager</label>
-      <select class="fr-select" aria-describedby="select-hint-messages" id="user-id" name="user-id">
-        {% for user in users %}
-          <option value="{{ user.id }}">{{ user.email }}</option>
-        {% endfor %}
-      </select>
-      <div class="fr-messages-group" id="select-hint-messages" aria-live="polite">
-      </div>
-    </div>
+  <form class="fr-pb-4v" action="" method="post">
     <div class="fr-input-group">
       <label class="fr-label" for="send-notification-title-input">Titre</label>
       <input class="fr-input" aria-describedby="input-messages" id="send-notification-title-input" type="text">
@@ -62,12 +57,20 @@
     </button>
     <span id="send-notification-status"></span>
   </form>
+
+  {% if user.notifications %}
+    <h3>Historique des notifications</h3>
+    <ul class="notifications">
+      {% for notification in user.notifications|reverse %}
+        <li class="notifications--item">#{{ notification.id }} {{ notification.title }} - {{ notification.message }} <span>envoyé par: {{ notification.sender }}, le {{ notification.date.strftime('%d/%m/%Y %H:%M:%S') }}</span></li>
+      {% endfor %}
+    </ul>
+  {% endif %}
 {% endblock wrapper %}
 
 {% block extra_body %}
   <script lang="ts">
     const sendNotification = async () => {
-      const userIdInput = document.querySelector('#user-id')
       const notifyTitleInput = document.querySelector('#send-notification-title-input')
       const notifyMessageInput = document.querySelector('#send-notification-message-input')
       const notifySenderInput = document.querySelector('#send-notification-sender-input')
@@ -78,7 +81,7 @@
         title: notifyTitleInput.value,
         message: notifyMessageInput.value,
         sender: notifySenderInput.value,
-        user_id: userIdInput.value,
+        user_id: {{ user.id }},
       }
       console.log(payload)
       console.log('notifying a message')

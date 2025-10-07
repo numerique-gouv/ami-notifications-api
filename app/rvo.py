@@ -19,7 +19,7 @@ from sqlalchemy.orm import selectinload
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app import rvo_auth
-from app.models import User, get_user_list
+from app.models import User, get_user_by_id, get_user_list
 
 PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID = os.getenv("PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID", "")
 FC_SERVICE_PROVIDER_CLIENT_SECRET = os.getenv("FC_SERVICE_PROVIDER_CLIENT_SECRET", "")
@@ -163,12 +163,20 @@ async def list_users(db_session: AsyncSession) -> Template:
     )
 
 
-@get(path="/envoi-d-une-notification/", include_in_schema=False)
-async def send_notification(db_session: AsyncSession) -> Template:
-    users = await get_user_list(db_session)
+@get(
+    path="/test/user/{user_id: int}/send-notification",
+    guards=[rvo_auth.authenticated_guard],
+    include_in_schema=False,
+)
+async def send_notification(user_id: int, db_session: AsyncSession) -> Template:
+    user = await get_user_by_id(
+        user_id,
+        db_session,
+        options=selectinload(User.notifications),
+    )
     return Template(
         template_name="rvo/send-notification.html",
-        context={"users": users},
+        context={"user": user, "isFranceConnected": True},
     )
 
 
