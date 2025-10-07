@@ -18,7 +18,7 @@ from litestar.status_codes import (
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app import rvo_auth
-from app.models import get_notification_list, get_user_list
+from app.models import get_user_list
 
 PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID = os.getenv("PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID", "")
 FC_SERVICE_PROVIDER_CLIENT_SECRET = os.getenv("FC_SERVICE_PROVIDER_CLIENT_SECRET", "")
@@ -150,13 +150,12 @@ async def logged_out() -> Template:
     return Template(template_name="rvo/logged-out.html")
 
 
-@get(path="/liste-des-usagers/", include_in_schema=False)
+@get(path="/test", guards=[rvo_auth.authenticated_guard], include_in_schema=False)
 async def list_users(db_session: AsyncSession) -> Template:
     users = await get_user_list(db_session)
-    notifications = await get_notification_list(db_session)
     return Template(
         template_name="rvo/list-users.html",
-        context={"users": users, "notifications": notifications},
+        context={"users": users, "isFranceConnected": True},
     )
 
 

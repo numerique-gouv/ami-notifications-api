@@ -1,30 +1,8 @@
 {% extends "rvo/base.html" %}
 
-{% block style %}
-  <style>
-    .container > * {
-      padding: 24px 16px;
-    }
-
-    nav .back-link {
-      margin-bottom: 24px;
-    }
-    nav .back-link a {
-      text-decoration: none;
-      --underline-img: none;
-    }
-  </style>
-{% endblock style %}
+{% block footer_nav_current %}test{% endblock %}
 
 {% block wrapper %}
-  <nav>
-    <div class="back-link">
-      <a href="/rvo" title="Retour à la page d'accueil">
-        <span aria-hidden="true" class="fr-icon-arrow-left-line"></span>
-      </a>
-    </div>
-  </nav>
-
   <h2>Usagers</h2>
   <ul>
     {% for user in users %}
