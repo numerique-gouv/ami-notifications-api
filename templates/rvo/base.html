@@ -124,11 +124,11 @@
         .footer-nav a {
           background: none;
           color: #666666;
+          width: 80px;
         }
-        .footer-nav.rvo .footer-nav-item-rvo {
+        .footer-nav.rvo .footer-nav-item-rvo, .footer-nav.test .footer-nav-item-test {
           background-color: var(--background-action-low-blue-france);
           color: var(--blue-france-sun-113-625);
-          width: 80px;
         }
       </style>
     {% endblock style %}
@@ -216,12 +216,12 @@
           <div class="footer-nav fr-py-2v {% block footer_nav_current %}{% endblock %}">
             <div class="fr-grid-row">
               <div class="fr-col-6 footer-nav-item-container">
-                <a href="/" class="fr-icon-calendar-event-fill fr-tag fr-tag--icon-right footer-nav-item-rvo"></a>
+                <a href="/rvo" class="fr-icon-calendar-event-fill fr-tag fr-tag--icon-right footer-nav-item-rvo"></a>
                 <br />
                 rendez-vous
               </div>
               <div class="fr-col-6 footer-nav-item-container">
-                <a href="/" class="fr-icon-test-tube-fill fr-tag fr-tag--icon-right footer-nav-item-test"></a>
+                <a href="/rvo/test" class="fr-icon-test-tube-fill fr-tag fr-tag--icon-right footer-nav-item-test"></a>
                 <br />
                 tester
               </div>
