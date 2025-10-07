@@ -17,6 +17,7 @@ from litestar.status_codes import (
 )
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+from app import rvo_auth
 from app.models import get_notification_list, get_user_list
 
 PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID = os.getenv("PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID", "")
@@ -122,7 +123,7 @@ async def login_callback(
 
 @get(path="/logout", include_in_schema=False)
 async def logout(request: Request[Any, Any, Any]) -> Response[Any]:
-    if is_not_connected(request.session):
+    if rvo_auth.is_not_connected(request.session):
         return Redirect("/rvo")
 
     logout_url: str = f"{PUBLIC_FC_BASE_URL}{PUBLIC_FC_LOGOUT_ENDPOINT}"
@@ -168,15 +169,10 @@ async def send_notification(db_session: AsyncSession) -> Template:
     )
 
 
-@get(path="/detail/{detail_id: str}", include_in_schema=False)
-async def detail(detail_id: str, request: Request[Any, Any, Any]) -> Response[Any] | Template:
-    if is_not_connected(request.session):
-        request.session["redirect_once_connected"] = str(request.url)
-        return Redirect("/rvo")
-
-    if "redirect_once_connected" in request.session:
-        del request.session["redirect_once_connected"]  # Not useful anymore.
-
+@get(
+    path="/detail/{detail_id: str}", guards=[rvo_auth.authenticated_guard], include_in_schema=False
+)
+async def detail(detail_id: str) -> Response[Any] | Template:
     meeting_list: dict[str, dict[str, str]] = {meeting["id"]: meeting for meeting in MEETING_LIST}
     if detail_id not in meeting_list:
         return error_from_message(
@@ -190,10 +186,6 @@ async def detail(detail_id: str, request: Request[Any, Any, Any]) -> Response[An
             "detail": detail,
         },
     )
-
-
-def is_not_connected(session: dict[str, Any]) -> bool:
-    return "userinfo" not in session or "id_token" not in session
 
 
 def error_from_response(response: Response[str], ami_details: str | None = None) -> Response[str]:
@@ -221,4 +213,7 @@ rvo_router: Router = Router(
         send_notification,
         detail,
     ],
+    exception_handlers={
+        rvo_auth.NotAuthenticatedException: rvo_auth.redirect_to_login_exception_handler
+    },
 )
