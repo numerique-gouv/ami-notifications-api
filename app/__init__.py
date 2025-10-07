@@ -32,7 +32,7 @@ from litestar.status_codes import (
 )
 from litestar.stores.file import FileStore
 from litestar.template.config import TemplateConfig
-from sqlalchemy.orm import InstrumentedAttribute, selectinload
+from sqlalchemy.orm import selectinload
 from sqlmodel.ext.asyncio.session import AsyncSession
 from webpush import WebPush, WebPushSubscription
 
@@ -138,7 +138,7 @@ async def notify(
     user = await get_user_by_id(
         data.user_id,
         db_session,
-        options=selectinload(cast(InstrumentedAttribute[Any], User.registrations)),
+        options=selectinload(User.registrations),
     )
 
     for registration in user.registrations:
@@ -170,7 +170,7 @@ async def get_notifications(db_session: AsyncSession, user_id: int) -> Response[
     user: User = await get_user_by_id(
         user_id,
         db_session,
-        options=selectinload(cast(InstrumentedAttribute[Any], User.notifications)),
+        options=selectinload(User.notifications),
     )
     return Response(user.notifications, status_code=HTTP_200_OK)
 
@@ -182,7 +182,7 @@ async def list_registrations(
     user: User = await get_user_by_id(
         user_id,
         db_session,
-        options=selectinload(cast(InstrumentedAttribute[Any], User.registrations)),
+        options=selectinload(User.registrations),
     )
     return Response(user.registrations, status_code=HTTP_200_OK)
 

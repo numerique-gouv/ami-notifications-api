@@ -4,6 +4,7 @@ from typing import Any
 from litestar.exceptions import NotFoundException
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.exc import NoResultFound
+from sqlalchemy.orm import Mapped
 from sqlalchemy.sql.base import ExecutableOption
 from sqlmodel import Column, Field, Relationship, SQLModel, col, select
 from sqlmodel.ext.asyncio.session import AsyncSession
@@ -18,13 +19,17 @@ class FCUserInfo(SQLModel, table=False):
     gender: str | None = Field(default=None)
     given_name: str | None = Field(default=None)
 
+    @property
+    def name(self):
+        return f"{self.family_name} {self.given_name}"
+
 
 class User(FCUserInfo, table=True):
     __tablename__ = "ami_user"  # type: ignore
 
     id: int | None = Field(default=None, primary_key=True)
-    registrations: list["Registration"] = Relationship(back_populates="user")
-    notifications: list["Notification"] = Relationship(back_populates="user")
+    registrations: Mapped[list["Registration"]] = Relationship(back_populates="user")
+    notifications: Mapped[list["Notification"]] = Relationship(back_populates="user")
 
 
 class Registration(SQLModel, table=True):
@@ -80,10 +85,9 @@ async def get_user_list(
     db_session: AsyncSession,
     options: ExecutableOption | None = None,
 ) -> list[User]:
+    query = select(User)
     if options:
-        query = select(User).options(options)
-    else:
-        query = select(User)
+        query = query.options(options)
     query = query.order_by(col(User.id))
     result = await db_session.exec(query)
     return list(result.all())
