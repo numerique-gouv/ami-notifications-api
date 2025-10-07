@@ -6,6 +6,8 @@ from litestar import Litestar
 from litestar.testing import TestClient
 from pytest_httpx import HTTPXMock
 
+from .utils import check_url_when_logged_out
+
 
 async def test_rvo_login_callback(
     test_client: TestClient[Litestar],
@@ -113,11 +115,4 @@ async def test_rvo_detail_when_logged_in(
 async def test_rvo_detail_when_logged_out(
     test_client: TestClient[Litestar],
 ) -> None:
-    detail_url = "/rvo/detail/1"
-    response = test_client.get(detail_url, follow_redirects=False)
-    assert response.status_code == 302
-    assert "redirect_once_connected" in test_client.get_session_data()
-    assert (
-        test_client.get_session_data()["redirect_once_connected"]
-        == f"http://testserver.local{detail_url}"
-    )
+    await check_url_when_logged_out("/rvo/detail/1", test_client)
