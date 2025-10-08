@@ -6,6 +6,7 @@ import {
   retrieveNotifications,
   getSubscription,
 } from '$lib/notifications'
+import bankIcon from '@gouvfr/dsfr/dist/icons/buildings/bank-line.svg'
 
 let userinfo: Object = $state({})
 let initials: String = $state('')
@@ -167,7 +168,7 @@ const toggleMenu = () => {
             <p class="fr-tile__desc">Le ramassage mensuel des encombrants aura lieu ce jeudi 4 avril</p>
             <div class="fr-tile__start">
               <p class="fr-badge">
-                <img src="/dsfr-v1.14.0/icons/buildings/bank-line.svg" alt="Icône de banque" />
+                <img src="{bankIcon}" alt="Icône de banque" />
                 Municipalité
               </p>
             </div>

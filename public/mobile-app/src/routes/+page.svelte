@@ -10,6 +10,7 @@ import {
 import { onMount } from 'svelte'
 import { page } from '$app/state'
 import { goto } from '$app/navigation'
+import applicationSvg from '@gouvfr/dsfr/dist/artwork/pictograms/digital/application.svg'
 
 let isFranceConnected: boolean = $state(false)
 let isLoggedOut: boolean = $state(false)
@@ -95,7 +96,7 @@ function dismissNotice() {
 {#if !isFranceConnected}
   <div class="homepage-not-connected">
     <div class="france-connect-svg-icon">
-      <img src="/dsfr-v1.14.0/artwork/pictograms/digital/application.svg" alt="Icône de notification" />
+      <img src="{applicationSvg}" alt="Icône de notification" />
     </div>
 
     <div class="france-connect-text">
