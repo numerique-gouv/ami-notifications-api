@@ -68,9 +68,6 @@ sentry_sdk.init(
 # This is the folder where the svelte PWA is built statically.
 HTML_DIR = "public/mobile-app/build"
 
-# This is the folder where the "admin" (test API client) is.
-HTML_DIR_ADMIN = "public"
-
 PUBLIC_FC_AMI_CLIENT_ID = os.getenv("PUBLIC_FC_AMI_CLIENT_ID", "")
 FC_AMI_CLIENT_SECRET = os.getenv("FC_AMI_CLIENT_SECRET", "")
 PUBLIC_FC_BASE_URL = os.getenv("PUBLIC_FC_BASE_URL", "")
@@ -316,11 +313,6 @@ def create_app(
             login_callback,
             get_fc_userinfo,
             get_sector_identifier_url,
-            create_static_files_router(
-                path="/admin/static",
-                directories=[HTML_DIR_ADMIN],
-                html_mode=True,
-            ),
             create_static_files_router(
                 path="/",
                 directories=[HTML_DIR],
