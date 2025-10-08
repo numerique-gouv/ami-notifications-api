@@ -11,6 +11,9 @@ from litestar import (
 )
 from litestar.response import Template
 from litestar.response.redirect import Redirect
+from litestar.static_files import (
+    create_static_files_router,  # type: ignore[reportUnknownVariableType]
+)
 from litestar.status_codes import (
     HTTP_404_NOT_FOUND,
     HTTP_500_INTERNAL_SERVER_ERROR,
@@ -18,6 +21,9 @@ from litestar.status_codes import (
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.models import get_notification_list, get_user_list
+
+# This is the folder where the static files for the dsfr are stored.
+HTML_DIR = "public/mobile-app/node_modules/@gouvfr"
 
 PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID = os.getenv("PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID", "")
 FC_SERVICE_PROVIDER_CLIENT_SECRET = os.getenv("FC_SERVICE_PROVIDER_CLIENT_SECRET", "")
@@ -220,5 +226,10 @@ rvo_router: Router = Router(
         list_users,
         send_notification,
         detail,
+        create_static_files_router(
+            path="/static",
+            directories=[HTML_DIR],
+            html_mode=True,
+        ),
     ],
 )
