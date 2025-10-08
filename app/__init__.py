@@ -150,7 +150,11 @@ async def notify(
         response = httpx.post(
             registration.subscription["endpoint"], content=message.encrypted, headers=headers
         )
-        response.raise_for_status()
+        if response.status_code < 500:
+            # For example we could have "410: gone" if the registration has been revoked.
+            continue
+        else:
+            response.raise_for_status()
     notification = await create_notification(data, db_session)
     return Response(notification, status_code=HTTP_201_CREATED)
 

@@ -112,6 +112,31 @@ async def test_notify_create_notification_from_test_and_from_app_context(
     assert response.json()[1]["sender"] == "Jane Doe"
 
 
+async def test_notify_when_registration_gone(
+    test_client: TestClient[Litestar],
+    registration: Registration,
+    httpx_mock: HTTPXMock,
+) -> None:
+    """When somebody revokes a PUSH authorization (a push registration), then trying to
+    push on this registration will be answered with a status 410 GONE.
+
+    This shouldn't fail the notification process.
+    """
+    # Make sure we don't even try sending a notification to a push server.
+    httpx_mock.add_response(url=registration.subscription["endpoint"], status_code=410)
+    notification_data = {
+        "user_id": registration.user.id,
+        "message": "This will not be PUSHed, but still created on the backend",
+        "title": "Some notification title",
+        "sender": "Jane Doe",
+    }
+    response = test_client.post("/api/v1/notifications", json=notification_data)
+    assert response.status_code == HTTP_201_CREATED
+    response = test_client.get(f"/api/v1/users/{registration.user.id}/notifications")
+    assert response.status_code == HTTP_200_OK
+    assert len(response.json()) == 1
+
+
 async def test_list_users(
     test_client: TestClient[Litestar],
     user: User,
