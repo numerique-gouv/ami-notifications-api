@@ -2,35 +2,40 @@
 import { PUBLIC_API_URL } from '$env/static/public'
 import { onMount } from 'svelte'
 import { goto } from '$app/navigation'
+
+type Notification = {
+  id: number
+  user_id: number
+  title: string
+  date: Date
+  message: string
+  sender: string
+}
+
 let isFranceConnected: boolean = $state(false)
+let notifications: [Notification] = $state(localStorage.getItem('notification') || [])
+
 onMount(async () => {
   isFranceConnected = !!localStorage.getItem('access_token')
   if (!isFranceConnected) {
     goto('/')
   }
-})
 
-const notifications = [
-  {
-    title: 'Rendez-vous confirmé ✅',
-    description:
-      'Votre rendez-vous à la mairie de Colombes le mardi 3 septembre à 11H45 est confirmé',
-    age: '1 h',
-    status: 'unread',
-  },
-  {
-    title: 'J-2 avant votre rendez-vous France Travail ⌛️',
-    description:
-      'Consultez les détails de votre rendez-vous pour le préparer sereinement',
-    age: '6 h',
-  },
-  {
-    title: 'Jour J de votre rendez-vous à la Mairie de Saint-Ouen',
-    description:
-      'Vous avez rendez-vous aujourd’hui à 14h30 au service état civil de la mairie de Saint-Ouen',
-    age: '14 j',
-  },
-]
+  const userId = localStorage.getItem('user_id')
+  if (userId) {
+    try {
+      const response = await fetch(
+        `${PUBLIC_API_URL}/api/v1/users/${userId}/notifications`
+      )
+      console.log('notifications response', response)
+      notifications = await response.json()
+      localStorage.setItem('notifications', notifications)
+      console.log('notifications', $state.snapshot(notifications))
+    } catch (error) {
+      console.error(error)
+    }
+  }
+})
 </script>
 
 <nav class="fr-p-4v fr-pt-6v">
@@ -58,13 +63,13 @@ const notifications = [
       <div class="fr-tile__content fr-pb-0">
         <div class="notification__title">
           <h3 class="fr-tile__title fr-mb-0">
-            <a href="/">{notification.title}</a>
+            <a href="/">{notification.sender} : {notification.title}</a>
           </h3>
           <span class="notification__age">
-            {notification.age}
+            {notification.date}
           </span>
         </div>
-        <p class="fr-tile__desc">{notification.description}</p>
+        <p class="fr-tile__desc">{notification.message}</p>
       </div>
     </div>
   </div>
