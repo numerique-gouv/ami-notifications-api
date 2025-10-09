@@ -6,6 +6,8 @@ from litestar import Litestar
 from litestar.testing import TestClient
 from pytest_httpx import HTTPXMock
 
+from app.models import User
+
 from .utils import check_url_when_logged_out
 
 
@@ -53,8 +55,8 @@ async def test_rvo_login_callback(
 async def test_rvo_logout(
     test_client: TestClient[Litestar],
     userinfo: dict[str, Any],
+    connected_user: User,
 ) -> None:
-    test_client.set_session_data({"id_token": "fake id token", "userinfo": userinfo})
     data: dict[str, str] = {
         "id_token_hint": "fake id token",
         "state": "not-implemented-yet-and-has-more-than-32-chars",
@@ -75,9 +77,8 @@ async def test_rvo_logout(
 
 async def test_rvo_logout_callback(
     test_client: TestClient[Litestar],
-    userinfo: dict[str, Any],
+    connected_user: User,
 ) -> None:
-    test_client.set_session_data({"id_token": "fake id token", "userinfo": userinfo})
     response = test_client.get("/rvo/logout-callback", follow_redirects=False)
     assert response.status_code == 302
     # As the user was properly logged out from FC, the local session is now emptied, and the user redirected to the fake service provider.
@@ -87,9 +88,8 @@ async def test_rvo_logout_callback(
 
 async def test_rvo_home_when_logged_in(
     test_client: TestClient[Litestar],
-    userinfo: dict[str, Any],
+    connected_user: User,
 ) -> None:
-    test_client.set_session_data({"id_token": "fake id token", "userinfo": userinfo})
     response = test_client.get("/rvo", follow_redirects=False)
     assert response.status_code == 200
     assert "/rvo/detail/1" in response.text
@@ -98,9 +98,8 @@ async def test_rvo_home_when_logged_in(
 
 async def test_rvo_detail_when_logged_in(
     test_client: TestClient[Litestar],
-    userinfo: dict[str, Any],
+    connected_user: User,
 ) -> None:
-    test_client.set_session_data({"id_token": "fake id token", "userinfo": userinfo})
     response = test_client.get("/rvo/detail/1", follow_redirects=False)
     assert "Rendez-vous dans votre Agence France Travail Paris 18e Ney" in response.text
     assert response.status_code == 200
