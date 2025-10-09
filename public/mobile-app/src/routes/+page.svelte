@@ -29,32 +29,15 @@ onMount(async () => {
         'is_logged_in',
         page.url.searchParams.get('is_logged_in') || ''
       )
-
-      const fc_endpoint_headers = {
+      const userinfo_endpoint_headers = {
         Authorization: `${token_type} ${access_token}`,
       }
-
-      const user_response = await fetch(`${PUBLIC_API_URL}/fc_userinfo`, {
-        headers: fc_endpoint_headers,
+      const response = await fetch(`${PUBLIC_API_URL}/fc_userinfo`, {
+        headers: userinfo_endpoint_headers,
       })
-      const result = await user_response.json()
+      const result = await response.json()
       localStorage.setItem('user_data', result.user_data)
       localStorage.setItem('user_id', result.user_id)
-
-      const quotient_response = await fetch(
-        `${PUBLIC_API_URL}/api-particulier/quotient`,
-        {
-          headers: fc_endpoint_headers,
-        }
-      )
-      const quotientData = await quotient_response.text()
-      if (quotient_response.ok) {
-        // sometimes there is a timeout
-        localStorage.setItem('quotient_data', quotientData)
-      } else {
-        throw new Error(quotientData)
-      }
-
       isFranceConnected = true
       goto('/')
     }
