@@ -2,6 +2,7 @@
 import { PUBLIC_API_URL } from '$env/static/public'
 import { onMount } from 'svelte'
 import { goto } from '$app/navigation'
+import { prettyDate } from '$lib/prettyDate.ts'
 
 type Notification = {
   id: number
@@ -66,7 +67,7 @@ onMount(async () => {
             <a href="/">{notification.sender} : {notification.title}</a>
           </h3>
           <span class="notification__age">
-            {notification.date}
+            {prettyDate(notification.date)}
           </span>
         </div>
         <p class="fr-tile__desc">{notification.message}</p>
