@@ -129,6 +129,7 @@ function dismissNotice() {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    margin-bottom: 68px;
 
     .homepage-not-connected {
       position: relative;
