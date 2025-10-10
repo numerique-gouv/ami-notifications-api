@@ -3,6 +3,7 @@ import { PUBLIC_API_URL } from '$env/static/public'
 import { onMount } from 'svelte'
 import { goto } from '$app/navigation'
 import { prettyDate } from '$lib/prettyDate.ts'
+import { retrieveNotifications } from '$lib/notifications'
 
 type Notification = {
   id: number
@@ -22,20 +23,7 @@ onMount(async () => {
     goto('/')
   }
 
-  const userId = localStorage.getItem('user_id')
-  if (userId) {
-    try {
-      const response = await fetch(
-        `${PUBLIC_API_URL}/api/v1/users/${userId}/notifications`
-      )
-      console.log('notifications response', response)
-      notifications = await response.json()
-      localStorage.setItem('notifications', notifications)
-      console.log('notifications', $state.snapshot(notifications))
-    } catch (error) {
-      console.error(error)
-    }
-  }
+  notifications = await retrieveNotifications()
 })
 </script>
 
