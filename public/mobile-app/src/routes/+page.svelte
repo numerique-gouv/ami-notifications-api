@@ -82,19 +82,19 @@ function dismissNotice() {
 </script>
 
 <div class="homepage">
-{#if isLoggedOut}
-  <div class="logout-notice fr-py-3v fr-px-4v">
-    <div class="container-left">
-      <img src="/icons/fr--success-line-green.svg" class="fr-mr-2v" alt="Icône de succès" />
-      <span>Vous avez bien été déconnecté</span>
-    </div>
-    <div class="container-right">
-      <button onclick="{dismissNotice}" title="Masquer le message" aria-label="Masquer le message" type="button" class="fr-btn--close fr-btn"></button>
-    </div>
-   </div>
-{/if}
 {#if !isFranceConnected}
   <div class="homepage-not-connected">
+    {#if isLoggedOut}
+      <div class="logout-notice fr-py-3v fr-px-4v">
+        <div class="container-left">
+          <img src="/icons/fr--success-line-green.svg" class="fr-mr-2v" alt="Icône de succès" />
+          <span>Vous avez bien été déconnecté</span>
+        </div>
+        <div class="container-right">
+          <button onclick="{dismissNotice}" title="Masquer le message" aria-label="Masquer le message" type="button" class="fr-btn--close fr-btn"></button>
+        </div>
+       </div>
+    {/if}
     <div class="france-connect-svg-icon">
       <img src="{applicationSvg}" alt="Icône de notification" />
     </div>
@@ -126,52 +126,49 @@ function dismissNotice() {
 
 <style>
   .homepage {
-    position: relative;
-    margin: 24px 16px;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
 
-    .logout-notice {
-      position: absolute;
-      width: 100%;
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-      background-color: var(--background-flat-grey);
-      color: white;
-      border-left: 3px solid #58B77D;
-      border-radius: 0.25rem;
+    .homepage-not-connected {
+      position: relative;
+      margin: 24px 16px;
 
-      .container-left {
+      .logout-notice {
+        position: absolute;
+        width: 100%;
         display: flex;
         flex-direction: row;
         align-items: center;
-
-        img {
-          width: 1.25rem;
-          height: 1.25rem;
-        }
-
-        span {
-          font-size: 14px;
-          font-weight: 500;
-        }
-      }
-
-      .fr-btn--close {
+        justify-content: space-between;
+        background-color: var(--background-flat-grey);
         color: white;
-      }
-    }
+        border-left: 3px solid #58B77D;
+        border-radius: 0.25rem;
 
-    .homepage-not-connected {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      width: 100%;
+        .container-left {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+
+          img {
+            width: 1.25rem;
+            height: 1.25rem;
+          }
+
+          span {
+            font-size: 14px;
+            font-weight: 500;
+          }
+        }
+
+        .fr-btn--close {
+          color: white;
+        }
+      }
 
       .france-connect-svg-icon {
+        text-align: center;
         margin-top: 7.5rem;
         margin-bottom: 1rem;
       }
@@ -181,9 +178,7 @@ function dismissNotice() {
       }
 
       .fr-connect-group {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+        text-align: center;
         width: 100%;
 
         .fr-connect {
