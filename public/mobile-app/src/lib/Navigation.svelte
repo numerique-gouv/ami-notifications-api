@@ -38,7 +38,7 @@
 <style>
   nav.menu-footer {
     position: fixed;
-    z-index: 1;
+    z-index: 2;
     bottom: 0;
     background: var(--background-default-grey);
     border-top: solid 1px var(--background-alt-grey-active);
