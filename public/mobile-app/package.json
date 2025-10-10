@@ -19,7 +19,7 @@
   "dependencies": {
     "@eslint/compat": "^1.2.5",
     "@eslint/js": "^9.18.0",
-    "@gouvfr/dsfr": "^1.14.2",
+    "@gouvfr/dsfr": "1.14.2",
     "@playwright/test": "^1.49.1",
     "@sveltejs/adapter-auto": "^6.0.0",
     "@sveltejs/adapter-static": "^3.0.8",
