@@ -130,6 +130,33 @@ Then, to rollback (downgrade) to a previous revision (version):
 uv run --env-file .env --env-file .env.local alembic downgrade <revision>
 ```
 
+##### Reset (empty) the database (useful for demos)
+
+You'll need the
+[scalingo's command line interface](https://doc.scalingo.com/tools/cli/start),
+and then login with:
+
+```sh
+scalingo login
+```
+
+Once that done, you'll be able to connect to an app's PostgreSQL container:
+
+```sh
+scalingo -a ami-back-staging pgsql-console
+```
+
+Replace the `ami-back-staging` with the app you want to reset the data, eg
+`ami-back-staging-pr179` for the review app for PR #179.
+
+You'll then be able to run the following SQL command:
+
+```sql
+truncate ami_user, notification, registration;
+```
+
+This will empty those three tables.
+
 ## Running tests
 
 Running tests is as easy as:
