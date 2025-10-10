@@ -1,11 +1,7 @@
 <script lang="ts">
 import { parseJwt, franceConnectLogout } from '$lib/france-connect'
 import { onMount } from 'svelte'
-import {
-  enableNotifications,
-  retrieveNotifications,
-  getSubscription,
-} from '$lib/notifications'
+import { enableNotifications, getSubscription } from '$lib/notifications'
 import bankIcon from '@gouvfr/dsfr/dist/icons/buildings/bank-line.svg'
 
 let userinfo: Object = $state({})
@@ -13,7 +9,6 @@ let initials: String = $state('')
 let isMenuDisplayed = $state(false)
 let notificationsEnabled: boolean = $state(false)
 let pushSubscription
-let notifications = $state([])
 
 const getInitials = (given_name_array: []): String => {
   let initials_: String = ''
@@ -30,7 +25,6 @@ onMount(async () => {
     console.log(userinfo)
 
     initials = getInitials(userinfo.given_name_array)
-    notifications = await retrieveNotifications()
 
     if (navigator.permissions) {
       const permissionStatus = await navigator.permissions.query({
@@ -211,16 +205,6 @@ const toggleMenu = () => {
         <li>exp: { userinfo.exp }</li>
         <li>iat: { userinfo.iat }</li>
         <li>iss: { userinfo.iss }</li>
-      </ul>
-    </div>
-    <h3 class="fr-accordion__title">
-      <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-2">Notifications de l'utilisateur</button>
-    </h3>
-    <div id="accordion-2" class="fr-collapse">
-      <ul>
-        {#each notifications as notification}
-          <li>Message #{ notification.id } reçu à { notification.date } de la part de { notification.sender } : { notification.title } - { notification.message }</li>
-        {/each}
       </ul>
     </div>
   </section>
