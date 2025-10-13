@@ -41,6 +41,7 @@ from app.models import (
     Notification,
     NotificationCreate,
     Registration,
+    RegistrationCreate,
     User,
     create_notification,
     create_registration,
@@ -96,7 +97,7 @@ async def get_notification_key() -> str:
 async def register(
     db_session: AsyncSession,
     data: Annotated[
-        Registration,
+        RegistrationCreate,
         Body(
             title="Register to receive notifications",
             description="Register with a push subscription and an email to receive notifications",
@@ -104,6 +105,7 @@ async def register(
     ],
 ) -> Response[Any]:
     WebPushSubscription.model_validate(data.subscription)
+    registration = Registration.model_validate(data)
     try:
         user = await get_user_by_id(data.user_id, db_session)
     except NotFoundException:
@@ -120,7 +122,7 @@ async def register(
         # This registration already exists, don't duplicate it.
         return Response(existing_registration, status_code=HTTP_200_OK)
 
-    registration = await create_registration(data.subscription, db_session, user.id)
+    registration = await create_registration(registration, db_session)
     return Response(registration, status_code=HTTP_201_CREATED)
 
 
