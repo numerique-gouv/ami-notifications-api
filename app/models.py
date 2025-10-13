@@ -32,12 +32,19 @@ class User(FCUserInfo, table=True):
     notifications: Mapped[list["Notification"]] = Relationship(back_populates="user")
 
 
-class Registration(SQLModel, table=True):
-    id: int | None = Field(default=None, primary_key=True)
+class RegistrationBase(SQLModel):
     user_id: int = Field(foreign_key="ami_user.id")
-    user: User = Relationship(back_populates="registrations")
     subscription: dict[str, Any] = Field(sa_column=Column(JSONB))
+
+
+class Registration(RegistrationBase, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    user: User = Relationship(back_populates="registrations")
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+
+
+class RegistrationCreate(RegistrationBase):
+    pass
 
 
 class NotificationBase(SQLModel):
@@ -136,12 +143,7 @@ async def get_registration_by_user_and_subscription(
     return existing_registration
 
 
-async def create_registration(
-    subscription: dict[str, Any],
-    db_session: AsyncSession,
-    user_id: int,
-) -> Registration:
-    registration = Registration(subscription=subscription, user_id=user_id)
+async def create_registration(registration: Registration, db_session: AsyncSession) -> Registration:
     db_session.add(registration)
     await db_session.commit()
     await db_session.refresh(registration)
