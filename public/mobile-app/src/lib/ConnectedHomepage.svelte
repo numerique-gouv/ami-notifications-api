@@ -2,8 +2,8 @@
 import { parseJwt, franceConnectLogout } from '$lib/france-connect'
 import { onMount } from 'svelte'
 import { enableNotifications, getSubscription } from '$lib/notifications'
+import { getQuotientData } from '$lib/api-particulier'
 import bankIcon from '@gouvfr/dsfr/dist/icons/buildings/bank-line.svg'
-import { PUBLIC_API_URL } from '$env/static/public'
 
 let userinfo: Object = $state({})
 let quotientinfo: Object = $state({})
@@ -42,25 +42,8 @@ onMount(async () => {
       }
     }
 
-    let quotientData = localStorage.getItem('quotient_data')
-    if (!quotientData) {
-      const access_token = localStorage.getItem('access_token')
-      const token_type = localStorage.getItem('token_type')
-      const quotient_endpoint_headers = {
-        Authorization: `${token_type} ${access_token}`,
-      }
-      const response = await fetch(`${PUBLIC_API_URL}/api-particulier/quotient`, {
-        headers: quotient_endpoint_headers,
-      })
-      quotientData = await response.text()
-      if (response.ok) {
-        localStorage.setItem('quotient_data', quotientData)
-      }
-    }
-    if (!!quotientData) {
-      quotientinfo = JSON.parse(quotientData)
-      console.log($state.snapshot(quotientinfo))
-    }
+    quotientinfo = await getQuotientData()
+    console.log($state.snapshot(quotientinfo))
   } catch (error) {
     console.error(error)
   }

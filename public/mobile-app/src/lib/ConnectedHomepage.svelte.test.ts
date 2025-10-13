@@ -30,6 +30,14 @@ describe('/ConnectedHomepage.svelte', () => {
       franceConnectLogout: vi.fn(),
     }))
 
+    vi.mock('$lib/api-particulier', () => ({
+      getQuotientData: vi.fn().mockImplementation(() => {
+        return {
+          data: { foo: 'bar' },
+        }
+      }),
+    }))
+
     window.localStorage.setItem('user_data', 'fake-user-data')
     window.localStorage.setItem('emailLocalStorage', 'test@email.fr')
     window.localStorage.setItem('pushSubscriptionLocalStorage', '{}')
