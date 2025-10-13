@@ -40,14 +40,21 @@ class Registration(SQLModel, table=True):
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
 
 
-class Notification(SQLModel, table=True):
-    id: int | None = Field(default=None, primary_key=True)
-    date: datetime.datetime = Field(default_factory=datetime.datetime.now)
+class NotificationBase(SQLModel):
     user_id: int = Field(foreign_key="ami_user.id")
-    user: User = Relationship(back_populates="notifications")
     message: str = Field(min_length=1)
     sender: str | None = Field(default=None)
     title: str | None = Field(default=None)
+
+
+class Notification(NotificationBase, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    date: datetime.datetime = Field(default_factory=datetime.datetime.now)
+    user: User = Relationship(back_populates="notifications")
+
+
+class NotificationCreate(NotificationBase):
+    pass
 
 
 #### USERS
