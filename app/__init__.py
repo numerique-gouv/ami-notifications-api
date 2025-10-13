@@ -290,9 +290,14 @@ def error_from_message(
 
 
 def provide_webpush() -> WebPush:
+    env_is_file = Path(os.getenv("VAPID_PUBLIC_KEY", "")).exists()
     webpush = WebPush(
-        public_key=os.getenv("VAPID_PUBLIC_KEY", "").encode(),
-        private_key=os.getenv("VAPID_PRIVATE_KEY", "").encode(),
+        public_key=Path(os.getenv("VAPID_PUBLIC_KEY", ""))
+        if env_is_file
+        else os.getenv("VAPID_PUBLIC_KEY", "").encode(),
+        private_key=Path(os.getenv("VAPID_PRIVATE_KEY", ""))
+        if env_is_file
+        else os.getenv("VAPID_PRIVATE_KEY", "").encode(),
         subscriber="contact.ami@numerique.gouv.fr",
     )
     return webpush
