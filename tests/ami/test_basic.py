@@ -83,6 +83,51 @@ async def test_register(
     assert registration.id == 1
 
 
+async def test_register_fields(
+    test_client: TestClient[Litestar],
+    db_session: AsyncSession,
+    webpushsubscription: dict[str, Any],
+) -> None:
+    user = User(email="alice@example.com")
+    db_session.add(user)
+    await db_session.commit()
+    await db_session.refresh(user)
+
+    # user_id is required
+    register_data = {
+        "email": "foo@bar.baz",
+        "subscription": webpushsubscription,
+        "user_id": "",
+    }
+    response = test_client.post("/api/v1/registrations", json=register_data)
+    assert response.status_code == HTTP_400_BAD_REQUEST
+    assert response.json()["extra"] == [
+        {
+            "message": "Input should be a valid integer, unable to parse string as an integer",
+            "key": "user_id",
+        }
+    ]
+
+    # id and created_at are ignored
+    registration_date: datetime.datetime = datetime.datetime.now() + datetime.timedelta(days=1)
+    registration_data = {
+        "email": "foo@bar.baz",
+        "subscription": webpushsubscription,
+        "user_id": str(user.id),
+        "id": 0,
+        "created_at": registration_date.isoformat(),
+    }
+    response = test_client.post("/api/v1/registrations", json=registration_data)
+    assert response.status_code == HTTP_201_CREATED
+
+    all_registrations = (await db_session.exec(select(Registration))).all()
+    assert len(all_registrations) == 1
+    registration = all_registrations[0]
+    assert registration.id
+    assert registration.id > 0
+    assert registration.created_at < registration_date
+
+
 async def test_notify_create_notification_from_test_and_from_app_context(
     test_client: TestClient[Litestar],
     notification: Notification,
