@@ -4,7 +4,12 @@ from typing import Any
 
 import pytest
 from litestar import Litestar
-from litestar.status_codes import HTTP_200_OK, HTTP_201_CREATED, HTTP_404_NOT_FOUND
+from litestar.status_codes import (
+    HTTP_200_OK,
+    HTTP_201_CREATED,
+    HTTP_400_BAD_REQUEST,
+    HTTP_404_NOT_FOUND,
+)
 from litestar.testing import TestClient
 from pytest_httpx import HTTPXMock
 from sqlmodel import select
@@ -110,6 +115,41 @@ async def test_notify_create_notification_from_test_and_from_app_context(
     assert response.json()[1]["message"] == "Hello notification 2"
     assert response.json()[1]["title"] == "Some notification title"
     assert response.json()[1]["sender"] == "Jane Doe"
+
+
+async def test_notify_create_notification_test_fields(
+    test_client: TestClient[Litestar],
+    db_session: AsyncSession,
+    user: User,
+) -> None:
+    # user_id is required
+    notification_data = {
+        "user_id": "",
+        "message": "Hello !",
+        "title": "Some notification title",
+        "sender": "Jane Doe",
+    }
+    response = test_client.post("/api/v1/notifications", json=notification_data)
+    assert response.status_code == HTTP_400_BAD_REQUEST
+    assert response.json()["extra"] == [
+        {
+            "message": "Input should be a valid integer, unable to parse string as an integer",
+            "key": "user_id",
+        }
+    ]
+
+    # message is required
+    notification_data = {
+        "user_id": user.id,
+        "message": "",
+        "title": "Some notification title",
+        "sender": "Jane Doe",
+    }
+    response = test_client.post("/api/v1/notifications", json=notification_data)
+    assert response.status_code == HTTP_400_BAD_REQUEST
+    assert response.json()["extra"] == [
+        {"message": "String should have at least 1 character", "key": "message"}
+    ]
 
 
 async def test_notify_when_registration_gone(

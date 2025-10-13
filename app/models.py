@@ -45,7 +45,7 @@ class Notification(SQLModel, table=True):
     date: datetime.datetime = Field(default_factory=datetime.datetime.now)
     user_id: int = Field(foreign_key="ami_user.id")
     user: User = Relationship(back_populates="notifications")
-    message: str
+    message: str = Field(min_length=1)
     sender: str | None = Field(default=None)
     title: str | None = Field(default=None)
 
