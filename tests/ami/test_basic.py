@@ -151,6 +151,26 @@ async def test_notify_create_notification_test_fields(
         {"message": "String should have at least 1 character", "key": "message"}
     ]
 
+    # id and date are ignored
+    notification_date: datetime.datetime = datetime.datetime.now() + datetime.timedelta(days=1)
+    notification_data = {
+        "user_id": user.id,
+        "message": "Hello !",
+        "title": "Some notification title",
+        "sender": "Jane Doe",
+        "id": 0,
+        "date": notification_date.isoformat(),
+    }
+    response = test_client.post("/api/v1/notifications", json=notification_data)
+    assert response.status_code == HTTP_201_CREATED
+
+    all_notifications = (await db_session.exec(select(Notification))).all()
+    assert len(all_notifications) == 1
+    notification = all_notifications[0]
+    assert notification.id
+    assert notification.id > 0
+    assert notification.date < notification_date
+
 
 async def test_notify_when_registration_gone(
     test_client: TestClient[Litestar],

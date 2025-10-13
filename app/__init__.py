@@ -39,6 +39,7 @@ from webpush import WebPush, WebPushSubscription
 from app.models import (
     FCUserInfo,
     Notification,
+    NotificationCreate,
     Registration,
     User,
     create_notification,
@@ -128,7 +129,7 @@ async def notify(
     db_session: AsyncSession,
     webpush: WebPush,
     data: Annotated[
-        Notification,
+        NotificationCreate,
         Body(
             title="Send a notification",
             description="Send the notification message to a registered user",
@@ -140,6 +141,7 @@ async def notify(
         db_session,
         options=selectinload(User.registrations),
     )
+    notification = Notification.model_validate(data)
 
     for registration in user.registrations:
         subscription = WebPushSubscription.model_validate(registration.subscription)
@@ -155,7 +157,7 @@ async def notify(
             continue
         else:
             response.raise_for_status()
-    notification = await create_notification(data, db_session)
+    notification = await create_notification(notification, db_session)
     return Response(notification, status_code=HTTP_201_CREATED)
 
 
