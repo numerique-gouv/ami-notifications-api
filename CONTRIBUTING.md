@@ -134,6 +134,7 @@ uv run --env-file .env --env-file .env.local alembic downgrade <revision>
 
 You'll need the
 [scalingo's command line interface](https://doc.scalingo.com/tools/cli/start),
+then [add your ssh key to your account](https://doc.scalingo.com/tools/cli/introduction),
 and then login with:
 
 ```sh
