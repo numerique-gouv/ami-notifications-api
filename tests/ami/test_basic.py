@@ -156,10 +156,12 @@ async def test_notify_create_notification_from_test_and_from_app_context(
     assert response.json()[0]["message"] == notification.message
     assert response.json()[0]["title"] == notification.title
     assert response.json()[0]["sender"] == notification.sender
+    assert response.json()[0]["unread"] is True
     assert response.json()[1]["user_id"] == registration.user.id
     assert response.json()[1]["message"] == "Hello notification 2"
     assert response.json()[1]["title"] == "Some notification title"
     assert response.json()[1]["sender"] == "Jane Doe"
+    assert response.json()[1]["unread"] is True
 
 
 async def test_notify_create_notification_test_fields(
@@ -264,7 +266,9 @@ async def test_get_notifications_should_return_empty_list_by_default(
 
 
 async def test_get_notifications_should_return_notifications_for_given_user_id(
-    test_client: TestClient[Litestar], notification: Notification
+    test_client: TestClient[Litestar],
+    db_session: AsyncSession,
+    notification: Notification,
 ) -> None:
     response = test_client.get(f"/api/v1/users/{notification.user.id}/notifications")
     assert response.status_code == HTTP_200_OK
@@ -273,6 +277,20 @@ async def test_get_notifications_should_return_notifications_for_given_user_id(
     assert response.json()[0]["message"] == notification.message
     assert response.json()[0]["title"] == notification.title
     assert response.json()[0]["sender"] == notification.sender
+    assert response.json()[0]["unread"] is True
+
+    notification.unread = False
+    db_session.add(notification)
+    await db_session.commit()
+
+    response = test_client.get(f"/api/v1/users/{notification.user.id}/notifications")
+    assert response.status_code == HTTP_200_OK
+    assert len(response.json()) == 1
+    assert response.json()[0]["user_id"] == notification.user.id
+    assert response.json()[0]["message"] == notification.message
+    assert response.json()[0]["title"] == notification.title
+    assert response.json()[0]["sender"] == notification.sender
+    assert response.json()[0]["unread"] is False
 
 
 async def test_list_registrations(
