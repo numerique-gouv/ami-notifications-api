@@ -59,8 +59,7 @@ const franceConnectLogin = async () => {
   const NONCE = 'not-implemented-yet-and-has-more-than-32-chars'
 
   const query = {
-    scope:
-      'openid given_name family_name preferred_username birthdate gender birthplace birthcountry sub email given_name_array cnaf_quotient_familial',
+    scope: 'openid identite_pivot preferred_username email cnaf_quotient_familial',
     redirect_uri: PUBLIC_FC_AMI_REDIRECT_URL,
     response_type: 'code',
     client_id: PUBLIC_FC_AMI_CLIENT_ID,
