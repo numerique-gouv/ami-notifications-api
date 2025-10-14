@@ -196,7 +196,7 @@ async def test_notify_create_notification_test_fields(
         {"message": "String should have at least 1 character", "key": "message"}
     ]
 
-    # id and date are ignored
+    # id, date and unread are ignored
     notification_date: datetime.datetime = datetime.datetime.now() + datetime.timedelta(days=1)
     notification_data = {
         "user_id": user.id,
@@ -205,6 +205,7 @@ async def test_notify_create_notification_test_fields(
         "sender": "Jane Doe",
         "id": 0,
         "date": notification_date.isoformat(),
+        "unread": False,
     }
     response = test_client.post("/api/v1/notifications", json=notification_data)
     assert response.status_code == HTTP_201_CREATED
@@ -215,6 +216,7 @@ async def test_notify_create_notification_test_fields(
     assert notification.id
     assert notification.id > 0
     assert notification.date < notification_date
+    assert notification.unread is True
 
 
 async def test_notify_when_registration_gone(

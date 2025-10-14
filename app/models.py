@@ -58,6 +58,7 @@ class Notification(NotificationBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
     date: datetime.datetime = Field(default_factory=datetime.datetime.now)
     user: User = Relationship(back_populates="notifications")
+    unread: bool = Field(default=True)
 
 
 class NotificationCreate(NotificationBase):
