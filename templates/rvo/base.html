@@ -139,8 +139,7 @@
         const NONCE = 'not-implemented-yet-and-has-more-than-32-chars'
 
         const query = {
-          scope:
-            'openid given_name family_name preferred_username birthdate gender birthplace birthcountry sub email given_name_array',
+          scope: 'openid identite_pivot preferred_username email',
           redirect_uri: '{{ PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL }}',
           response_type: 'code',
           client_id: '{{ PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID }}',
