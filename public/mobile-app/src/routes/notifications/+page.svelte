@@ -4,15 +4,7 @@ import { onMount } from 'svelte'
 import { goto } from '$app/navigation'
 import { prettyDate } from '$lib/prettyDate.ts'
 import { retrieveNotifications } from '$lib/notifications'
-
-type Notification = {
-  id: number
-  user_id: number
-  title: string
-  date: Date
-  message: string
-  sender: string
-}
+import type { Notification } from '$lib/notifications'
 
 let isFranceConnected: boolean = $state(false)
 let notifications: [Notification] = $state(localStorage.getItem('notification') || [])
