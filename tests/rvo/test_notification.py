@@ -56,6 +56,7 @@ async def test_rvo_test_send_notification_when_logged_in(
 ) -> None:
     response = test_client.get(f"/rvo/test/user/{connected_user.id}/send-notification")
     assert response.status_code == 200
+    assert "Envoyer une notification à AMI Test User" in response.text
     assert "Historique des notifications" not in response.text
 
     assert connected_user.id is not None, "User ID should be set"
