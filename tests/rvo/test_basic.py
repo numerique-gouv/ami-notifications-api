@@ -59,8 +59,8 @@ async def test_rvo_logout(
 ) -> None:
     data: dict[str, str] = {
         "id_token_hint": "fake id token",
-        "state": "not-implemented-yet-and-has-more-than-32-chars",
-        "post_logout_redirect_uri": "https://localhost:8000/rvo/logout-callback",
+        "state": "https://localhost:8000/rvo/logout-callback",
+        "post_logout_redirect_uri": "https://ami-fc-proxy-dev.osc-fr1.scalingo.io/",
     }
     params: str = urlencode(data)
     url: str = f"https://fcp-low.sbx.dev-franceconnect.fr/api/v2/session/end?{params}"

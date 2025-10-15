@@ -31,6 +31,7 @@ PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID = os.getenv("PUBLIC_FC_SERVICE_PROVIDER_CLI
 FC_SERVICE_PROVIDER_CLIENT_SECRET = os.getenv("FC_SERVICE_PROVIDER_CLIENT_SECRET", "")
 PUBLIC_FC_BASE_URL = os.getenv("PUBLIC_FC_BASE_URL", "")
 PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL = os.getenv("PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL", "")
+PUBLIC_FC_PROXY = os.getenv("PUBLIC_FC_PROXY", "")
 PUBLIC_FC_AUTHORIZATION_ENDPOINT = os.getenv("PUBLIC_FC_AUTHORIZATION_ENDPOINT", "")
 PUBLIC_FC_TOKEN_ENDPOINT = os.getenv("PUBLIC_FC_TOKEN_ENDPOINT", "")
 PUBLIC_FC_JWKS_ENDPOINT = os.getenv("PUBLIC_FC_JWKS_ENDPOINT", "")
@@ -65,6 +66,7 @@ async def home(request: Request[Any, Any, Any]) -> Template:
             "isFranceConnected": "userinfo" in request.session and "id_token" in request.session,
             "PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID": PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID,
             "PUBLIC_FC_BASE_URL": PUBLIC_FC_BASE_URL,
+            "PUBLIC_FC_PROXY": PUBLIC_FC_PROXY,
             "PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL": PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL,
             "PUBLIC_FC_AUTHORIZATION_ENDPOINT": PUBLIC_FC_AUTHORIZATION_ENDPOINT,
             "object_list": MEETING_LIST,
@@ -78,7 +80,7 @@ async def login_callback(
     request: Request[Any, Any, Any],
 ) -> Response[Any]:
     # FC - Step 5
-    redirect_uri: str = f"{PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL}"
+    redirect_uri: str = PUBLIC_FC_PROXY or PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL
     client_id: str = PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID
     client_secret: str = FC_SERVICE_PROVIDER_CLIENT_SECRET
     data: dict[str, str] = {
@@ -134,10 +136,11 @@ async def logout(request: Request[Any, Any, Any]) -> Response[Any]:
         return Redirect("/rvo")
 
     logout_url: str = f"{PUBLIC_FC_BASE_URL}{PUBLIC_FC_LOGOUT_ENDPOINT}"
+    redirect_url = f"{PUBLIC_API_URL}/rvo/logout-callback"
     data: dict[str, str] = {
         "id_token_hint": request.session.get("id_token", ""),
-        "state": "not-implemented-yet-and-has-more-than-32-chars",
-        "post_logout_redirect_uri": f"{PUBLIC_API_URL}/rvo/logout-callback",
+        "state": redirect_url,
+        "post_logout_redirect_uri": PUBLIC_FC_PROXY or redirect_url,
     }
 
     # Redirect the user to FC's logout service. The local session cleanup happens in `/logout-callback`.

@@ -17,7 +17,7 @@ describe('/france-connect.js', () => {
 
       // Then
       expect(globalThis.window.location).equal(
-        'https://fcp-low.sbx.dev-franceconnect.fr/api/v2/session/end?id_token_hint=fake-id-token&state=not-implemented-yet-and-has-more-than-32-chars&post_logout_redirect_uri=https%3A%2F%2Flocalhost%3A5173%2F%3Fis_logged_out'
+        'https://fcp-low.sbx.dev-franceconnect.fr/api/v2/session/end?id_token_hint=fake-id-token&state=https%3A%2F%2Flocalhost%3A5173%2F%3Fis_logged_out&post_logout_redirect_uri=https%3A%2F%2Fami-fc-proxy-dev.osc-fr1.scalingo.io%2F'
       )
     })
   })
