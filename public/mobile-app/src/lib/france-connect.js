@@ -2,6 +2,7 @@ import {
   PUBLIC_APP_URL,
   PUBLIC_FC_BASE_URL,
   PUBLIC_FC_LOGOUT_ENDPOINT,
+  PUBLIC_FC_PROXY,
 } from '$env/static/public'
 
 export function parseJwt(token) {
@@ -21,10 +22,11 @@ export function parseJwt(token) {
 }
 
 export const franceConnectLogout = async () => {
+  const redirect_url = `${PUBLIC_APP_URL}/?is_logged_out`
   const params = new URLSearchParams({
     id_token_hint: localStorage.getItem('id_token') || '',
-    state: 'not-implemented-yet-and-has-more-than-32-chars',
-    post_logout_redirect_uri: `${PUBLIC_APP_URL}/?is_logged_out`,
+    state: redirect_url,
+    post_logout_redirect_uri: PUBLIC_FC_PROXY || redirect_url,
   })
   const url = new URL(`${PUBLIC_FC_BASE_URL}${PUBLIC_FC_LOGOUT_ENDPOINT}`)
   url.search = params.toString()

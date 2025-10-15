@@ -135,15 +135,14 @@
     <script lang="ts">
       // FC - Step 3
       const franceConnect = async () => {
-        const STATE = 'not-implemented-yet-and-has-more-than-32-chars'
         const NONCE = 'not-implemented-yet-and-has-more-than-32-chars'
 
         const query = {
           scope: 'openid identite_pivot preferred_username email',
-          redirect_uri: '{{ PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL }}',
+          redirect_uri: '{{ PUBLIC_FC_PROXY or PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL }}',
           response_type: 'code',
           client_id: '{{ PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID }}',
-          state: STATE,
+          state: '{{ PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL }}',
           nonce: NONCE,
           acr_values: 'eidas1',
           prompt: 'login',

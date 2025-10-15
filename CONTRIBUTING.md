@@ -217,44 +217,15 @@ endpoint.
 
 ### Creating a PR with access to the FC service
 
-A new PR will be deployed as a review app by Scalingo. However,
-this review app won't have the proper
-[URLs de redirection de connexion](https://docs.partenaires.franceconnect.gouv.fr/fs/devenir-fs/projet-bac-a-sable/#configuration-de-votre-instance-de-test).
+We previously needed a bunch of manual, error-prone steps to configure a review
+app to have access to FranceConnect services, as it checks that the
+[redirect URLs are properly setup] (https://docs.partenaires.franceconnect.gouv.fr/fs/devenir-fs/projet-bac-a-sable/#configuration-de-votre-instance-de-test),
+and we thus had to update the URLs in the
+[partner's page](https://espace.partenaires.franceconnect.gouv.fr),
+and update the `PUBLIC_SECTOR_IDENTIFIER_URL` env variable in the staging app
+on Scalingo.
 
-For the FranceConnect button to work on your PR, you'll need to:
-- modify the sandbox's configuration in the [partner's
-page](https://espace.partenaires.franceconnect.gouv.fr) (or
-ask us to do it) to add the redirect url for your PR, eg
-`https://ami-back-staging-prXX.osc-fr1.scalingo.io/ami-fs-test-login-callback`
-(Replace `XX` with your PR number)
-
-<img width="899" height="682" alt="Capture d’écran 2025-08-27 à 16 34 50" src="https://github.com/user-attachments/assets/5a569cb4-791b-4c84-8a1f-013622c8e81d" />
-
-- update the `PUBLIC_SECTOR_IDENTIFIER_URL` env variable in Scalingo
-that will be used by the
-[https://ami-back-staging.osc-fr1.scalingo.io/sector_identifier_url](https://ami-back-staging.osc-fr1.scalingo.io/sector_identifier_url)
-endpoint to serve the 
-[sector_identifier_url](https://docs.partenaires.franceconnect.gouv.fr/fs/fs-technique/fs-technique-sector_identifier/):
-Add your PR's redirect url to the list of already authorized ones
-[in scalingo](https://dashboard.scalingo.com/apps/osc-fr1/ami-back-staging/environment)
-eg:
-
-```diff
-PUBLIC_SECTOR_IDENTIFIER_URL="""
-  https://ami-back-staging.osc-fr1.scalingo.io/login-callback
-  https://ami-back-staging.osc-fr1.scalingo.io/rvo/login-callback
-+ https://ami-back-staging-prXX.osc-fr1.scalingo.io/login-callback
-+ https://ami-back-staging-prXX.osc-fr1.scalingo.io/rvo/login-callback
-  https://localhost:5173/login-callback
-  https://localhost:8000/rvo/login-callback
-```
-
-We now have two different FranceConnect buttons:
-- AMI as a service provider
-- RVO (Rendez-Vous Officiel) as a fake service provider
-
-You will thus need to add the two login redirect URLs, one for each, as shown above.
-
-Once the env variable is updated, make sure to
-[restart the web container](https://dashboard.scalingo.com/apps/osc-fr1/ami-back-staging/resources)
-so it's taken into account.
+We now use a
+[proxy](https://ami-fc-proxy-dev.osc-fr1.scalingo.io/)
+through the configuration of the `FC_PROXY` env variable in the `.env` file, so
+none of that is needed anymore, it's all been configured once and for all.

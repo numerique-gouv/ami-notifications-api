@@ -5,6 +5,7 @@ import {
   PUBLIC_FC_AMI_CLIENT_ID,
   PUBLIC_FC_BASE_URL,
   PUBLIC_FC_AMI_REDIRECT_URL,
+  PUBLIC_FC_PROXY,
   PUBLIC_FC_AUTHORIZATION_ENDPOINT,
 } from '$env/static/public'
 import { onMount } from 'svelte'
@@ -55,15 +56,14 @@ onMount(async () => {
 
 // FC - Step 3
 const franceConnectLogin = async () => {
-  const STATE = 'not-implemented-yet-and-has-more-than-32-chars'
   const NONCE = 'not-implemented-yet-and-has-more-than-32-chars'
 
   const query = {
     scope: 'openid identite_pivot preferred_username email cnaf_quotient_familial',
-    redirect_uri: PUBLIC_FC_AMI_REDIRECT_URL,
+    redirect_uri: PUBLIC_FC_PROXY || PUBLIC_FC_AMI_REDIRECT_URL,
     response_type: 'code',
     client_id: PUBLIC_FC_AMI_CLIENT_ID,
-    state: STATE,
+    state: PUBLIC_FC_AMI_REDIRECT_URL,
     nonce: NONCE,
     acr_values: 'eidas1',
     prompt: 'login',
