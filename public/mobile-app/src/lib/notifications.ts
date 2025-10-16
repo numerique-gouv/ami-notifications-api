@@ -74,16 +74,6 @@ export const readNotification = async (
   }
 }
 
-export const getSubscription = async () => {
-  console.log("refreshing the push subscription, if it's there")
-  const registration = await getServiceWorkerRegistration()
-  if (registration) {
-    const pushSubscription = await registration.pushManager.getSubscription()
-    console.log('refreshed subscription:', pushSubscription)
-    return pushSubscription
-  }
-}
-
 export const subscribePush = async () => {
   const registration = await getServiceWorkerRegistration()
   try {
