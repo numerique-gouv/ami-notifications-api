@@ -4,7 +4,6 @@ import { onMount } from 'svelte'
 import {
   countUnreadNotifications,
   enableNotifications,
-  getSubscription,
 } from '$lib/notifications'
 import { getQuotientData } from '$lib/api-particulier'
 import bankIcon from '@gouvfr/dsfr/dist/icons/buildings/bank-line.svg'
@@ -15,7 +14,6 @@ let unreadNotificationsCount: Number = $state(0)
 let initials: String = $state('')
 let isMenuDisplayed = $state(false)
 let notificationsEnabled: boolean = $state(false)
-let pushSubscription
 
 const getInitials = (given_name_array: []): String => {
   let initials_: String = ''
@@ -59,13 +57,10 @@ onMount(async () => {
 const updateButtonAndPushSubscription = async (permissionStatusState) => {
   if (permissionStatusState == 'granted') {
     notificationsEnabled = true
-    pushSubscription = await getSubscription()
   } else {
     notificationsEnabled = false
-    pushSubscription = null
   }
   console.log(`notifications permission status is ${permissionStatusState}`)
-  console.log(`pushSubscription is ${pushSubscription}`)
 }
 
 const toggleMenu = () => {
