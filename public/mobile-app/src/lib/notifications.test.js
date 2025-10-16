@@ -3,7 +3,6 @@ import '@testing-library/jest-dom/vitest'
 import {
   countUnreadNotifications,
   enableNotifications,
-  getSubscription,
   readNotification,
   retrieveNotifications,
   subscribePush,
@@ -144,42 +143,6 @@ describe('/notifications.ts', () => {
 
       // Then
       expect(result).toEqual(read_notification)
-    })
-  })
-
-  describe('getSubscription', () => {
-    test('should get subscription from pushManager when user is registered in service worker', async () => {
-      // Given
-      const pushSubscription = {
-        endpoint: 'fake-endpoint',
-        toJSON: () => ({
-          keys: {
-            auth: 'fake-auth',
-            p256dh: 'fake-p256dh',
-          },
-        }),
-      }
-      const registration = {
-        pushManager: {
-          getSubscription: vi.fn(() => pushSubscription),
-        },
-      }
-      globalThis.navigator = {
-        serviceWorker: {
-          ready: new Promise((resolve) => {
-            resolve(registration)
-          }),
-        },
-      }
-
-      // When
-      const result = await getSubscription()
-
-      // Then
-      expect(result).toEqual(pushSubscription)
-      expect(result.endpoint).toEqual('fake-endpoint')
-      expect(result.toJSON().keys.auth).toEqual('fake-auth')
-      expect(result.toJSON().keys.p256dh).toEqual('fake-p256dh')
     })
   })
 
