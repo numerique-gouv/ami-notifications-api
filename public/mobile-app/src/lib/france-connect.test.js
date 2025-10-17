@@ -1,4 +1,4 @@
-import { describe, test, expect, vi } from 'vitest'
+import { describe, expect, test, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 import { franceConnectLogout } from './france-connect.js'
 
@@ -9,6 +9,9 @@ describe('/france-connect.js', () => {
       globalThis.localStorage = {
         getItem: vi.fn().mockImplementation(() => {
           return 'fake-id-token'
+        }),
+        clear: vi.fn().mockImplementation(() => {
+          return
         }),
       }
 
