@@ -14,6 +14,7 @@ let unreadNotificationsCount: Number = $state(0)
 let initials: String = $state('')
 let isMenuDisplayed = $state(false)
 let notificationsEnabled: boolean = $state(false)
+let registration: Object = $state({})
 
 const getInitials = (given_name_array: []): String => {
   let initials_: String = ''
@@ -39,11 +40,10 @@ onMount(async () => {
         name: 'notifications',
       })
 
-      await updateButtonAndPushSubscription(permissionStatus.state)
+      await updateNotificationsEnabled(permissionStatus.state)
 
       permissionStatus.onchange = async () => {
-        console.log('notifications permission status has changed')
-        await updateButtonAndPushSubscription(permissionStatus.state)
+        await updateNotificationsEnabled(permissionStatus.state)
       }
     }
 
@@ -54,17 +54,18 @@ onMount(async () => {
   }
 })
 
-const updateButtonAndPushSubscription = async (permissionStatusState) => {
-  if (permissionStatusState == 'granted') {
-    notificationsEnabled = true
-  } else {
-    notificationsEnabled = false
-  }
+const updateNotificationsEnabled = async (permissionStatusState) => {
+  notificationsEnabled = permissionStatusState == 'granted'
   console.log(`notifications permission status is ${permissionStatusState}`)
 }
 
 const toggleMenu = () => {
   isMenuDisplayed = !isMenuDisplayed
+}
+
+const clickEnableNotifications = async () => {
+  registration = await enableNotifications()
+  notificationsEnabled = true
 }
 </script>
 
@@ -97,7 +98,7 @@ const toggleMenu = () => {
       <button
           type="button"
           onclick={enableNotifications}
-          disabled={notificationsEnabled}
+          disabled={clickEnableNotifications}
       >
         Recevoir des notifications sur ce terminal
       </button>

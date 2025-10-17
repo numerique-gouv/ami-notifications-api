@@ -6,22 +6,6 @@ describe('/registration.js', () => {
   describe('registerUser', () => {
     test('should call registrations endpoint from API', async () => {
       // Given
-      vi.mock('$lib/notifications', () => {
-        const pushSubscription_ = {
-          endpoint: 'fake-endpoint',
-          toJSON: () => ({
-            keys: {
-              auth: 'fake-auth',
-              p256dh: 'fake-p256dh',
-            },
-          }),
-        }
-        return {
-          subscribePush: vi.fn(() => pushSubscription_),
-        }
-      })
-      window.localStorage.setItem('user_id', 'fake-user-id')
-
       const pushSubscription = {
         endpoint: 'fake-endpoint',
         toJSON: () => ({
@@ -45,7 +29,7 @@ describe('/registration.js', () => {
       )
 
       // When
-      const result = await registerUser()
+      const result = await registerUser(pushSubscription)
 
       // Then
       expect(result).toEqual(registration)

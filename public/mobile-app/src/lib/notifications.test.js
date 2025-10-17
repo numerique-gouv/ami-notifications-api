@@ -187,7 +187,7 @@ describe('/notifications.ts', () => {
   })
 
   describe('enableNotifications', () => {
-    test('should call registerUser permission is granted and is registered to service worker', async () => {
+    test('should call registerUser when permission is granted and is registered to service worker', async () => {
       // Given
       globalThis.Notification = {
         requestPermission: () => true,
