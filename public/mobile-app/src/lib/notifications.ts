@@ -97,7 +97,8 @@ export const enableNotifications = async () => {
       'No notification: missing permission or missing service worker registration'
     )
   } else {
-    await registerUser()
+    const pushSubscription = await subscribePush()
+    await registerUser(pushSubscription)
   }
 }
 
