@@ -3,6 +3,7 @@ import { parseJwt, franceConnectLogout } from '$lib/france-connect'
 import { onMount } from 'svelte'
 import {
   countUnreadNotifications,
+  disableNotifications,
   enableNotifications,
 } from '$lib/notifications'
 import { getQuotientData } from '$lib/api-particulier'
@@ -67,6 +68,11 @@ const clickEnableNotifications = async () => {
   registration = await enableNotifications()
   notificationsEnabled = true
 }
+
+const clickDisableNotifications = () => {
+  disableNotifications(registration.id)
+  notificationsEnabled = false
+}
 </script>
 
 <div class="homepage-connected">
@@ -95,13 +101,21 @@ const clickEnableNotifications = async () => {
 
   <div class="menu {isMenuDisplayed ? '' : 'is-hidden'}">
     <div class="container">
-      <button
-          type="button"
-          onclick={enableNotifications}
-          disabled={clickEnableNotifications}
-      >
-        Recevoir des notifications sur ce terminal
-      </button>
+      {#if notificationsEnabled}
+        <button
+            type="button"
+            onclick={clickDisableNotifications}
+        >
+          Ne plus recevoir de notifications sur ce terminal
+        </button>
+      {:else}
+        <button
+            type="button"
+            onclick={clickEnableNotifications}
+        >
+          Recevoir des notifications sur ce terminal
+        </button>
+      {/if}
 
       <button
           class="fr-connect-logout"

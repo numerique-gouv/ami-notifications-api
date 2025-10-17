@@ -2,10 +2,12 @@ import { afterEach, describe, test, expect, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 import {
   countUnreadNotifications,
+  disableNotifications,
   enableNotifications,
   readNotification,
   retrieveNotifications,
   subscribePush,
+  unsubscribePush,
 } from '$lib/notifications.ts'
 import * as registrationMethods from '$lib/registration.js'
 
@@ -205,9 +207,14 @@ describe('/notifications.ts', () => {
           }),
         },
       }
+      const mockFetchResponse = {
+        text: () => Promise.resolve('fake applicationKeyResponse'),
+      }
+      globalThis.fetch = vi.fn(() => Promise.resolve(mockFetchResponse))
 
+      const registrationResult = {}
       vi.mock('$lib/registration', () => ({
-        registerDevice: vi.fn(() => true),
+        registerDevice: vi.fn(() => Promise.resolve(registrationResult)),
       }))
       const spy = vi.spyOn(registrationMethods, 'registerDevice')
 
@@ -215,7 +222,122 @@ describe('/notifications.ts', () => {
       await enableNotifications()
 
       // Then
-      expect(spy).toHaveBeenCalled()
+      expect(spy).toHaveBeenCalledWith(pushSubscription)
+    })
+  })
+
+  describe('unsubscribePush', () => {
+    test('should call unsubscribe and log result when success', async () => {
+      // Given
+      const pushSubscription = {
+        unsubscribe: () => Promise.resolve(true),
+      }
+      const consoleMock = vi.spyOn(console, 'log')
+
+      // When
+      await unsubscribePush(pushSubscription)
+
+      // Then
+      expect(consoleMock).toHaveBeenCalledTimes(1)
+      expect(consoleMock).toHaveBeenCalledWith('unsubscribed to the push manager')
+    })
+
+    test('should call unsubscribe and log result when failure', async () => {
+      // Given
+      const pushSubscription = {
+        unsubscribe: () => Promise.resolve(false),
+      }
+      const consoleMock = vi.spyOn(console, 'log')
+
+      // When
+      await unsubscribePush(pushSubscription)
+
+      // Then
+      expect(consoleMock).toHaveBeenCalledTimes(1)
+      expect(consoleMock).toHaveBeenCalledWith(
+        'failed to unsubscribe to the push manager'
+      )
+    })
+  })
+
+  describe('disableNotifications', () => {
+    test('should call unregisterDevice and unsubscribePush when permission is granted and is registered to service worker', async () => {
+      // Given
+      globalThis.Notification = {
+        requestPermission: () => true,
+      }
+      const pushSubscription = {
+        unsubscribe: () => Promise.resolve(true),
+      }
+      const registration = {
+        pushManager: {
+          getSubscription: vi.fn(() => Promise.resolve(pushSubscription)),
+        },
+      }
+      globalThis.navigator = {
+        serviceWorker: {
+          ready: new Promise((resolve) => {
+            resolve(registration)
+          }),
+        },
+      }
+
+      vi.mock('$lib/registration', () => ({
+        registerDevice: vi.fn(() => true),
+        unregisterDevice: vi.fn(() => true),
+      }))
+      const spyUnregisterDevice = vi.spyOn(registrationMethods, 'unregisterDevice')
+      const consoleMock = vi.spyOn(console, 'log')
+
+      // When
+      await disableNotifications(11)
+
+      // Then
+      expect(consoleMock).toHaveBeenCalledTimes(2)
+      expect(consoleMock).toHaveBeenCalledWith('unregisterDevice')
+      expect(spyUnregisterDevice).toHaveBeenCalledWith(11)
+      expect(consoleMock).toHaveBeenCalledWith('unsubscribed to the push manager')
+    })
+
+    test('should log error message when Notification permission is not granted', async () => {
+      // Given
+      globalThis.Notification = {
+        requestPermission: () => false,
+      }
+      const consoleMock = vi.spyOn(console, 'log')
+
+      // When
+      await disableNotifications(11)
+
+      // Then
+      expect(consoleMock).toHaveBeenCalledTimes(1)
+      expect(consoleMock).toHaveBeenCalledWith(
+        'No notification: missing permission or missing service worker registration'
+      )
+    })
+
+    test('should log error message when serviceWorker is not ready', async () => {
+      // Given
+      globalThis.Notification = {
+        requestPermission: () => true,
+      }
+      globalThis.navigator = {
+        serviceWorker: {
+          ready: new Promise((reject) => {
+            reject()
+          }),
+        },
+      }
+      const consoleMock = vi.spyOn(console, 'log')
+
+      // When
+      await disableNotifications(11)
+
+      // Then
+      expect(consoleMock).toHaveBeenCalledTimes(1)
+      expect(consoleMock).toHaveBeenCalledWith(
+        'No notification: missing permission or missing service worker registration'
+      )
     })
   })
 })
