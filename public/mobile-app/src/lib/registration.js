@@ -1,9 +1,7 @@
 import { PUBLIC_API_URL } from '$env/static/public'
 import { subscribePush } from '$lib/notifications.ts'
 
-export const registerUser = async () => {
-  const pushSubscription = await subscribePush()
-
+export const registerUser = async (pushSubscription) => {
   const pushSubURL = pushSubscription.endpoint
   const pushSubAuth = pushSubscription.toJSON().keys.auth
   const pushSubP256DH = pushSubscription.toJSON().keys.p256dh
