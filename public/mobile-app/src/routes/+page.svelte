@@ -45,7 +45,6 @@ onMount(async () => {
       goto('/')
     }
     if (page.url.searchParams.has('is_logged_out')) {
-      localStorage.clear()
       isFranceConnected = false
       isLoggedOut = true
       goto('/')
