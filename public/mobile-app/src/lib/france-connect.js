@@ -30,5 +30,10 @@ export const franceConnectLogout = async () => {
   })
   const url = new URL(`${PUBLIC_FC_BASE_URL}${PUBLIC_FC_LOGOUT_ENDPOINT}`)
   url.search = params.toString()
+
+  // Logout from AMI first: https://github.com/numerique-gouv/ami-notifications-api/issues/132
+  localStorage.clear()
+
+  // Now logout from FC.
   window.location = url.toString()
 }
