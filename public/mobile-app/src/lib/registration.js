@@ -31,3 +31,22 @@ export const registerDevice = async (pushSubscription) => {
     console.log(`error ${response.status}: ${response.statusText}, ${response.body}`)
   }
 }
+
+export const unregisterDevice = async (registrationId) => {
+  const headers = {
+    'Content-Type': 'application/json',
+  }
+  const response = await fetch(
+    `${PUBLIC_API_URL}/api/v1/registrations/${registrationId}`,
+    {
+      method: 'DELETE',
+      headers: headers,
+    }
+  )
+  console.log('response:', response)
+  if (response.status === 204) {
+    console.log('The device has been deleted successfully')
+  } else {
+    console.log(`error ${response.status}: ${response.statusText}, ${response.body}`)
+  }
+}
