@@ -139,23 +139,19 @@ async def logout(request: Request[Any, Any, Any]) -> Response[Any]:
         return Redirect("/rvo")
 
     logout_url: str = f"{PUBLIC_FC_BASE_URL}{PUBLIC_FC_LOGOUT_ENDPOINT}"
-    redirect_url = f"{PUBLIC_API_URL}/rvo/logout-callback"
+    redirect_url = f"{PUBLIC_API_URL}/rvo/logged_out"
     data: dict[str, str] = {
         "id_token_hint": request.session.get("id_token", ""),
         "state": redirect_url,
         "post_logout_redirect_uri": PUBLIC_FC_PROXY or redirect_url,
     }
 
-    # Redirect the user to FC's logout service. The local session cleanup happens in `/logout-callback`.
-    return Redirect(logout_url, query_params=data)
-
-
-@get(path="/logout-callback", include_in_schema=False)
-async def logout_callback(request: Request[Any, Any, Any]) -> Response[Any]:
-    # Local session cleanup: the user was logged out from FC.
+    # Logout from AMI first: https://github.com/numerique-gouv/ami-notifications-api/issues/132
     del request.session["userinfo"]
     del request.session["id_token"]
-    return Redirect("/rvo/logged_out")
+
+    # Redirect the user to FC's logout service.
+    return Redirect(logout_url, query_params=data)
 
 
 @get(path="/logged_out", include_in_schema=False)
@@ -232,7 +228,6 @@ rvo_router: Router = Router(
         home,
         login_callback,
         logout,
-        logout_callback,
         logged_out,
         list_users,
         send_notification,

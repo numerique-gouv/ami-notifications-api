@@ -57,7 +57,7 @@ async def test_rvo_logout(
 ) -> None:
     data: dict[str, str] = {
         "id_token_hint": "fake id token",
-        "state": "https://localhost:8000/rvo/logout-callback",
+        "state": "https://localhost:8000/rvo/logged_out",
         "post_logout_redirect_uri": "https://ami-fc-proxy-dev.osc-fr1.scalingo.io/",
     }
     params: str = urlencode(data)
@@ -66,20 +66,7 @@ async def test_rvo_logout(
     response = connected_test_client.get("/rvo/logout", follow_redirects=False)
     assert response.status_code == 302
     assert response.headers["location"] == url
-    # Session data is still present, so if logging out from FC failed, the user can try again.
-    assert connected_test_client.get_session_data() == {
-        "id_token": "fake id token",
-        "userinfo": connected_test_client.userinfo,
-    }
-
-
-async def test_rvo_logout_callback(
-    connected_test_client: ConnectedTestClient,
-) -> None:
-    response = connected_test_client.get("/rvo/logout-callback", follow_redirects=False)
-    assert response.status_code == 302
-    # As the user was properly logged out from FC, the local session is now emptied, and the user redirected to the fake service provider.
-    assert response.headers["location"] == "/rvo/logged_out"
+    # Session has been removed, previously to redirecting to FC logout URL.
     assert connected_test_client.get_session_data() == {}
 
 
