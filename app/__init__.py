@@ -171,12 +171,16 @@ async def list_users(db_session: AsyncSession) -> Response[list[User]]:
 
 
 @get("/api/v1/users/{user_id:int}/notifications")
-async def get_notifications(db_session: AsyncSession, user_id: int) -> Response[list[Notification]]:
+async def get_notifications(
+    db_session: AsyncSession, user_id: int, unread: bool | None = None
+) -> Response[list[Notification]]:
     user: User = await get_user_by_id(
         user_id,
         db_session,
     )
-    notifications: list[Notification] = await get_notification_list_by_user(user, db_session)
+    notifications: list[Notification] = await get_notification_list_by_user(
+        user, db_session, unread=unread
+    )
     return Response(notifications, status_code=HTTP_200_OK)
 
 

@@ -279,6 +279,13 @@ async def test_get_notifications_should_return_notifications_for_given_user_id(
     assert response.json()[0]["sender"] == notification.sender
     assert response.json()[0]["unread"] is True
 
+    response = test_client.get(f"/api/v1/users/{notification.user.id}/notifications?unread=true")
+    assert response.status_code == HTTP_200_OK
+    assert len(response.json()) == 1
+    response = test_client.get(f"/api/v1/users/{notification.user.id}/notifications?unread=false")
+    assert response.status_code == HTTP_200_OK
+    assert len(response.json()) == 0
+
     notification.unread = False
     db_session.add(notification)
     await db_session.commit()
@@ -291,6 +298,13 @@ async def test_get_notifications_should_return_notifications_for_given_user_id(
     assert response.json()[0]["title"] == notification.title
     assert response.json()[0]["sender"] == notification.sender
     assert response.json()[0]["unread"] is False
+
+    response = test_client.get(f"/api/v1/users/{notification.user.id}/notifications?unread=true")
+    assert response.status_code == HTTP_200_OK
+    assert len(response.json()) == 0
+    response = test_client.get(f"/api/v1/users/{notification.user.id}/notifications?unread=false")
+    assert response.status_code == HTTP_200_OK
+    assert len(response.json()) == 1
 
 
 async def test_list_registrations(
