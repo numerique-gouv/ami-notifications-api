@@ -35,7 +35,7 @@ onMount(async () => {
 
 <div class="notifications-content-container">
   {#each notifications as notification}
-  <div class="fr-tile fr-tile-sm fr-tile--horizontal fr-enlarge-link fr-p-3v notification {notification.status}">
+  <div class="fr-tile fr-tile-sm fr-tile--horizontal fr-enlarge-link fr-p-3v notification {notification.status}" data-testid="notification-{notification.id}">
     <div class="fr-tile__header">
       <span class="notification__status {notification.status}" aria-hidden="true"><i>•</i></span>
       <span class="notification__icon fr-icon-calendar-event-fill" aria-hidden="true"></span>
