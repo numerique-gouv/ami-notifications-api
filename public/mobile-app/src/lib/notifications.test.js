@@ -1,6 +1,7 @@
-import { describe, test, expect, vi } from 'vitest'
+import { afterEach, describe, test, expect, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 import {
+  countUnreadNotifications,
   enableNotifications,
   getSubscription,
   retrieveNotifications,
@@ -9,6 +10,10 @@ import {
 import * as registrationMethods from '$lib/registration.js'
 
 describe('/notifications.ts', () => {
+  afterEach(() => {
+    window.localStorage.clear()
+  })
+
   describe('retrieveNotifications', () => {
     test('user_id should be set', async () => {
       // Given
@@ -56,6 +61,47 @@ describe('/notifications.ts', () => {
 
       // Then
       expect(result).toEqual(notifications)
+    })
+  })
+
+  describe('countUnreadNotifications', () => {
+    test('user_id should be set', async () => {
+      // Given
+      expect(window.localStorage.getItem('user_id')).toEqual(null)
+
+      // When
+      const result = await countUnreadNotifications()
+
+      // Then
+      expect(result).toEqual(0)
+    })
+
+    test('should count unread notifications from API', async () => {
+      // Given
+      window.localStorage.setItem('user_id', 'fake-user-id')
+      const notifications = [
+        {
+          date: '2025-09-19T13:52:23.279545',
+          user_id: 42,
+          sender: 'test 2',
+          message: 'test 2',
+          id: 30,
+          title: 'test 2',
+          unread: true,
+        },
+      ]
+      globalThis.fetch = vi.fn(() =>
+        Promise.resolve({
+          status: 200,
+          json: () => Promise.resolve(notifications),
+        })
+      )
+
+      // When
+      const result = await countUnreadNotifications()
+
+      // Then
+      expect(result).toEqual(1)
     })
   })
 

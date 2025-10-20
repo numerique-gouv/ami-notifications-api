@@ -6,8 +6,6 @@ import ConnectedHomepage from './ConnectedHomepage.svelte'
 describe('/ConnectedHomepage.svelte', () => {
   test("should display user's initials on menu", async () => {
     // Given
-    globalThis.Notification = {}
-
     vi.mock('$lib/france-connect', () => ({
       parseJwt: vi.fn().mockImplementation(() => {
         return {
@@ -38,6 +36,10 @@ describe('/ConnectedHomepage.svelte', () => {
       }),
     }))
 
+    vi.mock('$lib/notifications', () => ({
+      countUnreadNotifications: vi.fn().mockImplementation(() => 3),
+    }))
+
     window.localStorage.setItem('user_data', 'fake-user-data')
     window.localStorage.setItem('emailLocalStorage', 'test@email.fr')
     window.localStorage.setItem('pushSubscriptionLocalStorage', '{}')
@@ -51,5 +53,7 @@ describe('/ConnectedHomepage.svelte', () => {
     expect(initials).toHaveTextContent('PAF')
     const accordion = container.querySelector('#accordion-1')
     expect(accordion).toHaveTextContent('quotientinfo: { "data": { "foo": "bar" }')
+    const icon = container.querySelector('#notification-icon')
+    expect(icon).toHaveTextContent('3')
   })
 })
