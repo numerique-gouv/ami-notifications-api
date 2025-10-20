@@ -8,6 +8,7 @@ export type Notification = {
   message: string
   sender?: string
   title?: string
+  unread: boolean
 }
 
 export const retrieveNotifications = async (): Promise<Notification[]> => {
