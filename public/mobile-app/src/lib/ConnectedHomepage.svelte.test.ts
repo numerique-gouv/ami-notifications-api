@@ -4,7 +4,7 @@ import { render } from '@testing-library/svelte'
 import ConnectedHomepage from './ConnectedHomepage.svelte'
 
 describe('/ConnectedHomepage.svelte', () => {
-  test("should display user's initials on menu", () => {
+  test("should display user's initials on menu", async () => {
     // Given
     globalThis.Notification = {}
 
@@ -44,9 +44,12 @@ describe('/ConnectedHomepage.svelte', () => {
 
     // When
     const { container } = render(ConnectedHomepage)
+    await new Promise(setTimeout) // wait for async calls
 
     // Then
     const initials = container.querySelector('.user-profile')
     expect(initials).toHaveTextContent('PAF')
+    const accordion = container.querySelector('#accordion-1')
+    expect(accordion).toHaveTextContent('quotientinfo: { "data": { "foo": "bar" }')
   })
 })
