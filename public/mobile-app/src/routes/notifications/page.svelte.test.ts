@@ -25,15 +25,6 @@ describe('/+page.svelte', () => {
       .spyOn(notificationsMethods, 'retrieveNotifications')
       .mockImplementation(async () => [
         {
-          date: '2025-09-19T12:59:04.950812',
-          user_id: 42,
-          sender: 'test',
-          message: 'test',
-          id: 29,
-          title: 'test',
-          unread: false,
-        },
-        {
           date: '2025-09-19T13:52:23.279545',
           user_id: 42,
           sender: 'test 2',
@@ -41,6 +32,15 @@ describe('/+page.svelte', () => {
           id: 30,
           title: 'test 2',
           unread: true,
+        },
+        {
+          date: '2025-09-19T12:59:04.950812',
+          user_id: 42,
+          sender: 'test',
+          message: 'test',
+          id: 29,
+          title: 'test',
+          unread: false,
         },
       ])
 
@@ -50,9 +50,9 @@ describe('/+page.svelte', () => {
 
     // Then
     expect(spy).toHaveBeenCalledTimes(1)
-    const notification1 = screen.getByTestId('notification-29')
-    expect(notification1).not.toHaveClass('unread')
-    const notification2 = screen.getByTestId('notification-30')
-    expect(notification2).toHaveClass('unread')
+    const notification1 = screen.getByTestId('notification-30')
+    expect(notification1).toHaveClass('unread')
+    const notification2 = screen.getByTestId('notification-29')
+    expect(notification2).not.toHaveClass('unread')
   })
 })

@@ -15,15 +15,6 @@ describe('/notifications.ts', () => {
       window.localStorage.setItem('user_id', 'fake-user-id')
       const notifications = [
         {
-          date: '2025-09-19T12:59:04.950812',
-          user_id: 42,
-          sender: 'test',
-          message: 'test',
-          id: 29,
-          title: 'test',
-          unread: false,
-        },
-        {
           date: '2025-09-19T13:52:23.279545',
           user_id: 42,
           sender: 'test 2',
@@ -31,6 +22,15 @@ describe('/notifications.ts', () => {
           id: 30,
           title: 'test 2',
           unread: true,
+        },
+        {
+          date: '2025-09-19T12:59:04.950812',
+          user_id: 42,
+          sender: 'test',
+          message: 'test',
+          id: 29,
+          title: 'test',
+          unread: false,
         },
       ]
       globalThis.fetch = vi.fn(() =>

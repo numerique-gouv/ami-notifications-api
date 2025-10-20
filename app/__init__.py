@@ -46,6 +46,7 @@ from app.models import (
     create_notification,
     create_registration,
     create_user_from_userinfo,
+    get_notification_list_by_user,
     get_registration_by_user_and_subscription,
     get_user_by_id,
     get_user_by_userinfo,
@@ -174,9 +175,9 @@ async def get_notifications(db_session: AsyncSession, user_id: int) -> Response[
     user: User = await get_user_by_id(
         user_id,
         db_session,
-        options=selectinload(User.notifications),
     )
-    return Response(user.notifications, status_code=HTTP_200_OK)
+    notifications: list[Notification] = await get_notification_list_by_user(user, db_session)
+    return Response(notifications, status_code=HTTP_200_OK)
 
 
 @get("/api/v1/users/{user_id:int}/registrations")
