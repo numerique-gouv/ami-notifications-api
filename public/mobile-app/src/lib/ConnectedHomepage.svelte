@@ -1,12 +1,17 @@
 <script lang="ts">
 import { parseJwt, franceConnectLogout } from '$lib/france-connect'
 import { onMount } from 'svelte'
-import { enableNotifications, getSubscription } from '$lib/notifications'
+import {
+  countUnreadNotifications,
+  enableNotifications,
+  getSubscription,
+} from '$lib/notifications'
 import { getQuotientData } from '$lib/api-particulier'
 import bankIcon from '@gouvfr/dsfr/dist/icons/buildings/bank-line.svg'
 
 let userinfo: Object = $state({})
 let quotientinfo: Object = $state({})
+let unreadNotificationsCount: Number = $state(0)
 let initials: String = $state('')
 let isMenuDisplayed = $state(false)
 let notificationsEnabled: boolean = $state(false)
@@ -28,6 +33,8 @@ onMount(async () => {
     $inspect(userinfo)
 
     initials = getInitials(userinfo.given_name_array)
+
+    unreadNotificationsCount = await countUnreadNotifications()
 
     if (navigator.permissions) {
       const permissionStatus = await navigator.permissions.query({
@@ -75,13 +82,16 @@ const toggleMenu = () => {
     </button>
 
     <div class="header-right">
-      <div class="notification-svg-icon">
+      <div class="notification-svg-icon" id="message-icon">
         <img src="/remixicons/message-3.svg" alt="Icône de message" />
       </div>
 
-      <div class="notification-svg-icon">
+      <div class="notification-svg-icon" id="notification-icon">
         <a href="/#/notifications">
-          <img src="/remixicons/notification-3.svg" alt="Icône de notification" />
+          <img src="/remixicons/notification-3.svg" alt="Icône de notifications" />
+          <div class="count-number-wrapper" data-content="{unreadNotificationsCount}">
+            {unreadNotificationsCount}
+          </div>
         </a>
       </div>
     </div>
@@ -254,10 +264,30 @@ const toggleMenu = () => {
 
         .notification-svg-icon {
           margin-right: 16px;
-        }
+          position: relative;
 
-        .notification-svg-icon a[href]{
-          background: none;
+          & a[href]{
+            background: none;
+          }
+
+          .count-number-wrapper {
+            position: absolute;
+            top: 0;
+            left: .75rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 1rem;
+            height: 1rem;
+            border-radius: .5rem;
+            background-color: #E1000F;
+            color: white;
+            font-size: .75rem;
+
+            &[data-content="0"] {
+              display: none;
+            }
+          }
         }
       }
     }

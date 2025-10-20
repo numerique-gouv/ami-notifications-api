@@ -30,6 +30,24 @@ export const retrieveNotifications = async (): Promise<Notification[]> => {
   return notifications
 }
 
+export const countUnreadNotifications = async (): Number => {
+  let notifications = [] as Notification[]
+  const userId = localStorage.getItem('user_id')
+  if (userId) {
+    try {
+      const response = await fetch(
+        `${PUBLIC_API_URL}/api/v1/users/${userId}/notifications?unread=true`
+      )
+      if (response.status === 200) {
+        notifications = await response.json()
+      }
+    } catch (error) {
+      console.error(error)
+    }
+  }
+  return notifications.length
+}
+
 export const getSubscription = async () => {
   console.log("refreshing the push subscription, if it's there")
   const registration = await getServiceWorkerRegistration()
