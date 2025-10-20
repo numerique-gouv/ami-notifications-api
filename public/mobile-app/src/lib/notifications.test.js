@@ -21,6 +21,7 @@ describe('/notifications.ts', () => {
           message: 'test',
           id: 29,
           title: 'test',
+          unread: false,
         },
         {
           date: '2025-09-19T13:52:23.279545',
@@ -29,6 +30,7 @@ describe('/notifications.ts', () => {
           message: 'test 2',
           id: 30,
           title: 'test 2',
+          unread: true,
         },
       ]
       globalThis.fetch = vi.fn(() =>

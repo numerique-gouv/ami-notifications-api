@@ -31,6 +31,7 @@ describe('/+page.svelte', () => {
           message: 'test',
           id: 29,
           title: 'test',
+          unread: false,
         },
         {
           date: '2025-09-19T13:52:23.279545',
@@ -39,6 +40,7 @@ describe('/+page.svelte', () => {
           message: 'test 2',
           id: 30,
           title: 'test 2',
+          unread: true,
         },
       ])
 
@@ -51,6 +53,6 @@ describe('/+page.svelte', () => {
     const notification1 = screen.getByTestId('notification-29')
     expect(notification1).not.toHaveClass('unread')
     const notification2 = screen.getByTestId('notification-30')
-    expect(notification2).not.toHaveClass('unread')
+    expect(notification2).toHaveClass('unread')
   })
 })
