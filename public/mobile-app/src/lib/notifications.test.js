@@ -10,6 +10,17 @@ import * as registrationMethods from '$lib/registration.js'
 
 describe('/notifications.ts', () => {
   describe('retrieveNotifications', () => {
+    test('user_id should be set', async () => {
+      // Given
+      expect(window.localStorage.getItem('user_id')).toEqual(null)
+
+      // When
+      const result = await retrieveNotifications()
+
+      // Then
+      expect(result).toEqual([])
+    })
+
     test('should get notifications from API', async () => {
       // Given
       window.localStorage.setItem('user_id', 'fake-user-id')
