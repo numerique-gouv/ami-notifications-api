@@ -153,14 +153,14 @@ async def test_notify_create_notification_from_test_and_from_app_context(
     assert response.status_code == HTTP_200_OK
     assert len(response.json()) == 2
     assert response.json()[0]["user_id"] == registration.user.id
-    assert response.json()[0]["message"] == notification.message
-    assert response.json()[0]["title"] == notification.title
-    assert response.json()[0]["sender"] == notification.sender
+    assert response.json()[0]["message"] == "Hello notification 2"
+    assert response.json()[0]["title"] == "Some notification title"
+    assert response.json()[0]["sender"] == "Jane Doe"
     assert response.json()[0]["unread"] is True
     assert response.json()[1]["user_id"] == registration.user.id
-    assert response.json()[1]["message"] == "Hello notification 2"
-    assert response.json()[1]["title"] == "Some notification title"
-    assert response.json()[1]["sender"] == "Jane Doe"
+    assert response.json()[1]["message"] == notification.message
+    assert response.json()[1]["title"] == notification.title
+    assert response.json()[1]["sender"] == notification.sender
     assert response.json()[1]["unread"] is True
 
 

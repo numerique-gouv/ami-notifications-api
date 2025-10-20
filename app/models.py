@@ -117,8 +117,12 @@ async def create_user_from_userinfo(user: User, db_session: AsyncSession) -> Use
 #### NOTIFICATIONS
 
 
-async def get_notification_list(db_session: AsyncSession) -> list[Notification]:
-    query = select(Notification).order_by(col(Notification.date).desc())
+async def get_notification_list_by_user(user: User, db_session: AsyncSession) -> list[Notification]:
+    query = (
+        select(Notification)
+        .where(col(Notification.user) == user)
+        .order_by(col(Notification.date).desc())
+    )
     result = await db_session.exec(query)
     return list(result.all())
 
