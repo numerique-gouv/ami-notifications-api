@@ -35,20 +35,20 @@
   <form class="fr-pb-4v" action="" method="post">
     <div class="fr-input-group">
       <label class="fr-label" for="send-notification-title-input">Titre</label>
-      <input class="fr-input" aria-describedby="input-messages" id="send-notification-title-input" type="text">
-      <div class="fr-messages-group" id="input-messages" aria-live="polite">
+      <input class="fr-input" aria-describedby="input-title-messages" id="send-notification-title-input" type="text">
+      <div class="fr-messages-group" id="input-title-messages" aria-live="polite">
       </div>
     </div>
     <div class="fr-input-group">
       <label class="fr-label" for="send-notification-message-input">Message</label>
-      <input class="fr-input" aria-describedby="input-messages" id="send-notification-message-input" type="text">
-      <div class="fr-messages-group" id="input-messages" aria-live="polite">
+      <input class="fr-input" aria-describedby="input-message-messages" id="send-notification-message-input" type="text">
+      <div class="fr-messages-group" id="input-message-messages" aria-live="polite">
       </div>
     </div>
     <div class="fr-input-group">
       <label class="fr-label" for="send-notification-sender-input">Expéditeur</label>
-      <input class="fr-input" aria-describedby="input-messages" id="send-notification-sender-input" type="text">
-      <div class="fr-messages-group" id="input-messages" aria-live="polite">
+      <input class="fr-input" aria-describedby="input-sender-messages" id="send-notification-sender-input" type="text">
+      <div class="fr-messages-group" id="input-sender-messages" aria-live="polite">
       </div>
     </div>
 
@@ -87,6 +87,7 @@
       console.log('notifying a message')
       notifyMessageBtn.disabled = true
       notifyMessageStatus.innerText = 'Notifying...'
+      document.querySelectorAll('.fr-messages-group').forEach((element) => element.innerHTML = '')
       const response = await fetch('/api/v1/notifications', {
         method: 'POST',
         body: JSON.stringify(payload),
@@ -96,7 +97,17 @@
       if (response.status < 400) {
         notifyMessageStatus.innerText = 'Done!'
       } else {
-        notifyMessageStatus.innerText = `error ${response.status}: ${response.statusText}, ${response.body}`
+        const json_response = await response.json()
+        if (json_response.extra) {
+          const errors = json_response.extra
+          errors.forEach((error) => {
+            const notifyMessages = document.querySelector(`#input-${error.key}-messages`)
+            notifyMessages.innerHTML = `<p class="fr-message fr-message--error">${error.message}</p>`
+          })
+          notifyMessageStatus.innerText = ''
+        } else {
+          notifyMessageStatus.innerText = `error ${response.status}: ${response.statusText}, ${response.body}`
+        }
       }
     }
   </script>
