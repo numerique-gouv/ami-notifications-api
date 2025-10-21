@@ -12,6 +12,7 @@ from litestar import (
     Request,
     Response,
     get,
+    patch,
     post,
 )
 from litestar.config.cors import CORSConfig
@@ -40,17 +41,20 @@ from app.models import (
     FCUserInfo,
     Notification,
     NotificationCreate,
+    NotificationRead,
     Registration,
     RegistrationCreate,
     User,
     create_notification,
     create_registration,
     create_user_from_userinfo,
+    get_notification_by_id_and_user,
     get_notification_list_by_user,
     get_registration_by_user_and_subscription,
     get_user_by_id,
     get_user_by_userinfo,
     get_user_list,
+    update_notification,
 )
 
 from .database import db_connection, provide_db_session
@@ -182,6 +186,32 @@ async def get_notifications(
         user, db_session, unread=unread
     )
     return Response(notifications, status_code=HTTP_200_OK)
+
+
+@patch("/api/v1/users/{user_id:int}/notification/{notification_id:int}/read")
+async def read_notification(
+    db_session: AsyncSession,
+    user_id: int,
+    notification_id: int,
+    data: Annotated[
+        NotificationRead,
+        Body(
+            description="read or unread a user notification",
+        ),
+    ],
+) -> Response[Notification]:
+    user: User = await get_user_by_id(
+        user_id,
+        db_session,
+    )
+    notification: Notification = await get_notification_by_id_and_user(
+        notification_id,
+        user,
+        db_session,
+    )
+    notification.unread = not data.read
+    notification = await update_notification(db_session, notification)
+    return Response(notification, status_code=HTTP_200_OK)
 
 
 @get("/api/v1/users/{user_id:int}/registrations")
@@ -339,6 +369,7 @@ def create_app(
             list_users,
             list_registrations,
             get_notifications,
+            read_notification,
             login_callback,
             get_fc_userinfo,
             get_api_particulier_quotient,

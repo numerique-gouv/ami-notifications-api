@@ -328,6 +328,65 @@ async def test_get_notifications_should_return_notifications_for_given_user_id(
     assert len(response.json()) == 1
 
 
+async def test_read_notification(
+    test_client: TestClient[Litestar],
+    db_session: AsyncSession,
+    notification: Notification,
+) -> None:
+    # notification for another user, can not be patched by test user
+    other_user = User(
+        email="other-user@example.com", family_name="AMI", given_name="Other Test User"
+    )
+    db_session.add(other_user)
+    await db_session.commit()
+    assert other_user.id is not None, "User ID should be set"
+    other_notification = Notification(
+        user_id=other_user.id,
+        message="Other notification",
+        title="Notification title",
+        sender="John Doe",
+    )
+    db_session.add(other_notification)
+    await db_session.commit()
+
+    # invalid, no payload
+    response = test_client.patch("/api/v1/users/0/notification/0/read")
+    assert response.status_code == HTTP_400_BAD_REQUEST
+
+    # unknown user
+    response = test_client.patch("/api/v1/users/0/notification/0/read", json={"read": True})
+    assert response.status_code == HTTP_404_NOT_FOUND
+
+    # can not patch notification of another user
+    response = test_client.patch(
+        f"/api/v1/users/{notification.user.id}/notification/{other_notification.id}/read",
+        json={"read": True},
+    )
+    assert response.status_code == HTTP_404_NOT_FOUND
+
+    response = test_client.patch(
+        f"/api/v1/users/{notification.user.id}/notification/{notification.id}/read",
+        json={"read": True},
+    )
+    assert response.status_code == HTTP_200_OK
+    assert response.json()["user_id"] == notification.user.id
+    assert response.json()["message"] == notification.message
+    assert response.json()["title"] == notification.title
+    assert response.json()["sender"] == notification.sender
+    assert response.json()["unread"] is False
+
+    response = test_client.patch(
+        f"/api/v1/users/{notification.user.id}/notification/{notification.id}/read",
+        json={"read": False},
+    )
+    assert response.status_code == HTTP_200_OK
+    assert response.json()["user_id"] == notification.user.id
+    assert response.json()["message"] == notification.message
+    assert response.json()["title"] == notification.title
+    assert response.json()["sender"] == notification.sender
+    assert response.json()["unread"] is True
+
+
 async def test_list_registrations(
     test_client: TestClient[Litestar],
     registration: Registration,
