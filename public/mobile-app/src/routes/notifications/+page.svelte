@@ -3,7 +3,7 @@ import { PUBLIC_API_URL } from '$env/static/public'
 import { onMount } from 'svelte'
 import { goto } from '$app/navigation'
 import { prettyDate } from '$lib/prettyDate.ts'
-import { retrieveNotifications } from '$lib/notifications'
+import { retrieveNotifications, readNotification } from '$lib/notifications'
 import type { Notification } from '$lib/notifications'
 
 let isFranceConnected: boolean = $state(false)
@@ -17,6 +17,12 @@ onMount(async () => {
 
   notifications = await retrieveNotifications()
 })
+
+const markNotificationAsRead = async (event, notificationId) => {
+  event.preventDefault()
+  let result = await readNotification(notificationId)
+  notifications = await retrieveNotifications()
+}
 </script>
 
 <nav class="fr-p-4v fr-pt-6v">
@@ -44,7 +50,7 @@ onMount(async () => {
       <div class="fr-tile__content fr-pb-0">
         <div class="notification__title">
           <h3 class="fr-tile__title fr-mb-0">
-            <a href="/">{notification.sender} : {notification.title}</a>
+            <a href="/" onclick={(event) => markNotificationAsRead(event, notification.id)} data-testid="notification-link-{notification.id}">{notification.sender} : {notification.title}</a>
           </h3>
           <span class="notification__age">
             {prettyDate(notification.date)}

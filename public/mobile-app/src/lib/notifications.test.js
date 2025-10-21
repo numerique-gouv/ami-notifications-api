@@ -4,6 +4,7 @@ import {
   countUnreadNotifications,
   enableNotifications,
   getSubscription,
+  readNotification,
   retrieveNotifications,
   subscribePush,
 } from '$lib/notifications.ts'
@@ -102,6 +103,47 @@ describe('/notifications.ts', () => {
 
       // Then
       expect(result).toEqual(1)
+    })
+  })
+
+  describe('readNotification', () => {
+    test('user_id should be set', async () => {
+      // Given
+      expect(window.localStorage.getItem('user_id')).toEqual(null)
+
+      // When
+      const result = await readNotification(0)
+
+      // Then
+      expect(result).toEqual(undefined)
+    })
+
+    test('should mark notification as read', async () => {
+      // Given
+      window.localStorage.setItem('user_id', 'fake-user-id')
+      const read_notification = [
+        {
+          date: '2025-09-19T13:52:23.279545',
+          user_id: 42,
+          sender: 'test 2',
+          message: 'test 2',
+          id: 30,
+          title: 'test 2',
+          unread: false,
+        },
+      ]
+      globalThis.fetch = vi.fn(() =>
+        Promise.resolve({
+          status: 200,
+          json: () => Promise.resolve(read_notification),
+        })
+      )
+
+      // When
+      const result = await readNotification(30)
+
+      // Then
+      expect(result).toEqual(read_notification)
     })
   })
 

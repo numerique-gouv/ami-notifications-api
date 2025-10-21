@@ -55,4 +55,81 @@ describe('/+page.svelte', () => {
     const notification2 = screen.getByTestId('notification-29')
     expect(notification2).not.toHaveClass('unread')
   })
+
+  test('notification mark as read', async () => {
+    // Given
+    window.localStorage.setItem('access_token', 'fake-access-token')
+    const spy = vi
+      .spyOn(notificationsMethods, 'retrieveNotifications')
+      .mockImplementationOnce(async () => [
+        {
+          date: '2025-09-19T13:52:23.279545',
+          user_id: 42,
+          sender: 'test 2',
+          message: 'test 2',
+          id: 30,
+          title: 'test 2',
+          unread: true,
+        },
+        {
+          date: '2025-09-19T12:59:04.950812',
+          user_id: 42,
+          sender: 'test',
+          message: 'test',
+          id: 29,
+          title: 'test',
+          unread: false,
+        },
+      ])
+      .mockImplementationOnce(async () => [
+        {
+          date: '2025-09-19T13:52:23.279545',
+          user_id: 42,
+          sender: 'test 2',
+          message: 'test 2',
+          id: 30,
+          title: 'test 2',
+          unread: false,
+        },
+        {
+          date: '2025-09-19T12:59:04.950812',
+          user_id: 42,
+          sender: 'test',
+          message: 'test',
+          id: 29,
+          title: 'test',
+          unread: false,
+        },
+      ])
+    const spy2 = vi
+      .spyOn(notificationsMethods, 'readNotification')
+      .mockImplementation(async () => {
+        return {
+          date: '2025-09-19T13:52:23.279545',
+          user_id: 42,
+          sender: 'test 2',
+          message: 'test 2',
+          id: 30,
+          title: 'test 2',
+          unread: false,
+        }
+      })
+
+    render(Page)
+    await new Promise(setTimeout) // wait for async calls
+    const notificationLink = screen.getByTestId('notification-link-30')
+
+    // When
+    await notificationLink.click()
+    await new Promise(setTimeout) // wait for async calls
+
+    // Then
+    expect(spy).toHaveBeenCalledTimes(2)
+    expect(spy2).toHaveBeenCalledTimes(1)
+    expect(spy2).toHaveBeenCalledWith(30)
+    const notification1 = screen.getByTestId('notification-30')
+    expect(notification1).not.toHaveClass('unread')
+    const notification2 = screen.getByTestId('notification-29')
+    expect(notification2).not.toHaveClass('unread')
+  })
 })
