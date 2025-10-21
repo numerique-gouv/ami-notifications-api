@@ -270,6 +270,27 @@ async def test_get_notifications_should_return_notifications_for_given_user_id(
     db_session: AsyncSession,
     notification: Notification,
 ) -> None:
+    # notification for another user, not returned in notification list of test user
+    other_user = User(
+        email="other-user@example.com", family_name="AMI", given_name="Other Test User"
+    )
+    db_session.add(other_user)
+    await db_session.commit()
+    assert other_user.id is not None, "User ID should be set"
+    other_notification = Notification(
+        user_id=other_user.id,
+        message="Other notification",
+        title="Notification title",
+        sender="John Doe",
+    )
+    db_session.add(other_notification)
+    await db_session.commit()
+
+    # unknown user
+    response = test_client.get("/api/v1/users/0/notifications")
+    assert response.status_code == HTTP_404_NOT_FOUND
+
+    # test user notification list
     response = test_client.get(f"/api/v1/users/{notification.user.id}/notifications")
     assert response.status_code == HTTP_200_OK
     assert len(response.json()) == 1
