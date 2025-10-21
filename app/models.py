@@ -65,6 +65,10 @@ class NotificationCreate(NotificationBase):
     pass
 
 
+class NotificationRead(SQLModel):
+    read: bool = Field()
+
+
 #### USERS
 
 
@@ -129,6 +133,28 @@ async def get_notification_list_by_user(
 
 
 async def create_notification(notification: Notification, db_session: AsyncSession) -> Notification:
+    db_session.add(notification)
+    await db_session.commit()
+    await db_session.refresh(notification)
+    return notification
+
+
+async def get_notification_by_id_and_user(
+    notification_id: int, user: User, db_session: AsyncSession
+) -> Notification:
+    query = select(Notification).where(
+        col(Notification.id) == notification_id, col(Notification.user) == user
+    )
+    result = await db_session.exec(query)
+    try:
+        return result.one()
+    except NoResultFound as e:
+        raise NotFoundException(
+            detail=f"Notification with id {notification_id!r} not found for the user"
+        ) from e
+
+
+async def update_notification(db_session: AsyncSession, notification: Notification) -> Notification:
     db_session.add(notification)
     await db_session.commit()
     await db_session.refresh(notification)
