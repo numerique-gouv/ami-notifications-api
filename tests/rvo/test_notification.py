@@ -2,7 +2,7 @@ import datetime
 
 from litestar import Litestar
 from litestar.testing import TestClient
-from sqlmodel.ext.asyncio.session import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import Notification, User
 
@@ -67,7 +67,6 @@ async def test_rvo_test_send_notification_when_logged_in(
         message="Hello notification1",
         title="Notification title",
         sender="John Doe",
-        date=datetime.datetime.now(),
     )
     db_session.add(notification_)
     notification_ = Notification(
@@ -75,7 +74,7 @@ async def test_rvo_test_send_notification_when_logged_in(
         message="Hello notification2",
         title="Notification title",
         sender="John Doe",
-        date=datetime.datetime.now() - datetime.timedelta(days=1),
+        date=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=1),
     )
     db_session.add(notification_)
     await db_session.commit()

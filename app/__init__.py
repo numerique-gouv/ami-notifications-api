@@ -27,13 +27,12 @@ from litestar.static_files import (
 from litestar.status_codes import (
     HTTP_200_OK,
     HTTP_201_CREATED,
-    HTTP_404_NOT_FOUND,
     HTTP_500_INTERNAL_SERVER_ERROR,
 )
 from litestar.stores.file import FileStore
 from litestar.template.config import TemplateConfig
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
-from sqlmodel.ext.asyncio.session import AsyncSession
 from webpush import WebPush, WebPushSubscription
 
 from app import env
@@ -41,9 +40,11 @@ from app.models import (
     FCUserInfo,
     Notification,
     NotificationCreate,
+    NotificationDTO,
     NotificationRead,
     Registration,
     RegistrationCreate,
+    RegistrationDTO,
     User,
     create_notification,
     create_registration,
@@ -79,7 +80,10 @@ async def get_notification_key() -> str:
     return env.VAPID_APPLICATION_SERVER_KEY
 
 
-@post("/api/v1/registrations")
+@post(
+    "/api/v1/registrations",
+    return_dto=RegistrationDTO,
+)
 async def register(
     db_session: AsyncSession,
     data: Annotated[
@@ -89,16 +93,9 @@ async def register(
             description="Register with a push subscription and an email to receive notifications",
         ),
     ],
-) -> Response[Any]:
+) -> Response[Registration]:
     WebPushSubscription.model_validate(data.subscription)
-    registration = Registration.model_validate(data)
-    try:
-        user = await get_user_by_id(data.user_id, db_session)
-    except NotFoundException:
-        return error_from_message(
-            {"error": "User not found"},
-            HTTP_404_NOT_FOUND,
-        )
+    user = await get_user_by_id(data.user_id, db_session)
 
     assert user.id is not None, "User ID should be set after commit"
     existing_registration = await get_registration_by_user_and_subscription(
@@ -108,11 +105,14 @@ async def register(
         # This registration already exists, don't duplicate it.
         return Response(existing_registration, status_code=HTTP_200_OK)
 
-    registration = await create_registration(registration, db_session)
+    registration = await create_registration(Registration(**data.model_dump()), db_session)
     return Response(registration, status_code=HTTP_201_CREATED)
 
 
-@post("/api/v1/notifications")
+@post(
+    "/api/v1/notifications",
+    return_dto=NotificationDTO,
+)
 async def notify(
     db_session: AsyncSession,
     webpush: WebPush,
@@ -123,13 +123,12 @@ async def notify(
             description="Send the notification message to a registered user",
         ),
     ],
-) -> Response[Notification]:
+) -> Notification:
     user = await get_user_by_id(
         data.user_id,
         db_session,
         options=selectinload(User.registrations),
     )
-    notification = Notification.model_validate(data)
 
     for registration in user.registrations:
         subscription = WebPushSubscription.model_validate(registration.subscription)
@@ -145,14 +144,18 @@ async def notify(
             continue
         else:
             response.raise_for_status()
-    notification = await create_notification(notification, db_session)
-    return Response(notification, status_code=HTTP_201_CREATED)
+
+    notification = await create_notification(Notification(**data.model_dump()), db_session)
+    return notification
 
 
-@get("/api/v1/users/{user_id:int}/notifications")
+@get(
+    "/api/v1/users/{user_id:int}/notifications",
+    return_dto=NotificationDTO,
+)
 async def get_notifications(
     db_session: AsyncSession, user_id: int, unread: bool | None = None
-) -> Response[list[Notification]]:
+) -> list[Notification]:
     user: User = await get_user_by_id(
         user_id,
         db_session,
@@ -160,10 +163,13 @@ async def get_notifications(
     notifications: list[Notification] = await get_notification_list_by_user(
         user, db_session, unread=unread
     )
-    return Response(notifications, status_code=HTTP_200_OK)
+    return notifications
 
 
-@patch("/api/v1/users/{user_id:int}/notification/{notification_id:int}/read")
+@patch(
+    "/api/v1/users/{user_id:int}/notification/{notification_id:int}/read",
+    return_dto=NotificationDTO,
+)
 async def read_notification(
     db_session: AsyncSession,
     user_id: int,
@@ -174,7 +180,7 @@ async def read_notification(
             description="read or unread a user notification",
         ),
     ],
-) -> Response[Notification]:
+) -> Notification:
     user: User = await get_user_by_id(
         user_id,
         db_session,
@@ -186,19 +192,17 @@ async def read_notification(
     )
     notification.unread = not data.read
     notification = await update_notification(db_session, notification)
-    return Response(notification, status_code=HTTP_200_OK)
+    return notification
 
 
-@get("/api/v1/users/{user_id:int}/registrations")
-async def list_registrations(
-    db_session: AsyncSession, user_id: int
-) -> Response[list[Registration]]:
+@get("/api/v1/users/{user_id:int}/registrations", dto=RegistrationDTO)
+async def list_registrations(db_session: AsyncSession, user_id: int) -> list[Registration]:
     user: User = await get_user_by_id(
         user_id,
         db_session,
         options=selectinload(User.registrations),
     )
-    return Response(user.registrations, status_code=HTTP_200_OK)
+    return user.registrations
 
 
 #### VIEWS
@@ -264,15 +268,12 @@ async def get_fc_userinfo(
     decoded_userinfo = jwt.decode(
         userinfo_jws, options={"verify_signature": False}, algorithms=["ES256"]
     )
-    ignore_keys = ["aud", "nonce", "exp", "iat", "auth_time", "iss"]
-    useful_userinfo = {key: val for key, val in decoded_userinfo.items() if key not in ignore_keys}
-
-    userinfo = FCUserInfo(**useful_userinfo)
+    userinfo = FCUserInfo(**decoded_userinfo)
 
     try:
         user = await get_user_by_userinfo(userinfo, db_session)
     except NotFoundException:
-        user_ = User(**vars(userinfo))
+        user_ = User(**userinfo.model_dump())
         user = await create_user_from_userinfo(user_, db_session)
     result: dict[str, Any] = {
         "user_id": user.id,

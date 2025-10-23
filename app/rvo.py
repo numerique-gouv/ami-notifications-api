@@ -18,8 +18,8 @@ from litestar.status_codes import (
     HTTP_404_NOT_FOUND,
     HTTP_500_INTERNAL_SERVER_ERROR,
 )
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
-from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app import rvo_auth
 from app.models import User, get_notification_list_by_user, get_user_by_id, get_user_list
