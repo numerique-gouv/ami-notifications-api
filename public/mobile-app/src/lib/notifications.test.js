@@ -187,7 +187,7 @@ describe('/notifications.ts', () => {
   })
 
   describe('enableNotifications', () => {
-    test('should call registerUser when permission is granted and is registered to service worker', async () => {
+    test('should call registerDevice when permission is granted and is registered to service worker', async () => {
       // Given
       globalThis.Notification = {
         requestPermission: () => true,
@@ -207,9 +207,9 @@ describe('/notifications.ts', () => {
       }
 
       vi.mock('$lib/registration', () => ({
-        registerUser: vi.fn(() => true),
+        registerDevice: vi.fn(() => true),
       }))
-      const spy = vi.spyOn(registrationMethods, 'registerUser')
+      const spy = vi.spyOn(registrationMethods, 'registerDevice')
 
       // When
       await enableNotifications()
