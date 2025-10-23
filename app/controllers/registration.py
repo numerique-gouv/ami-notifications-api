@@ -2,7 +2,7 @@ import uuid
 from typing import Annotated
 
 from advanced_alchemy.extensions.litestar import providers
-from litestar import Controller, Response, get, post
+from litestar import Controller, Response, delete, get, post
 from litestar.exceptions import NotFoundException
 from litestar.params import Body
 from litestar.status_codes import (
@@ -83,3 +83,9 @@ class RegistrationController(Controller):
         # For the moment, just return a list of dict
         type_adapter = TypeAdapter(list[schemas.Registration])
         return type_adapter.validate_python(user.registrations)
+
+    @delete("/api/v1/registrations/{registration_id:uuid}")
+    async def unregister(
+        self, registrations_service: RegistrationService, registration_id: uuid.UUID
+    ) -> None:
+        await registrations_service.delete(registration_id, auto_commit=True)
