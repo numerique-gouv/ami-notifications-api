@@ -1,5 +1,5 @@
 import { PUBLIC_API_URL } from '$env/static/public'
-import { registerUser } from '$lib/registration.js'
+import { registerDevice } from '$lib/registration.js'
 
 export type Notification = {
   id: string
@@ -98,7 +98,7 @@ export const enableNotifications = async () => {
     )
   } else {
     const pushSubscription = await subscribePush()
-    await registerUser(pushSubscription)
+    await registerDevice(pushSubscription)
   }
 }
 
