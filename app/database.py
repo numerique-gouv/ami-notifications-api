@@ -4,8 +4,7 @@ from contextlib import asynccontextmanager
 
 from litestar import Litestar
 from litestar.datastructures import State
-from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
-from sqlmodel.ext.asyncio.session import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 DATABASE_URL_RAW = os.getenv("DATABASE_URL", "")
 # If we get a url with extra options like ?sslmode=prefer or not using the

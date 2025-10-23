@@ -12,8 +12,8 @@ from litestar.status_codes import (
 )
 from litestar.testing import TestClient
 from pytest_httpx import HTTPXMock
-from sqlmodel import select
-from sqlmodel.ext.asyncio.session import AsyncSession
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import Notification, Registration, User
 
@@ -37,8 +37,8 @@ async def test_register_user_does_not_exist(
     response = test_client.post("/api/v1/registrations", json=register_data)
     assert response.status_code == HTTP_404_NOT_FOUND
 
-    all_registrations = await db_session.exec(select(Registration))
-    assert len(all_registrations.all()) == 0
+    all_registrations = await db_session.execute(select(Registration))
+    assert len(all_registrations.scalars().all()) == 0
 
 
 async def test_register(
@@ -51,8 +51,8 @@ async def test_register(
     await db_session.commit()
     await db_session.refresh(user)
 
-    all_registrations = await db_session.exec(select(Registration))
-    assert len(all_registrations.all()) == 0
+    all_registrations = await db_session.execute(select(Registration))
+    assert len(all_registrations.scalars().all()) == 0
 
     # First registration, we're expecting a 201 CREATED.
     register_data = {
@@ -63,7 +63,7 @@ async def test_register(
     response = test_client.post("/api/v1/registrations", json=register_data)
     assert response.status_code == HTTP_201_CREATED
 
-    all_registrations = (await db_session.exec(select(Registration))).all()
+    all_registrations = (await db_session.execute(select(Registration))).scalars().all()
     assert len(all_registrations) == 1
     registration = all_registrations[0]
     assert registration.id == 1
@@ -77,7 +77,7 @@ async def test_register(
     response = test_client.post("/api/v1/registrations", json=register_data)
     assert response.status_code == HTTP_200_OK
 
-    all_registrations = (await db_session.exec(select(Registration))).all()
+    all_registrations = (await db_session.execute(select(Registration))).scalars().all()
     assert len(all_registrations) == 1
     registration = all_registrations[0]
     assert registration.id == 1
@@ -120,7 +120,7 @@ async def test_register_fields(
     response = test_client.post("/api/v1/registrations", json=registration_data)
     assert response.status_code == HTTP_201_CREATED
 
-    all_registrations = (await db_session.exec(select(Registration))).all()
+    all_registrations = (await db_session.execute(select(Registration))).scalars().all()
     assert len(all_registrations) == 1
     registration = all_registrations[0]
     assert registration.id
@@ -212,7 +212,7 @@ async def test_notify_create_notification_test_fields(
     response = test_client.post("/api/v1/notifications", json=notification_data)
     assert response.status_code == HTTP_201_CREATED
 
-    all_notifications = (await db_session.exec(select(Notification))).all()
+    all_notifications = (await db_session.execute(select(Notification))).scalars().all()
     assert len(all_notifications) == 1
     notification = all_notifications[0]
     assert notification.id
@@ -353,6 +353,16 @@ async def test_read_notification(
     )
     assert response.status_code == HTTP_404_NOT_FOUND
 
+    # invalid, read is required
+    response = test_client.patch(
+        f"/api/v1/users/{notification.user.id}/notification/{notification.id}/read",
+        json={"read": None},
+    )
+    assert response.status_code == HTTP_400_BAD_REQUEST
+    assert response.json()["extra"] == [
+        {"message": "Input should be a valid boolean", "key": "read"}
+    ]
+
     response = test_client.patch(
         f"/api/v1/users/{notification.user.id}/notification/{notification.id}/read",
         json={"read": True},
@@ -447,7 +457,7 @@ async def test_fc_get_userinfo(
         "user_data": fake_userinfo_token,
     }
 
-    all_users = (await db_session.exec(select(User))).all()
+    all_users = (await db_session.execute(select(User))).scalars().all()
     assert len(all_users) == 1
     user = all_users[0]
     assert user.id == 1

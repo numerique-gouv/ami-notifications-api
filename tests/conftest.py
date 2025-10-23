@@ -5,14 +5,18 @@ from typing import Any
 import pytest
 from litestar import Litestar
 from litestar.testing import TestClient
-from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker, create_async_engine
-from sqlmodel import SQLModel
-from sqlmodel.ext.asyncio.session import AsyncSession
+from sqlalchemy.ext.asyncio import (
+    AsyncEngine,
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
 from webpush import WebPush
 from webpush.vapid import VAPID
 
-from app import Notification, Registration, User, create_app, session_config
+from app import create_app, session_config
 from app.database import DATABASE_URL
+from app.models import Base, Notification, Registration, User
 
 TEST_DATABASE_URL = f"{DATABASE_URL}_test"
 
@@ -23,18 +27,18 @@ async def yield_engine() -> AsyncGenerator[AsyncEngine, None]:
 
     # Make sure the database is empty when we start.
     async with engine.begin() as conn:
-        await conn.run_sync(SQLModel.metadata.drop_all)
+        await conn.run_sync(Base.metadata.drop_all)
 
     # Create all tables.
     async with engine.begin() as conn:
-        await conn.run_sync(SQLModel.metadata.create_all)
+        await conn.run_sync(Base.metadata.create_all)
 
     try:
         yield engine
     finally:
         # Clean up - drop tables and dispose engine.
         async with engine.begin() as conn:
-            await conn.run_sync(SQLModel.metadata.drop_all)
+            await conn.run_sync(Base.metadata.drop_all)
         await engine.dispose()
 
 
