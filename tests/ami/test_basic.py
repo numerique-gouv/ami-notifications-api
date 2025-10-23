@@ -7,6 +7,7 @@ from litestar import Litestar
 from litestar.status_codes import (
     HTTP_200_OK,
     HTTP_201_CREATED,
+    HTTP_204_NO_CONTENT,
     HTTP_400_BAD_REQUEST,
     HTTP_404_NOT_FOUND,
 )
@@ -126,6 +127,18 @@ async def test_register_fields(
     assert registration.id
     assert registration.id > 0
     assert registration.created_at < registration_date
+
+
+async def test_unregister(
+    test_client: TestClient[Litestar],
+    db_session: AsyncSession,
+    registration: Registration,
+) -> None:
+    response = test_client.delete("/api/v1/registrations/1")
+    assert response.status_code == HTTP_204_NO_CONTENT
+
+    all_registrations = (await db_session.exec(select(Registration))).all()
+    assert len(all_registrations) == 0
 
 
 async def test_notify_create_notification_from_test_and_from_app_context(
