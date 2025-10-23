@@ -1,9 +1,9 @@
 import { describe, test, expect, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
-import { registerUser } from '$lib/registration.js'
+import { registerDevice } from '$lib/registration.js'
 
 describe('/registration.js', () => {
-  describe('registerUser', () => {
+  describe('registerDevice', () => {
     test('should call registrations endpoint from API', async () => {
       // Given
       const pushSubscription = {
@@ -29,7 +29,7 @@ describe('/registration.js', () => {
       )
 
       // When
-      const result = await registerUser(pushSubscription)
+      const result = await registerDevice(pushSubscription)
 
       // Then
       expect(result).toEqual(registration)
