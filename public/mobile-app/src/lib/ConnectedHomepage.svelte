@@ -55,7 +55,7 @@ onMount(async () => {
 
     const userData = localStorage.getItem('user_data')
     userinfo = parseJwt(userData)
-    $inspect(userinfo)
+    // $inspect(userinfo)
 
     initials = getInitials(userinfo.given_name_array)
 

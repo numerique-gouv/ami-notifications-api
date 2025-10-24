@@ -2,10 +2,22 @@ import { describe, test, expect, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 import { render } from '@testing-library/svelte'
 import ConnectedHomepage from './ConnectedHomepage.svelte'
+import { disableNotifications, enableNotifications } from '$lib/notifications'
 
 describe('/ConnectedHomepage.svelte', () => {
   test("should display user's initials on menu", async () => {
     // Given
+    globalThis.navigator = {
+      permissions: undefined,
+    }
+    // vi.mock('$inspect', () => ({
+    //   default: vi.fn(),
+    // }))
+    // vi.mock('$lib/notifications', () => ({
+    //   enableNotifications: vi.fn().mockImplementation(() => Promise.resolve({})),
+    //   disableNotifications: vi.fn().mockImplementation(() => Promise.resolve({})),
+    // }))
+
     vi.mock('$lib/france-connect', () => ({
       parseJwt: vi.fn().mockImplementation(() => {
         return {
@@ -40,12 +52,13 @@ describe('/ConnectedHomepage.svelte', () => {
       countUnreadNotifications: vi.fn().mockImplementation(() => 3),
     }))
 
+    window.localStorage.setItem('notifications_enabled', 'true')
     window.localStorage.setItem('user_data', 'fake-user-data')
     window.localStorage.setItem('emailLocalStorage', 'test@email.fr')
     window.localStorage.setItem('pushSubscriptionLocalStorage', '{}')
 
     // When
-    const { container } = render(ConnectedHomepage)
+    const { container } = await render(ConnectedHomepage)
     await new Promise(setTimeout) // wait for async calls
 
     // Then
