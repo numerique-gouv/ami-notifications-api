@@ -17,6 +17,29 @@ let isMenuDisplayed = $state(false)
 let notificationsEnabled: boolean = $state(false)
 let registration: Object = $state({})
 
+const updateNotificationsEnabled = async (notificationsEnabledStatus) => {
+  if (notificationsEnabledStatus === true) {
+    registration = await enableNotifications()
+  } else {
+    await disableNotifications(registration.id)
+  }
+  notificationsEnabled = notificationsEnabledStatus
+  localStorage.setItem('notifications_enabled', notificationsEnabledStatus.toString())
+}
+
+const initializeNavigatorPermissions = async () => {
+  if (navigator.permissions) {
+    const permissionStatus = await navigator.permissions.query({
+      name: 'notifications',
+    })
+
+    permissionStatus.onchange = async () => {
+      await updateNotificationsEnabled(permissionStatus.state == 'granted')
+      console.log(`notifications permission status is ${permissionStatus.state}`)
+    }
+  }
+}
+
 const getInitials = (given_name_array: []): String => {
   let initials_: String = ''
   given_name_array.forEach((given_name) => {
@@ -27,26 +50,16 @@ const getInitials = (given_name_array: []): String => {
 
 onMount(async () => {
   try {
-    const userData = localStorage.getItem('user_data')
+    notificationsEnabled = localStorage.getItem('notifications_enabled') === 'true'
+    await initializeNavigatorPermissions()
 
+    const userData = localStorage.getItem('user_data')
     userinfo = parseJwt(userData)
-    $inspect(userinfo)
+    console.log($state.snapshot(userinfo))
 
     initials = getInitials(userinfo.given_name_array)
 
     unreadNotificationsCount = await countUnreadNotifications()
-
-    if (navigator.permissions) {
-      const permissionStatus = await navigator.permissions.query({
-        name: 'notifications',
-      })
-
-      await updateNotificationsEnabled(permissionStatus.state)
-
-      permissionStatus.onchange = async () => {
-        await updateNotificationsEnabled(permissionStatus.state)
-      }
-    }
 
     quotientinfo = await getQuotientData()
     console.log($state.snapshot(quotientinfo))
@@ -55,29 +68,26 @@ onMount(async () => {
   }
 })
 
-const updateNotificationsEnabled = async (permissionStatusState) => {
-  notificationsEnabled = permissionStatusState == 'granted'
-  console.log(`notifications permission status is ${permissionStatusState}`)
-}
-
 const toggleMenu = () => {
   isMenuDisplayed = !isMenuDisplayed
 }
 
 const clickEnableNotifications = async () => {
-  registration = await enableNotifications()
-  notificationsEnabled = true
+  await updateNotificationsEnabled(true)
 }
 
-const clickDisableNotifications = () => {
-  disableNotifications(registration.id)
-  notificationsEnabled = false
+const clickDisableNotifications = async () => {
+  await updateNotificationsEnabled(false)
 }
 </script>
 
 <div class="homepage-connected">
   <div class="header">
-    <button class="header-left" onclick={toggleMenu}>
+    <button
+      class="header-left"
+      onclick={toggleMenu}
+      data-testid="toggle-menu-button"
+    >
       <span class="user-profile">
         {initials}
       </span>
@@ -105,6 +115,7 @@ const clickDisableNotifications = () => {
         <button
             type="button"
             onclick={clickDisableNotifications}
+            data-testid="disable-notifications"
         >
           Ne plus recevoir de notifications sur ce terminal
         </button>
@@ -112,6 +123,7 @@ const clickDisableNotifications = () => {
         <button
             type="button"
             onclick={clickEnableNotifications}
+            data-testid="enable-notifications"
         >
           Recevoir des notifications sur ce terminal
         </button>
