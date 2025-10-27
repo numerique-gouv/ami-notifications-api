@@ -128,6 +128,19 @@ async def test_register_fields(
     assert registration.created_at < registration_date
 
 
+async def test_notify_user_does_not_exist(
+    test_client: TestClient[Litestar],
+) -> None:
+    notification_data = {
+        "user_id": 0,
+        "message": "Hello notification 2",
+        "title": "Some notification title",
+        "sender": "Jane Doe",
+    }
+    response = test_client.post("/api/v1/notifications", json=notification_data)
+    assert response.status_code == HTTP_404_NOT_FOUND
+
+
 async def test_notify_create_notification_from_test_and_from_app_context(
     test_client: TestClient[Litestar],
     notification: Notification,
@@ -384,6 +397,13 @@ async def test_read_notification(
     assert response.json()["title"] == notification.title
     assert response.json()["sender"] == notification.sender
     assert response.json()["unread"] is True
+
+
+async def test_list_registrations_user_does_not_exist(
+    test_client: TestClient[Litestar],
+) -> None:
+    response = test_client.get("/api/v1/users/0/registrations")
+    assert response.status_code == HTTP_404_NOT_FOUND
 
 
 async def test_list_registrations(
