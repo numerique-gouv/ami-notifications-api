@@ -109,7 +109,9 @@ async def test_register_fields(
     ]
 
     # id and created_at are ignored
-    registration_date: datetime.datetime = datetime.datetime.now() + datetime.timedelta(days=1)
+    registration_date: datetime.datetime = datetime.datetime.now(
+        datetime.timezone.utc
+    ) + datetime.timedelta(days=1)
     registration_data = {
         "email": "foo@bar.baz",
         "subscription": webpushsubscription,
@@ -212,7 +214,9 @@ async def test_notify_create_notification_test_fields(
     ]
 
     # id, date and unread are ignored
-    notification_date: datetime.datetime = datetime.datetime.now() + datetime.timedelta(days=1)
+    notification_date: datetime.datetime = datetime.datetime.now(
+        datetime.timezone.utc
+    ) + datetime.timedelta(days=1)
     notification_data = {
         "user_id": user.id,
         "message": "Hello !",
