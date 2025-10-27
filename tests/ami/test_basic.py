@@ -246,17 +246,6 @@ async def test_notify_when_registration_gone(
     assert len(response.json()) == 1
 
 
-async def test_list_users(
-    test_client: TestClient[Litestar],
-    user: User,
-) -> None:
-    response = test_client.get("/api/v1/users")
-    assert response.status_code == HTTP_200_OK
-    users = response.json()
-    assert len(users) == 1
-    assert users[0]["email"] == user.email
-
-
 async def test_get_notifications_should_return_empty_list_by_default(
     test_client: TestClient[Litestar], user: User
 ) -> None:  # The `user` fixture is needed so we don't get a 404 when asking for notifications.

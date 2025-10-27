@@ -53,7 +53,6 @@ from app.models import (
     get_registration_by_user_and_subscription,
     get_user_by_id,
     get_user_by_userinfo,
-    get_user_list,
     update_notification,
 )
 
@@ -166,12 +165,6 @@ async def notify(
             response.raise_for_status()
     notification = await create_notification(notification, db_session)
     return Response(notification, status_code=HTTP_201_CREATED)
-
-
-@get("/api/v1/users")
-async def list_users(db_session: AsyncSession) -> Response[list[User]]:
-    users = await get_user_list(db_session)
-    return Response(users, status_code=HTTP_200_OK)
 
 
 @get("/api/v1/users/{user_id:int}/notifications")
@@ -366,7 +359,6 @@ def create_app(
             get_notification_key,
             register,
             notify,
-            list_users,
             list_registrations,
             get_notifications,
             read_notification,
