@@ -45,7 +45,7 @@ sentry_sdk.init(
     # send_default_pii=True,
 )
 
-#### VIEWS
+# ### VIEWS
 
 
 @get(path="/login-callback", include_in_schema=False)
@@ -126,7 +126,7 @@ def error_from_message(
     return Response(message, status_code=status_code)
 
 
-#### APP
+# ### APP
 
 
 def provide_webpush() -> WebPush:
