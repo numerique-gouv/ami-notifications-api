@@ -9,6 +9,7 @@ from litestar import (
     Router,
     get,
 )
+from litestar.exceptions import NotFoundException
 from litestar.response import Template
 from litestar.response.redirect import Redirect
 from litestar.static_files import (
@@ -19,10 +20,11 @@ from litestar.status_codes import (
     HTTP_500_INTERNAL_SERVER_ERROR,
 )
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
 
 from app import rvo_auth
-from app.models import User, get_notification_list_by_user, get_user_by_id, get_user_list
+from app.models import Notification, User
+from app.services.notification import NotificationService
+from app.services.user import UserService
 
 # This is the folder where the static files for the dsfr are stored.
 HTML_DIR = "public/mobile-app/node_modules/@gouvfr"
@@ -162,10 +164,8 @@ async def logged_out() -> Template:
 
 @get(path="/test", guards=[rvo_auth.authenticated_guard], include_in_schema=False)
 async def list_users(db_session: AsyncSession) -> Template:
-    users = await get_user_list(
-        db_session,
-        options=selectinload(User.notifications),
-    )
+    users_service: UserService = UserService(session=db_session, load=[User.notifications])
+    users = await users_service.list()
     return Template(
         template_name="rvo/list-users.html",
         context={"users": users, "isFranceConnected": True},
@@ -178,11 +178,15 @@ async def list_users(db_session: AsyncSession) -> Template:
     include_in_schema=False,
 )
 async def send_notification(user_id: int, db_session: AsyncSession) -> Template:
-    user = await get_user_by_id(
-        user_id,
-        db_session,
+    users_service: UserService = UserService(session=db_session)
+    user = await users_service.get_one_or_none(id=user_id)
+    if user is None:
+        raise NotFoundException(detail="User not found")
+    notifications_service: NotificationService = NotificationService(session=db_session)
+    notifications = await notifications_service.list(
+        order_by=(Notification.date, True),
+        user=user,
     )
-    notifications = await get_notification_list_by_user(user, db_session)
     return Template(
         template_name="rvo/send-notification.html",
         context={"user": user, "notifications": notifications, "isFranceConnected": True},
