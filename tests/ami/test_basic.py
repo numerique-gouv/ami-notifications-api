@@ -403,7 +403,7 @@ async def test_login_callback(
         url="https://fcp-low.sbx.dev-franceconnect.fr/api/v2/token",
         json=fake_token_json_response,
     )
-    monkeypatch.setattr("app.FC_AMI_CLIENT_SECRET", "fake-client-secret")
+    monkeypatch.setattr("app.env.FC_AMI_CLIENT_SECRET", "fake-client-secret")
 
     response = test_client.get("/login-callback?code=fake-code", follow_redirects=False)
 
@@ -491,6 +491,8 @@ async def test_get_sector_identifier_url(
     test_client: TestClient[Litestar],
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    monkeypatch.setattr("app.PUBLIC_SECTOR_IDENTIFIER_URL", "  https://example.com  \nfoobar \n")
+    monkeypatch.setattr(
+        "app.env.PUBLIC_SECTOR_IDENTIFIER_URL", "  https://example.com  \nfoobar \n"
+    )
     response = test_client.get("/sector_identifier_url")
     assert response.json() == ["https://example.com", "foobar"]

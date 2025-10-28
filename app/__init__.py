@@ -1,5 +1,4 @@
 import json
-import os
 from contextlib import AbstractAsyncContextManager
 from pathlib import Path
 from typing import Annotated, Any, Callable, cast
@@ -37,6 +36,7 @@ from sqlalchemy.orm import selectinload
 from sqlmodel.ext.asyncio.session import AsyncSession
 from webpush import WebPush, WebPushSubscription
 
+from app import env
 from app.models import (
     FCUserInfo,
     Notification,
@@ -64,37 +64,19 @@ session_config = ServerSideSessionConfig()
 
 
 sentry_sdk.init(
-    dsn=os.getenv("SENTRY_DSN", ""),
-    environment=os.getenv("SENTRY_ENV", ""),
+    dsn=env.SENTRY_DSN,
+    environment=env.SENTRY_ENV,
     # Add data like request headers and IP for users, if applicable;
     # see https://docs.sentry.io/platforms/python/data-management/data-collected/ for more info
     # send_default_pii=True,
 )
-
-# This is the folder where the svelte PWA is built statically.
-HTML_DIR = "public/mobile-app/build"
-
-PUBLIC_FC_AMI_CLIENT_ID = os.getenv("PUBLIC_FC_AMI_CLIENT_ID", "")
-FC_AMI_CLIENT_SECRET = os.getenv("FC_AMI_CLIENT_SECRET", "")
-PUBLIC_FC_BASE_URL = os.getenv("PUBLIC_FC_BASE_URL", "")
-PUBLIC_FC_PROXY = os.getenv("PUBLIC_FC_PROXY", "")
-PUBLIC_FC_AMI_REDIRECT_URL = os.getenv("PUBLIC_FC_AMI_REDIRECT_URL", "")
-PUBLIC_FC_TOKEN_ENDPOINT = os.getenv("PUBLIC_FC_TOKEN_ENDPOINT", "")
-PUBLIC_FC_JWKS_ENDPOINT = os.getenv("PUBLIC_FC_JWKS_ENDPOINT", "")
-PUBLIC_FC_USERINFO_ENDPOINT = os.getenv("PUBLIC_FC_USERINFO_ENDPOINT", "")
-PUBLIC_API_PARTICULIER_BASE_URL = os.getenv("PUBLIC_API_PARTICULIER_BASE_URL", "")
-PUBLIC_API_PARTICULIER_QUOTIENT_ENDPOINT = os.getenv("PUBLIC_API_PARTICULIER_QUOTIENT_ENDPOINT", "")
-PUBLIC_API_PARTICULIER_RECIPIENT_ID = os.getenv("PUBLIC_API_PARTICULIER_RECIPIENT_ID", "")
-PUBLIC_API_URL = os.getenv("PUBLIC_API_URL", "")
-PUBLIC_APP_URL = os.getenv("PUBLIC_APP_URL", "")
-PUBLIC_SECTOR_IDENTIFIER_URL = os.getenv("PUBLIC_SECTOR_IDENTIFIER_URL", "")
 
 #### ENDPOINTS
 
 
 @get("/notification-key")
 async def get_notification_key() -> str:
-    return os.getenv("VAPID_APPLICATION_SERVER_KEY", "")
+    return env.VAPID_APPLICATION_SERVER_KEY
 
 
 @post("/api/v1/registrations")
@@ -227,9 +209,9 @@ async def login_callback(
     code: str,
 ) -> Response[Any]:
     # FC - Step 5
-    redirect_uri: str = PUBLIC_FC_PROXY or PUBLIC_FC_AMI_REDIRECT_URL
-    client_id: str = PUBLIC_FC_AMI_CLIENT_ID
-    client_secret: str = FC_AMI_CLIENT_SECRET
+    redirect_uri: str = env.PUBLIC_FC_PROXY or env.PUBLIC_FC_AMI_REDIRECT_URL
+    client_id: str = env.PUBLIC_FC_AMI_CLIENT_ID
+    client_secret: str = env.FC_AMI_CLIENT_SECRET
     data: dict[str, str] = {
         "grant_type": "authorization_code",
         "redirect_uri": redirect_uri,
@@ -247,7 +229,7 @@ async def login_callback(
     # FC - Step 6
     token_endpoint_headers: dict[str, str] = {"Content-Type": "application/x-www-form-urlencoded"}
     response: Any = httpx.post(
-        f"{PUBLIC_FC_BASE_URL}{PUBLIC_FC_TOKEN_ENDPOINT}",
+        f"{env.PUBLIC_FC_BASE_URL}{env.PUBLIC_FC_TOKEN_ENDPOINT}",
         headers=token_endpoint_headers,
         data=data,
     )
@@ -259,7 +241,7 @@ async def login_callback(
         "is_logged_in": "true",
     }
 
-    return Redirect(f"{PUBLIC_APP_URL}/", query_params=params)
+    return Redirect(f"{env.PUBLIC_APP_URL}/", query_params=params)
 
 
 @get(path="/fc_userinfo", include_in_schema=False)
@@ -274,7 +256,7 @@ async def get_fc_userinfo(
 
     """
     response = httpx.get(
-        f"{PUBLIC_FC_BASE_URL}{PUBLIC_FC_USERINFO_ENDPOINT}",
+        f"{env.PUBLIC_FC_BASE_URL}{env.PUBLIC_FC_USERINFO_ENDPOINT}",
         headers={"authorization": request.headers["authorization"]},
     )
 
@@ -311,7 +293,7 @@ async def get_api_particulier_quotient(
 
     """
     response = httpx.get(
-        f"{PUBLIC_API_PARTICULIER_BASE_URL}{PUBLIC_API_PARTICULIER_QUOTIENT_ENDPOINT}?recipient={PUBLIC_API_PARTICULIER_RECIPIENT_ID}",
+        f"{env.PUBLIC_API_PARTICULIER_BASE_URL}{env.PUBLIC_API_PARTICULIER_QUOTIENT_ENDPOINT}?recipient={env.PUBLIC_API_PARTICULIER_RECIPIENT_ID}",
         headers={"authorization": request.headers["authorization"]},
     )
     return Response(response.content, status_code=response.status_code)
@@ -320,7 +302,7 @@ async def get_api_particulier_quotient(
 @get(path="/sector_identifier_url", include_in_schema=False)
 async def get_sector_identifier_url() -> Response[Any]:
     redirect_uris: list[str] = [
-        url.strip() for url in PUBLIC_SECTOR_IDENTIFIER_URL.strip().split("\n")
+        url.strip() for url in env.PUBLIC_SECTOR_IDENTIFIER_URL.strip().split("\n")
     ]
     return Response(redirect_uris)
 
@@ -343,8 +325,8 @@ def error_from_message(
 
 def provide_webpush() -> WebPush:
     webpush = WebPush(
-        public_key=os.getenv("VAPID_PUBLIC_KEY", "").encode(),
-        private_key=os.getenv("VAPID_PRIVATE_KEY", "").encode(),
+        public_key=env.VAPID_PUBLIC_KEY.encode(),
+        private_key=env.VAPID_PRIVATE_KEY.encode(),
         subscriber="contact.ami@numerique.gouv.fr",
     )
     return webpush
@@ -368,7 +350,7 @@ def create_app(
             get_sector_identifier_url,
             create_static_files_router(
                 path="/",
-                directories=[HTML_DIR],
+                directories=[env.HTML_DIR],
                 html_mode=True,
             ),
             rvo_router,
