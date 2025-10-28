@@ -1,5 +1,5 @@
 import { PUBLIC_API_URL } from '$env/static/public'
-import { registerUser } from '$lib/registration.js'
+import { registerDevice, unregisterDevice } from '$lib/registration.js'
 
 export type Notification = {
   id: number
@@ -74,16 +74,6 @@ export const readNotification = async (
   }
 }
 
-export const getSubscription = async () => {
-  console.log("refreshing the push subscription, if it's there")
-  const registration = await getServiceWorkerRegistration()
-  if (registration) {
-    const pushSubscription = await registration.pushManager.getSubscription()
-    console.log('refreshed subscription:', pushSubscription)
-    return pushSubscription
-  }
-}
-
 export const subscribePush = async () => {
   const registration = await getServiceWorkerRegistration()
   try {
@@ -107,7 +97,38 @@ export const enableNotifications = async () => {
       'No notification: missing permission or missing service worker registration'
     )
   } else {
-    await registerUser()
+    const pushSubscription = await subscribePush()
+    return await registerDevice(pushSubscription)
+  }
+}
+
+export const unsubscribePush = async (pushSubscription) => {
+  try {
+    const hasUnsubscribed = await pushSubscription.unsubscribe()
+    if (hasUnsubscribed) {
+      console.log('unsubscribed to the push manager')
+    } else {
+      console.log('failed to unsubscribe to the push manager')
+    }
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+export const disableNotifications = async (registrationId) => {
+  const permissionGranted = await Notification.requestPermission()
+  const registration = await getServiceWorkerRegistration()
+  if (!permissionGranted || !registration) {
+    console.log(
+      'No notification: missing permission or missing service worker registration'
+    )
+  } else {
+    const pushSubscription = await registration.pushManager.getSubscription()
+    if (pushSubscription) {
+      console.log('unregisterDevice')
+      await unregisterDevice(registrationId)
+      await unsubscribePush(pushSubscription)
+    }
   }
 }
 

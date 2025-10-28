@@ -3,8 +3,8 @@ import { parseJwt, franceConnectLogout } from '$lib/france-connect'
 import { onMount } from 'svelte'
 import {
   countUnreadNotifications,
+  disableNotifications,
   enableNotifications,
-  getSubscription,
 } from '$lib/notifications'
 import { getQuotientData } from '$lib/api-particulier'
 import bankIcon from '@gouvfr/dsfr/dist/icons/buildings/bank-line.svg'
@@ -15,7 +15,30 @@ let unreadNotificationsCount: Number = $state(0)
 let initials: String = $state('')
 let isMenuDisplayed = $state(false)
 let notificationsEnabled: boolean = $state(false)
-let pushSubscription
+let registration: Object = $state({})
+
+const updateNotificationsEnabled = async (notificationsEnabledStatus) => {
+  if (notificationsEnabledStatus === true) {
+    registration = await enableNotifications()
+  } else {
+    await disableNotifications(registration.id)
+  }
+  notificationsEnabled = notificationsEnabledStatus
+  localStorage.setItem('notifications_enabled', notificationsEnabledStatus.toString())
+}
+
+const initializeNavigatorPermissions = async () => {
+  if (navigator.permissions) {
+    const permissionStatus = await navigator.permissions.query({
+      name: 'notifications',
+    })
+
+    permissionStatus.onchange = async () => {
+      await updateNotificationsEnabled(permissionStatus.state == 'granted')
+      console.log(`notifications permission status is ${permissionStatus.state}`)
+    }
+  }
+}
 
 const getInitials = (given_name_array: []): String => {
   let initials_: String = ''
@@ -27,27 +50,16 @@ const getInitials = (given_name_array: []): String => {
 
 onMount(async () => {
   try {
-    const userData = localStorage.getItem('user_data')
+    notificationsEnabled = localStorage.getItem('notifications_enabled') === 'true'
+    await initializeNavigatorPermissions()
 
+    const userData = localStorage.getItem('user_data')
     userinfo = parseJwt(userData)
-    $inspect(userinfo)
+    console.log($state.snapshot(userinfo))
 
     initials = getInitials(userinfo.given_name_array)
 
     unreadNotificationsCount = await countUnreadNotifications()
-
-    if (navigator.permissions) {
-      const permissionStatus = await navigator.permissions.query({
-        name: 'notifications',
-      })
-
-      await updateButtonAndPushSubscription(permissionStatus.state)
-
-      permissionStatus.onchange = async () => {
-        console.log('notifications permission status has changed')
-        await updateButtonAndPushSubscription(permissionStatus.state)
-      }
-    }
 
     quotientinfo = await getQuotientData()
     console.log($state.snapshot(quotientinfo))
@@ -56,26 +68,26 @@ onMount(async () => {
   }
 })
 
-const updateButtonAndPushSubscription = async (permissionStatusState) => {
-  if (permissionStatusState == 'granted') {
-    notificationsEnabled = true
-    pushSubscription = await getSubscription()
-  } else {
-    notificationsEnabled = false
-    pushSubscription = null
-  }
-  console.log(`notifications permission status is ${permissionStatusState}`)
-  console.log(`pushSubscription is ${pushSubscription}`)
-}
-
 const toggleMenu = () => {
   isMenuDisplayed = !isMenuDisplayed
+}
+
+const clickEnableNotifications = async () => {
+  await updateNotificationsEnabled(true)
+}
+
+const clickDisableNotifications = async () => {
+  await updateNotificationsEnabled(false)
 }
 </script>
 
 <div class="homepage-connected">
   <div class="header">
-    <button class="header-left" onclick={toggleMenu}>
+    <button
+      class="header-left"
+      onclick={toggleMenu}
+      data-testid="toggle-menu-button"
+    >
       <span class="user-profile">
         {initials}
       </span>
@@ -99,13 +111,23 @@ const toggleMenu = () => {
 
   <div class="menu {isMenuDisplayed ? '' : 'is-hidden'}">
     <div class="container">
-      <button
-          type="button"
-          onclick={enableNotifications}
-          disabled={notificationsEnabled}
-      >
-        Recevoir des notifications sur ce terminal
-      </button>
+      {#if notificationsEnabled}
+        <button
+            type="button"
+            onclick={clickDisableNotifications}
+            data-testid="disable-notifications"
+        >
+          Ne plus recevoir de notifications sur ce terminal
+        </button>
+      {:else}
+        <button
+            type="button"
+            onclick={clickEnableNotifications}
+            data-testid="enable-notifications"
+        >
+          Recevoir des notifications sur ce terminal
+        </button>
+      {/if}
 
       <button
           class="fr-connect-logout"

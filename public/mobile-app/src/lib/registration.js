@@ -1,9 +1,7 @@
 import { PUBLIC_API_URL } from '$env/static/public'
 import { subscribePush } from '$lib/notifications.ts'
 
-export const registerUser = async () => {
-  const pushSubscription = await subscribePush()
-
+export const registerDevice = async (pushSubscription) => {
   const pushSubURL = pushSubscription.endpoint
   const pushSubAuth = pushSubscription.toJSON().keys.auth
   const pushSubP256DH = pushSubscription.toJSON().keys.p256dh
@@ -29,6 +27,25 @@ export const registerUser = async () => {
     const registration = await response.json()
     console.log('registration', registration)
     return registration
+  } else {
+    console.log(`error ${response.status}: ${response.statusText}, ${response.body}`)
+  }
+}
+
+export const unregisterDevice = async (registrationId) => {
+  const headers = {
+    'Content-Type': 'application/json',
+  }
+  const response = await fetch(
+    `${PUBLIC_API_URL}/api/v1/registrations/${registrationId}`,
+    {
+      method: 'DELETE',
+      headers: headers,
+    }
+  )
+  console.log('response:', response)
+  if (response.status === 204) {
+    console.log('The device has been deleted successfully')
   } else {
     console.log(`error ${response.status}: ${response.statusText}, ${response.body}`)
   }

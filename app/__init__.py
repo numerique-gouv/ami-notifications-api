@@ -10,6 +10,7 @@ from litestar import (
     Litestar,
     Request,
     Response,
+    delete,
     get,
     patch,
     post,
@@ -48,8 +49,10 @@ from app.models import (
     create_notification,
     create_registration,
     create_user_from_userinfo,
+    delete_registration,
     get_notification_by_id_and_user,
     get_notification_list_by_user,
+    get_registration_by_id,
     get_registration_by_user_and_subscription,
     get_user_by_id,
     get_user_by_userinfo,
@@ -110,6 +113,13 @@ async def register(
 
     registration = await create_registration(registration, db_session)
     return Response(registration, status_code=HTTP_201_CREATED)
+
+
+@delete("/api/v1/registrations/{registration_id:int}")
+async def unregister(db_session: AsyncSession, registration_id: int) -> None:
+    registration = await get_registration_by_id(registration_id, db_session)
+    await delete_registration(registration, db_session)
+    return None
 
 
 @post("/api/v1/notifications")
@@ -340,6 +350,7 @@ def create_app(
         route_handlers=[
             get_notification_key,
             register,
+            unregister,
             notify,
             list_registrations,
             get_notifications,

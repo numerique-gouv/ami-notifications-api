@@ -180,3 +180,21 @@ async def create_registration(registration: Registration, db_session: AsyncSessi
     await db_session.commit()
     await db_session.refresh(registration)
     return registration
+
+
+async def get_registration_by_id(
+    registration_id: int, db_session: AsyncSession, options: ExecutableOption | None = None
+) -> Registration:
+    query = select(Registration).where(col(Registration.id) == registration_id)
+    if options:
+        query = query.options(options)
+    result = await db_session.exec(query)
+    try:
+        return result.one()
+    except NoResultFound as e:
+        raise NotFoundException(detail=f"Registration with id {registration_id!r} not found") from e
+
+
+async def delete_registration(registration: Registration, db_session: AsyncSession) -> None:
+    await db_session.delete(registration)
+    await db_session.commit()
