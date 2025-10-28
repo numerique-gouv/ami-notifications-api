@@ -8,18 +8,18 @@ from litestar.di import Provide
 from app import env
 from app import models as m
 from app import schemas as s
-from app.repositories.user import UserRepository, provide_users_repo
+from app.services.user import UserService, provide_users_service
 
 
 class UserController(Controller):
     dependencies = {
-        "users_repo": Provide(provide_users_repo),
+        "users_service": Provide(provide_users_service),
     }
 
     @get(path="/fc_userinfo", include_in_schema=False)
     async def get_fc_userinfo(
         self,
-        users_repo: UserRepository,
+        users_service: UserService,
         request: Request[Any, Any, Any],
     ) -> Response[Any]:
         """This endpoint "forwards" the request coming from the frontend (the app).
@@ -39,10 +39,12 @@ class UserController(Controller):
         )
         userinfo: s.FCUserInfo = s.FCUserInfo(**decoded_userinfo)
 
-        user: m.User | None = await users_repo.get_one_or_none(**userinfo.model_dump())
+        user: m.User | None = await users_service.get_one_or_none(**userinfo.model_dump())
         if user is None:
-            user = await users_repo.add(m.User(**userinfo.model_dump()))
-            await users_repo.session.commit()
+            user = await users_service.create(
+                m.User(**userinfo.model_dump()),
+                auto_commit=True,
+            )
         result: dict[str, Any] = {
             "user_id": user.id,
             "user_data": userinfo_jws,
