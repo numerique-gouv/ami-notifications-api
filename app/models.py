@@ -3,12 +3,8 @@ from typing import Any
 
 from advanced_alchemy.base import DefaultBase
 from advanced_alchemy.types import DateTimeUTC, JsonB
-from litestar.exceptions import NotFoundException
-from sqlalchemy import ForeignKey, select
-from sqlalchemy.exc import NoResultFound
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.sql.base import ExecutableOption
 
 Base = DefaultBase
 
@@ -59,31 +55,3 @@ class Notification(Base):
         default=lambda: datetime.datetime.now(datetime.timezone.utc),
     )
     unread: Mapped[bool] = mapped_column(default=True)
-
-
-#### USERS
-
-
-async def get_user_by_id(
-    user_id: int, db_session: AsyncSession, options: ExecutableOption | None = None
-) -> User:
-    query = select(User).where(User.id == user_id)
-    if options:
-        query = query.options(options)
-    result = await db_session.execute(query)
-    try:
-        return result.scalar_one()
-    except NoResultFound as e:
-        raise NotFoundException(detail=f"User with id {user_id!r} not found") from e
-
-
-async def get_user_list(
-    db_session: AsyncSession,
-    options: ExecutableOption | None = None,
-) -> list[User]:
-    query = select(User)
-    if options:
-        query = query.options(options)
-    query = query.order_by(User.id)
-    result = await db_session.execute(query)
-    return list(result.scalars().all())
