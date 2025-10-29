@@ -4,27 +4,25 @@ from collections.abc import Sequence
 from typing import Annotated, cast
 
 import httpx
+from advanced_alchemy.extensions.litestar import providers
 from litestar import Controller, get, patch, post
-from litestar.di import Provide
 from litestar.exceptions import NotFoundException
 from litestar.params import Body
 from pydantic import TypeAdapter
 from webpush import WebPush, WebPushSubscription
 
 from app import env, models, schemas
-from app.services.notification import NotificationService, provide_notifications_service
-from app.services.user import (
-    UserService,
-    provide_users_service,
-    provide_users_with_registrations_service,
-)
+from app.services.notification import NotificationService
+from app.services.user import UserService
 
 
 class NotificationController(Controller):
     dependencies = {
-        "notifications_service": Provide(provide_notifications_service),
-        "users_service": Provide(provide_users_service),
-        "users_with_registrations_service": Provide(provide_users_with_registrations_service),
+        "notifications_service": providers.create_service_provider(NotificationService),
+        "users_service": providers.create_service_provider(UserService),
+        "users_with_registrations_service": providers.create_service_provider(
+            UserService, load=[models.User.registrations]
+        ),
     }
 
     @get("/notification-key")

@@ -1,8 +1,8 @@
 import uuid
 from typing import Annotated
 
+from advanced_alchemy.extensions.litestar import providers
 from litestar import Controller, Response, get, post
-from litestar.di import Provide
 from litestar.exceptions import NotFoundException
 from litestar.params import Body
 from litestar.status_codes import (
@@ -13,19 +13,17 @@ from pydantic import TypeAdapter
 from webpush import WebPushSubscription
 
 from app import models, schemas
-from app.services.registration import RegistrationService, provide_registrations_service
-from app.services.user import (
-    UserService,
-    provide_users_service,
-    provide_users_with_registrations_service,
-)
+from app.services.registration import RegistrationService
+from app.services.user import UserService
 
 
 class RegistrationController(Controller):
     dependencies = {
-        "registrations_service": Provide(provide_registrations_service),
-        "users_service": Provide(provide_users_service),
-        "users_with_registrations_service": Provide(provide_users_with_registrations_service),
+        "registrations_service": providers.create_service_provider(RegistrationService),
+        "users_service": providers.create_service_provider(UserService),
+        "users_with_registrations_service": providers.create_service_provider(
+            UserService, load=[models.User.registrations]
+        ),
     }
 
     @post("/api/v1/registrations")
