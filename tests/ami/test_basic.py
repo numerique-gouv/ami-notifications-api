@@ -130,6 +130,7 @@ async def test_register_fields(
 
 async def test_notify_create_notification_from_test_and_from_app_context(
     test_client: TestClient[Litestar],
+    db_session: AsyncSession,
     notification: Notification,
     registration: Registration,
     httpx_mock: HTTPXMock,
@@ -150,18 +151,34 @@ async def test_notify_create_notification_from_test_and_from_app_context(
     response = test_client.post("/api/v1/notifications", json=notification_data)
     assert response.status_code == HTTP_201_CREATED
     response = test_client.get(f"/api/v1/users/{registration.user.id}/notifications")
+    all_notifications = (await db_session.exec(select(Notification))).all()
+    assert len(all_notifications) == 2
+    notification2 = all_notifications[1]
     assert response.status_code == HTTP_200_OK
     assert len(response.json()) == 2
+    assert set(response.json()[0].keys()) == {
+        "id",
+        "user_id",
+        "message",
+        "title",
+        "sender",
+        "unread",
+        "date",
+    }
+    assert response.json()[0]["id"] == notification2.id
     assert response.json()[0]["user_id"] == registration.user.id
     assert response.json()[0]["message"] == "Hello notification 2"
     assert response.json()[0]["title"] == "Some notification title"
     assert response.json()[0]["sender"] == "Jane Doe"
     assert response.json()[0]["unread"] is True
+    assert response.json()[0]["date"] == notification2.date.isoformat()
+    assert response.json()[1]["id"] == notification.id
     assert response.json()[1]["user_id"] == registration.user.id
     assert response.json()[1]["message"] == notification.message
     assert response.json()[1]["title"] == notification.title
     assert response.json()[1]["sender"] == notification.sender
     assert response.json()[1]["unread"] is True
+    assert response.json()[1]["date"] == notification.date.isoformat()
 
 
 async def test_notify_create_notification_test_fields(
@@ -384,6 +401,11 @@ async def test_list_registrations(
     assert response.status_code == HTTP_200_OK
     registrations = response.json()
     assert len(registrations) == 1
+    assert set(response.json()[0].keys()) == {"id", "user_id", "subscription", "created_at"}
+    assert response.json()[0]["id"] == registration.id
+    assert response.json()[0]["user_id"] == registration.user_id
+    assert response.json()[0]["subscription"] == registration.subscription
+    assert response.json()[0]["created_at"] == registration.created_at.isoformat()
 
 
 async def test_login_callback(
