@@ -17,6 +17,7 @@
         }
         .fr-container {
           padding-top: 24px;
+          margin-bottom: 68px;
         }
         .rvo-title {
           display: flex;
@@ -114,21 +115,57 @@
         .rvo-item .fr-tile__title a::after {
           width: 0;
         }
-        .footer-nav {
-          background-color: var(--background-default-grey);
-          text-align: center;
-        }
-        .footer-nav-item-container {
-          font-size: 12px;
-        }
-        .footer-nav a {
-          background: none;
-          color: #666666;
-          width: 80px;
-        }
-        .footer-nav.rvo .footer-nav-item-rvo, .footer-nav.test .footer-nav-item-test {
-          background-color: var(--background-action-low-blue-france);
-          color: var(--blue-france-sun-113-625);
+        nav.menu-footer {
+          position: fixed;
+          z-index: 2;
+          bottom: 0;
+          background: var(--background-default-grey);
+          border-top: solid 1px var(--background-alt-grey-active);
+          width: 100%;
+          .menu-list {
+            display: flex;
+            list-style-type: none;
+            padding-inline-start: 0;
+            margin-block-start: 0;
+            margin-block-end: 0;
+          }
+          .menu__item {
+            padding-bottom: 0;
+            width: 100%;
+            .menu__link {
+              position: relative;
+              display: flex;
+              flex-wrap: wrap;
+              justify-content: center;
+              background: none;
+              padding: .75rem 0 .375rem;
+              height: 4.25rem;
+              span {
+                display: block;
+                width: 100%;
+                color: var(--grey-200-850);
+                text-align: center;
+                font-size: .75rem;
+                font-weight: 400;
+                line-height: 1.25rem;
+                &.menu__icon {
+                  color: var(--blue-france-sun-113-625);
+                }
+              }
+            }
+          }
+          &.rvo .menu__link__rvo, &.test .menu__link_test {
+            &:before {
+              z-index: -1;
+              content: '';
+              position: absolute;
+              top: .5rem;
+              background: var(--background-contrast-blue-france);
+              border-radius: 1rem;
+              width: 3.5rem;
+              height: 2rem;
+            }
+          }
         }
       </style>
     {% endblock style %}
@@ -211,20 +248,22 @@
           {% endblock wrapper %}
         </div>
         {% if isFranceConnected %}
-          <div class="footer-nav fr-py-2v {% block footer_nav_current %}{% endblock %}">
-            <div class="fr-grid-row">
-              <div class="fr-col-6 footer-nav-item-container">
-                <a href="/rvo" class="fr-icon-calendar-event-fill fr-tag fr-tag--icon-right footer-nav-item-rvo"></a>
-                <br />
-                rendez-vous
-              </div>
-              <div class="fr-col-6 footer-nav-item-container">
-                <a href="/rvo/test" class="fr-icon-test-tube-fill fr-tag fr-tag--icon-right footer-nav-item-test"></a>
-                <br />
-                tester
-              </div>
-            </div>
-          </div>
+          <nav class="menu-footer {% block footer_nav_current %}{% endblock %}" aria-label="Menu principal">
+            <ul class="menu-list">
+              <li class="menu__item">
+                <a class="menu__link menu__link__rvo" href="/rvo">
+                  <span class="menu__icon fr-icon-calendar-event-fill" aria-hidden="true"></span>
+                  <span>Rendez-vous</span>
+                </a>
+              </li>
+              <li class="menu__item">
+                <a class="menu__link menu__link_test" href="/rvo/test">
+                  <span class="menu__icon fr-icon-test-tube-fill" aria-hidden="true"></span>
+                  <span>Tester</span>
+                </a>
+              </li>
+            </ul>
+          </nav>
         {% endif %}
       {% endblock out_wrapper %}
     </main>
