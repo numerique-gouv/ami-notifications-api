@@ -7,6 +7,7 @@ from litestar import Controller, get, patch, post
 from litestar.di import Provide
 from litestar.exceptions import NotFoundException
 from litestar.params import Body
+from pydantic import TypeAdapter
 from webpush import WebPush, WebPushSubscription
 
 from app import env
@@ -26,13 +27,12 @@ class NotificationController(Controller):
         "users_service": Provide(provide_users_service),
         "users_with_registrations_service": Provide(provide_users_with_registrations_service),
     }
-    return_dto = s.NotificationDTO
 
     @get("/notification-key")
     async def get_notification_key(self) -> str:
         return env.VAPID_APPLICATION_SERVER_KEY
 
-    @post("/api/v1/notifications")
+    @post("/api/v1/notifications", return_dto=None)
     async def notify(
         self,
         notifications_service: NotificationService,
@@ -45,7 +45,7 @@ class NotificationController(Controller):
                 description="Send the notification message to a registered user",
             ),
         ],
-    ) -> m.Notification:
+    ) -> s.Notification:
         user: m.User | None = await users_with_registrations_service.get_one_or_none(
             id=data.user_id
         )
@@ -71,7 +71,7 @@ class NotificationController(Controller):
             m.Notification(**data.model_dump()),
             auto_commit=True,
         )
-        return notification
+        return notifications_service.to_schema(notification, schema_type=s.Notification)
 
     @get("/api/v1/users/{user_id:int}/notifications")
     async def list_notifications(
@@ -80,7 +80,7 @@ class NotificationController(Controller):
         users_service: UserService,
         user_id: int,
         unread: bool | None = None,
-    ) -> Sequence[m.Notification]:
+    ) -> Sequence[s.Notification]:
         user: m.User | None = await users_service.get_one_or_none(id=user_id)
         if user is None:
             raise NotFoundException(detail="User not found")
@@ -95,7 +95,12 @@ class NotificationController(Controller):
                 order_by=(m.Notification.date, True),
                 user=user,
             )
-        return notifications
+        # We could do:
+        # return notifications_service.to_schema(notifications, schema_type=s.Notification)
+        # But it adds pagination.
+        # For the moment, just return a list of dict
+        type_adapter = TypeAdapter(list[s.Notification])
+        return type_adapter.validate_python(notifications)
 
     @patch("/api/v1/users/{user_id:int}/notification/{notification_id:int}/read")
     async def read_notification(
@@ -110,7 +115,7 @@ class NotificationController(Controller):
                 description="Mark a user notification as read or unread",
             ),
         ],
-    ) -> m.Notification:
+    ) -> s.Notification:
         user: m.User | None = await users_service.get_one_or_none(id=user_id)
         if user is None:
             raise NotFoundException(detail="User not found")
@@ -125,4 +130,4 @@ class NotificationController(Controller):
             notification,
             auto_commit=True,
         )
-        return notification
+        return notifications_service.to_schema(notification, schema_type=s.Notification)
