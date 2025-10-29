@@ -3,6 +3,7 @@ import json
 from typing import Any
 
 import pytest
+from httpx import Client
 from litestar import Litestar
 from litestar.status_codes import (
     HTTP_200_OK,
@@ -131,7 +132,7 @@ async def test_register_fields(
 
 
 async def test_notify_user_does_not_exist(
-    test_client: TestClient[Litestar],
+    test_client: Client,
 ) -> None:
     notification_data = {
         "user_id": 0,
