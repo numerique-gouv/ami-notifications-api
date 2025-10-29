@@ -1,5 +1,4 @@
 from collections.abc import AsyncGenerator, Iterator
-from contextlib import asynccontextmanager
 from typing import Any
 
 import pytest
@@ -11,43 +10,65 @@ from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
     create_async_engine,
 )
+from sqlalchemy.pool import NullPool
 from webpush import WebPush
 from webpush.vapid import VAPID
 
 from app import create_app, session_config
-from app.database import DATABASE_URL
+from app.database import DATABASE_URL, alchemy_config
 from app.models import Base, Notification, Registration, User
 
 TEST_DATABASE_URL = f"{DATABASE_URL}_test"
 
 
-@asynccontextmanager
-async def yield_engine() -> AsyncGenerator[AsyncEngine, None]:
-    engine = create_async_engine(TEST_DATABASE_URL)
+@pytest.fixture
+async def engine() -> AsyncEngine:
+    return create_async_engine(
+        TEST_DATABASE_URL,
+        # avoid event loop issues
+        poolclass=NullPool,
+    )
 
-    # Make sure the database is empty when we start.
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
 
-    # Create all tables.
+@pytest.fixture
+async def sessionmaker(
+    engine: AsyncEngine,
+) -> AsyncGenerator[async_sessionmaker[AsyncSession], None]:
+    yield async_sessionmaker(bind=engine, expire_on_commit=False)
+
+
+@pytest.fixture
+async def db_session(
+    sessionmaker: async_sessionmaker[AsyncSession],
+) -> AsyncGenerator[AsyncSession, None]:
+    async with sessionmaker() as _session:
+        yield _session
+
+
+@pytest.fixture(autouse=True)
+async def seed_db(
+    engine: AsyncEngine,
+    sessionmaker: async_sessionmaker[AsyncSession],
+) -> AsyncGenerator[None, None]:
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
-    try:
-        yield engine
-    finally:
-        # Clean up - drop tables and dispose engine.
-        async with engine.begin() as conn:
-            await conn.run_sync(Base.metadata.drop_all)
-        await engine.dispose()
+    yield
+
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+    await engine.dispose()
 
 
-@asynccontextmanager
-async def test_db_connection(app: Litestar) -> AsyncGenerator[None, None]:
-    """Database connection for the app's lifespan."""
-    async with yield_engine() as engine:
-        app.state.engine = engine
-        yield
+@pytest.fixture(autouse=True)
+def patch_db(
+    app: Litestar,
+    engine: AsyncEngine,
+    sessionmaker: async_sessionmaker[AsyncSession],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(alchemy_config, "session_maker", sessionmaker)
+    monkeypatch.setattr(alchemy_config, "engine_instance", engine)
 
 
 def test_webpush() -> WebPush:
@@ -61,8 +82,7 @@ def test_webpush() -> WebPush:
 
 @pytest.fixture
 async def app() -> Litestar:
-    """Create app with test database connection."""
-    app_ = create_app(database_connection=test_db_connection, webpush_init=test_webpush)
+    app_ = create_app(webpush_init=test_webpush)
     app_.debug = True
     return app_
 
@@ -71,32 +91,6 @@ async def app() -> Litestar:
 def test_client(app: Litestar) -> Iterator[TestClient[Litestar]]:
     with TestClient(app=app, session_config=session_config) as client:
         yield client
-
-
-@pytest.fixture
-async def test_engine() -> AsyncGenerator[AsyncEngine, None]:
-    """Create a fresh database engine for each test with proper cleanup.
-
-    This is a duplication of the `test_db_connection` to avoid some bug around event loops:
-
-    https://github.com/litestar-org/litestar/issues/1920#issuecomment-2592572498
-
-    So we create an engine to be used by the `db_session` fixture, created in the context/scope
-    of the tests event loop, instead of using the `app.state.engine`.
-
-    """
-    async with yield_engine() as engine:
-        yield engine
-
-
-@pytest.fixture
-async def db_session(
-    test_engine: AsyncEngine,
-) -> AsyncGenerator[AsyncSession, None]:
-    """Create a database session using the test engine."""
-    sessionmaker = async_sessionmaker(bind=test_engine, class_=AsyncSession, expire_on_commit=False)
-    async with sessionmaker() as session:
-        yield session
 
 
 @pytest.fixture
