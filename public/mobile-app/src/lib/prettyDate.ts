@@ -5,8 +5,7 @@
 export function prettyDate(data) {
   let date
   if (typeof data === 'string') {
-    const normalized = (data || '').replace(/-/g, '/').replace(/[TZ]/g, ' ')
-    date = new Date(normalized)
+    date = new Date(data)
   } else {
     // We hope it's a proper Date object.
     date = data
