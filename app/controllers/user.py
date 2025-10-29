@@ -2,16 +2,16 @@ from typing import Any
 
 import httpx
 import jwt
+from advanced_alchemy.extensions.litestar import providers
 from litestar import Controller, Request, Response, get
-from litestar.di import Provide
 
 from app import env, models, schemas
-from app.services.user import UserService, provide_users_service
+from app.services.user import UserService
 
 
 class UserController(Controller):
     dependencies = {
-        "users_service": Provide(provide_users_service),
+        "users_service": providers.create_service_provider(UserService),
     }
 
     @get(path="/fc_userinfo", include_in_schema=False)
