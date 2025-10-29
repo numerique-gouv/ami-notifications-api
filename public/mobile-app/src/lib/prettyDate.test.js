@@ -14,8 +14,7 @@ describe('prettyDate', () => {
 
     // Then
     expect(pretty).equal('< 1h')
-    // expect(pretty2).equal('< 1h') TODO fix it
-    expect(pretty2).equal('1h')
+    expect(pretty2).equal('< 1h')
   })
   test('should properly format minutes', async () => {
     // Given
@@ -28,8 +27,7 @@ describe('prettyDate', () => {
 
     // Then
     expect(pretty).equal('< 1h')
-    // expect(pretty2).equal('< 1h') TODO fix it
-    expect(pretty2).equal('1h')
+    expect(pretty2).equal('< 1h')
   })
   test('should properly format hours', async () => {
     // Given
@@ -42,8 +40,7 @@ describe('prettyDate', () => {
 
     // Then
     expect(pretty).equal('7h')
-    //expect(pretty2).equal('7h') TODO fix it
-    expect(pretty2).equal('8h')
+    expect(pretty2).equal('7h')
   })
   test('should properly format days', async () => {
     // Given
