@@ -1,4 +1,3 @@
-from contextlib import AbstractAsyncContextManager
 from pathlib import Path
 from typing import Any, Callable
 
@@ -29,8 +28,8 @@ from app import env
 from app.controllers.notification import NotificationController
 from app.controllers.registration import RegistrationController
 from app.controllers.user import UserController
+from app.database import alchemy
 
-from .database import db_connection, provide_db_session
 from .rvo import rvo_router
 
 cors_config = CORSConfig(allow_origins=["*"])
@@ -139,7 +138,6 @@ def provide_webpush() -> WebPush:
 
 
 def create_app(
-    database_connection: Callable[[Litestar], AbstractAsyncContextManager[None]] = db_connection,
     webpush_init: Callable[[], WebPush] = provide_webpush,
 ) -> Litestar:
     return Litestar(
@@ -158,10 +156,9 @@ def create_app(
             rvo_router,
         ],
         dependencies={
-            "db_session": Provide(provide_db_session),
             "webpush": Provide(webpush_init, use_cache=True, sync_to_thread=True),
         },
-        lifespan=[database_connection],
+        plugins=[alchemy],
         template_config=TemplateConfig(directory=Path("templates"), engine=JinjaTemplateEngine),
         cors_config=cors_config,
         middleware=[session_config.middleware],
