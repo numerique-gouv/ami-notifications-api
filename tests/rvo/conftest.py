@@ -1,17 +1,18 @@
-from typing import Any
+from typing import Any, cast
 
 import pytest
-from litestar import Litestar
-from litestar.testing import TestClient
 
 from app.models import User
+from tests.base import ConnectedTestClient, TestClient
 
 
 @pytest.fixture
-async def connected_user(
+async def connected_test_client(
     user: User,
-    test_client: TestClient[Litestar],
+    test_client: TestClient,
     userinfo: dict[str, Any],
-) -> User:
+) -> ConnectedTestClient:
     test_client.set_session_data({"id_token": "fake id token", "userinfo": userinfo})
-    return user
+    test_client.user = user
+    test_client.userinfo = userinfo
+    return cast(ConnectedTestClient, test_client)
