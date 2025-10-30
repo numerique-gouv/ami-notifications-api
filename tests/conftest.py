@@ -3,7 +3,6 @@ from typing import Any
 
 import pytest
 from litestar import Litestar
-from litestar.testing import TestClient
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
@@ -17,6 +16,7 @@ from webpush.vapid import VAPID
 from app import create_app, session_config
 from app.database import DATABASE_URL, alchemy_config
 from app.models import Base, Notification, Registration, User
+from tests.base import TestClient
 
 TEST_DATABASE_URL = f"{DATABASE_URL}_test"
 
@@ -88,7 +88,7 @@ async def app() -> Litestar:
 
 
 @pytest.fixture
-def test_client(app: Litestar) -> Iterator[TestClient[Litestar]]:
+def test_client(app: Litestar) -> Iterator[TestClient]:
     with TestClient(app=app, session_config=session_config) as client:
         yield client
 
