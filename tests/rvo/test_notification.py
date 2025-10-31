@@ -1,6 +1,6 @@
 from litestar import Litestar
 from litestar.testing import TestClient
-from sqlmodel.ext.asyncio.session import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import Notification, User
 
