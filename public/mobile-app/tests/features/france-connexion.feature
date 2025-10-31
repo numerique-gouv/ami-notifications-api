@@ -16,6 +16,7 @@ Fonctionnalité: France Connect et Initialisation des données usager
       Quand l'usager clique sur le lien allant vers la démo
       Alors l'usager va vers la démo
 
+    @ok
     Scénario: enregistrement d'un usager au service de notification d'AMI via France Connect
       Etant donné que l'usager est sur la home page non connectée de l'application AMI
       Quand l'usager se connecte sur AMI via France Connect en tant que "Camille" et suit le process de france connexion

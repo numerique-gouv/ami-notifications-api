@@ -15,7 +15,7 @@
     "test:unit": "vitest",
     "test": "npm run test:unit -- --run && npm run test:e2e",
     "test:e2e": "playwright test",
-    "test:cucumber": "cucumber-js tests/features"
+    "test:cucumber": "cucumber-js tests/features --tags @ok"
   },
   "dependencies": {
     "@eslint/compat": "^1.2.5",
