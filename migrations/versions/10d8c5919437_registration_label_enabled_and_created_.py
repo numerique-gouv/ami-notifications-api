@@ -6,15 +6,11 @@ Create Date: 2025-06-30 10:58:22.228157
 
 """
 
-import uuid
 from datetime import datetime
 from typing import Sequence, Union
 
 import sqlalchemy as sa
 from alembic import op
-from sqlalchemy.orm import Session
-
-from app.models import Registration
 
 # revision identifiers, used by Alembic.
 revision: str = "10d8c5919437"
@@ -26,20 +22,18 @@ depends_on: Union[str, Sequence[str], None] = None
 def upgrade() -> None:
     """Upgrade schema."""
     op.add_column(
+        "registration",
+        sa.Column(
+            "label", sa.VARCHAR(), server_default=sa.text("gen_random_uuid()"), nullable=False
+        ),
+    )
+    op.add_column(
         "registration", sa.Column("enabled", sa.Boolean(), nullable=False, server_default="0")
     )
     op.add_column(
         "registration",
         sa.Column("created_at", sa.DateTime(), nullable=False, server_default=str(datetime.now())),
     )
-    # Special case for the label: we want to initialize it with a random uuid for each entry.
-    op.add_column("registration", sa.Column("label", sa.VARCHAR(), nullable=True))
-    conn = op.get_bind()
-    session = Session(bind=conn)
-    for registration in session.query(Registration):
-        registration.label = str(uuid.uuid4())
-    session.commit()
-    op.alter_column("registration", "label", nullable=False)
 
 
 def downgrade() -> None:

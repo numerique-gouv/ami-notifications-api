@@ -1,62 +1,34 @@
-import json
-from contextlib import AbstractAsyncContextManager
 from pathlib import Path
-from typing import Annotated, Any, Callable, cast
+from typing import Any, Callable
 
 import httpx
-import jwt
 import sentry_sdk
 from litestar import (
     Litestar,
     Request,
     Response,
     get,
-    patch,
-    post,
 )
 from litestar.config.cors import CORSConfig
 from litestar.contrib.jinja import JinjaTemplateEngine
 from litestar.di import Provide
-from litestar.exceptions import NotFoundException
 from litestar.middleware.session.server_side import ServerSideSessionConfig
-from litestar.params import Body
 from litestar.response.redirect import Redirect
 from litestar.static_files import (
     create_static_files_router,  # type: ignore[reportUnknownVariableType]
 )
 from litestar.status_codes import (
-    HTTP_200_OK,
-    HTTP_201_CREATED,
-    HTTP_404_NOT_FOUND,
     HTTP_500_INTERNAL_SERVER_ERROR,
 )
 from litestar.stores.file import FileStore
 from litestar.template.config import TemplateConfig
-from sqlalchemy.orm import selectinload
-from sqlmodel.ext.asyncio.session import AsyncSession
-from webpush import WebPush, WebPushSubscription
+from webpush import WebPush
 
 from app import env
-from app.models import (
-    FCUserInfo,
-    Notification,
-    NotificationCreate,
-    NotificationRead,
-    Registration,
-    RegistrationCreate,
-    User,
-    create_notification,
-    create_registration,
-    create_user_from_userinfo,
-    get_notification_by_id_and_user,
-    get_notification_list_by_user,
-    get_registration_by_user_and_subscription,
-    get_user_by_id,
-    get_user_by_userinfo,
-    update_notification,
-)
+from app.controllers.notification import NotificationController
+from app.controllers.registration import RegistrationController
+from app.controllers.user import UserController
 
-from .database import db_connection, provide_db_session
 from .rvo import rvo_router
 
 cors_config = CORSConfig(allow_origins=["*"])
@@ -71,137 +43,7 @@ sentry_sdk.init(
     # send_default_pii=True,
 )
 
-#### ENDPOINTS
-
-
-@get("/notification-key")
-async def get_notification_key() -> str:
-    return env.VAPID_APPLICATION_SERVER_KEY
-
-
-@post("/api/v1/registrations")
-async def register(
-    db_session: AsyncSession,
-    data: Annotated[
-        RegistrationCreate,
-        Body(
-            title="Register to receive notifications",
-            description="Register with a push subscription and an email to receive notifications",
-        ),
-    ],
-) -> Response[Any]:
-    WebPushSubscription.model_validate(data.subscription)
-    registration = Registration.model_validate(data)
-    try:
-        user = await get_user_by_id(data.user_id, db_session)
-    except NotFoundException:
-        return error_from_message(
-            {"error": "User not found"},
-            HTTP_404_NOT_FOUND,
-        )
-
-    assert user.id is not None, "User ID should be set after commit"
-    existing_registration = await get_registration_by_user_and_subscription(
-        data.subscription, db_session, user
-    )
-    if existing_registration:
-        # This registration already exists, don't duplicate it.
-        return Response(existing_registration, status_code=HTTP_200_OK)
-
-    registration = await create_registration(registration, db_session)
-    return Response(registration, status_code=HTTP_201_CREATED)
-
-
-@post("/api/v1/notifications")
-async def notify(
-    db_session: AsyncSession,
-    webpush: WebPush,
-    data: Annotated[
-        NotificationCreate,
-        Body(
-            title="Send a notification",
-            description="Send the notification message to a registered user",
-        ),
-    ],
-) -> Response[Notification]:
-    user = await get_user_by_id(
-        data.user_id,
-        db_session,
-        options=selectinload(User.registrations),
-    )
-    notification = Notification.model_validate(data)
-
-    for registration in user.registrations:
-        subscription = WebPushSubscription.model_validate(registration.subscription)
-        json_data = {"title": data.title, "message": data.message, "sender": data.sender}
-        message = webpush.get(message=json.dumps(json_data), subscription=subscription)
-        headers = cast(dict[str, str], message.headers)
-
-        response = httpx.post(
-            registration.subscription["endpoint"], content=message.encrypted, headers=headers
-        )
-        if response.status_code < 500:
-            # For example we could have "410: gone" if the registration has been revoked.
-            continue
-        else:
-            response.raise_for_status()
-    notification = await create_notification(notification, db_session)
-    return Response(notification, status_code=HTTP_201_CREATED)
-
-
-@get("/api/v1/users/{user_id:int}/notifications")
-async def get_notifications(
-    db_session: AsyncSession, user_id: int, unread: bool | None = None
-) -> Response[list[Notification]]:
-    user: User = await get_user_by_id(
-        user_id,
-        db_session,
-    )
-    notifications: list[Notification] = await get_notification_list_by_user(
-        user, db_session, unread=unread
-    )
-    return Response(notifications, status_code=HTTP_200_OK)
-
-
-@patch("/api/v1/users/{user_id:int}/notification/{notification_id:int}/read")
-async def read_notification(
-    db_session: AsyncSession,
-    user_id: int,
-    notification_id: int,
-    data: Annotated[
-        NotificationRead,
-        Body(
-            description="read or unread a user notification",
-        ),
-    ],
-) -> Response[Notification]:
-    user: User = await get_user_by_id(
-        user_id,
-        db_session,
-    )
-    notification: Notification = await get_notification_by_id_and_user(
-        notification_id,
-        user,
-        db_session,
-    )
-    notification.unread = not data.read
-    notification = await update_notification(db_session, notification)
-    return Response(notification, status_code=HTTP_200_OK)
-
-
-@get("/api/v1/users/{user_id:int}/registrations")
-async def list_registrations(
-    db_session: AsyncSession, user_id: int
-) -> Response[list[Registration]]:
-    user: User = await get_user_by_id(
-        user_id,
-        db_session,
-        options=selectinload(User.registrations),
-    )
-    return Response(user.registrations, status_code=HTTP_200_OK)
-
-
-#### VIEWS
+# ### VIEWS
 
 
 @get(path="/login-callback", include_in_schema=False)
@@ -244,44 +86,6 @@ async def login_callback(
     return Redirect(f"{env.PUBLIC_APP_URL}/", query_params=params)
 
 
-@get(path="/fc_userinfo", include_in_schema=False)
-async def get_fc_userinfo(
-    db_session: AsyncSession,
-    request: Request[Any, Any, Any],
-) -> Response[Any]:
-    """This endpoint "forwards" the request coming from the frontend (the app).
-
-    FranceConnect doesn't implement CORS, so the app can't directly query it for the user info.
-    We thus have this endpoint to act as some kind of proxy.
-
-    """
-    response = httpx.get(
-        f"{env.PUBLIC_FC_BASE_URL}{env.PUBLIC_FC_USERINFO_ENDPOINT}",
-        headers={"authorization": request.headers["authorization"]},
-    )
-
-    userinfo_jws = response.text
-    decoded_userinfo = jwt.decode(
-        userinfo_jws, options={"verify_signature": False}, algorithms=["ES256"]
-    )
-    ignore_keys = ["aud", "nonce", "exp", "iat", "auth_time", "iss"]
-    useful_userinfo = {key: val for key, val in decoded_userinfo.items() if key not in ignore_keys}
-
-    userinfo = FCUserInfo(**useful_userinfo)
-
-    try:
-        user = await get_user_by_userinfo(userinfo, db_session)
-    except NotFoundException:
-        user_ = User(**vars(userinfo))
-        user = await create_user_from_userinfo(user_, db_session)
-    result: dict[str, Any] = {
-        "user_id": user.id,
-        "user_data": userinfo_jws,
-    }
-
-    return Response(result, status_code=response.status_code)
-
-
 @get(path="/api-particulier/quotient", include_in_schema=False)
 async def get_api_particulier_quotient(
     request: Request[Any, Any, Any],
@@ -320,7 +124,7 @@ def error_from_message(
     return Response(message, status_code=status_code)
 
 
-#### APP
+# ### APP
 
 
 def provide_webpush() -> WebPush:
@@ -333,19 +137,16 @@ def provide_webpush() -> WebPush:
 
 
 def create_app(
-    database_connection: Callable[[Litestar], AbstractAsyncContextManager[None]] = db_connection,
     webpush_init: Callable[[], WebPush] = provide_webpush,
 ) -> Litestar:
+    from app.database import alchemy
+
     return Litestar(
         route_handlers=[
-            get_notification_key,
-            register,
-            notify,
-            list_registrations,
-            get_notifications,
-            read_notification,
+            RegistrationController,
+            NotificationController,
+            UserController,
             login_callback,
-            get_fc_userinfo,
             get_api_particulier_quotient,
             get_sector_identifier_url,
             create_static_files_router(
@@ -356,10 +157,9 @@ def create_app(
             rvo_router,
         ],
         dependencies={
-            "db_session": Provide(provide_db_session),
             "webpush": Provide(webpush_init, use_cache=True, sync_to_thread=True),
         },
-        lifespan=[database_connection],
+        plugins=[alchemy],
         template_config=TemplateConfig(directory=Path("templates"), engine=JinjaTemplateEngine),
         cors_config=cors_config,
         middleware=[session_config.middleware],

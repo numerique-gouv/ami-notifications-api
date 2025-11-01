@@ -1,11 +1,12 @@
 import os
-from collections.abc import AsyncGenerator
-from contextlib import asynccontextmanager
+from dataclasses import dataclass
 
-from litestar import Litestar
-from litestar.datastructures import State
-from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
-from sqlmodel.ext.asyncio.session import AsyncSession
+from advanced_alchemy.extensions.litestar import (
+    AsyncSessionConfig,
+    SQLAlchemyAsyncConfig,
+    SQLAlchemyPlugin,
+)
+from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
 DATABASE_URL_RAW = os.getenv("DATABASE_URL", "")
 # If we get a url with extra options like ?sslmode=prefer or not using the
@@ -29,21 +30,33 @@ DATABASE_URL = (
 )
 
 
-@asynccontextmanager
-async def db_connection(app: Litestar) -> AsyncGenerator[None, None]:
-    engine = getattr(app.state, "engine", None)
-    if engine is None:
-        engine = create_async_engine(DATABASE_URL)
-        app.state.engine = engine
-    try:
-        yield
-    finally:
-        await engine.dispose()
+@dataclass
+class DatabaseSettings:
+    _engine_instance: AsyncEngine | None = None
+
+    @property
+    def engine(self) -> AsyncEngine:
+        return self.get_engine()
+
+    def get_engine(self) -> AsyncEngine:
+        if self._engine_instance is not None:
+            return self._engine_instance
+        engine = create_async_engine(url=DATABASE_URL)
+
+        self._engine_instance = engine
+        return self._engine_instance
 
 
-sessionmaker = async_sessionmaker(class_=AsyncSession, expire_on_commit=False)
+def get_db_settings() -> DatabaseSettings:
+    return DatabaseSettings()
 
 
-async def provide_db_session(state: State) -> AsyncGenerator[AsyncSession, None]:
-    async with sessionmaker(bind=state.engine) as session:
-        yield session
+db_settings = get_db_settings()
+
+
+session_config = AsyncSessionConfig(expire_on_commit=False)
+alchemy_config = SQLAlchemyAsyncConfig(
+    engine_instance=db_settings.get_engine(),
+    session_config=session_config,
+)
+alchemy = SQLAlchemyPlugin(config=alchemy_config)
