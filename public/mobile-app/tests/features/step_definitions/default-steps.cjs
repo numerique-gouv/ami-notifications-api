@@ -9,9 +9,14 @@ setDefaultTimeout(60 * 1000);
 let page, browserContext, browser;
 
 Before(async function () {
-	browser = await chromium.launch({ headless: false});
-	// browserContext = await browser.newContext({baseURL: "https://localhost:4173/", ignoreHTTPSErrors: true});
-	browserContext = await browser.newContext({baseURL: "https://ami-back-staging.osc-fr1.scalingo.io/"});
+	browser = await chromium.launch(
+		//uncomment this line to see the tests in live
+		//{ headless: false, slowMo: 1500}
+	);
+	browserContext = await browser.newContext(
+		//{baseURL: "https://localhost:4173/", ignoreHTTPSErrors: true}
+		{baseURL: "https://ami-back-staging.osc-fr1.scalingo.io/"}
+	);
 	page = await browserContext.newPage();
 });
 
