@@ -21,18 +21,15 @@ export function parseJwt(token) {
   return JSON.parse(jsonPayload)
 }
 
-export const franceConnectLogout = async () => {
+export const franceConnectLogout = async (id_token_hint) => {
   const redirect_url = `${PUBLIC_APP_URL}/?is_logged_out`
   const params = new URLSearchParams({
-    id_token_hint: localStorage.getItem('id_token') || '',
+    id_token_hint,
     state: redirect_url,
     post_logout_redirect_uri: PUBLIC_FC_PROXY || redirect_url,
   })
   const url = new URL(`${PUBLIC_FC_BASE_URL}${PUBLIC_FC_LOGOUT_ENDPOINT}`)
   url.search = params.toString()
-
-  // Logout from AMI first: https://github.com/numerique-gouv/ami-notifications-api/issues/132
-  localStorage.clear()
 
   // Now logout from FC.
   window.location = url.toString()

@@ -6,6 +6,7 @@ import ConnectedHomepage from './ConnectedHomepage.svelte'
 import * as notificationsMethods from '$lib/notifications'
 import { PUBLIC_API_WS_URL } from '$lib/notifications'
 import { PUBLIC_API_URL } from '$env/static/public'
+import { franceConnectLogout } from './france-connect.js'
 
 let wss
 
@@ -187,5 +188,28 @@ describe('/ConnectedHomepage.svelte', () => {
     expect(spy).toHaveBeenCalledWith(fakeRegistrationId)
     expect(menu).toHaveTextContent('Recevoir des notifications sur ce terminal')
     expect(window.localStorage.getItem('notifications_enabled')).toBe('false')
+  })
+
+  test('should logout a user from AMI then from FC', () => {
+    // Given
+    globalThis.localStorage = {
+      getItem: vi.fn().mockImplementation(() => {
+        return 'fake-id-token'
+      }),
+      clear: vi.fn().mockImplementation(() => {
+        return
+      }),
+    }
+
+    // When
+    render(ConnectedHomepage)
+    const franceConnectLogoutButton = screen.getByRole('button', {
+      name: 'Me déconnecter',
+    })
+    franceConnectLogoutButton.click()
+
+    // Then
+    expect(localStorage.clear).toHaveBeenCalled()
+    expect(franceConnectLogout).toHaveBeenCalledWith('fake-id-token')
   })
 })
