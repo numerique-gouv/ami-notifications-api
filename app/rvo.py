@@ -22,7 +22,7 @@ from sqlalchemy.orm import selectinload
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app import rvo_auth
-from app.models import User, get_user_by_id, get_user_list
+from app.models import User, get_notification_list_by_user, get_user_by_id, get_user_list
 
 # This is the folder where the static files for the dsfr are stored.
 HTML_DIR = "public/mobile-app/node_modules/@gouvfr"
@@ -181,11 +181,11 @@ async def send_notification(user_id: int, db_session: AsyncSession) -> Template:
     user = await get_user_by_id(
         user_id,
         db_session,
-        options=selectinload(User.notifications),
     )
+    notifications = await get_notification_list_by_user(user, db_session)
     return Template(
         template_name="rvo/send-notification.html",
-        context={"user": user, "isFranceConnected": True},
+        context={"user": user, "notifications": notifications, "isFranceConnected": True},
     )
 
 

@@ -1,3 +1,5 @@
+import datetime
+
 from litestar import Litestar
 from litestar.testing import TestClient
 from sqlmodel.ext.asyncio.session import AsyncSession
@@ -62,9 +64,18 @@ async def test_rvo_test_send_notification_when_logged_in(
     assert connected_user.id is not None, "User ID should be set"
     notification_ = Notification(
         user_id=connected_user.id,
-        message="Hello notification",
+        message="Hello notification1",
         title="Notification title",
         sender="John Doe",
+        date=datetime.datetime.now(),
+    )
+    db_session.add(notification_)
+    notification_ = Notification(
+        user_id=connected_user.id,
+        message="Hello notification2",
+        title="Notification title",
+        sender="John Doe",
+        date=datetime.datetime.now() - datetime.timedelta(days=1),
     )
     db_session.add(notification_)
     await db_session.commit()
@@ -72,6 +83,7 @@ async def test_rvo_test_send_notification_when_logged_in(
     assert response.status_code == 200
     assert "Historique des notifications" in response.text
     assert "Hello notification" in response.text
+    assert response.text.index("Hello notification1") < response.text.index("Hello notification2")
 
 
 async def test_rvo_test_send_notification_when_logged_out(

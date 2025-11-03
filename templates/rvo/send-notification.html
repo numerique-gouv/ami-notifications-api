@@ -58,10 +58,10 @@
     <span id="send-notification-status"></span>
   </form>
 
-  {% if user.notifications %}
+  {% if notifications %}
     <h3>Historique des notifications</h3>
     <ul class="notifications">
-      {% for notification in user.notifications|reverse %}
+      {% for notification in notifications %}
         <li class="notifications--item">#{{ notification.id }} {{ notification.title }} - {{ notification.message }} <span>envoyé par: {{ notification.sender }}, le {{ notification.date.strftime('%d/%m/%Y %H:%M:%S') }}</span></li>
       {% endfor %}
     </ul>
