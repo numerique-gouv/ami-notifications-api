@@ -25,20 +25,20 @@ describe('/+page.svelte', () => {
       .spyOn(notificationsMethods, 'retrieveNotifications')
       .mockImplementation(async () => [
         {
-          date: '2025-09-19T13:52:23.279545',
-          user_id: 42,
+          created_at: '2025-09-19T13:52:23.279545',
+          user_id: '3ac73f4f-4be2-456a-9c2e-ddff480d5767',
           sender: 'test 2',
           message: 'test 2',
-          id: 30,
+          id: 'f62c66b2-7bd5-4696-8383-2d40c08a1',
           title: 'test 2',
           unread: true,
         },
         {
-          date: '2025-09-19T12:59:04.950812',
-          user_id: 42,
+          created_at: '2025-09-19T12:59:04.950812',
+          user_id: '3ac73f4f-4be2-456a-9c2e-ddff480d5767',
           sender: 'test',
           message: 'test',
-          id: 29,
+          id: '2689c3b3-e95c-4d73-b37d-55f430688af9',
           title: 'test',
           unread: false,
         },
@@ -50,9 +50,13 @@ describe('/+page.svelte', () => {
 
     // Then
     expect(spy).toHaveBeenCalledTimes(1)
-    const notification1 = screen.getByTestId('notification-30')
+    const notification1 = screen.getByTestId(
+      'notification-f62c66b2-7bd5-4696-8383-2d40c08a1'
+    )
     expect(notification1).toHaveClass('unread')
-    const notification2 = screen.getByTestId('notification-29')
+    const notification2 = screen.getByTestId(
+      'notification-2689c3b3-e95c-4d73-b37d-55f430688af9'
+    )
     expect(notification2).not.toHaveClass('unread')
   })
 
@@ -63,40 +67,40 @@ describe('/+page.svelte', () => {
       .spyOn(notificationsMethods, 'retrieveNotifications')
       .mockImplementationOnce(async () => [
         {
-          date: '2025-09-19T13:52:23.279545',
-          user_id: 42,
+          created_at: '2025-09-19T13:52:23.279545',
+          user_id: '3ac73f4f-4be2-456a-9c2e-ddff480d5767',
           sender: 'test 2',
           message: 'test 2',
-          id: 30,
+          id: 'f62c66b2-7bd5-4696-883-2d40c08a1',
           title: 'test 2',
           unread: true,
         },
         {
-          date: '2025-09-19T12:59:04.950812',
-          user_id: 42,
+          created_at: '2025-09-19T12:59:04.950812',
+          user_id: '3ac73f4f-4be2-456a-9c2e-ddff480d5767',
           sender: 'test',
           message: 'test',
-          id: 29,
+          id: '2689c3b3-e95c-4d73-b37d-55f430688af9',
           title: 'test',
           unread: false,
         },
       ])
       .mockImplementationOnce(async () => [
         {
-          date: '2025-09-19T13:52:23.279545',
-          user_id: 42,
+          created_at: '2025-09-19T13:52:23.279545',
+          user_id: '3ac73f4f-4be2-456a-9c2e-ddff480d5767',
           sender: 'test 2',
           message: 'test 2',
-          id: 30,
+          id: 'f62c66b2-7bd5-4696-883-2d40c08a1',
           title: 'test 2',
           unread: false,
         },
         {
-          date: '2025-09-19T12:59:04.950812',
-          user_id: 42,
+          created_at: '2025-09-19T12:59:04.950812',
+          user_id: '3ac73f4f-4be2-456a-9c2e-ddff480d5767',
           sender: 'test',
           message: 'test',
-          id: 29,
+          id: '2689c3b3-e95c-4d73-b37d-55f430688af9',
           title: 'test',
           unread: false,
         },
@@ -105,11 +109,11 @@ describe('/+page.svelte', () => {
       .spyOn(notificationsMethods, 'readNotification')
       .mockImplementation(async () => {
         return {
-          date: '2025-09-19T13:52:23.279545',
-          user_id: 42,
+          created_at: '2025-09-19T13:52:23.279545',
+          user_id: '3ac73f4f-4be2-456a-9c2e-ddff480d5767',
           sender: 'test 2',
           message: 'test 2',
-          id: 30,
+          id: 'f62c66b2-7bd5-4696-883-2d40c08a1',
           title: 'test 2',
           unread: false,
         }
@@ -117,7 +121,9 @@ describe('/+page.svelte', () => {
 
     render(Page)
     await new Promise(setTimeout) // wait for async calls
-    const notificationLink = screen.getByTestId('notification-link-30')
+    const notificationLink = screen.getByTestId(
+      'notification-link-f62c66b2-7bd5-4696-883-2d40c08a1'
+    )
 
     // When
     await notificationLink.click()
@@ -126,10 +132,14 @@ describe('/+page.svelte', () => {
     // Then
     expect(spy).toHaveBeenCalledTimes(2)
     expect(spy2).toHaveBeenCalledTimes(1)
-    expect(spy2).toHaveBeenCalledWith(30)
-    const notification1 = screen.getByTestId('notification-30')
+    expect(spy2).toHaveBeenCalledWith('f62c66b2-7bd5-4696-883-2d40c08a1')
+    const notification1 = screen.getByTestId(
+      'notification-f62c66b2-7bd5-4696-883-2d40c08a1'
+    )
     expect(notification1).not.toHaveClass('unread')
-    const notification2 = screen.getByTestId('notification-29')
+    const notification2 = screen.getByTestId(
+      'notification-2689c3b3-e95c-4d73-b37d-55f430688af9'
+    )
     expect(notification2).not.toHaveClass('unread')
   })
 })

@@ -2,9 +2,9 @@ import { PUBLIC_API_URL } from '$env/static/public'
 import { registerUser } from '$lib/registration.js'
 
 export type Notification = {
-  id: number
-  date: Date
-  user_id: number
+  id: string
+  created_at: Date
+  user_id: string
   message: string
   sender?: string
   title?: string
