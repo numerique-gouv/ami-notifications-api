@@ -32,20 +32,20 @@ describe('/notifications.ts', () => {
       window.localStorage.setItem('user_id', 'fake-user-id')
       const notifications = [
         {
-          date: '2025-09-19T13:52:23.279545',
-          user_id: 42,
+          created_at: '2025-09-19T13:52:23.279545',
+          user_id: '3ac73f4f-4be2-456a-9c2e-ddff480d5767',
           sender: 'test 2',
           message: 'test 2',
-          id: 30,
+          id: 'f62c66b2-7bd5-4696-883-2d40c08a1',
           title: 'test 2',
           unread: true,
         },
         {
-          date: '2025-09-19T12:59:04.950812',
-          user_id: 42,
+          created_at: '2025-09-19T12:59:04.950812',
+          user_id: '3ac73f4f-4be2-456a-9c2e-ddff480d5767',
           sender: 'test',
           message: 'test',
-          id: 29,
+          id: '2689c3b3-e95c-4d73-b37d-55f430688af9',
           title: 'test',
           unread: false,
         },
@@ -82,11 +82,11 @@ describe('/notifications.ts', () => {
       window.localStorage.setItem('user_id', 'fake-user-id')
       const notifications = [
         {
-          date: '2025-09-19T13:52:23.279545',
-          user_id: 42,
+          created_at: '2025-09-19T13:52:23.279545',
+          user_id: '3ac73f4f-4be2-456a-9c2e-ddff480d5767',
           sender: 'test 2',
           message: 'test 2',
-          id: 30,
+          id: 'f62c66b2-7bd5-4696-883-2d40c08a1',
           title: 'test 2',
           unread: true,
         },
@@ -112,7 +112,7 @@ describe('/notifications.ts', () => {
       expect(window.localStorage.getItem('user_id')).toEqual(null)
 
       // When
-      const result = await readNotification(0)
+      const result = await readNotification('unknown')
 
       // Then
       expect(result).toEqual(undefined)
@@ -123,11 +123,11 @@ describe('/notifications.ts', () => {
       window.localStorage.setItem('user_id', 'fake-user-id')
       const read_notification = [
         {
-          date: '2025-09-19T13:52:23.279545',
-          user_id: 42,
+          created_at: '2025-09-19T13:52:23.279545',
+          user_id: '3ac73f4f-4be2-456a-9c2e-ddff480d5767',
           sender: 'test 2',
           message: 'test 2',
-          id: 30,
+          id: 'f62c66b2-7bd5-4696-883-2d40c08a1',
           title: 'test 2',
           unread: false,
         },
@@ -140,7 +140,7 @@ describe('/notifications.ts', () => {
       )
 
       // When
-      const result = await readNotification(30)
+      const result = await readNotification('f62c66b2-7bd5-4696-883-2d40c08a1')
 
       // Then
       expect(result).toEqual(read_notification)
