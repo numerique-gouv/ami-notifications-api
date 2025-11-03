@@ -1,4 +1,5 @@
 import datetime
+import uuid
 from typing import Any
 
 from pydantic import BaseModel as PydanticBaseModel
@@ -22,17 +23,17 @@ class FCUserInfo(BaseModel):
 
 
 class Notification(BaseModel):
-    id: int
-    user_id: int
+    id: uuid.UUID
+    user_id: uuid.UUID
     message: str
     sender: str | None
     title: str | None
-    date: datetime.datetime
     unread: bool
+    created_at: datetime.datetime
 
 
 class NotificationCreate(BaseModel):
-    user_id: int
+    user_id: uuid.UUID
     message: str = Field(min_length=1)
     sender: str | None
     title: str | None
@@ -43,12 +44,12 @@ class NotificationRead(BaseModel):
 
 
 class Registration(BaseModel):
-    id: int
-    user_id: int
+    id: uuid.UUID
+    user_id: uuid.UUID
     subscription: dict[str, Any]
     created_at: datetime.datetime
 
 
 class RegistrationCreate(BaseModel):
-    user_id: int
+    user_id: uuid.UUID
     subscription: dict[str, Any]

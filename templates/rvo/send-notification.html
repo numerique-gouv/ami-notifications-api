@@ -62,7 +62,7 @@
     <h3>Historique des notifications</h3>
     <ul class="notifications">
       {% for notification in notifications %}
-        <li class="notifications--item">#{{ notification.id }} {{ notification.title }} - {{ notification.message }} <span>envoyé par: {{ notification.sender }}, le {{ notification.date.strftime('%d/%m/%Y %H:%M:%S') }}</span></li>
+        <li class="notifications--item">#{{ notification.id }} {{ notification.title }} - {{ notification.message }} <span>envoyé par: {{ notification.sender }}, le {{ notification.created_at.strftime('%d/%m/%Y %H:%M:%S') }}</span></li>
       {% endfor %}
     </ul>
   {% endif %}
@@ -81,7 +81,7 @@
         title: notifyTitleInput.value,
         message: notifyMessageInput.value,
         sender: notifySenderInput.value,
-        user_id: {{ user.id }},
+        user_id: '{{ user.id }}',
       }
       console.log(payload)
       console.log('notifying a message')

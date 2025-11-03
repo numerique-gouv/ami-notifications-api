@@ -1,4 +1,5 @@
 import os
+import uuid
 from typing import Any
 
 import httpx
@@ -173,18 +174,18 @@ async def list_users(db_session: AsyncSession) -> Template:
 
 
 @get(
-    path="/test/user/{user_id: int}/send-notification",
+    path="/test/user/{user_id: uuid}/send-notification",
     guards=[rvo_auth.authenticated_guard],
     include_in_schema=False,
 )
-async def send_notification(user_id: int, db_session: AsyncSession) -> Template:
+async def send_notification(user_id: uuid.UUID, db_session: AsyncSession) -> Template:
     users_service: UserService = UserService(session=db_session)
     user = await users_service.get_one_or_none(id=user_id)
     if user is None:
         raise NotFoundException(detail="User not found")
     notifications_service: NotificationService = NotificationService(session=db_session)
     notifications = await notifications_service.list(
-        order_by=(Notification.date, True),
+        order_by=(Notification.created_at, True),
         user=user,
     )
     return Template(

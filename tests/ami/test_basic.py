@@ -1,5 +1,6 @@
 import datetime
 import json
+import uuid
 from typing import Any
 
 import pytest
@@ -28,11 +29,10 @@ async def test_register_user_does_not_exist(
     await db_session.commit()
     await db_session.refresh(user)
 
-    fake_id: str = "0"
     register_data = {
         "email": "foo@bar.baz",
         "subscription": webpushsubscription,
-        "user_id": fake_id,
+        "user_id": str(uuid.uuid4()),
     }
     response = test_client.post("/api/v1/registrations", json=register_data)
     assert response.status_code == HTTP_404_NOT_FOUND
@@ -66,7 +66,7 @@ async def test_register(
     all_registrations = (await db_session.execute(select(Registration))).scalars().all()
     assert len(all_registrations) == 1
     registration = all_registrations[0]
-    assert registration.id == 1
+    registration_id = registration.id
 
     # Second registration, we're expecting a 200 OK, not 201 CREATED.
     register_data = {
@@ -80,7 +80,7 @@ async def test_register(
     all_registrations = (await db_session.execute(select(Registration))).scalars().all()
     assert len(all_registrations) == 1
     registration = all_registrations[0]
-    assert registration.id == 1
+    assert registration.id == registration_id
 
 
 async def test_register_fields(
@@ -103,21 +103,23 @@ async def test_register_fields(
     assert response.status_code == HTTP_400_BAD_REQUEST
     assert response.json()["extra"] == [
         {
-            "message": "Input should be a valid integer, unable to parse string as an integer",
+            "message": "Input should be a valid UUID, invalid length: expected length 32 for simple format, found 0",
             "key": "user_id",
         }
     ]
 
-    # id and created_at are ignored
+    # id, created_at and updated_at are ignored
     registration_date: datetime.datetime = datetime.datetime.now(
         datetime.timezone.utc
     ) + datetime.timedelta(days=1)
+    registration_id: uuid.UUID = uuid.uuid4()
     registration_data = {
         "email": "foo@bar.baz",
         "subscription": webpushsubscription,
         "user_id": str(user.id),
-        "id": 0,
+        "id": str(registration_id),
         "created_at": registration_date.isoformat(),
+        "updated_at": registration_date.isoformat(),
     }
     response = test_client.post("/api/v1/registrations", json=registration_data)
     assert response.status_code == HTTP_201_CREATED
@@ -125,16 +127,16 @@ async def test_register_fields(
     all_registrations = (await db_session.execute(select(Registration))).scalars().all()
     assert len(all_registrations) == 1
     registration = all_registrations[0]
-    assert registration.id
-    assert registration.id > 0
+    assert registration.id != registration_id
     assert registration.created_at < registration_date
+    assert registration.updated_at < registration_date
 
 
 async def test_notify_user_does_not_exist(
     test_client: TestClient[Litestar],
 ) -> None:
     notification_data = {
-        "user_id": 0,
+        "user_id": str(uuid.uuid4()),
         "message": "Hello notification 2",
         "title": "Some notification title",
         "sender": "Jane Doe",
@@ -157,7 +159,7 @@ async def test_notify_create_notification_from_test_and_from_app_context(
     # Make sure we don't even try sending a notification to a push server.
     httpx_mock.add_response(url=registration.subscription["endpoint"])
     notification_data = {
-        "user_id": registration.user.id,
+        "user_id": str(registration.user.id),
         "message": "Hello notification 2",
         "title": "Some notification title",
         "sender": "Jane Doe",
@@ -167,12 +169,12 @@ async def test_notify_create_notification_from_test_and_from_app_context(
     response = test_client.get(f"/api/v1/users/{registration.user.id}/notifications")
     assert response.status_code == HTTP_200_OK
     assert len(response.json()) == 2
-    assert response.json()[0]["user_id"] == registration.user.id
+    assert response.json()[0]["user_id"] == str(registration.user.id)
     assert response.json()[0]["message"] == "Hello notification 2"
     assert response.json()[0]["title"] == "Some notification title"
     assert response.json()[0]["sender"] == "Jane Doe"
     assert response.json()[0]["unread"] is True
-    assert response.json()[1]["user_id"] == registration.user.id
+    assert response.json()[1]["user_id"] == str(registration.user.id)
     assert response.json()[1]["message"] == notification.message
     assert response.json()[1]["title"] == notification.title
     assert response.json()[1]["sender"] == notification.sender
@@ -195,14 +197,14 @@ async def test_notify_create_notification_test_fields(
     assert response.status_code == HTTP_400_BAD_REQUEST
     assert response.json()["extra"] == [
         {
-            "message": "Input should be a valid integer, unable to parse string as an integer",
+            "message": "Input should be a valid UUID, invalid length: expected length 32 for simple format, found 0",
             "key": "user_id",
         }
     ]
 
     # message is required
     notification_data = {
-        "user_id": user.id,
+        "user_id": str(user.id),
         "message": "",
         "title": "Some notification title",
         "sender": "Jane Doe",
@@ -213,17 +215,19 @@ async def test_notify_create_notification_test_fields(
         {"message": "String should have at least 1 character", "key": "message"}
     ]
 
-    # id, date and unread are ignored
+    # id, created_at, updated_at and unread are ignored
     notification_date: datetime.datetime = datetime.datetime.now(
         datetime.timezone.utc
     ) + datetime.timedelta(days=1)
+    notification_id: uuid.UUID = uuid.uuid4()
     notification_data = {
-        "user_id": user.id,
+        "user_id": str(user.id),
         "message": "Hello !",
         "title": "Some notification title",
         "sender": "Jane Doe",
-        "id": 0,
-        "date": notification_date.isoformat(),
+        "id": str(notification_id),
+        "created_at": notification_date.isoformat(),
+        "updated_at": notification_date.isoformat(),
         "unread": False,
     }
     response = test_client.post("/api/v1/notifications", json=notification_data)
@@ -232,9 +236,9 @@ async def test_notify_create_notification_test_fields(
     all_notifications = (await db_session.execute(select(Notification))).scalars().all()
     assert len(all_notifications) == 1
     notification = all_notifications[0]
-    assert notification.id
-    assert notification.id > 0
-    assert notification.date < notification_date
+    assert notification.id != notification_id
+    assert notification.created_at < notification_date
+    assert notification.updated_at < notification_date
     assert notification.unread is True
 
 
@@ -251,7 +255,7 @@ async def test_notify_when_registration_gone(
     # Make sure we don't even try sending a notification to a push server.
     httpx_mock.add_response(url=registration.subscription["endpoint"], status_code=410)
     notification_data = {
-        "user_id": registration.user.id,
+        "user_id": str(registration.user.id),
         "message": "This will not be PUSHed, but still created on the backend",
         "title": "Some notification title",
         "sender": "Jane Doe",
@@ -282,7 +286,6 @@ async def test_get_notifications_should_return_notifications_for_given_user_id(
     )
     db_session.add(other_user)
     await db_session.commit()
-    assert other_user.id is not None, "User ID should be set"
     other_notification = Notification(
         user_id=other_user.id,
         message="Other notification",
@@ -300,7 +303,7 @@ async def test_get_notifications_should_return_notifications_for_given_user_id(
     response = test_client.get(f"/api/v1/users/{notification.user.id}/notifications")
     assert response.status_code == HTTP_200_OK
     assert len(response.json()) == 1
-    assert response.json()[0]["user_id"] == notification.user.id
+    assert response.json()[0]["user_id"] == str(notification.user.id)
     assert response.json()[0]["message"] == notification.message
     assert response.json()[0]["title"] == notification.title
     assert response.json()[0]["sender"] == notification.sender
@@ -320,7 +323,7 @@ async def test_get_notifications_should_return_notifications_for_given_user_id(
     response = test_client.get(f"/api/v1/users/{notification.user.id}/notifications")
     assert response.status_code == HTTP_200_OK
     assert len(response.json()) == 1
-    assert response.json()[0]["user_id"] == notification.user.id
+    assert response.json()[0]["user_id"] == str(notification.user.id)
     assert response.json()[0]["message"] == notification.message
     assert response.json()[0]["title"] == notification.title
     assert response.json()[0]["sender"] == notification.sender
@@ -345,9 +348,8 @@ async def test_read_notification(
     )
     db_session.add(other_user)
     await db_session.commit()
-    assert other_user.id is not None, "User ID should be set"
     other_notification = Notification(
-        user_id=other_user.id,
+        user_id=str(other_user.id),
         message="Other notification",
         title="Notification title",
         sender="John Doe",
@@ -356,11 +358,13 @@ async def test_read_notification(
     await db_session.commit()
 
     # invalid, no payload
-    response = test_client.patch("/api/v1/users/0/notification/0/read")
+    response = test_client.patch(f"/api/v1/users/{uuid.uuid4()}/notification/{uuid.uuid4()}/read")
     assert response.status_code == HTTP_400_BAD_REQUEST
 
     # unknown user
-    response = test_client.patch("/api/v1/users/0/notification/0/read", json={"read": True})
+    response = test_client.patch(
+        f"/api/v1/users/{uuid.uuid4()}/notification/{uuid.uuid4()}/read", json={"read": True}
+    )
     assert response.status_code == HTTP_404_NOT_FOUND
 
     # can not patch notification of another user
@@ -385,7 +389,7 @@ async def test_read_notification(
         json={"read": True},
     )
     assert response.status_code == HTTP_200_OK
-    assert response.json()["user_id"] == notification.user.id
+    assert response.json()["user_id"] == str(notification.user.id)
     assert response.json()["message"] == notification.message
     assert response.json()["title"] == notification.title
     assert response.json()["sender"] == notification.sender
@@ -396,7 +400,7 @@ async def test_read_notification(
         json={"read": False},
     )
     assert response.status_code == HTTP_200_OK
-    assert response.json()["user_id"] == notification.user.id
+    assert response.json()["user_id"] == str(notification.user.id)
     assert response.json()["message"] == notification.message
     assert response.json()["title"] == notification.title
     assert response.json()["sender"] == notification.sender
@@ -476,17 +480,15 @@ async def test_fc_get_userinfo(
     response = test_client.get("/fc_userinfo", headers=auth)
 
     assert response.status_code == 200
-    assert json.loads(response.text) == {
-        "user_id": 1,
-        "user_data": fake_userinfo_token,
-    }
-
     all_users = (await db_session.execute(select(User))).scalars().all()
     assert len(all_users) == 1
     user = all_users[0]
-    assert user.id == 1
+    assert json.loads(response.text) == {
+        "user_id": str(user.id),
+        "user_data": fake_userinfo_token,
+    }
+
     assert user.email == "angela@dubois.fr"
-    assert user.id == 1
     assert user.given_name == "Angela Claire Louise"
     assert user.family_name == "DUBOIS"
     assert user.birthdate == datetime.date(1962, 8, 24)
@@ -498,7 +500,7 @@ async def test_fc_get_userinfo(
 
     assert response.status_code == 200
     assert json.loads(response.text) == {
-        "user_id": 1,
+        "user_id": str(user.id),
         "user_data": fake_userinfo_token,
     }
 

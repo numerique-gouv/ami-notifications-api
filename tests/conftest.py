@@ -109,7 +109,6 @@ async def user(db_session: AsyncSession) -> User:
 
 @pytest.fixture
 async def notification(db_session: AsyncSession, registration: Registration) -> Notification:
-    assert registration.user.id is not None, "Registration user ID should be set"
     notification_ = Notification(
         user_id=registration.user.id,
         message="Hello notification",
@@ -125,7 +124,6 @@ async def notification(db_session: AsyncSession, registration: Registration) -> 
 async def registration(
     db_session: AsyncSession, user: User, webpushsubscription: dict[str, Any]
 ) -> Registration:
-    assert user.id is not None, "User ID should be set"
     registration_ = Registration(user_id=user.id, subscription=webpushsubscription)
     db_session.add(registration_)
     await db_session.commit()
