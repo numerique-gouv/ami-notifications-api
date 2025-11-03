@@ -71,6 +71,14 @@ const updateButtonAndPushSubscription = async (permissionStatusState) => {
 const toggleMenu = () => {
   isMenuDisplayed = !isMenuDisplayed
 }
+
+const logout = async () => {
+  const id_token_hint = localStorage.getItem('id_token') || ''
+  // Logout from AMI first: https://github.com/numerique-gouv/ami-notifications-api/issues/132
+  localStorage.clear()
+  // And now logout from FC
+  franceConnectLogout(id_token_hint)
+}
 </script>
 
 <div class="homepage-connected">
@@ -110,7 +118,7 @@ const toggleMenu = () => {
       <button
           class="fr-connect-logout"
           type="button"
-          onclick={franceConnectLogout}
+          onclick={logout}
       >
         <span>Me déconnecter</span>
       </button>

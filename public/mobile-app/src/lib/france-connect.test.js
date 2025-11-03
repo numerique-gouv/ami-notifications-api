@@ -5,18 +5,8 @@ import { franceConnectLogout } from './france-connect.js'
 describe('/france-connect.js', () => {
   describe('franceConnectLogout', () => {
     test('should call logout endpoint when click on France Connect logout button', async () => {
-      // Given
-      globalThis.localStorage = {
-        getItem: vi.fn().mockImplementation(() => {
-          return 'fake-id-token'
-        }),
-        clear: vi.fn().mockImplementation(() => {
-          return
-        }),
-      }
-
       // When
-      await franceConnectLogout()
+      await franceConnectLogout('fake-id-token')
 
       // Then
       expect(globalThis.window.location).equal(
