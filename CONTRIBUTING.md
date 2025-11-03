@@ -130,6 +130,26 @@ Then, to rollback (downgrade) to a previous revision (version):
 uv run --env-file .env --env-file .env.local alembic downgrade <revision>
 ```
 
+###### Shortcuts
+
+It is possible to upgrade/downgrade schema without targetting a revision.
+
+To update:
+```sh
+uv run --env-file .env --env-file .env.local alembic upgrade +<n>
+```
+
+To downgrade:
+```sh
+uv run --env-file .env --env-file .env.local alembic downgrade -<n>
+```
+
+Example::
+```sh
+uv run --env-file .env --env-file .env.local alembic upgrade +1
+uv run --env-file .env --env-file .env.local alembic downgrade -1
+```
+
 ##### Reset (empty) the database (useful for demos)
 
 You'll need the
