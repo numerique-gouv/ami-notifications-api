@@ -1,4 +1,5 @@
 import json
+import uuid
 from collections.abc import Sequence
 from typing import Annotated, cast
 
@@ -71,12 +72,12 @@ class NotificationController(Controller):
         )
         return notifications_service.to_schema(notification, schema_type=schemas.Notification)
 
-    @get("/api/v1/users/{user_id:int}/notifications")
+    @get("/api/v1/users/{user_id:uuid}/notifications")
     async def list_notifications(
         self,
         notifications_service: NotificationService,
         users_service: UserService,
-        user_id: int,
+        user_id: uuid.UUID,
         unread: bool | None = None,
     ) -> Sequence[schemas.Notification]:
         user: models.User | None = await users_service.get_one_or_none(id=user_id)
@@ -84,13 +85,13 @@ class NotificationController(Controller):
             raise NotFoundException(detail="User not found")
         if unread is not None:
             notifications: Sequence[models.Notification] = await notifications_service.list(
-                order_by=(models.Notification.date, True),
+                order_by=(models.Notification.created_at, True),
                 user=user,
                 unread=unread,
             )
         else:
             notifications: Sequence[models.Notification] = await notifications_service.list(
-                order_by=(models.Notification.date, True),
+                order_by=(models.Notification.created_at, True),
                 user=user,
             )
         # We could do:
@@ -100,13 +101,13 @@ class NotificationController(Controller):
         type_adapter = TypeAdapter(list[schemas.Notification])
         return type_adapter.validate_python(notifications)
 
-    @patch("/api/v1/users/{user_id:int}/notification/{notification_id:int}/read")
+    @patch("/api/v1/users/{user_id:uuid}/notification/{notification_id:uuid}/read")
     async def read_notification(
         self,
         notifications_service: NotificationService,
         users_service: UserService,
-        user_id: int,
-        notification_id: int,
+        user_id: uuid.UUID,
+        notification_id: uuid.UUID,
         data: Annotated[
             schemas.NotificationRead,
             Body(

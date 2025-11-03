@@ -1,3 +1,4 @@
+import uuid
 from typing import Annotated
 
 from litestar import Controller, Response, get, post
@@ -66,12 +67,12 @@ class RegistrationController(Controller):
             status_code=HTTP_201_CREATED,
         )
 
-    @get("/api/v1/users/{user_id:int}/registrations")
+    @get("/api/v1/users/{user_id:uuid}/registrations")
     async def list_registrations(
         self,
         registrations_service: RegistrationService,
         users_with_registrations_service: UserService,
-        user_id: int,
+        user_id: uuid.UUID,
     ) -> list[schemas.Registration]:
         user: models.User | None = await users_with_registrations_service.get_one_or_none(
             id=user_id

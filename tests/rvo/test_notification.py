@@ -1,4 +1,5 @@
 import datetime
+import uuid
 
 from litestar import Litestar
 from litestar.testing import TestClient
@@ -26,9 +27,8 @@ async def test_rvo_test_list_users_when_logged_in(
     )
     assert "<span>user@example.com, notifications envoyées: 0" in response.text
 
-    assert connected_user.id is not None, "User ID should be set"
     notification_ = Notification(
-        user_id=connected_user.id,
+        user_id=str(connected_user.id),
         message="Hello notification",
         title="Notification title",
         sender="John Doe",
@@ -61,20 +61,19 @@ async def test_rvo_test_send_notification_when_logged_in(
     assert "Envoyer une notification à AMI Test User" in response.text
     assert "Historique des notifications" not in response.text
 
-    assert connected_user.id is not None, "User ID should be set"
     notification_ = Notification(
-        user_id=connected_user.id,
+        user_id=str(connected_user.id),
         message="Hello notification1",
         title="Notification title",
         sender="John Doe",
     )
     db_session.add(notification_)
     notification_ = Notification(
-        user_id=connected_user.id,
+        user_id=str(connected_user.id),
         message="Hello notification2",
         title="Notification title",
         sender="John Doe",
-        date=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=1),
+        created_at=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=1),
     )
     db_session.add(notification_)
     await db_session.commit()
@@ -88,4 +87,4 @@ async def test_rvo_test_send_notification_when_logged_in(
 async def test_rvo_test_send_notification_when_logged_out(
     test_client: TestClient[Litestar],
 ) -> None:
-    await check_url_when_logged_out("/rvo/test/user/0/send-notification", test_client)
+    await check_url_when_logged_out(f"/rvo/test/user/{uuid.uuid4()}/send-notification", test_client)
