@@ -1,12 +1,12 @@
 from advanced_alchemy.extensions.litestar import repository, service
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app import models as m
+from app import models
 
 
-class NotificationService(service.SQLAlchemyAsyncRepositoryService[m.Notification]):
-    class Repo(repository.SQLAlchemyAsyncRepository[m.Notification]):
-        model_type = m.Notification
+class NotificationService(service.SQLAlchemyAsyncRepositoryService[models.Notification]):
+    class Repo(repository.SQLAlchemyAsyncRepository[models.Notification]):
+        model_type = models.Notification
 
     repository_type = Repo
 

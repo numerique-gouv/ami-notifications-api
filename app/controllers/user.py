@@ -5,9 +5,7 @@ import jwt
 from litestar import Controller, Request, Response, get
 from litestar.di import Provide
 
-from app import env
-from app import models as m
-from app import schemas as s
+from app import env, models, schemas
 from app.services.user import UserService, provide_users_service
 
 
@@ -37,12 +35,12 @@ class UserController(Controller):
         decoded_userinfo = jwt.decode(
             userinfo_jws, options={"verify_signature": False}, algorithms=["ES256"]
         )
-        userinfo: s.FCUserInfo = s.FCUserInfo(**decoded_userinfo)
+        userinfo: schemas.FCUserInfo = schemas.FCUserInfo(**decoded_userinfo)
 
-        user: m.User | None = await users_service.get_one_or_none(**userinfo.model_dump())
+        user: models.User | None = await users_service.get_one_or_none(**userinfo.model_dump())
         if user is None:
             user = await users_service.create(
-                m.User(**userinfo.model_dump()),
+                models.User(**userinfo.model_dump()),
                 auto_commit=True,
             )
         result: dict[str, Any] = {
