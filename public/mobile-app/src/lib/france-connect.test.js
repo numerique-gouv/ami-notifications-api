@@ -1,19 +1,12 @@
-import { describe, test, expect, vi } from 'vitest'
+import { describe, expect, test, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 import { franceConnectLogout } from './france-connect.js'
 
 describe('/france-connect.js', () => {
   describe('franceConnectLogout', () => {
     test('should call logout endpoint when click on France Connect logout button', async () => {
-      // Given
-      globalThis.localStorage = {
-        getItem: vi.fn().mockImplementation(() => {
-          return 'fake-id-token'
-        }),
-      }
-
       // When
-      await franceConnectLogout()
+      await franceConnectLogout('fake-id-token')
 
       // Then
       expect(globalThis.window.location).equal(
