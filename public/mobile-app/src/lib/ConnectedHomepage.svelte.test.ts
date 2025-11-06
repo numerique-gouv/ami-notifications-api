@@ -1,8 +1,13 @@
-import { describe, test, expect, vi, beforeEach } from 'vitest'
+import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
+import WS from 'vitest-websocket-mock'
 import { render, screen } from '@testing-library/svelte'
 import ConnectedHomepage from './ConnectedHomepage.svelte'
-import * as notificationsMethods from '$lib/notifications.js'
+import * as notificationsMethods from '$lib/notifications'
+import { PUBLIC_API_WS_URL } from '$lib/notifications'
+import { PUBLIC_API_URL } from '$env/static/public'
+
+let wss
 
 describe('/ConnectedHomepage.svelte', () => {
   beforeEach(() => {
@@ -34,7 +39,6 @@ describe('/ConnectedHomepage.svelte', () => {
         ...original,
         enableNotifications: vi.fn(() => Promise.resolve(registration)),
         disableNotifications: vi.fn(() => Promise.resolve()),
-        countUnreadNotifications: vi.fn().mockImplementation(() => 3),
       }
     })
 
@@ -42,6 +46,14 @@ describe('/ConnectedHomepage.svelte', () => {
     window.localStorage.setItem('user_data', 'fake-user-data')
     window.localStorage.setItem('emailLocalStorage', 'test@email.fr')
     window.localStorage.setItem('pushSubscriptionLocalStorage', '{}')
+
+    wss = new WS(
+      `${PUBLIC_API_WS_URL}/api/v1/users/3ac73f4f-4be2-456a-9c2e-ddff480d5767/notification/events/stream`
+    )
+  })
+
+  afterEach(() => {
+    wss.close()
   })
 
   test("should display user's initials on menu", async () => {
@@ -52,10 +64,53 @@ describe('/ConnectedHomepage.svelte', () => {
     // Then
     const initials = container.querySelector('.user-profile')
     expect(initials).toHaveTextContent('PAF')
+  })
+
+  test("should display user's quotient data", async () => {
+    // When
+    const { container } = render(ConnectedHomepage)
+    await new Promise(setTimeout) // wait for async calls
+
+    // Then
     const accordion = container.querySelector('#accordion-1')
     expect(accordion).toHaveTextContent('quotientinfo: { "data": { "foo": "bar" }')
+  })
+
+  test("should display user's notification count", async () => {
+    // Given
+    const spy = vi
+      .spyOn(notificationsMethods, 'countUnreadNotifications')
+      .mockImplementation(() => 3)
+
+    // When
+    const { container } = render(ConnectedHomepage)
+    await new Promise(setTimeout) // wait for async calls
+
+    // Then
+    expect(spy).toHaveBeenCalledTimes(1)
     const icon = container.querySelector('#notification-icon')
     expect(icon).toHaveTextContent('3')
+  })
+
+  test("should refresh user's notification count", async () => {
+    // Given
+    window.localStorage.setItem('user_id', '3ac73f4f-4be2-456a-9c2e-ddff480d5767')
+    const spy = vi
+      .spyOn(notificationsMethods, 'countUnreadNotifications')
+      .mockImplementationOnce(() => 3)
+      .mockImplementationOnce(() => 4)
+
+    const { container } = render(ConnectedHomepage)
+    await new Promise(setTimeout) // wait for async calls
+
+    // When
+    wss.send('ping')
+    await new Promise(setTimeout) // wait for async calls
+
+    // Then
+    expect(spy).toHaveBeenCalledTimes(2)
+    const icon = container.querySelector('#notification-icon')
+    expect(icon).toHaveTextContent('4')
   })
 
   test("should display 'Ne plus recevoir de notifications' link when notifications are enabled", async () => {

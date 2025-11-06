@@ -5,6 +5,7 @@ import {
   countUnreadNotifications,
   disableNotifications,
   enableNotifications,
+  notificationEventsSocket,
 } from '$lib/notifications'
 import { getQuotientData } from '$lib/api-particulier'
 import bankIcon from '@gouvfr/dsfr/dist/icons/buildings/bank-line.svg'
@@ -60,6 +61,9 @@ onMount(async () => {
     initials = getInitials(userinfo.given_name_array)
 
     unreadNotificationsCount = await countUnreadNotifications()
+    notificationEventsSocket(async () => {
+      unreadNotificationsCount = await countUnreadNotifications()
+    })
 
     quotientinfo = await getQuotientData()
     console.log($state.snapshot(quotientinfo))

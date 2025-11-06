@@ -1,9 +1,12 @@
 <script lang="ts">
-import { PUBLIC_API_URL } from '$env/static/public'
 import { onMount } from 'svelte'
 import { goto } from '$app/navigation'
 import { prettyDate } from '$lib/prettyDate.ts'
-import { retrieveNotifications, readNotification } from '$lib/notifications'
+import {
+  retrieveNotifications,
+  readNotification,
+  notificationEventsSocket,
+} from '$lib/notifications'
 import type { Notification } from '$lib/notifications'
 
 let isFranceConnected: boolean = $state(false)
@@ -16,12 +19,14 @@ onMount(async () => {
   }
 
   notifications = await retrieveNotifications()
+  notificationEventsSocket(async () => {
+    notifications = await retrieveNotifications()
+  })
 })
 
 const markNotificationAsRead = async (event, notificationId) => {
   event.preventDefault()
   let result = await readNotification(notificationId)
-  notifications = await retrieveNotifications()
 }
 </script>
 
