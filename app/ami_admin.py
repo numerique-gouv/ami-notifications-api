@@ -1,4 +1,5 @@
 import os
+import uuid
 from typing import Annotated, Any
 
 import httpx
@@ -9,6 +10,7 @@ from litestar import (
     Router,
     get,
 )
+from litestar.exceptions import NotFoundException
 from litestar.params import Parameter
 from litestar.response import Template
 from litestar.response.redirect import Redirect
@@ -21,7 +23,8 @@ from litestar.status_codes import (
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import ami_admin_auth
-from app.models import User
+from app.models import Notification, User
+from app.services.notification import NotificationService
 from app.services.user import UserService
 
 # This is the folder where the static files for the dsfr are stored.
@@ -165,6 +168,27 @@ async def list_users(db_session: AsyncSession) -> Template:
     )
 
 
+@get(
+    path="/test/user/{user_id: uuid}/send-notification",
+    guards=[ami_admin_auth.authenticated_guard],
+    include_in_schema=False,
+)
+async def send_notification(user_id: uuid.UUID, db_session: AsyncSession) -> Template:
+    users_service: UserService = UserService(session=db_session)
+    user = await users_service.get_one_or_none(id=user_id)
+    if user is None:
+        raise NotFoundException(detail="User not found")
+    notifications_service: NotificationService = NotificationService(session=db_session)
+    notifications = await notifications_service.list(
+        order_by=(Notification.created_at, True),
+        user=user,
+    )
+    return Template(
+        template_name="ami-admin/send-notification.html",
+        context={"user": user, "notifications": notifications, "isProConnected": True},
+    )
+
+
 def error_from_response(response: Response[str], ami_details: str | None = None) -> Response[str]:
     details = response.json()  # type: ignore[reportUnknownVariableType]
     if ami_details is not None:
@@ -187,6 +211,7 @@ ami_admin_router: Router = Router(
         logout_callback,
         logged_out,
         list_users,
+        send_notification,
         create_static_files_router(
             path="/static",
             directories=[HTML_DIR],
