@@ -118,6 +118,39 @@ async def login_callback(
     return Redirect("/ami_admin")
 
 
+@get(path="/logout", include_in_schema=False)
+async def logout(request: Request[Any, Any, Any]) -> Response[Any]:
+    if ami_admin_auth.is_not_connected(request.session):
+        return Redirect("/ami_admin")
+
+    logout_url: str = f"{PUBLIC_PRO_CONNECT_BASE_URL}{PUBLIC_PRO_CONNECT_LOGOUT_ENDPOINT}"
+    redirect_url = f"{PUBLIC_API_URL}/ami_admin/logout-callback/"
+    data: dict[str, str] = {
+        "id_token_hint": request.session.get("id_token", ""),
+        "state": "state-not-implemented-yet-and-has-more-than-32-chars",
+        "post_logout_redirect_uri": redirect_url,
+    }
+
+    # Redirect the user to ProConnect's logout service. The local session cleanup happens in `/logout-callback`.
+    return Redirect(logout_url, query_params=data)
+
+
+@get(path="/logout-callback", include_in_schema=False)
+async def logout_callback(
+    state_pro_connect: Annotated[str, Parameter(query="state")],
+    request: Request[Any, Any, Any],
+) -> Response[Any]:
+    # Local session cleanup: the user was logged out from ProConnect.
+    del request.session["userinfo"]
+    del request.session["id_token"]
+    return Redirect("/ami_admin/logged_out")
+
+
+@get(path="/logged_out", include_in_schema=False)
+async def logged_out() -> Template:
+    return Template(template_name="ami-admin/logged-out.html")
+
+
 @get(
     path="/liste-des-usagers", guards=[ami_admin_auth.authenticated_guard], include_in_schema=False
 )
@@ -150,6 +183,9 @@ ami_admin_router: Router = Router(
     route_handlers=[
         home,
         login_callback,
+        logout,
+        logout_callback,
+        logged_out,
         list_users,
         create_static_files_router(
             path="/static",

@@ -1,7 +1,11 @@
+from litestar import Litestar
+from litestar.testing import TestClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import Notification
 from tests.base import ConnectedTestClient
+
+from .utils import check_url_when_logged_out
 
 
 async def test_ami_admin_test_list_users_when_logged_in(
@@ -29,3 +33,9 @@ async def test_ami_admin_test_list_users_when_logged_in(
     response = connected_test_client.get("/ami_admin/liste-des-usagers")
     assert response.status_code == 200
     assert "<span>user@example.com, notifications envoyées: 1" in response.text
+
+
+async def test_ami_admin_test_list_users_when_logged_out(
+    test_client: TestClient[Litestar],
+) -> None:
+    await check_url_when_logged_out("/ami_admin/liste-des-usagers", test_client)
