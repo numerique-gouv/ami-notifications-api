@@ -18,6 +18,11 @@ from litestar.static_files import (
 from litestar.status_codes import (
     HTTP_500_INTERNAL_SERVER_ERROR,
 )
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app import ami_admin_auth
+from app.models import User
+from app.services.user import UserService
 
 # This is the folder where the static files for the dsfr are stored.
 HTML_DIR = "public/mobile-app/node_modules/@gouvfr"
@@ -43,7 +48,7 @@ async def home(request: Request[Any, Any, Any]) -> Template:
     return Template(
         template_name="ami-admin/base.html",
         context={
-            "isProConnected": "id_token" in request.session,
+            "isProConnected": "userinfo" in request.session and "id_token" in request.session,
             "PUBLIC_PRO_CONNECT_AMI_ADMIN_CLIENT_ID": PUBLIC_PRO_CONNECT_AMI_ADMIN_CLIENT_ID,
             "PUBLIC_PRO_CONNECT_BASE_URL": PUBLIC_PRO_CONNECT_BASE_URL,
             "PUBLIC_PRO_CONNECT_AMI_ADMIN_REDIRECT_URL": PUBLIC_PRO_CONNECT_AMI_ADMIN_REDIRECT_URL,
@@ -113,6 +118,20 @@ async def login_callback(
     return Redirect("/ami_admin")
 
 
+@get(
+    path="/liste-des-usagers", guards=[ami_admin_auth.authenticated_guard], include_in_schema=False
+)
+async def list_users(db_session: AsyncSession) -> Template:
+    users_service: UserService = UserService(session=db_session, load=[User.notifications])
+    users = await users_service.list()
+    print("users")
+    print(users)
+    return Template(
+        template_name="ami-admin/list-users.html",
+        context={"users": users, "isProConnected": True},
+    )
+
+
 def error_from_response(response: Response[str], ami_details: str | None = None) -> Response[str]:
     details = response.json()  # type: ignore[reportUnknownVariableType]
     if ami_details is not None:
@@ -131,10 +150,14 @@ ami_admin_router: Router = Router(
     route_handlers=[
         home,
         login_callback,
+        list_users,
         create_static_files_router(
             path="/static",
             directories=[HTML_DIR],
             html_mode=True,
         ),
     ],
+    exception_handlers={
+        ami_admin_auth.NotAuthenticatedException: ami_admin_auth.redirect_to_login_exception_handler
+    },
 )

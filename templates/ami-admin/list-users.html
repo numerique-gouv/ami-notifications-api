@@ -1,0 +1,32 @@
+{% extends "ami-admin/base.html" %}
+
+{% block style %}
+  {{ super() }}
+  <style>
+    nav.ami-admin-nav {
+      margin-bottom: 2rem;
+    }
+    .users--item {
+      span {
+        color: var(--text-disabled-grey);
+        font-size: 12px;
+      }
+    }
+  </style>
+{% endblock style %}
+
+{% block footer_nav_current %}test{% endblock %}
+
+{% block container %}
+  <nav class="ami-admin-nav">
+    <a href="/ami_admin" class="fr-link">
+      <span>Retour à l'accueil</span>
+    </a>
+  </nav>
+  <h2>Usagers</h2>
+  <ul class="users">
+    {% for user in users %}
+      <li class="users--item"><span>{{ user.email }}, notifications envoyées: {{ user.notifications|length }}</span></li>
+    {% endfor %}
+  </ul>
+{% endblock container %}
