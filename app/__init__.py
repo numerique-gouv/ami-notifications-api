@@ -30,6 +30,7 @@ from app.controllers.registration import RegistrationController
 from app.controllers.user import UserController
 from app.database import alchemy
 
+from .ami_admin import ami_admin_router
 from .rvo import rvo_router
 
 cors_config = CORSConfig(allow_origins=["*"])
@@ -154,6 +155,7 @@ def create_app(
                 html_mode=True,
             ),
             rvo_router,
+            ami_admin_router,
         ],
         dependencies={
             "webpush": Provide(webpush_init, use_cache=True, sync_to_thread=True),
