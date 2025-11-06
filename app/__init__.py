@@ -9,6 +9,8 @@ from litestar import (
     Response,
     get,
 )
+from litestar.channels import ChannelsPlugin
+from litestar.channels.backends.memory import MemoryChannelsBackend
 from litestar.config.cors import CORSConfig
 from litestar.contrib.jinja import JinjaTemplateEngine
 from litestar.di import Provide
@@ -160,7 +162,12 @@ def create_app(
         dependencies={
             "webpush": Provide(webpush_init, use_cache=True, sync_to_thread=True),
         },
-        plugins=[alchemy],
+        plugins=[
+            alchemy,
+            ChannelsPlugin(
+                channels=["notification_events"], backend=MemoryChannelsBackend(history=0)
+            ),
+        ],
         template_config=TemplateConfig(directory=Path("templates"), engine=JinjaTemplateEngine),
         cors_config=cors_config,
         middleware=[session_config.middleware],
