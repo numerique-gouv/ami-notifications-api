@@ -8,10 +8,10 @@ import {
   retrieveNotifications,
   subscribePush,
   unsubscribePush,
-} from '$lib/notifications.ts'
+} from '$lib/notifications'
 import * as registrationMethods from '$lib/registration.js'
 
-describe('/notifications.ts', () => {
+describe('/notifications', () => {
   afterEach(() => {
     window.localStorage.clear()
   })

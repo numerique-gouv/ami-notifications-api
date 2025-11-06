@@ -5,6 +5,7 @@ from typing import Any
 
 import pytest
 from litestar import Litestar
+from litestar.exceptions import WebSocketDisconnect
 from litestar.status_codes import (
     HTTP_200_OK,
     HTTP_201_CREATED,
@@ -442,6 +443,95 @@ async def test_read_notification(
     assert response.json()["title"] == notification.title
     assert response.json()["sender"] == notification.sender
     assert response.json()["unread"] is True
+
+
+async def test_stream_notification_events_user_does_not_exist(
+    test_client: TestClient[Litestar],
+) -> None:
+    with pytest.raises(WebSocketDisconnect):
+        with test_client.websocket_connect(
+            f"/api/v1/users/{uuid.uuid4()}/notification/events/stream"
+        ):
+            # When the user doesn't exist socket is immediately closed
+            pass
+
+
+async def test_stream_notification_events_created(
+    test_client: TestClient[Litestar],
+    db_session: AsyncSession,
+    user: User,
+) -> None:
+    all_notifications = (await db_session.execute(select(Notification))).scalars().all()
+    assert len(all_notifications) == 0
+
+    with test_client.websocket_connect(f"/api/v1/users/{user.id}/notification/events/stream") as ws:
+        try:
+            # create a notification
+            notification_data = {
+                "user_id": str(user.id),
+                "message": "Hello notification",
+                "title": "Some notification title",
+                "sender": "Jane Doe",
+            }
+            response = test_client.post("/api/v1/notifications", json=notification_data)
+            assert response.status_code == HTTP_201_CREATED
+            all_notifications = (await db_session.execute(select(Notification))).scalars().all()
+            assert len(all_notifications) == 1
+            notification = all_notifications[0]
+
+            # notification event is streamed
+            message = ws.receive_json()
+            assert message == {
+                "id": str(notification.id),
+                "user_id": str(user.id),
+                "event": "created",
+            }
+        finally:
+            ws.send_text("close")
+
+
+async def test_stream_notification_events_updated(
+    test_client: TestClient[Litestar],
+    db_session: AsyncSession,
+    user: User,
+    notification: Notification,
+) -> None:
+    all_notifications = (await db_session.execute(select(Notification))).scalars().all()
+    assert len(all_notifications) == 1
+
+    with test_client.websocket_connect(f"/api/v1/users/{user.id}/notification/events/stream") as ws:
+        try:
+            # create a notification for another user
+            other_user = User(
+                email="other-user@example.com", family_name="AMI", given_name="Other Test User"
+            )
+            db_session.add(other_user)
+            await db_session.commit()
+            notification_data = {
+                "user_id": str(other_user.id),
+                "message": "Hello other notification",
+                "title": "Some notification title",
+                "sender": "Jane Doe",
+            }
+            response = test_client.post("/api/v1/notifications", json=notification_data)
+            assert response.status_code == HTTP_201_CREATED
+
+            # mark user notification as read
+            response = test_client.patch(
+                f"/api/v1/users/{notification.user.id}/notification/{notification.id}/read",
+                json={"read": True},
+            )
+            assert response.status_code == HTTP_200_OK
+
+            # only read notification event is streamed: other user notification had no effect for this socket
+            message = ws.receive_json()
+            assert message == {
+                "id": str(notification.id),
+                "user_id": str(user.id),
+                "event": "updated",
+            }
+        finally:
+            ws.send_text("close")
 
 
 async def test_list_registrations_user_does_not_exist(

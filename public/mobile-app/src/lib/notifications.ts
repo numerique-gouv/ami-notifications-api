@@ -1,6 +1,11 @@
 import { PUBLIC_API_URL } from '$env/static/public'
 import { registerDevice, unregisterDevice } from '$lib/registration.js'
 
+export const PUBLIC_API_WS_URL = PUBLIC_API_URL.replace('https://', 'wss://').replace(
+  'http://',
+  'ws://'
+)
+
 export type Notification = {
   id: string
   created_at: Date
@@ -71,6 +76,16 @@ export const readNotification = async (
     } catch (error) {
       console.error(error)
     }
+  }
+}
+
+export const notificationEventsSocket = (onmessage) => {
+  const userId = localStorage.getItem('user_id')
+  if (userId) {
+    const ws = new WebSocket(
+      `${PUBLIC_API_WS_URL}/api/v1/users/${userId}/notification/events/stream`
+    )
+    ws.onmessage = onmessage
   }
 }
 

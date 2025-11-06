@@ -1,12 +1,13 @@
 import json
 import uuid
 from collections.abc import Sequence
-from typing import Annotated, cast
+from typing import Annotated, Any, cast
 
 import httpx
 from advanced_alchemy.extensions.litestar import providers
-from litestar import Controller, get, patch, post
-from litestar.exceptions import NotFoundException
+from litestar import Controller, WebSocket, get, patch, post, websocket
+from litestar.channels import ChannelsPlugin
+from litestar.exceptions import NotFoundException, WebSocketDisconnect
 from litestar.params import Body
 from pydantic import TypeAdapter
 from webpush import WebPush, WebPushSubscription
@@ -32,6 +33,7 @@ class NotificationController(Controller):
     @post("/api/v1/notifications", return_dto=None)
     async def notify(
         self,
+        channels: ChannelsPlugin,
         notifications_service: NotificationService,
         users_with_registrations_service: UserService,
         webpush: WebPush,
@@ -68,6 +70,14 @@ class NotificationController(Controller):
             models.Notification(**data.model_dump()),
             auto_commit=True,
         )
+        channels.publish(  # type: ignore
+            {
+                "user_id": str(user.id),
+                "id": str(notification.id),
+                "event": schemas.NotificationEvent.CREATED,
+            },
+            "notification_events",
+        )
         return notifications_service.to_schema(notification, schema_type=schemas.Notification)
 
     @get("/api/v1/users/{user_id:uuid}/notifications")
@@ -102,6 +112,7 @@ class NotificationController(Controller):
     @patch("/api/v1/users/{user_id:uuid}/notification/{notification_id:uuid}/read")
     async def read_notification(
         self,
+        channels: ChannelsPlugin,
         notifications_service: NotificationService,
         users_service: UserService,
         user_id: uuid.UUID,
@@ -127,4 +138,49 @@ class NotificationController(Controller):
             notification,
             auto_commit=True,
         )
+        channels.publish(  # type: ignore
+            {
+                "user_id": str(user.id),
+                "id": str(notification.id),
+                "event": schemas.NotificationEvent.UPDATED,
+            },
+            "notification_events",
+        )
         return notifications_service.to_schema(notification, schema_type=schemas.Notification)
+
+    @websocket("/api/v1/users/{user_id:uuid}/notification/events/stream")
+    async def stream_notification_events(
+        self,
+        socket: WebSocket[Any, Any, Any],
+        channels: ChannelsPlugin,
+        users_service: UserService,
+        user_id: uuid.UUID,
+    ) -> None:
+        user: models.User | None = await users_service.get_one_or_none(id=user_id)
+        if user is None:
+            await socket.close()
+            return
+
+        async def _sender(message: str) -> None:
+            data = json.loads(message)
+            if data["user_id"] != str(user_id):
+                return
+            await socket.send_json(data)
+
+        await socket.accept()
+
+        # then listen for notification events
+        async with (
+            channels.start_subscription(["notification_events"]) as subscriber,
+            subscriber.run_in_background(_sender),  # type:ignore
+        ):
+            while True:
+                try:
+                    message = await socket.receive_text()
+                    if message == "close":
+                        # XXX this is for tests
+                        await socket.close()
+                        return
+                except WebSocketDisconnect:
+                    # if the socket is closed, avoid exception trace
+                    return

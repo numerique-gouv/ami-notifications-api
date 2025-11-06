@@ -1,5 +1,6 @@
 import datetime
 import uuid
+from enum import Enum
 from typing import Any
 
 from pydantic import BaseModel as PydanticBaseModel
@@ -41,6 +42,12 @@ class NotificationCreate(BaseModel):
 
 class NotificationRead(BaseModel):
     read: bool
+
+
+class NotificationEvent(Enum):
+    CREATED = "created"
+    UPDATED = "updated"
+    DELETED = "deleted"
 
 
 class Registration(BaseModel):
