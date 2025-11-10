@@ -249,3 +249,7 @@ We now use a
 [proxy](https://ami-fc-proxy-dev.osc-fr1.scalingo.io/)
 through the configuration of the `FC_PROXY` env variable in the `.env` file, so
 none of that is needed anymore, it's all been configured once and for all.
+
+# Architectural diagram
+
+![AMI architectural diagram]( AMI-technical%20architecture.excalidraw.svg)
