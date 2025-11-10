@@ -1,25 +1,35 @@
+<script lang="ts">
+let { currentItem } = $props()
+let current = {
+  home: currentItem == 'home',
+  agenda: currentItem == 'agenda',
+  lists: currentItem == 'lists',
+  requests: currentItem == 'requests',
+}
+</script>
+
 <nav class="menu-footer" aria-label="Menu principal">
   <ul class="menu-list">
     <li class="menu__item">
-      <a class="menu__link highlight" href="/" aria-current="true">
+        <a class="menu__link {current.home ? 'highlight': ''}" href="/" aria-current="{current.home ? 'true': ''}">
         <img src="/remixicons/home-4-fill.svg" alt="Icône d'accueil" />
         <span>Accueil</span>
       </a>
     </li>
     <li class="menu__item">
-      <a class="menu__link" href="/">
+      <a class="menu__link {current.agenda ? 'highlight': ''}" href="/" aria-current="{current.agenda ? 'true': ''}">
         <img src="/remixicons/calendar-event-line.svg" alt="Icône de calendrier" />
         <span>Agenda</span>
       </a>
     </li>
     <li class="menu__item">
-      <a class="menu__link" href="/">
+      <a class="menu__link {current.lists ? 'highlight': ''}" href="/" aria-current="{current.lists ? 'true': ''}">
         <img src="/remixicons/list-check.svg" alt="Icône de listes" />
         <span>Listes</span>
       </a>
     </li>
     <li class="menu__item">
-      <a class="menu__link" href="/">
+      <a class="menu__link {current.requests ? 'highlight': ''}" href="/" aria-current="{current.requests ? 'true': ''}">
         <img src="/remixicons/edit-line.svg" alt="Icône de demandes" />
         <span>Demandes</span>
       </a>
