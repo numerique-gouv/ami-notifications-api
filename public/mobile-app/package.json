@@ -44,6 +44,7 @@
   },
   "devDependencies": {
     "@cucumber/cucumber": "^12.1.0",
+    "cucumber-js": "^1.0.0",
     "@vitejs/plugin-basic-ssl": "^2.1.0"
   }
 }
