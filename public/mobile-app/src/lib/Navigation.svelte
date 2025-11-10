@@ -17,7 +17,7 @@ let current = {
       </a>
     </li>
     <li class="menu__item">
-      <a class="menu__link {current.agenda ? 'highlight': ''}" href="/" aria-current="{current.agenda ? 'true': ''}">
+      <a class="menu__link {current.agenda ? 'highlight': ''}" href="/#/agenda" aria-current="{current.agenda ? 'true': ''}">
         <img src="/remixicons/calendar-event-line.svg" alt="Icône de calendrier" />
         <span>Agenda</span>
       </a>
