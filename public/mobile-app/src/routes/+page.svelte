@@ -119,7 +119,7 @@ function dismissNotice() {
     </div>
   </div>
 {:else}
-  <Navigation />
+  <Navigation currentItem="home" />
   <ConnectedHomepage />
 {/if}
 </div>
