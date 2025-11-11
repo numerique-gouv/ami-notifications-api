@@ -8,7 +8,7 @@ export const getQuotientData = async () => {
     const quotient_endpoint_headers = {
       Authorization: `${token_type} ${access_token}`,
     }
-    const response = await fetch(`${PUBLIC_API_URL}/api-particulier/quotient`, {
+    const response = await fetch(`${PUBLIC_API_URL}/data/api-particulier/quotient`, {
       headers: quotient_endpoint_headers,
     })
     quotientData = await response.text()
