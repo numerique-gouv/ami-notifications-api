@@ -1,3 +1,5 @@
+import os
+import time
 from collections.abc import AsyncGenerator, Iterator
 from typing import Any
 
@@ -86,6 +88,8 @@ async def app() -> Litestar:
 
 @pytest.fixture
 def test_client(app: Litestar) -> Iterator[TestClient]:
+    os.environ["TZ"] = "Europe/Paris"
+    time.tzset()
     with TestClient(app=app, session_config=session_config) as client:
         yield client
 

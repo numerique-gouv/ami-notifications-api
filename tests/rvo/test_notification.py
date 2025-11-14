@@ -85,6 +85,26 @@ async def test_rvo_test_send_notification_when_logged_in(
     assert response.text.index("Hello notification1") < response.text.index("Hello notification2")
 
 
+async def test_rvo_test_send_notification_localtime(
+    db_session: AsyncSession,
+    connected_test_client: ConnectedTestClient,
+) -> None:
+    connected_user = connected_test_client.user
+    notification = Notification(
+        user_id=str(connected_user.id),
+        message="Hello notification2",
+        title="Notification title",
+        sender="John Doe",
+        created_at=datetime.datetime(2025, 11, 14, 11, 0, 0, tzinfo=datetime.timezone.utc),
+    )
+    db_session.add(notification)
+    await db_session.commit()
+
+    response = connected_test_client.get(f"/rvo/test/user/{connected_user.id}/send-notification")
+    assert response.status_code == 200
+    assert "envoyé par: John Doe, le 14/11/2025 12:00:00" in response.text
+
+
 async def test_rvo_test_send_notification_when_logged_out(
     test_client: TestClient[Litestar],
 ) -> None:
