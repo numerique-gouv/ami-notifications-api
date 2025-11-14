@@ -62,7 +62,7 @@ async def test_ami_admin_logout(
     response = connected_test_client.get("/ami_admin/logout", follow_redirects=False)
     assert response.status_code == 302
     assert response.headers["location"] == url
-    # Session data is still present, so if logging out from FC failed, the user can try again.
+    # Session data is still present, so if logging out from PC failed, the user can try again.
     assert connected_test_client.get_session_data() == {
         "id_token": "fake id token",
         "userinfo": connected_test_client.userinfo,
@@ -76,6 +76,6 @@ async def test_ami_admin_logout_callback(
         "/ami_admin/logout-callback?state=fake-state", follow_redirects=False
     )
     assert response.status_code == 302
-    # As the user was properly logged out from FC, the local session is now emptied, and the user redirected to the fake service provider.
+    # As the user was properly logged out from PC, the local session is now emptied, and the user redirected to the fake service provider.
     assert response.headers["location"] == "/ami_admin/logged_out"
     assert connected_test_client.get_session_data() == {}
