@@ -160,8 +160,6 @@ async def logged_out() -> Template:
 async def list_users(db_session: AsyncSession) -> Template:
     users_service: UserService = UserService(session=db_session, load=[User.notifications])
     users = await users_service.list()
-    print("users")
-    print(users)
     return Template(
         template_name="ami-admin/list-users.html",
         context={"users": users, "isProConnected": True},
