@@ -250,6 +250,23 @@ We now use a
 through the configuration of the `FC_PROXY` env variable in the `.env` file, so
 none of that is needed anymore, it's all been configured once and for all.
 
+## Pro Connect
+
+We're using [Pro Connect](https://partenaires.proconnect.gouv.fr/docs)
+to identify and authorize users in the AMI admin. During development and on the CI, we have a
+sandbox available, with the URLs and Client ID specified in the `.env` file,
+and the secrets need to be specified in the `.env.local`.
+
+The Client Secret however, is... well, secret, and is available on the sandbox
+[partner's page](https://partenaires.proconnect.gouv.fr/login).
+
+You'll need to request access to this partner's page and/or ask us for the
+Client Secret before being able to Pro Connect locally while developping.
+
+### Creating a PR with access to the PC service
+
+You'll need to add the `PRO_CONNECT_AMI_ADMIN_CLIENT_SECRET` and the `PUBLIC_PRO_CONNECT_AMI_ADMIN_REDIRECT_URL` env variables in the review-app environment on Scalingo.
+
 # Architectural diagram
 
 ![AMI architectural diagram]( AMI-technical%20architecture.excalidraw.svg)
