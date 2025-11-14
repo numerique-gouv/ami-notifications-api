@@ -50,21 +50,15 @@ describe('/registration.js', () => {
           status: 204,
         })
       )
-      const consoleMock = vi.spyOn(console, 'log')
 
       // When
-      await unregisterDevice()
+      const responseStatus = await unregisterDevice()
 
       // Then
-      expect(consoleMock).toHaveBeenCalledTimes(2)
-      expect(consoleMock).toHaveBeenNthCalledWith(1, 'response:', { status: 204 })
-      expect(consoleMock).toHaveBeenNthCalledWith(
-        2,
-        'The device has been deleted successfully'
-      )
+      expect(responseStatus).toEqual(204)
     })
 
-    test('should call delete registrations endpoint from API and log error when response status is not 204', async () => {
+    test('should call delete registrations endpoint from API and return error status when deletion failed', async () => {
       // Given
       globalThis.fetch = vi.fn(() =>
         Promise.resolve({
@@ -76,19 +70,10 @@ describe('/registration.js', () => {
       const consoleMock = vi.spyOn(console, 'log')
 
       // When
-      await unregisterDevice()
+      const responseStatus = await unregisterDevice()
 
       // Then
-      expect(consoleMock).toHaveBeenCalledTimes(2)
-      expect(consoleMock).toHaveBeenNthCalledWith(1, 'response:', {
-        status: 400,
-        statusText: 'fake status text',
-        body: 'fake body',
-      })
-      expect(consoleMock).toHaveBeenNthCalledWith(
-        2,
-        'error 400: fake status text, fake body'
-      )
+      expect(responseStatus).toEqual(400)
     })
   })
 })

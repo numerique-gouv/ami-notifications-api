@@ -49,4 +49,5 @@ export const unregisterDevice = async (registrationId) => {
   } else {
     console.log(`error ${response.status}: ${response.statusText}, ${response.body}`)
   }
+  return response.status
 }
