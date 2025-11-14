@@ -110,6 +110,7 @@ export const unsubscribePush = async (pushSubscription) => {
     } else {
       console.log('failed to unsubscribe to the push manager')
     }
+    return hasUnsubscribed
   } catch (error) {
     console.error(error)
   }
@@ -122,6 +123,7 @@ export const disableNotifications = async (registrationId) => {
     console.log(
       'No notification: missing permission or missing service worker registration'
     )
+    return false
   } else {
     const pushSubscription = await registration.pushManager.getSubscription()
     if (pushSubscription) {
@@ -129,6 +131,7 @@ export const disableNotifications = async (registrationId) => {
       await unregisterDevice(registrationId)
       await unsubscribePush(pushSubscription)
     }
+    return pushSubscription
   }
 }
 
