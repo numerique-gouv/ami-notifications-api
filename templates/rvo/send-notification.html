@@ -62,7 +62,7 @@
     <h3>Historique des notifications</h3>
     <ul class="notifications">
       {% for notification in notifications %}
-        <li class="notifications--item">#{{ notification.id }} {{ notification.title }} - {{ notification.message }} <span>envoyé par: {{ notification.sender }}, le {{ notification.created_at.strftime('%d/%m/%Y %H:%M:%S') }}</span></li>
+        <li class="notifications--item">#{{ notification.id }} {{ notification.title }} - {{ notification.message }} <span>envoyé par: {{ notification.sender }}, le {{ notification.created_at.astimezone().strftime('%d/%m/%Y %H:%M:%S') }}</span></li>
       {% endfor %}
     </ul>
   {% endif %}
