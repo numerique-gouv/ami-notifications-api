@@ -1,5 +1,5 @@
 import { PUBLIC_API_URL } from '$env/static/public'
-import { subscribePush } from '$lib/notifications.ts'
+import { subscribePush } from '$lib/notifications'
 
 export const registerDevice = async (pushSubscription) => {
   const pushSubURL = pushSubscription.endpoint
