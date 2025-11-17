@@ -50,6 +50,25 @@ sentry_sdk.init(
 # ### VIEWS
 
 
+@get(path="/login-france-connect", include_in_schema=False)
+async def login_france_connect() -> Response[Any]:
+    NONCE = "not-implemented-yet-and-has-more-than-32-chars"
+
+    params = {
+        "scope": "openid identite_pivot preferred_username email cnaf_quotient_familial",
+        "redirect_uri": env.PUBLIC_FC_PROXY or env.PUBLIC_FC_AMI_REDIRECT_URL,
+        "response_type": "code",
+        "client_id": env.PUBLIC_FC_AMI_CLIENT_ID,
+        "state": env.PUBLIC_FC_AMI_REDIRECT_URL,
+        "nonce": NONCE,
+        "acr_values": "eidas1",
+        "prompt": "login",
+    }
+
+    login_url = f"{env.PUBLIC_FC_BASE_URL}{env.PUBLIC_FC_AUTHORIZATION_ENDPOINT}"
+    return Redirect(login_url, query_params=params)
+
+
 @get(path="/login-callback", include_in_schema=False)
 async def login_callback(
     code: str,
@@ -148,6 +167,7 @@ def create_app(
             RegistrationController,
             NotificationController,
             UserController,
+            login_france_connect,
             login_callback,
             get_api_particulier_quotient,
             get_sector_identifier_url,

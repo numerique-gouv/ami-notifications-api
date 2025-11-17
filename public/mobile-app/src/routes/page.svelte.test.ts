@@ -2,10 +2,7 @@ import { describe, test, expect, vi, beforeEach } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 import { render, screen } from '@testing-library/svelte'
 import Page from './+page.svelte'
-import {
-  PUBLIC_FC_BASE_URL,
-  PUBLIC_FC_AUTHORIZATION_ENDPOINT,
-} from '$env/static/public'
+import { PUBLIC_API_URL } from '$env/static/public'
 
 describe('/+page.svelte', () => {
   let userinfo
@@ -61,7 +58,7 @@ describe('/+page.svelte', () => {
     await franceConnectLoginButton.click()
 
     // Then
-    expect(globalThis.window.location.href).toContain(PUBLIC_FC_BASE_URL)
-    expect(globalThis.window.location.href).toContain(PUBLIC_FC_AUTHORIZATION_ENDPOINT)
+    expect(globalThis.window.location.href).toContain(PUBLIC_API_URL)
+    expect(globalThis.window.location.href).toContain('login-france-connect')
   })
 })

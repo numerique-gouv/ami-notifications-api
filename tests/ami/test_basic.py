@@ -18,7 +18,9 @@ from pytest_httpx import HTTPXMock
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app import env
 from app.models import Notification, Registration, User
+from tests.utils import url_contains_param
 
 
 async def test_register_user_does_not_exist(
@@ -556,6 +558,33 @@ async def test_list_registrations(
     assert response.json()[0]["created_at"] == registration.created_at.isoformat().replace(
         "+00:00", "Z"
     )
+
+
+async def test_login_france_connect(
+    test_client: TestClient[Litestar],
+) -> None:
+    response = test_client.get("/login-france-connect", follow_redirects=False)
+    assert response.status_code == 302
+    redirected_url = response.headers["location"]
+    assert redirected_url.startswith(
+        f"{env.PUBLIC_FC_BASE_URL}{env.PUBLIC_FC_AUTHORIZATION_ENDPOINT}"
+    )
+    assert url_contains_param(
+        "scope",
+        "openid identite_pivot preferred_username email cnaf_quotient_familial",
+        redirected_url,
+    )
+    assert url_contains_param(
+        "redirect_uri", env.PUBLIC_FC_PROXY or env.PUBLIC_FC_AMI_REDIRECT_URL, redirected_url
+    )
+    assert url_contains_param("response_type", "code", redirected_url)
+    assert url_contains_param("client_id", env.PUBLIC_FC_AMI_CLIENT_ID, redirected_url)
+    assert url_contains_param("state", env.PUBLIC_FC_AMI_REDIRECT_URL, redirected_url)
+    assert url_contains_param(
+        "nonce", "not-implemented-yet-and-has-more-than-32-chars", redirected_url
+    )
+    assert url_contains_param("acr_values", "eidas1", redirected_url)
+    assert url_contains_param("prompt", "login", redirected_url)
 
 
 async def test_login_callback(

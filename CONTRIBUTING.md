@@ -221,9 +221,21 @@ Client Secret before being able to France Connect locally while developping.
 At the moment, France Connect is only used in a "test Service provider"
 scenario:
 
-### The test Service Provider scenario
+### AMI as a Service Provider
 
 - the France Connect button is displayed in the mobile app/PWA
+- clicking on it will start the France connection, by redirecting to the AMI
+backend, which will then redirect to the France Connect service
+- check the [FC demo users](https://github.com/france-connect/sources/blob/main/docker/volumes/fcp-low/mocks/idp/databases/citizen/base.csv)
+for some demo credentials
+- at the end of the connection, if successful, the user will be redirected to
+the AMI backend with the FC auth code, which it'll use to get the user auth
+token, which in turn will allow retrieving the user information from FC, which
+will finally be returned to the mobile app through a redirection.
+
+### The test Service Provider scenario: Rendez-Vous Officiel (RVO)
+
+- the France Connect button is displayed on `/rvo`
 - clicking on it will start the France connection, by redirecting to the France
 Connect service
 - check the [FC demo users](https://github.com/france-connect/sources/blob/main/docker/volumes/fcp-low/mocks/idp/databases/citizen/base.csv)
@@ -231,9 +243,14 @@ for some demo credentials
 - at the end of the connection, if successful, the user will be redirected to
 the test service provider (on the backend) with the FC auth code, which it'll
 use to get the user auth token, which in turn will allow retrieving the user
-information from FC, which will finally be stored on the session in the backend,
-making it available to query from the mobile app using the `/api/v1/userinfo`
-endpoint.
+information from FC, which will finally be stored on the session in the backend.
+
+### NONCE for FranceConnect
+
+The NONCE used for FranceConnect will be built this way:
+- get a uuid4 (for randomness and high confidence of uniqueness)
+- concatenate it with the curent timestamp (for sequentiality)
+- base64 encode it
 
 ### Creating a PR with access to the FC service
 
