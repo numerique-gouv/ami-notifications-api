@@ -161,14 +161,14 @@ const logout = async () => {
     </div>
   </div>
 
-  <div class="rubrique-container qr-code-scan-container">
+  <div class="rubrique-container first-block-container">
     <div class="rubrique-content-container">
       <div class="fr-tile fr-tile-sm fr-tile--horizontal fr-enlarge-link">
         <div class="fr-tile__body">
           <div class="fr-tile__content">
-            <img class="qr-code-icon" src="/remixicons/qr-code.svg" alt="Icône de QR code" />
+            <img class="qr-code-icon" src="/icons/house.svg" alt="Icône de maison" />
             <h3 class="fr-tile__title">
-              <a href="/">Scanner le QR code d'un service partenaire</a>
+              <a href="/"><strong>Gagner du temps</strong> en <strong>renseignant votre adresse</strong> une seule fois</a>
             </h3>
           </div>
         </div>
@@ -360,7 +360,7 @@ const logout = async () => {
       }
     }
 
-    .qr-code-scan-container {
+    .first-block-container {
       .fr-tile {
         background-color: var(--blue-france-950-100);
 
@@ -379,8 +379,12 @@ const logout = async () => {
             a {
               color: var(--grey-50-1000);
               font-size: 16px;
-              font-weight: 500;
+              font-weight: 400;
               line-height: 24px;
+
+              &::after {
+                color: var(--blue-france-sun-113-625);
+              }
             }
           }
         }
