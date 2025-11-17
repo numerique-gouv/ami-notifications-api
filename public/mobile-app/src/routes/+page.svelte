@@ -56,23 +56,7 @@ onMount(async () => {
 
 // FC - Step 3
 const franceConnectLogin = async () => {
-  const NONCE = 'not-implemented-yet-and-has-more-than-32-chars'
-
-  const query = {
-    scope: 'openid identite_pivot preferred_username email cnaf_quotient_familial',
-    redirect_uri: PUBLIC_FC_PROXY || PUBLIC_FC_AMI_REDIRECT_URL,
-    response_type: 'code',
-    client_id: PUBLIC_FC_AMI_CLIENT_ID,
-    state: PUBLIC_FC_AMI_REDIRECT_URL,
-    nonce: NONCE,
-    acr_values: 'eidas1',
-    prompt: 'login',
-  }
-
-  const url = `${PUBLIC_FC_BASE_URL}${PUBLIC_FC_AUTHORIZATION_ENDPOINT}`
-  const params = new URLSearchParams(query).toString()
-
-  window.location.href = `${url}?${params}`
+  window.location.href = `${PUBLIC_API_URL}/login-france-connect`
 }
 
 function dismissNotice() {
