@@ -168,7 +168,7 @@ const logout = async () => {
           <div class="fr-tile__content">
             <img class="qr-code-icon" src="/icons/house.svg" alt="Icône de maison" />
             <h3 class="fr-tile__title">
-              <a href="/"><strong>Gagner du temps</strong> en <strong>renseignant votre adresse</strong> une seule fois</a>
+              <a href="/#/adresse"><strong>Gagner du temps</strong> en <strong>renseignant votre adresse</strong> une seule fois</a>
             </h3>
           </div>
         </div>
