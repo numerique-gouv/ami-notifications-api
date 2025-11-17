@@ -164,7 +164,7 @@ const clickLogout = async () => {
           <div class="fr-tile__content">
             <img class="address-icon" src="/remixicons/house.svg" alt="Icône adresse" />
             <h3 class="fr-tile__title">
-              <a href="/"><b>Gagnez du temps</b> en <b>renseignant votre adresse</b> une seule fois !</a>
+              <a href="/#/adresse"><b>Gagnez du temps</b> en <b>renseignant votre adresse</b> une seule fois !</a>
             </h3>
           </div>
         </div>
