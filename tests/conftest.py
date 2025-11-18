@@ -154,3 +154,8 @@ async def userinfo() -> dict[str, Any]:
         "iat": 1753877598,
         "iss": "https://fcp-low.sbx.dev-franceconnect.fr/api/v2",
     }
+
+
+@pytest.fixture
+async def jwt_encoded_userinfo() -> str:
+    return '"eyJhbGciOiJFUzI1NiIsImtpZCI6InBrY3MxMTpFUzI1Njpoc20ifQ.eyJzdWIiOiI0Y2U0ZjBjY2Y1Nzc1NjAyYTUyNGIzZjA2OTY2ODM0NTlhOTgwMmQyYmM0NGEzNDI2M2M4ZTMzZmRhZjUxNTM2djEiLCJnaXZlbl9uYW1lIjoiQW5nZWxhIENsYWlyZSBMb3Vpc2UiLCJnaXZlbl9uYW1lX2FycmF5IjpbIkFuZ2VsYSIsIkNsYWlyZSIsIkxvdWlzZSJdLCJmYW1pbHlfbmFtZSI6IkRVQk9JUyIsImJpcnRoZGF0ZSI6IjE5NjItMDgtMjQiLCJnZW5kZXIiOiJmZW1hbGUiLCJiaXJ0aHBsYWNlIjoiNzUxMDciLCJiaXJ0aGNvdW50cnkiOiI5OTEwMCIsImVtYWlsIjoid29zc2V3b2RkYS0zNzI4QHlvcG1haWwuY29tIiwiYXVkIjoiZmI5NjE1Mjk0Yzc0NjE0NWVkZDg1N2I0ZWRiZWI0OTk2ZTMxNmFlMTcxMmVkMmJiMzYxMTUwYTFlNmNkOGM2ZiIsImV4cCI6MTc2MzQ3NDgyMiwiaWF0IjoxNzYzNDc0NzYyLCJpc3MiOiJodHRwczovL2ZjcC1sb3cuc2J4LmRldi1mcmFuY2Vjb25uZWN0LmZyL2FwaS92MiJ9.c-pqPyDy4UZTR4gq8Bh93hdKkY_iUREHfptt-0X-L5-ABQnYOblfNMjvUFLvTVltbOy-KJh85DOHpTVdrX7j1Q"'
