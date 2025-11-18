@@ -40,7 +40,7 @@ from app.utils import retry_fc_later
 
 from .ami_admin import ami_admin_router
 from .data.routes import data_router
-from .rvo import rvo_router
+from .rvo.routes import router as rvo_router
 
 cors_config = CORSConfig(allow_origins=["*"])
 session_config = ServerSideSessionConfig()

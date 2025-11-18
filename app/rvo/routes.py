@@ -22,9 +22,10 @@ from litestar.status_codes import (
 )
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app import env, rvo_auth
+from app import env
 from app.httpx import httpxClient
 from app.models import Notification, User
+from app.rvo import auth
 from app.services.notification import NotificationService
 from app.services.user import UserService
 
@@ -211,7 +212,7 @@ async def login_callback(
 
 @get(path="/logout", include_in_schema=False)
 async def logout(request: Request[Any, Any, Any]) -> Response[Any]:
-    if rvo_auth.is_not_connected(request.session):
+    if auth.is_not_connected(request.session):
         return Redirect("/rvo")
 
     logout_url: str = f"{PUBLIC_FC_BASE_URL}{PUBLIC_FC_LOGOUT_ENDPOINT}"
@@ -235,7 +236,7 @@ async def logged_out() -> Template:
     return Template(template_name="rvo/logged-out.html")
 
 
-@get(path="/test", guards=[rvo_auth.authenticated_guard], include_in_schema=False)
+@get(path="/test", guards=[auth.authenticated_guard], include_in_schema=False)
 async def list_users(db_session: AsyncSession) -> Template:
     users_service: UserService = UserService(session=db_session, load=[User.notifications])
     users = await users_service.list()
@@ -247,7 +248,7 @@ async def list_users(db_session: AsyncSession) -> Template:
 
 @get(
     path="/test/user/{user_id: uuid}/send-notification",
-    guards=[rvo_auth.authenticated_guard],
+    guards=[auth.authenticated_guard],
     include_in_schema=False,
 )
 async def send_notification(user_id: uuid.UUID, db_session: AsyncSession) -> Template:
@@ -266,9 +267,7 @@ async def send_notification(user_id: uuid.UUID, db_session: AsyncSession) -> Tem
     )
 
 
-@get(
-    path="/detail/{detail_id: str}", guards=[rvo_auth.authenticated_guard], include_in_schema=False
-)
+@get(path="/detail/{detail_id: str}", guards=[auth.authenticated_guard], include_in_schema=False)
 async def detail(detail_id: str) -> Response[Any] | Template:
     meeting_list: dict[str, dict[str, str]] = {meeting["id"]: meeting for meeting in MEETING_LIST}
     if detail_id not in meeting_list:
@@ -298,7 +297,7 @@ def error_from_message(
     return Response(message, status_code=status_code)
 
 
-rvo_router: Router = Router(
+router: Router = Router(
     path="/rvo",
     route_handlers=[
         home,
@@ -315,7 +314,5 @@ rvo_router: Router = Router(
             html_mode=True,
         ),
     ],
-    exception_handlers={
-        rvo_auth.NotAuthenticatedException: rvo_auth.redirect_to_login_exception_handler
-    },
+    exception_handlers={auth.NotAuthenticatedException: auth.redirect_to_login_exception_handler},
 )
