@@ -1,4 +1,5 @@
 import datetime
+import uuid
 from typing import Any
 
 from advanced_alchemy.base import UUIDAuditBase
@@ -30,7 +31,7 @@ class User(Base):
 class Registration(Base):
     __tablename__ = "registration"  # type: ignore
 
-    user_id: Mapped[int] = mapped_column(ForeignKey("ami_user.id"))
+    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("ami_user.id"))
     user: Mapped[User] = relationship(back_populates="registrations")
     subscription: Mapped[dict[str, Any]] = mapped_column(JsonB, nullable=True)
 
@@ -38,7 +39,7 @@ class Registration(Base):
 class Notification(Base):
     __tablename__ = "notification"  # type: ignore
 
-    user_id: Mapped[int] = mapped_column(ForeignKey("ami_user.id"))
+    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("ami_user.id"))
     user: Mapped[User] = relationship(back_populates="notifications")
     message: Mapped[str]
     sender: Mapped[str | None]
