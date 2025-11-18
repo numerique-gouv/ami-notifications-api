@@ -19,7 +19,8 @@ from pytest_httpx import HTTPXMock
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app import env, generate_nonce
+from app import env
+from app.auth import generate_nonce
 from app.models import Notification, Registration, User
 from tests.utils import url_contains_param
 
@@ -570,8 +571,8 @@ async def test_generate_nonce(monkeypatch: pytest.MonkeyPatch) -> None:
         def now(cls, tz: datetime.tzinfo | None = datetime.timezone.utc):
             return FAKE_TIME
 
-    monkeypatch.setattr("app.uuid4", lambda: FAKE_UUID)
-    monkeypatch.setattr("app.datetime.datetime", mock_datetime)
+    monkeypatch.setattr("app.auth.uuid4", lambda: FAKE_UUID)
+    monkeypatch.setattr("app.auth.datetime.datetime", mock_datetime)
     assert generate_nonce() == urlsafe_b64encode(f"{FAKE_UUID}-{FAKE_TIME}".encode("utf8")).decode(
         "utf8"
     )
@@ -582,7 +583,7 @@ async def test_login_france_connect(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     FAKE_NONCE = "some-random-nonce"
-    monkeypatch.setattr("app.generate_nonce", lambda: FAKE_NONCE)
+    monkeypatch.setattr("app.controllers.auth.generate_nonce", lambda: FAKE_NONCE)
     response = test_client.get("/login-france-connect", follow_redirects=False)
     assert response.status_code == 302
     redirected_url = response.headers["location"]

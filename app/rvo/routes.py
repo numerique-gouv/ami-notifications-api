@@ -23,11 +23,13 @@ from litestar.status_codes import (
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import env
+from app.auth import generate_nonce
 from app.httpx import httpxClient
 from app.models import Notification, User
 from app.rvo import auth
 from app.services.notification import NotificationService
 from app.services.user import UserService
+from app.utils import error_from_message, error_from_response
 
 # This is the folder where the static files for the dsfr are stored.
 HTML_DIR = "public/mobile-app/node_modules/@gouvfr"
@@ -86,8 +88,6 @@ async def home(
 @get(path="/login-france-connect", include_in_schema=False)
 async def login_france_connect(request: Request[Any, Any, Any]) -> Response[Any]:
     # Import here to avoid circular dependency when importing at the top of the file.
-    from app import generate_nonce
-
     NONCE = generate_nonce()
     STATE = str(uuid.uuid4())
     request.session["nonce"] = NONCE
@@ -282,19 +282,6 @@ async def detail(detail_id: str) -> Response[Any] | Template:
             "detail": detail,
         },
     )
-
-
-def error_from_response(response: Response[str], ami_details: str | None = None) -> Response[str]:
-    details = response.json()  # type: ignore[reportUnknownVariableType]
-    if ami_details is not None:
-        details["ami_details"] = ami_details
-    return Response(details, status_code=response.status_code)  # type: ignore[reportUnknownVariableType]
-
-
-def error_from_message(
-    message: dict[str, str], status_code: int | None
-) -> Response[dict[str, str]]:
-    return Response(message, status_code=status_code)
 
 
 router: Router = Router(

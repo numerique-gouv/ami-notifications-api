@@ -26,6 +26,7 @@ from app.httpx import httpxClient
 from app.models import Notification, User
 from app.services.notification import NotificationService
 from app.services.user import UserService
+from app.utils import error_from_message, error_from_response
 
 # This is the folder where the static files for the dsfr are stored.
 HTML_DIR = "public/mobile-app/node_modules/@gouvfr"
@@ -184,19 +185,6 @@ async def send_notification(user_id: uuid.UUID, db_session: AsyncSession) -> Tem
         template_name="ami-admin/send-notification.html",
         context={"user": user, "notifications": notifications, "isProConnected": True},
     )
-
-
-def error_from_response(response: Response[str], ami_details: str | None = None) -> Response[str]:
-    details = response.json()  # type: ignore[reportUnknownVariableType]
-    if ami_details is not None:
-        details["ami_details"] = ami_details
-    return Response(details, status_code=response.status_code)  # type: ignore[reportUnknownVariableType]
-
-
-def error_from_message(
-    message: dict[str, str], status_code: int | None
-) -> Response[dict[str, str]]:
-    return Response(message, status_code=status_code)
 
 
 router: Router = Router(
