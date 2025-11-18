@@ -4,10 +4,16 @@ from typing import Any
 
 from advanced_alchemy.base import UUIDAuditBase
 from advanced_alchemy.types import JsonB
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 Base = UUIDAuditBase
+
+
+class Nonce(Base):
+    __tablename__ = "nonce"
+
+    nonce: Mapped[str] = mapped_column(String(256))
 
 
 class User(Base):
