@@ -174,6 +174,10 @@ async def login_callback(
     # FC - Step 16.1
     request.session["userinfo"] = userinfo
     request.session["id_token"] = id_token
+
+    # Cleanup FC verifications
+    del request.session["nonce"]
+    del request.session["state"]
     if "redirect_once_connected" in request.session:
         return Redirect(request.session["redirect_once_connected"])
     return Redirect("/rvo")

@@ -149,6 +149,10 @@ async def login_callback(
         "is_logged_in": "true",
     }
 
+    # Cleanup FC verifications
+    del request.session["nonce"]
+    del request.session["state"]
+
     return Redirect(f"{env.PUBLIC_APP_URL}/", query_params=params)
 
 

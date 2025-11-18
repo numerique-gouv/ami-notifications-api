@@ -90,7 +90,8 @@ async def test_rvo_login_callback(
     assert "error" not in str(response.url)
     assert test_client.get_session_data()["id_token"] == fake_id_token
     assert test_client.get_session_data()["userinfo"]["given_name"] == "Angela Claire Louise"
-    assert test_client.get_session_data()["nonce"] == NONCE
+    assert "nonce" not in test_client.get_session_data()
+    assert "state" not in test_client.get_session_data()
 
 
 async def test_rvo_login_callback_bad_nonce(
