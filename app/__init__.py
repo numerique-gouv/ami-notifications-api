@@ -38,7 +38,7 @@ from app.database import alchemy
 from app.httpx import httpxClient
 from app.utils import retry_fc_later
 
-from .ami_admin import ami_admin_router
+from .admin.routes import router as ami_admin_router
 from .data.routes import data_router
 from .rvo.routes import router as rvo_router
 
