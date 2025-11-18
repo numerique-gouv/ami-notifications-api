@@ -64,17 +64,14 @@ describe('/+page.svelte', () => {
 
   test('should display an error message if login failed', async () => {
     // Given
-    globalThis.window = {
-      location: {
-        href: '?error=some error message',
-      },
-    }
+    const { page } = await import('$app/state')
+    const mockSearchParams = new URLSearchParams('error=some error message')
+    vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams)
 
-    // const { container } = render(Page)
-    // await new Promise(setTimeout) // wait for async calls
+    render(Page)
 
     // Then
-    // const errorMessage = container.querySelector('.fr-notice--alert')
-    // expect(initials).toHaveTextContent('some error message')
+    const errorMessage = await screen.findByText('some error message')
+    expect(errorMessage).toBeInTheDocument()
   })
 })
