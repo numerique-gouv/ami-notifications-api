@@ -21,7 +21,7 @@ from litestar.status_codes import (
 )
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app import ami_admin_auth
+from app.admin import auth
 from app.httpx import httpxClient
 from app.models import Notification, User
 from app.services.notification import NotificationService
@@ -124,7 +124,7 @@ async def login_callback(
 
 @get(path="/logout", include_in_schema=False)
 async def logout(request: Request[Any, Any, Any]) -> Response[Any]:
-    if ami_admin_auth.is_not_connected(request.session):
+    if auth.is_not_connected(request.session):
         return Redirect("/ami_admin")
 
     logout_url: str = f"{PUBLIC_PRO_CONNECT_BASE_URL}{PUBLIC_PRO_CONNECT_LOGOUT_ENDPOINT}"
@@ -155,9 +155,7 @@ async def logged_out() -> Template:
     return Template(template_name="ami-admin/logged-out.html")
 
 
-@get(
-    path="/liste-des-usagers", guards=[ami_admin_auth.authenticated_guard], include_in_schema=False
-)
+@get(path="/liste-des-usagers", guards=[auth.authenticated_guard], include_in_schema=False)
 async def list_users(db_session: AsyncSession) -> Template:
     users_service: UserService = UserService(session=db_session, load=[User.notifications])
     users = await users_service.list()
@@ -169,7 +167,7 @@ async def list_users(db_session: AsyncSession) -> Template:
 
 @get(
     path="/test/user/{user_id: uuid}/send-notification",
-    guards=[ami_admin_auth.authenticated_guard],
+    guards=[auth.authenticated_guard],
     include_in_schema=False,
 )
 async def send_notification(user_id: uuid.UUID, db_session: AsyncSession) -> Template:
@@ -201,7 +199,7 @@ def error_from_message(
     return Response(message, status_code=status_code)
 
 
-ami_admin_router: Router = Router(
+router: Router = Router(
     path="/ami_admin",
     route_handlers=[
         home,
@@ -217,7 +215,5 @@ ami_admin_router: Router = Router(
             html_mode=True,
         ),
     ],
-    exception_handlers={
-        ami_admin_auth.NotAuthenticatedException: ami_admin_auth.redirect_to_login_exception_handler
-    },
+    exception_handlers={auth.NotAuthenticatedException: auth.redirect_to_login_exception_handler},
 )
