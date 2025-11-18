@@ -58,6 +58,7 @@ async def test_rvo_login_callback(
     #   'iss': 'https://fcp-low.sbx.dev-franceconnect.fr/api/v2'}
 
     NONCE = "YTc3NzZlNjUtNmY3OC00YzExLThmODItMTg0MDg2ZjQ0YzEyLTIwMjUtMTEtMTggMDg6NTI6MzUuNjM1OTYyKzAwOjAw"
+    STATE = "some random state"
 
     fake_id_token = "eyJhbGciOiJFUzI1NiIsImtpZCI6InBrY3MxMTpFUzI1Njpoc20ifQ.eyJzdWIiOiJjZmY2N2ViZTAwNzkyYTJmMmI1MTE1ZGNjMWE2NWQxMTVhZGIzYjczNjUzZmIzZWQxYjg4ZWExMWE3YTI1ODlhdjEiLCJhdXRoX3RpbWUiOjE3NjM0NTU5NTksImFjciI6ImVpZGFzMSIsIm5vbmNlIjoiWVRjM056WmxOalV0Tm1ZM09DMDBZekV4TFRobU9ESXRNVGcwTURnMlpqUTBZekV5TFRJd01qVXRNVEV0TVRnZ01EZzZOVEk2TXpVdU5qTTFPVFl5S3pBd09qQXciLCJhdWQiOiIzM2ZlNDk4Y2MxNzJmZTY5MTc3ODkxMmEyOTY3YmFhNjUwYjI0ZjFhZTBlYmJlNDdhZTU1MmYzN2IyZDI1ZWFkIiwiZXhwIjoxNzYzNDU2MDE5LCJpYXQiOjE3NjM0NTU5NTksImlzcyI6Imh0dHBzOi8vZmNwLWxvdy5zYnguZGV2LWZyYW5jZWNvbm5lY3QuZnIvYXBpL3YyIn0.ynJnN7WY9hN9ACp27ETHg9pDA6tje09MlAfkkADcP6R5Ro_pLpQJ6Jtt4T3zn4ERMC2HKBkGSy1UcZgvLNPSFQ"
 
@@ -82,10 +83,11 @@ async def test_rvo_login_callback(
         json=jwt_encoded_userinfo,
     )
 
-    test_client.set_session_data({"nonce": NONCE})
-    response = test_client.get("/rvo/login-callback?code=fake-code")
+    test_client.set_session_data({"nonce": NONCE, "state": STATE})
+    response = test_client.get(f"/rvo/login-callback?code=fake-code&fc_state={STATE}")
 
     assert response.status_code == 200
+    assert "error" not in str(response.url)
     assert test_client.get_session_data()["id_token"] == fake_id_token
     assert test_client.get_session_data()["userinfo"]["given_name"] == "Angela Claire Louise"
     assert test_client.get_session_data()["nonce"] == NONCE
@@ -94,7 +96,6 @@ async def test_rvo_login_callback(
 async def test_rvo_login_callback_bad_nonce(
     test_client: TestClient[Litestar],
     httpx_mock: HTTPXMock,
-    jwt_encoded_userinfo: str,
 ) -> None:
     # The following fake id_token corresponds to the following decoded id_token:
     #  {'sub': 'cff67ebe00792a2f2b5115dcc1a65d115adb3b73653fb3ed1b88ea11a7a2589av1',
@@ -121,13 +122,31 @@ async def test_rvo_login_callback_bad_nonce(
         json=fake_token_json_response,
     )
 
-    test_client.set_session_data({"nonce": "some other nonce"})
-    response = test_client.get("/rvo/login-callback?code=fake-code")
+    STATE = "some random state"
+    test_client.set_session_data({"nonce": "some other nonce", "state": STATE})
+    response = test_client.get(f"/rvo/login-callback?code=fake-code&fc_state={STATE}")
 
     assert response.status_code == 200
     assert (
         response.url
         == "http://testserver.local/rvo?error=Erreur+lors+de+la+France+Connexion%2C+veuillez+r%C3%A9essayer+plus+tard."
+    )
+
+
+async def test_login_callback_bad_state(
+    test_client: TestClient[Litestar],
+) -> None:
+    STATE = "some random state"
+    test_client.set_session_data({"nonce": "some other nonce", "state": "some other state"})
+    response = test_client.get(
+        f"/rvo/login-callback?code=fake-code&fc_state={STATE}", follow_redirects=False
+    )
+
+    assert response.status_code == 302
+    redirected_url = response.headers["location"]
+    assert (
+        redirected_url
+        == "/rvo?error=Erreur+lors+de+la+France+Connexion%2C+veuillez+r%C3%A9essayer+plus+tard."
     )
 
 

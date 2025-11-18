@@ -84,14 +84,16 @@ async def login_france_connect(request: Request[Any, Any, Any]) -> Response[Any]
     from app import generate_nonce
 
     NONCE = generate_nonce()
+    STATE = uuid.uuid4()
     request.session["nonce"] = NONCE
+    request.session["state"] = STATE
 
     params = {
         "scope": "openid identite_pivot preferred_username email",
         "redirect_uri": env.PUBLIC_FC_PROXY or env.PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL,
         "response_type": "code",
         "client_id": env.PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID,
-        "state": env.PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL,
+        "state": f"{env.PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL}?fc_state={STATE}",
         "nonce": NONCE,
         "acr_values": "eidas1",
         "prompt": "login",
@@ -104,8 +106,16 @@ async def login_france_connect(request: Request[Any, Any, Any]) -> Response[Any]
 @get(path="/login-callback", include_in_schema=False)
 async def login_callback(
     code: str,
+    fc_state: str,
     request: Request[Any, Any, Any],
 ) -> Response[Any]:
+    # Validate that the STATE is coherent with the one we sent to FC
+    if not fc_state or fc_state != request.session.get("state", ""):
+        params: dict[str, str] = {
+            "error": "Erreur lors de la France Connexion, veuillez réessayer plus tard."
+        }
+        return Redirect("/rvo", query_params=params)
+
     # FC - Step 5
     redirect_uri: str = PUBLIC_FC_PROXY or PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL
     client_id: str = PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID
