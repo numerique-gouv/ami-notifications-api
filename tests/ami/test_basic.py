@@ -652,6 +652,8 @@ async def test_login_callback(
     assert "id_token" in redirected_url
     assert "token_type" in redirected_url
     assert "is_logged_in" in redirected_url
+    assert "nonce" not in test_client.get_session_data()
+    assert "state" not in test_client.get_session_data()
 
 
 async def test_login_callback_bad_nonce(
