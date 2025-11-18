@@ -17,7 +17,7 @@ async def test_login_france_connect(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     FAKE_NONCE = "some-random-nonce"
-    monkeypatch.setattr("app.generate_nonce", lambda: FAKE_NONCE)
+    monkeypatch.setattr("app.rvo.routes.generate_nonce", lambda: FAKE_NONCE)
     response = test_client.get("/rvo/login-france-connect", follow_redirects=False)
     assert response.status_code == 302
     redirected_url = response.headers["location"]
