@@ -22,7 +22,7 @@ from litestar.status_codes import (
 )
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app import rvo_auth
+from app import env, rvo_auth
 from app.models import Notification, User
 from app.services.notification import NotificationService
 from app.services.user import UserService
@@ -62,11 +62,12 @@ MEETING_LIST: list[dict[str, str]] = [
 
 
 @get(path="/", include_in_schema=False)
-async def home(request: Request[Any, Any, Any]) -> Template:
+async def home(request: Request[Any, Any, Any], error: str | None) -> Template:
     return Template(
         template_name="rvo/liste.html",
         context={
             "isFranceConnected": "userinfo" in request.session and "id_token" in request.session,
+            "error": error,
             "PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID": PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID,
             "PUBLIC_FC_BASE_URL": PUBLIC_FC_BASE_URL,
             "PUBLIC_FC_PROXY": PUBLIC_FC_PROXY,
@@ -75,6 +76,29 @@ async def home(request: Request[Any, Any, Any]) -> Template:
             "object_list": MEETING_LIST,
         },
     )
+
+
+@get(path="/login-france-connect", include_in_schema=False)
+async def login_france_connect(request: Request[Any, Any, Any]) -> Response[Any]:
+    # Import here to avoid circular dependency when importing at the top of the file.
+    from app import generate_nonce
+
+    NONCE = generate_nonce()
+    request.session["nonce"] = NONCE
+
+    params = {
+        "scope": "openid identite_pivot preferred_username email",
+        "redirect_uri": env.PUBLIC_FC_PROXY or env.PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL,
+        "response_type": "code",
+        "client_id": env.PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID,
+        "state": env.PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL,
+        "nonce": NONCE,
+        "acr_values": "eidas1",
+        "prompt": "login",
+    }
+
+    login_url = f"{env.PUBLIC_FC_BASE_URL}{env.PUBLIC_FC_AUTHORIZATION_ENDPOINT}"
+    return Redirect(login_url, query_params=params)
 
 
 @get(path="/login-callback", include_in_schema=False)
@@ -110,6 +134,18 @@ async def login_callback(
     if response.status_code != 200:
         return error_from_response(response, ami_details="FC - Step 6 with " + str(data))
     response_token_data: dict[str, str] = response.json()
+
+    id_token: str = response_token_data.get("id_token", "")
+    decoded_token: dict[str, str] = jwt.decode(
+        id_token, options={"verify_signature": False}, algorithms=["ES256"]
+    )
+
+    # Validate that the NONCE is coherent with the one we sent to FC
+    if "nonce" not in decoded_token or decoded_token["nonce"] != request.session.get("nonce", ""):
+        params: dict[str, str] = {
+            "error": "Erreur lors de la France Connexion, veuillez réessayer plus tard."
+        }
+        return Redirect("/rvo", query_params=params)
 
     # FC - Step 8
     httpx.get(f"{PUBLIC_FC_BASE_URL}{PUBLIC_FC_JWKS_ENDPOINT}")
@@ -226,6 +262,7 @@ rvo_router: Router = Router(
     path="/rvo",
     route_handlers=[
         home,
+        login_france_connect,
         login_callback,
         logout,
         logged_out,

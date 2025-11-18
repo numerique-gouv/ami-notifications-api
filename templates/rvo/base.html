@@ -169,37 +169,24 @@
         }
       </style>
     {% endblock style %}
-    <script lang="ts">
-      // FC - Step 3
-      const franceConnect = async () => {
-        const NONCE = 'not-implemented-yet-and-has-more-than-32-chars'
-
-        const query = {
-          scope: 'openid identite_pivot preferred_username email',
-          redirect_uri: '{{ PUBLIC_FC_PROXY or PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL }}',
-          response_type: 'code',
-          client_id: '{{ PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID }}',
-          state: '{{ PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL }}',
-          nonce: NONCE,
-          acr_values: 'eidas1',
-          prompt: 'login',
-        }
-
-        const url = `{{ PUBLIC_FC_BASE_URL }}{{ PUBLIC_FC_AUTHORIZATION_ENDPOINT }}`
-        const params = new URLSearchParams(query).toString()
-
-        window.location.href = `${url}?${params}`
-
-        return Response.redirect(`${url}?${params}`)
-      }
-    </script>
-
   </head>
   <body>
     <main class="container {% if not isFranceConnected %}not-connected{% endif %}">
       {% block out_wrapper %}
         <div class="fr-container">
           {% block wrapper %}
+            {% if error %}
+              <div class="fr-notice fr-notice--alert">
+                <div class="fr-container">
+                  <div class="fr-notice__body">
+                    <p>
+                      <span class="fr-notice__title">{{ error }}</span>
+                    </p>
+                    <a href="/rvo" title="Masquer le message" type="button" class="fr-btn--close fr-btn">Masquer le message</a>
+                  </div>
+                </div>
+              </div>
+            {% endif %}
             {% if not isFranceConnected %}
               <div class="rvo-title fr-mt-4v fr-mb-10v">
                 <img src="/icons/rvo-logo-not-connected.svg" alt="Logo de RVO" />
@@ -211,15 +198,15 @@
                       Pour prendre un rendez-vous ou accéder à vos rendez-vous à venir:
                     </p>
                     <div class="fr-connect-group">
-                      <button
-                        class="fr-connect"
-                        type="button"
+                      <a
+                        href="/rvo/login-france-connect"
+                        target="_self"
+                        class="fr-btn fr-connect"
                         id="fr-connect-button"
-                        onclick="franceConnect()"
                       >
                         <span class="fr-connect__login">S’identifier avec</span>
                         <span class="fr-connect__brand">FranceConnect</span>
-                      </button>
+                      </a>
                       <p>
                         <a href="https://franceconnect.gouv.fr/" target="_blank" rel="noopener" title="Qu’est-ce que FranceConnect ? - nouvelle fenêtre">Qu’est-ce que FranceConnect ?</a>
                       </p>
