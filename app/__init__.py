@@ -1,7 +1,11 @@
+import datetime
+from base64 import urlsafe_b64encode
 from pathlib import Path
 from typing import Any, Callable
+from uuid import uuid4
 
 import httpx
+import jwt
 import sentry_sdk
 from litestar import (
     Litestar,
@@ -50,9 +54,23 @@ sentry_sdk.init(
 # ### VIEWS
 
 
+def generate_nonce() -> str:
+    """Generate a NONCE by concatenating:
+    - a uuid4 (for randomness and high confidence of uniqueness)
+    - the curent timestamp (for sequentiality)
+
+    The result is then base64 encoded.
+
+    """
+    uuid = uuid4()
+    now: datetime.datetime = datetime.datetime.now(datetime.timezone.utc)
+    return urlsafe_b64encode(f"{uuid}-{now}".encode("utf8")).decode("utf8")
+
+
 @get(path="/login-france-connect", include_in_schema=False)
-async def login_france_connect() -> Response[Any]:
-    NONCE = "not-implemented-yet-and-has-more-than-32-chars"
+async def login_france_connect(request: Request[Any, Any, Any]) -> Response[Any]:
+    NONCE = generate_nonce()
+    request.session["nonce"] = NONCE
 
     params = {
         "scope": "openid identite_pivot preferred_username email cnaf_quotient_familial",
@@ -72,6 +90,7 @@ async def login_france_connect() -> Response[Any]:
 @get(path="/login-callback", include_in_schema=False)
 async def login_callback(
     code: str,
+    request: Request[Any, Any, Any],
 ) -> Response[Any]:
     # FC - Step 5
     redirect_uri: str = env.PUBLIC_FC_PROXY or env.PUBLIC_FC_AMI_REDIRECT_URL
@@ -100,7 +119,23 @@ async def login_callback(
     )
     if response.status_code != 200:
         return error_from_response(response, ami_details="FC - Step 6 with " + str(data))
+
     response_token_data: dict[str, str] = response.json()
+
+    id_token: str = response_token_data.get("id_token", "")
+    decoded_token: dict[str, str] = jwt.decode(
+        id_token, options={"verify_signature": False}, algorithms=["ES256"]
+    )
+
+    # Validate that the NONCE is coherent with the one we sent to FC
+    if "nonce" not in decoded_token or decoded_token["nonce"] != request.session.get("nonce", ""):
+        return error_from_message(
+            {
+                "error": "The NONCE received from FranceConnect doesn't correspond to the one we have in the session"
+            },
+            HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
     params: dict[str, str] = {
         **response_token_data,
         "is_logged_in": "true",
