@@ -685,10 +685,11 @@ async def test_login_callback_bad_nonce(
     test_client.set_session_data({"nonce": "some other nonce"})
     response = test_client.get("/login-callback?code=fake-code", follow_redirects=False)
 
-    assert response.status_code == 500
+    assert response.status_code == 302
+    redirected_url = response.headers["location"]
     assert (
-        response.text
-        == '{"error":"The NONCE received from FranceConnect doesn\'t correspond to the one we have in the session"}'
+        redirected_url
+        == "https://localhost:5173/?error=Erreur+lors+de+la+France+Connexion%2C+veuillez+r%C3%A9essayer+plus+tard."
     )
 
 

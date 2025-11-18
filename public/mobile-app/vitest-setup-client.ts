@@ -2,7 +2,7 @@ import '@testing-library/jest-dom/vitest'
 import { beforeEach, vi } from 'vitest'
 
 beforeEach(() => {
-  window.localStorage.clear()
+  window.localStorage?.clear()
 })
 
 // required for svelte5 + jsdom as jsdom does not support matchMedia

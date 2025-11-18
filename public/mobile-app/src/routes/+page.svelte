@@ -16,10 +16,14 @@ import applicationSvg from '@gouvfr/dsfr/dist/artwork/pictograms/digital/applica
 
 let isFranceConnected: boolean = $state(false)
 let isLoggedOut: boolean = $state(false)
+let error: string = $state('')
 
 onMount(async () => {
   isFranceConnected = !!localStorage.getItem('access_token')
   try {
+    if (page.url.searchParams.has('error')) {
+      error = page.url.searchParams.get('error')
+    }
     if (page.url.searchParams.has('is_logged_in')) {
       const access_token = page.url.searchParams.get('access_token') || ''
       const token_type = page.url.searchParams.get('token_type') || ''
@@ -62,11 +66,28 @@ const franceConnectLogin = async () => {
 function dismissNotice() {
   isLoggedOut = false
 }
+
+function dismissError() {
+  error = ''
+  goto('/')
+}
 </script>
 
 <div class="homepage">
 {#if !isFranceConnected}
   <div class="homepage-not-connected">
+    {#if error}
+    <div class="fr-notice fr-notice--alert">
+      <div class="fr-container">
+        <div class="fr-notice__body">
+          <p>
+            <span class="fr-notice__title">{error}</span>
+          </p>
+          <button onclick="{dismissError}" title="Masquer le message" type="button" class="fr-btn--close fr-btn">Masquer le message</button>
+        </div>
+      </div>
+    </div>
+    {/if}
     {#if isLoggedOut}
       <div class="logout-notice fr-py-3v fr-px-4v">
         <div class="container-left">
