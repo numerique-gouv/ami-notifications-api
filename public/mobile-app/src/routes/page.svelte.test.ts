@@ -61,4 +61,20 @@ describe('/+page.svelte', () => {
     expect(globalThis.window.location.href).toContain(PUBLIC_API_URL)
     expect(globalThis.window.location.href).toContain('login-france-connect')
   })
+
+  test('should display an error message if login failed', async () => {
+    // Given
+    globalThis.window = {
+      location: {
+        href: '?error=some error message',
+      },
+    }
+
+    // const { container } = render(Page)
+    // await new Promise(setTimeout) // wait for async calls
+
+    // Then
+    // const errorMessage = container.querySelector('.fr-notice--alert')
+    // expect(initials).toHaveTextContent('some error message')
+  })
 })

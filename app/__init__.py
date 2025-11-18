@@ -129,12 +129,10 @@ async def login_callback(
 
     # Validate that the NONCE is coherent with the one we sent to FC
     if "nonce" not in decoded_token or decoded_token["nonce"] != request.session.get("nonce", ""):
-        return error_from_message(
-            {
-                "error": "The NONCE received from FranceConnect doesn't correspond to the one we have in the session"
-            },
-            HTTP_500_INTERNAL_SERVER_ERROR,
-        )
+        params: dict[str, str] = {
+            "error": "Erreur lors de la France Connexion, veuillez réessayer plus tard."
+        }
+        return Redirect(f"{env.PUBLIC_APP_URL}/", query_params=params)
 
     params: dict[str, str] = {
         **response_token_data,
