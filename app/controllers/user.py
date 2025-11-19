@@ -1,11 +1,11 @@
 from typing import Any
 
-import httpx
 import jwt
 from advanced_alchemy.extensions.litestar import providers
 from litestar import Controller, Request, Response, get
 
 from app import env, models, schemas
+from app.httpx import httpx
 from app.services.user import UserService
 
 

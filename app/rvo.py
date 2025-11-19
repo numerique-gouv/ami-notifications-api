@@ -2,7 +2,6 @@ import os
 import uuid
 from typing import Any
 
-import httpx
 import jwt
 from litestar import (
     Request,
@@ -22,7 +21,7 @@ from litestar.status_codes import (
 )
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app import env, rvo_auth
+from app import env, httpx, rvo_auth
 from app.models import Notification, User
 from app.services.notification import NotificationService
 from app.services.user import UserService

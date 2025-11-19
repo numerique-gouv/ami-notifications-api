@@ -2,7 +2,6 @@ import os
 import uuid
 from typing import Annotated, Any
 
-import httpx
 import jwt
 from litestar import (
     Request,
@@ -23,6 +22,7 @@ from litestar.status_codes import (
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import ami_admin_auth
+from app.httpx import httpx
 from app.models import Notification, User
 from app.services.notification import NotificationService
 from app.services.user import UserService
