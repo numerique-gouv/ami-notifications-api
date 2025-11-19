@@ -3,7 +3,6 @@ import uuid
 from collections.abc import Sequence
 from typing import Annotated, Any, cast
 
-import httpx
 from advanced_alchemy.extensions.litestar import providers
 from litestar import Controller, WebSocket, get, patch, post, websocket
 from litestar.channels import ChannelsPlugin
@@ -13,6 +12,7 @@ from pydantic import TypeAdapter
 from webpush import WebPush, WebPushSubscription
 
 from app import env, models, schemas
+from app.httpx import httpx
 from app.services.notification import NotificationService
 from app.services.user import UserService
 

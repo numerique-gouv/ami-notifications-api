@@ -9,6 +9,15 @@ repos:
     # Run the formatter.
     - id: ruff-format
 
+# Make sure no code is using httpx straight out of the box instead of our own configured one.
+- repo: local
+  hooks:
+    - id: no-vanilla-httpx-usage
+      name: no vanilla httpx usage
+      entry: bin/check-no-vanilla-httpx-usage.sh
+      language: system
+      files: \.py$
+
 # JavaScript/TypeScript linting and formatting
 - repo: local
   hooks:
@@ -17,7 +26,6 @@ repos:
       entry: npm run lint-and-format
       language: system
       files: \.(js|ts|svelte|json)$
-      require_serial: true
 
 # HTML linting and formatting
 - repo: https://github.com/rtts/djhtml
@@ -34,4 +42,3 @@ repos:
       entry: uv run pyright
       language: system
       files: \.py$
-      require_serial: true

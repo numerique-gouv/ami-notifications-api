@@ -4,7 +4,6 @@ from pathlib import Path
 from typing import Annotated, Any, Callable
 from uuid import uuid4
 
-import httpx
 import jwt
 import sentry_sdk
 from litestar import (
@@ -36,6 +35,7 @@ from app.controllers.notification import NotificationController
 from app.controllers.registration import RegistrationController
 from app.controllers.user import UserController
 from app.database import alchemy
+from app.httpx import httpx
 
 from .ami_admin import ami_admin_router
 from .data.routes import data_router
