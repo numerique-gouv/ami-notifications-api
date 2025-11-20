@@ -1,7 +1,7 @@
 import datetime
 from base64 import urlsafe_b64encode
 from pathlib import Path
-from typing import Any, Callable
+from typing import Annotated, Any, Callable
 from uuid import uuid4
 
 import httpx
@@ -19,6 +19,7 @@ from litestar.config.cors import CORSConfig
 from litestar.contrib.jinja import JinjaTemplateEngine
 from litestar.di import Provide
 from litestar.middleware.session.server_side import ServerSideSessionConfig
+from litestar.params import Parameter
 from litestar.response.redirect import Redirect
 from litestar.static_files import (
     create_static_files_router,  # type: ignore[reportUnknownVariableType]
@@ -70,7 +71,7 @@ def generate_nonce() -> str:
 @get(path="/login-france-connect", include_in_schema=False)
 async def login_france_connect(request: Request[Any, Any, Any]) -> Response[Any]:
     NONCE = generate_nonce()
-    STATE = uuid4()
+    STATE = str(uuid4())
     request.session["nonce"] = NONCE
     request.session["state"] = STATE
 
@@ -79,7 +80,10 @@ async def login_france_connect(request: Request[Any, Any, Any]) -> Response[Any]
         "redirect_uri": env.PUBLIC_FC_PROXY or env.PUBLIC_FC_AMI_REDIRECT_URL,
         "response_type": "code",
         "client_id": env.PUBLIC_FC_AMI_CLIENT_ID,
-        "state": f"{env.PUBLIC_FC_AMI_REDIRECT_URL}?fc_state={STATE}",
+        # If we're in production, there's no proxy, just send the STATE.
+        "state": (
+            f"{env.PUBLIC_FC_AMI_REDIRECT_URL}?state={STATE}" if env.PUBLIC_FC_PROXY else STATE
+        ),
         "nonce": NONCE,
         "acr_values": "eidas1",
         "prompt": "login",
@@ -92,7 +96,7 @@ async def login_france_connect(request: Request[Any, Any, Any]) -> Response[Any]
 @get(path="/login-callback", include_in_schema=False)
 async def login_callback(
     code: str,
-    fc_state: str,
+    fc_state: Annotated[str, Parameter(query="state")],
     request: Request[Any, Any, Any],
 ) -> Response[Any]:
     # Validate that the STATE is coherent with the one we sent to FC

@@ -1,6 +1,6 @@
 import os
 import uuid
-from typing import Any
+from typing import Annotated, Any
 
 import httpx
 import jwt
@@ -11,6 +11,7 @@ from litestar import (
     get,
 )
 from litestar.exceptions import NotFoundException
+from litestar.params import Parameter
 from litestar.response import Template
 from litestar.response.redirect import Redirect
 from litestar.static_files import (
@@ -84,7 +85,7 @@ async def login_france_connect(request: Request[Any, Any, Any]) -> Response[Any]
     from app import generate_nonce
 
     NONCE = generate_nonce()
-    STATE = uuid.uuid4()
+    STATE = str(uuid.uuid4())
     request.session["nonce"] = NONCE
     request.session["state"] = STATE
 
@@ -93,7 +94,11 @@ async def login_france_connect(request: Request[Any, Any, Any]) -> Response[Any]
         "redirect_uri": env.PUBLIC_FC_PROXY or env.PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL,
         "response_type": "code",
         "client_id": env.PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID,
-        "state": f"{env.PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL}?fc_state={STATE}",
+        "state": (
+            f"{env.PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL}?state={STATE}"
+            if env.PUBLIC_FC_PROXY
+            else STATE
+        ),
         "nonce": NONCE,
         "acr_values": "eidas1",
         "prompt": "login",
@@ -106,7 +111,7 @@ async def login_france_connect(request: Request[Any, Any, Any]) -> Response[Any]
 @get(path="/login-callback", include_in_schema=False)
 async def login_callback(
     code: str,
-    fc_state: str,
+    fc_state: Annotated[str, Parameter(query="state")],
     request: Request[Any, Any, Any],
 ) -> Response[Any]:
     # Validate that the STATE is coherent with the one we sent to FC
