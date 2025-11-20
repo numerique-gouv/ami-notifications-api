@@ -13,6 +13,10 @@
     "PUBLIC_FC_SERVICE_PROVIDER_REDIRECT_URL": {
       "generator": "url",
       "template": "%URL%/rvo/login-callback"
+    },
+    "PUBLIC_PRO_CONNECT_AMI_ADMIN_REDIRECT_URL": {
+      "generator": "url",
+      "template": "%URL%/ami_admin/login-callback"
     }
   }
 }
