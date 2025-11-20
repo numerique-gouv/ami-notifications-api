@@ -120,6 +120,10 @@ async def login_callback(
     request: Request[Any, Any, Any],
 ) -> Response[Any]:
     if error or not code:
+        if error == "access_denied" and error_description == "User auth aborted":
+            # The user has aborted the France Connection, don't display any error message.
+            return Redirect("/rvo")
+
         return Redirect(
             "/rvo",
             query_params={

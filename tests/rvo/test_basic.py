@@ -151,6 +151,20 @@ async def test_login_callback_bad_state(
     )
 
 
+async def test_login_callback_user_aborted(
+    test_client: TestClient[Litestar],
+) -> None:
+    test_client.set_session_data({"nonce": "some other nonce", "state": "some other state"})
+    response = test_client.get(
+        "/rvo/login-callback?error=access_denied&error_description=User auth aborted&state=some state",
+        follow_redirects=False,
+    )
+
+    assert response.status_code == 302
+    redirected_url = response.headers["location"]
+    assert redirected_url == "/rvo"
+
+
 async def test_rvo_logout(
     connected_test_client: ConnectedTestClient,
 ) -> None:
