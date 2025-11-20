@@ -84,7 +84,7 @@ async def test_rvo_login_callback(
     )
 
     test_client.set_session_data({"nonce": NONCE, "state": STATE})
-    response = test_client.get(f"/rvo/login-callback?code=fake-code&fc_state={STATE}")
+    response = test_client.get(f"/rvo/login-callback?code=fake-code&state={STATE}")
 
     assert response.status_code == 200
     assert "error" not in str(response.url)
@@ -125,7 +125,7 @@ async def test_rvo_login_callback_bad_nonce(
 
     STATE = "some random state"
     test_client.set_session_data({"nonce": "some other nonce", "state": STATE})
-    response = test_client.get(f"/rvo/login-callback?code=fake-code&fc_state={STATE}")
+    response = test_client.get(f"/rvo/login-callback?code=fake-code&state={STATE}")
 
     assert response.status_code == 200
     assert (
@@ -140,7 +140,7 @@ async def test_login_callback_bad_state(
     STATE = "some random state"
     test_client.set_session_data({"nonce": "some other nonce", "state": "some other state"})
     response = test_client.get(
-        f"/rvo/login-callback?code=fake-code&fc_state={STATE}", follow_redirects=False
+        f"/rvo/login-callback?code=fake-code&state={STATE}", follow_redirects=False
     )
 
     assert response.status_code == 302
