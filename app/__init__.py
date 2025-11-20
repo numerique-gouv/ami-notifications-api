@@ -96,10 +96,21 @@ async def login_france_connect(request: Request[Any, Any, Any]) -> Response[Any]
 
 @get(path="/login-callback", include_in_schema=False)
 async def login_callback(
-    code: str,
+    code: str | None,
+    error: str | None,
+    error_description: str | None,
     fc_state: Annotated[str, Parameter(query="state")],
     request: Request[Any, Any, Any],
 ) -> Response[Any]:
+    if error or not code:
+        return Redirect(
+            f"{env.PUBLIC_APP_URL}/",
+            query_params={
+                "error": error or "Erreur lors de la connexion",
+                "error_description": error_description or "",
+            },
+        )
+
     # Validate that the STATE is coherent with the one we sent to FC
     if not fc_state or fc_state != request.session.get("state", ""):
         params: dict[str, str] = {

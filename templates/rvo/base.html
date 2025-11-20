@@ -181,6 +181,9 @@
                   <div class="fr-notice__body">
                     <p>
                       <span class="fr-notice__title">{{ error }}</span>
+                      {% if error_description %}
+                        <span class="fr-notice__desc">{{ error_description }}</span>
+                      {% endif %}
                     </p>
                     <a href="/rvo" title="Masquer le message" type="button" class="fr-btn--close fr-btn">Masquer le message</a>
                   </div>

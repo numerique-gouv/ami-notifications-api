@@ -65,7 +65,9 @@ describe('/+page.svelte', () => {
   test('should display an error message if login failed', async () => {
     // Given
     const { page } = await import('$app/state')
-    const mockSearchParams = new URLSearchParams('error=some error message')
+    const mockSearchParams = new URLSearchParams(
+      'error=some error message&error_description=some error description'
+    )
     vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams)
 
     render(Page)
@@ -73,5 +75,7 @@ describe('/+page.svelte', () => {
     // Then
     const errorMessage = await screen.findByText('some error message')
     expect(errorMessage).toBeInTheDocument()
+    const errorDescription = await screen.findByText('some error description')
+    expect(errorDescription).toBeInTheDocument()
   })
 })
