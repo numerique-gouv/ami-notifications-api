@@ -28,6 +28,11 @@ onMount(async () => {
     if (page.url.searchParams.has('error_description')) {
       error_description = page.url.searchParams.get('error_description')
     }
+    if (error == 'access_denied' && error_description == 'User auth aborted') {
+      // The user has aborted the France Connection, don't display any error message.
+      error = ''
+      error_description = ''
+    }
     if (page.url.searchParams.has('is_logged_in')) {
       const access_token = page.url.searchParams.get('access_token') || ''
       const token_type = page.url.searchParams.get('token_type') || ''

@@ -78,4 +78,21 @@ describe('/+page.svelte', () => {
     const errorDescription = await screen.findByText('some error description')
     expect(errorDescription).toBeInTheDocument()
   })
+
+  test('should not display any error message if the user aborted the connection', async () => {
+    // Given
+    const { page } = await import('$app/state')
+    const mockSearchParams = new URLSearchParams(
+      'error=access_denied&error_description=User auth aborted'
+    )
+    vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams)
+
+    render(Page)
+
+    // Then
+    const errorMessage = await screen.queryByText('access_denied')
+    expect(errorMessage).toBeNull()
+    const errorDescription = await screen.queryByText('User auth aborted')
+    expect(errorDescription).toBeNull()
+  })
 })
