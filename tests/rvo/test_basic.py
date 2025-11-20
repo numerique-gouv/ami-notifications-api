@@ -130,7 +130,7 @@ async def test_rvo_login_callback_bad_nonce(
     assert response.status_code == 200
     assert (
         response.url
-        == "http://testserver.local/rvo?error=Erreur+lors+de+la+France+Connexion%2C+veuillez+r%C3%A9essayer+plus+tard."
+        == "http://testserver.local/rvo?error=Erreur+lors+de+la+France+Connexion&error_description=Veuillez+r%C3%A9essayer+plus+tard."
     )
 
 
@@ -147,7 +147,7 @@ async def test_login_callback_bad_state(
     redirected_url = response.headers["location"]
     assert (
         redirected_url
-        == "/rvo?error=Erreur+lors+de+la+France+Connexion%2C+veuillez+r%C3%A9essayer+plus+tard."
+        == "/rvo?error=Erreur+lors+de+la+France+Connexion&error_description=Veuillez+r%C3%A9essayer+plus+tard."
     )
 
 

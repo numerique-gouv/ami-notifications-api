@@ -63,12 +63,15 @@ MEETING_LIST: list[dict[str, str]] = [
 
 
 @get(path="/", include_in_schema=False)
-async def home(request: Request[Any, Any, Any], error: str | None) -> Template:
+async def home(
+    request: Request[Any, Any, Any], error: str | None, error_description: str | None
+) -> Template:
     return Template(
         template_name="rvo/liste.html",
         context={
             "isFranceConnected": "userinfo" in request.session and "id_token" in request.session,
             "error": error,
+            "error_description": error_description,
             "PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID": PUBLIC_FC_SERVICE_PROVIDER_CLIENT_ID,
             "PUBLIC_FC_BASE_URL": PUBLIC_FC_BASE_URL,
             "PUBLIC_FC_PROXY": PUBLIC_FC_PROXY,
@@ -110,14 +113,26 @@ async def login_france_connect(request: Request[Any, Any, Any]) -> Response[Any]
 
 @get(path="/login-callback", include_in_schema=False)
 async def login_callback(
-    code: str,
+    code: str | None,
+    error: str | None,
+    error_description: str | None,
     fc_state: Annotated[str, Parameter(query="state")],
     request: Request[Any, Any, Any],
 ) -> Response[Any]:
+    if error or not code:
+        return Redirect(
+            "/rvo",
+            query_params={
+                "error": error or "Erreur lors de la France Connexion",
+                "error_description": error_description or "",
+            },
+        )
+
     # Validate that the STATE is coherent with the one we sent to FC
     if not fc_state or fc_state != request.session.get("state", ""):
         params: dict[str, str] = {
-            "error": "Erreur lors de la France Connexion, veuillez réessayer plus tard."
+            "error": "Erreur lors de la France Connexion",
+            "error_description": "Veuillez réessayer plus tard.",
         }
         return Redirect("/rvo", query_params=params)
 
@@ -158,7 +173,8 @@ async def login_callback(
     # Validate that the NONCE is coherent with the one we sent to FC
     if "nonce" not in decoded_token or decoded_token["nonce"] != request.session.get("nonce", ""):
         params: dict[str, str] = {
-            "error": "Erreur lors de la France Connexion, veuillez réessayer plus tard."
+            "error": "Erreur lors de la France Connexion",
+            "error_description": "Veuillez réessayer plus tard.",
         }
         return Redirect("/rvo", query_params=params)
 

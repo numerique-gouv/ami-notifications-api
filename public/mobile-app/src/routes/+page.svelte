@@ -17,12 +17,16 @@ import applicationSvg from '@gouvfr/dsfr/dist/artwork/pictograms/digital/applica
 let isFranceConnected: boolean = $state(false)
 let isLoggedOut: boolean = $state(false)
 let error: string = $state('')
+let error_description: string = $state('')
 
 onMount(async () => {
   isFranceConnected = !!localStorage.getItem('access_token')
   try {
     if (page.url.searchParams.has('error')) {
       error = page.url.searchParams.get('error')
+    }
+    if (page.url.searchParams.has('error_description')) {
+      error_description = page.url.searchParams.get('error_description')
     }
     if (page.url.searchParams.has('is_logged_in')) {
       const access_token = page.url.searchParams.get('access_token') || ''
@@ -69,6 +73,7 @@ function dismissNotice() {
 
 function dismissError() {
   error = ''
+  error_description = ''
   goto('/')
 }
 </script>
@@ -82,6 +87,9 @@ function dismissError() {
         <div class="fr-notice__body">
           <p>
             <span class="fr-notice__title">{error}</span>
+            {#if error_description}
+              <span class="fr-notice__desc">{error_description}</span>
+            {/if}
           </p>
           <button onclick="{dismissError}" title="Masquer le message" type="button" class="fr-btn--close fr-btn">Masquer le message</button>
         </div>

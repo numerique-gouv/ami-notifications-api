@@ -721,6 +721,22 @@ async def test_login_callback_bad_state(
     )
 
 
+async def test_login_callback_fc_error(
+    test_client: TestClient[Litestar],
+) -> None:
+    response = test_client.get(
+        "/login-callback?error=access_denied&error_description=User+auth+aborted&state=some-state",
+        follow_redirects=False,
+    )
+
+    assert response.status_code == 302
+    redirected_url = response.headers["location"]
+    assert (
+        redirected_url
+        == "https://localhost:5173/?error=access_denied&error_description=User+auth+aborted"
+    )
+
+
 async def test_fc_get_userinfo(
     test_client: TestClient[Litestar],
     db_session: AsyncSession,
