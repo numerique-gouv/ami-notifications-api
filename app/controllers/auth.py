@@ -2,6 +2,7 @@ import uuid
 from typing import Annotated, Any
 
 import jwt
+from advanced_alchemy.extensions.litestar import providers
 from litestar import Controller, Request, Response, get
 from litestar.params import Parameter
 from litestar.response.redirect import Redirect
@@ -10,16 +11,23 @@ from litestar.status_codes import HTTP_500_INTERNAL_SERVER_ERROR
 from app import env
 from app.auth import generate_nonce
 from app.httpx import httpxClient
+from app.services.nonce import NonceService
 from app.utils import error_from_message, retry_fc_later
 
 
 class AuthController(Controller):
+    dependencies = {
+        "nonces_service": providers.create_service_provider(NonceService),
+    }
+
     @get(path="/login-france-connect", include_in_schema=False)
-    async def login_france_connect(self, request: Request[Any, Any, Any]) -> Response[Any]:
+    async def login_france_connect(
+        self,
+        nonces_service: NonceService,
+        request: Request[Any, Any, Any],
+    ) -> Response[Any]:
         NONCE = generate_nonce()
-        STATE = str(uuid.uuid4())
-        request.session["nonce"] = NONCE
-        request.session["state"] = STATE
+        nonce = await nonces_service.create({"nonce": NONCE})
 
         params = {
             "scope": "openid identite_pivot preferred_username email cnaf_quotient_familial",
@@ -28,7 +36,9 @@ class AuthController(Controller):
             "client_id": env.PUBLIC_FC_AMI_CLIENT_ID,
             # If we're in production, there's no proxy, just send the STATE.
             "state": (
-                f"{env.PUBLIC_FC_AMI_REDIRECT_URL}?state={STATE}" if env.PUBLIC_FC_PROXY else STATE
+                f"{env.PUBLIC_FC_AMI_REDIRECT_URL}?state={nonce.id}"
+                if env.PUBLIC_FC_PROXY
+                else str(nonce.id)
             ),
             "nonce": NONCE,
             "acr_values": "eidas1",
@@ -41,6 +51,7 @@ class AuthController(Controller):
     @get(path="/login-callback", include_in_schema=False)
     async def login_callback(
         self,
+        nonces_service: NonceService,
         code: str | None,
         error: str | None,
         error_description: str | None,
@@ -50,14 +61,24 @@ class AuthController(Controller):
         if error or not code:
             return retry_fc_later(
                 error_dict={
+                    "error_code": "fc_error",
                     "error": error or "Erreur lors de la connexion",
                     "error_description": error_description or "",
                 }
             )
 
         # Validate that the STATE is coherent with the one we sent to FC
-        if not fc_state or fc_state != request.session.get("state", ""):
-            return retry_fc_later()
+        if not fc_state:
+            return retry_fc_later(error_dict={"error_code": "missing_state"})
+        try:
+            state = uuid.UUID(fc_state)
+        except ValueError:
+            return retry_fc_later(error_dict={"error_code": "invalid_state"})
+        nonce = await nonces_service.get_one_or_none(id=state)
+        if not nonce:
+            return retry_fc_later(error_dict={"error_code": "invalid_state"})
+        # Cleanup nonce as it was used
+        await nonces_service.delete(nonce.id)
 
         # FC - Step 5
         redirect_uri: str = env.PUBLIC_FC_PROXY or env.PUBLIC_FC_AMI_REDIRECT_URL
@@ -92,23 +113,23 @@ class AuthController(Controller):
         response_token_data: dict[str, str] = response.json()
 
         id_token: str = response_token_data.get("id_token", "")
+        if not id_token:
+            # XXX this is not covered by tests for the moment
+            return retry_fc_later(error_dict={"error_code": "missing_id_token"})
         decoded_token: dict[str, str] = jwt.decode(
             id_token, options={"verify_signature": False}, algorithms=["ES256"]
         )
 
         # Validate that the NONCE is coherent with the one we sent to FC
-        if "nonce" not in decoded_token or decoded_token["nonce"] != request.session.get(
-            "nonce", ""
-        ):
-            return retry_fc_later()
+        if "nonce" not in decoded_token:
+            # XXX this is not covered by tests for the moment
+            return retry_fc_later(error_dict={"error_code": "missing_nonce"})
+        if decoded_token["nonce"] != nonce.nonce:
+            return retry_fc_later(error_dict={"error_code": "invalid_nonce"})
 
         params: dict[str, str] = {
             **response_token_data,
             "is_logged_in": "true",
         }
-
-        # Cleanup FC verifications
-        del request.session["nonce"]
-        del request.session["state"]
 
         return Redirect(f"{env.PUBLIC_APP_URL}/", query_params=params)

@@ -5,9 +5,12 @@ import pytest
 from litestar import Litestar
 from litestar.testing import TestClient
 from pytest_httpx import HTTPXMock
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import env
 from app.auth import generate_nonce
+from app.models import Nonce
 from tests.utils import url_contains_param
 
 
@@ -29,11 +32,17 @@ async def test_generate_nonce(monkeypatch: pytest.MonkeyPatch) -> None:
 
 async def test_login_france_connect(
     test_client: TestClient[Litestar],
+    db_session: AsyncSession,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     FAKE_NONCE = "some-random-nonce"
     monkeypatch.setattr("app.controllers.auth.generate_nonce", lambda: FAKE_NONCE)
     response = test_client.get("/login-france-connect", follow_redirects=False)
+    redirected_url = response.headers["location"]
+    all_nonces = (await db_session.execute(select(Nonce))).scalars().all()
+    assert len(all_nonces) == 1
+    nonce = all_nonces[0]
+    assert nonce.nonce == FAKE_NONCE
     assert response.status_code == 302
     redirected_url = response.headers["location"]
     assert redirected_url.startswith(
@@ -49,17 +58,25 @@ async def test_login_france_connect(
     )
     assert url_contains_param("response_type", "code", redirected_url)
     assert url_contains_param("client_id", env.PUBLIC_FC_AMI_CLIENT_ID, redirected_url)
-    assert url_contains_param("state", env.PUBLIC_FC_AMI_REDIRECT_URL, redirected_url)
-    assert url_contains_param("nonce", FAKE_NONCE, redirected_url)
+    assert url_contains_param(
+        "state", f"{env.PUBLIC_FC_AMI_REDIRECT_URL}?state={nonce.id}", redirected_url
+    )
+    assert url_contains_param("nonce", nonce.nonce, redirected_url)
     assert url_contains_param("acr_values", "eidas1", redirected_url)
     assert url_contains_param("prompt", "login", redirected_url)
 
 
 async def test_login_callback(
     test_client: TestClient[Litestar],
+    db_session: AsyncSession,
     httpx_mock: HTTPXMock,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    NONCE = "YTc3NzZlNjUtNmY3OC00YzExLThmODItMTg0MDg2ZjQ0YzEyLTIwMjUtMTEtMTggMDg6NTI6MzUuNjM1OTYyKzAwOjAw"
+    nonce = Nonce(nonce=NONCE)
+    db_session.add(nonce)
+    await db_session.commit()
+
     # The following fake id_token corresponds to the following decoded id_token:
     #  {'sub': 'cff67ebe00792a2f2b5115dcc1a65d115adb3b73653fb3ed1b88ea11a7a2589av1',
     #   'auth_time': 1763455959,
@@ -69,9 +86,6 @@ async def test_login_callback(
     #   'exp': 1763456019,
     #   'iat': 1763455959,
     #   'iss': 'https://fcp-low.sbx.dev-franceconnect.fr/api/v2'}
-
-    NONCE = "YTc3NzZlNjUtNmY3OC00YzExLThmODItMTg0MDg2ZjQ0YzEyLTIwMjUtMTEtMTggMDg6NTI6MzUuNjM1OTYyKzAwOjAw"
-    STATE = "some random state"
 
     fake_id_token = "eyJhbGciOiJFUzI1NiIsImtpZCI6InBrY3MxMTpFUzI1Njpoc20ifQ.eyJzdWIiOiJjZmY2N2ViZTAwNzkyYTJmMmI1MTE1ZGNjMWE2NWQxMTVhZGIzYjczNjUzZmIzZWQxYjg4ZWExMWE3YTI1ODlhdjEiLCJhdXRoX3RpbWUiOjE3NjM0NTU5NTksImFjciI6ImVpZGFzMSIsIm5vbmNlIjoiWVRjM056WmxOalV0Tm1ZM09DMDBZekV4TFRobU9ESXRNVGcwTURnMlpqUTBZekV5TFRJd01qVXRNVEV0TVRnZ01EZzZOVEk2TXpVdU5qTTFPVFl5S3pBd09qQXciLCJhdWQiOiIzM2ZlNDk4Y2MxNzJmZTY5MTc3ODkxMmEyOTY3YmFhNjUwYjI0ZjFhZTBlYmJlNDdhZTU1MmYzN2IyZDI1ZWFkIiwiZXhwIjoxNzYzNDU2MDE5LCJpYXQiOjE3NjM0NTU5NTksImlzcyI6Imh0dHBzOi8vZmNwLWxvdy5zYnguZGV2LWZyYW5jZWNvbm5lY3QuZnIvYXBpL3YyIn0.ynJnN7WY9hN9ACp27ETHg9pDA6tje09MlAfkkADcP6R5Ro_pLpQJ6Jtt4T3zn4ERMC2HKBkGSy1UcZgvLNPSFQ"
 
@@ -89,9 +103,8 @@ async def test_login_callback(
     )
     monkeypatch.setattr("app.env.FC_AMI_CLIENT_SECRET", "fake-client-secret")
 
-    test_client.set_session_data({"nonce": NONCE, "state": STATE})
     response = test_client.get(
-        f"/login-callback?code=fake-code&state={STATE}", follow_redirects=False
+        f"/login-callback?code=fake-code&state={nonce.id}", follow_redirects=False
     )
 
     assert response.status_code == 302
@@ -102,16 +115,19 @@ async def test_login_callback(
     assert "id_token" in redirected_url
     assert "token_type" in redirected_url
     assert "is_logged_in" in redirected_url
-    assert "nonce" not in test_client.get_session_data()
-    assert "state" not in test_client.get_session_data()
+    all_nonces = (await db_session.execute(select(Nonce))).scalars().all()
+    assert len(all_nonces) == 0
 
 
 async def test_login_callback_token_query_failure(
     test_client: TestClient[Litestar],
+    db_session: AsyncSession,
     httpx_mock: HTTPXMock,
 ) -> None:
-    NONCE = "YTc3NzZlNjUtNmY3OC00YzExLThmODItMTg0MDg2ZjQ0YzEyLTIwMjUtMTEtMTggMDg6NTI6MzUuNjM1OTYyKzAwOjAw"
-    STATE = "some random state"
+    NONCE = "some random nonce"
+    nonce = Nonce(nonce=NONCE)
+    db_session.add(nonce)
+    await db_session.commit()
 
     token_failure_response = {
         "error": "invalid_grant",
@@ -125,9 +141,8 @@ async def test_login_callback_token_query_failure(
         status_code=401,
     )
 
-    test_client.set_session_data({"nonce": NONCE, "state": STATE})
     response = test_client.get(
-        f"/login-callback?code=fake-code&state={STATE}", follow_redirects=False
+        f"/login-callback?code=fake-code&state={nonce.id}", follow_redirects=False
     )
 
     assert response.status_code == 302
@@ -138,11 +153,58 @@ async def test_login_callback_token_query_failure(
     )
 
 
+async def test_login_callback_bad_state(
+    test_client: TestClient[Litestar],
+    db_session: AsyncSession,
+) -> None:
+    NONCE = "some random nonce"
+    nonce = Nonce(nonce=NONCE)
+    db_session.add(nonce)
+    await db_session.commit()
+
+    response = test_client.get("/login-callback?code=fake-code&state=", follow_redirects=False)
+    assert response.status_code == 302
+    redirected_url = response.headers["location"]
+    assert url_contains_param("error_type", "FranceConnect", redirected_url)
+    assert url_contains_param(
+        "error", "Erreur lors de la France Connexion, veuillez réessayer plus tard.", redirected_url
+    )
+    assert url_contains_param("code", "missing_state", redirected_url)
+
+    response = test_client.get(
+        "/login-callback?code=fake-code&state=some-other-state", follow_redirects=False
+    )
+    assert response.status_code == 302
+    redirected_url = response.headers["location"]
+    assert url_contains_param("error_type", "FranceConnect", redirected_url)
+    assert url_contains_param(
+        "error", "Erreur lors de la France Connexion, veuillez réessayer plus tard.", redirected_url
+    )
+    assert url_contains_param("code", "invalid_state", redirected_url)
+
+    response = test_client.get(
+        "/login-callback?code=fake-code&state={uuid.uuid4()}", follow_redirects=False
+    )
+    assert response.status_code == 302
+    redirected_url = response.headers["location"]
+    assert url_contains_param("error_type", "FranceConnect", redirected_url)
+    assert url_contains_param(
+        "error", "Erreur lors de la France Connexion, veuillez réessayer plus tard.", redirected_url
+    )
+    assert url_contains_param("code", "invalid_state", redirected_url)
+
+
 async def test_login_callback_bad_nonce(
     test_client: TestClient[Litestar],
+    db_session: AsyncSession,
     httpx_mock: HTTPXMock,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    NONCE = "some random nonce"
+    nonce = Nonce(nonce=NONCE)
+    db_session.add(nonce)
+    await db_session.commit()
+
     # The following fake id_token corresponds to the following decoded id_token:
     #  {'sub': 'cff67ebe00792a2f2b5115dcc1a65d115adb3b73653fb3ed1b88ea11a7a2589av1',
     #   'auth_time': 1763455959,
@@ -169,38 +231,19 @@ async def test_login_callback_bad_nonce(
     )
     monkeypatch.setattr("app.env.FC_AMI_CLIENT_SECRET", "fake-client-secret")
 
-    STATE = "some random state"
-    test_client.set_session_data({"nonce": "some other nonce", "state": STATE})
     response = test_client.get(
-        f"/login-callback?code=fake-code&state={STATE}", follow_redirects=False
+        f"/login-callback?code=fake-code&state={nonce.id}", follow_redirects=False
     )
 
     assert response.status_code == 302
     redirected_url = response.headers["location"]
-    assert (
-        redirected_url
-        == "https://localhost:5173/?error=Erreur+lors+de+la+France+Connexion%2C+veuillez+r%C3%A9essayer+plus+tard.&error_type=FranceConnect"
+    assert url_contains_param("error_type", "FranceConnect", redirected_url)
+    assert url_contains_param(
+        "error", "Erreur lors de la France Connexion, veuillez réessayer plus tard.", redirected_url
     )
-
-
-async def test_login_callback_bad_state(
-    test_client: TestClient[Litestar],
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    monkeypatch.setattr("app.env.FC_AMI_CLIENT_SECRET", "fake-client-secret")
-
-    STATE = "some random state"
-    test_client.set_session_data({"nonce": "some other nonce", "state": "some other state"})
-    response = test_client.get(
-        f"/login-callback?code=fake-code&state={STATE}", follow_redirects=False
-    )
-
-    assert response.status_code == 302
-    redirected_url = response.headers["location"]
-    assert (
-        redirected_url
-        == "https://localhost:5173/?error=Erreur+lors+de+la+France+Connexion%2C+veuillez+r%C3%A9essayer+plus+tard.&error_type=FranceConnect"
-    )
+    assert url_contains_param("code", "invalid_nonce", redirected_url)
+    all_nonces = (await db_session.execute(select(Nonce))).scalars().all()
+    assert len(all_nonces) == 0
 
 
 async def test_login_callback_fc_error(
@@ -213,7 +256,7 @@ async def test_login_callback_fc_error(
 
     assert response.status_code == 302
     redirected_url = response.headers["location"]
-    assert (
-        redirected_url
-        == "https://localhost:5173/?error=access_denied&error_type=FranceConnect&error_description=User+auth+aborted"
-    )
+    assert url_contains_param("error_type", "FranceConnect", redirected_url)
+    assert url_contains_param("error", "access_denied", redirected_url)
+    assert url_contains_param("error_description", "User auth aborted", redirected_url)
+    assert url_contains_param("code", "fc_error", redirected_url)
