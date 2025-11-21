@@ -5,6 +5,7 @@ from typing import Any
 
 import pytest
 from litestar import Litestar
+from litestar.middleware.session.server_side import ServerSideSessionConfig
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
@@ -15,10 +16,12 @@ from sqlalchemy.pool import NullPool
 from webpush import WebPush
 from webpush.vapid import VAPID
 
-from app import create_app, session_config
+from app import create_app
 from app.database import DATABASE_URL, alchemy_config
 from app.models import Base, Notification, Registration, User
 from tests.base import TestClient
+
+session_config = ServerSideSessionConfig()
 
 TEST_DATABASE_URL = f"{DATABASE_URL}_test"
 

@@ -12,7 +12,6 @@ from litestar.channels.backends.memory import MemoryChannelsBackend
 from litestar.config.cors import CORSConfig
 from litestar.contrib.jinja import JinjaTemplateEngine
 from litestar.di import Provide
-from litestar.middleware.session.server_side import ServerSideSessionConfig
 from litestar.static_files import (
     create_static_files_router,  # type: ignore[reportUnknownVariableType]
 )
@@ -32,7 +31,6 @@ from .data.routes import data_router
 from .rvo.routes import router as rvo_router
 
 cors_config = CORSConfig(allow_origins=["*"])
-session_config = ServerSideSessionConfig()
 
 
 sentry_sdk.init(
@@ -96,6 +94,5 @@ def create_app(
         ],
         template_config=TemplateConfig(directory=Path("templates"), engine=JinjaTemplateEngine),
         cors_config=cors_config,
-        middleware=[session_config.middleware],
         stores={"sessions": FileStore(path=Path("session_data"))},
     )
