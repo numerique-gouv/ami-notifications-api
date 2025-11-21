@@ -5,7 +5,7 @@ from advanced_alchemy.extensions.litestar import providers
 from litestar import Controller, Request, Response, get
 
 from app import env, models, schemas
-from app.httpx import httpx
+from app.httpx import httpxClient
 from app.services.user import UserService
 
 
@@ -26,7 +26,7 @@ class UserController(Controller):
         We thus have this endpoint to act as some kind of proxy.
 
         """
-        response = httpx.get(
+        response = httpxClient.get(
             f"{env.PUBLIC_FC_BASE_URL}{env.PUBLIC_FC_USERINFO_ENDPOINT}",
             headers={"authorization": request.headers["authorization"]},
         )

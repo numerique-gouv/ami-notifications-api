@@ -1,10 +1,10 @@
 import datetime
 from typing import Any
 
-import httpx
 from litestar import Request, Response, Router, get
 
 from app import env
+from app.httpx import httpx
 from app.schemas import Holiday
 
 

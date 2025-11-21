@@ -12,7 +12,7 @@ from pydantic import TypeAdapter
 from webpush import WebPush, WebPushSubscription
 
 from app import env, models, schemas
-from app.httpx import httpx
+from app.httpx import httpxClient
 from app.services.notification import NotificationService
 from app.services.user import UserService
 
@@ -57,7 +57,7 @@ class NotificationController(Controller):
             message = webpush.get(message=json.dumps(json_data), subscription=subscription)
             headers = cast(dict[str, str], message.headers)
 
-            response = httpx.post(
+            response = httpxClient.post(
                 registration.subscription["endpoint"], content=message.encrypted, headers=headers
             )
             if response.status_code < 500:

@@ -1,5 +1,5 @@
 """Setup any system wide httpx configuration here."""
 
-import httpx as do_not_use_httpx
+import httpx
 
-httpx = do_not_use_httpx.Client(timeout=60)
+httpxClient = httpx.Client(timeout=60)
