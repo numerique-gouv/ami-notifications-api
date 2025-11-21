@@ -57,8 +57,7 @@ class RegistrationController(Controller):
             )
 
         registration: models.Registration = await registrations_service.create(
-            models.Registration(**data.model_dump()),
-            auto_commit=True,
+            models.Registration(**data.model_dump())
         )
         return Response(
             registrations_service.to_schema(registration, schema_type=schemas.Registration),
@@ -88,4 +87,4 @@ class RegistrationController(Controller):
     async def unregister(
         self, registrations_service: RegistrationService, registration_id: uuid.UUID
     ) -> None:
-        await registrations_service.delete(registration_id, auto_commit=True)
+        await registrations_service.delete(registration_id)

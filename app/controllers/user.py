@@ -39,10 +39,7 @@ class UserController(Controller):
 
         user: models.User | None = await users_service.get_one_or_none(**userinfo.model_dump())
         if user is None:
-            user = await users_service.create(
-                models.User(**userinfo.model_dump()),
-                auto_commit=True,
-            )
+            user = await users_service.create(models.User(**userinfo.model_dump()))
         result: dict[str, Any] = {
             "user_id": user.id,
             "user_data": userinfo_jws,
