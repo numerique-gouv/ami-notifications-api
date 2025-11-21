@@ -50,6 +50,7 @@ class DatabaseSettings:
 session_config = AsyncSessionConfig(expire_on_commit=False)
 alchemy_config = SQLAlchemyAsyncConfig(
     engine_instance=DatabaseSettings().get_engine(),
+    before_send_handler="autocommit_include_redirects",
     session_config=session_config,
 )
 alchemy = SQLAlchemyPlugin(config=alchemy_config)

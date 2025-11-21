@@ -67,8 +67,7 @@ class NotificationController(Controller):
                 response.raise_for_status()
 
         notification: models.Notification = await notifications_service.create(
-            models.Notification(**data.model_dump()),
-            auto_commit=True,
+            models.Notification(**data.model_dump())
         )
         channels.publish(  # type: ignore
             {
@@ -134,10 +133,7 @@ class NotificationController(Controller):
         if notification is None:
             raise NotFoundException(detail="Notification not found")
         notification.unread = not data.read
-        notification = await notifications_service.update(
-            notification,
-            auto_commit=True,
-        )
+        notification = await notifications_service.update(notification)
         channels.publish(  # type: ignore
             {
                 "user_id": str(user.id),
