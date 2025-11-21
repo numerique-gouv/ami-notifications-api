@@ -10,6 +10,7 @@ from litestar import (
     get,
 )
 from litestar.exceptions import NotFoundException
+from litestar.middleware.session.server_side import ServerSideSessionConfig
 from litestar.params import Parameter
 from litestar.response import Template
 from litestar.response.redirect import Redirect
@@ -30,6 +31,8 @@ from app.rvo import auth
 from app.services.notification import NotificationService
 from app.services.user import UserService
 from app.utils import error_from_message, error_from_response
+
+session_config = ServerSideSessionConfig()
 
 # This is the folder where the static files for the dsfr are stored.
 HTML_DIR = "public/mobile-app/node_modules/@gouvfr"
@@ -302,4 +305,5 @@ router: Router = Router(
         ),
     ],
     exception_handlers={auth.NotAuthenticatedException: auth.redirect_to_login_exception_handler},
+    middleware=[session_config.middleware],
 )
