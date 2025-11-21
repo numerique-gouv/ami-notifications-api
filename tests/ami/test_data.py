@@ -1,8 +1,9 @@
-import httpx
 from litestar import Litestar
 from litestar.status_codes import HTTP_200_OK
 from litestar.testing import TestClient
 from pytest_httpx import HTTPXMock
+
+from app.httpx import httpx
 
 
 async def test_get_api_particulier_quotient(

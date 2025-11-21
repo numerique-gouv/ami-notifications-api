@@ -22,7 +22,8 @@ from litestar.status_codes import (
 )
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app import env, httpx, rvo_auth
+from app import env, rvo_auth
+from app.httpx import httpxClient
 from app.models import Notification, User
 from app.services.notification import NotificationService
 from app.services.user import UserService
@@ -140,7 +141,7 @@ async def login_callback(
 
     # FC - Step 6
     token_endpoint_headers: dict[str, str] = {"Content-Type": "application/x-www-form-urlencoded"}
-    response: Any = httpx.post(
+    response: Any = httpxClient.post(
         f"{PUBLIC_FC_BASE_URL}{PUBLIC_FC_TOKEN_ENDPOINT}",
         headers=token_endpoint_headers,
         data=data,
@@ -162,13 +163,13 @@ async def login_callback(
         return Redirect("/rvo", query_params=params)
 
     # FC - Step 8
-    httpx.get(f"{PUBLIC_FC_BASE_URL}{PUBLIC_FC_JWKS_ENDPOINT}")
+    httpxClient.get(f"{PUBLIC_FC_BASE_URL}{PUBLIC_FC_JWKS_ENDPOINT}")
 
     # FC - Step 11
     access_token = response_token_data["access_token"]
     id_token = response_token_data["id_token"]
     userinfo_endpoint_headers = {"Authorization": f"Bearer {access_token}"}
-    response = httpx.get(
+    response = httpxClient.get(
         f"{PUBLIC_FC_BASE_URL}{PUBLIC_FC_USERINFO_ENDPOINT}",
         headers=userinfo_endpoint_headers,
     )

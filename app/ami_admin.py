@@ -22,7 +22,7 @@ from litestar.status_codes import (
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import ami_admin_auth
-from app.httpx import httpx
+from app.httpx import httpxClient
 from app.models import Notification, User
 from app.services.notification import NotificationService
 from app.services.user import UserService
@@ -87,7 +87,7 @@ async def login_callback(
         )
 
     token_endpoint_headers: dict[str, str] = {"Content-Type": "application/x-www-form-urlencoded"}
-    response: Any = httpx.post(
+    response: Any = httpxClient.post(
         f"{PUBLIC_PRO_CONNECT_BASE_URL}{PUBLIC_PRO_CONNECT_TOKEN_ENDPOINT}",
         headers=token_endpoint_headers,
         data=data,
@@ -99,7 +99,7 @@ async def login_callback(
     response_token_data: dict[str, str] = response.json()
 
     # 2.3.4. Vérification de l'id_token et du nonce
-    httpx.get(f"{PUBLIC_PRO_CONNECT_BASE_URL}{PUBLIC_PRO_CONNECT_JWKS_ENDPOINT}")
+    httpxClient.get(f"{PUBLIC_PRO_CONNECT_BASE_URL}{PUBLIC_PRO_CONNECT_JWKS_ENDPOINT}")
 
     # 2.3.5. Stockage du id_token
     access_token = response_token_data["access_token"]
@@ -108,7 +108,7 @@ async def login_callback(
 
     # 2.3.6. Récupération des user info
     userinfo_endpoint_headers = {"Authorization": f"Bearer {access_token}"}
-    response = httpx.get(
+    response = httpxClient.get(
         f"{PUBLIC_PRO_CONNECT_BASE_URL}{PUBLIC_PRO_CONNECT_USERINFO_ENDPOINT}",
         headers=userinfo_endpoint_headers,
     )

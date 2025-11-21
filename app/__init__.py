@@ -35,7 +35,7 @@ from app.controllers.notification import NotificationController
 from app.controllers.registration import RegistrationController
 from app.controllers.user import UserController
 from app.database import alchemy
-from app.httpx import httpx
+from app.httpx import httpxClient
 
 from .ami_admin import ami_admin_router
 from .data.routes import data_router
@@ -127,7 +127,7 @@ async def login_callback(
 
     # FC - Step 6
     token_endpoint_headers: dict[str, str] = {"Content-Type": "application/x-www-form-urlencoded"}
-    response: Any = httpx.post(
+    response: Any = httpxClient.post(
         f"{env.PUBLIC_FC_BASE_URL}{env.PUBLIC_FC_TOKEN_ENDPOINT}",
         headers=token_endpoint_headers,
         data=data,
