@@ -6,6 +6,7 @@ from typing import Annotated, Any, cast
 from advanced_alchemy.extensions.litestar import providers
 from litestar import Controller, WebSocket, get, patch, post, websocket
 from litestar.channels import ChannelsPlugin
+from litestar.di import Provide
 from litestar.exceptions import NotFoundException, WebSocketDisconnect
 from litestar.params import Body
 from pydantic import TypeAdapter
@@ -14,10 +15,105 @@ from webpush import WebPush, WebPushSubscription
 from app import env, models, schemas
 from app.httpx import httpxClient
 from app.services.notification import NotificationService
-from app.services.user import UserService
+from app.services.user import UserService, provide_user
 
 
 class NotificationController(Controller):
+    dependencies = {
+        "current_user": Provide(provide_user),
+        "notifications_service": providers.create_service_provider(NotificationService),
+    }
+
+    @get("/api/v1/users/notifications")
+    async def list_notifications(
+        self,
+        notifications_service: NotificationService,
+        current_user: models.User,
+        unread: bool | None = None,
+    ) -> Sequence[schemas.Notification]:
+        if unread is not None:
+            notifications: Sequence[models.Notification] = await notifications_service.list(
+                order_by=(models.Notification.created_at, True),
+                user=current_user,
+                unread=unread,
+            )
+        else:
+            notifications: Sequence[models.Notification] = await notifications_service.list(
+                order_by=(models.Notification.created_at, True),
+                user=current_user,
+            )
+        # We could do:
+        # return notifications_service.to_schema(notifications, schema_type=schemas.Notification)
+        # But it adds pagination.
+        # For the moment, just return a list of dict
+        type_adapter = TypeAdapter(list[schemas.Notification])
+        return type_adapter.validate_python(notifications)
+
+    @patch("/api/v1/users/notification/{notification_id:uuid}/read")
+    async def read_notification(
+        self,
+        channels: ChannelsPlugin,
+        notifications_service: NotificationService,
+        current_user: models.User,
+        notification_id: uuid.UUID,
+        data: Annotated[
+            schemas.NotificationRead,
+            Body(
+                description="Mark a user notification as read or unread",
+            ),
+        ],
+    ) -> schemas.Notification:
+        notification: models.Notification | None = await notifications_service.get_one_or_none(
+            id=notification_id,
+            user=current_user,
+        )
+        if notification is None:
+            raise NotFoundException(detail="Notification not found")
+        notification.unread = not data.read
+        notification = await notifications_service.update(notification)
+        channels.publish(  # type: ignore
+            {
+                "user_id": str(current_user.id),
+                "id": str(notification.id),
+                "event": schemas.NotificationEvent.UPDATED,
+            },
+            "notification_events",
+        )
+        return notifications_service.to_schema(notification, schema_type=schemas.Notification)
+
+    @websocket("/api/v1/users/notification/events/stream")
+    async def stream_notification_events(
+        self,
+        socket: WebSocket[Any, Any, Any],
+        channels: ChannelsPlugin,
+        current_user: models.User,
+    ) -> None:
+        async def _sender(message: str) -> None:
+            data = json.loads(message)
+            if data["user_id"] != str(current_user.id):
+                return
+            await socket.send_json(data)
+
+        await socket.accept()
+
+        # then listen for notification events
+        async with (
+            channels.start_subscription(["notification_events"]) as subscriber,
+            subscriber.run_in_background(_sender),  # type:ignore
+        ):
+            while True:
+                try:
+                    message = await socket.receive_text()
+                    if message == "close":
+                        # XXX this is for tests
+                        await socket.close()
+                        return
+                except WebSocketDisconnect:
+                    # if the socket is closed, avoid exception trace
+                    return
+
+
+class NotAuthenticatedNotificationController(Controller):
     dependencies = {
         "notifications_service": providers.create_service_provider(NotificationService),
         "users_service": providers.create_service_provider(UserService),
@@ -87,6 +183,7 @@ class NotificationController(Controller):
         user_id: uuid.UUID,
         unread: bool | None = None,
     ) -> Sequence[schemas.Notification]:
+        # XXX keep this endpoint for mobile-app compatibility; remove it when mobile-app use authenticated endpoint
         user: models.User | None = await users_service.get_one_or_none(id=user_id)
         if user is None:
             raise NotFoundException(detail="User not found")
@@ -107,76 +204,3 @@ class NotificationController(Controller):
         # For the moment, just return a list of dict
         type_adapter = TypeAdapter(list[schemas.Notification])
         return type_adapter.validate_python(notifications)
-
-    @patch("/api/v1/users/{user_id:uuid}/notification/{notification_id:uuid}/read")
-    async def read_notification(
-        self,
-        channels: ChannelsPlugin,
-        notifications_service: NotificationService,
-        users_service: UserService,
-        user_id: uuid.UUID,
-        notification_id: uuid.UUID,
-        data: Annotated[
-            schemas.NotificationRead,
-            Body(
-                description="Mark a user notification as read or unread",
-            ),
-        ],
-    ) -> schemas.Notification:
-        user: models.User | None = await users_service.get_one_or_none(id=user_id)
-        if user is None:
-            raise NotFoundException(detail="User not found")
-        notification: models.Notification | None = await notifications_service.get_one_or_none(
-            id=notification_id,
-            user=user,
-        )
-        if notification is None:
-            raise NotFoundException(detail="Notification not found")
-        notification.unread = not data.read
-        notification = await notifications_service.update(notification)
-        channels.publish(  # type: ignore
-            {
-                "user_id": str(user.id),
-                "id": str(notification.id),
-                "event": schemas.NotificationEvent.UPDATED,
-            },
-            "notification_events",
-        )
-        return notifications_service.to_schema(notification, schema_type=schemas.Notification)
-
-    @websocket("/api/v1/users/{user_id:uuid}/notification/events/stream")
-    async def stream_notification_events(
-        self,
-        socket: WebSocket[Any, Any, Any],
-        channels: ChannelsPlugin,
-        users_service: UserService,
-        user_id: uuid.UUID,
-    ) -> None:
-        user: models.User | None = await users_service.get_one_or_none(id=user_id)
-        if user is None:
-            await socket.close()
-            return
-
-        async def _sender(message: str) -> None:
-            data = json.loads(message)
-            if data["user_id"] != str(user_id):
-                return
-            await socket.send_json(data)
-
-        await socket.accept()
-
-        # then listen for notification events
-        async with (
-            channels.start_subscription(["notification_events"]) as subscriber,
-            subscriber.run_in_background(_sender),  # type:ignore
-        ):
-            while True:
-                try:
-                    message = await socket.receive_text()
-                    if message == "close":
-                        # XXX this is for tests
-                        await socket.close()
-                        return
-                except WebSocketDisconnect:
-                    # if the socket is closed, avoid exception trace
-                    return

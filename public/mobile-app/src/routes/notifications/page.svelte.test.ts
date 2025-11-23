@@ -11,9 +11,7 @@ let wss
 
 describe('/+page.svelte', () => {
   beforeEach(() => {
-    wss = new WS(
-      `${PUBLIC_API_WS_URL}/api/v1/users/3ac73f4f-4be2-456a-9c2e-ddff480d5767/notification/events/stream`
-    )
+    wss = new WS(`${PUBLIC_API_WS_URL}/api/v1/users/notification/events/stream`)
   })
 
   afterEach(() => {

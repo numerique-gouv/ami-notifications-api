@@ -18,18 +18,15 @@ export type Notification = {
 
 export const retrieveNotifications = async (): Promise<Notification[]> => {
   let notifications = [] as Notification[]
-  const userId = localStorage.getItem('user_id')
-  if (userId) {
-    try {
-      const response = await fetch(
-        `${PUBLIC_API_URL}/api/v1/users/${userId}/notifications`
-      )
-      if (response.status === 200) {
-        notifications = await response.json()
-      }
-    } catch (error) {
-      console.error(error)
+  try {
+    const response = await fetch(`${PUBLIC_API_URL}/api/v1/users/notifications`, {
+      credentials: 'include',
+    })
+    if (response.status === 200) {
+      notifications = await response.json()
     }
+  } catch (error) {
+    console.error(error)
   }
   console.log('notifications', notifications)
   return notifications
@@ -37,18 +34,16 @@ export const retrieveNotifications = async (): Promise<Notification[]> => {
 
 export const countUnreadNotifications = async (): Number => {
   let notifications = [] as Notification[]
-  const userId = localStorage.getItem('user_id')
-  if (userId) {
-    try {
-      const response = await fetch(
-        `${PUBLIC_API_URL}/api/v1/users/${userId}/notifications?unread=true`
-      )
-      if (response.status === 200) {
-        notifications = await response.json()
-      }
-    } catch (error) {
-      console.error(error)
+  try {
+    const response = await fetch(
+      `${PUBLIC_API_URL}/api/v1/users/notifications?unread=true`,
+      { credentials: 'include' }
+    )
+    if (response.status === 200) {
+      notifications = await response.json()
     }
+  } catch (error) {
+    console.error(error)
   }
   return notifications.length
 }
@@ -56,37 +51,32 @@ export const countUnreadNotifications = async (): Number => {
 export const readNotification = async (
   notificationId: Number
 ): Promise<Notification> => {
-  const userId = localStorage.getItem('user_id')
-  if (userId) {
-    try {
-      const payload = {
-        read: true,
-      }
-      const response = await fetch(
-        `${PUBLIC_API_URL}/api/v1/users/${userId}/notification/${notificationId}/read`,
-        {
-          method: 'PATCH',
-          body: JSON.stringify(payload),
-        }
-      )
-      if (response.status === 200) {
-        let notification = (await response.json()) as Notification
-        return notification
-      }
-    } catch (error) {
-      console.error(error)
+  try {
+    const payload = {
+      read: true,
     }
+    const response = await fetch(
+      `${PUBLIC_API_URL}/api/v1/users/notification/${notificationId}/read`,
+      {
+        method: 'PATCH',
+        body: JSON.stringify(payload),
+        credentials: 'include',
+      }
+    )
+    if (response.status === 200) {
+      let notification = (await response.json()) as Notification
+      return notification
+    }
+  } catch (error) {
+    console.error(error)
   }
 }
 
 export const notificationEventsSocket = (onmessage) => {
-  const userId = localStorage.getItem('user_id')
-  if (userId) {
-    const ws = new WebSocket(
-      `${PUBLIC_API_WS_URL}/api/v1/users/${userId}/notification/events/stream`
-    )
-    ws.onmessage = onmessage
-  }
+  const ws = new WebSocket(
+    `${PUBLIC_API_WS_URL}/api/v1/users/notification/events/stream`
+  )
+  ws.onmessage = onmessage
 }
 
 export const subscribePush = async () => {

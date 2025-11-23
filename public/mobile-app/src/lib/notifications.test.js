@@ -12,25 +12,9 @@ import {
 import * as registrationMethods from '$lib/registration.js'
 
 describe('/notifications', () => {
-  afterEach(() => {
-    window.localStorage.clear()
-  })
-
   describe('retrieveNotifications', () => {
-    test('user_id should be set', async () => {
-      // Given
-      expect(window.localStorage.getItem('user_id')).toEqual(null)
-
-      // When
-      const result = await retrieveNotifications()
-
-      // Then
-      expect(result).toEqual([])
-    })
-
     test('should get notifications from API', async () => {
       // Given
-      window.localStorage.setItem('user_id', 'fake-user-id')
       const notifications = [
         {
           created_at: '2025-09-19T13:52:23.279545',
@@ -67,20 +51,8 @@ describe('/notifications', () => {
   })
 
   describe('countUnreadNotifications', () => {
-    test('user_id should be set', async () => {
-      // Given
-      expect(window.localStorage.getItem('user_id')).toEqual(null)
-
-      // When
-      const result = await countUnreadNotifications()
-
-      // Then
-      expect(result).toEqual(0)
-    })
-
     test('should count unread notifications from API', async () => {
       // Given
-      window.localStorage.setItem('user_id', 'fake-user-id')
       const notifications = [
         {
           created_at: '2025-09-19T13:52:23.279545',
@@ -108,20 +80,8 @@ describe('/notifications', () => {
   })
 
   describe('readNotification', () => {
-    test('user_id should be set', async () => {
-      // Given
-      expect(window.localStorage.getItem('user_id')).toEqual(null)
-
-      // When
-      const result = await readNotification('unknown')
-
-      // Then
-      expect(result).toEqual(undefined)
-    })
-
     test('should mark notification as read', async () => {
       // Given
-      window.localStorage.setItem('user_id', 'fake-user-id')
       const read_notification = [
         {
           created_at: '2025-09-19T13:52:23.279545',

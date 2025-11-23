@@ -53,8 +53,13 @@ jwt_cookie_auth = JWTCookieAuth[User](
         # exclude mode views
         "^/service-worker.js$",
         "^/sector_identifier_url$",
-        # tmp: exclude apis
-        "^/api",
+        # tmp: exclude registration apis
+        "^/api/v1/users/registrations",
+        "^/api/v1/users/[-a-f0-9]+/registrations",
+        # exclude open notification views
+        "^/api/v1/notifications$",
+        "^/api/v1/users/[-a-f0-9]+/notifications$",
+        "^/notification-key$",
     ],
     samesite="none",
     secure=True,

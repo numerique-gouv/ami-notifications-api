@@ -22,7 +22,10 @@ from webpush import WebPush
 from app import env
 from app.auth import jwt_cookie_auth, openapi_config
 from app.controllers.auth import AuthController
-from app.controllers.notification import NotificationController
+from app.controllers.notification import (
+    NotAuthenticatedNotificationController,
+    NotificationController,
+)
 from app.controllers.registration import RegistrationController
 from app.controllers.user import UserController
 from app.database import alchemy
@@ -73,6 +76,7 @@ def create_app(
             AuthController,
             RegistrationController,
             NotificationController,
+            NotAuthenticatedNotificationController,
             UserController,
             data_router,
             get_sector_identifier_url,
