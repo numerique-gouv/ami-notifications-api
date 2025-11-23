@@ -55,7 +55,6 @@ jwt_cookie_auth = JWTCookieAuth[User](
         "^/sector_identifier_url$",
         # tmp: exclude apis
         "^/api",
-        "^/data",
     ],
     samesite="none",
     secure=True,

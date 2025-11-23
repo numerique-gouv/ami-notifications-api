@@ -42,7 +42,10 @@ export const retrieveHolidays = async (date) => {
   const oneday_in_ms = 24 * 60 * 60 * 1000
   try {
     const response = await fetch(
-      `${PUBLIC_API_URL}/data/holidays?current_date=${current_date}`
+      `${PUBLIC_API_URL}/data/holidays?current_date=${current_date}`,
+      {
+        credentials: 'include',
+      }
     )
     const result = {
       now: [] as Holiday[],

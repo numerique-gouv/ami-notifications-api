@@ -2,15 +2,17 @@ import datetime
 from typing import Any
 
 from litestar import Request, Response, Router, get
+from litestar.security.jwt import Token
 
 from app import env
 from app.httpx import httpx
+from app.models import User
 from app.schemas import Holiday
 
 
 @get(path="/api-particulier/quotient", include_in_schema=False)
 async def get_api_particulier_quotient(
-    request: Request[Any, Any, Any],
+    request: Request[User, Token, Any],
 ) -> Response[Any]:
     """This endpoint "forwards" the request coming from the frontend (the app).
 
@@ -20,7 +22,7 @@ async def get_api_particulier_quotient(
     """
     response = httpx.get(
         f"{env.PUBLIC_API_PARTICULIER_BASE_URL}{env.PUBLIC_API_PARTICULIER_QUOTIENT_ENDPOINT}?recipient={env.PUBLIC_API_PARTICULIER_RECIPIENT_ID}",
-        headers={"authorization": request.headers["authorization"]},
+        headers={"authorization": request.headers["fc_authorization"]},
     )
     return Response(response.content, status_code=response.status_code)
 
