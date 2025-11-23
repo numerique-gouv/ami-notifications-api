@@ -26,7 +26,7 @@ class RegistrationController(Controller):
         ),
     }
 
-    @post("/api/v1/registrations")
+    @post("/api/v1/users/registrations")
     async def register(
         self,
         registrations_service: RegistrationService,
@@ -83,7 +83,7 @@ class RegistrationController(Controller):
         type_adapter = TypeAdapter(list[schemas.Registration])
         return type_adapter.validate_python(user.registrations)
 
-    @delete("/api/v1/registrations/{registration_id:uuid}")
+    @delete("/api/v1/users/registrations/{registration_id:uuid}")
     async def unregister(
         self, registrations_service: RegistrationService, registration_id: uuid.UUID
     ) -> None:
