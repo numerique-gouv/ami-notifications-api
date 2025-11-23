@@ -35,7 +35,7 @@ async def test_register_user_does_not_exist(
         "subscription": webpushsubscription,
         "user_id": str(uuid.uuid4()),
     }
-    response = test_client.post("/api/v1/registrations", json=register_data)
+    response = test_client.post("/api/v1/users/registrations", json=register_data)
     assert response.status_code == HTTP_404_NOT_FOUND
 
     all_registrations = await db_session.execute(select(Registration))
@@ -61,7 +61,7 @@ async def test_register(
         "subscription": webpushsubscription,
         "user_id": str(user.id),
     }
-    response = test_client.post("/api/v1/registrations", json=register_data)
+    response = test_client.post("/api/v1/users/registrations", json=register_data)
     assert response.status_code == HTTP_201_CREATED
 
     all_registrations = (await db_session.execute(select(Registration))).scalars().all()
@@ -75,7 +75,7 @@ async def test_register(
         "subscription": webpushsubscription,
         "user_id": str(user.id),
     }
-    response = test_client.post("/api/v1/registrations", json=register_data)
+    response = test_client.post("/api/v1/users/registrations", json=register_data)
     assert response.status_code == HTTP_200_OK
 
     all_registrations = (await db_session.execute(select(Registration))).scalars().all()
@@ -100,7 +100,7 @@ async def test_register_fields(
         "subscription": webpushsubscription,
         "user_id": "",
     }
-    response = test_client.post("/api/v1/registrations", json=register_data)
+    response = test_client.post("/api/v1/users/registrations", json=register_data)
     assert response.status_code == HTTP_400_BAD_REQUEST
     assert response.json()["extra"] == [
         {
@@ -122,7 +122,7 @@ async def test_register_fields(
         "created_at": registration_date.isoformat(),
         "updated_at": registration_date.isoformat(),
     }
-    response = test_client.post("/api/v1/registrations", json=registration_data)
+    response = test_client.post("/api/v1/users/registrations", json=registration_data)
     assert response.status_code == HTTP_201_CREATED
 
     all_registrations = (await db_session.execute(select(Registration))).scalars().all()
@@ -141,7 +141,7 @@ async def test_unregister(
     all_registrations = (await db_session.execute(select(Registration))).scalars().all()
     assert len(all_registrations) == 1
 
-    response = test_client.delete(f"/api/v1/registrations/{registration.id}")
+    response = test_client.delete(f"/api/v1/users/registrations/{registration.id}")
     assert response.status_code == HTTP_204_NO_CONTENT
 
     all_registrations = (await db_session.execute(select(Registration))).scalars().all()

@@ -18,7 +18,7 @@ export const registerDevice = async (pushSubscription) => {
   }
   console.log('payload:', payload)
 
-  const response = await fetch(`${PUBLIC_API_URL}/api/v1/registrations`, {
+  const response = await fetch(`${PUBLIC_API_URL}/api/v1/users/registrations`, {
     method: 'POST',
     body: JSON.stringify(payload),
   })
@@ -37,7 +37,7 @@ export const unregisterDevice = async (registrationId) => {
     'Content-Type': 'application/json',
   }
   const response = await fetch(
-    `${PUBLIC_API_URL}/api/v1/registrations/${registrationId}`,
+    `${PUBLIC_API_URL}/api/v1/users/registrations/${registrationId}`,
     {
       method: 'DELETE',
       headers: headers,
