@@ -57,6 +57,7 @@ onMount(async () => {
       }
       const response = await fetch(`${PUBLIC_API_URL}/fc_userinfo`, {
         headers: userinfo_endpoint_headers,
+        credentials: 'include',
       })
       const result = await response.json()
       localStorage.setItem('user_data', result.user_data)
