@@ -5,6 +5,7 @@ from advanced_alchemy.extensions.litestar import providers
 from litestar import Controller, Request, Response, get
 
 from app import env, models, schemas
+from app.auth import jwt_cookie_auth
 from app.httpx import httpxClient
 from app.services.user import UserService
 
@@ -45,4 +46,6 @@ class UserController(Controller):
             "user_data": userinfo_jws,
         }
 
-        return Response(result, status_code=response.status_code)
+        return jwt_cookie_auth.login(
+            identifier=str(user.id), response_body=result, response_status_code=response.status_code
+        )

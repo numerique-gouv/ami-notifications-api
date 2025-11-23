@@ -1,5 +1,7 @@
 import os
 
+JWT_SECRET = os.getenv("JWT_SECRET", "abcd123")
+
 SENTRY_DSN = os.getenv("SENTRY_DSN", "")
 SENTRY_ENV = os.getenv("SENTRY_ENV", "")
 
