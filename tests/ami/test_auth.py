@@ -11,7 +11,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import env
-from app.auth import generate_nonce
+from app.auth import generate_nonce, jwt_cookie_auth
 from app.models import Nonce, User
 from tests.utils import url_contains_param
 
@@ -312,3 +312,6 @@ async def test_fc_get_userinfo(
         "user_id": str(user.id),
         "user_data": fake_userinfo_token,
     }
+    assert "authorization" in response.headers
+    assert "set-cookie" in response.headers
+    assert response.cookies.get(jwt_cookie_auth.key)
