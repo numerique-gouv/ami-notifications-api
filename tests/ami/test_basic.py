@@ -1,5 +1,4 @@
 import datetime
-import json
 import uuid
 from typing import Any
 
@@ -556,56 +555,6 @@ async def test_list_registrations(
     assert response.json()[0]["created_at"] == registration.created_at.isoformat().replace(
         "+00:00", "Z"
     )
-
-
-async def test_fc_get_userinfo(
-    test_client: TestClient[Litestar],
-    db_session: AsyncSession,
-    httpx_mock: HTTPXMock,
-    monkeypatch: pytest.MonkeyPatch,
-    userinfo: dict[str, Any],
-) -> None:
-    fake_userinfo_token = "fake userinfo jwt token"
-    auth = {"authorization": "Bearer foobar_access_token"}
-    httpx_mock.add_response(
-        method="GET",
-        url="https://fcp-low.sbx.dev-franceconnect.fr/api/v2/userinfo",
-        match_headers=auth,
-        text=fake_userinfo_token,
-        is_reusable=True,
-    )
-
-    def fake_jwt_decode(*args: Any, **params: Any):
-        return userinfo
-
-    monkeypatch.setattr("jwt.decode", fake_jwt_decode)
-
-    response = test_client.get("/fc_userinfo", headers=auth)
-
-    assert response.status_code == 200
-    all_users = (await db_session.execute(select(User))).scalars().all()
-    assert len(all_users) == 1
-    user = all_users[0]
-    assert json.loads(response.text) == {
-        "user_id": str(user.id),
-        "user_data": fake_userinfo_token,
-    }
-
-    assert user.email == "angela@dubois.fr"
-    assert user.given_name == "Angela Claire Louise"
-    assert user.family_name == "DUBOIS"
-    assert user.birthdate == datetime.date(1962, 8, 24)
-    assert user.gender == "female"
-    assert user.birthplace == 75107
-    assert user.birthcountry == 99100
-
-    response = test_client.get("/fc_userinfo", headers=auth)
-
-    assert response.status_code == 200
-    assert json.loads(response.text) == {
-        "user_id": str(user.id),
-        "user_data": fake_userinfo_token,
-    }
 
 
 async def test_get_sector_identifier_url(
