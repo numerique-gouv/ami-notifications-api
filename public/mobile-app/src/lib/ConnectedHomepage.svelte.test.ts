@@ -40,6 +40,7 @@ describe('/ConnectedHomepage.svelte', () => {
         ...original,
         enableNotifications: vi.fn(() => Promise.resolve(registration)),
         disableNotifications: vi.fn(() => Promise.resolve()),
+        countUnreadNotifications: vi.fn(() => 3),
       }
     })
 
@@ -48,9 +49,7 @@ describe('/ConnectedHomepage.svelte', () => {
     window.localStorage.setItem('emailLocalStorage', 'test@email.fr')
     window.localStorage.setItem('pushSubscriptionLocalStorage', '{}')
 
-    wss = new WS(
-      `${PUBLIC_API_WS_URL}/api/v1/users/3ac73f4f-4be2-456a-9c2e-ddff480d5767/notification/events/stream`
-    )
+    wss = new WS(`${PUBLIC_API_WS_URL}/api/v1/users/notification/events/stream`)
   })
 
   afterEach(() => {
@@ -69,11 +68,11 @@ describe('/ConnectedHomepage.svelte', () => {
 
   test("should display user's quotient data", async () => {
     // When
-    const { container } = render(ConnectedHomepage)
+    const { container } = await render(ConnectedHomepage)
     await new Promise(setTimeout) // wait for async calls
 
     // Then
-    const accordion = container.querySelector('#accordion-1')
+    const accordion = await container.querySelector('#accordion-1')
     expect(accordion).toHaveTextContent('quotientinfo: { "data": { "foo": "bar" }')
   })
 
@@ -95,7 +94,6 @@ describe('/ConnectedHomepage.svelte', () => {
 
   test("should refresh user's notification count", async () => {
     // Given
-    window.localStorage.setItem('user_id', '3ac73f4f-4be2-456a-9c2e-ddff480d5767')
     const spy = vi
       .spyOn(notificationsMethods, 'countUnreadNotifications')
       .mockImplementationOnce(() => 3)

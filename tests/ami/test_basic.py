@@ -17,7 +17,9 @@ from pytest_httpx import HTTPXMock
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.auth import jwt_cookie_auth
 from app.models import Notification, Registration, User
+from tests.ami.utils import assert_query_fails_without_auth, login
 
 
 async def test_register_user_does_not_exist(
@@ -183,7 +185,8 @@ async def test_notify_create_notification_from_test_and_from_app_context(
     }
     response = test_client.post("/api/v1/notifications", json=notification_data)
     assert response.status_code == HTTP_201_CREATED
-    response = test_client.get(f"/api/v1/users/{registration.user.id}/notifications")
+    login(registration.user, test_client)
+    response = test_client.get("/api/v1/users/notifications")
     all_notifications = (await db_session.execute(select(Notification))).scalars().all()
     assert len(all_notifications) == 2
     notification2 = all_notifications[1]
@@ -299,7 +302,8 @@ async def test_notify_when_registration_gone(
     }
     response = test_client.post("/api/v1/notifications", json=notification_data)
     assert response.status_code == HTTP_201_CREATED
-    response = test_client.get(f"/api/v1/users/{registration.user.id}/notifications")
+    login(registration.user, test_client)
+    response = test_client.get("/api/v1/users/notifications")
     assert response.status_code == HTTP_200_OK
     assert len(response.json()) == 1
 
@@ -307,12 +311,88 @@ async def test_notify_when_registration_gone(
 async def test_get_notifications_should_return_empty_list_by_default(
     test_client: TestClient[Litestar], user: User
 ) -> None:  # The `user` fixture is needed so we don't get a 404 when asking for notifications.
+    login(user, test_client)
+
+    response = test_client.get("/api/v1/users/notifications")
+    assert response.status_code == HTTP_200_OK
+    assert response.json() == []
+
+
+async def test_get_notifications(
+    test_client: TestClient[Litestar],
+    db_session: AsyncSession,
+    notification: Notification,
+) -> None:
+    login(notification.user, test_client)
+
+    # notification for another user, not returned in notification list of current user
+    other_user = User(
+        email="other-user@example.com", family_name="AMI", given_name="Other Test User"
+    )
+    db_session.add(other_user)
+    await db_session.commit()
+    other_notification = Notification(
+        user_id=other_user.id,
+        message="Other notification",
+        title="Notification title",
+        sender="John Doe",
+    )
+    db_session.add(other_notification)
+    await db_session.commit()
+
+    # test user notification list
+    response = test_client.get("/api/v1/users/notifications")
+    assert response.status_code == HTTP_200_OK
+    assert len(response.json()) == 1
+    assert response.json()[0]["user_id"] == str(notification.user.id)
+    assert response.json()[0]["message"] == notification.message
+    assert response.json()[0]["title"] == notification.title
+    assert response.json()[0]["sender"] == notification.sender
+    assert response.json()[0]["unread"] is True
+
+    response = test_client.get("/api/v1/users/notifications?unread=true")
+    assert response.status_code == HTTP_200_OK
+    assert len(response.json()) == 1
+    response = test_client.get("/api/v1/users/notifications?unread=false")
+    assert response.status_code == HTTP_200_OK
+    assert len(response.json()) == 0
+
+    notification.unread = False
+    db_session.add(notification)
+    await db_session.commit()
+
+    response = test_client.get("/api/v1/users/notifications")
+    assert response.status_code == HTTP_200_OK
+    assert len(response.json()) == 1
+    assert response.json()[0]["user_id"] == str(notification.user.id)
+    assert response.json()[0]["message"] == notification.message
+    assert response.json()[0]["title"] == notification.title
+    assert response.json()[0]["sender"] == notification.sender
+    assert response.json()[0]["unread"] is False
+
+    response = test_client.get("/api/v1/users/notifications?unread=true")
+    assert response.status_code == HTTP_200_OK
+    assert len(response.json()) == 0
+    response = test_client.get("/api/v1/users/notifications?unread=false")
+    assert response.status_code == HTTP_200_OK
+    assert len(response.json()) == 1
+
+
+async def test_get_notifications_without_auth(
+    test_client: TestClient[Litestar],
+) -> None:
+    await assert_query_fails_without_auth("/api/v1/users/notifications", test_client)
+
+
+async def test_get_notifications_should_return_empty_list_by_default_legacy(
+    test_client: TestClient[Litestar], user: User
+) -> None:  # The `user` fixture is needed so we don't get a 404 when asking for notifications.
     response = test_client.get(f"/api/v1/users/{user.id}/notifications")
     assert response.status_code == HTTP_200_OK
     assert response.json() == []
 
 
-async def test_get_notifications_should_return_notifications_for_given_user_id(
+async def test_get_notifications_should_return_notifications_for_given_user_id_legacy(
     test_client: TestClient[Litestar],
     db_session: AsyncSession,
     notification: Notification,
@@ -379,6 +459,8 @@ async def test_read_notification(
     db_session: AsyncSession,
     notification: Notification,
 ) -> None:
+    login(notification.user, test_client)
+
     # notification for another user, can not be patched by test user
     other_user = User(
         email="other-user@example.com", family_name="AMI", given_name="Other Test User"
@@ -395,25 +477,25 @@ async def test_read_notification(
     await db_session.commit()
 
     # invalid, no payload
-    response = test_client.patch(f"/api/v1/users/{uuid.uuid4()}/notification/{uuid.uuid4()}/read")
+    response = test_client.patch(f"/api/v1/users/notification/{uuid.uuid4()}/read")
     assert response.status_code == HTTP_400_BAD_REQUEST
 
-    # unknown user
+    # unknown notification
     response = test_client.patch(
-        f"/api/v1/users/{uuid.uuid4()}/notification/{uuid.uuid4()}/read", json={"read": True}
+        f"/api/v1/users/notification/{uuid.uuid4()}/read", json={"read": True}
     )
     assert response.status_code == HTTP_404_NOT_FOUND
 
     # can not patch notification of another user
     response = test_client.patch(
-        f"/api/v1/users/{notification.user.id}/notification/{other_notification.id}/read",
+        f"/api/v1/users/notification/{other_notification.id}/read",
         json={"read": True},
     )
     assert response.status_code == HTTP_404_NOT_FOUND
 
     # invalid, read is required
     response = test_client.patch(
-        f"/api/v1/users/{notification.user.id}/notification/{notification.id}/read",
+        f"/api/v1/users/notification/{notification.id}/read",
         json={"read": None},
     )
     assert response.status_code == HTTP_400_BAD_REQUEST
@@ -422,7 +504,7 @@ async def test_read_notification(
     ]
 
     response = test_client.patch(
-        f"/api/v1/users/{notification.user.id}/notification/{notification.id}/read",
+        f"/api/v1/users/notification/{notification.id}/read",
         json={"read": True},
     )
     assert response.status_code == HTTP_200_OK
@@ -433,7 +515,7 @@ async def test_read_notification(
     assert response.json()["unread"] is False
 
     response = test_client.patch(
-        f"/api/v1/users/{notification.user.id}/notification/{notification.id}/read",
+        f"/api/v1/users/notification/{notification.id}/read",
         json={"read": False},
     )
     assert response.status_code == HTTP_200_OK
@@ -444,15 +526,13 @@ async def test_read_notification(
     assert response.json()["unread"] is True
 
 
-async def test_stream_notification_events_user_does_not_exist(
+async def test_read_notification_without_auth(
     test_client: TestClient[Litestar],
+    notification: Notification,
 ) -> None:
-    with pytest.raises(WebSocketDisconnect):
-        with test_client.websocket_connect(
-            f"/api/v1/users/{uuid.uuid4()}/notification/events/stream"
-        ):
-            # When the user doesn't exist socket is immediately closed
-            pass
+    await assert_query_fails_without_auth(
+        f"/api/v1/users/notification/{notification.id}/read", test_client, method="patch"
+    )
 
 
 async def test_stream_notification_events_created(
@@ -460,10 +540,12 @@ async def test_stream_notification_events_created(
     db_session: AsyncSession,
     user: User,
 ) -> None:
+    login(user, test_client)
+
     all_notifications = (await db_session.execute(select(Notification))).scalars().all()
     assert len(all_notifications) == 0
 
-    with test_client.websocket_connect(f"/api/v1/users/{user.id}/notification/events/stream") as ws:
+    with test_client.websocket_connect("/api/v1/users/notification/events/stream") as ws:
         try:
             # create a notification
             notification_data = {
@@ -492,13 +574,14 @@ async def test_stream_notification_events_created(
 async def test_stream_notification_events_updated(
     test_client: TestClient[Litestar],
     db_session: AsyncSession,
-    user: User,
     notification: Notification,
 ) -> None:
+    login(notification.user, test_client)
+
     all_notifications = (await db_session.execute(select(Notification))).scalars().all()
     assert len(all_notifications) == 1
 
-    with test_client.websocket_connect(f"/api/v1/users/{user.id}/notification/events/stream") as ws:
+    with test_client.websocket_connect("/api/v1/users/notification/events/stream") as ws:
         try:
             # create a notification for another user
             other_user = User(
@@ -517,7 +600,7 @@ async def test_stream_notification_events_updated(
 
             # mark user notification as read
             response = test_client.patch(
-                f"/api/v1/users/{notification.user.id}/notification/{notification.id}/read",
+                f"/api/v1/users/notification/{notification.id}/read",
                 json={"read": True},
             )
             assert response.status_code == HTTP_200_OK
@@ -526,11 +609,26 @@ async def test_stream_notification_events_updated(
             message = ws.receive_json()
             assert message == {
                 "id": str(notification.id),
-                "user_id": str(user.id),
+                "user_id": str(notification.user.id),
                 "event": "updated",
             }
         finally:
             ws.send_text("close")
+
+
+async def test_stream_notification_events_without_auth(
+    test_client: TestClient[Litestar],
+) -> None:
+    with pytest.raises(WebSocketDisconnect):
+        with test_client.websocket_connect("/api/v1/users/notification/events/stream"):
+            # socket is immediately closed
+            pass
+
+    test_client.cookies.update({jwt_cookie_auth.key: "Bearer: bad-value"})
+    with pytest.raises(WebSocketDisconnect):
+        with test_client.websocket_connect("/api/v1/users/notification/events/stream"):
+            # socket is immediately closed
+            pass
 
 
 async def test_list_registrations_user_does_not_exist(
@@ -555,6 +653,13 @@ async def test_list_registrations(
     assert response.json()[0]["created_at"] == registration.created_at.isoformat().replace(
         "+00:00", "Z"
     )
+
+
+async def test_notification_key(
+    test_client: TestClient[Litestar],
+) -> None:
+    response = test_client.get("/notification-key")
+    assert response.status_code == HTTP_200_OK
 
 
 async def test_get_sector_identifier_url(
