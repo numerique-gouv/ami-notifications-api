@@ -6,10 +6,11 @@ export const getQuotientData = async () => {
     const access_token = localStorage.getItem('access_token')
     const token_type = localStorage.getItem('token_type')
     const quotient_endpoint_headers = {
-      Authorization: `${token_type} ${access_token}`,
+      FC_Authorization: `${token_type} ${access_token}`,
     }
     const response = await fetch(`${PUBLIC_API_URL}/data/api-particulier/quotient`, {
       headers: quotient_endpoint_headers,
+      credentials: 'include',
     })
     quotientData = await response.text()
     if (response.ok) {
