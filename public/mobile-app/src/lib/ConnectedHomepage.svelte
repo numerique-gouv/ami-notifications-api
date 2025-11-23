@@ -9,6 +9,7 @@ import {
 } from '$lib/notifications'
 import { getQuotientData } from '$lib/api-particulier'
 import bankIcon from '@gouvfr/dsfr/dist/icons/buildings/bank-line.svg'
+import { PUBLIC_API_URL } from '$env/static/public'
 
 let userinfo: Object = $state({})
 let quotientinfo: Object = $state({})
@@ -88,8 +89,17 @@ const logout = async () => {
   const id_token_hint = localStorage.getItem('id_token') || ''
   // Logout from AMI first: https://github.com/numerique-gouv/ami-notifications-api/issues/132
   localStorage.clear()
+  try {
+    // delete auth cookie
+    await fetch(`${PUBLIC_API_URL}/logout`, {
+      method: 'POST',
+      credentials: 'include',
+    })
+  } catch (error) {
+    console.error(error)
+  }
   // And now logout from FC
-  franceConnectLogout(id_token_hint)
+  await franceConnectLogout(id_token_hint)
 }
 </script>
 

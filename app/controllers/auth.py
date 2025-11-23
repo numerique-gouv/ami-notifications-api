@@ -3,13 +3,13 @@ from typing import Annotated, Any
 
 import jwt
 from advanced_alchemy.extensions.litestar import providers
-from litestar import Controller, Request, Response, get
+from litestar import Controller, Request, Response, get, post
 from litestar.params import Parameter
 from litestar.response.redirect import Redirect
 from litestar.status_codes import HTTP_500_INTERNAL_SERVER_ERROR
 
 from app import env
-from app.auth import generate_nonce
+from app.auth import generate_nonce, jwt_cookie_auth
 from app.httpx import httpxClient
 from app.services.nonce import NonceService
 from app.utils import error_from_message, retry_fc_later
@@ -133,3 +133,9 @@ class AuthController(Controller):
         }
 
         return Redirect(f"{env.PUBLIC_APP_URL}/", query_params=params)
+
+    @post(path="/logout", include_in_schema=False)
+    async def logout(self) -> Response[Any]:
+        response = Response({})
+        response.delete_cookie(key=jwt_cookie_auth.key)
+        return response

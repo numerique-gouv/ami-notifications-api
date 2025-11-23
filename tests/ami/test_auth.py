@@ -13,6 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app import env
 from app.auth import generate_nonce, jwt_cookie_auth
 from app.models import Nonce, User
+from tests.ami.utils import assert_query_fails_without_auth, login
 from tests.utils import url_contains_param
 
 
@@ -315,3 +316,20 @@ async def test_fc_get_userinfo(
     assert "authorization" in response.headers
     assert "set-cookie" in response.headers
     assert response.cookies.get(jwt_cookie_auth.key)
+
+
+async def test_logout(
+    user: User,
+    test_client: TestClient[Litestar],
+) -> None:
+    login(user, test_client)
+    assert test_client.cookies.get(jwt_cookie_auth.key)
+    response = test_client.post("/logout")
+    assert response.status_code == 201
+    assert not response.cookies.get(jwt_cookie_auth.key)
+
+
+async def test_logout_without_auth(
+    test_client: TestClient[Litestar],
+) -> None:
+    await assert_query_fails_without_auth("/logout", test_client, method="post")

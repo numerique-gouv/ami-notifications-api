@@ -190,7 +190,7 @@ describe('/ConnectedHomepage.svelte', () => {
     expect(window.localStorage.getItem('notifications_enabled')).toBe('false')
   })
 
-  test('should logout a user from AMI then from FC', () => {
+  test('should logout a user from AMI then from FC', async () => {
     // Given
     globalThis.localStorage = {
       getItem: vi.fn().mockImplementation(() => {
@@ -200,13 +200,18 @@ describe('/ConnectedHomepage.svelte', () => {
         return
       }),
     }
+    globalThis.fetch = vi.fn(() =>
+      Promise.resolve({
+        status: 200,
+      })
+    )
 
     // When
     render(ConnectedHomepage)
     const franceConnectLogoutButton = screen.getByRole('button', {
       name: 'Me déconnecter',
     })
-    franceConnectLogoutButton.click()
+    await franceConnectLogoutButton.click()
 
     // Then
     expect(localStorage.clear).toHaveBeenCalled()
