@@ -29,6 +29,10 @@ then
 else
   # We're on local dev, FranceConnect needs HTTPS so start backend server with SSL
   # On Scalingo, the backend is already on HTTPS
+  if [ ! -f ssl-key.pem ]
+  then
+    openssl req -x509 -newkey rsa:4096 -keyout ssl-key.pem -out ssl-cert.pem -sha256 -days 3650 -nodes -subj "/C=XX/ST=StateName/L=CityName/O=CompanyName/OU=CompanySectionName/CN=CommonNameOrHostname"
+  fi
   SSL="${SSL:---ssl-keyfile=ssl-key.pem --ssl-certfile=ssl-cert.pem}"
 fi
 
