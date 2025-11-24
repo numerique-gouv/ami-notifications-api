@@ -118,6 +118,7 @@ function dismissError() {
 
     <div class="france-connect-text">
       <p>Pour pouvoir accéder à <strong>vos droits, à des conseils, et aux échéances</strong> liées à votre situation personnelle, veuillez vous connecter via <strong>France Connect</strong>.</p>
+      <p class="fr-text--sm">FranceConnect est la solution proposée par l’État pour sécuriser et simplifier la connexion à vos services en ligne.</p>
     </div>
 
     <div class="fr-connect-group">
