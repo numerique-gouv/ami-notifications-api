@@ -15,7 +15,7 @@ from app.services.nonce import NonceService
 from app.utils import error_from_message, retry_fc_later
 
 
-class AuthController(Controller):
+class LoginAuthController(Controller):
     dependencies = {
         "nonces_service": providers.create_service_provider(NonceService),
     }
@@ -134,6 +134,8 @@ class AuthController(Controller):
 
         return Redirect(f"{env.PUBLIC_APP_URL}/", query_params=params)
 
+
+class LogoutAuthController(Controller):
     @post(path="/logout", include_in_schema=False)
     async def logout(self) -> Response[Any]:
         response = Response({})
