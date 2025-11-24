@@ -5,6 +5,7 @@ import sentry_sdk
 from litestar import (
     Litestar,
     Response,
+    Router,
     get,
 )
 from litestar.channels import ChannelsPlugin
@@ -21,7 +22,7 @@ from webpush import WebPush
 
 from app import env
 from app.auth import jwt_cookie_auth, openapi_config
-from app.controllers.auth import AuthController
+from app.controllers.auth import LoginAuthController, LogoutAuthController
 from app.controllers.notification import (
     NotAuthenticatedNotificationController,
     NotificationController,
@@ -68,17 +69,27 @@ def provide_webpush() -> WebPush:
     return webpush
 
 
+authenticated_router: Router = Router(
+    path="/",
+    route_handlers=[
+        LogoutAuthController,
+        RegistrationController,
+        NotificationController,
+        data_router,
+    ],
+    middleware=[jwt_cookie_auth.middleware],
+)
+
+
 def create_app(
     webpush_init: Callable[[], WebPush] = provide_webpush,
 ) -> Litestar:
     return Litestar(
         route_handlers=[
-            AuthController,
-            RegistrationController,
-            NotificationController,
+            authenticated_router,
+            LoginAuthController,
             NotAuthenticatedNotificationController,
             UserController,
-            data_router,
             get_sector_identifier_url,
             create_static_files_router(
                 path="/",
@@ -100,6 +111,5 @@ def create_app(
         template_config=TemplateConfig(directory=Path("templates"), engine=JinjaTemplateEngine),
         cors_config=cors_config,
         stores={"sessions": FileStore(path=Path("session_data"))},
-        on_app_init=[jwt_cookie_auth.on_app_init],
         openapi_config=openapi_config,
     )

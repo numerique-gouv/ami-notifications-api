@@ -41,23 +41,6 @@ async def retrieve_user_handler(
 jwt_cookie_auth = JWTCookieAuth[User](
     retrieve_user_handler=retrieve_user_handler,
     token_secret=str(env.JWT_SECRET),
-    exclude=[
-        # exclude login views
-        "^/login-france-connect$",
-        "^/login-callback$",
-        "^/fc_userinfo$",
-        # exclude rvo ...
-        "^/rvo",
-        # ... and ami_admin
-        "^/ami_admin",
-        # exclude mode views
-        "^/service-worker.js$",
-        "^/sector_identifier_url$",
-        # exclude open notification views
-        "^/api/v1/notifications$",
-        "^/api/v1/users/[-a-f0-9]+/notifications$",
-        "^/notification-key$",
-    ],
     samesite="none",
     secure=True,
 )
