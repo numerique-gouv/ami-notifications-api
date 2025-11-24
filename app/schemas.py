@@ -59,7 +59,6 @@ class Registration(BaseModel):
 
 
 class RegistrationCreate(BaseModel):
-    user_id: uuid.UUID
     subscription: dict[str, Any]
 
 

@@ -17,9 +17,9 @@ describe('/registration.js', () => {
       }
       const registration = {
         created_at: '2025-09-30T11:16:33.760588',
-        id: 49,
+        id: '15d6be79-94de-4675-b9c3-4eb3207aff21',
         subscription: pushSubscription,
-        user_id: 44,
+        user_id: '3ac73f4f-4be2-456a-9c2e-ddff480d5767',
       }
       globalThis.fetch = vi.fn(() =>
         Promise.resolve({
@@ -34,11 +34,11 @@ describe('/registration.js', () => {
       // Then
       expect(result).toEqual(registration)
       expect(result.created_at).toEqual('2025-09-30T11:16:33.760588')
-      expect(result.id).toEqual(49)
+      expect(result.id).toEqual('15d6be79-94de-4675-b9c3-4eb3207aff21')
       expect(result.subscription.endpoint).toEqual('fake-endpoint')
       expect(result.subscription.toJSON().keys.auth).toEqual('fake-auth')
       expect(result.subscription.toJSON().keys.p256dh).toEqual('fake-p256dh')
-      expect(result.user_id).toEqual(44)
+      expect(result.user_id).toEqual('3ac73f4f-4be2-456a-9c2e-ddff480d5767')
     })
   })
 
