@@ -126,7 +126,7 @@ class NotAuthenticatedNotificationController(Controller):
     async def get_notification_key(self) -> str:
         return env.VAPID_APPLICATION_SERVER_KEY
 
-    @post("/api/v1/notifications", return_dto=None)
+    @post("/api/v1/notifications")
     async def notify(
         self,
         channels: ChannelsPlugin,
