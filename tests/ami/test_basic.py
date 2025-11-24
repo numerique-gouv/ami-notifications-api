@@ -22,46 +22,20 @@ from app.models import Notification, Registration, User
 from tests.ami.utils import assert_query_fails_without_auth, login
 
 
-async def test_register_user_does_not_exist(
-    test_client: TestClient[Litestar],
-    db_session: AsyncSession,
-    webpushsubscription: dict[str, Any],
-) -> None:
-    user = User(email="alice@example.com")
-    db_session.add(user)
-    await db_session.commit()
-    await db_session.refresh(user)
-
-    register_data = {
-        "email": "foo@bar.baz",
-        "subscription": webpushsubscription,
-        "user_id": str(uuid.uuid4()),
-    }
-    response = test_client.post("/api/v1/users/registrations", json=register_data)
-    assert response.status_code == HTTP_404_NOT_FOUND
-
-    all_registrations = await db_session.execute(select(Registration))
-    assert len(all_registrations.scalars().all()) == 0
-
-
 async def test_register(
     test_client: TestClient[Litestar],
     db_session: AsyncSession,
+    user: User,
     webpushsubscription: dict[str, Any],
 ) -> None:
-    user = User(email="alice@example.com")
-    db_session.add(user)
-    await db_session.commit()
-    await db_session.refresh(user)
+    login(user, test_client)
 
     all_registrations = await db_session.execute(select(Registration))
     assert len(all_registrations.scalars().all()) == 0
 
     # First registration, we're expecting a 201 CREATED.
     register_data = {
-        "email": "foo@bar.baz",
         "subscription": webpushsubscription,
-        "user_id": str(user.id),
     }
     response = test_client.post("/api/v1/users/registrations", json=register_data)
     assert response.status_code == HTTP_201_CREATED
@@ -73,9 +47,7 @@ async def test_register(
 
     # Second registration, we're expecting a 200 OK, not 201 CREATED.
     register_data = {
-        "email": "foo@bar.baz",
         "subscription": webpushsubscription,
-        "user_id": str(user.id),
     }
     response = test_client.post("/api/v1/users/registrations", json=register_data)
     assert response.status_code == HTTP_200_OK
@@ -89,27 +61,10 @@ async def test_register(
 async def test_register_fields(
     test_client: TestClient[Litestar],
     db_session: AsyncSession,
+    user: User,
     webpushsubscription: dict[str, Any],
 ) -> None:
-    user = User(email="alice@example.com")
-    db_session.add(user)
-    await db_session.commit()
-    await db_session.refresh(user)
-
-    # user_id is required
-    register_data = {
-        "email": "foo@bar.baz",
-        "subscription": webpushsubscription,
-        "user_id": "",
-    }
-    response = test_client.post("/api/v1/users/registrations", json=register_data)
-    assert response.status_code == HTTP_400_BAD_REQUEST
-    assert response.json()["extra"] == [
-        {
-            "message": "Input should be a valid UUID, invalid length: expected length 32 for simple format, found 0",
-            "key": "user_id",
-        }
-    ]
+    login(user, test_client)
 
     # id, created_at and updated_at are ignored
     registration_date: datetime.datetime = datetime.datetime.now(
@@ -117,9 +72,7 @@ async def test_register_fields(
     ) + datetime.timedelta(days=1)
     registration_id: uuid.UUID = uuid.uuid4()
     registration_data = {
-        "email": "foo@bar.baz",
         "subscription": webpushsubscription,
-        "user_id": str(user.id),
         "id": str(registration_id),
         "created_at": registration_date.isoformat(),
         "updated_at": registration_date.isoformat(),
@@ -135,11 +88,19 @@ async def test_register_fields(
     assert registration.updated_at < registration_date
 
 
+async def test_register_without_auth(
+    test_client: TestClient[Litestar],
+) -> None:
+    await assert_query_fails_without_auth("/api/v1/users/registrations", test_client, method="post")
+
+
 async def test_unregister(
     test_client: TestClient[Litestar],
     db_session: AsyncSession,
     registration: Registration,
 ) -> None:
+    login(registration.user, test_client)
+
     all_registrations = (await db_session.execute(select(Registration))).scalars().all()
     assert len(all_registrations) == 1
 
@@ -148,6 +109,33 @@ async def test_unregister(
 
     all_registrations = (await db_session.execute(select(Registration))).scalars().all()
     assert len(all_registrations) == 0
+
+    # registration does not exist
+    response = test_client.delete(f"/api/v1/users/registrations/{registration.id}")
+    assert response.status_code == HTTP_404_NOT_FOUND
+
+    # registration of another user than current user
+    other_user = User(
+        email="other-user@example.com", family_name="AMI", given_name="Other Test User"
+    )
+    db_session.add(other_user)
+    await db_session.commit()
+    other_registration = Registration(
+        user_id=other_user.id,
+    )
+    db_session.add(other_registration)
+    await db_session.commit()
+    response = test_client.delete(f"/api/v1/users/registrations/{registration.id}")
+    assert response.status_code == HTTP_404_NOT_FOUND
+
+
+async def test_unregister_without_auth(
+    test_client: TestClient[Litestar],
+    registration: Registration,
+) -> None:
+    await assert_query_fails_without_auth(
+        f"/api/v1/users/registrations/{registration.id}", test_client, method="delete"
+    )
 
 
 async def test_notify_user_does_not_exist(
@@ -631,18 +619,13 @@ async def test_stream_notification_events_without_auth(
             pass
 
 
-async def test_list_registrations_user_does_not_exist(
-    test_client: TestClient[Litestar],
-) -> None:
-    response = test_client.get("/api/v1/users/0/registrations")
-    assert response.status_code == HTTP_404_NOT_FOUND
-
-
 async def test_list_registrations(
     test_client: TestClient[Litestar],
     registration: Registration,
 ) -> None:
-    response = test_client.get(f"/api/v1/users/{registration.user.id}/registrations")
+    login(registration.user, test_client)
+
+    response = test_client.get("/api/v1/users/registrations")
     assert response.status_code == HTTP_200_OK
     registrations = response.json()
     assert len(registrations) == 1
@@ -653,6 +636,12 @@ async def test_list_registrations(
     assert response.json()[0]["created_at"] == registration.created_at.isoformat().replace(
         "+00:00", "Z"
     )
+
+
+async def test_list_registrations_without_auth(
+    test_client: TestClient[Litestar],
+) -> None:
+    await assert_query_fails_without_auth("/api/v1/users/registrations", test_client)
 
 
 async def test_notification_key(

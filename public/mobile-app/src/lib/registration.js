@@ -14,13 +14,13 @@ export const registerDevice = async (pushSubscription) => {
         p256dh: pushSubP256DH,
       },
     },
-    user_id: localStorage.getItem('user_id'),
   }
   console.log('payload:', payload)
 
   const response = await fetch(`${PUBLIC_API_URL}/api/v1/users/registrations`, {
     method: 'POST',
     body: JSON.stringify(payload),
+    credentials: 'include',
   })
   console.log('response:', response)
   if (response.status < 400) {
@@ -41,6 +41,7 @@ export const unregisterDevice = async (registrationId) => {
     {
       method: 'DELETE',
       headers: headers,
+      credentials: 'include',
     }
   )
   console.log('response:', response)
