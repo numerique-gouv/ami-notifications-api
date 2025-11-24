@@ -83,6 +83,8 @@ function dismissError() {
 }
 </script>
 
+<h1>TEST LIEN PSL DANS UNE WEBVIEW (<a href="https://github.com/numerique-gouv/ami-notifications-api/issues/257">ticket #257</a>)</h1>
+  <a href="https://demarches.service-public.gouv.fr/mademarche/demarcheGenerique/?codeDemarche=PVPP">test de lien PSL</a>
 <div class="homepage">
 {#if !isFranceConnected}
   <div class="homepage-not-connected">
