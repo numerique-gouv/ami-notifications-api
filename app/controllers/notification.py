@@ -126,20 +126,14 @@ class NotAuthenticatedNotificationController(Controller):
     async def get_notification_key(self) -> str:
         return env.VAPID_APPLICATION_SERVER_KEY
 
-    @post("/api/v1/notifications")
-    async def notify(
+    @post("/ami_admin/notifications", include_in_schema=False)
+    async def admin_notify(
         self,
         channels: ChannelsPlugin,
         notifications_service: NotificationService,
         users_with_registrations_service: UserService,
         webpush: WebPush,
-        data: Annotated[
-            schemas.NotificationCreate,
-            Body(
-                title="Send a notification",
-                description="Send the notification message to a registered user",
-            ),
-        ],
+        data: schemas.NotificationCreate,
     ) -> schemas.Notification:
         user: models.User | None = await users_with_registrations_service.get_one_or_none(
             id=data.user_id

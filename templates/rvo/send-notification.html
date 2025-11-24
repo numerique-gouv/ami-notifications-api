@@ -88,7 +88,7 @@
       notifyMessageBtn.disabled = true
       notifyMessageStatus.innerText = 'Notifying...'
       document.querySelectorAll('.fr-messages-group').forEach((element) => element.innerHTML = '')
-      const response = await fetch('/api/v1/notifications', {
+      const response = await fetch('/ami_admin/notifications', {
         method: 'POST',
         body: JSON.stringify(payload),
       })
