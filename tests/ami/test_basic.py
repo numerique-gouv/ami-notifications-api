@@ -138,7 +138,7 @@ async def test_unregister_without_auth(
     )
 
 
-async def test_notify_user_does_not_exist(
+async def test_admin_notify_user_does_not_exist(
     test_client: TestClient[Litestar],
 ) -> None:
     notification_data = {
@@ -147,11 +147,11 @@ async def test_notify_user_does_not_exist(
         "title": "Some notification title",
         "sender": "Jane Doe",
     }
-    response = test_client.post("/api/v1/notifications", json=notification_data)
+    response = test_client.post("/ami_admin/notifications", json=notification_data)
     assert response.status_code == HTTP_404_NOT_FOUND
 
 
-async def test_notify_create_notification_from_test_and_from_app_context(
+async def test_admin_notify_create_notification_from_test_and_from_app_context(
     test_client: TestClient[Litestar],
     db_session: AsyncSession,
     notification: Notification,
@@ -171,7 +171,7 @@ async def test_notify_create_notification_from_test_and_from_app_context(
         "title": "Some notification title",
         "sender": "Jane Doe",
     }
-    response = test_client.post("/api/v1/notifications", json=notification_data)
+    response = test_client.post("/ami_admin/notifications", json=notification_data)
     assert response.status_code == HTTP_201_CREATED
     login(registration.user, test_client)
     response = test_client.get("/api/v1/users/notifications")
@@ -209,7 +209,7 @@ async def test_notify_create_notification_from_test_and_from_app_context(
     )
 
 
-async def test_notify_create_notification_test_fields(
+async def test_admin_notify_create_notification_test_fields(
     test_client: TestClient[Litestar],
     db_session: AsyncSession,
     user: User,
@@ -221,7 +221,7 @@ async def test_notify_create_notification_test_fields(
         "title": "Some notification title",
         "sender": "Jane Doe",
     }
-    response = test_client.post("/api/v1/notifications", json=notification_data)
+    response = test_client.post("/ami_admin/notifications", json=notification_data)
     assert response.status_code == HTTP_400_BAD_REQUEST
     assert response.json()["extra"] == [
         {
@@ -237,7 +237,7 @@ async def test_notify_create_notification_test_fields(
         "title": "Some notification title",
         "sender": "Jane Doe",
     }
-    response = test_client.post("/api/v1/notifications", json=notification_data)
+    response = test_client.post("/ami_admin/notifications", json=notification_data)
     assert response.status_code == HTTP_400_BAD_REQUEST
     assert response.json()["extra"] == [
         {"message": "String should have at least 1 character", "key": "message"}
@@ -258,7 +258,7 @@ async def test_notify_create_notification_test_fields(
         "updated_at": notification_date.isoformat(),
         "unread": False,
     }
-    response = test_client.post("/api/v1/notifications", json=notification_data)
+    response = test_client.post("/ami_admin/notifications", json=notification_data)
     assert response.status_code == HTTP_201_CREATED
 
     all_notifications = (await db_session.execute(select(Notification))).scalars().all()
@@ -270,7 +270,7 @@ async def test_notify_create_notification_test_fields(
     assert notification.unread is True
 
 
-async def test_notify_when_registration_gone(
+async def test_admin_notify_when_registration_gone(
     test_client: TestClient[Litestar],
     registration: Registration,
     httpx_mock: HTTPXMock,
@@ -288,7 +288,7 @@ async def test_notify_when_registration_gone(
         "title": "Some notification title",
         "sender": "Jane Doe",
     }
-    response = test_client.post("/api/v1/notifications", json=notification_data)
+    response = test_client.post("/ami_admin/notifications", json=notification_data)
     assert response.status_code == HTTP_201_CREATED
     login(registration.user, test_client)
     response = test_client.get("/api/v1/users/notifications")
@@ -542,7 +542,7 @@ async def test_stream_notification_events_created(
                 "title": "Some notification title",
                 "sender": "Jane Doe",
             }
-            response = test_client.post("/api/v1/notifications", json=notification_data)
+            response = test_client.post("/ami_admin/notifications", json=notification_data)
             assert response.status_code == HTTP_201_CREATED
             all_notifications = (await db_session.execute(select(Notification))).scalars().all()
             assert len(all_notifications) == 1
@@ -583,7 +583,7 @@ async def test_stream_notification_events_updated(
                 "title": "Some notification title",
                 "sender": "Jane Doe",
             }
-            response = test_client.post("/api/v1/notifications", json=notification_data)
+            response = test_client.post("/ami_admin/notifications", json=notification_data)
             assert response.status_code == HTTP_201_CREATED
 
             # mark user notification as read
