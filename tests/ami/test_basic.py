@@ -19,6 +19,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth import jwt_cookie_auth
 from app.models import Notification, Registration, User
+from app.utils import ami_hash
 from tests.ami.utils import assert_query_fails_without_auth, login
 
 
@@ -660,3 +661,17 @@ async def test_get_sector_identifier_url(
     )
     response = test_client.get("/sector_identifier_url")
     assert response.json() == ["https://example.com", "foobar"]
+
+
+async def test_ami_hash(
+    test_client: TestClient[Litestar],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    given_name = "Angela Claire Louise"
+    family_name = "DUBOIS"
+    birthdate = "1962-08-24"
+    gender = "female"
+    birthplace = "75107"
+    birthcountry = "99100"
+    response = ami_hash(given_name, family_name, birthdate, gender, birthplace, birthcountry)
+    assert response == "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060"
