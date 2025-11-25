@@ -78,6 +78,7 @@ let { item } = $props<Props>()
           line-height: 20px;
           min-height: 0;
           display: block;
+          padding: 2px 8px;
         }
       }
     }
