@@ -16,6 +16,9 @@ describe('/+page.svelte', () => {
   test('user has to be connected', () => {
     // Given
     expect(window.localStorage.getItem('access_token')).toEqual(null)
+    vi.spyOn(holidayMethods, 'retrieveHolidays').mockImplementation(async () => {
+      return { now: [], next: [] }
+    })
     const spy = vi.spyOn(navigationMethods, 'goto').mockImplementation(() => 'mocked')
 
     // When
