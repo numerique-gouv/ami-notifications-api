@@ -36,6 +36,7 @@ from app.controllers.registration import RegistrationController
 from app.controllers.user import UserController
 from app.database import alchemy
 from app.httpx import httpxClient
+from app.utils import retry_fc_later
 
 from .ami_admin import ami_admin_router
 from .data.routes import data_router
@@ -103,20 +104,16 @@ async def login_callback(
     request: Request[Any, Any, Any],
 ) -> Response[Any]:
     if error or not code:
-        return Redirect(
-            f"{env.PUBLIC_APP_URL}/",
-            query_params={
+        return retry_fc_later(
+            error_dict={
                 "error": error or "Erreur lors de la connexion",
                 "error_description": error_description or "",
-            },
+            }
         )
 
     # Validate that the STATE is coherent with the one we sent to FC
     if not fc_state or fc_state != request.session.get("state", ""):
-        params: dict[str, str] = {
-            "error": "Erreur lors de la France Connexion, veuillez réessayer plus tard."
-        }
-        return Redirect(f"{env.PUBLIC_APP_URL}/", query_params=params)
+        return retry_fc_later()
 
     # FC - Step 5
     redirect_uri: str = env.PUBLIC_FC_PROXY or env.PUBLIC_FC_AMI_REDIRECT_URL
@@ -144,8 +141,7 @@ async def login_callback(
         data=data,
     )
     if response.status_code != 200:
-        del data["client_secret"]
-        return error_from_response(response, ami_details="FC - Step 6 with " + str(data))
+        return retry_fc_later()
 
     response_token_data: dict[str, str] = response.json()
 
@@ -156,10 +152,7 @@ async def login_callback(
 
     # Validate that the NONCE is coherent with the one we sent to FC
     if "nonce" not in decoded_token or decoded_token["nonce"] != request.session.get("nonce", ""):
-        params: dict[str, str] = {
-            "error": "Erreur lors de la France Connexion, veuillez réessayer plus tard."
-        }
-        return Redirect(f"{env.PUBLIC_APP_URL}/", query_params=params)
+        return retry_fc_later()
 
     params: dict[str, str] = {
         **response_token_data,
@@ -179,13 +172,6 @@ async def get_sector_identifier_url() -> Response[Any]:
         url.strip() for url in env.PUBLIC_SECTOR_IDENTIFIER_URL.strip().split("\n")
     ]
     return Response(redirect_uris)
-
-
-def error_from_response(response: Response[str], ami_details: str | None = None) -> Response[str]:
-    details = response.json()  # type: ignore[reportUnknownVariableType]
-    if ami_details is not None:
-        details["ami_details"] = ami_details
-    return Response(details, status_code=response.status_code)  # type: ignore[reportUnknownVariableType]
 
 
 def error_from_message(
