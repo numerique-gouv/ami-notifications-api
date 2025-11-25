@@ -1,4 +1,4 @@
-import { describe, test, expect, vi, beforeEach } from 'vitest'
+import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 import { render, screen } from '@testing-library/svelte'
 import Page from './+page.svelte'
@@ -6,8 +6,10 @@ import { PUBLIC_API_URL } from '$env/static/public'
 
 describe('/+page.svelte', () => {
   let userinfo
+  let originalWindow
 
   beforeEach(() => {
+    originalWindow = globalThis.window
     userinfo = {
       sub: 'fake sub',
       given_name: 'Angela Claire Louise',
@@ -20,6 +22,10 @@ describe('/+page.svelte', () => {
       iat: 1753877598,
       iss: 'https://fcp-low.sbx.dev-franceconnect.fr/api/v2',
     }
+  })
+
+  afterEach(() => {
+    globalThis.window = originalWindow
   })
 
   test('should render France Connect button', () => {
@@ -94,5 +100,21 @@ describe('/+page.svelte', () => {
     expect(errorMessage).toBeNull()
     const errorDescription = await screen.queryByText('User auth aborted')
     expect(errorDescription).toBeNull()
+  })
+
+  test('should logout the app if an error is about FranceConnect', async () => {
+    // Given
+    const { page } = await import('$app/state')
+    const mockSearchParams = new URLSearchParams(
+      'error=some error message&error_type=FranceConnect'
+    )
+    vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams)
+
+    render(Page)
+
+    // Then
+    const errorMessage = await screen.findByText('some error message')
+    expect(errorMessage).toBeInTheDocument()
+    expect(window.localStorage.getItem('access_token')).toEqual(null)
   })
 })

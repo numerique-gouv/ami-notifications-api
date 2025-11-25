@@ -680,9 +680,12 @@ async def test_login_callback_token_query_failure(
         f"/login-callback?code=fake-code&state={STATE}", follow_redirects=False
     )
 
-    assert response.status_code == 401
-    assert "error" in str(response.text)
-    assert "client_secret" not in str(response.text)
+    assert response.status_code == 302
+    redirected_url = response.headers["location"]
+    assert (
+        redirected_url
+        == "https://localhost:5173/?error=Erreur+lors+de+la+France+Connexion%2C+veuillez+r%C3%A9essayer+plus+tard.&error_type=FranceConnect"
+    )
 
 
 async def test_login_callback_bad_nonce(
@@ -726,7 +729,7 @@ async def test_login_callback_bad_nonce(
     redirected_url = response.headers["location"]
     assert (
         redirected_url
-        == "https://localhost:5173/?error=Erreur+lors+de+la+France+Connexion%2C+veuillez+r%C3%A9essayer+plus+tard."
+        == "https://localhost:5173/?error=Erreur+lors+de+la+France+Connexion%2C+veuillez+r%C3%A9essayer+plus+tard.&error_type=FranceConnect"
     )
 
 
@@ -746,7 +749,7 @@ async def test_login_callback_bad_state(
     redirected_url = response.headers["location"]
     assert (
         redirected_url
-        == "https://localhost:5173/?error=Erreur+lors+de+la+France+Connexion%2C+veuillez+r%C3%A9essayer+plus+tard."
+        == "https://localhost:5173/?error=Erreur+lors+de+la+France+Connexion%2C+veuillez+r%C3%A9essayer+plus+tard.&error_type=FranceConnect"
     )
 
 
@@ -762,7 +765,7 @@ async def test_login_callback_fc_error(
     redirected_url = response.headers["location"]
     assert (
         redirected_url
-        == "https://localhost:5173/?error=access_denied&error_description=User+auth+aborted"
+        == "https://localhost:5173/?error=access_denied&error_type=FranceConnect&error_description=User+auth+aborted"
     )
 
 

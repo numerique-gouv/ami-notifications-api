@@ -28,6 +28,13 @@ onMount(async () => {
     if (page.url.searchParams.has('error_description')) {
       error_description = page.url.searchParams.get('error_description')
     }
+    if (
+      page.url.searchParams.has('error_type') &&
+      page.url.searchParams.get('error_type') == 'FranceConnect'
+    ) {
+      // Error during login, logout, token query... => logout the app.
+      localStorage.clear()
+    }
     if (error == 'access_denied' && error_description == 'User auth aborted') {
       // The user has aborted the France Connection, don't display any error message.
       error = ''
