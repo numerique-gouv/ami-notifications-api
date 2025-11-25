@@ -93,6 +93,7 @@ async def login_callback(
         data=data,
     )
     if response.status_code != 200:
+        del data["client_secret"]
         return error_from_response(
             response, ami_details="ProConnect - Step 2.3.3. Génération du token " + str(data)
         )
