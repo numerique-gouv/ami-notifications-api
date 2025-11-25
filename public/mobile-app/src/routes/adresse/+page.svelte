@@ -84,7 +84,7 @@ const setInputVal = (address) => {
       </div>
     </fieldset>
 
-    <button class="fr-btn"
+    <button class="fr-btn submit-button"
             type="submit"
             disabled="{disabledButton}"
     >
@@ -168,6 +168,15 @@ const setInputVal = (address) => {
         background-color: var(--text-action-high-blue-france);
         color: var(--text-inverted-blue-france);
       }
+    }
+
+    .submit-button {
+      position: fixed;
+      z-index: 2;
+      bottom: 1.5rem;
+
+      display: block;
+      width: 328px;
     }
   }
 </style>
