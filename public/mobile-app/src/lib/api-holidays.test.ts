@@ -63,51 +63,124 @@ describe('/api-holidays', () => {
     })
   })
   describe('retrieveHolidays', () => {
+    afterEach(() => {
+      window.localStorage.clear()
+    })
     test('should get holidays from API', async () => {
       // Given
       vi.stubEnv('TZ', 'Europe/Paris')
       const holiday1 = {
         description: 'Holiday 1',
-        start_date: '2025-09-20T23:00:00Z',
-        end_date: '2025-12-15T23:00:00Z',
+        start_date: new Date('2025-09-20T23:00:00Z'),
+        end_date: new Date('2025-12-15T23:00:00Z'),
         zones: '',
         emoji: '',
       }
       const holiday2 = {
         description: 'Holiday 2',
-        start_date: '2025-10-20T23:00:00Z',
-        end_date: '2025-11-15T23:00:00Z',
+        start_date: new Date('2025-10-20T23:00:00Z'),
+        end_date: new Date('2025-11-15T23:00:00Z'),
         zones: '',
         emoji: '',
       }
       const holiday3 = {
         description: 'Holiday 3',
-        start_date: '2025-11-20T23:00:00Z',
-        end_date: '2025-12-15T23:00:00Z',
+        start_date: new Date('2025-11-20T23:00:00Z'),
+        end_date: new Date('2025-12-15T23:00:00Z'),
         zones: '',
         emoji: '',
       }
       const holiday4 = {
         description: 'Holiday 4',
-        start_date: '2025-11-30T23:00:00Z',
-        end_date: '2025-12-16T23:00:00Z',
+        start_date: new Date('2025-11-30T23:00:00Z'),
+        end_date: new Date('2025-12-16T23:00:00Z'),
         zones: '',
         emoji: '',
       }
       const holiday5 = {
         description: 'Holiday 5',
-        start_date: '2025-12-20T23:00:00Z',
-        end_date: '2025-12-24T23:00:00Z',
+        start_date: new Date('2025-12-20T23:00:00Z'),
+        end_date: new Date('2025-12-24T23:00:00Z'),
         zones: '',
         emoji: '',
       }
+      const holidaysData = [holiday1, holiday2, holiday3, holiday4, holiday5]
       globalThis.fetch = vi.fn(() =>
         Promise.resolve({
           status: 200,
-          json: () =>
-            Promise.resolve([holiday1, holiday2, holiday3, holiday4, holiday5]),
+          ok: true,
+          text: () => JSON.stringify(holidaysData),
         })
       )
+
+      // When
+      const result = await retrieveHolidays(new Date('2025-11-01T12:00:00Z'))
+
+      // Then
+      expect(result).toEqual({
+        now: [holiday1, holiday2, holiday3],
+        next: [holiday4, holiday5],
+      })
+      expect(window.localStorage.getItem('holidays_data')).toEqual(
+        JSON.stringify(holidaysData)
+      )
+    })
+    test('should get holidays from API with error', async () => {
+      // Given
+      globalThis.fetch = vi.fn(() =>
+        Promise.resolve({
+          status: 400,
+          ok: false,
+          text: () => '',
+        })
+      )
+
+      // When
+      const result = await retrieveHolidays(new Date('2025-11-01T12:00:00Z'))
+
+      // Then
+      expect(result).toEqual(undefined)
+      expect(window.localStorage.getItem('holidays_data')).toEqual(null)
+    })
+    test('should get holidays data from local storage', async () => {
+      // Given
+      const holiday1 = {
+        description: 'Holiday 1',
+        start_date: new Date('2025-09-20T23:00:00Z'),
+        end_date: new Date('2025-12-15T23:00:00Z'),
+        zones: '',
+        emoji: '',
+      }
+      const holiday2 = {
+        description: 'Holiday 2',
+        start_date: new Date('2025-10-20T23:00:00Z'),
+        end_date: new Date('2025-11-15T23:00:00Z'),
+        zones: '',
+        emoji: '',
+      }
+      const holiday3 = {
+        description: 'Holiday 3',
+        start_date: new Date('2025-11-20T23:00:00Z'),
+        end_date: new Date('2025-12-15T23:00:00Z'),
+        zones: '',
+        emoji: '',
+      }
+      const holiday4 = {
+        description: 'Holiday 4',
+        start_date: new Date('2025-11-30T23:00:00Z'),
+        end_date: new Date('2025-12-16T23:00:00Z'),
+        zones: '',
+        emoji: '',
+      }
+      const holiday5 = {
+        description: 'Holiday 5',
+        start_date: new Date('2025-12-20T23:00:00Z'),
+        end_date: new Date('2025-12-24T23:00:00Z'),
+        zones: '',
+        emoji: '',
+      }
+      const holidaysData = [holiday1, holiday2, holiday3, holiday4, holiday5]
+      window.localStorage.setItem('holidays_data', JSON.stringify(holidaysData))
 
       // When
       const result = await retrieveHolidays(new Date('2025-11-01T12:00:00Z'))
