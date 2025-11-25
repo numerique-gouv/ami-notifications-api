@@ -1,13 +1,8 @@
 import { afterEach, describe, test, expect, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
-import {
-  dayName,
-  monthName,
-  holidayPeriod,
-  retrieveHolidays,
-} from '$lib/api-holidays.ts'
+import { dayName, monthName, holidayPeriod, retrieveHolidays } from '$lib/api-holidays'
 
-describe('/api-particulier.ts', () => {
+describe('/api-holidays', () => {
   describe('dayName', () => {
     test('should return short day name', async () => {
       // Given
