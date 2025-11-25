@@ -48,6 +48,33 @@ async def test_ami_admin_login_callback(
     }
 
 
+async def test_rvo_login_callback_token_query_failure(
+    test_client: TestClient[Litestar],
+    httpx_mock: HTTPXMock,
+) -> None:
+    NONCE = "YTc3NzZlNjUtNmY3OC00YzExLThmODItMTg0MDg2ZjQ0YzEyLTIwMjUtMTEtMTggMDg6NTI6MzUuNjM1OTYyKzAwOjAw"
+    STATE = "some random state"
+
+    token_failure_response = {
+        "error": "invalid_grant",
+        "error_description": " grant request is invalid (authorization code not found)",
+        "error_uri": "https://docs.partenaires.franceconnect.gouv.fr/fs/fs-technique/fs-technique-erreurs/?code=Y049E20B&id=801d508c-72d7-459d-8947-104cf89ce015",
+    }
+    httpx_mock.add_response(
+        method="POST",
+        url="https://fca.integ01.dev-agentconnect.fr/api/v2/token",
+        json=token_failure_response,
+        status_code=401,
+    )
+
+    test_client.set_session_data({"nonce": NONCE, "state": STATE})
+    response = test_client.get("/ami_admin/login-callback?code=fake-code&state=fake-state")
+
+    assert response.status_code == 401
+    assert "error" in str(response.text)
+    assert "client_secret" not in str(response.text)
+
+
 async def test_ami_admin_logout(
     connected_test_client: ConnectedTestClient,
 ) -> None:
