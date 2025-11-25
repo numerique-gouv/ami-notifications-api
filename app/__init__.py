@@ -144,6 +144,7 @@ async def login_callback(
         data=data,
     )
     if response.status_code != 200:
+        del data["client_secret"]
         return error_from_response(response, ami_details="FC - Step 6 with " + str(data))
 
     response_token_data: dict[str, str] = response.json()
