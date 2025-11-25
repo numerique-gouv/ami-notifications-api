@@ -36,40 +36,43 @@ export const holidayPeriod = (startDate, endDate) => {
 }
 
 export const retrieveHolidays = async (date) => {
-  var today = date || new Date()
+  let today = date || new Date()
   today.setHours(0, 0, 0, 0)
   const current_date = today.toLocaleDateString('sv-SE') // this gives the locale date in ISO format ...
   const oneday_in_ms = 24 * 60 * 60 * 1000
-  try {
+  let holidaysData = localStorage.getItem('holidays_data')
+  if (!holidaysData) {
     const response = await fetch(
       `${PUBLIC_API_URL}/data/holidays?current_date=${current_date}`,
       {
         credentials: 'include',
       }
     )
+    holidaysData = await response.text()
+    if (response.ok) {
+      localStorage.setItem('holidays_data', holidaysData)
+    }
+  }
+  if (!!holidaysData) {
     const result = {
       now: [] as Holiday[],
       next: [] as Holiday[],
     }
-    if (response.status === 200) {
-      let holidays = (await response.json()) as Holiday[]
-      holidays.forEach((holiday) => {
-        // convert dates
-        holiday.start_date = new Date(holiday.start_date)
-        holiday.end_date = new Date(holiday.end_date)
-        // sort holidays
-        if (
-          holiday.start_date <= today ||
-          holiday.start_date < new Date(today.getTime() + 30 * oneday_in_ms)
-        ) {
-          result.now.push(holiday)
-        } else {
-          result.next.push(holiday)
-        }
-      })
-    }
+    let holidays = JSON.parse(holidaysData) as Holiday[]
+    holidays.forEach((holiday) => {
+      // convert dates
+      holiday.start_date = new Date(holiday.start_date)
+      holiday.end_date = new Date(holiday.end_date)
+      // sort holidays
+      if (
+        holiday.start_date <= today ||
+        holiday.start_date < new Date(today.getTime() + 30 * oneday_in_ms)
+      ) {
+        result.now.push(holiday)
+      } else {
+        result.next.push(holiday)
+      }
+    })
     return result
-  } catch (error) {
-    console.error(error)
   }
 }
