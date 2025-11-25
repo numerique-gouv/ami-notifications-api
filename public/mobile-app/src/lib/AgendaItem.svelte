@@ -17,8 +17,9 @@ let { item } = $props<Props>()
         <h3 class="fr-tile__title">
           <a href="/#/agenda/">{item.title}</a>
         </h3>
+        {#if item.description}<p class="fr-tile__detail">{item.description}</p>{/if}
         <div class="fr-tile__start">
-          <p class="fr-badge fr-badge--icon-left {item.icon}">
+          <p class="fr-badge fr-badge--icon-left {item.icon} {item.kind}">
             {item.label}
           </p>
           <p class="fr-tag">
@@ -62,6 +63,11 @@ let { item } = $props<Props>()
             --icon-size: 1rem;
           }
         }
+        .fr-tile__detail {
+          font-size: 14px;
+          line-height: 24px;
+          margin: 0;
+        }
         .fr-badge {
           font-size: 12px;
           font-weight: 700;
@@ -71,6 +77,10 @@ let { item } = $props<Props>()
           margin-bottom: 0.5rem;
           &::before {
             --icon-size: 0.75rem;
+          }
+          &.otv {
+            color: var(--text-action-high-green-archipel);
+            background-color: var(--background-alt-green-archipel);
           }
         }
         .fr-tag {
