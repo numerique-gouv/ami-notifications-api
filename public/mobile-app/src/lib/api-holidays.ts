@@ -8,34 +8,9 @@ export type Holiday = {
   emoji: string
 }
 
-export const dayName = (date) => {
-  return date.toLocaleDateString('fr-FR', { weekday: 'short' }).replace('.', '')
-}
-
-const capitalizeFirstLetter = (val) => {
-  return String(val).charAt(0).toUpperCase() + String(val).slice(1)
-}
-
-export const monthName = (date) => {
-  return capitalizeFirstLetter(date.toLocaleDateString('fr-FR', { month: 'long' }))
-}
-
-export const holidayPeriod = (startDate, endDate) => {
-  const locale = 'fr-FR'
-  let startFormat = { year: 'numeric', month: 'long', day: 'numeric' }
-  let endFormat = startFormat
-  if (startDate.getYear() == endDate.getYear()) {
-    startFormat = { month: 'long', day: 'numeric' }
-    if (startDate.getMonth() == endDate.getMonth()) {
-      startFormat = { day: 'numeric' }
-    }
-  }
-  const start = startDate.toLocaleDateString(locale, startFormat)
-  const end = endDate.toLocaleDateString(locale, endFormat)
-  return `Du ${start} au ${end}`
-}
-
-export const retrieveHolidays = async (date) => {
+export const retrieveHolidays = async (
+  date: Date | null = null
+): Promise<Holiday[]> => {
   let today = date || new Date()
   today.setHours(0, 0, 0, 0)
   const current_date = today.toLocaleDateString('sv-SE') // this gives the locale date in ISO format ...
@@ -54,25 +29,12 @@ export const retrieveHolidays = async (date) => {
     }
   }
   if (!!holidaysData) {
-    const result = {
-      now: [] as Holiday[],
-      next: [] as Holiday[],
-    }
     let holidays = JSON.parse(holidaysData) as Holiday[]
     holidays.forEach((holiday) => {
       // convert dates
       holiday.start_date = new Date(holiday.start_date)
       holiday.end_date = new Date(holiday.end_date)
-      // sort holidays
-      if (
-        holiday.start_date <= today ||
-        holiday.start_date < new Date(today.getTime() + 30 * oneday_in_ms)
-      ) {
-        result.now.push(holiday)
-      } else {
-        result.next.push(holiday)
-      }
     })
-    return result
+    return holidays
   }
 }
