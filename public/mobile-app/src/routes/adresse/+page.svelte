@@ -70,11 +70,11 @@ const setInputVal = (address) => {
               Adresse
             </p>
             {#each filteredAddresses as address}
-              <li class="autocomplete-items"
-                  onclick={() => setInputVal(address)}
-              >
-                <p><strong>{address.name}</strong></p>
-                <p>{address.city} ({address.context})</p>
+              <li class="autocomplete-items">
+                <button type="button" onclick={() => setInputVal(address)}>
+                  <p><strong>{address.name}</strong></p>
+                  <p>{address.city} ({address.context})</p>
+                </button>
               </li>
             {/each}
           </ul>
@@ -149,12 +149,18 @@ const setInputVal = (address) => {
 
       li.autocomplete-items {
         list-style: none;
-        padding: .75rem;
-        cursor: pointer;
+        padding: 0;
         background-color: var(--background-default-grey);
 
-        p {
-          margin: 0;
+        button {
+          padding: .75rem;
+          text-align: left;
+          --hover-tint: var(--text-action-high-blue-france);
+          --active-tint: var(--text-action-high-blue-france);
+
+          p {
+            margin: 0;
+          }
         }
       }
 
