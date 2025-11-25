@@ -2,21 +2,18 @@ import { describe, test, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/svelte'
 import Page from './+page.svelte'
 import * as navigationMethods from '$app/navigation'
-import * as holidayMethods from '$lib/api-holidays'
-import { monthName } from '$lib/api-holidays'
+import * as agendaMethods from '$lib/agenda'
+import { Item, monthName } from '$lib/agenda'
 
 const oneday_in_ms = 24 * 60 * 60 * 1000
 const today = new Date()
-const in15days = new Date(today.getTime() + 15 * oneday_in_ms)
 const in32days = new Date(today.getTime() + 32 * oneday_in_ms) // 32 days, so we are sure that month is different than today's
-const in45days = new Date(today.getTime() + 45 * oneday_in_ms)
-const in60days = new Date(today.getTime() + 60 * oneday_in_ms)
 
 describe('/+page.svelte', () => {
   test('user has to be connected', () => {
     // Given
     expect(window.localStorage.getItem('access_token')).toEqual(null)
-    vi.spyOn(holidayMethods, 'retrieveHolidays').mockImplementation(async () => {
+    vi.spyOn(agendaMethods, 'buildAgenda').mockImplementation(async () => {
       return { now: [], next: [] }
     })
     const spy = vi.spyOn(navigationMethods, 'goto').mockImplementation(() => 'mocked')
@@ -31,26 +28,12 @@ describe('/+page.svelte', () => {
   test('Should display holidays from API', async () => {
     // Given
     window.localStorage.setItem('access_token', 'fake-access-token')
-    const spy = vi
-      .spyOn(holidayMethods, 'retrieveHolidays')
-      .mockImplementation(async () => {
-        return {
-          now: [
-            {
-              description: 'Holiday 1',
-              start_date: today,
-              end_date: in15days,
-            },
-          ],
-          next: [
-            {
-              description: 'Holiday 2',
-              start_date: in32days,
-              end_date: in45days,
-            },
-          ],
-        }
-      })
+    const spy = vi.spyOn(agendaMethods, 'buildAgenda').mockImplementation(async () => {
+      return {
+        now: [new Item('holiday', 'Holiday 1', today)],
+        next: [new Item('holiday', 'Holiday 2', in32days)],
+      }
+    })
 
     // When
     render(Page)
@@ -68,20 +51,12 @@ describe('/+page.svelte', () => {
   test('Should not display "next" section if empty', async () => {
     // Given
     window.localStorage.setItem('access_token', 'fake-access-token')
-    const spy = vi
-      .spyOn(holidayMethods, 'retrieveHolidays')
-      .mockImplementation(async () => {
-        return {
-          now: [],
-          next: [
-            {
-              description: 'Holiday 2',
-              start_date: in32days,
-              end_date: in45days,
-            },
-          ],
-        }
-      })
+    const spy = vi.spyOn(agendaMethods, 'buildAgenda').mockImplementation(async () => {
+      return {
+        now: [],
+        next: [new Item('holiday', 'Holiday 2', in32days)],
+      }
+    })
 
     // When
     render(Page)
@@ -97,20 +72,12 @@ describe('/+page.svelte', () => {
   test('Should not display "next" section if empty', async () => {
     // Given
     window.localStorage.setItem('access_token', 'fake-access-token')
-    const spy = vi
-      .spyOn(holidayMethods, 'retrieveHolidays')
-      .mockImplementation(async () => {
-        return {
-          now: [
-            {
-              description: 'Holiday 1',
-              start_date: today,
-              end_date: in15days,
-            },
-          ],
-          next: [],
-        }
-      })
+    const spy = vi.spyOn(agendaMethods, 'buildAgenda').mockImplementation(async () => {
+      return {
+        now: [new Item('holiday', 'Holiday 1', today)],
+        next: [],
+      }
+    })
 
     // When
     render(Page)
@@ -124,36 +91,18 @@ describe('/+page.svelte', () => {
     expect(screen.queryByTestId('events-next')).toBeNull()
   })
   test('Should not repeat month', async () => {
-    const spy = vi
-      .spyOn(holidayMethods, 'retrieveHolidays')
-      .mockImplementation(async () => {
-        return {
-          now: [
-            {
-              description: 'Holiday 1',
-              start_date: today,
-              end_date: in15days,
-            },
-            {
-              description: 'Holiday 2',
-              start_date: today,
-              end_date: in32days,
-            },
-          ],
-          next: [
-            {
-              description: 'Holiday 3',
-              start_date: in32days,
-              end_date: in45days,
-            },
-            {
-              description: 'Holiday 4',
-              start_date: in32days,
-              end_date: in60days,
-            },
-          ],
-        }
-      })
+    const spy = vi.spyOn(agendaMethods, 'buildAgenda').mockImplementation(async () => {
+      return {
+        now: [
+          new Item('holiday', 'Holiday 1', today),
+          new Item('holiday', 'Holiday 2', today),
+        ],
+        next: [
+          new Item('holiday', 'Holiday 3', in32days),
+          new Item('holiday', 'Holiday 4', in32days),
+        ],
+      }
+    })
 
     // When
     render(Page)
@@ -185,25 +134,15 @@ describe('/+page.svelte', () => {
   test('Should not repeat month (with "next" part empty)', async () => {
     // Given
     window.localStorage.setItem('access_token', 'fake-access-token')
-    const spy = vi
-      .spyOn(holidayMethods, 'retrieveHolidays')
-      .mockImplementation(async () => {
-        return {
-          now: [],
-          next: [
-            {
-              description: 'Holiday 1',
-              start_date: in32days,
-              end_date: in45days,
-            },
-            {
-              description: 'Holiday 2',
-              start_date: in32days,
-              end_date: in60days,
-            },
-          ],
-        }
-      })
+    const spy = vi.spyOn(agendaMethods, 'buildAgenda').mockImplementation(async () => {
+      return {
+        now: [],
+        next: [
+          new Item('holiday', 'Holiday 1', in32days),
+          new Item('holiday', 'Holiday 2', in32days),
+        ],
+      }
+    })
 
     // When
     render(Page)
@@ -232,26 +171,12 @@ describe('/+page.svelte', () => {
       start1 = new Date(today.getTime() + 1 * oneday_in_ms)
       start2 = new Date(today.getTime() + 2 * oneday_in_ms)
     }
-    const spy = vi
-      .spyOn(holidayMethods, 'retrieveHolidays')
-      .mockImplementation(async () => {
-        return {
-          now: [
-            {
-              description: 'Holiday 1',
-              start_date: start1,
-              end_date: start2,
-            },
-          ],
-          next: [
-            {
-              description: 'Holiday 2',
-              start_date: start2,
-              end_date: in32days,
-            },
-          ],
-        }
-      })
+    const spy = vi.spyOn(agendaMethods, 'buildAgenda').mockImplementation(async () => {
+      return {
+        now: [new Item('holiday', 'Holiday 1', start1)],
+        next: [new Item('holiday', 'Holiday 2', start2)],
+      }
+    })
 
     // When
     render(Page)
