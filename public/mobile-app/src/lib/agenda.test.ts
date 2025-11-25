@@ -8,8 +8,22 @@ describe('/api-particulier.ts', () => {
     describe('dayName', () => {
       test('should return short day name', async () => {
         // Given
-        const item1 = new Item('kind', 'title', new Date('2025-11-11'), null, null)
-        const item2 = new Item('kind', 'title', null, new Date('2025-11-11'), null)
+        const item1 = new Item(
+          'kind',
+          'title',
+          'description',
+          new Date('2025-11-11'),
+          null,
+          null
+        )
+        const item2 = new Item(
+          'kind',
+          'title',
+          'description',
+          null,
+          new Date('2025-11-11'),
+          null
+        )
 
         // When
         const name1 = item1.dayName
@@ -23,8 +37,22 @@ describe('/api-particulier.ts', () => {
     describe('dayNum', () => {
       test('should return short day num', async () => {
         // Given
-        const item1 = new Item('kind', 'title', new Date('2025-11-11'), null, null)
-        const item2 = new Item('kind', 'title', null, new Date('2025-11-11'), null)
+        const item1 = new Item(
+          'kind',
+          'title',
+          'description',
+          new Date('2025-11-11'),
+          null,
+          null
+        )
+        const item2 = new Item(
+          'kind',
+          'title',
+          'description',
+          null,
+          new Date('2025-11-11'),
+          null
+        )
 
         // When
         const num1 = item1.dayNum
@@ -38,8 +66,22 @@ describe('/api-particulier.ts', () => {
     describe('monthName', () => {
       test('should return long month name', async () => {
         // Given
-        const item1 = new Item('kind', 'title', new Date('2025-11-11'), null, null)
-        const item2 = new Item('kind', 'title', null, new Date('2025-11-11'), null)
+        const item1 = new Item(
+          'kind',
+          'title',
+          'description',
+          new Date('2025-11-11'),
+          null,
+          null
+        )
+        const item2 = new Item(
+          'kind',
+          'title',
+          'description',
+          null,
+          new Date('2025-11-11'),
+          null
+        )
 
         // When
         const name1 = item1.monthName
@@ -56,6 +98,7 @@ describe('/api-particulier.ts', () => {
         const item = new Item(
           'kind',
           'title',
+          'description',
           null,
           new Date('2025-10-15'),
           new Date('2025-11-15')
@@ -72,6 +115,7 @@ describe('/api-particulier.ts', () => {
         const item = new Item(
           'kind',
           'title',
+          'description',
           null,
           new Date('2025-10-15'),
           new Date('2025-10-20')
@@ -88,6 +132,7 @@ describe('/api-particulier.ts', () => {
         const item = new Item(
           'kind',
           'title',
+          'description',
           null,
           new Date('2025-12-20'),
           new Date('2026-01-02')
@@ -100,7 +145,14 @@ describe('/api-particulier.ts', () => {
         expect(period).equal('Du 20 décembre 2025 au 2 janvier 2026')
       })
       test('should mention "À partir de"', async () => {
-        const item = new Item('kind', 'title', null, new Date('2025-12-20'), null)
+        const item = new Item(
+          'kind',
+          'title',
+          'description',
+          null,
+          new Date('2025-12-20'),
+          null
+        )
 
         // When
         const period = item.period
@@ -109,7 +161,14 @@ describe('/api-particulier.ts', () => {
         expect(period).equal('À partir du 20 décembre 2025')
       })
       test('should mention only the date', async () => {
-        const item = new Item('kind', 'title', new Date('2025-12-20'), null, null)
+        const item = new Item(
+          'kind',
+          'title',
+          'description',
+          new Date('2025-12-20'),
+          null,
+          null
+        )
 
         // When
         const period = item.period
@@ -121,31 +180,47 @@ describe('/api-particulier.ts', () => {
     describe('label', () => {
       test('should return a label depending on kind', async () => {
         // Given
-        const item1 = new Item('kind', 'title', new Date('2025-12-20'))
-        const item2 = new Item('holiday', 'title', new Date('2025-12-20'))
+        const item1 = new Item('kind', 'title', 'description', new Date('2025-12-20'))
+        const item2 = new Item(
+          'holiday',
+          'title',
+          'description',
+          new Date('2025-12-20')
+        )
+        const item3 = new Item('otv', 'title', 'description', new Date('2025-12-20'))
 
         // When
         const label1 = item1.label
         const label2 = item2.label
+        const label3 = item3.label
 
         // Then
         expect(label1).equal('')
         expect(label2).equal('Vacances et jours fériés')
+        expect(label3).equal('Logement')
       })
     })
     describe('icon', () => {
       test('should return an icon depending on kind', async () => {
         // Given
-        const item1 = new Item('kind', 'title', new Date('2025-12-20'))
-        const item2 = new Item('holiday', 'title', new Date('2025-12-20'))
+        const item1 = new Item('kind', 'title', 'description', new Date('2025-12-20'))
+        const item2 = new Item(
+          'holiday',
+          'title',
+          'description',
+          new Date('2025-12-20')
+        )
+        const item3 = new Item('otv', 'title', 'description', new Date('2025-12-20'))
 
         // When
         const icon1 = item1.icon
         const icon2 = item2.icon
+        const icon3 = item3.icon
 
         // Then
         expect(icon1).equal('')
         expect(icon2).equal('fr-icon-calendar-event-fill')
+        expect(icon3).equal('fr-icon-home-4-fill')
       })
     })
   })
@@ -194,15 +269,16 @@ describe('/api-particulier.ts', () => {
       )
 
       // Then
-      expect(agenda.now.length).equal(3)
+      expect(agenda.now.length).equal(8)
       expect(
         agenda.now[0].equals(
           new Item(
-            'holiday',
-            'Holiday 1 Zone foo',
+            'otv',
+            'Opération Tranquillité Vacances 🏠',
+            'Inscrivez-vous pour protéger votre domicile pendant votre absence',
             null,
-            holiday1.start_date,
-            holiday1.end_date
+            new Date('2025-08-30T23:00:00Z'),
+            null
           )
         )
       ).toBe(true)
@@ -210,7 +286,32 @@ describe('/api-particulier.ts', () => {
         agenda.now[1].equals(
           new Item(
             'holiday',
+            'Holiday 1 Zone foo',
+            null,
+            null,
+            holiday1.start_date,
+            holiday1.end_date
+          )
+        )
+      ).toBe(true)
+      expect(
+        agenda.now[2].equals(
+          new Item(
+            'otv',
+            'Opération Tranquillité Vacances 🏠',
+            'Inscrivez-vous pour protéger votre domicile pendant votre absence',
+            null,
+            new Date('2025-09-29T23:00:00Z'),
+            null
+          )
+        )
+      ).toBe(true)
+      expect(
+        agenda.now[3].equals(
+          new Item(
+            'holiday',
             'Holiday 2 Zone',
+            null,
             null,
             holiday2.start_date,
             holiday2.end_date
@@ -218,25 +319,76 @@ describe('/api-particulier.ts', () => {
         )
       ).toBe(true)
       expect(
-        agenda.now[2].equals(
+        agenda.now[4].equals(
+          new Item(
+            'otv',
+            'Opération Tranquillité Vacances 🏠',
+            'Inscrivez-vous pour protéger votre domicile pendant votre absence',
+            null,
+            new Date('2025-10-30T23:00:00Z'),
+            null
+          )
+        )
+      ).toBe(true)
+      expect(
+        agenda.now[5].equals(
+          new Item(
+            'otv',
+            'Opération Tranquillité Vacances 🏠',
+            'Inscrivez-vous pour protéger votre domicile pendant votre absence',
+            null,
+            new Date('2025-11-09T23:00:00Z'),
+            null
+          )
+        )
+      ).toBe(true)
+      expect(
+        agenda.now[6].equals(
           new Item(
             'holiday',
             'Holiday 3 foo',
+            null,
             null,
             holiday3.start_date,
             holiday3.end_date
           )
         )
       ).toBe(true)
+      expect(
+        agenda.now[7].equals(
+          new Item(
+            'otv',
+            'Opération Tranquillité Vacances 🏠',
+            'Inscrivez-vous pour protéger votre domicile pendant votre absence',
+            null,
+            new Date('2025-11-29T23:00:00Z'),
+            null
+          )
+        )
+      ).toBe(true)
       expect(agenda.next.length).equal(2)
       expect(
         agenda.next[0].equals(
-          new Item('holiday', 'Holiday 4', null, holiday4.start_date, holiday4.end_date)
+          new Item(
+            'holiday',
+            'Holiday 4',
+            null,
+            null,
+            holiday4.start_date,
+            holiday4.end_date
+          )
         )
       ).toBe(true)
       expect(
         agenda.next[1].equals(
-          new Item('holiday', 'Holiday 5', null, holiday5.start_date, holiday5.end_date)
+          new Item(
+            'holiday',
+            'Holiday 5',
+            null,
+            null,
+            holiday5.start_date,
+            holiday5.end_date
+          )
         )
       ).toBe(true)
     })
@@ -267,22 +419,56 @@ describe('/api-particulier.ts', () => {
       // Then
       expect(spy).toHaveBeenCalledTimes(1)
       expect(agenda).toBeInstanceOf(Agenda)
-      expect(agenda.now.length).equal(1)
+      console.log(agenda.now)
+      console.log(agenda.next)
+      expect(agenda.now.length).equal(3)
       expect(
         agenda.now[0].equals(
           new Item(
+            'otv',
+            'Opération Tranquillité Vacances 🏠',
+            'Inscrivez-vous pour protéger votre domicile pendant votre absence',
+            null,
+            new Date('2025-08-30T23:00:00Z'),
+            null
+          )
+        )
+      ).toBe(true)
+      expect(
+        agenda.now[1].equals(
+          new Item(
             'holiday',
             'Holiday 1 Zone foo',
+            null,
             null,
             holiday1.start_date,
             holiday1.end_date
           )
         )
       ).toBe(true)
+      expect(
+        agenda.now[2].equals(
+          new Item(
+            'otv',
+            'Opération Tranquillité Vacances 🏠',
+            'Inscrivez-vous pour protéger votre domicile pendant votre absence',
+            null,
+            new Date('2025-11-09T23:00:00Z'),
+            null
+          )
+        )
+      ).toBe(true)
       expect(agenda.next.length).equal(1)
       expect(
         agenda.next[0].equals(
-          new Item('holiday', 'Holiday 4', null, holiday4.start_date, holiday4.end_date)
+          new Item(
+            'holiday',
+            'Holiday 4',
+            null,
+            null,
+            holiday4.start_date,
+            holiday4.end_date
+          )
         )
       ).toBe(true)
     })

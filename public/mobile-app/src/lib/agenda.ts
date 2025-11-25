@@ -1,7 +1,7 @@
 import { retrieveHolidays } from '$lib/api-holidays'
 import type { Holiday } from '$lib/api-holidays'
 
-type Kind = 'holiday'
+type Kind = 'holiday' | 'otv'
 
 const capitalizeFirstLetter = (val) => {
   return String(val).charAt(0).toUpperCase() + String(val).slice(1)
@@ -15,6 +15,7 @@ export class Item {
   constructor(
     private _kind: Kind,
     private _title: string,
+    private _description: string | null,
     private _date: Date | null = null,
     private _start_date: Date | null = null,
     private _end_date: Date | null = null
@@ -37,6 +38,10 @@ export class Item {
 
   get title(): string {
     return this._title
+  }
+
+  get description(): string {
+    return this._description
   }
 
   get date(): Date {
@@ -84,6 +89,10 @@ export class Item {
       label: 'Vacances et jours fériés',
       icon: 'fr-icon-calendar-event-fill',
     },
+    otv: {
+      label: 'Logement',
+      icon: 'fr-icon-home-4-fill',
+    },
   }
 
   get kind(): Kind {
@@ -127,11 +136,37 @@ export class Agenda {
       if (holiday.emoji) {
         title += ' ' + holiday.emoji
       }
-      let item = new Item('holiday', title, null, holiday.start_date, holiday.end_date)
+      let item = new Item(
+        'holiday',
+        title,
+        null,
+        null,
+        holiday.start_date,
+        holiday.end_date
+      )
       items.push(item)
     })
 
-    // XXX: create OTV items, sort items by date
+    // create OTV items
+    let seenHolidays = new Set()
+    holidays.forEach((holiday) => {
+      let key = JSON.stringify({ desc: holiday.description, date: holiday.date })
+      if (seenHolidays.has(key)) {
+        return
+      }
+      seenHolidays.add(key)
+      let item = new Item(
+        'otv',
+        'Opération Tranquillité Vacances 🏠',
+        'Inscrivez-vous pour protéger votre domicile pendant votre absence',
+        null,
+        new Date(holiday.start_date.getTime() - 3 * 7 * oneday_in_ms),
+        null
+      )
+      items.push(item)
+    })
+    // sort items by date
+    items.sort((a, b) => a.date - b.date)
 
     // organize items in _now or _next arrays
     items.forEach((item) => {

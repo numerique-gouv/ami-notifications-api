@@ -30,8 +30,8 @@ describe('/+page.svelte', () => {
     window.localStorage.setItem('access_token', 'fake-access-token')
     const spy = vi.spyOn(agendaMethods, 'buildAgenda').mockImplementation(async () => {
       return {
-        now: [new Item('holiday', 'Holiday 1', today)],
-        next: [new Item('holiday', 'Holiday 2', in32days)],
+        now: [new Item('holiday', 'Holiday 1', null, today)],
+        next: [new Item('holiday', 'Holiday 2', null, in32days)],
       }
     })
 
@@ -54,7 +54,7 @@ describe('/+page.svelte', () => {
     const spy = vi.spyOn(agendaMethods, 'buildAgenda').mockImplementation(async () => {
       return {
         now: [],
-        next: [new Item('holiday', 'Holiday 2', in32days)],
+        next: [new Item('holiday', 'Holiday 2', null, in32days)],
       }
     })
 
@@ -74,7 +74,7 @@ describe('/+page.svelte', () => {
     window.localStorage.setItem('access_token', 'fake-access-token')
     const spy = vi.spyOn(agendaMethods, 'buildAgenda').mockImplementation(async () => {
       return {
-        now: [new Item('holiday', 'Holiday 1', today)],
+        now: [new Item('holiday', 'Holiday 1', null, today)],
         next: [],
       }
     })
@@ -94,12 +94,12 @@ describe('/+page.svelte', () => {
     const spy = vi.spyOn(agendaMethods, 'buildAgenda').mockImplementation(async () => {
       return {
         now: [
-          new Item('holiday', 'Holiday 1', today),
-          new Item('holiday', 'Holiday 2', today),
+          new Item('holiday', 'Holiday 1', null, today),
+          new Item('holiday', 'Holiday 2', null, today),
         ],
         next: [
-          new Item('holiday', 'Holiday 3', in32days),
-          new Item('holiday', 'Holiday 4', in32days),
+          new Item('holiday', 'Holiday 3', null, in32days),
+          new Item('holiday', 'Holiday 4', null, in32days),
         ],
       }
     })
@@ -138,8 +138,8 @@ describe('/+page.svelte', () => {
       return {
         now: [],
         next: [
-          new Item('holiday', 'Holiday 1', in32days),
-          new Item('holiday', 'Holiday 2', in32days),
+          new Item('holiday', 'Holiday 1', null, in32days),
+          new Item('holiday', 'Holiday 2', null, in32days),
         ],
       }
     })
@@ -173,8 +173,8 @@ describe('/+page.svelte', () => {
     }
     const spy = vi.spyOn(agendaMethods, 'buildAgenda').mockImplementation(async () => {
       return {
-        now: [new Item('holiday', 'Holiday 1', start1)],
-        next: [new Item('holiday', 'Holiday 2', start2)],
+        now: [new Item('holiday', 'Holiday 1', null, start1)],
+        next: [new Item('holiday', 'Holiday 2', null, start2)],
       }
     })
 
