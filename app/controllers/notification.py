@@ -198,3 +198,16 @@ class NotAuthenticatedNotificationController(Controller):
         # For the moment, just return a list of dict
         type_adapter = TypeAdapter(list[schemas.Notification])
         return type_adapter.validate_python(notifications)
+
+    @post("/api/v1/notifications")
+    async def notify(
+        self,
+        data: Annotated[
+            schemas.NotificationPivotHashCreate,
+            Body(
+                title="Send a notification",
+                description="Send the notification message to a registered user",
+            ),
+        ],
+    ) -> None:
+        return None

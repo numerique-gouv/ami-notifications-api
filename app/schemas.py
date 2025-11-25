@@ -86,3 +86,36 @@ class Holiday:
         filtered["end_date"] = datetime.datetime.fromisoformat(filtered["end_date"])
         filtered["emoji"] = cls.emoji_mapping.get(filtered["description"], "")
         return cls(**filtered)
+
+
+class ItemGenericStatus(Enum):
+    NEW = "new"
+    WIP = "wip"
+    CLOSED = "closed"
+
+
+class NotificationPivotHashCreate(BaseModel):
+    recipient_fc_hash: str
+    # Dans AMI, on stocke la liste des partenaires et leur clé d'API (en base ou en variables d'env)
+    # Dans la table Notifications, il y a le partenaire émetteur
+    item_type: str  # OTV
+    item_id: str
+    item_status_label: str  # label renvoyé par le partenaire
+    item_generic_status: ItemGenericStatus  # New, Wip, Closed
+    item_canal: str  # (ex : AMI) Demande de Cécile et Eric (côté partenariats) pour faire des stats
+    item_milestone_start_date: (
+        datetime.datetime | None
+    )  # Date de début de surveillance du logement. Pour afficher dans un agenda. Timezone incluse
+    item_milestone_end_date: (
+        datetime.datetime | None
+    )  # Date de fin de surveillance du logement. Timezone incluse
+    item_creation_date: datetime.datetime  # Timezone incluse
+    item_last_modification_date: datetime.datetime  # Timezone incluse
+    item_external_url: str | None  # Lien vers l'item chez le partenaire
+    try_push: bool | None = True
+    content_title: str
+    content_body: str
+    content_icon: str | None = (
+        "partner_default_icon"  # icône à intégrer dans la liste des notifications. Icône par défaut est l'icône du partenaire
+    )
+    # Liste des icônes possibles : https://www.systeme-de-design.gouv.fr/version-courante/fr/fondamentaux/icone#utilisation-des-icones
