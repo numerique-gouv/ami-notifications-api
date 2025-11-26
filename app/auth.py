@@ -40,7 +40,7 @@ async def retrieve_user_handler(
 
 jwt_cookie_auth = JWTCookieAuth[User](
     retrieve_user_handler=retrieve_user_handler,
-    token_secret=str(env.JWT_SECRET),
+    token_secret=str(env.AUTH_COOKIE_JWT_SECRET),
     samesite="none",
     secure=True,
 )

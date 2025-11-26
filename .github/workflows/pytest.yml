@@ -46,7 +46,7 @@ jobs:
         run: uv sync --locked --all-extras --dev
 
       - name: Create .env file
-        run: cp .env .env.local
+        run: echo "AUTH_COOKIE_JWT_SECRET=\"secret\"" >> .env.local
 
       - name: Run tests
         run: make test
