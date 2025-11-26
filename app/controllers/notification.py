@@ -13,6 +13,7 @@ from pydantic import TypeAdapter
 from webpush import WebPush, WebPushSubscription
 
 from app import env, models, schemas
+from app.controllers.utils import UrlEncodedBody
 from app.httpx import httpxClient
 from app.services.notification import NotificationService
 from app.services.user import UserService, provide_user
@@ -199,9 +200,23 @@ class NotAuthenticatedNotificationController(Controller):
         type_adapter = TypeAdapter(list[schemas.Notification])
         return type_adapter.validate_python(notifications)
 
-    @post("/api/v1/notifications")
+    async def _do_notify(
+        self,
+        channels: ChannelsPlugin,
+        notifications_service: NotificationService,
+        users_with_registrations_service: UserService,
+        webpush: WebPush,
+        data: schemas.NotificationPivotHashCreate,
+    ) -> None:
+        return None
+
+    @post("/api/v1/notifications", return_dto=None)
     async def notify(
         self,
+        channels: ChannelsPlugin,
+        notifications_service: NotificationService,
+        users_with_registrations_service: UserService,
+        webpush: WebPush,
         data: Annotated[
             schemas.NotificationPivotHashCreate,
             Body(
@@ -210,4 +225,25 @@ class NotAuthenticatedNotificationController(Controller):
             ),
         ],
     ) -> None:
-        return None
+        return await self._do_notify(
+            channels, notifications_service, users_with_registrations_service, webpush, data
+        )
+
+    @post("/api/v1/notifications_url_encoded", return_dto=None)
+    async def notify_url_encoded(
+        self,
+        channels: ChannelsPlugin,
+        notifications_service: NotificationService,
+        users_with_registrations_service: UserService,
+        webpush: WebPush,
+        data: Annotated[
+            schemas.NotificationPivotHashCreate,
+            UrlEncodedBody(
+                title="Send a notification",
+                description="Send the notification message to a registered user",
+            ),
+        ],
+    ) -> None:
+        return await self._do_notify(
+            channels, notifications_service, users_with_registrations_service, webpush, data
+        )
