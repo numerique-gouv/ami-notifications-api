@@ -1,6 +1,7 @@
 import os
 
-JWT_SECRET = os.getenv("JWT_SECRET", "abcd123")
+AUTH_COOKIE_JWT_SECRET = os.getenv("AUTH_COOKIE_JWT_SECRET", "")
+assert AUTH_COOKIE_JWT_SECRET, "set a random AUTH_COOKIE_JWT_SECRET in your .env.local file"
 
 SENTRY_DSN = os.getenv("SENTRY_DSN", "")
 SENTRY_ENV = os.getenv("SENTRY_ENV", "")
