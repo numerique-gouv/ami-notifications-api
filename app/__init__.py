@@ -30,6 +30,7 @@ from app.controllers.notification import (
 from app.controllers.registration import RegistrationController
 from app.controllers.user import UserController
 from app.database import alchemy
+from app.httpx import httpxClient
 
 from .admin.routes import router as ami_admin_router
 from .data.routes import data_router
@@ -55,6 +56,30 @@ async def get_sector_identifier_url() -> Response[Any]:
         url.strip() for url in env.PUBLIC_SECTOR_IDENTIFIER_URL.strip().split("\n")
     ]
     return Response(redirect_uris)
+
+
+# ### DEV ENDPOINTS
+
+
+@get(path="/dev-utils/review-apps")
+async def _dev_utils_review_apps() -> list[tuple[str, str]]:
+    """Returns a list of tuples: (review app url, pull request title)."""
+    response = httpxClient.get(
+        "https://api.github.com/repos/numerique-gouv/ami-notifications-api/pulls",
+        params={"state": "open", "sort": "created", "per_page": 100},
+        headers={
+            "Accept": "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28",
+        },
+    )
+    json_data = response.json()
+    return [
+        (
+            f"https://ami-back-staging-pr{review_app['number']}.osc-fr1.scalingo.io/",
+            review_app["title"],
+        )
+        for review_app in json_data
+    ]
 
 
 # ### APP
@@ -91,6 +116,7 @@ def create_app(
             NotAuthenticatedNotificationController,
             UserController,
             get_sector_identifier_url,
+            _dev_utils_review_apps,
             create_static_files_router(
                 path="/",
                 directories=[env.HTML_DIR],
