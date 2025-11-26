@@ -31,6 +31,7 @@ from app.controllers.registration import RegistrationController
 from app.controllers.user import UserController
 from app.database import alchemy
 from app.httpx import httpxClient
+from app.utils import ami_hash
 
 from .admin.routes import router as ami_admin_router
 from .data.routes import data_router
@@ -59,6 +60,26 @@ async def get_sector_identifier_url() -> Response[Any]:
 
 
 # ### DEV ENDPOINTS
+
+
+@get(path="/dev-utils/ami-hash")
+async def _dev_utils_ami_hash(
+    given_name: str,
+    family_name: str,
+    birthdate: str,
+    gender: str,
+    birthplace: str,
+    birthcountry: str,
+) -> str:
+    hashed_pivot_data: str = ami_hash(
+        given_name,
+        family_name,
+        birthdate,
+        gender,
+        birthplace,
+        birthcountry,
+    )
+    return hashed_pivot_data
 
 
 @get(path="/dev-utils/review-apps")
@@ -118,6 +139,7 @@ def create_app(
             NotAuthenticatedNotificationController,
             UserController,
             get_sector_identifier_url,
+            _dev_utils_ami_hash,
             _dev_utils_review_apps,
             create_static_files_router(
                 path="/",
