@@ -7,7 +7,10 @@ from advanced_alchemy.extensions.litestar import providers
 from litestar import Controller, Response, WebSocket, get, patch, post, websocket
 from litestar.channels import ChannelsPlugin
 from litestar.di import Provide
-from litestar.exceptions import NotFoundException, WebSocketDisconnect
+from litestar.exceptions import (
+    NotFoundException,
+    WebSocketDisconnect,
+)
 from litestar.params import Body
 from litestar.status_codes import HTTP_200_OK
 from pydantic import TypeAdapter
@@ -216,11 +219,13 @@ class NotAuthenticatedNotificationController(Controller):
         # 4. Erreurs de format (champs obligatoires manquants, etc) 400 BAD REQUEST
         # 5. Insensibilité à la casse de l'enum item_generic_status
 
+        notification_id = uuid.UUID("43847a2f-0b26-40a4-a452-8342a99a10a8")
+        status_code = HTTP_200_OK
         if data.recipient_fc_hash == "unknown_hash":
             notification_send_status = False
         else:
             notification_send_status = True
-        notification_id = uuid.UUID("43847a2f-0b26-40a4-a452-8342a99a10a8")
+
         notify_response = NotifyResponse.model_validate(
             {
                 "notification_id": notification_id,
@@ -228,7 +233,7 @@ class NotAuthenticatedNotificationController(Controller):
             }
         )
         return Response(
-            status_code=HTTP_200_OK,
+            status_code=status_code,
             content=notify_response,
         )
 
