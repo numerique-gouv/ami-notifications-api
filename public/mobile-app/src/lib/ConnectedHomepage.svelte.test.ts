@@ -1,7 +1,7 @@
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 import WS from 'vitest-websocket-mock'
-import { render, screen } from '@testing-library/svelte'
+import { render, screen, waitFor } from '@testing-library/svelte'
 import ConnectedHomepage from './ConnectedHomepage.svelte'
 import * as notificationsMethods from '$lib/notifications'
 import { PUBLIC_API_WS_URL } from '$lib/notifications'
@@ -59,21 +59,23 @@ describe('/ConnectedHomepage.svelte', () => {
   test("should display user's initials on menu", async () => {
     // When
     const { container } = render(ConnectedHomepage)
-    await new Promise(setTimeout) // wait for async calls
 
     // Then
-    const initials = container.querySelector('.user-profile')
-    expect(initials).toHaveTextContent('PAF')
+    await waitFor(() => {
+      const initials = container.querySelector('.user-profile')
+      expect(initials).toHaveTextContent('PAF')
+    })
   })
 
   test("should display user's quotient data", async () => {
     // When
     const { container } = await render(ConnectedHomepage)
-    await new Promise(setTimeout) // wait for async calls
 
     // Then
-    const accordion = await container.querySelector('#accordion-1')
-    expect(accordion).toHaveTextContent('quotientinfo: { "data": { "foo": "bar" }')
+    await waitFor(() => {
+      const accordion = container.querySelector('#accordion-1')
+      expect(accordion).toHaveTextContent('quotientinfo: { "data": { "foo": "bar" }')
+    })
   })
 
   test("should display user's notification count", async () => {
@@ -84,12 +86,13 @@ describe('/ConnectedHomepage.svelte', () => {
 
     // When
     const { container } = render(ConnectedHomepage)
-    await new Promise(setTimeout) // wait for async calls
 
     // Then
-    expect(spy).toHaveBeenCalledTimes(1)
-    const icon = container.querySelector('#notification-icon')
-    expect(icon).toHaveTextContent('3')
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledTimes(1)
+      const icon = container.querySelector('#notification-icon')
+      expect(icon).toHaveTextContent('3')
+    })
   })
 
   test("should refresh user's notification count", async () => {
@@ -100,16 +103,20 @@ describe('/ConnectedHomepage.svelte', () => {
       .mockImplementationOnce(() => 4)
 
     const { container } = render(ConnectedHomepage)
-    await new Promise(setTimeout) // wait for async calls
+    await waitFor(() => {
+      const icon = container.querySelector('#notification-icon')
+      expect(icon).toHaveTextContent('3')
+    })
 
     // When
     wss.send('ping')
-    await new Promise(setTimeout) // wait for async calls
 
     // Then
     expect(spy).toHaveBeenCalledTimes(2)
-    const icon = container.querySelector('#notification-icon')
-    expect(icon).toHaveTextContent('4')
+    await waitFor(() => {
+      const icon = container.querySelector('#notification-icon')
+      expect(icon).toHaveTextContent('4')
+    })
   })
 
   test("should display 'Ne plus recevoir de notifications' link when notifications are enabled", async () => {
@@ -118,11 +125,14 @@ describe('/ConnectedHomepage.svelte', () => {
 
     // When
     const { container } = render(ConnectedHomepage)
-    await new Promise(setTimeout) // wait for async calls
 
     // Then
-    const menu = container.querySelector('.menu')
-    expect(menu).toHaveTextContent('Ne plus recevoir de notifications sur ce terminal')
+    await waitFor(() => {
+      const menu = container.querySelector('.menu')
+      expect(menu).toHaveTextContent(
+        'Ne plus recevoir de notifications sur ce terminal'
+      )
+    })
   })
 
   test("should display 'Ne plus recevoir de notifications' link when click on enable notifications", async () => {
@@ -130,33 +140,39 @@ describe('/ConnectedHomepage.svelte', () => {
     const spy = vi.spyOn(notificationsMethods, 'enableNotifications')
 
     const { container } = render(ConnectedHomepage)
-    await new Promise(setTimeout) // wait for async calls
 
-    const toggleMenuButton = screen.getByTestId('toggle-menu-button')
+    const toggleMenuButton = await waitFor(() =>
+      screen.getByTestId('toggle-menu-button')
+    )
     await toggleMenuButton.click()
-    await new Promise(setTimeout) // wait for async calls
 
-    const enableNotificationsLink = screen.getByTestId('enable-notifications')
+    const enableNotificationsLink = await waitFor(() =>
+      screen.getByTestId('enable-notifications')
+    )
 
     // When
     await enableNotificationsLink.click()
-    await new Promise(setTimeout) // wait for async calls
 
     // Then
-    const menu = container.querySelector('.menu')
-    expect(spy).toHaveBeenCalled()
-    expect(menu).toHaveTextContent('Ne plus recevoir de notifications sur ce terminal')
-    expect(window.localStorage.getItem('notifications_enabled')).toBe('true')
+    await waitFor(() => {
+      const menu = container.querySelector('.menu')
+      expect(spy).toHaveBeenCalled()
+      expect(menu).toHaveTextContent(
+        'Ne plus recevoir de notifications sur ce terminal'
+      )
+      expect(window.localStorage.getItem('notifications_enabled')).toBe('true')
+    })
   })
 
   test("should display 'Recevoir des notifications' link when notifications are disabled", async () => {
     // When
     const { container } = render(ConnectedHomepage)
-    await new Promise(setTimeout) // wait for async calls
 
     // Then
-    const menu = container.querySelector('.menu')
-    expect(menu).toHaveTextContent('Recevoir des notifications sur ce terminal')
+    await waitFor(() => {
+      const menu = container.querySelector('.menu')
+      expect(menu).toHaveTextContent('Recevoir des notifications sur ce terminal')
+    })
   })
 
   test("should display 'Recevoir des notifications' link when click on disable notifications", async () => {
@@ -165,27 +181,31 @@ describe('/ConnectedHomepage.svelte', () => {
     const spy = vi.spyOn(notificationsMethods, 'disableNotifications')
 
     const { container } = render(ConnectedHomepage)
-    await new Promise(setTimeout) // wait for async calls
 
-    const toggleMenuButton = screen.getByTestId('toggle-menu-button')
+    const toggleMenuButton = await waitFor(() =>
+      screen.getByTestId('toggle-menu-button')
+    )
     await toggleMenuButton.click()
-    await new Promise(setTimeout) // wait for async calls
 
-    const enableNotificationsLink = screen.getByTestId('enable-notifications')
+    const enableNotificationsLink = await waitFor(() =>
+      screen.getByTestId('enable-notifications')
+    )
     await enableNotificationsLink.click()
-    await new Promise(setTimeout) // wait for async calls
 
-    const disableNotificationsLink = screen.getByTestId('disable-notifications')
+    const disableNotificationsLink = await waitFor(() =>
+      screen.getByTestId('disable-notifications')
+    )
 
     // When
     await disableNotificationsLink.click()
-    await new Promise(setTimeout) // wait for async calls
 
     // Then
-    const menu = container.querySelector('.menu')
-    expect(spy).toHaveBeenCalledWith(fakeRegistrationId)
-    expect(menu).toHaveTextContent('Recevoir des notifications sur ce terminal')
-    expect(window.localStorage.getItem('notifications_enabled')).toBe('false')
+    await waitFor(() => {
+      const menu = container.querySelector('.menu')
+      expect(spy).toHaveBeenCalledWith(fakeRegistrationId)
+      expect(menu).toHaveTextContent('Recevoir des notifications sur ce terminal')
+      expect(window.localStorage.getItem('notifications_enabled')).toBe('false')
+    })
   })
 
   test('should logout a user from AMI then from FC', async () => {

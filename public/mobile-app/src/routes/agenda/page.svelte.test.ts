@@ -1,5 +1,5 @@
 import { describe, test, expect, vi } from 'vitest'
-import { render, screen } from '@testing-library/svelte'
+import { render, screen, waitFor } from '@testing-library/svelte'
 import Page from './+page.svelte'
 import * as navigationMethods from '$app/navigation'
 import * as agendaMethods from '$lib/agenda'
@@ -37,11 +37,12 @@ describe('/+page.svelte', () => {
 
     // When
     render(Page)
-    await new Promise(setTimeout) // wait for async calls
 
     // Then
     expect(spy).toHaveBeenCalledTimes(1)
-    expect(screen.getByTestId('events-now')).toHaveTextContent("D'ici un mois")
+    await waitFor(() => {
+      expect(screen.getByTestId('events-now')).toHaveTextContent("D'ici un mois")
+    })
     expect(screen.getByTestId('events-now')).toHaveTextContent(monthName(today))
     expect(screen.getByTestId('events-now')).toHaveTextContent('Holiday 1')
     expect(screen.getByTestId('events-next')).toHaveTextContent('Prochainement')
@@ -60,12 +61,13 @@ describe('/+page.svelte', () => {
 
     // When
     render(Page)
-    await new Promise(setTimeout) // wait for async calls
 
     // Then
     expect(spy).toHaveBeenCalledTimes(1)
-    expect(screen.queryByTestId('events-now')).toBeNull()
-    expect(screen.getByTestId('events-next')).toHaveTextContent('Prochainement')
+    await waitFor(() => {
+      expect(screen.queryByTestId('events-now')).toBeNull()
+      expect(screen.getByTestId('events-next')).toHaveTextContent('Prochainement')
+    })
     expect(screen.getByTestId('events-next')).toHaveTextContent(monthName(in32days))
     expect(screen.getByTestId('events-next')).toHaveTextContent('Holiday 2')
   })
@@ -81,11 +83,12 @@ describe('/+page.svelte', () => {
 
     // When
     render(Page)
-    await new Promise(setTimeout) // wait for async calls
 
     // Then
     expect(spy).toHaveBeenCalledTimes(1)
-    expect(screen.getByTestId('events-now')).toHaveTextContent("D'ici un mois")
+    await waitFor(() => {
+      expect(screen.getByTestId('events-now')).toHaveTextContent("D'ici un mois")
+    })
     expect(screen.getByTestId('events-now')).toHaveTextContent(monthName(today))
     expect(screen.getByTestId('events-now')).toHaveTextContent('Holiday 1')
     expect(screen.queryByTestId('events-next')).toBeNull()
@@ -106,11 +109,12 @@ describe('/+page.svelte', () => {
 
     // When
     render(Page)
-    await new Promise(setTimeout) // wait for async calls
 
     // Then
     expect(spy).toHaveBeenCalledTimes(1)
-    expect(screen.getByTestId('events-now')).toHaveTextContent("D'ici un mois")
+    await waitFor(() => {
+      expect(screen.getByTestId('events-now')).toHaveTextContent("D'ici un mois")
+    })
     expect(screen.getByTestId('events-now')).toHaveTextContent(monthName(today))
     const today_month_occurrences = (
       screen
@@ -146,12 +150,13 @@ describe('/+page.svelte', () => {
 
     // When
     render(Page)
-    await new Promise(setTimeout) // wait for async calls
 
     // Then
     expect(spy).toHaveBeenCalledTimes(1)
-    expect(screen.queryByTestId('events-now')).toBeNull()
-    expect(screen.getByTestId('events-next')).toHaveTextContent('Prochainement')
+    await waitFor(() => {
+      expect(screen.queryByTestId('events-now')).toBeNull()
+      expect(screen.getByTestId('events-next')).toHaveTextContent('Prochainement')
+    })
     expect(screen.getByTestId('events-next')).toHaveTextContent(monthName(in32days))
     const in32days_month_occurrences = (
       screen
@@ -180,12 +185,13 @@ describe('/+page.svelte', () => {
 
     // When
     render(Page)
-    await new Promise(setTimeout) // wait for async calls
 
     // Then
     expect(monthName(start1)).toEqual(monthName(start2))
     expect(spy).toHaveBeenCalledTimes(1)
-    expect(screen.getByTestId('events-now')).toHaveTextContent("D'ici un mois")
+    await waitFor(() => {
+      expect(screen.getByTestId('events-now')).toHaveTextContent("D'ici un mois")
+    })
     expect(screen.getByTestId('events-now')).toHaveTextContent(monthName(start1))
     expect(screen.getByTestId('events-now')).toHaveTextContent('Holiday 1')
     expect(screen.getByTestId('events-next')).toHaveTextContent('Prochainement')
