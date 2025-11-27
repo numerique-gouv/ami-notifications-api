@@ -214,10 +214,18 @@ class NotAuthenticatedNotificationController(Controller):
         # 2. Cas passant sans émission car user inconnu d'AMI (soit user existe mais n'a pas téléchargé AMI, soit la PSL a mal formé le hash) : on renvoie l'id de la notif + statut d'échec d'émission + la raison de l'échec 200
         # 3. le back AMI n'a pas réussi à envoyer la notif au front natif AMI (erreur technique) 500
         # 4. Erreurs de format (champs obligatoires manquants, etc) 400 BAD REQUEST
+        # 5. Insensibilité à la casse de l'enum item_generic_status
 
+        if data.recipient_fc_hash == "unknown_hash":
+            notification_send_status = False
+        else:
+            notification_send_status = True
         notification_id = uuid.UUID("43847a2f-0b26-40a4-a452-8342a99a10a8")
         notify_response = NotifyResponse.model_validate(
-            {"notification_id": notification_id, "notification_send_status": True}
+            {
+                "notification_id": notification_id,
+                "notification_send_status": notification_send_status,
+            }
         )
         return Response(
             status_code=HTTP_200_OK,
