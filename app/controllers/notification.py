@@ -4,17 +4,19 @@ from collections.abc import Sequence
 from typing import Annotated, Any, cast
 
 from advanced_alchemy.extensions.litestar import providers
-from litestar import Controller, WebSocket, get, patch, post, websocket
+from litestar import Controller, Response, WebSocket, get, patch, post, websocket
 from litestar.channels import ChannelsPlugin
 from litestar.di import Provide
 from litestar.exceptions import NotFoundException, WebSocketDisconnect
 from litestar.params import Body
+from litestar.status_codes import HTTP_200_OK
 from pydantic import TypeAdapter
 from webpush import WebPush, WebPushSubscription
 
 from app import env, models, schemas
 from app.controllers.utils import UrlEncodedBody
 from app.httpx import httpxClient
+from app.schemas import NotifyResponse
 from app.services.notification import NotificationService
 from app.services.user import UserService, provide_user
 
@@ -207,8 +209,20 @@ class NotAuthenticatedNotificationController(Controller):
         users_with_registrations_service: UserService,
         webpush: WebPush,
         data: schemas.Notification,
-    ) -> None:
-        return None
+    ) -> Response[NotifyResponse]:
+        # 1. Cas passant avec bonne émission : on renvoie l'id de la notif + statut de succès d'émission 200
+        # 2. Cas passant sans émission car user inconnu d'AMI (soit user existe mais n'a pas téléchargé AMI, soit la PSL a mal formé le hash) : on renvoie l'id de la notif + statut d'échec d'émission + la raison de l'échec 200
+        # 3. le back AMI n'a pas réussi à envoyer la notif au front natif AMI (erreur technique) 500
+        # 4. Erreurs de format (champs obligatoires manquants, etc) 400 BAD REQUEST
+
+        notification_id = uuid.UUID("43847a2f-0b26-40a4-a452-8342a99a10a8")
+        notify_response = NotifyResponse.model_validate(
+            {"notification_id": notification_id, "notification_send_status": True}
+        )
+        return Response(
+            status_code=HTTP_200_OK,
+            content=notify_response,
+        )
 
     @post("/api/v1/notifications", return_dto=None)
     async def notify(
@@ -224,7 +238,7 @@ class NotAuthenticatedNotificationController(Controller):
                 description="Send the notification message to a registered user",
             ),
         ],
-    ) -> None:
+    ) -> Response[NotifyResponse]:
         return await self._do_notify(
             channels, notifications_service, users_with_registrations_service, webpush, data
         )
@@ -243,7 +257,7 @@ class NotAuthenticatedNotificationController(Controller):
                 description="Send the notification message to a registered user",
             ),
         ],
-    ) -> None:
+    ) -> Response[NotifyResponse]:
         return await self._do_notify(
             channels, notifications_service, users_with_registrations_service, webpush, data
         )
