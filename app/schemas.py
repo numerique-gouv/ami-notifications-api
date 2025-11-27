@@ -94,7 +94,7 @@ class ItemGenericStatus(Enum):
     CLOSED = "closed"
 
 
-class NotificationPivotHashCreate(BaseModel):
+class Notification(BaseModel):
     recipient_fc_hash: str
     # Dans AMI, on stocke la liste des partenaires et leur clé d'API (en base ou en variables d'env)
     # Dans la table Notifications, il y a le partenaire émetteur
