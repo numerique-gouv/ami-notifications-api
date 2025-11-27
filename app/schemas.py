@@ -101,22 +101,27 @@ class Notification(BaseModel):
     item_type: str  # OTV
     item_id: str
     item_status_label: str  # label renvoyé par le partenaire
-    item_generic_status: ItemGenericStatus  # New, Wip, Closed
-    item_canal: (
-        str | None
-    )  # (ex : AMI) Demande de Cécile et Eric (côté partenariats) pour faire des stats
-    item_milestone_start_date: (
-        datetime.datetime | None
-    )  # Date de début de surveillance du logement. Pour afficher dans un agenda. Timezone incluse
-    item_milestone_end_date: (
-        datetime.datetime | None
-    )  # Date de fin de surveillance du logement. Timezone incluse
+    item_generic_status: ItemGenericStatus  # new, wip, closed
+    item_canal: str | None = (
+        None  # (ex : AMI) Demande de Cécile et Eric (côté partenariats) pour faire des stats
+    )
+    item_milestone_start_date: datetime.datetime | None = (
+        None  # Date de début de surveillance du logement. Pour afficher dans un agenda. Timezone incluse
+    )
+    item_milestone_end_date: datetime.datetime | None = (
+        None  # Date de fin de surveillance du logement. Timezone incluse
+    )
     item_send_date: datetime.datetime  # Timezone incluse
-    item_external_url: str | None  # Lien vers l'item chez le partenaire
+    item_external_url: str | None = None  # Lien vers l'item chez le partenaire
     try_push: bool | None = True
     content_title: str
     content_body: str
     content_icon: str | None = (
-        "partner_default_icon"  # icône à intégrer dans la liste des notifications. Icône par défaut est l'icône du partenaire
+        "otv_default_icon"  # icône à intégrer dans la liste des notifications. Icône par défaut est l'icône du partenaire
     )
     # Liste des icônes possibles : https://www.systeme-de-design.gouv.fr/version-courante/fr/fondamentaux/icone#utilisation-des-icones
+
+
+class NotifyResponse(BaseModel):
+    notification_id: uuid.UUID
+    notification_send_status: bool
