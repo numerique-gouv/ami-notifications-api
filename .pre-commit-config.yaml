@@ -26,6 +26,12 @@ repos:
       entry: npm run lint-and-format
       language: system
       files: \.(js|ts|svelte|json)$
+    - id: typescript-check
+      name: typescript type checking
+      entry: npm run type-check
+      language: system
+      files: \.(ts|tsx)$
+      pass_filenames: false
 
 # HTML linting and formatting
 - repo: https://github.com/rtts/djhtml

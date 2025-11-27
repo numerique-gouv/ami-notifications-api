@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "lint-and-format": "node_modules/@biomejs/biome/bin/biome format --write"
+    "lint-and-format": "node_modules/@biomejs/biome/bin/biome format --write",
+    "type-check": "cd public/mobile-app && npm run check"
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.4"
