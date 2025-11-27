@@ -102,15 +102,16 @@ class NotificationPivotHashCreate(BaseModel):
     item_id: str
     item_status_label: str  # label renvoyé par le partenaire
     item_generic_status: ItemGenericStatus  # New, Wip, Closed
-    item_canal: str  # (ex : AMI) Demande de Cécile et Eric (côté partenariats) pour faire des stats
+    item_canal: (
+        str | None
+    )  # (ex : AMI) Demande de Cécile et Eric (côté partenariats) pour faire des stats
     item_milestone_start_date: (
         datetime.datetime | None
     )  # Date de début de surveillance du logement. Pour afficher dans un agenda. Timezone incluse
     item_milestone_end_date: (
         datetime.datetime | None
     )  # Date de fin de surveillance du logement. Timezone incluse
-    item_creation_date: datetime.datetime  # Timezone incluse
-    item_last_modification_date: datetime.datetime  # Timezone incluse
+    item_send_date: datetime.datetime  # Timezone incluse
     item_external_url: str | None  # Lien vers l'item chez le partenaire
     try_push: bool | None = True
     content_title: str
