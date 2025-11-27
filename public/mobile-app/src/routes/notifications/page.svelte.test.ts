@@ -1,5 +1,5 @@
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest'
-import { render, screen } from '@testing-library/svelte'
+import { render, screen, waitFor } from '@testing-library/svelte'
 import WS from 'vitest-websocket-mock'
 import Page from './+page.svelte'
 import * as navigationMethods from '$app/navigation'
@@ -59,12 +59,11 @@ describe('/+page.svelte', () => {
 
     // When
     render(Page)
-    await new Promise(setTimeout) // wait for async calls
 
     // Then
     expect(spy).toHaveBeenCalledTimes(1)
-    const notification1 = screen.getByTestId(
-      'notification-f62c66b2-7bd5-4696-8383-2d40c08a1'
+    const notification1 = await waitFor(() =>
+      screen.getByTestId('notification-f62c66b2-7bd5-4696-8383-2d40c08a1')
     )
     expect(notification1).toHaveClass('unread')
     const notification2 = screen.getByTestId(
@@ -134,24 +133,24 @@ describe('/+page.svelte', () => {
       })
 
     render(Page)
-    await new Promise(setTimeout) // wait for async calls
-    const notificationLink = screen.getByTestId(
-      'notification-link-f62c66b2-7bd5-4696-8383-2d40c08a1'
+    const notificationLink = await waitFor(() =>
+      screen.getByTestId('notification-link-f62c66b2-7bd5-4696-8383-2d40c08a1')
     )
 
     // When
     await notificationLink.click()
     wss.send('ping')
-    await new Promise(setTimeout) // wait for async calls
 
     // Then
     expect(spy).toHaveBeenCalledTimes(2)
     expect(spy2).toHaveBeenCalledTimes(1)
     expect(spy2).toHaveBeenCalledWith('f62c66b2-7bd5-4696-8383-2d40c08a1')
-    const notification1 = screen.getByTestId(
-      'notification-f62c66b2-7bd5-4696-8383-2d40c08a1'
-    )
-    expect(notification1).not.toHaveClass('unread')
+    await waitFor(() => {
+      const notification1 = screen.getByTestId(
+        'notification-f62c66b2-7bd5-4696-8383-2d40c08a1'
+      )
+      expect(notification1).not.toHaveClass('unread')
+    })
     const notification2 = screen.getByTestId(
       'notification-2689c3b3-e95c-4d73-b37d-55f430688af9'
     )
