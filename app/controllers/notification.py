@@ -31,7 +31,7 @@ class NotificationController(Controller):
         notifications_service: NotificationService,
         current_user: models.User,
         unread: bool | None = None,
-    ) -> Sequence[schemas.Notification]:
+    ) -> Sequence[schemas.AdminNotification]:
         if unread is not None:
             notifications: Sequence[models.Notification] = await notifications_service.list(
                 order_by=(models.Notification.created_at, True),
@@ -47,7 +47,7 @@ class NotificationController(Controller):
         # return notifications_service.to_schema(notifications, schema_type=schemas.Notification)
         # But it adds pagination.
         # For the moment, just return a list of dict
-        type_adapter = TypeAdapter(list[schemas.Notification])
+        type_adapter = TypeAdapter(list[schemas.AdminNotification])
         return type_adapter.validate_python(notifications)
 
     @patch("/api/v1/users/notification/{notification_id:uuid}/read")
@@ -63,7 +63,7 @@ class NotificationController(Controller):
                 description="Mark a user notification as read or unread",
             ),
         ],
-    ) -> schemas.Notification:
+    ) -> schemas.AdminNotification:
         notification: models.Notification | None = await notifications_service.get_one_or_none(
             id=notification_id,
             user=current_user,
@@ -80,7 +80,7 @@ class NotificationController(Controller):
             },
             "notification_events",
         )
-        return notifications_service.to_schema(notification, schema_type=schemas.Notification)
+        return notifications_service.to_schema(notification, schema_type=schemas.AdminNotification)
 
     @websocket("/api/v1/users/notification/events/stream")
     async def stream_notification_events(
@@ -135,7 +135,7 @@ class NotAuthenticatedNotificationController(Controller):
         users_with_registrations_service: UserService,
         webpush: WebPush,
         data: schemas.NotificationCreate,
-    ) -> schemas.Notification:
+    ) -> schemas.AdminNotification:
         user: models.User | None = await users_with_registrations_service.get_one_or_none(
             id=data.user_id
         )
@@ -168,7 +168,7 @@ class NotAuthenticatedNotificationController(Controller):
             },
             "notification_events",
         )
-        return notifications_service.to_schema(notification, schema_type=schemas.Notification)
+        return notifications_service.to_schema(notification, schema_type=schemas.AdminNotification)
 
     @get("/api/v1/users/{user_id:uuid}/notifications")
     async def list_notifications(
@@ -177,7 +177,7 @@ class NotAuthenticatedNotificationController(Controller):
         users_service: UserService,
         user_id: uuid.UUID,
         unread: bool | None = None,
-    ) -> Sequence[schemas.Notification]:
+    ) -> Sequence[schemas.AdminNotification]:
         # XXX keep this endpoint for mobile-app compatibility; remove it when mobile-app use authenticated endpoint
         user: models.User | None = await users_service.get_one_or_none(id=user_id)
         if user is None:
@@ -197,7 +197,7 @@ class NotAuthenticatedNotificationController(Controller):
         # return notifications_service.to_schema(notifications, schema_type=schemas.Notification)
         # But it adds pagination.
         # For the moment, just return a list of dict
-        type_adapter = TypeAdapter(list[schemas.Notification])
+        type_adapter = TypeAdapter(list[schemas.AdminNotification])
         return type_adapter.validate_python(notifications)
 
     async def _do_notify(
