@@ -10,7 +10,7 @@ import {
 import type { Notification } from '$lib/notifications'
 
 let isFranceConnected: boolean = $state(false)
-let notifications: [Notification] = $state([])
+let notifications: Notification[] = $state([])
 
 onMount(async () => {
   isFranceConnected = !!localStorage.getItem('access_token')
