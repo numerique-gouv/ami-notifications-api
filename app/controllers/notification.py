@@ -206,7 +206,7 @@ class NotAuthenticatedNotificationController(Controller):
         notifications_service: NotificationService,
         users_with_registrations_service: UserService,
         webpush: WebPush,
-        data: schemas.NotificationPivotHashCreate,
+        data: schemas.Notification,
     ) -> None:
         return None
 
@@ -218,7 +218,7 @@ class NotAuthenticatedNotificationController(Controller):
         users_with_registrations_service: UserService,
         webpush: WebPush,
         data: Annotated[
-            schemas.NotificationPivotHashCreate,
+            schemas.Notification,
             Body(
                 title="Send a notification",
                 description="Send the notification message to a registered user",
@@ -237,7 +237,7 @@ class NotAuthenticatedNotificationController(Controller):
         users_with_registrations_service: UserService,
         webpush: WebPush,
         data: Annotated[
-            schemas.NotificationPivotHashCreate,
+            schemas.Notification,
             UrlEncodedBody(
                 title="Send a notification",
                 description="Send the notification message to a registered user",
