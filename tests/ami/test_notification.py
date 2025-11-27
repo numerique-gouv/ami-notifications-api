@@ -2,6 +2,7 @@ from litestar import Litestar
 from litestar.status_codes import (
     HTTP_200_OK,
     HTTP_400_BAD_REQUEST,
+    HTTP_500_INTERNAL_SERVER_ERROR,
 )
 from litestar.testing import TestClient
 
@@ -123,3 +124,20 @@ async def test_notify_send_ko_with_400_when_required_fields_are_empty(
         ],
         "status_code": 400,
     }
+
+
+async def test_notify_send_ko_with_500_when_technical_error(
+    test_client: TestClient[Litestar],
+) -> None:
+    notification_data = {
+        "recipient_fc_hash": "technical_error",
+        "item_type": "OTV",
+        "item_id": "A-5-JGBJ5VMOY",
+        "item_status_label": "brouillon",
+        "item_generic_status": "new",
+        "item_send_date": "2025-11-27T10:55:00.000Z",
+        "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
+        "content_body": "Merci d'avoir initié votre demande",
+    }
+    response = test_client.post("/api/v1/notifications", json=notification_data)
+    assert response.status_code == HTTP_500_INTERNAL_SERVER_ERROR
