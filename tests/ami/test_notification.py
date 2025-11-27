@@ -14,9 +14,9 @@ async def test_notify_send_ok_with_200(
         "recipient_fc_hash": "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060",
         "item_type": "OTV",
         "item_id": "A-5-JGBJ5VMOY",
-        "item_status_label": "brouillon",
+        "item_status_label": "Brouillon",
         "item_generic_status": "new",
-        "item_send_date": "2025-11-27T10:55:00.000Z",
+        "send_date": "2025-11-27T10:55:00.000Z",
         "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
         "content_body": "Merci d'avoir initié votre demande",
     }
@@ -35,9 +35,9 @@ async def test_notify_send_ko_with_200_and_notification_send_status_to_false(
         "recipient_fc_hash": "unknown_hash",
         "item_type": "OTV",
         "item_id": "A-5-JGBJ5VMOY",
-        "item_status_label": "brouillon",
+        "item_status_label": "Brouillon",
         "item_generic_status": "new",
-        "item_send_date": "2025-11-27T10:55:00.000Z",
+        "send_date": "2025-11-27T10:55:00.000Z",
         "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
         "content_body": "Merci d'avoir initié votre demande",
     }
@@ -79,7 +79,7 @@ async def test_notify_send_ko_with_400_when_required_fields_are_missing(
                 "message": "Field required",
             },
             {
-                "key": "item_send_date",
+                "key": "send_date",
                 "message": "Field required",
             },
             {
@@ -104,7 +104,7 @@ async def test_notify_send_ko_with_400_when_required_fields_are_empty(
         "item_id": "",
         "item_status_label": "",
         "item_generic_status": "",
-        "item_send_date": "",
+        "send_date": "",
         "content_title": "",
         "content_body": "",
     }
@@ -118,7 +118,7 @@ async def test_notify_send_ko_with_400_when_required_fields_are_empty(
                 "message": "Input should be 'new', 'wip' or 'closed'",
             },
             {
-                "key": "item_send_date",
+                "key": "send_date",
                 "message": "Input should be a valid datetime or date, input is too short",
             },
         ],
@@ -133,9 +133,9 @@ async def test_notify_send_ko_with_500_when_technical_error(
         "recipient_fc_hash": "technical_error",
         "item_type": "OTV",
         "item_id": "A-5-JGBJ5VMOY",
-        "item_status_label": "brouillon",
+        "item_status_label": "Brouillon",
         "item_generic_status": "new",
-        "item_send_date": "2025-11-27T10:55:00.000Z",
+        "send_date": "2025-11-27T10:55:00.000Z",
         "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
         "content_body": "Merci d'avoir initié votre demande",
     }
