@@ -24,7 +24,7 @@ class FCUserInfo(BaseModel):
     given_name: str | None = None
 
 
-class Notification(BaseModel):
+class AdminNotification(BaseModel):
     id: uuid.UUID
     user_id: uuid.UUID
     message: str
