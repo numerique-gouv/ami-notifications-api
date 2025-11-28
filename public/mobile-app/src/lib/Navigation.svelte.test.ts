@@ -37,6 +37,6 @@ describe('/Navigation.svelte', () => {
 
     // Then
     const highlight = container.querySelector('.highlight')
-    expect(highlight).toHaveTextContent('Demandes')
+    expect(highlight).toHaveTextContent('Suivi')
   })
 })
