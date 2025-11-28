@@ -23,12 +23,6 @@ let current = {
       </a>
     </li>
     <li class="menu__item">
-      <a class="menu__link {current.lists ? 'highlight': ''}" href="/" aria-current="{current.lists ? 'true': ''}">
-        <img src="/remixicons/list-check.svg" alt="Icône de listes" />
-        <span>Listes</span>
-      </a>
-    </li>
-    <li class="menu__item">
       <a class="menu__link {current.requests ? 'highlight': ''}" href="/" aria-current="{current.requests ? 'true': ''}">
         <img src="/remixicons/edit-line.svg" alt="Icône de demandes" />
         <span>Demandes</span>

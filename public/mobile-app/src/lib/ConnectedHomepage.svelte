@@ -8,8 +8,10 @@ import {
   notificationEventsSocket,
 } from '$lib/notifications'
 import { getQuotientData } from '$lib/api-particulier'
-import bankIcon from '@gouvfr/dsfr/dist/icons/buildings/bank-line.svg'
 import { PUBLIC_API_URL } from '$env/static/public'
+import { buildAgenda } from '$lib/agenda'
+import type { Agenda } from '$lib/agenda'
+import AgendaItem from '$lib/AgendaItem.svelte'
 
 let userinfo: Object = $state({})
 let quotientinfo: Object = $state({})
@@ -18,6 +20,7 @@ let initials: String = $state('')
 let isMenuDisplayed = $state(false)
 let notificationsEnabled: boolean = $state(false)
 let registration: Object = $state({})
+let agenda: Agenda = $state(null)
 
 const updateNotificationsEnabled = async (notificationsEnabledStatus) => {
   if (notificationsEnabledStatus === true) {
@@ -65,6 +68,9 @@ onMount(async () => {
     notificationEventsSocket(async () => {
       unreadNotificationsCount = await countUnreadNotifications()
     })
+
+    agenda = await buildAgenda()
+    console.log($state.snapshot(agenda))
 
     quotientinfo = await getQuotientData()
     console.log($state.snapshot(quotientinfo))
@@ -116,10 +122,6 @@ const logout = async () => {
     </button>
 
     <div class="header-right">
-      <div class="notification-svg-icon" id="message-icon">
-        <img src="/remixicons/message-3.svg" alt="Icône de message" />
-      </div>
-
       <div class="notification-svg-icon" id="notification-icon">
         <a href="/#/notifications">
           <img src="/remixicons/notification-3.svg" alt="Icône de notifications" />
@@ -161,14 +163,14 @@ const logout = async () => {
     </div>
   </div>
 
-  <div class="rubrique-container qr-code-scan-container">
+  <div class="rubrique-container address-container">
     <div class="rubrique-content-container">
-      <div class="fr-tile fr-tile-sm fr-tile--horizontal fr-enlarge-link">
+      <div class="fr-tile fr-tile-sm fr-tile--horizontal fr-tile--no-border fr-enlarge-link">
         <div class="fr-tile__body">
           <div class="fr-tile__content">
-            <img class="qr-code-icon" src="/remixicons/qr-code.svg" alt="Icône de QR code" />
+            <img class="address-icon" src="/remixicons/house.svg" alt="Icône adresse" />
             <h3 class="fr-tile__title">
-              <a href="/">Scanner le QR code d'un service partenaire</a>
+              <a href="/"><b>Gagnez du temps</b> en <b>renseignant votre adresse</b> une seule fois !</a>
             </h3>
           </div>
         </div>
@@ -176,72 +178,42 @@ const logout = async () => {
     </div>
   </div>
 
-  <div class="rubrique-container">
+  <div class="rubrique-container agenda-container">
     <div class="header-container">
-      <span class="title">Mes rendez-vous</span>
-      <a title="Voir toutes mes rendez-vous" href="/">
-        <span class="see-all">Voir tout</span>
+      <span class="title">Mon agenda</span>
+      <a class="see-all" title="Voir tout mes évènements" href="/#/agenda">
+        <span>Voir tout</span>
         <img class="arrow-line" src="/remixicons/arrow-line.svg" alt="Icône de flèche" />
       </a>
     </div>
     <div class="rubrique-content-container">
-      <div class="fr-tile fr-tile-sm fr-tile--horizontal fr-enlarge-link">
-        <div class="fr-tile__body">
-          <div class="fr-tile__content">
-            <h3 class="fr-tile__title">
-              <a href="/#/rdv/">2 août 2025 à 15H15</a>
-            </h3>
-            <p class="fr-tile__desc">Rendez-vous dans votre Agence France Travail Paris 18e Ney</p>
-            <div class="fr-tile__start">
-              <p class="fr-badge">
-                <img src="/remixicons/calendar-event-line.svg" alt="Icône de calendrier" />
-                RDV
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+    {#if agenda}
+      {#if agenda.now.length}
+        <AgendaItem item={agenda.now[0]} displayDate={false} />
+      {:else if agenda.next.length}
+        <AgendaItem item={agenda.next[0]} displayDate={false} />
+      {/if}
+    {/if}
     </div>
   </div>
 
-  <div class="rubrique-container">
-    <div class="header-container">
-      <span class="title">Mes échéances</span>
-      <a title="Voir toutes les échéances" href="/">
-        <span class="see-all">Voir tout</span>
-        <img class="arrow-line" src="/remixicons/arrow-line.svg" alt="Icône de flèche" />
-      </a>
-    </div>
-    <div class="rubrique-content-container">
-      <div class="fr-tile fr-tile-sm fr-tile--horizontal fr-enlarge-link">
-        <div class="fr-tile__body">
-          <div class="fr-tile__content">
-            <h3 class="fr-tile__title">
-              <a href="/">Ramassage encombrants</a>
-            </h3>
-            <p class="fr-tile__desc">Le ramassage mensuel des encombrants aura lieu ce jeudi 4 avril</p>
-            <div class="fr-tile__start">
-              <p class="fr-badge">
-                <img src="{bankIcon}" alt="Icône de banque" />
-                Municipalité
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="rubrique-container">
+  <div class="rubrique-container requests-container">
     <div class="header-container">
       <span class="title">Mes demandes</span>
-      <a title="Voir toutes les demandes" href="/">
-        <span class="see-all">Voir tout</span>
-        <img class="arrow-line" src="/remixicons/arrow-line.svg" alt="Icône de flèche" />
-      </a>
+      <span class="see-all">
+        <span>Voir tout</span>
+        <img class="arrow-line" src="/remixicons/arrow-line-disabled.svg" alt="Icône de flèche" />
+      </span>
     </div>
     <div class="rubrique-content-container">
-      TODO
+      <div class="no-requests">
+        <div class="no-requests--icon">
+          <img class="address-icon" src="/remixicons/tracking.svg" alt="Icône de suivi" />
+        </div>
+        <div class="no-request--title">
+          Retrouvez et suivez vos démarches ici
+        </div>
+      </div>
     </div>
   </div>
 
@@ -360,27 +332,33 @@ const logout = async () => {
       }
     }
 
-    .qr-code-scan-container {
+    .address-container {
       .fr-tile {
         background-color: var(--blue-france-950-100);
+        padding: 1.5rem 1.5rem 1rem 1.5rem;
 
         .fr-tile__content {
           display: flex;
           flex-direction: row;
           align-items: center;
+          padding-bottom: 1rem;
 
           img {
-            margin-right: 24px;
+            margin-right: 0.5rem;
           }
 
           .fr-tile__title {
-            margin-bottom: 0;
-
+            font-size: 16px;
+            line-height: 24px;
+            font-weight: 400;
             a {
-              color: var(--grey-50-1000);
-              font-size: 16px;
-              font-weight: 500;
-              line-height: 24px;
+              color: #000;
+              &::after {
+                color: var(--text-active-blue-france);
+                bottom: 1.25rem;
+                right: 1.25rem;
+                --icon-size: 1rem;
+              }
             }
           }
         }
@@ -408,23 +386,30 @@ const logout = async () => {
           line-height: 24px;
           color: var(--blue-france-sun-113-625);
           margin-right: 4px;
+          display: inline-flex;
+          gap: 4px;
+        }
+        span.see-all {
+          color: var(--text-disabled-grey);
+          img {
+            color: var(--text-disabled-grey);
+          }
         }
       }
+    }
 
-      .rubrique-content-container {
-        .fr-tile {
-          .fr-badge {
-            font-size: 12px;
-            font-weight: 700;
-            line-height: 20px;
-            color: var(--success-425-625);
-            background-color: var(--green-bourgeon-975-75);
-
-            img {
-              width: 12px;
-              margin-right: 4px;
-            }
-          }
+    .requests-container {
+      .no-requests {
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        text-align: center;
+        font-size: 16px;
+        line-height: 24px;
+        color: #000;
+        img {
+          height: 80px;
+          width: 80px;
         }
       }
     }

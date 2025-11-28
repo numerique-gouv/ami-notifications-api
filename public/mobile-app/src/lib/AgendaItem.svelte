@@ -2,15 +2,18 @@
 import { Item } from '$lib/agenda'
 interface Props {
   item: Item
+  displayDate: Boolean
 }
-let { item } = $props<Props>()
+let { item, displayDate = true } = $props<Props>()
 </script>
 
 <div class="agenda--item">
+  {#if displayDate}
   <div class="agenda--item--date">
     <span class="day-name">{item.dayName}</span> 
     <span class="day-num">{item.dayNum}</span> 
   </div>
+  {/if}
   <div class="agenda--item--detail fr-tile fr-tile-sm fr-tile--horizontal fr-enlarge-link">
     <div class="fr-tile__body">
       <div class="fr-tile__content">
@@ -34,6 +37,7 @@ let { item } = $props<Props>()
 <style>
   .agenda--item {
     display: flex;
+    margin-bottom: 0.75rem;
     .agenda--item--date {
       width: 2rem;
       color: #000;
@@ -49,7 +53,6 @@ let { item } = $props<Props>()
       }
     }
     .agenda--item--detail {
-      margin-bottom: 0.75rem;
       padding: 1.5rem;
       padding-bottom: 1rem;
       width: 100%;
