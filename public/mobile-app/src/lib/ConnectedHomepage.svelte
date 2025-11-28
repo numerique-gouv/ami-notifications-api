@@ -10,7 +10,6 @@ import {
 } from '$lib/notifications'
 import type { Registration } from '$lib/registration'
 import { getQuotientData } from '$lib/api-particulier'
-import bankIcon from '@gouvfr/dsfr/dist/icons/buildings/bank-line.svg'
 import { PUBLIC_API_URL } from '$env/static/public'
 
 let userinfo: UserInfo | null = $state(null)
@@ -177,8 +176,8 @@ const logout = async () => {
   <div class="rubrique-container">
     <div class="header-container">
       <span class="title">Mes rendez-vous</span>
-      <a title="Voir toutes mes rendez-vous" href="/">
-        <span class="see-all">Voir tout</span>
+      <a class="see-all" title="Voir toutes mes rendez-vous" href="/">
+        <span>Voir tout</span>
         <img class="arrow-line" src="/remixicons/arrow-line.svg" alt="Icône de flèche" />
       </a>
     </div>
@@ -202,44 +201,23 @@ const logout = async () => {
     </div>
   </div>
 
-  <div class="rubrique-container">
-    <div class="header-container">
-      <span class="title">Mes échéances</span>
-      <a title="Voir toutes les échéances" href="/">
-        <span class="see-all">Voir tout</span>
-        <img class="arrow-line" src="/remixicons/arrow-line.svg" alt="Icône de flèche" />
-      </a>
-    </div>
-    <div class="rubrique-content-container">
-      <div class="fr-tile fr-tile-sm fr-tile--horizontal fr-enlarge-link">
-        <div class="fr-tile__body">
-          <div class="fr-tile__content">
-            <h3 class="fr-tile__title">
-              <a href="/">Ramassage encombrants</a>
-            </h3>
-            <p class="fr-tile__desc">Le ramassage mensuel des encombrants aura lieu ce jeudi 4 avril</p>
-            <div class="fr-tile__start">
-              <p class="fr-badge">
-                <img src="{bankIcon}" alt="Icône de banque" />
-                Municipalité
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="rubrique-container">
+  <div class="rubrique-container requests-container">
     <div class="header-container">
       <span class="title">Mes demandes</span>
-      <a title="Voir toutes les demandes" href="/">
-        <span class="see-all">Voir tout</span>
-        <img class="arrow-line" src="/remixicons/arrow-line.svg" alt="Icône de flèche" />
-      </a>
+      <span class="see-all">
+        <span>Voir tout</span>
+        <img class="arrow-line" src="/remixicons/arrow-line-disabled.svg" alt="Icône de flèche" />
+      </span>
     </div>
     <div class="rubrique-content-container">
-      TODO
+      <div class="no-requests">
+        <div class="no-requests--icon">
+          <img class="address-icon" src="/remixicons/tracking.svg" alt="Icône de suivi" />
+        </div>
+        <div class="no-request--title">
+          Retrouvez et suivez vos démarches ici
+        </div>
+      </div>
     </div>
   </div>
 
@@ -367,7 +345,7 @@ const logout = async () => {
           display: flex;
           flex-direction: row;
           align-items: center;
-          padding-bottom: 1.5rem;
+          padding-bottom: 1rem;
 
           img {
             margin-right: 0.5rem;
@@ -412,6 +390,14 @@ const logout = async () => {
           line-height: 24px;
           color: var(--blue-france-sun-113-625);
           margin-right: 4px;
+          display: inline-flex;
+          gap: 4px;
+        }
+        span.see-all {
+          color: var(--text-disabled-grey);
+          img {
+            color: var(--text-disabled-grey);
+          }
         }
       }
 
@@ -429,6 +415,22 @@ const logout = async () => {
               margin-right: 4px;
             }
           }
+        }
+      }
+    }
+
+    .requests-container {
+      .no-requests {
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        text-align: center;
+        font-size: 16px;
+        line-height: 24px;
+        color: var(--grey-0-1000);
+        img {
+          height: 5rem;
+          width: 5rem;
         }
       }
     }
