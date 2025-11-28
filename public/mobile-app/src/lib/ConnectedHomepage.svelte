@@ -9,6 +9,9 @@ import {
 } from '$lib/notifications'
 import { getQuotientData } from '$lib/api-particulier'
 import { PUBLIC_API_URL } from '$env/static/public'
+import { buildAgenda } from '$lib/agenda'
+import type { Agenda } from '$lib/agenda'
+import AgendaItem from '$lib/AgendaItem.svelte'
 
 let userinfo: Object = $state({})
 let quotientinfo: Object = $state({})
@@ -17,6 +20,7 @@ let initials: String = $state('')
 let isMenuDisplayed = $state(false)
 let notificationsEnabled: boolean = $state(false)
 let registration: Object = $state({})
+let agenda: Agenda = $state(null)
 
 const updateNotificationsEnabled = async (notificationsEnabledStatus) => {
   if (notificationsEnabledStatus === true) {
@@ -64,6 +68,9 @@ onMount(async () => {
     notificationEventsSocket(async () => {
       unreadNotificationsCount = await countUnreadNotifications()
     })
+
+    agenda = await buildAgenda()
+    console.log($state.snapshot(agenda))
 
     quotientinfo = await getQuotientData()
     console.log($state.snapshot(quotientinfo))
@@ -171,31 +178,22 @@ const logout = async () => {
     </div>
   </div>
 
-  <div class="rubrique-container">
+  <div class="rubrique-container agenda-container">
     <div class="header-container">
-      <span class="title">Mes rendez-vous</span>
-      <a class="see-all" title="Voir toutes mes rendez-vous" href="/">
+      <span class="title">Mon agenda</span>
+      <a class="see-all" title="Voir tout mes évènements" href="/#/agenda">
         <span>Voir tout</span>
         <img class="arrow-line" src="/remixicons/arrow-line.svg" alt="Icône de flèche" />
       </a>
     </div>
     <div class="rubrique-content-container">
-      <div class="fr-tile fr-tile-sm fr-tile--horizontal fr-enlarge-link">
-        <div class="fr-tile__body">
-          <div class="fr-tile__content">
-            <h3 class="fr-tile__title">
-              <a href="/#/rdv/">2 août 2025 à 15H15</a>
-            </h3>
-            <p class="fr-tile__desc">Rendez-vous dans votre Agence France Travail Paris 18e Ney</p>
-            <div class="fr-tile__start">
-              <p class="fr-badge">
-                <img src="/remixicons/calendar-event-line.svg" alt="Icône de calendrier" />
-                RDV
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+    {#if agenda}
+      {#if agenda.now.length}
+        <AgendaItem item={agenda.now[0]} displayDate={false} />
+      {:else if agenda.next.length}
+        <AgendaItem item={agenda.next[0]} displayDate={false} />
+      {/if}
+    {/if}
     </div>
   </div>
 
@@ -395,23 +393,6 @@ const logout = async () => {
           color: var(--text-disabled-grey);
           img {
             color: var(--text-disabled-grey);
-          }
-        }
-      }
-
-      .rubrique-content-container {
-        .fr-tile {
-          .fr-badge {
-            font-size: 12px;
-            font-weight: 700;
-            line-height: 20px;
-            color: var(--success-425-625);
-            background-color: var(--green-bourgeon-975-75);
-
-            img {
-              width: 12px;
-              margin-right: 4px;
-            }
           }
         }
       }
