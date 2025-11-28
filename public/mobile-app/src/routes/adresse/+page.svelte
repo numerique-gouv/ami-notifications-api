@@ -1,10 +1,33 @@
 <script lang="ts">
-import { callBAN } from './addressesFromBAN'
+import { type AddressFromBAN, callBAN } from './addressesFromBAN'
+
+type Address = {
+  name: string
+  context: string
+  postcode: string
+  city: string
+  label: string
+}
 
 let timer
-let inputValue = ''
-let filteredAddresses = []
-let disabledButton = true
+let inputValue: string = $state('')
+let filteredAddresses: [Address] = $state([])
+let disabledButton: boolean = $state(true)
+let selectedAddress: Address = $state<Address>({
+  name: '',
+  context: '',
+  postcode: '',
+  city: '',
+  label: '',
+})
+let hasSubmittedAddress: boolean = $state(false)
+let submittedAddress: Address = $state<Address>({
+  name: '',
+  context: '',
+  postcode: '',
+  city: '',
+  label: '',
+})
 
 const debounce = (v) => {
   clearTimeout(timer)
@@ -17,20 +40,44 @@ const debounce = (v) => {
 
 const filterAddresses = async () => {
   if (inputValue) {
-    let results = []
+    let results: [AddressFromBAN] = []
     results = await callBAN(inputValue)
-    filteredAddresses = results
+    filteredAddresses = results.map(
+      (address: AddressFromBAN): Address => ({
+        name: address.name,
+        context: address.context,
+        postcode: address.postcode,
+        city: address.city,
+        label: `${address.name} ${address.postcode} ${address.city}`,
+      })
+    )
   } else {
     filteredAddresses = []
   }
-  console.log('filteredAddresses', filteredAddresses)
+  console.log('filteredAddresses', $state.snapshot(filteredAddresses))
 }
 
 const setInputVal = (address) => {
-  console.log('selected address', address)
+  selectedAddress = address
+  console.log('selectedAddress', $state.snapshot(selectedAddress))
   filteredAddresses = []
+  inputValue = selectedAddress.label
   document.querySelector('#address-input').focus()
   disabledButton = false
+}
+
+const submitAddress = async () => {
+  hasSubmittedAddress = true
+  submittedAddress = selectedAddress
+  console.log('submittedAddress', $state.snapshot(submittedAddress))
+}
+
+const removeAddress = async () => {
+  hasSubmittedAddress = false
+  disabledButton = true
+  selectedAddress = { name: '', context: '', postcode: '', city: '', label: '' }
+  submittedAddress = { name: '', context: '', postcode: '', city: '', label: '' }
+  console.log('removeAddress')
 }
 </script>
 
@@ -49,7 +96,7 @@ const setInputVal = (address) => {
   <div class="address-content-container">
     <p>Pour <strong>personnaliser</strong> votre expérience, renseigner l'adresse de votre <strong>résidence principale.</p>
 
-    <form autocomplete="off">
+    <form autocomplete="off" class="address-form">
       <fieldset class="fr-fieldset" aria-labelledby="text-legend text-messages">
         <div class="fr-fieldset__element">
           <div class="fr-input-group autocomplete">
@@ -85,11 +132,26 @@ const setInputVal = (address) => {
         </div>
       </fieldset>
     </form>
+
+    {#if hasSubmittedAddress}
+      <div class="selected-address-wrapper">
+        <div class="left-wrapper">
+          <span>Votre résidence principale</span>
+          <span><strong>{submittedAddress.label}</strong></span>
+        </div>
+        <div class="right-wrapper">
+          <button onclick={removeAddress}>
+            <span class="fr-icon-close-line" aria-hidden="true"></span>
+          </button>
+        </div>
+      </div>
+    {/if}
   </div>
 
   <button class="fr-btn submit-button"
           type="submit"
           disabled="{disabledButton}"
+          onclick={submitAddress}
   >
     Enregistrer cette adresse
   </button>
@@ -116,60 +178,82 @@ const setInputVal = (address) => {
     .address-content-container {
       padding: 1rem;
 
-      div.autocomplete {
-        position: relative;
-        display: inline-block;
-        width: 100%;
-        span.fr-hint-text {
-          margin-bottom: .25rem;
-        }
-        input#address-input {
-          padding: 1rem;
-          font-size: 1rem;
-          line-height: 1.5rem;
-          margin: 0;
-        }
-      }
-
-      .fr-input-group:not(:last-child) {
-        margin-bottom: 0;
-      }
-
-      ul#autocomplete-items-list {
-        position: relative;
-        margin: 0;
-        padding: 0;
-        top: 0;
-        border: 1px solid var(--grey-950-100);
-        background-color: var(--grey-975-75);
-
-        p.autocomplete-title {
-          padding: .25rem .75rem;
-          margin: 0;
-          font-weight: 700;
-          color: var(--text-active-blue-france);
-        }
-
-        li.autocomplete-items {
-          list-style: none;
-          padding: 0;
-          background-color: var(--background-default-grey);
-
-          button {
-            padding: .75rem;
-            text-align: left;
-            --hover-tint: var(--text-action-high-blue-france);
-            --active-tint: var(--text-action-high-blue-france);
-
-            p {
-              margin: 0;
-            }
+      .address-form {
+        div.autocomplete {
+          position: relative;
+          display: inline-block;
+          width: 100%;
+          span.fr-hint-text {
+            margin-bottom: .25rem;
+          }
+          input#address-input {
+            padding: 1rem;
+            font-size: 1rem;
+            line-height: 1.5rem;
+            margin: 0;
           }
         }
 
-        li.autocomplete-items:hover {
-          background-color: var(--text-action-high-blue-france);
-          color: var(--text-inverted-blue-france);
+        .fr-input-group:not(:last-child) {
+          margin-bottom: 0;
+        }
+
+        ul#autocomplete-items-list {
+          position: relative;
+          margin: 0;
+          padding: 0;
+          top: 0;
+          border: 1px solid var(--grey-950-100);
+          background-color: var(--grey-975-75);
+
+          p.autocomplete-title {
+            padding: .25rem .75rem;
+            margin: 0;
+            font-weight: 700;
+            color: var(--text-active-blue-france);
+          }
+
+          li.autocomplete-items {
+            list-style: none;
+            padding: 0;
+            background-color: var(--background-default-grey);
+
+            button {
+              padding: .75rem;
+              text-align: left;
+              --hover-tint: var(--text-action-high-blue-france);
+              --active-tint: var(--text-action-high-blue-france);
+
+              p {
+                margin: 0;
+              }
+            }
+          }
+
+          li.autocomplete-items:hover {
+            background-color: var(--text-action-high-blue-france);
+            color: var(--text-inverted-blue-france);
+          }
+        }
+      }
+    }
+
+    .selected-address-wrapper {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      border: 1px solid var(--text-action-high-blue-france);
+      padding: .5rem;
+
+      .left-wrapper {
+        display: flex;
+        flex-direction: column;
+      }
+      .right-wrapper {
+        display: flex;
+        align-items: center;
+        .fr-icon-close-line {
+          color: var(--text-action-high-blue-france);
         }
       }
     }
