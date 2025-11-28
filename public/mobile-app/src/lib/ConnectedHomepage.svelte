@@ -118,10 +118,6 @@ const logout = async () => {
     </button>
 
     <div class="header-right">
-      <div class="notification-svg-icon" id="message-icon">
-        <img src="/remixicons/message-3.svg" alt="Icône de message" />
-      </div>
-
       <div class="notification-svg-icon" id="notification-icon">
         <a href="/#/notifications">
           <img src="/remixicons/notification-3.svg" alt="Icône de notifications" />
