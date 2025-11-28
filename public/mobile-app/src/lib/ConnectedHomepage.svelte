@@ -159,14 +159,14 @@ const logout = async () => {
     </div>
   </div>
 
-  <div class="rubrique-container qr-code-scan-container">
+  <div class="rubrique-container address-container">
     <div class="rubrique-content-container">
-      <div class="fr-tile fr-tile-sm fr-tile--horizontal fr-enlarge-link">
+      <div class="fr-tile fr-tile-sm fr-tile--horizontal fr-tile--no-border fr-enlarge-link">
         <div class="fr-tile__body">
           <div class="fr-tile__content">
-            <img class="qr-code-icon" src="/remixicons/qr-code.svg" alt="Icône de QR code" />
+            <img class="address-icon" src="/remixicons/house.svg" alt="Icône adresse" />
             <h3 class="fr-tile__title">
-              <a href="/">Scanner le QR code d'un service partenaire</a>
+              <a href="/"><b>Gagnez du temps</b> en <b>renseignant votre adresse</b> une seule fois !</a>
             </h3>
           </div>
         </div>
@@ -358,27 +358,33 @@ const logout = async () => {
       }
     }
 
-    .qr-code-scan-container {
+    .address-container {
       .fr-tile {
         background-color: var(--blue-france-950-100);
+        padding: 1.5rem 1.5rem 1rem 1.5rem;
 
         .fr-tile__content {
           display: flex;
           flex-direction: row;
           align-items: center;
+          padding-bottom: 1.5rem;
 
           img {
-            margin-right: 24px;
+            margin-right: 0.5rem;
           }
 
           .fr-tile__title {
-            margin-bottom: 0;
-
+            font-size: 16px;
+            line-height: 24px;
+            font-weight: 400;
             a {
-              color: var(--grey-50-1000);
-              font-size: 16px;
-              font-weight: 500;
-              line-height: 24px;
+              color: var(--grey-0-1000);
+              &::after {
+                color: var(--text-active-blue-france);
+                bottom: 1.25rem;
+                right: 1.25rem;
+                --icon-size: 1rem;
+              }
             }
           }
         }
