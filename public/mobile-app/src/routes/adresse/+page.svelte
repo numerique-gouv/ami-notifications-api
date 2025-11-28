@@ -1,6 +1,8 @@
 <script lang="ts">
 import { type AddressFromBAN, callBAN } from './addressesFromBAN'
 
+// TODO: essayer avec l'autocomplete
+
 type Address = {
   name: string
   context: string
@@ -140,7 +142,7 @@ const removeAddress = async () => {
           <span><strong>{submittedAddress.label}</strong></span>
         </div>
         <div class="right-wrapper">
-          <button onclick={removeAddress}>
+          <button onclick={removeAddress} aria-label="Retirer l'adresse">
             <span class="fr-icon-close-line" aria-hidden="true"></span>
           </button>
         </div>
