@@ -5,6 +5,8 @@ import type { WS as WSType } from 'vitest-websocket-mock'
 import { render, screen, waitFor } from '@testing-library/svelte'
 import ConnectedHomepage from './ConnectedHomepage.svelte'
 import * as notificationsMethods from '$lib/notifications'
+import * as agendaMethods from '$lib/agenda'
+import { Agenda, Item } from '$lib/agenda'
 import { PUBLIC_API_WS_URL } from '$lib/notifications'
 import { PUBLIC_API_URL } from '$env/static/public'
 import { franceConnectLogout } from './france-connect'
@@ -45,6 +47,8 @@ describe('/ConnectedHomepage.svelte', () => {
         countUnreadNotifications: vi.fn(() => 3),
       }
     })
+
+    vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(new Agenda([]))
 
     window.localStorage.setItem('notifications_enabled', 'false')
     window.localStorage.setItem('user_data', 'fake-user-data')
@@ -207,6 +211,55 @@ describe('/ConnectedHomepage.svelte', () => {
       expect(spy).toHaveBeenCalledWith(fakeRegistrationId)
       expect(menu).toHaveTextContent('Recevoir des notifications sur ce terminal')
       expect(window.localStorage.getItem('notifications_enabled')).toBe('false')
+    })
+  })
+
+  test('Should display first holiday found from API', async () => {
+    // Given
+    const agenda = new Agenda([])
+    vi.spyOn(agenda, 'now', 'get').mockReturnValue([
+      new Item('holiday', 'Holiday 1', null, new Date()),
+      new Item('holiday', 'Holiday 2', null, new Date()),
+    ])
+    vi.spyOn(agenda, 'next', 'get').mockReturnValue([
+      new Item('holiday', 'Holiday 3', null, new Date()),
+      new Item('holiday', 'Holiday 4', null, new Date()),
+    ])
+    const spy = vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(agenda)
+
+    // When
+    const { container } = render(ConnectedHomepage)
+
+    // Then
+    await waitFor(() => {
+      const agenda = container.querySelector('.agenda-container')
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(agenda).toHaveTextContent('Holiday 1')
+      expect(agenda).not.toHaveTextContent('Holiday 2')
+      expect(agenda).not.toHaveTextContent('Holiday 3')
+      expect(agenda).not.toHaveTextContent('Holiday 4')
+    })
+  })
+
+  test('Should display first holiday found from API - now is empty', async () => {
+    // Given
+    const agenda = new Agenda([])
+    vi.spyOn(agenda, 'now', 'get').mockReturnValue([])
+    vi.spyOn(agenda, 'next', 'get').mockReturnValue([
+      new Item('holiday', 'Holiday 1', null, new Date()),
+      new Item('holiday', 'Holiday 2', null, new Date()),
+    ])
+    const spy = vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(agenda)
+
+    // When
+    const { container } = render(ConnectedHomepage)
+
+    // Then
+    await waitFor(() => {
+      const agenda = container.querySelector('.agenda-container')
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(agenda).toHaveTextContent('Holiday 1')
+      expect(agenda).not.toHaveTextContent('Holiday 2')
     })
   })
 
