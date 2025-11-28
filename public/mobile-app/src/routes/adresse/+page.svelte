@@ -4,11 +4,11 @@ import { type AddressFromBAN, callBAN } from './addressesFromBAN'
 // TODO: essayer avec l'autocomplete
 
 type Address = {
-  name: string
-  context: string
-  postcode: string
   city: string
+  context: string
   label: string
+  name: string
+  postcode: string
 }
 
 let timer
@@ -16,19 +16,19 @@ let inputValue: string = $state('')
 let filteredAddresses: [Address] = $state([])
 let disabledButton: boolean = $state(true)
 let selectedAddress: Address = $state<Address>({
-  name: '',
-  context: '',
-  postcode: '',
   city: '',
+  context: '',
   label: '',
+  name: '',
+  postcode: '',
 })
 let hasSubmittedAddress: boolean = $state(false)
 let submittedAddress: Address = $state<Address>({
-  name: '',
-  context: '',
-  postcode: '',
   city: '',
+  context: '',
   label: '',
+  name: '',
+  postcode: '',
 })
 
 const debounce = (v) => {
@@ -46,11 +46,11 @@ const filterAddresses = async () => {
     results = await callBAN(inputValue)
     filteredAddresses = results.map(
       (address: AddressFromBAN): Address => ({
-        name: address.name,
-        context: address.context,
-        postcode: address.postcode,
         city: address.city,
-        label: `${address.name} ${address.postcode} ${address.city}`,
+        context: address.context,
+        label: address.label,
+        name: address.name,
+        postcode: address.postcode,
       })
     )
   } else {
@@ -77,8 +77,8 @@ const submitAddress = async () => {
 const removeAddress = async () => {
   hasSubmittedAddress = false
   disabledButton = true
-  selectedAddress = { name: '', context: '', postcode: '', city: '', label: '' }
-  submittedAddress = { name: '', context: '', postcode: '', city: '', label: '' }
+  selectedAddress = { city: '', context: '', label: '', name: '', postcode: '' }
+  submittedAddress = { city: '', context: '', label: '', name: '', postcode: '' }
   console.log('removeAddress')
 }
 </script>

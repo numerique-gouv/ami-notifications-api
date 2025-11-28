@@ -1,8 +1,9 @@
 export type AddressFromBAN = {
-  name: string
-  context: string
-  postcode: string
   city: string
+  context: string
+  label: string
+  name: string
+  postcode: string
 }
 
 export const callBAN = async (inputValue) => {
@@ -31,9 +32,10 @@ const formatResults = (data) => {
   if (data) {
     data.features.forEach((feature) => {
       const address = {} as AddressFromBAN
-      address.name = feature.properties.name
       address.city = feature.properties.city
       address.context = feature.properties.context
+      address.label = feature.properties.label
+      address.name = feature.properties.name
       address.postcode = feature.properties.postcode
       results.push(address)
     })
