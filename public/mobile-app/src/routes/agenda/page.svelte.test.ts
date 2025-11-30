@@ -1,8 +1,9 @@
-import { describe, test, expect, vi } from 'vitest'
+import { beforeEach, describe, test, expect, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/svelte'
 import Page from './+page.svelte'
 import * as navigationMethods from '$app/navigation'
 import * as agendaMethods from '$lib/agenda'
+import * as authMethods from '$lib/auth'
 import { Agenda, Item, monthName } from '$lib/agenda'
 
 const oneday_in_ms = 24 * 60 * 60 * 1000
@@ -10,9 +11,12 @@ const today = new Date()
 const in32days = new Date(today.getTime() + 32 * oneday_in_ms) // 32 days, so we are sure that month is different than today's
 
 describe('/+page.svelte', () => {
-  test('user has to be connected', () => {
+  beforeEach(() => {
+    vi.spyOn(authMethods, 'checkAuth').mockResolvedValue(true)
+  })
+  test('user has to be connected', async () => {
     // Given
-    expect(window.localStorage.getItem('access_token')).toEqual(null)
+    vi.spyOn(authMethods, 'checkAuth').mockResolvedValue(false)
     vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(new Agenda([]))
     const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue()
 
@@ -20,12 +24,13 @@ describe('/+page.svelte', () => {
     render(Page)
 
     // Then
-    expect(spy).toHaveBeenCalledTimes(1)
-    expect(spy).toHaveBeenCalledWith('/')
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy).toHaveBeenCalledWith('/')
+    })
   })
   test('Should display holidays from API', async () => {
     // Given
-    window.localStorage.setItem('access_token', 'fake-access-token')
     const agenda = new Agenda([])
     vi.spyOn(agenda, 'now', 'get').mockReturnValue([
       new Item('holiday', 'Holiday 1', null, today),
@@ -39,19 +44,18 @@ describe('/+page.svelte', () => {
     render(Page)
 
     // Then
-    expect(spy).toHaveBeenCalledTimes(1)
     await waitFor(() => {
+      expect(spy).toHaveBeenCalledTimes(1)
       expect(screen.getByTestId('events-now')).toHaveTextContent("D'ici un mois")
+      expect(screen.getByTestId('events-now')).toHaveTextContent(monthName(today))
+      expect(screen.getByTestId('events-now')).toHaveTextContent('Holiday 1')
+      expect(screen.getByTestId('events-next')).toHaveTextContent('Prochainement')
+      expect(screen.getByTestId('events-next')).toHaveTextContent(monthName(in32days))
+      expect(screen.getByTestId('events-next')).toHaveTextContent('Holiday 2')
     })
-    expect(screen.getByTestId('events-now')).toHaveTextContent(monthName(today))
-    expect(screen.getByTestId('events-now')).toHaveTextContent('Holiday 1')
-    expect(screen.getByTestId('events-next')).toHaveTextContent('Prochainement')
-    expect(screen.getByTestId('events-next')).toHaveTextContent(monthName(in32days))
-    expect(screen.getByTestId('events-next')).toHaveTextContent('Holiday 2')
   })
   test('Should not display "next" section if empty', async () => {
     // Given
-    window.localStorage.setItem('access_token', 'fake-access-token')
     const agenda = new Agenda([])
     vi.spyOn(agenda, 'now', 'get').mockReturnValue([])
     vi.spyOn(agenda, 'next', 'get').mockReturnValue([
@@ -63,13 +67,13 @@ describe('/+page.svelte', () => {
     render(Page)
 
     // Then
-    expect(spy).toHaveBeenCalledTimes(1)
     await waitFor(() => {
+      expect(spy).toHaveBeenCalledTimes(1)
       expect(screen.queryByTestId('events-now')).toBeNull()
       expect(screen.getByTestId('events-next')).toHaveTextContent('Prochainement')
+      expect(screen.getByTestId('events-next')).toHaveTextContent(monthName(in32days))
+      expect(screen.getByTestId('events-next')).toHaveTextContent('Holiday 2')
     })
-    expect(screen.getByTestId('events-next')).toHaveTextContent(monthName(in32days))
-    expect(screen.getByTestId('events-next')).toHaveTextContent('Holiday 2')
   })
   test('Should not display "next" section if empty', async () => {
     // Given
@@ -84,13 +88,13 @@ describe('/+page.svelte', () => {
     render(Page)
 
     // Then
-    expect(spy).toHaveBeenCalledTimes(1)
     await waitFor(() => {
+      expect(spy).toHaveBeenCalledTimes(1)
       expect(screen.getByTestId('events-now')).toHaveTextContent("D'ici un mois")
+      expect(screen.getByTestId('events-now')).toHaveTextContent(monthName(today))
+      expect(screen.getByTestId('events-now')).toHaveTextContent('Holiday 1')
+      expect(screen.queryByTestId('events-next')).toBeNull()
     })
-    expect(screen.getByTestId('events-now')).toHaveTextContent(monthName(today))
-    expect(screen.getByTestId('events-now')).toHaveTextContent('Holiday 1')
-    expect(screen.queryByTestId('events-next')).toBeNull()
   })
   test('Should not repeat month', async () => {
     const agenda = new Agenda([])
@@ -108,33 +112,32 @@ describe('/+page.svelte', () => {
     render(Page)
 
     // Then
-    expect(spy).toHaveBeenCalledTimes(1)
     await waitFor(() => {
+      expect(spy).toHaveBeenCalledTimes(1)
       expect(screen.getByTestId('events-now')).toHaveTextContent("D'ici un mois")
+      expect(screen.getByTestId('events-now')).toHaveTextContent(monthName(today))
+      const today_month_occurrences = (
+        screen
+          ?.getByTestId('events-now')
+          ?.textContent?.match(new RegExp(monthName(today), 'g')) || []
+      ).length
+      expect(today_month_occurrences).toBe(1)
+      expect(screen.getByTestId('events-now')).toHaveTextContent('Holiday 1')
+      expect(screen.getByTestId('events-now')).toHaveTextContent('Holiday 2')
+      expect(screen.getByTestId('events-next')).toHaveTextContent('Prochainement')
+      expect(screen.getByTestId('events-next')).toHaveTextContent(monthName(in32days))
+      const in32days_month_occurrences = (
+        screen
+          ?.getByTestId('events-now')
+          ?.textContent?.match(new RegExp(monthName(today), 'g')) || []
+      ).length
+      expect(in32days_month_occurrences).toBe(1)
+      expect(screen.getByTestId('events-next')).toHaveTextContent('Holiday 3')
+      expect(screen.getByTestId('events-next')).toHaveTextContent('Holiday 4')
     })
-    expect(screen.getByTestId('events-now')).toHaveTextContent(monthName(today))
-    const today_month_occurrences = (
-      screen
-        ?.getByTestId('events-now')
-        ?.textContent?.match(new RegExp(monthName(today), 'g')) || []
-    ).length
-    expect(today_month_occurrences).toBe(1)
-    expect(screen.getByTestId('events-now')).toHaveTextContent('Holiday 1')
-    expect(screen.getByTestId('events-now')).toHaveTextContent('Holiday 2')
-    expect(screen.getByTestId('events-next')).toHaveTextContent('Prochainement')
-    expect(screen.getByTestId('events-next')).toHaveTextContent(monthName(in32days))
-    const in32days_month_occurrences = (
-      screen
-        ?.getByTestId('events-now')
-        ?.textContent?.match(new RegExp(monthName(today), 'g')) || []
-    ).length
-    expect(in32days_month_occurrences).toBe(1)
-    expect(screen.getByTestId('events-next')).toHaveTextContent('Holiday 3')
-    expect(screen.getByTestId('events-next')).toHaveTextContent('Holiday 4')
   })
   test('Should not repeat month (with "next" part empty)', async () => {
     // Given
-    window.localStorage.setItem('access_token', 'fake-access-token')
     const agenda = new Agenda([])
     vi.spyOn(agenda, 'now', 'get').mockReturnValue([])
     vi.spyOn(agenda, 'next', 'get').mockReturnValue([
@@ -147,24 +150,23 @@ describe('/+page.svelte', () => {
     render(Page)
 
     // Then
-    expect(spy).toHaveBeenCalledTimes(1)
     await waitFor(() => {
+      expect(spy).toHaveBeenCalledTimes(1)
       expect(screen.queryByTestId('events-now')).toBeNull()
       expect(screen.getByTestId('events-next')).toHaveTextContent('Prochainement')
+      expect(screen.getByTestId('events-next')).toHaveTextContent(monthName(in32days))
+      const in32days_month_occurrences = (
+        screen
+          ?.getByTestId('events-next')
+          ?.textContent?.match(new RegExp(monthName(in32days), 'g')) || []
+      ).length
+      expect(in32days_month_occurrences).toBe(1)
+      expect(screen.getByTestId('events-next')).toHaveTextContent('Holiday 1')
+      expect(screen.getByTestId('events-next')).toHaveTextContent('Holiday 2')
     })
-    expect(screen.getByTestId('events-next')).toHaveTextContent(monthName(in32days))
-    const in32days_month_occurrences = (
-      screen
-        ?.getByTestId('events-next')
-        ?.textContent?.match(new RegExp(monthName(in32days), 'g')) || []
-    ).length
-    expect(in32days_month_occurrences).toBe(1)
-    expect(screen.getByTestId('events-next')).toHaveTextContent('Holiday 1')
-    expect(screen.getByTestId('events-next')).toHaveTextContent('Holiday 2')
   })
   test('Should not repeat month (when last "next" event month is the same as first "next" event month)', async () => {
     // Given
-    window.localStorage.setItem('access_token', 'fake-access-token')
     var start1 = today
     var start2 = new Date(today.getTime() + 1 * oneday_in_ms)
     if (start1.getMonth() != start2.getMonth()) {
@@ -185,14 +187,14 @@ describe('/+page.svelte', () => {
 
     // Then
     expect(monthName(start1)).toEqual(monthName(start2))
-    expect(spy).toHaveBeenCalledTimes(1)
     await waitFor(() => {
+      expect(spy).toHaveBeenCalledTimes(1)
       expect(screen.getByTestId('events-now')).toHaveTextContent("D'ici un mois")
+      expect(screen.getByTestId('events-now')).toHaveTextContent(monthName(start1))
+      expect(screen.getByTestId('events-now')).toHaveTextContent('Holiday 1')
+      expect(screen.getByTestId('events-next')).toHaveTextContent('Prochainement')
+      expect(screen.getByTestId('events-next')).not.toHaveTextContent(monthName(start2))
+      expect(screen.getByTestId('events-next')).toHaveTextContent('Holiday 2')
     })
-    expect(screen.getByTestId('events-now')).toHaveTextContent(monthName(start1))
-    expect(screen.getByTestId('events-now')).toHaveTextContent('Holiday 1')
-    expect(screen.getByTestId('events-next')).toHaveTextContent('Prochainement')
-    expect(screen.getByTestId('events-next')).not.toHaveTextContent(monthName(start2))
-    expect(screen.getByTestId('events-next')).toHaveTextContent('Holiday 2')
   })
 })

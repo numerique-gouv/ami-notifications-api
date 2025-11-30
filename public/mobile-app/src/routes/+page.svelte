@@ -1,4 +1,5 @@
 <script lang="ts">
+import { checkAuth } from '$lib/auth'
 import ConnectedHomepage from '$lib/ConnectedHomepage.svelte'
 import Navigation from '$lib/Navigation.svelte'
 import {
@@ -20,7 +21,7 @@ let error: string = $state('')
 let error_description: string = $state('')
 
 onMount(async () => {
-  isFranceConnected = !!localStorage.getItem('access_token')
+  isFranceConnected = await checkAuth()
   try {
     if (page.url.searchParams.has('error')) {
       error = page.url.searchParams.get('error') || ''
