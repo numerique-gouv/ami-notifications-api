@@ -1,6 +1,7 @@
 <script lang="ts">
 import { parseJwt, franceConnectLogout } from '$lib/france-connect'
 import type { UserInfo } from '$lib/france-connect'
+import { logout } from '$lib/auth'
 import { onMount } from 'svelte'
 import {
   countUnreadNotifications,
@@ -10,7 +11,6 @@ import {
 } from '$lib/notifications'
 import type { Registration } from '$lib/registration'
 import { getQuotientData } from '$lib/api-particulier'
-import { PUBLIC_API_URL } from '$env/static/public'
 import { buildAgenda } from '$lib/agenda'
 import type { Agenda } from '$lib/agenda'
 import AgendaItem from '$lib/AgendaItem.svelte'
@@ -93,19 +93,11 @@ const clickDisableNotifications = async () => {
   await updateNotificationsEnabled(false)
 }
 
-const logout = async () => {
+const clickLogout = async () => {
   const id_token_hint = localStorage.getItem('id_token') || ''
   // Logout from AMI first: https://github.com/numerique-gouv/ami-notifications-api/issues/132
   localStorage.clear()
-  try {
-    // delete auth cookie
-    await fetch(`${PUBLIC_API_URL}/logout`, {
-      method: 'POST',
-      credentials: 'include',
-    })
-  } catch (error) {
-    console.error(error)
-  }
+  await logout()
   // And now logout from FC
   await franceConnectLogout(id_token_hint)
 }
@@ -158,7 +150,7 @@ const logout = async () => {
       <button
           class="fr-connect-logout"
           type="button"
-          onclick={logout}
+          onclick={clickLogout}
       >
         <span>Me déconnecter</span>
       </button>
