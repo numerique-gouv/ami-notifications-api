@@ -41,6 +41,7 @@ async def retrieve_user_handler(
 jwt_cookie_auth = JWTCookieAuth[User](
     retrieve_user_handler=retrieve_user_handler,
     token_secret=str(env.AUTH_COOKIE_JWT_SECRET),
+    default_token_expiration=datetime.timedelta(days=365 * 10),  # 10 years
     samesite="none",
     secure=True,
 )
