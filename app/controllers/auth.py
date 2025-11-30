@@ -15,12 +15,12 @@ from app.services.nonce import NonceService
 from app.utils import error_from_message, retry_fc_later
 
 
-class LoginAuthController(Controller):
+class AuthController(Controller):
     dependencies = {
         "nonces_service": providers.create_service_provider(NonceService),
     }
 
-    @get(path="/login-france-connect", include_in_schema=False)
+    @get(path="/login-france-connect", include_in_schema=False, exclude_from_auth=True)
     async def login_france_connect(
         self,
         nonces_service: NonceService,
@@ -48,7 +48,7 @@ class LoginAuthController(Controller):
         login_url = f"{env.PUBLIC_FC_BASE_URL}{env.PUBLIC_FC_AUTHORIZATION_ENDPOINT}"
         return Redirect(login_url, query_params=params)
 
-    @get(path="/login-callback", include_in_schema=False)
+    @get(path="/login-callback", include_in_schema=False, exclude_from_auth=True)
     async def login_callback(
         self,
         nonces_service: NonceService,
@@ -134,8 +134,6 @@ class LoginAuthController(Controller):
 
         return Redirect(f"{env.PUBLIC_APP_URL}/", query_params=params)
 
-
-class LogoutAuthController(Controller):
     @post(path="/logout", include_in_schema=False)
     async def logout(self) -> Response[Any]:
         response = Response({})

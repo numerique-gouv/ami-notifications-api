@@ -22,7 +22,7 @@ from webpush import WebPush
 
 from app import env
 from app.auth import jwt_cookie_auth, openapi_config
-from app.controllers.auth import LoginAuthController, LogoutAuthController
+from app.controllers.auth import AuthController
 from app.controllers.notification import (
     NotAuthenticatedNotificationController,
     NotificationController,
@@ -120,7 +120,7 @@ def provide_webpush() -> WebPush:
 authenticated_router: Router = Router(
     path="/",
     route_handlers=[
-        LogoutAuthController,
+        AuthController,
         RegistrationController,
         NotificationController,
         data_router,
@@ -135,7 +135,6 @@ def create_app(
     return Litestar(
         route_handlers=[
             authenticated_router,
-            LoginAuthController,
             NotAuthenticatedNotificationController,
             UserController,
             get_sector_identifier_url,
