@@ -6,6 +6,7 @@ import { render, screen, waitFor } from '@testing-library/svelte'
 import ConnectedHomepage from './ConnectedHomepage.svelte'
 import * as notificationsMethods from '$lib/notifications'
 import * as agendaMethods from '$lib/agenda'
+import * as authMethods from '$lib/auth'
 import { Agenda, Item } from '$lib/agenda'
 import { PUBLIC_API_WS_URL } from '$lib/notifications'
 import { PUBLIC_API_URL } from '$env/static/public'
@@ -266,7 +267,7 @@ describe('/ConnectedHomepage.svelte', () => {
   test('should logout a user from AMI then from FC', async () => {
     // Given
     globalThis.localStorage.setItem('id_token', 'fake-id-token')
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('', { status: 200 }))
+    vi.spyOn(authMethods, 'logout').mockResolvedValue(true)
 
     // When
     render(ConnectedHomepage)
