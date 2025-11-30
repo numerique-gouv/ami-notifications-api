@@ -5,6 +5,7 @@ import type { WS as WSType } from 'vitest-websocket-mock'
 import Page from './+page.svelte'
 import * as navigationMethods from '$app/navigation'
 import * as notificationsMethods from '$lib/notifications'
+import * as authMethods from '$lib/auth'
 import { PUBLIC_API_WS_URL } from '$lib/notifications'
 import { PUBLIC_API_URL } from '$env/static/public'
 
@@ -13,15 +14,16 @@ let wss: WSType
 describe('/+page.svelte', () => {
   beforeEach(() => {
     wss = new WS(`${PUBLIC_API_WS_URL}/api/v1/users/notification/events/stream`)
+    vi.spyOn(authMethods, 'checkAuth').mockResolvedValue(true)
   })
 
   afterEach(() => {
     wss.close()
   })
 
-  test('user has to be connected', () => {
+  test('user has to be connected', async () => {
     // Given
-    expect(window.localStorage.getItem('access_token')).toEqual(null)
+    vi.spyOn(authMethods, 'checkAuth').mockResolvedValue(false)
     const spy = vi
       .spyOn(navigationMethods, 'goto')
       .mockImplementation(() => Promise.resolve())
@@ -30,13 +32,14 @@ describe('/+page.svelte', () => {
     render(Page)
 
     // Then
-    expect(spy).toHaveBeenCalledTimes(1)
-    expect(spy).toHaveBeenCalledWith('/')
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy).toHaveBeenCalledWith('/')
+    })
   })
 
   test('notification display', async () => {
     // Given
-    window.localStorage.setItem('access_token', 'fake-access-token')
     const spy = vi
       .spyOn(notificationsMethods, 'retrieveNotifications')
       .mockImplementation(async () => [
@@ -64,21 +67,21 @@ describe('/+page.svelte', () => {
     render(Page)
 
     // Then
-    expect(spy).toHaveBeenCalledTimes(1)
-    const notification1 = await waitFor(() =>
-      screen.getByTestId('notification-f62c66b2-7bd5-4696-8383-2d40c08a1')
-    )
-    expect(notification1).toHaveClass('unread')
-    const notification2 = screen.getByTestId(
-      'notification-2689c3b3-e95c-4d73-b37d-55f430688af9'
-    )
-    expect(notification2).not.toHaveClass('unread')
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledTimes(1)
+      const notification1 = screen.getByTestId(
+        'notification-f62c66b2-7bd5-4696-8383-2d40c08a1'
+      )
+      expect(notification1).toHaveClass('unread')
+      const notification2 = screen.getByTestId(
+        'notification-2689c3b3-e95c-4d73-b37d-55f430688af9'
+      )
+      expect(notification2).not.toHaveClass('unread')
+    })
   })
 
   test('notification mark as read', async () => {
     // Given
-    window.localStorage.setItem('user_id', '3ac73f4f-4be2-456a-9c2e-ddff480d5767')
-    window.localStorage.setItem('access_token', 'fake-access-token')
     const spy = vi
       .spyOn(notificationsMethods, 'retrieveNotifications')
       .mockImplementationOnce(async () => [

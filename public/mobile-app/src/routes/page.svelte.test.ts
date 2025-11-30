@@ -1,9 +1,10 @@
 import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest'
 import '@testing-library/jest-dom/vitest'
-import { render, screen } from '@testing-library/svelte'
+import { render, screen, waitFor } from '@testing-library/svelte'
 import Page from './+page.svelte'
 import { PUBLIC_API_URL } from '$env/static/public'
 import type { UserInfo } from '$lib/france-connect'
+import * as authMethods from '$lib/auth'
 
 describe('/+page.svelte', () => {
   let userinfo: UserInfo
@@ -26,13 +27,14 @@ describe('/+page.svelte', () => {
       iat: 1753877598,
       iss: 'https://fcp-low.sbx.dev-franceconnect.fr/api/v2',
     }
+    vi.spyOn(authMethods, 'checkAuth').mockResolvedValue(false)
   })
 
   afterEach(() => {
     globalThis.window = originalWindow
   })
 
-  test('should render France Connect button', () => {
+  test('should render France Connect button', async () => {
     // Given
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(
       new Response(JSON.stringify(userinfo), { status: 200 })
@@ -42,10 +44,12 @@ describe('/+page.svelte', () => {
     render(Page)
 
     // Then
-    const franceConnectButton = screen.getByRole('button', {
-      name: 'S’identifier avec FranceConnect',
+    await waitFor(() => {
+      const franceConnectButton = screen.getByRole('button', {
+        name: 'S’identifier avec FranceConnect',
+      })
+      expect(franceConnectButton).toHaveTextContent('S’identifier avec FranceConnect')
     })
-    expect(franceConnectButton).toHaveTextContent('S’identifier avec FranceConnect')
   })
 
   test('should call authorize endpoint when click on France Connect login button', async () => {
@@ -53,16 +57,18 @@ describe('/+page.svelte', () => {
     vi.stubGlobal('location', { href: 'fake-link' })
 
     render(Page)
-    const franceConnectLoginButton = screen.getByRole('button', {
-      name: 'S’identifier avec FranceConnect',
+    await waitFor(() => {
+      const franceConnectLoginButton = screen.getByRole('button', {
+        name: 'S’identifier avec FranceConnect',
+      })
+
+      // When
+      franceConnectLoginButton.click()
+
+      // Then
+      expect(globalThis.window.location.href).toContain(PUBLIC_API_URL)
+      expect(globalThis.window.location.href).toContain('login-france-connect')
     })
-
-    // When
-    await franceConnectLoginButton.click()
-
-    // Then
-    expect(globalThis.window.location.href).toContain(PUBLIC_API_URL)
-    expect(globalThis.window.location.href).toContain('login-france-connect')
   })
 
   test('should display an error message if login failed', async () => {
