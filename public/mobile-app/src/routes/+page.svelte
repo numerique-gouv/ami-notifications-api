@@ -15,7 +15,7 @@ import { page } from '$app/state'
 import { goto } from '$app/navigation'
 import applicationSvg from '@gouvfr/dsfr/dist/artwork/pictograms/digital/application.svg'
 
-let isFranceConnected: boolean = $state(false)
+let isFranceConnected: boolean | null = $state(null)
 let isLoggedOut: boolean = $state(false)
 let error: string = $state('')
 let error_description: string = $state('')
@@ -93,7 +93,7 @@ function dismissError() {
 </script>
 
 <div class="homepage">
-{#if !isFranceConnected}
+{#if isFranceConnected === false}
   <div class="homepage-not-connected">
     {#if error}
     <div class="fr-notice fr-notice--alert">
@@ -145,7 +145,7 @@ function dismissError() {
       </p>
     </div>
   </div>
-{:else}
+{:else if isFranceConnected === true}
   <Navigation currentItem="home" />
   <ConnectedHomepage />
 {/if}
