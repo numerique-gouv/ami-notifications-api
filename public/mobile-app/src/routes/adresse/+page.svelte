@@ -6,6 +6,7 @@ import { type AddressFromBAN, callBAN } from './addressesFromBAN'
 type Address = {
   city: string
   context: string
+  idBAN: string
   label: string
   name: string
   postcode: string
@@ -18,6 +19,7 @@ let disabledButton: boolean = $state(true)
 let selectedAddress: Address = $state<Address>({
   city: '',
   context: '',
+  idBAN: '',
   label: '',
   name: '',
   postcode: '',
@@ -26,6 +28,7 @@ let hasSubmittedAddress: boolean = $state(false)
 let submittedAddress: Address = $state<Address>({
   city: '',
   context: '',
+  idBAN: '',
   label: '',
   name: '',
   postcode: '',
@@ -48,6 +51,7 @@ const filterAddresses = async () => {
       (address: AddressFromBAN): Address => ({
         city: address.city,
         context: address.context,
+        idBAN: address.id,
         label: address.label,
         name: address.name,
         postcode: address.postcode,
@@ -77,8 +81,22 @@ const submitAddress = async () => {
 const removeAddress = async () => {
   hasSubmittedAddress = false
   disabledButton = true
-  selectedAddress = { city: '', context: '', label: '', name: '', postcode: '' }
-  submittedAddress = { city: '', context: '', label: '', name: '', postcode: '' }
+  selectedAddress = {
+    city: '',
+    context: '',
+    idBAN: '',
+    label: '',
+    name: '',
+    postcode: '',
+  }
+  submittedAddress = {
+    city: '',
+    context: '',
+    idBAN: '',
+    label: '',
+    name: '',
+    postcode: '',
+  }
   console.log('removeAddress')
 }
 </script>

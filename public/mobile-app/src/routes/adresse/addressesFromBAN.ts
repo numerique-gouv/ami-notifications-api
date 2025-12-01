@@ -1,6 +1,7 @@
 export type AddressFromBAN = {
   city: string
   context: string
+  id: string
   label: string
   name: string
   postcode: string
@@ -34,6 +35,7 @@ const formatResults = (data) => {
       const address = {} as AddressFromBAN
       address.city = feature.properties.city
       address.context = feature.properties.context
+      address.id = feature.properties.id
       address.label = feature.properties.label
       address.name = feature.properties.name
       address.postcode = feature.properties.postcode
