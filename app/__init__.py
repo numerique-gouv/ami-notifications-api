@@ -62,7 +62,7 @@ async def get_sector_identifier_url() -> Response[Any]:
 
 
 @get(path="/dev-utils/review-apps")
-async def _dev_utils_review_apps() -> list[tuple[str, str]]:
+async def _dev_utils_review_apps() -> list[dict[str, str]]:
     """Returns a list of tuples: (review app url, pull request title)."""
     response = httpxClient.get(
         "https://api.github.com/repos/numerique-gouv/ami-notifications-api/pulls",
@@ -74,10 +74,12 @@ async def _dev_utils_review_apps() -> list[tuple[str, str]]:
     )
     json_data = response.json()
     return [
-        (
-            f"https://ami-back-staging-pr{review_app['number']}.osc-fr1.scalingo.io/",
-            review_app["title"],
-        )
+        {
+            "url": f"https://ami-back-staging-pr{review_app['number']}.osc-fr1.scalingo.io/",
+            "title": f"PR{review_app['number']}: {review_app['title']}",
+            "number": review_app["number"],
+            "description": review_app["body"],
+        }
         for review_app in json_data
     ]
 
