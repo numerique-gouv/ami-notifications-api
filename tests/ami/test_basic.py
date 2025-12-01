@@ -117,7 +117,10 @@ async def test_unregister(
 
     # registration of another user than current user
     other_user = User(
-        email="other-user@example.com", family_name="AMI", given_name="Other Test User"
+        fc_hash="fc-hash",
+        email="other-user@example.com",
+        family_name="AMI",
+        given_name="Other Test User",
     )
     db_session.add(other_user)
     await db_session.commit()
@@ -316,7 +319,10 @@ async def test_get_notifications(
 
     # notification for another user, not returned in notification list of current user
     other_user = User(
-        email="other-user@example.com", family_name="AMI", given_name="Other Test User"
+        fc_hash="fc-hash",
+        email="other-user@example.com",
+        family_name="AMI",
+        given_name="Other Test User",
     )
     db_session.add(other_user)
     await db_session.commit()
@@ -388,7 +394,10 @@ async def test_get_notifications_should_return_notifications_for_given_user_id_l
 ) -> None:
     # notification for another user, not returned in notification list of test user
     other_user = User(
-        email="other-user@example.com", family_name="AMI", given_name="Other Test User"
+        fc_hash="fc-hash",
+        email="other-user@example.com",
+        family_name="AMI",
+        given_name="Other Test User",
     )
     db_session.add(other_user)
     await db_session.commit()
@@ -452,7 +461,10 @@ async def test_read_notification(
 
     # notification for another user, can not be patched by test user
     other_user = User(
-        email="other-user@example.com", family_name="AMI", given_name="Other Test User"
+        fc_hash="fc-hash",
+        email="other-user@example.com",
+        family_name="AMI",
+        given_name="Other Test User",
     )
     db_session.add(other_user)
     await db_session.commit()
@@ -574,7 +586,10 @@ async def test_stream_notification_events_updated(
         try:
             # create a notification for another user
             other_user = User(
-                email="other-user@example.com", family_name="AMI", given_name="Other Test User"
+                fc_hash="fc-hash",
+                email="other-user@example.com",
+                family_name="AMI",
+                given_name="Other Test User",
             )
             db_session.add(other_user)
             await db_session.commit()

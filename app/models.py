@@ -19,7 +19,7 @@ class Nonce(Base):
 class User(Base):
     __tablename__ = "ami_user"  # type: ignore
 
-    fc_hash: Mapped[str | None]
+    fc_hash: Mapped[str] = mapped_column(unique=True)
     birthcountry: Mapped[int | None]
     birthdate: Mapped[datetime.date | None]
     birthplace: Mapped[int | None]
