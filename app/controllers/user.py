@@ -4,7 +4,7 @@ import jwt
 from advanced_alchemy.extensions.litestar import providers
 from litestar import Controller, Request, Response, get
 
-from app import env, models, schemas
+from app import env, models
 from app.auth import jwt_cookie_auth
 from app.httpx import httpxClient
 from app.services.user import UserService
@@ -45,11 +45,10 @@ class UserController(Controller):
             birthplace=decoded_userinfo["birthplace"],
             birthcountry=decoded_userinfo["birthcountry"],
         )
-        userinfo: schemas.FCUserInfo = schemas.FCUserInfo(**decoded_userinfo)
 
         user: models.User | None = await users_service.get_one_or_none(fc_hash=fc_hash)
         if user is None:
-            user = await users_service.create(models.User(fc_hash=fc_hash, **userinfo.model_dump()))
+            user = await users_service.create(models.User(fc_hash=fc_hash))
         result: dict[str, Any] = {
             "user_id": user.id,
             "user_data": userinfo_jws,

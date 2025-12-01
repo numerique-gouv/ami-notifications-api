@@ -23,10 +23,10 @@ async def test_ami_admin_test_list_users_when_logged_in(
     response = connected_test_client.get("/ami_admin/liste-des-usagers")
     assert response.status_code == 200
     assert (
-        f'<a href="/ami_admin/test/user/{connected_user.id}/send-notification">#{connected_user.id} AMI Test User</a>'
+        f'<a href="/ami_admin/test/user/{connected_user.id}/send-notification">{connected_user.fc_hash}</a>'
         in response.text
     )
-    assert "<span>user@example.com, notifications envoyées: 0" in response.text
+    assert "<span>notifications envoyées: 0" in response.text
 
     notification_ = Notification(
         user_id=str(connected_user.id),
@@ -40,10 +40,10 @@ async def test_ami_admin_test_list_users_when_logged_in(
     response = connected_test_client.get("/ami_admin/liste-des-usagers")
     assert response.status_code == 200
     assert (
-        f'<a href="/ami_admin/test/user/{connected_user.id}/send-notification">#{connected_user.id} AMI Test User</a>'
+        f'<a href="/ami_admin/test/user/{connected_user.id}/send-notification">{connected_user.fc_hash}</a>'
         in response.text
     )
-    assert "<span>user@example.com, notifications envoyées: 1" in response.text
+    assert "<span>notifications envoyées: 1" in response.text
 
 
 async def test_ami_admin_test_list_users_when_logged_out(
@@ -61,7 +61,7 @@ async def test_ami_admin_test_send_notification_when_logged_in(
         f"/ami_admin/test/user/{connected_user.id}/send-notification"
     )
     assert response.status_code == 200
-    assert "Envoyer une notification à AMI Test User" in response.text
+    assert f"Envoyer une notification à {connected_user.fc_hash}" in response.text
     assert "Historique des notifications" not in response.text
 
     notification_ = Notification(
