@@ -3,10 +3,11 @@ import '@testing-library/jest-dom/vitest'
 import { render, screen } from '@testing-library/svelte'
 import Page from './+page.svelte'
 import { PUBLIC_API_URL } from '$env/static/public'
+import type { UserInfo } from '$lib/france-connect'
 
 describe('/+page.svelte', () => {
-  let userinfo
-  let originalWindow
+  let userinfo: UserInfo
+  let originalWindow: typeof globalThis.window
 
   beforeEach(() => {
     originalWindow = globalThis.window
@@ -15,7 +16,10 @@ describe('/+page.svelte', () => {
       given_name: 'Angela Claire Louise',
       given_name_array: ['Angela', 'Claire', 'Louise'],
       family_name: 'DUBOIS',
+      email: 'some@email.com',
       birthdate: '1962-08-24',
+      birthcountry: '99100',
+      birthplace: '75100',
       gender: 'female',
       aud: 'fake aud',
       exp: 1753877658,
@@ -30,11 +34,8 @@ describe('/+page.svelte', () => {
 
   test('should render France Connect button', () => {
     // Given
-    globalThis.fetch = vi.fn(() =>
-      Promise.resolve({
-        status: 200,
-        json: () => Promise.resolve(userinfo),
-      })
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify(userinfo), { status: 200 })
     )
 
     // When
@@ -49,11 +50,7 @@ describe('/+page.svelte', () => {
 
   test('should call authorize endpoint when click on France Connect login button', async () => {
     // Given
-    globalThis.window = {
-      location: {
-        href: 'fake-link',
-      },
-    }
+    vi.stubGlobal('location', { href: 'fake-link' })
 
     render(Page)
     const franceConnectLoginButton = screen.getByRole('button', {

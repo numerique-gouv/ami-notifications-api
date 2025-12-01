@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import '@testing-library/jest-dom/vitest'
-import { prettyDate } from './prettyDate.ts'
+import { prettyDate } from './prettyDate'
 
 describe('prettyDate', () => {
   test('should properly format seconds', async () => {

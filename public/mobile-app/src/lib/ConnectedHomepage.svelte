@@ -1,5 +1,6 @@
 <script lang="ts">
 import { parseJwt, franceConnectLogout } from '$lib/france-connect'
+import type { UserInfo } from '$lib/france-connect'
 import { onMount } from 'svelte'
 import {
   countUnreadNotifications,
@@ -7,22 +8,23 @@ import {
   enableNotifications,
   notificationEventsSocket,
 } from '$lib/notifications'
+import type { Registration } from '$lib/registration'
 import { getQuotientData } from '$lib/api-particulier'
 import bankIcon from '@gouvfr/dsfr/dist/icons/buildings/bank-line.svg'
 import { PUBLIC_API_URL } from '$env/static/public'
 
-let userinfo: Object = $state({})
+let userinfo: UserInfo | null = $state(null)
 let quotientinfo: Object = $state({})
-let unreadNotificationsCount: Number = $state(0)
-let initials: String = $state('')
-let isMenuDisplayed = $state(false)
+let unreadNotificationsCount: number = $state(0)
+let initials: string = $state('')
+let isMenuDisplayed: boolean = $state(false)
 let notificationsEnabled: boolean = $state(false)
-let registration: Object = $state({})
+let registration: Registration | null = $state(null)
 
-const updateNotificationsEnabled = async (notificationsEnabledStatus) => {
+const updateNotificationsEnabled = async (notificationsEnabledStatus: boolean) => {
   if (notificationsEnabledStatus === true) {
     registration = await enableNotifications()
-  } else {
+  } else if (registration) {
     await disableNotifications(registration.id)
   }
   notificationsEnabled = notificationsEnabledStatus
@@ -42,8 +44,8 @@ const initializeNavigatorPermissions = async () => {
   }
 }
 
-const getInitials = (given_name_array: []): String => {
-  let initials_: String = ''
+const getInitials = (given_name_array: string[]): string => {
+  let initials_: string = ''
   given_name_array.forEach((given_name) => {
     initials_ += given_name.substring(0, 1)
   })
@@ -55,11 +57,11 @@ onMount(async () => {
     notificationsEnabled = localStorage.getItem('notifications_enabled') === 'true'
     await initializeNavigatorPermissions()
 
-    const userData = localStorage.getItem('user_data')
+    const userData = localStorage.getItem('user_data') || ''
     userinfo = parseJwt(userData)
     console.log($state.snapshot(userinfo))
 
-    initials = getInitials(userinfo.given_name_array)
+    initials = getInitials(userinfo?.given_name_array)
 
     unreadNotificationsCount = await countUnreadNotifications()
     notificationEventsSocket(async () => {
@@ -252,19 +254,19 @@ const logout = async () => {
     <div id="accordion-1" class="fr-collapse">
       <ul>
         <li>userinfo: <pre>{ JSON.stringify(userinfo, null, 2) }</pre></li>
-        <li>sub: { userinfo.sub }</li>
-        <li>given_name: { userinfo.given_name }</li>
-        <li>given_name_array: { userinfo.given_name_array }</li>
-        <li>family_name: { userinfo.family_name }</li>
-        <li>birthdate: { userinfo.birthdate }</li>
-        <li>gender: { userinfo.gender }</li>
-        <li>birthplace: { userinfo.birthplace }</li>
-        <li>birthcountry: { userinfo.birthcountry }</li>
-        <li>email: { userinfo.email }</li>
-        <li>aud: { userinfo.aud }</li>
-        <li>exp: { userinfo.exp }</li>
-        <li>iat: { userinfo.iat }</li>
-        <li>iss: { userinfo.iss }</li>
+        <li>sub: { userinfo?.sub }</li>
+        <li>given_name: { userinfo?.given_name }</li>
+        <li>given_name_array: { userinfo?.given_name_array }</li>
+        <li>family_name: { userinfo?.family_name }</li>
+        <li>birthdate: { userinfo?.birthdate }</li>
+        <li>gender: { userinfo?.gender }</li>
+        <li>birthplace: { userinfo?.birthplace }</li>
+        <li>birthcountry: { userinfo?.birthcountry }</li>
+        <li>email: { userinfo?.email }</li>
+        <li>aud: { userinfo?.aud }</li>
+        <li>exp: { userinfo?.exp }</li>
+        <li>iat: { userinfo?.iat }</li>
+        <li>iss: { userinfo?.iss }</li>
         <li>quotientinfo: <pre>{ JSON.stringify(quotientinfo, null, 2) }</pre></li>
       </ul>
     </div>

@@ -1,4 +1,4 @@
-import { afterEach, describe, test, expect, vi } from 'vitest'
+import { describe, expect, test, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 import {
   countUnreadNotifications,
@@ -9,8 +9,8 @@ import {
   subscribePush,
   unsubscribePush,
 } from '$lib/notifications'
-import * as registrationMethods from '$lib/registration.js'
-import { mockPushSubscription } from '../../tests/utils.js'
+import * as registrationMethods from '$lib/registration'
+import { mockPushSubscription } from '../../tests/utils'
 
 describe('/notifications', () => {
   describe('retrieveNotifications', () => {

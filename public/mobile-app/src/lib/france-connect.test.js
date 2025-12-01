@@ -2,7 +2,7 @@ import { afterEach, describe, expect, test, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 import { franceConnectLogout } from './france-connect'
 
-describe('/france-connect.js', () => {
+describe('/france-connect', () => {
   afterEach(() => {
     vi.unstubAllGlobals()
   })

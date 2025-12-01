@@ -11,25 +11,25 @@ let current = {
 <nav class="menu-footer" aria-label="Menu principal">
   <ul class="menu-list">
     <li class="menu__item">
-        <a class="menu__link {current.home ? 'highlight': ''}" href="/" aria-current="{current.home ? 'true': ''}">
+        <a class="menu__link {current.home ? 'highlight': ''}" href="/" aria-current="{current.home ? 'true': null}">
         <img src="/remixicons/home-4-fill.svg" alt="Icône d'accueil" />
         <span>Accueil</span>
       </a>
     </li>
     <li class="menu__item">
-      <a class="menu__link {current.agenda ? 'highlight': ''}" href="/#/agenda" aria-current="{current.agenda ? 'true': ''}">
+      <a class="menu__link {current.agenda ? 'highlight': ''}" href="/#/agenda" aria-current="{current.agenda ? 'true': null}">
         <img src="/remixicons/calendar-event-line.svg" alt="Icône de calendrier" />
         <span>Agenda</span>
       </a>
     </li>
     <li class="menu__item">
-      <a class="menu__link {current.lists ? 'highlight': ''}" href="/" aria-current="{current.lists ? 'true': ''}">
+      <a class="menu__link {current.lists ? 'highlight': ''}" href="/" aria-current="{current.lists ? 'true': null}">
         <img src="/remixicons/list-check.svg" alt="Icône de listes" />
         <span>Listes</span>
       </a>
     </li>
     <li class="menu__item">
-      <a class="menu__link {current.requests ? 'highlight': ''}" href="/" aria-current="{current.requests ? 'true': ''}">
+      <a class="menu__link {current.requests ? 'highlight': ''}" href="/" aria-current="{current.requests ? 'true': null}">
         <img src="/remixicons/edit-line.svg" alt="Icône de demandes" />
         <span>Demandes</span>
       </a>

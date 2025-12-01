@@ -5,7 +5,23 @@ import {
   PUBLIC_FC_PROXY,
 } from '$env/static/public'
 
-export function parseJwt(token: string) {
+export type UserInfo = {
+  sub: string
+  gender: string
+  birthdate: string
+  birthcountry: string
+  birthplace: string
+  given_name: string
+  given_name_array: string[]
+  family_name: string
+  email: string
+  aud: string
+  exp: number
+  iat: number
+  iss: string
+}
+
+export function parseJwt(token: string): UserInfo {
   const base64Url = token.split('.')[1]
   const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
   const jsonPayload = decodeURIComponent(

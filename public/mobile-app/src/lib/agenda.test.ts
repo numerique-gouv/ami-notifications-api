@@ -9,7 +9,7 @@ describe('/api-particulier.ts', () => {
       test('should return short day name', async () => {
         // Given
         const item1 = new Item(
-          'kind',
+          'holiday',
           'title',
           'description',
           new Date('2025-11-11'),
@@ -17,7 +17,7 @@ describe('/api-particulier.ts', () => {
           null
         )
         const item2 = new Item(
-          'kind',
+          'holiday',
           'title',
           'description',
           null,
@@ -38,7 +38,7 @@ describe('/api-particulier.ts', () => {
       test('should return short day num', async () => {
         // Given
         const item1 = new Item(
-          'kind',
+          'holiday',
           'title',
           'description',
           new Date('2025-11-11'),
@@ -46,7 +46,7 @@ describe('/api-particulier.ts', () => {
           null
         )
         const item2 = new Item(
-          'kind',
+          'holiday',
           'title',
           'description',
           null,
@@ -67,7 +67,7 @@ describe('/api-particulier.ts', () => {
       test('should return long month name', async () => {
         // Given
         const item1 = new Item(
-          'kind',
+          'holiday',
           'title',
           'description',
           new Date('2025-11-11'),
@@ -75,7 +75,7 @@ describe('/api-particulier.ts', () => {
           null
         )
         const item2 = new Item(
-          'kind',
+          'holiday',
           'title',
           'description',
           null,
@@ -96,7 +96,7 @@ describe('/api-particulier.ts', () => {
       test('should not mention start date year', async () => {
         // Given
         const item = new Item(
-          'kind',
+          'holiday',
           'title',
           'description',
           null,
@@ -113,7 +113,7 @@ describe('/api-particulier.ts', () => {
       test('should not mention start date year and month', async () => {
         // Given
         const item = new Item(
-          'kind',
+          'holiday',
           'title',
           'description',
           null,
@@ -130,7 +130,7 @@ describe('/api-particulier.ts', () => {
       test('should mention start date year and month', async () => {
         // Given
         const item = new Item(
-          'kind',
+          'holiday',
           'title',
           'description',
           null,
@@ -146,7 +146,7 @@ describe('/api-particulier.ts', () => {
       })
       test('should mention "À partir de"', async () => {
         const item = new Item(
-          'kind',
+          'holiday',
           'title',
           'description',
           null,
@@ -162,7 +162,7 @@ describe('/api-particulier.ts', () => {
       })
       test('should mention only the date', async () => {
         const item = new Item(
-          'kind',
+          'holiday',
           'title',
           'description',
           new Date('2025-12-20'),
@@ -180,7 +180,8 @@ describe('/api-particulier.ts', () => {
     describe('label', () => {
       test('should return a label depending on kind', async () => {
         // Given
-        const item1 = new Item('kind', 'title', 'description', new Date('2025-12-20'))
+        // @ts-ignore: `'incorrect'` isn't a proper Kind, so typescript will complain
+        const item1 = new Item('incorrect', 'title', 'description', new Date('2025-12-20'))
         const item2 = new Item(
           'holiday',
           'title',
@@ -203,7 +204,8 @@ describe('/api-particulier.ts', () => {
     describe('icon', () => {
       test('should return an icon depending on kind', async () => {
         // Given
-        const item1 = new Item('kind', 'title', 'description', new Date('2025-12-20'))
+        // @ts-ignore: `'incorrect'` isn't a proper Kind, so typescript will complain
+        const item1 = new Item('incorrect', 'title', 'description', new Date('2025-12-20'))
         const item2 = new Item(
           'holiday',
           'title',
@@ -413,14 +415,12 @@ describe('/api-particulier.ts', () => {
       }
       const spy = vi
         .spyOn(holidaysMethods, 'retrieveHolidays')
-        .mockImplementation(async () => [holiday1, holiday4])
+        .mockResolvedValue([holiday1, holiday4])
       const agenda = await buildAgenda(new Date('2025-11-01T12:00:00Z'))
 
       // Then
       expect(spy).toHaveBeenCalledTimes(1)
       expect(agenda).toBeInstanceOf(Agenda)
-      console.log(agenda.now)
-      console.log(agenda.next)
       expect(agenda.now.length).equal(3)
       expect(
         agenda.now[0].equals(

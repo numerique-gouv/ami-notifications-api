@@ -2,7 +2,7 @@
 
 // Takes an ISO time and returns a string representing how
 // long ago the date represents.
-export function prettyDate(data) {
+export function prettyDate(data: Date | string) {
   let date
   if (typeof data === 'string') {
     date = new Date(data)
