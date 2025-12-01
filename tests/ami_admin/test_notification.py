@@ -30,8 +30,8 @@ async def test_ami_admin_test_list_users_when_logged_in(
 
     notification_ = Notification(
         user_id=str(connected_user.id),
-        message="Hello notification",
-        title="Notification title",
+        content_body="Hello notification",
+        content_title="Notification title",
         sender="John Doe",
     )
     db_session.add(notification_)
@@ -66,15 +66,15 @@ async def test_ami_admin_test_send_notification_when_logged_in(
 
     notification_ = Notification(
         user_id=str(connected_user.id),
-        message="Hello notification1",
-        title="Notification title",
+        content_body="Hello notification1",
+        content_title="Notification title",
         sender="John Doe",
     )
     db_session.add(notification_)
     notification_ = Notification(
         user_id=str(connected_user.id),
-        message="Hello notification2",
-        title="Notification title",
+        content_body="Hello notification2",
+        content_title="Notification title",
         sender="John Doe",
         created_at=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=1),
     )
