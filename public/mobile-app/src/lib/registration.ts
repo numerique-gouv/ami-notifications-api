@@ -1,10 +1,9 @@
 import { PUBLIC_API_URL } from '$env/static/public'
-import { subscribePush } from '$lib/notifications'
 
-export const registerDevice = async (pushSubscription) => {
+export const registerDevice = async (pushSubscription: PushSubscription) => {
   const pushSubURL = pushSubscription.endpoint
-  const pushSubAuth = pushSubscription.toJSON().keys.auth
-  const pushSubP256DH = pushSubscription.toJSON().keys.p256dh
+  const pushSubAuth = pushSubscription.toJSON().keys?.auth
+  const pushSubP256DH = pushSubscription.toJSON().keys?.p256dh
 
   const payload = {
     subscription: {
@@ -32,7 +31,7 @@ export const registerDevice = async (pushSubscription) => {
   }
 }
 
-export const unregisterDevice = async (registrationId) => {
+export const unregisterDevice = async (registrationId: string) => {
   const headers = {
     'Content-Type': 'application/json',
   }

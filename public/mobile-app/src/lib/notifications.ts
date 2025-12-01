@@ -1,5 +1,5 @@
 import { PUBLIC_API_URL } from '$env/static/public'
-import { registerDevice, unregisterDevice } from '$lib/registration.js'
+import { registerDevice, unregisterDevice } from '$lib/registration'
 
 export const PUBLIC_API_WS_URL = PUBLIC_API_URL.replace('https://', 'wss://').replace(
   'http://',
@@ -32,7 +32,7 @@ export const retrieveNotifications = async (): Promise<Notification[]> => {
   return notifications
 }
 
-export const countUnreadNotifications = async (): Number => {
+export const countUnreadNotifications = async (): Promise<number> => {
   let notifications = [] as Notification[]
   try {
     const response = await fetch(
@@ -49,8 +49,8 @@ export const countUnreadNotifications = async (): Number => {
 }
 
 export const readNotification = async (
-  notificationId: Number
-): Promise<Notification> => {
+  notificationId: string
+): Promise<Notification | undefined> => {
   try {
     const payload = {
       read: true,
@@ -70,9 +70,10 @@ export const readNotification = async (
   } catch (error) {
     console.error(error)
   }
+  return undefined
 }
 
-export const notificationEventsSocket = (onmessage) => {
+export const notificationEventsSocket = (onmessage: (event: MessageEvent) => void) => {
   const ws = new WebSocket(
     `${PUBLIC_API_WS_URL}/api/v1/users/notification/events/stream`
   )
@@ -103,11 +104,13 @@ export const enableNotifications = async () => {
     )
   } else {
     const pushSubscription = await subscribePush()
-    return await registerDevice(pushSubscription)
+    if (pushSubscription) {
+      return await registerDevice(pushSubscription)
+    }
   }
 }
 
-export const unsubscribePush = async (pushSubscription) => {
+export const unsubscribePush = async (pushSubscription: PushSubscription) => {
   try {
     const hasUnsubscribed = await pushSubscription.unsubscribe()
     if (hasUnsubscribed) {
@@ -121,7 +124,7 @@ export const unsubscribePush = async (pushSubscription) => {
   }
 }
 
-export const disableNotifications = async (registrationId) => {
+export const disableNotifications = async (registrationId: string) => {
   const permissionGranted = await Notification.requestPermission()
   const registration = await getServiceWorkerRegistration()
   if (!permissionGranted || !registration) {
