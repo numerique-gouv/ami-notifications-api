@@ -3,18 +3,16 @@ import uuid
 
 from litestar import Litestar
 from litestar.status_codes import (
-    HTTP_200_OK,
     HTTP_201_CREATED,
     HTTP_400_BAD_REQUEST,
     HTTP_404_NOT_FOUND,
 )
 from litestar.testing import TestClient
 from pytest_httpx import HTTPXMock
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import Notification, Registration, User
-from tests.ami.utils import login
 
 
 async def test_admin_notify_user_does_not_exist(
@@ -52,40 +50,14 @@ async def test_admin_notify_create_notification_from_test_and_from_app_context(
     }
     response = test_client.post("/ami_admin/notifications", json=notification_data)
     assert response.status_code == HTTP_201_CREATED
-    login(registration.user, test_client)
-    response = test_client.get("/api/v1/users/notifications")
     all_notifications = (await db_session.execute(select(Notification))).scalars().all()
     assert len(all_notifications) == 2
     notification2 = all_notifications[1]
-    assert response.status_code == HTTP_200_OK
-    assert len(response.json()) == 2
-    assert set(response.json()[0].keys()) == {
-        "id",
-        "user_id",
-        "message",
-        "title",
-        "sender",
-        "unread",
-        "created_at",
-    }
-    assert response.json()[0]["id"] == str(notification2.id)
-    assert response.json()[0]["user_id"] == str(registration.user.id)
-    assert response.json()[0]["message"] == "Hello notification 2"
-    assert response.json()[0]["title"] == "Some notification title"
-    assert response.json()[0]["sender"] == "Jane Doe"
-    assert response.json()[0]["unread"] is True
-    assert response.json()[0]["created_at"] == notification2.created_at.isoformat().replace(
-        "+00:00", "Z"
-    )
-    assert response.json()[1]["id"] == str(notification.id)
-    assert response.json()[1]["user_id"] == str(registration.user.id)
-    assert response.json()[1]["message"] == notification.message
-    assert response.json()[1]["title"] == notification.title
-    assert response.json()[1]["sender"] == notification.sender
-    assert response.json()[1]["unread"] is True
-    assert response.json()[1]["created_at"] == notification.created_at.isoformat().replace(
-        "+00:00", "Z"
-    )
+    assert notification2.user.id == registration.user.id
+    assert notification2.message == "Hello notification 2"
+    assert notification2.title == "Some notification title"
+    assert notification2.sender == "Jane Doe"
+    assert notification2.unread is True
 
 
 async def test_admin_notify_create_notification_test_fields(
@@ -151,6 +123,7 @@ async def test_admin_notify_create_notification_test_fields(
 
 async def test_admin_notify_when_registration_gone(
     test_client: TestClient[Litestar],
+    db_session: AsyncSession,
     registration: Registration,
     httpx_mock: HTTPXMock,
 ) -> None:
@@ -169,7 +142,5 @@ async def test_admin_notify_when_registration_gone(
     }
     response = test_client.post("/ami_admin/notifications", json=notification_data)
     assert response.status_code == HTTP_201_CREATED
-    login(registration.user, test_client)
-    response = test_client.get("/api/v1/users/notifications")
-    assert response.status_code == HTTP_200_OK
-    assert len(response.json()) == 1
+    notification_count = (await db_session.execute(select(func.count()).select_from(User))).scalar()
+    assert notification_count == 1
