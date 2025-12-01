@@ -49,11 +49,13 @@ export class Item {
   }
 
   get dayName(): string | null {
-    return this.date ? this.date.toLocaleDateString('fr-FR', { weekday: 'short' }).replace('.', '') : null
+    return this.date
+      ? this.date.toLocaleDateString('fr-FR', { weekday: 'short' }).replace('.', '')
+      : null
   }
 
   get dayNum(): number | null {
-    return this.date ?  this.date.getDate() : null
+    return this.date ? this.date.getDate() : null
   }
 
   get monthName(): string | null {
@@ -62,7 +64,11 @@ export class Item {
 
   get period(): string | undefined {
     const locale = 'fr-FR'
-    let startFormat: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' }
+    let startFormat: Intl.DateTimeFormatOptions = {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    }
     let dateFormat: Intl.DateTimeFormatOptions = startFormat
     if (this._start_date) {
       const start = this._start_date.toLocaleDateString(locale, startFormat)
@@ -170,9 +176,10 @@ export class Agenda {
 
     // organize items in _now or _next arrays
     items.forEach((item) => {
-      if (item.date &&
+      if (
+        item.date &&
         (item.date <= today ||
-        item.date < new Date(today.getTime() + 30 * oneday_in_ms))
+          item.date < new Date(today.getTime() + 30 * oneday_in_ms))
       ) {
         this._now.push(item)
       } else {

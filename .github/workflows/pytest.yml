@@ -11,6 +11,19 @@ jobs:
         with:
           enable-cache: true
           cache-dependency-glob: "uv.lock"
+
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'public/mobile-app/package-lock.json'
+
+      - name: Install dependencies
+        working-directory: ./public/mobile-app
+        run: npm ci
+
       - run: make lint-and-format
 
   run-tests:
