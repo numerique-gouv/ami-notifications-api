@@ -8,10 +8,16 @@ id,identifiant,prenoms,nomDeNaissance,dateDeNaissance,genre,codePostalLieuDeNais
 7,plusieurs_prénoms_3,Jean Philippe Arnaud,DUBIGNOT,1943-06-15,male,75109,99100
 8,caractères_spéciaux,Joëlle Françoise,DUBINÔRE,1992-08-15,female,75117,99100
 9,nom_prénom_long,Emmanuel Alexandre Nicolas,DELALALALANDE,1991-01-07,male,75101,99100
+10,sans_nom_naissance,Anne-Laure Angélique,,1992-08-12,female,75103,99100
 12,moins_18_ans,Alice Juliette,CHAMPION,2010-11-02,female,44109,99100
+13,naissance_Algérie,Vincent Guillaume,MARTIN,1963-12-05,male,,99352
+14,naissance_Maroc,Ermengardi,GODIN,1985-09-05,female,,99350
+15,naissance_Portugal,Henry,SÉGUIN,1955-06-19,male,,99139
+18,naissance_Belgique,Saber,LAPRISE,1946-08-17,male,,99131
 19,test_JEROME,JEROME PIERRE ERIC,BERGERE,1959-08-15,male,75112,99100
 20,test_GERALDINE,GERALDINE,LAMPE,1976-09-21,female,68066,99100
 21,test_CLEMENT,CLEMENT,CORSE,1991-02-12,male,2A115,99100
+22,test_PHILIPPE,PHILIPPE,LIT,1991-02-12,male,,99137
 23,test_BERTRAND,BERTRAND,GUERIDON,1959-08-15,male,35118,99100
 24,test_ALAIN,ALAIN,BUREAU,2003-04-04,male,75115,99100
 25,test_NICOLAS,NICOLAS,BUFFET,1972-01-08,male,35124,99100
@@ -26,32 +32,39 @@ id,identifiant,prenoms,nomDeNaissance,dateDeNaissance,genre,codePostalLieuDeNais
 35,test_THIBAULT,THIBAULT,TABLE,1991-02-13,male,75116,99100
 37,insee_ancien,SARAH SOPHIE,ACNUSER,1996-12-06,female,75012,99100
 38,nom_50+_caractères,Bertrand Cyril,AZERTYUIOPMLKJHGFDSQWXCVBNAZERTYUIOPMLKJHGFDSQWXCVBN,2000-03-01,male,75119,99100
+62,test_doublon,MILA,CASA,1986-01-01,female,,93100
+63,test_doublon1,MILA,CASA,1986-01-01,female,,75015
+64,test_doublon2,MILA,CASA,1972-06-26,female,,75018
 65,test_droits,Audrey,DURAND,1978-02-15,female,75108,99200
 66,sans_mail,Amandine,DUFOUR,1989-03-02,female,75119,99100
 67,sans_telephone,Hugo,MEUNIER,1990-12-19,male,75119,99100
 68,sans_mail_sans_tel,Eva,DUPAIN,1990-12-06,female,75119,99100
 69,Désactivé,Mélodie,DUPLANTY,1962-08-24,female,75107,99100
 77,moins_25_ans,Paul,CUILLERE,1998-01-23,male,42218,99100
+78,naissance_Espagne,Marphisa,CHEVAL,1982-02-24,female,,99134
+79,naissance_Italie,Julien Bernard Pierre,LIVRE,1984-01-23,male,,99127
+80,étranger_présumé_né_jour,Jean,FLEURET,1992-11-00,male,,99217
+81,étranger_présumé_né_jour_et_mois,Jean,TARGE,1992-00-00,male,,99217
 82,test_TRACE_USER,utilisateur traces,TRACE_USER,1985-01-01,male,75107,99100
 83,post_sc_1_2,Ants,USAGER UN-DEUX,1980-01-01,male,54000,99100
-84,post_sc_1_3,Ants,USAGER UN-TROIS,1980-01-01,male,54000,99100	
-85,post_sc_1_5,Ants,USAGER UN-CINQ,1980-01-01,male,54000,99100	
-86,post_sc_1_6,Ants,USAGER UN-SIX,1980-01-01,male,54000,99100	
-87,ante_sc_2_1,Ants,USAGER DEUX-UN,1980-01-01,male,54000,99100	
-88,ante_sc_2_3,Ants,USAGER DEUX-TROIS,1980-01-01,male,54000,99100	
-89,antepost_sc_3_1,Ants,USAGER TROIS-UN,1980-01-01,male,54000,99100	
-90,antepost_sc_3_3,Ants,USAGER TROIS-TROIS,1980-01-01,male,54000,99100	
-91,ante_sc_4_1,Ants,USAGER QUATRE-UN,1980-01-01,male,54000,99100	
-92,ante_sc_4_3,Ants,USAGER QUATRE-TROIS,1980-01-01,male,54000,99100	
-93,ante_sc_4_5,Ants,USAGER QUATRE-CINQ,1980-01-01,male,54000,99100	
-94,ante_sc_6_1,Ants,USAGER SIX-UN,1980-01-01,male,54000,99100	
-95,ante_sc_6_5,Ants,USAGER SIX-CINQ,1980-01-01,male,54000,99100	
-96,ante_sc_7_1,Ants,USAGER SEPT-UN,1980-01-01,male,54000,99100	
-97,ante_sc_7_2,Ants,USAGER SEPT-DEUX,1980-01-01,male,54000,99100	
-98,ante_sc_7_3,Ants,USAGER SEPT-TROIS,1980-01-01,male,54000,99100	
-99,ante_sc_7_5,Ants,USAGER SEPT-CINQ,1980-01-01,male,54000,99100	
-100,ante_sc_7_6,Ants,USAGER SEPT-SIX,1980-01-01,male,54000,99100	
-101,rusager,Roger,USAGER,1980-01-01,male,54000,99100	
+84,post_sc_1_3,Ants,USAGER UN-TROIS,1980-01-01,male,54000,99100
+85,post_sc_1_5,Ants,USAGER UN-CINQ,1980-01-01,male,54000,99100
+86,post_sc_1_6,Ants,USAGER UN-SIX,1980-01-01,male,54000,99100
+87,ante_sc_2_1,Ants,USAGER DEUX-UN,1980-01-01,male,54000,99100
+88,ante_sc_2_3,Ants,USAGER DEUX-TROIS,1980-01-01,male,54000,99100
+89,antepost_sc_3_1,Ants,USAGER TROIS-UN,1980-01-01,male,54000,99100
+90,antepost_sc_3_3,Ants,USAGER TROIS-TROIS,1980-01-01,male,54000,99100
+91,ante_sc_4_1,Ants,USAGER QUATRE-UN,1980-01-01,male,54000,99100
+92,ante_sc_4_3,Ants,USAGER QUATRE-TROIS,1980-01-01,male,54000,99100
+93,ante_sc_4_5,Ants,USAGER QUATRE-CINQ,1980-01-01,male,54000,99100
+94,ante_sc_6_1,Ants,USAGER SIX-UN,1980-01-01,male,54000,99100
+95,ante_sc_6_5,Ants,USAGER SIX-CINQ,1980-01-01,male,54000,99100
+96,ante_sc_7_1,Ants,USAGER SEPT-UN,1980-01-01,male,54000,99100
+97,ante_sc_7_2,Ants,USAGER SEPT-DEUX,1980-01-01,male,54000,99100
+98,ante_sc_7_3,Ants,USAGER SEPT-TROIS,1980-01-01,male,54000,99100
+99,ante_sc_7_5,Ants,USAGER SEPT-CINQ,1980-01-01,male,54000,99100
+100,ante_sc_7_6,Ants,USAGER SEPT-SIX,1980-01-01,male,54000,99100
+101,rusager,Roger,USAGER,1980-01-01,male,54000,99100
 102,test_TRACE_USER,utilisateur traces,TRACE_USER,1985-01-01,male,75107,99100
 103,test_fusion,Angela Claire Louis,DUBOIS,1962-08-24,female,75107,99100
 110,testpiebdf,Jean,DURAND,1985-01-01,male,75107,99100
@@ -76,6 +89,9 @@ id,identifiant,prenoms,nomDeNaissance,dateDeNaissance,genre,codePostalLieuDeNais
 132,E020025,Didier_E020025,Martin,1981-02-03,male,75112,99100
 133,naissance_wallis_futuna,Fabien,Fleury,1972-06-14,male,98611,99100
 134,carac_speciaux,JulieéàèùòœæŒÆ,DURANTéàèùòœæŒÆ,1972-06-14,female,2B002,99100
+135,sans_prenom,,MARTIN,1972-06-14,female,97601,99100
+136,Testmultiplecodepays,JEANCODE,DUBOIS,1941-11-01,male,,99123
+137,Testmultiplecodepaysdeux,MARIECODE,DUMONT,1940-02-02,female,,99217
 138,Testmultiplecodepostal,JACQUESCODE,DUROCHE,2005-01-02,male,27630,99100
 139,Testanciencodepostal,ROSECODE,DEPLACE,1942-02-03,female,75012,99100
 140,E010004,Jean_E010004,Martin,1981-02-03,male,75112,99100
@@ -86,6 +102,8 @@ id,identifiant,prenoms,nomDeNaissance,dateDeNaissance,genre,codePostalLieuDeNais
 145,E010013,Jean_E010013,Martin,1981-02-03,male,75112,99100
 146,E010014,Jean_E010014,Martin,1981-02-03,male,75112,99100
 147,E010016,Jean_E010016,Martin,1981-02-03,male,75112,99100
+148,TestPaysprénom,Yoann Benoit Clément,BABA,1941-11-01,male,,99221
+149,TestPaysprénom2,Chantal Amélie Ingrid,YAGA,1941-11-01,female,,99121
 150,Testcommuneprénom,Sophie Suzanne,YOGO,1981-11-01,female,50528,99100
 151,Testcommuneprénom2,Jacob Henri,BOBO,1981-11-02,male,21331,99100
 152,TestAttest01,CLAUDIO,TEST UN,1974-01-01,male,3117,99100
@@ -113,6 +131,8 @@ id,identifiant,prenoms,nomDeNaissance,dateDeNaissance,genre,codePostalLieuDeNais
 174,MaprocREU1,Cedric Jean,ABDELJALIL,1934-02-00,male,2200,99100
 175,naissance_polynesie_française,Titouan,REVEIL,1998-06-18,male,98729,99100
 176,TestInteg,Lady Di,NUM,1962-08-24,female,29200,99100
+177,naissance_Japon,EMOTO,MASARU,1963-11-10,male,,99217
+178,naissance_Vietnam,CHAN,NGUYEN,1965-09-18,male,,99243
 179,dossier_douteux,MOHAMED,LALI,1983-12-18,male,64445,99100
 180,plus_120_ans,ANNE-SOPHIE,HELLIARD,1900-02-01,female,92050,99100
 181,naissance_Mayotte_anc,MANSOUR,M'DERE,1959-05-30,male,98511,99100
