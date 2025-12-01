@@ -25,12 +25,11 @@ describe('/api-holidays', () => {
           emoji: '',
         },
       ]
-      globalThis.fetch = vi.fn(() =>
-        Promise.resolve({
-          status: 200,
-          ok: true,
-          text: () => JSON.stringify(holidaysData),
-        })
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        new Response(
+          JSON.stringify(holidaysData),
+          { status: 200 }
+        )
       )
 
       // When
@@ -44,19 +43,17 @@ describe('/api-holidays', () => {
     })
     test('should get holidays from API with error', async () => {
       // Given
-      globalThis.fetch = vi.fn(() =>
-        Promise.resolve({
-          status: 400,
-          ok: false,
-          text: () => '',
-        })
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        new Response('',
+          { status: 400 }
+        )
       )
 
       // When
       const result = await retrieveHolidays(new Date('2025-11-01T12:00:00Z'))
 
       // Then
-      expect(result).toEqual(undefined)
+      expect(result).toEqual([])
       expect(window.localStorage.getItem('holidays_data')).toEqual(null)
     })
     test('should get holidays data from local storage', async () => {

@@ -37,4 +37,5 @@ export const retrieveHolidays = async (
     })
     return holidays
   }
+  return []
 }

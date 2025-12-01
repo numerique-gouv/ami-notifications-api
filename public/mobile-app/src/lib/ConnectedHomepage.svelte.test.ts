@@ -6,15 +6,16 @@ import ConnectedHomepage from './ConnectedHomepage.svelte'
 import * as notificationsMethods from '$lib/notifications'
 import { PUBLIC_API_WS_URL } from '$lib/notifications'
 import { PUBLIC_API_URL } from '$env/static/public'
-import { franceConnectLogout } from './france-connect.js'
+import { franceConnectLogout } from './france-connect'
 
-let wss
+let wss: WS
 
 describe('/ConnectedHomepage.svelte', () => {
   beforeEach(() => {
-    globalThis.navigator = {
+    vi.stubGlobal('navigator', {
+      ...navigator,
       permissions: undefined,
-    }
+    })
 
     vi.mock('$lib/france-connect', () => ({
       parseJwt: vi.fn().mockImplementation(() => {
@@ -34,7 +35,7 @@ describe('/ConnectedHomepage.svelte', () => {
     }))
 
     vi.mock('$lib/notifications', async (importOriginal) => {
-      const original = await importOriginal()
+      const original = (await importOriginal()) as Record<string, any>
       const registration = { id: 'fake-registration-id' }
       return {
         ...original,
@@ -82,7 +83,7 @@ describe('/ConnectedHomepage.svelte', () => {
     // Given
     const spy = vi
       .spyOn(notificationsMethods, 'countUnreadNotifications')
-      .mockImplementation(() => 3)
+      .mockResolvedValue(3)
 
     // When
     const { container } = render(ConnectedHomepage)
@@ -99,8 +100,8 @@ describe('/ConnectedHomepage.svelte', () => {
     // Given
     const spy = vi
       .spyOn(notificationsMethods, 'countUnreadNotifications')
-      .mockImplementationOnce(() => 3)
-      .mockImplementationOnce(() => 4)
+      .mockResolvedValueOnce(3)
+      .mockResolvedValueOnce(4)
 
     const { container } = render(ConnectedHomepage)
     await waitFor(() => {
@@ -210,19 +211,8 @@ describe('/ConnectedHomepage.svelte', () => {
 
   test('should logout a user from AMI then from FC', async () => {
     // Given
-    globalThis.localStorage = {
-      getItem: vi.fn().mockImplementation(() => {
-        return 'fake-id-token'
-      }),
-      clear: vi.fn().mockImplementation(() => {
-        return
-      }),
-    }
-    globalThis.fetch = vi.fn(() =>
-      Promise.resolve({
-        status: 200,
-      })
-    )
+    globalThis.localStorage.setItem('id_token', 'fake-id-token')
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('', { status: 200 }))
 
     // When
     render(ConnectedHomepage)
@@ -232,7 +222,7 @@ describe('/ConnectedHomepage.svelte', () => {
     await franceConnectLogoutButton.click()
 
     // Then
-    expect(localStorage.clear).toHaveBeenCalled()
+    expect(localStorage.getItem('id_token')).toBeNull()
     expect(franceConnectLogout).toHaveBeenCalledWith('fake-id-token')
   })
 })

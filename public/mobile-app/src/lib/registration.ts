@@ -1,6 +1,15 @@
 import { PUBLIC_API_URL } from '$env/static/public'
 
-export const registerDevice = async (pushSubscription: PushSubscription) => {
+export type Registration = {
+  id: string
+  user_id: string
+  subscription: PushSubscription
+  created_at: Date | string
+}
+
+export const registerDevice = async (
+  pushSubscription: PushSubscription
+): Promise<Registration | null> => {
   const pushSubURL = pushSubscription.endpoint
   const pushSubAuth = pushSubscription.toJSON().keys?.auth
   const pushSubP256DH = pushSubscription.toJSON().keys?.p256dh
@@ -28,6 +37,7 @@ export const registerDevice = async (pushSubscription: PushSubscription) => {
     return registration
   } else {
     console.log(`error ${response.status}: ${response.statusText}, ${response.body}`)
+    return null
   }
 }
 

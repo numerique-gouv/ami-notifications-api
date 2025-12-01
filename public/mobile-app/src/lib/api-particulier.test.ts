@@ -1,6 +1,6 @@
 import { afterEach, describe, test, expect, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
-import { getQuotientData } from '$lib/api-particulier.ts'
+import { getQuotientData } from '$lib/api-particulier'
 
 describe('/api-particulier.ts', () => {
   afterEach(() => {
@@ -15,12 +15,8 @@ describe('/api-particulier.ts', () => {
         data: { foo: 'bar' },
       }
 
-      globalThis.fetch = vi.fn(() =>
-        Promise.resolve({
-          status: 200,
-          ok: true,
-          text: () => JSON.stringify(quotientData),
-        })
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        new Response(JSON.stringify(quotientData), { status: 200 })
       )
 
       // When
@@ -38,13 +34,7 @@ describe('/api-particulier.ts', () => {
       window.localStorage.setItem('access_token', 'fake-access-token')
       window.localStorage.setItem('token_type', 'Bearer')
 
-      globalThis.fetch = vi.fn(() =>
-        Promise.resolve({
-          status: 400,
-          ok: false,
-          text: () => '',
-        })
-      )
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('', { status: 400 }))
 
       // When
       const result = await getQuotientData()

@@ -7,7 +7,7 @@ import type { Agenda } from '$lib/agenda'
 import AgendaItem from '$lib/AgendaItem.svelte'
 
 let isFranceConnected: boolean = $state(false)
-let agenda: Agenda = $state(null)
+let agenda: Agenda | null = $state(null)
 
 onMount(async () => {
   isFranceConnected = !!localStorage.getItem('access_token')
@@ -35,7 +35,7 @@ onMount(async () => {
     </div>
     <div class="agenda--events--container">
       {#each agenda.now as item, i}
-        {#if i == 0 || i > 0 && item.date.getMonth() !== agenda.now[i - 1].date.getMonth()}
+        {#if i == 0 || i > 0 && item.date?.getMonth() !== agenda.now[i - 1].date?.getMonth()}
         <div class="agenda--events--month">
           {item.monthName}
         </div>
@@ -53,7 +53,7 @@ onMount(async () => {
     </div>
     <div class="agenda--events--container">
       {#each agenda.next as item, i}
-        {#if i > 0 && item.date.getMonth() !== agenda.next[i - 1].date.getMonth() || i == 0 && (agenda.now.length && item.date.getMonth() !== agenda.now[agenda.now.length - 1].date.getMonth() || !agenda.now.length)}
+        {#if i > 0 && item.date?.getMonth() !== agenda.next[i - 1].date?.getMonth() || i == 0 && (agenda.now.length && item.date?.getMonth() !== agenda.now[agenda.now.length - 1].date?.getMonth() || !agenda.now.length)}
         <div class="agenda--events--month">
           {item.monthName}
         </div>

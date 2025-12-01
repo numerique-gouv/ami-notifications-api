@@ -1,5 +1,6 @@
 import { PUBLIC_API_URL } from '$env/static/public'
 import { registerDevice, unregisterDevice } from '$lib/registration'
+import type { Registration } from '$lib/registration'
 
 export const PUBLIC_API_WS_URL = PUBLIC_API_URL.replace('https://', 'wss://').replace(
   'http://',
@@ -95,7 +96,7 @@ export const subscribePush = async () => {
   }
 }
 
-export const enableNotifications = async () => {
+export const enableNotifications = async (): Promise<Registration | null> => {
   const permissionGranted = await Notification.requestPermission()
   const registration = await getServiceWorkerRegistration()
   if (!permissionGranted || !registration) {
@@ -108,6 +109,7 @@ export const enableNotifications = async () => {
       return await registerDevice(pushSubscription)
     }
   }
+  return null
 }
 
 export const unsubscribePush = async (pushSubscription: PushSubscription) => {

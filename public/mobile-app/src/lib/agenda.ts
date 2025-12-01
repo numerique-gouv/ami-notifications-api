@@ -3,11 +3,11 @@ import type { Holiday } from '$lib/api-holidays'
 
 type Kind = 'holiday' | 'otv'
 
-const capitalizeFirstLetter = (val) => {
+const capitalizeFirstLetter = (val: string) => {
   return String(val).charAt(0).toUpperCase() + String(val).slice(1)
 }
 
-export const monthName = (date) => {
+export const monthName = (date: Date) => {
   return capitalizeFirstLetter(date.toLocaleDateString('fr-FR', { month: 'long' }))
 }
 
@@ -40,35 +40,35 @@ export class Item {
     return this._title
   }
 
-  get description(): string {
+  get description(): string | null {
     return this._description
   }
 
-  get date(): Date {
+  get date(): Date | null {
     return this._start_date || this._date
   }
 
-  get dayName(): string {
-    return this.date.toLocaleDateString('fr-FR', { weekday: 'short' }).replace('.', '')
+  get dayName(): string | null {
+    return this.date ? this.date.toLocaleDateString('fr-FR', { weekday: 'short' }).replace('.', '') : null
   }
 
-  get dayNum(): string {
-    return this.date.getDate()
+  get dayNum(): number | null {
+    return this.date ?  this.date.getDate() : null
   }
 
-  get monthName(): string {
-    return monthName(this.date)
+  get monthName(): string | null {
+    return this.date ? monthName(this.date) : null
   }
 
-  get period(): string {
+  get period(): string | undefined {
     const locale = 'fr-FR'
-    let startFormat = { year: 'numeric', month: 'long', day: 'numeric' }
-    let dateFormat = startFormat
+    let startFormat: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' }
+    let dateFormat: Intl.DateTimeFormatOptions = startFormat
     if (this._start_date) {
       const start = this._start_date.toLocaleDateString(locale, startFormat)
       if (this._end_date) {
         let endFormat = startFormat
-        if (this._start_date.getYear() == this._end_date.getYear()) {
+        if (this._start_date.getFullYear() == this._end_date.getFullYear()) {
           startFormat = { month: 'long', day: 'numeric' }
           if (this._start_date.getMonth() == this._end_date.getMonth()) {
             startFormat = { day: 'numeric' }
@@ -80,7 +80,7 @@ export class Item {
       }
       return `À partir du ${start}`
     }
-    const date = this._date.toLocaleDateString(locale, dateFormat)
+    const date = this._date?.toLocaleDateString(locale, dateFormat)
     return date
   }
 
@@ -150,7 +150,7 @@ export class Agenda {
     // create OTV items
     let seenHolidays = new Set()
     holidays.forEach((holiday) => {
-      let key = JSON.stringify({ desc: holiday.description, date: holiday.date })
+      let key = JSON.stringify({ desc: holiday.description, date: holiday.start_date })
       if (seenHolidays.has(key)) {
         return
       }
@@ -166,13 +166,13 @@ export class Agenda {
       items.push(item)
     })
     // sort items by date
-    items.sort((a, b) => a.date - b.date)
+    items.sort((a, b) => (a.date?.getTime() || 0) - (b.date?.getTime() || 0))
 
     // organize items in _now or _next arrays
     items.forEach((item) => {
-      if (
-        item.date <= today ||
-        item.date < new Date(today.getTime() + 30 * oneday_in_ms)
+      if (item.date &&
+        (item.date <= today ||
+        item.date < new Date(today.getTime() + 30 * oneday_in_ms))
       ) {
         this._now.push(item)
       } else {
@@ -190,7 +190,7 @@ export class Agenda {
   }
 }
 
-export const buildAgenda = async (date: Date | null = null): Agenda => {
+export const buildAgenda = async (date: Date | null = null): Promise<Agenda> => {
   let today = date || new Date()
   const holidays: Holiday[] = await retrieveHolidays(today)
   return new Agenda(holidays, today)

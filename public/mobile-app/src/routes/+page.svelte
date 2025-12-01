@@ -23,10 +23,10 @@ onMount(async () => {
   isFranceConnected = !!localStorage.getItem('access_token')
   try {
     if (page.url.searchParams.has('error')) {
-      error = page.url.searchParams.get('error')
+      error = page.url.searchParams.get('error') || ''
     }
     if (page.url.searchParams.has('error_description')) {
-      error_description = page.url.searchParams.get('error_description')
+      error_description = page.url.searchParams.get('error_description') || ''
     }
     if (
       page.url.searchParams.has('error_type') &&

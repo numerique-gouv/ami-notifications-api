@@ -3,7 +3,7 @@ import { Item } from '$lib/agenda'
 interface Props {
   item: Item
 }
-let { item } = $props<Props>()
+let { item }: Props = $props()
 </script>
 
 <div class="agenda--item">
