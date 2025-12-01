@@ -8,6 +8,7 @@ from app import env, models, schemas
 from app.auth import jwt_cookie_auth
 from app.httpx import httpxClient
 from app.services.user import UserService
+from app.utils import ami_hash
 
 
 class UserController(Controller):
@@ -36,11 +37,19 @@ class UserController(Controller):
         decoded_userinfo = jwt.decode(
             userinfo_jws, options={"verify_signature": False}, algorithms=["ES256"]
         )
+        fc_hash = ami_hash(
+            given_name=decoded_userinfo["given_name"],
+            family_name=decoded_userinfo["family_name"],
+            birthdate=decoded_userinfo["birthdate"],
+            gender=decoded_userinfo["gender"],
+            birthplace=decoded_userinfo["birthplace"],
+            birthcountry=decoded_userinfo["birthcountry"],
+        )
         userinfo: schemas.FCUserInfo = schemas.FCUserInfo(**decoded_userinfo)
 
-        user: models.User | None = await users_service.get_one_or_none(**userinfo.model_dump())
+        user: models.User | None = await users_service.get_one_or_none(fc_hash=fc_hash)
         if user is None:
-            user = await users_service.create(models.User(**userinfo.model_dump()))
+            user = await users_service.create(models.User(fc_hash=fc_hash, **userinfo.model_dump()))
         result: dict[str, Any] = {
             "user_id": user.id,
             "user_data": userinfo_jws,

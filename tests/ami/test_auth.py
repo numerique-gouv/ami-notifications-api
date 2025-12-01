@@ -298,6 +298,7 @@ async def test_fc_get_userinfo(
         "user_data": fake_userinfo_token,
     }
 
+    assert user.fc_hash == "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060"
     assert user.email == "angela@dubois.fr"
     assert user.given_name == "Angela Claire Louise"
     assert user.family_name == "DUBOIS"
