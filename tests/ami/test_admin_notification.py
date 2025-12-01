@@ -54,8 +54,8 @@ async def test_admin_notify_create_notification_from_test_and_from_app_context(
     assert len(all_notifications) == 2
     notification2 = all_notifications[1]
     assert notification2.user.id == registration.user.id
-    assert notification2.message == "Hello notification 2"
-    assert notification2.title == "Some notification title"
+    assert notification2.content_body == "Hello notification 2"
+    assert notification2.content_title == "Some notification title"
     assert notification2.sender == "Jane Doe"
     assert notification2.unread is True
     assert response.json() == {

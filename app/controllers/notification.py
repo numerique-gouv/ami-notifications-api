@@ -146,7 +146,11 @@ class NotAuthenticatedNotificationController(Controller):
 
         for registration in user.registrations:
             subscription = WebPushSubscription.model_validate(registration.subscription)
-            json_data = {"title": data.title, "message": data.message, "sender": data.sender}
+            json_data = {
+                "title": data.content_title,
+                "message": data.content_body,
+                "sender": data.sender,
+            }
             message = webpush.get(message=json.dumps(json_data), subscription=subscription)
             headers = cast(dict[str, str], message.headers)
 

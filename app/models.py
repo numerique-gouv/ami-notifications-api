@@ -1,8 +1,9 @@
+import datetime
 import uuid
 from typing import Any
 
 from advanced_alchemy.base import UUIDAuditBase
-from advanced_alchemy.types import JsonB
+from advanced_alchemy.types import DateTimeUTC, JsonB
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -36,7 +37,25 @@ class Notification(Base):
 
     user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("ami_user.id"))
     user: Mapped[User] = relationship(back_populates="notifications")
-    message: Mapped[str]
-    sender: Mapped[str | None]
-    title: Mapped[str | None]
+
+    content_title: Mapped[str]
+    content_body: Mapped[str]
+    content_icon: Mapped[str | None]
+
+    sender: Mapped[str]
+
+    item_type: Mapped[str | None]
+    item_id: Mapped[str | None]
+    item_status_label: Mapped[str | None]
+    item_generic_status: Mapped[str | None]
+    item_canal: Mapped[str | None]
+    item_milestone_start_date: Mapped[datetime.datetime | None]
+    item_milestone_end_date: Mapped[datetime.datetime | None]
+    item_external_url: Mapped[str | None]
+
+    send_date: Mapped[datetime.datetime] = mapped_column(
+        DateTimeUTC(timezone=True),
+        default=lambda: datetime.datetime.now(datetime.timezone.utc),
+    )
+
     unread: Mapped[bool] = mapped_column(default=True)
