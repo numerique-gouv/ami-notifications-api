@@ -33,7 +33,7 @@ async def test_notify_send_ok_with_200(
         "content_body": "Merci d'avoir initié votre demande",
     }
     response = test_client.post("/api/v1/notifications", json=notification_data)
-    assert response.status_code == HTTP_200_OK
+    assert response.status_code == HTTP_201_CREATED
     assert response.json() == {
         "notification_id": "43847a2f-0b26-40a4-a452-8342a99a10a8",
         "notification_send_status": True,
@@ -54,7 +54,7 @@ async def test_notify_send_ko_with_200_and_notification_send_status_to_false(
         "content_body": "Merci d'avoir initié votre demande",
     }
     response = test_client.post("/api/v1/notifications", json=notification_data)
-    assert response.status_code == HTTP_200_OK
+    assert response.status_code == HTTP_201_CREATED
     assert response.json() == {
         "notification_id": "43847a2f-0b26-40a4-a452-8342a99a10a8",
         "notification_send_status": False,
