@@ -299,13 +299,6 @@ async def test_fc_get_userinfo(
     }
 
     assert user.fc_hash == "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060"
-    assert user.email == "angela@dubois.fr"
-    assert user.given_name == "Angela Claire Louise"
-    assert user.family_name == "DUBOIS"
-    assert user.birthdate == datetime.date(1962, 8, 24)
-    assert user.gender == "female"
-    assert user.birthplace == 75107
-    assert user.birthcountry == 99100
 
     response = test_client.get("/fc_userinfo", headers=auth)
 

@@ -108,9 +108,7 @@ async def user(db_session: AsyncSession) -> User:
         birthplace="",
         birthcountry="",
     )
-    user_ = User(
-        fc_hash=fc_hash, email="user@example.com", family_name="AMI", given_name="Test User"
-    )
+    user_ = User(fc_hash=fc_hash)
     db_session.add(user_)
     await db_session.commit()
     return user_

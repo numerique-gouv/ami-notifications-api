@@ -14,16 +14,6 @@ class BaseModel(PydanticBaseModel):
     model_config = {"from_attributes": True}
 
 
-class FCUserInfo(BaseModel):
-    birthcountry: int | None
-    birthdate: datetime.date | None = None
-    birthplace: int | None = None
-    email: str | None = None
-    family_name: str | None = None
-    gender: str | None = None
-    given_name: str | None = None
-
-
 class AdminNotification(BaseModel):
     id: uuid.UUID
     user_id: uuid.UUID

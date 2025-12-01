@@ -1,4 +1,3 @@
-import datetime
 import uuid
 from typing import Any
 
@@ -20,19 +19,8 @@ class User(Base):
     __tablename__ = "ami_user"  # type: ignore
 
     fc_hash: Mapped[str] = mapped_column(unique=True)
-    birthcountry: Mapped[int | None]
-    birthdate: Mapped[datetime.date | None]
-    birthplace: Mapped[int | None]
-    email: Mapped[str | None]
-    family_name: Mapped[str | None]
-    gender: Mapped[str | None]
-    given_name: Mapped[str | None]
     registrations: Mapped[list["Registration"]] = relationship(back_populates="user")
     notifications: Mapped[list["Notification"]] = relationship(back_populates="user")
-
-    @property
-    def name(self):
-        return f"{self.family_name} {self.given_name}"
 
 
 class Registration(Base):

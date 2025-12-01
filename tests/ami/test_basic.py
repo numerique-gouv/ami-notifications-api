@@ -116,12 +116,7 @@ async def test_unregister(
     assert response.status_code == HTTP_404_NOT_FOUND
 
     # registration of another user than current user
-    other_user = User(
-        fc_hash="fc-hash",
-        email="other-user@example.com",
-        family_name="AMI",
-        given_name="Other Test User",
-    )
+    other_user = User(fc_hash="fc-hash")
     db_session.add(other_user)
     await db_session.commit()
     other_registration = Registration(
@@ -318,12 +313,7 @@ async def test_get_notifications(
     login(notification.user, test_client)
 
     # notification for another user, not returned in notification list of current user
-    other_user = User(
-        fc_hash="fc-hash",
-        email="other-user@example.com",
-        family_name="AMI",
-        given_name="Other Test User",
-    )
+    other_user = User(fc_hash="fc-hash")
     db_session.add(other_user)
     await db_session.commit()
     other_notification = Notification(
@@ -393,12 +383,7 @@ async def test_get_notifications_should_return_notifications_for_given_user_id_l
     notification: Notification,
 ) -> None:
     # notification for another user, not returned in notification list of test user
-    other_user = User(
-        fc_hash="fc-hash",
-        email="other-user@example.com",
-        family_name="AMI",
-        given_name="Other Test User",
-    )
+    other_user = User(fc_hash="fc-hash")
     db_session.add(other_user)
     await db_session.commit()
     other_notification = Notification(
@@ -460,12 +445,7 @@ async def test_read_notification(
     login(notification.user, test_client)
 
     # notification for another user, can not be patched by test user
-    other_user = User(
-        fc_hash="fc-hash",
-        email="other-user@example.com",
-        family_name="AMI",
-        given_name="Other Test User",
-    )
+    other_user = User(fc_hash="fc-hash")
     db_session.add(other_user)
     await db_session.commit()
     other_notification = Notification(
@@ -585,12 +565,7 @@ async def test_stream_notification_events_updated(
     with test_client.websocket_connect("/api/v1/users/notification/events/stream") as ws:
         try:
             # create a notification for another user
-            other_user = User(
-                fc_hash="fc-hash",
-                email="other-user@example.com",
-                family_name="AMI",
-                given_name="Other Test User",
-            )
+            other_user = User(fc_hash="fc-hash")
             db_session.add(other_user)
             await db_session.commit()
             notification_data = {
