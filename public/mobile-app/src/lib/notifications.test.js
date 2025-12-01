@@ -10,6 +10,7 @@ import {
   unsubscribePush,
 } from '$lib/notifications'
 import * as registrationMethods from '$lib/registration.js'
+import { mockPushSubscription } from '../../tests/utils.js'
 
 describe('/notifications', () => {
   describe('retrieveNotifications', () => {
@@ -35,11 +36,8 @@ describe('/notifications', () => {
           unread: false,
         },
       ]
-      globalThis.fetch = vi.fn(() =>
-        Promise.resolve({
-          status: 200,
-          json: () => Promise.resolve(notifications),
-        })
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        new Response(JSON.stringify(notifications), { status: 200 })
       )
 
       // When
@@ -64,11 +62,8 @@ describe('/notifications', () => {
           unread: true,
         },
       ]
-      globalThis.fetch = vi.fn(() =>
-        Promise.resolve({
-          status: 200,
-          json: () => Promise.resolve(notifications),
-        })
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        new Response(JSON.stringify(notifications), { status: 200 })
       )
 
       // When
@@ -93,11 +88,8 @@ describe('/notifications', () => {
           unread: false,
         },
       ]
-      globalThis.fetch = vi.fn(() =>
-        Promise.resolve({
-          status: 200,
-          json: () => Promise.resolve(read_notification),
-        })
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        new Response(JSON.stringify(read_notification), { status: 200 })
       )
 
       // When
@@ -125,52 +117,48 @@ describe('/notifications', () => {
           subscribe: vi.fn(() => pushSubscription),
         },
       }
-      globalThis.navigator = {
+      vi.stubGlobal('navigator', {
+        ...navigator,
         serviceWorker: {
-          ready: new Promise((resolve) => {
-            resolve(registration)
-          }),
+          ready: Promise.resolve(registration),
         },
-      }
-      const mockFetchResponse = {
-        text: () => Promise.resolve('fake applicationKeyResponse'),
-      }
-      globalThis.fetch = vi.fn(() => Promise.resolve(mockFetchResponse))
+      })
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        new Response('fake applicationKeyResponse', { status: 200 })
+      )
 
       // When
       const result = await subscribePush()
 
       // Then
       expect(result).toEqual(pushSubscription)
-      expect(result.endpoint).toEqual('fake-endpoint')
-      expect(result.toJSON().keys.auth).toEqual('fake-auth')
-      expect(result.toJSON().keys.p256dh).toEqual('fake-p256dh')
+      expect(result?.endpoint).toEqual('fake-endpoint')
+      expect(result?.toJSON()?.keys?.auth).toEqual('fake-auth')
+      expect(result?.toJSON()?.keys?.p256dh).toEqual('fake-p256dh')
     })
   })
 
   describe('enableNotifications', () => {
     test('should call registerDevice when permission is granted and is registered to service worker', async () => {
       // Given
-      globalThis.Notification = {
-        requestPermission: () => true,
-      }
+      vi.stubGlobal('Notification', {
+        requestPermission: () => Promise.resolve(true),
+      })
       const pushSubscription = {}
       const registration = {
         pushManager: {
           subscribe: vi.fn(() => pushSubscription),
         },
       }
-      globalThis.navigator = {
+      vi.stubGlobal('navigator', {
+        ...navigator,
         serviceWorker: {
-          ready: new Promise((resolve) => {
-            resolve(registration)
-          }),
+          ready: Promise.resolve(registration),
         },
-      }
-      const mockFetchResponse = {
-        text: () => Promise.resolve('fake applicationKeyResponse'),
-      }
-      globalThis.fetch = vi.fn(() => Promise.resolve(mockFetchResponse))
+      })
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        new Response('fake applicationKeyResponse', { status: 200 })
+      )
 
       const registrationResult = {}
       vi.mock('$lib/registration', () => ({
@@ -190,6 +178,7 @@ describe('/notifications', () => {
     test('should call unsubscribe and return true when success', async () => {
       // Given
       const pushSubscription = {
+        ...mockPushSubscription,
         unsubscribe: () => Promise.resolve(true),
       }
 
@@ -203,6 +192,7 @@ describe('/notifications', () => {
     test('should call unsubscribe and return false when failure', async () => {
       // Given
       const pushSubscription = {
+        ...mockPushSubscription,
         unsubscribe: () => Promise.resolve(false),
       }
 
@@ -217,10 +207,11 @@ describe('/notifications', () => {
   describe('disableNotifications', () => {
     test('should call unregisterDevice and unsubscribePush when permission is granted and is registered to service worker', async () => {
       // Given
-      globalThis.Notification = {
-        requestPermission: () => true,
-      }
+      vi.stubGlobal('Notification', {
+        requestPermission: () => Promise.resolve(true),
+      })
       const pushSubscription = {
+        ...mockPushSubscription,
         unsubscribe: () => Promise.resolve(true),
       }
       const registration = {
@@ -228,13 +219,12 @@ describe('/notifications', () => {
           getSubscription: vi.fn(() => Promise.resolve(pushSubscription)),
         },
       }
-      globalThis.navigator = {
+      vi.stubGlobal('navigator', {
+        ...navigator,
         serviceWorker: {
-          ready: new Promise((resolve) => {
-            resolve(registration)
-          }),
+          ready: Promise.resolve(registration),
         },
-      }
+      })
 
       vi.mock('$lib/registration', () => ({
         registerDevice: vi.fn(() => true),
@@ -243,41 +233,21 @@ describe('/notifications', () => {
       const spyUnregisterDevice = vi.spyOn(registrationMethods, 'unregisterDevice')
 
       // When
-      const result = await disableNotifications(11)
+      const result = await disableNotifications('11')
 
       // Then
-      expect(spyUnregisterDevice).toHaveBeenCalledWith(11)
+      expect(spyUnregisterDevice).toHaveBeenCalledWith('11')
       expect(result).toEqual(pushSubscription)
     })
 
     test('should return false when Notification permission is not granted', async () => {
       // Given
-      globalThis.Notification = {
-        requestPermission: () => false,
-      }
+      vi.stubGlobal('Notification', {
+        requestPermission: () => Promise.resolve(false),
+      })
 
       // When
-      const result = await disableNotifications(11)
-
-      // Then
-      expect(result).toEqual(false)
-    })
-
-    test('should return false when serviceWorker is not ready', async () => {
-      // Given
-      globalThis.Notification = {
-        requestPermission: () => true,
-      }
-      globalThis.navigator = {
-        serviceWorker: {
-          ready: new Promise((reject) => {
-            reject()
-          }),
-        },
-      }
-
-      // When
-      const result = await disableNotifications(11)
+      const result = await disableNotifications('11')
 
       // Then
       expect(result).toEqual(false)

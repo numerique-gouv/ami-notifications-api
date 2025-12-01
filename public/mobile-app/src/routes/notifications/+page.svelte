@@ -1,7 +1,7 @@
 <script lang="ts">
 import { onMount } from 'svelte'
 import { goto } from '$app/navigation'
-import { prettyDate } from '$lib/prettyDate.ts'
+import { prettyDate } from '$lib/prettyDate'
 import {
   retrieveNotifications,
   readNotification,
@@ -24,7 +24,7 @@ onMount(async () => {
   })
 })
 
-const markNotificationAsRead = async (event, notificationId) => {
+const markNotificationAsRead = async (event: MouseEvent, notificationId: string) => {
   event.preventDefault()
   let result = await readNotification(notificationId)
 }

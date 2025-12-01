@@ -1,13 +1,14 @@
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/svelte'
 import WS from 'vitest-websocket-mock'
+import type { WS as WSType } from 'vitest-websocket-mock'
 import Page from './+page.svelte'
 import * as navigationMethods from '$app/navigation'
 import * as notificationsMethods from '$lib/notifications'
 import { PUBLIC_API_WS_URL } from '$lib/notifications'
 import { PUBLIC_API_URL } from '$env/static/public'
 
-let wss
+let wss: WSType
 
 describe('/+page.svelte', () => {
   beforeEach(() => {
@@ -21,7 +22,9 @@ describe('/+page.svelte', () => {
   test('user has to be connected', () => {
     // Given
     expect(window.localStorage.getItem('access_token')).toEqual(null)
-    const spy = vi.spyOn(navigationMethods, 'goto').mockImplementation(() => 'mocked')
+    const spy = vi
+      .spyOn(navigationMethods, 'goto')
+      .mockImplementation(() => Promise.resolve())
 
     // When
     render(Page)
@@ -38,7 +41,7 @@ describe('/+page.svelte', () => {
       .spyOn(notificationsMethods, 'retrieveNotifications')
       .mockImplementation(async () => [
         {
-          created_at: '2025-09-19T13:52:23.279545',
+          created_at: new Date('2025-09-19T13:52:23.279545'),
           user_id: '3ac73f4f-4be2-456a-9c2e-ddff480d5767',
           sender: 'test 2',
           message: 'test 2',
@@ -47,7 +50,7 @@ describe('/+page.svelte', () => {
           unread: true,
         },
         {
-          created_at: '2025-09-19T12:59:04.950812',
+          created_at: new Date('2025-09-19T12:59:04.950812'),
           user_id: '3ac73f4f-4be2-456a-9c2e-ddff480d5767',
           sender: 'test',
           message: 'test',
@@ -80,7 +83,7 @@ describe('/+page.svelte', () => {
       .spyOn(notificationsMethods, 'retrieveNotifications')
       .mockImplementationOnce(async () => [
         {
-          created_at: '2025-09-19T13:52:23.279545',
+          created_at: new Date('2025-09-19T13:52:23.279545'),
           user_id: '3ac73f4f-4be2-456a-9c2e-ddff480d5767',
           sender: 'test 2',
           message: 'test 2',
@@ -89,7 +92,7 @@ describe('/+page.svelte', () => {
           unread: true,
         },
         {
-          created_at: '2025-09-19T12:59:04.950812',
+          created_at: new Date('2025-09-19T12:59:04.950812'),
           user_id: '3ac73f4f-4be2-456a-9c2e-ddff480d5767',
           sender: 'test',
           message: 'test',
@@ -100,7 +103,7 @@ describe('/+page.svelte', () => {
       ])
       .mockImplementationOnce(async () => [
         {
-          created_at: '2025-09-19T13:52:23.279545',
+          created_at: new Date('2025-09-19T13:52:23.279545'),
           user_id: '3ac73f4f-4be2-456a-9c2e-ddff480d5767',
           sender: 'test 2',
           message: 'test 2',
@@ -109,7 +112,7 @@ describe('/+page.svelte', () => {
           unread: false,
         },
         {
-          created_at: '2025-09-19T12:59:04.950812',
+          created_at: new Date('2025-09-19T12:59:04.950812'),
           user_id: '3ac73f4f-4be2-456a-9c2e-ddff480d5767',
           sender: 'test',
           message: 'test',
@@ -122,7 +125,7 @@ describe('/+page.svelte', () => {
       .spyOn(notificationsMethods, 'readNotification')
       .mockImplementation(async () => {
         return {
-          created_at: '2025-09-19T13:52:23.279545',
+          created_at: new Date('2025-09-19T13:52:23.279545'),
           user_id: '3ac73f4f-4be2-456a-9c2e-ddff480d5767',
           sender: 'test 2',
           message: 'test 2',

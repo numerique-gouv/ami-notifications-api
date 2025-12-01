@@ -6,6 +6,7 @@ import { onMount } from 'svelte'
 let { children } = $props()
 
 onMount(async () => {
+  // @ts-ignore
   await import('@gouvfr/dsfr/dist/dsfr.module.min.js')
 })
 </script>

@@ -5,7 +5,7 @@ import {
   PUBLIC_FC_PROXY,
 } from '$env/static/public'
 
-export function parseJwt(token) {
+export function parseJwt(token: string) {
   const base64Url = token.split('.')[1]
   const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
   const jsonPayload = decodeURIComponent(
@@ -21,7 +21,7 @@ export function parseJwt(token) {
   return JSON.parse(jsonPayload)
 }
 
-export const franceConnectLogout = async (id_token_hint) => {
+export const franceConnectLogout = async (id_token_hint: string) => {
   const redirect_url = `${PUBLIC_APP_URL}/?is_logged_out`
   const params = new URLSearchParams({
     id_token_hint,
@@ -32,5 +32,6 @@ export const franceConnectLogout = async (id_token_hint) => {
   url.search = params.toString()
 
   // Now logout from FC.
-  window.location = url.toString()
+  console.log('UPDATING URL', url.toString())
+  window.location.href = url.toString()
 }
