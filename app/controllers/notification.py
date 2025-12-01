@@ -204,7 +204,7 @@ class NotAuthenticatedNotificationController(Controller):
         type_adapter = TypeAdapter(list[schemas.AdminNotification])
         return type_adapter.validate_python(notifications)
 
-    @post("/api/v1/notifications", return_dto=None)
+    @post("/api/v1/notifications")
     async def notify(
         self,
         data: Annotated[
