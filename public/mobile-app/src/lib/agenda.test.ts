@@ -180,8 +180,13 @@ describe('/api-particulier.ts', () => {
     describe('label', () => {
       test('should return a label depending on kind', async () => {
         // Given
-        // @ts-ignore: `'incorrect'` isn't a proper Kind, so typescript will complain
-        const item1 = new Item('incorrect', 'title', 'description', new Date('2025-12-20'))
+        const item1 = new Item(
+          // @ts-ignore: `'incorrect'` isn't a proper Kind, so typescript will complain
+          'incorrect',
+          'title',
+          'description',
+          new Date('2025-12-20')
+        )
         const item2 = new Item(
           'holiday',
           'title',
@@ -204,8 +209,13 @@ describe('/api-particulier.ts', () => {
     describe('icon', () => {
       test('should return an icon depending on kind', async () => {
         // Given
-        // @ts-ignore: `'incorrect'` isn't a proper Kind, so typescript will complain
-        const item1 = new Item('incorrect', 'title', 'description', new Date('2025-12-20'))
+        const item1 = new Item(
+          // @ts-ignore: `'incorrect'` isn't a proper Kind, so typescript will complain
+          'incorrect',
+          'title',
+          'description',
+          new Date('2025-12-20')
+        )
         const item2 = new Item(
           'holiday',
           'title',
