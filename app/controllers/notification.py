@@ -17,7 +17,6 @@ from pydantic import TypeAdapter
 from webpush import WebPush, WebPushSubscription
 
 from app import env, models, schemas
-from app.controllers.utils import UrlEncodedBody
 from app.httpx import httpxClient
 from app.schemas import NotifyResponse
 from app.services.notification import NotificationService
@@ -205,13 +204,16 @@ class NotAuthenticatedNotificationController(Controller):
         type_adapter = TypeAdapter(list[schemas.AdminNotification])
         return type_adapter.validate_python(notifications)
 
-    async def _do_notify(
+    @post("/api/v1/notifications", return_dto=None)
+    async def notify(
         self,
-        channels: ChannelsPlugin,
-        notifications_service: NotificationService,
-        users_with_registrations_service: UserService,
-        webpush: WebPush,
-        data: schemas.Notification,
+        data: Annotated[
+            schemas.Notification,
+            Body(
+                title="Send a notification",
+                description="Send the notification message to a registered user",
+            ),
+        ],
     ) -> Response[NotifyResponse]:
         notification_id = uuid.UUID("43847a2f-0b26-40a4-a452-8342a99a10a8")
         status_code = HTTP_200_OK
@@ -231,42 +233,4 @@ class NotAuthenticatedNotificationController(Controller):
         return Response(
             status_code=status_code,
             content=notify_response,
-        )
-
-    @post("/api/v1/notifications", return_dto=None)
-    async def notify(
-        self,
-        channels: ChannelsPlugin,
-        notifications_service: NotificationService,
-        users_with_registrations_service: UserService,
-        webpush: WebPush,
-        data: Annotated[
-            schemas.Notification,
-            Body(
-                title="Send a notification",
-                description="Send the notification message to a registered user",
-            ),
-        ],
-    ) -> Response[NotifyResponse]:
-        return await self._do_notify(
-            channels, notifications_service, users_with_registrations_service, webpush, data
-        )
-
-    @post("/api/v1/notifications_url_encoded", return_dto=None)
-    async def notify_url_encoded(
-        self,
-        channels: ChannelsPlugin,
-        notifications_service: NotificationService,
-        users_with_registrations_service: UserService,
-        webpush: WebPush,
-        data: Annotated[
-            schemas.Notification,
-            UrlEncodedBody(
-                title="Send a notification",
-                description="Send the notification message to a registered user",
-            ),
-        ],
-    ) -> Response[NotifyResponse]:
-        return await self._do_notify(
-            channels, notifications_service, users_with_registrations_service, webpush, data
         )
