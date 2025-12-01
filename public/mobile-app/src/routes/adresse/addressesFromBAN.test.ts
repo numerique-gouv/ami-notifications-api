@@ -10,6 +10,7 @@ describe('addressesFromBAN.ts', () => {
         {
           city: 'Orléans',
           context: '45, Loiret, Centre-Val de Loire',
+          id: '45234_0420_00023',
           label: '23 Rue des Aubépines 45100 Orléans',
           name: '23 Rue des Aubépines',
           postcode: '45100',
@@ -17,6 +18,7 @@ describe('addressesFromBAN.ts', () => {
         {
           city: 'Orly',
           context: '94, Val-de-Marne, Île-de-France',
+          id: '94054_0070_00023',
           label: '23 Rue des Aubépines 94310 Orly',
           name: '23 Rue des Aubépines',
           postcode: '94310',
@@ -24,6 +26,7 @@ describe('addressesFromBAN.ts', () => {
         {
           city: 'Orléat',
           context: '63, Puy-de-Dôme, Auvergne-Rhône-Alpes',
+          id: '63265_0008',
           label: 'Allée des Aubépines 63190 Orléat',
           name: 'Allée des Aubépines',
           postcode: '63190',
@@ -35,6 +38,7 @@ describe('addressesFromBAN.ts', () => {
         features: [
           {
             properties: {
+              id: '45234_0420_00023',
               label: '23 Rue des Aubépines 45100 Orléans',
               name: '23 Rue des Aubépines',
               postcode: '45100',
@@ -44,6 +48,7 @@ describe('addressesFromBAN.ts', () => {
           },
           {
             properties: {
+              id: '94054_0070_00023',
               label: '23 Rue des Aubépines 94310 Orly',
               name: '23 Rue des Aubépines',
               postcode: '94310',
@@ -53,6 +58,7 @@ describe('addressesFromBAN.ts', () => {
           },
           {
             properties: {
+              id: '63265_0008',
               label: 'Allée des Aubépines 63190 Orléat',
               name: 'Allée des Aubépines',
               postcode: '63190',
