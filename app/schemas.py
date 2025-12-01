@@ -29,9 +29,9 @@ class ItemGenericStatus(Enum):
 class Notification(BaseModel):
     id: uuid.UUID
     user_id: uuid.UUID
-    message: str
-    sender: str | None
-    title: str | None
+    title: str = Field(alias="content_title")
+    message: str = Field(alias="content_body")
+    sender: str
     unread: bool
     created_at: datetime.datetime
 
@@ -99,9 +99,9 @@ class NotificationRead(BaseModel):
 
 class AdminNotificationCreate(BaseModel):
     user_id: uuid.UUID
-    message: str = Field(min_length=1)
-    sender: str | None
-    title: str | None
+    content_title: str = Field(min_length=1, alias="title")
+    content_body: str = Field(min_length=1, alias="message")
+    sender: str = Field(min_length=1)
 
 
 class Registration(BaseModel):

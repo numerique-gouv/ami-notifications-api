@@ -178,8 +178,8 @@ async def test_get_notifications(
     await db_session.commit()
     other_notification = Notification(
         user_id=other_user.id,
-        message="Other notification",
-        title="Notification title",
+        content_body="Other notification",
+        content_title="Notification title",
         sender="John Doe",
     )
     db_session.add(other_notification)
@@ -190,8 +190,8 @@ async def test_get_notifications(
     assert response.status_code == HTTP_200_OK
     assert len(response.json()) == 1
     assert response.json()[0]["user_id"] == str(notification.user.id)
-    assert response.json()[0]["message"] == notification.message
-    assert response.json()[0]["title"] == notification.title
+    assert response.json()[0]["message"] == notification.content_body
+    assert response.json()[0]["title"] == notification.content_title
     assert response.json()[0]["sender"] == notification.sender
     assert response.json()[0]["unread"] is True
 
@@ -210,8 +210,8 @@ async def test_get_notifications(
     assert response.status_code == HTTP_200_OK
     assert len(response.json()) == 1
     assert response.json()[0]["user_id"] == str(notification.user.id)
-    assert response.json()[0]["message"] == notification.message
-    assert response.json()[0]["title"] == notification.title
+    assert response.json()[0]["message"] == notification.content_body
+    assert response.json()[0]["title"] == notification.content_title
     assert response.json()[0]["sender"] == notification.sender
     assert response.json()[0]["unread"] is False
 
@@ -248,8 +248,8 @@ async def test_get_notifications_should_return_notifications_for_given_user_id_l
     await db_session.commit()
     other_notification = Notification(
         user_id=other_user.id,
-        message="Other notification",
-        title="Notification title",
+        content_body="Other notification",
+        content_title="Notification title",
         sender="John Doe",
     )
     db_session.add(other_notification)
@@ -264,8 +264,8 @@ async def test_get_notifications_should_return_notifications_for_given_user_id_l
     assert response.status_code == HTTP_200_OK
     assert len(response.json()) == 1
     assert response.json()[0]["user_id"] == str(notification.user.id)
-    assert response.json()[0]["message"] == notification.message
-    assert response.json()[0]["title"] == notification.title
+    assert response.json()[0]["message"] == notification.content_body
+    assert response.json()[0]["title"] == notification.content_title
     assert response.json()[0]["sender"] == notification.sender
     assert response.json()[0]["unread"] is True
 
@@ -284,8 +284,8 @@ async def test_get_notifications_should_return_notifications_for_given_user_id_l
     assert response.status_code == HTTP_200_OK
     assert len(response.json()) == 1
     assert response.json()[0]["user_id"] == str(notification.user.id)
-    assert response.json()[0]["message"] == notification.message
-    assert response.json()[0]["title"] == notification.title
+    assert response.json()[0]["message"] == notification.content_body
+    assert response.json()[0]["title"] == notification.content_title
     assert response.json()[0]["sender"] == notification.sender
     assert response.json()[0]["unread"] is False
 
@@ -310,8 +310,8 @@ async def test_read_notification(
     await db_session.commit()
     other_notification = Notification(
         user_id=str(other_user.id),
-        message="Other notification",
-        title="Notification title",
+        content_body="Other notification",
+        content_title="Notification title",
         sender="John Doe",
     )
     db_session.add(other_notification)
@@ -350,8 +350,8 @@ async def test_read_notification(
     )
     assert response.status_code == HTTP_200_OK
     assert response.json()["user_id"] == str(notification.user.id)
-    assert response.json()["message"] == notification.message
-    assert response.json()["title"] == notification.title
+    assert response.json()["message"] == notification.content_body
+    assert response.json()["title"] == notification.content_title
     assert response.json()["sender"] == notification.sender
     assert response.json()["unread"] is False
 
@@ -361,8 +361,8 @@ async def test_read_notification(
     )
     assert response.status_code == HTTP_200_OK
     assert response.json()["user_id"] == str(notification.user.id)
-    assert response.json()["message"] == notification.message
-    assert response.json()["title"] == notification.title
+    assert response.json()["message"] == notification.content_body
+    assert response.json()["title"] == notification.content_title
     assert response.json()["sender"] == notification.sender
     assert response.json()["unread"] is True
 

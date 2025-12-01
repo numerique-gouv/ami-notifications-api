@@ -118,8 +118,8 @@ async def user(db_session: AsyncSession) -> User:
 async def notification(db_session: AsyncSession, registration: Registration) -> Notification:
     notification_ = Notification(
         user_id=registration.user.id,
-        message="Hello notification",
-        title="Notification title",
+        content_body="Hello notification",
+        content_title="Notification title",
         sender="John Doe",
     )
     db_session.add(notification_)
