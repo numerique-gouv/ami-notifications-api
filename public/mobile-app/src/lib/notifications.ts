@@ -9,11 +9,11 @@ export const PUBLIC_API_WS_URL = PUBLIC_API_URL.replace('https://', 'wss://').re
 
 export type Notification = {
   id: string
-  created_at: Date
+  send_date: Date
   user_id: string
-  message: string
-  sender?: string
-  title?: string
+  content_title: string
+  content_body: string
+  sender: string
   unread: boolean
 }
 
