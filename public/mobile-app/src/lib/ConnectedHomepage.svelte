@@ -20,6 +20,7 @@ let quotientinfo: Object = $state({})
 let unreadNotificationsCount: number = $state(0)
 let initials: string = $state('')
 let isMenuDisplayed: boolean = $state(false)
+let isAddressEmpty: boolean = $state(true)
 let notificationsEnabled: boolean = $state(false)
 let registration: Registration | null = $state(null)
 let agenda: Agenda | null = $state(null)
@@ -57,6 +58,7 @@ const getInitials = (given_name_array: string[]): string => {
 
 onMount(async () => {
   try {
+    isAddressEmpty = localStorage.getItem('user_address') === ''
     notificationsEnabled = localStorage.getItem('notifications_enabled') === 'true'
     await initializeNavigatorPermissions()
 
@@ -157,20 +159,22 @@ const clickLogout = async () => {
     </div>
   </div>
 
-  <div class="rubrique-container address-container">
-    <div class="rubrique-content-container">
-      <div class="fr-tile fr-tile-sm fr-tile--horizontal fr-tile--no-border fr-enlarge-link">
-        <div class="fr-tile__body">
-          <div class="fr-tile__content">
-            <img class="address-icon" src="/remixicons/house.svg" alt="Icône adresse" />
-            <h3 class="fr-tile__title">
-              <a href="/#/adresse"><b>Gagnez du temps</b> en <b>renseignant votre adresse</b> une seule fois !</a>
-            </h3>
+  {#if isAddressEmpty}
+    <div class="rubrique-container address-container">
+      <div class="rubrique-content-container">
+        <div class="fr-tile fr-tile-sm fr-tile--horizontal fr-tile--no-border fr-enlarge-link">
+          <div class="fr-tile__body">
+            <div class="fr-tile__content">
+              <img class="address-icon" src="/remixicons/house.svg" alt="Icône adresse" />
+              <h3 class="fr-tile__title">
+                <a href="/#/adresse"><b>Gagnez du temps</b> en <b>renseignant votre adresse</b> une seule fois !</a>
+              </h3>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
+  {/if}
 
   <div class="rubrique-container agenda-container">
     <div class="header-container">
