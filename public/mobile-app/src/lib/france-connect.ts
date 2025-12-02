@@ -48,6 +48,5 @@ export const franceConnectLogout = async (id_token_hint: string) => {
   url.search = params.toString()
 
   // Now logout from FC.
-  console.log('UPDATING URL', url.toString())
   window.location.href = url.toString()
 }
