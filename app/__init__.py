@@ -53,6 +53,8 @@ sentry_sdk.init(
     # Add data like request headers and IP for users, if applicable;
     # see https://docs.sentry.io/platforms/python/data-management/data-collected/ for more info
     # send_default_pii=True,
+    debug=True,  # Temporary: to see what Sentry is doing
+    traces_sample_rate=1.0,  # Capture all transactions
 )
 
 # ### VIEWS
@@ -67,6 +69,33 @@ async def get_sector_identifier_url() -> Response[Any]:
 
 
 # ### DEV ENDPOINTS
+
+
+@get(path="/dev-utils/raise-to-sentry")
+async def _dev_raise_to_sentry() -> str:
+    # uv run --env-file .env --env-file .env.local python -c "
+    # import sentry_sdk
+    # from app import env
+
+    # # Initialize Sentry with your current config
+    # sentry_sdk.init(
+    #     dsn=env.SENTRY_DSN,
+    #     environment=env.SENTRY_ENV,
+    #     debug=True,
+    # )
+
+    # print('Sending test exception to Sentry...\n')
+    # try:
+    #     raise RuntimeError('Manual test exception from CLI - $(date)')
+    # except:
+    #     event_id = sentry_sdk.capture_exception()
+    #     print(f'\n=== EVENT ID: {event_id} ===')
+    #     print(f'Environment: {env.SENTRY_ENV}')
+    #     print(f'\nSearch in Sentry with: id:{event_id}')
+    # sentry_sdk.flush(timeout=5)
+    # "
+    _ = 1 / 0
+    return "Hello!"
 
 
 @get(path="/dev-utils/recipient-fc-hash")
@@ -182,6 +211,7 @@ def create_app() -> Litestar:
             UserController,
             get_sector_identifier_url,
             _dev_utils_recipient_fc_hash,
+            _dev_raise_to_sentry,
             _dev_utils_review_apps,
             _dev_health_db_pool,
             create_static_files_router(
