@@ -1,6 +1,7 @@
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 import WS from 'vitest-websocket-mock'
+import type { WS as WSType } from 'vitest-websocket-mock'
 import { render, screen, waitFor } from '@testing-library/svelte'
 import ConnectedHomepage from './ConnectedHomepage.svelte'
 import * as notificationsMethods from '$lib/notifications'
@@ -8,7 +9,7 @@ import { PUBLIC_API_WS_URL } from '$lib/notifications'
 import { PUBLIC_API_URL } from '$env/static/public'
 import { franceConnectLogout } from './france-connect'
 
-let wss: WS
+let wss: WSType
 
 describe('/ConnectedHomepage.svelte', () => {
   beforeEach(() => {
