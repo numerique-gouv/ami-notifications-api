@@ -22,7 +22,19 @@ export const callBAN = async (inputValue) => {
     const result = await response.json()
     console.log(result)
 
-    return formatResults(result)
+    if (
+      result.code === 400 &&
+      result.detail[0] ==
+        'q: must contain between 3 and 200 chars and start with a number or a letter' &&
+      result.message == 'Failed parsing query'
+    ) {
+      return { statusCode: 400 }
+    }
+
+    return {
+      statusCode: 200,
+      results: formatResults(result),
+    }
   } catch (error) {
     console.error(error)
   }

@@ -14,6 +14,7 @@ let timer
 let inputValue: string = $state('')
 let filteredAddresses: [Address] = $state([])
 let disabledButton: boolean = $state(true)
+let addressHasError: boolean = $state(false)
 let selectedAddress: Address = $state<Address>({
   city: '',
   context: '',
@@ -42,21 +43,28 @@ const debounce = (v) => {
 }
 
 const filterAddresses = async () => {
+  filteredAddresses = []
   if (inputValue) {
-    let results: [AddressFromBAN] = []
-    results = await callBAN(inputValue)
-    filteredAddresses = results.map(
-      (address: AddressFromBAN): Address => ({
-        city: address.city,
-        context: address.context,
-        idBAN: address.id,
-        label: address.label,
-        name: address.name,
-        postcode: address.postcode,
-      })
-    )
-  } else {
-    filteredAddresses = []
+    try {
+      const response = await callBAN(inputValue)
+      if (response.statusCode === 400) {
+        addressHasError = true
+      } else {
+        addressHasError = false
+        filteredAddresses = response.results.map(
+          (address: AddressFromBAN): Address => ({
+            city: address.city,
+            context: address.context,
+            idBAN: address.id,
+            label: address.label,
+            name: address.name,
+            postcode: address.postcode,
+          })
+        )
+      }
+    } catch (error) {
+      console.error(error)
+    }
   }
   console.log('filteredAddresses', $state.snapshot(filteredAddresses))
 }
@@ -119,7 +127,7 @@ const removeAddress = async () => {
     <form autocomplete="on" class="address-form">
       <fieldset class="fr-fieldset" aria-labelledby="text-legend text-messages">
         <div class="fr-fieldset__element">
-          <div class="fr-input-group autocomplete">
+          <div class="fr-input-group autocomplete {addressHasError ? 'fr-input-group--error' : ''}">
             <label class="fr-label" for="address-input">
               Adresse
             </label>
@@ -132,6 +140,11 @@ const removeAddress = async () => {
                    autocomplete="address-line1"
                    oninput={({ target: { value } }) => debounce(value)}
             >
+            {#if addressHasError}
+              <div class="fr-messages-group" aria-live="polite">
+                <p id="address-error" class="fr-message fr-message--error" data-testid="address-error">Merci d'indiquer une adresse valide. L'adresse doit contenir entre 3 et 200 caractères et commencer par un nombre ou une lettre.</p>
+              </div>
+            {/if}
           </div>
 
           {#if filteredAddresses.length > 0}

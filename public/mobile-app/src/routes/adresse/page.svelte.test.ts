@@ -32,8 +32,12 @@ describe('/+page.svelte', () => {
           postcode: '63190',
         },
       ]
+      const response = {
+        statusCode: 200,
+        results: addressesResultsFromBAN,
+      }
       return {
-        callBAN: vi.fn(() => addressesResultsFromBAN),
+        callBAN: vi.fn(() => response),
       }
     })
   })
