@@ -35,7 +35,6 @@ let submittedAddress: Address = $state<Address>({
 
 const debounce = (v) => {
   clearTimeout(timer)
-  console.log('debounce')
   timer = setTimeout(() => {
     inputValue = v
     filterAddresses()
@@ -66,12 +65,10 @@ const filterAddresses = async () => {
       console.error(error)
     }
   }
-  console.log('filteredAddresses', $state.snapshot(filteredAddresses))
 }
 
 const setInputVal = (address) => {
   selectedAddress = address
-  console.log('selectedAddress', $state.snapshot(selectedAddress))
   filteredAddresses = []
   inputValue = selectedAddress.label
   document.querySelector('#address-input').focus()
@@ -82,7 +79,6 @@ const submitAddress = async () => {
   hasSubmittedAddress = true
   submittedAddress = selectedAddress
   localStorage.setItem('user_address', JSON.stringify(submittedAddress))
-  console.log('submittedAddress', $state.snapshot(submittedAddress))
 }
 
 const removeAddress = async () => {
@@ -105,7 +101,6 @@ const removeAddress = async () => {
     postcode: '',
   }
   localStorage.setItem('user_address', '')
-  console.log('removeAddress')
 }
 </script>
 
