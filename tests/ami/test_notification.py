@@ -75,6 +75,14 @@ async def test_notify_send_ko_with_400_when_required_fields_are_missing(
                 "message": "Field required",
             },
             {
+                "key": "content_title",
+                "message": "Field required",
+            },
+            {
+                "key": "content_body",
+                "message": "Field required",
+            },
+            {
                 "key": "item_type",
                 "message": "Field required",
             },
@@ -92,14 +100,6 @@ async def test_notify_send_ko_with_400_when_required_fields_are_missing(
             },
             {
                 "key": "send_date",
-                "message": "Field required",
-            },
-            {
-                "key": "content_title",
-                "message": "Field required",
-            },
-            {
-                "key": "content_body",
                 "message": "Field required",
             },
         ],
@@ -189,11 +189,24 @@ async def test_get_notifications(
     response = test_client.get("/api/v1/users/notifications")
     assert response.status_code == HTTP_200_OK
     assert len(response.json()) == 1
-    assert response.json()[0]["user_id"] == str(notification.user.id)
-    assert response.json()[0]["message"] == notification.content_body
-    assert response.json()[0]["title"] == notification.content_title
-    assert response.json()[0]["sender"] == notification.sender
-    assert response.json()[0]["unread"] is True
+    assert response.json()[0] == {
+        "id": str(notification.id),
+        "user_id": str(notification.user.id),
+        "content_title": "Notification title",
+        "content_body": "Hello notification",
+        "content_icon": None,
+        "sender": "John Doe",
+        "item_type": None,
+        "item_id": None,
+        "item_status_label": None,
+        "item_generic_status": None,
+        "item_canal": None,
+        "item_milestone_start_date": None,
+        "item_milestone_end_date": None,
+        "item_external_url": None,
+        "send_date": notification.send_date.isoformat().replace("+00:00", "Z"),
+        "unread": True,
+    }
 
     response = test_client.get("/api/v1/users/notifications?unread=true")
     assert response.status_code == HTTP_200_OK
@@ -209,10 +222,6 @@ async def test_get_notifications(
     response = test_client.get("/api/v1/users/notifications")
     assert response.status_code == HTTP_200_OK
     assert len(response.json()) == 1
-    assert response.json()[0]["user_id"] == str(notification.user.id)
-    assert response.json()[0]["message"] == notification.content_body
-    assert response.json()[0]["title"] == notification.content_title
-    assert response.json()[0]["sender"] == notification.sender
     assert response.json()[0]["unread"] is False
 
     response = test_client.get("/api/v1/users/notifications?unread=true")
@@ -349,21 +358,30 @@ async def test_read_notification(
         json={"read": True},
     )
     assert response.status_code == HTTP_200_OK
-    assert response.json()["user_id"] == str(notification.user.id)
-    assert response.json()["message"] == notification.content_body
-    assert response.json()["title"] == notification.content_title
-    assert response.json()["sender"] == notification.sender
-    assert response.json()["unread"] is False
+    assert response.json() == {
+        "id": str(notification.id),
+        "user_id": str(notification.user.id),
+        "content_title": "Notification title",
+        "content_body": "Hello notification",
+        "content_icon": None,
+        "sender": "John Doe",
+        "item_type": None,
+        "item_id": None,
+        "item_status_label": None,
+        "item_generic_status": None,
+        "item_canal": None,
+        "item_milestone_start_date": None,
+        "item_milestone_end_date": None,
+        "item_external_url": None,
+        "send_date": notification.send_date.isoformat().replace("+00:00", "Z"),
+        "unread": False,
+    }
 
     response = test_client.patch(
         f"/api/v1/users/notification/{notification.id}/read",
         json={"read": False},
     )
     assert response.status_code == HTTP_200_OK
-    assert response.json()["user_id"] == str(notification.user.id)
-    assert response.json()["message"] == notification.content_body
-    assert response.json()["title"] == notification.content_title
-    assert response.json()["sender"] == notification.sender
     assert response.json()["unread"] is True
 
 

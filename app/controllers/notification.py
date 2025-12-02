@@ -188,7 +188,7 @@ class NotAuthenticatedNotificationController(Controller):
         users_service: UserService,
         user_id: uuid.UUID,
         unread: bool | None = None,
-    ) -> Sequence[schemas.Notification]:
+    ) -> Sequence[schemas.NotificationLegacy]:
         # XXX keep this endpoint for mobile-app compatibility; remove it when mobile-app use authenticated endpoint
         user: models.User | None = await users_service.get_one_or_none(id=user_id)
         if user is None:
@@ -205,10 +205,10 @@ class NotAuthenticatedNotificationController(Controller):
                 user=user,
             )
         # We could do:
-        # return notifications_service.to_schema(notifications, schema_type=schemas.Notification)
+        # return notifications_service.to_schema(notifications, schema_type=schemas.NotificationLegacy)
         # But it adds pagination.
         # For the moment, just return a list of dict
-        type_adapter = TypeAdapter(list[schemas.Notification])
+        type_adapter = TypeAdapter(list[schemas.NotificationLegacy])
         return type_adapter.validate_python(notifications)
 
     @post("/api/v1/notifications")

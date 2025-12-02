@@ -29,19 +29,39 @@ class ItemGenericStatus(Enum):
 class Notification(BaseModel):
     id: uuid.UUID
     user_id: uuid.UUID
-    title: str = Field(alias="content_title")
-    message: str = Field(alias="content_body")
+
+    content_title: str
+    content_body: str
+    content_icon: str | None
+
     sender: str
+
+    item_type: str | None
+    item_id: str | None
+    item_status_label: str | None
+    item_generic_status: ItemGenericStatus | None
+    item_canal: str | None
+    item_milestone_start_date: datetime.datetime | None
+    item_milestone_end_date: datetime.datetime | None
+    item_external_url: str | None
+
+    send_date: datetime.datetime
+
     unread: bool
-    created_at: datetime.datetime
 
 
 class NotificationCreate(BaseModel):
     recipient_fc_hash: str = Field(
         description="Hash de la concaténation des données pivot FC de l'usager destinataire, cf doc"
     )
-    # Dans AMI, on stocke la liste des partenaires et leur clé d'API (en base ou en variables d'env)
-    # Dans la table Notifications, il y a le partenaire émetteur
+
+    content_title: str = Field(description="Titre de la notification")
+    content_body: str = Field(description="Contenu de la notification")
+    content_icon: str | None = Field(
+        default="otv_default_icon",
+        description="Nom technique de l'icône à associer à la notification dans l'application AMI, à choisir dans https://remixicon.com/",
+    )
+
     item_type: str = Field(
         description="Champ libre représentant le type de l'objet associé à la notification, "
         'par exemple : "OTV" dans le cas des démarches "Opération Tranquillité Vacances"'
@@ -73,18 +93,14 @@ class NotificationCreate(BaseModel):
         default=None,
         description="Lien vers le portail du partenaire de l'objet associé à la notification",
     )
+
     send_date: datetime.datetime = Field(
         description="Date (au format ISO 8601) d'émission de la notification côté partenaire"
     )
+
     try_push: bool | None = Field(
         default=True,
         description="Indique si le système doit essayer de déclencher une Notification Push sur les terminaux de l'usager",
-    )
-    content_title: str = Field(description="Titre de la notification")
-    content_body: str = Field(description="Contenu de la notification")
-    content_icon: str | None = Field(
-        default="otv_default_icon",
-        description="Nom technique de l'icône à associer à la notification dans l'application AMI, à choisir dans https://remixicon.com/",
     )
 
 
@@ -102,6 +118,16 @@ class AdminNotificationCreate(BaseModel):
     content_title: str = Field(min_length=1, alias="title")
     content_body: str = Field(min_length=1, alias="message")
     sender: str = Field(min_length=1)
+
+
+class NotificationLegacy(BaseModel):
+    id: uuid.UUID
+    user_id: uuid.UUID
+    title: str = Field(alias="content_title")
+    message: str = Field(alias="content_body")
+    sender: str
+    unread: bool
+    created_at: datetime.datetime
 
 
 class Registration(BaseModel):
