@@ -1,8 +1,6 @@
 <script lang="ts">
 import { type AddressFromBAN, callBAN } from './addressesFromBAN'
 
-// TODO: essayer avec l'autocomplete
-
 type Address = {
   city: string
   context: string
@@ -118,7 +116,7 @@ const removeAddress = async () => {
   <div class="address-content-container">
     <p>Pour <strong>personnaliser</strong> votre expérience, renseigner l'adresse de votre <strong>résidence principale.</p>
 
-    <form autocomplete="off" class="address-form">
+    <form autocomplete="on" class="address-form">
       <fieldset class="fr-fieldset" aria-labelledby="text-legend text-messages">
         <div class="fr-fieldset__element">
           <div class="fr-input-group autocomplete">
@@ -131,6 +129,7 @@ const removeAddress = async () => {
                    type="text"
                    bind:value={inputValue}
                    data-testid="address-input"
+                   autocomplete="address-line1"
                    oninput={({ target: { value } }) => debounce(value)}
             >
           </div>
