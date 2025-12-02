@@ -95,6 +95,8 @@ describe('/+page.svelte', () => {
 
   test('should display selected address in page when user clicks on Save button', async () => {
     // Given
+    window.localStorage.setItem('user_address', '')
+
     render(Page)
     const addressInput = screen.getByTestId('address-input')
     await fireEvent.input(addressInput, {
@@ -123,6 +125,9 @@ describe('/+page.svelte', () => {
     const adressWrapper = screen.getByTestId('selected-address-wrapper')
     expect(adressWrapper).toHaveTextContent(
       'Votre résidence principale 23 Rue des Aubépines 94310 Orly'
+    )
+    expect(window.localStorage.getItem('user_address')).toEqual(
+      '{"city":"Orly","context":"94, Val-de-Marne, Île-de-France","label":"23 Rue des Aubépines 94310 Orly","name":"23 Rue des Aubépines","postcode":"94310"}'
     )
   })
 })
