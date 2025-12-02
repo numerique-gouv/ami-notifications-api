@@ -8,7 +8,6 @@ import * as notificationsMethods from '$lib/notifications'
 import * as agendaMethods from '$lib/agenda'
 import { Agenda, Item } from '$lib/agenda'
 import { PUBLIC_API_WS_URL } from '$lib/notifications'
-import { PUBLIC_API_URL } from '$env/static/public'
 import { franceConnectLogout } from './france-connect'
 
 let wss: WSType
@@ -50,6 +49,7 @@ describe('/ConnectedHomepage.svelte', () => {
 
     vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(new Agenda([]))
 
+    window.localStorage.setItem('user_address', '')
     window.localStorage.setItem('notifications_enabled', 'false')
     window.localStorage.setItem('user_data', 'fake-user-data')
     window.localStorage.setItem('emailLocalStorage', 'test@email.fr')
@@ -212,6 +212,34 @@ describe('/ConnectedHomepage.svelte', () => {
       expect(menu).toHaveTextContent('Recevoir des notifications sur ce terminal')
       expect(window.localStorage.getItem('notifications_enabled')).toBe('false')
     })
+  })
+
+  test('should display address block when user address is not known', async () => {
+    // Given
+    window.localStorage.setItem('user_address', '')
+
+    // When
+    const { container } = render(ConnectedHomepage)
+    await new Promise(setTimeout) // wait for async calls
+
+    // Then
+    const addressBlock = container.querySelector('.first-block-container')
+    expect(addressBlock).toHaveTextContent(
+      'Gagner du temps en renseignant votre adresse une seule fois'
+    )
+  })
+
+  test('should not display address block when user address is known', async () => {
+    // Given
+    window.localStorage.setItem('user_address', '26 rue Desaix 75015 Paris')
+
+    // When
+    const { container } = render(ConnectedHomepage)
+    await new Promise(setTimeout) // wait for async calls
+
+    // Then
+    const addressBlock = container.querySelector('.first-block-container')
+    expect(addressBlock).toBeNull()
   })
 
   test('Should display first holiday found from API', async () => {
