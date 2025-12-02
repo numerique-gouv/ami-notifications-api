@@ -75,6 +75,7 @@ const setInputVal = (address) => {
 const submitAddress = async () => {
   hasSubmittedAddress = true
   submittedAddress = selectedAddress
+  localStorage.setItem('user_address', JSON.stringify(submittedAddress))
   console.log('submittedAddress', $state.snapshot(submittedAddress))
 }
 
@@ -97,6 +98,7 @@ const removeAddress = async () => {
     name: '',
     postcode: '',
   }
+  localStorage.setItem('user_address', '')
   console.log('removeAddress')
 }
 </script>
