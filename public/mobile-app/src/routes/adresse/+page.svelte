@@ -14,6 +14,7 @@ let timer
 let inputValue: string = $state('')
 let filteredAddresses: [Address] = $state([])
 let disabledButton: boolean = $state(true)
+let addressHasError: boolean = $state(false)
 let selectedAddress: Address = $state<Address>({
   city: '',
   context: '',
@@ -42,21 +43,28 @@ const debounce = (v) => {
 }
 
 const filterAddresses = async () => {
+  filteredAddresses = []
   if (inputValue) {
-    let results: [AddressFromBAN] = []
-    results = await callBAN(inputValue)
-    filteredAddresses = results.map(
-      (address: AddressFromBAN): Address => ({
-        city: address.city,
-        context: address.context,
-        idBAN: address.id,
-        label: address.label,
-        name: address.name,
-        postcode: address.postcode,
-      })
-    )
-  } else {
-    filteredAddresses = []
+    try {
+      const response = await callBAN(inputValue)
+      if (response.statusCode === 400) {
+        addressHasError = true
+      } else {
+        addressHasError = false
+        filteredAddresses = response.results.map(
+          (address: AddressFromBAN): Address => ({
+            city: address.city,
+            context: address.context,
+            idBAN: address.id,
+            label: address.label,
+            name: address.name,
+            postcode: address.postcode,
+          })
+        )
+      }
+    } catch (error) {
+      console.error(error)
+    }
   }
   console.log('filteredAddresses', $state.snapshot(filteredAddresses))
 }
@@ -133,6 +141,9 @@ const removeAddress = async () => {
                    oninput={({ target: { value } }) => debounce(value)}
             >
           </div>
+          {#if addressHasError}
+            <p id="address-error" data-testid="address-error">Merci d'indiquer une adresse valide. L'adresse doit contenir entre 3 et 200 caractères et commencer par un nombre ou une lettre.</p>
+          {/if}
 
           {#if filteredAddresses.length > 0}
             <ul id="autocomplete-items-list">
@@ -219,6 +230,10 @@ const removeAddress = async () => {
 
         .fr-input-group:not(:last-child) {
           margin-bottom: 0;
+        }
+
+        #address-error {
+          color: red;
         }
 
         ul#autocomplete-items-list {

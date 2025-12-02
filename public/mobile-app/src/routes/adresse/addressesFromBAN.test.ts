@@ -78,12 +78,37 @@ describe('addressesFromBAN.ts', () => {
       )
 
       // When
-      const result = await callBAN('23 rue des aubépines orl')
-
+      const response = await callBAN('23 rue des aubépines orl')
       await new Promise(setTimeout) // wait for async calls
 
       // Then
-      expect(result).toStrictEqual(expectedResult)
+      expect(response.statusCode).toBe(200)
+      expect(response.results).toStrictEqual(expectedResult)
+    })
+
+    test('should call BAN endpoint and return error when query is not valid', async () => {
+      // Given
+      const responseFromBAN = {
+        code: 400,
+        detail: [
+          'q: must contain between 3 and 200 chars and start with a number or a letter',
+        ],
+        message: 'Failed parsing query',
+      }
+
+      globalThis.fetch = vi.fn(() =>
+        Promise.resolve({
+          status: 200,
+          json: () => responseFromBAN,
+        })
+      )
+
+      // When
+      const response = await callBAN('23')
+      await new Promise(setTimeout) // wait for async calls
+
+      // Then
+      expect(response.statusCode).toBe(400)
     })
   })
 })
