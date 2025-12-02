@@ -181,7 +181,7 @@ class NotAuthenticatedNotificationController(Controller):
             }
         )
 
-    @get("/api/v1/users/{user_id:uuid}/notifications")
+    @get("/api/v1/users/{user_id:uuid}/notifications", include_in_schema=False)
     async def list_notifications(
         self,
         notifications_service: NotificationService,
