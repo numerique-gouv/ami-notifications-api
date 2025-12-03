@@ -1,4 +1,5 @@
 <script lang="ts">
+import { goto } from '$app/navigation'
 import { onMount } from 'svelte'
 import {
   countUnreadNotifications,
@@ -83,6 +84,10 @@ const clickEnableNotifications = async () => {
 const clickDisableNotifications = async () => {
   await updateNotificationsEnabled(false)
 }
+
+const goToProfile = async () => {
+  goto('/#/profil')
+}
 </script>
 
 <div class="homepage-connected">
@@ -111,6 +116,14 @@ const clickDisableNotifications = async () => {
 
   <div class="menu {isMenuDisplayed ? '' : 'is-hidden'}">
     <div class="container">
+      <button
+          class="profile"
+          type="button"
+          onclick={goToProfile}
+      >
+        <Icon className="fr-mr-2v" href="/remixicons/user-line.svg" />
+        Mon profil
+      </button>
       {#if notificationsEnabled}
         <button
             type="button"
