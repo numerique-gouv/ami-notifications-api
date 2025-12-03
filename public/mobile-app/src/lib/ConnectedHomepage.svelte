@@ -13,6 +13,7 @@ import type { Agenda } from '$lib/agenda'
 import AgendaItem from '$lib/AgendaItem.svelte'
 import { userStore } from '$lib/state/User.svelte'
 import type { UserInfo } from '$lib/state/User.svelte'
+import Icon from '$lib/Icon.svelte'
 
 let quotientinfo: Object = $state({})
 let unreadNotificationsCount: number = $state(0)
@@ -116,6 +117,7 @@ const clickDisableNotifications = async () => {
             onclick={clickDisableNotifications}
             data-testid="disable-notifications"
         >
+          <Icon className="fr-mr-2v" href="/remixicons/settings-3-line.svg" />
           Ne plus recevoir de notifications sur ce terminal
         </button>
       {:else}
@@ -124,6 +126,7 @@ const clickDisableNotifications = async () => {
             onclick={clickEnableNotifications}
             data-testid="enable-notifications"
         >
+          <Icon className="fr-mr-2v" href="/remixicons/settings-3-line.svg" />
           Recevoir des notifications sur ce terminal
         </button>
       {/if}
@@ -133,7 +136,8 @@ const clickDisableNotifications = async () => {
           type="button"
           onclick={userStore.logout}
       >
-        <span>Me déconnecter</span>
+        <Icon className="fr-mr-2v" href="/remixicons/shut-down-line.svg" />
+        Me déconnecter
       </button>
     </div>
   </div>
@@ -320,6 +324,9 @@ const clickDisableNotifications = async () => {
         align-items: start;
 
         button {
+          align-items: center;
+          display: flex;
+          flex-direction: row;
           padding: 8px 12px;
 
           font-size: 14px;
