@@ -121,7 +121,7 @@ const goToProfile = async () => {
           type="button"
           onclick={goToProfile}
       >
-        <Icon className="fr-mr-2v" href="/remixicons/user-line.svg" />
+        <Icon className="fr-mr-2v" color="var(--text-active-blue-france)" href="/remixicons/user-line.svg" />
         Mon profil
       </button>
       {#if notificationsEnabled}
@@ -130,7 +130,7 @@ const goToProfile = async () => {
             onclick={clickDisableNotifications}
             data-testid="disable-notifications"
         >
-          <Icon className="fr-mr-2v" href="/remixicons/settings-3-line.svg" />
+          <Icon className="fr-mr-2v" color="var(--text-active-blue-france)" href="/remixicons/settings-3-line.svg" />
           Ne plus recevoir de notifications sur ce terminal
         </button>
       {:else}
@@ -139,7 +139,7 @@ const goToProfile = async () => {
             onclick={clickEnableNotifications}
             data-testid="enable-notifications"
         >
-          <Icon className="fr-mr-2v" href="/remixicons/settings-3-line.svg" />
+          <Icon className="fr-mr-2v" color="var(--text-active-blue-france)" href="/remixicons/settings-3-line.svg" />
           Recevoir des notifications sur ce terminal
         </button>
       {/if}
@@ -149,7 +149,7 @@ const goToProfile = async () => {
           type="button"
           onclick={userStore.logout}
       >
-        <Icon className="fr-mr-2v" href="/remixicons/shut-down-line.svg" />
+        <Icon className="fr-mr-2v" color="var(--text-active-blue-france)" href="/remixicons/shut-down-line.svg" />
         Me déconnecter
       </button>
     </div>
@@ -344,6 +344,9 @@ const goToProfile = async () => {
 
           font-size: 14px;
           line-height: 24px;
+          .icon {
+            background-color: var(--text-active-blue-france);
+          }
         }
       }
     }
