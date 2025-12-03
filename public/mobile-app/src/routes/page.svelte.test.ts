@@ -34,7 +34,7 @@ describe('/+page.svelte', () => {
     globalThis.window = originalWindow
   })
 
-  test('should render France Connect button', async () => {
+  test('should render FranceConnect button', async () => {
     // Given
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(
       new Response(JSON.stringify(userinfo), { status: 200 })
@@ -52,7 +52,7 @@ describe('/+page.svelte', () => {
     })
   })
 
-  test('should call authorize endpoint when click on France Connect login button', async () => {
+  test('should call authorize endpoint when click on FranceConnect login button', async () => {
     // Given
     vi.stubGlobal('location', { href: 'fake-link' })
 

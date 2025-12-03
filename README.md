@@ -144,7 +144,7 @@ make build-app
 
 ### User connection
 
-We're using France Connect to identify and authorize users, check the
+We're using FranceConnect to identify and authorize users, check the
 [CONTRIBUTING.md](CONTRIBUTING.md) file for more information on how to use it
 locally during development.
 
