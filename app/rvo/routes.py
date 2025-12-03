@@ -125,13 +125,13 @@ async def login_callback(
 ) -> Response[Any]:
     if error or not code:
         if error == "access_denied" and error_description == "User auth aborted":
-            # The user has aborted the France Connection, don't display any error message.
+            # The user has aborted the FranceConnection, don't display any error message.
             return Redirect("/rvo")
 
         return Redirect(
             "/rvo",
             query_params={
-                "error": error or "Erreur lors de la France Connexion",
+                "error": error or "Erreur lors de la FranceConnexion",
                 "error_description": error_description or "",
             },
         )
@@ -139,7 +139,7 @@ async def login_callback(
     # Validate that the STATE is coherent with the one we sent to FC
     if not fc_state or fc_state != request.session.get("state", ""):
         params: dict[str, str] = {
-            "error": "Erreur lors de la France Connexion",
+            "error": "Erreur lors de la FranceConnexion",
             "error_description": "Veuillez réessayer plus tard.",
         }
         return Redirect("/rvo", query_params=params)
@@ -182,7 +182,7 @@ async def login_callback(
     # Validate that the NONCE is coherent with the one we sent to FC
     if "nonce" not in decoded_token or decoded_token["nonce"] != request.session.get("nonce", ""):
         params: dict[str, str] = {
-            "error": "Erreur lors de la France Connexion",
+            "error": "Erreur lors de la FranceConnexion",
             "error_description": "Veuillez réessayer plus tard.",
         }
         return Redirect("/rvo", query_params=params)

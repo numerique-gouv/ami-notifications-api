@@ -37,7 +37,7 @@ onMount(async () => {
       localStorage.clear()
     }
     if (error == 'access_denied' && error_description == 'User auth aborted') {
-      // The user has aborted the France Connection, don't display any error message.
+      // The user has aborted the FranceConnection, don't display any error message.
       error = ''
       error_description = ''
     }
@@ -126,7 +126,7 @@ function dismissError() {
     </div>
 
     <div class="france-connect-text">
-      <p>Pour pouvoir accéder à <strong>vos droits, à des conseils, et aux échéances</strong> liées à votre situation personnelle, veuillez vous connecter via <strong>France Connect</strong>.</p>
+      <p>Pour pouvoir accéder à <strong>vos droits, à des conseils, et aux échéances</strong> liées à votre situation personnelle, veuillez vous connecter via <strong>FranceConnect</strong>.</p>
       <p class="fr-text--sm">FranceConnect est la solution proposée par l’État pour sécuriser et simplifier la connexion à vos services en ligne.</p>
     </div>
 
