@@ -206,14 +206,6 @@ function dismissError() {
 
       .fr-connect-group {
         text-align: center;
-        width: 100%;
-
-        .fr-connect {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          width: 100%;
-        }
       }
     }
   }
