@@ -8,7 +8,7 @@ describe('/france-connect', () => {
   })
 
   describe('franceConnectLogout', () => {
-    test('should call logout endpoint when click on France Connect logout button', async () => {
+    test('should call logout endpoint when click on FranceConnect logout button', async () => {
       // Given
       vi.stubGlobal('location', { href: 'http://example.com' })
 

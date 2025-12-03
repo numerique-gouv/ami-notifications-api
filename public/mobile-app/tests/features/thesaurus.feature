@@ -1,6 +1,6 @@
 # language: fr
 
-Fonctionnalité: France Connect
+Fonctionnalité: FranceConnect
 
     Scénario: usager enregistré
         Etant donné que l'usager "Camille" est enregistrée

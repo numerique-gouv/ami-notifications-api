@@ -10,7 +10,7 @@ def retry_fc_later(error_dict: dict[str, str] | None = None) -> Response[dict[st
     if not error_dict:
         error_dict = {}
     params: dict[str, str] = {
-        "error": "Erreur lors de la France Connexion, veuillez réessayer plus tard.",
+        "error": "Erreur lors de la FranceConnexion, veuillez réessayer plus tard.",
         "error_type": "FranceConnect",
         **error_dict,
     }

@@ -152,7 +152,7 @@ async def test_login_callback_token_query_failure(
     redirected_url = response.headers["location"]
     assert (
         redirected_url
-        == "https://localhost:5173/?error=Erreur+lors+de+la+France+Connexion%2C+veuillez+r%C3%A9essayer+plus+tard.&error_type=FranceConnect"
+        == "https://localhost:5173/?error=Erreur+lors+de+la+FranceConnexion%2C+veuillez+r%C3%A9essayer+plus+tard.&error_type=FranceConnect"
     )
 
 
@@ -170,7 +170,7 @@ async def test_login_callback_bad_state(
     redirected_url = response.headers["location"]
     assert url_contains_param("error_type", "FranceConnect", redirected_url)
     assert url_contains_param(
-        "error", "Erreur lors de la France Connexion, veuillez réessayer plus tard.", redirected_url
+        "error", "Erreur lors de la FranceConnexion, veuillez réessayer plus tard.", redirected_url
     )
     assert url_contains_param("code", "missing_state", redirected_url)
 
@@ -181,7 +181,7 @@ async def test_login_callback_bad_state(
     redirected_url = response.headers["location"]
     assert url_contains_param("error_type", "FranceConnect", redirected_url)
     assert url_contains_param(
-        "error", "Erreur lors de la France Connexion, veuillez réessayer plus tard.", redirected_url
+        "error", "Erreur lors de la FranceConnexion, veuillez réessayer plus tard.", redirected_url
     )
     assert url_contains_param("code", "invalid_state", redirected_url)
 
@@ -192,7 +192,7 @@ async def test_login_callback_bad_state(
     redirected_url = response.headers["location"]
     assert url_contains_param("error_type", "FranceConnect", redirected_url)
     assert url_contains_param(
-        "error", "Erreur lors de la France Connexion, veuillez réessayer plus tard.", redirected_url
+        "error", "Erreur lors de la FranceConnexion, veuillez réessayer plus tard.", redirected_url
     )
     assert url_contains_param("code", "invalid_state", redirected_url)
 
@@ -242,7 +242,7 @@ async def test_login_callback_bad_nonce(
     redirected_url = response.headers["location"]
     assert url_contains_param("error_type", "FranceConnect", redirected_url)
     assert url_contains_param(
-        "error", "Erreur lors de la France Connexion, veuillez réessayer plus tard.", redirected_url
+        "error", "Erreur lors de la FranceConnexion, veuillez réessayer plus tard.", redirected_url
     )
     assert url_contains_param("code", "invalid_nonce", redirected_url)
     all_nonces = (await db_session.execute(select(Nonce))).scalars().all()
