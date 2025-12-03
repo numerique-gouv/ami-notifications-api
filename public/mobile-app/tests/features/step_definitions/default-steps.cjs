@@ -4,7 +4,7 @@ const { Given,
 } = require('@cucumber/cucumber');
 
 Given(
-	"l'usager se connecte sur AMI via France Connect en tant que {string} et suit le process de france connexion",
+	"l'usager se connecte sur AMI via FranceConnect en tant que {string} et suit le process de FranceConnexion",
 	function (s) {
 		// Write code here that turns the phrase above into concrete actions
 	}

@@ -205,9 +205,9 @@ To run a single test, you would use something like:
 uv run --env-file .env --env-file .env.local pytest tests/test_basic.py::test_homepage_title
 ```
 
-## France Connect
+## FranceConnect
 
-We're using [France Connect](https://docs.partenaires.franceconnect.gouv.fr/)
+We're using [FranceConnect](https://docs.partenaires.franceconnect.gouv.fr/)
 to identify and authorize users. During development and on the CI, we have a
 sandbox available, with the URLs and Client ID specified in the `.env` file,
 and the secrets need to be specified in the `.env.local`.
@@ -216,16 +216,16 @@ The Client Secret however, is... well, secret, and is available on the sandbox
 [partner's page](https://espace.partenaires.franceconnect.gouv.fr).
 
 You'll need to request access to this partner's page and/or ask us for the
-Client Secret before being able to France Connect locally while developping.
+Client Secret before being able to FranceConnect locally while developping.
 
-At the moment, France Connect is only used in a "test Service provider"
+At the moment, FranceConnect is only used in a "test Service provider"
 scenario:
 
 ### AMI as a Service Provider
 
-- the France Connect button is displayed in the mobile app/PWA
-- clicking on it will start the France connection, by redirecting to the AMI
-backend, which will then redirect to the France Connect service
+- the FranceConnect button is displayed in the mobile app/PWA
+- clicking on it will start the FranceConnection, by redirecting to the AMI
+backend, which will then redirect to the FranceConnect service
 - check the [FC demo users](https://github.com/france-connect/sources/blob/main/docker/volumes/fcp-low/mocks/idp/databases/citizen/base.csv)
 for some demo credentials
 - at the end of the connection, if successful, the user will be redirected to
@@ -235,8 +235,8 @@ will finally be returned to the mobile app through a redirection.
 
 ### The test Service Provider scenario: Rendez-Vous Officiel (RVO)
 
-- the France Connect button is displayed on `/rvo`
-- clicking on it will start the France connection, by redirecting to the France
+- the FranceConnect button is displayed on `/rvo`
+- clicking on it will start the FranceConnection, by redirecting to the France
 Connect service
 - check the [FC demo users](https://github.com/france-connect/sources/blob/main/docker/volumes/fcp-low/mocks/idp/databases/citizen/base.csv)
 for some demo credentials
