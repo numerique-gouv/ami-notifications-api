@@ -13,6 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app import env
 from app.auth import generate_nonce, jwt_cookie_auth
 from app.models import Nonce, User
+from app.utils import ami_hash
 from tests.ami.utils import assert_query_fails_without_auth, login
 from tests.utils import url_contains_param
 
@@ -299,6 +300,7 @@ async def test_fc_get_userinfo(
     }
 
     assert user.fc_hash == "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060"
+    assert user.already_seen is True
 
     response = test_client.get("/fc_userinfo", headers=auth)
 
@@ -310,6 +312,56 @@ async def test_fc_get_userinfo(
     assert "authorization" in response.headers
     assert "set-cookie" in response.headers
     assert response.cookies.get(jwt_cookie_auth.key)
+
+
+async def test_fc_get_userinfo_user_never_seen(
+    test_client: TestClient[Litestar],
+    db_session: AsyncSession,
+    httpx_mock: HTTPXMock,
+    monkeypatch: pytest.MonkeyPatch,
+    userinfo: dict[str, Any],
+) -> None:
+    fake_userinfo_token = "fake userinfo jwt token"
+    auth = {"authorization": "Bearer foobar_access_token"}
+    httpx_mock.add_response(
+        method="GET",
+        url="https://fcp-low.sbx.dev-franceconnect.fr/api/v2/userinfo",
+        match_headers=auth,
+        text=fake_userinfo_token,
+        is_reusable=True,
+    )
+
+    fc_hash = ami_hash(
+        given_name=userinfo["given_name"],
+        family_name=userinfo["family_name"],
+        birthdate=userinfo["birthdate"],
+        gender=userinfo["gender"],
+        birthplace=userinfo["birthplace"],
+        birthcountry=userinfo["birthcountry"],
+    )
+    user = User(fc_hash=fc_hash, already_seen=False)
+    db_session.add(user)
+    await db_session.commit()
+
+    def fake_jwt_decode(*args: Any, **params: Any):
+        return userinfo
+
+    monkeypatch.setattr("jwt.decode", fake_jwt_decode)
+
+    response = test_client.get("/fc_userinfo", headers=auth)
+
+    assert response.status_code == 200
+    all_users = (await db_session.execute(select(User))).scalars().all()
+    assert len(all_users) == 1
+    assert all_users[0].id == user.id
+    await db_session.refresh(user)
+    assert json.loads(response.text) == {
+        "user_id": str(user.id),
+        "user_data": fake_userinfo_token,
+    }
+
+    assert user.fc_hash == "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060"
+    assert user.already_seen is True
 
 
 async def test_logout(

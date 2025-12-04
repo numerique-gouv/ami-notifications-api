@@ -20,6 +20,8 @@ class User(Base):
     __tablename__ = "ami_user"  # type: ignore
 
     fc_hash: Mapped[str] = mapped_column(unique=True)
+    already_seen: Mapped[bool] = mapped_column(default=True)
+
     registrations: Mapped[list["Registration"]] = relationship(back_populates="user")
     notifications: Mapped[list["Notification"]] = relationship(back_populates="user")
 
