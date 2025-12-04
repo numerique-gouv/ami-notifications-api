@@ -14,6 +14,7 @@ import { onMount } from 'svelte'
 import { page } from '$app/state'
 import { goto } from '$app/navigation'
 import applicationSvg from '@gouvfr/dsfr/dist/artwork/pictograms/digital/application.svg'
+import { userStore } from '$lib/state/User.svelte'
 
 let isFranceConnected: boolean | null = $state(null)
 let isLoggedOut: boolean = $state(false)
@@ -22,6 +23,11 @@ let error_description: string = $state('')
 
 onMount(async () => {
   isFranceConnected = await checkAuth()
+  if (!isFranceConnected && userStore.isConnected()) {
+    // For some reason the frontend is still connected, but the API has disconnected the user.
+    await userStore.logout()
+    goto('/')
+  }
   try {
     if (page.url.searchParams.has('error')) {
       error = page.url.searchParams.get('error') || ''
