@@ -1,3 +1,4 @@
+import datetime
 import uuid
 
 import pytest
@@ -8,40 +9,108 @@ from litestar.status_codes import (
     HTTP_201_CREATED,
     HTTP_400_BAD_REQUEST,
     HTTP_404_NOT_FOUND,
-    HTTP_500_INTERNAL_SERVER_ERROR,
 )
 from litestar.testing import TestClient
-from sqlalchemy import select
+from pytest_httpx import HTTPXMock
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth import jwt_cookie_auth
-from app.models import Notification, User
+from app.models import Notification, Registration, User
 from tests.ami.utils import assert_query_fails_without_auth, login
 
 
-async def test_create_notification_send_ok_with_200(
+async def test_create_notification(
     test_client: TestClient[Litestar],
+    db_session: AsyncSession,
+    notification: Notification,
+    registration: Registration,
+    httpx_mock: HTTPXMock,
 ) -> None:
+    # Make sure we don't even try sending a notification to a push server.
+    httpx_mock.add_response(url=registration.subscription["endpoint"])
     notification_data = {
-        "recipient_fc_hash": "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060",
+        "recipient_fc_hash": registration.user.fc_hash,
+        "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
+        "content_body": "Merci d'avoir initié votre demande",
+        "content_icon": "foo",
         "item_type": "OTV",
         "item_id": "A-5-JGBJ5VMOY",
         "item_status_label": "Brouillon",
         "item_generic_status": "new",
+        "item_milestone_start_date": "2025-12-26T23:00:00.000Z",
+        "item_milestone_end_date": "2026-01-02T23:00:00.000Z",
+        "item_external_url": "http://otv/a-5-jgbj5vmoy",
+        "item_canal": "ami",
         "send_date": "2025-11-27T10:55:00.000Z",
-        "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
-        "content_body": "Merci d'avoir initié votre demande",
+        "try_push": True,
     }
     response = test_client.post("/api/v1/notifications", json=notification_data)
     assert response.status_code == HTTP_201_CREATED
+    all_notifications = (await db_session.execute(select(Notification))).scalars().all()
+    assert len(all_notifications) == 2
+    notification2 = all_notifications[1]
+    assert notification2.user.id == registration.user.id
+    assert notification2.content_body == "Merci d'avoir initié votre demande"
+    assert notification2.content_title == "Brouillon de nouvelle demande de démarche d'OTV"
+    assert notification2.content_icon == "foo"
+    assert notification2.item_type == "OTV"
+    assert notification2.item_id == "A-5-JGBJ5VMOY"
+    assert notification2.item_status_label == "Brouillon"
+    assert notification2.item_generic_status == "new"
+    assert notification2.item_milestone_start_date == datetime.datetime(
+        2025, 12, 26, 23, 0, tzinfo=datetime.timezone.utc
+    )
+    assert notification2.item_milestone_end_date == datetime.datetime(
+        2026, 1, 2, 23, 0, tzinfo=datetime.timezone.utc
+    )
+    assert notification2.item_external_url == "http://otv/a-5-jgbj5vmoy"
+    assert notification2.item_canal == "ami"
+    assert notification2.send_date == datetime.datetime(
+        2025, 11, 27, 10, 55, tzinfo=datetime.timezone.utc
+    )
+    assert notification2.sender == "TODO"
+    assert notification2.unread is True
     assert response.json() == {
-        "notification_id": "43847a2f-0b26-40a4-a452-8342a99a10a8",
+        "notification_id": str(notification2.id),
         "notification_send_status": True,
     }
+    assert httpx_mock.get_request()
 
 
-async def test_create_notification_send_ko_with_200_and_notification_send_status_to_false(
+async def test_create_notification_dont_try_push(
     test_client: TestClient[Litestar],
+    db_session: AsyncSession,
+    registration: Registration,
+    httpx_mock: HTTPXMock,
+) -> None:
+    notification_data = {
+        "recipient_fc_hash": registration.user.fc_hash,
+        "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
+        "content_body": "Merci d'avoir initié votre demande",
+        "content_icon": "foo",
+        "item_type": "OTV",
+        "item_id": "A-5-JGBJ5VMOY",
+        "item_status_label": "Brouillon",
+        "item_generic_status": "new",
+        "item_milestone_start_date": "2025-12-26T23:00:00.000Z",
+        "item_milestone_end_date": "2026-01-02T23:00:00.000Z",
+        "item_external_url": "http://otv/a-5-jgbj5vmoy",
+        "item_canal": "ami",
+        "send_date": "2025-11-27T10:55:00.000Z",
+        "try_push": False,
+    }
+    response = test_client.post("/api/v1/notifications", json=notification_data)
+    assert response.status_code == HTTP_201_CREATED
+    notification_count = (await db_session.execute(select(func.count()).select_from(User))).scalar()
+    assert notification_count == 1
+    assert not httpx_mock.get_request()
+
+
+async def test_create_notification_user_does_not_exist(
+    test_client: TestClient[Litestar],
+    db_session: AsyncSession,
+    httpx_mock: HTTPXMock,
 ) -> None:
     notification_data = {
         "recipient_fc_hash": "unknown_hash",
@@ -55,10 +124,140 @@ async def test_create_notification_send_ko_with_200_and_notification_send_status
     }
     response = test_client.post("/api/v1/notifications", json=notification_data)
     assert response.status_code == HTTP_201_CREATED
+    all_users = (await db_session.execute(select(User))).scalars().all()
+    assert len(all_users) == 1
+    user = all_users[0]
+    assert user.fc_hash == "unknown_hash"
+    assert user.already_seen is False
+    all_notifications = (await db_session.execute(select(Notification))).scalars().all()
+    assert len(all_notifications) == 1
+    notification = all_notifications[0]
+    assert notification.user.id == user.id
+    assert notification.content_body == "Merci d'avoir initié votre demande"
+    assert notification.content_title == "Brouillon de nouvelle demande de démarche d'OTV"
+    assert notification.content_icon == "otv_default_icon"
+    assert notification.item_type == "OTV"
+    assert notification.item_id == "A-5-JGBJ5VMOY"
+    assert notification.item_status_label == "Brouillon"
+    assert notification.item_generic_status == "new"
+    assert notification.item_milestone_start_date is None
+    assert notification.item_milestone_end_date is None
+    assert notification.item_external_url is None
+    assert notification.item_canal is None
+    assert notification.send_date == datetime.datetime(
+        2025, 11, 27, 10, 55, tzinfo=datetime.timezone.utc
+    )
+    assert notification.sender == "TODO"
+    assert notification.unread is True
     assert response.json() == {
-        "notification_id": "43847a2f-0b26-40a4-a452-8342a99a10a8",
+        "notification_id": str(notification.id),
         "notification_send_status": False,
     }
+    assert not httpx_mock.get_request()
+
+
+async def test_create_notification_user_never_seen(
+    test_client: TestClient[Litestar],
+    db_session: AsyncSession,
+    never_seen_user: User,
+    registration: Registration,
+    httpx_mock: HTTPXMock,
+) -> None:
+    notification_data = {
+        "recipient_fc_hash": never_seen_user.fc_hash,
+        "item_type": "OTV",
+        "item_id": "A-5-JGBJ5VMOY",
+        "item_status_label": "Brouillon",
+        "item_generic_status": "new",
+        "send_date": "2025-11-27T10:55:00.000Z",
+        "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
+        "content_body": "Merci d'avoir initié votre demande",
+    }
+    response = test_client.post("/api/v1/notifications", json=notification_data)
+    assert response.status_code == HTTP_201_CREATED
+    all_users = (await db_session.execute(select(User))).scalars().all()
+    assert len(all_users) == 1
+    user = all_users[0]
+    assert user.fc_hash == never_seen_user.fc_hash
+    assert user.already_seen is False
+    all_notifications = (await db_session.execute(select(Notification))).scalars().all()
+    assert len(all_notifications) == 1
+    notification = all_notifications[0]
+    assert notification.user.id == user.id
+    assert notification.content_body == "Merci d'avoir initié votre demande"
+    assert notification.content_title == "Brouillon de nouvelle demande de démarche d'OTV"
+    assert notification.content_icon == "otv_default_icon"
+    assert notification.item_type == "OTV"
+    assert notification.item_id == "A-5-JGBJ5VMOY"
+    assert notification.item_status_label == "Brouillon"
+    assert notification.item_generic_status == "new"
+    assert notification.item_milestone_start_date is None
+    assert notification.item_milestone_end_date is None
+    assert notification.item_external_url is None
+    assert notification.item_canal is None
+    assert notification.send_date == datetime.datetime(
+        2025, 11, 27, 10, 55, tzinfo=datetime.timezone.utc
+    )
+    assert notification.sender == "TODO"
+    assert notification.unread is True
+    assert response.json() == {
+        "notification_id": str(notification.id),
+        "notification_send_status": False,
+    }
+    assert not httpx_mock.get_request()
+
+
+async def test_create_notification_when_registration_gone(
+    test_client: TestClient[Litestar],
+    db_session: AsyncSession,
+    registration: Registration,
+    httpx_mock: HTTPXMock,
+) -> None:
+    """When somebody revokes a PUSH authorization (a push registration), then trying to
+    push on this registration will be answered with a status 410 GONE.
+
+    This shouldn't fail the notification process.
+    """
+    # Make sure we don't even try sending a notification to a push server.
+    httpx_mock.add_response(url=registration.subscription["endpoint"], status_code=410)
+    notification_data = {
+        "recipient_fc_hash": registration.user.fc_hash,
+        "item_type": "OTV",
+        "item_id": "A-5-JGBJ5VMOY",
+        "item_status_label": "Brouillon",
+        "item_generic_status": "new",
+        "send_date": "2025-11-27T10:55:00.000Z",
+        "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
+        "content_body": "Merci d'avoir initié votre demande",
+    }
+    response = test_client.post("/api/v1/notifications", json=notification_data)
+    assert response.status_code == HTTP_201_CREATED
+    notification_count = (await db_session.execute(select(func.count()).select_from(User))).scalar()
+    assert notification_count == 1
+    assert httpx_mock.get_request()
+
+
+async def test_admin_create_notification_no_registration(
+    test_client: TestClient[Litestar],
+    db_session: AsyncSession,
+    user: User,
+    httpx_mock: HTTPXMock,
+) -> None:
+    notification_data = {
+        "recipient_fc_hash": user.fc_hash,
+        "item_type": "OTV",
+        "item_id": "A-5-JGBJ5VMOY",
+        "item_status_label": "Brouillon",
+        "item_generic_status": "new",
+        "send_date": "2025-11-27T10:55:00.000Z",
+        "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
+        "content_body": "Merci d'avoir initié votre demande",
+    }
+    response = test_client.post("/api/v1/notifications", json=notification_data)
+    assert response.status_code == HTTP_201_CREATED
+    notification_count = (await db_session.execute(select(func.count()).select_from(User))).scalar()
+    assert notification_count == 1
+    assert not httpx_mock.get_request()
 
 
 async def test_create_notification_send_ko_with_400_when_required_fields_are_missing(
@@ -112,47 +311,53 @@ async def test_create_notification_send_ko_with_400_when_required_fields_are_emp
 ) -> None:
     notification_data = {
         "recipient_fc_hash": "",
+        "content_title": "",
+        "content_body": "",
+        "content_icon": "",
         "item_type": "",
         "item_id": "",
         "item_status_label": "",
         "item_generic_status": "",
+        "item_canal": "",
+        "item_milestone_start_date": "",
+        "item_milestone_end_date": "",
+        "item_external_url": "",
         "send_date": "",
-        "content_title": "",
-        "content_body": "",
+        "try_push": "",
     }
     response = test_client.post("/api/v1/notifications", json=notification_data)
     assert response.status_code == HTTP_400_BAD_REQUEST
     assert response.json() == {
         "detail": "Validation failed for POST /api/v1/notifications",
         "extra": [
+            {"message": "String should have at least 1 character", "key": "content_title"},
+            {"message": "String should have at least 1 character", "key": "content_body"},
+            {"message": "String should have at least 1 character", "key": "content_icon"},
+            {"message": "String should have at least 1 character", "key": "item_type"},
+            {"message": "String should have at least 1 character", "key": "item_id"},
+            {"message": "String should have at least 1 character", "key": "item_status_label"},
+            {"message": "Input should be 'new', 'wip' or 'closed'", "key": "item_generic_status"},
+            {"message": "String should have at least 1 character", "key": "item_canal"},
             {
-                "key": "item_generic_status",
-                "message": "Input should be 'new', 'wip' or 'closed'",
+                "message": "Input should be a valid datetime or date, input is too short",
+                "key": "item_milestone_start_date",
             },
             {
-                "key": "send_date",
                 "message": "Input should be a valid datetime or date, input is too short",
+                "key": "item_milestone_end_date",
+            },
+            {"message": "String should have at least 1 character", "key": "item_external_url"},
+            {
+                "message": "Input should be a valid datetime or date, input is too short",
+                "key": "send_date",
+            },
+            {
+                "message": "Input should be a valid boolean, unable to interpret input",
+                "key": "try_push",
             },
         ],
         "status_code": 400,
     }
-
-
-async def test_create_notification_send_ko_with_500_when_technical_error(
-    test_client: TestClient[Litestar],
-) -> None:
-    notification_data = {
-        "recipient_fc_hash": "technical_error",
-        "item_type": "OTV",
-        "item_id": "A-5-JGBJ5VMOY",
-        "item_status_label": "Brouillon",
-        "item_generic_status": "new",
-        "send_date": "2025-11-27T10:55:00.000Z",
-        "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
-        "content_body": "Merci d'avoir initié votre demande",
-    }
-    response = test_client.post("/api/v1/notifications", json=notification_data)
-    assert response.status_code == HTTP_500_INTERNAL_SERVER_ERROR
 
 
 async def test_get_notifications_should_return_empty_list_by_default(
