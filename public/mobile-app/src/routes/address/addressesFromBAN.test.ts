@@ -1,7 +1,6 @@
 import { describe, expect, test, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
-import { AddressFromBAN, callBAN } from './addressesFromBAN'
-import { waitFor } from '@testing-library/svelte'
+import { type AddressFromBAN, callBAN } from './addressesFromBAN'
 
 describe('addressesFromBAN.ts', () => {
   describe('callBAN', () => {
@@ -80,7 +79,7 @@ describe('addressesFromBAN.ts', () => {
 
       // Then
       expect(response?.statusCode).toBe(200)
-      if (response && response.results) {
+      if (response?.results) {
         response.results.forEach((result: AddressFromBAN, index) => {
           expect(result.city).toEqual(expectedResult[index].city)
           expect(result.context).toEqual(expectedResult[index].context)

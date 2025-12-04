@@ -1,92 +1,92 @@
 <script lang="ts">
-import { goto } from '$app/navigation'
-import { onMount } from 'svelte'
-import {
-  countUnreadNotifications,
-  disableNotifications,
-  enableNotifications,
-  notificationEventsSocket,
-} from '$lib/notifications'
-import type { Registration } from '$lib/registration'
-import { getQuotientData } from '$lib/api-particulier'
-import { buildAgenda } from '$lib/agenda'
-import type { Agenda } from '$lib/agenda'
-import AgendaItem from '$lib/AgendaItem.svelte'
-import { userStore } from '$lib/state/User.svelte'
-import type { UserInfo } from '$lib/state/User.svelte'
-import Icon from '$lib/components/Icon.svelte'
+  import { onMount } from 'svelte'
+  import { goto } from '$app/navigation'
+  import AgendaItem from '$lib/AgendaItem.svelte'
+  import type { Agenda } from '$lib/agenda'
+  import { buildAgenda } from '$lib/agenda'
+  import { getQuotientData } from '$lib/api-particulier'
+  import Icon from '$lib/components/Icon.svelte'
+  import {
+    countUnreadNotifications,
+    disableNotifications,
+    enableNotifications,
+    notificationEventsSocket,
+  } from '$lib/notifications'
+  import type { Registration } from '$lib/registration'
+  import type { UserInfo } from '$lib/state/User.svelte'
+  import { userStore } from '$lib/state/User.svelte'
 
-let quotientinfo: Object = $state({})
-let unreadNotificationsCount: number = $state(0)
-let initials: string = $state('')
-let isMenuDisplayed: boolean = $state(false)
-let isAgendaEmpty: boolean = $state(true)
-let notificationsEnabled: boolean = $state(false)
-let registration: Registration | null = $state(null)
-let agenda: Agenda | null = $state(null)
+  let quotientinfo: object = $state({})
+  let unreadNotificationsCount: number = $state(0)
+  let initials: string = $state('')
+  let isMenuDisplayed: boolean = $state(false)
+  let isAgendaEmpty: boolean = $state(true)
+  let notificationsEnabled: boolean = $state(false)
+  let registration: Registration | null = $state(null)
+  let agenda: Agenda | null = $state(null)
 
-const updateNotificationsEnabled = async (notificationsEnabledStatus: boolean) => {
-  if (notificationsEnabledStatus === true) {
-    registration = await enableNotifications()
-  } else if (registration) {
-    await disableNotifications(registration.id)
+  const updateNotificationsEnabled = async (notificationsEnabledStatus: boolean) => {
+    if (notificationsEnabledStatus === true) {
+      registration = await enableNotifications()
+    } else if (registration) {
+      await disableNotifications(registration.id)
+    }
+    notificationsEnabled = notificationsEnabledStatus
+    localStorage.setItem('notifications_enabled', notificationsEnabledStatus.toString())
   }
-  notificationsEnabled = notificationsEnabledStatus
-  localStorage.setItem('notifications_enabled', notificationsEnabledStatus.toString())
-}
 
-const initializeNavigatorPermissions = async () => {
-  if (navigator.permissions) {
-    const permissionStatus = await navigator.permissions.query({
-      name: 'notifications',
-    })
+  const initializeNavigatorPermissions = async () => {
+    if (navigator.permissions) {
+      const permissionStatus = await navigator.permissions.query({
+        name: 'notifications',
+      })
 
-    permissionStatus.onchange = async () => {
-      await updateNotificationsEnabled(permissionStatus.state == 'granted')
-      console.log(`notifications permission status is ${permissionStatus.state}`)
+      permissionStatus.onchange = async () => {
+        await updateNotificationsEnabled(permissionStatus.state === 'granted')
+        console.log(`notifications permission status is ${permissionStatus.state}`)
+      }
     }
   }
-}
 
-onMount(async () => {
-  console.log('User is connected:', userStore.connected)
-  try {
-    notificationsEnabled = localStorage.getItem('notifications_enabled') === 'true'
-    await initializeNavigatorPermissions()
+  onMount(async () => {
+    console.log('User is connected:', userStore.connected)
+    try {
+      notificationsEnabled = localStorage.getItem('notifications_enabled') === 'true'
+      await initializeNavigatorPermissions()
 
-    initials = userStore.connected?.getInitials() || ''
+      initials = userStore.connected?.getInitials() || ''
 
-    unreadNotificationsCount = await countUnreadNotifications()
-    notificationEventsSocket(async () => {
       unreadNotificationsCount = await countUnreadNotifications()
-    })
+      notificationEventsSocket(async () => {
+        unreadNotificationsCount = await countUnreadNotifications()
+      })
 
-    agenda = await buildAgenda()
-    console.log($state.snapshot(agenda))
-    isAgendaEmpty = !(agenda.now.length || agenda.next.length)
+      agenda = await buildAgenda()
+      console.log($state.snapshot(agenda))
+      isAgendaEmpty = !(agenda.now.length || agenda.next.length)
 
-    quotientinfo = await getQuotientData()
-    console.log($state.snapshot(quotientinfo))
-  } catch (error) {
-    console.error(error)
+      quotientinfo = await getQuotientData()
+      console.log($state.snapshot(quotientinfo))
+    } catch (error) {
+      console.error(error)
+    }
+  })
+
+  const toggleMenu = () => {
+    isMenuDisplayed = !isMenuDisplayed
   }
-})
 
-const toggleMenu = () => {
-  isMenuDisplayed = !isMenuDisplayed
-}
+  const clickEnableNotifications = async () => {
+    await updateNotificationsEnabled(true)
+  }
 
-const clickEnableNotifications = async () => {
-  await updateNotificationsEnabled(true)
-}
+  const clickDisableNotifications = async () => {
+    await updateNotificationsEnabled(false)
+  }
 
-const clickDisableNotifications = async () => {
-  await updateNotificationsEnabled(false)
-}
-
-const goToProfile = async () => {
-  goto('/#/profile')
-}
+  const goToProfile = async () => {
+    goto('/#/profile')
+  }
 </script>
 
 <div class="homepage-connected">

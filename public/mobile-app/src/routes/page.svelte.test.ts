@@ -1,13 +1,11 @@
-import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest'
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 import { render, screen, waitFor } from '@testing-library/svelte'
-import Page from './+page.svelte'
 import { PUBLIC_API_URL } from '$env/static/public'
-import type { UserInfo } from '$lib/state/User.svelte'
 import { mockUserInfo } from '$tests/utils'
+import Page from './+page.svelte'
 
 describe('/+page.svelte', () => {
-  let userinfo: UserInfo
   let originalWindow: typeof globalThis.window
 
   beforeEach(() => {

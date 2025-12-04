@@ -1,7 +1,7 @@
 import { PUBLIC_API_URL } from '$env/static/public'
-import { registerDevice, unregisterDevice } from '$lib/registration'
-import type { Registration } from '$lib/registration'
 import { apiFetch } from '$lib/auth'
+import type { Registration } from '$lib/registration'
+import { registerDevice, unregisterDevice } from '$lib/registration'
 
 export const PUBLIC_API_WS_URL = PUBLIC_API_URL.replace('https://', 'wss://').replace(
   'http://',
@@ -66,7 +66,7 @@ export const readNotification = async (
       }
     )
     if (response.status === 200) {
-      let notification = (await response.json()) as Notification
+      const notification = (await response.json()) as Notification
       return notification
     }
   } catch (error) {

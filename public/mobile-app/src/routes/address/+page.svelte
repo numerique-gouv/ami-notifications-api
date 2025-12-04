@@ -1,90 +1,92 @@
 <script lang="ts">
-import { type AddressFromBAN, callBAN } from './addressesFromBAN'
-import { userStore } from '$lib/state/User.svelte'
-import { Address } from '$lib/address'
+  import { Address } from '$lib/address'
+  import { userStore } from '$lib/state/User.svelte'
+  import { type AddressFromBAN, callBAN } from './addressesFromBAN'
 
-let timer: any
-let inputValue: string = $state('')
-let filteredAddresses: Address[] = $state([])
-let disabledButton: boolean = $state(true)
-let addressHasError: boolean = $state(false)
-let selectedAddress: Address = $state<Address>(new Address())
-let hasSubmittedAddress: boolean = $state(false)
-let submittedAddress: Address = $state<Address>(new Address())
+  let timer: any
+  let inputValue: string = $state('')
+  let filteredAddresses: Address[] = $state([])
+  let disabledButton: boolean = $state(true)
+  let addressHasError: boolean = $state(false)
+  let selectedAddress: Address = $state<Address>(new Address())
+  let hasSubmittedAddress: boolean = $state(false)
+  let submittedAddress: Address = $state<Address>(new Address())
 
-const addressInputHandler = (event: Event) => {
-  if (!event.target) return
-  const { value } = event.target as HTMLInputElement
-  debounce(value)
-}
+  const addressInputHandler = (event: Event) => {
+    if (!event.target) {
+      return
+    }
+    const { value } = event.target as HTMLInputElement
+    debounce(value)
+  }
 
-const debounce = (value: string) => {
-  clearTimeout(timer)
-  timer = setTimeout(() => {
-    inputValue = value
-    filterAddresses()
-  }, 750)
-}
+  const debounce = (value: string) => {
+    clearTimeout(timer)
+    timer = setTimeout(() => {
+      inputValue = value
+      filterAddresses()
+    }, 750)
+  }
 
-const filterAddresses = async () => {
-  filteredAddresses = []
-  if (inputValue) {
-    try {
-      const response = await callBAN(inputValue)
-      if (response.statusCode === 400) {
-        addressHasError = true
-      } else {
-        addressHasError = false
-        if (response.results) {
-          filteredAddresses = response.results.map(
-            (address: AddressFromBAN): Address => {
-              const city = address.city
-              const context = address.context
-              const idBAN = address.id
-              const label = address.label
-              const name = address.name
-              const postcode = address.postcode
-              return new Address(city, context, idBAN, label, name, postcode)
-            }
-          )
+  const filterAddresses = async () => {
+    filteredAddresses = []
+    if (inputValue) {
+      try {
+        const response = await callBAN(inputValue)
+        if (response.statusCode === 400) {
+          addressHasError = true
+        } else {
+          addressHasError = false
+          if (response.results) {
+            filteredAddresses = response.results.map(
+              (address: AddressFromBAN): Address => {
+                const city = address.city
+                const context = address.context
+                const idBAN = address.id
+                const label = address.label
+                const name = address.name
+                const postcode = address.postcode
+                return new Address(city, context, idBAN, label, name, postcode)
+              }
+            )
+          }
         }
+      } catch (error) {
+        console.error(error)
       }
-    } catch (error) {
-      console.error(error)
     }
   }
-}
 
-const setInputVal = (address: Address) => {
-  selectedAddress = address
-  filteredAddresses = []
-  inputValue = selectedAddress.label
+  const setInputVal = (address: Address) => {
+    selectedAddress = address
+    filteredAddresses = []
+    inputValue = selectedAddress.label
 
-  const addressInput: HTMLInputElement | null =
-    document.querySelector<HTMLInputElement>('#address-input')
-  if (addressInput) {
-    addressInput.focus()
+    const addressInput: HTMLInputElement | null =
+      document.querySelector<HTMLInputElement>('#address-input')
+    if (addressInput) {
+      addressInput.focus()
+    }
+
+    disabledButton = false
   }
 
-  disabledButton = false
-}
-
-const submitAddress = async () => {
-  hasSubmittedAddress = true
-  submittedAddress = selectedAddress
-  if (userStore.connected) {
-    userStore.connected.address = selectedAddress
+  const submitAddress = async () => {
+    hasSubmittedAddress = true
+    submittedAddress = selectedAddress
+    if (userStore.connected) {
+      userStore.connected.address = selectedAddress
+    }
+    console.log(submittedAddress)
   }
-  console.log(submittedAddress)
-}
 
-const removeAddress = async () => {
-  hasSubmittedAddress = false
-  delete userStore.connected?.identity?.address
-  disabledButton = true
-  selectedAddress = new Address()
-  submittedAddress = new Address()
-}
+  const removeAddress = async () => {
+    hasSubmittedAddress = false
+    delete userStore.connected?.identity?.address
+    disabledButton = true
+    selectedAddress = new Address()
+    submittedAddress = new Address()
+  }
 </script>
 
 <div class="address-form-page">

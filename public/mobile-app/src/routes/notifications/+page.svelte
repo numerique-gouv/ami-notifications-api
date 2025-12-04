@@ -1,32 +1,32 @@
 <script lang="ts">
-import { onMount } from 'svelte'
-import { goto } from '$app/navigation'
-import { prettyDate } from '$lib/prettyDate'
-import {
-  retrieveNotifications,
-  readNotification,
-  notificationEventsSocket,
-} from '$lib/notifications'
-import type { Notification } from '$lib/notifications'
-import { userStore } from '$lib/state/User.svelte'
+  import { onMount } from 'svelte'
+  import { goto } from '$app/navigation'
+  import type { Notification } from '$lib/notifications'
+  import {
+    notificationEventsSocket,
+    readNotification,
+    retrieveNotifications,
+  } from '$lib/notifications'
+  import { prettyDate } from '$lib/prettyDate'
+  import { userStore } from '$lib/state/User.svelte'
 
-let notifications: Notification[] = $state([])
+  let notifications: Notification[] = $state([])
 
-onMount(async () => {
-  if (!userStore.connected) {
-    goto('/')
-  }
+  onMount(async () => {
+    if (!userStore.connected) {
+      goto('/')
+    }
 
-  notifications = await retrieveNotifications()
-  notificationEventsSocket(async () => {
     notifications = await retrieveNotifications()
+    notificationEventsSocket(async () => {
+      notifications = await retrieveNotifications()
+    })
   })
-})
 
-const markNotificationAsRead = async (event: MouseEvent, notificationId: string) => {
-  event.preventDefault()
-  let result = await readNotification(notificationId)
-}
+  const markNotificationAsRead = async (event: MouseEvent, notificationId: string) => {
+    event.preventDefault()
+    let result = await readNotification(notificationId)
+  }
 </script>
 
 <nav class="fr-p-4v fr-pt-6v">

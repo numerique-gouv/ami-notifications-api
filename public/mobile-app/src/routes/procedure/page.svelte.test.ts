@@ -1,5 +1,5 @@
-import { describe, test, expect } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/svelte'
+import { render, screen } from '@testing-library/svelte'
+import { describe, expect, test } from 'vitest'
 import Page from './+page.svelte'
 
 describe('/+page.svelte', () => {

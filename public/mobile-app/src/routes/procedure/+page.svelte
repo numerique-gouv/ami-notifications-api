@@ -1,29 +1,30 @@
 <script lang="ts">
-import { onMount } from 'svelte'
-import { PUBLIC_OTV_URL } from '$env/static/public'
+  import { onMount } from 'svelte'
+  import { PUBLIC_OTV_URL } from '$env/static/public'
 
-const otvUrl = PUBLIC_OTV_URL
-let itemDate: string = $state('')
+  const otvUrl = PUBLIC_OTV_URL
+  let itemDate: string = $state('')
 
-const isValidDate = (d: Date | number) => d instanceof Date && !isNaN(d.getTime())
+  const isValidDate = (d: Date | number) =>
+    d instanceof Date && !Number.isNaN(d.getTime())
 
-onMount(async () => {
-  const hash = window.location.hash
-  const url = new URL(hash.substring(1), window.location.origin)
-  const stringFromUrl = url.searchParams.get('date') || ''
-  itemDate = ''
+  onMount(async () => {
+    const hash = window.location.hash
+    const url = new URL(hash.substring(1), window.location.origin)
+    const stringFromUrl = url.searchParams.get('date') || ''
+    itemDate = ''
 
-  if (stringFromUrl !== '') {
-    const dateFromUrl: Date = new Date(stringFromUrl)
-    if (isValidDate(dateFromUrl)) {
-      const dayNumber: string = dateFromUrl ? dateFromUrl.getDate().toString() : ''
-      const monthName: string = dateFromUrl
-        ? dateFromUrl.toLocaleString('fr-FR', { month: 'long' })
-        : ''
-      itemDate = `${dayNumber} ${monthName}`
+    if (stringFromUrl !== '') {
+      const dateFromUrl: Date = new Date(stringFromUrl)
+      if (isValidDate(dateFromUrl)) {
+        const dayNumber: string = dateFromUrl ? dateFromUrl.getDate().toString() : ''
+        const monthName: string = dateFromUrl
+          ? dateFromUrl.toLocaleString('fr-FR', { month: 'long' })
+          : ''
+        itemDate = `${dayNumber} ${monthName}`
+      }
     }
-  }
-})
+  })
 </script>
 
 <div class="procedure">

@@ -1,7 +1,7 @@
-import { describe, test, expect, vi } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import '@testing-library/jest-dom/vitest'
-import Navigation from './Navigation.svelte'
 import { render } from '@testing-library/svelte'
+import Navigation from './Navigation.svelte'
 
 describe('/Navigation.svelte', () => {
   test('should highlight nothing', async () => {

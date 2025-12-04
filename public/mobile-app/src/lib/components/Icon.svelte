@@ -1,10 +1,10 @@
 <script lang="ts">
-interface Props {
-  href: string
-  className?: string
-  color?: string
-}
-let { className, href, color = 'var(--text-default-grey)' }: Props = $props()
+  interface Props {
+    href: string
+    className?: string
+    color?: string
+  }
+  let { className, href, color = 'var(--text-default-grey)' }: Props = $props()
 </script>
 
 <span class="icon {className}" style="--svg: url('{href}'); --icon-color: {color};"></span>
