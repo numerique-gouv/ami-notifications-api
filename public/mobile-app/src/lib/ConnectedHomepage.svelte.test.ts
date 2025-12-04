@@ -10,6 +10,7 @@ import * as authMethods from '$lib/auth'
 import { Agenda, Item } from '$lib/agenda'
 import { PUBLIC_API_WS_URL } from '$lib/notifications'
 import { franceConnectLogout } from './france-connect'
+import { userStore } from '$lib/state/User.svelte'
 
 let wss: WSType
 
@@ -26,7 +27,6 @@ describe('/ConnectedHomepage.svelte', () => {
           given_name_array: ['Pierre', 'Arthur', 'Félix'],
         }
       }),
-      franceConnectLogout: vi.fn(),
     }))
 
     vi.mock('$lib/api-particulier', () => ({
@@ -310,10 +310,10 @@ describe('/ConnectedHomepage.svelte', () => {
     })
   })
 
-  test('should logout a user from AMI then from FC', async () => {
+  test('should call userStore.logout', async () => {
     // Given
-    globalThis.localStorage.setItem('id_token', 'fake-id-token')
-    vi.spyOn(authMethods, 'logout').mockResolvedValue(true)
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('', { status: 200 }))
+    const spyLogout = vi.spyOn(userStore, 'logout').mockResolvedValue()
 
     // When
     render(ConnectedHomepage)
@@ -323,7 +323,6 @@ describe('/ConnectedHomepage.svelte', () => {
     await franceConnectLogoutButton.click()
 
     // Then
-    expect(localStorage.getItem('id_token')).toBeNull()
-    expect(franceConnectLogout).toHaveBeenCalledWith('fake-id-token')
+    expect(spyLogout).toHaveBeenCalled()
   })
 })

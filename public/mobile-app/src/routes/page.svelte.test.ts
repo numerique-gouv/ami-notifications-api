@@ -3,8 +3,10 @@ import '@testing-library/jest-dom/vitest'
 import { render, screen, waitFor } from '@testing-library/svelte'
 import Page from './+page.svelte'
 import { PUBLIC_API_URL } from '$env/static/public'
-import type { UserInfo } from '$lib/france-connect'
 import * as authMethods from '$lib/auth'
+import * as navigationMethods from '$app/navigation'
+import { userStore } from '$lib/state/User.svelte'
+import type { UserInfo } from '$lib/state/User.svelte'
 
 describe('/+page.svelte', () => {
   let userinfo: UserInfo
@@ -119,5 +121,24 @@ describe('/+page.svelte', () => {
     const errorMessage = await screen.findByText('some error message')
     expect(errorMessage).toBeInTheDocument()
     expect(window.localStorage.getItem('access_token')).toEqual(null)
+  })
+
+  test("should logout the app if the API says it's disconnected", async () => {
+    // When
+    const gotoHomeSpy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue()
+    vi.spyOn(authMethods, 'checkAuth').mockResolvedValue(false)
+    vi.spyOn(userStore, 'isConnected').mockReturnValue(true)
+    const logoutSpy = vi.spyOn(userStore, 'logout').mockResolvedValue()
+
+    // Given
+    const { page } = await import('$app/state')
+
+    render(Page)
+
+    // Then
+    await waitFor(() => {
+      expect(logoutSpy).toHaveBeenCalled()
+      expect(gotoHomeSpy).toHaveBeenCalled()
+    })
   })
 })

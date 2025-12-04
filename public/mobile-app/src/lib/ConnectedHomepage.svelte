@@ -1,7 +1,5 @@
 <script lang="ts">
-import { parseJwt, franceConnectLogout } from '$lib/france-connect'
-import type { UserInfo } from '$lib/france-connect'
-import { logout } from '$lib/auth'
+import { parseJwt } from '$lib/france-connect'
 import { onMount } from 'svelte'
 import {
   countUnreadNotifications,
@@ -14,8 +12,9 @@ import { getQuotientData } from '$lib/api-particulier'
 import { buildAgenda } from '$lib/agenda'
 import type { Agenda } from '$lib/agenda'
 import AgendaItem from '$lib/AgendaItem.svelte'
+import { userStore } from '$lib/state/User.svelte'
+import type { UserInfo } from '$lib/state/User.svelte'
 
-let userinfo: UserInfo | null = $state(null)
 let quotientinfo: Object = $state({})
 let unreadNotificationsCount: number = $state(0)
 let initials: string = $state('')
@@ -48,14 +47,6 @@ const initializeNavigatorPermissions = async () => {
   }
 }
 
-const getInitials = (given_name_array: string[]): string => {
-  let initials_: string = ''
-  given_name_array.forEach((given_name) => {
-    initials_ += given_name.substring(0, 1)
-  })
-  return initials_
-}
-
 onMount(async () => {
   try {
     isAddressEmpty = !localStorage.getItem('user_address')
@@ -63,10 +54,10 @@ onMount(async () => {
     await initializeNavigatorPermissions()
 
     const userData = localStorage.getItem('user_data') || ''
-    userinfo = parseJwt(userData)
-    console.log($state.snapshot(userinfo))
+    const userinfo: UserInfo = parseJwt(userData)
+    const connectedUser = await userStore.login(userinfo)
 
-    initials = getInitials(userinfo?.given_name_array)
+    initials = connectedUser.getInitials()
 
     unreadNotificationsCount = await countUnreadNotifications()
     notificationEventsSocket(async () => {
@@ -93,15 +84,6 @@ const clickEnableNotifications = async () => {
 
 const clickDisableNotifications = async () => {
   await updateNotificationsEnabled(false)
-}
-
-const clickLogout = async () => {
-  const id_token_hint = localStorage.getItem('id_token') || ''
-  // Logout from AMI first: https://github.com/numerique-gouv/ami-notifications-api/issues/132
-  localStorage.clear()
-  await logout()
-  // And now logout from FC
-  await franceConnectLogout(id_token_hint)
 }
 </script>
 
@@ -152,7 +134,7 @@ const clickLogout = async () => {
       <button
           class="fr-connect-logout"
           type="button"
-          onclick={clickLogout}
+          onclick={userStore.logout}
       >
         <span>Me déconnecter</span>
       </button>
@@ -221,20 +203,20 @@ const clickLogout = async () => {
     </h3>
     <div id="accordion-1" class="fr-collapse">
       <ul>
-        <li>userinfo: <pre>{ JSON.stringify(userinfo, null, 2) }</pre></li>
-        <li>sub: { userinfo?.sub }</li>
-        <li>given_name: { userinfo?.given_name }</li>
-        <li>given_name_array: { userinfo?.given_name_array }</li>
-        <li>family_name: { userinfo?.family_name }</li>
-        <li>birthdate: { userinfo?.birthdate }</li>
-        <li>gender: { userinfo?.gender }</li>
-        <li>birthplace: { userinfo?.birthplace }</li>
-        <li>birthcountry: { userinfo?.birthcountry }</li>
-        <li>email: { userinfo?.email }</li>
-        <li>aud: { userinfo?.aud }</li>
-        <li>exp: { userinfo?.exp }</li>
-        <li>iat: { userinfo?.iat }</li>
-        <li>iss: { userinfo?.iss }</li>
+        <li>userinfo: <pre>{ JSON.stringify(userStore.connected?.pivot, null, 2) }</pre></li>
+        <li>sub: { userStore.connected?.pivot?.sub }</li>
+        <li>given_name: { userStore.connected?.pivot?.given_name }</li>
+        <li>given_name_array: { userStore.connected?.pivot?.given_name_array }</li>
+        <li>family_name: { userStore.connected?.pivot?.family_name }</li>
+        <li>birthdate: { userStore.connected?.pivot?.birthdate }</li>
+        <li>gender: { userStore.connected?.pivot?.gender }</li>
+        <li>birthplace: { userStore.connected?.pivot?.birthplace }</li>
+        <li>birthcountry: { userStore.connected?.pivot?.birthcountry }</li>
+        <li>email: { userStore.connected?.pivot?.email }</li>
+        <li>aud: { userStore.connected?.pivot?.aud }</li>
+        <li>exp: { userStore.connected?.pivot?.exp }</li>
+        <li>iat: { userStore.connected?.pivot?.iat }</li>
+        <li>iss: { userStore.connected?.pivot?.iss }</li>
         <li>quotientinfo: <pre>{ JSON.stringify(quotientinfo, null, 2) }</pre></li>
       </ul>
     </div>
