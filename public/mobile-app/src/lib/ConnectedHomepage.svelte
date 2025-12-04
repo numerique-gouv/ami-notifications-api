@@ -344,9 +344,6 @@ const goToProfile = async () => {
 
           font-size: 14px;
           line-height: 24px;
-          .icon {
-            background-color: var(--text-active-blue-france);
-          }
         }
       }
     }

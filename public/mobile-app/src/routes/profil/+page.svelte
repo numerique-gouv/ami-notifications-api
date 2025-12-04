@@ -30,11 +30,11 @@ onMount(async () => {
 {#if userStore.connected}
 <div class="fr-m-4v profile-content-container">
   <Card iconHref="/remixicons/account-circle-line.svg" title="Mon identité">
-    Vous êtes:<br />
-    <b>{userStore.connected.identity.given_name},</b><br />
-    née <b>{userStore.connected.identity.family_name}</b>
+    Vous êtes&nbsp;:<br />
+    <b>{userStore.connected.identity.given_name} {userStore.connected.identity.preferred_username || userStore.connected.identity.family_name},</b><br />
+    né{#if userStore.connected.identity.gender == "female"}e{/if}{#if userStore.connected.identity.preferred_username} <b>{userStore.connected.identity.family_name}</b>{/if}
     le <b>{userStore.connected.identity.birthdate}</b>
-    à <b>{userStore.connected.identity.birthplace} ({userStore.connected.pivot.birthplace.toString().slice(0,2)}) {userStore.connected.identity.birthcountry}</b><br />
+    {#if userStore.connected.identity.birthplace}à <b>{userStore.connected.identity.birthplace} {userStore.connected.identity.birthcountry}</b><br />{/if}
     <span class="fr-text--xs">Informations fournies par FranceConnect</span><br />
     <br />
     <button type="button" class="fr-btn fr-icon-edit-line fr-btn--icon-left fr-btn--tertiary">Modifier</button>
@@ -42,7 +42,7 @@ onMount(async () => {
 
   <Card iconHref="/remixicons/mail-line.svg" title="Contact">
     Pour vous contacter&nbsp;:<br />
-    <b>{userinfo.email}</b><br />
+    <b>{userStore.connected.identity.email}</b><br />
     <span class="fr-text--xs">Informations fournies par FranceConnect</span><br />
     <br />
     <button type="button" class="fr-btn fr-icon-edit-line fr-btn--icon-left fr-btn--tertiary">Modifier</button>
