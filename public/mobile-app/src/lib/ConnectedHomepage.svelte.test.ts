@@ -215,9 +215,25 @@ describe('/ConnectedHomepage.svelte', () => {
     })
   })
 
-  test('should display address block when user address is not known', async () => {
+  test('should display address block when user address is not known (empty)', async () => {
     // Given
     window.localStorage.setItem('user_address', '')
+
+    // When
+    const { container } = render(ConnectedHomepage)
+
+    // Then
+    await waitFor(() => {
+      const addressBlock = container.querySelector('.address-container')
+      expect(addressBlock).toHaveTextContent(
+        'Gagnez du temps en renseignant votre adresse une seule fois'
+      )
+    })
+  })
+
+  test('should display address block when user address is not known (null)', async () => {
+    // Given
+    window.localStorage.removeItem('user_address')
 
     // When
     const { container } = render(ConnectedHomepage)
