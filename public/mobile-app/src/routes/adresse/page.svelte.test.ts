@@ -10,7 +10,7 @@ describe('/+page.svelte', () => {
         {
           city: 'Orléans',
           context: '45, Loiret, Centre-Val de Loire',
-          idBAN: '45234_0420_00023',
+          id: '45234_0420_00023',
           label: '23 Rue des Aubépines 45100 Orléans',
           name: '23 Rue des Aubépines',
           postcode: '45100',
@@ -18,7 +18,7 @@ describe('/+page.svelte', () => {
         {
           city: 'Orly',
           context: '94, Val-de-Marne, Île-de-France',
-          idBAN: '94054_0070_00023',
+          id: '94054_0070_00023',
           label: '23 Rue des Aubépines 94310 Orly',
           name: '23 Rue des Aubépines',
           postcode: '94310',
@@ -26,7 +26,7 @@ describe('/+page.svelte', () => {
         {
           city: 'Orléat',
           context: '63, Puy-de-Dôme, Auvergne-Rhône-Alpes',
-          idBAN: '63265_0008',
+          id: '63265_0008',
           label: 'Allée des Aubépines 63190 Orléat',
           name: 'Allée des Aubépines',
           postcode: '63190',
@@ -55,7 +55,6 @@ describe('/+page.svelte', () => {
     })
 
     await new Promise((resolve) => setTimeout(resolve, 1000))
-    await new Promise(setTimeout) // wait for async calls
 
     // Then
     const autocompleteListItem0 = screen.getByTestId('autocomplete-item-0')
@@ -81,7 +80,6 @@ describe('/+page.svelte', () => {
     })
 
     await new Promise((resolve) => setTimeout(resolve, 1000))
-    await new Promise(setTimeout) // wait for async calls
     const autocompleteListItem1 = screen.getByTestId('autocomplete-item-1')
     expect(autocompleteListItem1).toHaveTextContent(
       '23 Rue des Aubépines Orly (94, Val-de-Marne, Île-de-France)'
@@ -90,10 +88,9 @@ describe('/+page.svelte', () => {
     // When
     const button = screen.getByTestId('autocomplete-item-button-1')
     await fireEvent.click(button)
-    await new Promise(setTimeout) // wait for async calls
 
     // Then
-    const updatedAddressInput = screen.getByTestId('address-input')
+    const updatedAddressInput: HTMLInputElement = screen.getByTestId('address-input')
     expect(updatedAddressInput.value).equal('23 Rue des Aubépines 94310 Orly')
   })
 
@@ -108,7 +105,6 @@ describe('/+page.svelte', () => {
     })
 
     await new Promise((resolve) => setTimeout(resolve, 1000))
-    await new Promise(setTimeout) // wait for async calls
     const autocompleteListItem1 = screen.getByTestId('autocomplete-item-1')
     expect(autocompleteListItem1).toHaveTextContent(
       '23 Rue des Aubépines Orly (94, Val-de-Marne, Île-de-France)'
@@ -116,14 +112,12 @@ describe('/+page.svelte', () => {
 
     const button = screen.getByTestId('autocomplete-item-button-1')
     await fireEvent.click(button)
-    await new Promise(setTimeout) // wait for async calls
-    const updatedAddressInput = screen.getByTestId('address-input')
+    const updatedAddressInput: HTMLInputElement = screen.getByTestId('address-input')
     expect(updatedAddressInput.value).equal('23 Rue des Aubépines 94310 Orly')
 
     // When
     const submitButton = screen.getByTestId('submit-button')
     await fireEvent.click(submitButton)
-    await new Promise(setTimeout) // wait for async calls
 
     // Then
     const adressWrapper = screen.getByTestId('selected-address-wrapper')
@@ -131,7 +125,7 @@ describe('/+page.svelte', () => {
       'Votre résidence principale 23 Rue des Aubépines 94310 Orly'
     )
     expect(window.localStorage.getItem('user_address')).toEqual(
-      '{"city":"Orly","context":"94, Val-de-Marne, Île-de-France","label":"23 Rue des Aubépines 94310 Orly","name":"23 Rue des Aubépines","postcode":"94310"}'
+      '{"city":"Orly","context":"94, Val-de-Marne, Île-de-France","idBAN":"94054_0070_00023","label":"23 Rue des Aubépines 94310 Orly","name":"23 Rue des Aubépines","postcode":"94310"}'
     )
   })
 })

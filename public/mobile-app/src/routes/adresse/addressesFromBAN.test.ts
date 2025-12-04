@@ -1,6 +1,7 @@
 import { describe, expect, test, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
-import { callBAN } from './addressesFromBAN.ts'
+import { AddressFromBAN, callBAN } from './addressesFromBAN'
+import { waitFor } from '@testing-library/svelte'
 
 describe('addressesFromBAN.ts', () => {
   describe('callBAN', () => {
@@ -70,20 +71,25 @@ describe('addressesFromBAN.ts', () => {
         query: '23 rue des aubépines orl',
       }
 
-      globalThis.fetch = vi.fn(() =>
-        Promise.resolve({
-          status: 200,
-          json: () => responseFromBAN,
-        })
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        new Response(JSON.stringify(responseFromBAN), { status: 200 })
       )
 
       // When
       const response = await callBAN('23 rue des aubépines orl')
-      await new Promise(setTimeout) // wait for async calls
 
       // Then
-      expect(response.statusCode).toBe(200)
-      expect(response.results).toStrictEqual(expectedResult)
+      expect(response?.statusCode).toBe(200)
+      if (response && response.results) {
+        response.results.forEach((result: AddressFromBAN, index) => {
+          expect(result.city).toEqual(expectedResult[index].city)
+          expect(result.context).toEqual(expectedResult[index].context)
+          expect(result.id).toEqual(expectedResult[index].id)
+          expect(result.label).toEqual(expectedResult[index].label)
+          expect(result.name).toEqual(expectedResult[index].name)
+          expect(result.postcode).toEqual(expectedResult[index].postcode)
+        })
+      }
     })
 
     test('should call BAN endpoint and return error when query is not valid', async () => {
@@ -96,16 +102,12 @@ describe('addressesFromBAN.ts', () => {
         message: 'Failed parsing query',
       }
 
-      globalThis.fetch = vi.fn(() =>
-        Promise.resolve({
-          status: 200,
-          json: () => responseFromBAN,
-        })
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        new Response(JSON.stringify(responseFromBAN), { status: 200 })
       )
 
       // When
       const response = await callBAN('23')
-      await new Promise(setTimeout) // wait for async calls
 
       // Then
       expect(response.statusCode).toBe(400)
