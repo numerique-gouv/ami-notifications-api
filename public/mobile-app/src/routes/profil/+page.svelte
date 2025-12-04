@@ -5,7 +5,7 @@ import { goto } from '$app/navigation'
 import { buildAgenda } from '$lib/agenda'
 import type { Agenda } from '$lib/agenda'
 import AgendaItem from '$lib/AgendaItem.svelte'
-import Icon from '$lib/Icon.svelte'
+import Card from '$lib/components/Card.svelte'
 import type { UserInfo } from '$lib/france-connect'
 import accountSvg from '@gouvfr/dsfr/dist/icons/user/account-circle-line.svg'
 
@@ -22,7 +22,7 @@ onMount(async () => {
 })
 </script>
 
-<nav class="fr-p-4v fr-pt-6v">
+<nav class="fr-pb-0 fr-px-4v fr-pt-6v">
   <div class="back-link fr-mb-2v">
     <a href="/" title="Retour à la page d'accueil" aria-label="Retour à la page d'accueil">
       <span aria-hidden="true" class="fr-icon-arrow-left-line"></span>
@@ -35,27 +35,24 @@ onMount(async () => {
 
 {#if userinfo}
 <div class="fr-m-4v profile-content-container">
-  <div class="fr-card fr-enlarge-link">
-    <div class="fr-card__body">
-      <div class="fr-card__content">
-        <h3 class="fr-card__title">
-          <Icon className="fr-mr-2v" href="/remixicons/account-circle-line.svg" />
-          Mon identité
-        </h3>
-        <p class="fr-card__desc ">
-          Vous êtes:<br />
-          <b>{userinfo.given_name},</b><br />
-          née <b>{userinfo.family_name}</b>
-          le <b>{userinfo.birthdate}</b>
-          à <b>{userinfo.birthplace} ({userinfo.birthplace.toString().slice(0,2)}) {userinfo.birthcountry}</b><br />
-          <span class="fr-text--xs">Informations fournies par FranceConnect</span>
-        </p>
-        <p class="fr-card__desc ">
-          <button type="button" class="fr-btn fr-icon-edit-line fr-btn--icon-left fr-btn--tertiary">Modifier</button>
-        </p>
-      </div>
-    </div>
-  </div>
+  <Card iconHref="/remixicons/account-circle-line.svg" title="Mon identité">
+      Vous êtes&nbsp;:<br />
+      <b>{userinfo.given_name},</b><br />
+      née <b>{userinfo.family_name}</b>
+      le <b>{userinfo.birthdate}</b>
+      à <b>{userinfo.birthplace} ({userinfo.birthplace.toString().slice(0,2)}) {userinfo.birthcountry}</b><br />
+      <span class="fr-text--xs">Informations fournies par FranceConnect</span><br />
+      <br />
+      <button type="button" class="fr-btn fr-icon-edit-line fr-btn--icon-left fr-btn--tertiary">Modifier</button>
+  </Card>
+
+  <Card iconHref="/remixicons/mail-line.svg" title="Contact">
+    Pour vous contacter&nbsp;:<br />
+    <b>{userinfo.email}</b><br />
+    <span class="fr-text--xs">Informations fournies par FranceConnect</span><br />
+    <br />
+    <button type="button" class="fr-btn fr-icon-edit-line fr-btn--icon-left fr-btn--tertiary">Modifier</button>
+  </Card>
 </div>
 {/if}
 
@@ -72,16 +69,6 @@ onMount(async () => {
       display: flex;
       h2 {
         flex-grow: 1;
-      }
-    }
-  }
-  .profile-content-container {
-    .fr-card__title {
-      align-items: center;
-      display: flex;
-      flex-direction: row;
-      a {
-        color: var(--text-default-grey);
       }
     }
   }
