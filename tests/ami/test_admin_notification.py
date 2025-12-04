@@ -15,7 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models import Notification, Registration, User
 
 
-async def test_admin_notify_user_does_not_exist(
+async def test_admin_create_notification_user_does_not_exist(
     test_client: TestClient[Litestar],
 ) -> None:
     notification_data = {
@@ -28,7 +28,7 @@ async def test_admin_notify_user_does_not_exist(
     assert response.status_code == HTTP_404_NOT_FOUND
 
 
-async def test_admin_notify_create_notification_from_test_and_from_app_context(
+async def test_admin_create_notification_from_test_and_from_app_context(
     test_client: TestClient[Litestar],
     db_session: AsyncSession,
     notification: Notification,
@@ -64,7 +64,7 @@ async def test_admin_notify_create_notification_from_test_and_from_app_context(
     }
 
 
-async def test_admin_notify_create_notification_test_fields(
+async def test_admin_create_notification_test_fields(
     test_client: TestClient[Litestar],
     db_session: AsyncSession,
     user: User,
@@ -125,7 +125,7 @@ async def test_admin_notify_create_notification_test_fields(
     assert notification.unread is True
 
 
-async def test_admin_notify_when_registration_gone(
+async def test_admin_create_notification_when_registration_gone(
     test_client: TestClient[Litestar],
     db_session: AsyncSession,
     registration: Registration,

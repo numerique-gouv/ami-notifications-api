@@ -19,7 +19,7 @@ from app.models import Notification, User
 from tests.ami.utils import assert_query_fails_without_auth, login
 
 
-async def test_notify_send_ok_with_200(
+async def test_create_notification_send_ok_with_200(
     test_client: TestClient[Litestar],
 ) -> None:
     notification_data = {
@@ -40,7 +40,7 @@ async def test_notify_send_ok_with_200(
     }
 
 
-async def test_notify_send_ko_with_200_and_notification_send_status_to_false(
+async def test_create_notification_send_ko_with_200_and_notification_send_status_to_false(
     test_client: TestClient[Litestar],
 ) -> None:
     notification_data = {
@@ -61,7 +61,7 @@ async def test_notify_send_ko_with_200_and_notification_send_status_to_false(
     }
 
 
-async def test_notify_send_ko_with_400_when_required_fields_are_missing(
+async def test_create_notification_send_ko_with_400_when_required_fields_are_missing(
     test_client: TestClient[Litestar],
 ) -> None:
     notification_data: dict[str, str] = {}
@@ -107,7 +107,7 @@ async def test_notify_send_ko_with_400_when_required_fields_are_missing(
     }
 
 
-async def test_notify_send_ko_with_400_when_required_fields_are_empty(
+async def test_create_notification_send_ko_with_400_when_required_fields_are_empty(
     test_client: TestClient[Litestar],
 ) -> None:
     notification_data = {
@@ -138,7 +138,7 @@ async def test_notify_send_ko_with_400_when_required_fields_are_empty(
     }
 
 
-async def test_notify_send_ko_with_500_when_technical_error(
+async def test_create_notification_send_ko_with_500_when_technical_error(
     test_client: TestClient[Litestar],
 ) -> None:
     notification_data = {
