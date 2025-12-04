@@ -49,6 +49,8 @@ class UserController(Controller):
         user: models.User | None = await users_service.get_one_or_none(fc_hash=fc_hash)
         if user is None:
             user = await users_service.create(models.User(fc_hash=fc_hash))
+        else:
+            user = await users_service.update({"already_seen": True}, item_id=user.id)
         result: dict[str, Any] = {
             "user_id": user.id,
             "user_data": userinfo_jws,
