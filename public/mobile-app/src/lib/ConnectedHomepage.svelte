@@ -48,7 +48,9 @@ const initializeNavigatorPermissions = async () => {
 
 onMount(async () => {
   try {
-    isAddressEmpty = localStorage.getItem('user_address') === ''
+    isAddressEmpty =
+      localStorage.getItem('user_address') !== '' ||
+      localStorage.getItem('user_address') !== null
     notificationsEnabled = localStorage.getItem('notifications_enabled') === 'true'
     await initializeNavigatorPermissions()
 
