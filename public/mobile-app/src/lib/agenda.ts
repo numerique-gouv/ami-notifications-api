@@ -90,14 +90,19 @@ export class Item {
     return date
   }
 
-  private static readonly KindInfo: Record<Kind, { label: string; icon: string }> = {
+  private static readonly KindInfo: Record<
+    Kind,
+    { label: string; icon: string; link: string }
+  > = {
     holiday: {
       label: 'Vacances et jours fériés',
       icon: 'fr-icon-calendar-event-fill',
+      link: '/#/agenda',
     },
     otv: {
       label: 'Logement',
       icon: 'fr-icon-home-4-fill',
+      link: '/#/procedure',
     },
   }
 
@@ -119,6 +124,14 @@ export class Item {
       return ''
     }
     return info.icon
+  }
+
+  get link(): string {
+    const info = Item.KindInfo[this._kind]
+    if (info === undefined) {
+      return ''
+    }
+    return info.link
   }
 }
 
