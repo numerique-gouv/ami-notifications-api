@@ -1,95 +1,98 @@
 <script lang="ts">
-import { apiFetch } from '$lib/auth'
-import ConnectedHomepage from '$lib/ConnectedHomepage.svelte'
-import Navigation from '$lib/Navigation.svelte'
-import {
-  PUBLIC_API_URL,
-  PUBLIC_FC_AMI_CLIENT_ID,
-  PUBLIC_FC_BASE_URL,
-  PUBLIC_FC_AMI_REDIRECT_URL,
-  PUBLIC_FC_PROXY,
-  PUBLIC_FC_AUTHORIZATION_ENDPOINT,
-} from '$env/static/public'
-import { onMount } from 'svelte'
-import { page } from '$app/state'
-import { goto } from '$app/navigation'
-import applicationSvg from '@gouvfr/dsfr/dist/artwork/pictograms/digital/application.svg'
-import { userStore } from '$lib/state/User.svelte'
+  import applicationSvg from '@gouvfr/dsfr/dist/artwork/pictograms/digital/application.svg'
+  import { onMount } from 'svelte'
+  import { goto } from '$app/navigation'
+  import { page } from '$app/state'
+  import {
+    PUBLIC_API_URL,
+    PUBLIC_FC_AMI_CLIENT_ID,
+    PUBLIC_FC_AMI_REDIRECT_URL,
+    PUBLIC_FC_AUTHORIZATION_ENDPOINT,
+    PUBLIC_FC_BASE_URL,
+    PUBLIC_FC_PROXY,
+  } from '$env/static/public'
+  import { apiFetch } from '$lib/auth'
+  import ConnectedHomepage from '$lib/ConnectedHomepage.svelte'
+  import Navigation from '$lib/Navigation.svelte'
+  import { userStore } from '$lib/state/User.svelte'
 
-let isLoggedOut: boolean = $state(false)
-let error: string = $state('')
-let error_description: string = $state('')
+  let isLoggedOut: boolean = $state(false)
+  let error: string = $state('')
+  let error_description: string = $state('')
 
-onMount(async () => {
-  // User state already initialized in +layout.svelte
+  onMount(async () => {
+    // User state already initialized in +layout.svelte
 
-  try {
-    if (page.url.searchParams.has('error')) {
-      error = page.url.searchParams.get('error') || ''
-    }
-    if (page.url.searchParams.has('error_description')) {
-      error_description = page.url.searchParams.get('error_description') || ''
-    }
-    if (
-      page.url.searchParams.has('error_type') &&
-      page.url.searchParams.get('error_type') == 'FranceConnect'
-    ) {
-      // Error during login, logout, token query... => logout the app.
-      localStorage.clear()
-    }
-    if (error == 'access_denied' && error_description == 'User auth aborted') {
-      // The user has aborted the FranceConnection, don't display any error message.
-      error = ''
-      error_description = ''
-    }
-    if (page.url.searchParams.has('is_logged_in')) {
-      const access_token = page.url.searchParams.get('access_token') || ''
-      const token_type = page.url.searchParams.get('token_type') || ''
-      localStorage.setItem('access_token', access_token)
-      localStorage.setItem('expires_in', page.url.searchParams.get('expires_in') || '')
-      localStorage.setItem('id_token', page.url.searchParams.get('id_token') || '')
-      localStorage.setItem('scope', page.url.searchParams.get('scope') || '')
-      localStorage.setItem('token_type', token_type)
-      localStorage.setItem(
-        'is_logged_in',
-        page.url.searchParams.get('is_logged_in') || ''
-      )
-      const userinfo_endpoint_headers = {
-        Authorization: `${token_type} ${access_token}`,
+    try {
+      if (page.url.searchParams.has('error')) {
+        error = page.url.searchParams.get('error') || ''
       }
-      const response = await apiFetch('/fc_userinfo', {
-        headers: userinfo_endpoint_headers,
-        credentials: 'include',
-      })
-      const result = await response.json()
-      localStorage.setItem('user_data', result.user_data)
-      localStorage.setItem('user_id', result.user_id)
-      await userStore.checkLoggedIn()
-      goto('/')
+      if (page.url.searchParams.has('error_description')) {
+        error_description = page.url.searchParams.get('error_description') || ''
+      }
+      if (
+        page.url.searchParams.has('error_type') &&
+        page.url.searchParams.get('error_type') === 'FranceConnect'
+      ) {
+        // Error during login, logout, token query... => logout the app.
+        localStorage.clear()
+      }
+      if (error === 'access_denied' && error_description === 'User auth aborted') {
+        // The user has aborted the FranceConnection, don't display any error message.
+        error = ''
+        error_description = ''
+      }
+      if (page.url.searchParams.has('is_logged_in')) {
+        const access_token = page.url.searchParams.get('access_token') || ''
+        const token_type = page.url.searchParams.get('token_type') || ''
+        localStorage.setItem('access_token', access_token)
+        localStorage.setItem(
+          'expires_in',
+          page.url.searchParams.get('expires_in') || ''
+        )
+        localStorage.setItem('id_token', page.url.searchParams.get('id_token') || '')
+        localStorage.setItem('scope', page.url.searchParams.get('scope') || '')
+        localStorage.setItem('token_type', token_type)
+        localStorage.setItem(
+          'is_logged_in',
+          page.url.searchParams.get('is_logged_in') || ''
+        )
+        const userinfo_endpoint_headers = {
+          Authorization: `${token_type} ${access_token}`,
+        }
+        const response = await apiFetch('/fc_userinfo', {
+          headers: userinfo_endpoint_headers,
+          credentials: 'include',
+        })
+        const result = await response.json()
+        localStorage.setItem('user_data', result.user_data)
+        localStorage.setItem('user_id', result.user_id)
+        await userStore.checkLoggedIn()
+        goto('/')
+      }
+      if (page.url.searchParams.has('is_logged_out')) {
+        isLoggedOut = true
+        goto('/')
+      }
+    } catch (error) {
+      console.error(error)
     }
-    if (page.url.searchParams.has('is_logged_out')) {
-      isLoggedOut = true
-      goto('/')
-    }
-  } catch (error) {
-    console.error(error)
+  })
+
+  // FC - Step 3
+  const franceConnectLogin = async () => {
+    window.location.href = `${PUBLIC_API_URL}/login-france-connect`
   }
-})
 
-// FC - Step 3
-const franceConnectLogin = async () => {
-  window.location.href = `${PUBLIC_API_URL}/login-france-connect`
-}
+  function dismissNotice() {
+    isLoggedOut = false
+  }
 
-function dismissNotice() {
-  isLoggedOut = false
-}
-
-function dismissError() {
-  error = ''
-  error_description = ''
-  goto('/')
-}
+  function dismissError() {
+    error = ''
+    error_description = ''
+    goto('/')
+  }
 </script>
 
 <div class="homepage">

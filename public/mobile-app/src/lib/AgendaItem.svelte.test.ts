@@ -1,8 +1,8 @@
-import { describe, test, expect } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import '@testing-library/jest-dom/vitest'
-import AgendaItem from './AgendaItem.svelte'
 import { render, screen } from '@testing-library/svelte'
 import { Item } from '$lib/agenda'
+import AgendaItem from './AgendaItem.svelte'
 
 describe('/AgendaItem.svelte', () => {
   test('should add date to url params', async () => {

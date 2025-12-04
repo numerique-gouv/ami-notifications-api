@@ -1,5 +1,5 @@
-import { retrieveHolidays } from '$lib/api-holidays'
 import type { Holiday } from '$lib/api-holidays'
+import { retrieveHolidays } from '$lib/api-holidays'
 
 type Kind = 'holiday' | 'otv'
 
@@ -22,7 +22,9 @@ export class Item {
   ) {}
 
   equals(other: Item): boolean {
-    if (!(other instanceof Item)) return false
+    if (!(other instanceof Item)) {
+      return false
+    }
     return Object.entries(this).every(([key, thisValue]) => {
       const otherValue = other[key as keyof Item]
       // Special handling for Date objects
@@ -69,14 +71,14 @@ export class Item {
       month: 'long',
       day: 'numeric',
     }
-    let dateFormat: Intl.DateTimeFormatOptions = startFormat
+    const dateFormat: Intl.DateTimeFormatOptions = startFormat
     if (this._start_date) {
       const start = this._start_date.toLocaleDateString(locale, startFormat)
       if (this._end_date) {
-        let endFormat = startFormat
-        if (this._start_date.getFullYear() == this._end_date.getFullYear()) {
+        const endFormat = startFormat
+        if (this._start_date.getFullYear() === this._end_date.getFullYear()) {
           startFormat = { month: 'long', day: 'numeric' }
-          if (this._start_date.getMonth() == this._end_date.getMonth()) {
+          if (this._start_date.getMonth() === this._end_date.getMonth()) {
             startFormat = { day: 'numeric' }
           }
         }
@@ -140,22 +142,22 @@ export class Agenda {
   private _next: Item[] = []
 
   constructor(holidays: Holiday[], date: Date | null = null) {
-    let today = date || new Date()
+    const today = date || new Date()
     today.setHours(0, 0, 0, 0)
     const oneday_in_ms = 24 * 60 * 60 * 1000
-    let items: Item[] = []
+    const items: Item[] = []
 
     // build items from holidays
     holidays.forEach((holiday) => {
       // convert dates
       let title = holiday.description
       if (holiday.zones) {
-        title += ' ' + holiday.zones
+        title += ` ${holiday.zones}`
       }
       if (holiday.emoji) {
-        title += ' ' + holiday.emoji
+        title += ` ${holiday.emoji}`
       }
-      let item = new Item(
+      const item = new Item(
         'holiday',
         title,
         null,
@@ -167,9 +169,9 @@ export class Agenda {
     })
 
     // create OTV items
-    let seenHolidays = new Set()
+    const seenHolidays = new Set()
     holidays.forEach((holiday) => {
-      let key = JSON.stringify({
+      const key = JSON.stringify({
         desc: holiday.description,
         year: holiday.start_date.getFullYear(),
       })
@@ -177,7 +179,7 @@ export class Agenda {
         return
       }
       seenHolidays.add(key)
-      let item = new Item(
+      const item = new Item(
         'otv',
         'Opération Tranquillité Vacances 🏠',
         'Inscrivez-vous pour protéger votre domicile pendant votre absence',
@@ -214,7 +216,7 @@ export class Agenda {
 }
 
 export const buildAgenda = async (date: Date | null = null): Promise<Agenda> => {
-  let today = date || new Date()
+  const today = date || new Date()
   const holidays: Holiday[] = await retrieveHolidays(today)
   return new Agenda(holidays, today)
 }

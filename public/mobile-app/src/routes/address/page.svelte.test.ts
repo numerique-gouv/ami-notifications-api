@@ -1,10 +1,10 @@
-import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest'
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte'
-import Page from './+page.svelte'
+import { Address } from '$lib/address'
 import { userStore } from '$lib/state/User.svelte'
 import { mockUserInfo } from '$tests/utils'
-import { Address } from '$lib/address'
+import Page from './+page.svelte'
 
 describe('/+page.svelte', () => {
   beforeEach(() => {

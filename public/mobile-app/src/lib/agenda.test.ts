@@ -1,7 +1,7 @@
-import { describe, test, expect, vi } from 'vitest'
+import { describe, expect, test, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
+import { Agenda, buildAgenda, Item } from '$lib/agenda'
 import * as holidaysMethods from '$lib/api-holidays'
-import { Item, Agenda, buildAgenda } from '$lib/agenda'
 
 describe('/agenda.ts', () => {
   describe('Item', () => {
@@ -181,7 +181,7 @@ describe('/agenda.ts', () => {
       test('should return a label depending on kind', async () => {
         // Given
         const item1 = new Item(
-          // @ts-ignore: `'incorrect'` isn't a proper Kind, so typescript will complain
+          // @ts-expect-error: `'incorrect'` isn't a proper Kind, so typescript will complain
           'incorrect',
           'title',
           'description',
@@ -210,7 +210,7 @@ describe('/agenda.ts', () => {
       test('should return an icon depending on kind', async () => {
         // Given
         const item1 = new Item(
-          // @ts-ignore: `'incorrect'` isn't a proper Kind, so typescript will complain
+          // @ts-expect-error: `'incorrect'` isn't a proper Kind, so typescript will complain
           'incorrect',
           'title',
           'description',
@@ -239,7 +239,7 @@ describe('/agenda.ts', () => {
       test('should return a link depending on kind', async () => {
         // Given
         const item1 = new Item(
-          // @ts-ignore: `'incorrect'` isn't a proper Kind, so typescript will complain
+          // @ts-expect-error: `'incorrect'` isn't a proper Kind, so typescript will complain
           'incorrect',
           'title',
           'description',

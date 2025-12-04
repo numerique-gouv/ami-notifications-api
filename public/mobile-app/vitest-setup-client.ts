@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom/vitest'
-import { beforeEach, vi } from 'vitest'
 import type { MockInstance } from 'vitest'
+import { beforeEach, vi } from 'vitest'
 import {
   PUBLIC_API_GEO_CITY_QUERY_BASE_URL,
   PUBLIC_API_GEO_COUNTRY_QUERY_BASE_URL,

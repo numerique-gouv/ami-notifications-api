@@ -1,20 +1,20 @@
 <script lang="ts">
-import { onMount } from 'svelte'
-import { goto } from '$app/navigation'
-import Card from '$lib/components/Card.svelte'
-import { userStore } from '$lib/state/User.svelte'
-import type { UserIdentity } from '$lib/state/User.svelte'
+  import { onMount } from 'svelte'
+  import { goto } from '$app/navigation'
+  import Card from '$lib/components/Card.svelte'
+  import type { UserIdentity } from '$lib/state/User.svelte'
+  import { userStore } from '$lib/state/User.svelte'
 
-let identity: UserIdentity = $state() as UserIdentity
+  let identity: UserIdentity = $state() as UserIdentity
 
-onMount(async () => {
-  if (!userStore.connected) {
-    goto('/')
-    return
-  } else {
-    identity = userStore.connected.identity
-  }
-})
+  onMount(async () => {
+    if (!userStore.connected) {
+      goto('/')
+      return
+    } else {
+      identity = userStore.connected.identity
+    }
+  })
 </script>
 
 <nav class="fr-pb-0 fr-px-4v fr-pt-6v">

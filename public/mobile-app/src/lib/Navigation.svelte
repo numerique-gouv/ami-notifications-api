@@ -1,11 +1,11 @@
 <script lang="ts">
-let { currentItem } = $props()
-let current = {
-  home: currentItem == 'home',
-  agenda: currentItem == 'agenda',
-  lists: currentItem == 'lists',
-  requests: currentItem == 'requests',
-}
+  const { currentItem } = $props()
+  const current = {
+    home: currentItem === 'home',
+    agenda: currentItem === 'agenda',
+    lists: currentItem === 'lists',
+    requests: currentItem === 'requests',
+  }
 </script>
 
 <nav class="menu-footer" aria-label="Menu principal">

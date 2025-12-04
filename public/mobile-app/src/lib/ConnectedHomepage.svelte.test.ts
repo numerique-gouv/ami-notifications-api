@@ -1,17 +1,15 @@
-import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
-import WS from 'vitest-websocket-mock'
-import type { WS as WSType } from 'vitest-websocket-mock'
 import { render, screen, waitFor } from '@testing-library/svelte'
-import ConnectedHomepage from './ConnectedHomepage.svelte'
-import * as notificationsMethods from '$lib/notifications'
+import type { WS as WSType } from 'vitest-websocket-mock'
+import WS from 'vitest-websocket-mock'
 import * as agendaMethods from '$lib/agenda'
-import * as authMethods from '$lib/auth'
 import { Agenda, Item } from '$lib/agenda'
+import * as notificationsMethods from '$lib/notifications'
 import { PUBLIC_API_WS_URL } from '$lib/notifications'
-import { franceConnectLogout } from './france-connect'
 import { userStore } from '$lib/state/User.svelte'
 import { mockAddress, mockUserInfo } from '$tests/utils'
+import ConnectedHomepage from './ConnectedHomepage.svelte'
 
 let wss: WSType
 
@@ -312,7 +310,7 @@ describe('/ConnectedHomepage.svelte', () => {
 
   test('should display calendar block if agenda is empty', async () => {
     // Given
-    const spy = vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(new Agenda([]))
+    vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(new Agenda([]))
 
     // When
     const { container } = render(ConnectedHomepage)

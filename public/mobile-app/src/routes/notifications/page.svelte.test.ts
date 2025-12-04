@@ -1,11 +1,11 @@
-import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/svelte'
-import WS from 'vitest-websocket-mock'
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import type { WS as WSType } from 'vitest-websocket-mock'
-import Page from './+page.svelte'
+import WS from 'vitest-websocket-mock'
 import * as navigationMethods from '$app/navigation'
 import * as notificationsMethods from '$lib/notifications'
 import { PUBLIC_API_WS_URL } from '$lib/notifications'
+import Page from './+page.svelte'
 
 let wss: WSType
 

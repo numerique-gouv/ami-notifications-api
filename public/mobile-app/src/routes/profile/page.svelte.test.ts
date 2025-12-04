@@ -1,9 +1,9 @@
-import { beforeEach, describe, test, expect, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/svelte'
-import Page from './+page.svelte'
+import { describe, expect, test, vi } from 'vitest'
 import * as navigationMethods from '$app/navigation'
 import { userStore } from '$lib/state/User.svelte'
 import { mockUser } from '$tests/utils'
+import Page from './+page.svelte'
 
 describe('/+page.svelte', () => {
   test('user has to be connected', async () => {

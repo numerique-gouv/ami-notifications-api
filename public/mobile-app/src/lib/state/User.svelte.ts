@@ -4,9 +4,9 @@ import {
   PUBLIC_API_GEO_COUNTRY_QUERY_BASE_URL,
   PUBLIC_API_GEO_COUNTRY_QUERY_ENDPOINT,
 } from '$env/static/public'
-import { franceConnectLogout, parseJwt } from '$lib/france-connect'
-import { Address } from '$lib/address'
+import type { Address } from '$lib/address'
 import * as auth from '$lib/auth'
+import { franceConnectLogout, parseJwt } from '$lib/france-connect'
 
 export type UserInfo = {
   sub: string
@@ -62,7 +62,7 @@ class UserStore {
   async checkLoggedIn() {
     const userData = localStorage.getItem('user_data') || ''
     console.log('Checking if user is logged in', userData)
-    if (userData != '') {
+    if (userData !== '') {
       const userinfo: UserInfo = parseJwt(userData)
       console.log('User is logged in', userinfo)
       await this.login(userinfo)

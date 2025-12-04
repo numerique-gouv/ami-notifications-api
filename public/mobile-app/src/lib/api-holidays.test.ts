@@ -1,4 +1,4 @@
-import { afterEach, describe, test, expect, vi } from 'vitest'
+import { afterEach, describe, expect, test, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 import { retrieveHolidays } from '$lib/api-holidays'
 
