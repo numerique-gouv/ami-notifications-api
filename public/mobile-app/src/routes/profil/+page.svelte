@@ -37,8 +37,8 @@ onMount(async () => {
 <div class="fr-m-4v profile-content-container">
   <Card iconHref="/remixicons/account-circle-line.svg" title="Mon identité">
       Vous êtes&nbsp;:<br />
-      <b>{userinfo.given_name},</b><br />
-      née <b>{userinfo.family_name}</b>
+      <b>{userinfo.given_name} {userinfo.preferred_username || userinfo.family_name},</b><br />
+      né{#if userinfo.gender == "female"}e{/if}{#if userinfo.preferred_username} <b>{userinfo.family_name}</b>{/if}
       le <b>{userinfo.birthdate}</b>
       à <b>{userinfo.birthplace} ({userinfo.birthplace.toString().slice(0,2)}) {userinfo.birthcountry}</b><br />
       <span class="fr-text--xs">Informations fournies par FranceConnect</span><br />
