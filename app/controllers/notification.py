@@ -130,7 +130,7 @@ class NotAuthenticatedNotificationController(Controller):
         return env.VAPID_APPLICATION_SERVER_KEY
 
     @post("/ami_admin/notifications", include_in_schema=False)
-    async def admin_notify(
+    async def admin_create_notification(
         self,
         channels: ChannelsPlugin,
         notifications_service: NotificationService,
@@ -212,7 +212,7 @@ class NotAuthenticatedNotificationController(Controller):
         return type_adapter.validate_python(notifications)
 
     @post("/api/v1/notifications")
-    async def notify(
+    async def create_notification(
         self,
         data: Annotated[
             schemas.NotificationCreate,
