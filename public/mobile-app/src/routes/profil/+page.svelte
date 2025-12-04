@@ -47,6 +47,10 @@ onMount(async () => {
     <br />
     <button type="button" class="fr-btn fr-icon-edit-line fr-btn--icon-left fr-btn--tertiary">Modifier</button>
   </Card>
+
+  <Card iconHref="/remixicons/map-pin-user-line.svg" title="Mon adresse">
+    <button type="button" class="fr-btn fr-icon-edit-line fr-btn--icon-left fr-btn--tertiary">Définir une adresse</button>
+  </Card>
 </div>
 {/if}
 
