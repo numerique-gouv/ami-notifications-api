@@ -3,7 +3,7 @@ import '@testing-library/jest-dom/vitest'
 import * as holidaysMethods from '$lib/api-holidays'
 import { Item, Agenda, buildAgenda } from '$lib/agenda'
 
-describe('/api-particulier.ts', () => {
+describe('/agenda.ts', () => {
   describe('Item', () => {
     describe('dayName', () => {
       test('should return short day name', async () => {
@@ -233,6 +233,35 @@ describe('/api-particulier.ts', () => {
         expect(icon1).equal('')
         expect(icon2).equal('fr-icon-calendar-event-fill')
         expect(icon3).equal('fr-icon-home-4-fill')
+      })
+    })
+    describe('link', () => {
+      test('should return a link depending on kind', async () => {
+        // Given
+        const item1 = new Item(
+          // @ts-ignore: `'incorrect'` isn't a proper Kind, so typescript will complain
+          'incorrect',
+          'title',
+          'description',
+          new Date('2025-12-20')
+        )
+        const item2 = new Item(
+          'holiday',
+          'title',
+          'description',
+          new Date('2025-12-20')
+        )
+        const item3 = new Item('otv', 'title', 'description', new Date('2025-12-20'))
+
+        // When
+        const link1 = item1.link
+        const link2 = item2.link
+        const link3 = item3.link
+
+        // Then
+        expect(link1).equal('')
+        expect(link2).equal('/#/agenda')
+        expect(link3).equal('/#/procedure')
       })
     })
   })

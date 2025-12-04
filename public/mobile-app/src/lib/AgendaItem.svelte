@@ -1,11 +1,17 @@
 <script lang="ts">
 import { Item } from '$lib/agenda'
+import { onMount } from 'svelte'
 interface Props {
   item: Item
   // Only display the date on the agenda's page, not on the homepage
   displayDate?: Boolean
 }
 let { item, displayDate = true }: Props = $props()
+let agendaItemDate: string = $state('')
+
+onMount(async () => {
+  agendaItemDate = item.date ? item.date.toLocaleDateString('sv-SE') : ''
+})
 </script>
 
 <div class="agenda--item">
@@ -19,7 +25,9 @@ let { item, displayDate = true }: Props = $props()
     <div class="fr-tile__body">
       <div class="fr-tile__content">
         <h3 class="fr-tile__title">
-          <a href="/#/agenda/">{item.title}</a>
+          <a href="{item.link}?date={agendaItemDate}" data-testid="agenda-item-link">
+            {item.title}
+          </a>
         </h3>
         {#if item.description}<p class="fr-tile__detail">{item.description}</p>{/if}
         <div class="fr-tile__start">
