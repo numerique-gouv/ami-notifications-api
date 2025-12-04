@@ -220,13 +220,14 @@ describe('/ConnectedHomepage.svelte', () => {
 
     // When
     const { container } = render(ConnectedHomepage)
-    await new Promise(setTimeout) // wait for async calls
 
     // Then
-    const addressBlock = container.querySelector('.first-block-container')
-    expect(addressBlock).toHaveTextContent(
-      'Gagner du temps en renseignant votre adresse une seule fois'
-    )
+    await waitFor(() => {
+      const addressBlock = container.querySelector('.address-container')
+      expect(addressBlock).toHaveTextContent(
+        'Gagnez du temps en renseignant votre adresse une seule fois'
+      )
+    })
   })
 
   test('should not display address block when user address is known', async () => {
@@ -235,11 +236,12 @@ describe('/ConnectedHomepage.svelte', () => {
 
     // When
     const { container } = render(ConnectedHomepage)
-    await new Promise(setTimeout) // wait for async calls
 
     // Then
-    const addressBlock = container.querySelector('.first-block-container')
-    expect(addressBlock).toBeNull()
+    await waitFor(() => {
+      const addressBlock = container.querySelector('.first-block-container')
+      expect(addressBlock).toBeNull()
+    })
   })
 
   test('Should display first holiday found from API', async () => {
