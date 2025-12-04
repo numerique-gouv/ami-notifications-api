@@ -1,4 +1,4 @@
-export type AddressFromBAN = {
+export type PropertiesFromBAN = {
   city: string
   context: string
   id: string
@@ -7,7 +7,66 @@ export type AddressFromBAN = {
   postcode: string
 }
 
-export const callBAN = async (inputValue) => {
+export type FeatureFromBAN = {
+  properties: PropertiesFromBAN
+}
+
+export type ResponseFromBAN = {
+  type: string
+  features: FeatureFromBAN[]
+  query: string
+}
+
+export class AddressFromBAN {
+  private _city: string = ''
+  private _context: string = ''
+  private _id: string = ''
+  private _label: string = ''
+  private _name: string = ''
+  private _postcode: string = ''
+
+  constructor(
+    city: string,
+    context: string,
+    id: string,
+    label: string,
+    name: string,
+    postcode: string
+  ) {
+    this._city = city
+    this._context = context
+    this._id = id
+    this._label = label
+    this._name = name
+    this._postcode = postcode
+  }
+
+  get city(): string {
+    return this._city
+  }
+
+  get context(): string {
+    return this._context
+  }
+
+  get id(): string {
+    return this._id
+  }
+
+  get label(): string {
+    return this._label
+  }
+
+  get name(): string {
+    return this._name
+  }
+
+  get postcode(): string {
+    return this._postcode
+  }
+}
+
+export const callBAN = async (inputValue: string) => {
   try {
     const encodedInputValue = encodeURI(inputValue)
     const endpoint_headers = {
@@ -38,19 +97,20 @@ export const callBAN = async (inputValue) => {
   } catch (error) {
     console.error(error)
   }
+  return {}
 }
 
-const formatResults = (data) => {
+const formatResults = (data: ResponseFromBAN) => {
   const results = [] as AddressFromBAN[]
   if (data) {
-    data.features.forEach((feature) => {
-      const address = {} as AddressFromBAN
-      address.city = feature.properties.city
-      address.context = feature.properties.context
-      address.id = feature.properties.id
-      address.label = feature.properties.label
-      address.name = feature.properties.name
-      address.postcode = feature.properties.postcode
+    data.features.forEach((feature: FeatureFromBAN) => {
+      const city = feature.properties.city
+      const context = feature.properties.context
+      const id = feature.properties.id
+      const label = feature.properties.label
+      const name = feature.properties.name
+      const postcode = feature.properties.postcode
+      const address = new AddressFromBAN(city, context, id, label, name, postcode)
       results.push(address)
     })
   }

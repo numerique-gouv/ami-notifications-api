@@ -1,42 +1,74 @@
 <script lang="ts">
 import { type AddressFromBAN, callBAN } from './addressesFromBAN'
 
-type Address = {
-  city: string
-  context: string
-  idBAN: string
-  label: string
-  name: string
-  postcode: string
+class Address {
+  private _city: string = ''
+  private _context: string = ''
+  private _idBAN: string = ''
+  private _label: string = ''
+  private _name: string = ''
+  private _postcode: string = ''
+
+  constructor(
+    city: string,
+    context: string,
+    idBAN: string,
+    label: string,
+    name: string,
+    postcode: string
+  ) {
+    this._city = city
+    this._context = context
+    this._idBAN = idBAN
+    this._label = label
+    this._name = name
+    this._postcode = postcode
+  }
+
+  get city(): string {
+    return this._city
+  }
+
+  get context(): string {
+    return this._context
+  }
+
+  get idBAN(): string {
+    return this._idBAN
+  }
+
+  get label(): string {
+    return this._label
+  }
+
+  get name(): string {
+    return this._name
+  }
+
+  get postcode(): string {
+    return this._postcode
+  }
 }
 
-let timer
+let timer: any
 let inputValue: string = $state('')
-let filteredAddresses: [Address] = $state([])
+let filteredAddresses: Address[] = $state([])
 let disabledButton: boolean = $state(true)
 let addressHasError: boolean = $state(false)
-let selectedAddress: Address = $state<Address>({
-  city: '',
-  context: '',
-  idBAN: '',
-  label: '',
-  name: '',
-  postcode: '',
-})
+let selectedAddress: Address = $state<Address>(new Address('', '', '', '', '', ''))
 let hasSubmittedAddress: boolean = $state(false)
-let submittedAddress: Address = $state<Address>({
-  city: '',
-  context: '',
-  idBAN: '',
-  label: '',
-  name: '',
-  postcode: '',
-})
+let submittedAddress: Address = $state<Address>(new Address('', '', '', '', '', ''))
 
-const debounce = (v) => {
+const addressInputHandler = (event: Event) => {
+  if (!event.target) return
+  const { value } = event.target as HTMLInputElement
+  debounce(value)
+}
+
+const debounce = (value: string) => {
   clearTimeout(timer)
   timer = setTimeout(() => {
-    inputValue = v
+    inputValue = value
     filterAddresses()
   }, 750)
 }
@@ -50,16 +82,19 @@ const filterAddresses = async () => {
         addressHasError = true
       } else {
         addressHasError = false
-        filteredAddresses = response.results.map(
-          (address: AddressFromBAN): Address => ({
-            city: address.city,
-            context: address.context,
-            idBAN: address.id,
-            label: address.label,
-            name: address.name,
-            postcode: address.postcode,
-          })
-        )
+        if (response.results) {
+          filteredAddresses = response.results.map(
+            (address: AddressFromBAN): Address => {
+              const city = address.city
+              const context = address.context
+              const idBAN = address.id
+              const label = address.label
+              const name = address.name
+              const postcode = address.postcode
+              return new Address(city, context, idBAN, label, name, postcode)
+            }
+          )
+        }
       }
     } catch (error) {
       console.error(error)
@@ -67,39 +102,35 @@ const filterAddresses = async () => {
   }
 }
 
-const setInputVal = (address) => {
+const setInputVal = (address: Address) => {
   selectedAddress = address
   filteredAddresses = []
   inputValue = selectedAddress.label
-  document.querySelector('#address-input').focus()
+
+  const addressInput: HTMLInputElement | null =
+    document.querySelector<HTMLInputElement>('#address-input')
+  if (addressInput) {
+    addressInput.focus()
+  }
+
   disabledButton = false
 }
 
 const submitAddress = async () => {
   hasSubmittedAddress = true
   submittedAddress = selectedAddress
-  localStorage.setItem('user_address', JSON.stringify(submittedAddress))
+  console.log(submittedAddress)
+  localStorage.setItem(
+    'user_address',
+    `{"city":"${submittedAddress.city}","context":"${submittedAddress.context}","idBAN":"${submittedAddress.idBAN}","label":"${submittedAddress.label}","name":"${submittedAddress.name}","postcode":"${submittedAddress.postcode}"}`
+  )
 }
 
 const removeAddress = async () => {
   hasSubmittedAddress = false
   disabledButton = true
-  selectedAddress = {
-    city: '',
-    context: '',
-    idBAN: '',
-    label: '',
-    name: '',
-    postcode: '',
-  }
-  submittedAddress = {
-    city: '',
-    context: '',
-    idBAN: '',
-    label: '',
-    name: '',
-    postcode: '',
-  }
+  selectedAddress = new Address('', '', '', '', '', '')
+  submittedAddress = new Address('', '', '', '', '', '')
   localStorage.setItem('user_address', '')
 }
 </script>
@@ -133,7 +164,7 @@ const removeAddress = async () => {
                    bind:value={inputValue}
                    data-testid="address-input"
                    autocomplete="address-line1"
-                   oninput={({ target: { value } }) => debounce(value)}
+                   oninput={addressInputHandler}
             >
             {#if addressHasError}
               <div class="fr-messages-group" aria-live="polite">
