@@ -115,6 +115,14 @@ async def user(db_session: AsyncSession) -> User:
 
 
 @pytest.fixture
+async def never_seen_user(user: User, db_session: AsyncSession) -> User:
+    user.already_seen = False
+    db_session.add(user)
+    await db_session.commit()
+    return user
+
+
+@pytest.fixture
 async def notification(db_session: AsyncSession, registration: Registration) -> Notification:
     notification_ = Notification(
         user_id=registration.user.id,

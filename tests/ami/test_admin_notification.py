@@ -62,6 +62,7 @@ async def test_admin_create_notification_from_test_and_from_app_context(
         "notification_id": str(notification2.id),
         "notification_send_status": True,
     }
+    assert httpx_mock.get_request()
 
 
 async def test_admin_create_notification_test_fields(
@@ -148,3 +149,23 @@ async def test_admin_create_notification_when_registration_gone(
     assert response.status_code == HTTP_201_CREATED
     notification_count = (await db_session.execute(select(func.count()).select_from(User))).scalar()
     assert notification_count == 1
+    assert httpx_mock.get_request()
+
+
+async def test_admin_create_notification_no_registration(
+    test_client: TestClient[Litestar],
+    db_session: AsyncSession,
+    user: User,
+    httpx_mock: HTTPXMock,
+) -> None:
+    notification_data = {
+        "user_id": str(user.id),
+        "message": "This will not be PUSHed, but still created on the backend",
+        "title": "Some notification title",
+        "sender": "Jane Doe",
+    }
+    response = test_client.post("/ami_admin/notifications", json=notification_data)
+    assert response.status_code == HTTP_201_CREATED
+    notification_count = (await db_session.execute(select(func.count()).select_from(User))).scalar()
+    assert notification_count == 1
+    assert not httpx_mock.get_request()
