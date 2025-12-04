@@ -1,12 +1,14 @@
 <script lang="ts">
+import type { Snippet } from 'svelte'
 import Icon from '$lib/components/Icon.svelte'
 
 interface Props {
+  children?: Snippet
   iconHref: string
   className?: string
   title: string
 }
-let { className, iconHref, title }: Props = $props()
+let { children, className, iconHref, title }: Props = $props()
 </script>
 
 <div class="fr-card fr-p-3w fr-mb-2w fr-enlarge-link">
@@ -17,7 +19,7 @@ let { className, iconHref, title }: Props = $props()
         {title}
       </h3>
       <p class="fr-card__desc ">
-        <slot />
+        {@render children?.()}
       </p>
     </div>
   </div>
@@ -28,9 +30,6 @@ let { className, iconHref, title }: Props = $props()
   align-items: center;
   display: flex;
   flex-direction: row;
-  a {
-    color: var(--text-default-grey);
-  }
 }
 </style>
 
