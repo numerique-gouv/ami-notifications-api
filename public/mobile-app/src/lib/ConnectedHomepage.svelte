@@ -12,9 +12,9 @@ import { getQuotientData } from '$lib/api-particulier'
 import { buildAgenda } from '$lib/agenda'
 import type { Agenda } from '$lib/agenda'
 import AgendaItem from '$lib/AgendaItem.svelte'
+import Icon from '$lib/components/Icon.svelte'
 import { userStore } from '$lib/state/User.svelte'
 import type { UserInfo } from '$lib/state/User.svelte'
-import Icon from '$lib/components/Icon.svelte'
 
 let quotientinfo: Object = $state({})
 let unreadNotificationsCount: number = $state(0)
