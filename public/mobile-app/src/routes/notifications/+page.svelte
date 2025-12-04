@@ -9,13 +9,12 @@ import {
   notificationEventsSocket,
 } from '$lib/notifications'
 import type { Notification } from '$lib/notifications'
+import { userStore } from '$lib/state/User.svelte'
 
-let isFranceConnected: boolean | null = $state(null)
 let notifications: Notification[] = $state([])
 
 onMount(async () => {
-  isFranceConnected = await checkAuth()
-  if (isFranceConnected === false) {
+  if (!userStore.isConnected()) {
     goto('/')
   }
 
