@@ -11,7 +11,7 @@ from pydantic import Field
 class BaseModel(PydanticBaseModel):
     """Extend Pydantic's BaseModel to enable ORM mode"""
 
-    model_config = {"from_attributes": True}
+    model_config = {"from_attributes": True, "use_enum_values": True}
 
 
 class NotificationEvent(Enum):
@@ -52,30 +52,35 @@ class Notification(BaseModel):
 
 class NotificationCreate(BaseModel):
     recipient_fc_hash: str = Field(
-        description="Hash de la concaténation des données pivot FC de l'usager destinataire, cf doc"
+        description="Hash de la concaténation des données pivot FC de l'usager destinataire, cf doc",
     )
 
-    content_title: str = Field(description="Titre de la notification")
-    content_body: str = Field(description="Contenu de la notification")
+    content_title: str = Field(min_length=1, description="Titre de la notification")
+    content_body: str = Field(min_length=1, description="Contenu de la notification")
     content_icon: str | None = Field(
+        min_length=1,
         default="otv_default_icon",
         description="Nom technique de l'icône à associer à la notification dans l'application AMI, à choisir dans https://remixicon.com/",
     )
 
     item_type: str = Field(
+        min_length=1,
         description="Champ libre représentant le type de l'objet associé à la notification, "
-        'par exemple : "OTV" dans le cas des démarches "Opération Tranquillité Vacances"'
+        'par exemple : "OTV" dans le cas des démarches "Opération Tranquillité Vacances"',
     )
     item_id: str = Field(
-        description="Identifiant dans le référentiel partenaire de l'objet associé à la notification"
+        min_length=1,
+        description="Identifiant dans le référentiel partenaire de l'objet associé à la notification",
     )
     item_status_label: str = Field(
-        description='Champ libre représentant le statut de l\'objet associé à la notification, par exemple : "Brouillon"'
+        min_length=1,
+        description='Champ libre représentant le statut de l\'objet associé à la notification, par exemple : "Brouillon"',
     )
     item_generic_status: ItemGenericStatus = Field(
         description="Statut générique de l'objet associé à la notification pilotant des comportements spécifiques dans l'application AMI"
     )
     item_canal: str | None = Field(
+        min_length=1,
         default=None,
         description="Canal source de l'objet associé à la notification (AMI, PSL, etc.) pour la mesure d'impact",
     )
@@ -90,6 +95,7 @@ class NotificationCreate(BaseModel):
         "ex : date de fin de surveillance du logement dans le cadre d'une OTV",
     )
     item_external_url: str | None = Field(
+        min_length=1,
         default=None,
         description="Lien vers le portail du partenaire de l'objet associé à la notification",
     )
