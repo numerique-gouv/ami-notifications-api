@@ -41,7 +41,7 @@ make lint-and-format
 [Biome](https://biomejs.dev/) is "One toolchain for your web project"
 
 Biome is used for:
-- formatting: `npx @biomejs/biome format --write`
+- formatting: `npx @biomejs/biome check --write`
 
 ### API
 

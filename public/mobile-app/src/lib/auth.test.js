@@ -1,6 +1,6 @@
-import { describe, test, expect, vi } from 'vitest'
+import { describe, expect, test, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
-import { logout, checkAuth } from '$lib/auth'
+import { checkAuth, logout } from '$lib/auth'
 
 describe('/auth', () => {
   describe('logout', () => {

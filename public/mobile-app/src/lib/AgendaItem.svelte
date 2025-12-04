@@ -1,11 +1,12 @@
 <script lang="ts">
-import { Item } from '$lib/agenda'
-interface Props {
-  item: Item
-  // Only display the date on the agenda's page, not on the homepage
-  displayDate?: Boolean
-}
-let { item, displayDate = true }: Props = $props()
+  import type { Item } from '$lib/agenda'
+
+  interface Props {
+    item: Item
+    // Only display the date on the agenda's page, not on the homepage
+    displayDate?: boolean
+  }
+  const { item, displayDate = true }: Props = $props()
 </script>
 
 <div class="agenda--item">

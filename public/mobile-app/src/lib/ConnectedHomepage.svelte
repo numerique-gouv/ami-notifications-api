@@ -1,110 +1,110 @@
 <script lang="ts">
-import { parseJwt, franceConnectLogout } from '$lib/france-connect'
-import type { UserInfo } from '$lib/france-connect'
-import { logout } from '$lib/auth'
-import { onMount } from 'svelte'
-import {
-  countUnreadNotifications,
-  disableNotifications,
-  enableNotifications,
-  notificationEventsSocket,
-} from '$lib/notifications'
-import type { Registration } from '$lib/registration'
-import { getQuotientData } from '$lib/api-particulier'
-import { buildAgenda } from '$lib/agenda'
-import type { Agenda } from '$lib/agenda'
-import AgendaItem from '$lib/AgendaItem.svelte'
+  import { onMount } from 'svelte'
+  import AgendaItem from '$lib/AgendaItem.svelte'
+  import type { Agenda } from '$lib/agenda'
+  import { buildAgenda } from '$lib/agenda'
+  import { getQuotientData } from '$lib/api-particulier'
+  import { logout } from '$lib/auth'
+  import type { UserInfo } from '$lib/france-connect'
+  import { franceConnectLogout, parseJwt } from '$lib/france-connect'
+  import {
+    countUnreadNotifications,
+    disableNotifications,
+    enableNotifications,
+    notificationEventsSocket,
+  } from '$lib/notifications'
+  import type { Registration } from '$lib/registration'
 
-let userinfo: UserInfo | null = $state(null)
-let quotientinfo: Object = $state({})
-let unreadNotificationsCount: number = $state(0)
-let initials: string = $state('')
-let isMenuDisplayed: boolean = $state(false)
-let isAddressEmpty: boolean = $state(true)
-let notificationsEnabled: boolean = $state(false)
-let registration: Registration | null = $state(null)
-let agenda: Agenda | null = $state(null)
+  let userinfo: UserInfo | null = $state(null)
+  let quotientinfo: object = $state({})
+  let unreadNotificationsCount: number = $state(0)
+  let initials: string = $state('')
+  let isMenuDisplayed: boolean = $state(false)
+  let isAddressEmpty: boolean = $state(true)
+  let notificationsEnabled: boolean = $state(false)
+  let registration: Registration | null = $state(null)
+  let agenda: Agenda | null = $state(null)
 
-const updateNotificationsEnabled = async (notificationsEnabledStatus: boolean) => {
-  if (notificationsEnabledStatus === true) {
-    registration = await enableNotifications()
-  } else if (registration) {
-    await disableNotifications(registration.id)
+  const updateNotificationsEnabled = async (notificationsEnabledStatus: boolean) => {
+    if (notificationsEnabledStatus === true) {
+      registration = await enableNotifications()
+    } else if (registration) {
+      await disableNotifications(registration.id)
+    }
+    notificationsEnabled = notificationsEnabledStatus
+    localStorage.setItem('notifications_enabled', notificationsEnabledStatus.toString())
   }
-  notificationsEnabled = notificationsEnabledStatus
-  localStorage.setItem('notifications_enabled', notificationsEnabledStatus.toString())
-}
 
-const initializeNavigatorPermissions = async () => {
-  if (navigator.permissions) {
-    const permissionStatus = await navigator.permissions.query({
-      name: 'notifications',
-    })
+  const initializeNavigatorPermissions = async () => {
+    if (navigator.permissions) {
+      const permissionStatus = await navigator.permissions.query({
+        name: 'notifications',
+      })
 
-    permissionStatus.onchange = async () => {
-      await updateNotificationsEnabled(permissionStatus.state == 'granted')
-      console.log(`notifications permission status is ${permissionStatus.state}`)
+      permissionStatus.onchange = async () => {
+        await updateNotificationsEnabled(permissionStatus.state === 'granted')
+        console.log(`notifications permission status is ${permissionStatus.state}`)
+      }
     }
   }
-}
 
-const getInitials = (given_name_array: string[]): string => {
-  let initials_: string = ''
-  given_name_array.forEach((given_name) => {
-    initials_ += given_name.substring(0, 1)
-  })
-  return initials_
-}
-
-onMount(async () => {
-  try {
-    isAddressEmpty =
-      localStorage.getItem('user_address') !== '' ||
-      localStorage.getItem('user_address') !== null
-    notificationsEnabled = localStorage.getItem('notifications_enabled') === 'true'
-    await initializeNavigatorPermissions()
-
-    const userData = localStorage.getItem('user_data') || ''
-    userinfo = parseJwt(userData)
-    console.log($state.snapshot(userinfo))
-
-    initials = getInitials(userinfo?.given_name_array)
-
-    unreadNotificationsCount = await countUnreadNotifications()
-    notificationEventsSocket(async () => {
-      unreadNotificationsCount = await countUnreadNotifications()
+  const getInitials = (given_name_array: string[]): string => {
+    let initials_: string = ''
+    given_name_array.forEach((given_name) => {
+      initials_ += given_name.substring(0, 1)
     })
-
-    agenda = await buildAgenda()
-    console.log($state.snapshot(agenda))
-
-    quotientinfo = await getQuotientData()
-    console.log($state.snapshot(quotientinfo))
-  } catch (error) {
-    console.error(error)
+    return initials_
   }
-})
 
-const toggleMenu = () => {
-  isMenuDisplayed = !isMenuDisplayed
-}
+  onMount(async () => {
+    try {
+      isAddressEmpty =
+        localStorage.getItem('user_address') !== '' ||
+        localStorage.getItem('user_address') !== null
+      notificationsEnabled = localStorage.getItem('notifications_enabled') === 'true'
+      await initializeNavigatorPermissions()
 
-const clickEnableNotifications = async () => {
-  await updateNotificationsEnabled(true)
-}
+      const userData = localStorage.getItem('user_data') || ''
+      userinfo = parseJwt(userData)
+      console.log($state.snapshot(userinfo))
 
-const clickDisableNotifications = async () => {
-  await updateNotificationsEnabled(false)
-}
+      initials = getInitials(userinfo?.given_name_array)
 
-const clickLogout = async () => {
-  const id_token_hint = localStorage.getItem('id_token') || ''
-  // Logout from AMI first: https://github.com/numerique-gouv/ami-notifications-api/issues/132
-  localStorage.clear()
-  await logout()
-  // And now logout from FC
-  await franceConnectLogout(id_token_hint)
-}
+      unreadNotificationsCount = await countUnreadNotifications()
+      notificationEventsSocket(async () => {
+        unreadNotificationsCount = await countUnreadNotifications()
+      })
+
+      agenda = await buildAgenda()
+      console.log($state.snapshot(agenda))
+
+      quotientinfo = await getQuotientData()
+      console.log($state.snapshot(quotientinfo))
+    } catch (error) {
+      console.error(error)
+    }
+  })
+
+  const toggleMenu = () => {
+    isMenuDisplayed = !isMenuDisplayed
+  }
+
+  const clickEnableNotifications = async () => {
+    await updateNotificationsEnabled(true)
+  }
+
+  const clickDisableNotifications = async () => {
+    await updateNotificationsEnabled(false)
+  }
+
+  const clickLogout = async () => {
+    const id_token_hint = localStorage.getItem('id_token') || ''
+    // Logout from AMI first: https://github.com/numerique-gouv/ami-notifications-api/issues/132
+    localStorage.clear()
+    await logout()
+    // And now logout from FC
+    await franceConnectLogout(id_token_hint)
+  }
 </script>
 
 <div class="homepage-connected">

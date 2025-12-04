@@ -88,9 +88,9 @@ export const callBAN = async (inputValue: string) => {
 
     if (
       result.code === 400 &&
-      result.detail[0] ==
+      result.detail[0] ===
         'q: must contain between 3 and 200 chars and start with a number or a letter' &&
-      result.message == 'Failed parsing query'
+      result.message === 'Failed parsing query'
     ) {
       return { statusCode: 400 }
     }

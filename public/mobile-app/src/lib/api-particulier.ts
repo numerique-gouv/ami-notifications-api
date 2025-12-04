@@ -17,7 +17,7 @@ export const getQuotientData = async () => {
       localStorage.setItem('quotient_data', quotientData)
     }
   }
-  if (!!quotientData) {
+  if (quotientData) {
     return JSON.parse(quotientData)
   }
 }
