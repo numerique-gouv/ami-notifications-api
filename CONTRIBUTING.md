@@ -287,3 +287,5 @@ You'll need to add the `PRO_CONNECT_AMI_ADMIN_CLIENT_SECRET` and the `PUBLIC_PRO
 # Architectural diagram
 
 ![AMI architectural diagram]( AMI-technical%20architecture.excalidraw.svg)
+
+test
