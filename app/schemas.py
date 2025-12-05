@@ -11,44 +11,129 @@ from pydantic import Field
 class BaseModel(PydanticBaseModel):
     """Extend Pydantic's BaseModel to enable ORM mode"""
 
-    model_config = {"from_attributes": True}
-
-
-class FCUserInfo(BaseModel):
-    birthcountry: int | None
-    birthdate: datetime.date | None = None
-    birthplace: int | None = None
-    email: str | None = None
-    family_name: str | None = None
-    gender: str | None = None
-    given_name: str | None = None
-
-
-class AdminNotification(BaseModel):
-    id: uuid.UUID
-    user_id: uuid.UUID
-    message: str
-    sender: str | None
-    title: str | None
-    unread: bool
-    created_at: datetime.datetime
-
-
-class NotificationCreate(BaseModel):
-    user_id: uuid.UUID
-    message: str = Field(min_length=1)
-    sender: str | None
-    title: str | None
-
-
-class NotificationRead(BaseModel):
-    read: bool
+    model_config = {"from_attributes": True, "use_enum_values": True}
 
 
 class NotificationEvent(Enum):
     CREATED = "created"
     UPDATED = "updated"
     DELETED = "deleted"
+
+
+class ItemGenericStatus(Enum):
+    NEW = "new"
+    WIP = "wip"
+    CLOSED = "closed"
+
+
+class Notification(BaseModel):
+    id: uuid.UUID
+    user_id: uuid.UUID
+
+    content_title: str
+    content_body: str
+    content_icon: str | None
+
+    sender: str
+
+    item_type: str | None
+    item_id: str | None
+    item_status_label: str | None
+    item_generic_status: ItemGenericStatus | None
+    item_canal: str | None
+    item_milestone_start_date: datetime.datetime | None
+    item_milestone_end_date: datetime.datetime | None
+    item_external_url: str | None
+
+    send_date: datetime.datetime
+
+    unread: bool
+
+
+class NotificationCreate(BaseModel):
+    recipient_fc_hash: str = Field(
+        description="Hash de la concaténation des données pivot FC de l'usager destinataire, cf doc",
+    )
+
+    content_title: str = Field(min_length=1, description="Titre de la notification")
+    content_body: str = Field(min_length=1, description="Contenu de la notification")
+    content_icon: str | None = Field(
+        min_length=1,
+        default=None,
+        description="Nom technique de l'icône à associer à la notification dans l'application AMI, à choisir dans https://remixicon.com/",
+    )
+
+    item_type: str = Field(
+        min_length=1,
+        description="Champ libre représentant le type de l'objet associé à la notification, "
+        'par exemple : "OTV" dans le cas des démarches "Opération Tranquillité Vacances"',
+    )
+    item_id: str = Field(
+        min_length=1,
+        description="Identifiant dans le référentiel partenaire de l'objet associé à la notification",
+    )
+    item_status_label: str = Field(
+        min_length=1,
+        description='Champ libre représentant le statut de l\'objet associé à la notification, par exemple : "Brouillon"',
+    )
+    item_generic_status: ItemGenericStatus = Field(
+        description="Statut générique de l'objet associé à la notification pilotant des comportements spécifiques dans l'application AMI"
+    )
+    item_canal: str | None = Field(
+        min_length=1,
+        default=None,
+        description="Canal source de l'objet associé à la notification (AMI, PSL, etc.) pour la mesure d'impact",
+    )
+    item_milestone_start_date: datetime.datetime | None = Field(
+        default=None,
+        description="Date (au format ISO 8601) de début de la période correspondant à l'objet associé à la notification, "
+        "ex : date de début de surveillance du logement dans le cadre d'une OTV",
+    )
+    item_milestone_end_date: datetime.datetime | None = Field(
+        default=None,
+        description="Date (au format ISO 8601) de fin de la période correspondant à l'objet associé à la notification, "
+        "ex : date de fin de surveillance du logement dans le cadre d'une OTV",
+    )
+    item_external_url: str | None = Field(
+        min_length=1,
+        default=None,
+        description="Lien vers le portail du partenaire de l'objet associé à la notification",
+    )
+
+    send_date: datetime.datetime = Field(
+        description="Date (au format ISO 8601) d'émission de la notification côté partenaire"
+    )
+
+    try_push: bool | None = Field(
+        default=True,
+        description="Indique si le système doit essayer de déclencher une Notification Push sur les terminaux de l'usager",
+    )
+
+
+class NotificationResponse(BaseModel):
+    notification_id: uuid.UUID
+    notification_send_status: bool
+
+
+class NotificationRead(BaseModel):
+    read: bool
+
+
+class AdminNotificationCreate(BaseModel):
+    user_id: uuid.UUID
+    content_title: str = Field(min_length=1, alias="title")
+    content_body: str = Field(min_length=1, alias="message")
+    sender: str = Field(min_length=1)
+
+
+class NotificationLegacy(BaseModel):
+    id: uuid.UUID
+    user_id: uuid.UUID
+    title: str = Field(alias="content_title")
+    message: str = Field(alias="content_body")
+    sender: str
+    unread: bool
+    created_at: datetime.datetime
 
 
 class Registration(BaseModel):
@@ -86,63 +171,3 @@ class Holiday:
         filtered["end_date"] = datetime.datetime.fromisoformat(filtered["end_date"])
         filtered["emoji"] = cls.emoji_mapping.get(filtered["description"], "")
         return cls(**filtered)
-
-
-class ItemGenericStatus(Enum):
-    NEW = "new"
-    WIP = "wip"
-    CLOSED = "closed"
-
-
-class Notification(BaseModel):
-    recipient_fc_hash: str = Field(
-        description="Hash de la concaténation des données pivot FC de l'usager destinataire, cf doc"
-    )
-    # Dans AMI, on stocke la liste des partenaires et leur clé d'API (en base ou en variables d'env)
-    # Dans la table Notifications, il y a le partenaire émetteur
-    item_type: str = Field(
-        description='Champ libre représentant le type de l\'objet associé à la notification, par exemple : "OTV" dans le cas des démarches "Opération Tranquillité Vacances"'
-    )
-    item_id: str = Field(
-        description="Identifiant dans le référentiel partenaire de l'objet associé à la notification"
-    )
-    item_status_label: str = Field(
-        description='Champ libre représentant le statut de l\'objet associé à la notification, par exemple : "Brouillon"'
-    )
-    item_generic_status: ItemGenericStatus = Field(
-        description="Statut générique de l'objet associé à la notification pilotant des comportements spécifiques dans l'application AMI"
-    )
-    item_canal: str | None = Field(
-        default=None,
-        description="Canal source de l'objet associé à la notification (AMI, PSL, etc.) pour la mesure d'impact",
-    )
-    item_milestone_start_date: datetime.datetime | None = Field(
-        default=None,
-        description="Date (au format ISO 8601) de début de la période correspondant à l'objet associé à la notification, ex : date de début de surveillance du logement dans le cadre d'une OTV",
-    )
-    item_milestone_end_date: datetime.datetime | None = Field(
-        default=None,
-        description="Date (au format ISO 8601) de fin de la période correspondant à l'objet associé à la notification, ex : date de fin de surveillance du logement dans le cadre d'une OTV",
-    )
-    item_external_url: str | None = Field(
-        default=None,
-        description="Lien vers le portail du partenaire de l'objet associé à la notification",
-    )
-    send_date: datetime.datetime = Field(
-        description="Date (au format ISO 8601) d'émission de la notification côté partenaire"
-    )
-    try_push: bool | None = Field(
-        default=True,
-        description="Indique si le système doit essayer de déclencher une Notification Push sur les terminaux de l'usager",
-    )
-    content_title: str = Field(description="Titre de la notification")
-    content_body: str = Field(description="Contenu de la notification")
-    content_icon: str | None = Field(
-        default="otv_default_icon",
-        description="Nom technique de l'icône à associer à la notification dans l'application AMI, à choisir dans https://remixicon.com/",
-    )
-
-
-class NotifyResponse(BaseModel):
-    notification_id: uuid.UUID
-    notification_send_status: bool

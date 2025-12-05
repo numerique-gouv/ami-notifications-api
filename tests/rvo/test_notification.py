@@ -23,15 +23,15 @@ async def test_rvo_test_list_users_when_logged_in(
     response = connected_test_client.get("/rvo/test")
     assert response.status_code == 200
     assert (
-        f'<a href="/rvo/test/user/{connected_user.id}/send-notification">#{connected_user.id} AMI Test User</a>'
+        f'<a href="/rvo/test/user/{connected_user.id}/send-notification">{connected_user.fc_hash}</a>'
         in response.text
     )
-    assert "<span>user@example.com, notifications envoyées: 0" in response.text
+    assert "<span>notifications envoyées: 0" in response.text
 
     notification_ = Notification(
         user_id=str(connected_user.id),
-        message="Hello notification",
-        title="Notification title",
+        content_body="Hello notification",
+        content_title="Notification title",
         sender="John Doe",
     )
     db_session.add(notification_)
@@ -40,10 +40,10 @@ async def test_rvo_test_list_users_when_logged_in(
     response = connected_test_client.get("/rvo/test")
     assert response.status_code == 200
     assert (
-        f'<a href="/rvo/test/user/{connected_user.id}/send-notification">#{connected_user.id} AMI Test User</a>'
+        f'<a href="/rvo/test/user/{connected_user.id}/send-notification">{connected_user.fc_hash}</a>'
         in response.text
     )
-    assert "<span>user@example.com, notifications envoyées: 1" in response.text
+    assert "<span>notifications envoyées: 1" in response.text
 
 
 async def test_rvo_test_list_users_when_logged_out(
@@ -59,20 +59,20 @@ async def test_rvo_test_send_notification_when_logged_in(
     connected_user = connected_test_client.user
     response = connected_test_client.get(f"/rvo/test/user/{connected_user.id}/send-notification")
     assert response.status_code == 200
-    assert "Envoyer une notification à AMI Test User" in response.text
+    assert f"Envoyer une notification à {connected_user.fc_hash}" in response.text
     assert "Historique des notifications" not in response.text
 
     notification_ = Notification(
         user_id=str(connected_user.id),
-        message="Hello notification1",
-        title="Notification title",
+        content_body="Hello notification1",
+        content_title="Notification title",
         sender="John Doe",
     )
     db_session.add(notification_)
     notification_ = Notification(
         user_id=str(connected_user.id),
-        message="Hello notification2",
-        title="Notification title",
+        content_body="Hello notification2",
+        content_title="Notification title",
         sender="John Doe",
         created_at=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=1),
     )
@@ -92,8 +92,8 @@ async def test_rvo_test_send_notification_localtime(
     connected_user = connected_test_client.user
     notification = Notification(
         user_id=str(connected_user.id),
-        message="Hello notification2",
-        title="Notification title",
+        content_body="Hello notification2",
+        content_title="Notification title",
         sender="John Doe",
         created_at=datetime.datetime(2025, 11, 14, 11, 0, 0, tzinfo=datetime.timezone.utc),
     )

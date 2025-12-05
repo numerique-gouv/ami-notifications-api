@@ -4,7 +4,7 @@ from collections.abc import Sequence
 from typing import Annotated, Any, cast
 
 from advanced_alchemy.extensions.litestar import providers
-from litestar import Controller, Response, WebSocket, get, patch, post, websocket
+from litestar import Controller, WebSocket, get, patch, post, websocket
 from litestar.channels import ChannelsPlugin
 from litestar.di import Provide
 from litestar.exceptions import (
@@ -12,13 +12,12 @@ from litestar.exceptions import (
     WebSocketDisconnect,
 )
 from litestar.params import Body
-from litestar.status_codes import HTTP_200_OK
 from pydantic import TypeAdapter
 from webpush import WebPush, WebPushSubscription
 
 from app import env, models, schemas
 from app.httpx import httpxClient
-from app.schemas import NotifyResponse
+from app.partners import Partner, provide_partner
 from app.services.notification import NotificationService
 from app.services.user import UserService, provide_user
 
@@ -35,7 +34,7 @@ class NotificationController(Controller):
         notifications_service: NotificationService,
         current_user: models.User,
         unread: bool | None = None,
-    ) -> Sequence[schemas.AdminNotification]:
+    ) -> Sequence[schemas.Notification]:
         if unread is not None:
             notifications: Sequence[models.Notification] = await notifications_service.list(
                 order_by=(models.Notification.created_at, True),
@@ -51,7 +50,7 @@ class NotificationController(Controller):
         # return notifications_service.to_schema(notifications, schema_type=schemas.Notification)
         # But it adds pagination.
         # For the moment, just return a list of dict
-        type_adapter = TypeAdapter(list[schemas.AdminNotification])
+        type_adapter = TypeAdapter(list[schemas.Notification])
         return type_adapter.validate_python(notifications)
 
     @patch("/api/v1/users/notification/{notification_id:uuid}/read")
@@ -67,7 +66,7 @@ class NotificationController(Controller):
                 description="Mark a user notification as read or unread",
             ),
         ],
-    ) -> schemas.AdminNotification:
+    ) -> schemas.Notification:
         notification: models.Notification | None = await notifications_service.get_one_or_none(
             id=notification_id,
             user=current_user,
@@ -84,7 +83,7 @@ class NotificationController(Controller):
             },
             "notification_events",
         )
-        return notifications_service.to_schema(notification, schema_type=schemas.AdminNotification)
+        return notifications_service.to_schema(notification, schema_type=schemas.Notification)
 
     @websocket("/api/v1/users/notification/events/stream")
     async def stream_notification_events(
@@ -118,7 +117,29 @@ class NotificationController(Controller):
                     return
 
 
-class NotAuthenticatedNotificationController(Controller):
+class PushNotificationMixin:
+    def _push_notification(
+        self,
+        webpush: WebPush,
+        registrations: list[models.Registration],
+        json_data: dict[str, str],
+    ) -> None:
+        for registration in registrations:
+            subscription = WebPushSubscription.model_validate(registration.subscription)
+            message = webpush.get(message=json.dumps(json_data), subscription=subscription)
+            headers = cast(dict[str, str], message.headers)
+
+            response = httpxClient.post(
+                registration.subscription["endpoint"], content=message.encrypted, headers=headers
+            )
+            if response.status_code < 500:
+                # For example we could have "410: gone" if the registration has been revoked.
+                continue
+            else:
+                response.raise_for_status()
+
+
+class NotAuthenticatedNotificationController(PushNotificationMixin, Controller):
     dependencies = {
         "notifications_service": providers.create_service_provider(NotificationService),
         "users_service": providers.create_service_provider(UserService),
@@ -132,34 +153,29 @@ class NotAuthenticatedNotificationController(Controller):
         return env.VAPID_APPLICATION_SERVER_KEY
 
     @post("/ami_admin/notifications", include_in_schema=False)
-    async def admin_notify(
+    async def admin_create_notification(
         self,
         channels: ChannelsPlugin,
         notifications_service: NotificationService,
         users_with_registrations_service: UserService,
         webpush: WebPush,
-        data: schemas.NotificationCreate,
-    ) -> schemas.AdminNotification:
+        data: schemas.AdminNotificationCreate,
+    ) -> schemas.NotificationResponse:
         user: models.User | None = await users_with_registrations_service.get_one_or_none(
             id=data.user_id
         )
         if user is None:
             raise NotFoundException(detail="User not found")
 
-        for registration in user.registrations:
-            subscription = WebPushSubscription.model_validate(registration.subscription)
-            json_data = {"title": data.title, "message": data.message, "sender": data.sender}
-            message = webpush.get(message=json.dumps(json_data), subscription=subscription)
-            headers = cast(dict[str, str], message.headers)
-
-            response = httpxClient.post(
-                registration.subscription["endpoint"], content=message.encrypted, headers=headers
-            )
-            if response.status_code < 500:
-                # For example we could have "410: gone" if the registration has been revoked.
-                continue
-            else:
-                response.raise_for_status()
+        self._push_notification(
+            webpush=webpush,
+            registrations=user.registrations,
+            json_data={
+                "title": data.content_title,
+                "message": data.content_body,
+                "sender": data.sender,
+            },
+        )
 
         notification: models.Notification = await notifications_service.create(
             models.Notification(**data.model_dump())
@@ -172,16 +188,21 @@ class NotAuthenticatedNotificationController(Controller):
             },
             "notification_events",
         )
-        return notifications_service.to_schema(notification, schema_type=schemas.AdminNotification)
+        return schemas.NotificationResponse.model_validate(
+            {
+                "notification_id": notification.id,
+                "notification_send_status": True,
+            }
+        )
 
-    @get("/api/v1/users/{user_id:uuid}/notifications")
+    @get("/api/v1/users/{user_id:uuid}/notifications", include_in_schema=False)
     async def list_notifications(
         self,
         notifications_service: NotificationService,
         users_service: UserService,
         user_id: uuid.UUID,
         unread: bool | None = None,
-    ) -> Sequence[schemas.AdminNotification]:
+    ) -> Sequence[schemas.NotificationLegacy]:
         # XXX keep this endpoint for mobile-app compatibility; remove it when mobile-app use authenticated endpoint
         user: models.User | None = await users_service.get_one_or_none(id=user_id)
         if user is None:
@@ -198,39 +219,87 @@ class NotAuthenticatedNotificationController(Controller):
                 user=user,
             )
         # We could do:
-        # return notifications_service.to_schema(notifications, schema_type=schemas.Notification)
+        # return notifications_service.to_schema(notifications, schema_type=schemas.NotificationLegacy)
         # But it adds pagination.
         # For the moment, just return a list of dict
-        type_adapter = TypeAdapter(list[schemas.AdminNotification])
+        type_adapter = TypeAdapter(list[schemas.NotificationLegacy])
         return type_adapter.validate_python(notifications)
 
-    @post("/api/v1/notifications", return_dto=None)
-    async def notify(
+
+class PartnerNotificationController(PushNotificationMixin, Controller):
+    dependencies = {
+        "current_partner": Provide(provide_partner),
+        "notifications_service": providers.create_service_provider(NotificationService),
+        "users_with_registrations_service": providers.create_service_provider(
+            UserService, load=[models.User.registrations]
+        ),
+    }
+
+    @post("/api/v1/notifications")
+    async def create_notification(
         self,
+        channels: ChannelsPlugin,
+        notifications_service: NotificationService,
+        users_with_registrations_service: UserService,
+        webpush: WebPush,
         data: Annotated[
-            schemas.Notification,
+            schemas.NotificationCreate,
             Body(
                 title="Send a notification",
                 description="Send the notification message to a registered user",
             ),
         ],
-    ) -> Response[NotifyResponse]:
-        notification_id = uuid.UUID("43847a2f-0b26-40a4-a452-8342a99a10a8")
-        status_code = HTTP_200_OK
+        current_partner: Partner,
+    ) -> schemas.NotificationResponse:
         notification_send_status = True
 
-        if data.recipient_fc_hash == "unknown_hash":
+        user: models.User | None = await users_with_registrations_service.get_one_or_none(
+            fc_hash=data.recipient_fc_hash
+        )
+        registrations: list[models.Registration] = []
+        if user is None:
+            user = await users_with_registrations_service.create(
+                models.User(fc_hash=data.recipient_fc_hash, already_seen=False)
+            )
             notification_send_status = False
-        elif data.recipient_fc_hash == "technical_error":
-            print(0 / 0)
+        else:
+            registrations = user.registrations
+            notification_send_status = user.already_seen
 
-        notify_response = NotifyResponse.model_validate(
+        if not data.try_push or not user.already_seen:
+            # don't push notification if not required or if user has never logged in on AMI
+            registrations = []
+
+        self._push_notification(
+            webpush=webpush,
+            registrations=registrations,
+            json_data={
+                "title": data.content_title,
+                "message": data.content_body,
+                "sender": current_partner.name,
+            },
+        )
+
+        notification_data = data.model_dump()
+        notification_data.pop("recipient_fc_hash")
+        notification_data.pop("try_push")
+        if notification_data["content_icon"] is None:
+            notification_data["content_icon"] = current_partner.icon
+        notification: models.Notification = await notifications_service.create(
+            models.Notification(user_id=user.id, sender=current_partner.name, **notification_data)
+        )
+        channels.publish(  # type: ignore
             {
-                "notification_id": notification_id,
+                "user_id": str(user.id),
+                "id": str(notification.id),
+                "event": schemas.NotificationEvent.CREATED,
+            },
+            "notification_events",
+        )
+
+        return schemas.NotificationResponse.model_validate(
+            {
+                "notification_id": notification.id,
                 "notification_send_status": notification_send_status,
             }
-        )
-        return Response(
-            status_code=status_code,
-            content=notify_response,
         )
