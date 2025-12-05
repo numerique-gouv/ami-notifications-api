@@ -146,7 +146,7 @@ async def test_create_notification_user_does_not_exist(
     assert notification.user.id == user.id
     assert notification.content_body == "Merci d'avoir initié votre demande"
     assert notification.content_title == "Brouillon de nouvelle demande de démarche d'OTV"
-    assert notification.content_icon == "otv_default_icon"
+    assert notification.content_icon == "fr-icon-megaphone-line"
     assert notification.item_type == "OTV"
     assert notification.item_id == "A-5-JGBJ5VMOY"
     assert notification.item_status_label == "Brouillon"
@@ -200,7 +200,7 @@ async def test_create_notification_user_never_seen(
     assert notification.user.id == user.id
     assert notification.content_body == "Merci d'avoir initié votre demande"
     assert notification.content_title == "Brouillon de nouvelle demande de démarche d'OTV"
-    assert notification.content_icon == "otv_default_icon"
+    assert notification.content_icon == "fr-icon-megaphone-line"
     assert notification.item_type == "OTV"
     assert notification.item_id == "A-5-JGBJ5VMOY"
     assert notification.item_status_label == "Brouillon"
