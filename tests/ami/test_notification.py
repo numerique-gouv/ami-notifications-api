@@ -1,3 +1,4 @@
+import base64
 import datetime
 import uuid
 
@@ -15,6 +16,7 @@ from pytest_httpx import HTTPXMock
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app import env
 from app.auth import jwt_cookie_auth
 from app.models import Notification, Registration, User
 from tests.ami.utils import assert_query_fails_without_auth, login
@@ -25,6 +27,7 @@ async def test_create_notification(
     db_session: AsyncSession,
     notification: Notification,
     registration: Registration,
+    partner_auth: dict[str, str],
     httpx_mock: HTTPXMock,
 ) -> None:
     # Make sure we don't even try sending a notification to a push server.
@@ -45,7 +48,9 @@ async def test_create_notification(
         "send_date": "2025-11-27T10:55:00.000Z",
         "try_push": True,
     }
-    response = test_client.post("/api/v1/notifications", json=notification_data)
+    response = test_client.post(
+        "/api/v1/notifications", json=notification_data, headers=partner_auth
+    )
     assert response.status_code == HTTP_201_CREATED
     all_notifications = (await db_session.execute(select(Notification))).scalars().all()
     assert len(all_notifications) == 2
@@ -69,7 +74,7 @@ async def test_create_notification(
     assert notification2.send_date == datetime.datetime(
         2025, 11, 27, 10, 55, tzinfo=datetime.timezone.utc
     )
-    assert notification2.sender == "TODO"
+    assert notification2.sender == "PSL"
     assert notification2.unread is True
     assert response.json() == {
         "notification_id": str(notification2.id),
@@ -82,6 +87,7 @@ async def test_create_notification_dont_try_push(
     test_client: TestClient[Litestar],
     db_session: AsyncSession,
     registration: Registration,
+    partner_auth: dict[str, str],
     httpx_mock: HTTPXMock,
 ) -> None:
     notification_data = {
@@ -100,7 +106,9 @@ async def test_create_notification_dont_try_push(
         "send_date": "2025-11-27T10:55:00.000Z",
         "try_push": False,
     }
-    response = test_client.post("/api/v1/notifications", json=notification_data)
+    response = test_client.post(
+        "/api/v1/notifications", json=notification_data, headers=partner_auth
+    )
     assert response.status_code == HTTP_201_CREATED
     notification_count = (await db_session.execute(select(func.count()).select_from(User))).scalar()
     assert notification_count == 1
@@ -110,6 +118,7 @@ async def test_create_notification_dont_try_push(
 async def test_create_notification_user_does_not_exist(
     test_client: TestClient[Litestar],
     db_session: AsyncSession,
+    partner_auth: dict[str, str],
     httpx_mock: HTTPXMock,
 ) -> None:
     notification_data = {
@@ -122,7 +131,9 @@ async def test_create_notification_user_does_not_exist(
         "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
         "content_body": "Merci d'avoir initié votre demande",
     }
-    response = test_client.post("/api/v1/notifications", json=notification_data)
+    response = test_client.post(
+        "/api/v1/notifications", json=notification_data, headers=partner_auth
+    )
     assert response.status_code == HTTP_201_CREATED
     all_users = (await db_session.execute(select(User))).scalars().all()
     assert len(all_users) == 1
@@ -147,7 +158,7 @@ async def test_create_notification_user_does_not_exist(
     assert notification.send_date == datetime.datetime(
         2025, 11, 27, 10, 55, tzinfo=datetime.timezone.utc
     )
-    assert notification.sender == "TODO"
+    assert notification.sender == "PSL"
     assert notification.unread is True
     assert response.json() == {
         "notification_id": str(notification.id),
@@ -161,6 +172,7 @@ async def test_create_notification_user_never_seen(
     db_session: AsyncSession,
     never_seen_user: User,
     registration: Registration,
+    partner_auth: dict[str, str],
     httpx_mock: HTTPXMock,
 ) -> None:
     notification_data = {
@@ -173,7 +185,9 @@ async def test_create_notification_user_never_seen(
         "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
         "content_body": "Merci d'avoir initié votre demande",
     }
-    response = test_client.post("/api/v1/notifications", json=notification_data)
+    response = test_client.post(
+        "/api/v1/notifications", json=notification_data, headers=partner_auth
+    )
     assert response.status_code == HTTP_201_CREATED
     all_users = (await db_session.execute(select(User))).scalars().all()
     assert len(all_users) == 1
@@ -198,7 +212,7 @@ async def test_create_notification_user_never_seen(
     assert notification.send_date == datetime.datetime(
         2025, 11, 27, 10, 55, tzinfo=datetime.timezone.utc
     )
-    assert notification.sender == "TODO"
+    assert notification.sender == "PSL"
     assert notification.unread is True
     assert response.json() == {
         "notification_id": str(notification.id),
@@ -211,6 +225,7 @@ async def test_create_notification_when_registration_gone(
     test_client: TestClient[Litestar],
     db_session: AsyncSession,
     registration: Registration,
+    partner_auth: dict[str, str],
     httpx_mock: HTTPXMock,
 ) -> None:
     """When somebody revokes a PUSH authorization (a push registration), then trying to
@@ -230,7 +245,9 @@ async def test_create_notification_when_registration_gone(
         "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
         "content_body": "Merci d'avoir initié votre demande",
     }
-    response = test_client.post("/api/v1/notifications", json=notification_data)
+    response = test_client.post(
+        "/api/v1/notifications", json=notification_data, headers=partner_auth
+    )
     assert response.status_code == HTTP_201_CREATED
     notification_count = (await db_session.execute(select(func.count()).select_from(User))).scalar()
     assert notification_count == 1
@@ -241,6 +258,7 @@ async def test_admin_create_notification_no_registration(
     test_client: TestClient[Litestar],
     db_session: AsyncSession,
     user: User,
+    partner_auth: dict[str, str],
     httpx_mock: HTTPXMock,
 ) -> None:
     notification_data = {
@@ -253,7 +271,9 @@ async def test_admin_create_notification_no_registration(
         "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
         "content_body": "Merci d'avoir initié votre demande",
     }
-    response = test_client.post("/api/v1/notifications", json=notification_data)
+    response = test_client.post(
+        "/api/v1/notifications", json=notification_data, headers=partner_auth
+    )
     assert response.status_code == HTTP_201_CREATED
     notification_count = (await db_session.execute(select(func.count()).select_from(User))).scalar()
     assert notification_count == 1
@@ -262,9 +282,12 @@ async def test_admin_create_notification_no_registration(
 
 async def test_create_notification_send_ko_with_400_when_required_fields_are_missing(
     test_client: TestClient[Litestar],
+    partner_auth: dict[str, str],
 ) -> None:
     notification_data: dict[str, str] = {}
-    response = test_client.post("/api/v1/notifications", json=notification_data)
+    response = test_client.post(
+        "/api/v1/notifications", json=notification_data, headers=partner_auth
+    )
     assert response.status_code == HTTP_400_BAD_REQUEST
     assert response.json() == {
         "detail": "Validation failed for POST /api/v1/notifications",
@@ -308,6 +331,7 @@ async def test_create_notification_send_ko_with_400_when_required_fields_are_mis
 
 async def test_create_notification_send_ko_with_400_when_required_fields_are_empty(
     test_client: TestClient[Litestar],
+    partner_auth: dict[str, str],
 ) -> None:
     notification_data = {
         "recipient_fc_hash": "",
@@ -325,7 +349,9 @@ async def test_create_notification_send_ko_with_400_when_required_fields_are_emp
         "send_date": "",
         "try_push": "",
     }
-    response = test_client.post("/api/v1/notifications", json=notification_data)
+    response = test_client.post(
+        "/api/v1/notifications", json=notification_data, headers=partner_auth
+    )
     assert response.status_code == HTTP_400_BAD_REQUEST
     assert response.json() == {
         "detail": "Validation failed for POST /api/v1/notifications",
@@ -358,6 +384,30 @@ async def test_create_notification_send_ko_with_400_when_required_fields_are_emp
         ],
         "status_code": 400,
     }
+
+
+async def test_create_notification_without_auth(
+    test_client: TestClient[Litestar],
+) -> None:
+    response = test_client.post("/api/v1/notifications")
+    assert response.status_code == 401
+
+    response = test_client.post("/api/v1/notifications", headers={"authorization": "foo"})
+    assert response.status_code == 401
+
+    response = test_client.post("/api/v1/notifications", headers={"authorization": "Foo bar"})
+    assert response.status_code == 401
+
+    response = test_client.post("/api/v1/notifications", headers={"authorization": "Basic bar"})
+    assert response.status_code == 401
+
+    b64 = base64.b64encode(f"foo:{env.PARTNERS_PSL_SECRET}".encode("utf8")).decode("utf8")
+    response = test_client.post("/api/v1/notifications", headers={"authorization": f"Basic {b64}"})
+    assert response.status_code == 401
+
+    b64 = base64.b64encode("psl:foo".encode("utf8")).decode("utf8")
+    response = test_client.post("/api/v1/notifications", headers={"authorization": f"Basic {b64}"})
+    assert response.status_code == 401
 
 
 async def test_get_notifications_should_return_empty_list_by_default(

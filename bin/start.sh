@@ -42,6 +42,8 @@ then
   touch .env.local
   KEY=$(openssl rand -hex 32)
   echo "AUTH_COOKIE_JWT_SECRET=\"$KEY\"" >> .env.local
+  KEY=$(openssl rand -hex 32)
+  echo "PARTNERS_PSL_SECRET=\"$KEY\"" >> .env.local
 fi
 
 make migrate && uv run --env-file .env --env-file .env.local litestar run -p ${PORT} -H ${HOSTNAME} ${RELOAD} ${DEBUG} ${SSL}
