@@ -1,5 +1,4 @@
 <script lang="ts">
-import { checkAuth } from '$lib/auth'
 import { onMount } from 'svelte'
 import { goto } from '$app/navigation'
 import { prettyDate } from '$lib/prettyDate'
@@ -9,13 +8,12 @@ import {
   notificationEventsSocket,
 } from '$lib/notifications'
 import type { Notification } from '$lib/notifications'
+import { userStore } from '$lib/state/User.svelte'
 
-let isFranceConnected: boolean | null = $state(null)
 let notifications: Notification[] = $state([])
 
 onMount(async () => {
-  isFranceConnected = await checkAuth()
-  if (isFranceConnected === false) {
+  if (!userStore.isConnected()) {
     goto('/')
   }
 

@@ -4,22 +4,7 @@ import {
   PUBLIC_FC_LOGOUT_ENDPOINT,
   PUBLIC_FC_PROXY,
 } from '$env/static/public'
-
-export type UserInfo = {
-  sub: string
-  gender: string
-  birthdate: string
-  birthcountry: string
-  birthplace: string
-  given_name: string
-  given_name_array: string[]
-  family_name: string
-  email: string
-  aud: string
-  exp: number
-  iat: number
-  iss: string
-}
+import type { UserInfo } from '$lib/state/User.svelte'
 
 export function parseJwt(token: string): UserInfo {
   const base64Url = token.split('.')[1]
