@@ -19,6 +19,7 @@ let unreadNotificationsCount: number = $state(0)
 let initials: string = $state('')
 let isMenuDisplayed: boolean = $state(false)
 let isAddressEmpty: boolean = $state(true)
+let isAgendaEmpty: boolean = $state(true)
 let notificationsEnabled: boolean = $state(false)
 let registration: Registration | null = $state(null)
 let agenda: Agenda | null = $state(null)
@@ -61,6 +62,7 @@ onMount(async () => {
 
     agenda = await buildAgenda()
     console.log($state.snapshot(agenda))
+    isAgendaEmpty = !(agenda.now.length || agenda.next.length)
 
     quotientinfo = await getQuotientData()
     console.log($state.snapshot(quotientinfo))
@@ -154,6 +156,25 @@ const clickDisableNotifications = async () => {
   {/if}
 
   <div class="rubrique-container agenda-container">
+  {#if isAgendaEmpty}
+    <div class="header-container">
+      <span class="title">Mon agenda</span>
+      <span class="see-all">
+        <span>Voir tout</span>
+        <img class="arrow-line" src="/remixicons/arrow-line-disabled.svg" alt="Icône de flèche" />
+      </span>
+    </div>
+    <div class="rubrique-content-container">
+      <div class="no-agenda rubrique-content-container--empty">
+        <div class="no-agenda--icon">
+          <img class="address-icon" src="/remixicons/calendar.svg" alt="Icône d'agenda" />
+        </div>
+        <div class="no-agenda--title">
+          Retrouvez les temps importants de votre vie administrative ici
+        </div>
+      </div>
+    </div>
+  {:else}
     <div class="header-container">
       <span class="title">Mon agenda</span>
       <a class="see-all" title="Voir tous mes évènements" href="/#/agenda">
@@ -162,14 +183,13 @@ const clickDisableNotifications = async () => {
       </a>
     </div>
     <div class="rubrique-content-container">
-    {#if agenda}
-      {#if agenda.now.length}
+      {#if agenda?.now.length}
         <AgendaItem item={agenda.now[0]} displayDate={false} />
-      {:else if agenda.next.length}
+      {:else if agenda?.next.length}
         <AgendaItem item={agenda.next[0]} displayDate={false} />
       {/if}
-    {/if}
     </div>
+  {/if}
   </div>
 
   <div class="rubrique-container requests-container">
@@ -181,11 +201,11 @@ const clickDisableNotifications = async () => {
       </span>
     </div>
     <div class="rubrique-content-container">
-      <div class="no-requests">
+      <div class="no-requests rubrique-content-container--empty">
         <div class="no-requests--icon">
           <img class="address-icon" src="/remixicons/tracking.svg" alt="Icône de suivi" />
         </div>
-        <div class="no-request--title">
+        <div class="no-requests--title">
           Retrouvez et suivez vos démarches ici
         </div>
       </div>
@@ -372,10 +392,7 @@ const clickDisableNotifications = async () => {
           }
         }
       }
-    }
-
-    .requests-container {
-      .no-requests {
+      .rubrique-content-container--empty {
         padding: 1rem;
         display: flex;
         flex-direction: column;
