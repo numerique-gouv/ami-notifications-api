@@ -1,10 +1,10 @@
-import { beforeEach, describe, test, expect, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/svelte'
-import Page from './+page.svelte'
+import { beforeEach, describe, expect, test, vi } from 'vitest'
 import * as navigationMethods from '$app/navigation'
 import * as agendaMethods from '$lib/agenda'
-import * as authMethods from '$lib/auth'
 import { Agenda, Item, monthName } from '$lib/agenda'
+import * as authMethods from '$lib/auth'
+import Page from './+page.svelte'
 
 const oneday_in_ms = 24 * 60 * 60 * 1000
 const today = new Date()
@@ -169,7 +169,7 @@ describe('/+page.svelte', () => {
     // Given
     var start1 = today
     var start2 = new Date(today.getTime() + 1 * oneday_in_ms)
-    if (start1.getMonth() != start2.getMonth()) {
+    if (start1.getMonth() !== start2.getMonth()) {
       start1 = new Date(today.getTime() + 1 * oneday_in_ms)
       start2 = new Date(today.getTime() + 2 * oneday_in_ms)
     }

@@ -1,9 +1,9 @@
 <script lang="ts">
-import capture_partager from '$lib/assets/installation/partager.png'
-import capture_ecran_accueil from '$lib/assets/installation/ecran_accueil.png'
-import capture_nom_app from '$lib/assets/installation/nom_app.png'
-import capture_ajouter_ecran_accueil from '$lib/assets/installation/ajouter_ecran_accueil.png'
-import capture_ajout_icone from '$lib/assets/installation/ajout_icone.png'
+  import capture_ajout_icone from '$lib/assets/installation/ajout_icone.png'
+  import capture_ajouter_ecran_accueil from '$lib/assets/installation/ajouter_ecran_accueil.png'
+  import capture_ecran_accueil from '$lib/assets/installation/ecran_accueil.png'
+  import capture_nom_app from '$lib/assets/installation/nom_app.png'
+  import capture_partager from '$lib/assets/installation/partager.png'
 </script>
 
 <div>

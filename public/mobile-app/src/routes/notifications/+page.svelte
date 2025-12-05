@@ -1,34 +1,34 @@
 <script lang="ts">
-import { checkAuth } from '$lib/auth'
-import { onMount } from 'svelte'
-import { goto } from '$app/navigation'
-import { prettyDate } from '$lib/prettyDate'
-import {
-  retrieveNotifications,
-  readNotification,
-  notificationEventsSocket,
-} from '$lib/notifications'
-import type { Notification } from '$lib/notifications'
+  import { onMount } from 'svelte'
+  import { goto } from '$app/navigation'
+  import { checkAuth } from '$lib/auth'
+  import type { Notification } from '$lib/notifications'
+  import {
+    notificationEventsSocket,
+    readNotification,
+    retrieveNotifications,
+  } from '$lib/notifications'
+  import { prettyDate } from '$lib/prettyDate'
 
-let isFranceConnected: boolean | null = $state(null)
-let notifications: Notification[] = $state([])
+  let isFranceConnected: boolean | null = $state(null)
+  let notifications: Notification[] = $state([])
 
-onMount(async () => {
-  isFranceConnected = await checkAuth()
-  if (isFranceConnected === false) {
-    goto('/')
-  }
+  onMount(async () => {
+    isFranceConnected = await checkAuth()
+    if (isFranceConnected === false) {
+      goto('/')
+    }
 
-  notifications = await retrieveNotifications()
-  notificationEventsSocket(async () => {
     notifications = await retrieveNotifications()
+    notificationEventsSocket(async () => {
+      notifications = await retrieveNotifications()
+    })
   })
-})
 
-const markNotificationAsRead = async (event: MouseEvent, notificationId: string) => {
-  event.preventDefault()
-  let result = await readNotification(notificationId)
-}
+  const markNotificationAsRead = async (event: MouseEvent, notificationId: string) => {
+    event.preventDefault()
+    const result = await readNotification(notificationId)
+  }
 </script>
 
 <nav class="fr-p-4v fr-pt-6v">

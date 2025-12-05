@@ -1,24 +1,24 @@
 <script lang="ts">
-import { checkAuth } from '$lib/auth'
-import Navigation from '$lib/Navigation.svelte'
-import { onMount } from 'svelte'
-import { goto } from '$app/navigation'
-import { buildAgenda } from '$lib/agenda'
-import type { Agenda } from '$lib/agenda'
-import AgendaItem from '$lib/AgendaItem.svelte'
+  import { onMount } from 'svelte'
+  import { goto } from '$app/navigation'
+  import AgendaItem from '$lib/AgendaItem.svelte'
+  import type { Agenda } from '$lib/agenda'
+  import { buildAgenda } from '$lib/agenda'
+  import { checkAuth } from '$lib/auth'
+  import Navigation from '$lib/Navigation.svelte'
 
-let isFranceConnected: boolean | null = $state(null)
-let agenda: Agenda | null = $state(null)
+  let isFranceConnected: boolean | null = $state(null)
+  let agenda: Agenda | null = $state(null)
 
-onMount(async () => {
-  isFranceConnected = await checkAuth()
-  if (isFranceConnected === false) {
-    goto('/')
-  }
+  onMount(async () => {
+    isFranceConnected = await checkAuth()
+    if (isFranceConnected === false) {
+      goto('/')
+    }
 
-  agenda = await buildAgenda()
-  console.log($state.snapshot(agenda))
-})
+    agenda = await buildAgenda()
+    console.log($state.snapshot(agenda))
+  })
 </script>
 
 <div class="agenda">
