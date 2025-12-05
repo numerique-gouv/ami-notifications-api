@@ -1,3 +1,8 @@
+import {
+  PUBLIC_API_GEO_PLATEFORME_BASE_URL,
+  PUBLIC_API_GEO_PLATEFORME_SEARCH_ENDPOINT,
+} from '$env/static/public'
+
 export type PropertiesFromBAN = {
   city: string
   context: string
@@ -73,7 +78,7 @@ export const callBAN = async (inputValue: string) => {
       accept: 'application/json',
     }
     const response = await fetch(
-      `https://data.geopf.fr/geocodage/search?q=${encodedInputValue}&autocomplete=1&index=address&limit=10&returntruegeometry=false`,
+      `${PUBLIC_API_GEO_PLATEFORME_BASE_URL}${PUBLIC_API_GEO_PLATEFORME_SEARCH_ENDPOINT}?q=${encodedInputValue}&autocomplete=1&index=address&limit=10&returntruegeometry=false`,
       {
         headers: endpoint_headers,
       }
