@@ -7,7 +7,6 @@ import * as navigationMethods from '$app/navigation'
 import * as notificationsMethods from '$lib/notifications'
 import * as authMethods from '$lib/auth'
 import { PUBLIC_API_WS_URL } from '$lib/notifications'
-import { PUBLIC_API_URL } from '$env/static/public'
 
 let wss: WSType
 
