@@ -273,12 +273,15 @@ describe('/ConnectedHomepage.svelte', () => {
 
     // Then
     await waitFor(() => {
-      const agenda = container.querySelector('.agenda-container')
+      const agendaBlock = container.querySelector('.agenda-container')
       expect(spy).toHaveBeenCalledTimes(1)
-      expect(agenda).toHaveTextContent('Holiday 1')
-      expect(agenda).not.toHaveTextContent('Holiday 2')
-      expect(agenda).not.toHaveTextContent('Holiday 3')
-      expect(agenda).not.toHaveTextContent('Holiday 4')
+      expect(agendaBlock).toHaveTextContent('Holiday 1')
+      expect(agendaBlock).not.toHaveTextContent('Holiday 2')
+      expect(agendaBlock).not.toHaveTextContent('Holiday 3')
+      expect(agendaBlock).not.toHaveTextContent('Holiday 4')
+      expect(agendaBlock).not.toHaveTextContent(
+        'Retrouvez les temps importants de votre vie administrative ici'
+      )
     })
   })
 
@@ -297,10 +300,29 @@ describe('/ConnectedHomepage.svelte', () => {
 
     // Then
     await waitFor(() => {
-      const agenda = container.querySelector('.agenda-container')
+      const agendaBlock = container.querySelector('.agenda-container')
       expect(spy).toHaveBeenCalledTimes(1)
-      expect(agenda).toHaveTextContent('Holiday 1')
-      expect(agenda).not.toHaveTextContent('Holiday 2')
+      expect(agendaBlock).toHaveTextContent('Holiday 1')
+      expect(agendaBlock).not.toHaveTextContent('Holiday 2')
+      expect(agendaBlock).not.toHaveTextContent(
+        'Retrouvez les temps importants de votre vie administrative ici'
+      )
+    })
+  })
+
+  test('should display calendar block if agenda is empty', async () => {
+    // Given
+    const spy = vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(new Agenda([]))
+
+    // When
+    const { container } = render(ConnectedHomepage)
+
+    // Then
+    await waitFor(() => {
+      const agendaBlock = container.querySelector('.agenda-container')
+      expect(agendaBlock).toHaveTextContent(
+        'Retrouvez les temps importants de votre vie administrative ici'
+      )
     })
   })
 
