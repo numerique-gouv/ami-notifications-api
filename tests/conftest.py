@@ -1,3 +1,4 @@
+import base64
 import os
 import time
 from collections.abc import AsyncGenerator, Iterator
@@ -16,7 +17,7 @@ from sqlalchemy.pool import NullPool
 from webpush import WebPush
 from webpush.vapid import VAPID
 
-from app import create_app
+from app import create_app, env
 from app.database import DATABASE_URL, alchemy_config
 from app.models import Base, Notification, Registration, User
 from app.utils import ami_hash
@@ -179,3 +180,9 @@ async def userinfo() -> dict[str, Any]:
 @pytest.fixture
 async def jwt_encoded_userinfo() -> str:
     return '"eyJhbGciOiJFUzI1NiIsImtpZCI6InBrY3MxMTpFUzI1Njpoc20ifQ.eyJzdWIiOiI0Y2U0ZjBjY2Y1Nzc1NjAyYTUyNGIzZjA2OTY2ODM0NTlhOTgwMmQyYmM0NGEzNDI2M2M4ZTMzZmRhZjUxNTM2djEiLCJnaXZlbl9uYW1lIjoiQW5nZWxhIENsYWlyZSBMb3Vpc2UiLCJnaXZlbl9uYW1lX2FycmF5IjpbIkFuZ2VsYSIsIkNsYWlyZSIsIkxvdWlzZSJdLCJmYW1pbHlfbmFtZSI6IkRVQk9JUyIsImJpcnRoZGF0ZSI6IjE5NjItMDgtMjQiLCJnZW5kZXIiOiJmZW1hbGUiLCJiaXJ0aHBsYWNlIjoiNzUxMDciLCJiaXJ0aGNvdW50cnkiOiI5OTEwMCIsImVtYWlsIjoid29zc2V3b2RkYS0zNzI4QHlvcG1haWwuY29tIiwiYXVkIjoiZmI5NjE1Mjk0Yzc0NjE0NWVkZDg1N2I0ZWRiZWI0OTk2ZTMxNmFlMTcxMmVkMmJiMzYxMTUwYTFlNmNkOGM2ZiIsImV4cCI6MTc2MzQ3NDgyMiwiaWF0IjoxNzYzNDc0NzYyLCJpc3MiOiJodHRwczovL2ZjcC1sb3cuc2J4LmRldi1mcmFuY2Vjb25uZWN0LmZyL2FwaS92MiJ9.c-pqPyDy4UZTR4gq8Bh93hdKkY_iUREHfptt-0X-L5-ABQnYOblfNMjvUFLvTVltbOy-KJh85DOHpTVdrX7j1Q"'
+
+
+@pytest.fixture
+async def partner_auth() -> dict[str, str]:
+    b64 = base64.b64encode(f"psl:{env.PARTNERS_PSL_SECRET}".encode("utf8")).decode("utf8")
+    return {"authorization": f"Basic {b64}"}

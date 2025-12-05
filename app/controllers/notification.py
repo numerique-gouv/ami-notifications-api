@@ -17,6 +17,7 @@ from webpush import WebPush, WebPushSubscription
 
 from app import env, models, schemas
 from app.httpx import httpxClient
+from app.partners import Partner, provide_partner
 from app.services.notification import NotificationService
 from app.services.user import UserService, provide_user
 
@@ -116,21 +117,12 @@ class NotificationController(Controller):
                     return
 
 
-class NotAuthenticatedNotificationController(Controller):
-    dependencies = {
-        "notifications_service": providers.create_service_provider(NotificationService),
-        "users_service": providers.create_service_provider(UserService),
-        "users_with_registrations_service": providers.create_service_provider(
-            UserService, load=[models.User.registrations]
-        ),
-    }
-
-    @get("/notification-key")
-    async def get_notification_key(self) -> str:
-        return env.VAPID_APPLICATION_SERVER_KEY
-
+class PushNotificationMixin:
     def _push_notification(
-        self, webpush: WebPush, registrations: list[models.Registration], json_data: dict[str, str]
+        self,
+        webpush: WebPush,
+        registrations: list[models.Registration],
+        json_data: dict[str, str],
     ) -> None:
         for registration in registrations:
             subscription = WebPushSubscription.model_validate(registration.subscription)
@@ -145,6 +137,20 @@ class NotAuthenticatedNotificationController(Controller):
                 continue
             else:
                 response.raise_for_status()
+
+
+class NotAuthenticatedNotificationController(PushNotificationMixin, Controller):
+    dependencies = {
+        "notifications_service": providers.create_service_provider(NotificationService),
+        "users_service": providers.create_service_provider(UserService),
+        "users_with_registrations_service": providers.create_service_provider(
+            UserService, load=[models.User.registrations]
+        ),
+    }
+
+    @get("/notification-key")
+    async def get_notification_key(self) -> str:
+        return env.VAPID_APPLICATION_SERVER_KEY
 
     @post("/ami_admin/notifications", include_in_schema=False)
     async def admin_create_notification(
@@ -219,6 +225,16 @@ class NotAuthenticatedNotificationController(Controller):
         type_adapter = TypeAdapter(list[schemas.NotificationLegacy])
         return type_adapter.validate_python(notifications)
 
+
+class PartnerNotificationController(PushNotificationMixin, Controller):
+    dependencies = {
+        "current_partner": Provide(provide_partner),
+        "notifications_service": providers.create_service_provider(NotificationService),
+        "users_with_registrations_service": providers.create_service_provider(
+            UserService, load=[models.User.registrations]
+        ),
+    }
+
     @post("/api/v1/notifications")
     async def create_notification(
         self,
@@ -233,6 +249,7 @@ class NotAuthenticatedNotificationController(Controller):
                 description="Send the notification message to a registered user",
             ),
         ],
+        current_partner: Partner,
     ) -> schemas.NotificationResponse:
         notification_send_status = True
 
@@ -259,7 +276,7 @@ class NotAuthenticatedNotificationController(Controller):
             json_data={
                 "title": data.content_title,
                 "message": data.content_body,
-                "sender": "TODO",
+                "sender": current_partner.name,
             },
         )
 
@@ -267,7 +284,7 @@ class NotAuthenticatedNotificationController(Controller):
         notification_data.pop("recipient_fc_hash")
         notification_data.pop("try_push")
         notification: models.Notification = await notifications_service.create(
-            models.Notification(user_id=user.id, sender="TODO", **notification_data)
+            models.Notification(user_id=user.id, sender=current_partner.name, **notification_data)
         )
         channels.publish(  # type: ignore
             {
