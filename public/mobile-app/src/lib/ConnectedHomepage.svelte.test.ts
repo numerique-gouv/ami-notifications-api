@@ -44,6 +44,7 @@ describe('/ConnectedHomepage.svelte', () => {
 
     vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(new Agenda([]))
 
+    window.localStorage.setItem('user_address', '')
     window.localStorage.setItem('notifications_enabled', 'false')
     window.localStorage.setItem('user_data', 'fake-user-data')
     window.localStorage.setItem('emailLocalStorage', 'test@email.fr')
@@ -205,6 +206,52 @@ describe('/ConnectedHomepage.svelte', () => {
       expect(spy).toHaveBeenCalledWith(fakeRegistrationId)
       expect(menu).toHaveTextContent('Recevoir des notifications sur ce terminal')
       expect(window.localStorage.getItem('notifications_enabled')).toBe('false')
+    })
+  })
+
+  test('should display address block when user address is not known (empty)', async () => {
+    // Given
+    window.localStorage.setItem('user_address', '')
+
+    // When
+    const { container } = render(ConnectedHomepage)
+
+    // Then
+    await waitFor(() => {
+      const addressBlock = container.querySelector('.address-container')
+      expect(addressBlock).toHaveTextContent(
+        'Gagnez du temps en renseignant votre adresse une seule fois'
+      )
+    })
+  })
+
+  test('should display address block when user address is not known (null)', async () => {
+    // Given
+    window.localStorage.removeItem('user_address')
+
+    // When
+    const { container } = render(ConnectedHomepage)
+
+    // Then
+    await waitFor(() => {
+      const addressBlock = container.querySelector('.address-container')
+      expect(addressBlock).toHaveTextContent(
+        'Gagnez du temps en renseignant votre adresse une seule fois'
+      )
+    })
+  })
+
+  test('should not display address block when user address is known', async () => {
+    // Given
+    window.localStorage.setItem('user_address', '26 rue Desaix 75015 Paris')
+
+    // When
+    const { container } = render(ConnectedHomepage)
+
+    // Then
+    await waitFor(() => {
+      const addressBlock = container.querySelector('.first-block-container')
+      expect(addressBlock).toBeNull()
     })
   })
 

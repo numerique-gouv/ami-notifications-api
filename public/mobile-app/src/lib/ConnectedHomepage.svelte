@@ -1,4 +1,5 @@
 <script lang="ts">
+import { goto } from '$app/navigation'
 import { onMount } from 'svelte'
 import {
   countUnreadNotifications,
@@ -11,6 +12,7 @@ import { getQuotientData } from '$lib/api-particulier'
 import { buildAgenda } from '$lib/agenda'
 import type { Agenda } from '$lib/agenda'
 import AgendaItem from '$lib/AgendaItem.svelte'
+import Icon from '$lib/components/Icon.svelte'
 import { userStore } from '$lib/state/User.svelte'
 import type { UserInfo } from '$lib/state/User.svelte'
 
@@ -18,6 +20,7 @@ let quotientinfo: Object = $state({})
 let unreadNotificationsCount: number = $state(0)
 let initials: string = $state('')
 let isMenuDisplayed: boolean = $state(false)
+let isAddressEmpty: boolean = $state(true)
 let notificationsEnabled: boolean = $state(false)
 let registration: Registration | null = $state(null)
 let agenda: Agenda | null = $state(null)
@@ -47,6 +50,9 @@ const initializeNavigatorPermissions = async () => {
 
 onMount(async () => {
   try {
+    isAddressEmpty =
+      localStorage.getItem('user_address') !== '' ||
+      localStorage.getItem('user_address') !== null
     notificationsEnabled = localStorage.getItem('notifications_enabled') === 'true'
     await initializeNavigatorPermissions()
 
@@ -78,6 +84,10 @@ const clickEnableNotifications = async () => {
 const clickDisableNotifications = async () => {
   await updateNotificationsEnabled(false)
 }
+
+const goToProfile = async () => {
+  goto('/#/profil')
+}
 </script>
 
 <div class="homepage-connected">
@@ -106,12 +116,21 @@ const clickDisableNotifications = async () => {
 
   <div class="menu {isMenuDisplayed ? '' : 'is-hidden'}">
     <div class="container">
+      <button
+          class="profile"
+          type="button"
+          onclick={goToProfile}
+      >
+        <Icon className="fr-mr-2v" color="var(--text-active-blue-france)" href="/remixicons/user-line.svg" />
+        Mon profil
+      </button>
       {#if notificationsEnabled}
         <button
             type="button"
             onclick={clickDisableNotifications}
             data-testid="disable-notifications"
         >
+          <Icon className="fr-mr-2v" color="var(--text-active-blue-france)" href="/remixicons/settings-3-line.svg" />
           Ne plus recevoir de notifications sur ce terminal
         </button>
       {:else}
@@ -120,6 +139,7 @@ const clickDisableNotifications = async () => {
             onclick={clickEnableNotifications}
             data-testid="enable-notifications"
         >
+          <Icon className="fr-mr-2v" color="var(--text-active-blue-france)" href="/remixicons/settings-3-line.svg" />
           Recevoir des notifications sur ce terminal
         </button>
       {/if}
@@ -129,25 +149,28 @@ const clickDisableNotifications = async () => {
           type="button"
           onclick={userStore.logout}
       >
-        <span>Me déconnecter</span>
+        <Icon className="fr-mr-2v" color="var(--text-active-blue-france)" href="/remixicons/shut-down-line.svg" />
+        Me déconnecter
       </button>
     </div>
   </div>
 
-  <div class="rubrique-container address-container">
-    <div class="rubrique-content-container">
-      <div class="fr-tile fr-tile-sm fr-tile--horizontal fr-tile--no-border fr-enlarge-link">
-        <div class="fr-tile__body">
-          <div class="fr-tile__content">
-            <img class="address-icon" src="/remixicons/house.svg" alt="Icône adresse" />
-            <h3 class="fr-tile__title">
-              <a href="/"><b>Gagnez du temps</b> en <b>renseignant votre adresse</b> une seule fois !</a>
-            </h3>
+  {#if isAddressEmpty}
+    <div class="rubrique-container address-container">
+      <div class="rubrique-content-container">
+        <div class="fr-tile fr-tile-sm fr-tile--horizontal fr-tile--no-border fr-enlarge-link">
+          <div class="fr-tile__body">
+            <div class="fr-tile__content">
+              <img class="address-icon" src="/remixicons/house.svg" alt="Icône adresse" />
+              <h3 class="fr-tile__title">
+                <a href="/#/address"><b>Gagnez du temps</b> en <b>renseignant votre adresse</b> une seule fois !</a>
+              </h3>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
+  {/if}
 
   <div class="rubrique-container agenda-container">
     <div class="header-container">
@@ -295,6 +318,9 @@ const clickDisableNotifications = async () => {
         align-items: start;
 
         button {
+          align-items: center;
+          display: flex;
+          flex-direction: row;
           padding: 8px 12px;
 
           font-size: 14px;
