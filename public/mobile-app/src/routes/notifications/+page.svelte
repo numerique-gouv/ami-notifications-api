@@ -50,7 +50,7 @@ const markNotificationAsRead = async (event: MouseEvent, notificationId: string)
   <div class="fr-tile fr-tile-sm fr-tile--horizontal fr-enlarge-link fr-p-3v notification {notification.unread ? 'unread': ''}" data-testid="notification-{notification.id}">
     <div class="fr-tile__header">
       <span class="notification__status {notification.unread ? 'unread': ''}" aria-hidden="true"><i>•</i></span>
-      <span class="notification__icon fr-icon-calendar-event-fill" aria-hidden="true"></span>
+      <span class="notification__icon {notification.content_icon ? notification.content_icon: 'fr-icon-calendar-event-fill'}" aria-hidden="true"></span>
     </div>
     <div class="fr-tile__body">
       <div class="fr-tile__content fr-pb-0">

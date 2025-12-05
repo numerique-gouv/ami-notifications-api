@@ -59,7 +59,7 @@ class NotificationCreate(BaseModel):
     content_body: str = Field(min_length=1, description="Contenu de la notification")
     content_icon: str | None = Field(
         min_length=1,
-        default="otv_default_icon",
+        default=None,
         description="Nom technique de l'icône à associer à la notification dans l'application AMI, à choisir dans https://remixicon.com/",
     )
 

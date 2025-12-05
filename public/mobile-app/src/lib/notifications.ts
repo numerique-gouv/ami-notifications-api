@@ -13,6 +13,7 @@ export type Notification = {
   user_id: string
   content_title: string
   content_body: string
+  content_icon?: string
   sender: string
   unread: boolean
 }

@@ -283,6 +283,8 @@ class PartnerNotificationController(PushNotificationMixin, Controller):
         notification_data = data.model_dump()
         notification_data.pop("recipient_fc_hash")
         notification_data.pop("try_push")
+        if notification_data["content_icon"] is None:
+            notification_data["content_icon"] = current_partner.icon
         notification: models.Notification = await notifications_service.create(
             models.Notification(user_id=user.id, sender=current_partner.name, **notification_data)
         )
