@@ -156,7 +156,10 @@ export class Agenda {
     // create OTV items
     let seenHolidays = new Set()
     holidays.forEach((holiday) => {
-      let key = JSON.stringify({ desc: holiday.description, date: holiday.start_date })
+      let key = JSON.stringify({
+        desc: holiday.description,
+        year: holiday.start_date.getFullYear(),
+      })
       if (seenHolidays.has(key)) {
         return
       }

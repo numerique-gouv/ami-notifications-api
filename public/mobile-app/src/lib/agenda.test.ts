@@ -275,6 +275,8 @@ describe('/api-particulier.ts', () => {
         zones: '',
         emoji: '',
       }
+
+      // When
       const agenda = new Agenda(
         [holiday1, holiday2, holiday3, holiday4, holiday5],
         new Date('2025-11-01T12:00:00Z')
@@ -404,6 +406,30 @@ describe('/api-particulier.ts', () => {
         )
       ).toBe(true)
     })
+    test('should generate only one OTV per holiday', async () => {
+      // Given
+      vi.stubEnv('TZ', 'Europe/Paris')
+      const holiday1 = {
+        description: 'Holiday',
+        start_date: new Date('2026-02-06T23:00:00Z'),
+        end_date: new Date('2026-02-22T23:00:00Z'),
+        zones: 'Zone',
+        emoji: 'foo',
+      }
+      const holiday2 = {
+        description: 'Holiday',
+        start_date: new Date('2026-02-13T23:00:00Z'),
+        end_date: new Date('2026-03-01T23:00:00Z'),
+        zones: 'Zone',
+        emoji: 'foo',
+      }
+
+      // When
+      const agenda = new Agenda([holiday1, holiday2], new Date('2026-02-01T12:00:00Z'))
+
+      // Then
+      expect(agenda.now.length).equal(3)
+    })
   })
   describe('buildAgenda', () => {
     test('should retrieve holidays and init agenda with them', async () => {
@@ -426,6 +452,8 @@ describe('/api-particulier.ts', () => {
       const spy = vi
         .spyOn(holidaysMethods, 'retrieveHolidays')
         .mockResolvedValue([holiday1, holiday4])
+
+      // When
       const agenda = await buildAgenda(new Date('2025-11-01T12:00:00Z'))
 
       // Then
