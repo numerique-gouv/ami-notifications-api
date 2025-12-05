@@ -1,4 +1,4 @@
-import { PUBLIC_API_URL } from '$env/static/public'
+import { apiFetch } from '$lib/auth'
 
 export type Registration = {
   id: string
@@ -25,7 +25,7 @@ export const registerDevice = async (
   }
   console.log('payload:', payload)
 
-  const response = await fetch(`${PUBLIC_API_URL}/api/v1/users/registrations`, {
+  const response = await apiFetch('/api/v1/users/registrations', {
     method: 'POST',
     body: JSON.stringify(payload),
     credentials: 'include',
@@ -45,14 +45,11 @@ export const unregisterDevice = async (registrationId: string) => {
   const headers = {
     'Content-Type': 'application/json',
   }
-  const response = await fetch(
-    `${PUBLIC_API_URL}/api/v1/users/registrations/${registrationId}`,
-    {
-      method: 'DELETE',
-      headers: headers,
-      credentials: 'include',
-    }
-  )
+  const response = await apiFetch('/api/v1/users/registrations/${registrationId}', {
+    method: 'DELETE',
+    headers: headers,
+    credentials: 'include',
+  })
   console.log('response:', response)
   if (response.status === 204) {
     console.log('The device has been deleted successfully')

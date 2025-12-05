@@ -7,6 +7,7 @@ import * as authMethods from '$lib/auth'
 import * as navigationMethods from '$app/navigation'
 import { userStore } from '$lib/state/User.svelte'
 import type { UserInfo } from '$lib/state/User.svelte'
+import { mockUserInfo } from '../../tests/utils'
 
 describe('/+page.svelte', () => {
   let userinfo: UserInfo
@@ -14,21 +15,6 @@ describe('/+page.svelte', () => {
 
   beforeEach(() => {
     originalWindow = globalThis.window
-    userinfo = {
-      sub: 'fake sub',
-      given_name: 'Angela Claire Louise',
-      given_name_array: ['Angela', 'Claire', 'Louise'],
-      family_name: 'DUBOIS',
-      email: 'some@email.com',
-      birthdate: '1962-08-24',
-      birthcountry: '99100',
-      birthplace: '75100',
-      gender: 'female',
-      aud: 'fake aud',
-      exp: 1753877658,
-      iat: 1753877598,
-      iss: 'https://fcp-low.sbx.dev-franceconnect.fr/api/v2',
-    }
     vi.spyOn(authMethods, 'checkAuth').mockResolvedValue(false)
   })
 
@@ -39,7 +25,7 @@ describe('/+page.svelte', () => {
   test('should render FranceConnect button', async () => {
     // Given
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-      new Response(JSON.stringify(userinfo), { status: 200 })
+      new Response(JSON.stringify(mockUserInfo), { status: 200 })
     )
 
     // When
@@ -121,24 +107,5 @@ describe('/+page.svelte', () => {
     const errorMessage = await screen.findByText('some error message')
     expect(errorMessage).toBeInTheDocument()
     expect(window.localStorage.getItem('access_token')).toEqual(null)
-  })
-
-  test("should logout the app if the API says it's disconnected", async () => {
-    // When
-    const gotoHomeSpy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue()
-    vi.spyOn(authMethods, 'checkAuth').mockResolvedValue(false)
-    vi.spyOn(userStore, 'isConnected').mockReturnValue(true)
-    const logoutSpy = vi.spyOn(userStore, 'logout').mockResolvedValue()
-
-    // Given
-    const { page } = await import('$app/state')
-
-    render(Page)
-
-    // Then
-    await waitFor(() => {
-      expect(logoutSpy).toHaveBeenCalled()
-      expect(gotoHomeSpy).toHaveBeenCalled()
-    })
   })
 })

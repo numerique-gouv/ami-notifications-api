@@ -1,6 +1,7 @@
 import { PUBLIC_API_URL } from '$env/static/public'
 import { registerDevice, unregisterDevice } from '$lib/registration'
 import type { Registration } from '$lib/registration'
+import { apiFetch } from '$lib/auth'
 
 export const PUBLIC_API_WS_URL = PUBLIC_API_URL.replace('https://', 'wss://').replace(
   'http://',
@@ -21,7 +22,7 @@ export type Notification = {
 export const retrieveNotifications = async (): Promise<Notification[]> => {
   let notifications = [] as Notification[]
   try {
-    const response = await fetch(`${PUBLIC_API_URL}/api/v1/users/notifications`, {
+    const response = await apiFetch('/api/v1/users/notifications', {
       credentials: 'include',
     })
     if (response.status === 200) {
@@ -37,10 +38,9 @@ export const retrieveNotifications = async (): Promise<Notification[]> => {
 export const countUnreadNotifications = async (): Promise<number> => {
   let notifications = [] as Notification[]
   try {
-    const response = await fetch(
-      `${PUBLIC_API_URL}/api/v1/users/notifications?unread=true`,
-      { credentials: 'include' }
-    )
+    const response = await apiFetch('/api/v1/users/notifications?unread=true', {
+      credentials: 'include',
+    })
     if (response.status === 200) {
       notifications = await response.json()
     }
@@ -57,8 +57,8 @@ export const readNotification = async (
     const payload = {
       read: true,
     }
-    const response = await fetch(
-      `${PUBLIC_API_URL}/api/v1/users/notification/${notificationId}/read`,
+    const response = await apiFetch(
+      `/api/v1/users/notification/${notificationId}/read`,
       {
         method: 'PATCH',
         body: JSON.stringify(payload),
@@ -85,7 +85,7 @@ export const notificationEventsSocket = (onmessage: (event: MessageEvent) => voi
 export const subscribePush = async () => {
   const registration = await getServiceWorkerRegistration()
   try {
-    const applicationKeyResponse = await fetch(`${PUBLIC_API_URL}/notification-key`)
+    const applicationKeyResponse = await apiFetch('/notification-key')
     const applicationKey = await applicationKeyResponse.text()
     const options = { userVisibleOnly: true, applicationServerKey: applicationKey }
     const pushSubscription = await registration.pushManager.subscribe(options)

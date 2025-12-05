@@ -11,6 +11,7 @@ import { Agenda, Item } from '$lib/agenda'
 import { PUBLIC_API_WS_URL } from '$lib/notifications'
 import { franceConnectLogout } from './france-connect'
 import { userStore } from '$lib/state/User.svelte'
+import { mockUserInfo } from '../../tests/utils'
 
 let wss: WSType
 
@@ -20,14 +21,7 @@ describe('/ConnectedHomepage.svelte', () => {
       ...navigator,
       permissions: undefined,
     })
-
-    vi.mock('$lib/france-connect', () => ({
-      parseJwt: vi.fn().mockImplementation(() => {
-        return {
-          given_name_array: ['Pierre', 'Arthur', 'Félix'],
-        }
-      }),
-    }))
+    userStore.login(mockUserInfo)
 
     vi.mock('$lib/api-particulier', () => ({
       getQuotientData: vi.fn().mockImplementation(() => {
@@ -70,7 +64,7 @@ describe('/ConnectedHomepage.svelte', () => {
     // Then
     await waitFor(() => {
       const initials = container.querySelector('.user-profile')
-      expect(initials).toHaveTextContent('PAF')
+      expect(initials).toHaveTextContent('ACL')
     })
   })
 
