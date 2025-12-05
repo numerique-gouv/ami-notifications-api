@@ -21,11 +21,12 @@ from litestar.template.config import TemplateConfig
 from webpush import WebPush
 
 from app import env
-from app.auth import jwt_cookie_auth, openapi_config
+from app.auth import jwt_cookie_auth, openapi_config, partner_auth
 from app.controllers.auth import AuthController
 from app.controllers.notification import (
     NotAuthenticatedNotificationController,
     NotificationController,
+    PartnerNotificationController,
 )
 from app.controllers.registration import RegistrationController
 from app.controllers.user import UserController
@@ -128,6 +129,12 @@ authenticated_router: Router = Router(
     middleware=[jwt_cookie_auth.middleware],
 )
 
+partner_router: Router = Router(
+    path="/",
+    route_handlers=[PartnerNotificationController],
+    middleware=[partner_auth.middleware],
+)
+
 
 def create_app(
     webpush_init: Callable[[], WebPush] = provide_webpush,
@@ -135,6 +142,7 @@ def create_app(
     return Litestar(
         route_handlers=[
             authenticated_router,
+            partner_router,
             NotAuthenticatedNotificationController,
             UserController,
             get_sector_identifier_url,
