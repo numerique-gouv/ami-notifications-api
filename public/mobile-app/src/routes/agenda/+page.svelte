@@ -1,5 +1,4 @@
 <script lang="ts">
-import { checkAuth } from '$lib/auth'
 import Navigation from '$lib/Navigation.svelte'
 import { onMount } from 'svelte'
 import { goto } from '$app/navigation'

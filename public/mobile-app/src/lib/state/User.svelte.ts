@@ -1,5 +1,4 @@
-import { franceConnectLogout } from '$lib/france-connect'
-import { PUBLIC_API_URL } from '$env/static/public'
+import { franceConnectLogout, parseJwt } from '$lib/france-connect'
 import * as auth from '$lib/auth'
 
 export type UserInfo = {
@@ -30,7 +29,7 @@ export type UserIdentity = {
   email: string
 }
 
-export class UserStore {
+class UserStore {
   connected: User | null = $state(null)
 
   async login(userinfo: UserInfo): Promise<User> {
@@ -54,6 +53,18 @@ export class UserStore {
 
   isConnected(): boolean {
     return !!this.connected
+  }
+
+  async checkLoggedIn() {
+    const userData = localStorage.getItem('user_data') || ''
+    console.log('Checking if user is logged in', userData)
+    if (userData != '') {
+      const userinfo: UserInfo = parseJwt(userData)
+      console.log('User is logged in', userinfo)
+      await userStore.login(userinfo)
+    } else {
+      this.connected = null
+    }
   }
 }
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-import { checkAuth } from '$lib/auth'
+import { apiFetch, checkAuth } from '$lib/auth'
 import ConnectedHomepage from '$lib/ConnectedHomepage.svelte'
 import Navigation from '$lib/Navigation.svelte'
 import {
@@ -16,18 +16,14 @@ import { goto } from '$app/navigation'
 import applicationSvg from '@gouvfr/dsfr/dist/artwork/pictograms/digital/application.svg'
 import { userStore } from '$lib/state/User.svelte'
 
-let isFranceConnected: boolean | null = $state(null)
 let isLoggedOut: boolean = $state(false)
 let error: string = $state('')
 let error_description: string = $state('')
 
 onMount(async () => {
-  isFranceConnected = await checkAuth()
-  if (!isFranceConnected && userStore.isConnected()) {
-    // For some reason the frontend is still connected, but the API has disconnected the user.
-    await userStore.logout()
-    goto('/')
-  }
+  // Are we connected already?
+  userStore.checkLoggedIn()
+
   try {
     if (page.url.searchParams.has('error')) {
       error = page.url.searchParams.get('error') || ''
@@ -62,18 +58,17 @@ onMount(async () => {
       const userinfo_endpoint_headers = {
         Authorization: `${token_type} ${access_token}`,
       }
-      const response = await fetch(`${PUBLIC_API_URL}/fc_userinfo`, {
+      const response = await apiFetch('/fc_userinfo', {
         headers: userinfo_endpoint_headers,
         credentials: 'include',
       })
       const result = await response.json()
       localStorage.setItem('user_data', result.user_data)
       localStorage.setItem('user_id', result.user_id)
-      isFranceConnected = true
+      userStore.checkLoggedIn()
       goto('/')
     }
     if (page.url.searchParams.has('is_logged_out')) {
-      isFranceConnected = false
       isLoggedOut = true
       goto('/')
     }
@@ -99,7 +94,7 @@ function dismissError() {
 </script>
 
 <div class="homepage">
-{#if isFranceConnected === false}
+{#if !userStore.isConnected()}
   <div class="homepage-not-connected">
     {#if error}
     <div class="fr-notice fr-notice--alert">
@@ -151,7 +146,7 @@ function dismissError() {
       </p>
     </div>
   </div>
-{:else if isFranceConnected === true}
+{:else if userStore.isConnected()}
   <Navigation currentItem="home" />
   <ConnectedHomepage />
 {/if}

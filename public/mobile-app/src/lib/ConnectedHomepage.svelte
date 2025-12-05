@@ -1,5 +1,4 @@
 <script lang="ts">
-import { parseJwt } from '$lib/france-connect'
 import { onMount } from 'svelte'
 import {
   countUnreadNotifications,
@@ -51,11 +50,7 @@ onMount(async () => {
     notificationsEnabled = localStorage.getItem('notifications_enabled') === 'true'
     await initializeNavigatorPermissions()
 
-    const userData = localStorage.getItem('user_data') || ''
-    const userinfo: UserInfo = parseJwt(userData)
-    const connectedUser = await userStore.login(userinfo)
-
-    initials = connectedUser.getInitials()
+    initials = userStore.connected?.getInitials() || ''
 
     unreadNotificationsCount = await countUnreadNotifications()
     notificationEventsSocket(async () => {

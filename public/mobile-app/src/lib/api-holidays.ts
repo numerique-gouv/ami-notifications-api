@@ -1,4 +1,4 @@
-import { PUBLIC_API_URL } from '$env/static/public'
+import { apiFetch } from '$lib/auth'
 
 export type Holiday = {
   description: string
@@ -17,12 +17,9 @@ export const retrieveHolidays = async (
   const oneday_in_ms = 24 * 60 * 60 * 1000
   let holidaysData = localStorage.getItem('holidays_data')
   if (!holidaysData) {
-    const response = await fetch(
-      `${PUBLIC_API_URL}/data/holidays?current_date=${current_date}`,
-      {
-        credentials: 'include',
-      }
-    )
+    const response = await apiFetch('/data/holidays?current_date=${current_date}', {
+      credentials: 'include',
+    })
     holidaysData = await response.text()
     if (response.ok) {
       localStorage.setItem('holidays_data', holidaysData)
