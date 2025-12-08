@@ -25,5 +25,30 @@ describe('/address.ts', () => {
         expect(departement4).toEqual('30')
       })
     })
+
+    describe('zone', () => {
+      test('should return zone', async () => {
+        // Given
+        const address1 = new Address('', '', '', '', '', '')
+        const address2 = new Address('', '', '', '', '', '1')
+        const address3 = new Address('', '', '', '', '', '24')
+        const address4 = new Address('', '', '', '', '', '301')
+        const address5 = new Address('', '', '', '', '', 'ABC')
+
+        // When
+        const zone1 = address1.zone
+        const zone2 = address2.zone
+        const zone3 = address3.zone
+        const zone4 = address4.zone
+        const zone5 = address5.zone
+
+        // Then
+        expect(zone1).toEqual('')
+        expect(zone2).toEqual('')
+        expect(zone3).toEqual('A')
+        expect(zone4).toEqual('C')
+        expect(zone5).toEqual('')
+      })
+    })
   })
 })
