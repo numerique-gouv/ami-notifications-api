@@ -15,3 +15,7 @@ async def test_recipient_fc_hash(
     }
     response = test_client.get("/dev-utils/recipient-fc-hash", params=params)
     assert response.text == "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060"
+
+    params.pop("birthplace")
+    response = test_client.get("/dev-utils/recipient-fc-hash", params=params)
+    assert response.text == "7e74df2cbebae761eccedbc24b7fe589bb83137f7808a2930031f52c73d75efe"

@@ -31,6 +31,7 @@ def error_from_message(
 
 
 def ami_hash(
+    *,
     given_name: str,
     family_name: str,
     birthdate: str,

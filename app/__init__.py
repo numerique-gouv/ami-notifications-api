@@ -69,16 +69,17 @@ async def _dev_utils_recipient_fc_hash(
     family_name: str,
     birthdate: str,
     gender: str,
-    birthplace: str,
+    birthplace: str | None,
     birthcountry: str,
 ) -> str:
+    birthplace = birthplace or ""
     hashed_pivot_data: str = ami_hash(
-        given_name,
-        family_name,
-        birthdate,
-        gender,
-        birthplace,
-        birthcountry,
+        given_name=given_name,
+        family_name=family_name,
+        birthdate=birthdate,
+        gender=gender,
+        birthplace=birthplace,
+        birthcountry=birthcountry,
     )
     return hashed_pivot_data
 
