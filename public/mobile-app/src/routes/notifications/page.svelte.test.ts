@@ -5,7 +5,6 @@ import type { WS as WSType } from 'vitest-websocket-mock'
 import Page from './+page.svelte'
 import * as navigationMethods from '$app/navigation'
 import * as notificationsMethods from '$lib/notifications'
-import * as authMethods from '$lib/auth'
 import { PUBLIC_API_WS_URL } from '$lib/notifications'
 
 let wss: WSType
@@ -13,7 +12,6 @@ let wss: WSType
 describe('/+page.svelte', () => {
   beforeEach(() => {
     wss = new WS(`${PUBLIC_API_WS_URL}/api/v1/users/notification/events/stream`)
-    vi.spyOn(authMethods, 'checkAuth').mockResolvedValue(true)
   })
 
   afterEach(() => {
@@ -22,7 +20,6 @@ describe('/+page.svelte', () => {
 
   test('user has to be connected', async () => {
     // Given
-    vi.spyOn(authMethods, 'checkAuth').mockResolvedValue(false)
     const spy = vi
       .spyOn(navigationMethods, 'goto')
       .mockImplementation(() => Promise.resolve())
