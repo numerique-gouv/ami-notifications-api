@@ -1,11 +1,27 @@
-import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, test, expect, vi, afterEach, beforeEach } from 'vitest'
 import '@testing-library/jest-dom/vitest'
+import {
+  PUBLIC_API_GEO_CITY_QUERY_BASE_URL,
+  PUBLIC_API_GEO_COUNTRY_QUERY_BASE_URL,
+} from '$env/static/public'
 import * as franceConnectHelpers from '$lib/france-connect'
 import { User, userStore } from '$lib/state/User.svelte'
 import * as authHelpers from '$lib/auth'
-import { mockUserInfo } from '../../../tests/utils'
+import { mockAddress, mockUserIdentity, mockUserInfo } from '$tests/utils'
+import { Address } from '$lib/address'
+import { fetchSpy } from '../../../vitest-setup-client'
 
 describe('/lib/state/User.svelte.ts', () => {
+  beforeEach(() => {
+    userStore.connected = null
+  })
+
+  afterEach(() => {
+    // Don't use restoreAllMocks - it would remove the fetchSpy from setup file
+    // Instead, restore only the mocks created in individual tests
+    vi.clearAllMocks()
+  })
+
   test('should login a user', async () => {
     // Given
     const spyUpdateIdentity = vi
@@ -19,6 +35,9 @@ describe('/lib/state/User.svelte.ts', () => {
     expect(userStore.connected).not.toBeNull()
     expect(userStore.isConnected()).toEqual(true)
     expect(userStore.connected?.pivot?.given_name).toEqual(mockUserInfo.given_name)
+
+    // Cleanup
+    spyUpdateIdentity.mockRestore()
   })
 
   test('should logout a user from AMI then from FC', async () => {
@@ -34,6 +53,7 @@ describe('/lib/state/User.svelte.ts', () => {
 
     // Then
     expect(localStorage.getItem('id_token')).toBeNull()
+    expect(localStorage.getItem('user_identity')).toBeNull()
     expect(spyAuthLogout).toHaveBeenCalled()
     expect(spyFranceConnectLogout).toHaveBeenCalledWith('fake-id-token')
   })
@@ -52,6 +72,7 @@ describe('/lib/state/User.svelte.ts', () => {
     // Then
     expect(isLoggedIn).toBeTruthy()
     expect(spyParseJwt).toHaveBeenCalledWith('some data')
+    expect(userStore.connected?.identity?.address).toBeUndefined() // No `user_identity` in the localStorage
   })
 
   test("should detect that we're not logged in", async () => {
@@ -63,5 +84,58 @@ describe('/lib/state/User.svelte.ts', () => {
 
     // Then
     expect(userStore.isConnected()).not.toBeTruthy()
+  })
+
+  test('should reconstruct a user identity from localstorage', async () => {
+    // Given
+    localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity))
+
+    // When
+    await userStore.login(mockUserInfo)
+
+    // Then
+    expect(userStore.connected?.identity?.address).toEqual(mockUserIdentity.address)
+  })
+
+  test('should properly set an address on the identity and save the identity to localStorage', async () => {
+    // Given
+    localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity))
+    const otherAddress = new Address('some random city')
+
+    // When
+    await userStore.login(mockUserInfo)
+    expect(userStore.connected).not.toBeNull()
+    userStore.connected!.address = otherAddress
+
+    // Then
+    expect(userStore.connected?.identity?.address?.city).toEqual('some random city')
+    const parsed = JSON.parse(localStorage.getItem('user_identity') || '{}')
+    expect(parsed?.address._city).toEqual('some random city')
+  })
+
+  test('should not query the geo API to update the identity if it was loaded from localStorage', async () => {
+    // Given
+    localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity))
+
+    // When
+    await userStore.login(mockUserInfo)
+
+    // Then
+    expect(fetchSpy).not.toHaveBeenCalled()
+  })
+
+  test("should query the geo API to update the identity if it didn't have the birthplace and birthcountry", async () => {
+    // Given
+    localStorage.removeItem('user_identity')
+
+    // When
+    await userStore.login(mockUserInfo)
+
+    // Then
+    const mockCalls = fetchSpy.mock.calls // An array of calls, each call being [url, options]
+    expect(mockCalls[0][0]).toContain('geo.api.gouv.fr')
+    expect(mockCalls[0][0]).toContain(mockUserInfo.birthplace)
+    expect(mockCalls[1][0]).toContain('tabular-api.data.gouv.fr')
+    expect(mockCalls[1][0]).toContain(mockUserInfo.birthcountry)
   })
 })

@@ -2,7 +2,7 @@ import { describe, expect, test, vi } from 'vitest'
 import { PUBLIC_API_URL } from '$env/static/public'
 import '@testing-library/jest-dom/vitest'
 import { registerDevice, unregisterDevice } from '$lib/registration.js'
-import { mockPushSubscription } from '../../tests/utils'
+import { mockPushSubscription } from '$tests/utils'
 
 describe('/registration.js', () => {
   describe('registerDevice', () => {

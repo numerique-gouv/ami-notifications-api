@@ -1,63 +1,16 @@
 <script lang="ts">
 import { type AddressFromBAN, callBAN } from './addressesFromBAN'
-
-class Address {
-  private _city: string = ''
-  private _context: string = ''
-  private _idBAN: string = ''
-  private _label: string = ''
-  private _name: string = ''
-  private _postcode: string = ''
-
-  constructor(
-    city: string,
-    context: string,
-    idBAN: string,
-    label: string,
-    name: string,
-    postcode: string
-  ) {
-    this._city = city
-    this._context = context
-    this._idBAN = idBAN
-    this._label = label
-    this._name = name
-    this._postcode = postcode
-  }
-
-  get city(): string {
-    return this._city
-  }
-
-  get context(): string {
-    return this._context
-  }
-
-  get idBAN(): string {
-    return this._idBAN
-  }
-
-  get label(): string {
-    return this._label
-  }
-
-  get name(): string {
-    return this._name
-  }
-
-  get postcode(): string {
-    return this._postcode
-  }
-}
+import { userStore } from '$lib/state/User.svelte'
+import { Address } from '$lib/address'
 
 let timer: any
 let inputValue: string = $state('')
 let filteredAddresses: Address[] = $state([])
 let disabledButton: boolean = $state(true)
 let addressHasError: boolean = $state(false)
-let selectedAddress: Address = $state<Address>(new Address('', '', '', '', '', ''))
+let selectedAddress: Address = $state<Address>(new Address())
 let hasSubmittedAddress: boolean = $state(false)
-let submittedAddress: Address = $state<Address>(new Address('', '', '', '', '', ''))
+let submittedAddress: Address = $state<Address>(new Address())
 
 const addressInputHandler = (event: Event) => {
   if (!event.target) return
@@ -119,6 +72,9 @@ const setInputVal = (address: Address) => {
 const submitAddress = async () => {
   hasSubmittedAddress = true
   submittedAddress = selectedAddress
+  if (userStore.connected) {
+    userStore.connected.address = selectedAddress
+  }
   console.log(submittedAddress)
   localStorage.setItem(
     'user_address',
@@ -128,9 +84,10 @@ const submitAddress = async () => {
 
 const removeAddress = async () => {
   hasSubmittedAddress = false
+  delete userStore.connected?.identity?.address
   disabledButton = true
-  selectedAddress = new Address('', '', '', '', '', '')
-  submittedAddress = new Address('', '', '', '', '', '')
+  selectedAddress = new Address()
+  submittedAddress = new Address()
   localStorage.setItem('user_address', '')
 }
 </script>

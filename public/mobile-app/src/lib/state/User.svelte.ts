@@ -1,4 +1,11 @@
+import {
+  PUBLIC_API_GEO_CITY_QUERY_BASE_URL,
+  PUBLIC_API_GEO_CITY_QUERY_ENDPOINT,
+  PUBLIC_API_GEO_COUNTRY_QUERY_BASE_URL,
+  PUBLIC_API_GEO_COUNTRY_QUERY_ENDPOINT,
+} from '$env/static/public'
 import { franceConnectLogout, parseJwt } from '$lib/france-connect'
+import { Address } from '$lib/address'
 import * as auth from '$lib/auth'
 
 export type UserInfo = {
@@ -27,6 +34,7 @@ export type UserIdentity = {
   family_name: string
   preferred_username?: string | null
   email: string
+  address?: Address
 }
 
 class UserStore {
@@ -69,18 +77,25 @@ class UserStore {
 }
 
 export class User {
-  private _pivot: UserInfo
-  private _identity: UserIdentity
+  private _pivot: UserInfo = $state() as UserInfo
+  private _identity: UserIdentity = $state() as UserIdentity
 
   constructor(userinfo: UserInfo) {
     this._pivot = userinfo
+    // Load stored values that might have been updated by the user
+    const storedIdentity = localStorage.getItem('user_identity') || '{}'
+    const parsedIdentity = JSON.parse(storedIdentity)
+
     this._identity = {
       gender: this._pivot.gender,
       birthdate: this._pivot.birthdate,
-      given_name: this._pivot.given_name,
+      birthplace: parsedIdentity?.birthplace,
+      birthcountry: parsedIdentity?.birthcountry,
+      given_name: parsedIdentity?.given_name || this._pivot.given_name,
       family_name: this._pivot.family_name,
       preferred_username: this._pivot.preferred_username,
-      email: this._pivot.email,
+      email: parsedIdentity?.email || this._pivot.email,
+      address: parsedIdentity?.address,
     }
   }
 
@@ -92,26 +107,31 @@ export class User {
     return this._identity
   }
 
-  set identity(value: UserIdentity) {
-    this._identity = value
+  set address(address: Address) {
+    this._identity.address = address
+    localStorage.setItem('user_identity', JSON.stringify(this.identity))
   }
 
   async updateIdentity() {
-    if (this._pivot.birthplace) {
-      const birthplaceResponse = await fetch(
-        `https://geo.api.gouv.fr/communes/${this._pivot.birthplace}?fields=nom&format=json`
-      )
-      const birthplaceJson = await birthplaceResponse.json()
-      const birthplace = `${birthplaceJson.nom} (${this._pivot.birthplace.toString().slice(0, 2)})`
-      this._identity.birthplace = birthplace
+    if (!this._identity.birthplace && this._pivot.birthplace) {
+      try {
+        const birthplaceResponse = await fetch(
+          `${PUBLIC_API_GEO_CITY_QUERY_BASE_URL}${PUBLIC_API_GEO_CITY_QUERY_ENDPOINT.replace('{birthplace}', this._pivot.birthplace)}`
+        )
+        const birthplaceJson = await birthplaceResponse.json()
+        const birthplace = `${birthplaceJson.nom} (${this._pivot.birthplace.toString().slice(0, 2)})`
+        this._identity.birthplace = birthplace
+      } catch {}
     }
-    if (this._pivot.birthcountry) {
-      const birthcountryResponse = await fetch(
-        `https://tabular-api.data.gouv.fr/api/resources/3580bf65-1d11-4574-a2ca-903d64ad41bd/data/?page=1&page_size=20&COG__exact=${this._pivot.birthcountry}`
-      )
-      const birthcountryJson = await birthcountryResponse.json()
-      const birthcountry = birthcountryJson?.data[0]?.LIBCOG
-      this._identity.birthcountry = birthcountry
+    if (!this._identity.birthcountry && this._pivot.birthcountry) {
+      try {
+        const birthcountryResponse = await fetch(
+          `${PUBLIC_API_GEO_COUNTRY_QUERY_BASE_URL}${PUBLIC_API_GEO_COUNTRY_QUERY_ENDPOINT}${this._pivot.birthcountry}`
+        )
+        const birthcountryJson = await birthcountryResponse.json()
+        const birthcountry = birthcountryJson?.data[0]?.LIBCOG
+        this._identity.birthcountry = birthcountry
+      } catch {}
     }
   }
 

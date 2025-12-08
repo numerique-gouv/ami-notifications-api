@@ -11,7 +11,7 @@ import { Agenda, Item } from '$lib/agenda'
 import { PUBLIC_API_WS_URL } from '$lib/notifications'
 import { franceConnectLogout } from './france-connect'
 import { userStore } from '$lib/state/User.svelte'
-import { mockUserInfo } from '../../tests/utils'
+import { mockUserInfo } from '$tests/utils'
 
 let wss: WSType
 

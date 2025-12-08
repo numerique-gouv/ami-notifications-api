@@ -7,7 +7,7 @@ import * as authMethods from '$lib/auth'
 import * as navigationMethods from '$app/navigation'
 import { userStore } from '$lib/state/User.svelte'
 import type { UserInfo } from '$lib/state/User.svelte'
-import { mockUserInfo } from '../../tests/utils'
+import { mockUserInfo } from '$tests/utils'
 
 describe('/+page.svelte', () => {
   let userinfo: UserInfo
