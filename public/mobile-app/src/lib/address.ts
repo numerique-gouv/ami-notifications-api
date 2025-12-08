@@ -45,4 +45,11 @@ export class Address {
   get postcode(): string {
     return this._postcode
   }
+
+  get departement(): string {
+    if (this._postcode.length < 2) {
+      return ''
+    }
+    return this._postcode.substring(0, 2)
+  }
 }
