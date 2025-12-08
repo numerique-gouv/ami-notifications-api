@@ -33,13 +33,13 @@ class NotificationController(Controller):
         self,
         notifications_service: NotificationService,
         current_user: models.User,
-        unread: bool | None = None,
+        read: bool | None = None,
     ) -> Sequence[schemas.Notification]:
-        if unread is not None:
+        if read is not None:
             notifications: Sequence[models.Notification] = await notifications_service.list(
                 order_by=(models.Notification.created_at, True),
                 user=current_user,
-                unread=unread,
+                read=read,
             )
         else:
             notifications: Sequence[models.Notification] = await notifications_service.list(
@@ -73,7 +73,7 @@ class NotificationController(Controller):
         )
         if notification is None:
             raise NotFoundException(detail="Notification not found")
-        notification.unread = not data.read
+        notification.read = data.read
         notification = await notifications_service.update(notification)
         channels.publish(  # type: ignore
             {
@@ -201,17 +201,17 @@ class NotAuthenticatedNotificationController(PushNotificationMixin, Controller):
         notifications_service: NotificationService,
         users_service: UserService,
         user_id: uuid.UUID,
-        unread: bool | None = None,
+        read: bool | None = None,
     ) -> Sequence[schemas.NotificationLegacy]:
         # XXX keep this endpoint for mobile-app compatibility; remove it when mobile-app use authenticated endpoint
         user: models.User | None = await users_service.get_one_or_none(id=user_id)
         if user is None:
             raise NotFoundException(detail="User not found")
-        if unread is not None:
+        if read is not None:
             notifications: Sequence[models.Notification] = await notifications_service.list(
                 order_by=(models.Notification.created_at, True),
                 user=user,
-                unread=unread,
+                read=read,
             )
         else:
             notifications: Sequence[models.Notification] = await notifications_service.list(

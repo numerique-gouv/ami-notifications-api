@@ -75,7 +75,7 @@ async def test_create_notification(
         2025, 11, 27, 10, 55, tzinfo=datetime.timezone.utc
     )
     assert notification2.sender == "PSL"
-    assert notification2.unread is True
+    assert notification2.read is False
     assert response.json() == {
         "notification_id": str(notification2.id),
         "notification_send_status": True,
@@ -159,7 +159,7 @@ async def test_create_notification_user_does_not_exist(
         2025, 11, 27, 10, 55, tzinfo=datetime.timezone.utc
     )
     assert notification.sender == "PSL"
-    assert notification.unread is True
+    assert notification.read is False
     assert response.json() == {
         "notification_id": str(notification.id),
         "notification_send_status": False,
@@ -213,7 +213,7 @@ async def test_create_notification_user_never_seen(
         2025, 11, 27, 10, 55, tzinfo=datetime.timezone.utc
     )
     assert notification.sender == "PSL"
-    assert notification.unread is True
+    assert notification.read is False
     assert response.json() == {
         "notification_id": str(notification.id),
         "notification_send_status": False,
@@ -460,29 +460,29 @@ async def test_get_notifications(
         "item_milestone_end_date": None,
         "item_external_url": None,
         "send_date": notification.send_date.isoformat().replace("+00:00", "Z"),
-        "unread": True,
+        "read": False,
     }
 
-    response = test_client.get("/api/v1/users/notifications?unread=true")
+    response = test_client.get("/api/v1/users/notifications?read=false")
     assert response.status_code == HTTP_200_OK
     assert len(response.json()) == 1
-    response = test_client.get("/api/v1/users/notifications?unread=false")
+    response = test_client.get("/api/v1/users/notifications?read=true")
     assert response.status_code == HTTP_200_OK
     assert len(response.json()) == 0
 
-    notification.unread = False
+    notification.read = True
     db_session.add(notification)
     await db_session.commit()
 
     response = test_client.get("/api/v1/users/notifications")
     assert response.status_code == HTTP_200_OK
     assert len(response.json()) == 1
-    assert response.json()[0]["unread"] is False
+    assert response.json()[0]["read"] is True
 
-    response = test_client.get("/api/v1/users/notifications?unread=true")
+    response = test_client.get("/api/v1/users/notifications?read=false")
     assert response.status_code == HTTP_200_OK
     assert len(response.json()) == 0
-    response = test_client.get("/api/v1/users/notifications?unread=false")
+    response = test_client.get("/api/v1/users/notifications?read=true")
     assert response.status_code == HTTP_200_OK
     assert len(response.json()) == 1
 
@@ -531,16 +531,16 @@ async def test_get_notifications_should_return_notifications_for_given_user_id_l
     assert response.json()[0]["message"] == notification.content_body
     assert response.json()[0]["title"] == notification.content_title
     assert response.json()[0]["sender"] == notification.sender
-    assert response.json()[0]["unread"] is True
+    assert response.json()[0]["read"] is False
 
-    response = test_client.get(f"/api/v1/users/{notification.user.id}/notifications?unread=true")
+    response = test_client.get(f"/api/v1/users/{notification.user.id}/notifications?read=false")
     assert response.status_code == HTTP_200_OK
     assert len(response.json()) == 1
-    response = test_client.get(f"/api/v1/users/{notification.user.id}/notifications?unread=false")
+    response = test_client.get(f"/api/v1/users/{notification.user.id}/notifications?read=true")
     assert response.status_code == HTTP_200_OK
     assert len(response.json()) == 0
 
-    notification.unread = False
+    notification.read = True
     db_session.add(notification)
     await db_session.commit()
 
@@ -551,12 +551,12 @@ async def test_get_notifications_should_return_notifications_for_given_user_id_l
     assert response.json()[0]["message"] == notification.content_body
     assert response.json()[0]["title"] == notification.content_title
     assert response.json()[0]["sender"] == notification.sender
-    assert response.json()[0]["unread"] is False
+    assert response.json()[0]["read"] is True
 
-    response = test_client.get(f"/api/v1/users/{notification.user.id}/notifications?unread=true")
+    response = test_client.get(f"/api/v1/users/{notification.user.id}/notifications?read=false")
     assert response.status_code == HTTP_200_OK
     assert len(response.json()) == 0
-    response = test_client.get(f"/api/v1/users/{notification.user.id}/notifications?unread=false")
+    response = test_client.get(f"/api/v1/users/{notification.user.id}/notifications?read=true")
     assert response.status_code == HTTP_200_OK
     assert len(response.json()) == 1
 
@@ -629,7 +629,7 @@ async def test_read_notification(
         "item_milestone_end_date": None,
         "item_external_url": None,
         "send_date": notification.send_date.isoformat().replace("+00:00", "Z"),
-        "unread": False,
+        "read": True,
     }
 
     response = test_client.patch(
@@ -637,7 +637,7 @@ async def test_read_notification(
         json={"read": False},
     )
     assert response.status_code == HTTP_200_OK
-    assert response.json()["unread"] is True
+    assert response.json()["read"] is False
 
 
 async def test_read_notification_without_auth(

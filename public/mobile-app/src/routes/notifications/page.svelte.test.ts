@@ -46,7 +46,7 @@ describe('/+page.svelte', () => {
           content_body: 'test 2',
           id: 'f62c66b2-7bd5-4696-8383-2d40c08a1',
           content_title: 'test 2',
-          unread: true,
+          read: false,
         },
         {
           send_date: new Date('2025-09-19T12:59:04.950812'),
@@ -55,7 +55,7 @@ describe('/+page.svelte', () => {
           content_body: 'test',
           id: '2689c3b3-e95c-4d73-b37d-55f430688af9',
           content_title: 'test',
-          unread: false,
+          read: true,
         },
       ])
 
@@ -68,11 +68,11 @@ describe('/+page.svelte', () => {
       const notification1 = screen.getByTestId(
         'notification-f62c66b2-7bd5-4696-8383-2d40c08a1'
       )
-      expect(notification1).toHaveClass('unread')
+      expect(notification1).not.toHaveClass('read')
       const notification2 = screen.getByTestId(
         'notification-2689c3b3-e95c-4d73-b37d-55f430688af9'
       )
-      expect(notification2).not.toHaveClass('unread')
+      expect(notification2).toHaveClass('read')
     })
   })
 
@@ -88,7 +88,7 @@ describe('/+page.svelte', () => {
           content_body: 'test 2',
           id: 'f62c66b2-7bd5-4696-8383-2d40c08a1',
           content_title: 'test 2',
-          unread: true,
+          read: false,
         },
         {
           send_date: new Date('2025-09-19T12:59:04.950812'),
@@ -97,7 +97,7 @@ describe('/+page.svelte', () => {
           content_body: 'test',
           id: '2689c3b3-e95c-4d73-b37d-55f430688af9',
           content_title: 'test',
-          unread: false,
+          read: true,
         },
       ])
       .mockImplementationOnce(async () => [
@@ -108,7 +108,7 @@ describe('/+page.svelte', () => {
           content_body: 'test 2',
           id: 'f62c66b2-7bd5-4696-8383-2d40c08a1',
           content_title: 'test 2',
-          unread: false,
+          read: true,
         },
         {
           send_date: new Date('2025-09-19T12:59:04.950812'),
@@ -117,7 +117,7 @@ describe('/+page.svelte', () => {
           content_body: 'test',
           id: '2689c3b3-e95c-4d73-b37d-55f430688af9',
           content_title: 'test',
-          unread: false,
+          read: true,
         },
       ])
     const spy2 = vi
@@ -130,7 +130,7 @@ describe('/+page.svelte', () => {
           content_body: 'test 2',
           id: 'f62c66b2-7bd5-4696-8383-2d40c08a1',
           content_title: 'test 2',
-          unread: false,
+          read: true,
         }
       })
 
@@ -151,11 +151,11 @@ describe('/+page.svelte', () => {
       const notification1 = screen.getByTestId(
         'notification-f62c66b2-7bd5-4696-8383-2d40c08a1'
       )
-      expect(notification1).not.toHaveClass('unread')
+      expect(notification1).toHaveClass('read')
     })
     const notification2 = screen.getByTestId(
       'notification-2689c3b3-e95c-4d73-b37d-55f430688af9'
     )
-    expect(notification2).not.toHaveClass('unread')
+    expect(notification2).toHaveClass('read')
   })
 })

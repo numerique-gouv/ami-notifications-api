@@ -60,4 +60,4 @@ class Notification(Base):
         default=lambda: datetime.datetime.now(datetime.timezone.utc),
     )
 
-    unread: Mapped[bool] = mapped_column(default=True)
+    read: Mapped[bool] = mapped_column(default=False)
