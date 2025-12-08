@@ -25,5 +25,23 @@ async def test_ami_hash(
     gender = "female"
     birthplace = "75107"
     birthcountry = "99100"
-    response = ami_hash(given_name, family_name, birthdate, gender, birthplace, birthcountry)
+    response = ami_hash(
+        given_name=given_name,
+        family_name=family_name,
+        birthdate=birthdate,
+        gender=gender,
+        birthplace=birthplace,
+        birthcountry=birthcountry,
+    )
     assert response == "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060"
+
+    birthplace = ""
+    response = ami_hash(
+        given_name=given_name,
+        family_name=family_name,
+        birthdate=birthdate,
+        gender=gender,
+        birthplace=birthplace,
+        birthcountry=birthcountry,
+    )
+    assert response == "7e74df2cbebae761eccedbc24b7fe589bb83137f7808a2930031f52c73d75efe"

@@ -25,7 +25,12 @@ async def test_hash_from_csv() -> None:
                 birthplace = row["codePostalLieuDeNaissance"]
                 birthcountry = row["codePaysDeNaissance"]
                 response = ami_hash(
-                    given_name, family_name, birthdate, gender, birthplace, birthcountry
+                    given_name=given_name,
+                    family_name=family_name,
+                    birthdate=birthdate,
+                    gender=gender,
+                    birthplace=birthplace,
+                    birthcountry=birthcountry,
                 )
 
                 results.append(  # type: ignore[reportUnknownMemberType]
