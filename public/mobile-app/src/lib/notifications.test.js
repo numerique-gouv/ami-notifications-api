@@ -10,7 +10,7 @@ import {
   unsubscribePush,
 } from '$lib/notifications'
 import * as registrationMethods from '$lib/registration'
-import { mockPushSubscription } from '../../tests/utils'
+import { mockPushSubscription } from '$tests/utils'
 
 describe('/notifications', () => {
   describe('retrieveNotifications', () => {

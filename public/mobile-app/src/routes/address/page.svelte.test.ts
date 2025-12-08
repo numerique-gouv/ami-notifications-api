@@ -2,6 +2,8 @@ import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte'
 import Page from './+page.svelte'
+import { userStore } from '$lib/state/User.svelte'
+import { mockUserInfo } from '$tests/utils'
 
 describe('/+page.svelte', () => {
   beforeEach(() => {
@@ -95,10 +97,14 @@ describe('/+page.svelte', () => {
     })
   })
 
-  test('should display selected address in page when user clicks on Save button', async () => {
+  test('should display selected address in page when user clicks on Save button, and remove it when clicking on the button', async () => {
     // Given
+    await userStore.login(mockUserInfo)
+    expect(userStore.connected).not.toBeNull()
+    const setAddressSpy = vi.spyOn(userStore.connected!, 'address', 'set')
     window.localStorage.setItem('user_address', '')
 
+    // When: search for, and submit the address
     render(Page)
     const addressInput = screen.getByTestId('address-input')
     await fireEvent.input(addressInput, {
@@ -128,6 +134,21 @@ describe('/+page.svelte', () => {
       expect(window.localStorage.getItem('user_address')).toEqual(
         '{"city":"Orly","context":"94, Val-de-Marne, Île-de-France","idBAN":"94054_0070_00023","label":"23 Rue des Aubépines 94310 Orly","name":"23 Rue des Aubépines","postcode":"94310"}'
       )
+      expect(setAddressSpy).toHaveBeenCalled()
+    })
+
+    // When - user clicks the remove button
+    const removeButton = screen.getByRole('button', { name: /retirer l'adresse/i })
+    await fireEvent.click(removeButton)
+
+    // Then
+    await waitFor(() => {
+      // Address should no longer be visible
+      expect(screen.queryByTestId('selected-address-wrapper')).not.toBeInTheDocument()
+      // Address should be removed from userStore
+      expect(userStore.connected?.identity?.address).toBeUndefined()
+      // localStorage should be cleared
+      expect(window.localStorage.getItem('user_address')).toEqual('')
     })
   })
 })

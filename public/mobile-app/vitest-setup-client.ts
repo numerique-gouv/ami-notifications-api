@@ -1,5 +1,10 @@
 import '@testing-library/jest-dom/vitest'
 import { beforeEach, vi } from 'vitest'
+import type { MockInstance } from 'vitest'
+import {
+  PUBLIC_API_GEO_CITY_QUERY_BASE_URL,
+  PUBLIC_API_GEO_COUNTRY_QUERY_BASE_URL,
+} from '$env/static/public'
 
 beforeEach(() => {
   window.localStorage?.clear()
@@ -20,3 +25,38 @@ Object.defineProperty(window, 'matchMedia', {
 })
 
 // add more mocks here if you need them
+// Mock fetch for all tests
+export const fetchSpy: MockInstance = vi
+  .spyOn(globalThis, 'fetch')
+  .mockImplementation((input: RequestInfo | URL) => {
+    const url =
+      typeof input === 'string' ? input : input instanceof URL ? input.href : input.url
+
+    // Mock geo.api.gouv.fr for birthplace
+    if (url.includes(PUBLIC_API_GEO_CITY_QUERY_BASE_URL)) {
+      return Promise.resolve(
+        new Response(JSON.stringify({ nom: 'Paris' }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      )
+    }
+
+    // Mock tabular-api.data.gouv.fr for birthcountry
+    if (url.includes(PUBLIC_API_GEO_COUNTRY_QUERY_BASE_URL)) {
+      return Promise.resolve(
+        new Response(JSON.stringify({ data: [{ LIBCOG: 'France' }] }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      )
+    }
+
+    // Default fallback
+    return Promise.resolve(
+      new Response(JSON.stringify({}), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    )
+  })

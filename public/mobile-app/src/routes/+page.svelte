@@ -21,8 +21,7 @@ let error: string = $state('')
 let error_description: string = $state('')
 
 onMount(async () => {
-  // Are we connected already?
-  userStore.checkLoggedIn()
+  // User state already initialized in +layout.svelte
 
   try {
     if (page.url.searchParams.has('error')) {
@@ -65,7 +64,7 @@ onMount(async () => {
       const result = await response.json()
       localStorage.setItem('user_data', result.user_data)
       localStorage.setItem('user_id', result.user_id)
-      userStore.checkLoggedIn()
+      await userStore.checkLoggedIn()
       goto('/')
     }
     if (page.url.searchParams.has('is_logged_out')) {

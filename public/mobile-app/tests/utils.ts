@@ -1,4 +1,5 @@
 import { vi } from 'vitest'
+import { Address } from '$lib/address'
 
 export const mockPushSubscription = {
   unsubscribe: () => Promise.resolve(true),
@@ -26,4 +27,24 @@ export const mockUserInfo = {
   exp: 1753877658,
   iat: 1753877598,
   iss: 'https://fcp-low.sbx.dev-franceconnect.fr/api/v2',
+}
+
+export const mockAddress: Address = new Address(
+  'Paris',
+  '75, Paris, Île-de-France',
+  '75107_8909',
+  'Avenue de Ségur 75007 Paris',
+  'Avenue de Ségur',
+  '75007'
+)
+
+export const mockUserIdentity = {
+  gender: 'female',
+  birthdate: '1962-08-24',
+  given_name: 'Angela Claire Louise',
+  family_name: 'DUBOIS',
+  email: 'wossewodda-3728@yopmail.com',
+  address: mockAddress,
+  birthplace: 'Paris 7e Arrondissement (75)',
+  birthcountry: 'France',
 }

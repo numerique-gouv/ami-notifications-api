@@ -8,6 +8,10 @@ const config = {
   preprocess: vitePreprocess(),
 
   kit: {
+    alias: {
+      $routes: 'src/routes',
+      $tests: 'tests',
+    },
     router: {
       type: 'hash',
     },

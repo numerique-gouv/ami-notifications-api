@@ -199,6 +199,7 @@ const clickDisableNotifications = async () => {
     <div id="accordion-1" class="fr-collapse">
       <ul>
         <li>userinfo: <pre>{ JSON.stringify(userStore.connected?.pivot, null, 2) }</pre></li>
+        <li>user identity: <pre>{ JSON.stringify(userStore.connected?.identity, null, 2) }</pre></li>
         <li>sub: { userStore.connected?.pivot?.sub }</li>
         <li>given_name: { userStore.connected?.pivot?.given_name }</li>
         <li>given_name_array: { userStore.connected?.pivot?.given_name_array }</li>
