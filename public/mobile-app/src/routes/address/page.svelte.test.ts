@@ -8,7 +8,7 @@ import Page from './+page.svelte'
 
 describe('/+page.svelte', () => {
   beforeEach(() => {
-    vi.mock('./addressesFromBAN', () => {
+    vi.mock('$lib/addressesFromBAN', () => {
       const addressesResultsFromBAN = [
         {
           city: 'Orléans',

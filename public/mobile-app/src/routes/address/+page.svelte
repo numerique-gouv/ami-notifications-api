@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Address } from '$lib/address'
+  import { type AddressFromBAN, callBAN } from '$lib/addressesFromBAN'
   import { userStore } from '$lib/state/User.svelte'
-  import { type AddressFromBAN, callBAN } from './addressesFromBAN'
 
   let timer: any
   let inputValue: string = $state('')
