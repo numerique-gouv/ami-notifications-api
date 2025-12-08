@@ -18,7 +18,6 @@ async def test_get_sector_identifier_url(
 
 async def test_ami_hash(
     test_client: TestClient[Litestar],
-    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     given_name = "Angela Claire Louise"
     family_name = "DUBOIS"
