@@ -16,7 +16,7 @@ export type Notification = {
   content_body: string
   content_icon?: string
   sender: string
-  unread: boolean
+  read: boolean
 }
 
 export const retrieveNotifications = async (): Promise<Notification[]> => {
@@ -38,7 +38,7 @@ export const retrieveNotifications = async (): Promise<Notification[]> => {
 export const countUnreadNotifications = async (): Promise<number> => {
   let notifications = [] as Notification[]
   try {
-    const response = await apiFetch('/api/v1/users/notifications?unread=true', {
+    const response = await apiFetch('/api/v1/users/notifications?read=false', {
       credentials: 'include',
     })
     if (response.status === 200) {

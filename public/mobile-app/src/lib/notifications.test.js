@@ -24,7 +24,7 @@ describe('/notifications', () => {
           content_body: 'test 2',
           id: 'f62c66b2-7bd5-4696-883-2d40c08a1',
           content_title: 'test 2',
-          unread: true,
+          read: false,
         },
         {
           send_date: '2025-09-19T12:59:04.950812',
@@ -33,7 +33,7 @@ describe('/notifications', () => {
           content_body: 'test',
           id: '2689c3b3-e95c-4d73-b37d-55f430688af9',
           content_title: 'test',
-          unread: false,
+          read: true,
         },
       ]
       vi.spyOn(globalThis, 'fetch').mockResolvedValue(
@@ -59,7 +59,7 @@ describe('/notifications', () => {
           content_body: 'test 2',
           id: 'f62c66b2-7bd5-4696-883-2d40c08a1',
           content_title: 'test 2',
-          unread: true,
+          read: false,
         },
       ]
       vi.spyOn(globalThis, 'fetch').mockResolvedValue(
@@ -85,7 +85,7 @@ describe('/notifications', () => {
           content_body: 'test 2',
           id: 'f62c66b2-7bd5-4696-883-2d40c08a1',
           content_title: 'test 2',
-          unread: false,
+          read: true,
         },
       ]
       vi.spyOn(globalThis, 'fetch').mockResolvedValue(

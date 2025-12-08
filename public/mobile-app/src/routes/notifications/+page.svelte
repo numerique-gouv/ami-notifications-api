@@ -45,9 +45,9 @@ const markNotificationAsRead = async (event: MouseEvent, notificationId: string)
 
 <div class="notifications-content-container">
   {#each notifications as notification}
-  <div class="fr-tile fr-tile-sm fr-tile--horizontal fr-enlarge-link fr-p-3v notification {notification.unread ? 'unread': ''}" data-testid="notification-{notification.id}">
+  <div class="fr-tile fr-tile-sm fr-tile--horizontal fr-enlarge-link fr-p-3v notification {notification.read ? 'read': ''}" data-testid="notification-{notification.id}">
     <div class="fr-tile__header">
-      <span class="notification__status {notification.unread ? 'unread': ''}" aria-hidden="true"><i>•</i></span>
+      <span class="notification__status {notification.read ? 'read': ''}" aria-hidden="true"><i>•</i></span>
       <span class="notification__icon {notification.content_icon ? notification.content_icon: 'fr-icon-calendar-event-fill'}" aria-hidden="true"></span>
     </div>
     <div class="fr-tile__body">
@@ -94,7 +94,7 @@ const markNotificationAsRead = async (event: MouseEvent, notificationId: string)
     .notification {
       background: none;
       border-bottom: 1px solid var(--background-alt-grey-active);
-      &.unread {
+      &:not(.read) {
         background-color: var(--background-contrast-blue-france);
       }
       .fr-tile__header {
@@ -104,7 +104,7 @@ const markNotificationAsRead = async (event: MouseEvent, notificationId: string)
           width: 16px;
           font-size: 22px;
           color: var(--red-marianne-main-472);
-          &:not(.unread) i {
+          &.read i {
             display: none;
           }
         }

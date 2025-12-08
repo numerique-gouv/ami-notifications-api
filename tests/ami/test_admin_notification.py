@@ -57,7 +57,7 @@ async def test_admin_create_notification_from_test_and_from_app_context(
     assert notification2.content_body == "Hello notification 2"
     assert notification2.content_title == "Some notification title"
     assert notification2.sender == "Jane Doe"
-    assert notification2.unread is True
+    assert notification2.read is False
     assert response.json() == {
         "notification_id": str(notification2.id),
         "notification_send_status": True,
@@ -99,7 +99,7 @@ async def test_admin_create_notification_test_fields(
         {"message": "String should have at least 1 character", "key": "message"}
     ]
 
-    # id, created_at, updated_at and unread are ignored
+    # id, created_at, updated_at and read are ignored
     notification_date: datetime.datetime = datetime.datetime.now(
         datetime.timezone.utc
     ) + datetime.timedelta(days=1)
@@ -112,7 +112,7 @@ async def test_admin_create_notification_test_fields(
         "id": str(notification_id),
         "created_at": notification_date.isoformat(),
         "updated_at": notification_date.isoformat(),
-        "unread": False,
+        "read": True,
     }
     response = test_client.post("/ami_admin/notifications", json=notification_data)
     assert response.status_code == HTTP_201_CREATED
@@ -123,7 +123,7 @@ async def test_admin_create_notification_test_fields(
     assert notification.id != notification_id
     assert notification.created_at < notification_date
     assert notification.updated_at < notification_date
-    assert notification.unread is True
+    assert notification.read is False
 
 
 async def test_admin_create_notification_when_registration_gone(

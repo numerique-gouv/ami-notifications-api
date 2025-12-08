@@ -47,7 +47,7 @@ class Notification(BaseModel):
 
     send_date: datetime.datetime
 
-    unread: bool
+    read: bool
 
 
 class NotificationCreate(BaseModel):
@@ -132,7 +132,7 @@ class NotificationLegacy(BaseModel):
     title: str = Field(alias="content_title")
     message: str = Field(alias="content_body")
     sender: str
-    unread: bool
+    read: bool
     created_at: datetime.datetime
 
 
