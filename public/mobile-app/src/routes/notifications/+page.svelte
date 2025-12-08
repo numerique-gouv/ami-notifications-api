@@ -56,7 +56,7 @@ const markNotificationAsRead = async (event: MouseEvent, notificationId: string)
       <div class="fr-tile__content fr-pb-0">
         <div class="notification__title">
           <h3 class="fr-tile__title fr-mb-0">
-            <a href="/" onclick={(event) => markNotificationAsRead(event, notification.id)} data-testid="notification-link-{notification.id}">{notification.sender} : {notification.content_title}</a>
+            <a href="/" onclick={(event) => markNotificationAsRead(event, notification.id)} data-testid="notification-link-{notification.id}">{notification.content_title}</a>
           </h3>
           <span class="notification__age">
             {prettyDate(notification.send_date)}
