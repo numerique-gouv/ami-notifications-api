@@ -63,8 +63,8 @@ async def get_sector_identifier_url() -> Response[Any]:
 # ### DEV ENDPOINTS
 
 
-@get(path="/dev-utils/ami-hash")
-async def _dev_utils_ami_hash(
+@get(path="/dev-utils/recipient-fc-hash")
+async def _dev_utils_recipient_fc_hash(
     given_name: str,
     family_name: str,
     birthdate: str,
@@ -146,7 +146,7 @@ def create_app(
             NotAuthenticatedNotificationController,
             UserController,
             get_sector_identifier_url,
-            _dev_utils_ami_hash,
+            _dev_utils_recipient_fc_hash,
             _dev_utils_review_apps,
             create_static_files_router(
                 path="/",
