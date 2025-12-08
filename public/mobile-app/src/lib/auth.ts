@@ -17,19 +17,6 @@ export const logout = async (): Promise<boolean> => {
   return true
 }
 
-export const checkAuth = async (): Promise<boolean> => {
-  const response = await fetch(`${PUBLIC_API_URL}/check-auth`, {
-    credentials: 'include',
-  })
-  if (response.status >= 300) {
-    console.log(
-      `check-auth error ${response.status}: ${response.statusText}, ${response.body}`
-    )
-    return false
-  }
-  return true
-}
-
 export const apiFetch = async (
   input: string,
   init?: RequestInit

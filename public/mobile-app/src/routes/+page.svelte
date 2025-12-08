@@ -1,5 +1,5 @@
 <script lang="ts">
-import { apiFetch, checkAuth } from '$lib/auth'
+import { apiFetch } from '$lib/auth'
 import ConnectedHomepage from '$lib/ConnectedHomepage.svelte'
 import Navigation from '$lib/Navigation.svelte'
 import {

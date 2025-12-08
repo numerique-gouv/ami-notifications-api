@@ -3,7 +3,6 @@ import { render, screen, waitFor } from '@testing-library/svelte'
 import Page from './+page.svelte'
 import * as navigationMethods from '$app/navigation'
 import * as agendaMethods from '$lib/agenda'
-import * as authMethods from '$lib/auth'
 import { Agenda, Item, monthName } from '$lib/agenda'
 
 const oneday_in_ms = 24 * 60 * 60 * 1000
@@ -11,12 +10,8 @@ const today = new Date()
 const in32days = new Date(today.getTime() + 32 * oneday_in_ms) // 32 days, so we are sure that month is different than today's
 
 describe('/+page.svelte', () => {
-  beforeEach(() => {
-    vi.spyOn(authMethods, 'checkAuth').mockResolvedValue(true)
-  })
   test('user has to be connected', async () => {
     // Given
-    vi.spyOn(authMethods, 'checkAuth').mockResolvedValue(false)
     vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(new Agenda([]))
     const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue()
 
