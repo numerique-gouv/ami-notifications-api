@@ -58,9 +58,7 @@ const getInitials = (given_name_array: string[]): string => {
 
 onMount(async () => {
   try {
-    isAddressEmpty =
-      localStorage.getItem('user_address') !== '' ||
-      localStorage.getItem('user_address') !== null
+    isAddressEmpty = !localStorage.getItem('user_address')
     notificationsEnabled = localStorage.getItem('notifications_enabled') === 'true'
     await initializeNavigatorPermissions()
 
