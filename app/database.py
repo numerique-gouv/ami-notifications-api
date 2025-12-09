@@ -2,6 +2,7 @@ import os
 
 from advanced_alchemy.extensions.litestar import (
     AsyncSessionConfig,
+    EngineConfig,
     SQLAlchemyAsyncConfig,
     SQLAlchemyPlugin,
 )
@@ -31,6 +32,7 @@ DATABASE_URL = (
 session_config = AsyncSessionConfig(expire_on_commit=False)
 alchemy_config = SQLAlchemyAsyncConfig(
     connection_string=DATABASE_URL,
+    engine_config=EngineConfig(pool_pre_ping=True),
     session_config=session_config,
     before_send_handler="autocommit_include_redirects",
 )
