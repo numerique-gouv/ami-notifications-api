@@ -8,12 +8,8 @@
   import Icon from '$lib/components/Icon.svelte'
   import {
     countUnreadNotifications,
-    disableNotifications,
-    enableNotifications,
     notificationEventsSocket,
   } from '$lib/notifications'
-  import type { Registration } from '$lib/registration'
-  import type { UserInfo } from '$lib/state/User.svelte'
   import { userStore } from '$lib/state/User.svelte'
 
   let quotientinfo: object = $state({})
@@ -21,39 +17,11 @@
   let initials: string = $state('')
   let isMenuDisplayed: boolean = $state(false)
   let isAgendaEmpty: boolean = $state(true)
-  let notificationsEnabled: boolean = $state(false)
-  let registration: Registration | null = $state(null)
   let agenda: Agenda | null = $state(null)
-
-  const updateNotificationsEnabled = async (notificationsEnabledStatus: boolean) => {
-    if (notificationsEnabledStatus === true) {
-      registration = await enableNotifications()
-    } else if (registration) {
-      await disableNotifications(registration.id)
-    }
-    notificationsEnabled = notificationsEnabledStatus
-    localStorage.setItem('notifications_enabled', notificationsEnabledStatus.toString())
-  }
-
-  const initializeNavigatorPermissions = async () => {
-    if (navigator.permissions) {
-      const permissionStatus = await navigator.permissions.query({
-        name: 'notifications',
-      })
-
-      permissionStatus.onchange = async () => {
-        await updateNotificationsEnabled(permissionStatus.state === 'granted')
-        console.log(`notifications permission status is ${permissionStatus.state}`)
-      }
-    }
-  }
 
   onMount(async () => {
     console.log('User is connected:', userStore.connected)
     try {
-      notificationsEnabled = localStorage.getItem('notifications_enabled') === 'true'
-      await initializeNavigatorPermissions()
-
       initials = userStore.connected?.getInitials() || ''
 
       unreadNotificationsCount = await countUnreadNotifications()
@@ -74,14 +42,6 @@
 
   const toggleMenu = () => {
     isMenuDisplayed = !isMenuDisplayed
-  }
-
-  const clickEnableNotifications = async () => {
-    await updateNotificationsEnabled(true)
-  }
-
-  const clickDisableNotifications = async () => {
-    await updateNotificationsEnabled(false)
   }
 
   const goToProfile = async () => {
@@ -123,25 +83,6 @@
         <Icon className="fr-mr-2v" color="var(--text-active-blue-france)" href="/remixicons/user-line.svg" />
         Mon profil
       </button>
-      {#if notificationsEnabled}
-        <button
-            type="button"
-            onclick={clickDisableNotifications}
-            data-testid="disable-notifications"
-        >
-          <Icon className="fr-mr-2v" color="var(--text-active-blue-france)" href="/remixicons/settings-3-line.svg" />
-          Ne plus recevoir de notifications sur ce terminal
-        </button>
-      {:else}
-        <button
-            type="button"
-            onclick={clickEnableNotifications}
-            data-testid="enable-notifications"
-        >
-          <Icon className="fr-mr-2v" color="var(--text-active-blue-france)" href="/remixicons/settings-3-line.svg" />
-          Recevoir des notifications sur ce terminal
-        </button>
-      {/if}
 
       <button
           class="fr-connect-logout"
