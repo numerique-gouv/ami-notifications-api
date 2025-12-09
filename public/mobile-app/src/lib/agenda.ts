@@ -165,13 +165,15 @@ export class Agenda {
         title += ` ${holiday.emoji}`
       }
       let custom = false
+      let description = null
       if (userZone !== undefined && holiday.zones === `Zone ${userZone}`) {
         custom = true
+        description = `${userStore.connected?.identity.address?.city} 🏠`
       }
       const item = new Item(
         'holiday',
         title,
-        null,
+        description,
         null,
         holiday.start_date,
         holiday.end_date,
