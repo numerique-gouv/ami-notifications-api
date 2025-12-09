@@ -27,6 +27,10 @@
     event.preventDefault()
     let result = await readNotification(notificationId)
   }
+
+  const goToSettings = () => {
+    goto('/#/settings')
+  }
 </script>
 
 <nav>
@@ -38,7 +42,14 @@
   <div class="title">
     <h2>Notifications</h2>
     <div class="settings-svg-icon">
-      <img src="/remixicons/settings.svg" alt="Icône de paramétrage" />
+      <button class="fr-btn fr-btn--tertiary"
+              type="button"
+              onclick="{goToSettings}"
+              data-testid="settings-button"
+      >
+        <img src="/remixicons/settings.svg" alt="Icône de paramétrage" />
+        Gérer
+      </button>
     </div>
   </div>
 </nav>
@@ -89,8 +100,8 @@
         color: var(--text-active-blue-france);
         img {
           margin-right: .5rem;
-          width: 1.25rem;
-          height: 1.25rem;
+          width: 1rem;
+          height: 1rem;
         }
       }
     }

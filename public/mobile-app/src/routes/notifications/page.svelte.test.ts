@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/svelte'
+import { fireEvent, render, screen, waitFor } from '@testing-library/svelte'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import type { WS as WSType } from 'vitest-websocket-mock'
 import WS from 'vitest-websocket-mock'
@@ -31,6 +31,25 @@ describe('/+page.svelte', () => {
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1)
       expect(spy).toHaveBeenCalledWith('/')
+    })
+  })
+
+  test('should navigate to Settings when user clicks on Gérer button', async () => {
+    // Given
+    const spy = vi
+      .spyOn(navigationMethods, 'goto')
+      .mockImplementation(() => Promise.resolve())
+    render(Page)
+
+    // When
+    const button = screen.getByTestId('settings-button')
+    await fireEvent.click(button)
+
+    // Then
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledTimes(2)
+      expect(spy).toHaveBeenNthCalledWith(1, '/')
+      expect(spy).toHaveBeenNthCalledWith(2, '/#/settings')
     })
   })
 
