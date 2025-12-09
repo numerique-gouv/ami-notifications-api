@@ -45,7 +45,7 @@ export const unregisterDevice = async (registrationId: string) => {
   const headers = {
     'Content-Type': 'application/json',
   }
-  const response = await apiFetch('/api/v1/users/registrations/${registrationId}', {
+  const response = await apiFetch(`/api/v1/users/registrations/${registrationId}`, {
     method: 'DELETE',
     headers: headers,
     credentials: 'include',
