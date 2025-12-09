@@ -29,31 +29,31 @@
   }
 </script>
 
-<nav class="fr-p-4v fr-pt-6v">
-  <div class="back-link fr-mb-2v">
+<nav>
+  <div class="back-link">
     <a href="/" title="Retour à la page d'accueil" aria-label="Retour à la page d'accueil">
       <span aria-hidden="true" class="fr-icon-arrow-left-line"></span>
     </a>
   </div>
   <div class="title">
-    <h2 class="fr-mb-0">Notifications</h2>
-    <div class="settings-svg-icon fr-pt-1v">
-      <img src="/remixicons/settings.svg" alt="Icône de paramétrage" class="fr-mr-2v" />
+    <h2>Notifications</h2>
+    <div class="settings-svg-icon">
+      <img src="/remixicons/settings.svg" alt="Icône de paramétrage" />
     </div>
   </div>
 </nav>
 
 <div class="notifications-content-container">
   {#each notifications as notification}
-  <div class="fr-tile fr-tile-sm fr-tile--horizontal fr-enlarge-link fr-p-3v notification {notification.read ? 'read': ''}" data-testid="notification-{notification.id}">
+  <div class="fr-tile fr-tile-sm fr-tile--horizontal fr-enlarge-link notification {notification.read ? 'read': ''}" data-testid="notification-{notification.id}">
     <div class="fr-tile__header">
       <span class="notification__status {notification.read ? 'read': ''}" aria-hidden="true"><i>•</i></span>
       <span class="notification__icon {notification.content_icon ? notification.content_icon: 'fr-icon-information-line'}" aria-hidden="true"></span>
     </div>
     <div class="fr-tile__body">
-      <div class="fr-tile__content fr-pb-0">
+      <div class="fr-tile__content">
         <div class="notification__title">
-          <h3 class="fr-tile__title fr-mb-0">
+          <h3 class="fr-tile__title">
             <a href="/" onclick={(event) => markNotificationAsRead(event, notification.id)} data-testid="notification-link-{notification.id}">{notification.content_title}</a>
           </h3>
           <span class="notification__age">
@@ -69,7 +69,9 @@
 
 <style>
   nav {
+    padding: 1.5rem 1rem;
     .back-link {
+      margin-bottom: .5rem;
       color: var(--text-active-blue-france);
       a {
         text-decoration: none;
@@ -80,12 +82,15 @@
       display: flex;
       h2 {
         flex-grow: 1;
+        margin-bottom: 0;
       }
       .settings-svg-icon {
+        padding-top: .25rem;
         color: var(--text-active-blue-france);
         img {
-          width: 20px;
-          height: 20px;
+          margin-right: .5rem;
+          width: 1.25rem;
+          height: 1.25rem;
         }
       }
     }
@@ -94,14 +99,15 @@
     .notification {
       background: none;
       border-bottom: 1px solid var(--background-alt-grey-active);
+      padding: .75rem;
       &:not(.read) {
         background-color: var(--background-contrast-blue-france);
       }
       .fr-tile__header {
         display: flex;
-        margin-right: 12px;
+        margin-right: .75rem;
         .notification__status {
-          width: 16px;
+          width: 1rem;
           font-size: 22px;
           color: var(--red-marianne-main-472);
           &.read i {
@@ -109,47 +115,51 @@
           }
         }
         .notification__icon {
-          line-height: 32px;
+          line-height: 2rem;
           color: var(--blue-france-sun-113-625);
           &::before {
-            --icon-size: 20px;
+            --icon-size: 1.25rem;
           }
         }
       }
-      .notification__title {
-        display: flex;
-        align-items: center;
-        width: 100%;
-        .fr-tile__title {
-          order: 1;
+      .fr-tile__content {
+        padding-bottom: 0;
+        .notification__title {
+          display: flex;
+          align-items: center;
           width: 100%;
-          &::before {
-            background: none;
-          }
-          a {
-            font-size: 14px;
-            color: var(--text-black-white-grey);
+          .fr-tile__title {
+            order: 1;
+            width: 100%;
+            margin-bottom: 0;
             &::before {
               background: none;
             }
-            &::after {
-              width: 0;
+            a {
+              font-size: 14px;
+              color: var(--text-black-white-grey);
+              &::before {
+                background: none;
+              }
+              &::after {
+                width: 0;
+              }
             }
           }
+          .notification__age {
+            order: 2;
+            font-size: .75rem;
+            color: var(--text-mention-grey);
+            width: 2rem;
+            text-align: right;
+          }
         }
-        .notification__age {
-          order: 2;
+        .fr-tile__desc {
           font-size: 12px;
-          color: var(--text-mention-grey);
-          width: 32px;
-          text-align: right;
+          line-height: 1.25rem;
+          color: var(--text-black-white-grey);
         }
       }
-    }
-    .fr-tile__desc {
-      font-size: 12px;
-      line-height: 20px;
-      color: var(--text-black-white-grey);
     }
   }
 </style>
