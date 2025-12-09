@@ -20,7 +20,7 @@ from webpush.vapid import VAPID
 from app import create_app, env
 from app.database import DATABASE_URL, alchemy_config
 from app.models import Base, Notification, Registration, User
-from app.utils import ami_hash
+from app.utils import build_fc_hash
 from tests.base import TestClient
 
 session_config = ServerSideSessionConfig()
@@ -101,7 +101,7 @@ def test_client(app: Litestar) -> Iterator[TestClient]:
 
 @pytest.fixture
 async def user(db_session: AsyncSession) -> User:
-    fc_hash = ami_hash(
+    fc_hash = build_fc_hash(
         given_name="Test User",
         family_name="AMI",
         birthdate="",

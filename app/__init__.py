@@ -32,7 +32,7 @@ from app.controllers.registration import RegistrationController
 from app.controllers.user import UserController
 from app.database import alchemy
 from app.httpx import httpxClient
-from app.utils import ami_hash
+from app.utils import build_fc_hash
 
 from .admin.routes import router as ami_admin_router
 from .data.routes import data_router
@@ -73,7 +73,7 @@ async def _dev_utils_recipient_fc_hash(
     birthcountry: str,
 ) -> str:
     birthplace = birthplace or ""
-    hashed_pivot_data: str = ami_hash(
+    hashed_pivot_data: str = build_fc_hash(
         given_name=given_name,
         family_name=family_name,
         birthdate=birthdate,

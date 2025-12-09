@@ -30,7 +30,7 @@ def error_from_message(
     return Response(message, status_code=status_code)
 
 
-def ami_hash(
+def build_fc_hash(
     *,
     given_name: str,
     family_name: str,

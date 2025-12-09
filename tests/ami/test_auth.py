@@ -13,7 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app import env
 from app.auth import generate_nonce, jwt_cookie_auth
 from app.models import Nonce, User
-from app.utils import ami_hash
+from app.utils import build_fc_hash
 from tests.ami.utils import assert_query_fails_without_auth, login
 from tests.utils import url_contains_param
 
@@ -331,7 +331,7 @@ async def test_fc_get_userinfo_user_never_seen(
         is_reusable=True,
     )
 
-    fc_hash = ami_hash(
+    fc_hash = build_fc_hash(
         given_name=userinfo["given_name"],
         family_name=userinfo["family_name"],
         birthdate=userinfo["birthdate"],
