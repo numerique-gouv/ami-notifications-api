@@ -1,5 +1,6 @@
 import { vi } from 'vitest'
 import { Address } from '$lib/address'
+import { User } from '$lib/state/User.svelte'
 
 export const mockPushSubscription = {
   unsubscribe: () => Promise.resolve(true),
@@ -48,3 +49,5 @@ export const mockUserIdentity = {
   birthplace: 'Paris 7e Arrondissement (75)',
   birthcountry: 'France',
 }
+
+export const mockUser = new User(mockUserInfo)

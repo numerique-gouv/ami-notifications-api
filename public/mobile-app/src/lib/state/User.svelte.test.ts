@@ -28,8 +28,7 @@ describe('/lib/state/User.svelte.ts', () => {
     await userStore.login(mockUserInfo)
 
     // Then
-    expect(userStore.connected).not.toBeNull()
-    expect(userStore.isConnected()).toEqual(true)
+    expect(userStore.connected).toBeTruthy()
     expect(userStore.connected?.pivot?.given_name).toEqual(mockUserInfo.given_name)
 
     // Cleanup
@@ -62,7 +61,7 @@ describe('/lib/state/User.svelte.ts', () => {
       .mockReturnValue(mockUserInfo)
 
     // When
-    expect(userStore.isConnected()).not.toBeTruthy()
+    expect(userStore.connected).not.toBeTruthy()
     const isLoggedIn = userStore.checkLoggedIn()
 
     // Then
@@ -79,7 +78,7 @@ describe('/lib/state/User.svelte.ts', () => {
     userStore.checkLoggedIn()
 
     // Then
-    expect(userStore.isConnected()).not.toBeTruthy()
+    expect(userStore.connected).not.toBeTruthy()
   })
 
   test('should reconstruct a user identity from localstorage', async () => {

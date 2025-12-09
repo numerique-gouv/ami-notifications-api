@@ -4,6 +4,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/svelte'
 import Page from './+page.svelte'
 import { userStore } from '$lib/state/User.svelte'
 import { mockUserInfo } from '$tests/utils'
+import { Address } from '$lib/address'
 
 describe('/+page.svelte', () => {
   beforeEach(() => {
@@ -81,17 +82,19 @@ describe('/+page.svelte', () => {
       target: { value: '23 rue des aubépines orl' },
     })
 
-    await waitFor(async () => {
+    await waitFor(() => {
       const autocompleteListItem1 = screen.getByTestId('autocomplete-item-1')
       expect(autocompleteListItem1).toHaveTextContent(
         '23 Rue des Aubépines Orly (94, Val-de-Marne, Île-de-France)'
       )
+    })
 
-      // When
-      const button = screen.getByTestId('autocomplete-item-button-1')
-      await fireEvent.click(button)
+    // When
+    const button = screen.getByTestId('autocomplete-item-button-1')
+    await fireEvent.click(button)
 
-      // Then
+    // Then
+    await waitFor(() => {
       const updatedAddressInput: HTMLInputElement = screen.getByTestId('address-input')
       expect(updatedAddressInput.value).equal('23 Rue des Aubépines 94310 Orly')
     })
@@ -101,40 +104,51 @@ describe('/+page.svelte', () => {
     // Given
     await userStore.login(mockUserInfo)
     expect(userStore.connected).not.toBeNull()
+    delete userStore.connected?.identity?.address
     const setAddressSpy = vi.spyOn(userStore.connected!, 'address', 'set')
-    window.localStorage.setItem('user_address', '')
 
-    // When: search for, and submit the address
+    // When
     render(Page)
     const addressInput = screen.getByTestId('address-input')
     await fireEvent.input(addressInput, {
       target: { value: '23 rue des aubépines orl' },
     })
 
-    await waitFor(async () => {
+    await waitFor(() => {
       const autocompleteListItem1 = screen.getByTestId('autocomplete-item-1')
       expect(autocompleteListItem1).toHaveTextContent(
         '23 Rue des Aubépines Orly (94, Val-de-Marne, Île-de-France)'
       )
+    })
 
-      const button = screen.getByTestId('autocomplete-item-button-1')
-      await fireEvent.click(button)
+    const button = screen.getByTestId('autocomplete-item-button-1')
+    await fireEvent.click(button)
+
+    await waitFor(() => {
       const updatedAddressInput: HTMLInputElement = screen.getByTestId('address-input')
       expect(updatedAddressInput.value).equal('23 Rue des Aubépines 94310 Orly')
+    })
 
-      // When
-      const submitButton = screen.getByTestId('submit-button')
-      await fireEvent.click(submitButton)
+    // When
+    const submitButton = screen.getByTestId('submit-button')
+    await fireEvent.click(submitButton)
 
-      // Then
+    // Then
+    await waitFor(() => {
       const adressWrapper = screen.getByTestId('selected-address-wrapper')
       expect(adressWrapper).toHaveTextContent(
         'Votre résidence principale 23 Rue des Aubépines 94310 Orly'
       )
-      expect(window.localStorage.getItem('user_address')).toEqual(
-        '{"city":"Orly","context":"94, Val-de-Marne, Île-de-France","idBAN":"94054_0070_00023","label":"23 Rue des Aubépines 94310 Orly","name":"23 Rue des Aubépines","postcode":"94310"}'
+      expect(setAddressSpy).toHaveBeenCalledWith(
+        new Address(
+          'Orly',
+          '94, Val-de-Marne, Île-de-France',
+          '94054_0070_00023',
+          '23 Rue des Aubépines 94310 Orly',
+          '23 Rue des Aubépines',
+          '94310'
+        )
       )
-      expect(setAddressSpy).toHaveBeenCalled()
     })
 
     // When - user clicks the remove button
@@ -147,8 +161,6 @@ describe('/+page.svelte', () => {
       expect(screen.queryByTestId('selected-address-wrapper')).not.toBeInTheDocument()
       // Address should be removed from userStore
       expect(userStore.connected?.identity?.address).toBeUndefined()
-      // localStorage should be cleared
-      expect(window.localStorage.getItem('user_address')).toEqual('')
     })
   })
 })

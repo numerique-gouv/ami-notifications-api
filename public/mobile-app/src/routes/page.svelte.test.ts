@@ -3,8 +3,6 @@ import '@testing-library/jest-dom/vitest'
 import { render, screen, waitFor } from '@testing-library/svelte'
 import Page from './+page.svelte'
 import { PUBLIC_API_URL } from '$env/static/public'
-import * as navigationMethods from '$app/navigation'
-import { userStore } from '$lib/state/User.svelte'
 import type { UserInfo } from '$lib/state/User.svelte'
 import { mockUserInfo } from '$tests/utils'
 
