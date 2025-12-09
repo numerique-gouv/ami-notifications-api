@@ -4,7 +4,8 @@ import {
   PUBLIC_API_GEO_COUNTRY_QUERY_BASE_URL,
   PUBLIC_API_GEO_COUNTRY_QUERY_ENDPOINT,
 } from '$env/static/public'
-import type { Address } from '$lib/address'
+import type { Address as AddressType } from '$lib/address'
+import { Address } from '$lib/address'
 import * as auth from '$lib/auth'
 import { franceConnectLogout, parseJwt } from '$lib/france-connect'
 
@@ -34,7 +35,7 @@ export type UserIdentity = {
   family_name: string
   preferred_username?: string | null
   email: string
-  address?: Address
+  address?: AddressType
 }
 
 class UserStore {
@@ -93,6 +94,9 @@ export class User {
       email: parsedIdentity?.email || this._pivot.email,
       address: parsedIdentity?.address,
     }
+    if (this._identity.address) {
+      this._identity.address = Address.fromJSON(this._identity.address)
+    }
   }
 
   get pivot() {
@@ -103,7 +107,7 @@ export class User {
     return this._identity
   }
 
-  set address(address: Address) {
+  set address(address: AddressType) {
     this._identity.address = address
     localStorage.setItem('user_identity', JSON.stringify(this.identity))
   }

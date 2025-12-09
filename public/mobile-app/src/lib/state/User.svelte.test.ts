@@ -90,6 +90,7 @@ describe('/lib/state/User.svelte.ts', () => {
 
     // Then
     expect(userStore.connected?.identity?.address).toEqual(mockUserIdentity.address)
+    expect(userStore.connected?.identity?.address instanceof Address).toBe(true)
   })
 
   test('should properly set an address on the identity and save the identity to localStorage', async () => {
