@@ -4,6 +4,25 @@ import { Address } from '$lib/address'
 
 describe('/address.ts', () => {
   describe('Address', () => {
+    describe('fromJSON', () => {
+      test('should return an Address', async () => {
+        // Given
+        const address = new Address('city', 'ctx', 'idban', 'label', 'name', 'postcode')
+
+        // When
+        const result = Address.fromJSON(JSON.parse(JSON.stringify(address)))
+
+        // Then
+        expect(result instanceof Address).toBe(true)
+        expect(result.city).toEqual('city')
+        expect(result.context).toEqual('ctx')
+        expect(result.idBAN).toEqual('idban')
+        expect(result.label).toEqual('label')
+        expect(result.name).toEqual('name')
+        expect(result.postcode).toEqual('postcode')
+      })
+    })
+
     describe('departement', () => {
       test('should return departement code', async () => {
         // Given
