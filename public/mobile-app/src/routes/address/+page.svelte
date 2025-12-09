@@ -71,6 +71,10 @@
     disabledButton = false
   }
 
+  const cancelAddress = async () => {
+    window.history.back()
+  }
+
   const submitAddress = async () => {
     hasSubmittedAddress = true
     submittedAddress = selectedAddress
@@ -164,14 +168,27 @@
     {/if}
   </div>
 
-  <button class="fr-btn submit-button"
-          type="submit"
-          disabled="{disabledButton}"
-          onclick={submitAddress}
-          data-testid="submit-button"
-  >
-    Enregistrer cette adresse
-  </button>
+  <ul class="fr-btns-group action-buttons">
+    <li>
+      <button class="fr-btn fr-btn--secondary cancel-button"
+              type="button"
+              onclick={cancelAddress}
+              data-testid="cancel-button"
+      >
+          Annuler
+      </button>
+    </li>
+    <li>
+      <button class="fr-btn submit-button"
+              type="button"
+              disabled="{disabledButton}"
+              onclick={submitAddress}
+              data-testid="submit-button"
+      >
+          Enregistrer
+      </button>
+    </li>
+  </ul>
 </div>
 
 <style>
@@ -276,14 +293,24 @@
       }
     }
 
-    .submit-button {
+    .action-buttons {
       position: fixed;
       bottom: 1.5rem;
-      left: 50%;
-      transform: translateX(-50%);
+      display: flex;
+      gap: 1rem;
+      width: 100%;
+      margin: 0;
+      padding: 1rem;
 
-      display: block;
-      width: 328px;
+      li {
+        flex: 1;
+
+        button {
+          display: block;
+          width: 100%;
+          margin: 0;
+        }
+      }
     }
   }
 </style>
