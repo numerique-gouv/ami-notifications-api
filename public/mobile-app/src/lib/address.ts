@@ -8,6 +8,17 @@ export class Address {
     private _postcode: string = ''
   ) {}
 
+  static fromJSON(json: any): Address {
+    return new Address(
+      json._city,
+      json._context,
+      json._idBAN,
+      json._label,
+      json._name,
+      json._postcode
+    )
+  }
+
   get city(): string {
     return this._city
   }
