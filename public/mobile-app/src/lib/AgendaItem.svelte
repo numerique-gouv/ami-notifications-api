@@ -22,7 +22,7 @@
     <span class="day-num">{item.dayNum}</span> 
   </div>
   {/if}
-  <div class="agenda--item--detail fr-tile fr-tile-sm fr-tile--horizontal fr-enlarge-link">
+  <div class="agenda--item--detail fr-tile fr-tile-sm fr-tile--horizontal fr-enlarge-link {item.custom ? 'custom': ''}">
     <div class="fr-tile__body">
       <div class="fr-tile__content">
         <h3 class="fr-tile__title">
@@ -32,6 +32,9 @@
         </h3>
         {#if item.description}<p class="fr-tile__detail">{item.description}</p>{/if}
         <div class="fr-tile__start">
+          {#if item.custom }
+            <p class="fr-badge fr-badge--icon-left fr-icon-user-fill custom"></p>
+          {/if}
           <p class="fr-badge fr-badge--icon-left {item.icon} {item.kind}">
             {item.label}
           </p>
@@ -66,6 +69,13 @@
       padding: 1.5rem;
       padding-bottom: 1rem;
       width: 100%;
+      &.custom {
+        background-image:
+          linear-gradient(0deg, var(--border-default-blue-france), var(--border-default-blue-france)),
+          linear-gradient(0deg, var(--border-default-blue-france), var(--border-default-blue-france)),
+          linear-gradient(0deg, var(--border-default-blue-france), var(--border-default-blue-france)),
+          linear-gradient(0deg, var(--border-default-blue-france), var(--border-default-blue-france));
+      }
       .fr-tile__content {
         padding-bottom: 1.5rem;
         .fr-tile__title {
@@ -94,6 +104,14 @@
           &.otv {
             color: var(--text-action-high-green-archipel);
             background-color: var(--background-alt-green-archipel);
+          }
+          &.custom {
+            color: #fff;
+            margin-right: 0.25rem;
+            background: var(--blue-france-main-525);
+            &::before {
+              margin-right: 0;
+            }
           }
         }
         .fr-tag {
