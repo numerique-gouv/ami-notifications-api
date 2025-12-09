@@ -163,4 +163,19 @@ describe('/+page.svelte', () => {
       expect(userStore.connected?.identity?.address).toBeUndefined()
     })
   })
+
+  test('should navigate to previous page when user clicks on Cancel button', async () => {
+    // Given
+    window.localStorage.setItem('user_address', '')
+    const backSpy = vi.spyOn(window.history, 'back').mockImplementation(() => {})
+
+    // When
+    render(Page)
+    const cancelButton = screen.getByTestId('cancel-button')
+    await fireEvent.click(cancelButton)
+
+    // Then
+    expect(backSpy).toHaveBeenCalledTimes(1)
+    backSpy.mockRestore()
+  })
 })

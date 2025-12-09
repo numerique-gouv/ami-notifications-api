@@ -72,7 +72,7 @@
   }
 
 const cancelAddress = async () => {
-  console.log('cancel')
+  window.history.back()
 }
 
   const submitAddress = async () => {
