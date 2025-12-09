@@ -11,7 +11,7 @@ import { Agenda, Item } from '$lib/agenda'
 import { PUBLIC_API_WS_URL } from '$lib/notifications'
 import { franceConnectLogout } from './france-connect'
 import { userStore } from '$lib/state/User.svelte'
-import { mockUserInfo } from '$tests/utils'
+import { mockAddress, mockUserInfo } from '$tests/utils'
 
 let wss: WSType
 
@@ -44,7 +44,6 @@ describe('/ConnectedHomepage.svelte', () => {
 
     vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(new Agenda([]))
 
-    window.localStorage.setItem('user_address', '')
     window.localStorage.setItem('notifications_enabled', 'false')
     window.localStorage.setItem('user_data', 'fake-user-data')
     window.localStorage.setItem('emailLocalStorage', 'test@email.fr')
@@ -211,7 +210,6 @@ describe('/ConnectedHomepage.svelte', () => {
 
   test('should display address block when user address is not known (empty)', async () => {
     // Given
-    window.localStorage.setItem('user_address', '')
 
     // When
     const { container } = render(ConnectedHomepage)
@@ -227,7 +225,8 @@ describe('/ConnectedHomepage.svelte', () => {
 
   test('should display address block when user address is not known (null)', async () => {
     // Given
-    window.localStorage.removeItem('user_address')
+    userStore.login(mockUserInfo)
+    delete userStore.connected?.identity?.address
 
     // When
     const { container } = render(ConnectedHomepage)
@@ -243,7 +242,8 @@ describe('/ConnectedHomepage.svelte', () => {
 
   test('should not display address block when user address is known', async () => {
     // Given
-    window.localStorage.setItem('user_address', '26 rue Desaix 75015 Paris')
+    userStore.login(mockUserInfo)
+    userStore.connected!.address = mockAddress
 
     // When
     const { container } = render(ConnectedHomepage)

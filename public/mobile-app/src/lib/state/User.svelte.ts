@@ -59,17 +59,13 @@ class UserStore {
     await franceConnectLogout(id_token_hint)
   }
 
-  isConnected(): boolean {
-    return !!this.connected
-  }
-
   async checkLoggedIn() {
     const userData = localStorage.getItem('user_data') || ''
     console.log('Checking if user is logged in', userData)
     if (userData != '') {
       const userinfo: UserInfo = parseJwt(userData)
       console.log('User is logged in', userinfo)
-      await userStore.login(userinfo)
+      await this.login(userinfo)
     } else {
       this.connected = null
     }

@@ -13,7 +13,7 @@ import { userStore } from '$lib/state/User.svelte'
 let notifications: Notification[] = $state([])
 
 onMount(async () => {
-  if (!userStore.isConnected()) {
+  if (!userStore.connected) {
     goto('/')
   }
 

@@ -1,17 +1,18 @@
 <script lang="ts">
-import Navigation from '$lib/Navigation.svelte'
 import { onMount } from 'svelte'
 import { goto } from '$app/navigation'
-import { buildAgenda } from '$lib/agenda'
-import type { Agenda } from '$lib/agenda'
-import AgendaItem from '$lib/AgendaItem.svelte'
 import Card from '$lib/components/Card.svelte'
-import accountSvg from '@gouvfr/dsfr/dist/icons/user/account-circle-line.svg'
 import { userStore } from '$lib/state/User.svelte'
+import type { UserIdentity } from '$lib/state/User.svelte'
+
+let identity: UserIdentity = $state() as UserIdentity
 
 onMount(async () => {
-  if (!userStore.isConnected()) {
+  if (!userStore.connected) {
     goto('/')
+    return
+  } else {
+    identity = userStore.connected.identity
   }
 })
 </script>
@@ -27,24 +28,26 @@ onMount(async () => {
   </div>
 </nav>
 
-{#if userStore.connected}
+{#if identity}
 <div class="fr-m-4v profile-content-container">
-  <Card iconHref="/remixicons/account-circle-line.svg" title="Mon identité">
-    Vous êtes&nbsp;:<br />
-    <b>{userStore.connected.identity.given_name} {userStore.connected.identity.preferred_username || userStore.connected.identity.family_name},</b><br />
-    né{#if userStore.connected.identity.gender == "female"}e{/if}{#if userStore.connected.identity.preferred_username} <b>{userStore.connected.identity.family_name}</b>{/if}
-    le <b>{userStore.connected.identity.birthdate}</b>
-    {#if userStore.connected.identity.birthplace}à <b>{userStore.connected.identity.birthplace} {userStore.connected.identity.birthcountry}</b><br />{/if}
+  <Card id="profile-identity" iconHref="/remixicons/account-circle-line.svg" title="Mon identité">
+    <p>Vous êtes&nbsp;:<br />
+    <b>{identity.given_name} {identity.preferred_username || identity.family_name},</b><br />
+    né{#if identity.gender == "female"}e{/if}{#if identity.preferred_username} <b>{identity.family_name}</b>{/if}
+    le <b>{identity.birthdate}</b>
+    {#if identity.birthplace}à <b>{identity.birthplace} {identity.birthcountry}</b><br />{/if}
     <span class="fr-text--xs">Informations fournies par FranceConnect</span><br />
-    <br />
+    </p>
+
     <button type="button" class="fr-btn fr-icon-edit-line fr-btn--icon-left fr-btn--tertiary">Modifier</button>
   </Card>
 
   <Card iconHref="/remixicons/mail-line.svg" title="Contact">
-    Pour vous contacter&nbsp;:<br />
-    <b>{userStore.connected.identity.email}</b><br />
+    <p>Pour vous contacter&nbsp;:<br />
+    <b>{identity.email}</b><br />
     <span class="fr-text--xs">Informations fournies par FranceConnect</span><br />
-    <br />
+    </p>
+
     <button type="button" class="fr-btn fr-icon-edit-line fr-btn--icon-left fr-btn--tertiary">Modifier</button>
   </Card>
 

@@ -76,10 +76,6 @@ const submitAddress = async () => {
     userStore.connected.address = selectedAddress
   }
   console.log(submittedAddress)
-  localStorage.setItem(
-    'user_address',
-    `{"city":"${submittedAddress.city}","context":"${submittedAddress.context}","idBAN":"${submittedAddress.idBAN}","label":"${submittedAddress.label}","name":"${submittedAddress.name}","postcode":"${submittedAddress.postcode}"}`
-  )
 }
 
 const removeAddress = async () => {
@@ -88,7 +84,6 @@ const removeAddress = async () => {
   disabledButton = true
   selectedAddress = new Address()
   submittedAddress = new Address()
-  localStorage.setItem('user_address', '')
 }
 </script>
 
@@ -145,6 +140,7 @@ const removeAddress = async () => {
               {/each}
             </ul>
           {/if}
+
         </div>
         <div class="fr-messages-group" id="text-messages" aria-live="polite">
         </div>

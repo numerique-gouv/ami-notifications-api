@@ -20,7 +20,6 @@ let quotientinfo: Object = $state({})
 let unreadNotificationsCount: number = $state(0)
 let initials: string = $state('')
 let isMenuDisplayed: boolean = $state(false)
-let isAddressEmpty: boolean = $state(true)
 let isAgendaEmpty: boolean = $state(true)
 let notificationsEnabled: boolean = $state(false)
 let registration: Registration | null = $state(null)
@@ -50,8 +49,8 @@ const initializeNavigatorPermissions = async () => {
 }
 
 onMount(async () => {
+  console.log('User is connected:', userStore.connected)
   try {
-    isAddressEmpty = !localStorage.getItem('user_address')
     notificationsEnabled = localStorage.getItem('notifications_enabled') === 'true'
     await initializeNavigatorPermissions()
 
@@ -86,7 +85,7 @@ const clickDisableNotifications = async () => {
 }
 
 const goToProfile = async () => {
-  goto('/#/profil')
+  goto('/#/profile')
 }
 </script>
 
@@ -155,7 +154,7 @@ const goToProfile = async () => {
     </div>
   </div>
 
-  {#if isAddressEmpty}
+  {#if !userStore.connected?.identity?.address}
     <div class="rubrique-container address-container">
       <div class="rubrique-content-container">
         <div class="fr-tile fr-tile-sm fr-tile--horizontal fr-tile--no-border fr-enlarge-link">

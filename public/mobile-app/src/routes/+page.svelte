@@ -93,7 +93,7 @@ function dismissError() {
 </script>
 
 <div class="homepage">
-{#if !userStore.isConnected()}
+{#if !userStore.connected}
   <div class="homepage-not-connected">
     {#if error}
     <div class="fr-notice fr-notice--alert">
@@ -145,7 +145,7 @@ function dismissError() {
       </p>
     </div>
   </div>
-{:else if userStore.isConnected()}
+{:else if userStore.connected}
   <Navigation currentItem="home" />
   <ConnectedHomepage />
 {/if}

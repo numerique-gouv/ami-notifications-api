@@ -10,7 +10,7 @@ import { userStore } from '$lib/state/User.svelte'
 let agenda: Agenda | null = $state(null)
 
 onMount(async () => {
-  if (!userStore.isConnected()) {
+  if (!userStore.connected) {
     goto('/')
   }
 
