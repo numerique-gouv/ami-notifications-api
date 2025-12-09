@@ -488,10 +488,15 @@ describe('/agenda.ts', () => {
       expect(agenda.now.length).equal(3)
       expect(agenda.now[0].custom).toEqual(false)
       expect(agenda.now[0].title).toEqual('Opération Tranquillité Vacances 🏠')
+      expect(agenda.now[0].description).toEqual(
+        'Inscrivez-vous pour protéger votre domicile pendant votre absence'
+      )
       expect(agenda.now[1].custom).toEqual(false)
       expect(agenda.now[1].title).toEqual('Holiday Zone A foo')
+      expect(agenda.now[1].description).toBeNull()
       expect(agenda.now[2].custom).toEqual(true)
       expect(agenda.now[2].title).toEqual('Holiday Zone C foo')
+      expect(agenda.now[2].description).toEqual('Paris 🏠')
     })
   })
   describe('buildAgenda', () => {
