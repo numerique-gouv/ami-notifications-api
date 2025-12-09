@@ -1,13 +1,9 @@
 import { describe, test, expect, vi, afterEach, beforeEach } from 'vitest'
 import '@testing-library/jest-dom/vitest'
-import {
-  PUBLIC_API_GEO_CITY_QUERY_BASE_URL,
-  PUBLIC_API_GEO_COUNTRY_QUERY_BASE_URL,
-} from '$env/static/public'
 import * as franceConnectHelpers from '$lib/france-connect'
 import { User, userStore } from '$lib/state/User.svelte'
 import * as authHelpers from '$lib/auth'
-import { mockAddress, mockUserIdentity, mockUserInfo } from '$tests/utils'
+import { mockUserIdentity, mockUserInfo } from '$tests/utils'
 import { Address } from '$lib/address'
 import { fetchSpy } from '../../../vitest-setup-client'
 
