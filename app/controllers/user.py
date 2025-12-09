@@ -8,7 +8,7 @@ from app import env, models
 from app.auth import jwt_cookie_auth
 from app.httpx import httpxClient
 from app.services.user import UserService
-from app.utils import ami_hash
+from app.utils import build_fc_hash
 
 
 class UserController(Controller):
@@ -37,7 +37,7 @@ class UserController(Controller):
         decoded_userinfo = jwt.decode(
             userinfo_jws, options={"verify_signature": False}, algorithms=["ES256"]
         )
-        fc_hash = ami_hash(
+        fc_hash = build_fc_hash(
             given_name=decoded_userinfo["given_name"],
             family_name=decoded_userinfo["family_name"],
             birthdate=decoded_userinfo["birthdate"],

@@ -1,7 +1,7 @@
 import csv
 from pathlib import Path
 
-from app.utils import ami_hash
+from app.utils import build_fc_hash
 
 
 async def test_hash_from_csv() -> None:
@@ -24,7 +24,7 @@ async def test_hash_from_csv() -> None:
                 gender = row["genre"]
                 birthplace = row["codePostalLieuDeNaissance"]
                 birthcountry = row["codePaysDeNaissance"]
-                response = ami_hash(
+                response = build_fc_hash(
                     given_name=given_name,
                     family_name=family_name,
                     birthdate=birthdate,

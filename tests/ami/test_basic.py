@@ -2,7 +2,7 @@ import pytest
 from litestar import Litestar
 from litestar.testing import TestClient
 
-from app.utils import ami_hash
+from app.utils import build_fc_hash
 
 
 async def test_get_sector_identifier_url(
@@ -16,7 +16,7 @@ async def test_get_sector_identifier_url(
     assert response.json() == ["https://example.com", "foobar"]
 
 
-async def test_ami_hash(
+async def test_build_fc_hash(
     test_client: TestClient[Litestar],
 ) -> None:
     given_name = "Angela Claire Louise"
@@ -25,7 +25,7 @@ async def test_ami_hash(
     gender = "female"
     birthplace = "75107"
     birthcountry = "99100"
-    response = ami_hash(
+    response = build_fc_hash(
         given_name=given_name,
         family_name=family_name,
         birthdate=birthdate,
@@ -36,7 +36,7 @@ async def test_ami_hash(
     assert response == "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060"
 
     birthplace = ""
-    response = ami_hash(
+    response = build_fc_hash(
         given_name=given_name,
         family_name=family_name,
         birthdate=birthdate,

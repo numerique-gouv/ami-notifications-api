@@ -11,7 +11,7 @@ from typing import Sequence, Union
 import sqlalchemy as sa
 from alembic import op
 
-from app.utils import ami_hash
+from app.utils import build_fc_hash
 
 # revision identifiers, used by Alembic.
 revision: str = "18cc93cd264e"
@@ -37,7 +37,7 @@ def upgrade() -> None:
     results = res.fetchall()
     for row in results:
         row_dict = row._asdict()  # type: ignore[reportPrivateUsage]
-        fc_hash = ami_hash(
+        fc_hash = build_fc_hash(
             given_name=row_dict["given_name"] or "",
             family_name=row_dict["family_name"] or "",
             birthdate=row_dict["birthdate"].isoformat() if row_dict["birthdate"] else "",
