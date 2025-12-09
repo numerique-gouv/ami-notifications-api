@@ -2,6 +2,8 @@ import { describe, expect, test, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 import { Agenda, buildAgenda, Item } from '$lib/agenda'
 import * as holidaysMethods from '$lib/api-holidays'
+import { userStore } from '$lib/state/User.svelte'
+import { mockUserIdentity, mockUserInfo } from '$tests/utils'
 
 describe('/agenda.ts', () => {
   describe('Item', () => {
@@ -458,6 +460,38 @@ describe('/agenda.ts', () => {
 
       // Then
       expect(agenda.now.length).equal(3)
+    })
+    test('should mark holidays as custom if zones match user zone', async () => {
+      // Given
+      vi.stubEnv('TZ', 'Europe/Paris')
+      localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity))
+      const holiday1 = {
+        description: 'Holiday',
+        start_date: new Date('2026-02-06T23:00:00Z'),
+        end_date: new Date('2026-02-22T23:00:00Z'),
+        zones: 'Zone A',
+        emoji: 'foo',
+      }
+      const holiday2 = {
+        description: 'Holiday',
+        start_date: new Date('2026-02-13T23:00:00Z'),
+        end_date: new Date('2026-03-01T23:00:00Z'),
+        zones: 'Zone C',
+        emoji: 'foo',
+      }
+
+      // When
+      await userStore.login(mockUserInfo)
+      const agenda = new Agenda([holiday1, holiday2], new Date('2026-02-01T12:00:00Z'))
+
+      // Then
+      expect(agenda.now.length).equal(3)
+      expect(agenda.now[0].custom).toEqual(false)
+      expect(agenda.now[0].title).toEqual('Opération Tranquillité Vacances 🏠')
+      expect(agenda.now[1].custom).toEqual(false)
+      expect(agenda.now[1].title).toEqual('Holiday Zone A foo')
+      expect(agenda.now[2].custom).toEqual(true)
+      expect(agenda.now[2].title).toEqual('Holiday Zone C foo')
     })
   })
   describe('buildAgenda', () => {

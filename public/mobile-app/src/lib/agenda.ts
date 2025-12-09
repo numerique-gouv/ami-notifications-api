@@ -1,5 +1,6 @@
 import type { Holiday } from '$lib/api-holidays'
 import { retrieveHolidays } from '$lib/api-holidays'
+import { userStore } from '$lib/state/User.svelte'
 
 type Kind = 'holiday' | 'otv'
 
@@ -18,7 +19,8 @@ export class Item {
     private _description: string | null,
     private _date: Date | null = null,
     private _start_date: Date | null = null,
-    private _end_date: Date | null = null
+    private _end_date: Date | null = null,
+    private _custom: boolean = false
   ) {}
 
   equals(other: Item): boolean {
@@ -112,6 +114,10 @@ export class Item {
     return this._kind
   }
 
+  get custom(): boolean {
+    return this._custom
+  }
+
   get label(): string {
     const info = Item.KindInfo[this._kind]
     if (info === undefined) {
@@ -145,6 +151,7 @@ export class Agenda {
     const today = date || new Date()
     today.setHours(0, 0, 0, 0)
     const oneday_in_ms = 24 * 60 * 60 * 1000
+    const userZone = userStore.connected?.identity.address?.zone
     const items: Item[] = []
 
     // build items from holidays
@@ -157,13 +164,18 @@ export class Agenda {
       if (holiday.emoji) {
         title += ` ${holiday.emoji}`
       }
+      let custom = false
+      if (userZone !== undefined && holiday.zones === `Zone ${userZone}`) {
+        custom = true
+      }
       const item = new Item(
         'holiday',
         title,
         null,
         null,
         holiday.start_date,
-        holiday.end_date
+        holiday.end_date,
+        custom
       )
       items.push(item)
     })
@@ -185,7 +197,8 @@ export class Agenda {
         'Inscrivez-vous pour protéger votre domicile pendant votre absence',
         null,
         new Date(holiday.start_date.getTime() - 3 * 7 * oneday_in_ms),
-        null
+        null,
+        false
       )
       items.push(item)
     })
