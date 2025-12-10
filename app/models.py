@@ -4,7 +4,7 @@ from typing import Any
 
 from advanced_alchemy.base import UUIDAuditBase
 from advanced_alchemy.types import DateTimeUTC, JsonB
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import ForeignKey, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from webpush import WebPushSubscription
 
@@ -74,3 +74,22 @@ class Notification(Base):
     )
 
     read: Mapped[bool] = mapped_column(default=False)
+
+
+class ScheduledNotification(Base):
+    __tablename__ = "scheduled_notification"  # type: ignore
+
+    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("ami_user.id"))
+    user: Mapped[User] = relationship(back_populates="notifications")
+
+    content_title: Mapped[str]
+    content_body: Mapped[str]
+    content_icon: Mapped[str]
+
+    sender: Mapped[str]
+
+    reference: Mapped[str]
+    scheduled_at: Mapped[datetime.datetime]
+    sent_at: Mapped[datetime.datetime | None]
+
+    __table_args__ = (UniqueConstraint("user_id", "reference", name="uix_user_reference"),)
