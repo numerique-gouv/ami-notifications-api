@@ -14,9 +14,7 @@ class Partner:
     icon: str
 
 
-partners: dict[str, Partner] = {
-    "psl": Partner("psl", "PSL", env.PARTNERS_PSL_SECRET, "fr-icon-megaphone-line")
-}
+partners: dict[str, Partner] = {"psl": Partner("psl", "PSL", env.PARTNERS_PSL_SECRET, "")}
 
 
 async def provide_partner(request: Request[Partner, Any, Any]) -> Partner:
