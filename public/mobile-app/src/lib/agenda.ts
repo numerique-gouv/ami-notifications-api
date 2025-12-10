@@ -169,7 +169,10 @@ export class Agenda {
       }
       let custom = false
       let description = null
-      if (userZone !== undefined && holiday.zones === `Zone ${userZone}`) {
+      if (
+        userZone !== undefined &&
+        (holiday.zones === `Zone ${userZone}` || holiday.zones === '')
+      ) {
         custom = true
         description = `${userStore.connected?.identity.address?.city} 🏠`
       }

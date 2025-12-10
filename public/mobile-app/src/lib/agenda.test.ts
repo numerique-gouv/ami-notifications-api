@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from 'vitest'
+import { afterEach, describe, expect, test, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 import { Agenda, buildAgenda, Item } from '$lib/agenda'
 import * as holidaysMethods from '$lib/api-holidays'
@@ -268,6 +268,10 @@ describe('/agenda.ts', () => {
     })
   })
   describe('Agenda', () => {
+    afterEach(() => {
+      localStorage.clear()
+      userStore.connected = null
+    })
     test('should organize items in now and next', async () => {
       // Given
       vi.stubEnv('TZ', 'Europe/Paris')
@@ -504,10 +508,20 @@ describe('/agenda.ts', () => {
         zones: 'Zone C',
         emoji: 'foo',
       }
+      const holiday3 = {
+        description: 'Summer Holiday',
+        start_date: new Date('2026-07-01T23:00:00Z'),
+        end_date: new Date('2026-08-31T23:00:00Z'),
+        zones: '',
+        emoji: 'bar',
+      }
 
       // When
       await userStore.login(mockUserInfo)
-      const agenda = new Agenda([holiday1, holiday2], new Date('2026-02-01T12:00:00Z'))
+      const agenda = new Agenda(
+        [holiday1, holiday2, holiday3],
+        new Date('2026-02-01T12:00:00Z')
+      )
 
       // Then
       expect(agenda.now.length).equal(3)
@@ -522,6 +536,15 @@ describe('/agenda.ts', () => {
       expect(agenda.now[2].custom).toEqual(true)
       expect(agenda.now[2].title).toEqual('Holiday Zone C foo')
       expect(agenda.now[2].description).toEqual('Paris 🏠')
+      expect(agenda.next.length).equal(2)
+      expect(agenda.next[0].custom).toEqual(false)
+      expect(agenda.next[0].title).toEqual('Opération Tranquillité Vacances 🏠')
+      expect(agenda.next[0].description).toEqual(
+        'Inscrivez-vous pour protéger votre domicile pendant votre absence'
+      )
+      expect(agenda.next[1].custom).toEqual(true)
+      expect(agenda.next[1].title).toEqual('Summer Holiday bar')
+      expect(agenda.next[1].description).toEqual('Paris 🏠')
     })
   })
   describe('buildAgenda', () => {
