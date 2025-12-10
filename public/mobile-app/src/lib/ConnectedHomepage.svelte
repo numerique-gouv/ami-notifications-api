@@ -175,10 +175,6 @@
   {#if isAgendaEmpty}
     <div class="header-container">
       <span class="title">Mon agenda</span>
-      <span class="see-all">
-        <span>Voir tout</span>
-        <img class="arrow-line" src="/remixicons/arrow-line-disabled.svg" alt="Icône de flèche" />
-      </span>
     </div>
     <div class="rubrique-content-container">
       <div class="no-agenda rubrique-content-container--empty">
@@ -211,10 +207,6 @@
   <div class="rubrique-container requests-container">
     <div class="header-container">
       <span class="title">Mes demandes</span>
-      <span class="see-all">
-        <span>Voir tout</span>
-        <img class="arrow-line" src="/remixicons/arrow-line-disabled.svg" alt="Icône de flèche" />
-      </span>
     </div>
     <div class="rubrique-content-container">
       <div class="no-requests rubrique-content-container--empty">
@@ -403,12 +395,6 @@
           margin-right: 4px;
           display: inline-flex;
           gap: 4px;
-        }
-        span.see-all {
-          color: var(--text-disabled-grey);
-          img {
-            color: var(--text-disabled-grey);
-          }
         }
       }
       .rubrique-content-container--empty {
