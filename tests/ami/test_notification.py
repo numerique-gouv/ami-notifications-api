@@ -459,7 +459,7 @@ async def test_get_notifications(
         "item_milestone_start_date": None,
         "item_milestone_end_date": None,
         "item_external_url": None,
-        "send_date": notification.send_date.isoformat().replace("+00:00", "Z"),
+        "created_at": notification.created_at.isoformat().replace("+00:00", "Z"),
         "read": False,
     }
 
@@ -628,7 +628,7 @@ async def test_read_notification(
         "item_milestone_start_date": None,
         "item_milestone_end_date": None,
         "item_external_url": None,
-        "send_date": notification.send_date.isoformat().replace("+00:00", "Z"),
+        "created_at": notification.created_at.isoformat().replace("+00:00", "Z"),
         "read": True,
     }
 
