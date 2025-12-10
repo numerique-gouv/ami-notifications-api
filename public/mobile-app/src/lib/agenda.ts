@@ -156,7 +156,10 @@ export class Agenda {
 
     // build items from holidays
     holidays.forEach((holiday) => {
-      // convert dates
+      if (holiday.end_date < today) {
+        // exclude past holidays
+        return
+      }
       let title = holiday.description
       if (holiday.zones) {
         title += ` ${holiday.zones}`
@@ -193,6 +196,10 @@ export class Agenda {
         return
       }
       seenHolidays.add(key)
+      if (holiday.end_date < today) {
+        // exclude OTV of past holidays
+        return
+      }
       const item = new Item(
         'otv',
         'Opération Tranquillité Vacances 🏠',
