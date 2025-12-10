@@ -148,7 +148,7 @@ async def test_get_holidays(
             "emoji": "❄️",
         },
     ]
-    response = test_client.get("/data/holidays", params={"current_date": "2025-11-12"})
+    response = test_client.get("/data/holidays", params={"current_date": "2025-12-12"})
     assert response.status_code == HTTP_200_OK
     assert response.json() == holidays
 
@@ -166,14 +166,14 @@ async def test_get_holidays_school_year(
     test_client.get("/data/holidays", params={"current_date": "2025-09-01"})
     request = httpx_mock.get_requests()[0]
     assert (
-        "end_date >= date'2025-09-01' AND start_date < date'2026-09-15'"
+        "end_date >= date'2025-08-02' AND start_date < date'2026-09-15'"
         in request.url.params.get("where")
     )
 
     test_client.get("/data/holidays", params={"current_date": "2025-12-31"})
     request = httpx_mock.get_requests()[1]
     assert (
-        "end_date >= date'2025-12-31' AND start_date < date'2026-09-15'"
+        "end_date >= date'2025-12-01' AND start_date < date'2026-09-15'"
         in request.url.params.get("where")
     )
 
@@ -181,14 +181,14 @@ async def test_get_holidays_school_year(
     test_client.get("/data/holidays", params={"current_date": "2026-01-01"})
     request = httpx_mock.get_requests()[2]
     assert (
-        "end_date >= date'2026-01-01' AND start_date < date'2027-09-15'"
+        "end_date >= date'2025-12-02' AND start_date < date'2027-09-15'"
         in request.url.params.get("where")
     )
 
     test_client.get("/data/holidays", params={"current_date": "2026-08-31"})
     request = httpx_mock.get_requests()[3]
     assert (
-        "end_date >= date'2026-08-31' AND start_date < date'2027-09-15'"
+        "end_date >= date'2026-08-01' AND start_date < date'2027-09-15'"
         in request.url.params.get("where")
     )
 
