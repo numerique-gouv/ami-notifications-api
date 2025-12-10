@@ -45,7 +45,7 @@ class Notification(BaseModel):
     item_milestone_end_date: datetime.datetime | None
     item_external_url: str | None
 
-    send_date: datetime.datetime
+    created_at: datetime.datetime
 
     read: bool
 

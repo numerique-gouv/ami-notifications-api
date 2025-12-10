@@ -57,7 +57,7 @@
             <a href="/" onclick={(event) => markNotificationAsRead(event, notification.id)} data-testid="notification-link-{notification.id}">{notification.content_title}</a>
           </h3>
           <span class="notification__age">
-            {prettyDate(notification.send_date)}
+            {prettyDate(notification.created_at)}
           </span>
         </div>
         <p class="fr-tile__desc">{notification.content_body}</p>

@@ -18,7 +18,7 @@ describe('/notifications', () => {
       // Given
       const notifications = [
         {
-          send_date: '2025-09-19T13:52:23.279545',
+          created_at: '2025-09-19T13:52:23.279545',
           user_id: '3ac73f4f-4be2-456a-9c2e-ddff480d5767',
           sender: 'test 2',
           content_body: 'test 2',
@@ -27,7 +27,7 @@ describe('/notifications', () => {
           read: false,
         },
         {
-          send_date: '2025-09-19T12:59:04.950812',
+          created_at: '2025-09-19T12:59:04.950812',
           user_id: '3ac73f4f-4be2-456a-9c2e-ddff480d5767',
           sender: 'test',
           content_body: 'test',
@@ -53,7 +53,7 @@ describe('/notifications', () => {
       // Given
       const notifications = [
         {
-          send_date: '2025-09-19T13:52:23.279545',
+          created_at: '2025-09-19T13:52:23.279545',
           user_id: '3ac73f4f-4be2-456a-9c2e-ddff480d5767',
           sender: 'test 2',
           content_body: 'test 2',
@@ -79,7 +79,7 @@ describe('/notifications', () => {
       // Given
       const read_notification = [
         {
-          send_date: '2025-09-19T13:52:23.279545',
+          created_at: '2025-09-19T13:52:23.279545',
           user_id: '3ac73f4f-4be2-456a-9c2e-ddff480d5767',
           sender: 'test 2',
           content_body: 'test 2',
