@@ -437,6 +437,31 @@ describe('/agenda.ts', () => {
         )
       ).toBe(true)
     })
+    test('should not display past holidays or OTV related to past holidays', async () => {
+      // Given
+      vi.stubEnv('TZ', 'Europe/Paris')
+      const holiday1 = {
+        description: 'Holiday',
+        start_date: new Date('2026-02-06T23:00:00Z'),
+        end_date: new Date('2026-02-22T23:00:00Z'),
+        zones: 'Zone A',
+        emoji: 'foo',
+      }
+      const holiday2 = {
+        description: 'Holiday',
+        start_date: new Date('2026-02-13T23:00:00Z'),
+        end_date: new Date('2026-03-01T23:00:00Z'),
+        zones: 'Zone B',
+        emoji: 'foo',
+      }
+
+      // When
+      const agenda = new Agenda([holiday1, holiday2], new Date('2026-02-24T12:00:00Z'))
+
+      // Then
+      expect(agenda.now.length).equal(1)
+      expect(agenda.now[0].title).toEqual('Holiday Zone B foo')
+    })
     test('should generate only one OTV per holiday', async () => {
       // Given
       vi.stubEnv('TZ', 'Europe/Paris')
