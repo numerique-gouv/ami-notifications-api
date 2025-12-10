@@ -36,14 +36,18 @@ async def get_holidays(
     locations = ["Bordeaux", "Lille", "Versailles"]
     locations_query = " OR ".join(f"location = '{location}'" for location in locations)
 
-    # if the school year that has just begun, take holidays until the end of the current school year
-    # else, take the holidays until the end of the following school year
+    # take holidays from the previous month:
+    # if current_date falls during a holiday with zone, then we will be sure to retrieve all zones,
+    # and we will always be able to deduplicate correctly
+    start_date = current_date - datetime.timedelta(days=30)
+    # if the school year has just begun, take holidays until the end of the current school year
+    # else, take holidays until the end of the following school year
     end_date = f"{current_date.year + 1}-09-15"
 
     response = httpx.get(
         f"{env.PUBLIC_API_DATA_EDUCATION_BASE_URL}{env.PUBLIC_API_DATA_EDUCATION_HOLIDAYS_ENDPOINT}",
         params={
-            "where": f"end_date >= date'{current_date}' AND start_date < date'{end_date}' AND ({locations_query}) AND population IN ('-', 'Élèves')",
+            "where": f"end_date >= date'{start_date}' AND start_date < date'{end_date}' AND ({locations_query}) AND population IN ('-', 'Élèves')",
             "order_by": "start_date",
             "limit": 100,
         },
