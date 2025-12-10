@@ -102,7 +102,7 @@
   </nav>
 
   <div class="address-content-container">
-    <p>Pour <strong>personnaliser</strong> votre expérience, renseigner l'adresse de votre <strong>résidence principale.</p>
+    <p>Pour <strong>personnaliser</strong> votre expérience, renseigner l'adresse de votre <strong>résidence principale.</strong></p>
 
     <form autocomplete="on" class="address-form">
       <fieldset class="fr-fieldset" aria-labelledby="text-legend text-messages">
