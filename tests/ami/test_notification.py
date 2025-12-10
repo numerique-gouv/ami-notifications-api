@@ -1,4 +1,5 @@
 import base64
+import copy
 import datetime
 import uuid
 
@@ -19,6 +20,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app import env
 from app.auth import jwt_cookie_auth
 from app.models import Notification, Registration, User
+from app.partners import partners
 from tests.ami.utils import assert_query_fails_without_auth, login
 
 
@@ -130,6 +132,7 @@ async def test_create_notification_user_does_not_exist(
         "send_date": "2025-11-27T10:55:00.000Z",
         "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
         "content_body": "Merci d'avoir initié votre demande",
+        "content_icon": "foo",
     }
     response = test_client.post(
         "/api/v1/notifications", json=notification_data, headers=partner_auth
@@ -146,7 +149,7 @@ async def test_create_notification_user_does_not_exist(
     assert notification.user.id == user.id
     assert notification.content_body == "Merci d'avoir initié votre demande"
     assert notification.content_title == "Brouillon de nouvelle demande de démarche d'OTV"
-    assert notification.content_icon == "fr-icon-megaphone-line"
+    assert notification.content_icon == "foo"
     assert notification.item_type == "OTV"
     assert notification.item_id == "A-5-JGBJ5VMOY"
     assert notification.item_status_label == "Brouillon"
@@ -184,6 +187,7 @@ async def test_create_notification_user_never_seen(
         "send_date": "2025-11-27T10:55:00.000Z",
         "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
         "content_body": "Merci d'avoir initié votre demande",
+        "content_icon": "foo",
     }
     response = test_client.post(
         "/api/v1/notifications", json=notification_data, headers=partner_auth
@@ -200,7 +204,7 @@ async def test_create_notification_user_never_seen(
     assert notification.user.id == user.id
     assert notification.content_body == "Merci d'avoir initié votre demande"
     assert notification.content_title == "Brouillon de nouvelle demande de démarche d'OTV"
-    assert notification.content_icon == "fr-icon-megaphone-line"
+    assert notification.content_icon == "foo"
     assert notification.item_type == "OTV"
     assert notification.item_id == "A-5-JGBJ5VMOY"
     assert notification.item_status_label == "Brouillon"
@@ -278,6 +282,68 @@ async def test_admin_create_notification_no_registration(
     notification_count = (await db_session.execute(select(func.count()).select_from(User))).scalar()
     assert notification_count == 1
     assert not httpx_mock.get_request()
+
+
+async def test_create_notification_partner_has_no_default_icon(
+    test_client: TestClient[Litestar],
+    db_session: AsyncSession,
+    user: User,
+    partner_auth: dict[str, str],
+    httpx_mock: HTTPXMock,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    partner = copy.deepcopy(partners["psl"])
+    partner.icon = ""
+    monkeypatch.setattr("app.auth.partners", {"psl": partner})
+    notification_data = {
+        "recipient_fc_hash": user.fc_hash,
+        "item_type": "OTV",
+        "item_id": "A-5-JGBJ5VMOY",
+        "item_status_label": "Brouillon",
+        "item_generic_status": "new",
+        "send_date": "2025-11-27T10:55:00.000Z",
+        "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
+        "content_body": "Merci d'avoir initié votre demande",
+    }
+    response = test_client.post(
+        "/api/v1/notifications", json=notification_data, headers=partner_auth
+    )
+    assert response.status_code == HTTP_201_CREATED
+    all_notifications = (await db_session.execute(select(Notification))).scalars().all()
+    assert len(all_notifications) == 1
+    notification = all_notifications[0]
+    assert notification.content_icon == "fr-icon-mail-star-line"
+
+
+async def test_create_notification_partner_has_default_icon(
+    test_client: TestClient[Litestar],
+    db_session: AsyncSession,
+    user: User,
+    partner_auth: dict[str, str],
+    httpx_mock: HTTPXMock,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    partner = copy.deepcopy(partners["psl"])
+    partner.icon = "fr-icon-megaphone-line"
+    monkeypatch.setattr("app.auth.partners", {"psl": partner})
+    notification_data = {
+        "recipient_fc_hash": user.fc_hash,
+        "item_type": "OTV",
+        "item_id": "A-5-JGBJ5VMOY",
+        "item_status_label": "Brouillon",
+        "item_generic_status": "new",
+        "send_date": "2025-11-27T10:55:00.000Z",
+        "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
+        "content_body": "Merci d'avoir initié votre demande",
+    }
+    response = test_client.post(
+        "/api/v1/notifications", json=notification_data, headers=partner_auth
+    )
+    assert response.status_code == HTTP_201_CREATED
+    all_notifications = (await db_session.execute(select(Notification))).scalars().all()
+    assert len(all_notifications) == 1
+    notification = all_notifications[0]
+    assert notification.content_icon == "fr-icon-megaphone-line"
 
 
 async def test_create_notification_send_ko_with_400_when_required_fields_are_missing(
