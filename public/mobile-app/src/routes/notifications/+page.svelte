@@ -48,7 +48,7 @@
   <div class="fr-tile fr-tile-sm fr-tile--horizontal fr-enlarge-link fr-p-3v notification {notification.read ? 'read': ''}" data-testid="notification-{notification.id}">
     <div class="fr-tile__header">
       <span class="notification__status {notification.read ? 'read': ''}" aria-hidden="true"><i>•</i></span>
-      <span class="notification__icon {notification.content_icon ? notification.content_icon: 'fr-icon-calendar-event-fill'}" aria-hidden="true"></span>
+      <span class="notification__icon {notification.content_icon ? notification.content_icon: 'fr-icon-information-line'}" aria-hidden="true"></span>
     </div>
     <div class="fr-tile__body">
       <div class="fr-tile__content fr-pb-0">
