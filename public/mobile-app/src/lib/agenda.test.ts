@@ -525,26 +525,69 @@ describe('/agenda.ts', () => {
 
       // Then
       expect(agenda.now.length).equal(3)
-      expect(agenda.now[0].custom).toEqual(false)
-      expect(agenda.now[0].title).toEqual('Opération Tranquillité Vacances 🏠')
-      expect(agenda.now[0].description).toEqual(
-        'Inscrivez-vous pour protéger votre domicile pendant votre absence'
-      )
-      expect(agenda.now[1].custom).toEqual(false)
-      expect(agenda.now[1].title).toEqual('Holiday Zone A foo')
-      expect(agenda.now[1].description).toBeNull()
-      expect(agenda.now[2].custom).toEqual(true)
-      expect(agenda.now[2].title).toEqual('Holiday Zone C foo')
-      expect(agenda.now[2].description).toEqual('Paris 🏠')
+      expect(
+        agenda.now[0].equals(
+          new Item(
+            'otv',
+            'Opération Tranquillité Vacances 🏠',
+            'Inscrivez-vous pour protéger votre domicile pendant votre absence',
+            null,
+            new Date('2026-01-23T23:00:00Z'),
+            null
+          )
+        )
+      ).toBe(true)
+      expect(
+        agenda.now[1].equals(
+          new Item(
+            'holiday',
+            'Holiday Zone A foo',
+            null,
+            null,
+            holiday1.start_date,
+            holiday1.end_date
+          )
+        )
+      ).toBe(true)
+      expect(
+        agenda.now[2].equals(
+          new Item(
+            'holiday',
+            'Holiday Zone C foo',
+            'Paris 🏠',
+            null,
+            holiday2.start_date,
+            holiday2.end_date,
+            true
+          )
+        )
+      ).toBe(true)
       expect(agenda.next.length).equal(2)
-      expect(agenda.next[0].custom).toEqual(false)
-      expect(agenda.next[0].title).toEqual('Opération Tranquillité Vacances 🏠')
-      expect(agenda.next[0].description).toEqual(
-        'Inscrivez-vous pour protéger votre domicile pendant votre absence'
-      )
-      expect(agenda.next[1].custom).toEqual(true)
-      expect(agenda.next[1].title).toEqual('Summer Holiday bar')
-      expect(agenda.next[1].description).toEqual('Paris 🏠')
+      expect(
+        agenda.next[0].equals(
+          new Item(
+            'otv',
+            'Opération Tranquillité Vacances 🏠',
+            'Inscrivez-vous pour protéger votre domicile pendant votre absence',
+            null,
+            new Date('2026-06-10T23:00:00Z'),
+            null
+          )
+        )
+      ).toBe(true)
+      expect(
+        agenda.next[1].equals(
+          new Item(
+            'holiday',
+            'Summer Holiday bar',
+            'Paris 🏠',
+            null,
+            holiday3.start_date,
+            holiday3.end_date,
+            true
+          )
+        )
+      ).toBe(true)
     })
   })
   describe('buildAgenda', () => {

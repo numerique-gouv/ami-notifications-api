@@ -198,6 +198,14 @@ export class Agenda {
       if (seenHolidays.has(key)) {
         return
       }
+      if (
+        userZone !== undefined &&
+        holiday.zones !== '' &&
+        holiday.zones !== `Zone ${userZone}`
+      ) {
+        // Only create OTV for the user's zone, if present
+        return
+      }
       seenHolidays.add(key)
       if (holiday.end_date < today) {
         // exclude OTV of past holidays
