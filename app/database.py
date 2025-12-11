@@ -37,10 +37,11 @@ alchemy_config = SQLAlchemyAsyncConfig(
     connection_string=DATABASE_URL,
     engine_config=EngineConfig(
         pool_pre_ping=True,
-        pool_size=100,
-        max_overflow=100,
-        pool_recycle=3600,
+        pool_size=20,
+        max_overflow=10,
+        pool_recycle=300,  # Recycle connections every 5 minutes to prevent leaks
         pool_timeout=10,
+        pool_reset_on_return="rollback",  # Always rollback on return to clean up state
     ),
     session_config=session_config,
     before_send_handler="autocommit_include_redirects",
