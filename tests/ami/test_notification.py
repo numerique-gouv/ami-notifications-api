@@ -326,7 +326,7 @@ async def test_create_notification_when_registration_gone(
     assert httpx_mock.get_request()
 
 
-async def test_admin_create_notification_no_registration(
+async def test_create_notification_no_registration(
     test_client: TestClient[Litestar],
     db_session: AsyncSession,
     user: User,
