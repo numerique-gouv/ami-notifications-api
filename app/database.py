@@ -1,3 +1,4 @@
+import logging
 import os
 
 from advanced_alchemy.extensions.litestar import (
@@ -6,6 +7,8 @@ from advanced_alchemy.extensions.litestar import (
     SQLAlchemyAsyncConfig,
     SQLAlchemyPlugin,
 )
+
+logger = logging.getLogger(__name__)
 
 DATABASE_URL_RAW = os.getenv("DATABASE_URL", "")
 # If we get a url with extra options like ?sslmode=prefer or not using the
@@ -32,7 +35,13 @@ DATABASE_URL = (
 session_config = AsyncSessionConfig(expire_on_commit=False)
 alchemy_config = SQLAlchemyAsyncConfig(
     connection_string=DATABASE_URL,
-    engine_config=EngineConfig(pool_pre_ping=True),
+    engine_config=EngineConfig(
+        pool_pre_ping=True,
+        pool_size=100,
+        max_overflow=100,
+        pool_recycle=3600,
+        pool_timeout=10,
+    ),
     session_config=session_config,
     before_send_handler="autocommit_include_redirects",
 )
