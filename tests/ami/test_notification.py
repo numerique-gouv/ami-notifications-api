@@ -180,7 +180,9 @@ async def test_create_notification_dont_try_push(
         "/api/v1/notifications", json=notification_data, headers=partner_auth
     )
     assert response.status_code == HTTP_201_CREATED
-    notification_count = (await db_session.execute(select(func.count()).select_from(User))).scalar()
+    notification_count = (
+        await db_session.execute(select(func.count()).select_from(Notification))
+    ).scalar()
     assert notification_count == 1
     assert not httpx_mock.get_request()
 
@@ -321,7 +323,9 @@ async def test_create_notification_when_registration_gone(
         "/api/v1/notifications", json=notification_data, headers=partner_auth
     )
     assert response.status_code == HTTP_201_CREATED
-    notification_count = (await db_session.execute(select(func.count()).select_from(User))).scalar()
+    notification_count = (
+        await db_session.execute(select(func.count()).select_from(Notification))
+    ).scalar()
     assert notification_count == 1
     assert httpx_mock.get_request()
 
@@ -347,7 +351,9 @@ async def test_create_notification_no_registration(
         "/api/v1/notifications", json=notification_data, headers=partner_auth
     )
     assert response.status_code == HTTP_201_CREATED
-    notification_count = (await db_session.execute(select(func.count()).select_from(User))).scalar()
+    notification_count = (
+        await db_session.execute(select(func.count()).select_from(Notification))
+    ).scalar()
     assert notification_count == 1
     assert not httpx_mock.get_request()
 
