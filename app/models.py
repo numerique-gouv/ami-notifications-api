@@ -27,6 +27,9 @@ class User(Base):
 
     registrations: Mapped[list["Registration"]] = relationship(back_populates="user")
     notifications: Mapped[list["Notification"]] = relationship(back_populates="user")
+    scheduled_notifications: Mapped[list["ScheduledNotification"]] = relationship(
+        back_populates="user"
+    )
 
 
 class Registration(Base):
@@ -80,7 +83,7 @@ class ScheduledNotification(Base):
     __tablename__ = "scheduled_notification"  # type: ignore
 
     user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("ami_user.id"))
-    user: Mapped[User] = relationship(back_populates="notifications")
+    user: Mapped[User] = relationship(back_populates="scheduled_notifications")
 
     content_title: Mapped[str]
     content_body: Mapped[str]
