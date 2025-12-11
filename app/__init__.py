@@ -18,6 +18,7 @@ from litestar.static_files import (
 )
 from litestar.stores.file import FileStore
 from litestar.template.config import TemplateConfig
+from sqlalchemy.ext.asyncio import AsyncEngine
 from webpush import WebPush
 
 from app import env
@@ -107,6 +108,12 @@ async def _dev_utils_review_apps() -> list[dict[str, str]]:
     ]
 
 
+@get(path="/dev-utils/health/db-pool")
+async def _dev_health_db_pool(db_engine: AsyncEngine) -> str:
+    """Returns database connection pool statistics for monitoring."""
+    return db_engine.pool.status()
+
+
 # ### APP
 
 
@@ -149,6 +156,7 @@ def create_app(
             get_sector_identifier_url,
             _dev_utils_recipient_fc_hash,
             _dev_utils_review_apps,
+            _dev_health_db_pool,
             create_static_files_router(
                 path="/",
                 directories=[env.HTML_DIR],
