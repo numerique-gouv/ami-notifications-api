@@ -3,6 +3,7 @@ import uuid
 from typing import Annotated, Any
 
 import jwt
+from advanced_alchemy.extensions.litestar import providers
 from litestar import (
     Request,
     Response,
@@ -21,7 +22,6 @@ from litestar.status_codes import (
     HTTP_404_NOT_FOUND,
     HTTP_500_INTERNAL_SERVER_ERROR,
 )
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import env
 from app.auth import generate_nonce
@@ -239,9 +239,15 @@ async def logged_out() -> Template:
     return Template(template_name="rvo/logged-out.html")
 
 
-@get(path="/test", guards=[auth.authenticated_guard], include_in_schema=False)
-async def list_users(db_session: AsyncSession) -> Template:
-    users_service: UserService = UserService(session=db_session, load=[User.notifications])
+@get(
+    path="/test",
+    guards=[auth.authenticated_guard],
+    include_in_schema=False,
+    dependencies={
+        "users_service": providers.create_service_provider(UserService, load=[User.notifications])
+    },
+)
+async def list_users(users_service: UserService) -> Template:
     users = await users_service.list()
     return Template(
         template_name="rvo/list-users.html",
@@ -253,13 +259,17 @@ async def list_users(db_session: AsyncSession) -> Template:
     path="/test/user/{user_id: uuid}/send-notification",
     guards=[auth.authenticated_guard],
     include_in_schema=False,
+    dependencies={
+        "users_service": providers.create_service_provider(UserService),
+        "notifications_service": providers.create_service_provider(NotificationService),
+    },
 )
-async def send_notification(user_id: uuid.UUID, db_session: AsyncSession) -> Template:
-    users_service: UserService = UserService(session=db_session)
+async def send_notification(
+    user_id: uuid.UUID, users_service: UserService, notifications_service: NotificationService
+) -> Template:
     user = await users_service.get_one_or_none(id=user_id)
     if user is None:
         raise NotFoundException(detail="User not found")
-    notifications_service: NotificationService = NotificationService(session=db_session)
     notifications = await notifications_service.list(
         order_by=(Notification.created_at, True),
         user=user,
