@@ -32,6 +32,7 @@ from app.controllers.notification import (
     PartnerNotificationController,
 )
 from app.controllers.registration import RegistrationController
+from app.controllers.scheduled_notification import ScheduledNotificationController
 from app.controllers.user import UserController
 from app.database import alchemy, alchemy_config
 from app.httpx import httpxClient
@@ -156,6 +157,7 @@ authenticated_router: Router = Router(
         AuthController,
         RegistrationController,
         NotificationController,
+        ScheduledNotificationController,
         data_router,
     ],
     middleware=[jwt_cookie_auth.middleware],
