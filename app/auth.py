@@ -21,7 +21,7 @@ from app import env
 from app.database import alchemy_config
 from app.models import User
 from app.partners import Partner, partners
-from app.services.user import UserService, provide_users_service
+from app.services.user import UserService
 
 PartnerT = TypeVar("PartnerT", bound=Partner, default=Partner)
 
@@ -42,13 +42,16 @@ def generate_nonce() -> str:
 async def retrieve_user_handler(
     token: Token, connection: ASGIConnection[Any, Any, Any, Any]
 ) -> User | None:
-    users_service: UserService = await anext(
-        provide_users_service(
-            alchemy_config.provide_session(connection.app.state, connection.scope)
-        )
-    )
-    user = await users_service.get_one_or_none(id=token.sub)
-    return user
+    # Use async context manager to ensure session is properly closed
+    async with alchemy_config.provide_session(connection.app.state, connection.scope) as session:
+        users_service = UserService(session=session)
+        user = await users_service.get_one_or_none(id=token.sub)
+
+        # Expunge user from session so it can be used after session closes
+        if user:
+            session.expunge(user)
+
+        return user
 
 
 jwt_cookie_auth = JWTCookieAuth[User](
