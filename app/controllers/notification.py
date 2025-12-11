@@ -92,9 +92,13 @@ class NotificationController(Controller):
         channels: ChannelsPlugin,
         current_user: models.User,
     ) -> None:
+        # Extract user_id immediately and don't hold reference to User object
+        # to avoid keeping database session open for the lifetime of the WebSocket
+        user_id = str(current_user.id)
+
         async def _sender(message: str) -> None:
             data = json.loads(message)
-            if data["user_id"] != str(current_user.id):
+            if data["user_id"] != user_id:
                 return
             await socket.send_json(data)
 
