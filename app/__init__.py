@@ -18,6 +18,7 @@ from litestar.static_files import (
 )
 from litestar.stores.file import FileStore
 from litestar.template.config import TemplateConfig
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine
 from webpush import WebPush
 
@@ -31,7 +32,7 @@ from app.controllers.notification import (
 )
 from app.controllers.registration import RegistrationController
 from app.controllers.user import UserController
-from app.database import alchemy
+from app.database import alchemy, alchemy_config
 from app.httpx import httpxClient
 from app.utils import build_fc_hash
 
@@ -109,9 +110,30 @@ async def _dev_utils_review_apps() -> list[dict[str, str]]:
 
 
 @get(path="/dev-utils/health/db-pool")
-async def _dev_health_db_pool(db_engine: AsyncEngine) -> str:
+async def _dev_health_db_pool(db_engine: AsyncEngine) -> Any:
     """Returns database connection pool statistics for monitoring."""
-    return db_engine.pool.status()
+    engine = alchemy_config.get_engine()
+    async with engine.connect() as conn:
+        result = await conn.execute(
+            text("""
+          SELECT
+              pid,
+              usename,
+              application_name,
+              client_addr,
+              state,
+              query,
+              EXTRACT(EPOCH FROM (now() - state_change)) as duration_seconds
+          FROM pg_stat_activity
+          WHERE datname = current_database()
+          AND pid != pg_backend_pid()
+          ORDER BY state_change
+      """)
+        )
+    return {
+        "status": db_engine.pool.status(),
+        "connections": [row._asdict() for row in result.fetchall()],  # type: ignore[reportPrivateUsage]
+    }
 
 
 # ### APP
