@@ -1,11 +1,10 @@
 import json
 import uuid
 from collections.abc import Sequence
-from typing import Annotated, Any, cast
+from typing import Annotated, Any
 
 from advanced_alchemy.extensions.litestar import providers
-from litestar import Controller, Response, WebSocket, get, patch, post, websocket
-from litestar.background_tasks import BackgroundTask
+from litestar import Controller, Request, WebSocket, get, patch, post, websocket
 from litestar.channels import ChannelsPlugin
 from litestar.di import Provide
 from litestar.exceptions import (
@@ -14,10 +13,8 @@ from litestar.exceptions import (
 )
 from litestar.params import Body
 from pydantic import TypeAdapter
-from webpush import WebPush, WebPushSubscription
 
 from app import env, models, schemas
-from app.httpx import httpxClient
 from app.partners import Partner, provide_partner
 from app.services.notification import NotificationService
 from app.services.user import UserService, provide_user
@@ -122,36 +119,10 @@ class NotificationController(Controller):
                     return
 
 
-class PushNotificationMixin:
-    def _push_notification(
-        self,
-        webpush: WebPush,
-        subscriptions: list[dict[str, Any]],
-        json_data: dict[str, str],
-    ) -> None:
-        """Push notifications to external endpoints. Runs as a background task."""
-        for subscription_data in subscriptions:
-            subscription = WebPushSubscription.model_validate(subscription_data)
-            message = webpush.get(message=json.dumps(json_data), subscription=subscription)
-            headers = cast(dict[str, str], message.headers)
-
-            response = httpxClient.post(
-                subscription_data["endpoint"], content=message.encrypted, headers=headers
-            )
-            if response.status_code < 500:
-                # For example we could have "410: gone" if the registration has been revoked.
-                continue
-            else:
-                response.raise_for_status()
-
-
-class NotAuthenticatedNotificationController(PushNotificationMixin, Controller):
+class NotAuthenticatedNotificationController(Controller):
     dependencies = {
         "notifications_service": providers.create_service_provider(NotificationService),
         "users_service": providers.create_service_provider(UserService),
-        "users_with_registrations_service": providers.create_service_provider(
-            UserService, load=[models.User.registrations]
-        ),
     }
 
     @get("/notification-key")
@@ -161,53 +132,30 @@ class NotAuthenticatedNotificationController(PushNotificationMixin, Controller):
     @post("/ami_admin/notifications", include_in_schema=False)
     async def admin_create_notification(
         self,
-        channels: ChannelsPlugin,
+        request: Request[Any, Any, Any],
         notifications_service: NotificationService,
-        users_with_registrations_service: UserService,
-        webpush: WebPush,
+        users_service: UserService,
         data: schemas.AdminNotificationCreate,
-    ) -> Response[schemas.NotificationResponse]:
-        user: models.User | None = await users_with_registrations_service.get_one_or_none(
-            id=data.user_id
-        )
+    ) -> schemas.NotificationResponse:
+        user: models.User | None = await users_service.get_one_or_none(id=data.user_id)
         if user is None:
             raise NotFoundException(detail="User not found")
-
-        # Extract subscription data before creating notification to avoid holding DB session
-        subscriptions = [reg.subscription for reg in user.registrations]
-        push_data = {
-            "title": data.content_title,
-            "message": data.content_body,
-            "sender": data.sender,
-        }
 
         notification: models.Notification = await notifications_service.create(
             models.Notification(**data.model_dump())
         )
-        channels.publish(  # type: ignore
-            {
-                "user_id": str(user.id),
-                "id": str(notification.id),
-                "event": schemas.NotificationEvent.CREATED,
-            },
-            "notification_events",
+        request.app.emit(
+            "notification_created",
+            notification_id=notification.id,
+            try_push=True,
         )
 
-        # Push notifications in background after DB transaction completes
-        background_task = BackgroundTask(
-            self._push_notification,
-            webpush=webpush,
-            subscriptions=subscriptions,
-            json_data=push_data,
-        )
-
-        response_data = schemas.NotificationResponse.model_validate(
+        return schemas.NotificationResponse.model_validate(
             {
                 "notification_id": notification.id,
                 "notification_send_status": True,
             }
         )
-        return Response(content=response_data, background=background_task)
 
     @get("/api/v1/users/{user_id:uuid}/notifications", include_in_schema=False)
     async def list_notifications(
@@ -240,22 +188,19 @@ class NotAuthenticatedNotificationController(PushNotificationMixin, Controller):
         return type_adapter.validate_python(notifications)
 
 
-class PartnerNotificationController(PushNotificationMixin, Controller):
+class PartnerNotificationController(Controller):
     dependencies = {
         "current_partner": Provide(provide_partner),
         "notifications_service": providers.create_service_provider(NotificationService),
-        "users_with_registrations_service": providers.create_service_provider(
-            UserService, load=[models.User.registrations]
-        ),
+        "users_service": providers.create_service_provider(UserService),
     }
 
     @post("/api/v1/notifications")
     async def create_notification(
         self,
-        channels: ChannelsPlugin,
+        request: Request[Any, Any, Any],
         notifications_service: NotificationService,
-        users_with_registrations_service: UserService,
-        webpush: WebPush,
+        users_service: UserService,
         data: Annotated[
             schemas.NotificationCreate,
             Body(
@@ -264,32 +209,25 @@ class PartnerNotificationController(PushNotificationMixin, Controller):
             ),
         ],
         current_partner: Partner,
-    ) -> Response[schemas.NotificationResponse]:
+    ) -> schemas.NotificationResponse:
         notification_send_status = True
 
-        user: models.User | None = await users_with_registrations_service.get_one_or_none(
+        user: models.User | None = await users_service.get_one_or_none(
             fc_hash=data.recipient_fc_hash
         )
-        subscriptions: list[dict[str, Any]] = []
         if user is None:
-            user = await users_with_registrations_service.create(
+            user = await users_service.create(
                 models.User(fc_hash=data.recipient_fc_hash, already_seen=False)
             )
             notification_send_status = False
         else:
             # Extract subscription data before creating notification to avoid holding DB session
-            subscriptions = [reg.subscription for reg in user.registrations]
             notification_send_status = user.already_seen
 
+        try_push = True
         if not data.try_push or not user.already_seen:
             # don't push notification if not required or if user has never logged in on AMI
-            subscriptions = []
-
-        push_data = {
-            "title": data.content_title,
-            "message": data.content_body,
-            "sender": current_partner.name,
-        }
+            try_push = False
 
         notification_data = data.model_dump()
         notification_data.pop("recipient_fc_hash")
@@ -299,27 +237,15 @@ class PartnerNotificationController(PushNotificationMixin, Controller):
         notification: models.Notification = await notifications_service.create(
             models.Notification(user_id=user.id, sender=current_partner.name, **notification_data)
         )
-        channels.publish(  # type: ignore
-            {
-                "user_id": str(user.id),
-                "id": str(notification.id),
-                "event": schemas.NotificationEvent.CREATED,
-            },
-            "notification_events",
+        request.app.emit(
+            "notification_created",
+            notification_id=notification.id,
+            try_push=try_push,
         )
 
-        # Push notifications in background after DB transaction completes
-        background_task = BackgroundTask(
-            self._push_notification,
-            webpush=webpush,
-            subscriptions=subscriptions,
-            json_data=push_data,
-        )
-
-        response_data = schemas.NotificationResponse.model_validate(
+        return schemas.NotificationResponse.model_validate(
             {
                 "notification_id": notification.id,
                 "notification_send_status": notification_send_status,
             }
         )
-        return Response(content=response_data, background=background_task)
