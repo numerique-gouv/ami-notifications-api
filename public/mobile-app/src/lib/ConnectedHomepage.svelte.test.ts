@@ -241,7 +241,7 @@ describe('/ConnectedHomepage.svelte', () => {
   test('should not display address block when user address is known', async () => {
     // Given
     userStore.login(mockUserInfo)
-    userStore.connected!.address = mockAddress
+    userStore.connected!.address = mockAddress // DANS IDENTITY ?
 
     // When
     const { container } = render(ConnectedHomepage)
