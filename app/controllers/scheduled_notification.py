@@ -1,8 +1,9 @@
 from typing import Annotated
 
 from advanced_alchemy.extensions.litestar import providers
-from litestar import Controller, Response, post
+from litestar import Controller, Response, delete, post
 from litestar.di import Provide
+from litestar.exceptions import NotFoundException
 from litestar.params import Body
 from litestar.status_codes import (
     HTTP_200_OK,
@@ -69,3 +70,24 @@ class ScheduledNotificationController(Controller):
             }
         )
         return Response(content=response_data, status_code=status_code)
+
+    @delete("/api/v1/users/scheduled-notifications")
+    async def delete_scheduled_notification(
+        self,
+        scheduled_notifications_service: ScheduledNotificationService,
+        reference: str,
+        current_user: models.User,
+    ) -> None:
+        scheduled_notification: (
+            models.ScheduledNotification | None
+        ) = await scheduled_notifications_service.get_one_or_none(
+            reference=reference,
+            user=current_user,
+        )
+        if scheduled_notification is None:
+            raise NotFoundException(detail="Scheduled notification not found")
+
+        if scheduled_notification.sent_at is not None:
+            return
+
+        await scheduled_notifications_service.delete(scheduled_notification.id)
