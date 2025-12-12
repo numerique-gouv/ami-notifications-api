@@ -30,7 +30,7 @@ class AuthController(Controller):
         nonce = await nonces_service.create({"nonce": NONCE})
 
         params = {
-            "scope": "openid identite_pivot preferred_username email cnaf_quotient_familial",
+            "scope": env.PUBLIC_FC_SCOPE,
             "redirect_uri": env.PUBLIC_FC_PROXY or env.PUBLIC_FC_AMI_REDIRECT_URL,
             "response_type": "code",
             "client_id": env.PUBLIC_FC_AMI_CLIENT_ID,
