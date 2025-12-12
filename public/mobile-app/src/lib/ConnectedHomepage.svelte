@@ -47,6 +47,10 @@
   const goToProfile = async () => {
     goto('/#/profile')
   }
+
+  const goToSettings = () => {
+    goto('/#/settings')
+  }
 </script>
 
 <div class="homepage-connected">
@@ -79,9 +83,20 @@
           class="profile"
           type="button"
           onclick={goToProfile}
+          data-testid="profile-button"
       >
         <Icon className="fr-mr-2v" color="var(--text-active-blue-france)" href="/remixicons/user-line.svg" />
         Mon profil
+      </button>
+
+      <button
+          class="settings"
+          type="button"
+          onclick={goToSettings}
+          data-testid="settings-button"
+      >
+        <Icon className="fr-mr-2v" color="var(--text-active-blue-france)" href="/remixicons/settings.svg" />
+        Paramètres
       </button>
 
       <button

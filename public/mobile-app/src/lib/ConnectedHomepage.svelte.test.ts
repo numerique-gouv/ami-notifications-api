@@ -1,8 +1,9 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
-import { render, screen, waitFor } from '@testing-library/svelte'
+import { fireEvent, render, screen, waitFor } from '@testing-library/svelte'
 import type { WS as WSType } from 'vitest-websocket-mock'
 import WS from 'vitest-websocket-mock'
+import * as navigationMethods from '$app/navigation'
 import * as agendaMethods from '$lib/agenda'
 import { Agenda, Item } from '$lib/agenda'
 import * as notificationsMethods from '$lib/notifications'
@@ -113,9 +114,43 @@ describe('/ConnectedHomepage.svelte', () => {
     })
   })
 
-  test('should display address block when user address is not known (empty)', async () => {
+  test('should navigate to User profile page when user clicks on Mon profil button', async () => {
     // Given
+    const spy = vi
+      .spyOn(navigationMethods, 'goto')
+      .mockImplementation(() => Promise.resolve())
+    render(ConnectedHomepage)
 
+    // When
+    const button = screen.getByTestId('profile-button')
+    await fireEvent.click(button)
+
+    // Then
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy).toHaveBeenNthCalledWith(1, '/#/profile')
+    })
+  })
+
+  test('should navigate to Settings page when user clicks on Paramétrer button', async () => {
+    // Given
+    const spy = vi
+      .spyOn(navigationMethods, 'goto')
+      .mockImplementation(() => Promise.resolve())
+    render(ConnectedHomepage)
+
+    // When
+    const button = screen.getByTestId('settings-button')
+    await fireEvent.click(button)
+
+    // Then
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy).toHaveBeenNthCalledWith(1, '/#/settings')
+    })
+  })
+
+  test('should display address block when user address is not known (empty)', async () => {
     // When
     const { container } = render(ConnectedHomepage)
 
