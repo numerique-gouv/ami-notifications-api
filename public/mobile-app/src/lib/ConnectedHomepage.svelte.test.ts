@@ -1,8 +1,9 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
-import { render, screen, waitFor } from '@testing-library/svelte'
+import { fireEvent, render, screen, waitFor } from '@testing-library/svelte'
 import type { WS as WSType } from 'vitest-websocket-mock'
 import WS from 'vitest-websocket-mock'
+import * as navigationMethods from '$app/navigation'
 import * as agendaMethods from '$lib/agenda'
 import { Agenda, Item } from '$lib/agenda'
 import * as notificationsMethods from '$lib/notifications'
@@ -15,10 +16,6 @@ let wss: WSType
 
 describe('/ConnectedHomepage.svelte', () => {
   beforeEach(() => {
-    vi.stubGlobal('navigator', {
-      ...navigator,
-      permissions: undefined,
-    })
     userStore.login(mockUserInfo)
 
     vi.mock('$lib/api-particulier', () => ({
@@ -117,98 +114,43 @@ describe('/ConnectedHomepage.svelte', () => {
     })
   })
 
-  test("should display 'Ne plus recevoir de notifications' link when notifications are enabled", async () => {
+  test('should navigate to User profile page when user clicks on Mon profil button', async () => {
     // Given
-    window.localStorage.setItem('notifications_enabled', 'true')
+    const spy = vi
+      .spyOn(navigationMethods, 'goto')
+      .mockImplementation(() => Promise.resolve())
+    render(ConnectedHomepage)
 
     // When
-    const { container } = render(ConnectedHomepage)
+    const button = screen.getByTestId('profile-button')
+    await fireEvent.click(button)
 
     // Then
     await waitFor(() => {
-      const menu = container.querySelector('.menu')
-      expect(menu).toHaveTextContent(
-        'Ne plus recevoir de notifications sur ce terminal'
-      )
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy).toHaveBeenNthCalledWith(1, '/#/profile')
     })
   })
 
-  test("should display 'Ne plus recevoir de notifications' link when click on enable notifications", async () => {
+  test('should navigate to Settings page when user clicks on Paramétrer button', async () => {
     // Given
-    const spy = vi.spyOn(notificationsMethods, 'enableNotifications')
-
-    const { container } = render(ConnectedHomepage)
-
-    const toggleMenuButton = await waitFor(() =>
-      screen.getByTestId('toggle-menu-button')
-    )
-    await toggleMenuButton.click()
-
-    const enableNotificationsLink = await waitFor(() =>
-      screen.getByTestId('enable-notifications')
-    )
+    const spy = vi
+      .spyOn(navigationMethods, 'goto')
+      .mockImplementation(() => Promise.resolve())
+    render(ConnectedHomepage)
 
     // When
-    await enableNotificationsLink.click()
+    const button = screen.getByTestId('settings-button')
+    await fireEvent.click(button)
 
     // Then
     await waitFor(() => {
-      const menu = container.querySelector('.menu')
-      expect(spy).toHaveBeenCalled()
-      expect(menu).toHaveTextContent(
-        'Ne plus recevoir de notifications sur ce terminal'
-      )
-      expect(window.localStorage.getItem('notifications_enabled')).toBe('true')
-    })
-  })
-
-  test("should display 'Recevoir des notifications' link when notifications are disabled", async () => {
-    // When
-    const { container } = render(ConnectedHomepage)
-
-    // Then
-    await waitFor(() => {
-      const menu = container.querySelector('.menu')
-      expect(menu).toHaveTextContent('Recevoir des notifications sur ce terminal')
-    })
-  })
-
-  test("should display 'Recevoir des notifications' link when click on disable notifications", async () => {
-    // Given
-    const fakeRegistrationId = 'fake-registration-id'
-    const spy = vi.spyOn(notificationsMethods, 'disableNotifications')
-
-    const { container } = render(ConnectedHomepage)
-
-    const toggleMenuButton = await waitFor(() =>
-      screen.getByTestId('toggle-menu-button')
-    )
-    await toggleMenuButton.click()
-
-    const enableNotificationsLink = await waitFor(() =>
-      screen.getByTestId('enable-notifications')
-    )
-    await enableNotificationsLink.click()
-
-    const disableNotificationsLink = await waitFor(() =>
-      screen.getByTestId('disable-notifications')
-    )
-
-    // When
-    await disableNotificationsLink.click()
-
-    // Then
-    await waitFor(() => {
-      const menu = container.querySelector('.menu')
-      expect(spy).toHaveBeenCalledWith(fakeRegistrationId)
-      expect(menu).toHaveTextContent('Recevoir des notifications sur ce terminal')
-      expect(window.localStorage.getItem('notifications_enabled')).toBe('false')
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy).toHaveBeenNthCalledWith(1, '/#/settings')
     })
   })
 
   test('should display address block when user address is not known (empty)', async () => {
-    // Given
-
     // When
     const { container } = render(ConnectedHomepage)
 
