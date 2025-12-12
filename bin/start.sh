@@ -22,6 +22,12 @@ then
   export VAPID_APPLICATION_SERVER_KEY=$(cat ${VAPID_APPLICATION_SERVER_KEY_FILE})
 fi
 
+if [ "$APP" == "ami-back-prod" ]
+then
+  # We don't want to use the FranceConnect proxy in production
+  export PUBLIC_FC_PROXY=""
+fi
+
 if [ ! -z "$CONTAINER" ]
 then
   # We're on scalingo, so automatically build the front app
@@ -34,12 +40,6 @@ else
     openssl req -x509 -newkey rsa:4096 -keyout ssl-key.pem -out ssl-cert.pem -sha256 -days 3650 -nodes -subj "/C=XX/ST=StateName/L=CityName/O=CompanyName/OU=CompanySectionName/CN=CommonNameOrHostname"
   fi
   SSL="${SSL:---ssl-keyfile=ssl-key.pem --ssl-certfile=ssl-cert.pem}"
-fi
-
-if [ "$APP" == "ami-back-prod" ]
-then
-  # We don't want to use the FranceConnect proxy in production
-  export PUBLIC_FC_PROXY=""
 fi
 
 if [ ! -f .env.local ]
