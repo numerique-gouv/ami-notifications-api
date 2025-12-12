@@ -102,7 +102,7 @@ describe('/+page.svelte', () => {
 
   test('should display selected address in page when user clicks on Save button, and remove it when clicking on the button', async () => {
     // Given
-    await userStore.login(mockUserInfo)
+    userStore.login(mockUserInfo)
     expect(userStore.connected).not.toBeNull()
     delete userStore.connected?.identity?.address
     const setAddressSpy = vi.spyOn(userStore.connected!, 'address', 'set')
@@ -135,8 +135,8 @@ describe('/+page.svelte', () => {
 
     // Then
     await waitFor(() => {
-      const adressWrapper = screen.getByTestId('selected-address-wrapper')
-      expect(adressWrapper).toHaveTextContent(
+      const addressWrapper = screen.getByTestId('selected-address-wrapper')
+      expect(addressWrapper).toHaveTextContent(
         'Votre résidence principale 23 Rue des Aubépines 94310 Orly'
       )
       expect(setAddressSpy).toHaveBeenCalledWith(
@@ -149,6 +149,15 @@ describe('/+page.svelte', () => {
           '94310'
         )
       )
+      const expectedAddress: Address = new Address(
+        'Orly',
+        '94, Val-de-Marne, Île-de-France',
+        '94054_0070_00023',
+        '23 Rue des Aubépines 94310 Orly',
+        '23 Rue des Aubépines',
+        '94310'
+      )
+      expect(userStore.connected?.identity?.address).toEqual(expectedAddress)
     })
 
     // When - user clicks the remove button
@@ -166,7 +175,6 @@ describe('/+page.svelte', () => {
 
   test('should navigate to previous page when user clicks on Cancel button', async () => {
     // Given
-    window.localStorage.setItem('user_address', '')
     const backSpy = vi.spyOn(window.history, 'back').mockImplementation(() => {})
 
     // When

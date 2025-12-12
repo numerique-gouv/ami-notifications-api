@@ -71,9 +71,9 @@
     disabledButton = false
   }
 
-const cancelAddress = async () => {
-  window.history.back()
-}
+  const cancelAddress = async () => {
+    window.history.back()
+  }
 
   const submitAddress = async () => {
     hasSubmittedAddress = true
