@@ -57,7 +57,9 @@ class UserStore {
     this.connected = null
     await auth.logout()
     // And now logout from FC
-    await franceConnectLogout(id_token_hint)
+    if (id_token_hint) {
+      await franceConnectLogout(id_token_hint)
+    }
   }
 
   async checkLoggedIn() {
