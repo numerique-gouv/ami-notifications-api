@@ -5,6 +5,7 @@ from collections.abc import AsyncGenerator, Iterator
 from typing import Any
 
 import pytest
+from advanced_alchemy.extensions.litestar.providers import create_service_provider
 from litestar import Litestar
 from litestar.middleware.session.server_side import ServerSideSessionConfig
 from sqlalchemy.ext.asyncio import (
@@ -20,6 +21,8 @@ from webpush.vapid import VAPID
 from app import create_app, env
 from app.database import DATABASE_URL, alchemy_config
 from app.models import Base, Notification, Registration, User
+from app.services.notification import NotificationService
+from app.services.scheduled_notification import ScheduledNotificationService
 from app.utils import build_fc_hash
 from tests.base import TestClient
 
@@ -97,6 +100,28 @@ def test_client(app: Litestar) -> Iterator[TestClient]:
     time.tzset()
     with TestClient(app=app, session_config=session_config) as client:
         yield client
+
+
+@pytest.fixture
+async def scheduled_notifications_service(
+    db_session: AsyncSession,
+) -> ScheduledNotificationService:
+    provide_scheduled_notifications_service = create_service_provider(ScheduledNotificationService)
+    scheduled_notifications_service: ScheduledNotificationService = await anext(
+        provide_scheduled_notifications_service(db_session)
+    )
+    return scheduled_notifications_service
+
+
+@pytest.fixture
+async def notifications_service(
+    db_session: AsyncSession,
+) -> NotificationService:
+    provide_notifications_service = create_service_provider(NotificationService)
+    notifications_service: NotificationService = await anext(
+        provide_notifications_service(db_session)
+    )
+    return notifications_service
 
 
 @pytest.fixture
