@@ -36,6 +36,12 @@ else
   SSL="${SSL:---ssl-keyfile=ssl-key.pem --ssl-certfile=ssl-cert.pem}"
 fi
 
+if [ "$APP" == "ami-back-prod" ]
+then
+  # We don't want to use the FranceConnect proxy in production
+  export PUBLIC_FC_PROXY=""
+fi
+
 if [ ! -f .env.local ]
 then
   # Create an empty file so uv won't fail on a missing file
