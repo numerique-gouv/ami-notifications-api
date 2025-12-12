@@ -2,7 +2,13 @@ import datetime
 import uuid
 
 from litestar import Litestar
-from litestar.status_codes import HTTP_200_OK, HTTP_201_CREATED, HTTP_400_BAD_REQUEST
+from litestar.status_codes import (
+    HTTP_200_OK,
+    HTTP_201_CREATED,
+    HTTP_204_NO_CONTENT,
+    HTTP_400_BAD_REQUEST,
+    HTTP_404_NOT_FOUND,
+)
 from litestar.testing import TestClient
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -256,4 +262,102 @@ async def test_create_scheduled_notification_without_auth(
 ) -> None:
     await assert_query_fails_without_auth(
         "/api/v1/users/scheduled-notifications", test_client, method="post"
+    )
+
+
+async def test_delete_scheduled_notification(
+    test_client: TestClient[Litestar],
+    db_session: AsyncSession,
+    user: User,
+) -> None:
+    login(user, test_client)
+
+    scheduled_notification = ScheduledNotification(
+        user_id=user.id,
+        content_title="title",
+        content_body="body",
+        content_icon="icon",
+        reference="reference",
+        scheduled_at=datetime.datetime.now(datetime.timezone.utc),
+        sender="AMI",
+    )
+    db_session.add(scheduled_notification)
+    await db_session.commit()
+
+    response = test_client.delete(
+        "/api/v1/users/scheduled-notifications", params={"reference": "reference"}
+    )
+    assert response.status_code == HTTP_204_NO_CONTENT
+    scheduled_notification_count = (
+        await db_session.execute(select(func.count()).select_from(ScheduledNotification))
+    ).scalar()
+    assert scheduled_notification_count == 0
+
+
+async def test_delete_scheduled_notification_reference_does_not_exist(
+    test_client: TestClient[Litestar],
+    db_session: AsyncSession,
+    user: User,
+) -> None:
+    login(user, test_client)
+
+    response = test_client.delete("/api/v1/users/scheduled-notifications", params={"reference": ""})
+    assert response.status_code == HTTP_404_NOT_FOUND
+
+    response = test_client.delete(
+        "/api/v1/users/scheduled-notifications", params={"reference": "reference"}
+    )
+    assert response.status_code == HTTP_404_NOT_FOUND
+
+
+async def test_delete_scheduled_notification_params(
+    test_client: TestClient[Litestar],
+    db_session: AsyncSession,
+    user: User,
+) -> None:
+    login(user, test_client)
+
+    response = test_client.delete("/api/v1/users/scheduled-notifications")
+    assert response.status_code == HTTP_400_BAD_REQUEST
+    assert (
+        response.json()["detail"]
+        == "Missing required query parameter 'reference' for path /api/v1/users/scheduled-notifications"
+    )
+
+
+async def test_delete_scheduled_notification_alread_sent(
+    test_client: TestClient[Litestar],
+    db_session: AsyncSession,
+    user: User,
+) -> None:
+    login(user, test_client)
+
+    scheduled_notification = ScheduledNotification(
+        user_id=user.id,
+        content_title="title",
+        content_body="body",
+        content_icon="icon",
+        reference="reference",
+        scheduled_at=datetime.datetime.now(datetime.timezone.utc),
+        sender="AMI",
+        sent_at=datetime.datetime.now(datetime.timezone.utc),
+    )
+    db_session.add(scheduled_notification)
+    await db_session.commit()
+
+    response = test_client.delete(
+        "/api/v1/users/scheduled-notifications", params={"reference": "reference"}
+    )
+    assert response.status_code == HTTP_204_NO_CONTENT
+    scheduled_notification_count = (
+        await db_session.execute(select(func.count()).select_from(ScheduledNotification))
+    ).scalar()
+    assert scheduled_notification_count == 1
+
+
+async def test_delete_scheduled_notification_without_auth(
+    test_client: TestClient[Litestar],
+) -> None:
+    await assert_query_fails_without_auth(
+        "/api/v1/users/scheduled-notifications", test_client, method="delete"
     )
