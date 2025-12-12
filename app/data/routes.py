@@ -20,6 +20,9 @@ async def get_api_particulier_quotient(
     We thus have this endpoint to act as some kind of proxy.
 
     """
+    if "cnaf_quotient_familial" not in env.PUBLIC_FC_SCOPE:
+        # For now, in production, FC isn't qualified for the "quotient familial" scope, so don't even request it.
+        return Response(None, status_code=204)
     response = httpx.get(
         f"{env.PUBLIC_API_PARTICULIER_BASE_URL}{env.PUBLIC_API_PARTICULIER_QUOTIENT_ENDPOINT}?recipient={env.PUBLIC_API_PARTICULIER_RECIPIENT_ID}",
         headers={"authorization": request.headers["fc_authorization"]},
