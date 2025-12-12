@@ -15,6 +15,10 @@
       identity = userStore.connected.identity
     }
   })
+
+  const goToAddress = async () => {
+    goto('/#/address')
+  }
 </script>
 
 <nav class="fr-pb-0 fr-px-4v fr-pt-6v">
@@ -52,7 +56,13 @@
   </Card>
 
   <Card iconHref="/remixicons/map-pin-user-line.svg" title="Mon adresse">
-    <button type="button" class="fr-btn fr-icon-edit-line fr-btn--icon-left fr-btn--tertiary">Définir une adresse</button>
+    <button type="button"
+            class="fr-btn fr-icon-edit-line fr-btn--icon-left fr-btn--tertiary"
+            onclick={goToAddress}
+            data-testid="address-button"
+    >
+      Définir une adresse
+    </button>
   </Card>
 </div>
 {/if}
