@@ -14,7 +14,6 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 from sqlalchemy.pool import NullPool
-from webpush import WebPush
 from webpush.vapid import VAPID
 
 from app import create_app, env
@@ -75,18 +74,16 @@ def patch_db(
     monkeypatch.setattr(alchemy_config, "session_maker", sessionmaker)
 
 
-def test_webpush() -> WebPush:
+@pytest.fixture(autouse=True)
+def patch_webpush(monkeypatch: pytest.MonkeyPatch) -> None:
     private_key, public_key, _ = VAPID.generate_keys()
-    return WebPush(
-        private_key=private_key,
-        public_key=public_key,
-        subscriber="administrator@example.com",
-    )
+    monkeypatch.setattr("app.webpush.env.VAPID_PRIVATE_KEY", private_key.decode())
+    monkeypatch.setattr("app.webpush.env.VAPID_PUBLIC_KEY", public_key.decode())
 
 
 @pytest.fixture
 async def app() -> Litestar:
-    app_ = create_app(webpush_init=test_webpush)
+    app_ = create_app()
     app_.debug = True
     return app_
 

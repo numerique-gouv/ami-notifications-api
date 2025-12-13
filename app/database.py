@@ -5,7 +5,6 @@ from advanced_alchemy.extensions.litestar import (
     AsyncSessionConfig,
     EngineConfig,
     SQLAlchemyAsyncConfig,
-    SQLAlchemyPlugin,
 )
 
 logger = logging.getLogger(__name__)
@@ -46,4 +45,3 @@ alchemy_config = SQLAlchemyAsyncConfig(
     session_config=session_config,
     before_send_handler="autocommit_include_redirects",
 )
-alchemy = SQLAlchemyPlugin(config=alchemy_config)
