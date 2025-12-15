@@ -1,11 +1,13 @@
 import base64
 import copy
 import datetime
+import json
 import uuid
 from unittest.mock import Mock
 
 import pytest
 from litestar import Litestar
+from litestar.channels import ChannelsPlugin
 from litestar.exceptions import WebSocketDisconnect
 from litestar.status_codes import (
     HTTP_200_OK,
@@ -22,17 +24,20 @@ from app import env
 from app.auth import jwt_cookie_auth
 from app.models import Notification, Registration, User
 from app.partners import partners
-from tests.ami.utils import assert_query_fails_without_auth, login
+from tests.ami.utils import assert_query_fails_without_auth, get_from_stream, login
 
 
 async def test_create_webpush_notification(
     test_client: TestClient[Litestar],
+    app: Litestar,
     db_session: AsyncSession,
     webpush_notification: Notification,
     webpush_registration: Registration,
     partner_auth: dict[str, str],
     httpx_mock: HTTPXMock,
 ) -> None:
+    channels: ChannelsPlugin = app.plugins.get(ChannelsPlugin)
+    subscriber = await channels.subscribe("notification_events")
     # Make sure we don't even try sending a notification to a push server.
     httpx_mock.add_response(url=webpush_registration.subscription["endpoint"])
     notification_data = {
@@ -51,6 +56,7 @@ async def test_create_webpush_notification(
         "send_date": "2025-11-27T10:55:00.000Z",
         "try_push": True,
     }
+
     response = test_client.post(
         "/api/v1/notifications", json=notification_data, headers=partner_auth
     )
@@ -82,6 +88,12 @@ async def test_create_webpush_notification(
     assert response.json() == {
         "notification_id": str(notification2.id),
         "notification_send_status": True,
+    }
+    res = await get_from_stream(subscriber, 1)
+    assert json.loads(res[0].decode()) == {
+        "user_id": str(webpush_registration.user.id),
+        "id": str(notification2.id),
+        "event": "created",
     }
     assert httpx_mock.get_request()
 
@@ -563,9 +575,9 @@ async def test_get_notifications_should_return_empty_list_by_default(
 async def test_get_notifications(
     test_client: TestClient[Litestar],
     db_session: AsyncSession,
-    webpush_notification: Notification,
+    notification: Notification,
 ) -> None:
-    login(webpush_notification.user, test_client)
+    login(notification.user, test_client)
 
     # notification for another user, not returned in notification list of current user
     other_user = User(fc_hash="fc-hash")
@@ -585,8 +597,8 @@ async def test_get_notifications(
     assert response.status_code == HTTP_200_OK
     assert len(response.json()) == 1
     assert response.json()[0] == {
-        "id": str(webpush_notification.id),
-        "user_id": str(webpush_notification.user.id),
+        "id": str(notification.id),
+        "user_id": str(notification.user.id),
         "content_title": "Notification title",
         "content_body": "Hello notification",
         "content_icon": None,
@@ -599,7 +611,7 @@ async def test_get_notifications(
         "item_milestone_start_date": None,
         "item_milestone_end_date": None,
         "item_external_url": None,
-        "created_at": webpush_notification.created_at.isoformat().replace("+00:00", "Z"),
+        "created_at": notification.created_at.isoformat().replace("+00:00", "Z"),
         "read": False,
     }
 
@@ -610,8 +622,8 @@ async def test_get_notifications(
     assert response.status_code == HTTP_200_OK
     assert len(response.json()) == 0
 
-    webpush_notification.read = True
-    db_session.add(webpush_notification)
+    notification.read = True
+    db_session.add(notification)
     await db_session.commit()
 
     response = test_client.get("/api/v1/users/notifications")
@@ -644,7 +656,7 @@ async def test_get_notifications_should_return_empty_list_by_default_legacy(
 async def test_get_notifications_should_return_notifications_for_given_user_id_legacy(
     test_client: TestClient[Litestar],
     db_session: AsyncSession,
-    webpush_notification: Notification,
+    notification: Notification,
 ) -> None:
     # notification for another user, not returned in notification list of test user
     other_user = User(fc_hash="fc-hash")
@@ -664,57 +676,53 @@ async def test_get_notifications_should_return_notifications_for_given_user_id_l
     assert response.status_code == HTTP_404_NOT_FOUND
 
     # test user notification list
-    response = test_client.get(f"/api/v1/users/{webpush_notification.user.id}/notifications")
+    response = test_client.get(f"/api/v1/users/{notification.user.id}/notifications")
     assert response.status_code == HTTP_200_OK
     assert len(response.json()) == 1
-    assert response.json()[0]["user_id"] == str(webpush_notification.user.id)
-    assert response.json()[0]["message"] == webpush_notification.content_body
-    assert response.json()[0]["title"] == webpush_notification.content_title
-    assert response.json()[0]["sender"] == webpush_notification.sender
+    assert response.json()[0]["user_id"] == str(notification.user.id)
+    assert response.json()[0]["message"] == notification.content_body
+    assert response.json()[0]["title"] == notification.content_title
+    assert response.json()[0]["sender"] == notification.sender
     assert response.json()[0]["read"] is False
 
-    response = test_client.get(
-        f"/api/v1/users/{webpush_notification.user.id}/notifications?read=false"
-    )
+    response = test_client.get(f"/api/v1/users/{notification.user.id}/notifications?read=false")
     assert response.status_code == HTTP_200_OK
     assert len(response.json()) == 1
-    response = test_client.get(
-        f"/api/v1/users/{webpush_notification.user.id}/notifications?read=true"
-    )
+    response = test_client.get(f"/api/v1/users/{notification.user.id}/notifications?read=true")
     assert response.status_code == HTTP_200_OK
     assert len(response.json()) == 0
 
-    webpush_notification.read = True
-    db_session.add(webpush_notification)
+    notification.read = True
+    db_session.add(notification)
     await db_session.commit()
 
-    response = test_client.get(f"/api/v1/users/{webpush_notification.user.id}/notifications")
+    response = test_client.get(f"/api/v1/users/{notification.user.id}/notifications")
     assert response.status_code == HTTP_200_OK
     assert len(response.json()) == 1
-    assert response.json()[0]["user_id"] == str(webpush_notification.user.id)
-    assert response.json()[0]["message"] == webpush_notification.content_body
-    assert response.json()[0]["title"] == webpush_notification.content_title
-    assert response.json()[0]["sender"] == webpush_notification.sender
+    assert response.json()[0]["user_id"] == str(notification.user.id)
+    assert response.json()[0]["message"] == notification.content_body
+    assert response.json()[0]["title"] == notification.content_title
+    assert response.json()[0]["sender"] == notification.sender
     assert response.json()[0]["read"] is True
 
-    response = test_client.get(
-        f"/api/v1/users/{webpush_notification.user.id}/notifications?read=false"
-    )
+    response = test_client.get(f"/api/v1/users/{notification.user.id}/notifications?read=false")
     assert response.status_code == HTTP_200_OK
     assert len(response.json()) == 0
-    response = test_client.get(
-        f"/api/v1/users/{webpush_notification.user.id}/notifications?read=true"
-    )
+    response = test_client.get(f"/api/v1/users/{notification.user.id}/notifications?read=true")
     assert response.status_code == HTTP_200_OK
     assert len(response.json()) == 1
 
 
 async def test_read_notification(
     test_client: TestClient[Litestar],
+    app: Litestar,
     db_session: AsyncSession,
-    webpush_notification: Notification,
+    notification: Notification,
 ) -> None:
-    login(webpush_notification.user, test_client)
+    login(notification.user, test_client)
+
+    channels: ChannelsPlugin = app.plugins.get(ChannelsPlugin)
+    subscriber = await channels.subscribe("notification_events")
 
     # notification for another user, can not be patched by test user
     other_user = User(fc_hash="fc-hash")
@@ -748,7 +756,7 @@ async def test_read_notification(
 
     # invalid, read is required
     response = test_client.patch(
-        f"/api/v1/users/notification/{webpush_notification.id}/read",
+        f"/api/v1/users/notification/{notification.id}/read",
         json={"read": None},
     )
     assert response.status_code == HTTP_400_BAD_REQUEST
@@ -757,13 +765,13 @@ async def test_read_notification(
     ]
 
     response = test_client.patch(
-        f"/api/v1/users/notification/{webpush_notification.id}/read",
+        f"/api/v1/users/notification/{notification.id}/read",
         json={"read": True},
     )
     assert response.status_code == HTTP_200_OK
     assert response.json() == {
-        "id": str(webpush_notification.id),
-        "user_id": str(webpush_notification.user.id),
+        "id": str(notification.id),
+        "user_id": str(notification.user.id),
         "content_title": "Notification title",
         "content_body": "Hello notification",
         "content_icon": None,
@@ -776,12 +784,18 @@ async def test_read_notification(
         "item_milestone_start_date": None,
         "item_milestone_end_date": None,
         "item_external_url": None,
-        "created_at": webpush_notification.created_at.isoformat().replace("+00:00", "Z"),
+        "created_at": notification.created_at.isoformat().replace("+00:00", "Z"),
         "read": True,
+    }
+    res = await get_from_stream(subscriber, 1)
+    assert json.loads(res[0].decode()) == {
+        "user_id": str(notification.user.id),
+        "id": str(notification.id),
+        "event": "updated",
     }
 
     response = test_client.patch(
-        f"/api/v1/users/notification/{webpush_notification.id}/read",
+        f"/api/v1/users/notification/{notification.id}/read",
         json={"read": False},
     )
     assert response.status_code == HTTP_200_OK
@@ -790,88 +804,42 @@ async def test_read_notification(
 
 async def test_read_notification_without_auth(
     test_client: TestClient[Litestar],
-    webpush_notification: Notification,
+    notification: Notification,
 ) -> None:
     await assert_query_fails_without_auth(
-        f"/api/v1/users/notification/{webpush_notification.id}/read", test_client, method="patch"
+        f"/api/v1/users/notification/{notification.id}/read", test_client, method="patch"
     )
 
 
-async def test_stream_notification_events_created(
+async def test_stream_notification_events(
     test_client: TestClient[Litestar],
+    app: Litestar,
     db_session: AsyncSession,
     user: User,
 ) -> None:
     login(user, test_client)
 
-    all_notifications = (await db_session.execute(select(Notification))).scalars().all()
-    assert len(all_notifications) == 0
-
+    channels: ChannelsPlugin = app.plugins.get(ChannelsPlugin)
     with test_client.websocket_connect("/api/v1/users/notification/events/stream") as ws:
         try:
-            # create a notification
-            notification_data = {
-                "user_id": str(user.id),
-                "message": "Hello notification",
-                "title": "Some notification title",
-                "sender": "Jane Doe",
+            data = {
+                "id": str(uuid.uuid4()),
+                "user_id": str(uuid.uuid4()),
+                "event": "foo-event",
             }
-            response = test_client.post("/ami_admin/notifications", json=notification_data)
-            assert response.status_code == HTTP_201_CREATED
-            all_notifications = (await db_session.execute(select(Notification))).scalars().all()
-            assert len(all_notifications) == 1
-            notification = all_notifications[0]
-
-            # notification event is streamed
-            message = ws.receive_json()
-            assert message == {
-                "id": str(notification.id),
-                "user_id": str(user.id),
-                "event": "created",
-            }
-        finally:
-            ws.send_text("close")
-
-
-async def test_stream_notification_events_updated(
-    test_client: TestClient[Litestar],
-    db_session: AsyncSession,
-    webpush_notification: Notification,
-) -> None:
-    login(webpush_notification.user, test_client)
-
-    all_notifications = (await db_session.execute(select(Notification))).scalars().all()
-    assert len(all_notifications) == 1
-
-    with test_client.websocket_connect("/api/v1/users/notification/events/stream") as ws:
-        try:
-            # create a notification for another user
-            other_user = User(fc_hash="fc-hash")
-            db_session.add(other_user)
-            await db_session.commit()
-            notification_data = {
-                "user_id": str(other_user.id),
-                "message": "Hello other notification",
-                "title": "Some notification title",
-                "sender": "Jane Doe",
-            }
-            response = test_client.post("/ami_admin/notifications", json=notification_data)
-            assert response.status_code == HTTP_201_CREATED
-
-            # mark user notification as read
-            response = test_client.patch(
-                f"/api/v1/users/notification/{webpush_notification.id}/read",
-                json={"read": True},
+            channels.publish(  # type: ignore
+                data,
+                "notification_events",
             )
-            assert response.status_code == HTTP_200_OK
+            data["user_id"] = str(user.id)
+            channels.publish(  # type: ignore
+                data,
+                "notification_events",
+            )
 
-            # only read notification event is streamed: other user notification had no effect for this socket
+            # only second notification event is streamed: other user notification had no effect for this socket
             message = ws.receive_json()
-            assert message == {
-                "id": str(webpush_notification.id),
-                "user_id": str(webpush_notification.user.id),
-                "event": "updated",
-            }
+            assert message == data
         finally:
             ws.send_text("close")
 

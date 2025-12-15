@@ -149,6 +149,19 @@ async def never_seen_user(user: User, db_session: AsyncSession) -> User:
 
 
 @pytest.fixture
+async def notification(db_session: AsyncSession, user: User) -> Notification:
+    notification_ = Notification(
+        user_id=user.id,
+        content_body="Hello notification",
+        content_title="Notification title",
+        sender="John Doe",
+    )
+    db_session.add(notification_)
+    await db_session.commit()
+    return notification_
+
+
+@pytest.fixture
 async def webpush_notification(
     db_session: AsyncSession, webpush_registration: Registration
 ) -> Notification:
