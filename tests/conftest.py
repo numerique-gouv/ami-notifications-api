@@ -7,6 +7,7 @@ from typing import Any
 import pytest
 from advanced_alchemy.extensions.litestar.providers import create_service_provider
 from litestar import Litestar
+from litestar.channels import ChannelsPlugin, Subscriber
 from litestar.middleware.session.server_side import ServerSideSessionConfig
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
@@ -15,7 +16,6 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 from sqlalchemy.pool import NullPool
-from webpush import WebPush
 from webpush.vapid import VAPID
 
 from app import create_app, env
@@ -78,18 +78,16 @@ def patch_db(
     monkeypatch.setattr(alchemy_config, "session_maker", sessionmaker)
 
 
-def test_webpush() -> WebPush:
+@pytest.fixture(autouse=True)
+def patch_webpush(monkeypatch: pytest.MonkeyPatch) -> None:
     private_key, public_key, _ = VAPID.generate_keys()
-    return WebPush(
-        private_key=private_key,
-        public_key=public_key,
-        subscriber="administrator@example.com",
-    )
+    monkeypatch.setattr("app.webpush.env.VAPID_PRIVATE_KEY", private_key.decode())
+    monkeypatch.setattr("app.webpush.env.VAPID_PUBLIC_KEY", public_key.decode())
 
 
 @pytest.fixture
 async def app() -> Litestar:
-    app_ = create_app(webpush_init=test_webpush)
+    app_ = create_app()
     app_.debug = True
     return app_
 
@@ -122,6 +120,16 @@ async def notifications_service(
         provide_notifications_service(db_session)
     )
     return notifications_service
+
+
+@pytest.fixture
+async def channels(app: Litestar) -> ChannelsPlugin:
+    return app.plugins.get(ChannelsPlugin)
+
+
+@pytest.fixture
+async def notification_events_subscriber(channels: ChannelsPlugin) -> Subscriber:
+    return await channels.subscribe("notification_events")
 
 
 @pytest.fixture

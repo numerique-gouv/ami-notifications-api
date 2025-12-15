@@ -1,21 +1,32 @@
 import datetime
+import json
 
+from litestar.channels import Subscriber
+from pytest_httpx import HTTPXMock
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models import Notification, ScheduledNotification, User
+from app.models import Notification, Registration, ScheduledNotification, User
 from app.services.notification import NotificationService
 from app.services.scheduled_notification import ScheduledNotificationService
+from tests.ami.utils import get_from_stream
+from tests.base import TestClient
 
 
 async def test_publish_scheduled_notifications(
+    test_client: TestClient,
+    notification_events_subscriber: Subscriber,
     scheduled_notifications_service: ScheduledNotificationService,
     notifications_service: NotificationService,
     db_session: AsyncSession,
-    user: User,
+    webpush_registration: Registration,
+    httpx_mock: HTTPXMock,
 ) -> None:
+    user = webpush_registration.user
+    httpx_mock.add_response(url=webpush_registration.subscription["endpoint"])
+
     # no scheduled notifications, no effects
-    await scheduled_notifications_service.publish_scheduled_notifications()
+    await scheduled_notifications_service.publish_scheduled_notifications(test_client.app)
     scheduled_notification_count = (
         await db_session.execute(select(func.count()).select_from(ScheduledNotification))
     ).scalar()
@@ -60,7 +71,8 @@ async def test_publish_scheduled_notifications(
     db_session.add(scheduled_notification3)
     await db_session.commit()
 
-    await scheduled_notifications_service.publish_scheduled_notifications()
+    async with test_client.app.lifespan():
+        await scheduled_notifications_service.publish_scheduled_notifications(test_client.app)
     scheduled_notification_count = (
         await db_session.execute(select(func.count()).select_from(ScheduledNotification))
     ).scalar()
@@ -94,3 +106,70 @@ async def test_publish_scheduled_notifications(
     assert notification.send_date is not None
     assert notification.sender == "AMI"
     assert notification.read is False
+    res = await get_from_stream(notification_events_subscriber, 1)
+    assert json.loads(res[0].decode()) == {
+        "user_id": str(user.id),
+        "id": str(notification.id),
+        "event": "created",
+    }
+    assert httpx_mock.get_request()
+
+
+async def test_publish_scheduled_notification_when_registration_gone(
+    test_client: TestClient,
+    scheduled_notifications_service: ScheduledNotificationService,
+    notifications_service: NotificationService,
+    db_session: AsyncSession,
+    webpush_registration: Registration,
+    httpx_mock: HTTPXMock,
+) -> None:
+    user = webpush_registration.user
+    # Make sure we don't even try sending a notification to a push server.
+    httpx_mock.add_response(url=webpush_registration.subscription["endpoint"], status_code=410)
+
+    scheduled_notification = ScheduledNotification(
+        user_id=user.id,
+        content_title="title",
+        content_body="body",
+        content_icon="icon",
+        reference="reference",
+        scheduled_at=datetime.datetime.now(datetime.timezone.utc),
+        sender="AMI",
+    )
+    db_session.add(scheduled_notification)
+    await db_session.commit()
+
+    await scheduled_notifications_service.publish_scheduled_notifications(test_client.app)
+    notification_count = (
+        await db_session.execute(select(func.count()).select_from(Notification))
+    ).scalar()
+    assert notification_count == 1
+    assert httpx_mock.get_request()
+
+
+async def test_publish_scheduled_notification_no_registration(
+    test_client: TestClient,
+    scheduled_notifications_service: ScheduledNotificationService,
+    notifications_service: NotificationService,
+    db_session: AsyncSession,
+    user: User,
+    httpx_mock: HTTPXMock,
+) -> None:
+    scheduled_notification = ScheduledNotification(
+        user_id=user.id,
+        content_title="title",
+        content_body="body",
+        content_icon="icon",
+        reference="reference",
+        scheduled_at=datetime.datetime.now(datetime.timezone.utc),
+        sender="AMI",
+    )
+    db_session.add(scheduled_notification)
+    await db_session.commit()
+
+    await scheduled_notifications_service.publish_scheduled_notifications(test_client.app)
+    notification_count = (
+        await db_session.execute(select(func.count()).select_from(Notification))
+    ).scalar()
+    assert notification_count == 1
+    assert not httpx_mock.get_request()

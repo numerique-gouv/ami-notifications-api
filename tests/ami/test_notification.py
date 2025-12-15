@@ -7,7 +7,7 @@ from unittest.mock import Mock
 
 import pytest
 from litestar import Litestar
-from litestar.channels import ChannelsPlugin
+from litestar.channels import ChannelsPlugin, Subscriber
 from litestar.exceptions import WebSocketDisconnect
 from litestar.status_codes import (
     HTTP_200_OK,
@@ -29,6 +29,7 @@ from tests.ami.utils import assert_query_fails_without_auth, get_from_stream, lo
 
 async def test_create_webpush_notification(
     test_client: TestClient[Litestar],
+    notification_events_subscriber: Subscriber,
     app: Litestar,
     db_session: AsyncSession,
     webpush_notification: Notification,
@@ -36,8 +37,6 @@ async def test_create_webpush_notification(
     partner_auth: dict[str, str],
     httpx_mock: HTTPXMock,
 ) -> None:
-    channels: ChannelsPlugin = app.plugins.get(ChannelsPlugin)
-    subscriber = await channels.subscribe("notification_events")
     # Make sure we don't even try sending a notification to a push server.
     httpx_mock.add_response(url=webpush_registration.subscription["endpoint"])
     notification_data = {
@@ -89,7 +88,7 @@ async def test_create_webpush_notification(
         "notification_id": str(notification2.id),
         "notification_send_status": True,
     }
-    res = await get_from_stream(subscriber, 1)
+    res = await get_from_stream(notification_events_subscriber, 1)
     assert json.loads(res[0].decode()) == {
         "user_id": str(webpush_registration.user.id),
         "id": str(notification2.id),
@@ -715,14 +714,12 @@ async def test_get_notifications_should_return_notifications_for_given_user_id_l
 
 async def test_read_notification(
     test_client: TestClient[Litestar],
+    notification_events_subscriber: Subscriber,
     app: Litestar,
     db_session: AsyncSession,
     notification: Notification,
 ) -> None:
     login(notification.user, test_client)
-
-    channels: ChannelsPlugin = app.plugins.get(ChannelsPlugin)
-    subscriber = await channels.subscribe("notification_events")
 
     # notification for another user, can not be patched by test user
     other_user = User(fc_hash="fc-hash")
@@ -787,7 +784,7 @@ async def test_read_notification(
         "created_at": notification.created_at.isoformat().replace("+00:00", "Z"),
         "read": True,
     }
-    res = await get_from_stream(subscriber, 1)
+    res = await get_from_stream(notification_events_subscriber, 1)
     assert json.loads(res[0].decode()) == {
         "user_id": str(notification.user.id),
         "id": str(notification.id),
@@ -813,13 +810,13 @@ async def test_read_notification_without_auth(
 
 async def test_stream_notification_events(
     test_client: TestClient[Litestar],
+    channels: ChannelsPlugin,
     app: Litestar,
     db_session: AsyncSession,
     user: User,
 ) -> None:
     login(user, test_client)
 
-    channels: ChannelsPlugin = app.plugins.get(ChannelsPlugin)
     with test_client.websocket_connect("/api/v1/users/notification/events/stream") as ws:
         try:
             data = {

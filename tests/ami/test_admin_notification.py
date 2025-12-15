@@ -3,7 +3,7 @@ import json
 import uuid
 
 from litestar import Litestar
-from litestar.channels import ChannelsPlugin
+from litestar.channels import Subscriber
 from litestar.status_codes import (
     HTTP_201_CREATED,
     HTTP_400_BAD_REQUEST,
@@ -33,6 +33,7 @@ async def test_admin_create_notification_user_does_not_exist(
 
 async def test_admin_create_notification_from_test_and_from_app_context(
     test_client: TestClient[Litestar],
+    notification_events_subscriber: Subscriber,
     app: Litestar,
     db_session: AsyncSession,
     webpush_notification: Notification,
@@ -44,7 +45,6 @@ async def test_admin_create_notification_from_test_and_from_app_context(
     Validate that we can create entries in the database from the test itself (using a fixture)
     and from the API, and both are using the same database session.
     """
-    channels: ChannelsPlugin = app.plugins.get(ChannelsPlugin)
     # Make sure we don't even try sending a notification to a push server.
     httpx_mock.add_response(url=webpush_registration.subscription["endpoint"])
     notification_data = {
@@ -53,7 +53,6 @@ async def test_admin_create_notification_from_test_and_from_app_context(
         "title": "Some notification title",
         "sender": "Jane Doe",
     }
-    subscriber = await channels.subscribe("notification_events")
     response = test_client.post("/ami_admin/notifications", json=notification_data)
     assert response.status_code == HTTP_201_CREATED
     all_notifications = (await db_session.execute(select(Notification))).scalars().all()
@@ -68,7 +67,7 @@ async def test_admin_create_notification_from_test_and_from_app_context(
         "notification_id": str(notification2.id),
         "notification_send_status": True,
     }
-    res = await get_from_stream(subscriber, 1)
+    res = await get_from_stream(notification_events_subscriber, 1)
     assert json.loads(res[0].decode()) == {
         "user_id": str(webpush_registration.user.id),
         "id": str(notification2.id),

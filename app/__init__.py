@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 import firebase_admin
 import sentry_sdk
@@ -21,7 +21,6 @@ from litestar.stores.file import FileStore
 from litestar.template.config import TemplateConfig
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine
-from webpush import WebPush
 
 from app import env
 from app.auth import jwt_cookie_auth, openapi_config, partner_auth
@@ -37,6 +36,7 @@ from app.controllers.user import UserController
 from app.database import alchemy, alchemy_config
 from app.httpx import httpxClient
 from app.utils import build_fc_hash
+from app.webpush import provide_webpush
 
 from .admin.routes import router as ami_admin_router
 from .data.routes import data_router
@@ -142,15 +142,6 @@ async def _dev_health_db_pool(db_engine: AsyncEngine) -> Any:
 # ### APP
 
 
-def provide_webpush() -> WebPush:
-    webpush = WebPush(
-        public_key=env.VAPID_PUBLIC_KEY.encode(),
-        private_key=env.VAPID_PRIVATE_KEY.encode(),
-        subscriber="contact.ami@numerique.gouv.fr",
-    )
-    return webpush
-
-
 authenticated_router: Router = Router(
     path="/",
     route_handlers=[
@@ -170,9 +161,7 @@ partner_router: Router = Router(
 )
 
 
-def create_app(
-    webpush_init: Callable[[], WebPush] = provide_webpush,
-) -> Litestar:
+def create_app() -> Litestar:
     return Litestar(
         route_handlers=[
             authenticated_router,
@@ -192,7 +181,7 @@ def create_app(
             ami_admin_router,
         ],
         dependencies={
-            "webpush": Provide(webpush_init, use_cache=True, sync_to_thread=True),
+            "webpush": Provide(provide_webpush, use_cache=True, sync_to_thread=True),
         },
         plugins=[
             alchemy,
