@@ -3,10 +3,13 @@ import uuid
 
 from advanced_alchemy.extensions.litestar import repository, service
 from advanced_alchemy.extensions.litestar.providers import create_service_provider
+from litestar import Litestar
+from litestar.channels import ChannelsPlugin
 from sqlalchemy import select
 
 from app import models
 from app.services.notification import NotificationService
+from app.webpush import provide_webpush
 
 
 class ScheduledNotificationService(
@@ -17,7 +20,7 @@ class ScheduledNotificationService(
 
     repository_type = Repo
 
-    async def publish_scheduled_notifications(self):
+    async def publish_scheduled_notifications(self, app: Litestar):
         now = datetime.datetime.now(datetime.timezone.utc)
         scheduled_notifications = await self.list(
             models.ScheduledNotification.scheduled_at < now,
@@ -25,13 +28,18 @@ class ScheduledNotificationService(
             order_by=(models.ScheduledNotification.created_at, False),
         )
         for scheduled_notification in scheduled_notifications:
-            await self.publish_scheduled_notification(scheduled_notification.id)
+            await self.publish_scheduled_notification(scheduled_notification.id, app)
 
-    async def publish_scheduled_notification(self, scheduled_notification_id: uuid.UUID):
+    async def publish_scheduled_notification(
+        self, scheduled_notification_id: uuid.UUID, app: Litestar
+    ):
         provide_notifications_service = create_service_provider(NotificationService)
         notifications_service: NotificationService = await anext(
             provide_notifications_service(self.repository.session)
         )
+        channels: ChannelsPlugin = app.plugins.get(ChannelsPlugin)
+        webpush = provide_webpush()
+
         now = datetime.datetime.now(datetime.timezone.utc)
         query = (
             select(models.ScheduledNotification)
@@ -63,3 +71,9 @@ class ScheduledNotificationService(
             data={"sent_at": notification.created_at},
         )
         await self.repository.session.commit()
+        await NotificationService.push_notification(
+            channels,
+            webpush,
+            notification.id,
+            True,
+        )
