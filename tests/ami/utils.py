@@ -1,4 +1,7 @@
+import asyncio
+
 from litestar import Litestar
+from litestar.channels import Subscriber
 from litestar.testing import TestClient
 
 from app.auth import jwt_cookie_auth
@@ -21,3 +24,15 @@ async def assert_query_fails_without_auth(
     test_client.cookies.update({jwt_cookie_auth.key: "Bearer: bad-value"})
     response = getattr(test_client, method)(tested_url)
     assert response.status_code == 401
+
+
+async def get_from_stream(subscriber: Subscriber, count: int) -> list[bytes]:
+    async def getter() -> list[bytes]:
+        items: list[bytes] = []
+        async for item in subscriber.iter_events():
+            items.append(item)
+            if len(items) == count:
+                break
+        return items
+
+    return await asyncio.wait_for(getter(), timeout=1)
