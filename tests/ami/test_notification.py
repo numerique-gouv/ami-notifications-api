@@ -107,7 +107,7 @@ async def test_create_mobile_notification(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     send_mock = Mock()
-    monkeypatch.setattr("app.controllers.notification.messaging.send", send_mock)
+    monkeypatch.setattr("app.services.notification.messaging.send", send_mock)
     notification_data = {
         "recipient_fc_hash": mobile_registration.user.fc_hash,
         "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
