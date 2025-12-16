@@ -6,6 +6,7 @@ from typing import Any
 
 from pydantic import BaseModel as PydanticBaseModel
 from pydantic import Field
+from webpush import WebPushSubscription
 
 
 class BaseModel(PydanticBaseModel):
@@ -136,15 +137,23 @@ class NotificationLegacy(BaseModel):
     created_at: datetime.datetime
 
 
+class MobileAppSubscription(BaseModel):
+    app_version: str
+    device_id: str
+    fcm_token: str
+    model: str
+    platform: str
+
+
 class Registration(BaseModel):
     id: uuid.UUID
     user_id: uuid.UUID
-    subscription: dict[str, Any]
+    subscription: MobileAppSubscription | WebPushSubscription
     created_at: datetime.datetime
 
 
 class RegistrationCreate(BaseModel):
-    subscription: dict[str, Any]
+    subscription: MobileAppSubscription | WebPushSubscription
 
 
 @dataclass

@@ -12,7 +12,6 @@ from litestar.status_codes import (
     HTTP_201_CREATED,
 )
 from pydantic import TypeAdapter
-from webpush import WebPushSubscription
 
 from app import models, schemas
 from app.services.registration import RegistrationService
@@ -38,12 +37,13 @@ class RegistrationController(Controller):
             ),
         ],
     ) -> Response[schemas.Registration]:
-        WebPushSubscription.model_validate(data.subscription)
+        # Convert subscription to dict for storage (mode='json' ensures proper serialization)
+        subscription_dict = data.subscription.model_dump(mode="json")
 
         existing_registration: (
             models.Registration | None
         ) = await registrations_service.get_one_or_none(
-            subscription=data.subscription, user=current_user
+            subscription=subscription_dict, user=current_user
         )
         if existing_registration is not None:
             # This registration already exists, don't duplicate it.
@@ -55,7 +55,7 @@ class RegistrationController(Controller):
             )
 
         registration: models.Registration = await registrations_service.create(
-            models.Registration(user=current_user, **data.model_dump())
+            models.Registration(user=current_user, subscription=subscription_dict)
         )
         return Response(
             registrations_service.to_schema(registration, schema_type=schemas.Registration),
