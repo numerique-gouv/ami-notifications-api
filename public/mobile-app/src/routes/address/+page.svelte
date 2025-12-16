@@ -7,7 +7,8 @@
   let inputValue: string = $state('')
   let filteredAddresses: Address[] = $state([])
   let disabledButton: boolean = $state(true)
-  let addressHasError: boolean = $state(false)
+  let addressApiHasError: boolean = $state(false)
+  let addressInputHasError: boolean = $state(false)
   let selectedAddress: Address = $state<Address>(new Address())
   let hasSubmittedAddress: boolean = $state(false)
   let submittedAddress: Address = $state<Address>(new Address())
@@ -33,10 +34,13 @@
     if (inputValue) {
       try {
         const response = await callBAN(inputValue)
-        if (response.statusCode === 400) {
-          addressHasError = true
+        addressApiHasError = false
+        if (response.errorCode === 'ban-unavailable') {
+          addressApiHasError = true
+        } else if (response.errorCode === 'ban-failed-parsing-query') {
+          addressInputHasError = true
         } else {
-          addressHasError = false
+          addressInputHasError = false
           if (response.results) {
             filteredAddresses = response.results.map(
               (address: AddressFromBAN): Address => {
@@ -111,7 +115,7 @@
     <form autocomplete="on" class="address-form">
       <fieldset class="fr-fieldset" aria-labelledby="text-legend text-messages">
         <div class="fr-fieldset__element">
-          <div class="fr-input-group autocomplete {addressHasError ? 'fr-input-group--error' : ''}">
+          <div class="fr-input-group autocomplete {addressInputHasError ? 'fr-input-group--error' : ''}">
             <label class="fr-label" for="address-input">
               Adresse
             </label>
@@ -124,7 +128,7 @@
                    autocomplete="address-line1"
                    oninput={addressInputHandler}
             >
-            {#if addressHasError}
+            {#if addressInputHasError}
               <div class="fr-messages-group" aria-live="polite">
                 <p id="address-error" class="fr-message fr-message--error" data-testid="address-error">
                   Cette adresse est invalide. Conseil : saisissez entre 3 à 200 caractères et commencez par un nombre ou une lettre.
@@ -140,7 +144,7 @@
               </p>
               {#each filteredAddresses as address, index}
                 <li class="autocomplete-item" data-testid="autocomplete-item-{index}">
-                  <button type="button" onclick={() => setInputVal(address)}  data-testid="autocomplete-item-button-{index}">
+                  <button type="button" onclick={() => setInputVal(address)} data-testid="autocomplete-item-button-{index}">
                     <p><strong>{address.name}</strong></p>
                     <p>{address.city} ({address.context})</p>
                   </button>
@@ -154,6 +158,13 @@
         </div>
       </fieldset>
     </form>
+
+    {#if addressApiHasError}
+      <div class="fr-alert fr-alert--warning" data-testid="address-warning">
+        <h3 class="fr-alert__title">Récupération de l'adresse indisponible</h3>
+        <p>Notre outil est momentanément indisponible. Nous ne pouvons pas trouver votre adresse. Merci de réessayer plus tard.</p>
+      </div>
+    {/if}
 
     {#if hasSubmittedAddress}
       <div class="selected-address-wrapper" data-testid="selected-address-wrapper">

@@ -2,6 +2,8 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte'
 import { Address } from '$lib/address'
+import * as addressesFromBANMethods from '$lib/addressesFromBAN'
+import { callBAN } from '$lib/addressesFromBAN'
 import { userStore } from '$lib/state/User.svelte'
 import { mockUserInfo } from '$tests/utils'
 import Page from './+page.svelte'
@@ -170,6 +172,55 @@ describe('/+page.svelte', () => {
       expect(screen.queryByTestId('selected-address-wrapper')).not.toBeInTheDocument()
       // Address should be removed from userStore
       expect(userStore.connected?.identity?.address).toBeUndefined()
+    })
+  })
+
+  test('should display error message on input when input is invalid', async () => {
+    // Given
+    const spy = vi.spyOn(addressesFromBANMethods, 'callBAN').mockResolvedValue({
+      errorCode: 'ban-failed-parsing-query',
+      errorMessage: 'BAN Failed parsing query',
+    })
+
+    // When
+    render(Page)
+    const addressInput = screen.getByTestId('address-input')
+    await fireEvent.input(addressInput, {
+      target: { value: '23 rue des aubépines orl' },
+    })
+
+    // Then
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledTimes(1)
+      const addressError = screen.getByTestId('address-error')
+      expect(addressError).toHaveTextContent(
+        'Cette adresse est invalide. Conseil : saisissez entre 3 à 200 caractères et commencez par un nombre ou une lettre.'
+      )
+    })
+  })
+
+  test('should display warning block when BAN is unavailable', async () => {
+    // Given
+    const spy = vi.spyOn(addressesFromBANMethods, 'callBAN').mockResolvedValue({
+      errorCode: 'ban-unavailable',
+      errorMessage: 'BAN unavailable',
+    })
+
+    // When
+    render(Page)
+    const addressInput = screen.getByTestId('address-input')
+    await fireEvent.input(addressInput, {
+      target: { value: '23 rue des aubépines orl' },
+    })
+
+    // Then
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledTimes(1)
+      const addressWarning = screen.getByTestId('address-warning')
+      expect(addressWarning).toHaveTextContent("Récupération de l'adresse indisponible")
+      expect(addressWarning).toHaveTextContent(
+        'Notre outil est momentanément indisponible. Nous ne pouvons pas trouver votre adresse. Merci de réessayer plus tard.'
+      )
     })
   })
 
