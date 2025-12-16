@@ -1,8 +1,11 @@
 <script lang="ts">
+  import { onMount } from 'svelte'
+  import { goto } from '$app/navigation'
   import { Address } from '$lib/address'
   import { type AddressFromBAN, callBAN } from '$lib/addressesFromBAN'
   import { userStore } from '$lib/state/User.svelte'
 
+  let addressFromUserStore: Address | null = $state(null)
   let timer: any
   let inputValue: string = $state('')
   let filteredAddresses: Address[] = $state([])
@@ -12,6 +15,23 @@
   let selectedAddress: Address = $state<Address>(new Address())
   let hasSubmittedAddress: boolean = $state(false)
   let submittedAddress: Address = $state<Address>(new Address())
+
+  onMount(async () => {
+    if (!userStore.connected) {
+      goto('/')
+      return
+    } else {
+      addressFromUserStore =
+        userStore.connected.identity.address !== undefined
+          ? userStore.connected.identity.address
+          : null
+      if (addressFromUserStore) {
+        inputValue = `${addressFromUserStore.name} ${addressFromUserStore.postcode} ${addressFromUserStore.city}`
+        hasSubmittedAddress = true
+        submittedAddress = addressFromUserStore
+      }
+    }
+  })
 
   const addressInputHandler = (event: Event) => {
     if (!event.target) {
