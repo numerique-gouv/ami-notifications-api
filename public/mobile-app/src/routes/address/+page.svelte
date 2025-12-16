@@ -295,7 +295,9 @@
 
     .action-buttons {
       position: fixed;
-      bottom: 1.5rem;
+      bottom: 0;
+      z-index: 1;
+      background-color: var(--background-default-grey);
       display: flex;
       gap: 1rem;
       width: 100%;
