@@ -20,6 +20,28 @@ class ScheduledNotificationService(
 
     repository_type = Repo
 
+    async def create_welcome_scheduled_notification(
+        self, user: models.User
+    ) -> models.ScheduledNotification | None:
+        existing_scheduled_notification: (
+            models.ScheduledNotification | None
+        ) = await self.get_one_or_none(reference="ami:welcome", user=user)
+        if existing_scheduled_notification:
+            # ignore: this should not happen
+            return
+        scheduled_notification = await self.create(
+            data={
+                "user_id": user.id,
+                "content_title": "Bienvenue sur AMI 👋",
+                "content_body": "Recevez des rappels sur votre situation et suivez vos démarches en cours depuis l'application.",
+                "content_icon": "fr-icon-information-line",
+                "reference": "ami:welcome",
+                "scheduled_at": datetime.datetime.now(datetime.timezone.utc),
+                "sender": "AMI",
+            }
+        )
+        return scheduled_notification
+
     async def publish_scheduled_notifications(self, app: Litestar):
         now = datetime.datetime.now(datetime.timezone.utc)
         scheduled_notifications = await self.list(
