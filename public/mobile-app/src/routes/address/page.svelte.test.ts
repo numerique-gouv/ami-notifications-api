@@ -5,11 +5,13 @@ import { Address } from '$lib/address'
 import * as addressesFromBANMethods from '$lib/addressesFromBAN'
 import { callBAN } from '$lib/addressesFromBAN'
 import { userStore } from '$lib/state/User.svelte'
-import { mockUserInfo } from '$tests/utils'
+import { mockUserIdentity, mockUserInfo } from '$tests/utils'
 import Page from './+page.svelte'
 
 describe('/+page.svelte', () => {
   beforeEach(() => {
+    userStore.login(mockUserInfo)
+
     vi.mock('$lib/addressesFromBAN', () => {
       const addressesResultsFromBAN = [
         {
@@ -172,6 +174,23 @@ describe('/+page.svelte', () => {
       expect(screen.queryByTestId('selected-address-wrapper')).not.toBeInTheDocument()
       // Address should be removed from userStore
       expect(userStore.connected?.identity?.address).toBeUndefined()
+    })
+  })
+
+  test('should display address in input and in block when address is known', async () => {
+    // Given
+    localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity))
+    userStore.login(mockUserInfo)
+    expect(userStore.connected).not.toBeNull()
+
+    // When
+    render(Page)
+
+    // Then
+    await waitFor(() => {
+      const addressBlock = screen.getByTestId('selected-address-wrapper')
+      expect(addressBlock).toHaveTextContent('Votre résidence principale')
+      expect(addressBlock).toHaveTextContent('Avenue de Ségur 75007 Paris')
     })
   })
 
