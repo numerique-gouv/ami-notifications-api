@@ -125,12 +125,12 @@
       </a>
     </div>
     <div class="title">
-      <h2 class="fr-mb-0">Quelle est votre adresse&nbsp;?</h2>
+      <h2 class="fr-mb-0">Où habitez-vous&nbsp;?</h2>
     </div>
   </nav>
 
   <div class="address-content-container">
-    <p>Pour <strong>personnaliser</strong> votre expérience, renseigner l'adresse de votre <strong>résidence principale.</strong></p>
+    <p>L'adresse de votre <strong>résidence principale</strong> permet de <strong>faciliter la communication</strong> avec les administrations.</p>
 
     <form autocomplete="on" class="address-form">
       <fieldset class="fr-fieldset" aria-labelledby="text-legend text-messages">
@@ -139,7 +139,7 @@
             <label class="fr-label" for="address-input">
               Adresse
             </label>
-            <span class="fr-hint-text">Par exemple : 23 rue des aubépines, Orléans</span>
+            <span class="fr-hint-text">Par exemple : 23 rue des aubépines, Poitiers</span>
             <input class="fr-input"
                    id="address-input"
                    type="text"
