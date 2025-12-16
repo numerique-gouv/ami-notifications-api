@@ -17,7 +17,7 @@ from app.models import Registration, User
 from tests.ami.utils import assert_query_fails_without_auth, login
 
 
-async def test_register(
+async def test_register_webpush(
     test_client: TestClient[Litestar],
     db_session: AsyncSession,
     user: User,
@@ -44,6 +44,40 @@ async def test_register(
     register_data = {
         "subscription": webpushsubscription,
     }
+    response = test_client.post("/api/v1/users/registrations", json=register_data)
+    assert response.status_code == HTTP_200_OK
+
+    all_registrations = (await db_session.execute(select(Registration))).scalars().all()
+    assert len(all_registrations) == 1
+    registration = all_registrations[0]
+    assert registration.id == registration_id
+
+
+async def test_register_mobile_app(
+    test_client: TestClient[Litestar],
+    db_session: AsyncSession,
+    user: User,
+    mobileAppSubscription: dict[str, Any],
+) -> None:
+    login(user, test_client)
+
+    all_registrations = await db_session.execute(select(Registration))
+    assert len(all_registrations.scalars().all()) == 0
+
+    # First registration, we're expecting a 201 CREATED.
+    register_data = {
+        "subscription": mobileAppSubscription,
+    }
+    response = test_client.post("/api/v1/users/registrations", json=register_data)
+    assert response.status_code == HTTP_201_CREATED
+
+    all_registrations = (await db_session.execute(select(Registration))).scalars().all()
+    assert len(all_registrations) == 1
+    registration = all_registrations[0]
+    registration_id = registration.id
+
+    # Second registration, we're expecting a 200 OK, not 201 CREATED.
+    register_data = {"subscription": mobileAppSubscription}
     response = test_client.post("/api/v1/users/registrations", json=register_data)
     assert response.status_code == HTTP_200_OK
 

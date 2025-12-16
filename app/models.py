@@ -6,6 +6,9 @@ from advanced_alchemy.base import UUIDAuditBase
 from advanced_alchemy.types import DateTimeUTC, JsonB
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from webpush import WebPushSubscription
+
+from app import schemas
 
 Base = UUIDAuditBase
 
@@ -32,6 +35,16 @@ class Registration(Base):
     user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("ami_user.id"))
     user: Mapped[User] = relationship(back_populates="registrations")
     subscription: Mapped[dict[str, Any]] = mapped_column(JsonB, nullable=True)
+
+    @property
+    def typed_subscription(self) -> "WebPushSubscription | schemas.MobileAppSubscription":
+        """Convert the stored dict to the proper subscription type."""
+        from app import schemas
+
+        try:
+            return WebPushSubscription.model_validate(self.subscription)
+        except Exception:
+            return schemas.MobileAppSubscription.model_validate(self.subscription)
 
 
 class Notification(Base):

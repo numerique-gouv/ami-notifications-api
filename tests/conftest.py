@@ -149,11 +149,23 @@ async def registration(
 @pytest.fixture
 async def webpushsubscription() -> dict[str, Any]:
     subscription = {
-        "endpoint": "https://example.com",
+        "endpoint": "https://example.com/",
         "keys": {
             "auth": "ribfIxhEOtCZ0lkcbB4yCg",
             "p256dh": "BGsTJAJDhGijvPLi0DVPHB86MGLmW1Y6VzjX-FpTlKbhhOtCmU0Vffaj1djCXzR6vkUYrwkOTmh1dgbIQHEyy1k",
         },
+    }
+    return subscription
+
+
+@pytest.fixture
+async def mobileAppSubscription() -> dict[str, Any]:
+    subscription = {
+        "app_version": "0.0-local",
+        "device_id": "some-id",
+        "fcm_token": "some-token",
+        "model": "Google sdk_gphone64_arm64",
+        "platform": "android",
     }
     return subscription
 
