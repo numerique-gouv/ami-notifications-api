@@ -126,7 +126,9 @@
             >
             {#if addressHasError}
               <div class="fr-messages-group" aria-live="polite">
-                <p id="address-error" class="fr-message fr-message--error" data-testid="address-error">Merci d'indiquer une adresse valide. L'adresse doit contenir entre 3 et 200 caractères et commencer par un nombre ou une lettre.</p>
+                <p id="address-error" class="fr-message fr-message--error" data-testid="address-error">
+                  Cette adresse est invalide. Conseil : saisissez entre 3 à 200 caractères et commencez par un nombre ou une lettre.
+                </p>
               </div>
             {/if}
           </div>
