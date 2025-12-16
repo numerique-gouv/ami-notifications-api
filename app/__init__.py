@@ -10,7 +10,7 @@ from litestar import (
     get,
 )
 from litestar.channels import ChannelsPlugin
-from litestar.channels.backends.memory import MemoryChannelsBackend
+from litestar.channels.backends.asyncpg import AsyncPgChannelsBackend
 from litestar.config.cors import CORSConfig
 from litestar.contrib.jinja import JinjaTemplateEngine
 from litestar.di import Provide
@@ -34,7 +34,7 @@ from app.controllers.notification import (
 from app.controllers.registration import RegistrationController
 from app.controllers.scheduled_notification import ScheduledNotificationController
 from app.controllers.user import UserController
-from app.database import alchemy, alchemy_config
+from app.database import alchemy, alchemy_config, channels_dsn
 from app.httpx import httpxClient
 from app.utils import build_fc_hash
 from app.webpush import provide_webpush
@@ -187,7 +187,7 @@ def create_app() -> Litestar:
         plugins=[
             alchemy,
             ChannelsPlugin(
-                channels=["notification_events"], backend=MemoryChannelsBackend(history=0)
+                channels=["notification_events"], backend=AsyncPgChannelsBackend(dsn=channels_dsn)
             ),
             CLIPlugin(),
         ],

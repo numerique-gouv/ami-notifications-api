@@ -80,6 +80,7 @@ def patch_db(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setattr(alchemy_config, "session_maker", sessionmaker)
+    monkeypatch.setattr("app.channels_dsn", TEST_DATABASE_URL.replace("+asyncpg", ""))
 
 
 @pytest.fixture(autouse=True)

@@ -47,3 +47,5 @@ alchemy_config = SQLAlchemyAsyncConfig(
     before_send_handler="autocommit_include_redirects",
 )
 alchemy = SQLAlchemyPlugin(config=alchemy_config)
+
+channels_dsn = DATABASE_URL.replace("+asyncpg", "")
