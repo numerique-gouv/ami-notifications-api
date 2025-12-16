@@ -1,0 +1,13 @@
+{
+  "jobs": [
+    {
+      "command": "0/10 * * * * make publish-scheduled-notifications"
+    },
+    {
+      "command": "5/10 * * * * make publish-scheduled-notifications"
+    },
+    {
+      "command": "0 2 * * * make delete-published-scheduled-notifications"
+    }
+  ]
+}

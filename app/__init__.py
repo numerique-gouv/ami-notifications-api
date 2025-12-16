@@ -24,6 +24,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 
 from app import env
 from app.auth import jwt_cookie_auth, openapi_config, partner_auth
+from app.cli import CLIPlugin
 from app.controllers.auth import AuthController
 from app.controllers.notification import (
     NotAuthenticatedNotificationController,
@@ -188,6 +189,7 @@ def create_app() -> Litestar:
             ChannelsPlugin(
                 channels=["notification_events"], backend=MemoryChannelsBackend(history=0)
             ),
+            CLIPlugin(),
         ],
         template_config=TemplateConfig(directory=Path("templates"), engine=JinjaTemplateEngine),
         cors_config=cors_config,

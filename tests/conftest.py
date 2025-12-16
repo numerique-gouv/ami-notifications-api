@@ -1,13 +1,17 @@
 import base64
+import importlib
 import os
 import time
 from collections.abc import AsyncGenerator, Iterator
-from typing import Any
+from typing import Any, cast
 
+import litestar.cli.main
 import pytest
 from advanced_alchemy.extensions.litestar.providers import create_service_provider
+from click.testing import CliRunner
 from litestar import Litestar
 from litestar.channels import ChannelsPlugin, Subscriber
+from litestar.cli._utils import LitestarExtensionGroup
 from litestar.middleware.session.server_side import ServerSideSessionConfig
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
@@ -101,6 +105,26 @@ def test_client(app: Litestar) -> Iterator[TestClient]:
 
 
 @pytest.fixture
+def runner():
+    return CliRunner()
+
+
+@pytest.fixture()
+def root_command() -> LitestarExtensionGroup:
+    return cast("LitestarExtensionGroup", importlib.reload(litestar.cli.main).litestar_group)
+
+
+@pytest.fixture
+async def channels(app: Litestar) -> ChannelsPlugin:
+    return app.plugins.get(ChannelsPlugin)
+
+
+@pytest.fixture
+async def notification_events_subscriber(channels: ChannelsPlugin) -> Subscriber:
+    return await channels.subscribe("notification_events")
+
+
+@pytest.fixture
 async def scheduled_notifications_service(
     db_session: AsyncSession,
 ) -> ScheduledNotificationService:
@@ -120,16 +144,6 @@ async def notifications_service(
         provide_notifications_service(db_session)
     )
     return notifications_service
-
-
-@pytest.fixture
-async def channels(app: Litestar) -> ChannelsPlugin:
-    return app.plugins.get(ChannelsPlugin)
-
-
-@pytest.fixture
-async def notification_events_subscriber(channels: ChannelsPlugin) -> Subscriber:
-    return await channels.subscribe("notification_events")
 
 
 @pytest.fixture

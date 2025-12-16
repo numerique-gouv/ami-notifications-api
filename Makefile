@@ -25,3 +25,11 @@ build-app:
 .PHONY: migrate
 migrate:
 	uv run --env-file .env --env-file .env.local alembic upgrade head
+
+.PHONY: publish-scheduled-notifications
+publish-scheduled-notifications:
+	bin/run_command.sh publish-scheduled-notifications
+
+.PHONY: delete-published-scheduled-notifications
+delete-published-scheduled-notifications:
+	bin/run_command.sh delete-published-scheduled-notifications
