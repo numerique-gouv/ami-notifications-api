@@ -126,23 +126,26 @@ class PushNotificationMixin:
     def _push_notification(
         self,
         webpush: WebPush,
-        subscriptions: list[dict[str, Any]],
+        subscriptions: list[WebPushSubscription | schemas.MobileAppSubscription],
         json_data: dict[str, str],
     ) -> None:
         """Push notifications to external endpoints. Runs as a background task."""
-        for subscription_data in subscriptions:
-            subscription = WebPushSubscription.model_validate(subscription_data)
-            message = webpush.get(message=json.dumps(json_data), subscription=subscription)
-            headers = cast(dict[str, str], message.headers)
+        for subscription in subscriptions:
+            if isinstance(subscription, WebPushSubscription):
+                subscription = WebPushSubscription.model_validate(subscription)
+                message = webpush.get(message=json.dumps(json_data), subscription=subscription)
+                headers = cast(dict[str, str], message.headers)
 
-            response = httpxClient.post(
-                subscription_data["endpoint"], content=message.encrypted, headers=headers
-            )
-            if response.status_code < 500:
-                # For example we could have "410: gone" if the registration has been revoked.
-                continue
-            else:
-                response.raise_for_status()
+                response = httpxClient.post(
+                    str(subscription.endpoint), content=message.encrypted, headers=headers
+                )
+                if response.status_code < 500:
+                    # For example we could have "410: gone" if the registration has been revoked.
+                    continue
+                else:
+                    response.raise_for_status()
+            # TODO: to be implemented
+            # elif isinstance(subscription_data, schemas.MobileAppSubscription):
 
 
 class NotAuthenticatedNotificationController(PushNotificationMixin, Controller):
@@ -174,7 +177,7 @@ class NotAuthenticatedNotificationController(PushNotificationMixin, Controller):
             raise NotFoundException(detail="User not found")
 
         # Extract subscription data before creating notification to avoid holding DB session
-        subscriptions = [reg.subscription for reg in user.registrations]
+        subscriptions = [reg.typed_subscription for reg in user.registrations]
         push_data = {
             "title": data.content_title,
             "message": data.content_body,
@@ -270,7 +273,7 @@ class PartnerNotificationController(PushNotificationMixin, Controller):
         user: models.User | None = await users_with_registrations_service.get_one_or_none(
             fc_hash=data.recipient_fc_hash
         )
-        subscriptions: list[dict[str, Any]] = []
+        subscriptions: list[WebPushSubscription | schemas.MobileAppSubscription] = []
         if user is None:
             user = await users_with_registrations_service.create(
                 models.User(fc_hash=data.recipient_fc_hash, already_seen=False)
@@ -278,7 +281,7 @@ class PartnerNotificationController(PushNotificationMixin, Controller):
             notification_send_status = False
         else:
             # Extract subscription data before creating notification to avoid holding DB session
-            subscriptions = [reg.subscription for reg in user.registrations]
+            subscriptions = [reg.typed_subscription for reg in user.registrations]
             notification_send_status = user.already_seen
 
         if not data.try_push or not user.already_seen:
