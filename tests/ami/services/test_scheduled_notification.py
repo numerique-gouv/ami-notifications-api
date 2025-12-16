@@ -173,3 +173,54 @@ async def test_publish_scheduled_notification_no_registration(
     ).scalar()
     assert notification_count == 1
     assert not httpx_mock.get_request()
+
+
+async def test_delete_published_scheduled_notifications(
+    scheduled_notifications_service: ScheduledNotificationService,
+    user: User,
+    db_session: AsyncSession,
+) -> None:
+    scheduled_notification1 = ScheduledNotification(
+        user_id=user.id,
+        content_title="title",
+        content_body="body",
+        content_icon="icon",
+        reference="reference1",
+        scheduled_at=datetime.datetime.now(datetime.timezone.utc),
+        sender="AMI",
+        sent_at=datetime.datetime.now(datetime.timezone.utc)
+        - datetime.timedelta(days=6 * 30, minutes=-2),  # too soon
+    )
+    db_session.add(scheduled_notification1)
+    scheduled_notification2 = ScheduledNotification(
+        user_id=user.id,
+        content_title="title",
+        content_body="body",
+        content_icon="icon",
+        reference="reference2",
+        scheduled_at=datetime.datetime.now(datetime.timezone.utc),
+        sender="AMI",
+        sent_at=None,  # not sent
+    )
+    db_session.add(scheduled_notification2)
+    scheduled_notification3 = ScheduledNotification(
+        user_id=user.id,
+        content_title="title",
+        content_body="body",
+        content_icon="icon",
+        reference="reference3",
+        scheduled_at=datetime.datetime.now(datetime.timezone.utc),
+        sender="AMI",
+        sent_at=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=6 * 30),
+    )
+    db_session.add(scheduled_notification3)
+    await db_session.commit()
+
+    await scheduled_notifications_service.delete_published_scheduled_notifications()
+
+    all_scheduled_notifications = (
+        (await db_session.execute(select(ScheduledNotification))).scalars().all()
+    )
+    assert len(all_scheduled_notifications) == 2
+    assert all_scheduled_notifications[0].id == scheduled_notification1.id
+    assert all_scheduled_notifications[1].id == scheduled_notification2.id

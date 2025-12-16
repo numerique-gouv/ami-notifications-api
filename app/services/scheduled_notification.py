@@ -77,3 +77,9 @@ class ScheduledNotificationService(
             notification.id,
             True,
         )
+
+    async def delete_published_scheduled_notifications(self):
+        now = datetime.datetime.now(datetime.timezone.utc)
+        await self.delete_where(
+            models.ScheduledNotification.sent_at < now - datetime.timedelta(days=6 * 30),
+        )
