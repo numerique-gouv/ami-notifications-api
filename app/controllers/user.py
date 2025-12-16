@@ -7,6 +7,7 @@ from litestar import Controller, Request, Response, get
 from app import env, models
 from app.auth import jwt_cookie_auth
 from app.httpx import httpxClient
+from app.services.scheduled_notification import ScheduledNotificationService
 from app.services.user import UserService
 from app.utils import build_fc_hash
 
@@ -14,12 +15,16 @@ from app.utils import build_fc_hash
 class UserController(Controller):
     dependencies = {
         "users_service": providers.create_service_provider(UserService),
+        "scheduled_notifications_service": providers.create_service_provider(
+            ScheduledNotificationService
+        ),
     }
 
     @get(path="/fc_userinfo", include_in_schema=False)
     async def get_fc_userinfo(
         self,
         users_service: UserService,
+        scheduled_notifications_service: ScheduledNotificationService,
         request: Request[Any, Any, Any],
     ) -> Response[Any]:
         """This endpoint "forwards" the request coming from the frontend (the app).
@@ -47,10 +52,15 @@ class UserController(Controller):
         )
 
         user: models.User | None = await users_service.get_one_or_none(fc_hash=fc_hash)
+        create_welcome = False
         if user is None:
             user = await users_service.create(models.User(fc_hash=fc_hash))
+            create_welcome = True
         else:
+            create_welcome = not user.already_seen
             user = await users_service.update({"already_seen": True}, item_id=user.id)
+        if create_welcome:
+            await scheduled_notifications_service.create_welcome_scheduled_notification(user)
         result: dict[str, Any] = {
             "user_id": user.id,
             "user_data": userinfo_jws,
