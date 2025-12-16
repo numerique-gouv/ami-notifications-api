@@ -47,7 +47,7 @@ class NotificationService(service.SQLAlchemyAsyncRepositoryService[models.Notifi
             if notification is None:
                 return
 
-            channels.publish(  # type: ignore
+            await channels.wait_published(  # type: ignore
                 {
                     "user_id": str(notification.user_id),
                     "id": str(notification.id),

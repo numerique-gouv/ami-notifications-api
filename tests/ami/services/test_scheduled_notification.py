@@ -71,8 +71,7 @@ async def test_publish_scheduled_notifications(
     db_session.add(scheduled_notification3)
     await db_session.commit()
 
-    async with test_client.app.lifespan():
-        await scheduled_notifications_service.publish_scheduled_notifications(test_client.app)
+    await scheduled_notifications_service.publish_scheduled_notifications(test_client.app)
     scheduled_notification_count = (
         await db_session.execute(select(func.count()).select_from(ScheduledNotification))
     ).scalar()
