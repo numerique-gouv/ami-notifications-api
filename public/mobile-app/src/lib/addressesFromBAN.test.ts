@@ -78,7 +78,6 @@ describe('addressesFromBAN.ts', () => {
       const response = await callBAN('23 rue des aubépines orl')
 
       // Then
-      expect(response?.statusCode).toBe(200)
       if (response?.results) {
         response.results.forEach((result: AddressFromBAN, index) => {
           expect(result.city).toEqual(expectedResult[index].city)
@@ -91,7 +90,19 @@ describe('addressesFromBAN.ts', () => {
       }
     })
 
-    test('should call BAN endpoint and return error when query is not valid', async () => {
+    test('should call BAN endpoint and return specific errorCode when BAN is unavailable', async () => {
+      // Given
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('', { status: 500 }))
+
+      // When
+      const response = await callBAN('23 rue des aubépines orl')
+
+      // Then
+      expect(response.errorCode).toBe('ban-unavailable')
+      expect(response.errorMessage).toBe('BAN unavailable')
+    })
+
+    test('should call BAN endpoint and return specific errorCode when query is not valid', async () => {
       // Given
       const responseFromBAN = {
         code: 400,
@@ -102,14 +113,15 @@ describe('addressesFromBAN.ts', () => {
       }
 
       vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-        new Response(JSON.stringify(responseFromBAN), { status: 200 })
+        new Response(JSON.stringify(responseFromBAN), { status: 400 })
       )
 
       // When
       const response = await callBAN('23')
 
       // Then
-      expect(response.statusCode).toBe(400)
+      expect(response.errorCode).toBe('ban-failed-parsing-query')
+      expect(response.errorMessage).toBe('BAN Failed parsing query')
     })
   })
 })

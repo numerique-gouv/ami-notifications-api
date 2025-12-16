@@ -20,6 +20,9 @@ export type ResponseFromBAN = {
   type: string
   features: FeatureFromBAN[]
   query: string
+  code: number
+  detail: string[]
+  message: string
 }
 
 export class AddressFromBAN {
@@ -58,37 +61,45 @@ export class AddressFromBAN {
 }
 
 export const callBAN = async (inputValue: string) => {
-  try {
-    const encodedInputValue = encodeURI(inputValue)
-    const endpoint_headers = {
-      accept: 'application/json',
+  const encodedInputValue = encodeURI(inputValue)
+  const endpoint_headers = {
+    accept: 'application/json',
+  }
+  const response = await fetch(
+    `${PUBLIC_API_GEO_PLATEFORME_BASE_URL}${PUBLIC_API_GEO_PLATEFORME_SEARCH_ENDPOINT}?q=${encodedInputValue}&autocomplete=1&index=address&limit=10&returntruegeometry=false`,
+    {
+      headers: endpoint_headers,
     }
-    const response = await fetch(
-      `${PUBLIC_API_GEO_PLATEFORME_BASE_URL}${PUBLIC_API_GEO_PLATEFORME_SEARCH_ENDPOINT}?q=${encodedInputValue}&autocomplete=1&index=address&limit=10&returntruegeometry=false`,
-      {
-        headers: endpoint_headers,
-      }
-    )
-    const result = await response.json()
-    console.log(result)
+  )
 
+  if (response.status >= 500) {
+    return { errorCode: 'ban-unavailable', errorMessage: 'BAN unavailable' }
+  }
+
+  let result = {} as ResponseFromBAN
+  try {
+    result = await response.json()
+  } catch (error) {
+    console.error(error)
+  }
+  if (response.status >= 400) {
     if (
       result.code === 400 &&
       result.detail[0] ===
         'q: must contain between 3 and 200 chars and start with a number or a letter' &&
       result.message === 'Failed parsing query'
     ) {
-      return { statusCode: 400 }
+      return {
+        errorCode: 'ban-failed-parsing-query',
+        errorMessage: 'BAN Failed parsing query',
+      }
     }
-
-    return {
-      statusCode: 200,
-      results: formatResults(result),
-    }
-  } catch (error) {
-    console.error(error)
+    return { errorCode: 'ban-unavailable', errorMessage: 'BAN unavailable' }
   }
-  return {}
+
+  return {
+    results: formatResults(result),
+  }
 }
 
 const formatResults = (data: ResponseFromBAN) => {
