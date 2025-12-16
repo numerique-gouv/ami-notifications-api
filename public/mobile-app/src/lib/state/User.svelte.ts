@@ -8,6 +8,7 @@ import type { Address as AddressType } from '$lib/address'
 import { Address } from '$lib/address'
 import * as auth from '$lib/auth'
 import { franceConnectLogout, parseJwt } from '$lib/france-connect'
+import { emit } from '$lib/nativeEvents'
 
 export type UserInfo = {
   sub: string
@@ -47,6 +48,7 @@ class UserStore {
     }
     this.connected = new User(userinfo)
     await this.connected.updateIdentity()
+    emit('user_logged_in', userinfo)
     return this.connected
   }
 
