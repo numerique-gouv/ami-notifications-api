@@ -11,3 +11,6 @@ node_modules
 session_data
 ssl-cert.pem
 ssl-key.pem
+
+# The private key file for Firebase Cloud Messaging
+*-adminsdk-*.json
