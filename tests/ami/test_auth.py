@@ -68,6 +68,7 @@ async def test_login_france_connect(
     assert url_contains_param("nonce", nonce.nonce, redirected_url)
     assert url_contains_param("acr_values", "eidas1", redirected_url)
     assert url_contains_param("prompt", "login", redirected_url)
+    assert url_contains_param("idp_hint", env.PUBLIC_FC_AMI_IDP_HINT, redirected_url)
 
 
 async def test_login_callback(
