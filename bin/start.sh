@@ -32,6 +32,8 @@ if [ ! -z "$CONTAINER" ]
 then
   # We're on scalingo, so automatically build the front app
   make build-app
+  # Rebuild the FCM secret json keys file from the env vars, see the section in CONTRIBUTING.md
+  echo "$FCM_KEYS_FILE" | base64 -d > "$GOOGLE_APPLICATION_CREDENTIALS"
 else
   # We're on local dev, FranceConnect needs HTTPS so start backend server with SSL
   # On Scalingo, the backend is already on HTTPS

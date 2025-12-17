@@ -287,3 +287,21 @@ You'll need to add the `PRO_CONNECT_AMI_ADMIN_CLIENT_SECRET` and the `PUBLIC_PRO
 # Architectural diagram
 
 ![AMI architectural diagram]( AMI-technical%20architecture.excalidraw.svg)
+
+
+## Firebase Cloud Messaging (FCM)
+
+We use
+[Firebase Cloud Messaging](https://console.firebase.google.com/project/ami-gouv/)
+to send native notifications on Android and on iOS.
+
+The way we integrate with it is by using the
+[Firebase Admin SDK](https://firebase.google.com/docs/admin/setup).
+All the authentication is done automatically by using a
+[private key json file](https://console.firebase.google.com/project/ami-gouv/settings/serviceaccounts/adminsdk)
+that's been generated in the Firebase Console, and
+[stored secretly in Scalingo](https://doc.scalingo.com/platform/app/secret-file-in-app)
+in the `FCM_KEYS_FILE` env var.
+
+This file is then discovered by the admin sdk using the
+`GOOGLE_APPLICATION_CREDENTIALS` env var.

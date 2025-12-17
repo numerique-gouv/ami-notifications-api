@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "asyncpg>=0.30.0",
+    "firebase-admin>=7.1.0",
     "httpx>=0.28.1",
     "litestar[pydantic,sqlalchemy,standard]>=2.15.1",
     "sentry-sdk[litestar]>=2.29.1",
