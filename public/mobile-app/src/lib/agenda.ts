@@ -12,6 +12,8 @@ export const monthName = (date: Date) => {
   return capitalizeFirstLetter(date.toLocaleDateString('fr-FR', { month: 'long' }))
 }
 
+const oneday_in_ms = 24 * 60 * 60 * 1000
+
 export class Item {
   constructor(
     private _kind: Kind,
@@ -150,78 +152,14 @@ export class Agenda {
   constructor(holidays: Holiday[], date: Date | null = null) {
     const today = date || new Date()
     today.setHours(0, 0, 0, 0)
-    const oneday_in_ms = 24 * 60 * 60 * 1000
-    const userZone = userStore.connected?.identity.address?.zone
     const items: Item[] = []
 
     // build items from holidays
-    holidays.forEach((holiday) => {
-      if (holiday.end_date < today) {
-        // exclude past holidays
-        return
-      }
-      let title = holiday.description
-      if (holiday.zones) {
-        title += ` ${holiday.zones}`
-      }
-      if (holiday.emoji) {
-        title += ` ${holiday.emoji}`
-      }
-      let custom = false
-      let description = null
-      if (
-        userZone !== undefined &&
-        (holiday.zones === `Zone ${userZone}` || holiday.zones === '')
-      ) {
-        custom = true
-        description = `${userStore.connected?.identity.address?.city} 🏠`
-      }
-      const item = new Item(
-        'holiday',
-        title,
-        description,
-        null,
-        holiday.start_date,
-        holiday.end_date,
-        custom
-      )
-      items.push(item)
-    })
+    this.createHolidayItems(items, holidays, today)
 
     // create OTV items
-    const seenHolidays = new Set()
-    holidays.forEach((holiday) => {
-      const key = JSON.stringify({
-        desc: holiday.description,
-        year: holiday.start_date.getFullYear(),
-      })
-      if (seenHolidays.has(key)) {
-        return
-      }
-      if (
-        userZone !== undefined &&
-        holiday.zones !== '' &&
-        holiday.zones !== `Zone ${userZone}`
-      ) {
-        // Only create OTV for the user's zone, if present
-        return
-      }
-      seenHolidays.add(key)
-      if (holiday.end_date < today) {
-        // exclude OTV of past holidays
-        return
-      }
-      const item = new Item(
-        'otv',
-        'Opération Tranquillité Vacances 🏠',
-        'Inscrivez-vous pour protéger votre domicile pendant votre absence',
-        null,
-        new Date(holiday.start_date.getTime() - 3 * 7 * oneday_in_ms),
-        null,
-        false
-      )
-      items.push(item)
-    })
+    this.createOTVItems(items, holidays, today)
+
     // sort items by date
     items.sort((a, b) => (a.date?.getTime() || 0) - (b.date?.getTime() || 0))
 
@@ -237,6 +175,95 @@ export class Agenda {
         this._next.push(item)
       }
     })
+  }
+
+  private createHolidayItems(items: Item[], holidays: Holiday[], date: Date) {
+    holidays.forEach((holiday) => {
+      const item = this.createHolidayItem(holiday, date)
+      if (item !== null) {
+        items.push(item)
+      }
+    })
+  }
+
+  private createHolidayItem(holiday: Holiday, date: Date): Item | null {
+    const userZone = userStore.connected?.identity.address?.zone
+    if (holiday.end_date < date) {
+      // exclude past holidays
+      return null
+    }
+    let title = holiday.description
+    if (holiday.zones) {
+      title += ` ${holiday.zones}`
+    }
+    if (holiday.emoji) {
+      title += ` ${holiday.emoji}`
+    }
+    let custom = false
+    let description = null
+    if (
+      userZone !== undefined &&
+      (holiday.zones === `Zone ${userZone}` || holiday.zones === '')
+    ) {
+      custom = true
+      description = `${userStore.connected?.identity.address?.city} 🏠`
+    }
+    return new Item(
+      'holiday',
+      title,
+      description,
+      null,
+      holiday.start_date,
+      holiday.end_date,
+      custom
+    )
+  }
+
+  private createOTVItems(items: Item[], holidays: Holiday[], date: Date) {
+    const seenHolidays: Set<string> = new Set()
+    holidays.forEach((holiday) => {
+      const item = this.createOTVItem(seenHolidays, holiday, date)
+      if (item !== null) {
+        items.push(item)
+      }
+    })
+  }
+
+  private createOTVItem(
+    seenHolidays: Set<string>,
+    holiday: Holiday,
+    date: Date
+  ): Item | null {
+    const userZone = userStore.connected?.identity.address?.zone
+    const key = JSON.stringify({
+      desc: holiday.description,
+      year: holiday.start_date.getFullYear(),
+    })
+    if (seenHolidays.has(key)) {
+      return null
+    }
+    if (
+      userZone !== undefined &&
+      holiday.zones !== '' &&
+      holiday.zones !== `Zone ${userZone}`
+    ) {
+      // Only create OTV for the user's zone, if present
+      return null
+    }
+    seenHolidays.add(key)
+    if (holiday.end_date < date) {
+      // exclude OTV of past holidays
+      return null
+    }
+    return new Item(
+      'otv',
+      'Opération Tranquillité Vacances 🏠',
+      'Inscrivez-vous pour protéger votre domicile pendant votre absence',
+      null,
+      new Date(holiday.start_date.getTime() - 3 * 7 * oneday_in_ms),
+      null,
+      false
+    )
   }
 
   get now(): Item[] {
