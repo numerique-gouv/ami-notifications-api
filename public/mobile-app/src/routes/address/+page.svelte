@@ -304,7 +304,7 @@
       flex-direction: row;
       justify-content: space-between;
       border: 1px solid var(--text-action-high-blue-france);
-      padding: .5rem;
+      padding: 1rem .5rem 1rem 1.5rem;
 
       .left-wrapper {
         display: flex;
