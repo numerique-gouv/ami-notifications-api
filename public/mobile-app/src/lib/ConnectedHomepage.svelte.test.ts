@@ -58,7 +58,8 @@ describe('/ConnectedHomepage.svelte', () => {
     // Then
     await waitFor(() => {
       const initials = container.querySelector('.user-profile')
-      expect(initials).toHaveTextContent('ACL')
+      expect(initials).toHaveTextContent('A')
+      expect(initials).not.toHaveTextContent('ACL')
     })
   })
 
