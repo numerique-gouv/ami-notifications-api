@@ -12,9 +12,9 @@
   let disabledButton: boolean = $state(true)
   let addressApiHasError: boolean = $state(false)
   let addressInputHasError: boolean = $state(false)
-  let selectedAddress: Address = $state<Address>(new Address())
+  let selectedAddress: Address | undefined = $state()
   let hasSelectedAddress: boolean = $state(false)
-  let submittedAddress: Address = $state<Address>(new Address())
+  let submittedAddress: Address | undefined = $state()
 
   onMount(async () => {
     if (!userStore.connected) {
@@ -108,10 +108,12 @@
 
   const removeAddress = async () => {
     hasSelectedAddress = false
-    delete userStore.connected?.identity?.address
-    disabledButton = true
-    selectedAddress = new Address()
-    submittedAddress = new Address()
+    if (userStore.connected) {
+      userStore.connected.setAddress(undefined)
+    }
+    disabledButton = false
+    selectedAddress = undefined
+    submittedAddress = undefined
   }
 </script>
 
@@ -187,7 +189,7 @@
       </div>
     {/if}
 
-    {#if hasSelectedAddress}
+    {#if hasSelectedAddress !== undefined && selectedAddress !== undefined}
       <div class="selected-address-wrapper" data-testid="selected-address-wrapper">
         <div class="left-wrapper">
           <span>Votre résidence principale</span>
