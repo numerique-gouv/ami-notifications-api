@@ -4,6 +4,8 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/svelte'
 import { Address } from '$lib/address'
 import * as addressesFromBANMethods from '$lib/addressesFromBAN'
 import { callBAN } from '$lib/addressesFromBAN'
+import * as agendaMethods from '$lib/agenda'
+import { Agenda } from '$lib/agenda'
 import { userStore } from '$lib/state/User.svelte'
 import { mockUserIdentity, mockUserInfo } from '$tests/utils'
 import Page from './+page.svelte'
@@ -47,6 +49,7 @@ describe('/+page.svelte', () => {
         callBAN: vi.fn(() => response),
       }
     })
+    vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(new Agenda([]))
   })
 
   afterEach(() => {
@@ -113,7 +116,9 @@ describe('/+page.svelte', () => {
     // Given
     expect(userStore.connected).not.toBeNull()
     delete userStore.connected?.identity?.address
+    userStore.connected?.addScheduledNotificationCreatedKey('foo')
     const setAddressSpy = vi.spyOn(userStore.connected!, 'setAddress')
+    const spy = vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(new Agenda([]))
 
     // When
     render(Page)
@@ -132,6 +137,7 @@ describe('/+page.svelte', () => {
     const button = screen.getByTestId('autocomplete-item-button-1')
     await fireEvent.click(button)
 
+    // Then
     await waitFor(() => {
       const updatedAddressInput: HTMLInputElement = screen.getByTestId('address-input')
       expect(updatedAddressInput.value).equal('23 Rue des Aubépines 94310 Orly')
@@ -166,6 +172,10 @@ describe('/+page.svelte', () => {
         '94310'
       )
       expect(userStore.connected?.identity?.address).toEqual(expectedAddress)
+      expect(userStore.connected?.identity?.scheduledNotificationsCreatedKeys).toEqual(
+        []
+      )
+      expect(spy).toHaveBeenCalledTimes(1)
     })
 
     // When - user clicks the remove button
