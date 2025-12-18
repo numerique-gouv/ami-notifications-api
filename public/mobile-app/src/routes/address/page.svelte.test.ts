@@ -178,6 +178,9 @@ describe('/+page.svelte', () => {
       expect(spy).toHaveBeenCalledTimes(1)
     })
 
+    // Given
+    userStore.connected?.addScheduledNotificationCreatedKey('foo')
+
     // When - user clicks the remove button
     const removeButton = screen.getByRole('button', { name: /retirer l'adresse/i })
     await fireEvent.click(removeButton)
@@ -188,6 +191,10 @@ describe('/+page.svelte', () => {
       expect(screen.queryByTestId('selected-address-wrapper')).not.toBeInTheDocument()
       // Address should be removed from userStore
       expect(userStore.connected?.identity?.address).toBeUndefined()
+      expect(userStore.connected?.identity?.scheduledNotificationsCreatedKeys).toEqual(
+        []
+      )
+      expect(spy).toHaveBeenCalledTimes(2)
     })
   })
 
