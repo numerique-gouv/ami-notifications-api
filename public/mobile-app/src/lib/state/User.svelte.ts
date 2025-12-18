@@ -37,6 +37,7 @@ export type UserIdentity = {
   preferred_username?: string | null
   email: string
   address?: AddressType
+  scheduledNotificationsCreatedKeys: string[]
 }
 
 class UserStore {
@@ -97,6 +98,8 @@ export class User {
       preferred_username: this._pivot.preferred_username,
       email: parsedIdentity?.email || this._pivot.email,
       address: parsedIdentity?.address,
+      scheduledNotificationsCreatedKeys:
+        parsedIdentity?.scheduledNotificationsCreatedKeys || [],
     }
     if (this._identity.address) {
       this._identity.address = Address.fromJSON(this._identity.address)
@@ -117,6 +120,17 @@ export class User {
     } else {
       delete this._identity.address
     }
+    localStorage.setItem('user_identity', JSON.stringify(this.identity))
+  }
+
+  addScheduledNotificationCreatedKey(key: string) {
+    const scheduledNotificationsCreatedKeys = new Set(
+      this._identity.scheduledNotificationsCreatedKeys
+    )
+    scheduledNotificationsCreatedKeys.add(key)
+    this._identity.scheduledNotificationsCreatedKeys = [
+      ...scheduledNotificationsCreatedKeys,
+    ]
     localStorage.setItem('user_identity', JSON.stringify(this.identity))
   }
 
