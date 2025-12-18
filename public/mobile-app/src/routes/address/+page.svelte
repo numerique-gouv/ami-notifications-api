@@ -103,7 +103,7 @@
     hasSubmittedAddress = true
     submittedAddress = selectedAddress
     if (userStore.connected) {
-      userStore.connected.address = selectedAddress
+      userStore.connected.setAddress(selectedAddress)
     }
     console.log(submittedAddress)
   }

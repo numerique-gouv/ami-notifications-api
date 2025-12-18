@@ -101,7 +101,7 @@ describe('/lib/state/User.svelte.ts', () => {
     // When
     await userStore.login(mockUserInfo)
     expect(userStore.connected).not.toBeNull()
-    userStore.connected!.address = otherAddress
+    userStore.connected!.setAddress(otherAddress)
 
     // Then
     expect(userStore.connected?.identity?.address?.city).toEqual('some random city')
