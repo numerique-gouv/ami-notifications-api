@@ -4,7 +4,7 @@ import { Address } from '$lib/address'
 import * as authHelpers from '$lib/auth'
 import * as franceConnectHelpers from '$lib/france-connect'
 import { User, userStore } from '$lib/state/User.svelte'
-import { mockUserIdentity, mockUserInfo } from '$tests/utils'
+import { mockUser, mockUserIdentity, mockUserInfo } from '$tests/utils'
 import { fetchSpy } from '../../../vitest-setup-client'
 
 describe('/lib/state/User.svelte.ts', () => {
@@ -133,5 +133,16 @@ describe('/lib/state/User.svelte.ts', () => {
     expect(mockCalls[0][0]).toContain(mockUserInfo.birthplace)
     expect(mockCalls[1][0]).toContain('tabular-api.data.gouv.fr')
     expect(mockCalls[1][0]).toContain(mockUserInfo.birthcountry)
+  })
+  describe('User', () => {
+    describe('getInitials', () => {
+      test('should display initial of firt given name element only', async () => {
+        // When
+        const initials = mockUser.getInitials()
+
+        // Then
+        expect(initials).toEqual('A')
+      })
+    })
   })
 })

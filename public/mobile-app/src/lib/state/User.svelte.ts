@@ -141,9 +141,9 @@ export class User {
 
   getInitials(): string {
     let initials_: string = ''
-    this._pivot.given_name_array.forEach((given_name) => {
-      initials_ += given_name.substring(0, 1)
-    })
+    if (this._pivot.given_name_array.length) {
+      initials_ += this._pivot.given_name_array[0].substring(0, 1)
+    }
     return initials_
   }
 }
