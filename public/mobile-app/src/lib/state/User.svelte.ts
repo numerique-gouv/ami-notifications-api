@@ -111,7 +111,7 @@ export class User {
     return this._identity
   }
 
-  set address(address: AddressType) {
+  setAddress(address: AddressType) {
     this._identity.address = address
     localStorage.setItem('user_identity', JSON.stringify(this.identity))
   }

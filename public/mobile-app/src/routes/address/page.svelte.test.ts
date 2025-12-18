@@ -109,7 +109,7 @@ describe('/+page.svelte', () => {
     userStore.login(mockUserInfo)
     expect(userStore.connected).not.toBeNull()
     delete userStore.connected?.identity?.address
-    const setAddressSpy = vi.spyOn(userStore.connected!, 'address', 'set')
+    const setAddressSpy = vi.spyOn(userStore.connected!, 'setAddress')
 
     // When
     render(Page)
