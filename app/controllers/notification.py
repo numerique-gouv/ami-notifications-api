@@ -5,6 +5,7 @@ from typing import Annotated, Any, cast
 
 from advanced_alchemy.extensions.litestar import providers
 from firebase_admin import messaging
+from firebase_admin.messaging import UnregisteredError
 from litestar import Controller, Response, WebSocket, get, patch, post, websocket
 from litestar.background_tasks import BackgroundTask
 from litestar.channels import ChannelsPlugin
@@ -131,6 +132,10 @@ class PushNotificationMixin:
         notification_data: schemas.NotificationPush,
     ) -> None:
         """Push notifications to external endpoints. Runs as a background task."""
+        import logging
+
+        logger = logging.getLogger(__name__)
+
         for subscription in subscriptions:
             if isinstance(subscription, WebPushSubscription):
                 message = webpush.get(
@@ -143,6 +148,7 @@ class PushNotificationMixin:
                 )
                 if response.status_code < 500:
                     # For example we could have "410: gone" if the registration has been revoked.
+                    # TODO: delete this registration from the database
                     continue
                 else:
                     response.raise_for_status()
@@ -151,10 +157,13 @@ class PushNotificationMixin:
                     # Send both a Notification (displayed automatically by the operating system)
                     # even if the app is in the background...
                     notification=messaging.Notification(
-                        title=notification_data.content_title, body=notification_data.content_body
+                        title=notification_data.content_title,
+                        body=notification_data.content_body,
                     ),
                     # ... and a full data dump, so the app can display more information if needed
                     # once the application is displayed.
+                    # We need to make absolutely sure that there are no values that are not strings,
+                    # or the Firebase admin SDK will fail.
                     data={
                         k: str(v)
                         for k, v in notification_data.model_dump(
@@ -163,7 +172,18 @@ class PushNotificationMixin:
                     },
                     token=subscription.fcm_token,
                 )
-                response = messaging.send(message)
+                try:
+                    response = messaging.send(message)
+
+                except UnregisteredError:
+                    logger.warning(
+                        f"FCM token is invalid or expired for device. Token should be removed: {subscription.fcm_token}"
+                    )
+                    # TODO: delete this registration from the database
+                except Exception as e:
+                    logger.exception(f"Failed to send notification: {e}")
+                    # Continue to next subscription instead of failing completely
+                    continue
 
 
 class NotAuthenticatedNotificationController(PushNotificationMixin, Controller):
