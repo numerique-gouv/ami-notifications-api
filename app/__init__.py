@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import Any, Callable
 
+import firebase_admin
 import sentry_sdk
 from litestar import (
     Litestar,
@@ -41,6 +42,7 @@ from .data.routes import data_router
 from .rvo.routes import router as rvo_router
 
 cors_config = CORSConfig(allow_origins=[env.PUBLIC_APP_URL], allow_credentials=True)
+firebase_app: firebase_admin.App = firebase_admin.initialize_app()  # type: ignore[reportUnknownMemberType]
 
 
 sentry_sdk.init(
