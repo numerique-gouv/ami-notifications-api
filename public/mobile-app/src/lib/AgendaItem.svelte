@@ -22,11 +22,11 @@
     <span class="day-num">{item.dayNum}</span> 
   </div>
   {/if}
-  <div class="agenda--item--detail fr-tile fr-tile-sm fr-tile--horizontal fr-enlarge-link {item.custom ? 'custom': ''}">
+  <div class="agenda--item--detail fr-tile fr-tile-sm fr-tile--horizontal fr-enlarge-link {item.custom ? 'custom': ''} {item.link ? '': 'no-link'}">
     <div class="fr-tile__body">
       <div class="fr-tile__content">
         <h3 class="fr-tile__title">
-          <a href="{item.link}?date={agendaItemDate}" data-testid="agenda-item-link">
+          <a href="{item.link}?date={agendaItemDate}" onclick={(e) => {if (!item.link) {e.preventDefault();}}} data-testid="agenda-item-link" class="{item.link ? '': 'no-link'}">
             {item.title}
           </a>
         </h3>
@@ -80,10 +80,18 @@
         padding-bottom: 1.5rem;
         .fr-tile__title {
           font-size: 16px;
-          a::after {
+          a {
+            &::after {
             bottom: 1.25rem;
             right: 1.25rem;
             --icon-size: 1rem;
+            }
+            &.no-link {
+              cursor: default;
+              &::after {
+                display: none;
+              }
+            }
           }
         }
         .fr-tile__detail {

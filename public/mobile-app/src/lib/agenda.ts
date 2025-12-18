@@ -101,7 +101,7 @@ export class Item {
     holiday: {
       label: 'Vacances et jours fériés',
       icon: 'fr-icon-calendar-event-fill',
-      link: '/#/agenda',
+      link: '',
     },
     otv: {
       label: 'Logement',

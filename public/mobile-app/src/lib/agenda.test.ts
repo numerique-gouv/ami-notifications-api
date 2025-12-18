@@ -262,7 +262,7 @@ describe('/agenda.ts', () => {
 
         // Then
         expect(link1).equal('')
-        expect(link2).equal('/#/agenda')
+        expect(link2).equal('')
         expect(link3).equal('/#/procedure')
       })
     })
