@@ -132,7 +132,7 @@
             <label class="fr-label" for="address-input">
               Adresse
             </label>
-            <span class="fr-hint-text">Par exemple : 23 rue des aubépines, Poitiers</span>
+            <span class="fr-hint-text">Par exemple&nbsp;: 23 rue des aubépines, Poitiers</span>
             <input class="fr-input"
                    id="address-input"
                    type="text"
@@ -144,7 +144,7 @@
             {#if addressInputHasError}
               <div class="fr-messages-group" aria-live="polite">
                 <p id="address-error" class="fr-message fr-message--error" data-testid="address-error">
-                  Cette adresse est invalide. Conseil : saisissez entre 3 à 200 caractères et commencez par un nombre ou une lettre.
+                  Cette adresse est invalide. Conseil&nbsp;: saisissez entre 3 à 200 caractères et commencez par un nombre ou une lettre.
                 </p>
               </div>
             {/if}
