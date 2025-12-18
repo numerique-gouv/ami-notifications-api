@@ -51,13 +51,9 @@
     if (inputValue) {
       try {
         const response = await callBAN(inputValue)
-        addressApiHasError = false
-        if (response.errorCode === 'ban-unavailable') {
-          addressApiHasError = true
-        } else if (response.errorCode === 'ban-failed-parsing-query') {
-          addressInputHasError = true
-        } else {
-          addressInputHasError = false
+        addressApiHasError = response.errorCode === 'ban-unavailable'
+        addressInputHasError = response.errorCode === 'ban-failed-parsing-query'
+        if (!addressApiHasError && !addressInputHasError) {
           if (response.results) {
             filteredAddresses = response.results.map(
               (address: AddressFromBAN): Address => {
