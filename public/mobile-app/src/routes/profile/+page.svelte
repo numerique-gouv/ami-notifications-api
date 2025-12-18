@@ -7,7 +7,7 @@
   import { userStore } from '$lib/state/User.svelte'
 
   let identity: UserIdentity = $state() as UserIdentity
-  let address: Address | null = $state(null)
+  let address: Address | undefined = $state()
 
   onMount(async () => {
     if (!userStore.connected) {
@@ -15,10 +15,7 @@
       return
     } else {
       identity = userStore.connected.identity
-      address =
-        userStore.connected.identity.address !== undefined
-          ? userStore.connected.identity.address
-          : null
+      address = identity.address
     }
   })
 
