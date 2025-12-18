@@ -124,9 +124,11 @@ async def never_seen_user(user: User, db_session: AsyncSession) -> User:
 
 
 @pytest.fixture
-async def notification(db_session: AsyncSession, registration: Registration) -> Notification:
+async def webpush_notification(
+    db_session: AsyncSession, webpush_registration: Registration
+) -> Notification:
     notification_ = Notification(
-        user_id=registration.user.id,
+        user_id=webpush_registration.user.id,
         content_body="Hello notification",
         content_title="Notification title",
         sender="John Doe",
@@ -137,7 +139,7 @@ async def notification(db_session: AsyncSession, registration: Registration) -> 
 
 
 @pytest.fixture
-async def registration(
+async def webpush_registration(
     db_session: AsyncSession, user: User, webpushsubscription: dict[str, Any]
 ) -> Registration:
     registration_ = Registration(user_id=user.id, subscription=webpushsubscription)
@@ -156,6 +158,31 @@ async def webpushsubscription() -> dict[str, Any]:
         },
     }
     return subscription
+
+
+@pytest.fixture
+async def mobile_notification(
+    db_session: AsyncSession, mobile_registration: Registration
+) -> Notification:
+    notification_ = Notification(
+        user_id=mobile_registration.user.id,
+        content_body="Hello notification",
+        content_title="Notification title",
+        sender="John Doe",
+    )
+    db_session.add(notification_)
+    await db_session.commit()
+    return notification_
+
+
+@pytest.fixture
+async def mobile_registration(
+    db_session: AsyncSession, user: User, mobileAppSubscription: dict[str, Any]
+) -> Registration:
+    registration_ = Registration(user_id=user.id, subscription=mobileAppSubscription)
+    db_session.add(registration_)
+    await db_session.commit()
+    return registration_
 
 
 @pytest.fixture

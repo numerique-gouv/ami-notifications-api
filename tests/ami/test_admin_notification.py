@@ -31,8 +31,8 @@ async def test_admin_create_notification_user_does_not_exist(
 async def test_admin_create_notification_from_test_and_from_app_context(
     test_client: TestClient[Litestar],
     db_session: AsyncSession,
-    notification: Notification,
-    registration: Registration,
+    webpush_notification: Notification,
+    webpush_registration: Registration,
     httpx_mock: HTTPXMock,
 ) -> None:
     """This test makes sure we're using the same database session in tests and through the API.
@@ -41,9 +41,9 @@ async def test_admin_create_notification_from_test_and_from_app_context(
     and from the API, and both are using the same database session.
     """
     # Make sure we don't even try sending a notification to a push server.
-    httpx_mock.add_response(url=registration.subscription["endpoint"])
+    httpx_mock.add_response(url=webpush_registration.subscription["endpoint"])
     notification_data = {
-        "user_id": str(registration.user.id),
+        "user_id": str(webpush_registration.user.id),
         "message": "Hello notification 2",
         "title": "Some notification title",
         "sender": "Jane Doe",
@@ -53,7 +53,7 @@ async def test_admin_create_notification_from_test_and_from_app_context(
     all_notifications = (await db_session.execute(select(Notification))).scalars().all()
     assert len(all_notifications) == 2
     notification2 = all_notifications[1]
-    assert notification2.user.id == registration.user.id
+    assert notification2.user.id == webpush_registration.user.id
     assert notification2.content_body == "Hello notification 2"
     assert notification2.content_title == "Some notification title"
     assert notification2.sender == "Jane Doe"
@@ -129,7 +129,7 @@ async def test_admin_create_notification_test_fields(
 async def test_admin_create_notification_when_registration_gone(
     test_client: TestClient[Litestar],
     db_session: AsyncSession,
-    registration: Registration,
+    webpush_registration: Registration,
     httpx_mock: HTTPXMock,
 ) -> None:
     """When somebody revokes a PUSH authorization (a push registration), then trying to
@@ -138,9 +138,9 @@ async def test_admin_create_notification_when_registration_gone(
     This shouldn't fail the notification process.
     """
     # Make sure we don't even try sending a notification to a push server.
-    httpx_mock.add_response(url=registration.subscription["endpoint"], status_code=410)
+    httpx_mock.add_response(url=webpush_registration.subscription["endpoint"], status_code=410)
     notification_data = {
-        "user_id": str(registration.user.id),
+        "user_id": str(webpush_registration.user.id),
         "message": "This will not be PUSHed, but still created on the backend",
         "title": "Some notification title",
         "sender": "Jane Doe",
