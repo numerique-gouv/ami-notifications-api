@@ -30,6 +30,10 @@
     }
   })
 
+  const navigateToPreviousPage = async () => {
+    window.history.back()
+  }
+
   const addressInputHandler = (event: Event) => {
     if (!event.target) {
       return
@@ -90,7 +94,7 @@
   }
 
   const cancelAddress = async () => {
-    window.history.back()
+    await navigateToPreviousPage()
   }
 
   const submitAddress = async () => {
@@ -99,7 +103,7 @@
       userStore.connected.setAddress(selectedAddress)
     }
     console.log(submittedAddress)
-    window.history.back()
+    await navigateToPreviousPage()
   }
 
   const removeAddress = async () => {
@@ -114,9 +118,12 @@
 <div class="address-form-page">
   <nav class="fr-p-4v fr-pt-6v">
     <div class="back-link fr-mb-2v">
-      <a href="/" title="Retour à la page d'accueil" aria-label="Retour à la page d'accueil">
+      <button onclick={navigateToPreviousPage}
+              title="Retour à la page d'accueil"
+              aria-label="Retour à la page d'accueil"
+      >
         <span aria-hidden="true" class="fr-icon-arrow-left-line"></span>
-      </a>
+      </button>
     </div>
     <div class="title">
       <h2 class="fr-mb-0">Où habitez-vous&nbsp;?</h2>
@@ -223,9 +230,8 @@
     nav {
       .back-link {
         color: var(--text-active-blue-france);
-        a {
-          text-decoration: none;
-          --underline-img: none;
+        button {
+          padding: 0;
         }
       }
       .title {
