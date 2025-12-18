@@ -99,6 +99,7 @@
       userStore.connected.setAddress(selectedAddress)
     }
     console.log(submittedAddress)
+    window.history.back()
   }
 
   const removeAddress = async () => {
