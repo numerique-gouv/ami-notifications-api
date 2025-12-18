@@ -114,6 +114,9 @@
     hasSelectedAddress = false
     if (userStore.connected) {
       userStore.connected.setAddress(undefined)
+      // rebuild agenda to create new scheduled notifications
+      userStore.connected.clearScheduledNotificationCreatedKey()
+      await buildAgenda()
     }
     disabledButton = false
     selectedAddress = undefined
