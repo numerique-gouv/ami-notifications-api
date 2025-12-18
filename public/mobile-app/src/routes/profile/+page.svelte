@@ -29,11 +29,11 @@
 </nav>
 
 {#if identity}
-<div class="fr-m-4v profile-content-container">
+<div class="fr-m-4v profile-content-container" data-testid="profile">
   <Card id="profile-identity" iconHref="/remixicons/account-circle-line.svg" title="Mon identité">
     <p>Vous êtes&nbsp;:<br />
     <b>{identity.given_name} {identity.preferred_username || identity.family_name},</b><br />
-    né{#if identity.gender == "female"}e{/if}{#if identity.preferred_username} <b>{identity.family_name}</b>{/if}
+    né{#if identity.gender == "female"}e{/if} {#if identity.preferred_username}<b>{identity.family_name}</b>{/if}
     le <b>{identity.birthdate}</b>
     {#if identity.birthplace}à <b>{identity.birthplace} {identity.birthcountry}</b><br />{/if}
     <span class="fr-text--xs">Informations fournies par FranceConnect</span><br />

@@ -30,6 +30,23 @@ export const mockUserInfo = {
   iss: 'https://fcp-low.sbx.dev-franceconnect.fr/api/v2',
 }
 
+const mockUserInfoWithPreferredUserName = {
+  sub: 'fake sub',
+  given_name: 'Pierre',
+  given_name_array: ['Pierre'],
+  family_name: 'MERCIER',
+  preferred_username: 'DUBOIS',
+  email: 'some-other@email.com',
+  birthdate: '1969-03-17',
+  birthcountry: '99100',
+  birthplace: '95277',
+  gender: 'male',
+  aud: 'fake aud',
+  exp: 1766064161,
+  iat: 1766064102,
+  iss: 'https://fcp-low.sbx.dev-franceconnect.fr/api/v2',
+}
+
 export const mockAddress: Address = new Address(
   'Paris',
   '75, Paris, Île-de-France',
@@ -51,3 +68,4 @@ export const mockUserIdentity = {
 }
 
 export const mockUser = new User(mockUserInfo)
+export const mockUserWithPreferredUsername = new User(mockUserInfoWithPreferredUserName)
