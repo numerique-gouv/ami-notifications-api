@@ -111,8 +111,12 @@ export class User {
     return this._identity
   }
 
-  setAddress(address: AddressType) {
-    this._identity.address = address
+  setAddress(address: AddressType | undefined) {
+    if (address) {
+      this._identity.address = address
+    } else {
+      delete this._identity.address
+    }
     localStorage.setItem('user_identity', JSON.stringify(this.identity))
   }
 
