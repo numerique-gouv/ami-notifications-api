@@ -134,6 +134,11 @@ export class User {
     localStorage.setItem('user_identity', JSON.stringify(this.identity))
   }
 
+  clearScheduledNotificationCreatedKey() {
+    this._identity.scheduledNotificationsCreatedKeys = []
+    localStorage.setItem('user_identity', JSON.stringify(this.identity))
+  }
+
   async updateIdentity() {
     if (!this._identity.birthplace && this._pivot.birthplace) {
       try {

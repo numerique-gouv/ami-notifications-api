@@ -3,6 +3,7 @@
   import { goto } from '$app/navigation'
   import { Address } from '$lib/address'
   import { type AddressFromBAN, callBAN } from '$lib/addressesFromBAN'
+  import { buildAgenda } from '$lib/agenda'
   import { userStore } from '$lib/state/User.svelte'
 
   let addressFromUserStore: Address | undefined = $state()
@@ -101,6 +102,9 @@
     submittedAddress = selectedAddress
     if (userStore.connected) {
       userStore.connected.setAddress(selectedAddress)
+      // rebuild agenda to create new scheduled notifications
+      userStore.connected.clearScheduledNotificationCreatedKey()
+      await buildAgenda()
     }
     console.log(submittedAddress)
     await navigateToPreviousPage()
