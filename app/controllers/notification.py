@@ -4,6 +4,7 @@ from collections.abc import Sequence
 from typing import Annotated, Any, cast
 
 from advanced_alchemy.extensions.litestar import providers
+from firebase_admin import messaging
 from litestar import Controller, Response, WebSocket, get, patch, post, websocket
 from litestar.background_tasks import BackgroundTask
 from litestar.channels import ChannelsPlugin
@@ -127,13 +128,14 @@ class PushNotificationMixin:
         self,
         webpush: WebPush,
         subscriptions: list[WebPushSubscription | schemas.MobileAppSubscription],
-        json_data: dict[str, str],
+        notification_data: schemas.NotificationPush,
     ) -> None:
         """Push notifications to external endpoints. Runs as a background task."""
         for subscription in subscriptions:
             if isinstance(subscription, WebPushSubscription):
-                subscription = WebPushSubscription.model_validate(subscription)
-                message = webpush.get(message=json.dumps(json_data), subscription=subscription)
+                message = webpush.get(
+                    message=notification_data.model_dump_json(), subscription=subscription
+                )
                 headers = cast(dict[str, str], message.headers)
 
                 response = httpxClient.post(
@@ -144,8 +146,24 @@ class PushNotificationMixin:
                     continue
                 else:
                     response.raise_for_status()
-            # TODO: to be implemented
-            # elif isinstance(subscription_data, schemas.MobileAppSubscription):
+            else:
+                message = messaging.Message(
+                    # Send both a Notification (displayed automatically by the operating system)
+                    # even if the app is in the background...
+                    notification=messaging.Notification(
+                        title=notification_data.content_title, body=notification_data.content_body
+                    ),
+                    # ... and a full data dump, so the app can display more information if needed
+                    # once the application is displayed.
+                    data={
+                        k: str(v)
+                        for k, v in notification_data.model_dump(
+                            mode="json", exclude_none=True
+                        ).items()
+                    },
+                    token=subscription.fcm_token,
+                )
+                response = messaging.send(message)
 
 
 class NotAuthenticatedNotificationController(PushNotificationMixin, Controller):
@@ -178,11 +196,12 @@ class NotAuthenticatedNotificationController(PushNotificationMixin, Controller):
 
         # Extract subscription data before creating notification to avoid holding DB session
         subscriptions = [reg.typed_subscription for reg in user.registrations]
-        push_data = {
-            "title": data.content_title,
-            "message": data.content_body,
-            "sender": data.sender,
-        }
+        push_data = schemas.NotificationPush(
+            content_title=data.content_title,
+            content_body=data.content_body,
+            content_icon="fr-icon-mail-star-line",
+            sender=data.sender,
+        )
 
         notification: models.Notification = await notifications_service.create(
             models.Notification(**data.model_dump())
@@ -201,7 +220,7 @@ class NotAuthenticatedNotificationController(PushNotificationMixin, Controller):
             self._push_notification,
             webpush=webpush,
             subscriptions=subscriptions,
-            json_data=push_data,
+            notification_data=push_data,
         )
 
         response_data = schemas.NotificationResponse.model_validate(
@@ -288,19 +307,14 @@ class PartnerNotificationController(PushNotificationMixin, Controller):
             # don't push notification if not required or if user has never logged in on AMI
             subscriptions = []
 
-        push_data = {
-            "title": data.content_title,
-            "message": data.content_body,
-            "sender": current_partner.name,
-        }
-
         notification_data = data.model_dump()
         notification_data.pop("recipient_fc_hash")
         notification_data.pop("try_push")
         if notification_data["content_icon"] is None:
             notification_data["content_icon"] = current_partner.icon or "fr-icon-mail-star-line"
+        notification_data["sender"] = current_partner.name
         notification: models.Notification = await notifications_service.create(
-            models.Notification(user_id=user.id, sender=current_partner.name, **notification_data)
+            models.Notification(user_id=user.id, **notification_data)
         )
         channels.publish(  # type: ignore
             {
@@ -312,11 +326,18 @@ class PartnerNotificationController(PushNotificationMixin, Controller):
         )
 
         # Push notifications in background after DB transaction completes
+        push_data = schemas.NotificationPush(
+            content_title=notification_data["content_title"],
+            content_body=notification_data["content_body"],
+            content_icon=notification_data["content_icon"],
+            sender=notification_data["sender"],
+        )
+
         background_task = BackgroundTask(
             self._push_notification,
             webpush=webpush,
             subscriptions=subscriptions,
-            json_data=push_data,
+            notification_data=push_data,
         )
 
         response_data = schemas.NotificationResponse.model_validate(

@@ -120,6 +120,13 @@ class NotificationRead(BaseModel):
     read: bool
 
 
+class NotificationPush(BaseModel):
+    content_title: str
+    content_body: str
+    content_icon: str | None
+    sender: str
+
+
 class AdminNotificationCreate(BaseModel):
     user_id: uuid.UUID
     content_title: str = Field(min_length=1, alias="title")
