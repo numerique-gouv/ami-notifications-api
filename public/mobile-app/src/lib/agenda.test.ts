@@ -2,6 +2,7 @@ import { afterEach, describe, expect, test, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 import { Agenda, buildAgenda, Item } from '$lib/agenda'
 import * as holidaysMethods from '$lib/api-holidays'
+import * as scheduledNotificationsMethods from '$lib/scheduled-notifications'
 import { userStore } from '$lib/state/User.svelte'
 import { mockUserIdentity, mockUserInfo } from '$tests/utils'
 
@@ -271,6 +272,7 @@ describe('/agenda.ts', () => {
     afterEach(() => {
       localStorage.clear()
       userStore.connected = null
+      vi.resetAllMocks()
     })
     test('should organize items in now and next', async () => {
       // Given
@@ -493,6 +495,10 @@ describe('/agenda.ts', () => {
     test('should mark holidays as custom if zones match user zone', async () => {
       // Given
       vi.stubEnv('TZ', 'Europe/Paris')
+      vi.spyOn(
+        scheduledNotificationsMethods,
+        'createScheduledNotification'
+      ).mockResolvedValue(true)
       localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity))
       const holiday1 = {
         description: 'Holiday',
@@ -588,6 +594,129 @@ describe('/agenda.ts', () => {
           )
         )
       ).toBe(true)
+    })
+    test('should not create scheduled notifications for otv when user is not connected', async () => {
+      // Given
+      vi.stubEnv('TZ', 'Europe/Paris')
+      const spy = vi
+        .spyOn(scheduledNotificationsMethods, 'createScheduledNotification')
+        .mockResolvedValue(true)
+      const holiday = {
+        description: 'Holiday',
+        start_date: new Date('2026-02-06T23:00:00Z'),
+        end_date: new Date('2026-02-22T23:00:00Z'),
+        zones: 'Zone A',
+        emoji: 'foo',
+      }
+
+      // When
+      const agenda = new Agenda([holiday], new Date('2026-02-01T12:00:00Z'))
+
+      // Then
+      expect(agenda.now.length).equal(2)
+      expect(spy).not.toHaveBeenCalled()
+    })
+    test('should create scheduled notifications for otv when user is connected', async () => {
+      // Given
+      vi.stubEnv('TZ', 'Europe/Paris')
+      const spy = vi
+        .spyOn(scheduledNotificationsMethods, 'createScheduledNotification')
+        .mockResolvedValue(true)
+      localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity))
+      const holiday1 = {
+        description: 'Holiday',
+        start_date: new Date('2026-02-06T23:00:00Z'),
+        end_date: new Date('2026-02-22T23:00:00Z'),
+        zones: 'Zone A',
+        emoji: 'foo',
+      }
+      const holiday2 = {
+        description: 'Holiday',
+        start_date: new Date('2026-02-13T23:00:00Z'),
+        end_date: new Date('2026-03-01T23:00:00Z'),
+        zones: 'Zone C',
+        emoji: 'foo',
+      }
+      const holiday3 = {
+        description: 'Summer Holiday',
+        start_date: new Date('2026-07-01T23:00:00Z'),
+        end_date: new Date('2026-08-31T23:00:00Z'),
+        zones: '',
+        emoji: 'bar',
+      }
+
+      // When
+      await userStore.login(mockUserInfo)
+      const agenda = new Agenda(
+        [holiday1, holiday2, holiday3],
+        new Date('2026-02-01T12:00:00Z')
+      )
+
+      // Then
+      expect(agenda.now.length).equal(3)
+      expect(spy).toHaveBeenCalledTimes(2)
+      expect(spy).toHaveBeenCalledWith({
+        content_body:
+          "Demandez l'Opération Tranquillité Vacances afin de partir en vacances l’esprit (plus) tranquille.",
+        content_icon: 'fr-icon-megaphone-line',
+        content_title: 'Et si on veillait sur votre logement ? 👮',
+        reference: 'ami-otv:d-3w:2026:holiday',
+        scheduled_at: new Date('2026-01-23T23:00:00Z'),
+      })
+      expect(spy).toHaveBeenCalledWith({
+        content_body:
+          "Demandez l'Opération Tranquillité Vacances afin de partir en vacances l’esprit (plus) tranquille.",
+        content_icon: 'fr-icon-megaphone-line',
+        content_title: 'Et si on veillait sur votre logement ? 👮',
+        reference: 'ami-otv:d-3w:2026:summer-holiday',
+        scheduled_at: new Date('2026-06-10T23:00:00Z'),
+      })
+    })
+    test('should create scheduled notifications for otv when user is connected - scheduled notifications already sent', async () => {
+      // Given
+      vi.stubEnv('TZ', 'Europe/Paris')
+      const spy = vi
+        .spyOn(scheduledNotificationsMethods, 'createScheduledNotification')
+        .mockResolvedValue(true)
+      localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity))
+      const holiday1 = {
+        description: 'Holiday',
+        start_date: new Date('2026-02-06T23:00:00Z'),
+        end_date: new Date('2026-02-22T23:00:00Z'),
+        zones: 'Zone A',
+        emoji: 'foo',
+      }
+      const holiday2 = {
+        description: 'Holiday',
+        start_date: new Date('2026-02-13T23:00:00Z'),
+        end_date: new Date('2026-03-01T23:00:00Z'),
+        zones: 'Zone C',
+        emoji: 'foo',
+      }
+      const holiday3 = {
+        description: 'Summer Holiday',
+        start_date: new Date('2026-07-01T23:00:00Z'),
+        end_date: new Date('2026-08-31T23:00:00Z'),
+        zones: '',
+        emoji: 'bar',
+      }
+      await userStore.login(mockUserInfo)
+      userStore.connected?.addScheduledNotificationCreatedKey(
+        'ami-otv:d-3w:2026:holiday'
+      )
+      userStore.connected?.addScheduledNotificationCreatedKey(
+        'ami-otv:d-3w:2026:summer-holiday'
+      )
+
+      // When
+      const agenda = new Agenda(
+        [holiday1, holiday2, holiday3],
+        new Date('2026-02-01T12:00:00Z')
+      )
+
+      // Then
+      expect(agenda.now.length).equal(3)
+      expect(spy).toHaveBeenCalledTimes(0)
     })
   })
   describe('buildAgenda', () => {

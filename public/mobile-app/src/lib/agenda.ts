@@ -1,5 +1,6 @@
 import type { Holiday } from '$lib/api-holidays'
 import { retrieveHolidays } from '$lib/api-holidays'
+import { createScheduledNotification } from '$lib/scheduled-notifications'
 import { userStore } from '$lib/state/User.svelte'
 
 type Kind = 'holiday' | 'otv'
@@ -10,6 +11,17 @@ const capitalizeFirstLetter = (val: string) => {
 
 export const monthName = (date: Date) => {
   return capitalizeFirstLetter(date.toLocaleDateString('fr-FR', { month: 'long' }))
+}
+
+const slugify = (str: string): string => {
+  return str
+    .replace(/\s+/g, '-') // replace spaces with hyphens
+    .replace(/-+/g, '-') // remove consecutive hyphens
+    .trim() // trim leading or trailing whitespace
+    .normalize('NFKD') // split accented characters into their base characters and diacritical marks
+    .replace(/[\u0300-\u036f]/g, '') // remove all the accents, which happen to be all in the \u03xx UNICODE block.
+    .toLowerCase() // convert to lowercase
+    .replace(/[^a-z0-9 -]/g, '') // remove non-alphanumeric characters
 }
 
 const oneday_in_ms = 24 * 60 * 60 * 1000
@@ -235,6 +247,9 @@ export class Agenda {
     date: Date
   ): Item | null {
     const userZone = userStore.connected?.identity.address?.zone
+    const scheduledNotificationsCreatedKeys = new Set(
+      userStore.connected?.identity.scheduledNotificationsCreatedKeys
+    )
     const key = JSON.stringify({
       desc: holiday.description,
       year: holiday.start_date.getFullYear(),
@@ -255,15 +270,31 @@ export class Agenda {
       // exclude OTV of past holidays
       return null
     }
-    return new Item(
+    const startDate = new Date(holiday.start_date.getTime() - 3 * 7 * oneday_in_ms)
+    const item = new Item(
       'otv',
       'Opération Tranquillité Vacances 🏠',
       'Inscrivez-vous pour protéger votre domicile pendant votre absence',
       null,
-      new Date(holiday.start_date.getTime() - 3 * 7 * oneday_in_ms),
+      startDate,
       null,
       false
     )
+    if (userStore.connected) {
+      const scheduledNotificationKey = `ami-otv:d-3w:${holiday.start_date.getFullYear()}:${slugify(holiday.description)}`
+      if (!scheduledNotificationsCreatedKeys.has(scheduledNotificationKey)) {
+        createScheduledNotification({
+          content_title: 'Et si on veillait sur votre logement ? 👮',
+          content_body:
+            "Demandez l'Opération Tranquillité Vacances afin de partir en vacances l’esprit (plus) tranquille.",
+          content_icon: 'fr-icon-megaphone-line',
+          reference: scheduledNotificationKey,
+          scheduled_at: startDate,
+        })
+        userStore.connected.addScheduledNotificationCreatedKey(scheduledNotificationKey)
+      }
+    }
+    return item
   }
 
   get now(): Item[] {
