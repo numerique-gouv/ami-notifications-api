@@ -13,39 +13,35 @@ async def test_hash_from_csv() -> None:
 
     with test_csv_path.open(mode="r") as csv_file:
         csv_reader = csv.DictReader(csv_file, delimiter=",")
-        line_count = 0
         for row in csv_reader:
-            if line_count == 0:
-                line_count += 1
-            else:
-                given_name = row["prenoms"]
-                family_name = row["nomDeNaissance"]
-                birthdate = row["dateDeNaissance"]
-                gender = row["genre"]
-                birthplace = row["codePostalLieuDeNaissance"]
-                birthcountry = row["codePaysDeNaissance"]
-                response = build_fc_hash(
-                    given_name=given_name,
-                    family_name=family_name,
-                    birthdate=birthdate,
-                    gender=gender,
-                    birthplace=birthplace,
-                    birthcountry=birthcountry,
-                )
+            given_name = row["prenoms"]
+            family_name = row["nomDeNaissance"]
+            birthdate = row["dateDeNaissance"]
+            gender = row["genre"]
+            birthplace = row["codePostalLieuDeNaissance"]
+            birthcountry = row["codePaysDeNaissance"]
+            response = build_fc_hash(
+                given_name=given_name,
+                family_name=family_name,
+                birthdate=birthdate,
+                gender=gender,
+                birthplace=birthplace,
+                birthcountry=birthcountry,
+            )
 
-                results.append(  # type: ignore[reportUnknownMemberType]
-                    {
-                        "id": row["id"],
-                        "identifiant": row["identifiant"],
-                        "prenoms": row["prenoms"],
-                        "nomDeNaissance": row["nomDeNaissance"],
-                        "dateDeNaissance": row["dateDeNaissance"],
-                        "genre": row["genre"],
-                        "codePostalLieuDeNaissance": row["codePostalLieuDeNaissance"],
-                        "codePaysDeNaissance": row["codePaysDeNaissance"],
-                        "hash": response,
-                    }
-                )
+            results.append(  # type: ignore[reportUnknownMemberType]
+                {
+                    "id": row["id"],
+                    "identifiant": row["identifiant"],
+                    "prenoms": row["prenoms"],
+                    "nomDeNaissance": row["nomDeNaissance"],
+                    "dateDeNaissance": row["dateDeNaissance"],
+                    "genre": row["genre"],
+                    "codePostalLieuDeNaissance": row["codePostalLieuDeNaissance"],
+                    "codePaysDeNaissance": row["codePaysDeNaissance"],
+                    "hash": response,
+                }
+            )
 
     test_results_csv_path = BASE_DIR / "test_results.csv"
 
