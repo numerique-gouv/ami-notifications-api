@@ -5,7 +5,7 @@
   import { type AddressFromBAN, callBAN } from '$lib/addressesFromBAN'
   import { userStore } from '$lib/state/User.svelte'
 
-  let addressFromUserStore: Address | null = $state(null)
+  let addressFromUserStore: Address | undefined = $state()
   let timer: any
   let inputValue: string = $state('')
   let filteredAddresses: Address[] = $state([])
@@ -21,10 +21,7 @@
       goto('/')
       return
     } else {
-      addressFromUserStore =
-        userStore.connected.identity.address !== undefined
-          ? userStore.connected.identity.address
-          : null
+      addressFromUserStore = userStore.connected.identity.address
       if (addressFromUserStore) {
         inputValue = `${addressFromUserStore.name} ${addressFromUserStore.postcode} ${addressFromUserStore.city}`
         hasSubmittedAddress = true
