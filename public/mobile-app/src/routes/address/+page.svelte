@@ -13,7 +13,7 @@
   let addressApiHasError: boolean = $state(false)
   let addressInputHasError: boolean = $state(false)
   let selectedAddress: Address = $state<Address>(new Address())
-  let hasSubmittedAddress: boolean = $state(false)
+  let hasSelectedAddress: boolean = $state(false)
   let submittedAddress: Address = $state<Address>(new Address())
 
   onMount(async () => {
@@ -23,8 +23,8 @@
     } else {
       addressFromUserStore = userStore.connected.identity.address
       if (addressFromUserStore) {
-        inputValue = `${addressFromUserStore.name} ${addressFromUserStore.postcode} ${addressFromUserStore.city}`
-        hasSubmittedAddress = true
+        hasSelectedAddress = true
+        selectedAddress = addressFromUserStore
         submittedAddress = addressFromUserStore
       }
     }
@@ -85,6 +85,7 @@
       addressInput.focus()
     }
 
+    hasSelectedAddress = true
     disabledButton = false
   }
 
@@ -93,7 +94,6 @@
   }
 
   const submitAddress = async () => {
-    hasSubmittedAddress = true
     submittedAddress = selectedAddress
     if (userStore.connected) {
       userStore.connected.setAddress(selectedAddress)
@@ -102,7 +102,7 @@
   }
 
   const removeAddress = async () => {
-    hasSubmittedAddress = false
+    hasSelectedAddress = false
     delete userStore.connected?.identity?.address
     disabledButton = true
     selectedAddress = new Address()
@@ -179,11 +179,11 @@
       </div>
     {/if}
 
-    {#if hasSubmittedAddress}
+    {#if hasSelectedAddress}
       <div class="selected-address-wrapper" data-testid="selected-address-wrapper">
         <div class="left-wrapper">
           <span>Votre résidence principale</span>
-          <span><strong>{submittedAddress.label}</strong></span>
+          <span><strong>{selectedAddress.label}</strong></span>
         </div>
         <div class="right-wrapper">
           <button onclick={removeAddress} aria-label="Retirer l'adresse">

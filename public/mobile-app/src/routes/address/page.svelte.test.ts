@@ -78,7 +78,7 @@ describe('/+page.svelte', () => {
     })
   })
 
-  test('should enter address label in input when user selects a suggestion', async () => {
+  test('should enter address label in input and display selected address in page when user selects a suggestion', async () => {
     // Given
     render(Page)
     const addressInput = screen.getByTestId('address-input')
@@ -101,6 +101,11 @@ describe('/+page.svelte', () => {
     await waitFor(() => {
       const updatedAddressInput: HTMLInputElement = screen.getByTestId('address-input')
       expect(updatedAddressInput.value).equal('23 Rue des Aubépines 94310 Orly')
+
+      const addressWrapper = screen.getByTestId('selected-address-wrapper')
+      expect(addressWrapper).toHaveTextContent(
+        'Votre résidence principale 23 Rue des Aubépines 94310 Orly'
+      )
     })
   })
 
@@ -177,7 +182,7 @@ describe('/+page.svelte', () => {
     })
   })
 
-  test('should display address in input and in block when address is known', async () => {
+  test('should display address in block when address is known', async () => {
     // Given
     localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity))
     userStore.login(mockUserInfo)
