@@ -149,6 +149,7 @@ class PushNotificationMixin:
                 if response.status_code < 500:
                     # For example we could have "410: gone" if the registration has been revoked.
                     # TODO: delete this registration from the database
+                    logger.warning("Subscription is 'gone', obsolete, and should be removed")
                     continue
                 else:
                     response.raise_for_status()
