@@ -9,8 +9,8 @@ import { mockUserIdentity, mockUserInfo } from '$tests/utils'
 import Page from './+page.svelte'
 
 describe('/+page.svelte', () => {
-  beforeEach(() => {
-    userStore.login(mockUserInfo)
+  beforeEach(async () => {
+    await userStore.login(mockUserInfo)
 
     vi.mock('$lib/addressesFromBAN', () => {
       const addressesResultsFromBAN = [
@@ -111,7 +111,6 @@ describe('/+page.svelte', () => {
 
   test('should display selected address in page when user clicks on Save button, and remove it when clicking on the button', async () => {
     // Given
-    userStore.login(mockUserInfo)
     expect(userStore.connected).not.toBeNull()
     delete userStore.connected?.identity?.address
     const setAddressSpy = vi.spyOn(userStore.connected!, 'setAddress')
@@ -185,7 +184,7 @@ describe('/+page.svelte', () => {
   test('should display address in block when address is known', async () => {
     // Given
     localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity))
-    userStore.login(mockUserInfo)
+    await userStore.login(mockUserInfo) // Login again now that we updated the user identity
     expect(userStore.connected).not.toBeNull()
 
     // When

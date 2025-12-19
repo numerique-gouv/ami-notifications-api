@@ -15,8 +15,8 @@ import ConnectedHomepage from './ConnectedHomepage.svelte'
 let wss: WSType
 
 describe('/ConnectedHomepage.svelte', () => {
-  beforeEach(() => {
-    userStore.login(mockUserInfo)
+  beforeEach(async () => {
+    await userStore.login(mockUserInfo)
 
     vi.mock('$lib/api-particulier', () => ({
       getQuotientData: vi.fn().mockImplementation(() => {
@@ -166,7 +166,6 @@ describe('/ConnectedHomepage.svelte', () => {
 
   test('should display address block when user address is not known (null)', async () => {
     // Given
-    userStore.login(mockUserInfo)
     delete userStore.connected?.identity?.address
 
     // When
@@ -183,7 +182,6 @@ describe('/ConnectedHomepage.svelte', () => {
 
   test('should not display address block when user address is known', async () => {
     // Given
-    userStore.login(mockUserInfo)
     userStore.connected!.setAddress(mockAddress)
 
     // When
