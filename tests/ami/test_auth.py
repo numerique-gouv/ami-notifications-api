@@ -301,7 +301,7 @@ async def test_fc_get_userinfo(
     }
 
     assert user.fc_hash == "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060"
-    assert user.already_seen is True
+    assert user.last_logged_in is not None
 
     all_scheduled_notifications = (
         (await db_session.execute(select(ScheduledNotification))).scalars().all()
@@ -362,7 +362,7 @@ async def test_fc_get_userinfo_user_never_seen(
         birthplace=userinfo["birthplace"],
         birthcountry=userinfo["birthcountry"],
     )
-    user = User(fc_hash=fc_hash, already_seen=False)
+    user = User(fc_hash=fc_hash)
     db_session.add(user)
     await db_session.commit()
 
@@ -384,7 +384,7 @@ async def test_fc_get_userinfo_user_never_seen(
     }
 
     assert user.fc_hash == "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060"
-    assert user.already_seen is True
+    assert user.last_logged_in is not None
 
     all_scheduled_notifications = (
         (await db_session.execute(select(ScheduledNotification))).scalars().all()
@@ -404,7 +404,7 @@ async def test_fc_get_userinfo_user_never_seen(
     assert scheduled_notification.sent_at is None
 
     # again, if notification reference already exists
-    user.already_seen = False
+    user.last_logged_in = None
     db_session.add(user)
     await db_session.commit()
     response = test_client.get("/fc_userinfo", headers=auth)

@@ -1,4 +1,5 @@
 import base64
+import datetime
 import importlib
 import os
 import time
@@ -157,7 +158,7 @@ async def user(db_session: AsyncSession) -> User:
         birthplace="",
         birthcountry="",
     )
-    user_ = User(fc_hash=fc_hash)
+    user_ = User(fc_hash=fc_hash, last_logged_in=datetime.datetime.now(datetime.timezone.utc))
     db_session.add(user_)
     await db_session.commit()
     return user_
@@ -165,7 +166,7 @@ async def user(db_session: AsyncSession) -> User:
 
 @pytest.fixture
 async def never_seen_user(user: User, db_session: AsyncSession) -> User:
-    user.already_seen = False
+    user.last_logged_in = None
     db_session.add(user)
     await db_session.commit()
     return user
