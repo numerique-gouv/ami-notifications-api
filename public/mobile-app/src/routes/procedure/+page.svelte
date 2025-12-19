@@ -1,6 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte'
+  import { goto } from '$app/navigation'
   import { PUBLIC_OTV_URL } from '$env/static/public'
+  import { userStore } from '$lib/state/User.svelte'
 
   const otvUrl = PUBLIC_OTV_URL
   let itemDate: string = $state('')
@@ -9,6 +11,10 @@
     d instanceof Date && !Number.isNaN(d.getTime())
 
   onMount(async () => {
+    if (!userStore.connected) {
+      goto('/')
+    }
+
     const hash = window.location.hash
     const url = new URL(hash.substring(1), window.location.origin)
     const stringFromUrl = url.searchParams.get('date') || ''
