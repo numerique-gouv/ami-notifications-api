@@ -233,14 +233,14 @@ class PartnerNotificationController(Controller):
         )
         if user is None:
             user = await users_with_registrations_service.create(
-                models.User(fc_hash=data.recipient_fc_hash, already_seen=False)
+                models.User(fc_hash=data.recipient_fc_hash)
             )
             notification_send_status = False
         else:
-            notification_send_status = user.already_seen
+            notification_send_status = user.last_logged_in is not None
 
         try_push = True
-        if not data.try_push or not user.already_seen:
+        if not data.try_push or user.last_logged_in is None:
             # don't push notification if not required or if user has never logged in on AMI
             try_push = False
 

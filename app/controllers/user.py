@@ -1,3 +1,4 @@
+import datetime
 from typing import Any
 
 import jwt
@@ -53,12 +54,13 @@ class UserController(Controller):
 
         user: models.User | None = await users_service.get_one_or_none(fc_hash=fc_hash)
         create_welcome = False
+        now = datetime.datetime.now(datetime.timezone.utc)
         if user is None:
-            user = await users_service.create(models.User(fc_hash=fc_hash))
+            user = await users_service.create(models.User(fc_hash=fc_hash, last_logged_in=now))
             create_welcome = True
         else:
-            create_welcome = not user.already_seen
-            user = await users_service.update({"already_seen": True}, item_id=user.id)
+            create_welcome = user.last_logged_in is None
+            user = await users_service.update({"last_logged_in": now}, item_id=user.id)
         if create_welcome:
             await scheduled_notifications_service.create_welcome_scheduled_notification(user)
         result: dict[str, Any] = {

@@ -223,7 +223,7 @@ async def test_create_notification_user_does_not_exist(
     assert len(all_users) == 1
     user = all_users[0]
     assert user.fc_hash == "unknown_hash"
-    assert user.already_seen is False
+    assert user.last_logged_in is None
     all_notifications = (await db_session.execute(select(Notification))).scalars().all()
     assert len(all_notifications) == 1
     notification = all_notifications[0]
@@ -278,7 +278,7 @@ async def test_create_notification_user_never_seen(
     assert len(all_users) == 1
     user = all_users[0]
     assert user.fc_hash == never_seen_user.fc_hash
-    assert user.already_seen is False
+    assert user.last_logged_in is None
     all_notifications = (await db_session.execute(select(Notification))).scalars().all()
     assert len(all_notifications) == 1
     notification = all_notifications[0]

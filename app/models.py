@@ -23,7 +23,7 @@ class User(Base):
     __tablename__ = "ami_user"  # type: ignore
 
     fc_hash: Mapped[str] = mapped_column(unique=True)
-    already_seen: Mapped[bool] = mapped_column(default=True)
+    last_logged_in: Mapped[datetime.datetime | None] = mapped_column(DateTimeUTC(timezone=True))
 
     registrations: Mapped[list["Registration"]] = relationship(back_populates="user")
     notifications: Mapped[list["Notification"]] = relationship(back_populates="user")
