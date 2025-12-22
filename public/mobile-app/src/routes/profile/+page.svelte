@@ -19,8 +19,8 @@
     }
   })
 
-  const goToAddress = async () => {
-    goto('/#/address')
+  const goToEditAddress = async () => {
+    goto('/#/edit-address')
   }
 </script>
 
@@ -68,7 +68,7 @@
     {/if}
     <button type="button"
             class="fr-btn fr-icon-edit-line fr-btn--icon-left fr-btn--tertiary"
-            onclick={goToAddress}
+            onclick={goToEditAddress}
             data-testid="address-button"
     >
       {#if !address}

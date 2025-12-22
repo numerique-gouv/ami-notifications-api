@@ -72,7 +72,7 @@ describe('/+page.svelte', () => {
     // Then
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1)
-      expect(spy).toHaveBeenNthCalledWith(1, '/#/address')
+      expect(spy).toHaveBeenNthCalledWith(1, '/#/edit-address')
     })
   })
 })
