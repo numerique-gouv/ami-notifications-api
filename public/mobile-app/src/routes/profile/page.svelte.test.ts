@@ -58,6 +58,24 @@ describe('/+page.svelte', () => {
     })
   })
 
+  test('should navigate to preferred username page when user clicks on "Modifier" button', async () => {
+    // Given
+    const spy = vi
+      .spyOn(navigationMethods, 'goto')
+      .mockImplementation(() => Promise.resolve())
+    render(Page)
+
+    // When
+    const button = screen.getByTestId('preferred-username-button')
+    await fireEvent.click(button)
+
+    // Then
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy).toHaveBeenNthCalledWith(1, '/#/edit-preferred-username')
+    })
+  })
+
   test('should navigate to Address page when user clicks on "Définir une adresse" button', async () => {
     // Given
     const spy = vi
