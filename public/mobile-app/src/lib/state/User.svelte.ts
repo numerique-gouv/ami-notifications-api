@@ -123,6 +123,13 @@ export class User {
     localStorage.setItem('user_identity', JSON.stringify(this.identity))
   }
 
+  setEmail(email: string) {
+    if (email) {
+      this._identity.email = email
+      localStorage.setItem('user_identity', JSON.stringify(this.identity))
+    }
+  }
+
   setAddress(address: AddressType | undefined) {
     if (address) {
       this._identity.address = address

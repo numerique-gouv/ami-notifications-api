@@ -102,12 +102,14 @@ describe('/lib/state/User.svelte.ts', () => {
     await userStore.login(mockUserInfo)
     expect(userStore.connected).not.toBeNull()
     userStore.connected!.setPreferredUsername('Dupont')
+    userStore.connected!.setEmail('foo@bar.com')
     userStore.connected!.setAddress(otherAddress)
 
     // Then
     expect(userStore.connected?.identity?.address?.city).toEqual('some random city')
     const parsed = JSON.parse(localStorage.getItem('user_identity') || '{}')
     expect(parsed?.preferred_username).toEqual('Dupont')
+    expect(parsed?.email).toEqual('foo@bar.com')
     expect(parsed?.address._city).toEqual('some random city')
   })
 
