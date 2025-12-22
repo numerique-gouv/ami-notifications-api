@@ -30,7 +30,7 @@ export const mockUserInfo = {
   iss: 'https://fcp-low.sbx.dev-franceconnect.fr/api/v2',
 }
 
-const mockUserInfoWithPreferredUserName = {
+export const mockUserInfoWithPreferredUsername = {
   sub: 'fake sub',
   given_name: 'Pierre',
   given_name_array: ['Pierre'],
@@ -68,4 +68,4 @@ export const mockUserIdentity = {
 }
 
 export const mockUser = new User(mockUserInfo)
-export const mockUserWithPreferredUsername = new User(mockUserInfoWithPreferredUserName)
+export const mockUserWithPreferredUsername = new User(mockUserInfoWithPreferredUsername)
