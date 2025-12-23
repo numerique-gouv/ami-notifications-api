@@ -6,7 +6,7 @@ from advanced_alchemy.extensions.litestar.providers import create_service_provid
 from firebase_admin import messaging
 from firebase_admin.messaging import UnregisteredError
 from litestar.channels import ChannelsPlugin
-from webpush import WebPush, WebPushSubscription
+from webpush import WebPush
 
 from app import models, schemas
 from app.database import alchemy_config
@@ -60,17 +60,15 @@ class NotificationService(service.SQLAlchemyAsyncRepositoryService[models.Notifi
                 return
 
             notification_data = schemas.NotificationPush(
-                content_title=notification.content_title,
-                content_body=notification.content_body,
+                title=notification.content_title,
+                message=notification.content_body,
                 content_icon=notification.content_icon,
                 sender=notification.sender,
             )
             registrations = await registrations_service.list(user_id=notification.user_id)
             for registration in registrations:
                 if isinstance(registration.typed_subscription, schemas.WebPushSubscription):
-                    subscription = WebPushSubscription.model_validate(
-                        registration.typed_subscription
-                    )
+                    subscription = registration.typed_subscription
                     message = webpush.get(
                         message=notification_data.model_dump_json(), subscription=subscription
                     )
@@ -94,8 +92,8 @@ class NotificationService(service.SQLAlchemyAsyncRepositoryService[models.Notifi
                         # Send both a Notification (displayed automatically by the operating system)
                         # even if the app is in the background...
                         notification=messaging.Notification(
-                            title=notification_data.content_title,
-                            body=notification_data.content_body,
+                            title=notification_data.title,
+                            body=notification_data.message,
                         ),
                         # ... and a full data dump, so the app can display more information if needed
                         # once the application is displayed.
