@@ -67,12 +67,6 @@
         Commencer la démarche
       </a>
     </div>
-    <div class="procedure-add-agenda">
-      <button>
-        <span class="fr-icon-calendar-event-fill" aria-hidden="true"></span>
-        Ajouter à mon agenda
-      </button>
-    </div>
   </div>
 </div>
 
@@ -145,18 +139,6 @@
           height: 100%;
           text-decoration: none;
           --underline-img: none;
-        }
-      }
-      .procedure-add-agenda {
-        display: flex;
-        justify-content: center;
-        height: 2.5rem;
-        .fr-icon-calendar-event-fill {
-          padding-right: .5rem;
-          &::before {
-            width: 1rem;
-            color: var(--blue-france-sun-113-625);
-          }
         }
       }
     }
