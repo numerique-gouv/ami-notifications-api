@@ -121,8 +121,8 @@ class NotificationRead(BaseModel):
 
 
 class NotificationPush(BaseModel):
-    content_title: str
-    content_body: str
+    title: str
+    message: str
     content_icon: str | None
     sender: str
 
