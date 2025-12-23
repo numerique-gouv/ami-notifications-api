@@ -43,11 +43,6 @@ describe('/+page.svelte', () => {
 
     // Then
     await waitFor(async () => {
-      const saveSettingsButton = screen.getByTestId('save-settings-button')
-      await fireEvent.click(saveSettingsButton)
-    })
-
-    await waitFor(async () => {
       expect(spy).toHaveBeenCalled()
       expect(window.localStorage.getItem('registration_id')).toEqual(
         'fake-registration-id'
@@ -69,11 +64,6 @@ describe('/+page.svelte', () => {
 
     // Then
     await waitFor(async () => {
-      const saveSettingsButton = screen.getByTestId('save-settings-button')
-      await fireEvent.click(saveSettingsButton)
-    })
-
-    await waitFor(async () => {
       expect(spy).toHaveBeenCalledWith('fake-registration-id')
       expect(window.localStorage.getItem('registration_id')).toEqual('')
       expect(window.localStorage.getItem('notifications_enabled')).toEqual('false')
@@ -88,6 +78,20 @@ describe('/+page.svelte', () => {
     render(Page)
     const backButton = screen.getByTestId('back-button')
     await fireEvent.click(backButton)
+
+    // Then
+    expect(backSpy).toHaveBeenCalledTimes(1)
+    backSpy.mockRestore()
+  })
+
+  test('should navigate to previous page when user clicks on Close button', async () => {
+    // Given
+    const backSpy = vi.spyOn(window.history, 'back').mockImplementation(() => {})
+
+    // When
+    render(Page)
+    const closeButton = screen.getByTestId('close-button')
+    await fireEvent.click(closeButton)
 
     // Then
     expect(backSpy).toHaveBeenCalledTimes(1)
