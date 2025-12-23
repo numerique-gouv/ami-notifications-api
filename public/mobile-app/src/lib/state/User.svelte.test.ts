@@ -93,6 +93,69 @@ describe('/lib/state/User.svelte.ts', () => {
     expect(userStore.connected?.identity?.address instanceof Address).toBe(true)
   })
 
+  test('should properly set an email on the identity and save the identity to localStorage', async () => {
+    // Given
+    localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity))
+
+    // When
+    await userStore.login(mockUserInfo)
+    expect(userStore.connected).not.toBeNull()
+    userStore.connected!.setEmail('foo@bar.com')
+
+    // Then
+    expect(userStore.connected?.identity?.email).toEqual('foo@bar.com')
+    const parsed = JSON.parse(localStorage.getItem('user_identity') || '{}')
+    expect(parsed?.email).toEqual('foo@bar.com')
+  })
+
+  test('should not allow setting an empty email on the identity', async () => {
+    // Given
+    localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity))
+
+    // When
+    await userStore.login(mockUserInfo)
+    expect(userStore.connected).not.toBeNull()
+    expect(userStore.connected?.identity?.email).toEqual('wossewodda-3728@yopmail.com')
+    userStore.connected!.setEmail('')
+
+    // Then
+    expect(userStore.connected?.identity?.email).toEqual('wossewodda-3728@yopmail.com')
+    const parsed = JSON.parse(localStorage.getItem('user_identity') || '{}')
+    expect(parsed?.email).toEqual('wossewodda-3728@yopmail.com')
+  })
+
+  test('should properly set a preferred username on the identity and save the identity to localStorage', async () => {
+    // Given
+    localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity))
+
+    // When
+    await userStore.login(mockUserInfo)
+    expect(userStore.connected).not.toBeNull()
+    userStore.connected!.setPreferredUsername('Dupont')
+
+    // Then
+    expect(userStore.connected?.identity?.preferred_username).toEqual('Dupont')
+    const parsed = JSON.parse(localStorage.getItem('user_identity') || '{}')
+    expect(parsed?.preferred_username).toEqual('Dupont')
+  })
+
+  test('should properly set an empty preferred username on the identity and save the identity to localStorage', async () => {
+    // Given
+    localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity))
+
+    // When
+    await userStore.login(mockUserInfo)
+    expect(userStore.connected).not.toBeNull()
+    userStore.connected!.setPreferredUsername('Dupont')
+    expect(userStore.connected?.identity?.preferred_username).toEqual('Dupont')
+    userStore.connected!.setPreferredUsername('')
+
+    // Then
+    expect(userStore.connected?.identity?.preferred_username).toBeUndefined()
+    const parsed = JSON.parse(localStorage.getItem('user_identity') || '{}')
+    expect(parsed?.preferred_username).toBeUndefined()
+  })
+
   test('should properly set an address on the identity and save the identity to localStorage', async () => {
     // Given
     localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity))
@@ -101,15 +164,11 @@ describe('/lib/state/User.svelte.ts', () => {
     // When
     await userStore.login(mockUserInfo)
     expect(userStore.connected).not.toBeNull()
-    userStore.connected!.setPreferredUsername('Dupont')
-    userStore.connected!.setEmail('foo@bar.com')
     userStore.connected!.setAddress(otherAddress)
 
     // Then
     expect(userStore.connected?.identity?.address?.city).toEqual('some random city')
     const parsed = JSON.parse(localStorage.getItem('user_identity') || '{}')
-    expect(parsed?.preferred_username).toEqual('Dupont')
-    expect(parsed?.email).toEqual('foo@bar.com')
     expect(parsed?.address._city).toEqual('some random city')
   })
 
