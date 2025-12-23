@@ -264,6 +264,16 @@ describe('/+page.svelte', () => {
     })
   })
 
+  test('should import BackButton component', async () => {
+    // When
+    render(Page)
+    const backButton = screen.getByTestId('back-button')
+
+    // Then
+    expect(backButton).toBeInTheDocument()
+    expect(screen.getByText('Où habitez-vous ?')).toBeInTheDocument()
+  })
+
   test('should navigate to previous page when user clicks on Cancel button', async () => {
     // Given
     const backSpy = vi.spyOn(window.history, 'back').mockImplementation(() => {})

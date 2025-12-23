@@ -4,6 +4,7 @@
   import { Address } from '$lib/address'
   import { type AddressFromBAN, callBAN } from '$lib/addressesFromBAN'
   import { buildAgenda } from '$lib/agenda'
+  import BackButton from '$lib/components/BackButton.svelte'
   import { userStore } from '$lib/state/User.svelte'
 
   let addressFromUserStore: Address | undefined = $state()
@@ -125,19 +126,7 @@
 </script>
 
 <div class="address-form-page">
-  <nav class="fr-p-4v fr-pt-6v">
-    <div class="back-link fr-mb-2v">
-      <button onclick={navigateToPreviousPage}
-              title="Retour à la page d'accueil"
-              aria-label="Retour à la page d'accueil"
-      >
-        <span aria-hidden="true" class="fr-icon-arrow-left-line"></span>
-      </button>
-    </div>
-    <div class="title">
-      <h2 class="fr-mb-0">Où habitez-vous&nbsp;?</h2>
-    </div>
-  </nav>
+  <BackButton title="Où habitez-vous&nbsp;?" />
 
   <div class="address-content-container">
     <p>L'adresse de votre <strong>résidence principale</strong> permet de <strong>faciliter la communication</strong> avec les administrations.</p>
@@ -236,21 +225,6 @@
 
 <style>
   .address-form-page {
-    nav {
-      .back-link {
-        color: var(--text-active-blue-france);
-        button {
-          padding: 0;
-        }
-      }
-      .title {
-        display: flex;
-        h2 {
-          flex-grow: 1;
-        }
-      }
-    }
-
     .address-content-container {
       padding: 1rem;
 
