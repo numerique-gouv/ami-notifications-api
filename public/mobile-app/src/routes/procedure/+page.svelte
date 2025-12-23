@@ -57,7 +57,7 @@
       <p class="title">Comment ça fonctionne ?</p>
       <p>Pendant toute absence prolongée de votre domicile, vous pouvez vous inscrire à l'<b>opération tranquillité vacances</b>.</p>
       <p><b>Les services de police ou de gendarmerie se chargent alors de surveiller votre logement.</b> Des patrouilles sont organisées pour passer aux abords de votre domicile.</p>
-      <p><b>Vous serez prévenu</b> en cas d'anomalies.</p>
+      <p><b>Vous serez prévenu</b> en cas d'anomalies (dégradations, cambriolage...).</p>
     </div>
   </div>
 
