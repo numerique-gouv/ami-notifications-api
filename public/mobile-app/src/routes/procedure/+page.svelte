@@ -129,7 +129,7 @@
       transform: translateX(-50%);
       padding: 1rem;
       width: 100%;
-      background-color: var(--blue-france-975-sun-113);
+      background-color: var(--grey-1000-50);
 
       .procedure-start {
         height: 3rem;
