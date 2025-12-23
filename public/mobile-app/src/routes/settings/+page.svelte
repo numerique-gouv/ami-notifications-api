@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import { goto } from '$app/navigation'
+  import BackButton from '$lib/components/BackButton.svelte'
   import { disableNotifications, enableNotifications } from '$lib/notifications'
   import type { Registration } from '$lib/registration'
   import { userStore } from '$lib/state/User.svelte'
@@ -47,20 +48,7 @@
 </script>
 
 <div class="settings-page">
-  <nav>
-    <div class="back-link">
-      <button onclick={navigateToPreviousPage}
-              title="Retour à la page précédente"
-              aria-label="Retour à la page précédente"
-              data-testid="back-button"
-      >
-        <span aria-hidden="true" class="fr-icon-arrow-left-line"></span>
-      </button>
-    </div>
-    <div class="title">
-      <h2>Paramètres</h2>
-    </div>
-  </nav>
+  <BackButton title="Paramètres" />
 
   <div class="settings-content-container">
     <div class="fr-toggle">
@@ -91,24 +79,6 @@
 
 <style>
   .settings-page {
-    nav {
-      padding: 1.5rem 1rem;
-      .back-link {
-        margin-bottom: .5rem;
-        color: var(--text-active-blue-france);
-        button {
-          padding: 0;
-        }
-      }
-      .title {
-        display: flex;
-        h2 {
-          flex-grow: 1;
-          margin-bottom: 0;
-        }
-      }
-    }
-
     .settings-content-container {
       padding: 1rem;
 
