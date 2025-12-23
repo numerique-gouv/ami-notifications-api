@@ -27,9 +27,15 @@
 </div>
 
 <style>
-.fr-card__title {
-  align-items: center;
-  display: flex;
-  flex-direction: row;
-}
+  .fr-card__title {
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+  }
+
+  .fr-card__desc {
+    margin-top: 0;
+  }
 </style>

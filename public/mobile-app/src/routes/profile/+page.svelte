@@ -46,7 +46,7 @@
 {#if identity}
 <div class="fr-m-4v profile-content-container" data-testid="profile">
   <Card id="profile-identity" iconHref="/remixicons/account-circle-line.svg" title="Mon identité">
-    <p>Vous êtes&nbsp;:<br />
+    <p class="paragraph-wrapper">Vous êtes&nbsp;:<br />
     <b>{identity.given_name} {identity.preferred_username || identity.family_name},</b><br />
     né{#if identity.gender == "female"}e{/if} {#if identity.preferred_username}<b>{identity.family_name}</b>{/if}
     le <b>{identity.birthdate}</b>
@@ -64,7 +64,7 @@
   </Card>
 
   <Card iconHref="/remixicons/mail-line.svg" title="Contact">
-    <p>Pour vous contacter&nbsp;:<br />
+    <p class="paragraph-wrapper">Pour vous contacter&nbsp;:<br />
     <b>{identity.email}</b><br />
     <span class="fr-text--xs">Informations fournies par FranceConnect</span><br />
     </p>
@@ -80,7 +80,7 @@
 
   <Card iconHref="/remixicons/map-pin-user-line.svg" title="Mon adresse">
     {#if address}
-      <p>
+      <p class="paragraph-wrapper">
         Votre résidence principale :<br />
         <b>{address.name}</b><br />
         <b>{address.postcode} {address.city}</b><br />
@@ -116,5 +116,9 @@
         flex-grow: 1;
       }
     }
+  }
+
+  .paragraph-wrapper {
+    margin-bottom: 1rem;
   }
 </style>
