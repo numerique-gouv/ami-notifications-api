@@ -253,12 +253,13 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            width: 1rem;
-            height: 1rem;
+            width: 18px;
+            height: 18px;
             border-radius: .5rem;
             background-color: #E1000F;
             color: white;
-            font-size: .75rem;
+            font-size: 10px;
+            font-weight: 700;
 
             &[data-content="0"] {
               display: none;
