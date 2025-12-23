@@ -1,13 +1,9 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import { goto } from '$app/navigation'
-  import { Address } from '$lib/address'
-  import { type AddressFromBAN, callBAN } from '$lib/addressesFromBAN'
-  import { buildAgenda } from '$lib/agenda'
   import { userStore } from '$lib/state/User.svelte'
 
   let inputValue: string = $state('')
-  let disabledButton: boolean = $state(true)
 
   onMount(async () => {
     if (!userStore.connected) {
