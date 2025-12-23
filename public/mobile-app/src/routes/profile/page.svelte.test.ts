@@ -111,4 +111,14 @@ describe('/+page.svelte', () => {
       expect(spy).toHaveBeenNthCalledWith(1, '/#/edit-address')
     })
   })
+
+  test('should import BackButton component', async () => {
+    // When
+    render(Page)
+    const backButton = screen.getByTestId('back-button')
+
+    // Then
+    expect(backButton).toBeInTheDocument()
+    expect(screen.getByText('Mon profil')).toBeInTheDocument()
+  })
 })
