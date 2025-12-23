@@ -7,7 +7,6 @@
 
   let registration: Registration | null = $state(null)
   let isChecked = $state(false)
-  let disabledButton: boolean = $state(true)
 
   onMount(async () => {
     if (!userStore.connected) {
@@ -19,10 +18,6 @@
 
   const navigateToPreviousPage = async () => {
     window.history.back()
-  }
-
-  const enableButton = async () => {
-    disabledButton = false
   }
 
   const saveSettings = async () => {
@@ -74,7 +69,7 @@
              id="toggle"
              aria-describedby="toggle-messages toggle-hint"
              bind:checked={isChecked}
-             onchange={enableButton}
+             onchange={saveSettings}
              data-testid="toggle-input"
       >
       <label class="fr-toggle__label" for="toggle">
@@ -83,13 +78,14 @@
     </div>
   </div>
 
-  <button class="fr-btn save-settings-button"
+  <button class="fr-btn fr-btn--secondary fr-btn--lg save-settings-button"
           type="button"
-          disabled="{disabledButton}"
-          onclick={saveSettings}
-          data-testid="save-settings-button"
+          onclick={navigateToPreviousPage}
+          title="Retour à la page précédente"
+          aria-label="Retour à la page précédente"
+          data-testid="close-button"
   >
-    Enregistrer mes préférences
+    Fermer
   </button>
 </div>
 
