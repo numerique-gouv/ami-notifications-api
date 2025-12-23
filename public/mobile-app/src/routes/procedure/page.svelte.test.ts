@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/svelte'
+import { fireEvent, render, screen, waitFor } from '@testing-library/svelte'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 import * as navigationMethods from '$app/navigation'
 import { userStore } from '$lib/state/User.svelte'
@@ -56,5 +56,19 @@ describe('/+page.svelte', () => {
 
     // Then
     expect(screen.getByTestId('item-date')).toHaveTextContent('À partir du')
+  })
+
+  test('should navigate to previous page when user clicks on Back button', async () => {
+    // Given
+    const backSpy = vi.spyOn(window.history, 'back').mockImplementation(() => {})
+
+    // When
+    render(Page)
+    const backButton = screen.getByTestId('back-button')
+    await fireEvent.click(backButton)
+
+    // Then
+    expect(backSpy).toHaveBeenCalledTimes(1)
+    backSpy.mockRestore()
   })
 })
