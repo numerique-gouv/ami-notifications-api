@@ -116,13 +116,13 @@
           &:before {
             display: flex;
             position: absolute;
-            right: 0;
+            right: -2rem;
             margin: 0;
           }
           &:after {
             position: absolute;
             left: auto !important;
-            right: 1rem !important;
+            right: -1rem !important;
           }
         }
       }
