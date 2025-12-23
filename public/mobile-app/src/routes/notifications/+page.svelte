@@ -28,16 +28,24 @@
     let result = await readNotification(notificationId)
   }
 
+  const navigateToPreviousPage = async () => {
+    window.history.back()
+  }
+
   const goToSettings = () => {
     goto('/#/settings')
   }
 </script>
 
 <nav>
-  <div class="back-link">
-    <a href="/" title="Retour à la page d'accueil" aria-label="Retour à la page d'accueil">
+  <div class="back-button-wrapper">
+    <button onclick={navigateToPreviousPage}
+            title="Retour à la page précédente"
+            aria-label="Retour à la page précédente"
+            data-testid="back-button"
+    >
       <span aria-hidden="true" class="fr-icon-arrow-left-line"></span>
-    </a>
+    </button>
   </div>
   <div class="title">
     <h2>Notifications</h2>
@@ -81,12 +89,11 @@
 <style>
   nav {
     padding: 1.5rem 1rem;
-    .back-link {
+    .back-button-wrapper {
       margin-bottom: .5rem;
       color: var(--text-active-blue-france);
-      a {
-        text-decoration: none;
-        --underline-img: none;
+      button {
+        padding: 0;
       }
     }
     .title {
