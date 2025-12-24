@@ -138,7 +138,7 @@
             <label class="fr-label" for="address-input">
               Adresse
             </label>
-            <span class="fr-hint-text">Par exemple&nbsp;: 23 rue des aubépines, Poitiers</span>
+            <span class="fr-hint-text">Exemple&nbsp;: 23 rue des Aubépines, Poitiers</span>
             <input class="fr-input"
                    id="address-input"
                    type="text"
@@ -181,7 +181,7 @@
     {#if addressApiHasError}
       <div class="fr-alert fr-alert--warning" data-testid="address-warning">
         <h3 class="fr-alert__title">Récupération de l'adresse indisponible</h3>
-        <p>Notre outil est momentanément indisponible. Nous ne pouvons pas trouver votre adresse. Merci de réessayer plus tard.</p>
+        <p>Nous rencontrons des difficultés à trouver votre adresse dans notre répertoire. Merci de réessayer plus tard.</p>
       </div>
     {/if}
 

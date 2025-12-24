@@ -259,7 +259,7 @@ describe('/+page.svelte', () => {
       const addressWarning = screen.getByTestId('address-warning')
       expect(addressWarning).toHaveTextContent("Récupération de l'adresse indisponible")
       expect(addressWarning).toHaveTextContent(
-        'Notre outil est momentanément indisponible. Nous ne pouvons pas trouver votre adresse. Merci de réessayer plus tard.'
+        'Nous rencontrons des difficultés à trouver votre adresse dans notre répertoire. Merci de réessayer plus tard.'
       )
     })
   })

@@ -159,7 +159,7 @@ describe('/ConnectedHomepage.svelte', () => {
     await waitFor(() => {
       const addressBlock = container.querySelector('.address-container')
       expect(addressBlock).toHaveTextContent(
-        'Gagnez du temps en renseignant votre adresse une seule fois !'
+        "Renseignez votre adresse sur l'application pour faciliter vos échanges !"
       )
     })
   })
@@ -175,7 +175,7 @@ describe('/ConnectedHomepage.svelte', () => {
     await waitFor(() => {
       const addressBlock = container.querySelector('.address-container')
       expect(addressBlock).toHaveTextContent(
-        'Gagnez du temps en renseignant votre adresse une seule fois !'
+        "Renseignez votre adresse sur l'application pour faciliter vos échanges !"
       )
     })
   })

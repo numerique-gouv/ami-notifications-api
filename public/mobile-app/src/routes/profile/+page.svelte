@@ -73,7 +73,7 @@
   <Card iconHref="/remixicons/map-pin-user-line.svg" title="Mon adresse">
     {#if address}
       <p class="paragraph-wrapper">
-        Votre résidence principale :<br />
+        Votre résidence principale<br />
         <b>{address.name}</b><br />
         <b>{address.postcode} {address.city}</b><br />
       </p>
