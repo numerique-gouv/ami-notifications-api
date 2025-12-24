@@ -112,7 +112,7 @@ describe('/+page.svelte', () => {
     })
   })
 
-  test('should import BackButton component', async () => {
+  test('should import NavWithBackButton component', async () => {
     // When
     render(Page)
     const backButton = screen.getByTestId('back-button')

@@ -1,8 +1,8 @@
 import { fireEvent, render, screen } from '@testing-library/svelte'
 import { describe, expect, test, vi } from 'vitest'
-import Page from './BackButton.svelte'
+import Page from './NavWithBackButton.svelte'
 
-describe('/+BackButton.svelte', () => {
+describe('/+NavWithBackButton.svelte', () => {
   test('should navigate to previous page when user clicks on Back button', async () => {
     // Given
     const backSpy = vi.spyOn(window.history, 'back').mockImplementation(() => {})

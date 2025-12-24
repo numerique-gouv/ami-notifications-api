@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import { goto } from '$app/navigation'
-  import BackButton from '$lib/components/BackButton.svelte'
+  import NavWithBackButton from '$lib/components/NavWithBackButton.svelte'
   import { disableNotifications, enableNotifications } from '$lib/notifications'
   import type { Registration } from '$lib/registration'
   import { userStore } from '$lib/state/User.svelte'
@@ -48,7 +48,7 @@
 </script>
 
 <div class="settings-page">
-  <BackButton title="Paramètres" />
+  <NavWithBackButton title="Paramètres" />
 
   <div class="settings-content-container">
     <div class="fr-toggle">
