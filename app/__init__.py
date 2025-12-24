@@ -91,7 +91,7 @@ async def _dev_utils_recipient_fc_hash(
 
 
 @get(path="/dev-utils/review-apps")
-async def _dev_utils_review_apps() -> list[dict[str, str]]:
+async def _dev_utils_review_apps() -> list[dict[str, str | int]]:
     """Returns a list of tuples: (review app url, pull request title)."""
     response = httpxClient.get(
         "https://api.github.com/repos/numerique-gouv/ami-notifications-api/pulls",
@@ -101,8 +101,18 @@ async def _dev_utils_review_apps() -> list[dict[str, str]]:
             "X-GitHub-Api-Version": "2022-11-28",
         },
     )
+    staging_app = {
+        "url": "https://ami-back-staging.osc-fr1.scalingo.io/",
+        "title": "Staging",
+        "number": 0,
+        "description": "Staging",
+    }
+    if response.status_code >= 400:
+        # Possibly rate limited
+        return [staging_app]
+
     json_data = response.json()
-    return [
+    review_apps = [
         {
             "url": f"https://ami-back-staging-pr{review_app['number']}.osc-fr1.scalingo.io/",
             "title": f"PR{review_app['number']}: {review_app['title']}",
@@ -111,6 +121,7 @@ async def _dev_utils_review_apps() -> list[dict[str, str]]:
         }
         for review_app in json_data
     ]
+    return [staging_app] + review_apps
 
 
 @get(path="/dev-utils/health/db-pool")
