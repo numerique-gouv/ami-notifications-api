@@ -66,6 +66,7 @@ class UserController(Controller):
         result: dict[str, Any] = {
             "user_id": user.id,
             "user_data": userinfo_jws,
+            "user_first_login": create_welcome,
         }
 
         return jwt_cookie_auth.login(

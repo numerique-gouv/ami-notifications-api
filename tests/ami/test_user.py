@@ -45,6 +45,7 @@ async def test_fc_get_userinfo(
     assert json.loads(response.text) == {
         "user_id": str(user.id),
         "user_data": fake_userinfo_token,
+        "user_first_login": True,
     }
 
     assert user.fc_hash == "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060"
@@ -73,6 +74,7 @@ async def test_fc_get_userinfo(
     assert json.loads(response.text) == {
         "user_id": str(user.id),
         "user_data": fake_userinfo_token,
+        "user_first_login": False,
     }
     assert "authorization" in response.headers
     assert "set-cookie" in response.headers
@@ -128,6 +130,7 @@ async def test_fc_get_userinfo_user_never_seen(
     assert json.loads(response.text) == {
         "user_id": str(user.id),
         "user_data": fake_userinfo_token,
+        "user_first_login": True,
     }
 
     assert user.fc_hash == "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060"
@@ -156,6 +159,11 @@ async def test_fc_get_userinfo_user_never_seen(
     await db_session.commit()
     response = test_client.get("/fc_userinfo", headers=auth)
     assert response.status_code == 200
+    assert json.loads(response.text) == {
+        "user_id": str(user.id),
+        "user_data": fake_userinfo_token,
+        "user_first_login": True,
+    }
     all_scheduled_notifications = (
         (await db_session.execute(select(ScheduledNotification))).scalars().all()
     )
