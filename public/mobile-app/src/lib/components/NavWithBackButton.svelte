@@ -19,9 +19,11 @@
       <span aria-hidden="true" class="fr-icon-arrow-left-line"></span>
     </button>
   </div>
-  <div class="title">
-    <h2>{title}</h2>
-  </div>
+  {#if title}
+    <div class="title">
+      <h2>{title}</h2>
+    </div>
+  {/if}
 </nav>
 
 <style>
