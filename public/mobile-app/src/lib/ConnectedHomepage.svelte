@@ -118,7 +118,7 @@
             <div class="fr-tile__content">
               <img class="address-icon" src="/remixicons/house.svg" alt="Icône adresse" />
               <h3 class="fr-tile__title">
-                <a href="/#/address"><b>Gagnez du temps</b> en <b>renseignant votre adresse</b> une seule fois !</a>
+                <a href="/#/edit-address"><b>Renseignez votre adresse sur l'application pour faciliter vos échanges !</b></a>
               </h3>
             </div>
           </div>
@@ -170,7 +170,7 @@
           <img class="address-icon" src="/remixicons/tracking.svg" alt="Icône de suivi" />
         </div>
         <div class="no-requests--title">
-          Retrouvez et suivez vos démarches ici
+          Suivez toutes vos démarches ici.
         </div>
       </div>
     </div>
