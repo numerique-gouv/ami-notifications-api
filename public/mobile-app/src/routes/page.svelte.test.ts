@@ -42,6 +42,7 @@ describe('/+page.svelte', () => {
 
     // Then
     await waitFor(() => {
+      expect(window.localStorage.getItem('user_first_login')).toEqual('true')
       expect(spy).toHaveBeenCalledTimes(1)
       expect(spy).toHaveBeenNthCalledWith(1, '/#/notifications-welcome-page')
     })
@@ -70,6 +71,7 @@ describe('/+page.svelte', () => {
 
     // Then
     await waitFor(() => {
+      expect(window.localStorage.getItem('user_first_login')).toEqual('false')
       expect(spy).toHaveBeenCalledTimes(1)
       expect(spy).toHaveBeenNthCalledWith(1, '/')
     })

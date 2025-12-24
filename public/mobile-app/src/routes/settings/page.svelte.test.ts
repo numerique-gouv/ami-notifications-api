@@ -2,6 +2,8 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/svelte'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 import * as navigationMethods from '$app/navigation'
 import * as notificationsMethods from '$lib/notifications'
+import { userStore } from '$lib/state/User.svelte'
+import { mockUserInfo } from '$tests/utils'
 import Page from './+page.svelte'
 
 describe('/+page.svelte', () => {
@@ -70,14 +72,18 @@ describe('/+page.svelte', () => {
     })
   })
 
-  test('should import NavWithBackButton component', async () => {
+  test('should navigate to previous page when user clicks on Back button', async () => {
+    // Given
+    const backSpy = vi.spyOn(window.history, 'back').mockImplementation(() => {})
+
     // When
     render(Page)
     const backButton = screen.getByTestId('back-button')
+    await fireEvent.click(backButton)
 
     // Then
-    expect(backButton).toBeInTheDocument()
-    expect(screen.getByText('Paramètres')).toBeInTheDocument()
+    expect(backSpy).toHaveBeenCalledTimes(1)
+    backSpy.mockRestore()
   })
 
   test('should navigate to previous page when user clicks on Close button', async () => {
@@ -92,5 +98,45 @@ describe('/+page.svelte', () => {
     // Then
     expect(backSpy).toHaveBeenCalledTimes(1)
     backSpy.mockRestore()
+  })
+
+  test('should navigate to homepage when user clicks on Back button and is first login', async () => {
+    // Given
+    await userStore.login(mockUserInfo)
+    window.localStorage.setItem('user_first_login', 'true')
+    const spy = vi
+      .spyOn(navigationMethods, 'goto')
+      .mockImplementation(() => Promise.resolve())
+
+    // When
+    render(Page)
+    const backButton = screen.getByTestId('back-button')
+    await fireEvent.click(backButton)
+
+    // Then
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy).toHaveBeenNthCalledWith(1, '/')
+    })
+  })
+
+  test('should navigate to homepage when user clicks on Close button and is first login', async () => {
+    // Given
+    await userStore.login(mockUserInfo)
+    window.localStorage.setItem('user_first_login', 'true')
+    const spy = vi
+      .spyOn(navigationMethods, 'goto')
+      .mockImplementation(() => Promise.resolve())
+
+    // When
+    render(Page)
+    const closeButton = screen.getByTestId('close-button')
+    await fireEvent.click(closeButton)
+
+    // Then
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy).toHaveBeenNthCalledWith(1, '/')
+    })
   })
 })
