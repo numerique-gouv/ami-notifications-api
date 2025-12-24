@@ -19,8 +19,16 @@
     }
   })
 
-  const goToAddress = async () => {
-    goto('/#/address')
+  const goToEditPreferredUsername = async () => {
+    goto('/#/edit-preferred-username')
+  }
+
+  const goToEditEmail = async () => {
+    goto('/#/edit-email')
+  }
+
+  const goToEditAddress = async () => {
+    goto('/#/edit-address')
   }
 </script>
 
@@ -46,7 +54,13 @@
     <span class="fr-text--xs">Informations fournies par FranceConnect</span><br />
     </p>
 
-    <button type="button" class="fr-btn fr-icon-edit-line fr-btn--icon-left fr-btn--tertiary">Modifier</button>
+    <button type="button"
+            class="fr-btn fr-icon-edit-line fr-btn--icon-left fr-btn--tertiary"
+            onclick={goToEditPreferredUsername}
+            data-testid="preferred-username-button"
+    >
+      Modifier
+    </button>
   </Card>
 
   <Card iconHref="/remixicons/mail-line.svg" title="Contact">
@@ -55,7 +69,13 @@
     <span class="fr-text--xs">Informations fournies par FranceConnect</span><br />
     </p>
 
-    <button type="button" class="fr-btn fr-icon-edit-line fr-btn--icon-left fr-btn--tertiary">Modifier</button>
+    <button type="button"
+            class="fr-btn fr-icon-edit-line fr-btn--icon-left fr-btn--tertiary"
+            onclick={goToEditEmail}
+            data-testid="email-button"
+    >
+      Modifier
+    </button>
   </Card>
 
   <Card iconHref="/remixicons/map-pin-user-line.svg" title="Mon adresse">
@@ -68,7 +88,7 @@
     {/if}
     <button type="button"
             class="fr-btn fr-icon-edit-line fr-btn--icon-left fr-btn--tertiary"
-            onclick={goToAddress}
+            onclick={goToEditAddress}
             data-testid="address-button"
     >
       {#if !address}

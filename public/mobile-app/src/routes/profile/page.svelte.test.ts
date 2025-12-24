@@ -58,7 +58,43 @@ describe('/+page.svelte', () => {
     })
   })
 
-  test('should navigate to Address page when user clicks on "Définir une adresse" button', async () => {
+  test('should navigate to the preferred username page when user clicks on "Modifier" button', async () => {
+    // Given
+    const spy = vi
+      .spyOn(navigationMethods, 'goto')
+      .mockImplementation(() => Promise.resolve())
+    render(Page)
+
+    // When
+    const button = screen.getByTestId('preferred-username-button')
+    await fireEvent.click(button)
+
+    // Then
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy).toHaveBeenNthCalledWith(1, '/#/edit-preferred-username')
+    })
+  })
+
+  test('should navigate to the email page when user clicks on "Modifier" button', async () => {
+    // Given
+    const spy = vi
+      .spyOn(navigationMethods, 'goto')
+      .mockImplementation(() => Promise.resolve())
+    render(Page)
+
+    // When
+    const button = screen.getByTestId('email-button')
+    await fireEvent.click(button)
+
+    // Then
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy).toHaveBeenNthCalledWith(1, '/#/edit-email')
+    })
+  })
+
+  test('should navigate to the Address page when user clicks on "Définir une adresse" button', async () => {
     // Given
     const spy = vi
       .spyOn(navigationMethods, 'goto')
@@ -72,7 +108,7 @@ describe('/+page.svelte', () => {
     // Then
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1)
-      expect(spy).toHaveBeenNthCalledWith(1, '/#/address')
+      expect(spy).toHaveBeenNthCalledWith(1, '/#/edit-address')
     })
   })
 })

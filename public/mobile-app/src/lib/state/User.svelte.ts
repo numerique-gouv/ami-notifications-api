@@ -114,6 +114,22 @@ export class User {
     return this._identity
   }
 
+  setPreferredUsername(preferred_username: string) {
+    if (preferred_username) {
+      this._identity.preferred_username = preferred_username
+    } else {
+      delete this._identity.preferred_username
+    }
+    localStorage.setItem('user_identity', JSON.stringify(this.identity))
+  }
+
+  setEmail(email: string) {
+    if (email) {
+      this._identity.email = email
+      localStorage.setItem('user_identity', JSON.stringify(this.identity))
+    }
+  }
+
   setAddress(address: AddressType | undefined) {
     if (address) {
       this._identity.address = address
