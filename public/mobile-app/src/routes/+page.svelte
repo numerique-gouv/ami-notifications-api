@@ -67,8 +67,13 @@
         const result = await response.json()
         localStorage.setItem('user_data', result.user_data)
         localStorage.setItem('user_id', result.user_id)
+        localStorage.setItem('user_first_login', result.user_first_login)
         await userStore.checkLoggedIn()
-        goto('/')
+        if (result.user_first_login) {
+          goto('/#/notifications-welcome-page')
+        } else {
+          goto('/')
+        }
       }
       if (page.url.searchParams.has('is_logged_out')) {
         isLoggedOut = true

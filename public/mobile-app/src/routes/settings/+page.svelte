@@ -1,7 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import { goto } from '$app/navigation'
-  import NavWithBackButton from '$lib/components/NavWithBackButton.svelte'
   import { disableNotifications, enableNotifications } from '$lib/notifications'
   import type { Registration } from '$lib/registration'
   import { userStore } from '$lib/state/User.svelte'
@@ -17,8 +16,13 @@
     isChecked = localStorage.getItem('notifications_enabled') === 'true'
   })
 
-  const navigateToPreviousPage = async () => {
-    window.history.back()
+  const navigateToPreviousPageOrHomepage = async () => {
+    if (localStorage.getItem('user_first_login')) {
+      localStorage.removeItem('user_first_login')
+      goto('/')
+    } else {
+      window.history.back()
+    }
   }
 
   const saveSettings = async () => {
@@ -48,7 +52,20 @@
 </script>
 
 <div class="settings-page">
-  <NavWithBackButton title="Paramètres" />
+  <nav>
+    <div class="back-button-wrapper">
+      <button onclick={navigateToPreviousPageOrHomepage}
+              title="Retour à la page précédente"
+              aria-label="Retour à la page précédente"
+              data-testid="back-button"
+      >
+        <span aria-hidden="true" class="fr-icon-arrow-left-line"></span>
+      </button>
+    </div>
+    <div class="title">
+      <h2>Paramètres</h2>
+    </div>
+  </nav>
 
   <div class="settings-content-container">
     <div class="fr-toggle">
@@ -68,7 +85,7 @@
 
   <button class="fr-btn fr-btn--secondary fr-btn--lg save-settings-button"
           type="button"
-          onclick={navigateToPreviousPage}
+          onclick={navigateToPreviousPageOrHomepage}
           title="Retour à la page précédente"
           aria-label="Retour à la page précédente"
           data-testid="close-button"
@@ -79,6 +96,24 @@
 
 <style>
   .settings-page {
+    nav {
+      padding: 1.5rem 1rem;
+      .back-button-wrapper {
+        margin-bottom: .5rem;
+        color: var(--text-active-blue-france);
+        button {
+          padding: 0;
+        }
+      }
+      .title {
+        display: flex;
+        h2 {
+          flex-grow: 1;
+          margin-bottom: 0;
+        }
+      }
+    }
+
     .settings-content-container {
       padding: 1rem;
 
