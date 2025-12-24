@@ -4,7 +4,7 @@
   import { Address } from '$lib/address'
   import { type AddressFromBAN, callBAN } from '$lib/addressesFromBAN'
   import { buildAgenda } from '$lib/agenda'
-  import BackButton from '$lib/components/BackButton.svelte'
+  import NavWithBackButton from '$lib/components/NavWithBackButton.svelte'
   import { userStore } from '$lib/state/User.svelte'
 
   let addressFromUserStore: Address | undefined = $state()
@@ -126,7 +126,7 @@
 </script>
 
 <div class="address-form-page">
-  <BackButton title="Où habitez-vous&nbsp;?" />
+  <NavWithBackButton title="Où habitez-vous&nbsp;?" />
 
   <div class="address-content-container">
     <p>L'adresse de votre <strong>résidence principale</strong> permet de <strong>faciliter la communication</strong> avec les administrations.</p>

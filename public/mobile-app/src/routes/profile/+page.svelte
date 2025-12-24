@@ -2,8 +2,8 @@
   import { onMount } from 'svelte'
   import { goto } from '$app/navigation'
   import type { Address } from '$lib/address'
-  import BackButton from '$lib/components/BackButton.svelte'
   import Card from '$lib/components/Card.svelte'
+  import NavWithBackButton from '$lib/components/NavWithBackButton.svelte'
   import type { UserIdentity } from '$lib/state/User.svelte'
   import { userStore } from '$lib/state/User.svelte'
 
@@ -33,7 +33,7 @@
   }
 </script>
 
-<BackButton title="Mon profil" />
+<NavWithBackButton title="Mon profil" />
 
 {#if identity}
 <div class="fr-m-4v profile-content-container" data-testid="profile">
