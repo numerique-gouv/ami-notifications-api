@@ -37,7 +37,7 @@ describe('/+page.svelte', () => {
     // Then
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1)
-      expect(spy).toHaveBeenNthCalledWith(1, '/#/settings')
+      expect(spy).toHaveBeenCalledWith('/#/settings')
     })
   })
 
@@ -56,7 +56,7 @@ describe('/+page.svelte', () => {
     // Then
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1)
-      expect(spy).toHaveBeenNthCalledWith(1, '/')
+      expect(spy).toHaveBeenCalledWith('/')
     })
   })
 })
