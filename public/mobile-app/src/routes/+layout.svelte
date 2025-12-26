@@ -7,9 +7,6 @@
   let { children } = $props()
 
   onMount(async () => {
-    // Initialize user state from localStorage before anything else
-    await userStore.checkLoggedIn()
-
     // @ts-expect-error
     await import('@gouvfr/dsfr/dist/dsfr.module.min.js')
   })

@@ -5,7 +5,7 @@
 
   let inputValue: string = $state('')
 
-  onMount(async () => {
+  onMount(() => {
     if (!userStore.connected) {
       goto('/')
       return
