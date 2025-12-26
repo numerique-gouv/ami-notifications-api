@@ -18,7 +18,7 @@
   let hasSelectedAddress: boolean = $state(false)
   let submittedAddress: Address | undefined = $state()
 
-  onMount(async () => {
+  onMount(() => {
     if (!userStore.connected) {
       goto('/')
       return
