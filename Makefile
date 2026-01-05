@@ -1,3 +1,10 @@
+ifdef CONTAINER
+  # We're on scalingo, don't use uv
+  RUN :=
+else
+  RUN := uv run --env-file .env --env-file .env.local
+endif
+
 .PHONY: install
 install:
 	npm ci
@@ -8,7 +15,7 @@ lint-and-format: install
 
 .PHONY: test
 test:
-	uv run --env-file .env --env-file .env.local pytest
+	$(RUN) pytest
 
 .PHONY: dev
 dev:
@@ -24,7 +31,7 @@ build-app:
 
 .PHONY: migrate
 migrate:
-	uv run --env-file .env --env-file .env.local alembic upgrade head
+	$(RUN) alembic upgrade head
 
 .PHONY: publish-scheduled-notifications
 publish-scheduled-notifications:
