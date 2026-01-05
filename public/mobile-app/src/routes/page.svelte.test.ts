@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
-import { render, screen, waitFor } from '@testing-library/svelte'
+import { fireEvent, render, screen, waitFor } from '@testing-library/svelte'
 import * as navigationMethods from '$app/navigation'
 import { PUBLIC_API_URL } from '$env/static/public'
 import { userStore } from '$lib/state/User.svelte'
@@ -158,5 +158,38 @@ describe('/+page.svelte', () => {
     const errorMessage = await screen.findByText('some error message')
     expect(errorMessage).toBeInTheDocument()
     expect(window.localStorage.getItem('access_token')).toEqual(null)
+  })
+
+  test('should display notifications notice when user has enabled them', async () => {
+    // Given
+    const { page } = await import('$app/state')
+    const mockSearchParams = new URLSearchParams('has_enabled_notifications')
+    vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams)
+    userStore.login(mockUserInfo)
+
+    // When
+    render(Page)
+
+    // Then
+    const notificationsNotice = await screen.findByText(
+      'Les notifications ont été activées'
+    )
+    expect(notificationsNotice).toBeInTheDocument()
+  })
+
+  test('should remove notifications notice when user clicks on close button', async () => {
+    // Given
+    const { page } = await import('$app/state')
+    const mockSearchParams = new URLSearchParams('has_enabled_notifications')
+    vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams)
+    userStore.login(mockUserInfo)
+    render(Page)
+
+    // When
+    const closeButton = screen.getByTestId('close-button')
+    await fireEvent.click(closeButton)
+
+    // Then
+    expect(screen).not.toContain('Les notifications ont été activées')
   })
 })
