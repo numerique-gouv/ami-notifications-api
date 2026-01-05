@@ -51,6 +51,10 @@
   const goToSettings = () => {
     goto('/#/settings')
   }
+
+  const goToContact = () => {
+    goto('/#/contact')
+  }
 </script>
 
 <div class="homepage-connected">
@@ -99,6 +103,20 @@
           href="/remixicons/settings.svg"
         />
         Paramètres
+      </button>
+
+      <button
+        class="contact"
+        type="button"
+        onclick={goToContact}
+        data-testid="contact-button"
+      >
+        <Icon
+          className="fr-mr-2v"
+          color="var(--text-active-blue-france)"
+          href="/remixicons/question-answer-line.svg"
+        />
+        Nous contacter
       </button>
 
       <button class="fr-connect-logout" type="button" onclick={userStore.logout}>

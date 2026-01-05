@@ -151,6 +151,23 @@ describe('/ConnectedHomepage.svelte', () => {
     })
   })
 
+  test('should navigate to Contact page when user clicks on Nous contacter button', async () => {
+    // Given
+    const spy = vi
+      .spyOn(navigationMethods, 'goto')
+      .mockImplementation(() => Promise.resolve())
+    render(ConnectedHomepage)
+
+    // When
+    const button = screen.getByTestId('contact-button')
+    await fireEvent.click(button)
+
+    // Then
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledWith('/#/contact')
+    })
+  })
+
   test('should display address block when user address is not known (empty)', async () => {
     // When
     const { container } = render(ConnectedHomepage)
