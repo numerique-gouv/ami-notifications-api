@@ -44,14 +44,22 @@ else
   SSL="${SSL:---ssl-keyfile=ssl-key.pem --ssl-certfile=ssl-cert.pem}"
 fi
 
-if [ ! -f .env.local ]
+if [ ! -z "$CONTAINER" ]
 then
-  # Create an empty file so uv won't fail on a missing file
-  touch .env.local
-  KEY=$(openssl rand -hex 32)
-  echo "AUTH_COOKIE_JWT_SECRET=\"$KEY\"" >> .env.local
-  KEY=$(openssl rand -hex 32)
-  echo "PARTNERS_PSL_SECRET=\"$KEY\"" >> .env.local
+  # We're on scalingo, don't use uv
+  RUN=""
+else
+  if [ ! -f .env.local ]
+  then
+    # Create an empty file so uv won't fail on a missing file
+    touch .env.local
+    KEY=$(openssl rand -hex 32)
+    echo "AUTH_COOKIE_JWT_SECRET=\"$KEY\"" >> .env.local
+    KEY=$(openssl rand -hex 32)
+    echo "PARTNERS_PSL_SECRET=\"$KEY\"" >> .env.local
+  fi
+
+  RUN="uv run --env-file .env --env-file .env.local"
 fi
 
-make migrate && uv run --env-file .env --env-file .env.local litestar run -p ${PORT} -H ${HOSTNAME} ${RELOAD} ${DEBUG} ${SSL}
+make migrate && ${RUN} litestar run -p ${PORT} -H ${HOSTNAME} ${RELOAD} ${DEBUG} ${SSL}

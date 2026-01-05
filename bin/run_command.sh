@@ -17,14 +17,22 @@ then
   echo "$FCM_KEYS_FILE" | base64 -d > "$GOOGLE_APPLICATION_CREDENTIALS"
 fi
 
-if [ ! -f .env.local ]
+if [ ! -z "$CONTAINER" ]
 then
-  # Create an empty file so uv won't fail on a missing file
-  touch .env.local
-  KEY=$(openssl rand -hex 32)
-  echo "AUTH_COOKIE_JWT_SECRET=\"$KEY\"" >> .env.local
-  KEY=$(openssl rand -hex 32)
-  echo "PARTNERS_PSL_SECRET=\"$KEY\"" >> .env.local
+  # We're on scalingo, don't use uv
+  RUN=""
+else
+  if [ ! -f .env.local ]
+  then
+    # Create an empty file so uv won't fail on a missing file
+    touch .env.local
+    KEY=$(openssl rand -hex 32)
+    echo "AUTH_COOKIE_JWT_SECRET=\"$KEY\"" >> .env.local
+    KEY=$(openssl rand -hex 32)
+    echo "PARTNERS_PSL_SECRET=\"$KEY\"" >> .env.local
+  fi
+
+  RUN="uv run --env-file .env --env-file .env.local"
 fi
 
-uv run --env-file .env --env-file .env.local litestar $*
+${RUN} litestar $*
