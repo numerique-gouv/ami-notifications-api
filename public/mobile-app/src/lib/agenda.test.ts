@@ -33,8 +33,8 @@ describe('/agenda.ts', () => {
         const name2 = item2.dayName
 
         // Then
-        expect(name1).equal('mar')
-        expect(name2).equal('mar')
+        expect(name1).equal('Mar')
+        expect(name2).equal('Mar')
       })
     })
     describe('dayNum', () => {
