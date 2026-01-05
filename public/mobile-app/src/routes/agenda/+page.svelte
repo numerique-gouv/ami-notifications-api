@@ -30,7 +30,7 @@
   {#if agenda && agenda.now.length}
   <div class="agenda--events" data-testid="events-now">
     <div class="agenda--events--header">
-      <span class="title">D'ici un mois</span>
+      <span class="title">Prochainement</span>
     </div>
     <div class="agenda--events--container">
       {#each agenda.now as item, i}
@@ -48,7 +48,7 @@
   {#if agenda && agenda.next.length}
   <div class="agenda--events" data-testid="events-next">
     <div class="agenda--events--header">
-      <span class="title">Prochainement</span>
+      <span class="title">30 prochains jours</span>
     </div>
     <div class="agenda--events--container">
       {#each agenda.next as item, i}
