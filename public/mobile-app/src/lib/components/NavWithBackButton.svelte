@@ -11,10 +11,11 @@
 
 <nav>
   <div class="back-button-wrapper">
-    <button onclick={navigateToPreviousPage}
-            title="Retour à la page précédente"
-            aria-label="Retour à la page précédente"
-            data-testid="back-button"
+    <button
+      onclick={navigateToPreviousPage}
+      title="Retour à la page précédente"
+      aria-label="Retour à la page précédente"
+      data-testid="back-button"
     >
       <span aria-hidden="true" class="fr-icon-arrow-left-line"></span>
     </button>
@@ -30,7 +31,7 @@
   nav {
     padding: 1.5rem 1rem;
     .back-button-wrapper {
-      margin-bottom: .5rem;
+      margin-bottom: 0.5rem;
       color: var(--text-active-blue-france);
       button {
         padding: 0;

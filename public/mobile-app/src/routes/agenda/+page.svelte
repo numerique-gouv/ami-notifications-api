@@ -28,41 +28,34 @@
   </div>
 
   {#if agenda && agenda.now.length}
-  <div class="agenda--events" data-testid="events-now">
-    <div class="agenda--events--header">
-      <span class="title">Prochainement</span>
+    <div class="agenda--events" data-testid="events-now">
+      <div class="agenda--events--header"><span class="title">Prochainement</span></div>
+      <div class="agenda--events--container">
+        {#each agenda.now as item, i}
+          {#if i == 0 || i > 0 && item.date?.getMonth() !== agenda.now[i - 1].date?.getMonth()}
+            <div class="agenda--events--month">{item.monthName}</div>
+          {/if}
+          <AgendaItem item={item} />
+        {/each}
+      </div>
     </div>
-    <div class="agenda--events--container">
-      {#each agenda.now as item, i}
-        {#if i == 0 || i > 0 && item.date?.getMonth() !== agenda.now[i - 1].date?.getMonth()}
-        <div class="agenda--events--month">
-          {item.monthName}
-        </div>
-        {/if}
-        <AgendaItem item={item} />
-      {/each}
-    </div>
-  </div>
   {/if}
 
   {#if agenda && agenda.next.length}
-  <div class="agenda--events" data-testid="events-next">
-    <div class="agenda--events--header">
-      <span class="title">30 prochains jours</span>
+    <div class="agenda--events" data-testid="events-next">
+      <div class="agenda--events--header">
+        <span class="title">30 prochains jours</span>
+      </div>
+      <div class="agenda--events--container">
+        {#each agenda.next as item, i}
+          {#if i > 0 && item.date?.getMonth() !== agenda.next[i - 1].date?.getMonth() || i == 0 && (agenda.now.length && item.date?.getMonth() !== agenda.now[agenda.now.length - 1].date?.getMonth() || !agenda.now.length)}
+            <div class="agenda--events--month">{item.monthName}</div>
+          {/if}
+          <AgendaItem item={item} />
+        {/each}
+      </div>
     </div>
-    <div class="agenda--events--container">
-      {#each agenda.next as item, i}
-        {#if i > 0 && item.date?.getMonth() !== agenda.next[i - 1].date?.getMonth() || i == 0 && (agenda.now.length && item.date?.getMonth() !== agenda.now[agenda.now.length - 1].date?.getMonth() || !agenda.now.length)}
-        <div class="agenda--events--month">
-          {item.monthName}
-        </div>
-        {/if}
-        <AgendaItem item={item} />
-      {/each}
-    </div>
-  </div>
   {/if}
-
 </div>
 <Navigation currentItem="agenda" />
 

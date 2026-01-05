@@ -96,62 +96,93 @@
 </script>
 
 <div class="homepage">
-{#if !userStore.connected}
-  <div class="homepage-not-connected">
-    {#if error}
-    <div class="fr-notice fr-notice--alert">
-      <div class="fr-container">
-        <div class="fr-notice__body">
-          <p>
-            <span class="fr-notice__title">{error}</span>
-            {#if error_description}
-              <span class="fr-notice__desc">{error_description}</span>
-            {/if}
-          </p>
-          <button onclick="{dismissError}" title="Masquer le message" type="button" class="fr-btn--close fr-btn">Masquer le message</button>
+  {#if !userStore.connected}
+    <div class="homepage-not-connected">
+      {#if error}
+        <div class="fr-notice fr-notice--alert">
+          <div class="fr-container">
+            <div class="fr-notice__body">
+              <p>
+                <span class="fr-notice__title">{error}</span>
+                {#if error_description}
+                  <span class="fr-notice__desc">{error_description}</span>
+                {/if}
+              </p>
+              <button
+                onclick="{dismissError}"
+                title="Masquer le message"
+                type="button"
+                class="fr-btn--close fr-btn"
+              >
+                Masquer le message
+              </button>
+            </div>
+          </div>
         </div>
+      {/if}
+      {#if isLoggedOut}
+        <div class="logout-notice fr-py-3v fr-px-4v">
+          <div class="container-left">
+            <img
+              src="/icons/fr--success-line-green.svg"
+              class="fr-mr-2v"
+              alt="Icône de succès"
+            >
+            <span>Vous avez bien été déconnecté</span>
+          </div>
+          <div class="container-right">
+            <button
+              onclick="{dismissNotice}"
+              title="Masquer le message"
+              aria-label="Masquer le message"
+              type="button"
+              class="fr-btn--close fr-btn"
+            ></button>
+          </div>
+        </div>
+      {/if}
+      <div class="france-connect-svg-icon">
+        <img src="{applicationSvg}" alt="Icône de notification">
       </div>
-    </div>
-    {/if}
-    {#if isLoggedOut}
-      <div class="logout-notice fr-py-3v fr-px-4v">
-        <div class="container-left">
-          <img src="/icons/fr--success-line-green.svg" class="fr-mr-2v" alt="Icône de succès" />
-          <span>Vous avez bien été déconnecté</span>
-        </div>
-        <div class="container-right">
-          <button onclick="{dismissNotice}" title="Masquer le message" aria-label="Masquer le message" type="button" class="fr-btn--close fr-btn"></button>
-        </div>
-       </div>
-    {/if}
-    <div class="france-connect-svg-icon">
-      <img src="{applicationSvg}" alt="Icône de notification" />
-    </div>
 
-    <div class="france-connect-text">
-      <p>Pour pouvoir accéder à <strong>vos droits, à des conseils, et aux échéances</strong> liées à votre situation personnelle, veuillez vous connecter via <strong>FranceConnect</strong>.</p>
-      <p class="fr-text--sm">FranceConnect est la solution proposée par l’État pour sécuriser et simplifier la connexion à vos services en ligne.</p>
-    </div>
+      <div class="france-connect-text">
+        <p>
+          Pour pouvoir accéder à
+          <strong>vos droits, à des conseils, et aux échéances</strong> liées à votre
+          situation personnelle, veuillez vous connecter via
+          <strong>FranceConnect</strong>.
+        </p>
+        <p class="fr-text--sm">
+          FranceConnect est la solution proposée par l’État pour sécuriser et simplifier
+          la connexion à vos services en ligne.
+        </p>
+      </div>
 
-    <div class="fr-connect-group">
-      <button
+      <div class="fr-connect-group">
+        <button
           class="fr-connect"
           type="button"
           id="fr-connect-button"
           onclick={franceConnectLogin}
-      >
-        <span class="fr-connect__login">S’identifier avec</span>
-        <span class="fr-connect__brand">FranceConnect</span>
-      </button>
-      <p>
-        <a href="https://franceconnect.gouv.fr/" target="_blank" rel="noopener" title="Qu’est-ce que FranceConnect ? - nouvelle fenêtre">Qu’est-ce que FranceConnect ?</a>
-      </p>
+        >
+          <span class="fr-connect__login">S’identifier avec</span>
+          <span class="fr-connect__brand">FranceConnect</span>
+        </button>
+        <p>
+          <a
+            href="https://franceconnect.gouv.fr/"
+            target="_blank"
+            rel="noopener"
+            title="Qu’est-ce que FranceConnect ? - nouvelle fenêtre"
+            >Qu’est-ce que FranceConnect ?</a
+          >
+        </p>
+      </div>
     </div>
-  </div>
-{:else if userStore.connected}
-  <Navigation currentItem="home" />
-  <ConnectedHomepage />
-{/if}
+  {:else if userStore.connected}
+    <Navigation currentItem="home" />
+    <ConnectedHomepage />
+  {/if}
 </div>
 
 <style>
@@ -174,7 +205,7 @@
         justify-content: space-between;
         background-color: var(--background-flat-grey);
         color: white;
-        border-left: 3px solid #58B77D;
+        border-left: 3px solid #58b77d;
         border-radius: 0.25rem;
 
         .container-left {

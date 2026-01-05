@@ -129,28 +129,39 @@
   <NavWithBackButton title="Où habitez-vous&nbsp;?" />
 
   <div class="address-content-container">
-    <p>L'adresse de votre <strong>résidence principale</strong> permet de <strong>faciliter la communication</strong> avec les administrations.</p>
+    <p>
+      L'adresse de votre <strong>résidence principale</strong> permet de
+      <strong>faciliter la communication</strong> avec les administrations.
+    </p>
 
     <form autocomplete="on" class="address-form">
       <fieldset class="fr-fieldset" aria-labelledby="text-legend text-messages">
         <div class="fr-fieldset__element">
-          <div class="fr-input-group autocomplete {addressInputHasError ? 'fr-input-group--error' : ''}">
-            <label class="fr-label" for="address-input">
-              Adresse
-            </label>
-            <span class="fr-hint-text">Exemple&nbsp;: 23 rue des Aubépines, Poitiers</span>
-            <input class="fr-input"
-                   id="address-input"
-                   type="text"
-                   bind:value={inputValue}
-                   data-testid="address-input"
-                   autocomplete="address-line1"
-                   oninput={addressInputHandler}
+          <div
+            class="fr-input-group autocomplete {addressInputHasError ? 'fr-input-group--error' : ''}"
+          >
+            <label class="fr-label" for="address-input">Adresse</label>
+            <span class="fr-hint-text"
+              >Exemple&nbsp;: 23 rue des Aubépines, Poitiers</span
+            >
+            <input
+              class="fr-input"
+              id="address-input"
+              type="text"
+              bind:value={inputValue}
+              data-testid="address-input"
+              autocomplete="address-line1"
+              oninput={addressInputHandler}
             >
             {#if addressInputHasError}
               <div class="fr-messages-group" aria-live="polite">
-                <p id="address-error" class="fr-message fr-message--error" data-testid="address-error">
-                  Cette adresse est invalide. Conseil&nbsp;: saisissez entre 3 à 200 caractères et commencez par un nombre ou une lettre.
+                <p
+                  id="address-error"
+                  class="fr-message fr-message--error"
+                  data-testid="address-error"
+                >
+                  Cette adresse est invalide. Conseil&nbsp;: saisissez entre 3 à 200
+                  caractères et commencez par un nombre ou une lettre.
                 </p>
               </div>
             {/if}
@@ -158,12 +169,14 @@
 
           {#if filteredAddresses.length > 0}
             <ul id="autocomplete-items-list">
-              <p class="autocomplete-title">
-                Adresse
-              </p>
+              <p class="autocomplete-title">Adresse</p>
               {#each filteredAddresses as address, index}
                 <li class="autocomplete-item" data-testid="autocomplete-item-{index}">
-                  <button type="button" onclick={() => setInputVal(address)} data-testid="autocomplete-item-button-{index}">
+                  <button
+                    type="button"
+                    onclick={() => setInputVal(address)}
+                    data-testid="autocomplete-item-button-{index}"
+                  >
                     <p><strong>{address.name}</strong></p>
                     <p>{address.city} ({address.context})</p>
                   </button>
@@ -171,17 +184,18 @@
               {/each}
             </ul>
           {/if}
-
         </div>
-        <div class="fr-messages-group" id="text-messages" aria-live="polite">
-        </div>
+        <div class="fr-messages-group" id="text-messages" aria-live="polite"></div>
       </fieldset>
     </form>
 
     {#if addressApiHasError}
       <div class="fr-alert fr-alert--warning" data-testid="address-warning">
         <h3 class="fr-alert__title">Récupération de l'adresse indisponible</h3>
-        <p>Nous rencontrons des difficultés à trouver votre adresse dans notre répertoire. Merci de réessayer plus tard.</p>
+        <p>
+          Nous rencontrons des difficultés à trouver votre adresse dans notre
+          répertoire. Merci de réessayer plus tard.
+        </p>
       </div>
     {/if}
 
@@ -202,22 +216,24 @@
 
   <ul class="fr-btns-group action-buttons">
     <li>
-      <button class="fr-btn fr-btn--secondary cancel-button"
-              type="button"
-              onclick={cancelAddress}
-              data-testid="cancel-button"
+      <button
+        class="fr-btn fr-btn--secondary cancel-button"
+        type="button"
+        onclick={cancelAddress}
+        data-testid="cancel-button"
       >
-          Annuler
+        Annuler
       </button>
     </li>
     <li>
-      <button class="fr-btn submit-button"
-              type="button"
-              disabled="{disabledButton}"
-              onclick={submitAddress}
-              data-testid="submit-button"
+      <button
+        class="fr-btn submit-button"
+        type="button"
+        disabled="{disabledButton}"
+        onclick={submitAddress}
+        data-testid="submit-button"
       >
-          Enregistrer
+        Enregistrer
       </button>
     </li>
   </ul>
@@ -234,7 +250,7 @@
           display: inline-block;
           width: 100%;
           span.fr-hint-text {
-            margin-bottom: .25rem;
+            margin-bottom: 0.25rem;
           }
           input#address-input {
             padding: 1rem;
@@ -257,7 +273,7 @@
           background-color: var(--grey-975-75);
 
           p.autocomplete-title {
-            padding: .25rem .75rem;
+            padding: 0.25rem 0.75rem;
             margin: 0;
             font-weight: 700;
             color: var(--text-active-blue-france);
@@ -269,7 +285,7 @@
             background-color: var(--background-default-grey);
 
             button {
-              padding: .75rem;
+              padding: 0.75rem;
               width: 100%;
               text-align: left;
               --hover-tint: var(--text-action-high-blue-france);
@@ -294,7 +310,7 @@
       flex-direction: row;
       justify-content: space-between;
       border: 1px solid var(--text-action-high-blue-france);
-      padding: 1rem .5rem 1rem 1.5rem;
+      padding: 1rem 0.5rem 1rem 1.5rem;
 
       .left-wrapper {
         display: flex;

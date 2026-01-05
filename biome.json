@@ -39,7 +39,8 @@
       "enabled": true,
       "indentScriptAndStyle": true
     },
-    "linter": { "enabled": true }
+    "linter": { "enabled": true },
+    "experimentalFullSupportEnabled": true
   },
   "overrides": [
     {

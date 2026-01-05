@@ -35,9 +35,10 @@
 <div class="form-page">
   <nav class="fr-p-4v fr-pt-6v">
     <div class="back-link fr-mb-2v">
-      <button onclick={navigateToPreviousPage}
-              title="Retour à la page d'accueil"
-              aria-label="Retour à la page d'accueil"
+      <button
+        onclick={navigateToPreviousPage}
+        title="Retour à la page d'accueil"
+        aria-label="Retour à la page d'accueil"
       >
         <span aria-hidden="true" class="fr-icon-arrow-left-line"></span>
       </button>
@@ -54,16 +55,15 @@
       <fieldset class="fr-fieldset">
         <div class="fr-fieldset__element">
           <div class="fr-input-group autocomplete">
-            <label class="fr-label" for="input">
-              Email
-            </label>
+            <label class="fr-label" for="input">Email</label>
             <span class="fr-hint-text">Par exemple&nbsp;: michel@dupont.com</span>
-            <input class="fr-input"
-                   id="input"
-                   type="text"
-                   bind:value={inputValue}
-                   data-testid="email-input"
-                   autocomplete="email"
+            <input
+              class="fr-input"
+              id="input"
+              type="text"
+              bind:value={inputValue}
+              data-testid="email-input"
+              autocomplete="email"
             >
           </div>
         </div>
@@ -73,22 +73,24 @@
 
   <ul class="fr-btns-group action-buttons">
     <li>
-      <button class="fr-btn fr-btn--secondary cancel-button"
-              type="button"
-              onclick={cancel}
-              data-testid="cancel-button"
+      <button
+        class="fr-btn fr-btn--secondary cancel-button"
+        type="button"
+        onclick={cancel}
+        data-testid="cancel-button"
       >
-          Annuler
+        Annuler
       </button>
     </li>
     <li>
-      <button class="fr-btn submit-button"
-              type="button"
-              disabled="{!inputValue}"
-              onclick={submit}
-              data-testid="submit-button"
+      <button
+        class="fr-btn submit-button"
+        type="button"
+        disabled="{!inputValue}"
+        onclick={submit}
+        data-testid="submit-button"
       >
-          Enregistrer
+        Enregistrer
       </button>
     </li>
   </ul>
@@ -120,7 +122,7 @@
           display: inline-block;
           width: 100%;
           span.fr-hint-text {
-            margin-bottom: .25rem;
+            margin-bottom: 0.25rem;
           }
           #input {
             padding: 1rem;
@@ -155,4 +157,3 @@
     }
   }
 </style>
-
