@@ -72,7 +72,7 @@
   <div class="procedure-action-buttons">
     <div class="procedure-start">
       <a href="{otvUrl}">
-        Commencer la démarche
+        Bénéficier de ce service
       </a>
     </div>
   </div>
