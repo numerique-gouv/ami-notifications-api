@@ -68,7 +68,9 @@ export class Item {
 
   get dayName(): string | null {
     return this.date
-      ? this.date.toLocaleDateString('fr-FR', { weekday: 'short' }).replace('.', '')
+      ? capitalizeFirstLetter(
+          this.date.toLocaleDateString('fr-FR', { weekday: 'short' }).replace('.', '')
+        )
       : null
   }
 
