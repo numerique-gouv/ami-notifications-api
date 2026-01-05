@@ -17,30 +17,38 @@
 
 <div class="agenda--item">
   {#if displayDate}
-  <div class="agenda--item--date">
-    <span class="day-name">{item.dayName}</span> 
-    <span class="day-num">{item.dayNum}</span> 
-  </div>
+    <div class="agenda--item--date">
+      <span class="day-name">{item.dayName}</span> <span class="day-num"
+        >{item.dayNum}</span
+      > 
+    </div>
   {/if}
-  <div class="agenda--item--detail fr-tile fr-tile-sm fr-tile--horizontal fr-enlarge-link {item.custom ? 'custom': ''} {item.link ? '': 'no-link'}">
+  <div
+    class="agenda--item--detail fr-tile fr-tile-sm fr-tile--horizontal fr-enlarge-link {item.custom ? 'custom': ''} {item.link ? '': 'no-link'}"
+  >
     <div class="fr-tile__body">
       <div class="fr-tile__content">
         <h3 class="fr-tile__title">
-          <a href="{item.link}?date={agendaItemDate}" onclick={(e) => {if (!item.link) {e.preventDefault();}}} data-testid="agenda-item-link" class="{item.link ? '': 'no-link'}">
+          <a
+            href="{item.link}?date={agendaItemDate}"
+            onclick={(e) => {if (!item.link) {e.preventDefault();}}}
+            data-testid="agenda-item-link"
+            class="{item.link ? '': 'no-link'}"
+          >
             {item.title}
           </a>
         </h3>
-        {#if item.description}<p class="fr-tile__detail">{item.description}</p>{/if}
+        {#if item.description}
+          <p class="fr-tile__detail">{item.description}</p>
+        {/if}
         <div class="fr-tile__start">
-          {#if item.custom }
+          {#if item.custom}
             <p class="fr-badge fr-badge--icon-left fr-icon-user-fill custom"></p>
           {/if}
           <p class="fr-badge fr-badge--icon-left {item.icon} {item.kind}">
             {item.label}
           </p>
-          <p class="fr-tag">
-            {item.period}
-          </p>
+          <p class="fr-tag">{item.period}</p>
         </div>
       </div>
     </div>
@@ -71,10 +79,26 @@
       width: 100%;
       &.custom {
         background-image:
-          linear-gradient(0deg, var(--border-default-blue-france), var(--border-default-blue-france)),
-          linear-gradient(0deg, var(--border-default-blue-france), var(--border-default-blue-france)),
-          linear-gradient(0deg, var(--border-default-blue-france), var(--border-default-blue-france)),
-          linear-gradient(0deg, var(--border-default-blue-france), var(--border-default-blue-france));
+          linear-gradient(
+            0deg,
+            var(--border-default-blue-france),
+            var(--border-default-blue-france)
+          ),
+          linear-gradient(
+            0deg,
+            var(--border-default-blue-france),
+            var(--border-default-blue-france)
+          ),
+          linear-gradient(
+            0deg,
+            var(--border-default-blue-france),
+            var(--border-default-blue-france)
+          ),
+          linear-gradient(
+            0deg,
+            var(--border-default-blue-france),
+            var(--border-default-blue-france)
+          );
       }
       .fr-tile__content {
         padding-bottom: 1.5rem;
@@ -82,9 +106,9 @@
           font-size: 16px;
           a {
             &::after {
-            bottom: 1.25rem;
-            right: 1.25rem;
-            --icon-size: 1rem;
+              bottom: 1.25rem;
+              right: 1.25rem;
+              --icon-size: 1rem;
             }
             &.no-link {
               cursor: default;

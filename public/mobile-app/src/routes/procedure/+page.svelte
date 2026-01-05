@@ -40,16 +40,17 @@
 <div class="procedure">
   <nav>
     <div class="back-button-wrapper">
-      <button onclick={navigateToPreviousPage}
-              title="Retour à la page précédente"
-              aria-label="Retour à la page précédente"
-              data-testid="back-button"
+      <button
+        onclick={navigateToPreviousPage}
+        title="Retour à la page précédente"
+        aria-label="Retour à la page précédente"
+        data-testid="back-button"
       >
         <span aria-hidden="true" class="fr-icon-arrow-left-line"></span>
       </button>
     </div>
     <div class="partner-logo">
-      <img src="/icons/otv-logo.svg" alt="Icône du logo du partenaire" />
+      <img src="/icons/otv-logo.svg" alt="Icône du logo du partenaire">
     </div>
     <div class="title">
       <h2>Opération Tranquillité Vacances</h2>
@@ -63,18 +64,25 @@
     </div>
     <div class="procedure-content-block">
       <p class="title">Comment ça fonctionne ?</p>
-      <p>Pendant toute absence prolongée de votre domicile, vous pouvez vous inscrire à l'<b>opération tranquillité vacances</b>.</p>
-      <p><b>Les services de police ou de gendarmerie se chargent alors de surveiller votre logement.</b> Des patrouilles sont organisées pour passer aux abords de votre domicile.</p>
-      <p><b>Vous serez prévenu</b> en cas d'anomalies (dégradations, cambriolage...).</p>
+      <p>
+        Pendant toute absence prolongée de votre domicile, vous pouvez vous inscrire à
+        l'<b>opération tranquillité vacances</b>.
+      </p>
+      <p>
+        <b
+          >Les services de police ou de gendarmerie se chargent alors de surveiller
+          votre logement.</b
+        >
+        Des patrouilles sont organisées pour passer aux abords de votre domicile.
+      </p>
+      <p>
+        <b>Vous serez prévenu</b> en cas d'anomalies (dégradations, cambriolage...).
+      </p>
     </div>
   </div>
 
   <div class="procedure-action-buttons">
-    <div class="procedure-start">
-      <a href="{otvUrl}">
-        Bénéficier de ce service
-      </a>
-    </div>
+    <div class="procedure-start"><a href="{otvUrl}"> Bénéficier de ce service </a></div>
   </div>
 </div>
 
@@ -83,10 +91,10 @@
     nav {
       padding: 1.5rem 1rem;
       background-color: var(--green-archipel-975-75);
-      border-bottom: .25rem solid var(--green-archipel-sun-391-moon-716);
+      border-bottom: 0.25rem solid var(--green-archipel-sun-391-moon-716);
 
       .back-button-wrapper {
-        margin-bottom: .5rem;
+        margin-bottom: 0.5rem;
         color: var(--text-active-blue-france);
         button {
           padding: 0;
@@ -95,7 +103,7 @@
       .partner-logo {
         display: flex;
         justify-content: center;
-        margin-bottom: .5rem;
+        margin-bottom: 0.5rem;
       }
       .title {
         display: flex;
@@ -134,7 +142,7 @@
 
       .procedure-start {
         height: 3rem;
-        margin-bottom: .5rem;
+        margin-bottom: 0.5rem;
         background-color: var(--text-action-high-blue-france);
         color: var(--text-inverted-blue-france);
 

@@ -19,9 +19,7 @@
         <Icon className="fr-mr-2v" href={iconHref} />
         {title}
       </h3>
-      <p class="fr-card__desc ">
-        {@render children?.()}
-      </p>
+      <p class="fr-card__desc ">{@render children?.()}</p>
     </div>
   </div>
 </div>

@@ -55,20 +55,14 @@
 
 <div class="homepage-connected">
   <div class="header">
-    <button
-      class="header-left"
-      onclick={toggleMenu}
-      data-testid="toggle-menu-button"
-    >
-      <span class="user-profile">
-        {initials}
-      </span>
+    <button class="header-left" onclick={toggleMenu} data-testid="toggle-menu-button">
+      <span class="user-profile"> {initials} </span>
     </button>
 
     <div class="header-right">
       <div class="notification-svg-icon" id="notification-icon">
         <a href="/#/notifications">
-          <img src="/remixicons/notification-3.svg" alt="Icône de notifications" />
+          <img src="/remixicons/notification-3.svg" alt="Icône de notifications">
           <div class="count-number-wrapper" data-content="{unreadNotificationsCount}">
             {unreadNotificationsCount}
           </div>
@@ -80,31 +74,39 @@
   <div class="menu {isMenuDisplayed ? '' : 'is-hidden'}">
     <div class="container">
       <button
-          class="profile"
-          type="button"
-          onclick={goToProfile}
-          data-testid="profile-button"
+        class="profile"
+        type="button"
+        onclick={goToProfile}
+        data-testid="profile-button"
       >
-        <Icon className="fr-mr-2v" color="var(--text-active-blue-france)" href="/remixicons/user-line.svg" />
+        <Icon
+          className="fr-mr-2v"
+          color="var(--text-active-blue-france)"
+          href="/remixicons/user-line.svg"
+        />
         Mon profil
       </button>
 
       <button
-          class="settings"
-          type="button"
-          onclick={goToSettings}
-          data-testid="settings-button"
+        class="settings"
+        type="button"
+        onclick={goToSettings}
+        data-testid="settings-button"
       >
-        <Icon className="fr-mr-2v" color="var(--text-active-blue-france)" href="/remixicons/settings.svg" />
+        <Icon
+          className="fr-mr-2v"
+          color="var(--text-active-blue-france)"
+          href="/remixicons/settings.svg"
+        />
         Paramètres
       </button>
 
-      <button
-          class="fr-connect-logout"
-          type="button"
-          onclick={userStore.logout}
-      >
-        <Icon className="fr-mr-2v" color="var(--text-active-blue-france)" href="/remixicons/shut-down-line.svg" />
+      <button class="fr-connect-logout" type="button" onclick={userStore.logout}>
+        <Icon
+          className="fr-mr-2v"
+          color="var(--text-active-blue-france)"
+          href="/remixicons/shut-down-line.svg"
+        />
         Me déconnecter
       </button>
     </div>
@@ -113,12 +115,19 @@
   {#if !userStore.connected?.identity?.address}
     <div class="rubrique-container address-container">
       <div class="rubrique-content-container">
-        <div class="fr-tile fr-tile-sm fr-tile--horizontal fr-tile--no-border fr-enlarge-link">
+        <div
+          class="fr-tile fr-tile-sm fr-tile--horizontal fr-tile--no-border fr-enlarge-link"
+        >
           <div class="fr-tile__body">
             <div class="fr-tile__content">
-              <img class="address-icon" src="/remixicons/house.svg" alt="Icône adresse" />
+              <img class="address-icon" src="/remixicons/house.svg" alt="Icône adresse">
               <h3 class="fr-tile__title">
-                <a href="/#/edit-address"><b>Renseignez votre adresse sur l'application pour faciliter vos échanges !</b></a>
+                <a href="/#/edit-address"
+                  ><b
+                    >Renseignez votre adresse sur l'application pour faciliter vos
+                    échanges !</b
+                  ></a
+                >
               </h3>
             </div>
           </div>
@@ -128,76 +137,92 @@
   {/if}
 
   <div class="rubrique-container agenda-container">
-  {#if isAgendaEmpty}
-    <div class="header-container">
-      <span class="title">Mon agenda</span>
-    </div>
-    <div class="rubrique-content-container">
-      <div class="no-agenda rubrique-content-container--empty">
-        <div class="no-agenda--icon">
-          <img class="address-icon" src="/remixicons/calendar.svg" alt="Icône d'agenda" />
-        </div>
-        <div class="no-agenda--title">
-          Retrouvez les temps importants de votre vie administrative ici
+    {#if isAgendaEmpty}
+      <div class="header-container"><span class="title">Mon agenda</span></div>
+      <div class="rubrique-content-container">
+        <div class="no-agenda rubrique-content-container--empty">
+          <div class="no-agenda--icon">
+            <img
+              class="address-icon"
+              src="/remixicons/calendar.svg"
+              alt="Icône d'agenda"
+            >
+          </div>
+          <div class="no-agenda--title">
+            Retrouvez les temps importants de votre vie administrative ici
+          </div>
         </div>
       </div>
-    </div>
-  {:else}
-    <div class="header-container">
-      <span class="title">Mon agenda</span>
-      <a class="see-all" title="Voir tous mes évènements" href="/#/agenda">
-        <span>Voir tout</span>
-        <img class="arrow-line" src="/remixicons/arrow-line.svg" alt="Icône de flèche" />
-      </a>
-    </div>
-    <div class="rubrique-content-container">
-      {#if agenda?.now.length}
-        <AgendaItem item={agenda.now[0]} displayDate={false} />
-      {:else if agenda?.next.length}
-        <AgendaItem item={agenda.next[0]} displayDate={false} />
-      {/if}
-    </div>
-  {/if}
+    {:else}
+      <div class="header-container">
+        <span class="title">Mon agenda</span>
+        <a class="see-all" title="Voir tous mes évènements" href="/#/agenda">
+          <span>Voir tout</span>
+          <img
+            class="arrow-line"
+            src="/remixicons/arrow-line.svg"
+            alt="Icône de flèche"
+          >
+        </a>
+      </div>
+      <div class="rubrique-content-container">
+        {#if agenda?.now.length}
+          <AgendaItem item={agenda.now[0]} displayDate={false} />
+        {:else if agenda?.next.length}
+          <AgendaItem item={agenda.next[0]} displayDate={false} />
+        {/if}
+      </div>
+    {/if}
   </div>
 
   <div class="rubrique-container requests-container">
-    <div class="header-container">
-      <span class="title">Mes demandes</span>
-    </div>
+    <div class="header-container"><span class="title">Mes demandes</span></div>
     <div class="rubrique-content-container">
       <div class="no-requests rubrique-content-container--empty">
         <div class="no-requests--icon">
-          <img class="address-icon" src="/remixicons/tracking.svg" alt="Icône de suivi" />
+          <img class="address-icon" src="/remixicons/tracking.svg" alt="Icône de suivi">
         </div>
-        <div class="no-requests--title">
-          Suivez toutes vos démarches ici.
-        </div>
+        <div class="no-requests--title">Suivez toutes vos démarches ici.</div>
       </div>
     </div>
   </div>
 
   <section class="fr-accordion">
     <h3 class="fr-accordion__title">
-      <button type="button" class="fr-accordion__btn" aria-expanded="false" aria-controls="accordion-1">Données de debug</button>
+      <button
+        type="button"
+        class="fr-accordion__btn"
+        aria-expanded="false"
+        aria-controls="accordion-1"
+      >
+        Données de debug
+      </button>
     </h3>
     <div id="accordion-1" class="fr-collapse">
       <ul>
-        <li>userinfo: <pre>{ JSON.stringify(userStore.connected?.pivot, null, 2) }</pre></li>
-        <li>user identity: <pre>{ JSON.stringify(userStore.connected?.identity, null, 2) }</pre></li>
-        <li>sub: { userStore.connected?.pivot?.sub }</li>
-        <li>given_name: { userStore.connected?.pivot?.given_name }</li>
-        <li>given_name_array: { userStore.connected?.pivot?.given_name_array }</li>
-        <li>family_name: { userStore.connected?.pivot?.family_name }</li>
-        <li>birthdate: { userStore.connected?.pivot?.birthdate }</li>
-        <li>gender: { userStore.connected?.pivot?.gender }</li>
-        <li>birthplace: { userStore.connected?.pivot?.birthplace }</li>
-        <li>birthcountry: { userStore.connected?.pivot?.birthcountry }</li>
-        <li>email: { userStore.connected?.pivot?.email }</li>
-        <li>aud: { userStore.connected?.pivot?.aud }</li>
-        <li>exp: { userStore.connected?.pivot?.exp }</li>
-        <li>iat: { userStore.connected?.pivot?.iat }</li>
-        <li>iss: { userStore.connected?.pivot?.iss }</li>
-        <li>quotientinfo: <pre>{ JSON.stringify(quotientinfo, null, 2) }</pre></li>
+        <li>
+          userinfo: <pre>{ JSON.stringify(userStore.connected?.pivot, null, 2) }</pre>
+        </li>
+        <li>
+          user identity:
+          <pre>{ JSON.stringify(userStore.connected?.identity, null, 2) }</pre>
+        </li>
+        <li>sub: {userStore.connected?.pivot?.sub}</li>
+        <li>given_name: {userStore.connected?.pivot?.given_name}</li>
+        <li>given_name_array: {userStore.connected?.pivot?.given_name_array}</li>
+        <li>family_name: {userStore.connected?.pivot?.family_name}</li>
+        <li>birthdate: {userStore.connected?.pivot?.birthdate}</li>
+        <li>gender: {userStore.connected?.pivot?.gender}</li>
+        <li>birthplace: {userStore.connected?.pivot?.birthplace}</li>
+        <li>birthcountry: {userStore.connected?.pivot?.birthcountry}</li>
+        <li>email: {userStore.connected?.pivot?.email}</li>
+        <li>aud: {userStore.connected?.pivot?.aud}</li>
+        <li>exp: {userStore.connected?.pivot?.exp}</li>
+        <li>iat: {userStore.connected?.pivot?.iat}</li>
+        <li>iss: {userStore.connected?.pivot?.iss}</li>
+        <li>
+          quotientinfo: <pre>{ JSON.stringify(quotientinfo, null, 2) }</pre>
+        </li>
       </ul>
     </div>
   </section>
@@ -242,21 +267,21 @@
           margin-right: 16px;
           position: relative;
 
-          & a[href]{
+          & a[href] {
             background: none;
           }
 
           .count-number-wrapper {
             position: absolute;
             top: 0;
-            left: .75rem;
+            left: 0.75rem;
             display: flex;
             justify-content: center;
             align-items: center;
             width: 18px;
             height: 18px;
-            border-radius: .5rem;
-            background-color: #E1000F;
+            border-radius: 0.5rem;
+            background-color: #e1000f;
             color: white;
             font-size: 10px;
             font-weight: 700;

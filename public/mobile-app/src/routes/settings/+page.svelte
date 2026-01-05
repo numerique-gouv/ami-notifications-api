@@ -52,13 +52,14 @@
 
   <div class="settings-content-container">
     <div class="fr-toggle">
-      <input type="checkbox"
-             class="fr-toggle__input"
-             id="toggle"
-             aria-describedby="toggle-messages toggle-hint"
-             bind:checked={isChecked}
-             onchange={saveSettings}
-             data-testid="toggle-input"
+      <input
+        type="checkbox"
+        class="fr-toggle__input"
+        id="toggle"
+        aria-describedby="toggle-messages toggle-hint"
+        bind:checked={isChecked}
+        onchange={saveSettings}
+        data-testid="toggle-input"
       >
       <label class="fr-toggle__label" for="toggle">
         Recevoir les notifications sur mon appareil mobile
@@ -66,12 +67,13 @@
     </div>
   </div>
 
-  <button class="fr-btn fr-btn--secondary fr-btn--lg save-settings-button"
-          type="button"
-          onclick={navigateToPreviousPage}
-          title="Retour à la page précédente"
-          aria-label="Retour à la page précédente"
-          data-testid="close-button"
+  <button
+    class="fr-btn fr-btn--secondary fr-btn--lg save-settings-button"
+    type="button"
+    onclick={navigateToPreviousPage}
+    title="Retour à la page précédente"
+    aria-label="Retour à la page précédente"
+    data-testid="close-button"
   >
     Fermer
   </button>

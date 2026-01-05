@@ -39,10 +39,11 @@
 
 <nav>
   <div class="back-button-wrapper">
-    <button onclick={navigateToPreviousPage}
-            title="Retour à la page précédente"
-            aria-label="Retour à la page précédente"
-            data-testid="back-button"
+    <button
+      onclick={navigateToPreviousPage}
+      title="Retour à la page précédente"
+      aria-label="Retour à la page précédente"
+      data-testid="back-button"
     >
       <span aria-hidden="true" class="fr-icon-arrow-left-line"></span>
     </button>
@@ -50,12 +51,13 @@
   <div class="title">
     <h2>Notifications</h2>
     <div class="settings-svg-icon">
-      <button class="fr-btn fr-btn--tertiary"
-              type="button"
-              onclick="{goToSettings}"
-              data-testid="settings-button"
+      <button
+        class="fr-btn fr-btn--tertiary"
+        type="button"
+        onclick="{goToSettings}"
+        data-testid="settings-button"
       >
-        <img src="/remixicons/settings.svg" alt="Icône de paramétrage" />
+        <img src="/remixicons/settings.svg" alt="Icône de paramétrage">
         Gérer
       </button>
     </div>
@@ -64,25 +66,40 @@
 
 <div class="notifications-content-container">
   {#each notifications as notification}
-  <div class="fr-tile fr-tile-sm fr-tile--horizontal fr-enlarge-link notification {notification.read ? 'read': ''}" data-testid="notification-{notification.id}">
-    <div class="fr-tile__header">
-      <span class="notification__status {notification.read ? 'read': ''}" aria-hidden="true"><i>•</i></span>
-      <span class="notification__icon {notification.content_icon ? notification.content_icon: 'fr-icon-information-line'}" aria-hidden="true"></span>
-    </div>
-    <div class="fr-tile__body">
-      <div class="fr-tile__content">
-        <div class="notification__title">
-          <h3 class="fr-tile__title">
-            <a href="/" onclick={(event) => markNotificationAsRead(event, notification.id)} data-testid="notification-link-{notification.id}">{notification.content_title}</a>
-          </h3>
-          <span class="notification__age">
-            {prettyDate(notification.created_at)}
-          </span>
+    <div
+      class="fr-tile fr-tile-sm fr-tile--horizontal fr-enlarge-link notification {notification.read ? 'read': ''}"
+      data-testid="notification-{notification.id}"
+    >
+      <div class="fr-tile__header">
+        <span
+          class="notification__status {notification.read ? 'read': ''}"
+          aria-hidden="true"
+          ><i>•</i></span
+        >
+        <span
+          class="notification__icon {notification.content_icon ? notification.content_icon: 'fr-icon-information-line'}"
+          aria-hidden="true"
+        ></span>
+      </div>
+      <div class="fr-tile__body">
+        <div class="fr-tile__content">
+          <div class="notification__title">
+            <h3 class="fr-tile__title">
+              <a
+                href="/"
+                onclick={(event) => markNotificationAsRead(event, notification.id)}
+                data-testid="notification-link-{notification.id}"
+                >{notification.content_title}</a
+              >
+            </h3>
+            <span class="notification__age">
+              {prettyDate(notification.created_at)}
+            </span>
+          </div>
+          <p class="fr-tile__desc">{notification.content_body}</p>
         </div>
-        <p class="fr-tile__desc">{notification.content_body}</p>
       </div>
     </div>
-  </div>
   {/each}
 </div>
 
@@ -90,7 +107,7 @@
   nav {
     padding: 1.5rem 1rem;
     .back-button-wrapper {
-      margin-bottom: .5rem;
+      margin-bottom: 0.5rem;
       color: var(--text-active-blue-france);
       button {
         padding: 0;
@@ -103,10 +120,10 @@
         margin-bottom: 0;
       }
       .settings-svg-icon {
-        padding-top: .25rem;
+        padding-top: 0.25rem;
         color: var(--text-active-blue-france);
         img {
-          margin-right: .5rem;
+          margin-right: 0.5rem;
           width: 1rem;
           height: 1rem;
         }
@@ -117,13 +134,13 @@
     .notification {
       background: none;
       border-bottom: 1px solid var(--background-alt-grey-active);
-      padding: .75rem;
+      padding: 0.75rem;
       &:not(.read) {
         background-color: var(--background-contrast-blue-france);
       }
       .fr-tile__header {
         display: flex;
-        margin-right: .75rem;
+        margin-right: 0.75rem;
         .notification__status {
           width: 1rem;
           font-size: 22px;
@@ -166,7 +183,7 @@
           }
           .notification__age {
             order: 2;
-            font-size: .75rem;
+            font-size: 0.75rem;
             color: var(--text-mention-grey);
             width: 2rem;
             text-align: right;
