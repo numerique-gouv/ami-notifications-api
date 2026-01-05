@@ -4,6 +4,6 @@
     "type-check": "cd public/mobile-app && npm run check"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.3.8"
+    "@biomejs/biome": "2.3.11"
   }
 }
