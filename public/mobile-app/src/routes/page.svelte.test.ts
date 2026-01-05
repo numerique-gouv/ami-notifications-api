@@ -1,7 +1,9 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 import { render, screen, waitFor } from '@testing-library/svelte'
+import * as navigationMethods from '$app/navigation'
 import { PUBLIC_API_URL } from '$env/static/public'
+import { userStore } from '$lib/state/User.svelte'
 import { mockUserInfo } from '$tests/utils'
 import Page from './+page.svelte'
 
@@ -14,6 +16,61 @@ describe('/+page.svelte', () => {
 
   afterEach(() => {
     globalThis.window = originalWindow
+    vi.resetAllMocks()
+  })
+
+  test('should navigate to notifications welcome page when it is the first user login', async () => {
+    // Given
+    const { page } = await import('$app/state')
+    const mockSearchParams = new URLSearchParams('is_logged_in=true')
+    vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams)
+    const mockResponse = {
+      user_id: 'fake-user-id',
+      user_data: 'fake-user-data',
+      user_first_login: true,
+    }
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify(mockResponse), { status: 200 })
+    )
+    vi.spyOn(userStore, 'checkLoggedIn').mockResolvedValue()
+    const spy = vi
+      .spyOn(navigationMethods, 'goto')
+      .mockImplementation(() => Promise.resolve())
+
+    // When
+    render(Page)
+
+    // Then
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledWith('/#/notifications-welcome-page')
+    })
+  })
+
+  test('should navigate to homepage when user has already logged in', async () => {
+    // Given
+    const { page } = await import('$app/state')
+    const mockSearchParams = new URLSearchParams('is_logged_in=true')
+    vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams)
+    const mockResponse = {
+      user_id: 'fake-user-id',
+      user_data: 'fake-user-data',
+      user_first_login: false,
+    }
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify(mockResponse), { status: 200 })
+    )
+    vi.spyOn(userStore, 'checkLoggedIn').mockResolvedValue()
+    const spy = vi
+      .spyOn(navigationMethods, 'goto')
+      .mockImplementation(() => Promise.resolve())
+
+    // When
+    render(Page)
+
+    // Then
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledWith('/')
+    })
   })
 
   test('should render FranceConnect button', async () => {
