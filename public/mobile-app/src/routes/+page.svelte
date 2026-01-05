@@ -19,6 +19,7 @@
   let isLoggedOut: boolean = $state(false)
   let error: string = $state('')
   let error_description: string = $state('')
+  let isNotificationsNoticeVisible: boolean = $state(false)
 
   onMount(async () => {
     // User state already initialized in +layout.svelte
@@ -78,6 +79,9 @@
         isLoggedOut = true
         goto('/')
       }
+      if (page.url.searchParams.has('has_enabled_notifications')) {
+        isNotificationsNoticeVisible = true
+      }
     } catch (error) {
       console.error(error)
     }
@@ -95,6 +99,11 @@
   function dismissError() {
     error = ''
     error_description = ''
+    goto('/')
+  }
+
+  const dismissNotificationsNotice = () => {
+    isNotificationsNoticeVisible = false
     goto('/')
   }
 </script>
@@ -185,6 +194,17 @@
     </div>
   {:else if userStore.connected}
     <Navigation currentItem="home" />
+    {#if isNotificationsNoticeVisible}
+      <div class="fr-notice notifications-notice">
+        <div class="fr-container">
+          <div class="fr-notice__body">
+            <span class="fr-icon-success-line" aria-hidden="true"></span>
+            <p>Les notifications ont été activées</p>
+            <button onclick="{dismissNotificationsNotice}" title="Masquer le message" type="button" class="fr-btn--close fr-btn" data-testid="close-button">Masquer le message</button>
+          </div>
+        </div>
+      </div>
+    {/if}
     <ConnectedHomepage />
   {/if}
 </div>
@@ -245,6 +265,20 @@
 
       .fr-connect-group {
         text-align: center;
+      }
+    }
+
+    .notifications-notice {
+      position: absolute;
+      z-index: 1;
+      width: calc(100% - 2rem);
+      border-radius: .25rem;
+      background-color: #1B8644;
+      color: white;
+      padding: .5rem 0;
+      margin: 12px 1rem;
+      p {
+        font-size: 14px;
       }
     }
   }

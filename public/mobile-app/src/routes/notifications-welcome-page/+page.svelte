@@ -19,7 +19,7 @@
       localStorage.setItem('registration_id', registration.id)
       localStorage.setItem('notifications_enabled', 'true')
     }
-    goToHomepage()
+    goto('/?has_enabled_notifications')
   }
 
   const goToHomepage = () => {
