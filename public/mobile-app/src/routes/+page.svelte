@@ -222,8 +222,7 @@
   .homepage {
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
-    margin-bottom: 68px;
+    margin-bottom: 1.5rem;
 
     .homepage-not-connected {
       position: relative;
