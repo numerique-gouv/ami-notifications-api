@@ -22,25 +22,34 @@
 
 <div class="notifications-welcome-page">
   <div class="image-wrapper">
-    <img class="address-icon" src="/remixicons/notification.svg" alt="Icône de notification" />
+    <img
+      class="address-icon"
+      src="/remixicons/notification.svg"
+      alt="Icône de notification"
+    >
   </div>
   <h1>Activez les notifications pour suivre vos démarches</h1>
   <div class="descriptive-text">
-    <p>Recevez des alertes de suivi et des rappels utiles quand vous en avez besoin. Vous pourrez les désactiver à tout moment.</p>
+    <p>
+      Recevez des alertes de suivi et des rappels utiles quand vous en avez besoin. Vous
+      pourrez les désactiver à tout moment.
+    </p>
   </div>
 
   <div class="action-buttons">
-    <button class="fr-btn fr-btn--lg"
-            type="button"
-            onclick="{clickOnEnable}"
-            data-testid="enable-button"
+    <button
+      class="fr-btn fr-btn--lg"
+      type="button"
+      onclick="{clickOnEnable}"
+      data-testid="enable-button"
     >
       Activer
     </button>
-    <button class="fr-btn fr-btn--lg fr-btn--tertiary"
-            type="button"
-            onclick="{goToHomepage}"
-            data-testid="skip-button"
+    <button
+      class="fr-btn fr-btn--lg fr-btn--tertiary"
+      type="button"
+      onclick="{goToHomepage}"
+      data-testid="skip-button"
     >
       Peut-être plus tard
     </button>
@@ -58,7 +67,7 @@
       margin-bottom: 1rem;
     }
     h1 {
-      margin-bottom: .5rem;
+      margin-bottom: 0.5rem;
       font-size: 22px;
       line-height: 1.75rem;
       font-weight: 700;
