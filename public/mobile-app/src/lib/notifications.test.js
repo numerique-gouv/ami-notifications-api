@@ -1,9 +1,11 @@
-import { describe, expect, test, vi } from 'vitest'
+import { beforeEach, describe, expect, test, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
+import { waitFor } from '@testing-library/svelte'
 import {
   countUnreadNotifications,
   disableNotifications,
   enableNotifications,
+  enableNotificationsAndUpdateLocalStorage,
   readNotification,
   retrieveNotifications,
   subscribePush,
@@ -13,6 +15,13 @@ import * as registrationMethods from '$lib/registration'
 import { mockPushSubscription } from '$tests/utils'
 
 describe('/notifications', () => {
+  beforeEach(() => {
+    vi.mock('$lib/registration', () => ({
+      registerDevice: vi.fn().mockReturnValue({ id: 'fake-registration-id' }),
+      unregisterDevice: vi.fn(() => true),
+    }))
+  })
+
   describe('retrieveNotifications', () => {
     test('should get notifications from API', async () => {
       // Given
@@ -100,6 +109,44 @@ describe('/notifications', () => {
     })
   })
 
+  describe('enableNotificationsAndUpdateLocalStorage', () => {
+    test('should perform enableNotifications and update localStorage', async () => {
+      // Given
+      vi.stubGlobal('Notification', {
+        requestPermission: () => Promise.resolve(true),
+      })
+      const pushSubscription = {}
+      const registration = {
+        pushManager: {
+          subscribe: vi.fn(() => pushSubscription),
+        },
+      }
+      vi.stubGlobal('navigator', {
+        ...navigator,
+        serviceWorker: {
+          ready: Promise.resolve(registration),
+        },
+      })
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        new Response('fake applicationKeyResponse', { status: 200 })
+      )
+
+      window.localStorage.setItem('registration_id', '')
+      window.localStorage.setItem('notifications_enabled', '')
+
+      // When
+      await enableNotificationsAndUpdateLocalStorage()
+
+      // Then
+      await waitFor(() => {
+        expect(window.localStorage.getItem('registration_id')).toEqual(
+          'fake-registration-id'
+        )
+        expect(window.localStorage.getItem('notifications_enabled')).toEqual('true')
+      })
+    })
+  })
+
   describe('subscribePush', () => {
     test('should return PushSubscription when user subscribes to PushManager', async () => {
       // Given
@@ -159,11 +206,6 @@ describe('/notifications', () => {
       vi.spyOn(globalThis, 'fetch').mockResolvedValue(
         new Response('fake applicationKeyResponse', { status: 200 })
       )
-
-      const registrationResult = {}
-      vi.mock('$lib/registration', () => ({
-        registerDevice: vi.fn(() => Promise.resolve(registrationResult)),
-      }))
       const spy = vi.spyOn(registrationMethods, 'registerDevice')
 
       // When
@@ -225,11 +267,6 @@ describe('/notifications', () => {
           ready: Promise.resolve(registration),
         },
       })
-
-      vi.mock('$lib/registration', () => ({
-        registerDevice: vi.fn(() => true),
-        unregisterDevice: vi.fn(() => true),
-      }))
       const spyUnregisterDevice = vi.spyOn(registrationMethods, 'unregisterDevice')
 
       // When

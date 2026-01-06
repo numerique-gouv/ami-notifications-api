@@ -1,11 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import { goto } from '$app/navigation'
-  import { enableNotifications } from '$lib/notifications'
-  import type { Registration } from '$lib/registration'
+  import { enableNotificationsAndUpdateLocalStorage } from '$lib/notifications'
   import { userStore } from '$lib/state/User.svelte'
-
-  let registration: Registration | null = $state(null)
 
   onMount(async () => {
     if (!userStore.connected) {
@@ -14,11 +11,7 @@
   })
 
   const clickOnEnable = async () => {
-    registration = await enableNotifications()
-    if (registration) {
-      localStorage.setItem('registration_id', registration.id)
-      localStorage.setItem('notifications_enabled', 'true')
-    }
+    await enableNotificationsAndUpdateLocalStorage()
     goto('/?has_enabled_notifications')
   }
 

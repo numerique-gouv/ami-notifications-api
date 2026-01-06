@@ -2,7 +2,10 @@
   import { onMount } from 'svelte'
   import { goto } from '$app/navigation'
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte'
-  import { disableNotifications, enableNotifications } from '$lib/notifications'
+  import {
+    disableNotifications,
+    enableNotificationsAndUpdateLocalStorage,
+  } from '$lib/notifications'
   import type { Registration } from '$lib/registration'
   import { userStore } from '$lib/state/User.svelte'
 
@@ -23,11 +26,7 @@
 
   const saveSettings = async () => {
     if (isChecked) {
-      registration = await enableNotifications()
-      if (registration) {
-        localStorage.setItem('registration_id', registration.id)
-        localStorage.setItem('notifications_enabled', 'true')
-      }
+      registration = await enableNotificationsAndUpdateLocalStorage()
     } else {
       let registrationId: string | null = null
       if (registration) {
