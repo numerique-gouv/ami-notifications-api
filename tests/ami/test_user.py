@@ -46,6 +46,7 @@ async def test_fc_get_userinfo(
         "user_id": str(user.id),
         "user_data": fake_userinfo_token,
         "user_first_login": True,
+        "user_fc_hash": "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060",
     }
 
     assert user.fc_hash == "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060"
@@ -75,6 +76,7 @@ async def test_fc_get_userinfo(
         "user_id": str(user.id),
         "user_data": fake_userinfo_token,
         "user_first_login": False,
+        "user_fc_hash": "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060",
     }
     assert "authorization" in response.headers
     assert "set-cookie" in response.headers
@@ -131,6 +133,7 @@ async def test_fc_get_userinfo_user_never_seen(
         "user_id": str(user.id),
         "user_data": fake_userinfo_token,
         "user_first_login": True,
+        "user_fc_hash": "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060",
     }
 
     assert user.fc_hash == "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060"
@@ -163,6 +166,7 @@ async def test_fc_get_userinfo_user_never_seen(
         "user_id": str(user.id),
         "user_data": fake_userinfo_token,
         "user_first_login": True,
+        "user_fc_hash": "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060",
     }
     all_scheduled_notifications = (
         (await db_session.execute(select(ScheduledNotification))).scalars().all()
