@@ -74,6 +74,14 @@ export class Item {
       : null
   }
 
+  get fullDayName(): string | null {
+    return this.date
+      ? capitalizeFirstLetter(
+          this.date.toLocaleDateString('fr-FR', { weekday: 'long' })
+        )
+      : null
+  }
+
   get dayNum(): number | null {
     return this.date ? this.date.getDate() : null
   }

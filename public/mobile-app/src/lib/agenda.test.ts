@@ -37,6 +37,35 @@ describe('/agenda.ts', () => {
         expect(name2).equal('Mar')
       })
     })
+    describe('fullDayName', () => {
+      test('should return full day name', async () => {
+        // Given
+        const item1 = new Item(
+          'holiday',
+          'title',
+          'description',
+          new Date('2025-11-11'),
+          null,
+          null
+        )
+        const item2 = new Item(
+          'holiday',
+          'title',
+          'description',
+          null,
+          new Date('2025-11-11'),
+          null
+        )
+
+        // When
+        const name1 = item1.fullDayName
+        const name2 = item2.fullDayName
+
+        // Then
+        expect(name1).equal('Mardi')
+        expect(name2).equal('Mardi')
+      })
+    })
     describe('dayNum', () => {
       test('should return short day num', async () => {
         // Given
