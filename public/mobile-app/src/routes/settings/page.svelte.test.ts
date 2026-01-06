@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/svelte'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 import * as navigationMethods from '$app/navigation'
 import * as notificationsMethods from '$lib/notifications'
+import { enableNotificationsAndUpdateLocalStorage } from '$lib/notifications'
 import Page from './+page.svelte'
 
 describe('/+page.svelte', () => {
@@ -11,7 +12,9 @@ describe('/+page.svelte', () => {
       const registration = { id: 'fake-registration-id' }
       return {
         ...original,
-        enableNotifications: vi.fn(() => Promise.resolve(registration)),
+        enableNotificationsAndUpdateLocalStorage: vi.fn(() =>
+          Promise.resolve(registration)
+        ),
         disableNotifications: vi.fn(() => Promise.resolve()),
       }
     })
@@ -33,8 +36,10 @@ describe('/+page.svelte', () => {
 
   test('should enable notifications when user toggles on', async () => {
     // Given
-    const spy = vi.spyOn(notificationsMethods, 'enableNotifications')
-    window.localStorage.setItem('notifications_enabled', 'false')
+    const spy = vi.spyOn(
+      notificationsMethods,
+      'enableNotificationsAndUpdateLocalStorage'
+    )
     render(Page)
 
     // When
@@ -44,10 +49,6 @@ describe('/+page.svelte', () => {
     // Then
     await waitFor(async () => {
       expect(spy).toHaveBeenCalled()
-      expect(window.localStorage.getItem('registration_id')).toEqual(
-        'fake-registration-id'
-      )
-      expect(window.localStorage.getItem('notifications_enabled')).toEqual('true')
     })
   })
 
