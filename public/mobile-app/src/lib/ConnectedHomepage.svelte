@@ -204,46 +204,6 @@
       </div>
     </div>
   </div>
-
-  <section class="fr-accordion">
-    <h3 class="fr-accordion__title">
-      <button
-        type="button"
-        class="fr-accordion__btn"
-        aria-expanded="false"
-        aria-controls="accordion-1"
-      >
-        Données de debug
-      </button>
-    </h3>
-    <div id="accordion-1" class="fr-collapse">
-      <ul>
-        <li>
-          userinfo: <pre>{ JSON.stringify(userStore.connected?.pivot, null, 2) }</pre>
-        </li>
-        <li>
-          user identity:
-          <pre>{ JSON.stringify(userStore.connected?.identity, null, 2) }</pre>
-        </li>
-        <li>sub: {userStore.connected?.pivot?.sub}</li>
-        <li>given_name: {userStore.connected?.pivot?.given_name}</li>
-        <li>given_name_array: {userStore.connected?.pivot?.given_name_array}</li>
-        <li>family_name: {userStore.connected?.pivot?.family_name}</li>
-        <li>birthdate: {userStore.connected?.pivot?.birthdate}</li>
-        <li>gender: {userStore.connected?.pivot?.gender}</li>
-        <li>birthplace: {userStore.connected?.pivot?.birthplace}</li>
-        <li>birthcountry: {userStore.connected?.pivot?.birthcountry}</li>
-        <li>email: {userStore.connected?.pivot?.email}</li>
-        <li>aud: {userStore.connected?.pivot?.aud}</li>
-        <li>exp: {userStore.connected?.pivot?.exp}</li>
-        <li>iat: {userStore.connected?.pivot?.iat}</li>
-        <li>iss: {userStore.connected?.pivot?.iss}</li>
-        <li>
-          quotientinfo: <pre>{ JSON.stringify(quotientinfo, null, 2) }</pre>
-        </li>
-      </ul>
-    </div>
-  </section>
 </div>
 
 <style>
@@ -410,10 +370,6 @@
           width: 5rem;
         }
       }
-    }
-
-    .fr-accordion {
-      margin-bottom: 24px;
     }
   }
 </style>
