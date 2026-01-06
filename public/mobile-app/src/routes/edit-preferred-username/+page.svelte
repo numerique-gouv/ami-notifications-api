@@ -124,6 +124,7 @@
             margin-bottom: 0.25rem;
           }
           #input {
+            max-height: 3.25rem;
             padding: 1rem;
             font-size: 1rem;
             line-height: 1.5rem;
