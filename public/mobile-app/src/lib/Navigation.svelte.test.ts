@@ -30,13 +30,4 @@ describe('/Navigation.svelte', () => {
     const highlight = container.querySelector('.highlight')
     expect(highlight).toHaveTextContent('Agenda')
   })
-
-  test('should highlight requests item', async () => {
-    // Given
-    const { container } = render(Navigation, { currentItem: 'requests' })
-
-    // Then
-    const highlight = container.querySelector('.highlight')
-    expect(highlight).toHaveTextContent('Suivi')
-  })
 })

@@ -30,16 +30,6 @@
         <span>Agenda</span>
       </a>
     </li>
-    <li class="menu__item">
-      <a
-        class="menu__link {current.requests ? 'highlight': ''}"
-        href="/"
-        aria-current="{current.requests ? 'true': null}"
-      >
-        <img src="/remixicons/vector.svg" alt="Icône de suivi">
-        <span>Suivi</span>
-      </a>
-    </li>
   </ul>
 </nav>
 
