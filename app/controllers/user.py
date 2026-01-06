@@ -67,6 +67,7 @@ class UserController(Controller):
             "user_id": user.id,
             "user_data": userinfo_jws,
             "user_first_login": create_welcome,
+            "user_fc_hash": fc_hash,
         }
 
         return jwt_cookie_auth.login(
