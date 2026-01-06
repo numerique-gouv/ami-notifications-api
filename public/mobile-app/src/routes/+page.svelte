@@ -200,7 +200,15 @@
           <div class="fr-notice__body">
             <span class="fr-icon-success-line" aria-hidden="true"></span>
             <p>Les notifications ont été activées</p>
-            <button onclick="{dismissNotificationsNotice}" title="Masquer le message" type="button" class="fr-btn--close fr-btn" data-testid="close-button">Masquer le message</button>
+            <button
+              onclick="{dismissNotificationsNotice}"
+              title="Masquer le message"
+              type="button"
+              class="fr-btn--close fr-btn"
+              data-testid="close-button"
+            >
+              Masquer le message
+            </button>
           </div>
         </div>
       </div>
@@ -272,10 +280,10 @@
       position: absolute;
       z-index: 1;
       width: calc(100% - 2rem);
-      border-radius: .25rem;
-      background-color: #1B8644;
+      border-radius: 0.25rem;
+      background-color: #1b8644;
       color: white;
-      padding: .5rem 0;
+      padding: 0.5rem 0;
       margin: 12px 1rem;
       p {
         font-size: 14px;
