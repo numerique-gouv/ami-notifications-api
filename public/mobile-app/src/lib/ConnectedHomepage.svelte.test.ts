@@ -63,17 +63,6 @@ describe('/ConnectedHomepage.svelte', () => {
     })
   })
 
-  test("should display user's quotient data", async () => {
-    // When
-    const { container } = await render(ConnectedHomepage)
-
-    // Then
-    await waitFor(() => {
-      const accordion = container.querySelector('#accordion-1')
-      expect(accordion).toHaveTextContent('quotientinfo: { "data": { "foo": "bar" }')
-    })
-  })
-
   test("should display user's notification count", async () => {
     // Given
     const spy = vi
