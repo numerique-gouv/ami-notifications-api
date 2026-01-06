@@ -49,9 +49,10 @@
           >{identity.given_name} {identity.preferred_username || identity.family_name},</b
         >
         <br>
-        né
         {#if identity.gender == "female"}
-          e
+          née
+        {:else}
+          né
         {/if}
         {#if identity.preferred_username}
           <b>{identity.family_name}</b>
