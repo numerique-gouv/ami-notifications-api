@@ -18,9 +18,11 @@
 <div class="agenda--item">
   {#if displayDate}
     <div class="agenda--item--date">
-      <span class="day-name">{item.dayName}</span> <span class="day-num"
-        >{item.dayNum}</span
-      > 
+      <span class="day-name"
+        ><span aria-hidden="true">{item.dayName}</span><span class="fr-sr-only"
+          >{item.fullDayName}</span
+        ></span
+      > <span class="day-num">{item.dayNum}</span> 
     </div>
   {/if}
   <div
