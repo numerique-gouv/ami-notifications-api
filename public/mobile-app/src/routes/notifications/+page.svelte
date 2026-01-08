@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import { goto } from '$app/navigation'
-  import type { Notification } from '$lib/notifications'
+  import type { AppNotification } from '$lib/notifications'
   import {
     notificationEventsSocket,
     readNotification,
@@ -10,7 +10,7 @@
   import { prettyDate } from '$lib/prettyDate'
   import { userStore } from '$lib/state/User.svelte'
 
-  let notifications: Notification[] = $state([])
+  let notifications: AppNotification[] = $state([])
 
   onMount(async () => {
     if (!userStore.connected) {
