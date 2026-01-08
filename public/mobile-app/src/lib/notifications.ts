@@ -8,7 +8,7 @@ export const PUBLIC_API_WS_URL = PUBLIC_API_URL.replace('https://', 'wss://').re
   'ws://'
 )
 
-export type Notification = {
+export type AppNotification = {
   id: string
   created_at: Date
   user_id: string
@@ -19,8 +19,8 @@ export type Notification = {
   read: boolean
 }
 
-export const retrieveNotifications = async (): Promise<Notification[]> => {
-  let notifications = [] as Notification[]
+export const retrieveNotifications = async (): Promise<AppNotification[]> => {
+  let notifications = [] as AppNotification[]
   try {
     const response = await apiFetch('/api/v1/users/notifications', {
       credentials: 'include',
@@ -36,7 +36,7 @@ export const retrieveNotifications = async (): Promise<Notification[]> => {
 }
 
 export const countUnreadNotifications = async (): Promise<number> => {
-  let notifications = [] as Notification[]
+  let notifications = [] as AppNotification[]
   try {
     const response = await apiFetch('/api/v1/users/notifications?read=false', {
       credentials: 'include',
@@ -52,7 +52,7 @@ export const countUnreadNotifications = async (): Promise<number> => {
 
 export const readNotification = async (
   notificationId: string
-): Promise<Notification | undefined> => {
+): Promise<AppNotification | undefined> => {
   try {
     const payload = {
       read: true,
@@ -66,7 +66,7 @@ export const readNotification = async (
       }
     )
     if (response.status === 200) {
-      const notification = (await response.json()) as Notification
+      const notification = (await response.json()) as AppNotification
       return notification
     }
   } catch (error) {
@@ -109,6 +109,10 @@ export const subscribePush = async () => {
 }
 
 export const enableNotifications = async (): Promise<Registration | null> => {
+  if (typeof Notification === 'undefined') {
+    console.error('Notification API is not available in this browser')
+    return null
+  }
   const permissionGranted = await Notification.requestPermission()
   const registration = await getServiceWorkerRegistration()
   if (!permissionGranted || !registration) {
@@ -139,6 +143,10 @@ export const unsubscribePush = async (pushSubscription: PushSubscription) => {
 }
 
 export const disableNotifications = async (registrationId: string) => {
+  if (typeof Notification === 'undefined') {
+    console.error('Notification API is not available in this browser')
+    return false
+  }
   const permissionGranted = await Notification.requestPermission()
   const registration = await getServiceWorkerRegistration()
   if (!permissionGranted || !registration) {
