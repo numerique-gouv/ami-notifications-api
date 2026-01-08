@@ -2,6 +2,7 @@
   import { onMount } from 'svelte'
   import { goto } from '$app/navigation'
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte'
+  import { runOrNativeEvent } from '$lib/nativeEvents'
   import {
     disableNotifications,
     enableNotificationsAndUpdateLocalStorage,
@@ -24,24 +25,31 @@
     window.history.back()
   }
 
+  const enableNotificationsFunc = async () => {
+    registration = await enableNotificationsAndUpdateLocalStorage()
+  }
+
+  const disableNotificationsFunc = async () => {
+    let registrationId: string | null = null
+    if (registration) {
+      registrationId = registration.id
+    } else if (localStorage.getItem('registration_id')) {
+      registrationId = localStorage.getItem('registration_id')
+    } else {
+      console.log('no registration')
+    }
+
+    if (registrationId) {
+      await disableNotifications(registrationId)
+      localStorage.setItem('registration_id', '')
+      localStorage.setItem('notifications_enabled', 'false')
+    }
+  }
   const saveSettings = async () => {
     if (isChecked) {
-      registration = await enableNotificationsAndUpdateLocalStorage()
+      runOrNativeEvent(enableNotificationsFunc, 'notification_permission_requested')
     } else {
-      let registrationId: string | null = null
-      if (registration) {
-        registrationId = registration.id
-      } else if (localStorage.getItem('registration_id')) {
-        registrationId = localStorage.getItem('registration_id')
-      } else {
-        console.log('no registration')
-      }
-
-      if (registrationId) {
-        await disableNotifications(registrationId)
-        localStorage.setItem('registration_id', '')
-        localStorage.setItem('notifications_enabled', 'false')
-      }
+      runOrNativeEvent(disableNotificationsFunc, 'notification_permission_removed')
     }
   }
 </script>

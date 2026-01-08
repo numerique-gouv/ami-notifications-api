@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import { goto } from '$app/navigation'
-  import { emit, isNative } from '$lib/nativeEvents'
+  import { runOrNativeEvent } from '$lib/nativeEvents'
   import { enableNotificationsAndUpdateLocalStorage } from '$lib/notifications'
   import { userStore } from '$lib/state/User.svelte'
 
@@ -11,15 +11,13 @@
     }
   })
 
+  const enableNotificationsFunc = async () => {
+    await enableNotificationsAndUpdateLocalStorage()
+    goto('/?has_enabled_notifications')
+  }
+
   const clickOnEnable = async () => {
-    if (isNative()) {
-      console.log("We're in a native WebView, send an event")
-      emit('notification_permission_requested')
-    } else {
-      console.log("We're not in a native WebView, try enabling the notifications")
-      await enableNotificationsAndUpdateLocalStorage()
-      goto('/?has_enabled_notifications')
-    }
+    runOrNativeEvent(enableNotificationsFunc, 'notification_permission_requested')
   }
 
   const goToHomepage = () => {
