@@ -1,6 +1,6 @@
 /***
 
-This helper is sends an event to a javascript interface injected into the WebView from the mobile app native code.
+This helper sends an event to a javascript interface injected into the WebView from the mobile app native code.
 If `window.NativeBridge` exists, it can be used to notify the native code.
 
 ***/
@@ -24,4 +24,14 @@ export const emit = (eventName: string, data?: any) => {
 export const isNative = (): boolean => {
   // @ts-expect-error: `NativeBridge` doesn't exist on the window object, unless it's injected.
   return !!window.NativeBridge
+}
+
+export const runOrNativeEvent = (func: () => any, eventName: string, data?: any) => {
+  if (isNative()) {
+    console.log("We're in a native WebView, send an event")
+    emit(eventName, data)
+  } else {
+    console.log("We're not in a native WebView, run a function")
+    return func()
+  }
 }
