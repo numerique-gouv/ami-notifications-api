@@ -92,9 +92,7 @@ describe('/+page.svelte', () => {
       new Response(JSON.stringify(mockResponse), { status: 200 })
     )
     vi.spyOn(userStore, 'checkLoggedIn').mockResolvedValue()
-    const spy = vi
-      .spyOn(navigationMethods, 'goto')
-      .mockImplementation(() => Promise.resolve())
+    const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue()
 
     // When
     render(Page)
@@ -123,8 +121,30 @@ describe('/+page.svelte', () => {
     })
   })
 
+  test('should display network-error page on FranceConnect login button when back is down', async () => {
+    // Given
+    vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error())
+    const spy = vi
+      .spyOn(navigationMethods, 'goto')
+      .mockImplementation(() => Promise.resolve())
+
+    render(Page)
+    await waitFor(() => {
+      const franceConnectLoginButton = screen.getByRole('button', {
+        name: 'S’identifier avec FranceConnect',
+      })
+
+      // When
+      franceConnectLoginButton.click()
+
+      // Then
+      expect(spy).toHaveBeenCalledWith('/#/network-error')
+    })
+  })
+
   test('should call authorize endpoint when click on FranceConnect login button', async () => {
     // Given
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('', { status: 200 }))
     vi.stubGlobal('location', { href: 'fake-link' })
 
     render(Page)

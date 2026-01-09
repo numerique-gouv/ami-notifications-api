@@ -90,7 +90,16 @@
 
   // FC - Step 3
   const franceConnectLogin = async () => {
-    window.location.href = `${PUBLIC_API_URL}/login-france-connect`
+    try {
+      await fetch(`${PUBLIC_API_URL}/ping`, {
+        method: 'HEAD',
+        mode: 'no-cors',
+        cache: 'no-store',
+      })
+      window.location.href = `${PUBLIC_API_URL}/login-france-connect`
+    } catch {
+      goto('/#/network-error')
+    }
   }
 
   function dismissNotice() {
