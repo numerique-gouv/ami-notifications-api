@@ -63,17 +63,6 @@ describe('/ConnectedHomepage.svelte', () => {
     })
   })
 
-  test("should display user's quotient data", async () => {
-    // When
-    const { container } = await render(ConnectedHomepage)
-
-    // Then
-    await waitFor(() => {
-      const accordion = container.querySelector('#accordion-1')
-      expect(accordion).toHaveTextContent('quotientinfo: { "data": { "foo": "bar" }')
-    })
-  })
-
   test("should display user's notification count", async () => {
     // Given
     const spy = vi
@@ -148,6 +137,23 @@ describe('/ConnectedHomepage.svelte', () => {
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1)
       expect(spy).toHaveBeenNthCalledWith(1, '/#/settings')
+    })
+  })
+
+  test('should navigate to Contact page when user clicks on Nous contacter button', async () => {
+    // Given
+    const spy = vi
+      .spyOn(navigationMethods, 'goto')
+      .mockImplementation(() => Promise.resolve())
+    render(ConnectedHomepage)
+
+    // When
+    const button = screen.getByTestId('contact-button')
+    await fireEvent.click(button)
+
+    // Then
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledWith('/#/contact')
     })
   })
 

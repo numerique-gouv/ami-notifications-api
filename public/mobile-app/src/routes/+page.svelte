@@ -68,6 +68,7 @@
         const result = await response.json()
         localStorage.setItem('user_data', result.user_data)
         localStorage.setItem('user_id', result.user_id)
+        localStorage.setItem('user_fc_hash', result.user_fc_hash)
         await userStore.checkLoggedIn()
         if (result.user_first_login) {
           goto('/#/notifications-welcome-page')
@@ -221,8 +222,7 @@
   .homepage {
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
-    margin-bottom: 68px;
+    margin-bottom: 1.5rem;
 
     .homepage-not-connected {
       position: relative;

@@ -19,6 +19,36 @@ describe('/+page.svelte', () => {
     vi.resetAllMocks()
   })
 
+  test('should set localStorage when user is logged in', async () => {
+    // Given
+    window.localStorage.setItem('user_data', '')
+    window.localStorage.setItem('user_id', '')
+    window.localStorage.setItem('user_fc_hash', '')
+
+    const { page } = await import('$app/state')
+    const mockSearchParams = new URLSearchParams('is_logged_in=true')
+    vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams)
+    const mockResponse = {
+      user_id: 'fake-user-id',
+      user_data: 'fake-user-data',
+      user_first_login: true,
+      user_fc_hash: 'fake-user-fc-hash',
+    }
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify(mockResponse), { status: 200 })
+    )
+
+    // When
+    render(Page)
+
+    // Then
+    await waitFor(async () => {
+      expect(window.localStorage.getItem('user_data')).toEqual('fake-user-data')
+      expect(window.localStorage.getItem('user_id')).toEqual('fake-user-id')
+      expect(window.localStorage.getItem('user_fc_hash')).toEqual('fake-user-fc-hash')
+    })
+  })
+
   test('should navigate to notifications welcome page when it is the first user login', async () => {
     // Given
     const { page } = await import('$app/state')
@@ -28,6 +58,7 @@ describe('/+page.svelte', () => {
       user_id: 'fake-user-id',
       user_data: 'fake-user-data',
       user_first_login: true,
+      user_fc_hash: 'fake-user-fc-hash',
     }
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(
       new Response(JSON.stringify(mockResponse), { status: 200 })
@@ -55,6 +86,7 @@ describe('/+page.svelte', () => {
       user_id: 'fake-user-id',
       user_data: 'fake-user-data',
       user_first_login: false,
+      user_fc_hash: 'fake-user-fc-hash',
     }
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(
       new Response(JSON.stringify(mockResponse), { status: 200 })
