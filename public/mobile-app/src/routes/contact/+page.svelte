@@ -16,7 +16,7 @@
   })
 
   const copyIdentificationCode = () => {
-    if (userFcHash !== null) {
+    if (userFcHash) {
       navigator.clipboard.writeText(userFcHash)
     }
   }
