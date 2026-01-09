@@ -5,7 +5,7 @@
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte'
   import { userStore } from '$lib/state/User.svelte'
 
-  let userFcHash: string | null = ''
+  let userFcHash: string | null = null
   const contactUrl = PUBLIC_CONTACT_URL
 
   onMount(async () => {
