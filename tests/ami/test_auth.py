@@ -68,6 +68,19 @@ async def test_login_france_connect(
     assert url_contains_param("idp_hint", env.PUBLIC_FC_AMI_IDP_HINT, redirected_url)
 
 
+async def test_login_france_connect_error(
+    test_client: TestClient[Litestar],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def fake_nonce():
+        raise Exception()
+
+    monkeypatch.setattr("app.controllers.auth.generate_nonce", fake_nonce)
+    response = test_client.get("/login-france-connect", follow_redirects=False)
+    redirected_url = response.headers["location"]
+    assert redirected_url == "https://localhost:5173/#/technical-error"
+
+
 async def test_login_callback(
     test_client: TestClient[Litestar],
     db_session: AsyncSession,
@@ -262,6 +275,19 @@ async def test_login_callback_fc_error(
     assert url_contains_param("error", "access_denied", redirected_url)
     assert url_contains_param("error_description", "User auth aborted", redirected_url)
     assert url_contains_param("code", "fc_error", redirected_url)
+
+
+async def test_login_callback_error(
+    test_client: TestClient[Litestar],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def fake_retry():
+        raise Exception()
+
+    monkeypatch.setattr("app.controllers.auth.retry_fc_later", fake_retry)
+    response = test_client.get("/login-callback?state=some-state", follow_redirects=False)
+    redirected_url = response.headers["location"]
+    assert redirected_url == "https://localhost:5173/#/technical-error"
 
 
 async def test_logout(

@@ -23,7 +23,7 @@ from litestar.template.config import TemplateConfig
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine
 
-from app import env
+from app import env, errors
 from app.auth import jwt_cookie_auth, openapi_config, partner_auth
 from app.cli import CLIPlugin
 from app.controllers.auth import AuthController
@@ -199,6 +199,7 @@ def create_app() -> Litestar:
             rvo_router,
             ami_admin_router,
         ],
+        exception_handlers={errors.TechnicalError: errors.technical_error_handler},
         dependencies={
             "webpush": Provide(provide_webpush, use_cache=True, sync_to_thread=True),
         },
