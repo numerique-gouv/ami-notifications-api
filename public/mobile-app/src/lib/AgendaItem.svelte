@@ -29,7 +29,7 @@
     class="agenda--item--detail fr-tile fr-tile-sm fr-tile--horizontal fr-enlarge-link {item.custom ? 'custom': ''} {item.link ? '': 'no-link'}"
   >
     <div class="fr-tile__body">
-      <div class="fr-tile__content">
+      <div class="fr-tile__content {item.link ? '': 'no-link'}">
         <h3 class="fr-tile__title">
           <a
             href="{item.link}?date={agendaItemDate}"
@@ -104,6 +104,9 @@
       }
       .fr-tile__content {
         padding-bottom: 1.5rem;
+        &.no-link {
+          padding-bottom: 0;
+        }
         .fr-tile__title {
           font-size: 16px;
           a {
