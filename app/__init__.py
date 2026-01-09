@@ -8,6 +8,7 @@ from litestar import (
     Response,
     Router,
     get,
+    head,
 )
 from litestar.channels import ChannelsPlugin
 from litestar.channels.backends.asyncpg import AsyncPgChannelsBackend
@@ -56,6 +57,11 @@ sentry_sdk.init(
 )
 
 # ### VIEWS
+
+
+@head(path="/ping", include_in_schema=False)
+async def ping() -> None:
+    pass
 
 
 @get(path="/sector_identifier_url", include_in_schema=False)
@@ -180,6 +186,7 @@ def create_app() -> Litestar:
             partner_router,
             NotAuthenticatedNotificationController,
             UserController,
+            ping,
             get_sector_identifier_url,
             _dev_utils_recipient_fc_hash,
             _dev_utils_review_apps,
