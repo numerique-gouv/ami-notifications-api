@@ -5,6 +5,13 @@ from litestar.testing import TestClient
 from app.utils import build_fc_hash
 
 
+async def test_ping(
+    test_client: TestClient[Litestar],
+):
+    response = test_client.head("/ping")
+    assert response.status_code == 200
+
+
 async def test_get_sector_identifier_url(
     test_client: TestClient[Litestar],
     monkeypatch: pytest.MonkeyPatch,
