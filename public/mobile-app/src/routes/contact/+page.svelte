@@ -46,20 +46,22 @@
     <div class="identification-code-wrapper">
       <p class="identification-code">{userFcHash}</p>
 
-      <button
-        class="copy-button"
-        type="button"
-        onclick={copyIdentificationCode}
-        title="Copier le code d'identification"
-        aria-label="Copier le code d'identification"
-        data-testid="copy-button"
-      >
-        <img
-          class="copy-icon"
-          src="/remixicons/file-copy-line.svg"
-          alt="Icône de copie"
+      <div class="button-wrapper">
+        <button
+          class="copy-button"
+          type="button"
+          onclick={copyIdentificationCode}
+          title="Copier le code d'identification"
+          aria-label="Copier le code d'identification"
+          data-testid="copy-button"
         >
-      </button>
+          <img
+            class="copy-icon"
+            src="/remixicons/file-copy-line.svg"
+            alt="Icône de copie"
+          >
+        </button>
+      </div>
     </div>
 
     <div class="contact-link-wrapper">
@@ -95,9 +97,11 @@
           background-color: #ececfe;
           font-weight: 500;
         }
-        .copy-icon {
-          margin-left: 12px;
-          flex-shrink: 0;
+        .button-wrapper {
+          padding-left: 12px;
+          .copy-button {
+            padding: 0;
+          }
         }
       }
 
