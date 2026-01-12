@@ -32,13 +32,13 @@ describe('/+page.svelte', () => {
     // Given
     window.localStorage.setItem('user_fc_hash', 'fake-user-fc-hash')
 
+    const spy = vi.fn().mockResolvedValue(undefined)
     vi.stubGlobal('navigator', {
       ...navigator,
       clipboard: {
-        writeText: vi.fn().mockResolvedValue(undefined),
+        writeText: spy,
       },
     })
-    const spy = vi.spyOn(navigator.clipboard, 'writeText')
 
     render(Page)
 
