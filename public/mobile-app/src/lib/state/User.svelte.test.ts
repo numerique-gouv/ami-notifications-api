@@ -5,7 +5,6 @@ import * as authHelpers from '$lib/auth'
 import * as franceConnectHelpers from '$lib/france-connect'
 import { User, userStore } from '$lib/state/User.svelte'
 import { mockUser, mockUserIdentity, mockUserInfo } from '$tests/utils'
-import { fetchSpy } from '../../../vitest-setup-client'
 
 describe('/lib/state/User.svelte.ts', () => {
   beforeEach(() => {
@@ -180,7 +179,8 @@ describe('/lib/state/User.svelte.ts', () => {
     await userStore.login(mockUserInfo)
 
     // Then
-    expect(fetchSpy).not.toHaveBeenCalled()
+    // @ts-expect-error
+    expect(globalThis.fetchSpy).not.toHaveBeenCalled()
   })
 
   test("should query the geo API to update the identity if it didn't have the birthplace and birthcountry", async () => {
@@ -191,11 +191,18 @@ describe('/lib/state/User.svelte.ts', () => {
     await userStore.login(mockUserInfo)
 
     // Then
-    const mockCalls = fetchSpy.mock.calls // An array of calls, each call being [url, options]
-    expect(mockCalls[0][0]).toContain('geo.api.gouv.fr')
-    expect(mockCalls[0][0]).toContain(mockUserInfo.birthplace)
-    expect(mockCalls[1][0]).toContain('tabular-api.data.gouv.fr')
-    expect(mockCalls[1][0]).toContain(mockUserInfo.birthcountry)
+    // @ts-expect-error
+    expect(globalThis.fetchSpy).toHaveBeenCalledTimes(2)
+    // @ts-expect-error
+    expect(globalThis.fetchSpy).toHaveBeenNthCalledWith(
+      1,
+      'https://geo.api.gouv.fr/communes/75100?fields=nom&format=json'
+    )
+    // @ts-expect-error
+    expect(globalThis.fetchSpy).toHaveBeenNthCalledWith(
+      2,
+      'https://tabular-api.data.gouv.fr/api/resources/3580bf65-1d11-4574-a2ca-903d64ad41bd/data/?page=1&page_size=20&COG__exact=99100'
+    )
   })
   describe('User', () => {
     describe('getInitials', () => {
