@@ -13,10 +13,10 @@
   } from '$env/static/public'
   import { apiFetch } from '$lib/auth'
   import ConnectedHomepage from '$lib/ConnectedHomepage.svelte'
+  import { addToast } from '$lib/components/toast'
   import Navigation from '$lib/Navigation.svelte'
   import { userStore } from '$lib/state/User.svelte'
 
-  let isLoggedOut: boolean = $state(false)
   let error: string = $state('')
   let error_description: string = $state('')
 
@@ -76,7 +76,7 @@
         }
       }
       if (page.url.searchParams.has('is_logged_out')) {
-        isLoggedOut = true
+        addToast('Vous avez bien été déconnecté(e)', 'neutral')
         goto('/')
       }
     } catch (error) {
@@ -96,10 +96,6 @@
     } catch {
       goto('/#/network-error')
     }
-  }
-
-  function dismissNotice() {
-    isLoggedOut = false
   }
 
   function dismissError() {
@@ -131,27 +127,6 @@
                 Masquer le message
               </button>
             </div>
-          </div>
-        </div>
-      {/if}
-      {#if isLoggedOut}
-        <div class="logout-notice fr-py-3v fr-px-4v">
-          <div class="container-left">
-            <img
-              src="/icons/fr--success-line-green.svg"
-              class="fr-mr-2v"
-              alt="Icône de succès"
-            >
-            <span>Vous avez bien été déconnecté</span>
-          </div>
-          <div class="container-right">
-            <button
-              onclick="{dismissNotice}"
-              title="Masquer le message"
-              aria-label="Masquer le message"
-              type="button"
-              class="fr-btn--close fr-btn"
-            ></button>
           </div>
         </div>
       {/if}
@@ -208,39 +183,6 @@
     .homepage-not-connected {
       position: relative;
       margin: 24px 16px;
-
-      .logout-notice {
-        position: absolute;
-        width: 100%;
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
-        background-color: var(--background-flat-grey);
-        color: white;
-        border-left: 3px solid #58b77d;
-        border-radius: 0.25rem;
-
-        .container-left {
-          display: flex;
-          flex-direction: row;
-          align-items: center;
-
-          img {
-            width: 1.25rem;
-            height: 1.25rem;
-          }
-
-          span {
-            font-size: 14px;
-            font-weight: 500;
-          }
-        }
-
-        .fr-btn--close {
-          color: white;
-        }
-      }
 
       .france-connect-svg-icon {
         text-align: center;

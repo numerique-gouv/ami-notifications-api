@@ -3,6 +3,8 @@ import '@testing-library/jest-dom/vitest'
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte'
 import * as navigationMethods from '$app/navigation'
 import { PUBLIC_API_URL } from '$env/static/public'
+import * as toastsMethods from '$lib/components/toast'
+import { addToast } from '$lib/components/toast'
 import { userStore } from '$lib/state/User.svelte'
 import { mockUserInfo } from '$tests/utils'
 import Page from './+page.svelte'
@@ -210,5 +212,41 @@ describe('/+page.svelte', () => {
     const errorMessage = await screen.findByText('some error message')
     expect(errorMessage).toBeInTheDocument()
     expect(window.localStorage.getItem('access_token')).toEqual(null)
+  })
+
+  test('should add toast when user is logged out', async () => {
+    // Given
+    const { page } = await import('$app/state')
+    const mockSearchParams = new URLSearchParams('is_logged_out')
+    vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams)
+
+    const spy = vi.spyOn(toastsMethods, 'addToast')
+
+    // When
+    render(Page)
+
+    // Then
+    await waitFor(async () => {
+      expect(spy).toHaveBeenCalledWith('Vous avez bien été déconnecté(e)', 'neutral')
+    })
+  })
+
+  test('should navigate to the homepage when user is logged out', async () => {
+    // Given
+    const { page } = await import('$app/state')
+    const mockSearchParams = new URLSearchParams('is_logged_out')
+    vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams)
+
+    const spy = vi
+      .spyOn(navigationMethods, 'goto')
+      .mockImplementation(() => Promise.resolve())
+
+    // When
+    render(Page)
+
+    // Then
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledWith('/')
+    })
   })
 })
