@@ -8,6 +8,7 @@ from app import env
 from app.httpx import httpx
 from app.models import User
 from app.schemas import Holiday
+from app.utils import error_from_message
 
 
 @get(path="/api-particulier/quotient", include_in_schema=False)
@@ -34,7 +35,7 @@ async def get_api_particulier_quotient(
 async def get_holidays(
     request: Request[Any, Any, Any],
     current_date: datetime.date,
-) -> list[Holiday]:
+) -> list[Holiday] | Response[dict[Any, Any]]:
     # target one region per zone, to limit results
     locations = ["Bordeaux", "Lille", "Versailles"]
     locations_query = " OR ".join(f"location = '{location}'" for location in locations)
@@ -55,6 +56,10 @@ async def get_holidays(
             "limit": 100,
         },
     )
+    if response.status_code != 200:
+        return error_from_message(
+            {"ami_details": "Holidays error"}, status_code=response.status_code
+        )
 
     holidays: dict[Any, Holiday] = {}
     for data in response.json()["results"]:

@@ -20,8 +20,8 @@ export const retrieveHolidays = async (
     const response = await apiFetch(`/data/holidays?current_date=${current_date}`, {
       credentials: 'include',
     })
-    holidaysData = await response.text()
     if (response.ok) {
+      holidaysData = await response.text()
       localStorage.setItem('holidays_data', holidaysData)
     }
   }

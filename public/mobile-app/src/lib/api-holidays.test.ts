@@ -40,7 +40,9 @@ describe('/api-holidays', () => {
     })
     test('should get holidays from API with error', async () => {
       // Given
-      vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('', { status: 400 }))
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        new Response('error', { status: 400 })
+      )
 
       // When
       const result = await retrieveHolidays(new Date('2025-11-01T12:00:00Z'))
