@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import { goto } from '$app/navigation'
+  import { addToast } from '$lib/components/toast'
   import { runOrNativeEvent } from '$lib/nativeEvents'
   import { enableNotificationsAndUpdateLocalStorage } from '$lib/notifications'
   import { userStore } from '$lib/state/User.svelte'
@@ -13,7 +14,8 @@
 
   const enableNotificationsFunc = async () => {
     await enableNotificationsAndUpdateLocalStorage()
-    goto('/?has_enabled_notifications')
+    addToast('Les notifications ont été activées', 'success')
+    goto('/')
   }
 
   const clickOnEnable = async () => {

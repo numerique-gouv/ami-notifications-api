@@ -1,6 +1,8 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 import * as navigationMethods from '$app/navigation'
+import * as toastsMethods from '$lib/components/toast'
+import { addToast } from '$lib/components/toast'
 import * as notificationsMethods from '$lib/notifications'
 import { enableNotificationsAndUpdateLocalStorage } from '$lib/notifications'
 import { userStore } from '$lib/state/User.svelte'
@@ -49,6 +51,22 @@ describe('/+page.svelte', () => {
     })
   })
 
+  test('should add toast when user clicks on Activer button', async () => {
+    // Given
+    await userStore.login(mockUserInfo)
+    const spy = vi.spyOn(toastsMethods, 'addToast')
+    render(Page)
+
+    // When
+    const button = screen.getByTestId('enable-button')
+    await fireEvent.click(button)
+
+    // Then
+    await waitFor(async () => {
+      expect(spy).toHaveBeenCalledWith('Les notifications ont été activées', 'success')
+    })
+  })
+
   test('should navigate to the homepage when user clicks on Activer button', async () => {
     // Given
     await userStore.login(mockUserInfo)
@@ -63,7 +81,7 @@ describe('/+page.svelte', () => {
 
     // Then
     await waitFor(() => {
-      expect(spy).toHaveBeenCalledWith('/?has_enabled_notifications')
+      expect(spy).toHaveBeenCalledWith('/')
     })
   })
 
