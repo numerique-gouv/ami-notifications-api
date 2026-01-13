@@ -3,14 +3,7 @@
   import { onMount } from 'svelte'
   import { goto } from '$app/navigation'
   import { page } from '$app/state'
-  import {
-    PUBLIC_API_URL,
-    PUBLIC_FC_AMI_CLIENT_ID,
-    PUBLIC_FC_AMI_REDIRECT_URL,
-    PUBLIC_FC_AUTHORIZATION_ENDPOINT,
-    PUBLIC_FC_BASE_URL,
-    PUBLIC_FC_PROXY,
-  } from '$env/static/public'
+  import { PUBLIC_API_URL } from '$env/static/public'
   import { apiFetch } from '$lib/auth'
   import ConnectedHomepage from '$lib/ConnectedHomepage.svelte'
   import { addToast } from '$lib/components/toast'
