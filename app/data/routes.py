@@ -2,33 +2,11 @@ import datetime
 from typing import Any
 
 from litestar import Request, Response, Router, get
-from litestar.security.jwt import Token
 
 from app import env
 from app.httpx import httpx
-from app.models import User
 from app.schemas import Holiday
 from app.utils import error_from_message
-
-
-@get(path="/api-particulier/quotient", include_in_schema=False)
-async def get_api_particulier_quotient(
-    request: Request[User, Token, Any],
-) -> Response[Any]:
-    """This endpoint "forwards" the request coming from the frontend (the app).
-
-    API Particulier doesn't implement CORS, so the app can't directly query it.
-    We thus have this endpoint to act as some kind of proxy.
-
-    """
-    if "cnaf_quotient_familial" not in env.PUBLIC_FC_SCOPE:
-        # For now, in production, FC isn't qualified for the "quotient familial" scope, so don't even request it.
-        return Response(None, status_code=204)
-    response = httpx.get(
-        f"{env.PUBLIC_API_PARTICULIER_BASE_URL}{env.PUBLIC_API_PARTICULIER_QUOTIENT_ENDPOINT}?recipient={env.PUBLIC_API_PARTICULIER_RECIPIENT_ID}",
-        headers={"authorization": request.headers["fc_authorization"]},
-    )
-    return Response(response.content, status_code=response.status_code)
 
 
 @get(path="/holidays", include_in_schema=False)
@@ -77,7 +55,6 @@ async def get_holidays(
 data_router: Router = Router(
     path="/data",
     route_handlers=[
-        get_api_particulier_quotient,
         get_holidays,
     ],
 )
