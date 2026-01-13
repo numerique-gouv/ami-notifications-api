@@ -3,7 +3,6 @@
   import '@gouvfr/dsfr/dist/utility/utility.min.css'
   import { onMount } from 'svelte'
   import Toasts from '$lib/components/Toasts.svelte'
-  import { userStore } from '$lib/state/User.svelte'
 
   let { children } = $props()
 
