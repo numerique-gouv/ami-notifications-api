@@ -18,14 +18,6 @@ describe('/ConnectedHomepage.svelte', () => {
   beforeEach(async () => {
     await userStore.login(mockUserInfo)
 
-    vi.mock('$lib/api-particulier', () => ({
-      getQuotientData: vi.fn().mockImplementation(() => {
-        return {
-          data: { foo: 'bar' },
-        }
-      }),
-    }))
-
     vi.mock('$lib/notifications', async (importOriginal) => {
       const original = (await importOriginal()) as Record<string, any>
       const registration = { id: 'fake-registration-id' }
