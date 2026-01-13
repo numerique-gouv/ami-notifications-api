@@ -3,6 +3,7 @@
   import { goto } from '$app/navigation'
   import { PUBLIC_CONTACT_URL } from '$env/static/public'
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte'
+  import { addToast } from '$lib/components/toast'
   import { userStore } from '$lib/state/User.svelte'
 
   let userFcHash: string | null = null
@@ -18,6 +19,7 @@
   const copyIdentificationCode = () => {
     if (userFcHash) {
       navigator.clipboard.writeText(userFcHash)
+      addToast("Code d'identification copié !", 'neutral')
     }
   }
 </script>

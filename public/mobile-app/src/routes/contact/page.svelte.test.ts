@@ -1,6 +1,8 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte'
 import { describe, expect, test, vi } from 'vitest'
 import * as navigationMethods from '$app/navigation'
+import * as toastsMethods from '$lib/components/toast'
+import { addToast } from '$lib/components/toast'
 import Page from './+page.svelte'
 
 describe('/+page.svelte', () => {
@@ -49,6 +51,23 @@ describe('/+page.svelte', () => {
     // Then
     await waitFor(async () => {
       expect(spy).toHaveBeenCalledWith('fake-user-fc-hash')
+    })
+  })
+
+  test('should add toast when user clicks on copy button', async () => {
+    // Given
+    window.localStorage.setItem('user_fc_hash', 'fake-user-fc-hash')
+    const spy = vi.spyOn(toastsMethods, 'addToast')
+
+    render(Page)
+
+    // When
+    const copyButton = screen.getByTestId('copy-button')
+    await fireEvent.click(copyButton)
+
+    // Then
+    await waitFor(async () => {
+      expect(spy).toHaveBeenCalledWith("Code d'identification copié !", 'neutral')
     })
   })
 })
