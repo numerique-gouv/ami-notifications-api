@@ -4,7 +4,6 @@
   import AgendaItem from '$lib/AgendaItem.svelte'
   import type { Agenda } from '$lib/agenda'
   import { buildAgenda } from '$lib/agenda'
-  import { getQuotientData } from '$lib/api-particulier'
   import Icon from '$lib/components/Icon.svelte'
   import {
     countUnreadNotifications,
@@ -12,7 +11,6 @@
   } from '$lib/notifications'
   import { userStore } from '$lib/state/User.svelte'
 
-  let quotientinfo: object = $state({})
   let unreadNotificationsCount: number = $state(0)
   let initials: string = $state('')
   let isMenuDisplayed: boolean = $state(false)
@@ -32,9 +30,6 @@
       agenda = await buildAgenda()
       console.log($state.snapshot(agenda))
       isAgendaEmpty = !(agenda.now.length || agenda.next.length)
-
-      quotientinfo = await getQuotientData()
-      console.log($state.snapshot(quotientinfo))
     } catch (error) {
       console.error(error)
     }
