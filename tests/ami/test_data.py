@@ -1,6 +1,6 @@
 import pytest
 from litestar import Litestar
-from litestar.status_codes import HTTP_200_OK, HTTP_204_NO_CONTENT
+from litestar.status_codes import HTTP_200_OK, HTTP_204_NO_CONTENT, HTTP_500_INTERNAL_SERVER_ERROR
 from litestar.testing import TestClient
 from pytest_httpx import HTTPXMock
 
@@ -272,6 +272,19 @@ async def test_get_holidays_emoji(
     response = test_client.get("/data/holidays", params={"current_date": "2025-11-13"})
     assert response.status_code == HTTP_200_OK
     assert response.json()[0]["emoji"] == ""
+
+
+async def test_get_holidays_error(
+    user: User,
+    test_client: TestClient[Litestar],
+    httpx_mock: HTTPXMock,
+) -> None:
+    login(user, test_client)
+
+    httpx_mock.add_response(status_code=HTTP_500_INTERNAL_SERVER_ERROR)
+    response = test_client.get("/data/holidays", params={"current_date": "2025-09-01"})
+    assert response.status_code == HTTP_500_INTERNAL_SERVER_ERROR
+    assert response.json() == {"ami_details": "Holidays error"}
 
 
 async def test_get_holidays_without_auth(
