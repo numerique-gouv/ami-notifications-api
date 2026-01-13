@@ -51,7 +51,7 @@ async def test_login_france_connect(
     )
     assert url_contains_param(
         "scope",
-        "openid identite_pivot preferred_username email cnaf_quotient_familial",
+        "openid identite_pivot preferred_username email",
         redirected_url,
     )
     assert url_contains_param(

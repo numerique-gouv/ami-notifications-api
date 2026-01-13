@@ -1,56 +1,11 @@
-import pytest
 from litestar import Litestar
-from litestar.status_codes import HTTP_200_OK, HTTP_204_NO_CONTENT, HTTP_500_INTERNAL_SERVER_ERROR
+from litestar.status_codes import HTTP_200_OK, HTTP_500_INTERNAL_SERVER_ERROR
 from litestar.testing import TestClient
 from pytest_httpx import HTTPXMock
 
 from app.httpx import httpx
 from app.models import User
 from tests.ami.utils import assert_query_fails_without_auth, login
-
-
-async def test_get_api_particulier_quotient(
-    user: User,
-    test_client: TestClient[Litestar],
-    httpx_mock: HTTPXMock,
-) -> None:
-    login(user, test_client)
-
-    fake_quotient_data = {"foo": "bar"}
-    auth = {"fc_authorization": "Bearer foobar_access_token"}
-    fc_auth = {"authorization": "Bearer foobar_access_token"}
-    httpx_mock.add_response(
-        method="GET",
-        url="https://staging.particulier.api.gouv.fr/v3/dss/quotient_familial/france_connect?recipient=13002526500013",
-        match_headers=fc_auth,
-        json=fake_quotient_data,
-    )
-    response = test_client.get("/data/api-particulier/quotient", headers=auth)
-
-    assert response.status_code == HTTP_200_OK
-    assert response.json() == fake_quotient_data
-
-
-async def test_get_api_particulier_quotient_without_auth(
-    test_client: TestClient[Litestar],
-) -> None:
-    await assert_query_fails_without_auth("/data/api-particulier/quotient", test_client)
-
-
-async def test_get_api_particulier_quotient_without_scope(
-    user: User,
-    test_client: TestClient[Litestar],
-    monkeypatch: pytest.MonkeyPatch,
-    httpx_mock: HTTPXMock,
-) -> None:
-    # No `cnaf_quotient_familial` like in production
-    monkeypatch.setattr("app.env.PUBLIC_FC_SCOPE", "openid identite_pivot preferred_username email")
-    login(user, test_client)
-    auth = {"fc_authorization": "Bearer foobar_access_token"}
-    response = test_client.get("/data/api-particulier/quotient", headers=auth)
-    assert response.status_code == HTTP_204_NO_CONTENT
-    assert response.text == ""
-    assert not httpx_mock.get_requests()
 
 
 async def test_get_holidays(
