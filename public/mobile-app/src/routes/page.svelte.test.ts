@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
-import { fireEvent, render, screen, waitFor } from '@testing-library/svelte'
+import { render, screen, waitFor } from '@testing-library/svelte'
 import * as navigationMethods from '$app/navigation'
 import { PUBLIC_API_URL } from '$env/static/public'
 import * as toastsMethods from '$lib/components/toast'
