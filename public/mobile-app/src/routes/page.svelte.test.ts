@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 import { render, screen, waitFor } from '@testing-library/svelte'
 import * as navigationMethods from '$app/navigation'
-import { PUBLIC_API_URL } from '$env/static/public'
+import { PUBLIC_API_URL, PUBLIC_CONTACT_URL } from '$env/static/public'
 import { toastStore } from '$lib/state/toast.svelte'
 import { userStore } from '$lib/state/User.svelte'
 import { mockUserInfo } from '$tests/utils'
@@ -246,6 +246,23 @@ describe('/+page.svelte', () => {
     // Then
     await waitFor(() => {
       expect(spy).toHaveBeenCalledWith('/')
+    })
+  })
+
+  test('should display contact link when user is logged out', async () => {
+    // Given
+    const { page } = await import('$app/state')
+    const mockSearchParams = new URLSearchParams('is_logged_out')
+    vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams)
+    await userStore.logout()
+
+    // When
+    render(Page)
+
+    // Then
+    await waitFor(() => {
+      const contactLink = screen.getByTestId('contact-link')
+      expect(contactLink).toHaveAttribute('href', PUBLIC_CONTACT_URL)
     })
   })
 })
