@@ -3,7 +3,7 @@
   import { onMount } from 'svelte'
   import { goto } from '$app/navigation'
   import { page } from '$app/state'
-  import { PUBLIC_API_URL } from '$env/static/public'
+  import { PUBLIC_API_URL, PUBLIC_CONTACT_URL } from '$env/static/public'
   import { apiFetch } from '$lib/auth'
   import ConnectedHomepage from '$lib/ConnectedHomepage.svelte'
   import Navigation from '$lib/Navigation.svelte'
@@ -12,6 +12,7 @@
 
   let error: string = $state('')
   let error_description: string = $state('')
+  const contactUrl = PUBLIC_CONTACT_URL
 
   onMount(async () => {
     // User state already initialized in +layout.svelte
@@ -160,6 +161,20 @@
           >
         </p>
       </div>
+
+      <div class="contact-link-wrapper">
+        <p>Difficultés de connexion&nbsp;?</p>
+        <p>
+          <a
+            href="{contactUrl}"
+            title="Contactez-nous sur Tchap"
+            aria-label="Contactez-nous sur Tchap"
+            data-testid="contact-link"
+          >
+            Contactez-nous sur Tchap
+          </a>
+        </p>
+      </div>
     </div>
   {:else if userStore.connected}
     <Navigation currentItem="home" />
@@ -189,6 +204,27 @@
 
       .fr-connect-group {
         text-align: center;
+      }
+
+      .contact-link-wrapper {
+        position: fixed;
+        bottom: 1.5rem;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+
+        p {
+          margin: 0;
+
+          a {
+            color: revert;
+          }
+        }
       }
     }
   }
