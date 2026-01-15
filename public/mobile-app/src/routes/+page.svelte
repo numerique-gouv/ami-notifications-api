@@ -6,8 +6,8 @@
   import { PUBLIC_API_URL } from '$env/static/public'
   import { apiFetch } from '$lib/auth'
   import ConnectedHomepage from '$lib/ConnectedHomepage.svelte'
-  import { addToast } from '$lib/components/toast'
   import Navigation from '$lib/Navigation.svelte'
+  import { toastStore } from '$lib/state/toast.svelte'
   import { userStore } from '$lib/state/User.svelte'
 
   let error: string = $state('')
@@ -69,7 +69,7 @@
         }
       }
       if (page.url.searchParams.has('is_logged_out')) {
-        addToast('Vous avez bien été déconnecté(e)', 'neutral')
+        toastStore.addToast('Vous avez bien été déconnecté(e)', 'neutral')
         goto('/')
       }
     } catch (error) {

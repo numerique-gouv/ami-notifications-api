@@ -1,10 +1,9 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 import * as navigationMethods from '$app/navigation'
-import * as toastsMethods from '$lib/components/toast'
-import { addToast } from '$lib/components/toast'
 import * as notificationsMethods from '$lib/notifications'
 import { enableNotificationsAndUpdateLocalStorage } from '$lib/notifications'
+import { toastStore } from '$lib/state/toast.svelte'
 import { userStore } from '$lib/state/User.svelte'
 import { mockUserInfo } from '$tests/utils'
 import Page from './+page.svelte'
@@ -54,7 +53,7 @@ describe('/+page.svelte', () => {
   test('should add toast when user clicks on Activer button', async () => {
     // Given
     await userStore.login(mockUserInfo)
-    const spy = vi.spyOn(toastsMethods, 'addToast')
+    const spy = vi.spyOn(toastStore, 'addToast')
     render(Page)
 
     // When

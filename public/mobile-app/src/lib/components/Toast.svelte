@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { removeToast, type Toast } from '$lib/components/toast'
+  import { type Toast, toastStore } from '$lib/state/toast.svelte'
 
   let { id, title, level }: Toast = $props()
 </script>
@@ -12,7 +12,7 @@
       {/if}
       <p>{title}</p>
       <button
-        onclick="{() => removeToast(id)}"
+        onclick="{() => toastStore.removeToast(id)}"
         title="Masquer le message"
         type="button"
         data-testid="close-button"

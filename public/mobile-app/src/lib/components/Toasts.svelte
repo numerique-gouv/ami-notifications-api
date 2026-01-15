@@ -1,12 +1,12 @@
 <script lang="ts">
   import { flip } from 'svelte/animate'
   import Toast from '$lib/components/Toast.svelte'
-  import { toasts } from '$lib/components/toast'
+  import { toastStore } from '$lib/state/toast.svelte'
 </script>
 
-{#if $toasts.length}
+{#if toastStore.toasts.length}
   <div class="toasts">
-    {#each $toasts as toast (toast.id)}
+    {#each toastStore.toasts as toast (toast.id)}
       <div animate:flip={{ duration: 200 }}>
         <Toast id="{toast.id}" title="{toast.title}" level="{toast.level}" />
       </div>

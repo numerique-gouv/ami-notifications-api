@@ -3,8 +3,7 @@ import '@testing-library/jest-dom/vitest'
 import { render, screen, waitFor } from '@testing-library/svelte'
 import * as navigationMethods from '$app/navigation'
 import { PUBLIC_API_URL } from '$env/static/public'
-import * as toastsMethods from '$lib/components/toast'
-import { addToast } from '$lib/components/toast'
+import { toastStore } from '$lib/state/toast.svelte'
 import { userStore } from '$lib/state/User.svelte'
 import { mockUserInfo } from '$tests/utils'
 import Page from './+page.svelte'
@@ -220,7 +219,7 @@ describe('/+page.svelte', () => {
     const mockSearchParams = new URLSearchParams('is_logged_out')
     vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams)
 
-    const spy = vi.spyOn(toastsMethods, 'addToast')
+    const spy = vi.spyOn(toastStore, 'addToast')
 
     // When
     render(Page)

@@ -1,8 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte'
 import { describe, expect, test, vi } from 'vitest'
 import * as navigationMethods from '$app/navigation'
-import * as toastsMethods from '$lib/components/toast'
-import { addToast } from '$lib/components/toast'
+import { toastStore } from '$lib/state/toast.svelte'
 import Page from './+page.svelte'
 
 describe('/+page.svelte', () => {
@@ -57,7 +56,7 @@ describe('/+page.svelte', () => {
   test('should add toast when user clicks on copy button', async () => {
     // Given
     window.localStorage.setItem('user_fc_hash', 'fake-user-fc-hash')
-    const spy = vi.spyOn(toastsMethods, 'addToast')
+    const spy = vi.spyOn(toastStore, 'addToast')
 
     render(Page)
 
