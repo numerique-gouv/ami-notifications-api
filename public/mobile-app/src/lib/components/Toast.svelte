@@ -1,12 +1,7 @@
 <script lang="ts">
-  import { removeToast } from '$lib/components/toast'
+  import { removeToast, type Toast } from '$lib/components/toast'
 
-  interface Props {
-    id: string
-    title: string
-    level: string
-  }
-  let { id, title, level }: Props = $props()
+  let { id, title, level }: Toast = $props()
 </script>
 
 <div class="fr-notice toast-wrapper {level}">
