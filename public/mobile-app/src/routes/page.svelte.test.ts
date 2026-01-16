@@ -251,9 +251,6 @@ describe('/+page.svelte', () => {
 
   test('should display contact link when user is logged out', async () => {
     // Given
-    const { page } = await import('$app/state')
-    const mockSearchParams = new URLSearchParams('is_logged_out')
-    vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams)
     await userStore.logout()
 
     // When
