@@ -220,9 +220,10 @@
 
         p {
           margin: 0;
+          font-size: 14px;
 
           a {
-            color: revert;
+            color: var(--text-active-blue-france);
           }
         }
       }
