@@ -175,7 +175,6 @@ class AuthController(Controller):
 
         id_token: str = response_token_data.get("id_token", "")
         if not id_token:
-            # XXX this is not covered by tests for the moment
             raise FCError("missing_id_token")
         decoded_token: dict[str, str] = jwt.decode(
             id_token, options={"verify_signature": False}, algorithms=["ES256"]
@@ -183,7 +182,6 @@ class AuthController(Controller):
 
         # Validate that the NONCE is coherent with the one we sent to FC
         if "nonce" not in decoded_token:
-            # XXX this is not covered by tests for the moment
             raise FCError("missing_nonce")
         if decoded_token["nonce"] != nonce.nonce:
             raise FCError("invalid_nonce")
@@ -199,11 +197,9 @@ class AuthController(Controller):
     ) -> tuple[dict[str, str], uuid.UUID]:
         token_type = response_token_data.get("token_type", "")
         if not token_type:
-            # XXX this is not covered by tests for the moment
             raise FCError("missing_token_type")
         access_token = response_token_data.get("access_token", "")
         if not access_token:
-            # XXX this is not covered by tests for the moment
             raise FCError("missing_access_token")
 
         response = httpxClient.get(
