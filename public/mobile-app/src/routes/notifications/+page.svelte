@@ -23,9 +23,20 @@
     })
   })
 
-  const markNotificationAsRead = async (event: MouseEvent, notificationId: string) => {
+  const redirectToLink = (notificationItemExternalUrl: string) => {
+    if (notificationItemExternalUrl) {
+      window.location.href = notificationItemExternalUrl
+    }
+  }
+
+  const clickOnNotification = async (
+    event: MouseEvent,
+    notificationId: string,
+    notificationItemExternalUrl: string
+  ) => {
     event.preventDefault()
-    let result = await readNotification(notificationId)
+    await readNotification(notificationId)
+    redirectToLink(notificationItemExternalUrl)
   }
 
   const navigateToPreviousPage = async () => {
@@ -87,7 +98,7 @@
             <h3 class="fr-tile__title">
               <a
                 href="/"
-                onclick={(event) => markNotificationAsRead(event, notification.id)}
+                onclick={(event) => clickOnNotification(event, notification.id, notification.item_external_url)}
                 data-testid="notification-link-{notification.id}"
                 >{notification.content_title}</a
               >

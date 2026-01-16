@@ -16,6 +16,7 @@ export type AppNotification = {
   content_body: string
   content_icon?: string
   sender: string
+  item_external_url: string
   read: boolean
 }
 
