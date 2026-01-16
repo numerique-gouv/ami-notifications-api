@@ -209,14 +209,9 @@
       .contact-link-wrapper {
         position: fixed;
         bottom: 1.5rem;
-        left: 50%;
-        transform: translateX(-50%);
+        left: 0;
+        text-align: center;
         width: 100%;
-
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
 
         p {
           margin: 0;
