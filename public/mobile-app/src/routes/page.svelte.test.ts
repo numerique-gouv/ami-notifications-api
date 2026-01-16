@@ -27,17 +27,13 @@ describe('/+page.svelte', () => {
     window.localStorage.setItem('user_fc_hash', '')
 
     const { page } = await import('$app/state')
-    const mockSearchParams = new URLSearchParams('is_logged_in=true')
+    const mockSearchParams = new URLSearchParams()
+    mockSearchParams.set('is_logged_in', 'true')
+    mockSearchParams.set('user_data', 'fake-user-data')
+    mockSearchParams.set('user_first_login', 'true')
+    mockSearchParams.set('user_fc_hash', 'fake-user-fc-hash')
+    mockSearchParams.set('id_token', 'fake-id-token')
     vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams)
-    const mockResponse = {
-      user_id: 'fake-user-id',
-      user_data: 'fake-user-data',
-      user_first_login: true,
-      user_fc_hash: 'fake-user-fc-hash',
-    }
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-      new Response(JSON.stringify(mockResponse), { status: 200 })
-    )
 
     // When
     render(Page)
@@ -45,25 +41,18 @@ describe('/+page.svelte', () => {
     // Then
     await waitFor(async () => {
       expect(window.localStorage.getItem('user_data')).toEqual('fake-user-data')
-      expect(window.localStorage.getItem('user_id')).toEqual('fake-user-id')
       expect(window.localStorage.getItem('user_fc_hash')).toEqual('fake-user-fc-hash')
+      expect(window.localStorage.getItem('id_token')).toEqual('fake-id-token')
     })
   })
 
   test('should navigate to notifications welcome page when it is the first user login', async () => {
     // Given
     const { page } = await import('$app/state')
-    const mockSearchParams = new URLSearchParams('is_logged_in=true')
+    const mockSearchParams = new URLSearchParams()
+    mockSearchParams.set('is_logged_in', 'true')
+    mockSearchParams.set('user_first_login', 'true')
     vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams)
-    const mockResponse = {
-      user_id: 'fake-user-id',
-      user_data: 'fake-user-data',
-      user_first_login: true,
-      user_fc_hash: 'fake-user-fc-hash',
-    }
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-      new Response(JSON.stringify(mockResponse), { status: 200 })
-    )
     vi.spyOn(userStore, 'checkLoggedIn').mockResolvedValue()
     const spy = vi
       .spyOn(navigationMethods, 'goto')
@@ -81,17 +70,10 @@ describe('/+page.svelte', () => {
   test('should navigate to homepage when user has already logged in', async () => {
     // Given
     const { page } = await import('$app/state')
-    const mockSearchParams = new URLSearchParams('is_logged_in=true')
+    const mockSearchParams = new URLSearchParams()
+    mockSearchParams.set('is_logged_in', 'true')
+    mockSearchParams.set('user_first_login', 'false')
     vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams)
-    const mockResponse = {
-      user_id: 'fake-user-id',
-      user_data: 'fake-user-data',
-      user_first_login: false,
-      user_fc_hash: 'fake-user-fc-hash',
-    }
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-      new Response(JSON.stringify(mockResponse), { status: 200 })
-    )
     vi.spyOn(userStore, 'checkLoggedIn').mockResolvedValue()
     const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue()
 
