@@ -468,6 +468,42 @@ async def test_login_callback_bad_state(
     assert url_contains_param("code", "invalid_state", redirected_url)
 
 
+async def test_login_callback_bad_id_token(
+    test_client: TestClient[Litestar],
+    db_session: AsyncSession,
+    httpx_mock: HTTPXMock,
+    decoded_id_token: dict[str, Any],
+) -> None:
+    NONCE = decoded_id_token["nonce"]
+    nonce = Nonce(nonce=NONCE)
+    db_session.add(nonce)
+    await db_session.commit()
+
+    fake_token_json_response = {
+        "access_token": "fake access token",
+        "expires_in": 60,
+        "scope": "openid given_name family_name preferred_username birthdate gender birthplace birthcountry email",
+        "token_type": "Bearer",
+    }
+    httpx_mock.add_response(
+        method="POST",
+        url="https://fcp-low.sbx.dev-franceconnect.fr/api/v2/token",
+        json=fake_token_json_response,
+    )
+
+    response = test_client.get(
+        f"/login-callback?code=fake-code&state={nonce.id}", follow_redirects=False
+    )
+
+    assert response.status_code == 302
+    redirected_url = response.headers["location"]
+    assert url_contains_param("error_type", "FranceConnect", redirected_url)
+    assert url_contains_param(
+        "error", "Erreur lors de la FranceConnexion, veuillez réessayer plus tard.", redirected_url
+    )
+    assert url_contains_param("code", "missing_id_token", redirected_url)
+
+
 async def test_login_callback_bad_nonce(
     test_client: TestClient[Litestar],
     db_session: AsyncSession,
@@ -496,6 +532,7 @@ async def test_login_callback_bad_nonce(
         method="POST",
         url="https://fcp-low.sbx.dev-franceconnect.fr/api/v2/token",
         json=fake_token_json_response,
+        is_reusable=True,
     )
     monkeypatch.setattr("app.env.FC_AMI_CLIENT_SECRET", "fake-client-secret")
 
@@ -510,6 +547,96 @@ async def test_login_callback_bad_nonce(
         "error", "Erreur lors de la FranceConnexion, veuillez réessayer plus tard.", redirected_url
     )
     assert url_contains_param("code", "invalid_nonce", redirected_url)
+    all_nonces = (await db_session.execute(select(Nonce))).scalars().all()
+    assert len(all_nonces) == 0
+
+    nonce = Nonce(nonce=NONCE)
+    db_session.add(nonce)
+    await db_session.commit()
+    decoded_id_token.pop("nonce")
+
+    response = test_client.get(
+        f"/login-callback?code=fake-code&state={nonce.id}", follow_redirects=False
+    )
+
+    assert response.status_code == 302
+    redirected_url = response.headers["location"]
+    assert url_contains_param("error_type", "FranceConnect", redirected_url)
+    assert url_contains_param(
+        "error", "Erreur lors de la FranceConnexion, veuillez réessayer plus tard.", redirected_url
+    )
+    assert url_contains_param("code", "missing_nonce", redirected_url)
+    all_nonces = (await db_session.execute(select(Nonce))).scalars().all()
+    assert len(all_nonces) == 0
+
+
+async def test_login_callback_bad_token_info(
+    test_client: TestClient[Litestar],
+    db_session: AsyncSession,
+    httpx_mock: HTTPXMock,
+    monkeypatch: pytest.MonkeyPatch,
+    decoded_id_token: dict[str, Any],
+) -> None:
+    def fake_jwt_decode(*args: Any, **params: Any):
+        return decoded_id_token
+
+    monkeypatch.setattr("jwt.decode", fake_jwt_decode)
+    monkeypatch.setattr("app.env.FC_AMI_CLIENT_SECRET", "fake-client-secret")
+
+    NONCE = decoded_id_token["nonce"]
+    nonce = Nonce(nonce=NONCE)
+    db_session.add(nonce)
+    await db_session.commit()
+
+    fake_token_json_response = {
+        "access_token": "fake access token",
+        "expires_in": 60,
+        "id_token": "fake id token",
+        "scope": "openid given_name family_name preferred_username birthdate gender birthplace birthcountry email",
+    }
+    httpx_mock.add_response(
+        method="POST",
+        url="https://fcp-low.sbx.dev-franceconnect.fr/api/v2/token",
+        json=fake_token_json_response,
+    )
+
+    response = test_client.get(
+        f"/login-callback?code=fake-code&state={nonce.id}", follow_redirects=False
+    )
+    redirected_url = response.headers["location"]
+    assert url_contains_param("error_type", "FranceConnect", redirected_url)
+    assert url_contains_param(
+        "error", "Erreur lors de la FranceConnexion, veuillez réessayer plus tard.", redirected_url
+    )
+    assert url_contains_param("code", "missing_token_type", redirected_url)
+    all_nonces = (await db_session.execute(select(Nonce))).scalars().all()
+    assert len(all_nonces) == 0
+
+    nonce = Nonce(nonce=NONCE)
+    db_session.add(nonce)
+    await db_session.commit()
+
+    fake_token_json_response = {
+        "expires_in": 60,
+        "id_token": "fake id token",
+        "scope": "openid given_name family_name preferred_username birthdate gender birthplace birthcountry email",
+        "token_type": "Bearer",
+    }
+    httpx_mock.add_response(
+        method="POST",
+        url="https://fcp-low.sbx.dev-franceconnect.fr/api/v2/token",
+        json=fake_token_json_response,
+    )
+
+    response = test_client.get(
+        f"/login-callback?code=fake-code&state={nonce.id}", follow_redirects=False
+    )
+    redirected_url = response.headers["location"]
+    assert url_contains_param("error_type", "FranceConnect", redirected_url)
+    assert url_contains_param(
+        "error", "Erreur lors de la FranceConnexion, veuillez réessayer plus tard.", redirected_url
+    )
+    assert url_contains_param("code", "missing_access_token", redirected_url)
     all_nonces = (await db_session.execute(select(Nonce))).scalars().all()
     assert len(all_nonces) == 0
 
