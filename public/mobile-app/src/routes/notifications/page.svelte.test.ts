@@ -80,6 +80,7 @@ describe('/+page.svelte', () => {
           id: 'f62c66b2-7bd5-4696-8383-2d40c08a1',
           content_title: 'test 2',
           read: false,
+          item_external_url: '',
         },
         {
           created_at: new Date('2025-09-19T12:59:04.950812'),
@@ -90,6 +91,7 @@ describe('/+page.svelte', () => {
           content_title: 'test',
           content_icon: 'some-icon',
           read: true,
+          item_external_url: '',
         },
       ])
 
@@ -129,6 +131,7 @@ describe('/+page.svelte', () => {
           id: 'f62c66b2-7bd5-4696-8383-2d40c08a1',
           content_title: 'test 2',
           read: false,
+          item_external_url: '',
         },
         {
           created_at: new Date('2025-09-19T12:59:04.950812'),
@@ -138,6 +141,7 @@ describe('/+page.svelte', () => {
           id: '2689c3b3-e95c-4d73-b37d-55f430688af9',
           content_title: 'test',
           read: true,
+          item_external_url: '',
         },
       ])
       .mockImplementationOnce(async () => [
@@ -149,6 +153,7 @@ describe('/+page.svelte', () => {
           id: 'f62c66b2-7bd5-4696-8383-2d40c08a1',
           content_title: 'test 2',
           read: true,
+          item_external_url: '',
         },
         {
           created_at: new Date('2025-09-19T12:59:04.950812'),
@@ -158,6 +163,7 @@ describe('/+page.svelte', () => {
           id: '2689c3b3-e95c-4d73-b37d-55f430688af9',
           content_title: 'test',
           read: true,
+          item_external_url: '',
         },
       ])
     const spy2 = vi
@@ -171,6 +177,7 @@ describe('/+page.svelte', () => {
           id: 'f62c66b2-7bd5-4696-8383-2d40c08a1',
           content_title: 'test 2',
           read: true,
+          item_external_url: '',
         }
       })
 
@@ -197,5 +204,67 @@ describe('/+page.svelte', () => {
       'notification-2689c3b3-e95c-4d73-b37d-55f430688af9'
     )
     expect(notification2).toHaveClass('read')
+  })
+
+  test('should redirect to item_external_url when is set and user clicks on notification', async () => {
+    // Given
+    vi.spyOn(notificationsMethods, 'retrieveNotifications').mockImplementationOnce(
+      async () => [
+        {
+          created_at: new Date('2025-09-19T13:52:23.279545'),
+          user_id: '3ac73f4f-4be2-456a-9c2e-ddff480d5767',
+          sender: 'test 2',
+          content_body: 'test 2',
+          id: 'f62c66b2-7bd5-4696-8383-2d40c08a1',
+          content_title: 'test 2',
+          read: false,
+          item_external_url: 'https://www.service-public.gouv.fr',
+        },
+      ]
+    )
+    vi.stubGlobal('location', { href: 'fake-link' })
+
+    render(Page)
+    const notificationLink = await waitFor(() =>
+      screen.getByTestId('notification-link-f62c66b2-7bd5-4696-8383-2d40c08a1')
+    )
+
+    // When
+    await notificationLink.click()
+    wss.send('ping')
+
+    // Then
+    expect(globalThis.window.location.href).toBe('https://www.service-public.gouv.fr')
+  })
+
+  test('should not redirect when item_external_url is not set and user clicks on notification', async () => {
+    // Given
+    vi.spyOn(notificationsMethods, 'retrieveNotifications').mockImplementationOnce(
+      async () => [
+        {
+          created_at: new Date('2025-09-19T13:52:23.279545'),
+          user_id: '3ac73f4f-4be2-456a-9c2e-ddff480d5767',
+          sender: 'test 2',
+          content_body: 'test 2',
+          id: 'f62c66b2-7bd5-4696-8383-2d40c08a1',
+          content_title: 'test 2',
+          read: false,
+          item_external_url: '',
+        },
+      ]
+    )
+    vi.stubGlobal('location', { href: 'fake-link' })
+
+    render(Page)
+    const notificationLink = await waitFor(() =>
+      screen.getByTestId('notification-link-f62c66b2-7bd5-4696-8383-2d40c08a1')
+    )
+
+    // When
+    await notificationLink.click()
+    wss.send('ping')
+
+    // Then
+    expect(globalThis.window.location.href).toBe('fake-link')
   })
 })
