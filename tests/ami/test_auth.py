@@ -1,5 +1,6 @@
 import datetime
 from base64 import urlsafe_b64encode
+from typing import Any
 
 import pytest
 from litestar import Litestar
@@ -10,7 +11,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import env
 from app.auth import generate_nonce, jwt_cookie_auth
-from app.models import Nonce, User
+from app.models import Nonce, ScheduledNotification, User
+from app.utils import build_fc_hash
 from tests.ami.utils import assert_query_fails_without_auth, login
 from tests.utils import url_contains_param
 
@@ -86,28 +88,27 @@ async def test_login_callback(
     db_session: AsyncSession,
     httpx_mock: HTTPXMock,
     monkeypatch: pytest.MonkeyPatch,
+    userinfo: dict[str, Any],
+    decoded_id_token: dict[str, Any],
 ) -> None:
-    NONCE = "YTc3NzZlNjUtNmY3OC00YzExLThmODItMTg0MDg2ZjQ0YzEyLTIwMjUtMTEtMTggMDg6NTI6MzUuNjM1OTYyKzAwOjAw"
+    def fake_jwt_decode(*args: Any, **params: Any):
+        encoded = args[0]
+        if encoded == "fake id token":
+            return decoded_id_token
+        return userinfo
+
+    monkeypatch.setattr("jwt.decode", fake_jwt_decode)
+    monkeypatch.setattr("app.env.FC_AMI_CLIENT_SECRET", "fake-client-secret")
+
+    NONCE = decoded_id_token["nonce"]
     nonce = Nonce(nonce=NONCE)
     db_session.add(nonce)
     await db_session.commit()
 
-    # The following fake id_token corresponds to the following decoded id_token:
-    #  {'sub': 'cff67ebe00792a2f2b5115dcc1a65d115adb3b73653fb3ed1b88ea11a7a2589av1',
-    #   'auth_time': 1763455959,
-    #   'acr': 'eidas1',
-    #   'nonce': 'YTc3NzZlNjUtNmY3OC00YzExLThmODItMTg0MDg2ZjQ0YzEyLTIwMjUtMTEtMTggMDg6NTI6MzUuNjM1OTYyKzAwOjAw',
-    #   'aud': '33fe498cc172fe691778912a2967baa650b24f1ae0ebbe47ae552f37b2d25ead',
-    #   'exp': 1763456019,
-    #   'iat': 1763455959,
-    #   'iss': 'https://fcp-low.sbx.dev-franceconnect.fr/api/v2'}
-
-    fake_id_token = "eyJhbGciOiJFUzI1NiIsImtpZCI6InBrY3MxMTpFUzI1Njpoc20ifQ.eyJzdWIiOiJjZmY2N2ViZTAwNzkyYTJmMmI1MTE1ZGNjMWE2NWQxMTVhZGIzYjczNjUzZmIzZWQxYjg4ZWExMWE3YTI1ODlhdjEiLCJhdXRoX3RpbWUiOjE3NjM0NTU5NTksImFjciI6ImVpZGFzMSIsIm5vbmNlIjoiWVRjM056WmxOalV0Tm1ZM09DMDBZekV4TFRobU9ESXRNVGcwTURnMlpqUTBZekV5TFRJd01qVXRNVEV0TVRnZ01EZzZOVEk2TXpVdU5qTTFPVFl5S3pBd09qQXciLCJhdWQiOiIzM2ZlNDk4Y2MxNzJmZTY5MTc3ODkxMmEyOTY3YmFhNjUwYjI0ZjFhZTBlYmJlNDdhZTU1MmYzN2IyZDI1ZWFkIiwiZXhwIjoxNzYzNDU2MDE5LCJpYXQiOjE3NjM0NTU5NTksImlzcyI6Imh0dHBzOi8vZmNwLWxvdy5zYnguZGV2LWZyYW5jZWNvbm5lY3QuZnIvYXBpL3YyIn0.ynJnN7WY9hN9ACp27ETHg9pDA6tje09MlAfkkADcP6R5Ro_pLpQJ6Jtt4T3zn4ERMC2HKBkGSy1UcZgvLNPSFQ"
-
     fake_token_json_response = {
         "access_token": "fake access token",
         "expires_in": 60,
-        "id_token": fake_id_token,
+        "id_token": "fake id token",
         "scope": "openid given_name family_name preferred_username birthdate gender birthplace birthcountry email",
         "token_type": "Bearer",
     }
@@ -116,7 +117,15 @@ async def test_login_callback(
         url="https://fcp-low.sbx.dev-franceconnect.fr/api/v2/token",
         json=fake_token_json_response,
     )
-    monkeypatch.setattr("app.env.FC_AMI_CLIENT_SECRET", "fake-client-secret")
+
+    auth = {"authorization": "Bearer fake access token"}
+    fake_userinfo_token = "fake userinfo jwt token"
+    httpx_mock.add_response(
+        method="GET",
+        url="https://fcp-low.sbx.dev-franceconnect.fr/api/v2/userinfo",
+        match_headers=auth,
+        text=fake_userinfo_token,
+    )
 
     response = test_client.get(
         f"/login-callback?code=fake-code&state={nonce.id}", follow_redirects=False
@@ -125,13 +134,262 @@ async def test_login_callback(
     assert response.status_code == 302
     redirected_url = response.headers["location"]
     assert redirected_url.startswith("https://localhost:5173")
-    assert "access_token" in redirected_url
-    assert "scope" in redirected_url
-    assert "id_token" in redirected_url
-    assert "token_type" in redirected_url
-    assert "is_logged_in" in redirected_url
+    assert url_contains_param(
+        "user_data",
+        "fake userinfo jwt token",
+        redirected_url,
+    )
+    assert url_contains_param(
+        "user_first_login",
+        "true",
+        redirected_url,
+    )
+    assert url_contains_param(
+        "user_fc_hash",
+        "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060",
+        redirected_url,
+    )
+    assert url_contains_param(
+        "is_logged_in",
+        "true",
+        redirected_url,
+    )
     all_nonces = (await db_session.execute(select(Nonce))).scalars().all()
     assert len(all_nonces) == 0
+
+    all_users = (await db_session.execute(select(User))).scalars().all()
+    assert len(all_users) == 1
+    user = all_users[0]
+
+    assert user.fc_hash == "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060"
+    assert user.last_logged_in is not None
+
+    all_scheduled_notifications = (
+        (await db_session.execute(select(ScheduledNotification))).scalars().all()
+    )
+    assert len(all_scheduled_notifications) == 1
+    scheduled_notification = all_scheduled_notifications[0]
+    assert scheduled_notification.user.id == user.id
+    assert scheduled_notification.content_title == "Bienvenue sur AMI 👋"
+    assert (
+        scheduled_notification.content_body
+        == "Recevez des rappels sur votre situation et suivez vos démarches en cours depuis l'application."
+    )
+    assert scheduled_notification.content_icon == "fr-icon-information-line"
+    assert scheduled_notification.reference == "ami:welcome"
+    assert scheduled_notification.scheduled_at < datetime.datetime.now(datetime.timezone.utc)
+    assert scheduled_notification.sender == "AMI"
+    assert scheduled_notification.sent_at is None
+
+
+async def test_login_callback_user_already_seen(
+    test_client: TestClient[Litestar],
+    db_session: AsyncSession,
+    httpx_mock: HTTPXMock,
+    monkeypatch: pytest.MonkeyPatch,
+    userinfo: dict[str, Any],
+    decoded_id_token: dict[str, Any],
+) -> None:
+    def fake_jwt_decode(*args: Any, **params: Any):
+        encoded = args[0]
+        if encoded == "fake id token":
+            return decoded_id_token
+        return userinfo
+
+    monkeypatch.setattr("jwt.decode", fake_jwt_decode)
+    monkeypatch.setattr("app.env.FC_AMI_CLIENT_SECRET", "fake-client-secret")
+
+    NONCE = decoded_id_token["nonce"]
+    nonce = Nonce(nonce=NONCE)
+    db_session.add(nonce)
+    await db_session.commit()
+
+    fake_token_json_response = {
+        "access_token": "fake access token",
+        "expires_in": 60,
+        "id_token": "fake id token",
+        "scope": "openid given_name family_name preferred_username birthdate gender birthplace birthcountry email",
+        "token_type": "Bearer",
+    }
+    httpx_mock.add_response(
+        method="POST",
+        url="https://fcp-low.sbx.dev-franceconnect.fr/api/v2/token",
+        json=fake_token_json_response,
+    )
+
+    auth = {"authorization": "Bearer fake access token"}
+    fake_userinfo_token = "fake userinfo jwt token"
+    httpx_mock.add_response(
+        method="GET",
+        url="https://fcp-low.sbx.dev-franceconnect.fr/api/v2/userinfo",
+        match_headers=auth,
+        text=fake_userinfo_token,
+    )
+
+    fc_hash = build_fc_hash(
+        given_name=userinfo["given_name"],
+        family_name=userinfo["family_name"],
+        birthdate=userinfo["birthdate"],
+        gender=userinfo["gender"],
+        birthplace=userinfo["birthplace"],
+        birthcountry=userinfo["birthcountry"],
+    )
+    user = User(fc_hash=fc_hash, last_logged_in=datetime.datetime.now(datetime.timezone.utc))
+    db_session.add(user)
+    await db_session.commit()
+
+    response = test_client.get(
+        f"/login-callback?code=fake-code&state={nonce.id}", follow_redirects=False
+    )
+
+    assert response.status_code == 302
+    redirected_url = response.headers["location"]
+    assert redirected_url.startswith("https://localhost:5173")
+    assert url_contains_param(
+        "user_data",
+        "fake userinfo jwt token",
+        redirected_url,
+    )
+    assert url_contains_param(
+        "user_first_login",
+        "false",
+        redirected_url,
+    )
+    assert url_contains_param(
+        "user_fc_hash",
+        "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060",
+        redirected_url,
+    )
+    assert url_contains_param(
+        "is_logged_in",
+        "true",
+        redirected_url,
+    )
+    all_nonces = (await db_session.execute(select(Nonce))).scalars().all()
+    assert len(all_nonces) == 0
+
+    all_users = (await db_session.execute(select(User))).scalars().all()
+    assert len(all_users) == 1
+    user = all_users[0]
+
+    assert user.fc_hash == "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060"
+    assert user.last_logged_in is not None
+
+    all_scheduled_notifications = (
+        (await db_session.execute(select(ScheduledNotification))).scalars().all()
+    )
+    assert len(all_scheduled_notifications) == 0
+
+
+async def test_login_callback_user_never_seen(
+    test_client: TestClient[Litestar],
+    db_session: AsyncSession,
+    httpx_mock: HTTPXMock,
+    monkeypatch: pytest.MonkeyPatch,
+    userinfo: dict[str, Any],
+    decoded_id_token: dict[str, Any],
+) -> None:
+    def fake_jwt_decode(*args: Any, **params: Any):
+        encoded = args[0]
+        if encoded == "fake id token":
+            return decoded_id_token
+        return userinfo
+
+    monkeypatch.setattr("jwt.decode", fake_jwt_decode)
+    monkeypatch.setattr("app.env.FC_AMI_CLIENT_SECRET", "fake-client-secret")
+
+    NONCE = decoded_id_token["nonce"]
+    nonce = Nonce(nonce=NONCE)
+    db_session.add(nonce)
+    await db_session.commit()
+
+    fake_token_json_response = {
+        "access_token": "fake access token",
+        "expires_in": 60,
+        "id_token": "fake id token",
+        "scope": "openid given_name family_name preferred_username birthdate gender birthplace birthcountry email",
+        "token_type": "Bearer",
+    }
+    httpx_mock.add_response(
+        method="POST",
+        url="https://fcp-low.sbx.dev-franceconnect.fr/api/v2/token",
+        json=fake_token_json_response,
+    )
+
+    auth = {"authorization": "Bearer fake access token"}
+    fake_userinfo_token = "fake userinfo jwt token"
+    httpx_mock.add_response(
+        method="GET",
+        url="https://fcp-low.sbx.dev-franceconnect.fr/api/v2/userinfo",
+        match_headers=auth,
+        text=fake_userinfo_token,
+    )
+
+    fc_hash = build_fc_hash(
+        given_name=userinfo["given_name"],
+        family_name=userinfo["family_name"],
+        birthdate=userinfo["birthdate"],
+        gender=userinfo["gender"],
+        birthplace=userinfo["birthplace"],
+        birthcountry=userinfo["birthcountry"],
+    )
+    user = User(fc_hash=fc_hash)
+    db_session.add(user)
+    await db_session.commit()
+
+    response = test_client.get(
+        f"/login-callback?code=fake-code&state={nonce.id}", follow_redirects=False
+    )
+
+    assert response.status_code == 302
+    redirected_url = response.headers["location"]
+    assert redirected_url.startswith("https://localhost:5173")
+    assert url_contains_param(
+        "user_data",
+        "fake userinfo jwt token",
+        redirected_url,
+    )
+    assert url_contains_param(
+        "user_first_login",
+        "true",
+        redirected_url,
+    )
+    assert url_contains_param(
+        "user_fc_hash",
+        "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060",
+        redirected_url,
+    )
+    assert url_contains_param(
+        "is_logged_in",
+        "true",
+        redirected_url,
+    )
+    all_nonces = (await db_session.execute(select(Nonce))).scalars().all()
+    assert len(all_nonces) == 0
+
+    all_users = (await db_session.execute(select(User))).scalars().all()
+    assert len(all_users) == 1
+    user = all_users[0]
+
+    assert user.fc_hash == "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060"
+    assert user.last_logged_in is not None
+
+    all_scheduled_notifications = (
+        (await db_session.execute(select(ScheduledNotification))).scalars().all()
+    )
+    assert len(all_scheduled_notifications) == 1
+    scheduled_notification = all_scheduled_notifications[0]
+    assert scheduled_notification.user.id == user.id
+    assert scheduled_notification.content_title == "Bienvenue sur AMI 👋"
+    assert (
+        scheduled_notification.content_body
+        == "Recevez des rappels sur votre situation et suivez vos démarches en cours depuis l'application."
+    )
+    assert scheduled_notification.content_icon == "fr-icon-information-line"
+    assert scheduled_notification.reference == "ami:welcome"
+    assert scheduled_notification.scheduled_at < datetime.datetime.now(datetime.timezone.utc)
+    assert scheduled_notification.sender == "AMI"
+    assert scheduled_notification.sent_at is None
 
 
 async def test_login_callback_token_query_failure(
@@ -147,7 +405,8 @@ async def test_login_callback_token_query_failure(
     token_failure_response = {
         "error": "invalid_grant",
         "error_description": " grant request is invalid (authorization code not found)",
-        "error_uri": "https://docs.partenaires.franceconnect.gouv.fr/fs/fs-technique/fs-technique-erreurs/?code=Y049E20B&id=801d508c-72d7-459d-8947-104cf89ce015",
+        "error_uri": "https://docs.partenaires.franceconnect.gouv.fr/fs/fs-technique/fs-technique-erreurs/"
+        "?code=Y049E20B&id=801d508c-72d7-459d-8947-104cf89ce015",
     }
     httpx_mock.add_response(
         method="POST",
@@ -214,28 +473,22 @@ async def test_login_callback_bad_nonce(
     db_session: AsyncSession,
     httpx_mock: HTTPXMock,
     monkeypatch: pytest.MonkeyPatch,
+    decoded_id_token: dict[str, Any],
 ) -> None:
+    def fake_jwt_decode(*args: Any, **params: Any):
+        return decoded_id_token
+
+    monkeypatch.setattr("jwt.decode", fake_jwt_decode)
+
     NONCE = "some random nonce"
     nonce = Nonce(nonce=NONCE)
     db_session.add(nonce)
     await db_session.commit()
 
-    # The following fake id_token corresponds to the following decoded id_token:
-    #  {'sub': 'cff67ebe00792a2f2b5115dcc1a65d115adb3b73653fb3ed1b88ea11a7a2589av1',
-    #   'auth_time': 1763455959,
-    #   'acr': 'eidas1',
-    #   'nonce': 'YTc3NzZlNjUtNmY3OC00YzExLThmODItMTg0MDg2ZjQ0YzEyLTIwMjUtMTEtMTggMDg6NTI6MzUuNjM1OTYyKzAwOjAw',
-    #   'aud': '33fe498cc172fe691778912a2967baa650b24f1ae0ebbe47ae552f37b2d25ead',
-    #   'exp': 1763456019,
-    #   'iat': 1763455959,
-    #   'iss': 'https://fcp-low.sbx.dev-franceconnect.fr/api/v2'}
-
-    fake_id_token = "eyJhbGciOiJFUzI1NiIsImtpZCI6InBrY3MxMTpFUzI1Njpoc20ifQ.eyJzdWIiOiJjZmY2N2ViZTAwNzkyYTJmMmI1MTE1ZGNjMWE2NWQxMTVhZGIzYjczNjUzZmIzZWQxYjg4ZWExMWE3YTI1ODlhdjEiLCJhdXRoX3RpbWUiOjE3NjM0NTU5NTksImFjciI6ImVpZGFzMSIsIm5vbmNlIjoiWVRjM056WmxOalV0Tm1ZM09DMDBZekV4TFRobU9ESXRNVGcwTURnMlpqUTBZekV5TFRJd01qVXRNVEV0TVRnZ01EZzZOVEk2TXpVdU5qTTFPVFl5S3pBd09qQXciLCJhdWQiOiIzM2ZlNDk4Y2MxNzJmZTY5MTc3ODkxMmEyOTY3YmFhNjUwYjI0ZjFhZTBlYmJlNDdhZTU1MmYzN2IyZDI1ZWFkIiwiZXhwIjoxNzYzNDU2MDE5LCJpYXQiOjE3NjM0NTU5NTksImlzcyI6Imh0dHBzOi8vZmNwLWxvdy5zYnguZGV2LWZyYW5jZWNvbm5lY3QuZnIvYXBpL3YyIn0.ynJnN7WY9hN9ACp27ETHg9pDA6tje09MlAfkkADcP6R5Ro_pLpQJ6Jtt4T3zn4ERMC2HKBkGSy1UcZgvLNPSFQ"
-
     fake_token_json_response = {
         "access_token": "fake access token",
         "expires_in": 60,
-        "id_token": fake_id_token,
+        "id_token": "fake id token",
         "scope": "openid given_name family_name preferred_username birthdate gender birthplace birthcountry email",
         "token_type": "Bearer",
     }

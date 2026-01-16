@@ -1,3 +1,4 @@
+import datetime
 import uuid
 from typing import Annotated, Any
 
@@ -8,12 +9,14 @@ from litestar.params import Parameter
 from litestar.response.redirect import Redirect
 from litestar.status_codes import HTTP_500_INTERNAL_SERVER_ERROR
 
-from app import env
+from app import env, models
 from app.auth import generate_nonce, jwt_cookie_auth
 from app.errors import TechnicalError
 from app.httpx import httpxClient
 from app.services.nonce import NonceService
-from app.utils import error_from_message, retry_fc_later
+from app.services.scheduled_notification import ScheduledNotificationService
+from app.services.user import UserService
+from app.utils import build_fc_hash, error_from_message, retry_fc_later
 
 
 class FCError(Exception):
@@ -25,6 +28,10 @@ class FCError(Exception):
 class AuthController(Controller):
     dependencies = {
         "nonces_service": providers.create_service_provider(NonceService),
+        "users_service": providers.create_service_provider(UserService),
+        "scheduled_notifications_service": providers.create_service_provider(
+            ScheduledNotificationService
+        ),
     }
 
     @get(path="/login-france-connect", include_in_schema=False, exclude_from_auth=True)
@@ -63,6 +70,8 @@ class AuthController(Controller):
     async def login_callback(
         self,
         nonces_service: NonceService,
+        users_service: UserService,
+        scheduled_notifications_service: ScheduledNotificationService,
         code: str | None,
         error: str | None,
         error_description: str | None,
@@ -92,13 +101,25 @@ class AuthController(Controller):
                 client_secret=client_secret,
                 nonces_service=nonces_service,
             )
+            id_token: str = response_token_data["id_token"]
+
+            userinfo_result, user_id = await self.get_fc_userinfo(
+                response_token_data=response_token_data,
+                users_service=users_service,
+                scheduled_notifications_service=scheduled_notifications_service,
+            )
 
             params: dict[str, str] = {
-                **response_token_data,
+                **userinfo_result,
                 "is_logged_in": "true",
+                "id_token": id_token,
             }
-
-            return Redirect(f"{env.PUBLIC_APP_URL}/", query_params=params)
+            login = jwt_cookie_auth.login(
+                identifier=str(user_id),
+            )
+            redirect = Redirect(f"{env.PUBLIC_APP_URL}/", query_params=params)
+            redirect.cookies = login.cookies
+            return redirect
         except FCError as e:
             if e.code is None:
                 return retry_fc_later()
@@ -168,6 +189,59 @@ class AuthController(Controller):
             raise FCError("invalid_nonce")
 
         return response_token_data
+
+    async def get_fc_userinfo(
+        self,
+        *,
+        response_token_data: dict[str, str],
+        users_service: UserService,
+        scheduled_notifications_service: ScheduledNotificationService,
+    ) -> tuple[dict[str, str], uuid.UUID]:
+        token_type = response_token_data.get("token_type", "")
+        if not token_type:
+            # XXX this is not covered by tests for the moment
+            raise FCError("missing_token_type")
+        access_token = response_token_data.get("access_token", "")
+        if not access_token:
+            # XXX this is not covered by tests for the moment
+            raise FCError("missing_access_token")
+
+        response = httpxClient.get(
+            f"{env.PUBLIC_FC_BASE_URL}{env.PUBLIC_FC_USERINFO_ENDPOINT}",
+            headers={"authorization": f"{token_type} {access_token}"},
+        )
+
+        userinfo_jws = response.text
+        decoded_userinfo = jwt.decode(
+            userinfo_jws, options={"verify_signature": False}, algorithms=["ES256"]
+        )
+        fc_hash = build_fc_hash(
+            given_name=decoded_userinfo["given_name"],
+            family_name=decoded_userinfo["family_name"],
+            birthdate=decoded_userinfo["birthdate"],
+            gender=decoded_userinfo["gender"],
+            birthplace=decoded_userinfo["birthplace"],
+            birthcountry=decoded_userinfo["birthcountry"],
+        )
+
+        user: models.User | None = await users_service.get_one_or_none(fc_hash=fc_hash)
+        create_welcome = False
+        now = datetime.datetime.now(datetime.timezone.utc)
+        if user is None:
+            user = await users_service.create(models.User(fc_hash=fc_hash, last_logged_in=now))
+            create_welcome = True
+        else:
+            create_welcome = user.last_logged_in is None
+            user = await users_service.update({"last_logged_in": now}, item_id=user.id)
+        if create_welcome:
+            await scheduled_notifications_service.create_welcome_scheduled_notification(user)
+        result: dict[str, Any] = {
+            "user_data": userinfo_jws,
+            "user_first_login": "true" if create_welcome else "false",
+            "user_fc_hash": fc_hash,
+        }
+
+        return result, user.id
 
     @post(path="/logout", include_in_schema=False)
     async def logout(self) -> Response[Any]:

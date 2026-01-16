@@ -34,7 +34,6 @@ from app.controllers.notification import (
 )
 from app.controllers.registration import RegistrationController
 from app.controllers.scheduled_notification import ScheduledNotificationController
-from app.controllers.user import UserController
 from app.database import alchemy, alchemy_config, channels_dsn
 from app.httpx import httpxClient
 from app.utils import build_fc_hash
@@ -185,7 +184,6 @@ def create_app() -> Litestar:
             authenticated_router,
             partner_router,
             NotAuthenticatedNotificationController,
-            UserController,
             ping,
             get_sector_identifier_url,
             _dev_utils_recipient_fc_hash,
