@@ -35,7 +35,12 @@ from app.controllers.notification import (
 from app.controllers.registration import RegistrationController
 from app.controllers.scheduled_notification import ScheduledNotificationController
 from app.database import alchemy, alchemy_config, channels_dsn
-from app.httpx import httpxClient
+from app.httpx import (
+    AsyncClient,
+    close_httpx_async_client,
+    get_httpx_async_client,
+    httpx_async_client_provider,
+)
 from app.utils import build_fc_hash
 from app.webpush import provide_webpush
 
@@ -96,9 +101,9 @@ async def _dev_utils_recipient_fc_hash(
 
 
 @get(path="/dev-utils/review-apps")
-async def _dev_utils_review_apps() -> list[dict[str, str | int]]:
+async def _dev_utils_review_apps(httpx_async_client: AsyncClient) -> list[dict[str, str | int]]:
     """Returns a list of tuples: (review app url, pull request title)."""
-    response = httpxClient.get(
+    response = await httpx_async_client.get(
         "https://api.github.com/repos/numerique-gouv/ami-notifications-api/pulls",
         params={"state": "open", "sort": "created", "per_page": 100},
         headers={
@@ -200,6 +205,7 @@ def create_app() -> Litestar:
         exception_handlers={errors.TechnicalError: errors.technical_error_handler},
         dependencies={
             "webpush": Provide(provide_webpush, use_cache=True, sync_to_thread=True),
+            "httpx_async_client": Provide(httpx_async_client_provider),
         },
         plugins=[
             alchemy,
@@ -212,4 +218,6 @@ def create_app() -> Litestar:
         cors_config=cors_config,
         stores={"sessions": FileStore(path=Path("session_data"))},
         openapi_config=openapi_config,
+        on_startup=[get_httpx_async_client],
+        on_shutdown=[close_httpx_async_client],
     )

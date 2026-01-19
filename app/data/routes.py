@@ -4,7 +4,7 @@ from typing import Any
 from litestar import Request, Response, Router, get
 
 from app import env
-from app.httpx import httpx
+from app.httpx import AsyncClient
 from app.schemas import Holiday
 from app.utils import error_from_message
 
@@ -13,6 +13,7 @@ from app.utils import error_from_message
 async def get_holidays(
     request: Request[Any, Any, Any],
     current_date: datetime.date,
+    httpx_async_client: AsyncClient,
 ) -> list[Holiday] | Response[dict[Any, Any]]:
     # target one region per zone, to limit results
     locations = ["Bordeaux", "Lille", "Versailles"]
@@ -26,7 +27,7 @@ async def get_holidays(
     # else, take holidays until the end of the following school year
     end_date = f"{current_date.year + 1}-09-15"
 
-    response = httpx.get(
+    response = await httpx_async_client.get(
         f"{env.PUBLIC_API_DATA_EDUCATION_BASE_URL}{env.PUBLIC_API_DATA_EDUCATION_HOLIDAYS_ENDPOINT}",
         params={
             "where": f"end_date >= date'{start_date}' AND start_date < date'{end_date}' AND ({locations_query}) AND population IN ('-', 'Élèves')",

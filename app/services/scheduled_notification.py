@@ -98,6 +98,7 @@ class ScheduledNotificationService(
             webpush,
             notification.id,
             True,
+            app.state.httpx_async_client,
         )
 
     async def delete_published_scheduled_notifications(self):

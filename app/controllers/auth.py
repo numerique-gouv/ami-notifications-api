@@ -12,7 +12,7 @@ from litestar.status_codes import HTTP_500_INTERNAL_SERVER_ERROR
 from app import env, models
 from app.auth import generate_nonce, jwt_cookie_auth
 from app.errors import TechnicalError
-from app.httpx import httpxClient
+from app.httpx import AsyncClient
 from app.services.nonce import NonceService
 from app.services.scheduled_notification import ScheduledNotificationService
 from app.services.user import UserService
@@ -77,6 +77,7 @@ class AuthController(Controller):
         error_description: str | None,
         fc_state: Annotated[str, Parameter(query="state")],
         request: Request[Any, Any, Any],
+        httpx_async_client: AsyncClient,
     ) -> Response[Any]:
         try:
             if error or not code:
@@ -100,6 +101,7 @@ class AuthController(Controller):
                 fc_state=fc_state,
                 client_secret=client_secret,
                 nonces_service=nonces_service,
+                httpx_async_client=httpx_async_client,
             )
             id_token: str = response_token_data["id_token"]
 
@@ -107,6 +109,7 @@ class AuthController(Controller):
                 response_token_data=response_token_data,
                 users_service=users_service,
                 scheduled_notifications_service=scheduled_notifications_service,
+                httpx_async_client=httpx_async_client,
             )
 
             params: dict[str, str] = {
@@ -134,6 +137,7 @@ class AuthController(Controller):
         fc_state: str,
         client_secret: str,
         nonces_service: NonceService,
+        httpx_async_client: AsyncClient,
     ):
         # Validate that the STATE is coherent with the one we sent to FC
         if not fc_state:
@@ -163,7 +167,7 @@ class AuthController(Controller):
         token_endpoint_headers: dict[str, str] = {
             "Content-Type": "application/x-www-form-urlencoded"
         }
-        response: Any = httpxClient.post(
+        response: Any = await httpx_async_client.post(
             f"{env.PUBLIC_FC_BASE_URL}{env.PUBLIC_FC_TOKEN_ENDPOINT}",
             headers=token_endpoint_headers,
             data=data,
@@ -194,6 +198,7 @@ class AuthController(Controller):
         response_token_data: dict[str, str],
         users_service: UserService,
         scheduled_notifications_service: ScheduledNotificationService,
+        httpx_async_client: AsyncClient,
     ) -> tuple[dict[str, str], uuid.UUID]:
         token_type = response_token_data.get("token_type", "")
         if not token_type:
@@ -202,7 +207,7 @@ class AuthController(Controller):
         if not access_token:
             raise FCError("missing_access_token")
 
-        response = httpxClient.get(
+        response = await httpx_async_client.get(
             f"{env.PUBLIC_FC_BASE_URL}{env.PUBLIC_FC_USERINFO_ENDPOINT}",
             headers={"authorization": f"{token_type} {access_token}"},
         )

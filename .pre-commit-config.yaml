@@ -17,6 +17,7 @@ repos:
       entry: bin/check-no-vanilla-httpx-usage.sh
       language: system
       files: \.py$
+      exclude: ^tests
 
 # JavaScript/TypeScript linting and formatting
 - repo: local

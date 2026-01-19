@@ -17,6 +17,7 @@ from pydantic import TypeAdapter
 from webpush import WebPush
 
 from app import env, models, schemas
+from app.httpx import AsyncClient
 from app.partners import Partner, provide_partner
 from app.services.notification import NotificationService
 from app.services.user import UserService, provide_user
@@ -142,6 +143,7 @@ class NotAuthenticatedNotificationController(Controller):
         users_with_registrations_service: UserService,
         webpush: WebPush,
         data: schemas.AdminNotificationCreate,
+        httpx_async_client: AsyncClient,
     ) -> Response[schemas.NotificationResponse]:
         user: models.User | None = await users_with_registrations_service.get_one_or_none(
             id=data.user_id
@@ -160,6 +162,7 @@ class NotAuthenticatedNotificationController(Controller):
             webpush,
             notification.id,
             True,
+            httpx_async_client,
         )
 
         response_data = schemas.NotificationResponse.model_validate(
@@ -225,6 +228,7 @@ class PartnerNotificationController(Controller):
             ),
         ],
         current_partner: Partner,
+        httpx_async_client: AsyncClient,
     ) -> Response[schemas.NotificationResponse]:
         notification_send_status = True
 
@@ -258,6 +262,7 @@ class PartnerNotificationController(Controller):
             webpush,
             notification.id,
             try_push,
+            httpx_async_client,
         )
 
         response_data = schemas.NotificationResponse.model_validate(
