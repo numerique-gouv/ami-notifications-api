@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 import uuid
 from typing import Annotated, Any
@@ -105,12 +106,20 @@ class AuthController(Controller):
             )
             id_token: str = response_token_data["id_token"]
 
-            userinfo_result, user_id = await self.get_fc_userinfo(
-                response_token_data=response_token_data,
-                users_service=users_service,
-                scheduled_notifications_service=scheduled_notifications_service,
-                httpx_async_client=httpx_async_client,
-            )
+            try:
+                async with asyncio.TaskGroup() as task_group:
+                    task_userinfo = task_group.create_task(
+                        self.get_fc_userinfo(
+                            response_token_data=response_token_data,
+                            users_service=users_service,
+                            scheduled_notifications_service=scheduled_notifications_service,
+                            httpx_async_client=httpx_async_client,
+                        )
+                    )
+            except* FCError as e:
+                raise e.exceptions[0]
+
+            userinfo_result, user_id = task_userinfo.result()
 
             params: dict[str, str] = {
                 **userinfo_result,
