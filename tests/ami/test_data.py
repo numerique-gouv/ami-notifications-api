@@ -1,9 +1,9 @@
+import httpx
 from litestar import Litestar
 from litestar.status_codes import HTTP_200_OK, HTTP_500_INTERNAL_SERVER_ERROR
 from litestar.testing import TestClient
 from pytest_httpx import HTTPXMock
 
-from app.httpx import httpx
 from app.models import User
 from tests.ami.utils import assert_query_fails_without_auth, login
 
