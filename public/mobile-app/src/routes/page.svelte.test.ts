@@ -25,6 +25,7 @@ describe('/+page.svelte', () => {
     window.localStorage.setItem('user_data', '')
     window.localStorage.setItem('user_id', '')
     window.localStorage.setItem('user_fc_hash', '')
+    window.localStorage.setItem('user_api_particulier_encoded_address', '')
 
     const { page } = await import('$app/state')
     const mockSearchParams = new URLSearchParams()
@@ -33,6 +34,7 @@ describe('/+page.svelte', () => {
     mockSearchParams.set('user_first_login', 'true')
     mockSearchParams.set('user_fc_hash', 'fake-user-fc-hash')
     mockSearchParams.set('id_token', 'fake-id-token')
+    mockSearchParams.set('address', 'fake-address')
     vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams)
 
     // When
@@ -43,6 +45,9 @@ describe('/+page.svelte', () => {
       expect(window.localStorage.getItem('user_data')).toEqual('fake-user-data')
       expect(window.localStorage.getItem('user_fc_hash')).toEqual('fake-user-fc-hash')
       expect(window.localStorage.getItem('id_token')).toEqual('fake-id-token')
+      expect(
+        window.localStorage.getItem('user_api_particulier_encoded_address')
+      ).toEqual('fake-address')
     })
   })
 

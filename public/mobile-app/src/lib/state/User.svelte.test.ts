@@ -67,6 +67,7 @@ describe('/lib/state/User.svelte.ts', () => {
     expect(isLoggedIn).toBeTruthy()
     expect(spyParseJwt).toHaveBeenCalledWith('some data')
     expect(userStore.connected?.identity?.address).toBeUndefined() // No `user_identity` in the localStorage
+    expect(userStore.connected?.identity?.address_origin).toBeUndefined() // No `user_identity` in the localStorage
   })
 
   test("should detect that we're not logged in", async () => {
@@ -90,6 +91,7 @@ describe('/lib/state/User.svelte.ts', () => {
     // Then
     expect(userStore.connected?.identity?.address).toEqual(mockUserIdentity.address)
     expect(userStore.connected?.identity?.address instanceof Address).toBe(true)
+    expect(userStore.connected?.identity?.address_origin).toEqual('user')
   })
 
   test('should properly set an email on the identity and save the identity to localStorage', async () => {
@@ -167,8 +169,10 @@ describe('/lib/state/User.svelte.ts', () => {
 
     // Then
     expect(userStore.connected?.identity?.address?.city).toEqual('some random city')
+    expect(userStore.connected?.identity?.address_origin).toEqual('user')
     const parsed = JSON.parse(localStorage.getItem('user_identity') || '{}')
     expect(parsed?.address._city).toEqual('some random city')
+    expect(parsed?.address_origin).toEqual('user')
   })
 
   test('should not query the geo API to update the identity if it was loaded from localStorage', async () => {

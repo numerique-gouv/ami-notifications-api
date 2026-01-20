@@ -47,6 +47,10 @@
           'user_fc_hash',
           page.url.searchParams.get('user_fc_hash') || ''
         )
+        localStorage.setItem(
+          'user_api_particulier_encoded_address',
+          page.url.searchParams.get('address') || ''
+        )
         await userStore.checkLoggedIn()
         if (page.url.searchParams.get('user_first_login') === 'true') {
           goto('/#/notifications-welcome-page')
