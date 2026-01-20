@@ -220,6 +220,8 @@ class AuthController(Controller):
             f"{env.PUBLIC_FC_BASE_URL}{env.PUBLIC_FC_USERINFO_ENDPOINT}",
             headers={"authorization": f"{token_type} {access_token}"},
         )
+        if response.status_code != 200:
+            raise FCError(code=None)
 
         userinfo_jws = response.text
         decoded_userinfo = jwt.decode(
