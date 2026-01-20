@@ -27,6 +27,8 @@ export type UserInfo = {
   iss: string
 }
 
+type AddressOrigin = 'user' | 'api-particulier' | 'cleared'
+
 export type UserIdentity = {
   gender: string
   birthdate: string
@@ -37,6 +39,7 @@ export type UserIdentity = {
   preferred_username?: string | null
   email: string
   address?: AddressType
+  address_origin?: AddressOrigin
   scheduledNotificationsCreatedKeys: string[]
 }
 
@@ -98,6 +101,7 @@ export class User {
       preferred_username: this._pivot.preferred_username,
       email: parsedIdentity?.email || this._pivot.email,
       address: parsedIdentity?.address,
+      address_origin: parsedIdentity?.address_origin,
       scheduledNotificationsCreatedKeys:
         parsedIdentity?.scheduledNotificationsCreatedKeys || [],
     }
@@ -133,8 +137,10 @@ export class User {
   setAddress(address: AddressType | undefined) {
     if (address) {
       this._identity.address = address
+      this._identity.address_origin = 'user'
     } else {
       delete this._identity.address
+      this._identity.address_origin = 'cleared'
     }
     localStorage.setItem('user_identity', JSON.stringify(this.identity))
   }
