@@ -1,11 +1,20 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte'
-import { describe, expect, test, vi } from 'vitest'
+import { afterEach, describe, expect, test, vi } from 'vitest'
 import * as navigationMethods from '$app/navigation'
 import { userStore } from '$lib/state/User.svelte'
-import { mockUser, mockUserWithPreferredUsername } from '$tests/utils'
+import {
+  mockUser,
+  mockUserIdentity,
+  mockUserInfo,
+  mockUserWithPreferredUsername,
+} from '$tests/utils'
 import Page from './+page.svelte'
 
 describe('/+page.svelte', () => {
+  afterEach(() => {
+    vi.resetAllMocks()
+  })
+
   test('user has to be connected', async () => {
     // Given
     const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue()
@@ -55,6 +64,64 @@ describe('/+page.svelte', () => {
       expect(profileIdentity).toHaveTextContent('Pierre DUBOIS,')
       expect(profileIdentity).toHaveTextContent('né MERCIER le 1969-03-17')
       expect(screen.getByText('some-other@email.com', { exact: false }))
+    })
+  })
+
+  test("profile page doesn't display user address", async () => {
+    // Given
+    await userStore.login(mockUserInfo)
+    expect(userStore.connected).not.toBeNull()
+
+    // Then
+    render(Page)
+
+    // When
+    await waitFor(() => {
+      const profile = screen.getByTestId('profile')
+      const profileAddress = profile.querySelector('#profile-address')
+      expect(profileAddress).toHaveTextContent('Définir une adresse')
+    })
+  })
+
+  test('profile page displays user address - from user', async () => {
+    // Given
+    localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity))
+    await userStore.login(mockUserInfo)
+    expect(userStore.connected).not.toBeNull()
+
+    // When
+    render(Page)
+
+    // Then
+    await waitFor(() => {
+      const profile = screen.getByTestId('profile')
+      const profileAddress = profile.querySelector('#profile-address')
+      expect(profileAddress).toHaveTextContent(
+        'Votre résidence principale Avenue de Ségur 75007 Paris'
+      )
+      expect(profileAddress).not.toHaveTextContent('Informations fournies par la Caf')
+    })
+  })
+
+  test('profile page displays user address - from api-particulier', async () => {
+    // Given
+    const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity))
+    newMockUserIdentity.address_origin = 'api-particulier'
+    localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity))
+    await userStore.login(mockUserInfo)
+    expect(userStore.connected).not.toBeNull()
+
+    // When
+    render(Page)
+
+    // Then
+    await waitFor(() => {
+      const profile = screen.getByTestId('profile')
+      const profileAddress = profile.querySelector('#profile-address')
+      expect(profileAddress).toHaveTextContent(
+        'Votre résidence principale Avenue de Ségur 75007 Paris'
+      )
+      expect(profileAddress).toHaveTextContent('Informations fournies par la Caf')
     })
   })
 
