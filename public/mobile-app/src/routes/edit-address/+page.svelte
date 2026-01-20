@@ -59,21 +59,21 @@
         const response = await callBAN(inputValue)
         addressApiHasError = response.errorCode === 'ban-unavailable'
         addressInputHasError = response.errorCode === 'ban-failed-parsing-query'
-        if (!addressApiHasError && !addressInputHasError) {
-          if (response.results) {
-            filteredAddresses = response.results.map(
-              (address: AddressFromBAN): Address => {
-                const city = address.city
-                const context = address.context
-                const idBAN = address.id
-                const label = address.label
-                const name = address.name
-                const postcode = address.postcode
-                return new Address(city, context, idBAN, label, name, postcode)
-              }
-            )
-          }
+        if (addressApiHasError || addressInputHasError) {
+          return
         }
+        if (!response.results) {
+          return
+        }
+        filteredAddresses = response.results.map((address: AddressFromBAN): Address => {
+          const city = address.city
+          const context = address.context
+          const idBAN = address.id
+          const label = address.label
+          const name = address.name
+          const postcode = address.postcode
+          return new Address(city, context, idBAN, label, name, postcode)
+        })
       } catch (error) {
         console.error(error)
       }

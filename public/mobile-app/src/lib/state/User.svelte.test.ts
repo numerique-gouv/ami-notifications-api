@@ -1,6 +1,8 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 import { Address } from '$lib/address'
+import * as addressesFromBANMethods from '$lib/addressesFromBAN'
+import { AddressFromBAN } from '$lib/addressesFromBAN'
 import * as authHelpers from '$lib/auth'
 import * as franceConnectHelpers from '$lib/france-connect'
 import { User, userStore } from '$lib/state/User.svelte'
@@ -35,17 +37,77 @@ describe('/lib/state/User.svelte.ts', () => {
         // Cleanup
         spyUpdateIdentity.mockRestore()
       })
-      test('should reconstruct a user identity from localstorage', async () => {
+      test('should reconstruct a user identity from localstorage - with user address', async () => {
         // Given
         localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity))
+        const spySetAddressFromAPIParticulier = vi
+          .spyOn(User.prototype, 'setAddressFromAPIParticulier')
+          .mockResolvedValue()
 
         // When
         await userStore.login(mockUserInfo)
 
         // Then
+        expect(spySetAddressFromAPIParticulier).not.toHaveBeenCalled()
         expect(userStore.connected?.identity?.address).toEqual(mockUserIdentity.address)
         expect(userStore.connected?.identity?.address instanceof Address).toBe(true)
-        expect(userStore.connected?.identity?.address_origin).toEqual('user')
+
+        // Cleanup
+        spySetAddressFromAPIParticulier.mockRestore()
+      })
+      test('should reconstruct a user identity from localstorage - with api-particulier address', async () => {
+        // Given
+        const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity))
+        newMockUserIdentity.address_origin = 'api-particulier'
+        localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity))
+        const spySetAddressFromAPIParticulier = vi
+          .spyOn(User.prototype, 'setAddressFromAPIParticulier')
+          .mockResolvedValue()
+
+        // When
+        await userStore.login(mockUserInfo)
+
+        // Then
+        expect(spySetAddressFromAPIParticulier).not.toHaveBeenCalled()
+
+        // Cleanup
+        spySetAddressFromAPIParticulier.mockRestore()
+      })
+      test('should reconstruct a user identity from localstorage - with cleared address', async () => {
+        // Given
+        const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity))
+        newMockUserIdentity.address_origin = 'cleared'
+        localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity))
+        const spySetAddressFromAPIParticulier = vi
+          .spyOn(User.prototype, 'setAddressFromAPIParticulier')
+          .mockResolvedValue()
+
+        // When
+        await userStore.login(mockUserInfo)
+
+        // Then
+        expect(spySetAddressFromAPIParticulier).not.toHaveBeenCalled()
+
+        // Cleanup
+        spySetAddressFromAPIParticulier.mockRestore()
+      })
+      test('should reconstruct a user identity from localstorage - with empty address', async () => {
+        // Given
+        const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity))
+        newMockUserIdentity.address_origin = undefined
+        localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity))
+        const spySetAddressFromAPIParticulier = vi
+          .spyOn(User.prototype, 'setAddressFromAPIParticulier')
+          .mockResolvedValue()
+
+        // When
+        await userStore.login(mockUserInfo)
+
+        // Then
+        expect(spySetAddressFromAPIParticulier).toHaveBeenCalled()
+
+        // Cleanup
+        spySetAddressFromAPIParticulier.mockRestore()
       })
       test('should not query the geo API to update the identity if it was loaded from localStorage', async () => {
         // Given
@@ -219,6 +281,163 @@ describe('/lib/state/User.svelte.ts', () => {
         const parsed = JSON.parse(localStorage.getItem('user_identity') || '{}')
         expect(parsed?.address._city).toEqual('some random city')
         expect(parsed?.address_origin).toEqual('user')
+      })
+    })
+
+    describe('setAddressFromAPIParticulier', () => {
+      test('should not call BAN if address from api-particulier is not set', async () => {
+        // Given
+        localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity))
+        localStorage.setItem('user_api_particulier_encoded_address', '')
+
+        // When
+        await userStore.login(mockUserInfo)
+        expect(userStore.connected).not.toBeNull()
+        await userStore.connected!.setAddressFromAPIParticulier()
+
+        // Then
+        // @ts-expect-error
+        expect(globalThis.fetchSpy).not.toHaveBeenCalled()
+        expect(userStore.connected?.identity?.address?.city).toEqual('Paris')
+        expect(userStore.connected?.identity?.address_origin).toEqual('user')
+      })
+      test('should not call BAN if address from api-particulier is not base64 encoded', async () => {
+        // Given
+        localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity))
+        localStorage.setItem('user_api_particulier_encoded_address', 'wrong')
+
+        // When
+        await userStore.login(mockUserInfo)
+        expect(userStore.connected).not.toBeNull()
+        await userStore.connected!.setAddressFromAPIParticulier()
+
+        // Then
+        // @ts-expect-error
+        expect(globalThis.fetchSpy).not.toHaveBeenCalled()
+        expect(userStore.connected?.identity?.address?.city).toEqual('Paris')
+        expect(userStore.connected?.identity?.address_origin).toEqual('user')
+      })
+      test('should not call BAN if address from api-particulier is not a json base64 encoded', async () => {
+        // Given
+        localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity))
+        localStorage.setItem('user_api_particulier_encoded_address', btoa('wrong'))
+
+        // When
+        await userStore.login(mockUserInfo)
+        expect(userStore.connected).not.toBeNull()
+        await userStore.connected!.setAddressFromAPIParticulier()
+
+        // Then
+        // @ts-expect-error
+        expect(globalThis.fetchSpy).not.toHaveBeenCalled()
+        expect(userStore.connected?.identity?.address?.city).toEqual('Paris')
+        expect(userStore.connected?.identity?.address_origin).toEqual('user')
+      })
+      test('should not call BAN if address from api-particulier is an empty json base64 encoded', async () => {
+        localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity))
+        localStorage.setItem('user_api_particulier_encoded_address', btoa('{}'))
+
+        // When
+        await userStore.login(mockUserInfo)
+        expect(userStore.connected).not.toBeNull()
+        await userStore.connected!.setAddressFromAPIParticulier()
+
+        // Then
+        // @ts-expect-error
+        expect(globalThis.fetchSpy).not.toHaveBeenCalled()
+        expect(userStore.connected?.identity?.address?.city).toEqual('Paris')
+        expect(userStore.connected?.identity?.address_origin).toEqual('user')
+      })
+      test('should not set address if BAN returns an error', async () => {
+        localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity))
+        localStorage.setItem(
+          'user_api_particulier_encoded_address',
+          btoa(JSON.stringify({ code_postal_ville: '31000 TOULOUSE' }))
+        )
+        const spy = vi.spyOn(addressesFromBANMethods, 'callBAN').mockResolvedValue({
+          errorCode: 'code',
+          errorMessage: 'message',
+        })
+
+        // When
+        await userStore.login(mockUserInfo)
+        expect(userStore.connected).not.toBeNull()
+        await userStore.connected!.setAddressFromAPIParticulier()
+
+        // Then
+        expect(spy).toHaveBeenCalledTimes(1)
+        expect(userStore.connected?.identity?.address?.city).toEqual('Paris')
+        expect(userStore.connected?.identity?.address_origin).toEqual('user')
+      })
+      test('should not set address if BAN returns an empty list', async () => {
+        localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity))
+        localStorage.setItem(
+          'user_api_particulier_encoded_address',
+          btoa(JSON.stringify({ code_postal_ville: '31000 TOULOUSE' }))
+        )
+        const spy = vi.spyOn(addressesFromBANMethods, 'callBAN').mockResolvedValue({
+          results: [],
+        })
+
+        // When
+        await userStore.login(mockUserInfo)
+        expect(userStore.connected).not.toBeNull()
+        await userStore.connected!.setAddressFromAPIParticulier()
+
+        // Then
+        expect(spy).toHaveBeenCalledTimes(1)
+        expect(userStore.connected?.identity?.address?.city).toEqual('Paris')
+        expect(userStore.connected?.identity?.address_origin).toEqual('user')
+      })
+      test('should set address if BAN returns results', async () => {
+        localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity))
+        localStorage.setItem(
+          'user_api_particulier_encoded_address',
+          btoa(
+            JSON.stringify({
+              numero_libelle_voie: '23 Rue des Aubépines',
+              code_postal_ville: '45100 ORLÉANS',
+            })
+          )
+        )
+        const spy = vi.spyOn(addressesFromBANMethods, 'callBAN').mockResolvedValue({
+          results: [
+            new AddressFromBAN(
+              'Orléans',
+              '45, Loiret, Centre-Val de Loire',
+              '45234_0420_00023',
+              '23 Rue des Aubépines 45100 Orléans',
+              '23 Rue des Aubépines',
+              '45100'
+            ),
+            new AddressFromBAN(
+              'Orly',
+              '94, Val-de-Marne, Île-de-France',
+              '94054_0070_00023',
+              '23 Rue des Aubépines 94310 Orly',
+              '23 Rue des Aubépines',
+              '94310'
+            ),
+            new AddressFromBAN(
+              'Orléat',
+              '63, Puy-de-Dôme, Auvergne-Rhône-Alpes',
+              '63265_0008',
+              'Allée des Aubépines 63190 Orléat',
+              'Allée des Aubépines',
+              '63190'
+            ),
+          ],
+        })
+
+        // When
+        await userStore.login(mockUserInfo)
+        expect(userStore.connected).not.toBeNull()
+        await userStore.connected!.setAddressFromAPIParticulier()
+
+        // Then
+        expect(spy).toHaveBeenCalledTimes(1)
+        expect(userStore.connected?.identity?.address?.city).toEqual('Orléans')
+        expect(userStore.connected?.identity?.address_origin).toEqual('api-particulier')
       })
     })
 

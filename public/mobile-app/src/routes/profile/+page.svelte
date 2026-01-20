@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import { goto } from '$app/navigation'
-  import type { Address } from '$lib/address'
+  import type { Address, AddressOrigin } from '$lib/address'
   import Card from '$lib/components/Card.svelte'
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte'
   import type { UserIdentity } from '$lib/state/User.svelte'
@@ -9,6 +9,7 @@
 
   let identity: UserIdentity = $state() as UserIdentity
   let address: Address | undefined = $state()
+  let address_origin: AddressOrigin | undefined = $state()
 
   onMount(async () => {
     if (!userStore.connected) {
@@ -17,6 +18,7 @@
     } else {
       identity = userStore.connected.identity
       address = identity.address
+      address_origin = identity.address_origin
     }
   })
 
@@ -96,7 +98,11 @@
       </button>
     </Card>
 
-    <Card iconHref="/remixicons/map-pin-user-line.svg" title="Mon adresse">
+    <Card
+      id="profile-address"
+      iconHref="/remixicons/map-pin-user-line.svg"
+      title="Mon adresse"
+    >
       {#if address}
         <p class="paragraph-wrapper">
           Votre résidence principale
@@ -105,6 +111,10 @@
           <br>
           <b>{address.postcode} {address.city}</b>
           <br>
+          {#if address_origin == 'api-particulier'}
+            <span class="fr-text--xs">Informations fournies par la Caf</span>
+            <br>
+          {/if}
         </p>
       {/if}
       <button
