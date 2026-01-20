@@ -1,6 +1,8 @@
 import asyncio
 import datetime
+import json
 import uuid
+from base64 import urlsafe_b64encode
 from typing import Annotated, Any
 
 import jwt
@@ -105,31 +107,51 @@ class AuthController(Controller):
                 httpx_async_client=httpx_async_client,
             )
             id_token: str = response_token_data["id_token"]
+            token_type = response_token_data.get("token_type", "")
+            if not token_type:
+                raise FCError("missing_token_type")
+            access_token = response_token_data.get("access_token", "")
+            if not access_token:
+                raise FCError("missing_access_token")
 
+            task_api_particulier = None
             try:
                 async with asyncio.TaskGroup() as task_group:
                     task_userinfo = task_group.create_task(
                         self.get_fc_userinfo(
-                            response_token_data=response_token_data,
+                            token_type=token_type,
+                            access_token=access_token,
                             users_service=users_service,
                             scheduled_notifications_service=scheduled_notifications_service,
                             httpx_async_client=httpx_async_client,
                         )
                     )
+                    if "cnaf_quotient_familial" in env.PUBLIC_FC_SCOPE:
+                        task_api_particulier = task_group.create_task(
+                            self.get_address_from_api_particulier_quotient(
+                                token_type=token_type,
+                                access_token=access_token,
+                                httpx_async_client=httpx_async_client,
+                            )
+                        )
             except* FCError as e:
                 raise e.exceptions[0]
 
-            userinfo_result, user_id = task_userinfo.result()
-
-            params: dict[str, str] = {
-                **userinfo_result,
+            user_data = {
                 "is_logged_in": "true",
                 "id_token": id_token,
             }
+            userinfo_result, user_id = task_userinfo.result()
+            user_data.update(userinfo_result)
+            if task_api_particulier:
+                address = task_api_particulier.result()
+                if address:
+                    user_data["address"] = address
+
             login = jwt_cookie_auth.login(
                 identifier=str(user_id),
             )
-            redirect = Redirect(f"{env.PUBLIC_APP_URL}/", query_params=params)
+            redirect = Redirect(f"{env.PUBLIC_APP_URL}/", query_params=user_data)
             redirect.cookies = login.cookies
             return redirect
         except FCError as e:
@@ -204,18 +226,12 @@ class AuthController(Controller):
     async def get_fc_userinfo(
         self,
         *,
-        response_token_data: dict[str, str],
+        token_type: str,
+        access_token: str,
         users_service: UserService,
         scheduled_notifications_service: ScheduledNotificationService,
         httpx_async_client: AsyncClient,
     ) -> tuple[dict[str, str], uuid.UUID]:
-        token_type = response_token_data.get("token_type", "")
-        if not token_type:
-            raise FCError("missing_token_type")
-        access_token = response_token_data.get("access_token", "")
-        if not access_token:
-            raise FCError("missing_access_token")
-
         response = await httpx_async_client.get(
             f"{env.PUBLIC_FC_BASE_URL}{env.PUBLIC_FC_USERINFO_ENDPOINT}",
             headers={"authorization": f"{token_type} {access_token}"},
@@ -254,6 +270,27 @@ class AuthController(Controller):
         }
 
         return result, user.id
+
+    async def get_address_from_api_particulier_quotient(
+        self,
+        *,
+        token_type: str,
+        access_token: str,
+        httpx_async_client: AsyncClient,
+    ) -> str | None:
+        response = await httpx_async_client.get(
+            f"{env.PUBLIC_API_PARTICULIER_BASE_URL}{env.PUBLIC_API_PARTICULIER_QUOTIENT_ENDPOINT}?recipient={env.PUBLIC_API_PARTICULIER_RECIPIENT_ID}",
+            headers={"authorization": f"{token_type} {access_token}"},
+        )
+        if response.status_code != 200:
+            return None
+        data = response.json()
+        if data.get("data", {}).get("adresse", {}):
+            address_fields = ["numero_libelle_voie", "lieu_dit", "code_postal_ville", "pays"]
+            address = {
+                k: v or "" for k, v in data["data"]["adresse"].items() if k in address_fields
+            }
+            return urlsafe_b64encode(json.dumps(address).encode("utf8")).decode("utf8")
 
     @post(path="/logout", include_in_schema=False)
     async def logout(self) -> Response[Any]:
