@@ -171,11 +171,14 @@
   .homepage {
     display: flex;
     flex-direction: column;
-    margin-bottom: 1.5rem;
+    height: 100vh;
 
     .homepage-not-connected {
+      display: flex;
+      flex-direction: column;
       position: relative;
       margin: 24px 16px;
+      height: 100vh;
 
       .france-connect-svg-icon {
         text-align: center;
@@ -192,11 +195,9 @@
       }
 
       .contact-link-wrapper {
-        position: fixed;
-        bottom: 1.5rem;
-        left: 0;
+        flex-grow: 1;
+        align-content: end;
         text-align: center;
-        width: 100%;
 
         p {
           margin: 0;
