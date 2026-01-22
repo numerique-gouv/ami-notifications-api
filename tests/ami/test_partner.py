@@ -1,0 +1,65 @@
+from typing import Any
+
+import pytest
+from litestar import Litestar
+from litestar.status_codes import (
+    HTTP_200_OK,
+)
+from litestar.testing import TestClient
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.models import Notification
+from tests.ami.utils import assert_query_fails_without_auth, login
+
+
+async def test_generate_partner_url_when_url_has_no_template(
+    test_client: TestClient[Litestar],
+    db_session: AsyncSession,
+    notification: Notification,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # Given
+    login(notification.user, test_client)
+    monkeypatch.setattr("app.env.PUBLIC_OTV_URL", "fake-public-otv-url")
+
+    # When
+    response = test_client.get(
+        "/api/v1/partner/otv/url?preferred_username=Delaforêt&email=wossewodda-37228@yopmail.com&address_city=Paris&address_postcode=75007&address_name=20 Avenue de Ségur"
+    )
+
+    # Then
+    assert response.status_code == HTTP_200_OK
+    assert response.json() == {"partner_url": "fake-public-otv-url"}
+
+
+async def test_generate_partner_url_when_url_has_template(
+    test_client: TestClient[Litestar],
+    db_session: AsyncSession,
+    notification: Notification,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # Given
+    login(notification.user, test_client)
+    monkeypatch.setattr("app.env.PUBLIC_OTV_URL", "fake-public-otv-url?caller={token-jwt}")
+
+    def generate_identity_token_mock(*args: Any, **kwargs: Any) -> str:
+        return "fake.jwt.token"
+
+    monkeypatch.setattr(
+        "app.controllers.partner.generate_identity_token", generate_identity_token_mock
+    )
+
+    # When
+    response = test_client.get(
+        "/api/v1/partner/otv/url?preferred_username=Delaforêt&email=wossewodda-37228@yopmail.com&address_city=Paris&address_postcode=75007&address_name=20 Avenue de Ségur"
+    )
+
+    # Then
+    assert response.status_code == HTTP_200_OK
+    assert response.json() == {"partner_url": "fake-public-otv-url?caller=fake.jwt.token"}
+
+
+async def test_generate_partner_url_without_auth(
+    test_client: TestClient[Litestar],
+) -> None:
+    await assert_query_fails_without_auth("/api/v1/partner/otv/url", test_client)
