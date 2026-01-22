@@ -32,7 +32,7 @@ from app.controllers.notification import (
     NotificationController,
     PartnerNotificationController,
 )
-from app.controllers.partner import PartnerController
+from app.controllers.partner import NotAuthenticatedPartnerController, PartnerController
 from app.controllers.registration import RegistrationController
 from app.controllers.scheduled_notification import ScheduledNotificationController
 from app.database import alchemy, alchemy_config, channels_dsn
@@ -191,6 +191,7 @@ def create_app() -> Litestar:
             authenticated_router,
             partner_router,
             NotAuthenticatedNotificationController,
+            NotAuthenticatedPartnerController,
             ping,
             get_sector_identifier_url,
             _dev_utils_recipient_fc_hash,

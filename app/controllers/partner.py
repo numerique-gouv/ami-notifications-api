@@ -42,3 +42,11 @@ class PartnerController(Controller):
                 partner_url = partner_url.replace("{token-jwt}", identity_token)
 
         return Response(content={"partner_url": partner_url}, status_code=HTTP_200_OK)
+
+
+class NotAuthenticatedPartnerController(Controller):
+    @get("/api/v1/partner/otv/public_key")
+    async def get_partner_public_key(self) -> Response[dict[str, str]]:
+        public_key = env.PUBLIC_OTV_PUBLIC_KEY
+
+        return Response(content={"public_key": public_key}, status_code=HTTP_200_OK)

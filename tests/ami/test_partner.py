@@ -63,3 +63,18 @@ async def test_generate_partner_url_without_auth(
     test_client: TestClient[Litestar],
 ) -> None:
     await assert_query_fails_without_auth("/api/v1/partner/otv/url", test_client)
+
+
+async def test_get_partner_public_key(
+    test_client: TestClient[Litestar],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # Given
+    monkeypatch.setattr("app.env.PUBLIC_OTV_PUBLIC_KEY", "fake-public-otv-public-key")
+
+    # When
+    response = test_client.get("/api/v1/partner/otv/public_key")
+
+    # Then
+    assert response.status_code == HTTP_200_OK
+    assert response.json() == {"public_key": "fake-public-otv-public-key"}
