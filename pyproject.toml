@@ -12,6 +12,7 @@ dependencies = [
     "sentry-sdk[litestar]>=2.29.1",
     "types-requests>=2.32.0.20250328",
     "webpush>=1.0.5",
+    "workalendar>=17.0.0",
 ]
 
 [dependency-groups]
