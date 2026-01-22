@@ -1,12 +1,24 @@
 import datetime
-from typing import Any
+from typing import Any, Iterable, cast
 
 from litestar import Request, Response, Router, get
+from workalendar.europe import France
 
 from app import env
 from app.httpx import AsyncClient
-from app.schemas import SchoolHoliday
+from app.schemas import PublicHoliday, SchoolHoliday
 from app.utils import error_from_message
+
+
+def get_holidays_dates(current_date: datetime.date) -> tuple[datetime.date, datetime.date]:
+    # take holidays from the previous month:
+    # if current_date falls during a holiday with zone, then we will be sure to retrieve all zones,
+    # and we will always be able to deduplicate correctly
+    start_date = current_date - datetime.timedelta(days=30)
+    # if the school year has just begun, take holidays until the end of the current school year
+    # else, take holidays until the end of the following school year
+    end_date = datetime.date(current_date.year + 1, 9, 15)
+    return start_date, end_date
 
 
 @get(path="/school-holidays", include_in_schema=False)
@@ -19,13 +31,7 @@ async def get_school_holidays(
     locations = ["Bordeaux", "Lille", "Versailles"]
     locations_query = " OR ".join(f"location = '{location}'" for location in locations)
 
-    # take holidays from the previous month:
-    # if current_date falls during a holiday with zone, then we will be sure to retrieve all zones,
-    # and we will always be able to deduplicate correctly
-    start_date = current_date - datetime.timedelta(days=30)
-    # if the school year has just begun, take holidays until the end of the current school year
-    # else, take holidays until the end of the following school year
-    end_date = f"{current_date.year + 1}-09-15"
+    start_date, end_date = get_holidays_dates(current_date)
 
     response = await httpx_async_client.get(
         f"{env.PUBLIC_API_DATA_EDUCATION_BASE_URL}{env.PUBLIC_API_DATA_EDUCATION_HOLIDAYS_ENDPOINT}",
@@ -53,9 +59,35 @@ async def get_school_holidays(
     return sorted(holidays.values(), key=lambda a: a.start_date)
 
 
+@get(path="/public-holidays", include_in_schema=False)
+async def get_public_holidays(
+    request: Request[Any, Any, Any],
+    current_date: datetime.date,
+) -> list[PublicHoliday]:
+    start_date, end_date = get_holidays_dates(current_date)
+    calendar = France()
+
+    workalendar_holidays: list[tuple[datetime.date, str]] = [
+        day
+        for year in range(start_date.year, end_date.year + 1)
+        for day in cast(
+            Iterable[tuple[datetime.date, str]],
+            calendar.holidays(year),  # type: ignore
+        )
+    ]
+
+    holidays: list[PublicHoliday] = []
+    for day, description in workalendar_holidays:
+        if day < start_date or day > end_date:
+            continue
+        holidays.append(PublicHoliday.from_dict({"description": description, "date": day}))
+    return holidays
+
+
 data_router: Router = Router(
     path="/data",
     route_handlers=[
         get_school_holidays,
+        get_public_holidays,
     ],
 )

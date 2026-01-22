@@ -246,3 +246,31 @@ async def test_get_school_holidays_without_auth(
     test_client: TestClient[Litestar],
 ) -> None:
     await assert_query_fails_without_auth("/data/school-holidays", test_client)
+
+
+async def test_get_public_holidays(
+    user: User,
+    test_client: TestClient[Litestar],
+    httpx_mock: HTTPXMock,
+) -> None:
+    login(user, test_client)
+
+    response = test_client.get("/data/public-holidays", params={"current_date": "2025-12-12"})
+    assert response.status_code == HTTP_200_OK
+    assert response.json() == [
+        {"description": "Noël", "date": "2025-12-25", "emoji": "📅"},
+        {"description": "Jour de l’An", "date": "2026-01-01", "emoji": "🎉"},
+        {"description": "Lundi de Pâques", "date": "2026-04-06", "emoji": "📅"},
+        {"description": "Fête du Travail", "date": "2026-05-01", "emoji": "📅"},
+        {"description": "Victoire 1945", "date": "2026-05-08", "emoji": "📅"},
+        {"description": "Ascension", "date": "2026-05-14", "emoji": "📅"},
+        {"description": "Lundi de Pentecôte", "date": "2026-05-25", "emoji": "📅"},
+        {"description": "Fête Nationale", "date": "2026-07-14", "emoji": "🎆"},
+        {"description": "Assomption", "date": "2026-08-15", "emoji": "📅"},
+    ]
+
+
+async def test_get_public_holidays_without_auth(
+    test_client: TestClient[Litestar],
+) -> None:
+    await assert_query_fails_without_auth("/data/public-holidays", test_client)
