@@ -767,7 +767,7 @@ describe('/agenda.ts', () => {
         emoji: '',
       }
       const spy = vi
-        .spyOn(holidaysMethods, 'retrieveHolidays')
+        .spyOn(holidaysMethods, 'retrieveSchoolHolidays')
         .mockResolvedValue([holiday1, holiday4])
 
       // When

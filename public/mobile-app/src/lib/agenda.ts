@@ -1,5 +1,5 @@
-import type { Holiday } from '$lib/api-holidays'
-import { retrieveHolidays } from '$lib/api-holidays'
+import type { SchoolHoliday } from '$lib/api-holidays'
+import { retrieveSchoolHolidays } from '$lib/api-holidays'
 import { createScheduledNotification } from '$lib/scheduled-notifications'
 import { userStore } from '$lib/state/User.svelte'
 
@@ -171,16 +171,16 @@ export class Agenda {
   private _now: Item[] = []
   private _next: Item[] = []
 
-  constructor(holidays: Holiday[], date: Date | null = null) {
+  constructor(school_holidays: SchoolHoliday[], date: Date | null = null) {
     const today = date || new Date()
     today.setHours(0, 0, 0, 0)
     const items: Item[] = []
 
-    // build items from holidays
-    this.createHolidayItems(items, holidays, today)
+    // build items from school_holidays
+    this.createSchoolHolidayItems(items, school_holidays, today)
 
     // create OTV items
-    this.createOTVItems(items, holidays, today)
+    this.createOTVItems(items, school_holidays, today)
 
     // sort items by date
     items.sort((a, b) => (a.date?.getTime() || 0) - (b.date?.getTime() || 0))
@@ -199,19 +199,23 @@ export class Agenda {
     })
   }
 
-  private createHolidayItems(items: Item[], holidays: Holiday[], date: Date) {
-    holidays.forEach((holiday) => {
-      const item = this.createHolidayItem(holiday, date)
+  private createSchoolHolidayItems(
+    items: Item[],
+    school_holidays: SchoolHoliday[],
+    date: Date
+  ) {
+    school_holidays.forEach((holiday) => {
+      const item = this.createSchoolHolidayItem(holiday, date)
       if (item !== null) {
         items.push(item)
       }
     })
   }
 
-  private createHolidayItem(holiday: Holiday, date: Date): Item | null {
+  private createSchoolHolidayItem(holiday: SchoolHoliday, date: Date): Item | null {
     const userZone = userStore.connected?.identity.address?.zone
     if (holiday.end_date < date) {
-      // exclude past holidays
+      // exclude past school_holidays
       return null
     }
     let title = holiday.description
@@ -241,10 +245,10 @@ export class Agenda {
     )
   }
 
-  private createOTVItems(items: Item[], holidays: Holiday[], date: Date) {
-    const seenHolidays: Set<string> = new Set()
-    holidays.forEach((holiday) => {
-      const item = this.createOTVItem(seenHolidays, holiday, date)
+  private createOTVItems(items: Item[], school_holidays: SchoolHoliday[], date: Date) {
+    const seenSchoolHolidays: Set<string> = new Set()
+    school_holidays.forEach((holiday) => {
+      const item = this.createOTVItem(seenSchoolHolidays, holiday, date)
       if (item !== null) {
         items.push(item)
       }
@@ -252,8 +256,8 @@ export class Agenda {
   }
 
   private createOTVItem(
-    seenHolidays: Set<string>,
-    holiday: Holiday,
+    seenSchoolHolidays: Set<string>,
+    holiday: SchoolHoliday,
     date: Date
   ): Item | null {
     const userZone = userStore.connected?.identity.address?.zone
@@ -264,7 +268,7 @@ export class Agenda {
       desc: holiday.description,
       year: holiday.start_date.getFullYear(),
     })
-    if (seenHolidays.has(key)) {
+    if (seenSchoolHolidays.has(key)) {
       return null
     }
     if (
@@ -275,9 +279,9 @@ export class Agenda {
       // Only create OTV for the user's zone, if present
       return null
     }
-    seenHolidays.add(key)
+    seenSchoolHolidays.add(key)
     if (holiday.end_date < date) {
-      // exclude OTV of past holidays
+      // exclude OTV of past school_holidays
       return null
     }
     const startDate = new Date(holiday.start_date.getTime() - 3 * 7 * oneday_in_ms)
@@ -318,6 +322,6 @@ export class Agenda {
 
 export const buildAgenda = async (date: Date | null = null): Promise<Agenda> => {
   const today = date || new Date()
-  const holidays: Holiday[] = await retrieveHolidays(today)
-  return new Agenda(holidays, today)
+  const school_holidays: SchoolHoliday[] = await retrieveSchoolHolidays(today)
+  return new Agenda(school_holidays, today)
 }

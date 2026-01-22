@@ -1,6 +1,6 @@
 import { apiFetch } from '$lib/auth'
 
-export type Holiday = {
+export type SchoolHoliday = {
   description: string
   zones: string
   start_date: Date
@@ -8,25 +8,28 @@ export type Holiday = {
   emoji: string
 }
 
-export const retrieveHolidays = async (
+export const retrieveSchoolHolidays = async (
   date: Date | null = null
-): Promise<Holiday[]> => {
+): Promise<SchoolHoliday[]> => {
   const today = date || new Date()
   today.setHours(0, 0, 0, 0)
   const current_date = today.toLocaleDateString('sv-SE') // this gives the locale date in ISO format ...
   console.log('current_date', current_date)
-  let holidaysData = localStorage.getItem('holidays_data')
+  let holidaysData = localStorage.getItem('school_holidays_data')
   if (!holidaysData) {
-    const response = await apiFetch(`/data/holidays?current_date=${current_date}`, {
-      credentials: 'include',
-    })
+    const response = await apiFetch(
+      `/data/school-holidays?current_date=${current_date}`,
+      {
+        credentials: 'include',
+      }
+    )
     if (response.ok) {
       holidaysData = await response.text()
-      localStorage.setItem('holidays_data', holidaysData)
+      localStorage.setItem('school_holidays_data', holidaysData)
     }
   }
   if (holidaysData) {
-    const holidays = JSON.parse(holidaysData) as Holiday[]
+    const holidays = JSON.parse(holidaysData) as SchoolHoliday[]
     holidays.forEach((holiday) => {
       // convert dates
       holiday.start_date = new Date(holiday.start_date)

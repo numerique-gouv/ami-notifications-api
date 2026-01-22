@@ -1,13 +1,13 @@
 import { afterEach, describe, expect, test, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
-import { retrieveHolidays } from '$lib/api-holidays'
+import { retrieveSchoolHolidays } from '$lib/api-holidays'
 
 describe('/api-holidays', () => {
-  describe('retrieveHolidays', () => {
+  describe('retrieveSchoolHolidays', () => {
     afterEach(() => {
       window.localStorage.clear()
     })
-    test('should get holidays from API', async () => {
+    test('should get school holidays from API', async () => {
       // Given
       const holidaysData = [
         {
@@ -30,28 +30,28 @@ describe('/api-holidays', () => {
       )
 
       // When
-      const result = await retrieveHolidays(new Date('2025-11-01T12:00:00Z'))
+      const result = await retrieveSchoolHolidays(new Date('2025-11-01T12:00:00Z'))
 
       // Then
       expect(result).toEqual(holidaysData)
-      expect(window.localStorage.getItem('holidays_data')).toEqual(
+      expect(window.localStorage.getItem('school_holidays_data')).toEqual(
         JSON.stringify(holidaysData)
       )
     })
-    test('should get holidays from API with error', async () => {
+    test('should get school holidays from API with error', async () => {
       // Given
       vi.spyOn(globalThis, 'fetch').mockResolvedValue(
         new Response('error', { status: 400 })
       )
 
       // When
-      const result = await retrieveHolidays(new Date('2025-11-01T12:00:00Z'))
+      const result = await retrieveSchoolHolidays(new Date('2025-11-01T12:00:00Z'))
 
       // Then
       expect(result).toEqual([])
-      expect(window.localStorage.getItem('holidays_data')).toEqual(null)
+      expect(window.localStorage.getItem('school_holidays_data')).toEqual(null)
     })
-    test('should get holidays data from local storage', async () => {
+    test('should get school holidays data from local storage', async () => {
       // Given
       const holidaysData = [
         {
@@ -69,10 +69,10 @@ describe('/api-holidays', () => {
           emoji: '',
         },
       ]
-      window.localStorage.setItem('holidays_data', JSON.stringify(holidaysData))
+      window.localStorage.setItem('school_holidays_data', JSON.stringify(holidaysData))
 
       // When
-      const result = await retrieveHolidays(new Date('2025-11-01T12:00:00Z'))
+      const result = await retrieveSchoolHolidays(new Date('2025-11-01T12:00:00Z'))
 
       // Then
       expect(result).toEqual(holidaysData)
