@@ -33,7 +33,11 @@ describe('/+page.svelte', () => {
     render(Page)
 
     // Then
-    expect(screen.getByTestId('item-date')).toHaveTextContent('À partir du 5 décembre')
+    await waitFor(() => {
+      expect(screen.getByTestId('item-date')).toHaveTextContent(
+        'À partir du 5 décembre'
+      )
+    })
   })
 
   test('should display empty string if url param is empty', async () => {
@@ -56,6 +60,29 @@ describe('/+page.svelte', () => {
 
     // Then
     expect(screen.getByTestId('item-date')).toHaveTextContent('À partir du')
+  })
+
+  test('should retrieve procedure url', async () => {
+    // Given
+    await userStore.login(mockUserInfo)
+
+    const mockResponse = {
+      partner_url: 'fake-public-otv-url?caller=fake.jwt.token',
+    }
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify(mockResponse), { status: 200 })
+    )
+
+    // When
+    render(Page)
+
+    // Then
+    await waitFor(() => {
+      const link = screen.getByTestId('procedure-link')
+      expect(link.getAttribute('href')).toBe(
+        'fake-public-otv-url?caller=fake.jwt.token'
+      )
+    })
   })
 
   test('should navigate to previous page when user clicks on Back button', async () => {

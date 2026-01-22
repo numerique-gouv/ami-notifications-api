@@ -1,10 +1,11 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import { goto } from '$app/navigation'
-  import { PUBLIC_OTV_URL } from '$env/static/public'
-  import { userStore } from '$lib/state/User.svelte'
+  import { Address } from '$lib/address'
+  import { apiFetch } from '$lib/auth'
+  import { User, type UserIdentity, userStore } from '$lib/state/User.svelte'
 
-  const otvUrl = PUBLIC_OTV_URL
+  let procedureUrl: string = $state('')
   let itemDate: string = $state('')
 
   const isValidDate = (d: Date | number) =>
@@ -13,6 +14,40 @@
   onMount(async () => {
     if (!userStore.connected) {
       goto('/')
+    }
+
+    let connected: User | null = userStore.connected
+    if (connected) {
+      let userIdentity: UserIdentity | null = connected.identity
+      if (userIdentity) {
+        let preferredUsername: string = userIdentity.preferred_username
+          ? userIdentity.preferred_username
+          : ''
+        let email: string = userIdentity.email ? userIdentity.email : ''
+        let addressFromUserStore: Address | undefined = userIdentity.address
+        let addressCity = ''
+        let addressPostcode = ''
+        let addressName = ''
+        if (addressFromUserStore) {
+          addressCity = addressFromUserStore.city
+          addressPostcode = addressFromUserStore.postcode
+          addressName = addressFromUserStore.name
+        }
+        try {
+          const response = await apiFetch(
+            `/api/v1/partner/otv/url?preferred_username=${preferredUsername}&email=${email}&address_city=${addressCity}&address_postcode=${addressPostcode}&address_name=${addressName}`,
+            {
+              credentials: 'include',
+            }
+          )
+          if (response.status === 200) {
+            const responseJson = await response.json()
+            procedureUrl = responseJson.partner_url
+          }
+        } catch (error) {
+          console.error(error)
+        }
+      }
     }
 
     const hash = window.location.hash
@@ -82,7 +117,11 @@
   </div>
 
   <div class="procedure-action-buttons">
-    <div class="procedure-start"><a href="{otvUrl}"> Bénéficier de ce service </a></div>
+    <div class="procedure-start">
+      <a href="{procedureUrl}" data-testid="procedure-link">
+        Bénéficier de ce service
+      </a>
+    </div>
   </div>
 </div>
 
