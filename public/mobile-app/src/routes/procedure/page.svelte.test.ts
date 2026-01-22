@@ -33,7 +33,11 @@ describe('/+page.svelte', () => {
     render(Page)
 
     // Then
-    expect(screen.getByTestId('item-date')).toHaveTextContent('À partir du 5 décembre')
+    await waitFor(() => {
+      expect(screen.getByTestId('item-date')).toHaveTextContent(
+        'À partir du 5 décembre'
+      )
+    })
   })
 
   test('should display empty string if url param is empty', async () => {
@@ -56,6 +60,45 @@ describe('/+page.svelte', () => {
 
     // Then
     expect(screen.getByTestId('item-date')).toHaveTextContent('À partir du')
+  })
+
+  test('should retrieve procedure url', async () => {
+    // Given
+    await userStore.login(mockUserInfo)
+
+    const expectedProcedureUrl = 'fake-public-otv-url?caller=fake.jwt.token'
+    const mockResponse = { partner_url: expectedProcedureUrl }
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify(mockResponse), { status: 200 })
+    )
+
+    // When
+    const { component } = render(Page)
+
+    // Then
+    await waitFor(() => {
+      expect(component.getProcedureUrlForTests()).toBe(expectedProcedureUrl)
+    })
+  })
+
+  test('should disable button when procedure url is empty', async () => {
+    // Given
+    await userStore.login(mockUserInfo)
+
+    const procedureUrl = ''
+    const mockResponse = { partner_url: procedureUrl }
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify(mockResponse), { status: 200 })
+    )
+
+    // When
+    render(Page)
+
+    // Then
+    await waitFor(() => {
+      const procedureButton = screen.getByTestId('procedure-button')
+      expect(procedureButton).toBeDisabled()
+    })
   })
 
   test('should navigate to previous page when user clicks on Back button', async () => {
