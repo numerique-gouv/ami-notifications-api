@@ -1,4 +1,5 @@
 import anyio
+import click
 from advanced_alchemy.extensions.litestar.providers import create_service_provider
 from click import Group
 from litestar import Litestar
@@ -6,6 +7,7 @@ from litestar.plugins import CLIPluginProtocol
 
 from app.database import alchemy_config
 from app.services.scheduled_notification import ScheduledNotificationService
+from app.utils import generate_identity_tokens_in_file
 
 
 class CLIPlugin(CLIPluginProtocol):
@@ -17,6 +19,12 @@ class CLIPlugin(CLIPluginProtocol):
         @cli.command()
         def delete_published_scheduled_notifications() -> None:  # type: ignore[reportUnusedFunction]
             anyio.run(_delete_published_scheduled_notifications)
+
+        @cli.command()
+        @click.argument("input_file_path")
+        @click.argument("output_file_path")
+        def generate_identity_tokens(input_file_path: str, output_file_path: str) -> None:  # type: ignore[reportUnusedFunction]
+            generate_identity_tokens_in_file(input_file_path, output_file_path)
 
 
 async def _publish_scheduled_notifications(app: Litestar) -> None:

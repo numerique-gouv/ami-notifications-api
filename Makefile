@@ -40,3 +40,7 @@ publish-scheduled-notifications:
 .PHONY: delete-published-scheduled-notifications
 delete-published-scheduled-notifications:
 	bin/run_command.sh delete-published-scheduled-notifications
+
+.PHONY: generate-identity-tokens
+generate-identity-tokens:
+	bin/run_command.sh generate-identity-tokens
