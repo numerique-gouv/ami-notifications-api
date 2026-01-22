@@ -56,3 +56,14 @@ class PartnerController(Controller):
             }
         )
         return Response(content=response_data, status_code=HTTP_200_OK)
+
+    @get("/api/v1/partner/otv/public_key")
+    async def get_partner_public_key(self) -> Response[schemas.PartnerPublicKeyResponse]:
+        public_key = env.PUBLIC_OTV_PUBLIC_KEY
+
+        response_data = schemas.PartnerPublicKeyResponse.model_validate(
+            {
+                "public_key": public_key,
+            }
+        )
+        return Response(content=response_data, status_code=HTTP_200_OK)
