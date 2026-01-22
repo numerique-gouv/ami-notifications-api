@@ -5,16 +5,16 @@ from litestar import Request, Response, Router, get
 
 from app import env
 from app.httpx import AsyncClient
-from app.schemas import Holiday
+from app.schemas import SchoolHoliday
 from app.utils import error_from_message
 
 
-@get(path="/holidays", include_in_schema=False)
-async def get_holidays(
+@get(path="/school-holidays", include_in_schema=False)
+async def get_school_holidays(
     request: Request[Any, Any, Any],
     current_date: datetime.date,
     httpx_async_client: AsyncClient,
-) -> list[Holiday] | Response[dict[Any, Any]]:
+) -> list[SchoolHoliday] | Response[dict[Any, Any]]:
     # target one region per zone, to limit results
     locations = ["Bordeaux", "Lille", "Versailles"]
     locations_query = " OR ".join(f"location = '{location}'" for location in locations)
@@ -37,12 +37,12 @@ async def get_holidays(
     )
     if response.status_code != 200:
         return error_from_message(
-            {"ami_details": "Holidays error"}, status_code=response.status_code
+            {"ami_details": "School holidays error"}, status_code=response.status_code
         )
 
-    holidays: dict[Any, Holiday] = {}
+    holidays: dict[Any, SchoolHoliday] = {}
     for data in response.json()["results"]:
-        holiday = Holiday.from_dict(data)
+        holiday = SchoolHoliday.from_dict(data)
         key = (holiday.description, holiday.start_date, holiday.end_date)
         if key in holidays:
             # if the dates are the same for all zones, keep only one result and clear zones
@@ -56,6 +56,6 @@ async def get_holidays(
 data_router: Router = Router(
     path="/data",
     route_handlers=[
-        get_holidays,
+        get_school_holidays,
     ],
 )

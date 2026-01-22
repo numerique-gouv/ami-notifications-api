@@ -8,7 +8,7 @@ from app.models import User
 from tests.ami.utils import assert_query_fails_without_auth, login
 
 
-async def test_get_holidays(
+async def test_get_school_holidays(
     user: User,
     test_client: TestClient[Litestar],
     httpx_mock: HTTPXMock,
@@ -120,12 +120,12 @@ async def test_get_holidays(
             "emoji": "❄️",
         },
     ]
-    response = test_client.get("/data/holidays", params={"current_date": "2025-12-12"})
+    response = test_client.get("/data/school-holidays", params={"current_date": "2025-12-12"})
     assert response.status_code == HTTP_200_OK
     assert response.json() == holidays
 
 
-async def test_get_holidays_school_year(
+async def test_get_school_holidays_school_year(
     user: User,
     test_client: TestClient[Litestar],
     httpx_mock: HTTPXMock,
@@ -135,14 +135,14 @@ async def test_get_holidays_school_year(
     httpx_mock.add_response(is_reusable=True)
 
     # get holidays of current school year only
-    test_client.get("/data/holidays", params={"current_date": "2025-09-01"})
+    test_client.get("/data/school-holidays", params={"current_date": "2025-09-01"})
     request = httpx_mock.get_requests()[0]
     assert (
         "end_date >= date'2025-08-02' AND start_date < date'2026-09-15'"
         in request.url.params.get("where")
     )
 
-    test_client.get("/data/holidays", params={"current_date": "2025-12-31"})
+    test_client.get("/data/school-holidays", params={"current_date": "2025-12-31"})
     request = httpx_mock.get_requests()[1]
     assert (
         "end_date >= date'2025-12-01' AND start_date < date'2026-09-15'"
@@ -150,14 +150,14 @@ async def test_get_holidays_school_year(
     )
 
     # get holidays of current and next school years
-    test_client.get("/data/holidays", params={"current_date": "2026-01-01"})
+    test_client.get("/data/school-holidays", params={"current_date": "2026-01-01"})
     request = httpx_mock.get_requests()[2]
     assert (
         "end_date >= date'2025-12-02' AND start_date < date'2027-09-15'"
         in request.url.params.get("where")
     )
 
-    test_client.get("/data/holidays", params={"current_date": "2026-08-31"})
+    test_client.get("/data/school-holidays", params={"current_date": "2026-08-31"})
     request = httpx_mock.get_requests()[3]
     assert (
         "end_date >= date'2026-08-01' AND start_date < date'2027-09-15'"
@@ -165,7 +165,7 @@ async def test_get_holidays_school_year(
     )
 
 
-async def test_get_holidays_emoji(
+async def test_get_school_holidays_emoji(
     user: User,
     test_client: TestClient[Litestar],
     httpx_mock: HTTPXMock,
@@ -194,42 +194,42 @@ async def test_get_holidays_emoji(
         )
 
     mock_data("Vacances de la Toussaint")
-    response = test_client.get("/data/holidays", params={"current_date": "2025-11-13"})
+    response = test_client.get("/data/school-holidays", params={"current_date": "2025-11-13"})
     assert response.status_code == HTTP_200_OK
     assert response.json()[0]["emoji"] == "🍁"
 
     mock_data("Vacances de Noël")
-    response = test_client.get("/data/holidays", params={"current_date": "2025-11-13"})
+    response = test_client.get("/data/school-holidays", params={"current_date": "2025-11-13"})
     assert response.status_code == HTTP_200_OK
     assert response.json()[0]["emoji"] == "🎄"
 
     mock_data("Vacances d'Hiver")
-    response = test_client.get("/data/holidays", params={"current_date": "2025-11-13"})
+    response = test_client.get("/data/school-holidays", params={"current_date": "2025-11-13"})
     assert response.status_code == HTTP_200_OK
     assert response.json()[0]["emoji"] == "❄️"
 
     mock_data("Vacances de Printemps")
-    response = test_client.get("/data/holidays", params={"current_date": "2025-11-13"})
+    response = test_client.get("/data/school-holidays", params={"current_date": "2025-11-13"})
     assert response.status_code == HTTP_200_OK
     assert response.json()[0]["emoji"] == "🌸"
 
     mock_data("Pont de l'Ascension")
-    response = test_client.get("/data/holidays", params={"current_date": "2025-11-13"})
+    response = test_client.get("/data/school-holidays", params={"current_date": "2025-11-13"})
     assert response.status_code == HTTP_200_OK
     assert response.json()[0]["emoji"] == ""
 
     mock_data("Vacances d'Été")
-    response = test_client.get("/data/holidays", params={"current_date": "2025-11-13"})
+    response = test_client.get("/data/school-holidays", params={"current_date": "2025-11-13"})
     assert response.status_code == HTTP_200_OK
     assert response.json()[0]["emoji"] == "☀️"
 
     mock_data("Unknown")
-    response = test_client.get("/data/holidays", params={"current_date": "2025-11-13"})
+    response = test_client.get("/data/school-holidays", params={"current_date": "2025-11-13"})
     assert response.status_code == HTTP_200_OK
     assert response.json()[0]["emoji"] == ""
 
 
-async def test_get_holidays_error(
+async def test_get_school_holidays_error(
     user: User,
     test_client: TestClient[Litestar],
     httpx_mock: HTTPXMock,
@@ -237,12 +237,12 @@ async def test_get_holidays_error(
     login(user, test_client)
 
     httpx_mock.add_response(status_code=HTTP_500_INTERNAL_SERVER_ERROR)
-    response = test_client.get("/data/holidays", params={"current_date": "2025-09-01"})
+    response = test_client.get("/data/school-holidays", params={"current_date": "2025-09-01"})
     assert response.status_code == HTTP_500_INTERNAL_SERVER_ERROR
-    assert response.json() == {"ami_details": "Holidays error"}
+    assert response.json() == {"ami_details": "School holidays error"}
 
 
-async def test_get_holidays_without_auth(
+async def test_get_school_holidays_without_auth(
     test_client: TestClient[Litestar],
 ) -> None:
-    await assert_query_fails_without_auth("/data/holidays", test_client)
+    await assert_query_fails_without_auth("/data/school-holidays", test_client)

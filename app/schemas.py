@@ -176,7 +176,7 @@ class RegistrationCreate(BaseModel):
 
 
 @dataclass
-class Holiday:
+class SchoolHoliday:
     description: str
     zones: str
     start_date: datetime.datetime
@@ -192,7 +192,7 @@ class Holiday:
     }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "Holiday":
+    def from_dict(cls, data: dict[str, Any]) -> "SchoolHoliday":
         cls_fields = {f.name for f in fields(cls)}
         filtered = {k: v for k, v in data.items() if k in cls_fields}
         filtered["start_date"] = datetime.datetime.fromisoformat(filtered["start_date"])
