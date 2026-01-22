@@ -83,6 +83,7 @@ async def test_create_webpush_notification(
         2025, 11, 27, 10, 55, tzinfo=datetime.timezone.utc
     )
     assert notification2.sender == "PSL"
+    assert notification2.try_push is True
     assert notification2.read is False
     assert response.json() == {
         "notification_id": str(notification2.id),
@@ -150,6 +151,7 @@ async def test_create_mobile_notification(
         2025, 11, 27, 10, 55, tzinfo=datetime.timezone.utc
     )
     assert notification2.sender == "PSL"
+    assert notification2.try_push is True
     assert notification2.read is False
     assert response.json() == {
         "notification_id": str(notification2.id),
@@ -191,10 +193,10 @@ async def test_create_notification_dont_try_push(
         "/api/v1/notifications", json=notification_data, headers=partner_auth
     )
     assert response.status_code == HTTP_201_CREATED
-    notification_count = (
-        await db_session.execute(select(func.count()).select_from(Notification))
-    ).scalar()
-    assert notification_count == 1
+    all_notifications = (await db_session.execute(select(Notification))).scalars().all()
+    assert len(all_notifications) == 1
+    notification = all_notifications[0]
+    assert notification.try_push is False
     assert not httpx_mock.get_request()
 
 
@@ -243,6 +245,7 @@ async def test_create_notification_user_does_not_exist(
         2025, 11, 27, 10, 55, tzinfo=datetime.timezone.utc
     )
     assert notification.sender == "PSL"
+    assert notification.try_push is True
     assert notification.read is False
     assert response.json() == {
         "notification_id": str(notification.id),
