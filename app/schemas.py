@@ -199,3 +199,41 @@ class SchoolHoliday:
         filtered["end_date"] = datetime.datetime.fromisoformat(filtered["end_date"])
         filtered["emoji"] = cls.emoji_mapping.get(filtered["description"], "")
         return cls(**filtered)
+
+
+@dataclass
+class PublicHoliday:
+    description: str
+    date: datetime.datetime
+    emoji: str
+
+    description_mapping = {
+        "All Saints Day": "Toussaint",
+        "Armistice Day": "Armistice 1918",
+        "Ascension Thursday": "Ascension",
+        "Assumption of Mary to Heaven": "Assomption",
+        "Bastille Day": "Fête Nationale",
+        "Christmas Day": "Noël",
+        "Easter Monday": "Lundi de Pâques",
+        "Labour Day": "Fête du Travail",
+        "New year": "Jour de l’An",
+        "Victory in Europe Day": "Victoire 1945",
+        "Whit Monday": "Lundi de Pentecôte",
+    }
+
+    default_emoji = "📅"
+    emoji_mapping = {
+        "Bastille Day": "🎆",
+        "New year": "🎉",
+    }
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "PublicHoliday":
+        cls_fields = {f.name for f in fields(cls)}
+        filtered = {k: v for k, v in data.items() if k in cls_fields}
+        original_description = filtered["description"]
+        filtered["description"] = cls.description_mapping.get(
+            original_description, original_description
+        )
+        filtered["emoji"] = cls.emoji_mapping.get(original_description, cls.default_emoji)
+        return cls(**filtered)
