@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 2
 requires-python = ">=3.13"
 resolution-markers = [
     "python_full_version >= '3.14'",
@@ -53,6 +53,7 @@ dependencies = [
 [package.dev-dependencies]
 dev = [
     { name = "alembic" },
+    { name = "freezegun" },
     { name = "ipdb" },
     { name = "pre-commit" },
     { name = "pre-commit-uv" },
@@ -78,6 +79,7 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "alembic", specifier = ">=1.15.2" },
+    { name = "freezegun", specifier = ">=1.5.5" },
     { name = "ipdb", specifier = ">=0.13.13" },
     { name = "pre-commit", specifier = ">=4.2.0" },
     { name = "pre-commit-uv", specifier = ">=4.1.4" },
@@ -423,6 +425,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/aa/41/859f78701761bed7abdb8a7c050819c654dad17f96c658dcdf263d5a9641/firebase_admin-7.1.0.tar.gz", hash = "sha256:a163014a4368c43f7efa409948065f8856b51bd2ae5d82c24586e546d5fd4a26", size = 194786, upload-time = "2025-07-31T20:36:39.512Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/c4/16/eb9bf44cdc7af0317a70ae770ad4170b9fcfbb660ac32806742506be1246/firebase_admin-7.1.0-py3-none-any.whl", hash = "sha256:1913e783b7ad56f891e1aca86e6fdde6a8ec49b7a920dd451da155e8647506c8", size = 137140, upload-time = "2025-07-31T20:36:38.266Z" },
+]
+
+[[package]]
+name = "freezegun"
+version = "1.5.5"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "python-dateutil" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/95/dd/23e2f4e357f8fd3bdff613c1fe4466d21bfb00a6177f238079b17f7b1c84/freezegun-1.5.5.tar.gz", hash = "sha256:ac7742a6cc6c25a2c35e9292dfd554b897b517d2dec26891a2e8debf205cb94a", size = 35914, upload-time = "2025-08-09T10:39:08.338Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/5e/2e/b41d8a1a917d6581fc27a35d05561037b048e47df50f27f8ac9c7e27a710/freezegun-1.5.5-py3-none-any.whl", hash = "sha256:cd557f4a75cf074e84bc374249b9dd491eaeacd61376b9eb3c423282211619d2", size = 19266, upload-time = "2025-08-09T10:39:06.636Z" },
 ]
 
 [[package]]

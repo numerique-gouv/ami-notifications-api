@@ -1,5 +1,8 @@
+import datetime
 import hashlib
+from uuid import uuid4
 
+import jwt
 from litestar import Response
 from litestar.response.redirect import Redirect
 
@@ -44,3 +47,29 @@ def build_fc_hash(
         f"{given_name}{family_name}{birthdate}{gender}{birthplace}{birthcountry}".encode("utf-8")
     )
     return recipient_fc_hash.hexdigest()
+
+
+def generate_identity_token(
+    preferred_username: str,
+    email: str,
+    address_city: str,
+    address_postcode: str,
+    address_name: str,
+    fc_hash: str,
+) -> str:
+    payload = {
+        "iss": "ami",
+        "iat": int(datetime.datetime.now().timestamp()),
+        "exp": datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=30),
+        "nonce": str(uuid4()),
+        "hash_fc": fc_hash,
+        "data": {
+            "nom_usage": preferred_username,
+            "email": email,
+            "commune_nom": address_city,
+            "commune_cp": address_postcode,
+            "commune_adresse": address_name,
+        },
+    }
+
+    return jwt.encode(payload, env.OTV_PRIVATE_KEY.encode(), algorithm="RS256")
