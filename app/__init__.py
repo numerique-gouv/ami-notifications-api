@@ -32,6 +32,7 @@ from app.controllers.notification import (
     NotificationController,
     PartnerNotificationController,
 )
+from app.controllers.partner import PartnerController
 from app.controllers.registration import RegistrationController
 from app.controllers.scheduled_notification import ScheduledNotificationController
 from app.database import alchemy, alchemy_config, channels_dsn
@@ -170,6 +171,7 @@ authenticated_router: Router = Router(
         AuthController,
         RegistrationController,
         NotificationController,
+        PartnerController,
         ScheduledNotificationController,
         data_router,
     ],
