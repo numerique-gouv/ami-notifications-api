@@ -341,15 +341,26 @@ describe('/agenda.ts', () => {
         zones: '',
         emoji: '',
       }
+      const holiday6 = {
+        description: 'Day 6',
+        date: new Date('2025-11-11T23:00:00Z'),
+        emoji: 'bar',
+      }
+      const holiday7 = {
+        description: 'Day 7',
+        date: new Date('2025-12-10T23:00:00Z'),
+        emoji: '',
+      }
 
       // When
       const agenda = new Agenda(
         [holiday1, holiday2, holiday3, holiday4, holiday5],
+        [holiday6, holiday7],
         new Date('2025-11-01T12:00:00Z')
       )
 
       // Then
-      expect(agenda.now.length).equal(8)
+      expect(agenda.now.length).equal(9)
       expect(
         agenda.now[0].equals(
           new Item(
@@ -424,6 +435,11 @@ describe('/agenda.ts', () => {
       ).toBe(true)
       expect(
         agenda.now[6].equals(
+          new Item('holiday', 'Day 6 bar', null, holiday6.date, null, null)
+        )
+      ).toBe(true)
+      expect(
+        agenda.now[7].equals(
           new Item(
             'holiday',
             'Holiday 3 foo',
@@ -435,7 +451,7 @@ describe('/agenda.ts', () => {
         )
       ).toBe(true)
       expect(
-        agenda.now[7].equals(
+        agenda.now[8].equals(
           new Item(
             'otv',
             'Opération Tranquillité Vacances 🏠',
@@ -446,7 +462,7 @@ describe('/agenda.ts', () => {
           )
         )
       ).toBe(true)
-      expect(agenda.next.length).equal(2)
+      expect(agenda.next.length).equal(3)
       expect(
         agenda.next[0].equals(
           new Item(
@@ -461,6 +477,11 @@ describe('/agenda.ts', () => {
       ).toBe(true)
       expect(
         agenda.next[1].equals(
+          new Item('holiday', 'Day 7', null, holiday7.date, null, null)
+        )
+      ).toBe(true)
+      expect(
+        agenda.next[2].equals(
           new Item(
             'holiday',
             'Holiday 5',
@@ -489,9 +510,18 @@ describe('/agenda.ts', () => {
         zones: 'Zone B',
         emoji: 'foo',
       }
+      const holiday3 = {
+        description: 'Day',
+        date: new Date('2026-02-02T23:00:00Z'),
+        emoji: '',
+      }
 
       // When
-      const agenda = new Agenda([holiday1, holiday2], new Date('2026-02-24T12:00:00Z'))
+      const agenda = new Agenda(
+        [holiday1, holiday2],
+        [holiday3],
+        new Date('2026-02-24T12:00:00Z')
+      )
 
       // Then
       expect(agenda.now.length).equal(1)
@@ -516,7 +546,11 @@ describe('/agenda.ts', () => {
       }
 
       // When
-      const agenda = new Agenda([holiday1, holiday2], new Date('2026-02-01T12:00:00Z'))
+      const agenda = new Agenda(
+        [holiday1, holiday2],
+        [],
+        new Date('2026-02-01T12:00:00Z')
+      )
 
       // Then
       expect(agenda.now.length).equal(3)
@@ -550,16 +584,22 @@ describe('/agenda.ts', () => {
         zones: '',
         emoji: 'bar',
       }
+      const holiday4 = {
+        description: 'Day',
+        date: new Date('2026-02-15T23:00:00Z'),
+        emoji: '',
+      }
 
       // When
       await userStore.login(mockUserInfo)
       const agenda = new Agenda(
         [holiday1, holiday2, holiday3],
+        [holiday4],
         new Date('2026-02-01T12:00:00Z')
       )
 
       // Then
-      expect(agenda.now.length).equal(3)
+      expect(agenda.now.length).equal(4)
       expect(
         agenda.now[0].equals(
           new Item(
@@ -595,6 +635,11 @@ describe('/agenda.ts', () => {
             holiday2.end_date,
             true
           )
+        )
+      ).toBe(true)
+      expect(
+        agenda.now[3].equals(
+          new Item('holiday', 'Day', null, holiday4.date, null, null)
         )
       ).toBe(true)
       expect(agenda.next.length).equal(2)
@@ -639,7 +684,7 @@ describe('/agenda.ts', () => {
       }
 
       // When
-      const agenda = new Agenda([holiday], new Date('2026-02-01T12:00:00Z'))
+      const agenda = new Agenda([holiday], [], new Date('2026-02-01T12:00:00Z'))
 
       // Then
       expect(agenda.now.length).equal(2)
@@ -678,6 +723,7 @@ describe('/agenda.ts', () => {
       await userStore.login(mockUserInfo)
       const agenda = new Agenda(
         [holiday1, holiday2, holiday3],
+        [],
         new Date('2026-02-01T12:00:00Z')
       )
 
@@ -740,6 +786,7 @@ describe('/agenda.ts', () => {
       // When
       const agenda = new Agenda(
         [holiday1, holiday2, holiday3],
+        [],
         new Date('2026-02-01T12:00:00Z')
       )
 
@@ -759,8 +806,8 @@ describe('/agenda.ts', () => {
         zones: 'Zone',
         emoji: 'foo',
       }
-      const holiday4 = {
-        description: 'Holiday 4',
+      const holiday2 = {
+        description: 'Holiday 2',
         start_date: new Date('2025-11-30T23:00:00Z'),
         end_date: new Date('2025-12-16T23:00:00Z'),
         zones: '',
@@ -768,15 +815,29 @@ describe('/agenda.ts', () => {
       }
       const spy = vi
         .spyOn(holidaysMethods, 'retrieveSchoolHolidays')
-        .mockResolvedValue([holiday1, holiday4])
+        .mockResolvedValue([holiday1, holiday2])
+      const holiday3 = {
+        description: 'Day 3',
+        date: new Date('2025-11-15T23:00:00Z'),
+        emoji: '',
+      }
+      const holiday4 = {
+        description: 'Day 4',
+        date: new Date('2025-12-30T23:00:00Z'),
+        emoji: '',
+      }
+      const spy2 = vi
+        .spyOn(holidaysMethods, 'retrievePublicHolidays')
+        .mockResolvedValue([holiday3, holiday4])
 
       // When
       const agenda = await buildAgenda(new Date('2025-11-01T12:00:00Z'))
 
       // Then
       expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy2).toHaveBeenCalledTimes(1)
       expect(agenda).toBeInstanceOf(Agenda)
-      expect(agenda.now.length).equal(3)
+      expect(agenda.now.length).equal(4)
       expect(
         agenda.now[0].equals(
           new Item(
@@ -813,17 +874,27 @@ describe('/agenda.ts', () => {
           )
         )
       ).toBe(true)
-      expect(agenda.next.length).equal(1)
+      expect(
+        agenda.now[3].equals(
+          new Item('holiday', 'Day 3', null, holiday3.date, null, null)
+        )
+      ).toBe(true)
+      expect(agenda.next.length).equal(2)
       expect(
         agenda.next[0].equals(
           new Item(
             'holiday',
-            'Holiday 4',
+            'Holiday 2',
             null,
             null,
-            holiday4.start_date,
-            holiday4.end_date
+            holiday2.start_date,
+            holiday2.end_date
           )
+        )
+      ).toBe(true)
+      expect(
+        agenda.next[1].equals(
+          new Item('holiday', 'Day 4', null, holiday4.date, null, null)
         )
       ).toBe(true)
     })
