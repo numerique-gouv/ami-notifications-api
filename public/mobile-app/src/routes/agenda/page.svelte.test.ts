@@ -12,7 +12,7 @@ const in32days = new Date(today.getTime() + 32 * oneday_in_ms) // 32 days, so we
 describe('/+page.svelte', () => {
   test('user has to be connected', async () => {
     // Given
-    vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(new Agenda([]))
+    vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(new Agenda([], []))
     const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue()
 
     // When
@@ -26,7 +26,7 @@ describe('/+page.svelte', () => {
   })
   test('Should display holidays from API', async () => {
     // Given
-    const agenda = new Agenda([])
+    const agenda = new Agenda([], [])
     vi.spyOn(agenda, 'now', 'get').mockReturnValue([
       new Item('holiday', 'Holiday 1', null, today),
     ])
@@ -51,7 +51,7 @@ describe('/+page.svelte', () => {
   })
   test('Should not display "next" section if empty', async () => {
     // Given
-    const agenda = new Agenda([])
+    const agenda = new Agenda([], [])
     vi.spyOn(agenda, 'now', 'get').mockReturnValue([])
     vi.spyOn(agenda, 'next', 'get').mockReturnValue([
       new Item('holiday', 'Holiday 2', null, in32days),
@@ -72,7 +72,7 @@ describe('/+page.svelte', () => {
   })
   test('Should not display "next" section if empty', async () => {
     // Given
-    const agenda = new Agenda([])
+    const agenda = new Agenda([], [])
     vi.spyOn(agenda, 'now', 'get').mockReturnValue([
       new Item('holiday', 'Holiday 1', null, today),
     ])
@@ -92,7 +92,7 @@ describe('/+page.svelte', () => {
     })
   })
   test('Should not repeat month', async () => {
-    const agenda = new Agenda([])
+    const agenda = new Agenda([], [])
     vi.spyOn(agenda, 'now', 'get').mockReturnValue([
       new Item('holiday', 'Holiday 1', null, today),
       new Item('holiday', 'Holiday 2', null, today),
@@ -133,7 +133,7 @@ describe('/+page.svelte', () => {
   })
   test('Should not repeat month (with "next" part empty)', async () => {
     // Given
-    const agenda = new Agenda([])
+    const agenda = new Agenda([], [])
     vi.spyOn(agenda, 'now', 'get').mockReturnValue([])
     vi.spyOn(agenda, 'next', 'get').mockReturnValue([
       new Item('holiday', 'Holiday 1', null, in32days),
@@ -168,7 +168,7 @@ describe('/+page.svelte', () => {
       start1 = new Date(today.getTime() + 1 * oneday_in_ms)
       start2 = new Date(today.getTime() + 2 * oneday_in_ms)
     }
-    const agenda = new Agenda([])
+    const agenda = new Agenda([], [])
     vi.spyOn(agenda, 'now', 'get').mockReturnValue([
       new Item('holiday', 'Holiday 1', null, start1),
     ])

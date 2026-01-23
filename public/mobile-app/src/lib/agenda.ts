@@ -1,5 +1,5 @@
-import type { SchoolHoliday } from '$lib/api-holidays'
-import { retrieveSchoolHolidays } from '$lib/api-holidays'
+import type { PublicHoliday, SchoolHoliday } from '$lib/api-holidays'
+import { retrievePublicHolidays, retrieveSchoolHolidays } from '$lib/api-holidays'
 import { createScheduledNotification } from '$lib/scheduled-notifications'
 import { userStore } from '$lib/state/User.svelte'
 
@@ -171,13 +171,20 @@ export class Agenda {
   private _now: Item[] = []
   private _next: Item[] = []
 
-  constructor(school_holidays: SchoolHoliday[], date: Date | null = null) {
+  constructor(
+    school_holidays: SchoolHoliday[],
+    public_holidays: PublicHoliday[],
+    date: Date | null = null
+  ) {
     const today = date || new Date()
     today.setHours(0, 0, 0, 0)
     const items: Item[] = []
 
     // build items from school_holidays
     this.createSchoolHolidayItems(items, school_holidays, today)
+
+    // build items from public_holidays
+    this.createPublicHolidayItems(items, public_holidays, today)
 
     // create OTV items
     this.createOTVItems(items, school_holidays, today)
@@ -243,6 +250,31 @@ export class Agenda {
       holiday.end_date,
       custom
     )
+  }
+
+  private createPublicHolidayItems(
+    items: Item[],
+    public_holidays: PublicHoliday[],
+    date: Date
+  ) {
+    public_holidays.forEach((holiday) => {
+      const item = this.createPublicHolidayItem(holiday, date)
+      if (item !== null) {
+        items.push(item)
+      }
+    })
+  }
+
+  private createPublicHolidayItem(holiday: PublicHoliday, date: Date): Item | null {
+    if (holiday.date < date) {
+      // exclude past public_holidays
+      return null
+    }
+    let title = holiday.description
+    if (holiday.emoji) {
+      title += ` ${holiday.emoji}`
+    }
+    return new Item('holiday', title, null, holiday.date, null, null, false)
   }
 
   private createOTVItems(items: Item[], school_holidays: SchoolHoliday[], date: Date) {
@@ -323,5 +355,6 @@ export class Agenda {
 export const buildAgenda = async (date: Date | null = null): Promise<Agenda> => {
   const today = date || new Date()
   const school_holidays: SchoolHoliday[] = await retrieveSchoolHolidays(today)
-  return new Agenda(school_holidays, today)
+  const public_holidays: PublicHoliday[] = await retrievePublicHolidays(today)
+  return new Agenda(school_holidays, public_holidays, today)
 }
