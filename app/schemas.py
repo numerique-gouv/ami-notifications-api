@@ -61,7 +61,8 @@ class NotificationCreate(BaseModel):
     content_icon: str | None = Field(
         min_length=1,
         default=None,
-        description="Nom technique de l'icône à associer à la notification dans l'application AMI, à choisir dans https://remixicon.com/",
+        description="Nom technique de l'icône à associer à la notification dans l'application AMI, "
+        "à choisir dans [les icones du DSFR](https://www.systeme-de-design.gouv.fr/version-courante/fr/fondamentaux/icone).",
     )
 
     item_type: str = Field(
