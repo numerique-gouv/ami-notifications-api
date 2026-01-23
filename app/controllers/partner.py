@@ -29,24 +29,13 @@ class PartnerController(Controller):
         partner_url = env.PUBLIC_OTV_URL
 
         if env.PUBLIC_OTV_URL.endswith("caller={token-jwt}"):
-            if preferred_username is None:
-                preferred_username = ""
-            if email is None:
-                email = ""
-            if address_city is None:
-                address_city = ""
-            if address_postcode is None:
-                address_postcode = ""
-            if address_name is None:
-                address_name = ""
-
             identity_token = generate_identity_token(
-                preferred_username,
-                email,
-                address_city,
-                address_postcode,
-                address_name,
-                current_user.fc_hash,
+                preferred_username or "",
+                email or "",
+                address_city or "",
+                address_postcode or "",
+                address_name or "",
+                current_user.fc_hash or "",
             )
             partner_url = partner_url.replace("{token-jwt}", identity_token)
 
