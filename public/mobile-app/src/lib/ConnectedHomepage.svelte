@@ -138,7 +138,7 @@
                 <a href="/#/edit-address"
                   ><b
                     >Renseignez votre adresse sur l'application pour faciliter vos
-                    échanges !</b
+                    échanges&nbsp;!</b
                   ></a
                 >
               </h3>
