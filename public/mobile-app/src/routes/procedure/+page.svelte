@@ -59,11 +59,11 @@
 
   <div class="procedure-content">
     <div class="procedure-content-block">
-      <p class="title">Quand ?</p>
+      <p class="title">Quand&nbsp;?</p>
       <p data-testid="item-date">À partir du {itemDate}</p>
     </div>
     <div class="procedure-content-block">
-      <p class="title">Comment ça fonctionne ?</p>
+      <p class="title">Comment ça fonctionne&nbsp;?</p>
       <p>
         Pendant toute absence prolongée de votre domicile, vous pouvez vous inscrire à
         l'<b>opération tranquillité vacances</b>.
