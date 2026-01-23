@@ -66,22 +66,18 @@ describe('/+page.svelte', () => {
     // Given
     await userStore.login(mockUserInfo)
 
-    const mockResponse = {
-      partner_url: 'fake-public-otv-url?caller=fake.jwt.token',
-    }
+    const expectedProcedureUrl = 'fake-public-otv-url?caller=fake.jwt.token'
+    const mockResponse = { partner_url: expectedProcedureUrl }
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(
       new Response(JSON.stringify(mockResponse), { status: 200 })
     )
 
     // When
-    render(Page)
+    const { component } = render(Page)
 
     // Then
     await waitFor(() => {
-      const link = screen.getByTestId('procedure-link')
-      expect(link.getAttribute('href')).toBe(
-        'fake-public-otv-url?caller=fake.jwt.token'
-      )
+      expect(component.getProcedureUrlForTests()).toBe(expectedProcedureUrl)
     })
   })
 

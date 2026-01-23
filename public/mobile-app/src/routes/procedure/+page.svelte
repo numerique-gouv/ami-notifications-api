@@ -11,11 +11,7 @@
   const isValidDate = (d: Date | number) =>
     d instanceof Date && !Number.isNaN(d.getTime())
 
-  onMount(async () => {
-    if (!userStore.connected) {
-      goto('/')
-    }
-
+  const getProcedureUrl = async () => {
     let connected: User | null = userStore.connected
     if (connected) {
       let userIdentity: UserIdentity | null = connected.identity
@@ -49,6 +45,14 @@
         }
       }
     }
+  }
+
+  onMount(async () => {
+    if (!userStore.connected) {
+      goto('/')
+    }
+
+    await getProcedureUrl()
 
     const hash = window.location.hash
     const url = new URL(hash.substring(1), window.location.origin)
@@ -70,6 +74,20 @@
   const navigateToPreviousPage = async () => {
     window.history.back()
   }
+
+  const redirectToLink = (procedureUrl: string) => {
+    if (procedureUrl) {
+      window.location.href = procedureUrl
+    }
+  }
+
+  const clickOnProcedureButton = async () => {
+    const originalProcedureUrl = procedureUrl
+    await getProcedureUrl()
+    redirectToLink(originalProcedureUrl)
+  }
+
+  export const getProcedureUrlForTests = () => procedureUrl
 </script>
 
 <div class="procedure">
@@ -118,9 +136,14 @@
 
   <div class="procedure-action-buttons">
     <div class="procedure-start">
-      <a href="{procedureUrl}" data-testid="procedure-link">
+      <button
+        class="fr-btn fr-btn--lg"
+        type="button"
+        onclick={clickOnProcedureButton}
+        data-testid="procedure-button"
+      >
         Bénéficier de ce service
-      </a>
+      </button>
     </div>
   </div>
 </div>
@@ -172,27 +195,18 @@
 
     .procedure-action-buttons {
       position: fixed;
-      bottom: 0;
+      bottom: 1rem;
       left: 50%;
       transform: translateX(-50%);
-      padding: 1rem;
-      width: 100%;
-      background-color: var(--grey-1000-50);
+
+      display: block;
+      width: 328px;
 
       .procedure-start {
-        height: 3rem;
-        margin-bottom: 0.5rem;
-        background-color: var(--text-action-high-blue-france);
-        color: var(--text-inverted-blue-france);
-
-        a {
+        button {
           display: flex;
           justify-content: center;
-          align-items: center;
           width: 100%;
-          height: 100%;
-          text-decoration: none;
-          --underline-img: none;
         }
       }
     }
