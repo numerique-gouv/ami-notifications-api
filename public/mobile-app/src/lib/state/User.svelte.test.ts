@@ -441,6 +441,19 @@ describe('/lib/state/User.svelte.ts', () => {
       })
     })
 
+    describe('formatBirthdate', () => {
+      test('should format birthdate to MM/DD/YYYY format', async () => {
+        // Given
+        const birthdateFromUserinfo = '1962-08-24'
+
+        // When
+        const formattedBirthdate = mockUser.formatBirthdate(birthdateFromUserinfo)
+
+        // Then
+        expect(formattedBirthdate).toEqual('24/08/1962')
+      })
+    })
+
     describe('getInitials', () => {
       test('should display initial of firt given name element only', async () => {
         // When
