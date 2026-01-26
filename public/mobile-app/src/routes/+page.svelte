@@ -146,7 +146,7 @@
             target="_blank"
             rel="noopener"
             title="Qu’est-ce que FranceConnect ? - nouvelle fenêtre"
-            >Qu’est-ce que FranceConnect ?</a
+            >Qu’est-ce que FranceConnect&nbsp;?</a
           >
         </p>
       </div>

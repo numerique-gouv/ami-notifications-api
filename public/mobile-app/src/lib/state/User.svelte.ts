@@ -92,7 +92,7 @@ export class User {
 
     this._identity = {
       gender: this._pivot.gender,
-      birthdate: this._pivot.birthdate,
+      birthdate: this.formatBirthdate(this._pivot.birthdate),
       birthplace: parsedIdentity?.birthplace,
       birthcountry: parsedIdentity?.birthcountry,
       given_name: parsedIdentity?.given_name || this._pivot.given_name,
@@ -186,6 +186,16 @@ export class User {
     } catch (error) {
       console.error(error)
     }
+  }
+
+  formatBirthdate(birthdate: string) {
+    const date = new Date(birthdate)
+    const options: Intl.DateTimeFormatOptions = {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    }
+    return date.toLocaleDateString('fr-FR', options)
   }
 
   addScheduledNotificationCreatedKey(key: string) {
