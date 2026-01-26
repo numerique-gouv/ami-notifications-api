@@ -3,7 +3,6 @@ import { afterEach, describe, expect, test, vi } from 'vitest'
 import * as navigationMethods from '$app/navigation'
 import { userStore } from '$lib/state/User.svelte'
 import {
-  mockUser,
   mockUserIdentity,
   mockUserInfo,
   mockUserWithPreferredUsername,
@@ -31,23 +30,32 @@ describe('/+page.svelte', () => {
 
   test('profile page displays the proper user info', async () => {
     // Given
-    const spy = vi.spyOn(userStore, 'connected', 'get').mockReturnValue(mockUser)
+    const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity))
+    newMockUserIdentity.dataDetails.preferred_username.origin = 'france-connect'
+    newMockUserIdentity.dataDetails.email.origin = 'france-connect'
+    localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity))
+    await userStore.login(mockUserInfo)
+    expect(userStore.connected).not.toBeNull()
 
     // When
     render(Page)
 
     // Then
     await waitFor(() => {
-      expect(spy).toHaveBeenCalled()
       const profile = screen.getByTestId('profile')
       const profileIdentity = profile.querySelector('#profile-identity')
       expect(profileIdentity).toHaveTextContent('Angela Claire Louise DUBOIS,')
       expect(profileIdentity).toHaveTextContent('née le 24/08/1962')
-      expect(screen.getByText('some@email.com', { exact: false }))
+      expect(profileIdentity).toHaveTextContent(
+        'Informations fournies par FranceConnect'
+      )
+      const profileEmail = profile.querySelector('#profile-email')
+      expect(profileEmail).toHaveTextContent('wossewodda-3728@yopmail.com')
+      expect(profileEmail).toHaveTextContent('Informations fournies par FranceConnect')
     })
   })
 
-  test('profile page displays the proper user info - with preferred username', async () => {
+  test('profile page displays the proper user info - with preferred username and email', async () => {
     // Given
     const spy = vi
       .spyOn(userStore, 'connected', 'get')
@@ -64,6 +72,14 @@ describe('/+page.svelte', () => {
       expect(profileIdentity).toHaveTextContent('Pierre DUBOIS,')
       expect(profileIdentity).toHaveTextContent('né MERCIER le 17/03/1969')
       expect(screen.getByText('some-other@email.com', { exact: false }))
+      expect(profileIdentity).toHaveTextContent(
+        'Informations fournies par FranceConnect'
+      )
+      const profileEmail = profile.querySelector('#profile-email')
+      expect(profileEmail).toHaveTextContent('some-other@email.com')
+      expect(profileEmail).not.toHaveTextContent(
+        'Informations fournies par FranceConnect'
+      )
     })
   })
 

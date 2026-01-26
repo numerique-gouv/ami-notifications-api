@@ -29,6 +29,12 @@ describe('/+page.svelte', () => {
       )
       expect(updatedInput.value).equal('Dupont')
       expect(userStore.connected?.identity?.preferred_username).toEqual('Dupont')
+      expect(
+        userStore.connected?.identity?.dataDetails.preferred_username.origin
+      ).toEqual('user')
+      expect(
+        userStore.connected?.identity?.dataDetails.preferred_username.lastUpdate
+      ).not.toBeUndefined()
     })
   })
 
@@ -52,6 +58,12 @@ describe('/+page.svelte', () => {
       )
       expect(updatedInput.value).equal('')
       expect(userStore.connected?.identity?.preferred_username).toBeUndefined()
+      expect(
+        userStore.connected?.identity?.dataDetails.preferred_username.origin
+      ).toEqual('cleared')
+      expect(
+        userStore.connected?.identity?.dataDetails.preferred_username.lastUpdate
+      ).not.toBeUndefined()
     })
   })
 
