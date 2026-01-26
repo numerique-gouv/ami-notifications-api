@@ -63,9 +63,9 @@ export const mockUserIdentity = {
   family_name: 'DUBOIS',
   email: 'wossewodda-3728@yopmail.com',
   address: mockAddress,
-  address_origin: 'user',
   birthplace: 'Paris 7e Arrondissement (75)',
   birthcountry: 'France',
+  dataDetails: { address: { origin: 'user' } },
 }
 
 export const mockUser = new User(mockUserInfo)

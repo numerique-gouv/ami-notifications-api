@@ -173,7 +173,10 @@ describe('/+page.svelte', () => {
         '94310'
       )
       expect(userStore.connected?.identity?.address).toEqual(expectedAddress)
-      expect(userStore.connected?.identity?.address_origin).toEqual('user')
+      expect(userStore.connected?.identity?.dataDetails.address.origin).toEqual('user')
+      expect(
+        userStore.connected?.identity?.dataDetails.address.lastUpdate
+      ).not.toBeUndefined()
       expect(userStore.connected?.identity?.scheduledNotificationsCreatedKeys).toEqual(
         []
       )
@@ -193,7 +196,12 @@ describe('/+page.svelte', () => {
       expect(screen.queryByTestId('selected-address-wrapper')).not.toBeInTheDocument()
       // Address should be removed from userStore
       expect(userStore.connected?.identity?.address).toBeUndefined()
-      expect(userStore.connected?.identity?.address_origin).toEqual('cleared')
+      expect(userStore.connected?.identity?.dataDetails.address.origin).toEqual(
+        'cleared'
+      )
+      expect(
+        userStore.connected?.identity?.dataDetails.address.lastUpdate
+      ).not.toBeUndefined()
       expect(userStore.connected?.identity?.scheduledNotificationsCreatedKeys).toEqual(
         []
       )

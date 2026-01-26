@@ -4,12 +4,23 @@ import {
   PUBLIC_API_GEO_COUNTRY_QUERY_BASE_URL,
   PUBLIC_API_GEO_COUNTRY_QUERY_ENDPOINT,
 } from '$env/static/public'
-import type { AddressOrigin, Address as AddressType } from '$lib/address'
+import type { Address as AddressType } from '$lib/address'
 import { Address } from '$lib/address'
 import { callBAN } from '$lib/addressesFromBAN'
 import * as auth from '$lib/auth'
 import { franceConnectLogout, parseJwt } from '$lib/france-connect'
 import { emit } from '$lib/nativeEvents'
+
+type DataOrigin = 'user' | 'france-connect' | 'api-particulier' | 'cleared'
+
+type DataDetail = {
+  origin?: DataOrigin
+  lastUpdate?: Date
+}
+
+export type DataDetails = {
+  address: DataDetail
+}
 
 export type UserInfo = {
   sub: string
@@ -38,8 +49,8 @@ export type UserIdentity = {
   preferred_username?: string | null
   email: string
   address?: AddressType
-  address_origin?: AddressOrigin
   scheduledNotificationsCreatedKeys: string[]
+  dataDetails: DataDetails
 }
 
 class UserStore {
@@ -100,12 +111,15 @@ export class User {
       preferred_username: this._pivot.preferred_username,
       email: parsedIdentity?.email || this._pivot.email,
       address: parsedIdentity?.address,
-      address_origin: parsedIdentity?.address_origin,
       scheduledNotificationsCreatedKeys:
         parsedIdentity?.scheduledNotificationsCreatedKeys || [],
+      dataDetails: parsedIdentity?.dataDetails || {},
     }
     if (this._identity.address) {
       this._identity.address = Address.fromJSON(this._identity.address)
+    }
+    this._identity.dataDetails = {
+      address: this._identity.dataDetails.address || {},
     }
   }
 
@@ -133,18 +147,15 @@ export class User {
     }
   }
 
-  setAddress(address: AddressType | undefined, address_origin?: AddressOrigin) {
+  setAddress(address: AddressType | undefined, address_origin?: DataOrigin) {
     if (address) {
       this._identity.address = address
-      if (address_origin) {
-        this._identity.address_origin = address_origin
-      } else {
-        this._identity.address_origin = 'user'
-      }
+      this._identity.dataDetails.address.origin = address_origin || 'user'
     } else {
       delete this._identity.address
-      this._identity.address_origin = 'cleared'
+      this._identity.dataDetails.address.origin = 'cleared'
     }
+    this._identity.dataDetails.address.lastUpdate = new Date()
     localStorage.setItem('user_identity', JSON.stringify(this.identity))
   }
 
@@ -235,7 +246,7 @@ export class User {
         this._identity.birthcountry = birthcountry
       } catch {}
     }
-    if (!this._identity.address_origin) {
+    if (!this._identity.dataDetails.address.origin) {
       await this.setAddressFromAPIParticulier()
     }
   }

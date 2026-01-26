@@ -106,7 +106,7 @@ describe('/+page.svelte', () => {
   test('profile page displays user address - from api-particulier', async () => {
     // Given
     const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity))
-    newMockUserIdentity.address_origin = 'api-particulier'
+    newMockUserIdentity.dataDetails.address.origin = 'api-particulier'
     localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity))
     await userStore.login(mockUserInfo)
     expect(userStore.connected).not.toBeNull()
