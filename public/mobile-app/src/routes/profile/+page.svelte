@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import { goto } from '$app/navigation'
-  import type { Address, AddressOrigin } from '$lib/address'
+  import type { Address } from '$lib/address'
   import Card from '$lib/components/Card.svelte'
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte'
   import type { UserIdentity } from '$lib/state/User.svelte'
@@ -9,7 +9,7 @@
 
   let identity: UserIdentity = $state() as UserIdentity
   let address: Address | undefined = $state()
-  let address_origin: AddressOrigin | undefined = $state()
+  let address_origin: string | undefined = $state()
 
   onMount(async () => {
     if (!userStore.connected) {
@@ -18,7 +18,7 @@
     } else {
       identity = userStore.connected.identity
       address = identity.address
-      address_origin = identity.address_origin
+      address_origin = identity.dataDetails.address.origin
     }
   })
 

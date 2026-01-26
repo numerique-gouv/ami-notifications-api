@@ -58,7 +58,7 @@ describe('/lib/state/User.svelte.ts', () => {
       test('should reconstruct a user identity from localstorage - with api-particulier address', async () => {
         // Given
         const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity))
-        newMockUserIdentity.address_origin = 'api-particulier'
+        newMockUserIdentity.dataDetails.address.origin = 'api-particulier'
         localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity))
         const spySetAddressFromAPIParticulier = vi
           .spyOn(User.prototype, 'setAddressFromAPIParticulier')
@@ -76,7 +76,7 @@ describe('/lib/state/User.svelte.ts', () => {
       test('should reconstruct a user identity from localstorage - with cleared address', async () => {
         // Given
         const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity))
-        newMockUserIdentity.address_origin = 'cleared'
+        newMockUserIdentity.dataDetails.address.origin = 'cleared'
         localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity))
         const spySetAddressFromAPIParticulier = vi
           .spyOn(User.prototype, 'setAddressFromAPIParticulier')
@@ -94,7 +94,7 @@ describe('/lib/state/User.svelte.ts', () => {
       test('should reconstruct a user identity from localstorage - with empty address', async () => {
         // Given
         const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity))
-        newMockUserIdentity.address_origin = undefined
+        newMockUserIdentity.dataDetails.address.origin = undefined
         localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity))
         const spySetAddressFromAPIParticulier = vi
           .spyOn(User.prototype, 'setAddressFromAPIParticulier')
@@ -179,7 +179,12 @@ describe('/lib/state/User.svelte.ts', () => {
         expect(isLoggedIn).toBeTruthy()
         expect(spyParseJwt).toHaveBeenCalledWith('some data')
         expect(userStore.connected?.identity?.address).toBeUndefined() // No `user_identity` in the localStorage
-        expect(userStore.connected?.identity?.address_origin).toBeUndefined() // No `user_identity` in the localStorage
+        expect(
+          userStore.connected?.identity?.dataDetails.address.origin
+        ).toBeUndefined() // No `user_identity` in the localStorage
+        expect(
+          userStore.connected?.identity?.dataDetails.address.lastUpdate
+        ).toBeUndefined() // No `user_identity` in the localStorage
       })
       test("should detect that we're not logged in", async () => {
         // Given
@@ -277,10 +282,16 @@ describe('/lib/state/User.svelte.ts', () => {
 
         // Then
         expect(userStore.connected?.identity?.address?.city).toEqual('some random city')
-        expect(userStore.connected?.identity?.address_origin).toEqual('user')
+        expect(userStore.connected?.identity?.dataDetails.address.origin).toEqual(
+          'user'
+        )
+        expect(
+          userStore.connected?.identity?.dataDetails.address.lastUpdate
+        ).not.toBeUndefined()
         const parsed = JSON.parse(localStorage.getItem('user_identity') || '{}')
         expect(parsed?.address._city).toEqual('some random city')
-        expect(parsed?.address_origin).toEqual('user')
+        expect(parsed?.dataDetails.address.origin).toEqual('user')
+        expect(parsed?.dataDetails.address.lastUpdate).not.toBeUndefined()
       })
     })
 
@@ -299,7 +310,12 @@ describe('/lib/state/User.svelte.ts', () => {
         // @ts-expect-error
         expect(globalThis.fetchSpy).not.toHaveBeenCalled()
         expect(userStore.connected?.identity?.address?.city).toEqual('Paris')
-        expect(userStore.connected?.identity?.address_origin).toEqual('user')
+        expect(userStore.connected?.identity?.dataDetails.address.origin).toEqual(
+          'user'
+        )
+        expect(
+          userStore.connected?.identity?.dataDetails.address.lastUpdate
+        ).toBeUndefined()
       })
       test('should not call BAN if address from api-particulier is not base64 encoded', async () => {
         // Given
@@ -315,7 +331,12 @@ describe('/lib/state/User.svelte.ts', () => {
         // @ts-expect-error
         expect(globalThis.fetchSpy).not.toHaveBeenCalled()
         expect(userStore.connected?.identity?.address?.city).toEqual('Paris')
-        expect(userStore.connected?.identity?.address_origin).toEqual('user')
+        expect(userStore.connected?.identity?.dataDetails.address.origin).toEqual(
+          'user'
+        )
+        expect(
+          userStore.connected?.identity?.dataDetails.address.lastUpdate
+        ).toBeUndefined()
       })
       test('should not call BAN if address from api-particulier is not a json base64 encoded', async () => {
         // Given
@@ -331,7 +352,12 @@ describe('/lib/state/User.svelte.ts', () => {
         // @ts-expect-error
         expect(globalThis.fetchSpy).not.toHaveBeenCalled()
         expect(userStore.connected?.identity?.address?.city).toEqual('Paris')
-        expect(userStore.connected?.identity?.address_origin).toEqual('user')
+        expect(userStore.connected?.identity?.dataDetails.address.origin).toEqual(
+          'user'
+        )
+        expect(
+          userStore.connected?.identity?.dataDetails.address.lastUpdate
+        ).toBeUndefined()
       })
       test('should not call BAN if address from api-particulier is an empty json base64 encoded', async () => {
         localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity))
@@ -346,7 +372,12 @@ describe('/lib/state/User.svelte.ts', () => {
         // @ts-expect-error
         expect(globalThis.fetchSpy).not.toHaveBeenCalled()
         expect(userStore.connected?.identity?.address?.city).toEqual('Paris')
-        expect(userStore.connected?.identity?.address_origin).toEqual('user')
+        expect(userStore.connected?.identity?.dataDetails.address.origin).toEqual(
+          'user'
+        )
+        expect(
+          userStore.connected?.identity?.dataDetails.address.lastUpdate
+        ).toBeUndefined()
       })
       test('should not set address if BAN returns an error', async () => {
         localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity))
@@ -367,7 +398,12 @@ describe('/lib/state/User.svelte.ts', () => {
         // Then
         expect(spy).toHaveBeenCalledTimes(1)
         expect(userStore.connected?.identity?.address?.city).toEqual('Paris')
-        expect(userStore.connected?.identity?.address_origin).toEqual('user')
+        expect(userStore.connected?.identity?.dataDetails.address.origin).toEqual(
+          'user'
+        )
+        expect(
+          userStore.connected?.identity?.dataDetails.address.lastUpdate
+        ).toBeUndefined()
       })
       test('should not set address if BAN returns an empty list', async () => {
         localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity))
@@ -387,7 +423,12 @@ describe('/lib/state/User.svelte.ts', () => {
         // Then
         expect(spy).toHaveBeenCalledTimes(1)
         expect(userStore.connected?.identity?.address?.city).toEqual('Paris')
-        expect(userStore.connected?.identity?.address_origin).toEqual('user')
+        expect(userStore.connected?.identity?.dataDetails.address.origin).toEqual(
+          'user'
+        )
+        expect(
+          userStore.connected?.identity?.dataDetails.address.lastUpdate
+        ).toBeUndefined()
       })
       test('should set address if BAN returns results', async () => {
         localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity))
@@ -437,7 +478,12 @@ describe('/lib/state/User.svelte.ts', () => {
         // Then
         expect(spy).toHaveBeenCalledTimes(1)
         expect(userStore.connected?.identity?.address?.city).toEqual('Orléans')
-        expect(userStore.connected?.identity?.address_origin).toEqual('api-particulier')
+        expect(userStore.connected?.identity?.dataDetails.address.origin).toEqual(
+          'api-particulier'
+        )
+        expect(
+          userStore.connected?.identity?.dataDetails.address.lastUpdate
+        ).not.toBeUndefined()
       })
     })
 
