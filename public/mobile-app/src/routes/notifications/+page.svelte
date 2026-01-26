@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import { goto } from '$app/navigation'
+  import NotificationIcon from '$lib/NotificationIcon.svelte'
   import type { AppNotification } from '$lib/notifications'
   import {
     notificationEventsSocket,
@@ -87,10 +88,10 @@
           aria-hidden="true"
           ><i>•</i></span
         >
-        <span
-          class="notification__icon {notification.content_icon ? notification.content_icon: 'fr-icon-information-line'}"
-          aria-hidden="true"
-        ></span>
+        <NotificationIcon
+          icon={notification.content_icon}
+          defaultIcon="fr-icon-information-line"
+        />
       </div>
       <div class="fr-tile__body">
         <div class="fr-tile__content">
@@ -158,13 +159,6 @@
           color: var(--red-marianne-main-472);
           &.read i {
             display: none;
-          }
-        }
-        .notification__icon {
-          line-height: 2rem;
-          color: var(--blue-france-sun-113-625);
-          &::before {
-            --icon-size: 1.25rem;
           }
         }
       }
