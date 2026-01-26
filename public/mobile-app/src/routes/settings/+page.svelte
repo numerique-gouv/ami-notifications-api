@@ -84,6 +84,7 @@
   >
     Fermer
   </button>
+  <a href="/#/notifications-welcome-page">Welcome page</a>
 </div>
 
 <style>
