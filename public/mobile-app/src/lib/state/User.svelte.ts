@@ -11,7 +11,7 @@ import * as auth from '$lib/auth'
 import { franceConnectLogout, parseJwt } from '$lib/france-connect'
 import { emit } from '$lib/nativeEvents'
 
-type DataOrigin = 'user' | 'france-connect' | 'api-particulier' | 'cleared'
+export type DataOrigin = 'user' | 'france-connect' | 'api-particulier' | 'cleared'
 
 type DataDetail = {
   origin?: DataOrigin
@@ -20,6 +20,8 @@ type DataDetail = {
 
 export type DataDetails = {
   address: DataDetail
+  preferred_username: DataDetail
+  email: DataDetail
 }
 
 export type UserInfo = {
@@ -120,6 +122,8 @@ export class User {
     }
     this._identity.dataDetails = {
       address: this._identity.dataDetails.address || {},
+      preferred_username: this._identity.dataDetails.preferred_username || {},
+      email: this._identity.dataDetails.email || {},
     }
   }
 
@@ -131,26 +135,31 @@ export class User {
     return this._identity
   }
 
-  setPreferredUsername(preferred_username: string) {
+  setPreferredUsername(preferred_username: string, origin?: DataOrigin) {
     if (preferred_username) {
       this._identity.preferred_username = preferred_username
+      this._identity.dataDetails.preferred_username.origin = origin || 'user'
     } else {
       delete this._identity.preferred_username
+      this._identity.dataDetails.preferred_username.origin = 'cleared'
     }
+    this._identity.dataDetails.preferred_username.lastUpdate = new Date()
     localStorage.setItem('user_identity', JSON.stringify(this.identity))
   }
 
   setEmail(email: string) {
     if (email) {
       this._identity.email = email
+      this._identity.dataDetails.email.origin = 'user'
+      this._identity.dataDetails.email.lastUpdate = new Date()
       localStorage.setItem('user_identity', JSON.stringify(this.identity))
     }
   }
 
-  setAddress(address: AddressType | undefined, address_origin?: DataOrigin) {
+  setAddress(address: AddressType | undefined, origin?: DataOrigin) {
     if (address) {
       this._identity.address = address
-      this._identity.dataDetails.address.origin = address_origin || 'user'
+      this._identity.dataDetails.address.origin = origin || 'user'
     } else {
       delete this._identity.address
       this._identity.dataDetails.address.origin = 'cleared'
@@ -248,6 +257,12 @@ export class User {
     }
     if (!this._identity.dataDetails.address.origin) {
       await this.setAddressFromAPIParticulier()
+    }
+    if (!this._identity.dataDetails.preferred_username.origin) {
+      this._identity.dataDetails.preferred_username.origin = 'france-connect'
+    }
+    if (!this._identity.dataDetails.email.origin) {
+      this._identity.dataDetails.email.origin = 'france-connect'
     }
   }
 

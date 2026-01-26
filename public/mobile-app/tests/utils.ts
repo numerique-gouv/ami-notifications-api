@@ -65,7 +65,11 @@ export const mockUserIdentity = {
   address: mockAddress,
   birthplace: 'Paris 7e Arrondissement (75)',
   birthcountry: 'France',
-  dataDetails: { address: { origin: 'user' } },
+  dataDetails: {
+    address: { origin: 'user' },
+    preferred_username: { origin: 'user' },
+    email: { origin: 'user' },
+  },
 }
 
 export const mockUser = new User(mockUserInfo)
