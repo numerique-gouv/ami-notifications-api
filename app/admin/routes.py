@@ -23,7 +23,7 @@ from litestar.status_codes import (
 )
 
 from app.admin import auth
-from app.httpx import httpxClient
+from app.httpx import AsyncClient
 from app.models import Notification, User
 from app.services.notification import NotificationService
 from app.services.user import UserService
@@ -69,6 +69,7 @@ async def login_callback(
     code: str,
     state_pro_connect: Annotated[str, Parameter(query="state")],
     request: Request[Any, Any, Any],
+    httpx_async_client: AsyncClient,
 ) -> Response[Any]:
     # 2.3.2. Vérification du state
 
@@ -91,7 +92,7 @@ async def login_callback(
         )
 
     token_endpoint_headers: dict[str, str] = {"Content-Type": "application/x-www-form-urlencoded"}
-    response: Any = httpxClient.post(
+    response: Any = await httpx_async_client.post(
         f"{PUBLIC_PRO_CONNECT_BASE_URL}{PUBLIC_PRO_CONNECT_TOKEN_ENDPOINT}",
         headers=token_endpoint_headers,
         data=data,
@@ -104,7 +105,7 @@ async def login_callback(
     response_token_data: dict[str, str] = response.json()
 
     # 2.3.4. Vérification de l'id_token et du nonce
-    httpxClient.get(f"{PUBLIC_PRO_CONNECT_BASE_URL}{PUBLIC_PRO_CONNECT_JWKS_ENDPOINT}")
+    await httpx_async_client.get(f"{PUBLIC_PRO_CONNECT_BASE_URL}{PUBLIC_PRO_CONNECT_JWKS_ENDPOINT}")
 
     # 2.3.5. Stockage du id_token
     access_token = response_token_data["access_token"]
@@ -113,7 +114,7 @@ async def login_callback(
 
     # 2.3.6. Récupération des user info
     userinfo_endpoint_headers = {"Authorization": f"Bearer {access_token}"}
-    response = httpxClient.get(
+    response = await httpx_async_client.get(
         f"{PUBLIC_PRO_CONNECT_BASE_URL}{PUBLIC_PRO_CONNECT_USERINFO_ENDPOINT}",
         headers=userinfo_endpoint_headers,
     )

@@ -25,7 +25,7 @@ from litestar.status_codes import (
 
 from app import env
 from app.auth import generate_nonce
-from app.httpx import httpxClient
+from app.httpx import AsyncClient
 from app.models import Notification, User
 from app.rvo import auth
 from app.services.notification import NotificationService
@@ -122,6 +122,7 @@ async def login_callback(
     error_description: str | None,
     fc_state: Annotated[str, Parameter(query="state")],
     request: Request[Any, Any, Any],
+    httpx_async_client: AsyncClient,
 ) -> Response[Any]:
     if error or not code:
         if error == "access_denied" and error_description == "User auth aborted":
@@ -164,7 +165,7 @@ async def login_callback(
 
     # FC - Step 6
     token_endpoint_headers: dict[str, str] = {"Content-Type": "application/x-www-form-urlencoded"}
-    response: Any = httpxClient.post(
+    response: Any = await httpx_async_client.post(
         f"{PUBLIC_FC_BASE_URL}{PUBLIC_FC_TOKEN_ENDPOINT}",
         headers=token_endpoint_headers,
         data=data,
@@ -188,13 +189,13 @@ async def login_callback(
         return Redirect("/rvo", query_params=params)
 
     # FC - Step 8
-    httpxClient.get(f"{PUBLIC_FC_BASE_URL}{PUBLIC_FC_JWKS_ENDPOINT}")
+    await httpx_async_client.get(f"{PUBLIC_FC_BASE_URL}{PUBLIC_FC_JWKS_ENDPOINT}")
 
     # FC - Step 11
     access_token = response_token_data["access_token"]
     id_token = response_token_data["id_token"]
     userinfo_endpoint_headers = {"Authorization": f"Bearer {access_token}"}
-    response = httpxClient.get(
+    response = await httpx_async_client.get(
         f"{PUBLIC_FC_BASE_URL}{PUBLIC_FC_USERINFO_ENDPOINT}",
         headers=userinfo_endpoint_headers,
     )

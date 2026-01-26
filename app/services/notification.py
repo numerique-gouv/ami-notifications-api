@@ -10,7 +10,7 @@ from webpush import WebPush
 
 from app import models, schemas
 from app.database import alchemy_config
-from app.httpx import httpxClient
+from app.httpx import AsyncClient
 from app.services.registration import RegistrationService
 
 
@@ -26,6 +26,7 @@ class NotificationService(service.SQLAlchemyAsyncRepositoryService[models.Notifi
         webpush: WebPush,
         notification_id: uuid.UUID,
         try_push: bool,
+        httpx_async_client: AsyncClient,
     ) -> None:
         import logging
 
@@ -75,7 +76,7 @@ class NotificationService(service.SQLAlchemyAsyncRepositoryService[models.Notifi
                     headers = cast(dict[str, str], message.headers)
 
                     # fail silently
-                    response = httpxClient.post(
+                    response = await httpx_async_client.post(
                         str(subscription.endpoint), content=message.encrypted, headers=headers
                     )
                     if response.status_code < 500:

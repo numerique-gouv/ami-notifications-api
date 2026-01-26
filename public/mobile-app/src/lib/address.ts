@@ -1,3 +1,5 @@
+export type AddressOrigin = 'user' | 'api-particulier' | 'cleared'
+
 export class Address {
   constructor(
     private _city: string = '',

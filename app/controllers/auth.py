@@ -1,4 +1,8 @@
+import asyncio
+import datetime
+import json
 import uuid
+from base64 import urlsafe_b64encode
 from typing import Annotated, Any
 
 import jwt
@@ -8,17 +12,29 @@ from litestar.params import Parameter
 from litestar.response.redirect import Redirect
 from litestar.status_codes import HTTP_500_INTERNAL_SERVER_ERROR
 
-from app import env
+from app import env, models
 from app.auth import generate_nonce, jwt_cookie_auth
 from app.errors import TechnicalError
-from app.httpx import httpxClient
+from app.httpx import AsyncClient
 from app.services.nonce import NonceService
-from app.utils import error_from_message, retry_fc_later
+from app.services.scheduled_notification import ScheduledNotificationService
+from app.services.user import UserService
+from app.utils import build_fc_hash, error_from_message, retry_fc_later
+
+
+class FCError(Exception):
+    def __init__(self, code: str | None, *args: Any, **kwargs: Any):
+        self.code = code
+        super().__init__(*args, **kwargs)
 
 
 class AuthController(Controller):
     dependencies = {
         "nonces_service": providers.create_service_provider(NonceService),
+        "users_service": providers.create_service_provider(UserService),
+        "scheduled_notifications_service": providers.create_service_provider(
+            ScheduledNotificationService
+        ),
     }
 
     @get(path="/login-france-connect", include_in_schema=False, exclude_from_auth=True)
@@ -57,11 +73,14 @@ class AuthController(Controller):
     async def login_callback(
         self,
         nonces_service: NonceService,
+        users_service: UserService,
+        scheduled_notifications_service: ScheduledNotificationService,
         code: str | None,
         error: str | None,
         error_description: str | None,
         fc_state: Annotated[str, Parameter(query="state")],
         request: Request[Any, Any, Any],
+        httpx_async_client: AsyncClient,
     ) -> Response[Any]:
         try:
             if error or not code:
@@ -73,74 +92,205 @@ class AuthController(Controller):
                     }
                 )
 
-            # Validate that the STATE is coherent with the one we sent to FC
-            if not fc_state:
-                return retry_fc_later(error_dict={"error_code": "missing_state"})
-            try:
-                state = uuid.UUID(fc_state)
-            except ValueError:
-                return retry_fc_later(error_dict={"error_code": "invalid_state"})
-            nonce = await nonces_service.get_one_or_none(id=state)
-            if not nonce:
-                return retry_fc_later(error_dict={"error_code": "invalid_state"})
-            # Cleanup nonce as it was used
-            await nonces_service.delete(nonce.id)
-
-            # FC - Step 5
-            redirect_uri: str = env.PUBLIC_FC_PROXY or env.PUBLIC_FC_AMI_REDIRECT_URL
-            client_id: str = env.PUBLIC_FC_AMI_CLIENT_ID
             client_secret: str = env.FC_AMI_CLIENT_SECRET
-            data: dict[str, str] = {
-                "grant_type": "authorization_code",
-                "redirect_uri": redirect_uri,
-                "client_id": client_id,
-                "client_secret": client_secret,
-                "code": code,
-            }
-
             if client_secret == "":
                 return error_from_message(
                     {"error": "Client secret not provided in .env.local file"},
                     HTTP_500_INTERNAL_SERVER_ERROR,
                 )
 
-            # FC - Step 6
-            token_endpoint_headers: dict[str, str] = {
-                "Content-Type": "application/x-www-form-urlencoded"
-            }
-            response: Any = httpxClient.post(
-                f"{env.PUBLIC_FC_BASE_URL}{env.PUBLIC_FC_TOKEN_ENDPOINT}",
-                headers=token_endpoint_headers,
-                data=data,
+            response_token_data: dict[str, str] = await self.get_fc_token(
+                code=code,
+                fc_state=fc_state,
+                client_secret=client_secret,
+                nonces_service=nonces_service,
+                httpx_async_client=httpx_async_client,
             )
-            if response.status_code != 200:
-                return retry_fc_later()
+            id_token: str = response_token_data["id_token"]
+            token_type = response_token_data.get("token_type", "")
+            if not token_type:
+                raise FCError("missing_token_type")
+            access_token = response_token_data.get("access_token", "")
+            if not access_token:
+                raise FCError("missing_access_token")
 
-            response_token_data: dict[str, str] = response.json()
+            task_api_particulier = None
+            try:
+                async with asyncio.TaskGroup() as task_group:
+                    task_userinfo = task_group.create_task(
+                        self.get_fc_userinfo(
+                            token_type=token_type,
+                            access_token=access_token,
+                            users_service=users_service,
+                            scheduled_notifications_service=scheduled_notifications_service,
+                            httpx_async_client=httpx_async_client,
+                        )
+                    )
+                    if "cnaf_quotient_familial" in env.PUBLIC_FC_SCOPE:
+                        task_api_particulier = task_group.create_task(
+                            self.get_address_from_api_particulier_quotient(
+                                token_type=token_type,
+                                access_token=access_token,
+                                httpx_async_client=httpx_async_client,
+                            )
+                        )
+            except* FCError as e:
+                raise e.exceptions[0]
 
-            id_token: str = response_token_data.get("id_token", "")
-            if not id_token:
-                # XXX this is not covered by tests for the moment
-                return retry_fc_later(error_dict={"error_code": "missing_id_token"})
-            decoded_token: dict[str, str] = jwt.decode(
-                id_token, options={"verify_signature": False}, algorithms=["ES256"]
-            )
-
-            # Validate that the NONCE is coherent with the one we sent to FC
-            if "nonce" not in decoded_token:
-                # XXX this is not covered by tests for the moment
-                return retry_fc_later(error_dict={"error_code": "missing_nonce"})
-            if decoded_token["nonce"] != nonce.nonce:
-                return retry_fc_later(error_dict={"error_code": "invalid_nonce"})
-
-            params: dict[str, str] = {
-                **response_token_data,
+            user_data = {
                 "is_logged_in": "true",
+                "id_token": id_token,
             }
+            userinfo_result, user_id = task_userinfo.result()
+            user_data.update(userinfo_result)
+            if task_api_particulier:
+                address = task_api_particulier.result()
+                if address:
+                    user_data["address"] = address
 
-            return Redirect(f"{env.PUBLIC_APP_URL}/", query_params=params)
+            login = jwt_cookie_auth.login(
+                identifier=str(user_id),
+            )
+            redirect = Redirect(f"{env.PUBLIC_APP_URL}/", query_params=user_data)
+            redirect.cookies = login.cookies
+            return redirect
+        except FCError as e:
+            if e.code is None:
+                return retry_fc_later()
+            return retry_fc_later(error_dict={"error_code": e.code})
         except Exception as e:
             raise TechnicalError from e
+
+    async def get_fc_token(
+        self,
+        *,
+        code: str,
+        fc_state: str,
+        client_secret: str,
+        nonces_service: NonceService,
+        httpx_async_client: AsyncClient,
+    ):
+        # Validate that the STATE is coherent with the one we sent to FC
+        if not fc_state:
+            raise FCError("missing_state")
+        try:
+            state = uuid.UUID(fc_state)
+        except ValueError:
+            raise FCError("invalid_state")
+        nonce = await nonces_service.get_one_or_none(id=state)
+        if not nonce:
+            raise FCError("invalid_state")
+        # Cleanup nonce as it was used
+        await nonces_service.delete(nonce.id)
+
+        # FC - Step 5
+        redirect_uri: str = env.PUBLIC_FC_PROXY or env.PUBLIC_FC_AMI_REDIRECT_URL
+        client_id: str = env.PUBLIC_FC_AMI_CLIENT_ID
+        data: dict[str, str] = {
+            "grant_type": "authorization_code",
+            "redirect_uri": redirect_uri,
+            "client_id": client_id,
+            "client_secret": client_secret,
+            "code": code,
+        }
+
+        # FC - Step 6
+        token_endpoint_headers: dict[str, str] = {
+            "Content-Type": "application/x-www-form-urlencoded"
+        }
+        response: Any = await httpx_async_client.post(
+            f"{env.PUBLIC_FC_BASE_URL}{env.PUBLIC_FC_TOKEN_ENDPOINT}",
+            headers=token_endpoint_headers,
+            data=data,
+        )
+        if response.status_code != 200:
+            raise FCError(code=None)
+
+        response_token_data: dict[str, str] = response.json()
+
+        id_token: str = response_token_data.get("id_token", "")
+        if not id_token:
+            raise FCError("missing_id_token")
+        decoded_token: dict[str, str] = jwt.decode(
+            id_token, options={"verify_signature": False}, algorithms=["ES256"]
+        )
+
+        # Validate that the NONCE is coherent with the one we sent to FC
+        if "nonce" not in decoded_token:
+            raise FCError("missing_nonce")
+        if decoded_token["nonce"] != nonce.nonce:
+            raise FCError("invalid_nonce")
+
+        return response_token_data
+
+    async def get_fc_userinfo(
+        self,
+        *,
+        token_type: str,
+        access_token: str,
+        users_service: UserService,
+        scheduled_notifications_service: ScheduledNotificationService,
+        httpx_async_client: AsyncClient,
+    ) -> tuple[dict[str, str], uuid.UUID]:
+        response = await httpx_async_client.get(
+            f"{env.PUBLIC_FC_BASE_URL}{env.PUBLIC_FC_USERINFO_ENDPOINT}",
+            headers={"authorization": f"{token_type} {access_token}"},
+        )
+        if response.status_code != 200:
+            raise FCError(code=None)
+
+        userinfo_jws = response.text
+        decoded_userinfo = jwt.decode(
+            userinfo_jws, options={"verify_signature": False}, algorithms=["ES256"]
+        )
+        fc_hash = build_fc_hash(
+            given_name=decoded_userinfo["given_name"],
+            family_name=decoded_userinfo["family_name"],
+            birthdate=decoded_userinfo["birthdate"],
+            gender=decoded_userinfo["gender"],
+            birthplace=decoded_userinfo["birthplace"],
+            birthcountry=decoded_userinfo["birthcountry"],
+        )
+
+        user: models.User | None = await users_service.get_one_or_none(fc_hash=fc_hash)
+        create_welcome = False
+        now = datetime.datetime.now(datetime.timezone.utc)
+        if user is None:
+            user = await users_service.create(models.User(fc_hash=fc_hash, last_logged_in=now))
+            create_welcome = True
+        else:
+            create_welcome = user.last_logged_in is None
+            user = await users_service.update({"last_logged_in": now}, item_id=user.id)
+        if create_welcome:
+            await scheduled_notifications_service.create_welcome_scheduled_notification(user)
+        result: dict[str, Any] = {
+            "user_data": userinfo_jws,
+            "user_first_login": "true" if create_welcome else "false",
+            "user_fc_hash": fc_hash,
+        }
+
+        return result, user.id
+
+    async def get_address_from_api_particulier_quotient(
+        self,
+        *,
+        token_type: str,
+        access_token: str,
+        httpx_async_client: AsyncClient,
+    ) -> str | None:
+        response = await httpx_async_client.get(
+            f"{env.PUBLIC_API_PARTICULIER_BASE_URL}{env.PUBLIC_API_PARTICULIER_QUOTIENT_ENDPOINT}?recipient={env.PUBLIC_API_PARTICULIER_RECIPIENT_ID}",
+            headers={"authorization": f"{token_type} {access_token}"},
+        )
+        if response.status_code != 200:
+            return None
+        data = response.json()
+        if data.get("data", {}).get("adresse", {}):
+            address_fields = ["numero_libelle_voie", "lieu_dit", "code_postal_ville", "pays"]
+            address = {
+                k: v or "" for k, v in data["data"]["adresse"].items() if k in address_fields
+            }
+            return urlsafe_b64encode(json.dumps(address).encode("utf8")).decode("utf8")
 
     @post(path="/logout", include_in_schema=False)
     async def logout(self) -> Response[Any]:

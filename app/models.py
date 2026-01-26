@@ -76,6 +76,8 @@ class Notification(Base):
         default=lambda: datetime.datetime.now(datetime.timezone.utc),
     )
 
+    try_push: Mapped[bool | None]
+
     read: Mapped[bool] = mapped_column(default=False)
 
 

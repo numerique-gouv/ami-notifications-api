@@ -11,6 +11,9 @@
   "linter": {
     "enabled": true,
     "rules": {
+      "correctness": {
+        "noUnusedImports": "error"
+      },
       "style": {
         "useBlockStatements": "warn",
         "noShoutyConstants": "warn"

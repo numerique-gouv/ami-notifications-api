@@ -2,7 +2,6 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/svelte'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 import * as navigationMethods from '$app/navigation'
 import * as notificationsMethods from '$lib/notifications'
-import { enableNotificationsAndUpdateLocalStorage } from '$lib/notifications'
 import Page from './+page.svelte'
 
 describe('/+page.svelte', () => {

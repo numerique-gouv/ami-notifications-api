@@ -37,33 +37,22 @@
         error_description = ''
       }
       if (page.url.searchParams.has('is_logged_in')) {
-        const access_token = page.url.searchParams.get('access_token') || ''
-        const token_type = page.url.searchParams.get('token_type') || ''
-        localStorage.setItem('access_token', access_token)
-        localStorage.setItem(
-          'expires_in',
-          page.url.searchParams.get('expires_in') || ''
-        )
-        localStorage.setItem('id_token', page.url.searchParams.get('id_token') || '')
-        localStorage.setItem('scope', page.url.searchParams.get('scope') || '')
-        localStorage.setItem('token_type', token_type)
         localStorage.setItem(
           'is_logged_in',
           page.url.searchParams.get('is_logged_in') || ''
         )
-        const userinfo_endpoint_headers = {
-          Authorization: `${token_type} ${access_token}`,
-        }
-        const response = await apiFetch('/fc_userinfo', {
-          headers: userinfo_endpoint_headers,
-          credentials: 'include',
-        })
-        const result = await response.json()
-        localStorage.setItem('user_data', result.user_data)
-        localStorage.setItem('user_id', result.user_id)
-        localStorage.setItem('user_fc_hash', result.user_fc_hash)
+        localStorage.setItem('id_token', page.url.searchParams.get('id_token') || '')
+        localStorage.setItem('user_data', page.url.searchParams.get('user_data') || '')
+        localStorage.setItem(
+          'user_fc_hash',
+          page.url.searchParams.get('user_fc_hash') || ''
+        )
+        localStorage.setItem(
+          'user_api_particulier_encoded_address',
+          page.url.searchParams.get('address') || ''
+        )
         await userStore.checkLoggedIn()
-        if (result.user_first_login) {
+        if (page.url.searchParams.get('user_first_login') === 'true') {
           goto('/#/notifications-welcome-page')
         } else {
           goto('/')
@@ -186,11 +175,14 @@
   .homepage {
     display: flex;
     flex-direction: column;
-    margin-bottom: 1.5rem;
+    height: 100vh;
 
     .homepage-not-connected {
+      display: flex;
+      flex-direction: column;
       position: relative;
       margin: 24px 16px;
+      height: 100vh;
 
       .france-connect-svg-icon {
         text-align: center;
@@ -207,11 +199,9 @@
       }
 
       .contact-link-wrapper {
-        position: fixed;
-        bottom: 1.5rem;
-        left: 0;
+        flex-grow: 1;
+        align-content: end;
         text-align: center;
-        width: 100%;
 
         p {
           margin: 0;
