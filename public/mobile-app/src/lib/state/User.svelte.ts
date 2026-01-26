@@ -110,7 +110,8 @@ export class User {
       birthcountry: parsedIdentity?.birthcountry,
       given_name: parsedIdentity?.given_name || this._pivot.given_name,
       family_name: this._pivot.family_name,
-      preferred_username: this._pivot.preferred_username,
+      preferred_username:
+        parsedIdentity?.preferred_username || this._pivot.preferred_username,
       email: parsedIdentity?.email || this._pivot.email,
       address: parsedIdentity?.address,
       scheduledNotificationsCreatedKeys:
