@@ -185,6 +185,16 @@ describe('/lib/state/User.svelte.ts', () => {
         expect(
           userStore.connected?.identity?.dataDetails.address.lastUpdate
         ).toBeUndefined() // No `user_identity` in the localStorage
+        expect(
+          userStore.connected?.identity?.dataDetails.preferred_username.origin
+        ).toBeUndefined() // No `user_identity` in the localStorage
+        expect(
+          userStore.connected?.identity?.dataDetails.preferred_username.lastUpdate
+        ).toBeUndefined() // No `user_identity` in the localStorage
+        expect(userStore.connected?.identity?.dataDetails.email.origin).toBeUndefined() // No `user_identity` in the localStorage
+        expect(
+          userStore.connected?.identity?.dataDetails.email.lastUpdate
+        ).toBeUndefined() // No `user_identity` in the localStorage
       })
       test("should detect that we're not logged in", async () => {
         // Given
@@ -212,8 +222,14 @@ describe('/lib/state/User.svelte.ts', () => {
 
         // Then
         expect(userStore.connected?.identity?.email).toEqual('foo@bar.com')
+        expect(userStore.connected?.identity?.dataDetails.email.origin).toEqual('user')
+        expect(
+          userStore.connected?.identity?.dataDetails.email.lastUpdate
+        ).not.toBeUndefined()
         const parsed = JSON.parse(localStorage.getItem('user_identity') || '{}')
         expect(parsed?.email).toEqual('foo@bar.com')
+        expect(parsed?.dataDetails.email.origin).toEqual('user')
+        expect(parsed?.dataDetails.email.lastUpdate).not.toBeUndefined()
       })
       test('should not allow setting an empty email on the identity', async () => {
         // Given
@@ -233,6 +249,8 @@ describe('/lib/state/User.svelte.ts', () => {
         )
         const parsed = JSON.parse(localStorage.getItem('user_identity') || '{}')
         expect(parsed?.email).toEqual('wossewodda-3728@yopmail.com')
+        expect(parsed?.dataDetails.email.origin).toEqual('user')
+        expect(parsed?.dataDetails.email.lastUpdate).toBeUndefined()
       })
     })
 
@@ -248,8 +266,16 @@ describe('/lib/state/User.svelte.ts', () => {
 
         // Then
         expect(userStore.connected?.identity?.preferred_username).toEqual('Dupont')
+        expect(
+          userStore.connected?.identity?.dataDetails.preferred_username.origin
+        ).toEqual('user')
+        expect(
+          userStore.connected?.identity?.dataDetails.preferred_username.lastUpdate
+        ).not.toBeUndefined()
         const parsed = JSON.parse(localStorage.getItem('user_identity') || '{}')
         expect(parsed?.preferred_username).toEqual('Dupont')
+        expect(parsed?.dataDetails.preferred_username.origin).toEqual('user')
+        expect(parsed?.dataDetails.preferred_username.lastUpdate).not.toBeUndefined()
       })
       test('should properly set an empty preferred username on the identity and save the identity to localStorage', async () => {
         // Given
@@ -266,6 +292,8 @@ describe('/lib/state/User.svelte.ts', () => {
         expect(userStore.connected?.identity?.preferred_username).toBeUndefined()
         const parsed = JSON.parse(localStorage.getItem('user_identity') || '{}')
         expect(parsed?.preferred_username).toBeUndefined()
+        expect(parsed?.dataDetails.preferred_username.origin).toEqual('cleared')
+        expect(parsed?.dataDetails.preferred_username.lastUpdate).not.toBeUndefined()
       })
     })
 

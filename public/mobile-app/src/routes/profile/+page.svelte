@@ -4,12 +4,13 @@
   import type { Address } from '$lib/address'
   import Card from '$lib/components/Card.svelte'
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte'
-  import type { UserIdentity } from '$lib/state/User.svelte'
+  import type { DataOrigin, UserIdentity } from '$lib/state/User.svelte'
   import { userStore } from '$lib/state/User.svelte'
 
   let identity: UserIdentity = $state() as UserIdentity
   let address: Address | undefined = $state()
-  let address_origin: string | undefined = $state()
+  let address_origin: DataOrigin | undefined = $state()
+  let email_origin: DataOrigin | undefined = $state()
 
   onMount(async () => {
     if (!userStore.connected) {
@@ -19,6 +20,7 @@
       identity = userStore.connected.identity
       address = identity.address
       address_origin = identity.dataDetails.address.origin
+      email_origin = identity.dataDetails.email.origin
     }
   })
 
@@ -78,13 +80,16 @@
       </button>
     </Card>
 
-    <Card iconHref="/remixicons/mail-line.svg" title="Contact">
+    <Card id="profile-email" iconHref="/remixicons/mail-line.svg" title="Contact">
       <p class="paragraph-wrapper">
         Pour vous contacter&nbsp;:
         <br>
         <b>{identity.email}</b>
         <br>
-        <span class="fr-text--xs">Informations fournies par FranceConnect</span>
+        {#if email_origin == 'france-connect'}
+          <span class="fr-text--xs">Informations fournies par FranceConnect</span>
+          <br>
+        {/if}
         <br>
       </p>
 

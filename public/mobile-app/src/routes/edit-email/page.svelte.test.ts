@@ -27,6 +27,10 @@ describe('/+page.svelte', () => {
       const updatedInput: HTMLInputElement = screen.getByTestId('email-input')
       expect(updatedInput.value).equal('foo@bar.com')
       expect(userStore.connected?.identity?.email).toEqual('foo@bar.com')
+      expect(userStore.connected?.identity?.dataDetails.email.origin).toEqual('user')
+      expect(
+        userStore.connected?.identity?.dataDetails.email.lastUpdate
+      ).not.toBeUndefined()
     })
   })
 
@@ -48,6 +52,12 @@ describe('/+page.svelte', () => {
       const updatedInput: HTMLInputElement = screen.getByTestId('email-input')
       expect(updatedInput.value).equal('')
       expect(userStore.connected?.identity?.email).toEqual('some@email.com')
+      expect(userStore.connected?.identity?.dataDetails.email.origin).toEqual(
+        'france-connect'
+      )
+      expect(
+        userStore.connected?.identity?.dataDetails.email.lastUpdate
+      ).toBeUndefined()
     })
   })
 
