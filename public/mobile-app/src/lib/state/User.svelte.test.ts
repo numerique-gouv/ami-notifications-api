@@ -37,6 +37,20 @@ describe('/lib/state/User.svelte.ts', () => {
         // Cleanup
         spyUpdateIdentity.mockRestore()
       })
+      test('should reconstruct a user identity from localstorage', async () => {
+        // Given
+        const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity))
+        newMockUserIdentity.preferred_username = 'CUSTOM'
+        newMockUserIdentity.email = 'custom@email.com'
+        localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity))
+
+        // When
+        await userStore.login(mockUserInfo)
+
+        // Then
+        expect(userStore.connected?.identity?.preferred_username).toEqual('CUSTOM')
+        expect(userStore.connected?.identity?.email).toEqual('custom@email.com')
+      })
       test('should reconstruct a user identity from localstorage - with user address', async () => {
         // Given
         localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity))
