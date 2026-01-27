@@ -4,12 +4,14 @@ import importlib
 import os
 import time
 from collections.abc import AsyncGenerator, Iterator
-from typing import Any, cast
+from typing import Any, Dict, cast
 
 import litestar.cli.main
 import pytest
 from advanced_alchemy.extensions.litestar.providers import create_service_provider
 from click.testing import CliRunner
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
 from litestar import Litestar
 from litestar.channels import ChannelsPlugin, Subscriber
 from litestar.cli._utils import LitestarExtensionGroup
@@ -301,3 +303,25 @@ async def jwt_encoded_userinfo() -> str:
 async def partner_auth() -> dict[str, str]:
     b64 = base64.b64encode(f"psl:{env.PARTNERS_PSL_SECRET}".encode("utf8")).decode("utf8")
     return {"authorization": f"Basic {b64}"}
+
+
+@pytest.fixture(scope="session", autouse=True)
+def rsa_keys() -> Dict[str, str]:
+    private_key = rsa.generate_private_key(
+        public_exponent=65537,
+        key_size=2048,
+    )
+    public_key = private_key.public_key()
+
+    pem_private = private_key.private_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PrivateFormat.PKCS8,
+        encryption_algorithm=serialization.NoEncryption(),
+    ).decode("utf-8")
+
+    pem_public = public_key.public_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PublicFormat.SubjectPublicKeyInfo,
+    ).decode("utf-8")
+
+    return {"private": pem_private, "public": pem_public}
