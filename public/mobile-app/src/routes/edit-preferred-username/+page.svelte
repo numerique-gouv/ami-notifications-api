@@ -1,17 +1,25 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import { goto } from '$app/navigation'
+  import type { DataOrigin } from '$lib/state/User.svelte'
   import { userStore } from '$lib/state/User.svelte'
+  import { formatDate } from '$lib/utils'
 
   let inputValue: string = $state('')
+  let preferred_username_origin: DataOrigin | undefined = $state()
+  let preferred_username_last_update: Date | undefined = $state()
 
   onMount(() => {
     if (!userStore.connected) {
       goto('/')
       return
     } else {
-      const currentValue = userStore.connected.identity.preferred_username
+      const identity = userStore.connected.identity
+      const currentValue = identity.preferred_username
       inputValue = currentValue || ''
+      preferred_username_origin = identity.dataDetails.preferred_username.origin
+      preferred_username_last_update =
+        identity.dataDetails.preferred_username.lastUpdate
     }
   })
 
@@ -48,11 +56,11 @@
     </div>
   </nav>
 
-  <div class="content-container">
+  <div class="content-container" data-testid="container">
     <p>Vous pouvez modifier uniquement les champs ci-dessous.</p>
 
     <form autocomplete="on">
-      <fieldset class="fr-fieldset">
+      <fieldset class="fr-fieldset" aria-labelledby="text-messages">
         <div class="fr-fieldset__element">
           <div class="fr-input-group autocomplete">
             <label class="fr-label" for="input">Nom d'usage</label>
@@ -66,6 +74,16 @@
               autocomplete="username"
             >
           </div>
+        </div>
+        <div
+          class="fr-messages-group data-update-info"
+          id="text-messages"
+          aria-live="polite"
+        >
+          {#if preferred_username_origin == 'user' && preferred_username_last_update}
+            Vous avez modifié cette information le
+            {formatDate(preferred_username_last_update)}.
+          {/if}
         </div>
       </fieldset>
     </form>
@@ -130,6 +148,11 @@
             line-height: 1.5rem;
             margin: 0;
           }
+        }
+        .data-update-info {
+          font-size: 0.75rem;
+          line-height: 1.25rem;
+          color: var(--text-mention-grey);
         }
       }
     }
