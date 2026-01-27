@@ -4,12 +4,26 @@ import {
   PUBLIC_API_GEO_COUNTRY_QUERY_BASE_URL,
   PUBLIC_API_GEO_COUNTRY_QUERY_ENDPOINT,
 } from '$env/static/public'
-import type { AddressOrigin, Address as AddressType } from '$lib/address'
+import type { Address as AddressType } from '$lib/address'
 import { Address } from '$lib/address'
 import { callBAN } from '$lib/addressesFromBAN'
 import * as auth from '$lib/auth'
 import { franceConnectLogout, parseJwt } from '$lib/france-connect'
 import { emit } from '$lib/nativeEvents'
+import { formatDate } from '$lib/utils'
+
+export type DataOrigin = 'user' | 'france-connect' | 'api-particulier' | 'cleared'
+
+type DataDetail = {
+  origin?: DataOrigin
+  lastUpdate?: Date
+}
+
+export type DataDetails = {
+  address: DataDetail
+  preferred_username: DataDetail
+  email: DataDetail
+}
 
 export type UserInfo = {
   sub: string
@@ -38,8 +52,8 @@ export type UserIdentity = {
   preferred_username?: string | null
   email: string
   address?: AddressType
-  address_origin?: AddressOrigin
   scheduledNotificationsCreatedKeys: string[]
+  dataDetails: DataDetails
 }
 
 class UserStore {
@@ -97,15 +111,25 @@ export class User {
       birthcountry: parsedIdentity?.birthcountry,
       given_name: parsedIdentity?.given_name || this._pivot.given_name,
       family_name: this._pivot.family_name,
-      preferred_username: this._pivot.preferred_username,
+      preferred_username:
+        parsedIdentity?.preferred_username || this._pivot.preferred_username,
       email: parsedIdentity?.email || this._pivot.email,
       address: parsedIdentity?.address,
-      address_origin: parsedIdentity?.address_origin,
       scheduledNotificationsCreatedKeys:
         parsedIdentity?.scheduledNotificationsCreatedKeys || [],
+      dataDetails: parsedIdentity?.dataDetails || {},
     }
     if (this._identity.address) {
       this._identity.address = Address.fromJSON(this._identity.address)
+    }
+    if (!this._identity.dataDetails.address) {
+      this._identity.dataDetails.address = {}
+    }
+    if (!this._identity.dataDetails.preferred_username) {
+      this._identity.dataDetails.preferred_username = {}
+    }
+    if (!this._identity.dataDetails.email) {
+      this._identity.dataDetails.email = {}
     }
   }
 
@@ -117,34 +141,45 @@ export class User {
     return this._identity
   }
 
-  setPreferredUsername(preferred_username: string) {
+  setPreferredUsername(preferred_username: string, origin?: DataOrigin) {
     if (preferred_username) {
       this._identity.preferred_username = preferred_username
+      if (origin) {
+        this._identity.dataDetails.preferred_username.origin = origin
+      } else {
+        this._identity.dataDetails.preferred_username.origin = 'user'
+      }
     } else {
       delete this._identity.preferred_username
+      this._identity.dataDetails.preferred_username.origin = 'cleared'
     }
+    this._identity.dataDetails.preferred_username.lastUpdate = new Date()
     localStorage.setItem('user_identity', JSON.stringify(this.identity))
   }
 
   setEmail(email: string) {
     if (email) {
       this._identity.email = email
+      this._identity.dataDetails.email.origin = 'user'
+      this._identity.dataDetails.email.lastUpdate = new Date()
       localStorage.setItem('user_identity', JSON.stringify(this.identity))
     }
   }
 
-  setAddress(address: AddressType | undefined, address_origin?: AddressOrigin) {
+  setAddress(address: AddressType | undefined, origin?: DataOrigin) {
+    this._identity.dataDetails.address = this._identity.dataDetails.address || {}
     if (address) {
       this._identity.address = address
-      if (address_origin) {
-        this._identity.address_origin = address_origin
+      if (origin) {
+        this._identity.dataDetails.address.origin = origin
       } else {
-        this._identity.address_origin = 'user'
+        this._identity.dataDetails.address.origin = 'user'
       }
     } else {
       delete this._identity.address
-      this._identity.address_origin = 'cleared'
+      this._identity.dataDetails.address.origin = 'cleared'
     }
+    this._identity.dataDetails.address.lastUpdate = new Date()
     localStorage.setItem('user_identity', JSON.stringify(this.identity))
   }
 
@@ -171,7 +206,7 @@ export class User {
       if (response.errorCode) {
         return
       }
-      if (!response.results) {
+      if (!response.results || !response.results.length) {
         return
       }
       const first_result = response.results[0]
@@ -189,13 +224,7 @@ export class User {
   }
 
   formatBirthdate(birthdate: string) {
-    const date = new Date(birthdate)
-    const options: Intl.DateTimeFormatOptions = {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    }
-    return date.toLocaleDateString('fr-FR', options)
+    return formatDate(birthdate)
   }
 
   addScheduledNotificationCreatedKey(key: string) {
@@ -235,8 +264,14 @@ export class User {
         this._identity.birthcountry = birthcountry
       } catch {}
     }
-    if (!this._identity.address_origin) {
+    if (!this._identity.dataDetails.address.origin) {
       await this.setAddressFromAPIParticulier()
+    }
+    if (!this._identity.dataDetails.preferred_username.origin) {
+      this._identity.dataDetails.preferred_username.origin = 'france-connect'
+    }
+    if (!this._identity.dataDetails.email.origin) {
+      this._identity.dataDetails.email.origin = 'france-connect'
     }
   }
 

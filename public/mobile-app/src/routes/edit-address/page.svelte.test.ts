@@ -55,6 +55,57 @@ describe('/+page.svelte', () => {
     vi.resetAllMocks()
   })
 
+  test('should display the last update date', async () => {
+    // Given
+    const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity))
+    newMockUserIdentity.dataDetails.address.origin = 'user'
+    newMockUserIdentity.dataDetails.address.lastUpdate = '2026-01-15'
+    localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity))
+    await userStore.login(mockUserInfo)
+
+    // When
+    render(Page)
+
+    // Then
+    const container = screen.getByTestId('container')
+    expect(container).toHaveTextContent(
+      'Vous avez modifié cette information le 15/01/2026.'
+    )
+  })
+
+  test('should not display the last update date - date missing', async () => {
+    // Given
+    const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity))
+    newMockUserIdentity.dataDetails.address.origin = 'user'
+    localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity))
+    await userStore.login(mockUserInfo)
+
+    // When
+    render(Page)
+
+    // Then
+    const container = screen.getByTestId('container')
+    expect(container).not.toHaveTextContent('Vous avez modifié cette information le')
+  })
+
+  test('should not display the last update date - wrong origin', async () => {
+    // Given
+    const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity))
+    const choices = ['france-connect', 'api-particulier', 'cleared', undefined]
+    const random_index = Math.floor(Math.random() * choices.length)
+    newMockUserIdentity.dataDetails.address.origin = choices[random_index]
+    newMockUserIdentity.dataDetails.address.lastUpdate = '2026-01-15'
+    localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity))
+    await userStore.login(mockUserInfo)
+
+    // When
+    render(Page)
+
+    // Then
+    const container = screen.getByTestId('container')
+    expect(container).not.toHaveTextContent('Vous avez modifié cette information le')
+  })
+
   test('should display results when user enters an address', async () => {
     // When
     render(Page)
@@ -173,7 +224,10 @@ describe('/+page.svelte', () => {
         '94310'
       )
       expect(userStore.connected?.identity?.address).toEqual(expectedAddress)
-      expect(userStore.connected?.identity?.address_origin).toEqual('user')
+      expect(userStore.connected?.identity?.dataDetails.address.origin).toEqual('user')
+      expect(
+        userStore.connected?.identity?.dataDetails.address.lastUpdate
+      ).not.toBeUndefined()
       expect(userStore.connected?.identity?.scheduledNotificationsCreatedKeys).toEqual(
         []
       )
@@ -193,7 +247,12 @@ describe('/+page.svelte', () => {
       expect(screen.queryByTestId('selected-address-wrapper')).not.toBeInTheDocument()
       // Address should be removed from userStore
       expect(userStore.connected?.identity?.address).toBeUndefined()
-      expect(userStore.connected?.identity?.address_origin).toEqual('cleared')
+      expect(userStore.connected?.identity?.dataDetails.address.origin).toEqual(
+        'cleared'
+      )
+      expect(
+        userStore.connected?.identity?.dataDetails.address.lastUpdate
+      ).not.toBeUndefined()
       expect(userStore.connected?.identity?.scheduledNotificationsCreatedKeys).toEqual(
         []
       )
