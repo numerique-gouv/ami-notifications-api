@@ -193,7 +193,7 @@ export class User {
       if (response.errorCode) {
         return
       }
-      if (!response.results) {
+      if (!response.results || !response.results.length) {
         return
       }
       const first_result = response.results[0]
