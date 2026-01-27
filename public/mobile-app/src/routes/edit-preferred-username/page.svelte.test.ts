@@ -2,12 +2,67 @@ import { afterEach, describe, expect, test, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte'
 import { userStore } from '$lib/state/User.svelte'
-import { mockUserInfo, mockUserInfoWithPreferredUsername } from '$tests/utils'
+import {
+  mockUserIdentity,
+  mockUserInfo,
+  mockUserInfoWithPreferredUsername,
+} from '$tests/utils'
 import Page from './+page.svelte'
 
 describe('/+page.svelte', () => {
   afterEach(() => {
     vi.resetAllMocks()
+  })
+
+  test('should display the last update date', async () => {
+    // Given
+    const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity))
+    newMockUserIdentity.dataDetails.preferred_username.origin = 'user'
+    newMockUserIdentity.dataDetails.preferred_username.lastUpdate = '2026-01-15'
+    localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity))
+    await userStore.login(mockUserInfo)
+
+    // When
+    render(Page)
+
+    // Then
+    const container = screen.getByTestId('container')
+    expect(container).toHaveTextContent(
+      'Vous avez modifié cette information le 15/01/2026.'
+    )
+  })
+
+  test('should not display the last update date - date missing', async () => {
+    // Given
+    const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity))
+    newMockUserIdentity.dataDetails.preferred_username.origin = 'user'
+    localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity))
+    await userStore.login(mockUserInfo)
+
+    // When
+    render(Page)
+
+    // Then
+    const container = screen.getByTestId('container')
+    expect(container).not.toHaveTextContent('Vous avez modifié cette information le')
+  })
+
+  test('should not display the last update date - wrong origin', async () => {
+    // Given
+    const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity))
+    const choices = ['france-connect', 'api-particulier', 'cleared', undefined]
+    const random_index = Math.floor(Math.random() * choices.length)
+    newMockUserIdentity.dataDetails.preferred_username.origin = choices[random_index]
+    newMockUserIdentity.dataDetails.preferred_username.lastUpdate = '2026-01-15'
+    localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity))
+    await userStore.login(mockUserInfo)
+
+    // When
+    render(Page)
+
+    // Then
+    const container = screen.getByTestId('container')
+    expect(container).not.toHaveTextContent('Vous avez modifié cette information le')
   })
 
   test('should allow submitting a new preferred username', async () => {
