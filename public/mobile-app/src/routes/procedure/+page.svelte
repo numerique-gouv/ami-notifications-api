@@ -48,12 +48,12 @@
     }
   }
 
-  onMount(async () => {
+  onMount(() => {
     if (!userStore.connected) {
       goto('/')
     }
 
-    await getProcedureUrl()
+    getProcedureUrl()
 
     const hash = window.location.hash
     const url = new URL(hash.substring(1), window.location.origin)
@@ -84,6 +84,7 @@
 
   const clickOnProcedureButton = async () => {
     const originalProcedureUrl = procedureUrl
+    procedureUrl = ''
     await getProcedureUrl()
     redirectToLink(originalProcedureUrl)
   }
@@ -142,6 +143,7 @@
         type="button"
         onclick={clickOnProcedureButton}
         data-testid="procedure-button"
+        disabled="{!procedureUrl}"
       >
         Bénéficier de ce service
       </button>

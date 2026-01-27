@@ -81,6 +81,26 @@ describe('/+page.svelte', () => {
     })
   })
 
+  test('should disable button when procedure url is empty', async () => {
+    // Given
+    await userStore.login(mockUserInfo)
+
+    const procedureUrl = ''
+    const mockResponse = { partner_url: procedureUrl }
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify(mockResponse), { status: 200 })
+    )
+
+    // When
+    render(Page)
+
+    // Then
+    await waitFor(() => {
+      const procedureButton = screen.getByTestId('procedure-button')
+      expect(procedureButton).toBeDisabled()
+    })
+  })
+
   test('should navigate to previous page when user clicks on Back button', async () => {
     // Given
     const backSpy = vi.spyOn(window.history, 'back').mockImplementation(() => {})
