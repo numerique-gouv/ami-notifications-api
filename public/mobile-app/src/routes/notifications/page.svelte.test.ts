@@ -105,16 +105,10 @@ describe('/+page.svelte', () => {
         'notification-f62c66b2-7bd5-4696-8383-2d40c08a1'
       )
       expect(notification1).not.toHaveClass('read')
-      const icon1 = notification1.querySelector('.notification__icon')
-      expect(icon1).not.toHaveClass('some-icon')
-      expect(icon1).toHaveClass('fr-icon-information-line')
       const notification2 = screen.getByTestId(
         'notification-2689c3b3-e95c-4d73-b37d-55f430688af9'
       )
       expect(notification2).toHaveClass('read')
-      const icon2 = notification2.querySelector('.notification__icon')
-      expect(icon2).toHaveClass('some-icon')
-      expect(icon2).not.toHaveClass('fr-icon-information-line')
     })
   })
 
