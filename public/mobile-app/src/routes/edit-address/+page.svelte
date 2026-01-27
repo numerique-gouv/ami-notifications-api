@@ -5,7 +5,9 @@
   import { type AddressFromBAN, callBAN } from '$lib/addressesFromBAN'
   import { buildAgenda } from '$lib/agenda'
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte'
+  import type { DataOrigin } from '$lib/state/User.svelte'
   import { userStore } from '$lib/state/User.svelte'
+  import { formatDate } from '$lib/utils'
 
   let addressFromUserStore: Address | undefined = $state()
   let timer: any
@@ -17,18 +19,23 @@
   let selectedAddress: Address | undefined = $state()
   let hasSelectedAddress: boolean = $state(false)
   let submittedAddress: Address | undefined = $state()
+  let address_origin: DataOrigin | undefined = $state()
+  let address_last_update: Date | undefined = $state()
 
   onMount(() => {
     if (!userStore.connected) {
       goto('/')
       return
     } else {
-      addressFromUserStore = userStore.connected.identity.address
+      const identity = userStore.connected.identity
+      addressFromUserStore = identity.address
       if (addressFromUserStore) {
         hasSelectedAddress = true
         selectedAddress = addressFromUserStore
         submittedAddress = addressFromUserStore
       }
+      address_origin = identity.dataDetails.address.origin
+      address_last_update = identity.dataDetails.address.lastUpdate
     }
   })
 
@@ -128,7 +135,7 @@
 <div class="address-form-page">
   <NavWithBackButton title="Où habitez-vous&nbsp;?" />
 
-  <div class="address-content-container">
+  <div class="address-content-container" data-testid="container">
     <p>
       L'adresse de votre <strong>résidence principale</strong> permet de
       <strong>faciliter la communication</strong> avec les administrations.
@@ -185,7 +192,16 @@
             </ul>
           {/if}
         </div>
-        <div class="fr-messages-group" id="text-messages" aria-live="polite"></div>
+        <div
+          class="fr-messages-group data-update-info"
+          id="text-messages"
+          aria-live="polite"
+        >
+          {#if address_origin == 'user' && address_last_update}
+            Vous avez modifié cette information le
+            {formatDate(address_last_update)}.
+          {/if}
+        </div>
       </fieldset>
     </form>
 
@@ -259,6 +275,11 @@
             line-height: 1.5rem;
             margin: 0;
           }
+        }
+        .data-update-info {
+          font-size: 0.75rem;
+          line-height: 1.25rem;
+          color: var(--text-mention-grey);
         }
 
         .fr-input-group:not(:last-child) {
