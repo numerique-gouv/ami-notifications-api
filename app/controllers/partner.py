@@ -4,7 +4,7 @@ from litestar import Controller, Response, get
 from litestar.di import Provide
 from litestar.status_codes import HTTP_200_OK
 
-from app import env, models, schemas
+from app import env, models
 from app.services.user import provide_user
 from app.utils import generate_identity_token
 
@@ -25,7 +25,7 @@ class PartnerController(Controller):
         address_city: str | None = None,
         address_postcode: str | None = None,
         address_name: str | None = None,
-    ) -> Response[schemas.PartnerResponse]:
+    ) -> Response[dict[str, str]]:
         partner_url = env.PUBLIC_OTV_URL
 
         if partner_url.endswith("caller={token-jwt}"):
@@ -41,20 +41,10 @@ class PartnerController(Controller):
                 )
                 partner_url = partner_url.replace("{token-jwt}", identity_token)
 
-        response_data = schemas.PartnerResponse.model_validate(
-            {
-                "partner_url": partner_url,
-            }
-        )
-        return Response(content=response_data, status_code=HTTP_200_OK)
+        return Response(content={"partner_url": partner_url}, status_code=HTTP_200_OK)
 
     @get("/api/v1/partner/otv/public_key")
-    async def get_partner_public_key(self) -> Response[schemas.PartnerPublicKeyResponse]:
+    async def get_partner_public_key(self) -> Response[dict[str, str]]:
         public_key = env.PUBLIC_OTV_PUBLIC_KEY
 
-        response_data = schemas.PartnerPublicKeyResponse.model_validate(
-            {
-                "public_key": public_key,
-            }
-        )
-        return Response(content=response_data, status_code=HTTP_200_OK)
+        return Response(content={"public_key": public_key}, status_code=HTTP_200_OK)

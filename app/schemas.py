@@ -175,14 +175,6 @@ class RegistrationCreate(BaseModel):
     subscription: MobileAppSubscription | WebPushSubscription
 
 
-class PartnerResponse(BaseModel):
-    partner_url: str
-
-
-class PartnerPublicKeyResponse(BaseModel):
-    public_key: str
-
-
 @dataclass
 class SchoolHoliday:
     description: str
