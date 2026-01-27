@@ -13,36 +13,37 @@
 
   const getProcedureUrl = async () => {
     let connected: User | null = userStore.connected
-    if (connected) {
-      let userIdentity: UserIdentity | null = connected.identity
-      if (userIdentity) {
-        let preferredUsername: string = userIdentity.preferred_username
-          ? userIdentity.preferred_username
-          : ''
-        let email: string = userIdentity.email ? userIdentity.email : ''
-        let addressFromUserStore: Address | undefined = userIdentity.address
-        let addressCity = ''
-        let addressPostcode = ''
-        let addressName = ''
-        if (addressFromUserStore) {
-          addressCity = addressFromUserStore.city
-          addressPostcode = addressFromUserStore.postcode
-          addressName = addressFromUserStore.name
-        }
-        try {
-          const response = await apiFetch(
-            `/api/v1/partner/otv/url?preferred_username=${preferredUsername}&email=${email}&address_city=${addressCity}&address_postcode=${addressPostcode}&address_name=${addressName}`,
-            {
-              credentials: 'include',
-            }
-          )
-          if (response.status === 200) {
-            const responseJson = await response.json()
-            procedureUrl = responseJson.partner_url
+    if (!connected) {
+      return
+    }
+    let userIdentity: UserIdentity | null = connected.identity
+    if (userIdentity) {
+      let preferredUsername: string = userIdentity.preferred_username
+        ? userIdentity.preferred_username
+        : ''
+      let email: string = userIdentity.email ? userIdentity.email : ''
+      let addressFromUserStore: Address | undefined = userIdentity.address
+      let addressCity = ''
+      let addressPostcode = ''
+      let addressName = ''
+      if (addressFromUserStore) {
+        addressCity = addressFromUserStore.city
+        addressPostcode = addressFromUserStore.postcode
+        addressName = addressFromUserStore.name
+      }
+      try {
+        const response = await apiFetch(
+          `/api/v1/partner/otv/url?preferred_username=${preferredUsername}&email=${email}&address_city=${addressCity}&address_postcode=${addressPostcode}&address_name=${addressName}`,
+          {
+            credentials: 'include',
           }
-        } catch (error) {
-          console.error(error)
+        )
+        if (response.status === 200) {
+          const responseJson = await response.json()
+          procedureUrl = responseJson.partner_url
         }
+      } catch (error) {
+        console.error(error)
       }
     }
   }
