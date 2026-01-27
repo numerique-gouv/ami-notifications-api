@@ -10,6 +10,7 @@ import { callBAN } from '$lib/addressesFromBAN'
 import * as auth from '$lib/auth'
 import { franceConnectLogout, parseJwt } from '$lib/france-connect'
 import { emit } from '$lib/nativeEvents'
+import { formatDate } from '$lib/utils'
 
 export type DataOrigin = 'user' | 'france-connect' | 'api-particulier' | 'cleared'
 
@@ -210,13 +211,7 @@ export class User {
   }
 
   formatBirthdate(birthdate: string) {
-    const date = new Date(birthdate)
-    const options: Intl.DateTimeFormatOptions = {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    }
-    return date.toLocaleDateString('fr-FR', options)
+    return formatDate(birthdate)
   }
 
   addScheduledNotificationCreatedKey(key: string) {
