@@ -73,3 +73,7 @@ def generate_identity_token(
     }
 
     return jwt.encode(payload, env.OTV_PRIVATE_KEY.encode(), algorithm="RS256")
+
+
+def decode_identity_token(token: str) -> dict[str, str]:
+    return jwt.decode(token, key=env.PUBLIC_OTV_PUBLIC_KEY.encode(), algorithms=["RS256"])

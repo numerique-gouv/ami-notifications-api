@@ -1,5 +1,5 @@
 import datetime
-from typing import Any
+from typing import Any, Dict
 from uuid import UUID
 
 import pytest
@@ -8,7 +8,7 @@ from freezegun.api import FakeDatetime
 from litestar import Litestar
 from litestar.testing import TestClient
 
-from app.utils import build_fc_hash, generate_identity_token
+from app.utils import build_fc_hash, decode_identity_token, generate_identity_token
 
 
 async def test_ping(
@@ -109,3 +109,55 @@ def test_generate_identity_token(
 
     # Then
     assert token == expected_token
+
+
+@freeze_time("2026-01-23 10:36:00")
+def test_generate_identity_token_with_decode(
+    test_client: TestClient[Litestar],
+    monkeypatch: pytest.MonkeyPatch,
+    rsa_keys: Dict[str, str],
+) -> None:
+    # Given
+    preferred_username: str = "Delaforêt"
+    email: str = "wossewodda-37228@yopmail.com"
+    address_city: str = "Paris"
+    address_postcode: str = "75007"
+    address_name: str = "20 Avenue de Ségur"
+    fc_hash: str = "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060"
+
+    mock_uuid_str = "550e8400-e29b-41d4-a716-446655440000"
+
+    def mock_uuid_uuid4():
+        return UUID(mock_uuid_str)
+
+    monkeypatch.setattr("app.utils.uuid4", mock_uuid_uuid4)
+
+    fake_otv_private_key: str = rsa_keys["private"]
+    fake_otv_public_key: str = rsa_keys["public"]
+
+    monkeypatch.setattr("app.utils.uuid4", mock_uuid_uuid4)
+    monkeypatch.setattr("app.env.OTV_PRIVATE_KEY", fake_otv_private_key)
+    monkeypatch.setattr("app.env.PUBLIC_OTV_PUBLIC_KEY", fake_otv_public_key)
+
+    # When
+    token = generate_identity_token(
+        preferred_username, email, address_city, address_postcode, address_name, fc_hash
+    )
+
+    decoded_result = decode_identity_token(token)
+
+    # Then
+    assert decoded_result["iss"] == "ami"
+    assert decoded_result["iat"] == 1769164560
+    assert decoded_result["exp"] == 1769166360
+    assert decoded_result["nonce"] == "550e8400-e29b-41d4-a716-446655440000"
+    assert (
+        decoded_result["hash_fc"]
+        == "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060"
+    )
+    data_result: Dict[str, str] = decoded_result["data"]  # pyright: ignore[reportAssignmentType]
+    assert data_result["nom_usage"] == "Delaforêt"
+    assert data_result["email"] == "wossewodda-37228@yopmail.com"
+    assert data_result["commune_nom"] == "Paris"
+    assert data_result["commune_cp"] == "75007"
+    assert data_result["commune_adresse"] == "20 Avenue de Ségur"
