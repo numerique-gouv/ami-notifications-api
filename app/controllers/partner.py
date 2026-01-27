@@ -28,16 +28,18 @@ class PartnerController(Controller):
     ) -> Response[schemas.PartnerResponse]:
         partner_url = env.PUBLIC_OTV_URL
 
-        if env.PUBLIC_OTV_URL.endswith("caller={token-jwt}"):
-            identity_token = generate_identity_token(
-                preferred_username or "",
-                email or "",
-                address_city or "",
-                address_postcode or "",
-                address_name or "",
-                current_user.fc_hash or "",
-            )
-            partner_url = partner_url.replace("{token-jwt}", identity_token)
+        if partner_url.endswith("caller={token-jwt}"):
+            otv_private_key = os.getenv("OTV_PRIVATE_KEY")
+            if otv_private_key is not None:
+                identity_token = generate_identity_token(
+                    preferred_username or "",
+                    email or "",
+                    address_city or "",
+                    address_postcode or "",
+                    address_name or "",
+                    current_user.fc_hash or "",
+                )
+                partner_url = partner_url.replace("{token-jwt}", identity_token)
 
         response_data = schemas.PartnerResponse.model_validate(
             {
