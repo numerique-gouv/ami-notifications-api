@@ -1,19 +1,59 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import { goto } from '$app/navigation'
-  import { PUBLIC_OTV_URL } from '$env/static/public'
-  import { userStore } from '$lib/state/User.svelte'
+  import { Address } from '$lib/address'
+  import { apiFetch } from '$lib/auth'
+  import { User, type UserIdentity, userStore } from '$lib/state/User.svelte'
 
-  const otvUrl = PUBLIC_OTV_URL
+  let procedureUrl: string = $state('')
   let itemDate: string = $state('')
 
   const isValidDate = (d: Date | number) =>
     d instanceof Date && !Number.isNaN(d.getTime())
 
-  onMount(async () => {
+  const getProcedureUrl = async () => {
+    let connected: User | null = userStore.connected
+    if (!connected) {
+      return
+    }
+    let userIdentity: UserIdentity | null = connected.identity
+    if (userIdentity) {
+      let preferredUsername: string = userIdentity.preferred_username
+        ? userIdentity.preferred_username
+        : ''
+      let email: string = userIdentity.email ? userIdentity.email : ''
+      let addressFromUserStore: Address | undefined = userIdentity.address
+      let addressCity = ''
+      let addressPostcode = ''
+      let addressName = ''
+      if (addressFromUserStore) {
+        addressCity = addressFromUserStore.city
+        addressPostcode = addressFromUserStore.postcode
+        addressName = addressFromUserStore.name
+      }
+      try {
+        const response = await apiFetch(
+          `/api/v1/partner/otv/url?preferred_username=${preferredUsername}&email=${email}&address_city=${addressCity}&address_postcode=${addressPostcode}&address_name=${addressName}`,
+          {
+            credentials: 'include',
+          }
+        )
+        if (response.status === 200) {
+          const responseJson = await response.json()
+          procedureUrl = responseJson.partner_url
+        }
+      } catch (error) {
+        console.error(error)
+      }
+    }
+  }
+
+  onMount(() => {
     if (!userStore.connected) {
       goto('/')
     }
+
+    getProcedureUrl()
 
     const hash = window.location.hash
     const url = new URL(hash.substring(1), window.location.origin)
@@ -35,6 +75,21 @@
   const navigateToPreviousPage = async () => {
     window.history.back()
   }
+
+  const redirectToLink = (procedureUrl: string) => {
+    if (procedureUrl) {
+      window.location.href = procedureUrl
+    }
+  }
+
+  const clickOnProcedureButton = async () => {
+    const originalProcedureUrl = procedureUrl
+    procedureUrl = ''
+    await getProcedureUrl()
+    redirectToLink(originalProcedureUrl)
+  }
+
+  export const getProcedureUrlForTests = () => procedureUrl
 </script>
 
 <div class="procedure">
@@ -82,7 +137,17 @@
   </div>
 
   <div class="procedure-action-buttons">
-    <div class="procedure-start"><a href="{otvUrl}"> Bénéficier de ce service </a></div>
+    <div class="procedure-start">
+      <button
+        class="fr-btn fr-btn--lg"
+        type="button"
+        onclick={clickOnProcedureButton}
+        data-testid="procedure-button"
+        disabled="{!procedureUrl}"
+      >
+        Bénéficier de ce service
+      </button>
+    </div>
   </div>
 </div>
 
@@ -133,27 +198,18 @@
 
     .procedure-action-buttons {
       position: fixed;
-      bottom: 0;
+      bottom: 1rem;
       left: 50%;
       transform: translateX(-50%);
-      padding: 1rem;
-      width: 100%;
-      background-color: var(--grey-1000-50);
+
+      display: block;
+      width: 328px;
 
       .procedure-start {
-        height: 3rem;
-        margin-bottom: 0.5rem;
-        background-color: var(--text-action-high-blue-france);
-        color: var(--text-inverted-blue-france);
-
-        a {
+        button {
           display: flex;
           justify-content: center;
-          align-items: center;
           width: 100%;
-          height: 100%;
-          text-decoration: none;
-          --underline-img: none;
         }
       }
     }
