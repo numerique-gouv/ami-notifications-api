@@ -203,6 +203,7 @@ class SchoolHoliday:
 
     def to_catalog_item(self):
         return AgendaCatalogItem(
+            kind=AgendaCatalogItemKind.HOLIDAY,
             title=self.description,
             zones=self.zones,
             start_date=self.start_date,
@@ -250,6 +251,7 @@ class PublicHoliday:
 
     def to_catalog_item(self):
         return AgendaCatalogItem(
+            kind=AgendaCatalogItemKind.HOLIDAY,
             title=self.description,
             date=self.date,
             emoji=self.emoji,
@@ -262,9 +264,15 @@ class AgendaCatalogStatus(Enum):
     FAILED = "failed"
 
 
+class AgendaCatalogItemKind(Enum):
+    HOLIDAY = "holiday"
+
+
 @dataclass
 class AgendaCatalogItem:
+    kind: AgendaCatalogItemKind
     title: str
+    description: str = field(default="")
     date: datetime.date | None = field(default=None)
     start_date: datetime.date | None = field(default=None)
     end_date: datetime.date | None = field(default=None)
