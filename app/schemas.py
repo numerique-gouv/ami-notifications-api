@@ -180,8 +180,8 @@ class RegistrationCreate(BaseModel):
 class SchoolHoliday:
     description: str
     zones: str
-    start_date: datetime.datetime
-    end_date: datetime.datetime
+    start_date: datetime.date
+    end_date: datetime.date
     emoji: str
 
     emoji_mapping = {
@@ -196,8 +196,8 @@ class SchoolHoliday:
     def from_dict(cls, data: dict[str, Any]) -> "SchoolHoliday":
         cls_fields = {f.name for f in fields(cls)}
         filtered = {k: v for k, v in data.items() if k in cls_fields}
-        filtered["start_date"] = datetime.datetime.fromisoformat(filtered["start_date"])
-        filtered["end_date"] = datetime.datetime.fromisoformat(filtered["end_date"])
+        filtered["start_date"] = datetime.datetime.fromisoformat(filtered["start_date"]).date()
+        filtered["end_date"] = datetime.datetime.fromisoformat(filtered["end_date"]).date()
         filtered["emoji"] = cls.emoji_mapping.get(filtered["description"], "")
         return cls(**filtered)
 
