@@ -40,6 +40,7 @@ async def get_school_holidays_data(
             "where": f"end_date >= date'{start_date}' AND start_date < date'{end_date}' AND ({locations_query}) AND population IN ('-', 'Élèves')",
             "order_by": "start_date",
             "limit": 100,
+            "timezone": "Europe/Paris",
         },
     )
     if response.status_code != 200:

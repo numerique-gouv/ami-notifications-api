@@ -25,15 +25,15 @@ async def test_get_school_holidays(
     holidays = [
         SchoolHoliday(
             description="Vacances de Noël",
-            start_date=datetime.datetime(2025, 12, 19, 23, 0, tzinfo=datetime.timezone.utc),
-            end_date=datetime.datetime(2026, 1, 4, 23, 0, tzinfo=datetime.timezone.utc),
+            start_date=datetime.date(2025, 12, 20),
+            end_date=datetime.date(2026, 1, 5),
             zones="",
             emoji="🎄",
         ),
         SchoolHoliday(
             description="Vacances d'Hiver",
-            start_date=datetime.datetime(2026, 2, 6, 23, 0, tzinfo=datetime.timezone.utc),
-            end_date=datetime.datetime(2026, 2, 22, 23, 0, tzinfo=datetime.timezone.utc),
+            start_date=datetime.date(2026, 2, 7),
+            end_date=datetime.date(2026, 2, 23),
             zones="Zone A",
             emoji="❄️",
         ),
@@ -44,15 +44,15 @@ async def test_get_school_holidays(
     result = [
         {
             "description": "Vacances de Noël",
-            "start_date": "2025-12-19T23:00:00Z",
-            "end_date": "2026-01-04T23:00:00Z",
+            "start_date": "2025-12-20",
+            "end_date": "2026-01-05",
             "zones": "",
             "emoji": "🎄",
         },
         {
             "description": "Vacances d'Hiver",
-            "start_date": "2026-02-06T23:00:00Z",
-            "end_date": "2026-02-22T23:00:00Z",
+            "start_date": "2026-02-07",
+            "end_date": "2026-02-23",
             "zones": "Zone A",
             "emoji": "❄️",
         },
