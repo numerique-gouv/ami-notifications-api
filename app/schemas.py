@@ -1,6 +1,6 @@
 import datetime
 import uuid
-from dataclasses import dataclass, fields
+from dataclasses import dataclass, field, fields
 from enum import Enum
 from typing import Any
 
@@ -201,6 +201,15 @@ class SchoolHoliday:
         filtered["emoji"] = cls.emoji_mapping.get(filtered["description"], "")
         return cls(**filtered)
 
+    def to_catalog_item(self):
+        return AgendaCatalogItem(
+            title=self.description,
+            zones=self.zones,
+            start_date=self.start_date,
+            end_date=self.end_date,
+            emoji=self.emoji,
+        )
+
 
 @dataclass
 class PublicHoliday:
@@ -238,3 +247,38 @@ class PublicHoliday:
         )
         filtered["emoji"] = cls.emoji_mapping.get(original_description, cls.default_emoji)
         return cls(**filtered)
+
+    def to_catalog_item(self):
+        return AgendaCatalogItem(
+            title=self.description,
+            date=self.date,
+            emoji=self.emoji,
+        )
+
+
+class AgendaCatalogStatus(Enum):
+    LOADING = "loading"
+    SUCCESS = "success"
+    FAILED = "failed"
+
+
+@dataclass
+class AgendaCatalogItem:
+    title: str
+    date: datetime.date | None = field(default=None)
+    start_date: datetime.date | None = field(default=None)
+    end_date: datetime.date | None = field(default=None)
+    zones: str = field(default="")
+    emoji: str = field(default="")
+
+
+@dataclass
+class AgendaCatalog:
+    status: AgendaCatalogStatus = field(default=AgendaCatalogStatus.LOADING)
+    items: list[AgendaCatalogItem] = field(default_factory=list[AgendaCatalogItem])
+
+
+@dataclass
+class Agenda:
+    school_holidays: AgendaCatalog = field(default_factory=AgendaCatalog)
+    public_holidays: AgendaCatalog = field(default_factory=AgendaCatalog)

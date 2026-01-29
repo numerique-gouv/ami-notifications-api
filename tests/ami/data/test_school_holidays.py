@@ -1,4 +1,5 @@
 import datetime
+from unittest import mock
 
 import httpx
 import pytest
@@ -6,8 +7,12 @@ from httpx import AsyncClient
 from litestar.status_codes import HTTP_500_INTERNAL_SERVER_ERROR
 from pytest_httpx import HTTPXMock
 
-from app.data.holidays import SchoolHolidaysError, get_school_holidays_data
-from app.schemas import SchoolHoliday
+from app.data.holidays import (
+    SchoolHolidaysError,
+    get_school_holidays_catalog,
+    get_school_holidays_data,
+)
+from app.schemas import AgendaCatalog, AgendaCatalogItem, AgendaCatalogStatus, SchoolHoliday
 
 
 async def test_get_school_holidays_data(
@@ -210,3 +215,59 @@ async def test_get_school_holidays_data_error(
                 datetime.date(2025, 11, 12), datetime.date(2026, 9, 15), httpx_async_client
             )
     assert e.value.status_code == HTTP_500_INTERNAL_SERVER_ERROR
+
+
+async def test_get_school_holidays_catalog(
+    httpx_mock: HTTPXMock,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    holidays = [
+        SchoolHoliday(
+            description="Vacances de Noël",
+            start_date=datetime.date(2025, 12, 20),
+            end_date=datetime.date(2026, 1, 5),
+            zones="",
+            emoji="🎄",
+        ),
+        SchoolHoliday(
+            description="Vacances d'Hiver",
+            start_date=datetime.date(2026, 2, 7),
+            end_date=datetime.date(2026, 2, 23),
+            zones="Zone A",
+            emoji="❄️",
+        ),
+    ]
+    data_mock = mock.AsyncMock(return_value=holidays)
+    monkeypatch.setattr("app.data.holidays.get_school_holidays_data", data_mock)
+    async with AsyncClient() as httpx_async_client:
+        result = await get_school_holidays_catalog(
+            datetime.date(2025, 11, 12), datetime.date(2026, 9, 15), httpx_async_client
+        )
+    items = [
+        AgendaCatalogItem(
+            title="Vacances de Noël",
+            start_date=datetime.date(2025, 12, 20),
+            end_date=datetime.date(2026, 1, 5),
+            zones="",
+            emoji="🎄",
+        ),
+        AgendaCatalogItem(
+            title="Vacances d'Hiver",
+            start_date=datetime.date(2026, 2, 7),
+            end_date=datetime.date(2026, 2, 23),
+            zones="Zone A",
+            emoji="❄️",
+        ),
+    ]
+    assert result == AgendaCatalog(status=AgendaCatalogStatus.SUCCESS, items=items)
+
+
+async def test_get_school_holidays_catalog_error(
+    httpx_mock: HTTPXMock,
+) -> None:
+    httpx_mock.add_response(status_code=HTTP_500_INTERNAL_SERVER_ERROR)
+    async with AsyncClient() as httpx_async_client:
+        result = await get_school_holidays_catalog(
+            datetime.date(2025, 11, 12), datetime.date(2026, 9, 15), httpx_async_client
+        )
+    assert result == AgendaCatalog(status=AgendaCatalogStatus.FAILED)
