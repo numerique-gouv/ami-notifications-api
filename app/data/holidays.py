@@ -5,7 +5,7 @@ from workalendar.europe import France
 
 from app import env
 from app.httpx import AsyncClient
-from app.schemas import PublicHoliday, SchoolHoliday
+from app.schemas import AgendaCatalog, AgendaCatalogStatus, PublicHoliday, SchoolHoliday
 
 
 class SchoolHolidaysError(Exception):
@@ -59,6 +59,23 @@ async def get_school_holidays_data(
     return sorted(holidays.values(), key=lambda a: a.start_date)
 
 
+async def get_school_holidays_catalog(
+    start_date: datetime.date,
+    end_date: datetime.date,
+    httpx_async_client: AsyncClient,
+) -> AgendaCatalog:
+    catalog = AgendaCatalog()
+    try:
+        holidays = await get_school_holidays_data(start_date, end_date, httpx_async_client)
+    except SchoolHolidaysError:
+        catalog.status = AgendaCatalogStatus.FAILED
+    else:
+        for holiday in holidays:
+            catalog.items.append(holiday.to_catalog_item())
+        catalog.status = AgendaCatalogStatus.SUCCESS
+    return catalog
+
+
 def get_public_holidays_data(
     start_date: datetime.date,
     end_date: datetime.date,
@@ -80,3 +97,15 @@ def get_public_holidays_data(
             continue
         holidays.append(PublicHoliday.from_dict({"description": description, "date": day}))
     return holidays
+
+
+async def get_public_holidays_catalog(
+    start_date: datetime.date,
+    end_date: datetime.date,
+) -> AgendaCatalog:
+    holidays = get_public_holidays_data(start_date, end_date)
+    catalog = AgendaCatalog()
+    for holiday in holidays:
+        catalog.items.append(holiday.to_catalog_item())
+    catalog.status = AgendaCatalogStatus.SUCCESS
+    return catalog
