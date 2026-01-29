@@ -40,12 +40,13 @@ async def get_school_holidays_data(
             "where": f"end_date >= date'{start_date}' AND start_date < date'{end_date}' AND ({locations_query}) AND population IN ('-', 'Élèves')",
             "order_by": "start_date",
             "limit": 100,
+            "timezone": "Europe/Paris",
         },
     )
     if response.status_code != 200:
         raise SchoolHolidaysError(status_code=response.status_code)
 
-    holidays: dict[Any, SchoolHoliday] = {}
+    holidays: dict[tuple[str, datetime.date, datetime.date], SchoolHoliday] = {}
     for data in response.json()["results"]:
         holiday = SchoolHoliday.from_dict(data)
         key = (holiday.description, holiday.start_date, holiday.end_date)
