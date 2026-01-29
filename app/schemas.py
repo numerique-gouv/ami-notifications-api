@@ -205,7 +205,7 @@ class SchoolHoliday:
 @dataclass
 class PublicHoliday:
     description: str
-    date: datetime.datetime
+    date: datetime.date
     emoji: str
 
     description_mapping = {
