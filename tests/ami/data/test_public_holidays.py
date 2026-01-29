@@ -1,7 +1,10 @@
 import datetime
+from unittest import mock
 
-from app.data.holidays import get_public_holidays_data
-from app.schemas import PublicHoliday
+import pytest
+
+from app.data.holidays import get_public_holidays_catalog, get_public_holidays_data
+from app.schemas import AgendaCatalog, AgendaCatalogItem, AgendaCatalogStatus, PublicHoliday
 
 
 async def test_get_public_holidays_data() -> None:
@@ -19,3 +22,22 @@ async def test_get_public_holidays_data() -> None:
         PublicHoliday(description="Fête Nationale", date=datetime.date(2026, 7, 14), emoji="🎆"),
         PublicHoliday(description="Assomption", date=datetime.date(2026, 8, 15), emoji="📅"),
     ]
+
+
+async def test_get_public_holidays_catalog(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    holidays = [
+        PublicHoliday(description="Noël", date=datetime.date(2025, 12, 25), emoji="📅"),
+        PublicHoliday(description="Jour de l’An", date=datetime.date(2026, 1, 1), emoji="🎉"),
+    ]
+    data_mock = mock.Mock(return_value=holidays)
+    monkeypatch.setattr("app.data.holidays.get_public_holidays_data", data_mock)
+    result = await get_public_holidays_catalog(
+        datetime.date(2025, 11, 12), datetime.date(2026, 9, 15)
+    )
+    items = [
+        AgendaCatalogItem(title="Noël", date=datetime.date(2025, 12, 25), emoji="📅"),
+        AgendaCatalogItem(title="Jour de l’An", date=datetime.date(2026, 1, 1), emoji="🎉"),
+    ]
+    assert result == AgendaCatalog(status=AgendaCatalogStatus.SUCCESS, items=items)
