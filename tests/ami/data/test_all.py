@@ -11,6 +11,7 @@ from app.models import User
 from app.schemas import (
     AgendaCatalog,
     AgendaCatalogItem,
+    AgendaCatalogItemKind,
     AgendaCatalogStatus,
     PublicHoliday,
     SchoolHoliday,
@@ -147,6 +148,7 @@ async def test_get_agenda_items(
         status=AgendaCatalogStatus.SUCCESS,
         items=[
             AgendaCatalogItem(
+                kind=AgendaCatalogItemKind.HOLIDAY,
                 title="Vacances de Noël",
                 start_date=datetime.date(2025, 12, 20),
                 end_date=datetime.date(2026, 1, 5),
@@ -154,6 +156,7 @@ async def test_get_agenda_items(
                 emoji="🎄",
             ),
             AgendaCatalogItem(
+                kind=AgendaCatalogItemKind.HOLIDAY,
                 title="Vacances d'Hiver",
                 start_date=datetime.date(2026, 2, 7),
                 end_date=datetime.date(2026, 2, 23),
@@ -167,8 +170,18 @@ async def test_get_agenda_items(
     public_catalog = AgendaCatalog(
         status=AgendaCatalogStatus.SUCCESS,
         items=[
-            AgendaCatalogItem(title="Noël", date=datetime.date(2025, 12, 25), emoji="📅"),
-            AgendaCatalogItem(title="Jour de l’An", date=datetime.date(2026, 1, 1), emoji="🎉"),
+            AgendaCatalogItem(
+                kind=AgendaCatalogItemKind.HOLIDAY,
+                title="Noël",
+                date=datetime.date(2025, 12, 25),
+                emoji="📅",
+            ),
+            AgendaCatalogItem(
+                kind=AgendaCatalogItemKind.HOLIDAY,
+                title="Jour de l’An",
+                date=datetime.date(2026, 1, 1),
+                emoji="🎉",
+            ),
         ],
     )
     public_data_mock = mock.AsyncMock(return_value=public_catalog)
@@ -181,7 +194,9 @@ async def test_get_agenda_items(
             "status": "success",
             "items": [
                 {
+                    "kind": "holiday",
                     "title": "Vacances de Noël",
+                    "description": "",
                     "date": None,
                     "start_date": "2025-12-20",
                     "end_date": "2026-01-05",
@@ -189,7 +204,9 @@ async def test_get_agenda_items(
                     "emoji": "🎄",
                 },
                 {
+                    "kind": "holiday",
                     "title": "Vacances d'Hiver",
+                    "description": "",
                     "date": None,
                     "start_date": "2026-02-07",
                     "end_date": "2026-02-23",
@@ -202,7 +219,9 @@ async def test_get_agenda_items(
             "status": "success",
             "items": [
                 {
+                    "kind": "holiday",
                     "title": "Noël",
+                    "description": "",
                     "date": "2025-12-25",
                     "start_date": None,
                     "end_date": None,
@@ -210,7 +229,9 @@ async def test_get_agenda_items(
                     "emoji": "📅",
                 },
                 {
+                    "kind": "holiday",
                     "title": "Jour de l’An",
+                    "description": "",
                     "date": "2026-01-01",
                     "start_date": None,
                     "end_date": None,

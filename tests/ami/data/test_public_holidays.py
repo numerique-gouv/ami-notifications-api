@@ -4,7 +4,13 @@ from unittest import mock
 import pytest
 
 from app.data.holidays import get_public_holidays_catalog, get_public_holidays_data
-from app.schemas import AgendaCatalog, AgendaCatalogItem, AgendaCatalogStatus, PublicHoliday
+from app.schemas import (
+    AgendaCatalog,
+    AgendaCatalogItem,
+    AgendaCatalogItemKind,
+    AgendaCatalogStatus,
+    PublicHoliday,
+)
 
 
 async def test_get_public_holidays_data() -> None:
@@ -37,7 +43,17 @@ async def test_get_public_holidays_catalog(
         datetime.date(2025, 11, 12), datetime.date(2026, 9, 15)
     )
     items = [
-        AgendaCatalogItem(title="Noël", date=datetime.date(2025, 12, 25), emoji="📅"),
-        AgendaCatalogItem(title="Jour de l’An", date=datetime.date(2026, 1, 1), emoji="🎉"),
+        AgendaCatalogItem(
+            kind=AgendaCatalogItemKind.HOLIDAY,
+            title="Noël",
+            date=datetime.date(2025, 12, 25),
+            emoji="📅",
+        ),
+        AgendaCatalogItem(
+            kind=AgendaCatalogItemKind.HOLIDAY,
+            title="Jour de l’An",
+            date=datetime.date(2026, 1, 1),
+            emoji="🎉",
+        ),
     ]
     assert result == AgendaCatalog(status=AgendaCatalogStatus.SUCCESS, items=items)

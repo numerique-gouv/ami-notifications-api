@@ -12,7 +12,13 @@ from app.data.holidays import (
     get_school_holidays_catalog,
     get_school_holidays_data,
 )
-from app.schemas import AgendaCatalog, AgendaCatalogItem, AgendaCatalogStatus, SchoolHoliday
+from app.schemas import (
+    AgendaCatalog,
+    AgendaCatalogItem,
+    AgendaCatalogItemKind,
+    AgendaCatalogStatus,
+    SchoolHoliday,
+)
 
 
 async def test_get_school_holidays_data(
@@ -245,6 +251,7 @@ async def test_get_school_holidays_catalog(
         )
     items = [
         AgendaCatalogItem(
+            kind=AgendaCatalogItemKind.HOLIDAY,
             title="Vacances de Noël",
             start_date=datetime.date(2025, 12, 20),
             end_date=datetime.date(2026, 1, 5),
@@ -252,6 +259,7 @@ async def test_get_school_holidays_catalog(
             emoji="🎄",
         ),
         AgendaCatalogItem(
+            kind=AgendaCatalogItemKind.HOLIDAY,
             title="Vacances d'Hiver",
             start_date=datetime.date(2026, 2, 7),
             end_date=datetime.date(2026, 2, 23),
