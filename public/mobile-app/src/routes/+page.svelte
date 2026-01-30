@@ -8,7 +8,6 @@
     PUBLIC_CONTACT_EMAIL,
     PUBLIC_CONTACT_URL,
   } from '$env/static/public'
-  import { apiFetch } from '$lib/auth'
   import ConnectedHomepage from '$lib/ConnectedHomepage.svelte'
   import Navigation from '$lib/Navigation.svelte'
   import { toastStore } from '$lib/state/toast.svelte'
