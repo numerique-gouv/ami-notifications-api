@@ -11,6 +11,7 @@
 
   import ConnectedHomepage from '$lib/ConnectedHomepage.svelte';
   import Navigation from '$lib/components/Navigation.svelte';
+  import { initializeLocalStorage } from '$lib/initializeDataFromAPI';
   import { toastStore } from '$lib/state/toast.svelte';
   import { userStore } from '$lib/state/User.svelte';
 
@@ -42,20 +43,7 @@
         error_description = '';
       }
       if (page.url.searchParams.has('is_logged_in')) {
-        localStorage.setItem(
-          'is_logged_in',
-          page.url.searchParams.get('is_logged_in') || ''
-        );
-        localStorage.setItem('id_token', page.url.searchParams.get('id_token') || '');
-        localStorage.setItem('user_data', page.url.searchParams.get('user_data') || '');
-        localStorage.setItem(
-          'user_fc_hash',
-          page.url.searchParams.get('user_fc_hash') || ''
-        );
-        localStorage.setItem(
-          'user_api_particulier_encoded_address',
-          page.url.searchParams.get('address') || ''
-        );
+        initializeLocalStorage(page.url.searchParams);
         await userStore.checkLoggedIn();
         if (page.url.searchParams.get('user_first_login') === 'true') {
           goto('/#/notifications-welcome-page');
