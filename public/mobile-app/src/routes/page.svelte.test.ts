@@ -7,6 +7,7 @@ import {
   PUBLIC_CONTACT_EMAIL,
   PUBLIC_CONTACT_URL,
 } from '$env/static/public';
+import * as initializeDataFromAPIMethods from '$lib/initializeDataFromAPI';
 import { toastStore } from '$lib/state/toast.svelte';
 import { userStore } from '$lib/state/User.svelte';
 import { mockUserInfo } from '$tests/utils';
@@ -24,34 +25,23 @@ describe('/+page.svelte', () => {
     vi.resetAllMocks();
   });
 
-  test('should set localStorage when user is logged in', async () => {
+  test('should initialize data in localStorage when user is logged in', async () => {
     // Given
-    window.localStorage.setItem('user_data', '');
-    window.localStorage.setItem('user_id', '');
-    window.localStorage.setItem('user_fc_hash', '');
-    window.localStorage.setItem('user_api_particulier_encoded_address', '');
-
     const { page } = await import('$app/state');
     const mockSearchParams = new URLSearchParams();
     mockSearchParams.set('is_logged_in', 'true');
-    mockSearchParams.set('user_data', 'fake-user-data');
-    mockSearchParams.set('user_first_login', 'true');
-    mockSearchParams.set('user_fc_hash', 'fake-user-fc-hash');
-    mockSearchParams.set('id_token', 'fake-id-token');
-    mockSearchParams.set('address', 'fake-address');
     vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
+    const spy = vi
+      .spyOn(initializeDataFromAPIMethods, 'initializeData')
+      .mockResolvedValue();
+    vi.spyOn(navigationMethods, 'goto').mockImplementation(() => Promise.resolve());
 
     // When
     render(Page);
 
     // Then
     await waitFor(async () => {
-      expect(window.localStorage.getItem('user_data')).toEqual('fake-user-data');
-      expect(window.localStorage.getItem('user_fc_hash')).toEqual('fake-user-fc-hash');
-      expect(window.localStorage.getItem('id_token')).toEqual('fake-id-token');
-      expect(
-        window.localStorage.getItem('user_api_particulier_encoded_address')
-      ).toEqual('fake-address');
+      expect(spy).toHaveBeenCalled();
     });
   });
 
@@ -62,7 +52,7 @@ describe('/+page.svelte', () => {
     mockSearchParams.set('is_logged_in', 'true');
     mockSearchParams.set('user_first_login', 'true');
     vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
-    vi.spyOn(userStore, 'checkLoggedIn').mockResolvedValue();
+    vi.spyOn(initializeDataFromAPIMethods, 'initializeData').mockResolvedValue();
     const spy = vi
       .spyOn(navigationMethods, 'goto')
       .mockImplementation(() => Promise.resolve());
@@ -83,7 +73,7 @@ describe('/+page.svelte', () => {
     mockSearchParams.set('is_logged_in', 'true');
     mockSearchParams.set('user_first_login', 'false');
     vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
-    vi.spyOn(userStore, 'checkLoggedIn').mockResolvedValue();
+    vi.spyOn(initializeDataFromAPIMethods, 'initializeData').mockResolvedValue();
     const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue();
 
     // When
