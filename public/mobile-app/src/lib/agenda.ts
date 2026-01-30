@@ -3,7 +3,7 @@ import { retrieveCatalog } from '$lib/api-catalog'
 import { createScheduledNotification } from '$lib/scheduled-notifications'
 import { userStore } from '$lib/state/User.svelte'
 
-type Kind = 'holiday' | 'otv'
+type Kind = 'holiday' | 'otv' | 'election'
 
 const capitalizeFirstLetter = (val: string) => {
   return String(val).charAt(0).toUpperCase() + String(val).slice(1)
@@ -132,6 +132,11 @@ export class Item {
       icon: 'fr-icon-home-4-fill',
       link: '/#/procedure',
     },
+    election: {
+      label: 'Élections',
+      icon: 'fr-icon-chat-check-fill',
+      link: '',
+    },
   }
 
   get kind(): Kind {
@@ -178,6 +183,7 @@ export class Agenda {
 
     const school_holidays: CatalogItem[] = catalog?.school_holidays || []
     const public_holidays: CatalogItem[] = catalog?.public_holidays || []
+    const elections: CatalogItem[] = catalog?.elections || []
 
     // build items from school_holidays
     this.createSchoolHolidayItems(items, school_holidays, today)
@@ -187,6 +193,9 @@ export class Agenda {
 
     // create OTV items
     this.createOTVItems(items, school_holidays, today)
+
+    // build items from elections
+    this.createElectionItems(items, elections, today)
 
     // sort items by date
     items.sort((a, b) => (a.date?.getTime() || 0) - (b.date?.getTime() || 0))
@@ -352,6 +361,39 @@ export class Agenda {
       }
     }
     return item
+  }
+
+  private createElectionItems(items: Item[], elections: CatalogItem[], date: Date) {
+    elections.forEach((election) => {
+      const item = this.createElectionItem(election, date)
+      if (item !== null) {
+        items.push(item)
+      }
+    })
+  }
+
+  private createElectionItem(election: CatalogItem, date: Date): Item | null {
+    if (!election.date) {
+      // should not happen for election
+      return null
+    }
+    if (election.date < date) {
+      // exclude past election
+      return null
+    }
+    let title = election.title
+    if (election.emoji) {
+      title += ` ${election.emoji}`
+    }
+    return new Item(
+      'election',
+      title,
+      election.description,
+      election.date,
+      null,
+      null,
+      false
+    )
   }
 
   get now(): Item[] {
