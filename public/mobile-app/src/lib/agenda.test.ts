@@ -226,16 +226,24 @@ describe('/agenda.ts', () => {
           new Date('2025-12-20')
         )
         const item3 = new Item('otv', 'title', 'description', new Date('2025-12-20'))
+        const item4 = new Item(
+          'election',
+          'title',
+          'description',
+          new Date('2025-12-20')
+        )
 
         // When
         const label1 = item1.label
         const label2 = item2.label
         const label3 = item3.label
+        const label4 = item4.label
 
         // Then
         expect(label1).equal('')
         expect(label2).equal('Vacances et jours fériés')
         expect(label3).equal('Logement')
+        expect(label4).equal('Élections')
       })
     })
     describe('icon', () => {
@@ -255,16 +263,24 @@ describe('/agenda.ts', () => {
           new Date('2025-12-20')
         )
         const item3 = new Item('otv', 'title', 'description', new Date('2025-12-20'))
+        const item4 = new Item(
+          'election',
+          'title',
+          'description',
+          new Date('2025-12-20')
+        )
 
         // When
         const icon1 = item1.icon
         const icon2 = item2.icon
         const icon3 = item3.icon
+        const icon4 = item4.icon
 
         // Then
         expect(icon1).equal('')
         expect(icon2).equal('fr-icon-calendar-event-fill')
         expect(icon3).equal('fr-icon-home-4-fill')
+        expect(icon4).equal('fr-icon-chat-check-fill')
       })
     })
     describe('link', () => {
@@ -284,16 +300,24 @@ describe('/agenda.ts', () => {
           new Date('2025-12-20')
         )
         const item3 = new Item('otv', 'title', 'description', new Date('2025-12-20'))
+        const item4 = new Item(
+          'election',
+          'title',
+          'description',
+          new Date('2025-12-20')
+        )
 
         // When
         const link1 = item1.link
         const link2 = item2.link
         const link3 = item3.link
+        const link4 = item4.link
 
         // Then
         expect(link1).equal('')
         expect(link2).equal('')
         expect(link3).equal('/#/procedure')
+        expect(link4).equal('')
       })
     })
   })
@@ -376,19 +400,39 @@ describe('/agenda.ts', () => {
         zones: '',
         emoji: '',
       }
+      const election1 = {
+        kind: 'election',
+        title: 'Election1',
+        description: 'description',
+        date: new Date('2025-11-11T24:00:00Z'),
+        start_date: null,
+        end_date: null,
+        zones: '',
+        emoji: 'bar',
+      }
+      const election2 = {
+        kind: 'election',
+        title: 'Election2',
+        description: 'description',
+        date: new Date('2025-12-10T24:00:00Z'),
+        start_date: null,
+        end_date: null,
+        zones: '',
+        emoji: '',
+      }
 
       // When
       const agenda = new Agenda(
         {
           school_holidays: [holiday1, holiday2, holiday3, holiday4, holiday5],
           public_holidays: [holiday6, holiday7],
-          elections: [],
+          elections: [election1, election2],
         },
         new Date('2025-11-01T12:00:00Z')
       )
 
       // Then
-      expect(agenda.now.length).equal(9)
+      expect(agenda.now.length).equal(10)
       expect(
         agenda.now[0].equals(
           new Item(
@@ -469,6 +513,18 @@ describe('/agenda.ts', () => {
       expect(
         agenda.now[7].equals(
           new Item(
+            'election',
+            'Election1 bar',
+            'description',
+            election1.date,
+            null,
+            null
+          )
+        )
+      ).toBe(true)
+      expect(
+        agenda.now[8].equals(
+          new Item(
             'holiday',
             'Holiday 3 foo',
             null,
@@ -479,7 +535,7 @@ describe('/agenda.ts', () => {
         )
       ).toBe(true)
       expect(
-        agenda.now[8].equals(
+        agenda.now[9].equals(
           new Item(
             'otv',
             'Opération Tranquillité Vacances 🏠',
@@ -490,7 +546,7 @@ describe('/agenda.ts', () => {
           )
         )
       ).toBe(true)
-      expect(agenda.next.length).equal(3)
+      expect(agenda.next.length).equal(4)
       expect(
         agenda.next[0].equals(
           new Item(
@@ -510,6 +566,11 @@ describe('/agenda.ts', () => {
       ).toBe(true)
       expect(
         agenda.next[2].equals(
+          new Item('election', 'Election2', 'description', election2.date, null, null)
+        )
+      ).toBe(true)
+      expect(
+        agenda.next[3].equals(
           new Item(
             'holiday',
             'Holiday 5',
@@ -521,7 +582,7 @@ describe('/agenda.ts', () => {
         )
       ).toBe(true)
     })
-    test('should not display past holidays or OTV related to past holidays', async () => {
+    test('should not display past items or OTV related to past holidays', async () => {
       // Given
       vi.stubEnv('TZ', 'Europe/Paris')
       const holiday1 = {
@@ -554,13 +615,23 @@ describe('/agenda.ts', () => {
         zones: '',
         emoji: '',
       }
+      const election = {
+        kind: 'election',
+        title: 'Election',
+        description: '',
+        date: new Date('2026-02-02T23:00:00Z'),
+        start_date: null,
+        end_date: null,
+        zones: '',
+        emoji: '',
+      }
 
       // When
       const agenda = new Agenda(
         {
           school_holidays: [holiday1, holiday2],
           public_holidays: [holiday3],
-          elections: [],
+          elections: [election],
         },
         new Date('2026-02-24T12:00:00Z')
       )

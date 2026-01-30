@@ -145,6 +145,10 @@
             color: var(--text-action-high-green-archipel);
             background-color: var(--background-alt-green-archipel);
           }
+          &.election {
+            color: var(--text-action-high-green-tilleul-verveine);
+            background-color: var(--background-contrast-green-tilleul-verveine);
+          }
           &.custom {
             color: #fff;
             margin-right: 0.25rem;
