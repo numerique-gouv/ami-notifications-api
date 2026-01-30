@@ -29,7 +29,7 @@ describe('/ConnectedHomepage.svelte', () => {
       }
     })
 
-    vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(new Agenda([], []))
+    vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(new Agenda())
 
     window.localStorage.setItem('notifications_enabled', 'false')
     window.localStorage.setItem('user_data', 'fake-user-data')
@@ -194,7 +194,7 @@ describe('/ConnectedHomepage.svelte', () => {
 
   test('Should display first holiday found from API', async () => {
     // Given
-    const agenda = new Agenda([], [])
+    const agenda = new Agenda()
     vi.spyOn(agenda, 'now', 'get').mockReturnValue([
       new Item('holiday', 'Holiday 1', null, new Date()),
       new Item('holiday', 'Holiday 2', null, new Date()),
@@ -224,7 +224,7 @@ describe('/ConnectedHomepage.svelte', () => {
 
   test('Should display first holiday found from API - now is empty', async () => {
     // Given
-    const agenda = new Agenda([], [])
+    const agenda = new Agenda()
     vi.spyOn(agenda, 'now', 'get').mockReturnValue([])
     vi.spyOn(agenda, 'next', 'get').mockReturnValue([
       new Item('holiday', 'Holiday 1', null, new Date()),
