@@ -48,7 +48,7 @@ describe('/+page.svelte', () => {
         callBAN: vi.fn(() => response),
       }
     })
-    vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(new Agenda([], []))
+    vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(new Agenda())
   })
 
   afterEach(() => {
@@ -168,9 +168,7 @@ describe('/+page.svelte', () => {
     delete userStore.connected?.identity?.address
     userStore.connected?.addScheduledNotificationCreatedKey('foo')
     const setAddressSpy = vi.spyOn(userStore.connected!, 'setAddress')
-    const spy = vi
-      .spyOn(agendaMethods, 'buildAgenda')
-      .mockResolvedValue(new Agenda([], []))
+    const spy = vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(new Agenda())
 
     // When
     render(Page)
