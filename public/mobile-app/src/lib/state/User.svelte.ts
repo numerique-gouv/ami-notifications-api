@@ -56,7 +56,7 @@ export type UserIdentity = {
   dataDetails: DataDetails
 }
 
-class UserStore {
+export class UserStore {
   connected: User | null = $state(null)
 
   async login(userinfo: UserInfo): Promise<User> {
