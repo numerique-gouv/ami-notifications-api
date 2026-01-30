@@ -37,7 +37,7 @@
         error_description = ''
       }
       if (page.url.searchParams.has('is_logged_in')) {
-        await initializeData(page.url.searchParams)
+        await initializeData(page.url.searchParams, userStore)
         if (page.url.searchParams.get('user_first_login') === 'true') {
           goto('/#/notifications-welcome-page')
         } else {

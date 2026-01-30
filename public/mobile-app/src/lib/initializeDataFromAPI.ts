@@ -1,4 +1,4 @@
-import { userStore } from '$lib/state/User.svelte'
+import type { UserStore } from '$lib/state/User.svelte'
 
 export const initializeLocalStorage = async (searchParams: URLSearchParams) => {
   localStorage.setItem('is_logged_in', searchParams.get('is_logged_in') || '')
@@ -11,7 +11,10 @@ export const initializeLocalStorage = async (searchParams: URLSearchParams) => {
   )
 }
 
-export const initializeData = async (searchParams: URLSearchParams) => {
+export const initializeData = async (
+  searchParams: URLSearchParams,
+  userStore: UserStore
+) => {
   await initializeLocalStorage(searchParams)
   await userStore.checkLoggedIn()
 }
