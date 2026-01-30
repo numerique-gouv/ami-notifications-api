@@ -1,8 +1,9 @@
 import { render, screen, waitFor } from '@testing-library/svelte'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 import * as navigationMethods from '$app/navigation'
+import * as procedureMethods from '$lib/procedure'
 import { userStore } from '$lib/state/User.svelte'
-import { expectBackButtonPresent, mockUserInfo } from '$tests/utils'
+import { expectBackButtonPresent, mockAddress, mockUserInfo } from '$tests/utils'
 import Page from './+page.svelte'
 
 describe('/+page.svelte', () => {
@@ -65,18 +66,26 @@ describe('/+page.svelte', () => {
   test('should retrieve procedure url', async () => {
     // Given
     await userStore.login(mockUserInfo)
+    userStore.connected!.setPreferredUsername('Dupont')
+    userStore.connected!.setAddress(mockAddress)
 
     const expectedProcedureUrl = 'fake-public-otv-url?caller=fake.jwt.token'
-    const mockResponse = { partner_url: expectedProcedureUrl }
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-      new Response(JSON.stringify(mockResponse), { status: 200 })
-    )
+    const spy = vi
+      .spyOn(procedureMethods, 'retrieveProcedureUrl')
+      .mockResolvedValue(expectedProcedureUrl)
 
     // When
     const { component } = render(Page)
 
     // Then
     await waitFor(() => {
+      expect(spy).toHaveBeenCalledWith(
+        'Dupont',
+        'some@email.com',
+        'Paris',
+        '75007',
+        'Avenue de Ségur'
+      )
       expect(component.getProcedureUrlForTests()).toBe(expectedProcedureUrl)
     })
   })
@@ -86,16 +95,16 @@ describe('/+page.svelte', () => {
     await userStore.login(mockUserInfo)
 
     const procedureUrl = ''
-    const mockResponse = { partner_url: procedureUrl }
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-      new Response(JSON.stringify(mockResponse), { status: 200 })
-    )
+    const spy = vi
+      .spyOn(procedureMethods, 'retrieveProcedureUrl')
+      .mockResolvedValue(procedureUrl)
 
     // When
     render(Page)
 
     // Then
     await waitFor(() => {
+      expect(spy).toHaveBeenCalledTimes(1)
       const procedureButton = screen.getByTestId('procedure-button')
       expect(procedureButton).toBeDisabled()
     })
