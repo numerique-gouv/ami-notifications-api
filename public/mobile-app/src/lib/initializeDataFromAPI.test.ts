@@ -1,6 +1,8 @@
 import { describe, expect, test, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 import { waitFor } from '@testing-library/svelte'
+import * as agendaMethods from '$lib/agenda'
+import { Agenda } from '$lib/agenda'
 import { initializeData, initializeLocalStorage } from '$lib/initializeDataFromAPI'
 import { UserStore } from '$lib/state/User.svelte'
 
@@ -43,13 +45,17 @@ describe('/initializeDataFromAPI.ts', () => {
       const searchParams = new URLSearchParams({})
 
       const userStore = new UserStore()
-      const spy = vi.spyOn(userStore, 'checkLoggedIn')
+      const checkLoggedInSpy = vi.spyOn(userStore, 'checkLoggedIn')
+      const buildAgendaSpy = vi
+        .spyOn(agendaMethods, 'buildAgenda')
+        .mockResolvedValue(new Agenda([], []))
 
       // When
       await initializeData(searchParams, userStore)
 
       // Then
-      expect(spy).toHaveBeenCalledTimes(1)
+      expect(checkLoggedInSpy).toHaveBeenCalledTimes(1)
+      expect(buildAgendaSpy).toHaveBeenCalledTimes(1)
     })
   })
 })

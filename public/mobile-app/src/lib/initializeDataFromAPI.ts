@@ -1,3 +1,4 @@
+import { buildAgenda } from '$lib/agenda'
 import type { UserStore } from '$lib/state/User.svelte'
 
 export const initializeLocalStorage = (searchParams: URLSearchParams) => {
@@ -17,4 +18,5 @@ export const initializeData = async (
 ) => {
   initializeLocalStorage(searchParams)
   await userStore.checkLoggedIn()
+  await buildAgenda()
 }
