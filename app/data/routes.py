@@ -12,6 +12,7 @@ from app.data.holidays import (
     get_school_holidays_catalog,
     get_school_holidays_data,
 )
+from app.data.internal import get_elections_catalog
 from app.httpx import AsyncClient
 from app.schemas import Agenda, PublicHoliday, SchoolHoliday
 from app.utils import error_from_message
@@ -53,6 +54,7 @@ async def get_agenda_items(
 
     task_school_holidays = None
     task_public_holidays = None
+    task_elections = None
     async with asyncio.TaskGroup() as task_group:
         task_school_holidays = task_group.create_task(
             get_school_holidays_catalog(start_date, end_date, httpx_async_client)
@@ -60,8 +62,10 @@ async def get_agenda_items(
         task_public_holidays = task_group.create_task(
             get_public_holidays_catalog(start_date, end_date)
         )
+        task_elections = task_group.create_task(get_elections_catalog(start_date, end_date))
     agenda.school_holidays = task_school_holidays.result()
     agenda.public_holidays = task_public_holidays.result()
+    agenda.elections = task_elections.result()
     return agenda
 
 
