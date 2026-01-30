@@ -186,6 +186,27 @@ async def test_get_agenda_items(
     )
     public_data_mock = mock.AsyncMock(return_value=public_catalog)
     monkeypatch.setattr("app.data.routes.get_public_holidays_catalog", public_data_mock)
+    election_catalog = AgendaCatalog(
+        status=AgendaCatalogStatus.SUCCESS,
+        items=[
+            AgendaCatalogItem(
+                kind=AgendaCatalogItemKind.ELECTION,
+                title="Foo",
+                description="Votez au premier tour des municipales",
+                date=datetime.date(2026, 3, 15),
+                emoji="🗳️",
+            ),
+            AgendaCatalogItem(
+                kind=AgendaCatalogItemKind.ELECTION,
+                title="Foo",
+                description="Votez au second tour des municipales",
+                date=datetime.date(2026, 3, 22),
+                emoji="🗳️",
+            ),
+        ],
+    )
+    election_data_mock = mock.AsyncMock(return_value=election_catalog)
+    monkeypatch.setattr("app.data.routes.get_elections_catalog", election_data_mock)
 
     response = test_client.get("/data/agenda/items", params={"current_date": "2025-12-12"})
     assert response.status_code == HTTP_200_OK
@@ -237,6 +258,31 @@ async def test_get_agenda_items(
                     "end_date": None,
                     "zones": "",
                     "emoji": "🎉",
+                },
+            ],
+        },
+        "elections": {
+            "status": "success",
+            "items": [
+                {
+                    "kind": "election",
+                    "title": "Foo",
+                    "description": "Votez au premier tour des municipales",
+                    "date": "2026-03-15",
+                    "start_date": None,
+                    "end_date": None,
+                    "zones": "",
+                    "emoji": "🗳️",
+                },
+                {
+                    "kind": "election",
+                    "title": "Foo",
+                    "description": "Votez au second tour des municipales",
+                    "date": "2026-03-22",
+                    "start_date": None,
+                    "end_date": None,
+                    "zones": "",
+                    "emoji": "🗳️",
                 },
             ],
         },
