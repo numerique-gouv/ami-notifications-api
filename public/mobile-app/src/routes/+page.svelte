@@ -5,7 +5,7 @@
   import { page } from '$app/state'
   import { PUBLIC_API_URL, PUBLIC_CONTACT_URL } from '$env/static/public'
   import ConnectedHomepage from '$lib/ConnectedHomepage.svelte'
-  import { initializeLocalStorage } from '$lib/initializeDataFromAPI'
+  import { initializeData } from '$lib/initializeDataFromAPI'
   import Navigation from '$lib/Navigation.svelte'
   import { toastStore } from '$lib/state/toast.svelte'
   import { userStore } from '$lib/state/User.svelte'
@@ -37,8 +37,7 @@
         error_description = ''
       }
       if (page.url.searchParams.has('is_logged_in')) {
-        await initializeLocalStorage(page.url.searchParams)
-        await userStore.checkLoggedIn()
+        await initializeData(page.url.searchParams)
         if (page.url.searchParams.get('user_first_login') === 'true') {
           goto('/#/notifications-welcome-page')
         } else {
