@@ -6,6 +6,7 @@
   import { toastStore } from '$lib/state/toast.svelte'
   import { userStore } from '$lib/state/User.svelte'
 
+  let backUrl: string = '/'
   let userFcHash: string | null = null
   const contactUrl = PUBLIC_CONTACT_URL
 
@@ -25,7 +26,7 @@
 </script>
 
 <div class="contact-page">
-  <NavWithBackButton title="Nous contacter" />
+  <NavWithBackButton title="Nous contacter" {backUrl} />
 
   <div class="contact-page-wrapper">
     <div class="image-wrapper">

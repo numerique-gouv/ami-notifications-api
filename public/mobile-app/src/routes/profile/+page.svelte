@@ -7,6 +7,7 @@
   import type { DataOrigin, UserIdentity } from '$lib/state/User.svelte'
   import { userStore } from '$lib/state/User.svelte'
 
+  let backUrl: string = '/'
   let identity: UserIdentity = $state() as UserIdentity
   let address: Address | undefined = $state()
   let address_origin: DataOrigin | undefined = $state()
@@ -37,7 +38,7 @@
   }
 </script>
 
-<NavWithBackButton title="Mon profil" />
+<NavWithBackButton title="Mon profil" {backUrl} />
 
 {#if identity}
   <div class="fr-m-4v profile-content-container" data-testid="profile">

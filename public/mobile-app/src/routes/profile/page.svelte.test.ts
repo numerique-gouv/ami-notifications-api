@@ -3,6 +3,7 @@ import { afterEach, describe, expect, test, vi } from 'vitest'
 import * as navigationMethods from '$app/navigation'
 import { userStore } from '$lib/state/User.svelte'
 import {
+  expectBackButtonPresent,
   mockUserIdentity,
   mockUserInfo,
   mockUserWithPreferredUsername,
@@ -203,5 +204,13 @@ describe('/+page.svelte', () => {
     // Then
     expect(backButton).toBeInTheDocument()
     expect(screen.getByText('Mon profil')).toBeInTheDocument()
+  })
+
+  test('should render a Back button', async () => {
+    // When
+    render(Page)
+
+    // Then
+    expectBackButtonPresent(screen)
   })
 })

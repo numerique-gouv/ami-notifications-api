@@ -5,6 +5,7 @@ import WS from 'vitest-websocket-mock'
 import * as navigationMethods from '$app/navigation'
 import * as notificationsMethods from '$lib/notifications'
 import { PUBLIC_API_WS_URL } from '$lib/notifications'
+import { expectBackButtonPresent } from '$tests/utils'
 import Page from './+page.svelte'
 
 let wss: WSType
@@ -34,18 +35,12 @@ describe('/+page.svelte', () => {
     })
   })
 
-  test('should navigate to previous page when user clicks on Back button', async () => {
-    // Given
-    const backSpy = vi.spyOn(window.history, 'back').mockImplementation(() => {})
-
+  test('should render a Back button', async () => {
     // When
     render(Page)
-    const backButton = screen.getByTestId('back-button')
-    await fireEvent.click(backButton)
 
     // Then
-    expect(backSpy).toHaveBeenCalledTimes(1)
-    backSpy.mockRestore()
+    expectBackButtonPresent(screen)
   })
 
   test('should navigate to Settings when user clicks on Gérer button', async () => {

@@ -1,42 +1,39 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte'
+  import { goto } from '$app/navigation'
+  import BackButton from '$lib/components/BackButton.svelte'
+
   interface Props {
+    backUrl: string
     title?: string
+    children?: Snippet
   }
-  let { title }: Props = $props()
+  let { backUrl, children, title }: Props = $props()
 
   const navigateToPreviousPage = async () => {
-    window.history.back()
+    goto(backUrl)
   }
 </script>
 
 <nav>
-  <div class="back-button-wrapper">
-    <button
-      onclick={navigateToPreviousPage}
-      title="Retour à la page précédente"
-      aria-label="Retour à la page précédente"
-      data-testid="back-button"
-    >
-      <span aria-hidden="true" class="fr-icon-arrow-left-line"></span>
-    </button>
-  </div>
+  <BackButton {backUrl} />
   {#if title}
     <div class="title">
       <h2>{title}</h2>
+      {#if children}
+        {@render children()}
+      {/if}
     </div>
+  {:else}
+    {#if children}
+      {@render children()}
+    {/if}
   {/if}
 </nav>
 
 <style>
   nav {
     padding: 1.5rem 1rem;
-    .back-button-wrapper {
-      margin-bottom: 0.5rem;
-      color: var(--text-active-blue-france);
-      button {
-        padding: 0;
-      }
-    }
     .title {
       display: flex;
       h2 {

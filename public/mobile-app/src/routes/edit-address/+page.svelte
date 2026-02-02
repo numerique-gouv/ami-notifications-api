@@ -9,6 +9,7 @@
   import { userStore } from '$lib/state/User.svelte'
   import { formatDate } from '$lib/utils'
 
+  let backUrl: string = '/#/profile'
   let addressFromUserStore: Address | undefined = $state()
   let timer: any
   let inputValue: string = $state('')
@@ -40,7 +41,7 @@
   })
 
   const navigateToPreviousPage = async () => {
-    window.history.back()
+    goto(backUrl)
   }
 
   const addressInputHandler = (event: Event) => {
@@ -133,7 +134,7 @@
 </script>
 
 <div class="address-form-page">
-  <NavWithBackButton title="Où habitez-vous&nbsp;?" />
+  <NavWithBackButton title="Où habitez-vous&nbsp;?" {backUrl} />
 
   <div class="address-content-container" data-testid="container">
     <p>

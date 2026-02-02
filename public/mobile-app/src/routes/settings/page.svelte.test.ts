@@ -2,6 +2,8 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/svelte'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 import * as navigationMethods from '$app/navigation'
 import * as notificationsMethods from '$lib/notifications'
+import { userStore } from '$lib/state/User.svelte'
+import { expectBackButtonPresent, mockUserInfo } from '$tests/utils'
 import Page from './+page.svelte'
 
 describe('/+page.svelte', () => {
@@ -82,7 +84,10 @@ describe('/+page.svelte', () => {
 
   test('should navigate to previous page when user clicks on Close button', async () => {
     // Given
-    const backSpy = vi.spyOn(window.history, 'back').mockImplementation(() => {})
+    await userStore.login(mockUserInfo)
+    const backSpy = vi
+      .spyOn(navigationMethods, 'goto')
+      .mockImplementation(() => Promise.resolve())
 
     // When
     render(Page)
@@ -91,6 +96,13 @@ describe('/+page.svelte', () => {
 
     // Then
     expect(backSpy).toHaveBeenCalledTimes(1)
-    backSpy.mockRestore()
+  })
+
+  test('should render a Back button', async () => {
+    // When
+    render(Page)
+
+    // Then
+    expectBackButtonPresent(screen)
   })
 })
