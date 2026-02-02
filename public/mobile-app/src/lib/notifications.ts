@@ -2,6 +2,7 @@ import { PUBLIC_API_URL } from '$env/static/public';
 import { apiFetch } from '$lib/auth';
 import type { Registration } from '$lib/registration';
 import { registerDevice, unregisterDevice } from '$lib/registration';
+import * as self from './notifications';
 
 export const PUBLIC_API_WS_URL = PUBLIC_API_URL.replace('https://', 'wss://').replace(
   'http://',
@@ -20,35 +21,42 @@ export type AppNotification = {
   read: boolean;
 };
 
-export const retrieveNotifications = async (): Promise<AppNotification[]> => {
+export const fetchAndStoreNotifications = async () => {
   let notifications = [] as AppNotification[];
+
   try {
     const response = await apiFetch('/api/v1/users/notifications', {
       credentials: 'include',
     });
     if (response.status === 200) {
       notifications = await response.json();
+      localStorage.setItem('notifications', JSON.stringify(notifications));
     }
   } catch (error) {
     console.error(error);
   }
-  console.log('notifications', notifications);
-  return notifications;
+};
+
+export const getNotificationsFromStore = async (): Promise<AppNotification[]> => {
+  const notificationsString: string = localStorage.getItem('notifications') || '';
+  return JSON.parse(notificationsString);
+};
+
+export const getNotifications = async (): Promise<AppNotification[]> => {
+  await self.fetchAndStoreNotifications();
+  return await self.getNotificationsFromStore();
+};
+
+export const retrieveNotifications = async (): Promise<AppNotification[]> => {
+  return await self.getNotifications();
 };
 
 export const countUnreadNotifications = async (): Promise<number> => {
-  let notifications = [] as AppNotification[];
-  try {
-    const response = await apiFetch('/api/v1/users/notifications?read=false', {
-      credentials: 'include',
-    });
-    if (response.status === 200) {
-      notifications = await response.json();
-    }
-  } catch (error) {
-    console.error(error);
-  }
-  return notifications.length;
+  const notifications: AppNotification[] = await self.getNotifications();
+  const unreadNotifications: AppNotification[] = notifications.filter(
+    (notification) => !notification.read
+  );
+  return unreadNotifications.length;
 };
 
 export const readNotification = async (
