@@ -432,7 +432,7 @@ describe('/agenda.ts', () => {
       )
 
       // Then
-      expect(agenda.now.length).equal(10)
+      expect(agenda.now.length).equal(8)
       expect(
         agenda.now[0].equals(
           new Item(
@@ -495,23 +495,11 @@ describe('/agenda.ts', () => {
       ).toBe(true)
       expect(
         agenda.now[5].equals(
-          new Item(
-            'otv',
-            'Opération Tranquillité Vacances 🏠',
-            'Inscrivez-vous pour protéger votre domicile pendant votre absence',
-            null,
-            new Date('2025-11-09T23:00:00Z'),
-            null
-          )
-        )
-      ).toBe(true)
-      expect(
-        agenda.now[6].equals(
           new Item('holiday', 'Day 6 bar', null, holiday6.date, null, null)
         )
       ).toBe(true)
       expect(
-        agenda.now[7].equals(
+        agenda.now[6].equals(
           new Item(
             'election',
             'Election1 bar',
@@ -523,7 +511,7 @@ describe('/agenda.ts', () => {
         )
       ).toBe(true)
       expect(
-        agenda.now[8].equals(
+        agenda.now[7].equals(
           new Item(
             'holiday',
             'Holiday 3 foo',
@@ -531,18 +519,6 @@ describe('/agenda.ts', () => {
             null,
             holiday3.start_date,
             holiday3.end_date
-          )
-        )
-      ).toBe(true)
-      expect(
-        agenda.now[9].equals(
-          new Item(
-            'otv',
-            'Opération Tranquillité Vacances 🏠',
-            'Inscrivez-vous pour protéger votre domicile pendant votre absence',
-            null,
-            new Date('2025-11-29T23:00:00Z'),
-            null
           )
         )
       ).toBe(true)
@@ -781,21 +757,9 @@ describe('/agenda.ts', () => {
           new Item('holiday', 'Day', null, holiday4.date, null, null)
         )
       ).toBe(true)
-      expect(agenda.next.length).equal(2)
+      expect(agenda.next.length).equal(1)
       expect(
         agenda.next[0].equals(
-          new Item(
-            'otv',
-            'Opération Tranquillité Vacances 🏠',
-            'Inscrivez-vous pour protéger votre domicile pendant votre absence',
-            null,
-            new Date('2026-06-10T23:00:00Z'),
-            null
-          )
-        )
-      ).toBe(true)
-      expect(
-        agenda.next[1].equals(
           new Item(
             'holiday',
             'Summer Holiday bar',
@@ -1024,7 +988,7 @@ describe('/agenda.ts', () => {
       // Then
       expect(spy).toHaveBeenCalledTimes(1)
       expect(agenda).toBeInstanceOf(Agenda)
-      expect(agenda.now.length).equal(4)
+      expect(agenda.now.length).equal(3)
       expect(
         agenda.now[0].equals(
           new Item(
@@ -1051,18 +1015,6 @@ describe('/agenda.ts', () => {
       ).toBe(true)
       expect(
         agenda.now[2].equals(
-          new Item(
-            'otv',
-            'Opération Tranquillité Vacances 🏠',
-            'Inscrivez-vous pour protéger votre domicile pendant votre absence',
-            null,
-            new Date('2025-11-09T23:00:00Z'),
-            null
-          )
-        )
-      ).toBe(true)
-      expect(
-        agenda.now[3].equals(
           new Item('holiday', 'Day 3', null, holiday3.date, null, null)
         )
       ).toBe(true)

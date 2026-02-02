@@ -360,6 +360,10 @@ export class Agenda {
         userStore.connected.addScheduledNotificationCreatedKey(scheduledNotificationKey)
       }
     }
+    if (startDate > date) {
+      // don't display OTV too early, only display them when they're close enough to their associated holiday
+      return null
+    }
     return item
   }
 
