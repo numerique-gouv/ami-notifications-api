@@ -34,7 +34,8 @@ class NotificationController(Controller):
         self,
         notifications_service: NotificationService,
         current_user: models.User,
-        read: bool | None = None,
+        read: bool
+        | None = None,  # TODO CLO : supprimer le paramètre et simplifier le code en-dessous
     ) -> Sequence[schemas.Notification]:
         if read is not None:
             notifications: Sequence[models.Notification] = await notifications_service.list(
