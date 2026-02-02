@@ -10,6 +10,7 @@
   import type { Registration } from '$lib/registration'
   import { userStore } from '$lib/state/User.svelte'
 
+  let backUrl: string = '/'
   let registration: Registration | null = $state(null)
   let isChecked = $state(false)
 
@@ -22,7 +23,7 @@
   })
 
   const navigateToPreviousPage = async () => {
-    window.history.back()
+    goto(backUrl)
   }
 
   const enableNotificationsFunc = async () => {
@@ -55,7 +56,7 @@
 </script>
 
 <div class="settings-page">
-  <NavWithBackButton title="Paramètres" />
+  <NavWithBackButton title="Paramètres" {backUrl} />
 
   <div class="settings-content-container">
     <div class="fr-toggle">

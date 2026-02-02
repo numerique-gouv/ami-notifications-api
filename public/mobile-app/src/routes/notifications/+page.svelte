@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import { goto } from '$app/navigation'
+  import NavWithBackButton from '$lib/components/NavWithBackButton.svelte'
   import NotificationIcon from '$lib/NotificationIcon.svelte'
   import type { AppNotification } from '$lib/notifications'
   import {
@@ -11,6 +12,7 @@
   import { prettyDate } from '$lib/prettyDate'
   import { userStore } from '$lib/state/User.svelte'
 
+  let backUrl: string = '/'
   let notifications: AppNotification[] = $state([])
 
   onMount(async () => {
@@ -40,41 +42,24 @@
     redirectToLink(notificationItemExternalUrl)
   }
 
-  const navigateToPreviousPage = async () => {
-    window.history.back()
-  }
-
   const goToSettings = () => {
     goto('/#/settings')
   }
 </script>
 
-<nav>
-  <div class="back-button-wrapper">
+<NavWithBackButton title="Notifications" {backUrl}>
+  <div class="settings-svg-icon">
     <button
-      onclick={navigateToPreviousPage}
-      title="Retour à la page précédente"
-      aria-label="Retour à la page précédente"
-      data-testid="back-button"
+      class="fr-btn fr-btn--tertiary"
+      type="button"
+      onclick="{goToSettings}"
+      data-testid="settings-button"
     >
-      <span aria-hidden="true" class="fr-icon-arrow-left-line"></span>
+      <img src="/remixicons/settings.svg" alt="Icône de paramétrage">
+      Gérer
     </button>
   </div>
-  <div class="title">
-    <h2>Notifications</h2>
-    <div class="settings-svg-icon">
-      <button
-        class="fr-btn fr-btn--tertiary"
-        type="button"
-        onclick="{goToSettings}"
-        data-testid="settings-button"
-      >
-        <img src="/remixicons/settings.svg" alt="Icône de paramétrage">
-        Gérer
-      </button>
-    </div>
-  </div>
-</nav>
+</NavWithBackButton>
 
 <div class="notifications-content-container">
   {#each notifications as notification}
@@ -116,30 +101,13 @@
 </div>
 
 <style>
-  nav {
-    padding: 1.5rem 1rem;
-    .back-button-wrapper {
-      margin-bottom: 0.5rem;
-      color: var(--text-active-blue-france);
-      button {
-        padding: 0;
-      }
-    }
-    .title {
-      display: flex;
-      h2 {
-        flex-grow: 1;
-        margin-bottom: 0;
-      }
-      .settings-svg-icon {
-        padding-top: 0.25rem;
-        color: var(--text-active-blue-france);
-        img {
-          margin-right: 0.5rem;
-          width: 1rem;
-          height: 1rem;
-        }
-      }
+  .settings-svg-icon {
+    padding-top: 0.25rem;
+    color: var(--text-active-blue-france);
+    img {
+      margin-right: 0.5rem;
+      width: 1rem;
+      height: 1rem;
     }
   }
   .notifications-content-container {

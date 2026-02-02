@@ -1,11 +1,20 @@
-import { afterEach, describe, expect, test, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte'
+import type { MockInstance } from 'vitest'
+import * as navigationMethods from '$app/navigation'
 import { userStore } from '$lib/state/User.svelte'
-import { mockUserIdentity, mockUserInfo } from '$tests/utils'
+import { expectBackButtonPresent, mockUserIdentity, mockUserInfo } from '$tests/utils'
 import Page from './+page.svelte'
 
 describe('/+page.svelte', () => {
+  let backSpy: MockInstance<typeof navigationMethods.goto>
+
+  beforeEach(() => {
+    backSpy = vi
+      .spyOn(navigationMethods, 'goto')
+      .mockImplementation(() => Promise.resolve())
+  })
   afterEach(() => {
     vi.resetAllMocks()
   })
@@ -113,9 +122,6 @@ describe('/+page.svelte', () => {
   })
 
   test('should navigate to previous page when user clicks on Cancel button', async () => {
-    // Given
-    const backSpy = vi.spyOn(window.history, 'back').mockImplementation(() => {})
-
     // When
     render(Page)
     const cancelButton = screen.getByTestId('cancel-button')
@@ -123,6 +129,13 @@ describe('/+page.svelte', () => {
 
     // Then
     expect(backSpy).toHaveBeenCalledTimes(1)
-    backSpy.mockRestore()
+  })
+
+  test('should render a Back button', async () => {
+    // When
+    render(Page)
+
+    // Then
+    expectBackButtonPresent(screen)
   })
 })

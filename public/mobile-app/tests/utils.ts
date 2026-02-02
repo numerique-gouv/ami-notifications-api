@@ -1,4 +1,5 @@
-import { vi } from 'vitest'
+import type { Screen } from '@testing-library/svelte'
+import { expect, vi } from 'vitest'
 import { Address } from '$lib/address'
 import { User } from '$lib/state/User.svelte'
 
@@ -74,3 +75,11 @@ export const mockUserIdentity = {
 
 export const mockUser = new User(mockUserInfo)
 export const mockUserWithPreferredUsername = new User(mockUserInfoWithPreferredUsername)
+
+export const expectBackButtonPresent = (screen: Screen) => {
+  // When
+  const backButton = screen.getByTestId('back-button')
+
+  // Then
+  expect(backButton).toBeInTheDocument()
+}

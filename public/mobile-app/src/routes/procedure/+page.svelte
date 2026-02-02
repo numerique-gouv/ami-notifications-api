@@ -3,8 +3,10 @@
   import { goto } from '$app/navigation'
   import { Address } from '$lib/address'
   import { apiFetch } from '$lib/auth'
+  import NavWithBackButton from '$lib/components/NavWithBackButton.svelte'
   import { User, type UserIdentity, userStore } from '$lib/state/User.svelte'
 
+  let backUrl: string = '/'
   let procedureUrl: string = $state('')
   let itemDate: string = $state('')
 
@@ -72,10 +74,6 @@
     }
   })
 
-  const navigateToPreviousPage = async () => {
-    window.history.back()
-  }
-
   const redirectToLink = (procedureUrl: string) => {
     if (procedureUrl) {
       window.location.href = procedureUrl
@@ -93,24 +91,16 @@
 </script>
 
 <div class="procedure">
-  <nav>
-    <div class="back-button-wrapper">
-      <button
-        onclick={navigateToPreviousPage}
-        title="Retour à la page précédente"
-        aria-label="Retour à la page précédente"
-        data-testid="back-button"
-      >
-        <span aria-hidden="true" class="fr-icon-arrow-left-line"></span>
-      </button>
-    </div>
-    <div class="partner-logo">
-      <img src="/icons/otv-logo.svg" alt="Icône du logo du partenaire">
-    </div>
-    <div class="title">
-      <h2>Opération Tranquillité Vacances</h2>
-    </div>
-  </nav>
+  <div class="nav">
+    <NavWithBackButton {backUrl}>
+      <div class="partner-logo">
+        <img src="/icons/otv-logo.svg" alt="Icône du logo du partenaire">
+      </div>
+      <div class="title">
+        <h2>Opération Tranquillité Vacances</h2>
+      </div>
+    </NavWithBackButton>
+  </div>
 
   <div class="procedure-content">
     <div class="procedure-content-block">
@@ -153,18 +143,10 @@
 
 <style>
   .procedure {
-    nav {
-      padding: 1.5rem 1rem;
+    .nav {
       background-color: var(--green-archipel-975-75);
       border-bottom: 0.25rem solid var(--green-archipel-sun-391-moon-716);
 
-      .back-button-wrapper {
-        margin-bottom: 0.5rem;
-        color: var(--text-active-blue-france);
-        button {
-          padding: 0;
-        }
-      }
       .partner-logo {
         display: flex;
         justify-content: center;

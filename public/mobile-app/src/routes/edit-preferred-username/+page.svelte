@@ -1,10 +1,12 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import { goto } from '$app/navigation'
+  import NavWithBackButton from '$lib/components/NavWithBackButton.svelte'
   import type { DataOrigin } from '$lib/state/User.svelte'
   import { userStore } from '$lib/state/User.svelte'
   import { formatDate } from '$lib/utils'
 
+  let backUrl: string = '/#/profile'
   let inputValue: string = $state('')
   let preferred_username_origin: DataOrigin | undefined = $state()
   let preferred_username_last_update: Date | undefined = $state()
@@ -24,7 +26,7 @@
   })
 
   const navigateToPreviousPage = async () => {
-    window.history.back()
+    goto(backUrl)
   }
 
   const cancel = async () => {
@@ -41,20 +43,7 @@
 </script>
 
 <div class="form-page">
-  <nav class="fr-p-4v fr-pt-6v">
-    <div class="back-link fr-mb-2v">
-      <button
-        onclick={navigateToPreviousPage}
-        title="Retour à la page d'accueil"
-        aria-label="Retour à la page d'accueil"
-      >
-        <span aria-hidden="true" class="fr-icon-arrow-left-line"></span>
-      </button>
-    </div>
-    <div class="title">
-      <h2 class="fr-mb-0">Mon identité</h2>
-    </div>
-  </nav>
+  <NavWithBackButton title="Mon identité" {backUrl} />
 
   <div class="content-container" data-testid="container">
     <p>Vous pouvez modifier uniquement les champs ci-dessous.</p>
@@ -115,21 +104,6 @@
 
 <style>
   .form-page {
-    nav {
-      .back-link {
-        color: var(--text-active-blue-france);
-        button {
-          padding: 0;
-        }
-      }
-      .title {
-        display: flex;
-        h2 {
-          flex-grow: 1;
-        }
-      }
-    }
-
     .content-container {
       padding: 1rem;
 
