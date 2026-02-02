@@ -10,7 +10,7 @@
   let checkedIcon: string = $state('')
 
   onMount(async () => {
-    checkedIcon = dsfrIconList.filter((i) => i.name === icon.replace('fr-icon-', ''))
+    checkedIcon = dsfrIconList.filter((i) => i.name === icon?.replace('fr-icon-', ''))
       .length
       ? icon
       : defaultIcon
