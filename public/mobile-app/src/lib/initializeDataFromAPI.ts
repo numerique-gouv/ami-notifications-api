@@ -25,7 +25,9 @@ export const initializeData = async (
   let notifications: AppNotification[] = []
   notifications = await retrieveNotifications()
   localStorage.setItem('notifications', notifications.toString())
-  const unreadNotifications: AppNotification[] = notifications.filter((n) => !n.read)
+  const unreadNotifications: AppNotification[] = notifications.filter(
+    (notification) => !notification.read
+  )
   localStorage.setItem(
     'unreadNotificationsCount',
     unreadNotifications.length.toString()
