@@ -193,6 +193,76 @@ async def test_get_agenda_items(
         )
     ]
 
+    school_data_mock.reset_mock()
+    public_data_mock.reset_mock()
+    election_data_mock.reset_mock()
+    response = test_client.get(
+        "/data/agenda/items", params={"current_date": "2025-12-12", "filter-items": []}
+    )
+    assert response.json()["school_holidays"] is not None
+    assert response.json()["public_holidays"] is not None
+    assert response.json()["elections"] is not None
+    assert len(school_data_mock.call_args_list) == 1
+    assert len(public_data_mock.call_args_list) == 1
+    assert len(election_data_mock.call_args_list) == 1
+
+    school_data_mock.reset_mock()
+    public_data_mock.reset_mock()
+    election_data_mock.reset_mock()
+    response = test_client.get(
+        "/data/agenda/items", params={"current_date": "2025-12-12", "filter-items": ["unknown"]}
+    )
+    assert response.json()["school_holidays"] is not None
+    assert response.json()["public_holidays"] is not None
+    assert response.json()["elections"] is not None
+    assert len(school_data_mock.call_args_list) == 1
+    assert len(public_data_mock.call_args_list) == 1
+    assert len(election_data_mock.call_args_list) == 1
+
+    school_data_mock.reset_mock()
+    public_data_mock.reset_mock()
+    election_data_mock.reset_mock()
+    response = test_client.get(
+        "/data/agenda/items",
+        params={
+            "current_date": "2025-12-12",
+            "filter-items": ["school_holidays", "public_holidays", "elections", "unknown"],
+        },
+    )
+    assert response.json()["school_holidays"] is not None
+    assert response.json()["public_holidays"] is not None
+    assert response.json()["elections"] is not None
+    assert len(school_data_mock.call_args_list) == 1
+    assert len(public_data_mock.call_args_list) == 1
+    assert len(election_data_mock.call_args_list) == 1
+
+    school_data_mock.reset_mock()
+    public_data_mock.reset_mock()
+    election_data_mock.reset_mock()
+    response = test_client.get(
+        "/data/agenda/items", params={"current_date": "2025-12-12", "filter-items": ["elections"]}
+    )
+    assert response.json()["school_holidays"] is None
+    assert response.json()["public_holidays"] is None
+    assert response.json()["elections"] is not None
+    assert len(school_data_mock.call_args_list) == 0
+    assert len(public_data_mock.call_args_list) == 0
+    assert len(election_data_mock.call_args_list) == 1
+
+    school_data_mock.reset_mock()
+    public_data_mock.reset_mock()
+    election_data_mock.reset_mock()
+    response = test_client.get(
+        "/data/agenda/items",
+        params={"current_date": "2025-12-12", "filter-items": ["elections", "public_holidays"]},
+    )
+    assert response.json()["school_holidays"] is None
+    assert response.json()["public_holidays"] is not None
+    assert response.json()["elections"] is not None
+    assert len(school_data_mock.call_args_list) == 0
+    assert len(public_data_mock.call_args_list) == 1
+    assert len(election_data_mock.call_args_list) == 1
+
 
 async def test_get_agenda_items_without_auth(
     test_client: TestClient[Litestar],

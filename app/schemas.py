@@ -315,6 +315,6 @@ class AgendaCatalog:
 
 @dataclass
 class Agenda:
-    school_holidays: AgendaCatalog = field(default_factory=AgendaCatalog)
-    public_holidays: AgendaCatalog = field(default_factory=AgendaCatalog)
-    elections: AgendaCatalog = field(default_factory=AgendaCatalog)
+    school_holidays: AgendaCatalog | None = field(default_factory=AgendaCatalog)
+    public_holidays: AgendaCatalog | None = field(default_factory=AgendaCatalog)
+    elections: AgendaCatalog | None = field(default_factory=AgendaCatalog)

@@ -1,8 +1,9 @@
 import asyncio
 import datetime
-from typing import Any
+from typing import Annotated, Any
 
 from litestar import Request, Router, get
+from litestar.params import Parameter
 
 from app.data.holidays import (
     get_holidays_dates,
@@ -18,6 +19,7 @@ from app.schemas import Agenda
 async def get_agenda_items(
     request: Request[Any, Any, Any],
     current_date: datetime.date,
+    filter_items: Annotated[list[str] | None, Parameter(query="filter-items")],
     httpx_async_client: AsyncClient,
 ) -> Agenda:
     start_date, end_date = get_holidays_dates(current_date)
@@ -29,17 +31,23 @@ async def get_agenda_items(
         "elections": get_elections_catalog,
     }
 
+    item_keys = filter_items or []
+    item_keys = [f for f in item_keys if f in catalogs_mapping] or catalogs_mapping.keys()
+
     tasks: dict[str, asyncio.Task[Any]] = {}
     async with asyncio.TaskGroup() as task_group:
-        for catalog_name, catalog_function in catalogs_mapping.items():
+        for catalog_name in item_keys:
             tasks[catalog_name] = task_group.create_task(
-                catalog_function(
+                catalogs_mapping[catalog_name](
                     start_date=start_date,
                     end_date=end_date,
                     httpx_async_client=httpx_async_client,
                 )
             )
     for catalog_name in catalogs_mapping:
+        if catalog_name not in item_keys:
+            agenda.__dict__[catalog_name] = None
+            continue
         agenda.__dict__[catalog_name] = tasks[catalog_name].result()
     return agenda
 
