@@ -73,19 +73,25 @@ const catalogData = {
 describe('/api-catalog', () => {
   afterEach(() => {
     window.localStorage.clear()
+    vi.clearAllMocks()
   })
 
   describe('retrieveCatalog', () => {
     test('should get catalog from API', async () => {
       // Given
-      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-        new Response(JSON.stringify(catalogData), { status: 200 })
-      )
+      const spy = vi
+        .spyOn(globalThis, 'fetch')
+        .mockResolvedValue(new Response(JSON.stringify(catalogData), { status: 200 }))
 
       // When
       const result = await retrieveCatalog(new Date('2025-11-01T12:00:00Z'))
 
       // Then
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy).toHaveBeenCalledWith(
+        'https://localhost:8000/data/agenda/items?current_date=2025-11-01&filter-items=school_holidays&filter-items=public_holidays&filter-items=elections',
+        { credentials: 'include' }
+      )
       expect(result).toEqual({
         school_holidays: catalogData.school_holidays.items,
         public_holidays: catalogData.public_holidays.items,
@@ -104,14 +110,19 @@ describe('/api-catalog', () => {
 
     test('should get catalog from API - with error', async () => {
       // Given
-      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-        new Response('error', { status: 400 })
-      )
+      const spy = vi
+        .spyOn(globalThis, 'fetch')
+        .mockResolvedValue(new Response('error', { status: 400 }))
 
       // When
       const result = await retrieveCatalog(new Date('2025-11-01T12:00:00Z'))
 
       // Then
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy).toHaveBeenCalledWith(
+        'https://localhost:8000/data/agenda/items?current_date=2025-11-01&filter-items=school_holidays&filter-items=public_holidays&filter-items=elections',
+        { credentials: 'include' }
+      )
       expect(result).toEqual({
         school_holidays: [],
         public_holidays: [],
@@ -158,12 +169,12 @@ describe('/api-catalog', () => {
         'elections_catalog',
         JSON.stringify(catalogData.elections)
       )
-      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      const spy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
         new Response(
           JSON.stringify({
             school_holidays: catalogData.school_holidays,
-            public_holidays: { status: 'failed' }, // already in localstorage
-            elections: { status: 'failed' }, // already in localstorage
+            public_holidays: null,
+            elections: null,
           }),
           { status: 200 }
         )
@@ -173,6 +184,11 @@ describe('/api-catalog', () => {
       const result = await retrieveCatalog(new Date('2025-11-01T12:00:00Z'))
 
       // Then
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy).toHaveBeenCalledWith(
+        'https://localhost:8000/data/agenda/items?current_date=2025-11-01&filter-items=school_holidays',
+        { credentials: 'include' }
+      )
       expect(result).toEqual({
         school_holidays: catalogData.school_holidays.items,
         public_holidays: catalogData.public_holidays.items,
@@ -194,12 +210,12 @@ describe('/api-catalog', () => {
         'elections_catalog',
         JSON.stringify(catalogData.elections)
       )
-      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      const spy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
         new Response(
           JSON.stringify({
             school_holidays: catalogData.school_holidays,
-            public_holidays: { status: 'failed' }, // already in localstorage
-            elections: { status: 'failed' }, // already in localstorage
+            public_holidays: null,
+            elections: null,
           }),
           { status: 200 }
         )
@@ -209,6 +225,11 @@ describe('/api-catalog', () => {
       const result = await retrieveCatalog(new Date('2025-11-01T12:00:00Z'))
 
       // Then
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy).toHaveBeenCalledWith(
+        'https://localhost:8000/data/agenda/items?current_date=2025-11-01&filter-items=school_holidays',
+        { credentials: 'include' }
+      )
       expect(result).toEqual({
         school_holidays: catalogData.school_holidays.items,
         public_holidays: catalogData.public_holidays.items,
@@ -233,12 +254,12 @@ describe('/api-catalog', () => {
         'elections_catalog',
         JSON.stringify(catalogData.elections)
       )
-      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      const spy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
         new Response(
           JSON.stringify({
             school_holidays: catalogData.school_holidays,
-            public_holidays: { status: 'failed' }, // already in localstorage
-            elections: { status: 'failed' }, // already in localstorage
+            public_holidays: null,
+            elections: null,
           }),
           { status: 200 }
         )
@@ -248,6 +269,11 @@ describe('/api-catalog', () => {
       const result = await retrieveCatalog(new Date('2025-11-01T12:00:00Z'))
 
       // Then
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy).toHaveBeenCalledWith(
+        'https://localhost:8000/data/agenda/items?current_date=2025-11-01&filter-items=school_holidays',
+        { credentials: 'include' }
+      )
       expect(result).toEqual({
         school_holidays: catalogData.school_holidays.items,
         public_holidays: catalogData.public_holidays.items,
@@ -268,12 +294,12 @@ describe('/api-catalog', () => {
         'elections_catalog',
         JSON.stringify(catalogData.elections)
       )
-      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      const spy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
         new Response(
           JSON.stringify({
-            school_holidays: { status: 'failed' }, // already in localstorage
+            school_holidays: null,
             public_holidays: catalogData.public_holidays,
-            elections: { status: 'failed' }, // already in localstorage
+            elections: null,
           }),
           { status: 200 }
         )
@@ -283,6 +309,11 @@ describe('/api-catalog', () => {
       const result = await retrieveCatalog(new Date('2025-11-01T12:00:00Z'))
 
       // Then
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy).toHaveBeenCalledWith(
+        'https://localhost:8000/data/agenda/items?current_date=2025-11-01&filter-items=public_holidays',
+        { credentials: 'include' }
+      )
       expect(result).toEqual({
         school_holidays: catalogData.school_holidays.items,
         public_holidays: catalogData.public_holidays.items,
@@ -304,12 +335,12 @@ describe('/api-catalog', () => {
         'elections_catalog',
         JSON.stringify(catalogData.elections)
       )
-      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      const spy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
         new Response(
           JSON.stringify({
-            school_holidays: { status: 'failed' }, // already in localstorage
+            school_holidays: null,
             public_holidays: catalogData.public_holidays,
-            elections: { status: 'failed' }, // already in localstorage
+            elections: null,
           }),
           { status: 200 }
         )
@@ -319,6 +350,11 @@ describe('/api-catalog', () => {
       const result = await retrieveCatalog(new Date('2025-11-01T12:00:00Z'))
 
       // Then
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy).toHaveBeenCalledWith(
+        'https://localhost:8000/data/agenda/items?current_date=2025-11-01&filter-items=public_holidays',
+        { credentials: 'include' }
+      )
       expect(result).toEqual({
         school_holidays: catalogData.school_holidays.items,
         public_holidays: catalogData.public_holidays.items,
@@ -343,12 +379,12 @@ describe('/api-catalog', () => {
         'elections_catalog',
         JSON.stringify(catalogData.elections)
       )
-      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      const spy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
         new Response(
           JSON.stringify({
-            school_holidays: { status: 'failed' }, // already in localstorage
+            school_holidays: null,
             public_holidays: catalogData.public_holidays,
-            elections: { status: 'failed' }, // already in localstorage
+            elections: null,
           }),
           { status: 200 }
         )
@@ -358,6 +394,11 @@ describe('/api-catalog', () => {
       const result = await retrieveCatalog(new Date('2025-11-01T12:00:00Z'))
 
       // Then
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy).toHaveBeenCalledWith(
+        'https://localhost:8000/data/agenda/items?current_date=2025-11-01&filter-items=public_holidays',
+        { credentials: 'include' }
+      )
       expect(result).toEqual({
         school_holidays: catalogData.school_holidays.items,
         public_holidays: catalogData.public_holidays.items,
@@ -378,11 +419,11 @@ describe('/api-catalog', () => {
         'public_holidays_catalog',
         JSON.stringify(catalogData.public_holidays)
       )
-      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      const spy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
         new Response(
           JSON.stringify({
-            school_holidays: { status: 'failed' }, // already in localstorage
-            public_holidays: { status: 'failed' }, // already in localstorage
+            school_holidays: null,
+            public_holidays: null,
             elections: catalogData.elections,
           }),
           { status: 200 }
@@ -393,6 +434,11 @@ describe('/api-catalog', () => {
       const result = await retrieveCatalog(new Date('2025-11-01T12:00:00Z'))
 
       // Then
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy).toHaveBeenCalledWith(
+        'https://localhost:8000/data/agenda/items?current_date=2025-11-01&filter-items=elections',
+        { credentials: 'include' }
+      )
       expect(result).toEqual({
         school_holidays: catalogData.school_holidays.items,
         public_holidays: catalogData.public_holidays.items,
@@ -414,11 +460,11 @@ describe('/api-catalog', () => {
         JSON.stringify(catalogData.public_holidays)
       )
       window.localStorage.setItem('elections_catalog', 'wrong')
-      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      const spy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
         new Response(
           JSON.stringify({
-            school_holidays: { status: 'failed' }, // already in localstorage
-            public_holidays: { status: 'failed' }, // already in localstorage
+            school_holidays: null,
+            public_holidays: null,
             elections: catalogData.elections,
           }),
           { status: 200 }
@@ -429,6 +475,11 @@ describe('/api-catalog', () => {
       const result = await retrieveCatalog(new Date('2025-11-01T12:00:00Z'))
 
       // Then
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy).toHaveBeenCalledWith(
+        'https://localhost:8000/data/agenda/items?current_date=2025-11-01&filter-items=elections',
+        { credentials: 'include' }
+      )
       expect(result).toEqual({
         school_holidays: catalogData.school_holidays.items,
         public_holidays: catalogData.public_holidays.items,
@@ -453,11 +504,11 @@ describe('/api-catalog', () => {
         'elections_catalog',
         JSON.stringify({ status: 'failed' })
       )
-      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      const spy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
         new Response(
           JSON.stringify({
-            school_holidays: { status: 'failed' }, // already in localstorage
-            public_holidays: { status: 'failed' }, // already in localstorage
+            school_holidays: null,
+            public_holidays: null,
             elections: catalogData.elections,
           }),
           { status: 200 }
@@ -468,6 +519,11 @@ describe('/api-catalog', () => {
       const result = await retrieveCatalog(new Date('2025-11-01T12:00:00Z'))
 
       // Then
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy).toHaveBeenCalledWith(
+        'https://localhost:8000/data/agenda/items?current_date=2025-11-01&filter-items=elections',
+        { credentials: 'include' }
+      )
       expect(result).toEqual({
         school_holidays: catalogData.school_holidays.items,
         public_holidays: catalogData.public_holidays.items,

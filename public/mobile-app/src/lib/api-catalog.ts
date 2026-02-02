@@ -21,29 +21,31 @@ export const retrieveCatalog = async (date: Date | null = null): Promise<Catalog
   const today = date || new Date()
   today.setHours(0, 0, 0, 0)
   const current_date = today.toLocaleDateString('sv-SE') // this gives the locale date in ISO format ...
+  const filter_items = []
   const catalogData = {
     school_holidays: localStorage.getItem('school_holidays_catalog') || '{}',
     public_holidays: localStorage.getItem('public_holidays_catalog') || '{}',
     elections: localStorage.getItem('elections_catalog') || '{}',
   }
   type CatalogKey = keyof typeof catalogData
-  let refresh = false
-  for (const value of Object.values(catalogData)) {
+  for (const key of Object.keys(catalogData) as CatalogKey[]) {
     try {
-      const data = JSON.parse(value)
+      const data = JSON.parse(catalogData[key])
       if (!data || data.status !== 'success') {
-        refresh = true
-        break
+        filter_items.push(key)
       }
     } catch {
-      refresh = true
-      break
+      filter_items.push(key)
     }
   }
-  if (refresh) {
-    const response = await apiFetch(`/data/agenda/items?current_date=${current_date}`, {
-      credentials: 'include',
-    })
+  if (filter_items.length) {
+    const items = (filter_items || []).map((e) => `filter-items=${e}`).join('&')
+    const response = await apiFetch(
+      `/data/agenda/items?current_date=${current_date}&${items}`,
+      {
+        credentials: 'include',
+      }
+    )
     if (response.ok) {
       const catalog = await response.json()
       for (const key of Object.keys(catalogData) as CatalogKey[]) {
