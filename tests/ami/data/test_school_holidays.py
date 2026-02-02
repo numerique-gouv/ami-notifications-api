@@ -247,7 +247,9 @@ async def test_get_school_holidays_catalog(
     monkeypatch.setattr("app.data.holidays.get_school_holidays_data", data_mock)
     async with AsyncClient() as httpx_async_client:
         result = await get_school_holidays_catalog(
-            datetime.date(2025, 11, 12), datetime.date(2026, 9, 15), httpx_async_client
+            start_date=datetime.date(2025, 11, 12),
+            end_date=datetime.date(2026, 9, 15),
+            httpx_async_client=httpx_async_client,
         )
     items = [
         AgendaCatalogItem(
@@ -276,6 +278,8 @@ async def test_get_school_holidays_catalog_error(
     httpx_mock.add_response(status_code=HTTP_500_INTERNAL_SERVER_ERROR)
     async with AsyncClient() as httpx_async_client:
         result = await get_school_holidays_catalog(
-            datetime.date(2025, 11, 12), datetime.date(2026, 9, 15), httpx_async_client
+            start_date=datetime.date(2025, 11, 12),
+            end_date=datetime.date(2026, 9, 15),
+            httpx_async_client=httpx_async_client,
         )
     assert result == AgendaCatalog(status=AgendaCatalogStatus.FAILED)

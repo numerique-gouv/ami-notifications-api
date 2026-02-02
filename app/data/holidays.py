@@ -60,9 +60,11 @@ async def get_school_holidays_data(
 
 
 async def get_school_holidays_catalog(
+    *,
     start_date: datetime.date,
     end_date: datetime.date,
     httpx_async_client: AsyncClient,
+    **kwargs: Any,
 ) -> AgendaCatalog:
     catalog = AgendaCatalog()
     try:
@@ -100,8 +102,10 @@ def get_public_holidays_data(
 
 
 async def get_public_holidays_catalog(
+    *,
     start_date: datetime.date,
     end_date: datetime.date,
+    **kwargs: Any,
 ) -> AgendaCatalog:
     holidays = get_public_holidays_data(start_date, end_date)
     catalog = AgendaCatalog()

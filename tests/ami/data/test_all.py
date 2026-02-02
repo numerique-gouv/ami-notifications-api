@@ -172,11 +172,25 @@ async def test_get_agenda_items(
 
     assert dates_mock.call_args_list == [mock.call(datetime.date(2025, 12, 12))]
     assert school_data_mock.call_args_list == [
-        mock.call(today, today + datetime.timedelta(days=2), mock.ANY)
+        mock.call(
+            start_date=today,
+            end_date=today + datetime.timedelta(days=2),
+            httpx_async_client=mock.ANY,
+        )
     ]
-    assert public_data_mock.call_args_list == [mock.call(today, today + datetime.timedelta(days=2))]
+    assert public_data_mock.call_args_list == [
+        mock.call(
+            start_date=today,
+            end_date=today + datetime.timedelta(days=2),
+            httpx_async_client=mock.ANY,
+        )
+    ]
     assert election_data_mock.call_args_list == [
-        mock.call(today, today + datetime.timedelta(days=2))
+        mock.call(
+            start_date=today,
+            end_date=today + datetime.timedelta(days=2),
+            httpx_async_client=mock.ANY,
+        )
     ]
 
 
