@@ -1,4 +1,6 @@
 import { buildAgenda } from '$lib/agenda'
+import type { AppNotification } from '$lib/notifications'
+import { retrieveNotifications } from '$lib/notifications'
 import type { UserStore } from '$lib/state/User.svelte'
 
 export const initializeLocalStorage = async (searchParams: URLSearchParams) => {
@@ -19,4 +21,13 @@ export const initializeData = async (
   await initializeLocalStorage(searchParams)
   await userStore.checkLoggedIn()
   await buildAgenda()
+
+  let notifications: AppNotification[] = []
+  notifications = await retrieveNotifications()
+  localStorage.setItem('notifications', notifications.toString())
+  const unreadNotifications: AppNotification[] = notifications.filter((n) => !n.read)
+  localStorage.setItem(
+    'unreadNotificationsCount',
+    unreadNotifications.length.toString()
+  )
 }
