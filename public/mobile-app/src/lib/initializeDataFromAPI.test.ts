@@ -4,7 +4,36 @@ import { waitFor } from '@testing-library/svelte'
 import * as agendaMethods from '$lib/agenda'
 import { Agenda } from '$lib/agenda'
 import { initializeData, initializeLocalStorage } from '$lib/initializeDataFromAPI'
+import type { AppNotification } from '$lib/notifications'
+import * as notificationsMethods from '$lib/notifications'
 import { UserStore } from '$lib/state/User.svelte'
+
+const buildNotifications = (): AppNotification[] => {
+  return [
+    {
+      id: 'a2a57aea-0c3b-432f-9cff-818343af8116',
+      created_at: new Date('2026-02-02T14:54:28'),
+      user_id: '347f2d16-9f96-4cac-ab2e-0de04b470486',
+      content_title: 'test titre 2',
+      content_body: 'test message 2',
+      content_icon: 'test icon 2',
+      sender: 'test expéditeur 2',
+      item_external_url: 'test external url 2',
+      read: true,
+    },
+    {
+      id: '3e5abfc6-79f7-4480-85e9-c364d24fdbb4',
+      created_at: new Date('2026-02-02T14:54:09'),
+      user_id: '347f2d16-9f96-4cac-ab2e-0de04b470486',
+      content_title: 'test titre',
+      content_body: 'test message',
+      content_icon: 'test icon 2',
+      sender: 'test expéditeur',
+      item_external_url: 'test external url 2',
+      read: false,
+    },
+  ]
+}
 
 describe('/initializeDataFromAPI.ts', () => {
   describe('initializeLocalStorage', () => {
@@ -48,7 +77,11 @@ describe('/initializeDataFromAPI.ts', () => {
       const checkLoggedInSpy = vi.spyOn(userStore, 'checkLoggedIn')
       const buildAgendaSpy = vi
         .spyOn(agendaMethods, 'buildAgenda')
-        .mockResolvedValue(new Agenda([], []))
+        .mockResolvedValue(new Agenda())
+      const notifications: AppNotification[] = buildNotifications()
+      const retrieveNotificationsSpy = vi
+        .spyOn(notificationsMethods, 'retrieveNotifications')
+        .mockResolvedValue(notifications)
 
       // When
       await initializeData(searchParams, userStore)
@@ -56,6 +89,7 @@ describe('/initializeDataFromAPI.ts', () => {
       // Then
       expect(checkLoggedInSpy).toHaveBeenCalledTimes(1)
       expect(buildAgendaSpy).toHaveBeenCalledTimes(1)
+      expect(retrieveNotificationsSpy).toHaveBeenCalledTimes(1)
     })
   })
 })

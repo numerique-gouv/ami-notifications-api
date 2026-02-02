@@ -7,6 +7,10 @@ import {
   PUBLIC_CONTACT_EMAIL,
   PUBLIC_CONTACT_URL,
 } from '$env/static/public'
+import * as agendaMethods from '$lib/agenda'
+import { Agenda } from '$lib/agenda'
+import type { AppNotification } from '$lib/notifications'
+import * as notificationsMethods from '$lib/notifications'
 import { toastStore } from '$lib/state/toast.svelte'
 import { userStore } from '$lib/state/User.svelte'
 import { mockUserInfo } from '$tests/utils'
@@ -63,6 +67,11 @@ describe('/+page.svelte', () => {
     mockSearchParams.set('user_first_login', 'true')
     vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams)
     vi.spyOn(userStore, 'checkLoggedIn').mockResolvedValue()
+    vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(new Agenda())
+    const notifications: AppNotification[] = []
+    vi.spyOn(notificationsMethods, 'retrieveNotifications').mockResolvedValue(
+      notifications
+    )
     const spy = vi
       .spyOn(navigationMethods, 'goto')
       .mockImplementation(() => Promise.resolve())
@@ -84,6 +93,11 @@ describe('/+page.svelte', () => {
     mockSearchParams.set('user_first_login', 'false')
     vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams)
     vi.spyOn(userStore, 'checkLoggedIn').mockResolvedValue()
+    vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(new Agenda())
+    const notifications: AppNotification[] = []
+    vi.spyOn(notificationsMethods, 'retrieveNotifications').mockResolvedValue(
+      notifications
+    )
     const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue()
 
     // When

@@ -4,7 +4,7 @@ import type { WS as WSType } from 'vitest-websocket-mock'
 import WS from 'vitest-websocket-mock'
 import * as navigationMethods from '$app/navigation'
 import * as notificationsMethods from '$lib/notifications'
-import { PUBLIC_API_WS_URL } from '$lib/notifications'
+import { type AppNotification, PUBLIC_API_WS_URL } from '$lib/notifications'
 import { expectBackButtonPresent } from '$tests/utils'
 import Page from './+page.svelte'
 
@@ -13,6 +13,11 @@ let wss: WSType
 describe('/+page.svelte', () => {
   beforeEach(() => {
     wss = new WS(`${PUBLIC_API_WS_URL}/api/v1/users/notification/events/stream`)
+
+    const notifications: AppNotification[] = []
+    vi.spyOn(notificationsMethods, 'retrieveNotifications').mockResolvedValue(
+      notifications
+    )
   })
 
   afterEach(() => {
