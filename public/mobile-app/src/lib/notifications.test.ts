@@ -1,30 +1,38 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { waitFor } from '@testing-library/svelte';
+import type { AppNotification } from '$lib/notifications';
+import * as notificationMethods from '$lib/notifications';
 import {
   countUnreadNotifications,
   disableNotifications,
   enableNotifications,
   enableNotificationsAndUpdateLocalStorage,
+  fetchAndStoreNotifications,
+  getNotificationsFromStore,
   readNotification,
   retrieveNotifications,
   subscribePush,
   unsubscribePush,
 } from '$lib/notifications';
+import type { Registration } from '$lib/registration';
 import * as registrationMethods from '$lib/registration';
 import { mockPushSubscription } from '$tests/utils';
 
 describe('/notifications', () => {
   beforeEach(() => {
+    vi.resetAllMocks();
+    window.localStorage.clear();
     vi.mock('$lib/registration', () => ({
       registerDevice: vi.fn().mockReturnValue({ id: 'fake-registration-id' }),
       unregisterDevice: vi.fn(() => true),
     }));
   });
 
-  describe('retrieveNotifications', () => {
-    test('should get notifications from API', async () => {
+  describe('fetchAndStoreNotifications', () => {
+    test('should get notifications from API and store them to localStorage', async () => {
       // Given
+      window.localStorage.removeItem('notifications');
       const notifications = [
         {
           created_at: '2025-09-19T13:52:23.279545',
@@ -52,19 +60,79 @@ describe('/notifications', () => {
       );
 
       // When
-      const result = await retrieveNotifications();
+      await fetchAndStoreNotifications();
 
       // Then
-      expect(result).toEqual(notifications);
+      expect(window.localStorage.getItem('notifications')).toEqual(
+        JSON.stringify(notifications)
+      );
+    });
+
+    test('should not update notifications store in localStorage when API call fails', async () => {
+      // Given
+      const expectedNotifications: AppNotification[] = [];
+      window.localStorage.setItem(
+        'notifications',
+        JSON.stringify(expectedNotifications)
+      );
+      vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error());
+
+      // When
+      await fetchAndStoreNotifications();
+
+      // Then
+      expect(window.localStorage.getItem('notifications')).toEqual(
+        JSON.stringify(expectedNotifications)
+      );
     });
   });
 
-  describe('countUnreadNotifications', () => {
-    test('should count unread notifications from API', async () => {
+  describe('getNotificationsFromStore', () => {
+    test('should get notifications from localStorage and not from API', async () => {
       // Given
-      const notifications = [
+      const expectedNotifications: AppNotification[] = [];
+      window.localStorage.setItem(
+        'notifications',
+        JSON.stringify(expectedNotifications)
+      );
+      const spy = vi.spyOn(globalThis, 'fetch');
+
+      // When
+      const result = await getNotificationsFromStore();
+
+      // Then
+      expect(result).toEqual(expectedNotifications);
+      expect(spy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('getNotifications', () => {
+    test('should call fetchAndStoreNotifications then getNotificationsFromStore', async () => {
+      // Given
+      const expectedNotifications: AppNotification[] = [];
+      const fetchSpy = vi
+        .spyOn(notificationMethods, 'fetchAndStoreNotifications')
+        .mockResolvedValue(undefined);
+      const getSpy = vi
+        .spyOn(notificationMethods, 'getNotificationsFromStore')
+        .mockResolvedValue(expectedNotifications);
+
+      // When
+      const result = await notificationMethods.getNotifications();
+
+      // Then
+      expect(fetchSpy).toHaveBeenCalledOnce();
+      expect(getSpy).toHaveBeenCalledOnce();
+      expect(result).toEqual(expectedNotifications);
+    });
+  });
+
+  describe('retrieveNotifications', () => {
+    test('should call getNotifications', async () => {
+      // Given
+      const notifications: AppNotification[] = [
         {
-          created_at: '2025-09-19T13:52:23.279545',
+          created_at: new Date('2025-09-19T13:52:23.279545'),
           user_id: '3ac73f4f-4be2-456a-9c2e-ddff480d5767',
           sender: 'test 2',
           content_body: 'test 2',
@@ -73,9 +141,56 @@ describe('/notifications', () => {
           read: false,
           url: '',
         },
+        {
+          created_at: new Date('2025-09-19T12:59:04.950812'),
+          user_id: '3ac73f4f-4be2-456a-9c2e-ddff480d5767',
+          sender: 'test',
+          content_body: 'test',
+          id: '2689c3b3-e95c-4d73-b37d-55f430688af9',
+          content_title: 'test',
+          read: true,
+          url: '',
+        },
       ];
-      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-        new Response(JSON.stringify(notifications), { status: 200 })
+      vi.spyOn(notificationMethods, 'getNotifications').mockResolvedValue(
+        notifications
+      );
+
+      // When
+      const result = await retrieveNotifications();
+
+      // Then
+      expect(result).toEqual(notifications);
+    });
+  });
+
+  describe('countUnreadNotifications', () => {
+    test('should call getNotifications and filter unread notifications', async () => {
+      // Given
+      const notifications: AppNotification[] = [
+        {
+          created_at: new Date('2025-09-19T13:52:23.279545'),
+          user_id: '3ac73f4f-4be2-456a-9c2e-ddff480d5767',
+          sender: 'test 2',
+          content_body: 'test 2',
+          id: 'f62c66b2-7bd5-4696-883-2d40c08a1',
+          content_title: 'test 2',
+          read: false,
+          url: '',
+        },
+        {
+          created_at: new Date('2025-09-19T12:59:04.950812'),
+          user_id: '3ac73f4f-4be2-456a-9c2e-ddff480d5767',
+          sender: 'test',
+          content_body: 'test',
+          id: '2689c3b3-e95c-4d73-b37d-55f430688af9',
+          content_title: 'test',
+          read: true,
+          url: '',
+        },
+      ];
+      vi.spyOn(notificationMethods, 'getNotifications').mockResolvedValue(
+        notifications
       );
 
       // When
@@ -120,7 +235,7 @@ describe('/notifications', () => {
         requestPermission: () => Promise.resolve(true),
       });
       const pushSubscription = {};
-      const registration = {
+      const registrationForNavigator = {
         pushManager: {
           subscribe: vi.fn(() => pushSubscription),
         },
@@ -128,15 +243,20 @@ describe('/notifications', () => {
       vi.stubGlobal('navigator', {
         ...navigator,
         serviceWorker: {
-          ready: Promise.resolve(registration),
+          ready: Promise.resolve(registrationForNavigator),
         },
       });
       vi.spyOn(globalThis, 'fetch').mockResolvedValue(
         new Response('fake applicationKeyResponse', { status: 200 })
       );
-
-      window.localStorage.setItem('registration_id', '');
-      window.localStorage.setItem('notifications_enabled', '');
+      const mockSubscription = {} as PushSubscription;
+      const registration: Registration = {
+        id: 'fake-registration-id',
+        user_id: 'fake-user-id',
+        subscription: mockSubscription,
+        created_at: new Date(),
+      };
+      vi.spyOn(registrationMethods, 'registerDevice').mockResolvedValue(registration);
 
       // When
       await enableNotificationsAndUpdateLocalStorage();
