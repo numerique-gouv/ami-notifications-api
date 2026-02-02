@@ -23,20 +23,24 @@ async def get_agenda_items(
     start_date, end_date = get_holidays_dates(current_date)
     agenda = Agenda()
 
-    task_school_holidays = None
-    task_public_holidays = None
-    task_elections = None
+    catalogs_mapping = {
+        "school_holidays": get_school_holidays_catalog,
+        "public_holidays": get_public_holidays_catalog,
+        "elections": get_elections_catalog,
+    }
+
+    tasks: dict[str, asyncio.Task[Any]] = {}
     async with asyncio.TaskGroup() as task_group:
-        task_school_holidays = task_group.create_task(
-            get_school_holidays_catalog(start_date, end_date, httpx_async_client)
-        )
-        task_public_holidays = task_group.create_task(
-            get_public_holidays_catalog(start_date, end_date)
-        )
-        task_elections = task_group.create_task(get_elections_catalog(start_date, end_date))
-    agenda.school_holidays = task_school_holidays.result()
-    agenda.public_holidays = task_public_holidays.result()
-    agenda.elections = task_elections.result()
+        for catalog_name, catalog_function in catalogs_mapping.items():
+            tasks[catalog_name] = task_group.create_task(
+                catalog_function(
+                    start_date=start_date,
+                    end_date=end_date,
+                    httpx_async_client=httpx_async_client,
+                )
+            )
+    for catalog_name in catalogs_mapping:
+        agenda.__dict__[catalog_name] = tasks[catalog_name].result()
     return agenda
 
 

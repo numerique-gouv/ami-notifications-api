@@ -1,5 +1,5 @@
 import datetime
-from typing import TypedDict
+from typing import Any, TypedDict
 
 from app.schemas import AgendaCatalog, AgendaCatalogStatus, Election
 
@@ -38,8 +38,10 @@ def get_elections_data(
 
 
 async def get_elections_catalog(
+    *,
     start_date: datetime.date,
     end_date: datetime.date,
+    **kwargs: Any,
 ) -> AgendaCatalog:
     elections = get_elections_data(start_date, end_date)
     catalog = AgendaCatalog()
