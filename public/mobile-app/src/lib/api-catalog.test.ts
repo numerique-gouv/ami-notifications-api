@@ -87,8 +87,7 @@ describe('/api-catalog', () => {
       const result = await retrieveCatalog(new Date('2025-11-01T12:00:00Z'))
 
       // Then
-      expect(spy).toHaveBeenCalledTimes(1)
-      expect(spy).toHaveBeenCalledWith(
+      expect(spy).toHaveBeenCalledExactlyOnceWith(
         'https://localhost:8000/data/agenda/items?current_date=2025-11-01&filter-items=school_holidays&filter-items=public_holidays&filter-items=elections',
         { credentials: 'include' }
       )
@@ -118,8 +117,7 @@ describe('/api-catalog', () => {
       const result = await retrieveCatalog(new Date('2025-11-01T12:00:00Z'))
 
       // Then
-      expect(spy).toHaveBeenCalledTimes(1)
-      expect(spy).toHaveBeenCalledWith(
+      expect(spy).toHaveBeenCalledExactlyOnceWith(
         'https://localhost:8000/data/agenda/items?current_date=2025-11-01&filter-items=school_holidays&filter-items=public_holidays&filter-items=elections',
         { credentials: 'include' }
       )
@@ -184,8 +182,7 @@ describe('/api-catalog', () => {
       const result = await retrieveCatalog(new Date('2025-11-01T12:00:00Z'))
 
       // Then
-      expect(spy).toHaveBeenCalledTimes(1)
-      expect(spy).toHaveBeenCalledWith(
+      expect(spy).toHaveBeenCalledExactlyOnceWith(
         'https://localhost:8000/data/agenda/items?current_date=2025-11-01&filter-items=school_holidays',
         { credentials: 'include' }
       )
@@ -225,8 +222,7 @@ describe('/api-catalog', () => {
       const result = await retrieveCatalog(new Date('2025-11-01T12:00:00Z'))
 
       // Then
-      expect(spy).toHaveBeenCalledTimes(1)
-      expect(spy).toHaveBeenCalledWith(
+      expect(spy).toHaveBeenCalledExactlyOnceWith(
         'https://localhost:8000/data/agenda/items?current_date=2025-11-01&filter-items=school_holidays',
         { credentials: 'include' }
       )
@@ -269,8 +265,7 @@ describe('/api-catalog', () => {
       const result = await retrieveCatalog(new Date('2025-11-01T12:00:00Z'))
 
       // Then
-      expect(spy).toHaveBeenCalledTimes(1)
-      expect(spy).toHaveBeenCalledWith(
+      expect(spy).toHaveBeenCalledExactlyOnceWith(
         'https://localhost:8000/data/agenda/items?current_date=2025-11-01&filter-items=school_holidays',
         { credentials: 'include' }
       )
@@ -309,8 +304,7 @@ describe('/api-catalog', () => {
       const result = await retrieveCatalog(new Date('2025-11-01T12:00:00Z'))
 
       // Then
-      expect(spy).toHaveBeenCalledTimes(1)
-      expect(spy).toHaveBeenCalledWith(
+      expect(spy).toHaveBeenCalledExactlyOnceWith(
         'https://localhost:8000/data/agenda/items?current_date=2025-11-01&filter-items=public_holidays',
         { credentials: 'include' }
       )
@@ -350,8 +344,7 @@ describe('/api-catalog', () => {
       const result = await retrieveCatalog(new Date('2025-11-01T12:00:00Z'))
 
       // Then
-      expect(spy).toHaveBeenCalledTimes(1)
-      expect(spy).toHaveBeenCalledWith(
+      expect(spy).toHaveBeenCalledExactlyOnceWith(
         'https://localhost:8000/data/agenda/items?current_date=2025-11-01&filter-items=public_holidays',
         { credentials: 'include' }
       )
@@ -394,8 +387,7 @@ describe('/api-catalog', () => {
       const result = await retrieveCatalog(new Date('2025-11-01T12:00:00Z'))
 
       // Then
-      expect(spy).toHaveBeenCalledTimes(1)
-      expect(spy).toHaveBeenCalledWith(
+      expect(spy).toHaveBeenCalledExactlyOnceWith(
         'https://localhost:8000/data/agenda/items?current_date=2025-11-01&filter-items=public_holidays',
         { credentials: 'include' }
       )
@@ -434,8 +426,7 @@ describe('/api-catalog', () => {
       const result = await retrieveCatalog(new Date('2025-11-01T12:00:00Z'))
 
       // Then
-      expect(spy).toHaveBeenCalledTimes(1)
-      expect(spy).toHaveBeenCalledWith(
+      expect(spy).toHaveBeenCalledExactlyOnceWith(
         'https://localhost:8000/data/agenda/items?current_date=2025-11-01&filter-items=elections',
         { credentials: 'include' }
       )
@@ -475,8 +466,7 @@ describe('/api-catalog', () => {
       const result = await retrieveCatalog(new Date('2025-11-01T12:00:00Z'))
 
       // Then
-      expect(spy).toHaveBeenCalledTimes(1)
-      expect(spy).toHaveBeenCalledWith(
+      expect(spy).toHaveBeenCalledExactlyOnceWith(
         'https://localhost:8000/data/agenda/items?current_date=2025-11-01&filter-items=elections',
         { credentials: 'include' }
       )
@@ -519,8 +509,7 @@ describe('/api-catalog', () => {
       const result = await retrieveCatalog(new Date('2025-11-01T12:00:00Z'))
 
       // Then
-      expect(spy).toHaveBeenCalledTimes(1)
-      expect(spy).toHaveBeenCalledWith(
+      expect(spy).toHaveBeenCalledExactlyOnceWith(
         'https://localhost:8000/data/agenda/items?current_date=2025-11-01&filter-items=elections',
         { credentials: 'include' }
       )
