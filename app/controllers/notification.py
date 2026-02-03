@@ -230,8 +230,6 @@ class PartnerNotificationController(Controller):
         current_partner: Partner,
         httpx_async_client: AsyncClient,
     ) -> Response[schemas.NotificationResponse]:
-        notification_send_status = True
-
         user: models.User | None = await users_with_registrations_service.get_one_or_none(
             fc_hash=data.recipient_fc_hash
         )
@@ -253,6 +251,7 @@ class PartnerNotificationController(Controller):
         if notification_data["content_icon"] is None:
             notification_data["content_icon"] = current_partner.icon or "fr-icon-mail-star-line"
         notification_data["sender"] = current_partner.name
+        notification_data["send_status"] = notification_send_status
         notification: models.Notification = await notifications_service.create(
             models.Notification(user_id=user.id, **notification_data)
         )

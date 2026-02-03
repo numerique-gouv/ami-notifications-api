@@ -63,6 +63,7 @@ async def test_admin_create_notification_from_test_and_from_app_context(
     assert notification2.content_title == "Some notification title"
     assert notification2.sender == "Jane Doe"
     assert notification2.try_push is None
+    assert notification2.send_status is None
     assert notification2.read is False
     assert response.json() == {
         "notification_id": str(notification2.id),

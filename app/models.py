@@ -77,6 +77,7 @@ class Notification(Base):
     )
 
     try_push: Mapped[bool | None]
+    send_status: Mapped[bool | None]
 
     read: Mapped[bool] = mapped_column(default=False)
 

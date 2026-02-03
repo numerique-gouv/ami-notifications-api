@@ -84,6 +84,7 @@ async def test_create_webpush_notification(
     )
     assert notification2.sender == "PSL"
     assert notification2.try_push is True
+    assert notification2.send_status is True
     assert notification2.read is False
     assert response.json() == {
         "notification_id": str(notification2.id),
@@ -152,6 +153,7 @@ async def test_create_mobile_notification(
     )
     assert notification2.sender == "PSL"
     assert notification2.try_push is True
+    assert notification2.send_status is True
     assert notification2.read is False
     assert response.json() == {
         "notification_id": str(notification2.id),
@@ -197,6 +199,7 @@ async def test_create_notification_dont_try_push(
     assert len(all_notifications) == 1
     notification = all_notifications[0]
     assert notification.try_push is False
+    assert notification.send_status is True
     assert not httpx_mock.get_request()
 
 
@@ -246,6 +249,7 @@ async def test_create_notification_user_does_not_exist(
     )
     assert notification.sender == "PSL"
     assert notification.try_push is True
+    assert notification.send_status is False
     assert notification.read is False
     assert response.json() == {
         "notification_id": str(notification.id),
