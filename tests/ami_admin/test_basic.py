@@ -8,6 +8,28 @@ from pytest_httpx import HTTPXMock
 
 from tests.base import ConnectedTestClient
 
+from .utils import check_url_access
+
+
+async def test_ami_admin_home_when_logged_in(
+    connected_test_client: ConnectedTestClient,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr("app.admin.auth.AMI_ADMIN_RESTRICTED_ACCESS", "false")
+    response = connected_test_client.get("/ami_admin", follow_redirects=False)
+    assert "/ami_admin/liste-des-usagers" in response.text
+    assert "ProConnect" not in response.text
+
+    await check_url_access("/ami_admin", connected_test_client, monkeypatch)
+
+
+async def test_ami_admin_home_when_logged_out(
+    test_client: TestClient[Litestar],
+) -> None:
+    response = test_client.get("/ami_admin")
+    assert "/ami_admin/liste-des-usagers" not in response.text
+    assert "ProConnect" in response.text
+
 
 async def test_ami_admin_login_callback(
     test_client: TestClient[Litestar],
@@ -38,6 +60,7 @@ async def test_ami_admin_login_callback(
         return userinfo
 
     monkeypatch.setattr("jwt.decode", fake_jwt_decode)
+    monkeypatch.setattr("app.admin.auth.AMI_ADMIN_RESTRICTED_ACCESS", "false")
 
     response = test_client.get("/ami_admin/login-callback?code=fake-code&state=fake-state")
 
@@ -58,7 +81,8 @@ async def test_rvo_login_callback_token_query_failure(
     token_failure_response = {
         "error": "invalid_grant",
         "error_description": " grant request is invalid (authorization code not found)",
-        "error_uri": "https://docs.partenaires.franceconnect.gouv.fr/fs/fs-technique/fs-technique-erreurs/?code=Y049E20B&id=801d508c-72d7-459d-8947-104cf89ce015",
+        "error_uri": "https://docs.partenaires.franceconnect.gouv.fr/fs/fs-technique/"
+        "fs-technique-erreurs/?code=Y049E20B&id=801d508c-72d7-459d-8947-104cf89ce015",
     }
     httpx_mock.add_response(
         method="POST",
@@ -103,6 +127,15 @@ async def test_ami_admin_logout_callback(
         "/ami_admin/logout-callback?state=fake-state", follow_redirects=False
     )
     assert response.status_code == 302
-    # As the user was properly logged out from PC, the local session is now emptied, and the user redirected to the fake service provider.
+    # As the user was properly logged out from PC, the local session is now emptied,
+    # and the user redirected to the fake service provider.
     assert response.headers["location"] == "/ami_admin/logged_out"
     assert connected_test_client.get_session_data() == {}
+
+
+async def test_ami_admin_unauthorized_when_logged_in(
+    connected_test_client: ConnectedTestClient,
+) -> None:
+    response = connected_test_client.get("/ami_admin/unauthorized")
+    assert "/ami_admin/logout" in response.text
+    assert "Accès non autorisé." in response.text
