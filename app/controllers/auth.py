@@ -61,7 +61,6 @@ class AuthController(Controller):
                 "nonce": NONCE,
                 "acr_values": "eidas1",
                 "prompt": "login",
-                "idp_hint": env.PUBLIC_FC_AMI_IDP_HINT,
             }
 
             login_url = f"{env.PUBLIC_FC_BASE_URL}{env.PUBLIC_FC_AUTHORIZATION_ENDPOINT}"
