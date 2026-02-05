@@ -20,6 +20,15 @@ export type AppNotification = {
   read: boolean
 }
 
+export const getNotificationsFromLocalStorage = (): AppNotification[] => {
+  let notifications = [] as AppNotification[]
+  const notificationsString: string = localStorage.getItem('notifications') || ''
+  if (notificationsString != null) {
+    notifications = JSON.parse(notificationsString)
+  }
+  return notifications
+}
+
 export const retrieveNotifications = async (): Promise<AppNotification[]> => {
   let notifications = [] as AppNotification[]
   try {
@@ -30,41 +39,26 @@ export const retrieveNotifications = async (): Promise<AppNotification[]> => {
       notifications = await response.json()
       localStorage.setItem('notifications', notifications.toString())
     } else {
-      const notificationsString: string = localStorage.getItem('notifications') || ''
-      if (notificationsString != null) {
-        notifications = JSON.parse(notificationsString)
-      }
-      console.log(notifications)
+      notifications = getNotificationsFromLocalStorage()
     }
   } catch (error) {
-    // Prendre la valeur du localStorage si on est en erreur ?
     console.error(error)
+    notifications = getNotificationsFromLocalStorage()
   }
   console.log('notifications', notifications)
   return notifications
 }
 
 export const countUnreadNotifications = async (): Promise<number> => {
-  let notificationsCount: number = 0
-  let notifications = [] as AppNotification[]
-
-  try {
-    notifications = await retrieveNotifications()
-    const unreadNotifications: AppNotification[] = notifications.filter(
-      (notification) => !notification.read
-    )
-    // Vérifier le cas du undefined
-    // Mettre 0 par défaut ? C'est mis à 0 dans ConnectedHomepage ligne 14
-    notificationsCount = unreadNotifications.length
-    localStorage.setItem(
-      'unreadNotificationsCount',
-      unreadNotifications.length.toString()
-    )
-  } catch (error) {
-    // Prendre la valeur du localStorage si on est en erreur ?
-    console.error(error)
-  }
-  return notificationsCount
+  const notifications: AppNotification[] = await retrieveNotifications()
+  const unreadNotifications: AppNotification[] = notifications.filter(
+    (notification) => !notification.read
+  )
+  localStorage.setItem(
+    'unreadNotificationsCount',
+    unreadNotifications.length.toString()
+  )
+  return unreadNotifications.length
 }
 
 export const readNotification = async (
