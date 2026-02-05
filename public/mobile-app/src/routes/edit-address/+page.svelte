@@ -143,7 +143,7 @@
     </p>
 
     <form autocomplete="on" class="address-form">
-      <fieldset class="fr-fieldset" aria-labelledby="text-legend text-messages">
+      <fieldset class="fr-fieldset">
         <div class="fr-fieldset__element">
           <div
             class="fr-input-group autocomplete {addressInputHasError ? 'fr-input-group--error' : ''}"
@@ -193,16 +193,6 @@
             </ul>
           {/if}
         </div>
-        <div
-          class="fr-messages-group data-update-info"
-          id="text-messages"
-          aria-live="polite"
-        >
-          {#if address_origin == 'user' && address_last_update}
-            Vous avez modifié cette information le
-            {formatDate(address_last_update)}.
-          {/if}
-        </div>
       </fieldset>
     </form>
 
@@ -227,6 +217,13 @@
             <span class="fr-icon-close-line" aria-hidden="true"></span>
           </button>
         </div>
+      </div>
+    {/if}
+
+    {#if address_origin == 'user' && address_last_update}
+      <div class="data-update-info">
+        Vous avez modifié cette information le
+        {formatDate(address_last_update)}.
       </div>
     {/if}
   </div>
@@ -277,11 +274,6 @@
             margin: 0;
           }
         }
-        .data-update-info {
-          font-size: 0.75rem;
-          line-height: 1.25rem;
-          color: var(--text-mention-grey);
-        }
 
         .fr-input-group:not(:last-child) {
           margin-bottom: 0;
@@ -325,6 +317,12 @@
             color: var(--text-inverted-blue-france);
           }
         }
+      }
+      .data-update-info {
+        margin-top: 1.5rem;
+        font-size: 0.75rem;
+        line-height: 1.25rem;
+        color: var(--text-mention-grey);
       }
     }
 

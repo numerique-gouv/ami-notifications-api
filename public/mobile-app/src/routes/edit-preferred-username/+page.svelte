@@ -49,7 +49,7 @@
     <p>Vous pouvez modifier uniquement les champs ci-dessous.</p>
 
     <form autocomplete="on">
-      <fieldset class="fr-fieldset" aria-labelledby="text-messages">
+      <fieldset class="fr-fieldset">
         <div class="fr-fieldset__element">
           <div class="fr-input-group autocomplete">
             <label class="fr-label" for="input">Nom d'usage</label>
@@ -64,18 +64,14 @@
             >
           </div>
         </div>
-        <div
-          class="fr-messages-group data-update-info"
-          id="text-messages"
-          aria-live="polite"
-        >
-          {#if preferred_username_origin == 'user' && preferred_username_last_update}
-            Vous avez modifié cette information le
-            {formatDate(preferred_username_last_update)}.
-          {/if}
-        </div>
       </fieldset>
     </form>
+    {#if preferred_username_origin == 'user' && preferred_username_last_update}
+      <div class="data-update-info">
+        Vous avez modifié cette information le
+        {formatDate(preferred_username_last_update)}.
+      </div>
+    {/if}
   </div>
 
   <ul class="fr-btns-group action-buttons">
@@ -123,11 +119,14 @@
             margin: 0;
           }
         }
-        .data-update-info {
-          font-size: 0.75rem;
-          line-height: 1.25rem;
-          color: var(--text-mention-grey);
+        .fr-fieldset {
+          margin-bottom: 0.5rem;
         }
+      }
+      .data-update-info {
+        font-size: 0.75rem;
+        line-height: 1.25rem;
+        color: var(--text-mention-grey);
       }
     }
 
