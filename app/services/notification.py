@@ -8,7 +8,7 @@ from firebase_admin.messaging import UnregisteredError
 from litestar.channels import ChannelsPlugin
 from webpush import WebPush
 
-from app import models, schemas
+from app import models, schemas, sentry
 from app.database import alchemy_config
 from app.httpx import AsyncClient
 from app.services.registration import RegistrationService
@@ -110,7 +110,7 @@ class NotificationService(service.SQLAlchemyAsyncRepositoryService[models.Notifi
                     )
                     try:
                         response = messaging.send(message)
-
+                        sentry.add_counter("notification.pushed")
                     except UnregisteredError:
                         logger.warning(
                             f"FCM token is invalid or expired for device. Token should be removed: {registration.typed_subscription.fcm_token}"
