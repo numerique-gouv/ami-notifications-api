@@ -28,8 +28,16 @@ export const retrieveNotifications = async (): Promise<AppNotification[]> => {
     })
     if (response.status === 200) {
       notifications = await response.json()
+      localStorage.setItem('notifications', notifications.toString())
+    } else {
+      const notificationsString: string = localStorage.getItem('notifications') || ''
+      if (notificationsString != null) {
+        notifications = JSON.parse(notificationsString)
+      }
+      console.log(notifications)
     }
   } catch (error) {
+    // Prendre la valeur du localStorage si on est en erreur ?
     console.error(error)
   }
   console.log('notifications', notifications)
@@ -37,18 +45,26 @@ export const retrieveNotifications = async (): Promise<AppNotification[]> => {
 }
 
 export const countUnreadNotifications = async (): Promise<number> => {
+  let notificationsCount: number = 0
   let notifications = [] as AppNotification[]
+
   try {
-    const response = await apiFetch('/api/v1/users/notifications?read=false', {
-      credentials: 'include',
-    })
-    if (response.status === 200) {
-      notifications = await response.json()
-    }
+    notifications = await retrieveNotifications()
+    const unreadNotifications: AppNotification[] = notifications.filter(
+      (notification) => !notification.read
+    )
+    // Vérifier le cas du undefined
+    // Mettre 0 par défaut ? C'est mis à 0 dans ConnectedHomepage ligne 14
+    notificationsCount = unreadNotifications.length
+    localStorage.setItem(
+      'unreadNotificationsCount',
+      unreadNotifications.length.toString()
+    )
   } catch (error) {
+    // Prendre la valeur du localStorage si on est en erreur ?
     console.error(error)
   }
-  return notifications.length
+  return notificationsCount
 }
 
 export const readNotification = async (

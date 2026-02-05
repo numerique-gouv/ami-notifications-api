@@ -77,7 +77,7 @@ describe('/initializeDataFromAPI.ts', () => {
       const checkLoggedInSpy = vi.spyOn(userStore, 'checkLoggedIn')
       const buildAgendaSpy = vi
         .spyOn(agendaMethods, 'buildAgenda')
-        .mockResolvedValue(new Agenda([], []))
+        .mockResolvedValue(new Agenda())
       const notifications: AppNotification[] = []
       const retrieveNotificationsSpy = vi
         .spyOn(notificationsMethods, 'retrieveNotifications')
@@ -98,7 +98,7 @@ describe('/initializeDataFromAPI.ts', () => {
 
       const userStore = new UserStore()
       vi.spyOn(userStore, 'checkLoggedIn')
-      vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(new Agenda([], []))
+      vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(new Agenda())
       const expectedNotifications: AppNotification[] = buildNotifications()
       vi.spyOn(notificationsMethods, 'retrieveNotifications').mockResolvedValue(
         expectedNotifications
