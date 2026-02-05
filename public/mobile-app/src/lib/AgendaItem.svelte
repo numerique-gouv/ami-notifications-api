@@ -18,11 +18,12 @@
 <div class="agenda--item">
   {#if displayDate}
     <div class="agenda--item--date">
-      <span class="day-name"
-        ><span aria-hidden="true">{item.dayName}</span><span class="fr-sr-only"
+      <span class="day-name">
+        <span aria-hidden="true">{item.dayName}</span><span class="fr-sr-only"
           >{item.fullDayName}</span
-        ></span
-      > <span class="day-num">{item.dayNum}</span> 
+        >
+      </span>
+      <span class="day-num">{item.dayNum}</span> 
     </div>
   {/if}
   <div
@@ -62,6 +63,8 @@
     display: flex;
     margin-bottom: 0.75rem;
     .agenda--item--date {
+      display: flex;
+      flex-direction: column;
       width: 2rem;
       color: #000;
       text-align: center;
@@ -141,6 +144,10 @@
           &.otv {
             color: var(--text-action-high-green-archipel);
             background-color: var(--background-alt-green-archipel);
+          }
+          &.election {
+            color: var(--text-action-high-green-tilleul-verveine);
+            background-color: var(--background-contrast-green-tilleul-verveine);
           }
           &.custom {
             color: #fff;

@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, test, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 import { Agenda, buildAgenda, Item } from '$lib/agenda'
-import * as holidaysMethods from '$lib/api-holidays'
+import * as catalogMethods from '$lib/api-catalog'
 import * as scheduledNotificationsMethods from '$lib/scheduled-notifications'
 import { userStore } from '$lib/state/User.svelte'
 import { mockUserIdentity, mockUserInfo } from '$tests/utils'
@@ -226,16 +226,24 @@ describe('/agenda.ts', () => {
           new Date('2025-12-20')
         )
         const item3 = new Item('otv', 'title', 'description', new Date('2025-12-20'))
+        const item4 = new Item(
+          'election',
+          'title',
+          'description',
+          new Date('2025-12-20')
+        )
 
         // When
         const label1 = item1.label
         const label2 = item2.label
         const label3 = item3.label
+        const label4 = item4.label
 
         // Then
         expect(label1).equal('')
         expect(label2).equal('Vacances et jours fériés')
         expect(label3).equal('Logement')
+        expect(label4).equal('Élections')
       })
     })
     describe('icon', () => {
@@ -255,16 +263,24 @@ describe('/agenda.ts', () => {
           new Date('2025-12-20')
         )
         const item3 = new Item('otv', 'title', 'description', new Date('2025-12-20'))
+        const item4 = new Item(
+          'election',
+          'title',
+          'description',
+          new Date('2025-12-20')
+        )
 
         // When
         const icon1 = item1.icon
         const icon2 = item2.icon
         const icon3 = item3.icon
+        const icon4 = item4.icon
 
         // Then
         expect(icon1).equal('')
         expect(icon2).equal('fr-icon-calendar-event-fill')
         expect(icon3).equal('fr-icon-home-4-fill')
+        expect(icon4).equal('fr-icon-chat-check-fill')
       })
     })
     describe('link', () => {
@@ -284,16 +300,24 @@ describe('/agenda.ts', () => {
           new Date('2025-12-20')
         )
         const item3 = new Item('otv', 'title', 'description', new Date('2025-12-20'))
+        const item4 = new Item(
+          'election',
+          'title',
+          'description',
+          new Date('2025-12-20')
+        )
 
         // When
         const link1 = item1.link
         const link2 = item2.link
         const link3 = item3.link
+        const link4 = item4.link
 
         // Then
         expect(link1).equal('')
         expect(link2).equal('')
         expect(link3).equal('/#/procedure')
+        expect(link4).equal('')
       })
     })
   })
@@ -307,60 +331,108 @@ describe('/agenda.ts', () => {
       // Given
       vi.stubEnv('TZ', 'Europe/Paris')
       const holiday1 = {
-        description: 'Holiday 1',
+        kind: 'holiday',
+        title: 'Holiday 1',
+        description: '',
+        date: null,
         start_date: new Date('2025-09-20T23:00:00Z'),
         end_date: new Date('2025-12-15T23:00:00Z'),
         zones: 'Zone',
         emoji: 'foo',
       }
       const holiday2 = {
-        description: 'Holiday 2',
+        kind: 'holiday',
+        title: 'Holiday 2',
+        description: '',
+        date: null,
         start_date: new Date('2025-10-20T23:00:00Z'),
         end_date: new Date('2025-11-15T23:00:00Z'),
         zones: 'Zone',
         emoji: '',
       }
       const holiday3 = {
-        description: 'Holiday 3',
+        kind: 'holiday',
+        title: 'Holiday 3',
+        description: '',
+        date: null,
         start_date: new Date('2025-11-20T23:00:00Z'),
         end_date: new Date('2025-12-15T23:00:00Z'),
         zones: '',
         emoji: 'foo',
       }
       const holiday4 = {
-        description: 'Holiday 4',
+        kind: 'holiday',
+        title: 'Holiday 4',
+        description: '',
+        date: null,
         start_date: new Date('2025-11-30T23:00:00Z'),
         end_date: new Date('2025-12-16T23:00:00Z'),
         zones: '',
         emoji: '',
       }
       const holiday5 = {
-        description: 'Holiday 5',
+        kind: 'holiday',
+        title: 'Holiday 5',
+        description: '',
+        date: null,
         start_date: new Date('2025-12-20T23:00:00Z'),
         end_date: new Date('2025-12-24T23:00:00Z'),
         zones: '',
         emoji: '',
       }
       const holiday6 = {
-        description: 'Day 6',
+        kind: 'holiday',
+        title: 'Day 6',
+        description: '',
         date: new Date('2025-11-11T23:00:00Z'),
+        start_date: null,
+        end_date: null,
+        zones: '',
         emoji: 'bar',
       }
       const holiday7 = {
-        description: 'Day 7',
+        kind: 'holiday',
+        title: 'Day 7',
+        description: '',
         date: new Date('2025-12-10T23:00:00Z'),
+        start_date: null,
+        end_date: null,
+        zones: '',
+        emoji: '',
+      }
+      const election1 = {
+        kind: 'election',
+        title: 'Election1',
+        description: 'description',
+        date: new Date('2025-11-11T24:00:00Z'),
+        start_date: null,
+        end_date: null,
+        zones: '',
+        emoji: 'bar',
+      }
+      const election2 = {
+        kind: 'election',
+        title: 'Election2',
+        description: 'description',
+        date: new Date('2025-12-10T24:00:00Z'),
+        start_date: null,
+        end_date: null,
+        zones: '',
         emoji: '',
       }
 
       // When
       const agenda = new Agenda(
-        [holiday1, holiday2, holiday3, holiday4, holiday5],
-        [holiday6, holiday7],
+        {
+          school_holidays: [holiday1, holiday2, holiday3, holiday4, holiday5],
+          public_holidays: [holiday6, holiday7],
+          elections: [election1, election2],
+        },
         new Date('2025-11-01T12:00:00Z')
       )
 
       // Then
-      expect(agenda.now.length).equal(9)
+      expect(agenda.now.length).equal(8)
       expect(
         agenda.now[0].equals(
           new Item(
@@ -423,19 +495,19 @@ describe('/agenda.ts', () => {
       ).toBe(true)
       expect(
         agenda.now[5].equals(
-          new Item(
-            'otv',
-            'Opération Tranquillité Vacances 🏠',
-            'Inscrivez-vous pour protéger votre domicile pendant votre absence',
-            null,
-            new Date('2025-11-09T23:00:00Z'),
-            null
-          )
+          new Item('holiday', 'Day 6 bar', null, holiday6.date, null, null)
         )
       ).toBe(true)
       expect(
         agenda.now[6].equals(
-          new Item('holiday', 'Day 6 bar', null, holiday6.date, null, null)
+          new Item(
+            'election',
+            'Election1 bar',
+            'description',
+            election1.date,
+            null,
+            null
+          )
         )
       ).toBe(true)
       expect(
@@ -450,19 +522,7 @@ describe('/agenda.ts', () => {
           )
         )
       ).toBe(true)
-      expect(
-        agenda.now[8].equals(
-          new Item(
-            'otv',
-            'Opération Tranquillité Vacances 🏠',
-            'Inscrivez-vous pour protéger votre domicile pendant votre absence',
-            null,
-            new Date('2025-11-29T23:00:00Z'),
-            null
-          )
-        )
-      ).toBe(true)
-      expect(agenda.next.length).equal(3)
+      expect(agenda.next.length).equal(4)
       expect(
         agenda.next[0].equals(
           new Item(
@@ -482,6 +542,11 @@ describe('/agenda.ts', () => {
       ).toBe(true)
       expect(
         agenda.next[2].equals(
+          new Item('election', 'Election2', 'description', election2.date, null, null)
+        )
+      ).toBe(true)
+      expect(
+        agenda.next[3].equals(
           new Item(
             'holiday',
             'Holiday 5',
@@ -493,33 +558,57 @@ describe('/agenda.ts', () => {
         )
       ).toBe(true)
     })
-    test('should not display past holidays or OTV related to past holidays', async () => {
+    test('should not display past items or OTV related to past holidays', async () => {
       // Given
       vi.stubEnv('TZ', 'Europe/Paris')
       const holiday1 = {
-        description: 'Holiday',
+        kind: 'holiday',
+        title: 'Holiday',
+        description: '',
+        date: null,
         start_date: new Date('2026-02-06T23:00:00Z'),
         end_date: new Date('2026-02-22T23:00:00Z'),
         zones: 'Zone A',
         emoji: 'foo',
       }
       const holiday2 = {
-        description: 'Holiday',
+        kind: 'holiday',
+        title: 'Holiday',
+        description: '',
+        date: null,
         start_date: new Date('2026-02-13T23:00:00Z'),
         end_date: new Date('2026-03-01T23:00:00Z'),
         zones: 'Zone B',
         emoji: 'foo',
       }
       const holiday3 = {
-        description: 'Day',
+        kind: 'holiday',
+        title: 'Day',
+        description: '',
         date: new Date('2026-02-02T23:00:00Z'),
+        start_date: null,
+        end_date: null,
+        zones: '',
+        emoji: '',
+      }
+      const election = {
+        kind: 'election',
+        title: 'Election',
+        description: '',
+        date: new Date('2026-02-02T23:00:00Z'),
+        start_date: null,
+        end_date: null,
+        zones: '',
         emoji: '',
       }
 
       // When
       const agenda = new Agenda(
-        [holiday1, holiday2],
-        [holiday3],
+        {
+          school_holidays: [holiday1, holiday2],
+          public_holidays: [holiday3],
+          elections: [election],
+        },
         new Date('2026-02-24T12:00:00Z')
       )
 
@@ -531,14 +620,20 @@ describe('/agenda.ts', () => {
       // Given
       vi.stubEnv('TZ', 'Europe/Paris')
       const holiday1 = {
-        description: 'Holiday',
+        kind: 'holiday',
+        title: 'Holiday',
+        description: '',
+        date: null,
         start_date: new Date('2026-02-06T23:00:00Z'),
         end_date: new Date('2026-02-22T23:00:00Z'),
         zones: 'Zone',
         emoji: 'foo',
       }
       const holiday2 = {
-        description: 'Holiday',
+        kind: 'holiday',
+        title: 'Holiday',
+        description: '',
+        date: null,
         start_date: new Date('2026-02-13T23:00:00Z'),
         end_date: new Date('2026-03-01T23:00:00Z'),
         zones: 'Zone',
@@ -547,8 +642,11 @@ describe('/agenda.ts', () => {
 
       // When
       const agenda = new Agenda(
-        [holiday1, holiday2],
-        [],
+        {
+          school_holidays: [holiday1, holiday2],
+          public_holidays: [],
+          elections: [],
+        },
         new Date('2026-02-01T12:00:00Z')
       )
 
@@ -564,37 +662,54 @@ describe('/agenda.ts', () => {
       ).mockResolvedValue(true)
       localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity))
       const holiday1 = {
-        description: 'Holiday',
+        kind: 'holiday',
+        title: 'Holiday',
+        description: '',
+        date: null,
         start_date: new Date('2026-02-06T23:00:00Z'),
         end_date: new Date('2026-02-22T23:00:00Z'),
         zones: 'Zone A',
         emoji: 'foo',
       }
       const holiday2 = {
-        description: 'Holiday',
+        kind: 'holiday',
+        title: 'Holiday',
+        description: '',
+        date: null,
         start_date: new Date('2026-02-13T23:00:00Z'),
         end_date: new Date('2026-03-01T23:00:00Z'),
         zones: 'Zone C',
         emoji: 'foo',
       }
       const holiday3 = {
-        description: 'Summer Holiday',
+        kind: 'holiday',
+        title: 'Summer Holiday',
+        description: '',
+        date: null,
         start_date: new Date('2026-07-01T23:00:00Z'),
         end_date: new Date('2026-08-31T23:00:00Z'),
         zones: '',
         emoji: 'bar',
       }
       const holiday4 = {
-        description: 'Day',
+        kind: 'holiday',
+        title: 'Day',
+        description: '',
         date: new Date('2026-02-15T23:00:00Z'),
+        start_date: null,
+        end_date: null,
+        zones: '',
         emoji: '',
       }
 
       // When
       await userStore.login(mockUserInfo)
       const agenda = new Agenda(
-        [holiday1, holiday2, holiday3],
-        [holiday4],
+        {
+          school_holidays: [holiday1, holiday2, holiday3],
+          public_holidays: [holiday4],
+          elections: [],
+        },
         new Date('2026-02-01T12:00:00Z')
       )
 
@@ -642,21 +757,9 @@ describe('/agenda.ts', () => {
           new Item('holiday', 'Day', null, holiday4.date, null, null)
         )
       ).toBe(true)
-      expect(agenda.next.length).equal(2)
+      expect(agenda.next.length).equal(1)
       expect(
         agenda.next[0].equals(
-          new Item(
-            'otv',
-            'Opération Tranquillité Vacances 🏠',
-            'Inscrivez-vous pour protéger votre domicile pendant votre absence',
-            null,
-            new Date('2026-06-10T23:00:00Z'),
-            null
-          )
-        )
-      ).toBe(true)
-      expect(
-        agenda.next[1].equals(
           new Item(
             'holiday',
             'Summer Holiday bar',
@@ -676,7 +779,10 @@ describe('/agenda.ts', () => {
         .spyOn(scheduledNotificationsMethods, 'createScheduledNotification')
         .mockResolvedValue(true)
       const holiday = {
-        description: 'Holiday',
+        kind: 'holiday',
+        title: 'Holiday',
+        description: '',
+        date: null,
         start_date: new Date('2026-02-06T23:00:00Z'),
         end_date: new Date('2026-02-22T23:00:00Z'),
         zones: 'Zone A',
@@ -684,7 +790,14 @@ describe('/agenda.ts', () => {
       }
 
       // When
-      const agenda = new Agenda([holiday], [], new Date('2026-02-01T12:00:00Z'))
+      const agenda = new Agenda(
+        {
+          school_holidays: [holiday],
+          public_holidays: [],
+          elections: [],
+        },
+        new Date('2026-02-01T12:00:00Z')
+      )
 
       // Then
       expect(agenda.now.length).equal(2)
@@ -698,21 +811,30 @@ describe('/agenda.ts', () => {
         .mockResolvedValue(true)
       localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity))
       const holiday1 = {
-        description: 'Holiday',
+        kind: 'holiday',
+        title: 'Holiday',
+        description: '',
+        date: null,
         start_date: new Date('2026-02-06T23:00:00Z'),
         end_date: new Date('2026-02-22T23:00:00Z'),
         zones: 'Zone A',
         emoji: 'foo',
       }
       const holiday2 = {
-        description: 'Holiday',
+        kind: 'holiday',
+        title: 'Holiday',
+        description: '',
+        date: null,
         start_date: new Date('2026-02-13T23:00:00Z'),
         end_date: new Date('2026-03-01T23:00:00Z'),
         zones: 'Zone C',
         emoji: 'foo',
       }
       const holiday3 = {
-        description: 'Summer Holiday',
+        kind: 'holiday',
+        title: 'Summer Holiday',
+        description: '',
+        date: null,
         start_date: new Date('2026-07-01T23:00:00Z'),
         end_date: new Date('2026-08-31T23:00:00Z'),
         zones: '',
@@ -722,8 +844,11 @@ describe('/agenda.ts', () => {
       // When
       await userStore.login(mockUserInfo)
       const agenda = new Agenda(
-        [holiday1, holiday2, holiday3],
-        [],
+        {
+          school_holidays: [holiday1, holiday2, holiday3],
+          public_holidays: [],
+          elections: [],
+        },
         new Date('2026-02-01T12:00:00Z')
       )
 
@@ -755,21 +880,30 @@ describe('/agenda.ts', () => {
         .mockResolvedValue(true)
       localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity))
       const holiday1 = {
-        description: 'Holiday',
+        kind: 'holiday',
+        title: 'Holiday',
+        description: '',
+        date: null,
         start_date: new Date('2026-02-06T23:00:00Z'),
         end_date: new Date('2026-02-22T23:00:00Z'),
         zones: 'Zone A',
         emoji: 'foo',
       }
       const holiday2 = {
-        description: 'Holiday',
+        kind: 'holiday',
+        title: 'Holiday',
+        description: '',
+        date: null,
         start_date: new Date('2026-02-13T23:00:00Z'),
         end_date: new Date('2026-03-01T23:00:00Z'),
         zones: 'Zone C',
         emoji: 'foo',
       }
       const holiday3 = {
-        description: 'Summer Holiday',
+        kind: 'holiday',
+        title: 'Summer Holiday',
+        description: '',
+        date: null,
         start_date: new Date('2026-07-01T23:00:00Z'),
         end_date: new Date('2026-08-31T23:00:00Z'),
         zones: '',
@@ -785,8 +919,11 @@ describe('/agenda.ts', () => {
 
       // When
       const agenda = new Agenda(
-        [holiday1, holiday2, holiday3],
-        [],
+        {
+          school_holidays: [holiday1, holiday2, holiday3],
+          public_holidays: [],
+          elections: [],
+        },
         new Date('2026-02-01T12:00:00Z')
       )
 
@@ -796,48 +933,62 @@ describe('/agenda.ts', () => {
     })
   })
   describe('buildAgenda', () => {
-    test('should retrieve holidays and init agenda with them', async () => {
+    test('should retrieve catalogs and init agenda with them', async () => {
       // Given
       vi.stubEnv('TZ', 'Europe/Paris')
       const holiday1 = {
-        description: 'Holiday 1',
+        kind: 'holiday',
+        title: 'Holiday 1',
+        description: '',
+        date: null,
         start_date: new Date('2025-09-20T23:00:00Z'),
         end_date: new Date('2025-12-15T23:00:00Z'),
-        zones: 'Zone',
-        emoji: 'foo',
+        zones: 'Zone foo',
+        emoji: '',
       }
       const holiday2 = {
-        description: 'Holiday 2',
+        kind: 'holiday',
+        title: 'Holiday 2',
+        description: '',
+        date: null,
         start_date: new Date('2025-11-30T23:00:00Z'),
         end_date: new Date('2025-12-16T23:00:00Z'),
         zones: '',
         emoji: '',
       }
-      const spy = vi
-        .spyOn(holidaysMethods, 'retrieveSchoolHolidays')
-        .mockResolvedValue([holiday1, holiday2])
       const holiday3 = {
-        description: 'Day 3',
+        kind: 'holiday',
+        title: 'Day 3',
+        description: '',
         date: new Date('2025-11-15T23:00:00Z'),
+        start_date: null,
+        end_date: null,
+        zones: '',
         emoji: '',
       }
       const holiday4 = {
-        description: 'Day 4',
+        kind: 'holiday',
+        title: 'Day 4',
+        description: '',
         date: new Date('2025-12-30T23:00:00Z'),
+        start_date: null,
+        end_date: null,
+        zones: '',
         emoji: '',
       }
-      const spy2 = vi
-        .spyOn(holidaysMethods, 'retrievePublicHolidays')
-        .mockResolvedValue([holiday3, holiday4])
+      const spy = vi.spyOn(catalogMethods, 'retrieveCatalog').mockResolvedValue({
+        school_holidays: [holiday1, holiday2],
+        public_holidays: [holiday3, holiday4],
+        elections: [],
+      })
 
       // When
       const agenda = await buildAgenda(new Date('2025-11-01T12:00:00Z'))
 
       // Then
       expect(spy).toHaveBeenCalledTimes(1)
-      expect(spy2).toHaveBeenCalledTimes(1)
       expect(agenda).toBeInstanceOf(Agenda)
-      expect(agenda.now.length).equal(4)
+      expect(agenda.now.length).equal(3)
       expect(
         agenda.now[0].equals(
           new Item(
@@ -864,18 +1015,6 @@ describe('/agenda.ts', () => {
       ).toBe(true)
       expect(
         agenda.now[2].equals(
-          new Item(
-            'otv',
-            'Opération Tranquillité Vacances 🏠',
-            'Inscrivez-vous pour protéger votre domicile pendant votre absence',
-            null,
-            new Date('2025-11-09T23:00:00Z'),
-            null
-          )
-        )
-      ).toBe(true)
-      expect(
-        agenda.now[3].equals(
           new Item('holiday', 'Day 3', null, holiday3.date, null, null)
         )
       ).toBe(true)
