@@ -16,7 +16,7 @@ from litestar.params import Body
 from pydantic import TypeAdapter
 from webpush import WebPush
 
-from app import env, models, schemas
+from app import env, models, schemas, sentry
 from app.httpx import AsyncClient
 from app.partners import Partner, provide_partner
 from app.services.notification import NotificationService
@@ -95,6 +95,7 @@ class NotificationController(Controller):
     ) -> None:
         # Extract user_id immediately and don't hold reference to User object
         # to avoid keeping database session open for the lifetime of the WebSocket
+        sentry.add_counter("notification_websocket.connected")
         user_id = str(current_user.id)
 
         async def _sender(message: str) -> None:
@@ -116,9 +117,11 @@ class NotificationController(Controller):
                     if message == "close":
                         # XXX this is for tests
                         await socket.close()
+                        sentry.add_counter("notification_websocket.disconnected")
                         return
                 except WebSocketDisconnect:
                     # if the socket is closed, avoid exception trace
+                    sentry.add_counter("notification_websocket.disconnected")
                     return
 
 
@@ -263,6 +266,8 @@ class PartnerNotificationController(Controller):
             try_push,
             httpx_async_client,
         )
+
+        sentry.add_counter("notification_partner.created")
 
         response_data = schemas.NotificationResponse.model_validate(
             {
