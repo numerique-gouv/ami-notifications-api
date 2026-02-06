@@ -83,6 +83,7 @@ async def test_create_webpush_notification(
         2025, 11, 27, 10, 55, tzinfo=datetime.timezone.utc
     )
     assert notification2.sender == "PSL"
+    assert notification2.partner_id == "psl"
     assert notification2.try_push is True
     assert notification2.send_status is True
     assert notification2.read is False
@@ -152,6 +153,7 @@ async def test_create_mobile_notification(
         2025, 11, 27, 10, 55, tzinfo=datetime.timezone.utc
     )
     assert notification2.sender == "PSL"
+    assert notification2.partner_id == "psl"
     assert notification2.try_push is True
     assert notification2.send_status is True
     assert notification2.read is False
@@ -248,6 +250,7 @@ async def test_create_notification_user_does_not_exist(
         2025, 11, 27, 10, 55, tzinfo=datetime.timezone.utc
     )
     assert notification.sender == "PSL"
+    assert notification.partner_id == "psl"
     assert notification.try_push is True
     assert notification.send_status is False
     assert notification.read is False
@@ -305,6 +308,7 @@ async def test_create_notification_user_never_seen(
         2025, 11, 27, 10, 55, tzinfo=datetime.timezone.utc
     )
     assert notification.sender == "PSL"
+    assert notification.partner_id == "psl"
     assert notification.read is False
     assert response.json() == {
         "notification_id": str(notification.id),

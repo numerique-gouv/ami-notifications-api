@@ -254,6 +254,7 @@ class PartnerNotificationController(Controller):
         if notification_data["content_icon"] is None:
             notification_data["content_icon"] = current_partner.icon or "fr-icon-mail-star-line"
         notification_data["sender"] = current_partner.name
+        notification_data["partner_id"] = current_partner.id
         notification_data["send_status"] = notification_send_status
         notification: models.Notification = await notifications_service.create(
             models.Notification(user_id=user.id, **notification_data)
