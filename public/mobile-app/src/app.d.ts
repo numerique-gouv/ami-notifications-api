@@ -8,6 +8,9 @@ declare global {
     // interface PageState {}
     // interface Platform {}
   }
+  interface Window {
+    _paq?: any[]
+  }
 }
 
 export {}
