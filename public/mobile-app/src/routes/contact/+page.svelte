@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import { goto } from '$app/navigation'
-  import { PUBLIC_CONTACT_URL } from '$env/static/public'
+  import { PUBLIC_CONTACT_EMAIL, PUBLIC_CONTACT_URL } from '$env/static/public'
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte'
   import { toastStore } from '$lib/state/toast.svelte'
   import { userStore } from '$lib/state/User.svelte'
@@ -9,6 +9,7 @@
   let backUrl: string = '/'
   let userFcHash: string | null = null
   const contactUrl = PUBLIC_CONTACT_URL
+  const contactEmail = PUBLIC_CONTACT_EMAIL
 
   onMount(async () => {
     if (!userStore.connected) {
@@ -67,15 +68,31 @@
       </div>
     </div>
 
-    <div class="contact-link-wrapper">
-      <a
-        href="{contactUrl}"
-        title="Contacter notre équipe"
-        aria-label="Contacter notre équipe"
-      >
-        Contacter notre équipe
-      </a>
-    </div>
+    <p>Contacter notre équipe&nbsp;:</p>
+    <ul
+      class="fr-btns-group fr-btns-group--center fr-btns-group--equisized fr-btns-group--inline contact-links-wrapper"
+    >
+      <li>
+        <a
+          href="{contactUrl}"
+          title="Contacter notre équipe par tchap"
+          aria-label="Contacter notre équipe par tchap"
+          class="fr-btn"
+        >
+          Par Tchap
+        </a>
+      </li>
+      <li>
+        <a
+          href="mailto:{contactEmail}?body=Mon code d'identification : {userFcHash}"
+          title="Contacter notre équipe par email"
+          aria-label="Contacter notre équipe par email"
+          class="fr-btn"
+        >
+          Par Email
+        </a>
+      </li>
+    </ul>
   </div>
 </div>
 
@@ -105,22 +122,6 @@
           .copy-button {
             padding: 0;
           }
-        }
-      }
-
-      .contact-link-wrapper {
-        height: 3rem;
-        background-color: var(--text-action-high-blue-france);
-        color: var(--text-inverted-blue-france);
-
-        a {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          width: 100%;
-          height: 100%;
-          text-decoration: none;
-          --underline-img: none;
         }
       }
     }
