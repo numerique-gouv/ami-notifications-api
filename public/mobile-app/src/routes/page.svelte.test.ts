@@ -2,7 +2,11 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 import { render, screen, waitFor } from '@testing-library/svelte'
 import * as navigationMethods from '$app/navigation'
-import { PUBLIC_API_URL, PUBLIC_CONTACT_URL } from '$env/static/public'
+import {
+  PUBLIC_API_URL,
+  PUBLIC_CONTACT_EMAIL,
+  PUBLIC_CONTACT_URL,
+} from '$env/static/public'
 import { toastStore } from '$lib/state/toast.svelte'
 import { userStore } from '$lib/state/User.svelte'
 import { mockUserInfo } from '$tests/utils'
@@ -236,7 +240,7 @@ describe('/+page.svelte', () => {
     })
   })
 
-  test('should display contact link when user is logged out', async () => {
+  test('should display contact links when user is logged out', async () => {
     // Given
     await userStore.logout()
 
@@ -245,8 +249,10 @@ describe('/+page.svelte', () => {
 
     // Then
     await waitFor(() => {
-      const contactLink = screen.getByTestId('contact-link')
-      expect(contactLink).toHaveAttribute('href', PUBLIC_CONTACT_URL)
+      const contactLinkTchap = screen.getByTestId('contact-link-tchap')
+      expect(contactLinkTchap).toHaveAttribute('href', PUBLIC_CONTACT_URL)
+      const contactLinkEmail = screen.getByTestId('contact-link-email')
+      expect(contactLinkEmail).toHaveAttribute('href', `mailto:${PUBLIC_CONTACT_EMAIL}`)
     })
   })
 })
