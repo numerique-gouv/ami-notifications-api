@@ -3,7 +3,11 @@
   import { onMount } from 'svelte'
   import { goto } from '$app/navigation'
   import { page } from '$app/state'
-  import { PUBLIC_API_URL, PUBLIC_CONTACT_URL } from '$env/static/public'
+  import {
+    PUBLIC_API_URL,
+    PUBLIC_CONTACT_EMAIL,
+    PUBLIC_CONTACT_URL,
+  } from '$env/static/public'
   import { apiFetch } from '$lib/auth'
   import ConnectedHomepage from '$lib/ConnectedHomepage.svelte'
   import Navigation from '$lib/Navigation.svelte'
@@ -13,6 +17,7 @@
   let error: string = $state('')
   let error_description: string = $state('')
   const contactUrl = PUBLIC_CONTACT_URL
+  const contactEmail = PUBLIC_CONTACT_EMAIL
 
   onMount(async () => {
     // User state already initialized in +layout.svelte
@@ -158,9 +163,19 @@
             href="{contactUrl}"
             title="Contactez-nous sur Tchap"
             aria-label="Contactez-nous sur Tchap"
-            data-testid="contact-link"
+            data-testid="contact-link-tchap"
           >
             Contactez-nous sur Tchap
+          </a>
+        </p>
+        <p>
+          <a
+            href="mailto:{contactEmail}"
+            title="Contactez-nous par email"
+            aria-label="Contactez-nous par email"
+            data-testid="contact-link-email"
+          >
+            Contactez-nous par Email
           </a>
         </p>
       </div>
