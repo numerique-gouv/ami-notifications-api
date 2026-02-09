@@ -4,7 +4,6 @@ import { emit, isNative, runOrNativeEvent } from '$lib/nativeEvents'
 
 describe('/nativeEvents.ts', () => {
   afterEach(() => {
-    // @ts-expect-error: `NativeBridge` doesn't exist on the window object, unless it's injected.
     delete globalThis.window.NativeBridge
     vi.resetAllMocks()
   })
@@ -12,7 +11,6 @@ describe('/nativeEvents.ts', () => {
   describe('isNative', () => {
     test('should return true when there is a NativeBridge', async () => {
       // Given
-      // @ts-expect-error: `NativeBridge` doesn't exist on the window object, unless it's injected.
       globalThis.window.NativeBridge = {}
 
       // When
@@ -24,7 +22,6 @@ describe('/nativeEvents.ts', () => {
 
     test('should return false when there is no NativeBridge', async () => {
       // Given
-      // @ts-expect-error: `NativeBridge` doesn't exist on the window object, unless it's injected.
       expect(globalThis.window.NativeBridge).toBeUndefined()
 
       // When
@@ -39,7 +36,6 @@ describe('/nativeEvents.ts', () => {
     test('should emit an native event if isNative() == true', async () => {
       // Given
       const onEventSpy = vi.fn()
-      // @ts-expect-error: `NativeBridge` doesn't exist on the window object, unless it's injected.
       globalThis.window.NativeBridge = { onEvent: onEventSpy }
 
       // When
@@ -55,7 +51,6 @@ describe('/nativeEvents.ts', () => {
       // Given
       const onEventSpy = vi.fn()
       const funcSpy = vi.fn()
-      // @ts-expect-error: `NativeBridge` doesn't exist on the window object, unless it's injected.
       globalThis.window.NativeBridge = { onEvent: onEventSpy }
 
       // When
