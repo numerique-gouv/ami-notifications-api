@@ -35,19 +35,10 @@ from .serializers import (
 @api_view(["GET"])
 @ami_login_required
 def list_notifications(request: Request) -> Response[QuerySet[Notification]]:
-    serializer = NotificationReadSerializer(data=request.query_params)
-    serializer.is_valid(raise_exception=True)
-    data: dict = cast(dict, serializer.validated_data)
+    notifications: QuerySet[Notification] = Notification.objects.filter(
+        user=request.ami_user
+    ).order_by("-created_at")
 
-    read = data["read"]
-    if "read" in request.query_params:
-        notifications: QuerySet[Notification] = Notification.objects.filter(
-            user=request.ami_user, read=read
-        ).order_by("-created_at")
-    else:
-        notifications: QuerySet[Notification] = Notification.objects.filter(
-            user=request.ami_user
-        ).order_by("-created_at")
     serialized = NotificationSerializer(notifications, many=True).data
     return Response(serialized)
 
