@@ -34,20 +34,11 @@ class NotificationController(Controller):
         self,
         notifications_service: NotificationService,
         current_user: models.User,
-        read: bool
-        | None = None,  # TODO CLO : supprimer le paramètre et simplifier le code en-dessous
     ) -> Sequence[schemas.Notification]:
-        if read is not None:
-            notifications: Sequence[models.Notification] = await notifications_service.list(
-                order_by=(models.Notification.created_at, True),
-                user=current_user,
-                read=read,
-            )
-        else:
-            notifications: Sequence[models.Notification] = await notifications_service.list(
-                order_by=(models.Notification.created_at, True),
-                user=current_user,
-            )
+        notifications: Sequence[models.Notification] = await notifications_service.list(
+            order_by=(models.Notification.created_at, True),
+            user=current_user,
+        )
         # We could do:
         # return notifications_service.to_schema(notifications, schema_type=schemas.Notification)
         # But it adds pagination.
