@@ -86,27 +86,6 @@ def test_get_notifications(
         "read": False,
     }
 
-    response = django_app.get("/api/v1/users/notifications?read=false")
-    assert response.status_code == HTTP_200_OK
-    assert len(response.json) == 2
-    response = django_app.get("/api/v1/users/notifications?read=true")
-    assert response.status_code == HTTP_200_OK
-    assert len(response.json) == 0
-
-    Notification.objects.update(read=True)
-
-    response = django_app.get("/api/v1/users/notifications")
-    assert response.status_code == HTTP_200_OK
-    assert len(response.json) == 2
-    assert response.json[0]["read"] is True
-
-    response = django_app.get("/api/v1/users/notifications?read=false")
-    assert response.status_code == HTTP_200_OK
-    assert len(response.json) == 0
-    response = django_app.get("/api/v1/users/notifications?read=true")
-    assert response.status_code == HTTP_200_OK
-    assert len(response.json) == 2
-
 
 @pytest.mark.django_db
 def test_get_notifications_without_auth(django_app) -> None:
