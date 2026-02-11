@@ -32,7 +32,7 @@ async def test_login_callback(
     monkeypatch.setattr("app.controllers.auth.env.FC_AMI_CLIENT_SECRET", "fake-client-secret")
     monkeypatch.setattr(
         "app.controllers.auth.env.PUBLIC_FC_SCOPE",
-        env.PUBLIC_FC_SCOPE.replace(" cnaf_quotient_familial", ""),
+        env.PUBLIC_FC_SCOPE.replace(" cnaf_enfants cnaf_adresse", ""),
     )
 
     NONCE = decoded_id_token["nonce"]
@@ -136,7 +136,7 @@ async def test_login_callback_user_already_seen(
     monkeypatch.setattr("app.controllers.auth.env.FC_AMI_CLIENT_SECRET", "fake-client-secret")
     monkeypatch.setattr(
         "app.controllers.auth.env.PUBLIC_FC_SCOPE",
-        env.PUBLIC_FC_SCOPE.replace(" cnaf_quotient_familial", ""),
+        env.PUBLIC_FC_SCOPE.replace(" cnaf_enfants cnaf_adresse", ""),
     )
 
     NONCE = decoded_id_token["nonce"]
@@ -239,7 +239,7 @@ async def test_login_callback_user_never_seen(
     monkeypatch.setattr("app.controllers.auth.env.FC_AMI_CLIENT_SECRET", "fake-client-secret")
     monkeypatch.setattr(
         "app.controllers.auth.env.PUBLIC_FC_SCOPE",
-        env.PUBLIC_FC_SCOPE.replace(" cnaf_quotient_familial", ""),
+        env.PUBLIC_FC_SCOPE.replace(" cnaf_enfants cnaf_adresse", ""),
     )
 
     NONCE = decoded_id_token["nonce"]
