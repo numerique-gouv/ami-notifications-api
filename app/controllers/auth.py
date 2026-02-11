@@ -125,7 +125,10 @@ class AuthController(Controller):
                             httpx_async_client=httpx_async_client,
                         )
                     )
-                    if "cnaf_quotient_familial" in env.PUBLIC_FC_SCOPE:
+                    if (
+                        "cnaf_enfants" in env.PUBLIC_FC_SCOPE
+                        and "cnaf_adresse" in env.PUBLIC_FC_SCOPE
+                    ):
                         task_api_particulier = task_group.create_task(
                             self.get_address_from_api_particulier_quotient(
                                 token_type=token_type,
