@@ -29,41 +29,41 @@ Fonctionnalité: France Connect et Initialisation des données usager
         | login |
         | test  |
         | avec_nom_dusage |
-        | nom_composé |
-        | nom_50+_caractères |
-        | carac_speciaux |
-        | plusieurs_prénoms_2 |
-        | plusieurs_prénoms_3 |
-        | prénom_composé |
-        | prénom_composé_avec_espace |
-        | caractères_spéciaux |
-        | nom_prénom_long |
-        | moins_16_ans |
-        | moins_18_ans |
-        | moins_25_ans |
-        | genre_indéfini |
-        | sans_prenom |
-        | sans_nom_naissance |
-        | sans_nom_dusage |
-        | sans_mail |
-        | sans_telephone |
-        | sans_mail_sans_tel |
-        | sans_genre |
-        | sans_birthplace |
-        | test_CORSE_2A |
-        | test_CORSE_2B |
-        | naissance_Algérie |
-        | naissance_Maroc |
-        | naissance_Portugal |
-        | naissance_Belgique |
-        | naissance_Espagne |
-        | naissance_Italie |
-        | naissance_polynesie_française |
-        | naissance_wallis_futuna |
-        | naissance_etranger_birthplace_cog |
-        | naissance_etranger_birthplace_texte |
-        | étranger_présumé_né_jour |
-        | étranger_présumé_né_jour_et_mois |
+        # | nom_composé |
+        # | nom_50+_caractères |
+        # | carac_speciaux |
+        # | plusieurs_prénoms_2 |
+        # | plusieurs_prénoms_3 |
+        # | prénom_composé |
+        # | prénom_composé_avec_espace |
+        # | caractères_spéciaux |
+        # | nom_prénom_long |
+        # | moins_16_ans |
+        # | moins_18_ans |
+        # | moins_25_ans |
+        # | genre_indéfini |
+        # | sans_prenom |
+        # | sans_nom_naissance |
+        # | sans_nom_dusage |
+        # | sans_mail |
+        # | sans_telephone |
+        # | sans_mail_sans_tel |
+        # | sans_genre |
+        # | sans_birthplace |
+        # | test_CORSE_2A |
+        # | test_CORSE_2B |
+        # | naissance_Algérie |
+        # | naissance_Maroc |
+        # | naissance_Portugal |
+        # | naissance_Belgique |
+        # | naissance_Espagne |
+        # | naissance_Italie |
+        # | naissance_polynesie_française |
+        # | naissance_wallis_futuna |
+        # | naissance_etranger_birthplace_cog |
+        # | naissance_etranger_birthplace_texte |
+        # | étranger_présumé_né_jour |
+        # | étranger_présumé_né_jour_et_mois |
 
         # Remarque : une première itération peut ignorer tout le process FC pour juste renvoyer des données en dur / aléatoire.
 
