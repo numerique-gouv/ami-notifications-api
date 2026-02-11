@@ -30,9 +30,10 @@ Given(
 	async (s) => {
 		await page.locator('#fr-connect-button').click()
 		await page.getByTestId('idp-e1e90d50-cca0-4a85-9db3-0bcc190ee6f7').click()
+		await page.getByLabel('Identifiant').fill(s)
 		await page.getByLabel('Mot de passe').fill('123')
 		await page.getByRole('button', {name: 'Valider'}).click()
-		await page.getByRole('button', {name: 'Continuer sur AMI'}).click()
+//		await page.getByRole('button', {name: 'Continuer sur AMI'}).click()
 	}
 );
 
