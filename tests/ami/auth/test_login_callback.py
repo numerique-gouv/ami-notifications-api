@@ -109,7 +109,7 @@ async def test_login_callback(
     assert scheduled_notification.content_title == "Bienvenue sur AMI 👋"
     assert (
         scheduled_notification.content_body
-        == "Recevez des rappels sur votre situation et suivez vos démarches en cours depuis l'application."
+        == "Ici, vous pourrez gérer votre vie administrative, suivre l'avancement de vos démarches et recevoir des rappels personnalisés."
     )
     assert scheduled_notification.content_icon == "fr-icon-information-line"
     assert scheduled_notification.reference == "ami:welcome"
@@ -327,7 +327,7 @@ async def test_login_callback_user_never_seen(
     assert scheduled_notification.content_title == "Bienvenue sur AMI 👋"
     assert (
         scheduled_notification.content_body
-        == "Recevez des rappels sur votre situation et suivez vos démarches en cours depuis l'application."
+        == "Ici, vous pourrez gérer votre vie administrative, suivre l'avancement de vos démarches et recevoir des rappels personnalisés."
     )
     assert scheduled_notification.content_icon == "fr-icon-information-line"
     assert scheduled_notification.reference == "ami:welcome"
