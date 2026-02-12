@@ -2,6 +2,7 @@ export type Toast = {
   id: string
   title: string
   level: string
+  position?: string | null
 }
 
 class ToastStore {
@@ -11,9 +12,14 @@ class ToastStore {
     return Date.now().toString(36) + Math.random().toString(36).substring(2, 10)
   }
 
-  addToast = (title: string, level: string) => {
+  addToast = (title: string, level: string, position?: string | undefined) => {
     const id: string = this.uniqueId()
-    const newToast: Toast = { id: id, title: title, level: level }
+    const newToast: Toast = {
+      id: id,
+      title: title,
+      level: level,
+      position: position || null,
+    }
     this.toasts.push(newToast)
     setTimeout(() => this.removeToast(id), 3000)
   }

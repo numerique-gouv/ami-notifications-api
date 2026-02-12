@@ -2,6 +2,7 @@
   import { onMount } from 'svelte'
   import { goto } from '$app/navigation'
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte'
+  import { toastStore } from '$lib/state/toast.svelte'
   import type { DataOrigin } from '$lib/state/User.svelte'
   import { userStore } from '$lib/state/User.svelte'
   import { formatDate } from '$lib/utils'
@@ -37,6 +38,7 @@
     if (userStore.connected) {
       userStore.connected.setPreferredUsername(inputValue)
       console.log('Updated the preferred username to', inputValue)
+      toastStore.addToast('Information bien enregistrée !', 'success', 'top')
     }
     await navigateToPreviousPage()
   }

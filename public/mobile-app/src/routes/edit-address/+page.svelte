@@ -5,6 +5,7 @@
   import { type AddressFromBAN, callBAN } from '$lib/addressesFromBAN'
   import { buildAgenda } from '$lib/agenda'
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte'
+  import { toastStore } from '$lib/state/toast.svelte'
   import type { DataOrigin } from '$lib/state/User.svelte'
   import { userStore } from '$lib/state/User.svelte'
   import { formatDate } from '$lib/utils'
@@ -114,6 +115,7 @@
       // rebuild agenda to create new scheduled notifications
       userStore.connected.clearScheduledNotificationCreatedKey()
       await buildAgenda()
+      toastStore.addToast('Information bien enregistrée !', 'success', 'top')
     }
     console.log(submittedAddress)
     await navigateToPreviousPage()

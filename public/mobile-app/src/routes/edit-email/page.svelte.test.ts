@@ -3,6 +3,7 @@ import '@testing-library/jest-dom/vitest'
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte'
 import type { MockInstance } from 'vitest'
 import * as navigationMethods from '$app/navigation'
+import { toastStore } from '$lib/state/toast.svelte'
 import { userStore } from '$lib/state/User.svelte'
 import { expectBackButtonPresent, mockUserIdentity, mockUserInfo } from '$tests/utils'
 import Page from './+page.svelte'
@@ -73,6 +74,7 @@ describe('/+page.svelte', () => {
   test('should allow submitting a new email', async () => {
     // Given
     await userStore.login(mockUserInfo)
+    const spy = vi.spyOn(toastStore, 'addToast')
     render(Page)
     const input = screen.getByTestId('email-input')
 
@@ -91,12 +93,18 @@ describe('/+page.svelte', () => {
       expect(
         userStore.connected?.identity?.dataDetails.email.lastUpdate
       ).not.toBeUndefined()
+      expect(spy).toHaveBeenCalledWith(
+        'Information bien enregistrée !',
+        'success',
+        'top'
+      )
     })
   })
 
   test('should not be allowed to submit an empty email', async () => {
     // Given
     await userStore.login(mockUserInfo)
+    const spy = vi.spyOn(toastStore, 'addToast')
     render(Page)
     const input = screen.getByTestId('email-input') as HTMLInputElement
     expect(input.value).equal('some@email.com')
@@ -118,6 +126,7 @@ describe('/+page.svelte', () => {
       expect(
         userStore.connected?.identity?.dataDetails.email.lastUpdate
       ).toBeUndefined()
+      expect(spy).not.toHaveBeenCalled()
     })
   })
 

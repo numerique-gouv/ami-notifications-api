@@ -10,11 +10,16 @@ describe('/lib/state/toast.svelte.ts', () => {
 
       // When
       toastStore.addToast('Test 1', 'success')
+      toastStore.addToast('Test 2', 'neutral', 'top')
 
       // Then
-      expect(toastStore.toasts).toHaveLength(1)
+      expect(toastStore.toasts).toHaveLength(2)
       expect(toastStore.toasts[0].title).toBe('Test 1')
       expect(toastStore.toasts[0].level).toBe('success')
+      expect(toastStore.toasts[0].position).toBe(null)
+      expect(toastStore.toasts[1].title).toBe('Test 2')
+      expect(toastStore.toasts[1].level).toBe('neutral')
+      expect(toastStore.toasts[1].position).toBe('top')
     })
   })
 
