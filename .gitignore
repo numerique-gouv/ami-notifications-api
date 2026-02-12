@@ -7,6 +7,7 @@ database*.sqlite
 __pycache__
 *.egg-info
 .env.local
+.env.development.local
 node_modules
 session_data
 ssl-cert.pem
