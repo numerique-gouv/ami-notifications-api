@@ -83,15 +83,14 @@ jobs:
         working-directory: ./public/mobile-app
         run: npm ci
 
-      - name: Create .env file
-        run: |
-          echo "AUTH_COOKIE_JWT_SECRET=\"secret\"" >> .env.local
-          echo "PARTNERS_PSL_SECRET=\"secret\"" >> .env.local
-
       - name: Install Playwright Browsers
         working-directory: ./public/mobile-app
         run: npx playwright install --with-deps
 
       - name: Run tests
         working-directory: ./public/mobile-app
+        env:
+          AUTH_COOKIE_JWT_SECRET: secret
+          PARTNERS_PSL_SECRET: secret
+          PUBLIC_WEBSITE_PUBLIC: true
         run: npm test
