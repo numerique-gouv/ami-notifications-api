@@ -20,35 +20,47 @@ export type AppNotification = {
   read: boolean
 }
 
-export const retrieveNotifications = async (): Promise<AppNotification[]> => {
+const fetchAndStoreNotifications = async () => {
   let notifications = [] as AppNotification[]
+
   try {
     const response = await apiFetch('/api/v1/users/notifications', {
       credentials: 'include',
     })
     if (response.status === 200) {
       notifications = await response.json()
+      localStorage.setItem('notifications', JSON.stringify(notifications))
     }
   } catch (error) {
     console.error(error)
   }
-  console.log('notifications', notifications)
+}
+
+const getNotificationsFromStore = async (): Promise<AppNotification[]> => {
+  let notifications = [] as AppNotification[]
+  const notificationsString: string = localStorage.getItem('notifications') || ''
+
+  if (notificationsString != null) {
+    notifications = JSON.parse(notificationsString)
+  }
   return notifications
 }
 
+const getNotifications = async (): Promise<AppNotification[]> => {
+  await fetchAndStoreNotifications()
+  return await getNotificationsFromStore()
+}
+
+export const retrieveNotifications = async (): Promise<AppNotification[]> => {
+  return await getNotifications()
+}
+
 export const countUnreadNotifications = async (): Promise<number> => {
-  let notifications = [] as AppNotification[]
-  try {
-    const response = await apiFetch('/api/v1/users/notifications?read=false', {
-      credentials: 'include',
-    })
-    if (response.status === 200) {
-      notifications = await response.json()
-    }
-  } catch (error) {
-    console.error(error)
-  }
-  return notifications.length
+  const notifications: AppNotification[] = await getNotifications()
+  const unreadNotifications: AppNotification[] = notifications.filter(
+    (notification) => !notification.read
+  )
+  return unreadNotifications.length
 }
 
 export const readNotification = async (

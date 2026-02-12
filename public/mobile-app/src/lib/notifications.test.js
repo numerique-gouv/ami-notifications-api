@@ -56,6 +56,9 @@ describe('/notifications', () => {
 
       // Then
       expect(result).toEqual(notifications)
+      expect(window.localStorage.getItem('notifications')).toEqual(
+        JSON.stringify(notifications)
+      )
     })
   })
 
@@ -73,6 +76,16 @@ describe('/notifications', () => {
           read: false,
           item_external_url: '',
         },
+        {
+          created_at: '2025-09-19T12:59:04.950812',
+          user_id: '3ac73f4f-4be2-456a-9c2e-ddff480d5767',
+          sender: 'test',
+          content_body: 'test',
+          id: '2689c3b3-e95c-4d73-b37d-55f430688af9',
+          content_title: 'test',
+          read: true,
+          item_external_url: '',
+        },
       ]
       vi.spyOn(globalThis, 'fetch').mockResolvedValue(
         new Response(JSON.stringify(notifications), { status: 200 })
@@ -83,6 +96,9 @@ describe('/notifications', () => {
 
       // Then
       expect(result).toEqual(1)
+      expect(window.localStorage.getItem('notifications')).toEqual(
+        JSON.stringify(notifications)
+      )
     })
   })
 

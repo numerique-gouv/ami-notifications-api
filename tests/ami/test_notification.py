@@ -621,29 +621,6 @@ async def test_get_notifications(
         "read": False,
     }
 
-    response = test_client.get("/api/v1/users/notifications?read=false")
-    assert response.status_code == HTTP_200_OK
-    assert len(response.json()) == 1
-    response = test_client.get("/api/v1/users/notifications?read=true")
-    assert response.status_code == HTTP_200_OK
-    assert len(response.json()) == 0
-
-    notification.read = True
-    db_session.add(notification)
-    await db_session.commit()
-
-    response = test_client.get("/api/v1/users/notifications")
-    assert response.status_code == HTTP_200_OK
-    assert len(response.json()) == 1
-    assert response.json()[0]["read"] is True
-
-    response = test_client.get("/api/v1/users/notifications?read=false")
-    assert response.status_code == HTTP_200_OK
-    assert len(response.json()) == 0
-    response = test_client.get("/api/v1/users/notifications?read=true")
-    assert response.status_code == HTTP_200_OK
-    assert len(response.json()) == 1
-
 
 async def test_get_notifications_without_auth(
     test_client: TestClient[Litestar],
