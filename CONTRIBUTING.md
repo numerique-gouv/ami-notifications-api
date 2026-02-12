@@ -69,6 +69,16 @@ will overload what's in the `.env` file.
 For example you'll need to overload the FranceConnect secrets for AMI and RVO in
 your `.env.local` file.
 
+On the front end, Vite uses dotenv to load additional environment variables
+from the following files in your environment directory, in this order:
+
+    .env # loaded in all cases
+    .env.local # loaded in all cases, ignored by git
+    .env.development # loaded only in development
+    .env.development.local # loaded only in development, ignored by git
+
+`.env.development` files are not loaded by the backend unless you add them to your `uv run` command lines.
+
 ### 4. Run Database Migrations
 
 Apply the database schema:
