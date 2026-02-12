@@ -13,7 +13,6 @@
     await import('@gouvfr/dsfr/dist/dsfr.module.min.js')
 
     initMatomo()
-    trackPageView(document.title)
   })
 
   afterNavigate(() => {
