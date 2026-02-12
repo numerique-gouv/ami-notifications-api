@@ -44,7 +44,7 @@ describe('/+page.svelte', () => {
       expect(screen.getByTestId('events-now')).toHaveTextContent('Prochainement')
       expect(screen.getByTestId('events-now')).toHaveTextContent(monthName(today))
       expect(screen.getByTestId('events-now')).toHaveTextContent('Holiday 1')
-      expect(screen.getByTestId('events-next')).toHaveTextContent('30 prochains jours')
+      expect(screen.getByTestId('events-next')).toHaveTextContent('Les mois suivants')
       expect(screen.getByTestId('events-next')).toHaveTextContent(monthName(in32days))
       expect(screen.getByTestId('events-next')).toHaveTextContent('Holiday 2')
     })
@@ -65,7 +65,7 @@ describe('/+page.svelte', () => {
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1)
       expect(screen.queryByTestId('events-now')).toBeNull()
-      expect(screen.getByTestId('events-next')).toHaveTextContent('30 prochains jours')
+      expect(screen.getByTestId('events-next')).toHaveTextContent('Les mois suivants')
       expect(screen.getByTestId('events-next')).toHaveTextContent(monthName(in32days))
       expect(screen.getByTestId('events-next')).toHaveTextContent('Holiday 2')
     })
@@ -119,7 +119,7 @@ describe('/+page.svelte', () => {
       expect(today_month_occurrences).toBe(1)
       expect(screen.getByTestId('events-now')).toHaveTextContent('Holiday 1')
       expect(screen.getByTestId('events-now')).toHaveTextContent('Holiday 2')
-      expect(screen.getByTestId('events-next')).toHaveTextContent('30 prochains jours')
+      expect(screen.getByTestId('events-next')).toHaveTextContent('Les mois suivants')
       expect(screen.getByTestId('events-next')).toHaveTextContent(monthName(in32days))
       const in32days_month_occurrences = (
         screen
@@ -148,7 +148,7 @@ describe('/+page.svelte', () => {
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1)
       expect(screen.queryByTestId('events-now')).toBeNull()
-      expect(screen.getByTestId('events-next')).toHaveTextContent('30 prochains jours')
+      expect(screen.getByTestId('events-next')).toHaveTextContent('Les mois suivants')
       expect(screen.getByTestId('events-next')).toHaveTextContent(monthName(in32days))
       const in32days_month_occurrences = (
         screen
@@ -187,7 +187,7 @@ describe('/+page.svelte', () => {
       expect(screen.getByTestId('events-now')).toHaveTextContent('Prochainement')
       expect(screen.getByTestId('events-now')).toHaveTextContent(monthName(start1))
       expect(screen.getByTestId('events-now')).toHaveTextContent('Holiday 1')
-      expect(screen.getByTestId('events-next')).toHaveTextContent('30 prochains jours')
+      expect(screen.getByTestId('events-next')).toHaveTextContent('Les mois suivants')
       expect(screen.getByTestId('events-next')).not.toHaveTextContent(monthName(start2))
       expect(screen.getByTestId('events-next')).toHaveTextContent('Holiday 2')
     })
