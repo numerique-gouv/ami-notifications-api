@@ -18,9 +18,7 @@ from litestar.response.redirect import Redirect
 from litestar.static_files import (
     create_static_files_router,  # type: ignore[reportUnknownVariableType]
 )
-from litestar.status_codes import (
-    HTTP_500_INTERNAL_SERVER_ERROR,
-)
+from litestar.status_codes import HTTP_500_INTERNAL_SERVER_ERROR
 
 from app.admin import auth
 from app.httpx import AsyncClient
@@ -52,6 +50,8 @@ PUBLIC_API_URL = os.getenv("PUBLIC_API_URL", "")
 
 @get(path="/", include_in_schema=False)
 async def home(request: Request[Any, Any, Any]) -> Template:
+    if not auth.is_not_connected(request.session) and not auth.access_authorized(request.session):
+        raise auth.AccessNotAuthorizedException
     return Template(
         template_name="ami-admin/base.html",
         context={
@@ -160,6 +160,16 @@ async def logged_out() -> Template:
     return Template(template_name="ami-admin/logged-out.html")
 
 
+@get(path="/unauthorized", include_in_schema=False)
+async def unauthorized() -> Template:
+    return Template(
+        template_name="ami-admin/unauthorized.html",
+        context={
+            "isProConnected": True,
+        },
+    )
+
+
 @get(
     path="/liste-des-usagers",
     guards=[auth.authenticated_guard],
@@ -209,6 +219,7 @@ router: Router = Router(
         logout,
         logout_callback,
         logged_out,
+        unauthorized,
         list_users,
         send_notification,
         create_static_files_router(
@@ -217,6 +228,9 @@ router: Router = Router(
             html_mode=True,
         ),
     ],
-    exception_handlers={auth.NotAuthenticatedException: auth.redirect_to_login_exception_handler},
+    exception_handlers={
+        auth.NotAuthenticatedException: auth.redirect_to_login_exception_handler,
+        auth.AccessNotAuthorizedException: auth.redirect_to_unauthorized_exception_handler,
+    },
     middleware=[session_config.middleware],
 )
