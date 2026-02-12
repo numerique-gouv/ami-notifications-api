@@ -20,6 +20,7 @@ from litestar.static_files import (
 )
 from litestar.stores.file import FileStore
 from litestar.template.config import TemplateConfig
+from sentry_sdk.integrations.litestar import LitestarIntegration
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine
 
@@ -59,6 +60,11 @@ sentry_sdk.init(
     # Add data like request headers and IP for users, if applicable;
     # see https://docs.sentry.io/platforms/python/data-management/data-collected/ for more info
     # send_default_pii=True,
+    integrations=[
+        LitestarIntegration(
+            failed_request_status_codes={s for s in range(400, 599) if s != 401},
+        ),
+    ],
 )
 
 # ### VIEWS
