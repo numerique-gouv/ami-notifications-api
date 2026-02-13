@@ -1,10 +1,10 @@
 <script lang="ts">
   interface Props {
-    href: string
-    className?: string
-    color?: string
+    href: string;
+    className?: string;
+    color?: string;
   }
-  let { className, href, color = 'var(--text-default-grey)' }: Props = $props()
+  let { className, href, color = 'var(--text-default-grey)' }: Props = $props();
 </script>
 
 <span

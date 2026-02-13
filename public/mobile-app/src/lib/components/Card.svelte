@@ -1,15 +1,15 @@
 <script lang="ts">
-  import type { Snippet } from 'svelte'
-  import Icon from '$lib/components/Icon.svelte'
+  import type { Snippet } from 'svelte';
+  import Icon from '$lib/components/Icon.svelte';
 
   interface Props {
-    id?: string
-    children?: Snippet
-    iconHref: string
-    className?: string
-    title: string
+    id?: string;
+    children?: Snippet;
+    iconHref: string;
+    className?: string;
+    title: string;
   }
-  let { children, className, iconHref, id, title }: Props = $props()
+  let { children, className, iconHref, id, title }: Props = $props();
 </script>
 
 <div {id} class="fr-card fr-p-3w fr-mb-2w fr-enlarge-link {className}">

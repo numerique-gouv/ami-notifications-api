@@ -1,18 +1,18 @@
 <script lang="ts">
-  import { onMount } from 'svelte'
-  import { Item } from '$lib/agenda'
+  import { onMount } from 'svelte';
+  import { Item } from '$lib/agenda';
 
   interface Props {
-    item: Item
+    item: Item;
     // Only display the date on the agenda's page, not on the homepage
-    displayDate?: boolean
+    displayDate?: boolean;
   }
-  let { item, displayDate = true }: Props = $props()
-  let agendaItemDate: string = $state('')
+  let { item, displayDate = true }: Props = $props();
+  let agendaItemDate: string = $state('');
 
   onMount(async () => {
-    agendaItemDate = item.date ? item.date.toLocaleDateString('sv-SE') : ''
-  })
+    agendaItemDate = item.date ? item.date.toLocaleDateString('sv-SE') : '';
+  });
 </script>
 
 <div class="agenda--item">

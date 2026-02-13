@@ -9,9 +9,9 @@ declare global {
     // interface Platform {}
   }
   interface Window {
-    _paq?: any[]
-    NativeBridge?: any
+    _paq?: any[];
+    NativeBridge?: any;
   }
 }
 
-export {}
+export {};

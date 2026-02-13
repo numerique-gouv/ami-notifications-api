@@ -1,18 +1,18 @@
 <script lang="ts">
-  import type { Snippet } from 'svelte'
-  import { goto } from '$app/navigation'
-  import BackButton from '$lib/components/BackButton.svelte'
+  import type { Snippet } from 'svelte';
+  import { goto } from '$app/navigation';
+  import BackButton from '$lib/components/BackButton.svelte';
 
   interface Props {
-    backUrl: string
-    title?: string
-    children?: Snippet
+    backUrl: string;
+    title?: string;
+    children?: Snippet;
   }
-  let { backUrl, children, title }: Props = $props()
+  let { backUrl, children, title }: Props = $props();
 
   const navigateToPreviousPage = async () => {
-    goto(backUrl)
-  }
+    goto(backUrl);
+  };
 </script>
 
 <nav>
