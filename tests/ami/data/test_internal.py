@@ -5,7 +5,7 @@ import pytest
 from pytest_httpx import HTTPXMock
 
 from app.data.internal import get_elections_catalog, get_elections_data
-from app.schemas import (
+from app.data.schemas import (
     AgendaCatalog,
     AgendaCatalogItem,
     AgendaCatalogItemKind,
