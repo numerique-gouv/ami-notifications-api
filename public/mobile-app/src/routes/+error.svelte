@@ -4,6 +4,10 @@
   import { page } from '$app/state'
 
   onMount(() => {
+    // https://svelte.dev/docs/kit/routing#error
+    // If an error occurs during load, SvelteKit will render a default error page.
+    // You can customise this error page on a per-route basis by adding an +error.svelte file.
+
     console.error('Page status: ', page.status)
     if (page.error) {
       console.error('Error message: ', page.error.message)
@@ -23,7 +27,7 @@
       alt="Icône d'erreur technique"
     >
   </div>
-  <h1>Nous sommes désolées, une erreur s'est produite.</h1>
+  <h1>Nous sommes désolés, une erreur s'est produite.</h1>
   <div class="descriptive-text">
     <p>Veuillez réessayer plus tard.</p>
   </div>
