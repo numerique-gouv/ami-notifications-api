@@ -4,8 +4,8 @@ from typing import Any, Iterable, cast
 from workalendar.europe import France
 
 from app import env
+from app.data.schemas import AgendaCatalog, AgendaCatalogStatus, PublicHoliday, SchoolHoliday
 from app.httpx import AsyncClient
-from app.schemas import AgendaCatalog, AgendaCatalogStatus, PublicHoliday, SchoolHoliday
 
 
 class SchoolHolidaysError(Exception):
