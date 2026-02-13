@@ -39,7 +39,12 @@
     isMenuDisplayed = !isMenuDisplayed
   }
 
-  const goToProfile = async () => {
+  const goToNotifications = (e: MouseEvent) => {
+    e.preventDefault()
+    goto('/#/notifications')
+  }
+
+  const goToProfile = () => {
     goto('/#/profile')
   }
 
@@ -49,6 +54,16 @@
 
   const goToContact = () => {
     goto('/#/contact')
+  }
+
+  const goToEditAddress = (e: MouseEvent) => {
+    e.preventDefault()
+    goto('/#/edit-address')
+  }
+
+  const goToAgenda = (e: MouseEvent) => {
+    e.preventDefault()
+    goto('/#/agenda')
   }
 </script>
 
@@ -60,7 +75,11 @@
 
     <div class="header-right">
       <div class="notification-svg-icon" id="notification-icon">
-        <a href="/#/notifications">
+        <a
+          href="#"
+          onclick={(e) => goToNotifications(e)}
+          data-testid="notifications-link"
+        >
           <img src="/remixicons/notification-3.svg" alt="Icône de notifications">
           <div class="count-number-wrapper" data-content="{unreadNotificationsCount}">
             {unreadNotificationsCount}
@@ -135,12 +154,16 @@
             <div class="fr-tile__content">
               <img class="address-icon" src="/remixicons/house.svg" alt="Icône adresse">
               <h3 class="fr-tile__title">
-                <a href="/#/edit-address"
-                  ><b
+                <a
+                  href="#"
+                  onclick={(e) => goToEditAddress(e)}
+                  data-testid="edit-address-link"
+                >
+                  <b
                     >Renseignez votre adresse sur l'application pour faciliter vos
                     échanges&nbsp;!</b
-                  ></a
-                >
+                  >
+                </a>
               </h3>
             </div>
           </div>
@@ -169,7 +192,13 @@
     {:else}
       <div class="header-container">
         <span class="title">Mon agenda</span>
-        <a class="see-all" title="Voir tous mes évènements" href="/#/agenda">
+        <a
+          class="see-all"
+          title="Voir tous mes évènements"
+          href="#"
+          onclick={(e) => goToAgenda(e)}
+          data-testid="agenda-link"
+        >
           <span>Voir tout</span>
           <img
             class="arrow-line"
