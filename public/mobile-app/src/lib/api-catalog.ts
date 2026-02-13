@@ -18,7 +18,8 @@ export type Catalog = {
 }
 
 export const retrieveCatalog = async (date: Date | null = null): Promise<Catalog> => {
-  const today = date || new Date()
+  const now = new Date(date || '')
+  const today = new Date(now)
   today.setHours(0, 0, 0, 0)
   const current_date = today.toLocaleDateString('sv-SE') // this gives the locale date in ISO format ...
   const filter_items = []
@@ -32,6 +33,15 @@ export const retrieveCatalog = async (date: Date | null = null): Promise<Catalog
     try {
       const data = JSON.parse(catalogData[key])
       if (!data || data.status !== 'success') {
+        filter_items.push(key)
+        continue
+      }
+      if (!data.expires_at) {
+        filter_items.push(key)
+        continue
+      }
+      const expires_at = new Date(data.expires_at)
+      if (expires_at < now) {
         filter_items.push(key)
       }
     } catch {
@@ -49,12 +59,7 @@ export const retrieveCatalog = async (date: Date | null = null): Promise<Catalog
     if (response.ok) {
       const catalog = await response.json()
       for (const key of Object.keys(catalogData) as CatalogKey[]) {
-        let old_data = null
-        try {
-          old_data = JSON.parse(catalogData[key])
-        } catch {}
-        if (old_data && old_data.status === 'success') {
-          // already loaded, ignore
+        if (!filter_items.includes(key)) {
           continue
         }
         // store result, even if status is 'failed'
