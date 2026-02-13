@@ -165,6 +165,21 @@ describe('/ConnectedHomepage.svelte', () => {
     })
   })
 
+  test('should navigate to notifications when click on notifications button', async () => {
+    // Given
+    const spy = vi
+      .spyOn(navigationMethods, 'goto')
+      .mockImplementation(() => Promise.resolve())
+    render(ConnectedHomepage)
+
+    // When
+    const link = screen.getByTestId('notifications-link')
+    link.click()
+
+    // Then
+    expect(spy).toHaveBeenCalledWith('/#/notifications')
+  })
+
   test('should display address block when user address is not known (empty)', async () => {
     // When
     const { container } = render(ConnectedHomepage)
@@ -206,6 +221,21 @@ describe('/ConnectedHomepage.svelte', () => {
       const addressBlock = container.querySelector('.first-block-container')
       expect(addressBlock).toBeNull()
     })
+  })
+
+  test('should navigate to edit address when click on edit-address button', async () => {
+    // Given
+    const spy = vi
+      .spyOn(navigationMethods, 'goto')
+      .mockImplementation(() => Promise.resolve())
+    render(ConnectedHomepage)
+
+    // When
+    const link = screen.getByTestId('edit-address-link')
+    link.click()
+
+    // Then
+    expect(spy).toHaveBeenCalledWith('/#/edit-address')
   })
 
   test('Should display first holiday found from API', async () => {
@@ -273,6 +303,32 @@ describe('/ConnectedHomepage.svelte', () => {
       expect(agendaBlock).toHaveTextContent(
         'Retrouvez les temps importants de votre vie administrative ici'
       )
+    })
+  })
+
+  test('should navigate to agenda when click on agenda button', async () => {
+    // Given
+    const agenda = new Agenda()
+    vi.spyOn(agenda, 'now', 'get').mockReturnValue([
+      new Item('holiday', 'Holiday 1', null, new Date()),
+    ])
+    vi.spyOn(agenda, 'next', 'get').mockReturnValue([
+      new Item('holiday', 'Holiday 3', null, new Date()),
+    ])
+    vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(agenda)
+
+    const spy = vi
+      .spyOn(navigationMethods, 'goto')
+      .mockImplementation(() => Promise.resolve())
+    render(ConnectedHomepage)
+
+    // When
+    await waitFor(() => {
+      const link = screen.getByTestId('agenda-link')
+      link.click()
+
+      // Then
+      expect(spy).toHaveBeenCalledWith('/#/agenda')
     })
   })
 })
