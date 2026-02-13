@@ -184,6 +184,10 @@ class AgendaCatalogItem:
 class AgendaCatalog:
     status: AgendaCatalogStatus = field(default=AgendaCatalogStatus.LOADING)
     items: list[AgendaCatalogItem] = field(default_factory=list[AgendaCatalogItem])
+    expires_at: datetime.datetime | None = field(default=None)
+
+    def set_expires_at(self, expiration_rule: ExpirationRule):
+        self.expires_at = expiration_rule.compute_expires_at()
 
 
 @dataclass
