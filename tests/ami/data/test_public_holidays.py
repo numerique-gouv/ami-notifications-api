@@ -4,7 +4,7 @@ from unittest import mock
 import pytest
 
 from app.data.holidays import get_public_holidays_catalog, get_public_holidays_data
-from app.schemas import (
+from app.data.schemas import (
     AgendaCatalog,
     AgendaCatalogItem,
     AgendaCatalogItemKind,
