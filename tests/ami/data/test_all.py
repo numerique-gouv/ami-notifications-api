@@ -6,13 +6,13 @@ from litestar import Litestar
 from litestar.status_codes import HTTP_200_OK
 from litestar.testing import TestClient
 
-from app.models import User
-from app.schemas import (
+from app.data.schemas import (
     AgendaCatalog,
     AgendaCatalogItem,
     AgendaCatalogItemKind,
     AgendaCatalogStatus,
 )
+from app.models import User
 from tests.ami.utils import assert_query_fails_without_auth, login
 
 

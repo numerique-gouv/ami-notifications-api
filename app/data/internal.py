@@ -1,7 +1,7 @@
 import datetime
 from typing import Any, TypedDict
 
-from app.schemas import AgendaCatalog, AgendaCatalogStatus, Election
+from app.data.schemas import AgendaCatalog, AgendaCatalogStatus, Election
 
 
 class ElectionDict(TypedDict):

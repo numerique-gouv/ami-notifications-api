@@ -11,8 +11,8 @@ from app.data.holidays import (
     get_school_holidays_catalog,
 )
 from app.data.internal import get_elections_catalog
+from app.data.schemas import Agenda
 from app.httpx import AsyncClient
-from app.schemas import Agenda
 
 
 @get(path="/agenda/items", include_in_schema=False)
