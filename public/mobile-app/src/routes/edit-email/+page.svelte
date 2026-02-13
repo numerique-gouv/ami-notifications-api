@@ -1,44 +1,44 @@
 <script lang="ts">
-  import { onMount } from 'svelte'
-  import { goto } from '$app/navigation'
-  import NavWithBackButton from '$lib/components/NavWithBackButton.svelte'
-  import type { DataOrigin } from '$lib/state/User.svelte'
-  import { userStore } from '$lib/state/User.svelte'
-  import { formatDate } from '$lib/utils'
+  import { onMount } from 'svelte';
+  import { goto } from '$app/navigation';
+  import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
+  import type { DataOrigin } from '$lib/state/User.svelte';
+  import { userStore } from '$lib/state/User.svelte';
+  import { formatDate } from '$lib/utils';
 
-  let backUrl: string = '/#/profile'
-  let inputValue: string = $state('')
-  let email_origin: DataOrigin | undefined = $state()
-  let email_last_update: Date | undefined = $state()
+  let backUrl: string = '/#/profile';
+  let inputValue: string = $state('');
+  let email_origin: DataOrigin | undefined = $state();
+  let email_last_update: Date | undefined = $state();
 
   onMount(() => {
     if (!userStore.connected) {
-      goto('/')
-      return
+      goto('/');
+      return;
     } else {
-      const identity = userStore.connected.identity
-      const currentValue = identity.email
-      inputValue = currentValue || ''
-      email_origin = identity.dataDetails.email.origin
-      email_last_update = identity.dataDetails.email.lastUpdate
+      const identity = userStore.connected.identity;
+      const currentValue = identity.email;
+      inputValue = currentValue || '';
+      email_origin = identity.dataDetails.email.origin;
+      email_last_update = identity.dataDetails.email.lastUpdate;
     }
-  })
+  });
 
   const navigateToPreviousPage = async () => {
-    goto(backUrl)
-  }
+    goto(backUrl);
+  };
 
   const cancel = async () => {
-    await navigateToPreviousPage()
-  }
+    await navigateToPreviousPage();
+  };
 
   const submit = async () => {
     if (userStore.connected && inputValue) {
-      userStore.connected.setEmail(inputValue)
-      console.log('Updated the email to', inputValue)
+      userStore.connected.setEmail(inputValue);
+      console.log('Updated the email to', inputValue);
     }
-    await navigateToPreviousPage()
-  }
+    await navigateToPreviousPage();
+  };
 </script>
 
 <div class="form-page">

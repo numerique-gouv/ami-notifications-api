@@ -1,76 +1,76 @@
 <script lang="ts">
-  import applicationSvg from '@gouvfr/dsfr/dist/artwork/pictograms/digital/application.svg'
-  import { onMount } from 'svelte'
-  import { goto } from '$app/navigation'
-  import { page } from '$app/state'
+  import applicationSvg from '@gouvfr/dsfr/dist/artwork/pictograms/digital/application.svg';
+  import { onMount } from 'svelte';
+  import { goto } from '$app/navigation';
+  import { page } from '$app/state';
   import {
     PUBLIC_API_URL,
     PUBLIC_CONTACT_EMAIL,
     PUBLIC_CONTACT_URL,
-  } from '$env/static/public'
-  import { apiFetch } from '$lib/auth'
-  import ConnectedHomepage from '$lib/ConnectedHomepage.svelte'
-  import Navigation from '$lib/Navigation.svelte'
-  import { toastStore } from '$lib/state/toast.svelte'
-  import { userStore } from '$lib/state/User.svelte'
+  } from '$env/static/public';
+  import { apiFetch } from '$lib/auth';
+  import ConnectedHomepage from '$lib/ConnectedHomepage.svelte';
+  import Navigation from '$lib/Navigation.svelte';
+  import { toastStore } from '$lib/state/toast.svelte';
+  import { userStore } from '$lib/state/User.svelte';
 
-  let error: string = $state('')
-  let error_description: string = $state('')
-  const contactUrl = PUBLIC_CONTACT_URL
-  const contactEmail = PUBLIC_CONTACT_EMAIL
+  let error: string = $state('');
+  let error_description: string = $state('');
+  const contactUrl = PUBLIC_CONTACT_URL;
+  const contactEmail = PUBLIC_CONTACT_EMAIL;
 
   onMount(async () => {
     // User state already initialized in +layout.svelte
 
     try {
       if (page.url.searchParams.has('error')) {
-        error = page.url.searchParams.get('error') || ''
+        error = page.url.searchParams.get('error') || '';
       }
       if (page.url.searchParams.has('error_description')) {
-        error_description = page.url.searchParams.get('error_description') || ''
+        error_description = page.url.searchParams.get('error_description') || '';
       }
       if (
         page.url.searchParams.has('error_type') &&
         page.url.searchParams.get('error_type') === 'FranceConnect'
       ) {
         // Error during login, logout, token query... => logout the app.
-        localStorage.clear()
+        localStorage.clear();
       }
       if (error === 'access_denied' && error_description === 'User auth aborted') {
         // The user has aborted the FranceConnection, don't display any error message.
-        error = ''
-        error_description = ''
+        error = '';
+        error_description = '';
       }
       if (page.url.searchParams.has('is_logged_in')) {
         localStorage.setItem(
           'is_logged_in',
           page.url.searchParams.get('is_logged_in') || ''
-        )
-        localStorage.setItem('id_token', page.url.searchParams.get('id_token') || '')
-        localStorage.setItem('user_data', page.url.searchParams.get('user_data') || '')
+        );
+        localStorage.setItem('id_token', page.url.searchParams.get('id_token') || '');
+        localStorage.setItem('user_data', page.url.searchParams.get('user_data') || '');
         localStorage.setItem(
           'user_fc_hash',
           page.url.searchParams.get('user_fc_hash') || ''
-        )
+        );
         localStorage.setItem(
           'user_api_particulier_encoded_address',
           page.url.searchParams.get('address') || ''
-        )
-        await userStore.checkLoggedIn()
+        );
+        await userStore.checkLoggedIn();
         if (page.url.searchParams.get('user_first_login') === 'true') {
-          goto('/#/notifications-welcome-page')
+          goto('/#/notifications-welcome-page');
         } else {
-          goto('/')
+          goto('/');
         }
       }
       if (page.url.searchParams.has('is_logged_out')) {
-        toastStore.addToast('Vous avez bien été déconnecté(e)', 'neutral')
-        goto('/')
+        toastStore.addToast('Vous avez bien été déconnecté(e)', 'neutral');
+        goto('/');
       }
     } catch (error) {
-      console.error(error)
+      console.error(error);
     }
-  })
+  });
 
   // FC - Step 3
   const franceConnectLogin = async () => {
@@ -79,17 +79,17 @@
         method: 'HEAD',
         mode: 'no-cors',
         cache: 'no-store',
-      })
-      window.location.href = `${PUBLIC_API_URL}/login-france-connect`
+      });
+      window.location.href = `${PUBLIC_API_URL}/login-france-connect`;
     } catch {
-      goto('/#/network-error')
+      goto('/#/network-error');
     }
-  }
+  };
 
   function dismissError() {
-    error = ''
-    error_description = ''
-    goto('/')
+    error = '';
+    error_description = '';
+    goto('/');
   }
 </script>
 

@@ -1,4 +1,4 @@
-import { defineConfig } from '@playwright/test'
+import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
   webServer: {
@@ -10,4 +10,4 @@ export default defineConfig({
     ignoreHTTPSErrors: true,
   },
   testDir: 'e2e',
-})
+});

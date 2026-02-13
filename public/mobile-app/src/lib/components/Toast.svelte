@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { type Toast, toastStore } from '$lib/state/toast.svelte'
+  import { type Toast, toastStore } from '$lib/state/toast.svelte';
 
-  let { id, title, level }: Toast = $props()
+  let { id, title, level }: Toast = $props();
 </script>
 
 <div class="fr-notice toast-wrapper {level}">

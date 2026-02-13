@@ -1,12 +1,12 @@
-import { apiFetch } from '$lib/auth'
+import { apiFetch } from '$lib/auth';
 
 export type ScheduledNotification = {
-  content_title: string
-  content_body: string
-  content_icon: string
-  reference: string
-  scheduled_at: Date
-}
+  content_title: string;
+  content_body: string;
+  content_icon: string;
+  reference: string;
+  scheduled_at: Date;
+};
 
 export const createScheduledNotification = async (
   scheduledNotification: ScheduledNotification
@@ -16,12 +16,12 @@ export const createScheduledNotification = async (
       method: 'POST',
       body: JSON.stringify(scheduledNotification),
       credentials: 'include',
-    })
+    });
     if (response.status === 200) {
-      return true
+      return true;
     }
   } catch (error) {
-    console.error(error)
+    console.error(error);
   }
-  return false
-}
+  return false;
+};

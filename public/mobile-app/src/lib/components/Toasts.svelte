@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { flip } from 'svelte/animate'
-  import Toast from '$lib/components/Toast.svelte'
-  import { toastStore } from '$lib/state/toast.svelte'
+  import { flip } from 'svelte/animate';
+  import Toast from '$lib/components/Toast.svelte';
+  import { toastStore } from '$lib/state/toast.svelte';
 </script>
 
 {#if toastStore.toasts.length}
