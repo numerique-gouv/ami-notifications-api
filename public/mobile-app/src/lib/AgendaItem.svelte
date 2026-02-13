@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte'
+  import { goto } from '$app/navigation'
   import { Item } from '$lib/agenda'
 
   interface Props {
@@ -13,6 +14,17 @@
   onMount(async () => {
     agendaItemDate = item.date ? item.date.toLocaleDateString('sv-SE') : ''
   })
+
+  const goToAgendaItemLink = (
+    e: MouseEvent,
+    itemLink: string,
+    agendaItemDate: string
+  ) => {
+    if (!itemLink) {
+      e.preventDefault()
+    }
+    goto(`${item.link}?date=${agendaItemDate}`)
+  }
 </script>
 
 <div class="agenda--item">
@@ -32,14 +44,13 @@
     <div class="fr-tile__body">
       <div class="fr-tile__content {item.link ? '': 'no-link'}">
         <h3 class="fr-tile__title">
-          <a
-            href="{item.link}?date={agendaItemDate}"
-            onclick={(e) => {if (!item.link) {e.preventDefault();}}}
+          <button
+            onclick={(e) => goToAgendaItemLink(e, item.link, agendaItemDate)}
             data-testid="agenda-item-link"
             class="{item.link ? '': 'no-link'}"
           >
             {item.title}
-          </a>
+          </button>
         </h3>
         {#if item.description}
           <p class="fr-tile__detail">{item.description}</p>
@@ -112,7 +123,7 @@
         }
         .fr-tile__title {
           font-size: 16px;
-          a {
+          button {
             &::after {
               bottom: 1.25rem;
               right: 1.25rem;

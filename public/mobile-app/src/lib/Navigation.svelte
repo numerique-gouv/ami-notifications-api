@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { goto } from '$app/navigation'
+
   const { currentItem } = $props()
   const current = $derived({
     home: currentItem === 'home',
@@ -6,29 +8,37 @@
     lists: currentItem === 'lists',
     requests: currentItem === 'requests',
   })
+
+  const goToHomepage = () => {
+    goto('/')
+  }
+
+  const goToAgenda = () => {
+    goto('/#/agenda')
+  }
 </script>
 
 <nav class="menu-footer" aria-label="Menu principal">
   <ul class="menu-list">
     <li class="menu__item">
-      <a
+      <button
         class="menu__link {current.home ? 'highlight': ''}"
-        href="/"
+        onclick={goToHomepage}
         aria-current="{current.home ? 'true': null}"
       >
         <img src="/remixicons/home-4-fill.svg" alt="Icône d'accueil">
         <span>Accueil</span>
-      </a>
+      </button>
     </li>
     <li class="menu__item">
-      <a
+      <button
         class="menu__link {current.agenda ? 'highlight': ''}"
-        href="/#/agenda"
+        onclick={goToAgenda}
         aria-current="{current.agenda ? 'true': null}"
       >
         <img src="/remixicons/calendar-event-line.svg" alt="Icône de calendrier">
         <span>Agenda</span>
-      </a>
+      </button>
     </li>
   </ul>
 </nav>
@@ -59,6 +69,7 @@
         display: flex;
         flex-wrap: wrap;
         justify-content: center;
+        width: 100%;
         background: none;
         padding: 0.75rem 0 0.375rem;
         height: 4.25rem;

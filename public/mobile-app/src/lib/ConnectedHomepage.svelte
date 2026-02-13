@@ -39,6 +39,10 @@
     isMenuDisplayed = !isMenuDisplayed
   }
 
+  const goToNotifications = async () => {
+    goto('/#/notifications')
+  }
+
   const goToProfile = async () => {
     goto('/#/profile')
   }
@@ -50,6 +54,14 @@
   const goToContact = () => {
     goto('/#/contact')
   }
+
+  const goToEditAddress = () => {
+    goto('/#/edit-address')
+  }
+
+  const goToAgenda = () => {
+    goto('/#/agenda')
+  }
 </script>
 
 <div class="homepage-connected">
@@ -60,12 +72,12 @@
 
     <div class="header-right">
       <div class="notification-svg-icon" id="notification-icon">
-        <a href="/#/notifications">
+        <button onclick={goToNotifications}>
           <img src="/remixicons/notification-3.svg" alt="Icône de notifications">
-          <div class="count-number-wrapper" data-content="{unreadNotificationsCount}">
+          <span class="count-number-wrapper" data-content="{unreadNotificationsCount}">
             {unreadNotificationsCount}
-          </div>
-        </a>
+          </span>
+        </button>
       </div>
     </div>
   </div>
@@ -135,12 +147,12 @@
             <div class="fr-tile__content">
               <img class="address-icon" src="/remixicons/house.svg" alt="Icône adresse">
               <h3 class="fr-tile__title">
-                <a href="/#/edit-address"
-                  ><b
+                <button onclick={goToEditAddress}>
+                  <b
                     >Renseignez votre adresse sur l'application pour faciliter vos
                     échanges&nbsp;!</b
-                  ></a
-                >
+                  >
+                </button>
               </h3>
             </div>
           </div>
@@ -169,14 +181,14 @@
     {:else}
       <div class="header-container">
         <span class="title">Mon agenda</span>
-        <a class="see-all" title="Voir tous mes évènements" href="/#/agenda">
+        <button class="see-all" title="Voir tous mes évènements" onclick={goToAgenda}>
           <span>Voir tout</span>
           <img
             class="arrow-line"
             src="/remixicons/arrow-line.svg"
             alt="Icône de flèche"
           >
-        </a>
+        </button>
       </div>
       <div class="rubrique-content-container">
         {#if agenda?.now.length}
@@ -240,8 +252,8 @@
           margin-right: 16px;
           position: relative;
 
-          & a[href] {
-            background: none;
+          button {
+            padding: 0;
           }
 
           .count-number-wrapper {
@@ -343,6 +355,8 @@
         }
 
         .see-all {
+          padding: 0;
+          border-bottom: solid 1px;
           font-size: 14px;
           font-weight: 400;
           line-height: 24px;
