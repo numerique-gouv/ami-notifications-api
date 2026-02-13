@@ -90,6 +90,15 @@ async def test_get_agenda_items(
     election_data_mock = mock.AsyncMock(return_value=election_catalog)
     monkeypatch.setattr("app.data.routes.get_elections_catalog", election_data_mock)
 
+    duration_mock = mock.Mock(
+        return_value=datetime.datetime(2026, 2, 14, 11, 16, tzinfo=datetime.timezone.utc)
+    )
+    monkeypatch.setattr("app.data.routes.DurationExpiration.compute_expires_at", duration_mock)
+    monthly_mock = mock.Mock(
+        return_value=datetime.datetime(2026, 3, 1, tzinfo=datetime.timezone.utc)
+    )
+    monkeypatch.setattr("app.data.routes.MonthlyExpiration.compute_expires_at", monthly_mock)
+
     response = test_client.get("/data/agenda/items", params={"current_date": "2025-12-12"})
     assert response.status_code == HTTP_200_OK
     assert response.json() == {
@@ -117,6 +126,7 @@ async def test_get_agenda_items(
                     "emoji": "❄️",
                 },
             ],
+            "expires_at": "2026-03-01T00:00:00Z",
         },
         "public_holidays": {
             "status": "success",
@@ -142,6 +152,7 @@ async def test_get_agenda_items(
                     "emoji": "🎉",
                 },
             ],
+            "expires_at": "2026-03-01T00:00:00Z",
         },
         "elections": {
             "status": "success",
@@ -167,6 +178,7 @@ async def test_get_agenda_items(
                     "emoji": "🗳️",
                 },
             ],
+            "expires_at": "2026-02-14T11:16:00Z",
         },
     }
 

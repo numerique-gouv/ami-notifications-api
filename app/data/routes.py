@@ -11,8 +11,20 @@ from app.data.holidays import (
     get_school_holidays_catalog,
 )
 from app.data.internal import get_elections_catalog
-from app.data.schemas import Agenda
+from app.data.schemas import (
+    Agenda,
+    AgendaCatalogStatus,
+    DurationExpiration,
+    MonthlyExpiration,
+    TimeUnit,
+)
 from app.httpx import AsyncClient
+
+CATALOG_EXPIRATION_RULES = {
+    "school_holidays": MonthlyExpiration(),
+    "public_holidays": MonthlyExpiration(),
+    "elections": DurationExpiration(amount=1, unit=TimeUnit.DAYS),
+}
 
 
 @get(path="/agenda/items", include_in_schema=False)
@@ -48,7 +60,10 @@ async def get_agenda_items(
         if catalog_name not in item_keys:
             agenda.__dict__[catalog_name] = None
             continue
-        agenda.__dict__[catalog_name] = tasks[catalog_name].result()
+        result = tasks[catalog_name].result()
+        if result.status == AgendaCatalogStatus.SUCCESS:
+            result.set_expires_at(CATALOG_EXPIRATION_RULES[catalog_name])
+        agenda.__dict__[catalog_name] = result
     return agenda
 
 
