@@ -1,7 +1,7 @@
-import { sveltekit } from '@sveltejs/kit/vite'
-import { svelteTesting } from '@testing-library/svelte/vite'
-import basicSsl from '@vitejs/plugin-basic-ssl'
-import { defineConfig } from 'vitest/config'
+import { sveltekit } from '@sveltejs/kit/vite';
+import { svelteTesting } from '@testing-library/svelte/vite';
+import basicSsl from '@vitejs/plugin-basic-ssl';
+import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   plugins: [sveltekit(), basicSsl()],
@@ -30,4 +30,4 @@ export default defineConfig({
       },
     ],
   },
-})
+});

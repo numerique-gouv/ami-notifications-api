@@ -1,11 +1,11 @@
 <script lang="ts">
-  const { currentItem } = $props()
+  const { currentItem } = $props();
   const current = $derived({
     home: currentItem === 'home',
     agenda: currentItem === 'agenda',
     lists: currentItem === 'lists',
     requests: currentItem === 'requests',
-  })
+  });
 </script>
 
 <nav class="menu-footer" aria-label="Menu principal">

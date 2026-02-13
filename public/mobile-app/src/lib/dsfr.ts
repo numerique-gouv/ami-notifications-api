@@ -2,5 +2,5 @@
 // With this wrapper, we can mock it when we need to write tests.
 export async function initDsfr() {
   // @ts-expect-error
-  await import('@gouvfr/dsfr/dist/dsfr.module.min.js')
+  await import('@gouvfr/dsfr/dist/dsfr.module.min.js');
 }
