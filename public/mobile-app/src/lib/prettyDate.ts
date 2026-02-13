@@ -3,18 +3,18 @@
 // Takes an ISO time and returns a string representing how
 // long ago the date represents.
 export function prettyDate(data: Date | string) {
-  let date: Date
+  let date: Date;
   if (typeof data === 'string') {
-    date = new Date(data)
+    date = new Date(data);
   } else {
     // We hope it's a proper Date object.
-    date = data
+    date = data;
   }
 
-  const diff = (Date.now() - date.getTime()) / 1000
-  const day_diff = Math.floor(diff / 86400)
+  const diff = (Date.now() - date.getTime()) / 1000;
+  const day_diff = Math.floor(diff / 86400);
   if (Number.isNaN(day_diff) || day_diff < 0) {
-    return
+    return;
   }
 
   return (
@@ -23,5 +23,5 @@ export function prettyDate(data: Date | string) {
     (day_diff < 31 && `${day_diff}j`) ||
     (day_diff < 365 && `${Math.floor(day_diff / 31)}m`) ||
     `${Math.floor(day_diff / 365)}a`
-  )
+  );
 }

@@ -1,50 +1,50 @@
 <script lang="ts">
-  import { onMount } from 'svelte'
-  import { goto } from '$app/navigation'
-  import NavWithBackButton from '$lib/components/NavWithBackButton.svelte'
-  import NotificationIcon from '$lib/NotificationIcon.svelte'
-  import type { AppNotification } from '$lib/notifications'
+  import { onMount } from 'svelte';
+  import { goto } from '$app/navigation';
+  import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
+  import NotificationIcon from '$lib/NotificationIcon.svelte';
+  import type { AppNotification } from '$lib/notifications';
   import {
     notificationEventsSocket,
     readNotification,
     retrieveNotifications,
-  } from '$lib/notifications'
-  import { prettyDate } from '$lib/prettyDate'
-  import { userStore } from '$lib/state/User.svelte'
+  } from '$lib/notifications';
+  import { prettyDate } from '$lib/prettyDate';
+  import { userStore } from '$lib/state/User.svelte';
 
-  let backUrl: string = '/'
-  let notifications: AppNotification[] = $state([])
+  let backUrl: string = '/';
+  let notifications: AppNotification[] = $state([]);
 
   onMount(async () => {
     if (!userStore.connected) {
-      goto('/')
+      goto('/');
     }
 
-    notifications = await retrieveNotifications()
+    notifications = await retrieveNotifications();
     notificationEventsSocket(async () => {
-      notifications = await retrieveNotifications()
-    })
-  })
+      notifications = await retrieveNotifications();
+    });
+  });
 
   const redirectToLink = (notificationItemExternalUrl: string) => {
     if (notificationItemExternalUrl) {
-      window.location.href = notificationItemExternalUrl
+      window.location.href = notificationItemExternalUrl;
     }
-  }
+  };
 
   const clickOnNotification = async (
     event: MouseEvent,
     notificationId: string,
     notificationItemExternalUrl: string
   ) => {
-    event.preventDefault()
-    await readNotification(notificationId)
-    redirectToLink(notificationItemExternalUrl)
-  }
+    event.preventDefault();
+    await readNotification(notificationId);
+    redirectToLink(notificationItemExternalUrl);
+  };
 
   const goToSettings = () => {
-    goto('/#/settings')
-  }
+    goto('/#/settings');
+  };
 </script>
 
 <NavWithBackButton title="Notifications" {backUrl}>

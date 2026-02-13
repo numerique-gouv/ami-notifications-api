@@ -1,20 +1,20 @@
 <script lang="ts">
-  import dsfrIconList from '@gouvfr/dsfr/.config/icon.json'
-  import { onMount } from 'svelte'
+  import dsfrIconList from '@gouvfr/dsfr/.config/icon.json';
+  import { onMount } from 'svelte';
 
   interface Props {
-    defaultIcon: string
-    icon?: string
+    defaultIcon: string;
+    icon?: string;
   }
-  let { defaultIcon, icon = '' }: Props = $props()
-  let checkedIcon: string = $state('')
+  let { defaultIcon, icon = '' }: Props = $props();
+  let checkedIcon: string = $state('');
 
   onMount(async () => {
     checkedIcon = dsfrIconList.filter((i) => i.name === icon?.replace('fr-icon-', ''))
       .length
       ? icon
-      : defaultIcon
-  })
+      : defaultIcon;
+  });
 </script>
 
 <span class="notification__icon {checkedIcon}" aria-hidden="true"></span>

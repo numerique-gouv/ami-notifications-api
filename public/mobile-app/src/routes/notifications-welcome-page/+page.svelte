@@ -1,30 +1,30 @@
 <script lang="ts">
-  import { onMount } from 'svelte'
-  import { goto } from '$app/navigation'
-  import { runOrNativeEvent } from '$lib/nativeEvents'
-  import { enableNotificationsAndUpdateLocalStorage } from '$lib/notifications'
-  import { toastStore } from '$lib/state/toast.svelte'
-  import { userStore } from '$lib/state/User.svelte'
+  import { onMount } from 'svelte';
+  import { goto } from '$app/navigation';
+  import { runOrNativeEvent } from '$lib/nativeEvents';
+  import { enableNotificationsAndUpdateLocalStorage } from '$lib/notifications';
+  import { toastStore } from '$lib/state/toast.svelte';
+  import { userStore } from '$lib/state/User.svelte';
 
   onMount(async () => {
     if (!userStore.connected) {
-      goto('/')
+      goto('/');
     }
-  })
+  });
 
   const enableNotificationsFunc = async () => {
-    await enableNotificationsAndUpdateLocalStorage()
-    toastStore.addToast('Les notifications ont été activées', 'success')
-    goto('/')
-  }
+    await enableNotificationsAndUpdateLocalStorage();
+    toastStore.addToast('Les notifications ont été activées', 'success');
+    goto('/');
+  };
 
   const clickOnEnable = async () => {
-    runOrNativeEvent(enableNotificationsFunc, 'notification_permission_requested')
-  }
+    runOrNativeEvent(enableNotificationsFunc, 'notification_permission_requested');
+  };
 
   const goToHomepage = () => {
-    goto('/')
-  }
+    goto('/');
+  };
 </script>
 
 <div class="notifications-welcome-page">

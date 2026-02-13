@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { goto } from '$app/navigation'
+  import { goto } from '$app/navigation';
 
   const goToHomepage = () => {
-    goto('/')
-  }
+    goto('/');
+  };
 </script>
 
 <div class="network-error">

@@ -1,8 +1,8 @@
-import { describe, expect, test } from 'vitest'
-import '@testing-library/jest-dom/vitest'
-import { render, screen } from '@testing-library/svelte'
-import { Item } from '$lib/agenda'
-import AgendaItem from './AgendaItem.svelte'
+import { describe, expect, test } from 'vitest';
+import '@testing-library/jest-dom/vitest';
+import { render, screen } from '@testing-library/svelte';
+import { Item } from '$lib/agenda';
+import AgendaItem from './AgendaItem.svelte';
 
 describe('/AgendaItem.svelte', () => {
   test('should add date to url params', async () => {
@@ -14,13 +14,13 @@ describe('/AgendaItem.svelte', () => {
       null,
       new Date('2025-12-05'),
       null
-    )
-    render(AgendaItem, { props: { item: item } })
+    );
+    render(AgendaItem, { props: { item: item } });
 
     // When
-    const link = screen.getByTestId('agenda-item-link')
+    const link = screen.getByTestId('agenda-item-link');
 
     // Then
-    expect(link.getAttribute('href')).toBe('/#/procedure?date=2025-12-05')
-  })
-})
+    expect(link.getAttribute('href')).toBe('/#/procedure?date=2025-12-05');
+  });
+});

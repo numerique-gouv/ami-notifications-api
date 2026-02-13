@@ -1,22 +1,22 @@
 <script lang="ts">
-  import { onMount } from 'svelte'
-  import { goto } from '$app/navigation'
-  import AgendaItem from '$lib/AgendaItem.svelte'
-  import type { Agenda } from '$lib/agenda'
-  import { buildAgenda } from '$lib/agenda'
-  import Navigation from '$lib/Navigation.svelte'
-  import { userStore } from '$lib/state/User.svelte'
+  import { onMount } from 'svelte';
+  import { goto } from '$app/navigation';
+  import AgendaItem from '$lib/AgendaItem.svelte';
+  import type { Agenda } from '$lib/agenda';
+  import { buildAgenda } from '$lib/agenda';
+  import Navigation from '$lib/Navigation.svelte';
+  import { userStore } from '$lib/state/User.svelte';
 
-  let agenda: Agenda | null = $state(null)
+  let agenda: Agenda | null = $state(null);
 
   onMount(async () => {
     if (!userStore.connected) {
-      goto('/')
+      goto('/');
     }
 
-    agenda = await buildAgenda()
-    console.log($state.snapshot(agenda))
-  })
+    agenda = await buildAgenda();
+    console.log($state.snapshot(agenda));
+  });
 </script>
 
 <div class="agenda">

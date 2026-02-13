@@ -9,8 +9,8 @@ declare global {
     // interface Platform {}
   }
   interface Window {
-    _paq?: any[]
+    _paq?: any[];
   }
 }
 
-export {}
+export {};

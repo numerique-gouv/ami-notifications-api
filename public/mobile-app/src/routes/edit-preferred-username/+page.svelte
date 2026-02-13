@@ -1,45 +1,45 @@
 <script lang="ts">
-  import { onMount } from 'svelte'
-  import { goto } from '$app/navigation'
-  import NavWithBackButton from '$lib/components/NavWithBackButton.svelte'
-  import type { DataOrigin } from '$lib/state/User.svelte'
-  import { userStore } from '$lib/state/User.svelte'
-  import { formatDate } from '$lib/utils'
+  import { onMount } from 'svelte';
+  import { goto } from '$app/navigation';
+  import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
+  import type { DataOrigin } from '$lib/state/User.svelte';
+  import { userStore } from '$lib/state/User.svelte';
+  import { formatDate } from '$lib/utils';
 
-  let backUrl: string = '/#/profile'
-  let inputValue: string = $state('')
-  let preferred_username_origin: DataOrigin | undefined = $state()
-  let preferred_username_last_update: Date | undefined = $state()
+  let backUrl: string = '/#/profile';
+  let inputValue: string = $state('');
+  let preferred_username_origin: DataOrigin | undefined = $state();
+  let preferred_username_last_update: Date | undefined = $state();
 
   onMount(() => {
     if (!userStore.connected) {
-      goto('/')
-      return
+      goto('/');
+      return;
     } else {
-      const identity = userStore.connected.identity
-      const currentValue = identity.preferred_username
-      inputValue = currentValue || ''
-      preferred_username_origin = identity.dataDetails.preferred_username.origin
+      const identity = userStore.connected.identity;
+      const currentValue = identity.preferred_username;
+      inputValue = currentValue || '';
+      preferred_username_origin = identity.dataDetails.preferred_username.origin;
       preferred_username_last_update =
-        identity.dataDetails.preferred_username.lastUpdate
+        identity.dataDetails.preferred_username.lastUpdate;
     }
-  })
+  });
 
   const navigateToPreviousPage = async () => {
-    goto(backUrl)
-  }
+    goto(backUrl);
+  };
 
   const cancel = async () => {
-    await navigateToPreviousPage()
-  }
+    await navigateToPreviousPage();
+  };
 
   const submit = async () => {
     if (userStore.connected) {
-      userStore.connected.setPreferredUsername(inputValue)
-      console.log('Updated the preferred username to', inputValue)
+      userStore.connected.setPreferredUsername(inputValue);
+      console.log('Updated the preferred username to', inputValue);
     }
-    await navigateToPreviousPage()
-  }
+    await navigateToPreviousPage();
+  };
 </script>
 
 <div class="form-page">

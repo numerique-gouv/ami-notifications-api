@@ -1,66 +1,66 @@
-import { apiFetch } from '$lib/auth'
+import { apiFetch } from '$lib/auth';
 
 export type CatalogItem = {
-  kind: string
-  title: string
-  description: string
-  date: Date | null
-  start_date: Date | null
-  end_date: Date | null
-  zones: string
-  emoji: string
-}
+  kind: string;
+  title: string;
+  description: string;
+  date: Date | null;
+  start_date: Date | null;
+  end_date: Date | null;
+  zones: string;
+  emoji: string;
+};
 
 export type Catalog = {
-  school_holidays: CatalogItem[]
-  public_holidays: CatalogItem[]
-  elections: CatalogItem[]
-}
+  school_holidays: CatalogItem[];
+  public_holidays: CatalogItem[];
+  elections: CatalogItem[];
+};
 
 export const retrieveCatalog = async (date: Date | null = null): Promise<Catalog> => {
-  const today = date || new Date()
-  today.setHours(0, 0, 0, 0)
-  const current_date = today.toLocaleDateString('sv-SE') // this gives the locale date in ISO format ...
-  const filter_items = []
+  const today = date || new Date();
+  today.setHours(0, 0, 0, 0);
+  const current_date = today.toLocaleDateString('sv-SE'); // this gives the locale date in ISO format ...
+  const filter_items = [];
   const catalogData = {
     school_holidays: localStorage.getItem('school_holidays_catalog') || '{}',
     public_holidays: localStorage.getItem('public_holidays_catalog') || '{}',
     elections: localStorage.getItem('elections_catalog') || '{}',
-  }
-  type CatalogKey = keyof typeof catalogData
+  };
+  type CatalogKey = keyof typeof catalogData;
   for (const key of Object.keys(catalogData) as CatalogKey[]) {
     try {
-      const data = JSON.parse(catalogData[key])
+      const data = JSON.parse(catalogData[key]);
       if (!data || data.status !== 'success') {
-        filter_items.push(key)
+        filter_items.push(key);
       }
     } catch {
-      filter_items.push(key)
+      filter_items.push(key);
     }
   }
   if (filter_items.length) {
-    const items = (filter_items || []).map((e) => `filter-items=${e}`).join('&')
+    const items = (filter_items || []).map((e) => `filter-items=${e}`).join('&');
     const response = await apiFetch(
       `/data/agenda/items?current_date=${current_date}&${items}`,
       {
         credentials: 'include',
       }
-    )
+    );
     if (response.ok) {
-      const catalog = await response.json()
+      const catalog = await response.json();
       for (const key of Object.keys(catalogData) as CatalogKey[]) {
-        let old_data = null
+        let old_data = null;
         try {
-          old_data = JSON.parse(catalogData[key])
+          old_data = JSON.parse(catalogData[key]);
         } catch {}
         if (old_data && old_data.status === 'success') {
           // already loaded, ignore
-          continue
+          continue;
         }
         // store result, even if status is 'failed'
-        const new_data = JSON.stringify(catalog[key])
-        catalogData[key] = new_data
-        localStorage.setItem(`${key}_catalog`, new_data)
+        const new_data = JSON.stringify(catalog[key]);
+        catalogData[key] = new_data;
+        localStorage.setItem(`${key}_catalog`, new_data);
       }
     }
   }
@@ -70,14 +70,14 @@ export const retrieveCatalog = async (date: Date | null = null): Promise<Catalog
     public_holidays:
       JSON.parse(catalogData.public_holidays).items || ([] as CatalogItem[]),
     elections: JSON.parse(catalogData.elections).items || ([] as CatalogItem[]),
-  } as Catalog
+  } as Catalog;
   for (const items of Object.values(catalog)) {
     items.forEach((item) => {
       // convert dates
-      item.date = item.date ? new Date(item.date) : null
-      item.start_date = item.start_date ? new Date(item.start_date) : null
-      item.end_date = item.end_date ? new Date(item.end_date) : null
-    })
+      item.date = item.date ? new Date(item.date) : null;
+      item.start_date = item.start_date ? new Date(item.start_date) : null;
+      item.end_date = item.end_date ? new Date(item.end_date) : null;
+    });
   }
-  return catalog
-}
+  return catalog;
+};

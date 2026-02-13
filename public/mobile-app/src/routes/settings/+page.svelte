@@ -1,58 +1,58 @@
 <script lang="ts">
-  import { onMount } from 'svelte'
-  import { goto } from '$app/navigation'
-  import NavWithBackButton from '$lib/components/NavWithBackButton.svelte'
-  import { runOrNativeEvent } from '$lib/nativeEvents'
+  import { onMount } from 'svelte';
+  import { goto } from '$app/navigation';
+  import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
+  import { runOrNativeEvent } from '$lib/nativeEvents';
   import {
     disableNotifications,
     enableNotificationsAndUpdateLocalStorage,
-  } from '$lib/notifications'
-  import type { Registration } from '$lib/registration'
-  import { userStore } from '$lib/state/User.svelte'
+  } from '$lib/notifications';
+  import type { Registration } from '$lib/registration';
+  import { userStore } from '$lib/state/User.svelte';
 
-  let backUrl: string = '/'
-  let registration: Registration | null = $state(null)
-  let isChecked = $state(false)
+  let backUrl: string = '/';
+  let registration: Registration | null = $state(null);
+  let isChecked = $state(false);
 
   onMount(async () => {
     if (!userStore.connected) {
-      goto('/')
+      goto('/');
     }
 
-    isChecked = localStorage.getItem('notifications_enabled') === 'true'
-  })
+    isChecked = localStorage.getItem('notifications_enabled') === 'true';
+  });
 
   const navigateToPreviousPage = async () => {
-    goto(backUrl)
-  }
+    goto(backUrl);
+  };
 
   const enableNotificationsFunc = async () => {
-    registration = await enableNotificationsAndUpdateLocalStorage()
-  }
+    registration = await enableNotificationsAndUpdateLocalStorage();
+  };
 
   const disableNotificationsFunc = async () => {
-    let registrationId: string | null = null
+    let registrationId: string | null = null;
     if (registration) {
-      registrationId = registration.id
+      registrationId = registration.id;
     } else if (localStorage.getItem('registration_id')) {
-      registrationId = localStorage.getItem('registration_id')
+      registrationId = localStorage.getItem('registration_id');
     } else {
-      console.log('no registration')
+      console.log('no registration');
     }
 
     if (registrationId) {
-      await disableNotifications(registrationId)
-      localStorage.setItem('registration_id', '')
-      localStorage.setItem('notifications_enabled', 'false')
+      await disableNotifications(registrationId);
+      localStorage.setItem('registration_id', '');
+      localStorage.setItem('notifications_enabled', 'false');
     }
-  }
+  };
   const saveSettings = async () => {
     if (isChecked) {
-      runOrNativeEvent(enableNotificationsFunc, 'notification_permission_requested')
+      runOrNativeEvent(enableNotificationsFunc, 'notification_permission_requested');
     } else {
-      runOrNativeEvent(disableNotificationsFunc, 'notification_permission_removed')
+      runOrNativeEvent(disableNotificationsFunc, 'notification_permission_removed');
     }
-  }
+  };
 </script>
 
 <div class="settings-page">
