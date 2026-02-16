@@ -2,7 +2,9 @@ import asyncio
 import datetime
 from typing import Annotated, Any
 
+from advanced_alchemy.extensions.litestar import providers
 from litestar import Request, Router, get
+from litestar.di import Provide
 from litestar.params import Parameter
 
 from app.data.holidays import (
@@ -11,14 +13,19 @@ from app.data.holidays import (
     get_school_holidays_catalog,
 )
 from app.data.internal import get_elections_catalog
+from app.data.partners import get_psl_inventory
 from app.data.schemas import (
     Agenda,
     AgendaCatalogStatus,
     DurationExpiration,
+    FollowUp,
     MonthlyExpiration,
     TimeUnit,
 )
 from app.httpx import AsyncClient
+from app.models import User
+from app.services.notification import NotificationService
+from app.services.user import provide_user
 
 CATALOG_EXPIRATION_RULES = {
     "school_holidays": MonthlyExpiration(),
@@ -67,9 +74,33 @@ async def get_agenda_items(
     return agenda
 
 
+@get(
+    path="/follow-up/inventories",
+    include_in_schema=False,
+    dependencies={
+        "notifications_service": providers.create_service_provider(NotificationService),
+        "current_user": Provide(provide_user),
+    },
+)
+async def get_follow_up_inventories(
+    request: Request[Any, Any, Any],
+    current_user: User,
+    notifications_service: NotificationService,
+) -> FollowUp:
+    follow_up = FollowUp()
+
+    follow_up.psl = await get_psl_inventory(
+        current_user=current_user,
+        notifications_service=notifications_service,
+    )
+
+    return follow_up
+
+
 data_router: Router = Router(
     path="/data",
     route_handlers=[
         get_agenda_items,
+        get_follow_up_inventories,
     ],
 )
