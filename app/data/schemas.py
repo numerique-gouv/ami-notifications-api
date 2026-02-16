@@ -4,6 +4,8 @@ from dataclasses import dataclass, field, fields
 from enum import Enum
 from typing import Any
 
+from app.schemas import ItemGenericStatus
+
 
 class TimeUnit(str, Enum):
     SECONDS = "seconds"
@@ -195,3 +197,40 @@ class Agenda:
     school_holidays: AgendaCatalog | None = field(default_factory=AgendaCatalog)
     public_holidays: AgendaCatalog | None = field(default_factory=AgendaCatalog)
     elections: AgendaCatalog | None = field(default_factory=AgendaCatalog)
+
+
+class FollowUpInventoryStatus(Enum):
+    LOADING = "loading"
+    SUCCESS = "success"
+    FAILED = "failed"
+
+
+class FollowUpInventoryItemKind(Enum):
+    OTV = "otv"
+
+
+@dataclass
+class FollowUpInventoryItem:
+    external_id: str
+    kind: FollowUpInventoryItemKind
+    status_id: ItemGenericStatus
+    status_label: str
+    milestone_start_date: datetime.datetime | None
+    milestone_end_date: datetime.datetime | None
+
+    title: str
+    description: str
+
+    created_at: datetime.datetime
+    updated_at: datetime.datetime
+
+
+@dataclass
+class FollowUpInventory:
+    status: FollowUpInventoryStatus = field(default=FollowUpInventoryStatus.LOADING)
+    items: list[FollowUpInventoryItem] = field(default_factory=list[FollowUpInventoryItem])
+
+
+@dataclass
+class FollowUp:
+    psl: FollowUpInventory | None = field(default_factory=FollowUpInventory)
