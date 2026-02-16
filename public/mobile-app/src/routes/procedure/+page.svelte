@@ -2,8 +2,8 @@
   import { onMount } from 'svelte'
   import { goto } from '$app/navigation'
   import { Address } from '$lib/address'
-  import { apiFetch } from '$lib/auth'
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte'
+  import { retrieveProcedureUrl } from '$lib/procedure'
   import { User, type UserIdentity, userStore } from '$lib/state/User.svelte'
 
   let backUrl: string = '/'
@@ -33,20 +33,13 @@
         addressPostcode = addressFromUserStore.postcode
         addressName = addressFromUserStore.name
       }
-      try {
-        const response = await apiFetch(
-          `/api/v1/partner/otv/url?preferred_username=${preferredUsername}&email=${email}&address_city=${addressCity}&address_postcode=${addressPostcode}&address_name=${addressName}`,
-          {
-            credentials: 'include',
-          }
-        )
-        if (response.status === 200) {
-          const responseJson = await response.json()
-          procedureUrl = responseJson.partner_url
-        }
-      } catch (error) {
-        console.error(error)
-      }
+      procedureUrl = await retrieveProcedureUrl(
+        preferredUsername,
+        email,
+        addressCity,
+        addressPostcode,
+        addressName
+      )
     }
   }
 

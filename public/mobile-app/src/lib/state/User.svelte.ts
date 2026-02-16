@@ -56,16 +56,21 @@ export type UserIdentity = {
   dataDetails: DataDetails
 }
 
-class UserStore {
+export class UserStore {
   connected: User | null = $state(null)
 
   async login(userinfo: UserInfo): Promise<User> {
     if (!userinfo) {
       throw new Error('No userinfo provided')
     }
+    this.connected = await this.buildUser(userinfo)
+    emit('user_logged_in', userinfo)
+    return this.connected
+  }
+
+  private async buildUser(userinfo: UserInfo): Promise<User> {
     this.connected = new User(userinfo)
     await this.connected.updateIdentity()
-    emit('user_logged_in', userinfo)
     return this.connected
   }
 
