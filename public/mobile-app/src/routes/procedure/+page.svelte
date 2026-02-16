@@ -1,37 +1,37 @@
 <script lang="ts">
-  import { onMount } from 'svelte'
-  import { goto } from '$app/navigation'
-  import { Address } from '$lib/address'
-  import { apiFetch } from '$lib/auth'
-  import NavWithBackButton from '$lib/components/NavWithBackButton.svelte'
-  import { User, type UserIdentity, userStore } from '$lib/state/User.svelte'
+  import { onMount } from 'svelte';
+  import { goto } from '$app/navigation';
+  import { Address } from '$lib/address';
+  import { apiFetch } from '$lib/auth';
+  import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
+  import { User, type UserIdentity, userStore } from '$lib/state/User.svelte';
 
-  let backUrl: string = '/'
-  let procedureUrl: string = $state('')
-  let itemDate: string = $state('')
+  let backUrl: string = '/';
+  let procedureUrl: string = $state('');
+  let itemDate: string = $state('');
 
   const isValidDate = (d: Date | number) =>
-    d instanceof Date && !Number.isNaN(d.getTime())
+    d instanceof Date && !Number.isNaN(d.getTime());
 
   const getProcedureUrl = async () => {
-    let connected: User | null = userStore.connected
+    let connected: User | null = userStore.connected;
     if (!connected) {
-      return
+      return;
     }
-    let userIdentity: UserIdentity | null = connected.identity
+    let userIdentity: UserIdentity | null = connected.identity;
     if (userIdentity) {
       let preferredUsername: string = userIdentity.preferred_username
         ? userIdentity.preferred_username
-        : ''
-      let email: string = userIdentity.email ? userIdentity.email : ''
-      let addressFromUserStore: Address | undefined = userIdentity.address
-      let addressCity = ''
-      let addressPostcode = ''
-      let addressName = ''
+        : '';
+      let email: string = userIdentity.email ? userIdentity.email : '';
+      let addressFromUserStore: Address | undefined = userIdentity.address;
+      let addressCity = '';
+      let addressPostcode = '';
+      let addressName = '';
       if (addressFromUserStore) {
-        addressCity = addressFromUserStore.city
-        addressPostcode = addressFromUserStore.postcode
-        addressName = addressFromUserStore.name
+        addressCity = addressFromUserStore.city;
+        addressPostcode = addressFromUserStore.postcode;
+        addressName = addressFromUserStore.name;
       }
       try {
         const response = await apiFetch(
@@ -39,55 +39,55 @@
           {
             credentials: 'include',
           }
-        )
+        );
         if (response.status === 200) {
-          const responseJson = await response.json()
-          procedureUrl = responseJson.partner_url
+          const responseJson = await response.json();
+          procedureUrl = responseJson.partner_url;
         }
       } catch (error) {
-        console.error(error)
+        console.error(error);
       }
     }
-  }
+  };
 
   onMount(() => {
     if (!userStore.connected) {
-      goto('/')
+      goto('/');
     }
 
-    getProcedureUrl()
+    getProcedureUrl();
 
-    const hash = window.location.hash
-    const url = new URL(hash.substring(1), window.location.origin)
-    const stringFromUrl = url.searchParams.get('date') || ''
-    itemDate = ''
+    const hash = window.location.hash;
+    const url = new URL(hash.substring(1), window.location.origin);
+    const stringFromUrl = url.searchParams.get('date') || '';
+    itemDate = '';
 
     if (stringFromUrl !== '') {
-      const dateFromUrl: Date = new Date(stringFromUrl)
+      const dateFromUrl: Date = new Date(stringFromUrl);
       if (isValidDate(dateFromUrl)) {
-        const dayNumber: string = dateFromUrl ? dateFromUrl.getDate().toString() : ''
+        const dayNumber: string = dateFromUrl ? dateFromUrl.getDate().toString() : '';
         const monthName: string = dateFromUrl
           ? dateFromUrl.toLocaleString('fr-FR', { month: 'long' })
-          : ''
-        itemDate = `${dayNumber} ${monthName}`
+          : '';
+        itemDate = `${dayNumber} ${monthName}`;
       }
     }
-  })
+  });
 
   const redirectToLink = (procedureUrl: string) => {
     if (procedureUrl) {
-      window.location.href = procedureUrl
+      window.location.href = procedureUrl;
     }
-  }
+  };
 
   const clickOnProcedureButton = async () => {
-    const originalProcedureUrl = procedureUrl
-    procedureUrl = ''
-    await getProcedureUrl()
-    redirectToLink(originalProcedureUrl)
-  }
+    const originalProcedureUrl = procedureUrl;
+    procedureUrl = '';
+    await getProcedureUrl();
+    redirectToLink(originalProcedureUrl);
+  };
 
-  export const getProcedureUrlForTests = () => procedureUrl
+  export const getProcedureUrlForTests = () => procedureUrl;
 </script>
 
 <div class="procedure">

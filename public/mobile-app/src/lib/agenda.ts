@@ -1,17 +1,17 @@
-import type { Catalog, CatalogItem } from '$lib/api-catalog'
-import { retrieveCatalog } from '$lib/api-catalog'
-import { createScheduledNotification } from '$lib/scheduled-notifications'
-import { userStore } from '$lib/state/User.svelte'
+import type { Catalog, CatalogItem } from '$lib/api-catalog';
+import { retrieveCatalog } from '$lib/api-catalog';
+import { createScheduledNotification } from '$lib/scheduled-notifications';
+import { userStore } from '$lib/state/User.svelte';
 
-type Kind = 'holiday' | 'otv' | 'election'
+type Kind = 'holiday' | 'otv' | 'election';
 
 const capitalizeFirstLetter = (val: string) => {
-  return String(val).charAt(0).toUpperCase() + String(val).slice(1)
-}
+  return String(val).charAt(0).toUpperCase() + String(val).slice(1);
+};
 
 export const monthName = (date: Date) => {
-  return capitalizeFirstLetter(date.toLocaleDateString('fr-FR', { month: 'long' }))
-}
+  return capitalizeFirstLetter(date.toLocaleDateString('fr-FR', { month: 'long' }));
+};
 
 const slugify = (str: string): string => {
   return str
@@ -21,10 +21,10 @@ const slugify = (str: string): string => {
     .normalize('NFKD') // split accented characters into their base characters and diacritical marks
     .replace(/[\u0300-\u036f]/g, '') // remove all the accents, which happen to be all in the \u03xx UNICODE block.
     .toLowerCase() // convert to lowercase
-    .replace(/[^a-z0-9 -]/g, '') // remove non-alphanumeric characters
-}
+    .replace(/[^a-z0-9 -]/g, ''); // remove non-alphanumeric characters
+};
 
-const oneday_in_ms = 24 * 60 * 60 * 1000
+const oneday_in_ms = 24 * 60 * 60 * 1000;
 
 export class Item {
   constructor(
@@ -39,31 +39,31 @@ export class Item {
 
   equals(other: Item): boolean {
     if (!(other instanceof Item)) {
-      return false
+      return false;
     }
     return Object.entries(this).every(([key, thisValue]) => {
-      const otherValue = other[key as keyof Item]
+      const otherValue = other[key as keyof Item];
       // Special handling for Date objects
       if (thisValue instanceof Date || otherValue instanceof Date) {
         return (
           (thisValue as Date | null)?.getTime() ===
           (otherValue as Date | null)?.getTime()
-        )
+        );
       }
-      return thisValue === otherValue
-    })
+      return thisValue === otherValue;
+    });
   }
 
   get title(): string {
-    return this._title
+    return this._title;
   }
 
   get description(): string | null {
-    return this._description
+    return this._description;
   }
 
   get date(): Date | null {
-    return this._start_date || this._date
+    return this._start_date || this._date;
   }
 
   get dayName(): string | null {
@@ -71,7 +71,7 @@ export class Item {
       ? capitalizeFirstLetter(
           this.date.toLocaleDateString('fr-FR', { weekday: 'short' }).replace('.', '')
         )
-      : null
+      : null;
   }
 
   get fullDayName(): string | null {
@@ -79,43 +79,43 @@ export class Item {
       ? capitalizeFirstLetter(
           this.date.toLocaleDateString('fr-FR', { weekday: 'long' })
         )
-      : null
+      : null;
   }
 
   get dayNum(): number | null {
-    return this.date ? this.date.getDate() : null
+    return this.date ? this.date.getDate() : null;
   }
 
   get monthName(): string | null {
-    return this.date ? monthName(this.date) : null
+    return this.date ? monthName(this.date) : null;
   }
 
   get period(): string | undefined {
-    const locale = 'fr-FR'
+    const locale = 'fr-FR';
     let startFormat: Intl.DateTimeFormatOptions = {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
-    }
-    const dateFormat: Intl.DateTimeFormatOptions = startFormat
+    };
+    const dateFormat: Intl.DateTimeFormatOptions = startFormat;
     if (this._start_date) {
-      const start = this._start_date.toLocaleDateString(locale, startFormat)
+      const start = this._start_date.toLocaleDateString(locale, startFormat);
       if (this._end_date) {
-        const endFormat = startFormat
+        const endFormat = startFormat;
         if (this._start_date.getFullYear() === this._end_date.getFullYear()) {
-          startFormat = { month: 'long', day: 'numeric' }
+          startFormat = { month: 'long', day: 'numeric' };
           if (this._start_date.getMonth() === this._end_date.getMonth()) {
-            startFormat = { day: 'numeric' }
+            startFormat = { day: 'numeric' };
           }
         }
-        const start = this._start_date.toLocaleDateString(locale, startFormat)
-        const end = this._end_date.toLocaleDateString(locale, endFormat)
-        return `Du ${start} au ${end}`
+        const start = this._start_date.toLocaleDateString(locale, startFormat);
+        const end = this._end_date.toLocaleDateString(locale, endFormat);
+        return `Du ${start} au ${end}`;
       }
-      return `À partir du ${start}`
+      return `À partir du ${start}`;
     }
-    const date = this._date?.toLocaleDateString(locale, dateFormat)
-    return date
+    const date = this._date?.toLocaleDateString(locale, dateFormat);
+    return date;
   }
 
   private static readonly KindInfo: Record<
@@ -137,68 +137,68 @@ export class Item {
       icon: 'fr-icon-chat-check-fill',
       link: '',
     },
-  }
+  };
 
   get kind(): Kind {
-    return this._kind
+    return this._kind;
   }
 
   get custom(): boolean {
-    return this._custom
+    return this._custom;
   }
 
   get label(): string {
-    const info = Item.KindInfo[this._kind]
+    const info = Item.KindInfo[this._kind];
     if (info === undefined) {
-      return ''
+      return '';
     }
-    return info.label
+    return info.label;
   }
 
   get icon(): string {
-    const info = Item.KindInfo[this._kind]
+    const info = Item.KindInfo[this._kind];
     if (info === undefined) {
-      return ''
+      return '';
     }
-    return info.icon
+    return info.icon;
   }
 
   get link(): string {
-    const info = Item.KindInfo[this._kind]
+    const info = Item.KindInfo[this._kind];
     if (info === undefined) {
-      return ''
+      return '';
     }
-    return info.link
+    return info.link;
   }
 }
 
 export class Agenda {
-  private _now: Item[] = []
-  private _next: Item[] = []
+  private _now: Item[] = [];
+  private _next: Item[] = [];
 
   constructor(catalog: Catalog | null = null, date: Date | null = null) {
-    const today = date || new Date()
-    today.setHours(0, 0, 0, 0)
-    const items: Item[] = []
+    const today = date || new Date();
+    today.setHours(0, 0, 0, 0);
+    const items: Item[] = [];
 
-    const school_holidays: CatalogItem[] = catalog?.school_holidays || []
-    const public_holidays: CatalogItem[] = catalog?.public_holidays || []
-    const elections: CatalogItem[] = catalog?.elections || []
+    const school_holidays: CatalogItem[] = catalog?.school_holidays || [];
+    const public_holidays: CatalogItem[] = catalog?.public_holidays || [];
+    const elections: CatalogItem[] = catalog?.elections || [];
 
     // build items from school_holidays
-    this.createSchoolHolidayItems(items, school_holidays, today)
+    this.createSchoolHolidayItems(items, school_holidays, today);
 
     // build items from public_holidays
-    this.createPublicHolidayItems(items, public_holidays, today)
+    this.createPublicHolidayItems(items, public_holidays, today);
 
     // create OTV items
-    this.createOTVItems(items, school_holidays, today)
+    this.createOTVItems(items, school_holidays, today);
 
     // build items from elections
-    this.createElectionItems(items, elections, today)
+    this.createElectionItems(items, elections, today);
 
     // sort items by date
-    items.sort((a, b) => (a.date?.getTime() || 0) - (b.date?.getTime() || 0))
+    items.sort((a, b) => (a.date?.getTime() || 0) - (b.date?.getTime() || 0));
 
     // organize items in _now or _next arrays
     items.forEach((item) => {
@@ -207,11 +207,11 @@ export class Agenda {
         (item.date <= today ||
           item.date < new Date(today.getTime() + 30 * oneday_in_ms))
       ) {
-        this._now.push(item)
+        this._now.push(item);
       } else {
-        this._next.push(item)
+        this._next.push(item);
       }
-    })
+    });
   }
 
   private createSchoolHolidayItems(
@@ -220,38 +220,38 @@ export class Agenda {
     date: Date
   ) {
     school_holidays.forEach((holiday) => {
-      const item = this.createSchoolHolidayItem(holiday, date)
+      const item = this.createSchoolHolidayItem(holiday, date);
       if (item !== null) {
-        items.push(item)
+        items.push(item);
       }
-    })
+    });
   }
 
   private createSchoolHolidayItem(holiday: CatalogItem, date: Date): Item | null {
-    const userZone = userStore.connected?.identity.address?.zone
+    const userZone = userStore.connected?.identity.address?.zone;
     if (!holiday.start_date || !holiday.end_date) {
       // should not happen for school holiday
-      return null
+      return null;
     }
     if (holiday.end_date < date) {
       // exclude past school holiday
-      return null
+      return null;
     }
-    let title = holiday.title
+    let title = holiday.title;
     if (holiday.zones) {
-      title += ` ${holiday.zones}`
+      title += ` ${holiday.zones}`;
     }
     if (holiday.emoji) {
-      title += ` ${holiday.emoji}`
+      title += ` ${holiday.emoji}`;
     }
-    let custom = false
-    let description = null
+    let custom = false;
+    let description = null;
     if (
       userZone !== undefined &&
       (holiday.zones === `Zone ${userZone}` || holiday.zones === '')
     ) {
-      custom = true
-      description = `${userStore.connected?.identity.address?.city} 🏠`
+      custom = true;
+      description = `${userStore.connected?.identity.address?.city} 🏠`;
     }
     return new Item(
       'holiday',
@@ -261,7 +261,7 @@ export class Agenda {
       holiday.start_date,
       holiday.end_date,
       custom
-    )
+    );
   }
 
   private createPublicHolidayItems(
@@ -270,37 +270,37 @@ export class Agenda {
     date: Date
   ) {
     public_holidays.forEach((holiday) => {
-      const item = this.createPublicHolidayItem(holiday, date)
+      const item = this.createPublicHolidayItem(holiday, date);
       if (item !== null) {
-        items.push(item)
+        items.push(item);
       }
-    })
+    });
   }
 
   private createPublicHolidayItem(holiday: CatalogItem, date: Date): Item | null {
     if (!holiday.date) {
       // should not happen for public holiday
-      return null
+      return null;
     }
     if (holiday.date < date) {
       // exclude past public holiday
-      return null
+      return null;
     }
-    let title = holiday.title
+    let title = holiday.title;
     if (holiday.emoji) {
-      title += ` ${holiday.emoji}`
+      title += ` ${holiday.emoji}`;
     }
-    return new Item('holiday', title, null, holiday.date, null, null, false)
+    return new Item('holiday', title, null, holiday.date, null, null, false);
   }
 
   private createOTVItems(items: Item[], school_holidays: CatalogItem[], date: Date) {
-    const seenSchoolHolidays: Set<string> = new Set()
+    const seenSchoolHolidays: Set<string> = new Set();
     school_holidays.forEach((holiday) => {
-      const item = this.createOTVItem(seenSchoolHolidays, holiday, date)
+      const item = this.createOTVItem(seenSchoolHolidays, holiday, date);
       if (item !== null) {
-        items.push(item)
+        items.push(item);
       }
-    })
+    });
   }
 
   private createOTVItem(
@@ -310,18 +310,18 @@ export class Agenda {
   ): Item | null {
     if (!holiday.start_date || !holiday.end_date) {
       // should not happen for school holiday
-      return null
+      return null;
     }
-    const userZone = userStore.connected?.identity.address?.zone
+    const userZone = userStore.connected?.identity.address?.zone;
     const scheduledNotificationsCreatedKeys = new Set(
       userStore.connected?.identity.scheduledNotificationsCreatedKeys
-    )
+    );
     const key = JSON.stringify({
       desc: holiday.title,
       year: holiday.start_date.getFullYear(),
-    })
+    });
     if (seenSchoolHolidays.has(key)) {
-      return null
+      return null;
     }
     if (
       userZone !== undefined &&
@@ -329,14 +329,14 @@ export class Agenda {
       holiday.zones !== `Zone ${userZone}`
     ) {
       // Only create OTV for the user's zone, if present
-      return null
+      return null;
     }
-    seenSchoolHolidays.add(key)
+    seenSchoolHolidays.add(key);
     if (holiday.end_date < date) {
       // exclude OTV of past school holiday
-      return null
+      return null;
     }
-    const startDate = new Date(holiday.start_date.getTime() - 3 * 7 * oneday_in_ms)
+    const startDate = new Date(holiday.start_date.getTime() - 3 * 7 * oneday_in_ms);
     const item = new Item(
       'otv',
       'Opération Tranquillité Vacances 🏠',
@@ -345,9 +345,9 @@ export class Agenda {
       startDate,
       null,
       false
-    )
+    );
     if (userStore.connected) {
-      const scheduledNotificationKey = `ami-otv:d-3w:${holiday.start_date.getFullYear()}:${slugify(holiday.title)}`
+      const scheduledNotificationKey = `ami-otv:d-3w:${holiday.start_date.getFullYear()}:${slugify(holiday.title)}`;
       if (!scheduledNotificationsCreatedKeys.has(scheduledNotificationKey)) {
         createScheduledNotification({
           content_title: 'Et si on veillait sur votre logement ? 👮',
@@ -356,38 +356,40 @@ export class Agenda {
           content_icon: 'fr-icon-megaphone-line',
           reference: scheduledNotificationKey,
           scheduled_at: startDate,
-        })
-        userStore.connected.addScheduledNotificationCreatedKey(scheduledNotificationKey)
+        });
+        userStore.connected.addScheduledNotificationCreatedKey(
+          scheduledNotificationKey
+        );
       }
     }
     if (startDate > date) {
       // don't display OTV too early, only display them when they're close enough to their associated holiday
-      return null
+      return null;
     }
-    return item
+    return item;
   }
 
   private createElectionItems(items: Item[], elections: CatalogItem[], date: Date) {
     elections.forEach((election) => {
-      const item = this.createElectionItem(election, date)
+      const item = this.createElectionItem(election, date);
       if (item !== null) {
-        items.push(item)
+        items.push(item);
       }
-    })
+    });
   }
 
   private createElectionItem(election: CatalogItem, date: Date): Item | null {
     if (!election.date) {
       // should not happen for election
-      return null
+      return null;
     }
     if (election.date < date) {
       // exclude past election
-      return null
+      return null;
     }
-    let title = election.title
+    let title = election.title;
     if (election.emoji) {
-      title += ` ${election.emoji}`
+      title += ` ${election.emoji}`;
     }
     return new Item(
       'election',
@@ -397,20 +399,20 @@ export class Agenda {
       null,
       null,
       false
-    )
+    );
   }
 
   get now(): Item[] {
-    return this._now
+    return this._now;
   }
 
   get next(): Item[] {
-    return this._next
+    return this._next;
   }
 }
 
 export const buildAgenda = async (date: Date | null = null): Promise<Agenda> => {
-  const today = date || new Date()
-  const catalog: Catalog = await retrieveCatalog(today)
-  return new Agenda(catalog, today)
-}
+  const today = date || new Date();
+  const catalog: Catalog = await retrieveCatalog(today);
+  return new Agenda(catalog, today);
+};

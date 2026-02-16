@@ -1,136 +1,136 @@
 <script lang="ts">
-  import { onMount } from 'svelte'
-  import { goto } from '$app/navigation'
-  import { Address } from '$lib/address'
-  import { type AddressFromBAN, callBAN } from '$lib/addressesFromBAN'
-  import { buildAgenda } from '$lib/agenda'
-  import NavWithBackButton from '$lib/components/NavWithBackButton.svelte'
-  import type { DataOrigin } from '$lib/state/User.svelte'
-  import { userStore } from '$lib/state/User.svelte'
-  import { formatDate } from '$lib/utils'
+  import { onMount } from 'svelte';
+  import { goto } from '$app/navigation';
+  import { Address } from '$lib/address';
+  import { type AddressFromBAN, callBAN } from '$lib/addressesFromBAN';
+  import { buildAgenda } from '$lib/agenda';
+  import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
+  import type { DataOrigin } from '$lib/state/User.svelte';
+  import { userStore } from '$lib/state/User.svelte';
+  import { formatDate } from '$lib/utils';
 
-  let backUrl: string = '/#/profile'
-  let addressFromUserStore: Address | undefined = $state()
-  let timer: any
-  let inputValue: string = $state('')
-  let filteredAddresses: Address[] = $state([])
-  let disabledButton: boolean = $state(true)
-  let addressApiHasError: boolean = $state(false)
-  let addressInputHasError: boolean = $state(false)
-  let selectedAddress: Address | undefined = $state()
-  let hasSelectedAddress: boolean = $state(false)
-  let submittedAddress: Address | undefined = $state()
-  let address_origin: DataOrigin | undefined = $state()
-  let address_last_update: Date | undefined = $state()
+  let backUrl: string = '/#/profile';
+  let addressFromUserStore: Address | undefined = $state();
+  let timer: any;
+  let inputValue: string = $state('');
+  let filteredAddresses: Address[] = $state([]);
+  let disabledButton: boolean = $state(true);
+  let addressApiHasError: boolean = $state(false);
+  let addressInputHasError: boolean = $state(false);
+  let selectedAddress: Address | undefined = $state();
+  let hasSelectedAddress: boolean = $state(false);
+  let submittedAddress: Address | undefined = $state();
+  let address_origin: DataOrigin | undefined = $state();
+  let address_last_update: Date | undefined = $state();
 
   onMount(() => {
     if (!userStore.connected) {
-      goto('/')
-      return
+      goto('/');
+      return;
     } else {
-      const identity = userStore.connected.identity
-      addressFromUserStore = identity.address
+      const identity = userStore.connected.identity;
+      addressFromUserStore = identity.address;
       if (addressFromUserStore) {
-        hasSelectedAddress = true
-        selectedAddress = addressFromUserStore
-        submittedAddress = addressFromUserStore
+        hasSelectedAddress = true;
+        selectedAddress = addressFromUserStore;
+        submittedAddress = addressFromUserStore;
       }
-      address_origin = identity.dataDetails.address.origin
-      address_last_update = identity.dataDetails.address.lastUpdate
+      address_origin = identity.dataDetails.address.origin;
+      address_last_update = identity.dataDetails.address.lastUpdate;
     }
-  })
+  });
 
   const navigateToPreviousPage = async () => {
-    goto(backUrl)
-  }
+    goto(backUrl);
+  };
 
   const addressInputHandler = (event: Event) => {
     if (!event.target) {
-      return
+      return;
     }
-    const { value } = event.target as HTMLInputElement
-    debounce(value)
-  }
+    const { value } = event.target as HTMLInputElement;
+    debounce(value);
+  };
 
   const debounce = (value: string) => {
-    clearTimeout(timer)
+    clearTimeout(timer);
     timer = setTimeout(() => {
-      inputValue = value
-      filterAddresses()
-    }, 750)
-  }
+      inputValue = value;
+      filterAddresses();
+    }, 750);
+  };
 
   const filterAddresses = async () => {
-    filteredAddresses = []
+    filteredAddresses = [];
     if (inputValue) {
       try {
-        const response = await callBAN(inputValue)
-        addressApiHasError = response.errorCode === 'ban-unavailable'
-        addressInputHasError = response.errorCode === 'ban-failed-parsing-query'
+        const response = await callBAN(inputValue);
+        addressApiHasError = response.errorCode === 'ban-unavailable';
+        addressInputHasError = response.errorCode === 'ban-failed-parsing-query';
         if (addressApiHasError || addressInputHasError) {
-          return
+          return;
         }
         if (!response.results) {
-          return
+          return;
         }
         filteredAddresses = response.results.map((address: AddressFromBAN): Address => {
-          const city = address.city
-          const context = address.context
-          const idBAN = address.id
-          const label = address.label
-          const name = address.name
-          const postcode = address.postcode
-          return new Address(city, context, idBAN, label, name, postcode)
-        })
+          const city = address.city;
+          const context = address.context;
+          const idBAN = address.id;
+          const label = address.label;
+          const name = address.name;
+          const postcode = address.postcode;
+          return new Address(city, context, idBAN, label, name, postcode);
+        });
       } catch (error) {
-        console.error(error)
+        console.error(error);
       }
     }
-  }
+  };
 
   const setInputVal = (address: Address) => {
-    selectedAddress = address
-    filteredAddresses = []
-    inputValue = selectedAddress.label
+    selectedAddress = address;
+    filteredAddresses = [];
+    inputValue = selectedAddress.label;
 
     const addressInput: HTMLInputElement | null =
-      document.querySelector<HTMLInputElement>('#address-input')
+      document.querySelector<HTMLInputElement>('#address-input');
     if (addressInput) {
-      addressInput.focus()
+      addressInput.focus();
     }
 
-    hasSelectedAddress = true
-    disabledButton = false
-  }
+    hasSelectedAddress = true;
+    disabledButton = false;
+  };
 
   const cancelAddress = async () => {
-    await navigateToPreviousPage()
-  }
+    await navigateToPreviousPage();
+  };
 
   const submitAddress = async () => {
-    submittedAddress = selectedAddress
+    submittedAddress = selectedAddress;
     if (userStore.connected) {
-      userStore.connected.setAddress(selectedAddress)
+      userStore.connected.setAddress(selectedAddress);
       // rebuild agenda to create new scheduled notifications
-      userStore.connected.clearScheduledNotificationCreatedKey()
-      await buildAgenda()
+      userStore.connected.clearScheduledNotificationCreatedKey();
+      await buildAgenda();
     }
-    console.log(submittedAddress)
-    await navigateToPreviousPage()
-  }
+    console.log(submittedAddress);
+    await navigateToPreviousPage();
+  };
 
   const removeAddress = async () => {
-    hasSelectedAddress = false
+    hasSelectedAddress = false;
     if (userStore.connected) {
-      userStore.connected.setAddress(undefined)
+      userStore.connected.setAddress(undefined);
       // rebuild agenda to create new scheduled notifications
-      userStore.connected.clearScheduledNotificationCreatedKey()
-      await buildAgenda()
+      userStore.connected.clearScheduledNotificationCreatedKey();
+      await buildAgenda();
     }
-    disabledButton = false
-    selectedAddress = undefined
-    submittedAddress = undefined
-  }
+    disabledButton = false;
+    selectedAddress = undefined;
+    submittedAddress = undefined;
+  };
 </script>
 
 <div class="address-form-page">

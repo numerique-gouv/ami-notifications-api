@@ -1,15 +1,15 @@
 <script lang="ts">
-  import type { Snippet } from 'svelte'
-  import { goto } from '$app/navigation'
+  import type { Snippet } from 'svelte';
+  import { goto } from '$app/navigation';
 
   interface Props {
-    backUrl: string
+    backUrl: string;
   }
-  let { backUrl }: Props = $props()
+  let { backUrl }: Props = $props();
 
   const navigateToPreviousPage = async () => {
-    goto(backUrl)
-  }
+    goto(backUrl);
+  };
 </script>
 
 <div class="back-button-wrapper">

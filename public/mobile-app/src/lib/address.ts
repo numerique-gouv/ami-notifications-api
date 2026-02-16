@@ -16,45 +16,45 @@ export class Address {
       json._label,
       json._name,
       json._postcode
-    )
+    );
   }
 
   get city(): string {
-    return this._city
+    return this._city;
   }
 
   get context(): string {
-    return this._context
+    return this._context;
   }
 
   get idBAN(): string {
-    return this._idBAN
+    return this._idBAN;
   }
 
   get label(): string {
-    return this._label
+    return this._label;
   }
 
   get name(): string {
-    return this._name
+    return this._name;
   }
 
   get postcode(): string {
-    return this._postcode
+    return this._postcode;
   }
 
   get departement(): string {
     if (this._postcode.length < 2) {
-      return ''
+      return '';
     }
-    return this._postcode.substring(0, 2)
+    return this._postcode.substring(0, 2);
   }
 
   get zone(): string {
     const academie = academies.find((a) => {
-      return a.departements.includes(this.departement)
-    })
-    return academie ? academie.zone : ''
+      return a.departements.includes(this.departement);
+    });
+    return academie ? academie.zone : '';
   }
 }
 
@@ -91,4 +91,4 @@ const academies = [
     zone: 'C',
   },
   { academie: 'Versailles', departements: ['78', '91', '92', '95'], zone: 'C' },
-]
+];

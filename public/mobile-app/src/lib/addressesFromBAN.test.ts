@@ -1,6 +1,6 @@
-import { describe, expect, test, vi } from 'vitest'
-import '@testing-library/jest-dom/vitest'
-import { type AddressFromBAN, callBAN } from './addressesFromBAN'
+import { describe, expect, test, vi } from 'vitest';
+import '@testing-library/jest-dom/vitest';
+import { type AddressFromBAN, callBAN } from './addressesFromBAN';
 
 describe('addressesFromBAN.ts', () => {
   describe('callBAN', () => {
@@ -31,7 +31,7 @@ describe('addressesFromBAN.ts', () => {
           name: 'Allée des Aubépines',
           postcode: '63190',
         },
-      ]
+      ];
 
       const responseFromBAN = {
         type: 'FeatureCollection',
@@ -68,39 +68,41 @@ describe('addressesFromBAN.ts', () => {
           },
         ],
         query: '23 rue des aubépines orl',
-      }
+      };
 
       vi.spyOn(globalThis, 'fetch').mockResolvedValue(
         new Response(JSON.stringify(responseFromBAN), { status: 200 })
-      )
+      );
 
       // When
-      const response = await callBAN('23 rue des aubépines orl')
+      const response = await callBAN('23 rue des aubépines orl');
 
       // Then
       if (response?.results) {
         response.results.forEach((result: AddressFromBAN, index) => {
-          expect(result.city).toEqual(expectedResult[index].city)
-          expect(result.context).toEqual(expectedResult[index].context)
-          expect(result.id).toEqual(expectedResult[index].id)
-          expect(result.label).toEqual(expectedResult[index].label)
-          expect(result.name).toEqual(expectedResult[index].name)
-          expect(result.postcode).toEqual(expectedResult[index].postcode)
-        })
+          expect(result.city).toEqual(expectedResult[index].city);
+          expect(result.context).toEqual(expectedResult[index].context);
+          expect(result.id).toEqual(expectedResult[index].id);
+          expect(result.label).toEqual(expectedResult[index].label);
+          expect(result.name).toEqual(expectedResult[index].name);
+          expect(result.postcode).toEqual(expectedResult[index].postcode);
+        });
       }
-    })
+    });
 
     test('should call BAN endpoint and return specific errorCode when BAN is unavailable', async () => {
       // Given
-      vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('', { status: 500 }))
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        new Response('', { status: 500 })
+      );
 
       // When
-      const response = await callBAN('23 rue des aubépines orl')
+      const response = await callBAN('23 rue des aubépines orl');
 
       // Then
-      expect(response.errorCode).toBe('ban-unavailable')
-      expect(response.errorMessage).toBe('BAN unavailable')
-    })
+      expect(response.errorCode).toBe('ban-unavailable');
+      expect(response.errorMessage).toBe('BAN unavailable');
+    });
 
     test('should call BAN endpoint and return specific errorCode when query is not valid', async () => {
       // Given
@@ -110,18 +112,18 @@ describe('addressesFromBAN.ts', () => {
           'q: must contain between 3 and 200 chars and start with a number or a letter',
         ],
         message: 'Failed parsing query',
-      }
+      };
 
       vi.spyOn(globalThis, 'fetch').mockResolvedValue(
         new Response(JSON.stringify(responseFromBAN), { status: 400 })
-      )
+      );
 
       // When
-      const response = await callBAN('23')
+      const response = await callBAN('23');
 
       // Then
-      expect(response.errorCode).toBe('ban-failed-parsing-query')
-      expect(response.errorMessage).toBe('BAN Failed parsing query')
-    })
-  })
-})
+      expect(response.errorCode).toBe('ban-failed-parsing-query');
+      expect(response.errorMessage).toBe('BAN Failed parsing query');
+    });
+  });
+});

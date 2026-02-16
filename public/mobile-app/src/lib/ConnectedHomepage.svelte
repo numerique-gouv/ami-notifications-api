@@ -1,55 +1,55 @@
 <script lang="ts">
-  import { onMount } from 'svelte'
-  import { goto } from '$app/navigation'
-  import AgendaItem from '$lib/AgendaItem.svelte'
-  import type { Agenda } from '$lib/agenda'
-  import { buildAgenda } from '$lib/agenda'
-  import Icon from '$lib/components/Icon.svelte'
+  import { onMount } from 'svelte';
+  import { goto } from '$app/navigation';
+  import AgendaItem from '$lib/AgendaItem.svelte';
+  import type { Agenda } from '$lib/agenda';
+  import { buildAgenda } from '$lib/agenda';
+  import Icon from '$lib/components/Icon.svelte';
   import {
     countUnreadNotifications,
     notificationEventsSocket,
-  } from '$lib/notifications'
-  import { userStore } from '$lib/state/User.svelte'
+  } from '$lib/notifications';
+  import { userStore } from '$lib/state/User.svelte';
 
-  let unreadNotificationsCount: number = $state(0)
-  let initials: string = $state('')
-  let isMenuDisplayed: boolean = $state(false)
-  let isAgendaEmpty: boolean = $state(true)
-  let agenda: Agenda | null = $state(null)
+  let unreadNotificationsCount: number = $state(0);
+  let initials: string = $state('');
+  let isMenuDisplayed: boolean = $state(false);
+  let isAgendaEmpty: boolean = $state(true);
+  let agenda: Agenda | null = $state(null);
 
   onMount(async () => {
-    console.log('User is connected:', userStore.connected)
+    console.log('User is connected:', userStore.connected);
     try {
-      initials = userStore.connected?.getInitials() || ''
+      initials = userStore.connected?.getInitials() || '';
 
-      unreadNotificationsCount = await countUnreadNotifications()
+      unreadNotificationsCount = await countUnreadNotifications();
       notificationEventsSocket(async () => {
-        unreadNotificationsCount = await countUnreadNotifications()
-      })
+        unreadNotificationsCount = await countUnreadNotifications();
+      });
 
-      agenda = await buildAgenda()
-      console.log($state.snapshot(agenda))
-      isAgendaEmpty = !(agenda.now.length || agenda.next.length)
+      agenda = await buildAgenda();
+      console.log($state.snapshot(agenda));
+      isAgendaEmpty = !(agenda.now.length || agenda.next.length);
     } catch (error) {
-      console.error(error)
+      console.error(error);
     }
-  })
+  });
 
   const toggleMenu = () => {
-    isMenuDisplayed = !isMenuDisplayed
-  }
+    isMenuDisplayed = !isMenuDisplayed;
+  };
 
   const goToProfile = async () => {
-    goto('/#/profile')
-  }
+    goto('/#/profile');
+  };
 
   const goToSettings = () => {
-    goto('/#/settings')
-  }
+    goto('/#/settings');
+  };
 
   const goToContact = () => {
-    goto('/#/contact')
-  }
+    goto('/#/contact');
+  };
 </script>
 
 <div class="homepage-connected">

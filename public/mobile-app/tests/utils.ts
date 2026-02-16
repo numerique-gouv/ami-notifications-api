@@ -1,7 +1,7 @@
-import type { Screen } from '@testing-library/svelte'
-import { expect, vi } from 'vitest'
-import { Address } from '$lib/address'
-import { User } from '$lib/state/User.svelte'
+import type { Screen } from '@testing-library/svelte';
+import { expect, vi } from 'vitest';
+import { Address } from '$lib/address';
+import { User } from '$lib/state/User.svelte';
 
 export const mockPushSubscription = {
   unsubscribe: () => Promise.resolve(true),
@@ -13,7 +13,7 @@ export const mockPushSubscription = {
   },
   getKey: vi.fn(),
   toJSON: vi.fn(),
-}
+};
 
 export const mockUserInfo = {
   sub: 'fake sub',
@@ -29,7 +29,7 @@ export const mockUserInfo = {
   exp: 1753877658,
   iat: 1753877598,
   iss: 'https://fcp-low.sbx.dev-franceconnect.fr/api/v2',
-}
+};
 
 export const mockUserInfoWithPreferredUsername = {
   sub: 'fake sub',
@@ -46,7 +46,7 @@ export const mockUserInfoWithPreferredUsername = {
   exp: 1766064161,
   iat: 1766064102,
   iss: 'https://fcp-low.sbx.dev-franceconnect.fr/api/v2',
-}
+};
 
 export const mockAddress: Address = new Address(
   'Paris',
@@ -55,7 +55,7 @@ export const mockAddress: Address = new Address(
   'Avenue de Ségur 75007 Paris',
   'Avenue de Ségur',
   '75007'
-)
+);
 
 export const mockUserIdentity = {
   gender: 'female',
@@ -71,15 +71,17 @@ export const mockUserIdentity = {
     preferred_username: { origin: 'user' },
     email: { origin: 'user' },
   },
-}
+};
 
-export const mockUser = new User(mockUserInfo)
-export const mockUserWithPreferredUsername = new User(mockUserInfoWithPreferredUsername)
+export const mockUser = new User(mockUserInfo);
+export const mockUserWithPreferredUsername = new User(
+  mockUserInfoWithPreferredUsername
+);
 
 export const expectBackButtonPresent = (screen: Screen) => {
   // When
-  const backButton = screen.getByTestId('back-button')
+  const backButton = screen.getByTestId('back-button');
 
   // Then
-  expect(backButton).toBeInTheDocument()
-}
+  expect(backButton).toBeInTheDocument();
+};

@@ -1,18 +1,18 @@
-import { apiFetch } from '$lib/auth'
+import { apiFetch } from '$lib/auth';
 
 export type Registration = {
-  id: string
-  user_id: string
-  subscription: PushSubscription
-  created_at: Date | string
-}
+  id: string;
+  user_id: string;
+  subscription: PushSubscription;
+  created_at: Date | string;
+};
 
 export const registerDevice = async (
   pushSubscription: PushSubscription
 ): Promise<Registration | null> => {
-  const pushSubURL = pushSubscription.endpoint
-  const pushSubAuth = pushSubscription.toJSON().keys?.auth
-  const pushSubP256DH = pushSubscription.toJSON().keys?.p256dh
+  const pushSubURL = pushSubscription.endpoint;
+  const pushSubAuth = pushSubscription.toJSON().keys?.auth;
+  const pushSubP256DH = pushSubscription.toJSON().keys?.p256dh;
 
   const payload = {
     subscription: {
@@ -22,39 +22,39 @@ export const registerDevice = async (
         p256dh: pushSubP256DH,
       },
     },
-  }
-  console.log('payload:', payload)
+  };
+  console.log('payload:', payload);
 
   const response = await apiFetch('/api/v1/users/registrations', {
     method: 'POST',
     body: JSON.stringify(payload),
     credentials: 'include',
-  })
-  console.log('response:', response)
+  });
+  console.log('response:', response);
   if (response.status < 400) {
-    const registration = await response.json()
-    console.log('registration', registration)
-    return registration
+    const registration = await response.json();
+    console.log('registration', registration);
+    return registration;
   } else {
-    console.log(`error ${response.status}: ${response.statusText}, ${response.body}`)
-    return null
+    console.log(`error ${response.status}: ${response.statusText}, ${response.body}`);
+    return null;
   }
-}
+};
 
 export const unregisterDevice = async (registrationId: string) => {
   const headers = {
     'Content-Type': 'application/json',
-  }
+  };
   const response = await apiFetch(`/api/v1/users/registrations/${registrationId}`, {
     method: 'DELETE',
     headers: headers,
     credentials: 'include',
-  })
-  console.log('response:', response)
+  });
+  console.log('response:', response);
   if (response.status === 204) {
-    console.log('The device has been deleted successfully')
+    console.log('The device has been deleted successfully');
   } else {
-    console.log(`error ${response.status}: ${response.statusText}, ${response.body}`)
+    console.log(`error ${response.status}: ${response.statusText}, ${response.body}`);
   }
-  return response.status
-}
+  return response.status;
+};

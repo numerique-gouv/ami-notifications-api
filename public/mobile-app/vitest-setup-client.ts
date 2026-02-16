@@ -1,9 +1,9 @@
-import '@testing-library/jest-dom/vitest'
-import { beforeEach, type Mock, vi } from 'vitest'
+import '@testing-library/jest-dom/vitest';
+import { beforeEach, type Mock, vi } from 'vitest';
 import {
   PUBLIC_API_GEO_CITY_QUERY_BASE_URL,
   PUBLIC_API_GEO_COUNTRY_QUERY_BASE_URL,
-} from '$env/static/public'
+} from '$env/static/public';
 
 const fetchSpy = (): Mock => {
   return vi
@@ -14,7 +14,7 @@ const fetchSpy = (): Mock => {
           ? input
           : input instanceof URL
             ? input.href
-            : input.url
+            : input.url;
 
       // Mock geo.api.gouv.fr for birthplace
       if (url.includes(PUBLIC_API_GEO_CITY_QUERY_BASE_URL)) {
@@ -23,7 +23,7 @@ const fetchSpy = (): Mock => {
             status: 200,
             headers: { 'Content-Type': 'application/json' },
           })
-        )
+        );
       }
 
       // Mock tabular-api.data.gouv.fr for birthcountry
@@ -33,7 +33,7 @@ const fetchSpy = (): Mock => {
             status: 200,
             headers: { 'Content-Type': 'application/json' },
           })
-        )
+        );
       }
 
       // Default fallback
@@ -42,15 +42,15 @@ const fetchSpy = (): Mock => {
           status: 404,
           headers: { 'Content-Type': 'application/json' },
         })
-      )
-    })
-}
+      );
+    });
+};
 
 beforeEach(() => {
-  window.localStorage?.clear()
+  window.localStorage?.clear();
 
-  globalThis.fetchSpy = fetchSpy()
-})
+  globalThis.fetchSpy = fetchSpy();
+});
 
 // required for svelte5 + jsdom as jsdom does not support matchMedia
 Object.defineProperty(window, 'matchMedia', {
@@ -64,4 +64,4 @@ Object.defineProperty(window, 'matchMedia', {
     removeEventListener: vi.fn(),
     dispatchEvent: vi.fn(),
   })),
-})
+});

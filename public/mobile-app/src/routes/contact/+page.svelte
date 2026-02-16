@@ -1,29 +1,29 @@
 <script lang="ts">
-  import { onMount } from 'svelte'
-  import { goto } from '$app/navigation'
-  import { PUBLIC_CONTACT_EMAIL, PUBLIC_CONTACT_URL } from '$env/static/public'
-  import NavWithBackButton from '$lib/components/NavWithBackButton.svelte'
-  import { toastStore } from '$lib/state/toast.svelte'
-  import { userStore } from '$lib/state/User.svelte'
+  import { onMount } from 'svelte';
+  import { goto } from '$app/navigation';
+  import { PUBLIC_CONTACT_EMAIL, PUBLIC_CONTACT_URL } from '$env/static/public';
+  import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
+  import { toastStore } from '$lib/state/toast.svelte';
+  import { userStore } from '$lib/state/User.svelte';
 
-  let backUrl: string = '/'
-  let userFcHash: string | null = null
-  const contactUrl = PUBLIC_CONTACT_URL
-  const contactEmail = PUBLIC_CONTACT_EMAIL
+  let backUrl: string = '/';
+  let userFcHash: string | null = null;
+  const contactUrl = PUBLIC_CONTACT_URL;
+  const contactEmail = PUBLIC_CONTACT_EMAIL;
 
   onMount(async () => {
     if (!userStore.connected) {
-      goto('/')
+      goto('/');
     }
-    userFcHash = localStorage.getItem('user_fc_hash')
-  })
+    userFcHash = localStorage.getItem('user_fc_hash');
+  });
 
   const copyIdentificationCode = () => {
     if (userFcHash) {
-      navigator.clipboard.writeText(userFcHash)
-      toastStore.addToast("Code d'identification copié !", 'neutral')
+      navigator.clipboard.writeText(userFcHash);
+      toastStore.addToast("Code d'identification copié !", 'neutral');
     }
-  }
+  };
 </script>
 
 <div class="contact-page">
