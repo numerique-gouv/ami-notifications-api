@@ -73,6 +73,52 @@ def generate_identity_token(
         },
     }
 
+    # 1. Stringifier la partie "data"
+    # data = {
+    #     "nom_usage": preferred_username,
+    #     "email": email,
+    #     "commune_nom": address_city,
+    #     "commune_cp": address_postcode,
+    #     "commune_adresse": address_name,
+    # }
+    # data_stringified = str(data)
+
+    # 2. Gzipper
+    # data_bytes = data_stringified.encode("utf-8")
+    # data_gzipped = gzip.compress(data_bytes)
+
+    # 3. Chiffrement en RSA2048 avec la clé publique de la PSL
+    # Charger le certificat public de chiffrement de la PSL depuis une variable d'env
+    # cert_data = env.PSL_OTV_PUBLIC_KEY
+    # cert = x509.load_pem_x509_certificate(cert_data)
+    # public_key = cert.public_key()
+    # data_ciphered = public_key.encrypt(
+    #     data_gzipped,
+    #     padding.OAEP(
+    #         mgf=padding.MGF1(algorithm=hashes.SHA256()),
+    #         algorithm=hashes.SHA256(),
+    #         label=None
+    #     )
+    # )
+
+    # 4. Encoder en base64
+    # data_ciphered_bytes = data_ciphered.encode('utf-8')
+    # data_ciphered_b64_bytes = base64.b64encode(data_ciphered_bytes)
+    # data_ciphered_b64_str = data_ciphered_b64_bytes.decode('utf-8')
+
+    # 5. Réinjecter dans le payload
+    # payload = {
+    #     "iss": "ami",
+    #     "iat": int(datetime.datetime.now().timestamp()),
+    #     "exp": datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=30),
+    #     "nonce": str(uuid4()),
+    #     "hash_fc": fc_hash,
+    #     "data": data_ciphered_b64_str,
+    # }
+
+    # 6. Signer le token JWT avec notre clé privée
+    # jwt.encode(payload, env.OTV_PRIVATE_KEY.encode(), algorithm="RS256")
+
     return jwt.encode(payload, env.OTV_PRIVATE_KEY.encode(), algorithm="RS256")
 
 
