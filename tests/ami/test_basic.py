@@ -8,7 +8,7 @@ from freezegun.api import FakeDatetime
 from litestar import Litestar
 from litestar.testing import TestClient
 
-from app.utils import build_fc_hash, decode_identity_token, generate_identity_token
+from app.utils import build_fc_hash, decode_identity_token, decrypt_data, generate_identity_token
 
 
 async def test_ping(
@@ -80,6 +80,10 @@ def test_generate_identity_token(
 
     mock_otv_private_key = "test_private_key"
     expected_token = "fake-generated-identity-token"
+    expected_data = "fake-encrypted-data"
+
+    def mock_encrypt_data(*args: Any):
+        return expected_data
 
     def mock_jwt_encode(payload: Any, key: Any, **kwargs: Any) -> str:
         assert payload["iss"] == "ami"
@@ -87,13 +91,7 @@ def test_generate_identity_token(
         assert payload["exp"] == FakeDatetime(2026, 1, 23, 11, 6, tzinfo=datetime.timezone.utc)
         assert payload["nonce"] == mock_uuid_str
         assert payload["hash_fc"] == fc_hash
-        assert payload["data"] == {
-            "nom_usage": preferred_username,
-            "email": email,
-            "commune_nom": address_city,
-            "commune_cp": address_postcode,
-            "commune_adresse": address_name,
-        }
+        assert payload["data"] == expected_data
         assert key.decode() == mock_otv_private_key
         assert kwargs["algorithm"] == "RS256"
         return expected_token
@@ -101,6 +99,7 @@ def test_generate_identity_token(
     monkeypatch.setattr("app.utils.uuid4", mock_uuid_uuid4)
     monkeypatch.setattr("jwt.encode", mock_jwt_encode)
     monkeypatch.setattr("app.env.OTV_PRIVATE_KEY", mock_otv_private_key)
+    monkeypatch.setattr("app.utils.encrypt_data", mock_encrypt_data)
 
     # When
     token = generate_identity_token(
@@ -115,7 +114,8 @@ def test_generate_identity_token(
 def test_generate_identity_token_with_decode(
     test_client: TestClient[Litestar],
     monkeypatch: pytest.MonkeyPatch,
-    rsa_keys: Dict[str, str],
+    otv_rsa_keys: Dict[str, str],
+    psl_cert_keys: Dict[str, str],
 ) -> None:
     # Given
     preferred_username: str = "Delaforêt"
@@ -132,12 +132,15 @@ def test_generate_identity_token_with_decode(
 
     monkeypatch.setattr("app.utils.uuid4", mock_uuid_uuid4)
 
-    fake_otv_private_key: str = rsa_keys["private"]
-    fake_otv_public_key: str = rsa_keys["public"]
+    fake_otv_private_key: str = otv_rsa_keys["private"]
+    fake_otv_public_key: str = otv_rsa_keys["public"]
+    fake_psl_otv_private_key: str = psl_cert_keys["private"]
+    fake_psl_otv_public_key: str = psl_cert_keys["public"]
 
     monkeypatch.setattr("app.utils.uuid4", mock_uuid_uuid4)
     monkeypatch.setattr("app.env.OTV_PRIVATE_KEY", fake_otv_private_key)
     monkeypatch.setattr("app.env.PUBLIC_OTV_PUBLIC_KEY", fake_otv_public_key)
+    monkeypatch.setattr("app.env.PSL_OTV_PUBLIC_KEY", fake_psl_otv_public_key)
 
     # When
     token = generate_identity_token(
@@ -155,7 +158,8 @@ def test_generate_identity_token_with_decode(
         decoded_result["hash_fc"]
         == "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060"
     )
-    data_result: Dict[str, str] = decoded_result["data"]  # pyright: ignore[reportAssignmentType]
+    data_encrypted = decoded_result["data"]
+    data_result = decrypt_data(data_encrypted, fake_psl_otv_private_key)
     assert data_result["nom_usage"] == "Delaforêt"
     assert data_result["email"] == "wossewodda-37228@yopmail.com"
     assert data_result["commune_nom"] == "Paris"
