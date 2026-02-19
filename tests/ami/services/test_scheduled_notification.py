@@ -105,6 +105,8 @@ async def test_publish_scheduled_notifications(
     assert notification.send_date is not None
     assert notification.sender == "AMI"
     assert notification.read is False
+    assert notification.try_push is None
+    assert notification.send_status is True
     res = await get_from_stream(notification_events_subscriber, 1)
     assert json.loads(res[0].decode()) == {
         "user_id": str(user.id),
@@ -171,6 +173,35 @@ async def test_publish_scheduled_notification_no_registration(
         await db_session.execute(select(func.count()).select_from(Notification))
     ).scalar()
     assert notification_count == 1
+    assert not httpx_mock.get_request()
+
+
+async def test_publish_scheduled_notification_never_seen_user(
+    test_client: TestClient,
+    scheduled_notifications_service: ScheduledNotificationService,
+    notifications_service: NotificationService,
+    db_session: AsyncSession,
+    never_seen_user: User,
+    httpx_mock: HTTPXMock,
+) -> None:
+    scheduled_notification = ScheduledNotification(
+        user_id=never_seen_user.id,
+        content_title="title",
+        content_body="body",
+        content_icon="icon",
+        reference="reference",
+        scheduled_at=datetime.datetime.now(datetime.timezone.utc),
+        sender="AMI",
+    )
+    db_session.add(scheduled_notification)
+    await db_session.commit()
+
+    await scheduled_notifications_service.publish_scheduled_notifications(test_client.app)
+    all_notifications = (await db_session.execute(select(Notification))).scalars().all()
+    assert len(all_notifications) == 1
+    notification = all_notifications[0]
+    assert notification.try_push is None
+    assert notification.send_status is False
     assert not httpx_mock.get_request()
 
 

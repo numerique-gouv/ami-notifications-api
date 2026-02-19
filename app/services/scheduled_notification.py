@@ -6,6 +6,7 @@ from advanced_alchemy.extensions.litestar.providers import create_service_provid
 from litestar import Litestar
 from litestar.channels import ChannelsPlugin
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 
 from app import models
 from app.services.notification import NotificationService
@@ -65,6 +66,7 @@ class ScheduledNotificationService(
         now = datetime.datetime.now(datetime.timezone.utc)
         query = (
             select(models.ScheduledNotification)
+            .options(selectinload(models.ScheduledNotification.user))
             .where(
                 models.ScheduledNotification.id == scheduled_notification_id,
                 models.ScheduledNotification.scheduled_at < now,
@@ -85,6 +87,7 @@ class ScheduledNotificationService(
                 "content_body": scheduled_notification.content_body,
                 "content_icon": scheduled_notification.content_icon,
                 "sender": scheduled_notification.sender,
+                "send_status": scheduled_notification.user.last_logged_in is not None,
             }
         )
 
