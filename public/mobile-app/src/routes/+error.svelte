@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount } from 'svelte'
-  import { goto } from '$app/navigation'
   import { page } from '$app/state'
 
   onMount(() => {
@@ -13,10 +12,6 @@
       console.error('Error message: ', page.error.message)
     }
   })
-
-  const goToHomepage = () => {
-    goto('/', { invalidateAll: true })
-  }
 </script>
 
 <div class="technical-error">
@@ -26,14 +21,15 @@
     <p>(Veuillez éventuellement vérifier la connexion)</p>
   </div>
   <div class="action-buttons">
-    <button
+    <a
+      data-sveltekit-reload
+      href="/"
       class="fr-btn"
       type="button"
-      onclick="{goToHomepage}"
       data-testid="back-button"
     >
       Revenir à l'accueil
-    </button>
+    </a>
   </div>
 </div>
 
