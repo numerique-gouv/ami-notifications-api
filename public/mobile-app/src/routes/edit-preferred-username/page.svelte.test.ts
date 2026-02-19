@@ -3,6 +3,7 @@ import '@testing-library/jest-dom/vitest'
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte'
 import type { MockInstance } from 'vitest'
 import * as navigationMethods from '$app/navigation'
+import { toastStore } from '$lib/state/toast.svelte'
 import { userStore } from '$lib/state/User.svelte'
 import {
   expectBackButtonPresent,
@@ -78,6 +79,7 @@ describe('/+page.svelte', () => {
   test('should allow submitting a new preferred username', async () => {
     // Given
     await userStore.login(mockUserInfo)
+    const spy = vi.spyOn(toastStore, 'addToast')
     render(Page)
     const input = screen.getByTestId('preferred-username-input')
 
@@ -100,12 +102,18 @@ describe('/+page.svelte', () => {
       expect(
         userStore.connected?.identity?.dataDetails.preferred_username.lastUpdate
       ).not.toBeUndefined()
+      expect(spy).toHaveBeenCalledWith(
+        'Information bien enregistrée !',
+        'success',
+        'top'
+      )
     })
   })
 
   test('should allow submitting an empty preferred username', async () => {
     // Given
     await userStore.login(mockUserInfoWithPreferredUsername)
+    const spy = vi.spyOn(toastStore, 'addToast')
     render(Page)
     const input = screen.getByTestId('preferred-username-input') as HTMLInputElement
     expect(input.value).equal('DUBOIS')
@@ -129,6 +137,11 @@ describe('/+page.svelte', () => {
       expect(
         userStore.connected?.identity?.dataDetails.preferred_username.lastUpdate
       ).not.toBeUndefined()
+      expect(spy).toHaveBeenCalledWith(
+        'Information bien enregistrée !',
+        'success',
+        'top'
+      )
     })
   })
 

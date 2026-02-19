@@ -7,6 +7,7 @@ import { Address } from '$lib/address'
 import * as addressesFromBANMethods from '$lib/addressesFromBAN'
 import * as agendaMethods from '$lib/agenda'
 import { Agenda } from '$lib/agenda'
+import { toastStore } from '$lib/state/toast.svelte'
 import { userStore } from '$lib/state/User.svelte'
 import { expectBackButtonPresent, mockUserIdentity, mockUserInfo } from '$tests/utils'
 import Page from './+page.svelte'
@@ -177,6 +178,7 @@ describe('/+page.svelte', () => {
     userStore.connected?.addScheduledNotificationCreatedKey('foo')
     const setAddressSpy = vi.spyOn(userStore.connected!, 'setAddress')
     const spy = vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(new Agenda())
+    const spy2 = vi.spyOn(toastStore, 'addToast')
 
     // When
     render(Page)
@@ -238,6 +240,11 @@ describe('/+page.svelte', () => {
         []
       )
       expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy2).toHaveBeenCalledWith(
+        'Information bien enregistrée !',
+        'success',
+        'top'
+      )
     })
 
     // Given
