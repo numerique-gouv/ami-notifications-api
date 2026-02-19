@@ -38,11 +38,6 @@
     padding: 1.5rem 1rem;
     margin-top: 9rem;
 
-    .image-wrapper {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 1.5rem;
-    }
     h1 {
       margin-bottom: 0.5rem;
       font-size: 18px;
