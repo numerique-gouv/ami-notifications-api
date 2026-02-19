@@ -1,9 +1,9 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import { goto } from '$app/navigation'
-  import AgendaItem from '$lib/AgendaItem.svelte'
   import type { Agenda } from '$lib/agenda'
   import { buildAgenda } from '$lib/agenda'
+  import AgendaItem from '$lib/components/AgendaItem.svelte'
   import Navigation from '$lib/components/Navigation.svelte'
   import { userStore } from '$lib/state/User.svelte'
 
