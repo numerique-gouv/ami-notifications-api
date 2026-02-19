@@ -1,7 +1,7 @@
 #!/bin/bash
 
 PORT="${PORT:-8000}"
-HOSTNAME="${HOSTNAME:-0.0.0.0}"
+HOSTNAME="0.0.0.0"
 
 # Only works when developping locally...
 VAPID_PUBLIC_KEY_FILE="public_key.pem"
