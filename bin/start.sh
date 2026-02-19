@@ -2,6 +2,7 @@
 
 PORT="${PORT:-8000}"
 HOSTNAME="${HOSTNAME:-127.0.0.1}"
+HOST="0.0.0.0"
 
 # Only works when developping locally...
 VAPID_PUBLIC_KEY_FILE="public_key.pem"
@@ -62,4 +63,4 @@ else
   RUN="uv run --env-file .env --env-file .env.local"
 fi
 
-make migrate && ${RUN} litestar run -p ${PORT} -H ${HOSTNAME} ${RELOAD} ${DEBUG} ${SSL}
+make migrate && ${RUN} litestar run -p ${PORT} -H ${HOST} ${RELOAD} ${DEBUG} ${SSL}

@@ -55,47 +55,6 @@ describe('/ConnectedHomepage.svelte', () => {
     })
   })
 
-  test("should display user's notification count", async () => {
-    // Given
-    const spy = vi
-      .spyOn(notificationsMethods, 'countUnreadNotifications')
-      .mockResolvedValue(3)
-
-    // When
-    const { container } = render(ConnectedHomepage)
-
-    // Then
-    await waitFor(() => {
-      expect(spy).toHaveBeenCalledTimes(1)
-      const icon = container.querySelector('#notification-icon')
-      expect(icon).toHaveTextContent('3')
-    })
-  })
-
-  test("should refresh user's notification count", async () => {
-    // Given
-    const spy = vi
-      .spyOn(notificationsMethods, 'countUnreadNotifications')
-      .mockResolvedValueOnce(3)
-      .mockResolvedValueOnce(4)
-
-    const { container } = render(ConnectedHomepage)
-    await waitFor(() => {
-      const icon = container.querySelector('#notification-icon')
-      expect(icon).toHaveTextContent('3')
-    })
-
-    // When
-    wss.send('ping')
-
-    // Then
-    expect(spy).toHaveBeenCalledTimes(2)
-    await waitFor(() => {
-      const icon = container.querySelector('#notification-icon')
-      expect(icon).toHaveTextContent('4')
-    })
-  })
-
   test('should navigate to User profile page when user clicks on Mon profil button', async () => {
     // Given
     const spy = vi
@@ -149,6 +108,78 @@ describe('/ConnectedHomepage.svelte', () => {
     })
   })
 
+  test('should call userStore.logout when user clicks on Me déconnecter button', async () => {
+    // Given
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('', { status: 200 }))
+    const spyLogout = vi.spyOn(userStore, 'logout').mockResolvedValue()
+
+    // When
+    render(ConnectedHomepage)
+    const franceConnectLogoutButton = screen.getByRole('button', {
+      name: 'Me déconnecter',
+    })
+    await franceConnectLogoutButton.click()
+
+    // Then
+    expect(spyLogout).toHaveBeenCalled()
+  })
+
+  test("should display user's notification count", async () => {
+    // Given
+    const spy = vi
+      .spyOn(notificationsMethods, 'countUnreadNotifications')
+      .mockResolvedValue(3)
+
+    // When
+    const { container } = render(ConnectedHomepage)
+
+    // Then
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledTimes(1)
+      const icon = container.querySelector('#notification-icon')
+      expect(icon).toHaveTextContent('3')
+    })
+  })
+
+  test("should refresh user's notification count", async () => {
+    // Given
+    const spy = vi
+      .spyOn(notificationsMethods, 'countUnreadNotifications')
+      .mockResolvedValueOnce(3)
+      .mockResolvedValueOnce(4)
+
+    const { container } = render(ConnectedHomepage)
+    await waitFor(() => {
+      const icon = container.querySelector('#notification-icon')
+      expect(icon).toHaveTextContent('3')
+    })
+
+    // When
+    wss.send('ping')
+
+    // Then
+    expect(spy).toHaveBeenCalledTimes(2)
+    await waitFor(() => {
+      const icon = container.querySelector('#notification-icon')
+      expect(icon).toHaveTextContent('4')
+    })
+  })
+
+  test('should navigate to notifications when click on notifications button', async () => {
+    // Given
+    const spy = vi
+      .spyOn(navigationMethods, 'goto')
+      .mockImplementation(() => Promise.resolve())
+    render(ConnectedHomepage)
+
+    // When
+    const link = screen.getByTestId('notifications-link')
+    link.click()
+
+    // Then
+    expect(spy).toHaveBeenCalledWith('/#/notifications')
+  })
+
   test('should display address block when user address is not known (empty)', async () => {
     // When
     const { container } = render(ConnectedHomepage)
@@ -190,6 +221,21 @@ describe('/ConnectedHomepage.svelte', () => {
       const addressBlock = container.querySelector('.first-block-container')
       expect(addressBlock).toBeNull()
     })
+  })
+
+  test('should navigate to edit address when click on edit-address button', async () => {
+    // Given
+    const spy = vi
+      .spyOn(navigationMethods, 'goto')
+      .mockImplementation(() => Promise.resolve())
+    render(ConnectedHomepage)
+
+    // When
+    const link = screen.getByTestId('edit-address-link')
+    link.click()
+
+    // Then
+    expect(spy).toHaveBeenCalledWith('/#/edit-address')
   })
 
   test('Should display first holiday found from API', async () => {
@@ -260,19 +306,29 @@ describe('/ConnectedHomepage.svelte', () => {
     })
   })
 
-  test('should call userStore.logout', async () => {
+  test('should navigate to agenda when click on agenda button', async () => {
     // Given
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('', { status: 200 }))
-    const spyLogout = vi.spyOn(userStore, 'logout').mockResolvedValue()
+    const agenda = new Agenda()
+    vi.spyOn(agenda, 'now', 'get').mockReturnValue([
+      new Item('holiday', 'Holiday 1', null, new Date()),
+    ])
+    vi.spyOn(agenda, 'next', 'get').mockReturnValue([
+      new Item('holiday', 'Holiday 3', null, new Date()),
+    ])
+    vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(agenda)
+
+    const spy = vi
+      .spyOn(navigationMethods, 'goto')
+      .mockImplementation(() => Promise.resolve())
+    render(ConnectedHomepage)
 
     // When
-    render(ConnectedHomepage)
-    const franceConnectLogoutButton = screen.getByRole('button', {
-      name: 'Me déconnecter',
-    })
-    await franceConnectLogoutButton.click()
+    await waitFor(() => {
+      const link = screen.getByTestId('agenda-link')
+      link.click()
 
-    // Then
-    expect(spyLogout).toHaveBeenCalled()
+      // Then
+      expect(spy).toHaveBeenCalledWith('/#/agenda')
+    })
   })
 })
