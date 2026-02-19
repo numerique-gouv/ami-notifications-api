@@ -1,9 +1,17 @@
+import base64
 import csv
 import datetime
+import gzip
 import hashlib
+import json
+from typing import cast
 from uuid import uuid4
 
 import jwt
+from cryptography import x509
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey, RSAPublicKey
 from litestar import Response
 from litestar.response.redirect import Redirect
 
@@ -50,6 +58,38 @@ def build_fc_hash(
     return recipient_fc_hash.hexdigest()
 
 
+def encrypt_data(data: dict[str, str], public_key: str) -> str:
+    rsa_public_key = cast(
+        RSAPublicKey, x509.load_pem_x509_certificate(public_key.encode()).public_key()
+    )
+
+    encrypted = rsa_public_key.encrypt(
+        gzip.compress(json.dumps(data).encode()),
+        padding.OAEP(
+            mgf=padding.MGF1(algorithm=hashes.SHA256()), algorithm=hashes.SHA256(), label=None
+        ),
+    )
+    return base64.b64encode(encrypted).decode()
+
+
+def decrypt_data(data: str, private_key: str) -> dict[str, str]:
+    rsa_private_key = cast(
+        RSAPrivateKey,
+        serialization.load_pem_private_key(
+            private_key.encode(),
+            password=None,
+        ),
+    )
+
+    decrypted = rsa_private_key.decrypt(
+        base64.b64decode(data),
+        padding.OAEP(
+            mgf=padding.MGF1(algorithm=hashes.SHA256()), algorithm=hashes.SHA256(), label=None
+        ),
+    )
+    return json.loads(gzip.decompress(decrypted).decode())
+
+
 def generate_identity_token(
     preferred_username: str,
     email: str,
@@ -58,19 +98,21 @@ def generate_identity_token(
     address_name: str,
     fc_hash: str,
 ) -> str:
+    data = {
+        "nom_usage": preferred_username,
+        "email": email,
+        "commune_nom": address_city,
+        "commune_cp": address_postcode,
+        "commune_adresse": address_name,
+    }
+    data_encrypted = encrypt_data(data, env.PSL_OTV_PUBLIC_KEY)
     payload = {
         "iss": "ami",
         "iat": int(datetime.datetime.now().timestamp()),
         "exp": datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=30),
         "nonce": str(uuid4()),
         "hash_fc": fc_hash,
-        "data": {
-            "nom_usage": preferred_username,
-            "email": email,
-            "commune_nom": address_city,
-            "commune_cp": address_postcode,
-            "commune_adresse": address_name,
-        },
+        "data": data_encrypted,
     }
 
     return jwt.encode(payload, env.OTV_PRIVATE_KEY.encode(), algorithm="RS256")
