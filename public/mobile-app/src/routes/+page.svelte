@@ -91,6 +91,7 @@
     error_description = ''
     goto('/')
   }
+  // coucou
 </script>
 
 <div class="homepage">
