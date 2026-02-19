@@ -2,12 +2,20 @@
   import { onMount } from 'svelte'
   import { goto } from '$app/navigation'
   import Navigation from '$lib/components/Navigation.svelte'
+  import RequestItem from '$lib/components/RequestItem.svelte'
+  import type { FollowUp } from '$lib/follow-up'
+  import { buildFollowUp } from '$lib/follow-up'
   import { userStore } from '$lib/state/User.svelte'
+
+  let followUp: FollowUp | null = $state(null)
 
   onMount(async () => {
     if (!userStore.connected) {
       goto('/')
     }
+
+    followUp = await buildFollowUp()
+    console.log($state.snapshot(followUp))
   })
 </script>
 
@@ -60,19 +68,27 @@
       aria-labelledby="requests-tab-current"
       tabindex="0"
     >
-      <div class="requests--container--panel--content no-requests">
-        <div class="no-requests--icon">
-          <img
-            class="requests-icon"
-            src="/remixicons/tracking.svg"
-            alt="Icône de suivi"
-          >
+      {#if followUp && followUp.current.length}
+        <div class="requests--container--panel--content">
+          {#each followUp.current as item}
+            <RequestItem item={item} />
+          {/each}
         </div>
-        <div class="no-requests--title">
-          Après avoir effectué vos démarches, vous pouvez les suivre en temps réel
-          depuis l’application.
+      {:else}
+        <div class="requests--container--panel--content no-requests">
+          <div class="no-requests--icon">
+            <img
+              class="requests-icon"
+              src="/remixicons/tracking.svg"
+              alt="Icône de suivi"
+            >
+          </div>
+          <div class="no-requests--title">
+            Après avoir effectué vos démarches, vous pouvez les suivre en temps réel
+            depuis l’application.
+          </div>
         </div>
-      </div>
+      {/if}
     </div>
     <div
       id="requests-tab-past-panel"
@@ -81,19 +97,27 @@
       aria-labelledby="requests-tab-past"
       tabindex="0"
     >
-      <div class="requests--container--panel--content no-requests">
-        <div class="no-requests--icon">
-          <img
-            class="requests-icon"
-            src="/remixicons/tracking.svg"
-            alt="Icône de suivi"
-          >
+      {#if followUp && followUp.past.length}
+        <div class="requests--container--panel--content">
+          {#each followUp.past as item}
+            <RequestItem item={item} />
+          {/each}
         </div>
-        <div class="no-requests--title">
-          Après avoir effectué vos démarches, vous pouvez les suivre en temps réel
-          depuis l’application.
+      {:else}
+        <div class="requests--container--panel--content no-requests">
+          <div class="no-requests--icon">
+            <img
+              class="requests-icon"
+              src="/remixicons/tracking.svg"
+              alt="Icône de suivi"
+            >
+          </div>
+          <div class="no-requests--title">
+            Après avoir effectué vos démarches, vous pouvez les suivre en temps réel
+            depuis l’application.
+          </div>
         </div>
-      </div>
+      {/if}
     </div>
   </div>
 </div>
