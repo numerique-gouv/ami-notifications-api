@@ -1,5 +1,6 @@
 {
   "scripts": {
+    "build": "cd public/mobile-app && npm ci --include \"dev\" && npm run build",
     "lint-and-format": "node_modules/@biomejs/biome/bin/biome check --write",
     "type-check": "cd public/mobile-app && npm run check"
   },
