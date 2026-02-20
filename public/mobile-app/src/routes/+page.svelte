@@ -118,45 +118,47 @@
           </div>
         </div>
       {/if}
-      <div class="france-connect-svg-icon">
-        <img src="{applicationSvg}" alt="Icône de notification">
-      </div>
+      <div class="france-connect-wrapper">
+        <div class="france-connect-svg-icon">
+          <img src="{applicationSvg}" alt="Icône de notification">
+        </div>
 
-      <div class="france-connect-text">
-        <p>
-          Pour pouvoir accéder à
-          <strong>vos droits, à des conseils, et aux échéances</strong> liées à votre
-          situation personnelle, veuillez vous connecter via
-          <strong>FranceConnect</strong>.
-        </p>
-        <p class="fr-text--sm">
-          FranceConnect est la solution proposée par l’État pour sécuriser et simplifier
-          la connexion à vos services en ligne.
-        </p>
-      </div>
+        <div class="france-connect-text">
+          <p>
+            Pour pouvoir accéder à
+            <strong>vos droits, à des conseils, et aux échéances</strong> liées à votre
+            situation personnelle, veuillez vous connecter via
+            <strong>FranceConnect</strong>.
+          </p>
+          <p class="fr-text--sm">
+            FranceConnect est la solution proposée par l’État pour sécuriser et
+            simplifier la connexion à vos services en ligne.
+          </p>
+        </div>
 
-      <div class="fr-connect-group">
-        <button
-          class="fr-connect"
-          type="button"
-          id="fr-connect-button"
-          onclick={franceConnectLogin}
-        >
-          <span class="fr-connect__login">S’identifier avec</span>
-          <span class="fr-connect__brand">FranceConnect</span>
-        </button>
-        <p>
-          <a
-            href="https://franceconnect.gouv.fr/"
-            target="_blank"
-            rel="noopener"
-            title="Qu’est-ce que FranceConnect ? - nouvelle fenêtre"
-            >Qu’est-ce que FranceConnect&nbsp;?</a
+        <div class="fr-connect-group">
+          <button
+            class="fr-connect"
+            type="button"
+            id="fr-connect-button"
+            onclick={franceConnectLogin}
           >
-        </p>
+            <span class="fr-connect__login">S’identifier avec</span>
+            <span class="fr-connect__brand">FranceConnect</span>
+          </button>
+          <p>
+            <a
+              href="https://franceconnect.gouv.fr/"
+              target="_blank"
+              rel="noopener"
+              title="Qu’est-ce que FranceConnect ? - nouvelle fenêtre"
+              >Qu’est-ce que FranceConnect&nbsp;?</a
+            >
+          </p>
+        </div>
       </div>
 
-      <div class="contact-link-wrapper">
+      <div class="contact-links-wrapper">
         <p>Difficultés de connexion&nbsp;?</p>
         <p>
           <a
@@ -199,23 +201,28 @@
       margin: 24px 16px;
       height: 100vh;
 
-      .france-connect-svg-icon {
-        text-align: center;
-        margin-top: 7.5rem;
-        margin-bottom: 1rem;
+      .france-connect-wrapper {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        align-items: center;
+        justify-content: center;
+
+        .france-connect-svg-icon {
+          text-align: center;
+          margin-bottom: 1rem;
+        }
+
+        .france-connect-text {
+          margin-bottom: 40px;
+        }
+
+        .fr-connect-group {
+          text-align: center;
+        }
       }
 
-      .france-connect-text {
-        margin-bottom: 40px;
-      }
-
-      .fr-connect-group {
-        text-align: center;
-      }
-
-      .contact-link-wrapper {
-        flex-grow: 1;
-        align-content: end;
+      .contact-links-wrapper {
         text-align: center;
 
         p {
