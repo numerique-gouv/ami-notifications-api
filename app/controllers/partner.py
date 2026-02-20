@@ -22,11 +22,11 @@ class PartnerController(Controller):
         address_postcode: str | None = None,
         address_name: str | None = None,
     ) -> Response[dict[str, str]]:
-        partner_url = env.PUBLIC_OTV_URL
+        partner_url = env.PARTNERS_PSL_OTV_REQUEST_URL
 
         if partner_url.endswith("caller={token-jwt}"):
-            otv_private_key = env.OTV_PRIVATE_KEY
-            psl_otv_public_key = env.PSL_OTV_PUBLIC_KEY
+            otv_private_key = env.PARTNERS_PSL_OTV_JWT_PRIVATE_KEY
+            psl_otv_public_key = env.PARTNERS_PSL_OTV_JWE_PUBLIC_KEY
             if otv_private_key and psl_otv_public_key:
                 identity_token = generate_identity_token(
                     preferred_username or "",
@@ -46,6 +46,6 @@ class PartnerController(Controller):
 class NotAuthenticatedPartnerController(Controller):
     @get("/api/v1/partner/otv/public_key")
     async def get_partner_public_key(self) -> Response[dict[str, str]]:
-        public_key = env.PUBLIC_OTV_PUBLIC_KEY
+        public_key = env.PARTNERS_PSL_OTV_JWT_PUBLIC_KEY
 
         return Response(content={"public_key": public_key}, status_code=HTTP_200_OK)

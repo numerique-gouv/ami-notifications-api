@@ -98,7 +98,7 @@ def test_generate_identity_token(
 
     monkeypatch.setattr("app.utils.uuid4", mock_uuid_uuid4)
     monkeypatch.setattr("jwt.encode", mock_jwt_encode)
-    monkeypatch.setattr("app.env.OTV_PRIVATE_KEY", mock_otv_private_key)
+    monkeypatch.setattr("app.env.PARTNERS_PSL_OTV_JWT_PRIVATE_KEY", mock_otv_private_key)
     monkeypatch.setattr("app.utils.encrypt_data", mock_encrypt_data)
 
     # When
@@ -138,9 +138,9 @@ def test_generate_identity_token_with_decode(
     fake_psl_otv_public_key: str = psl_cert_keys["public"]
 
     monkeypatch.setattr("app.utils.uuid4", mock_uuid_uuid4)
-    monkeypatch.setattr("app.env.OTV_PRIVATE_KEY", fake_otv_private_key)
-    monkeypatch.setattr("app.env.PUBLIC_OTV_PUBLIC_KEY", fake_otv_public_key)
-    monkeypatch.setattr("app.env.PSL_OTV_PUBLIC_KEY", fake_psl_otv_public_key)
+    monkeypatch.setattr("app.env.PARTNERS_PSL_OTV_JWT_PRIVATE_KEY", fake_otv_private_key)
+    monkeypatch.setattr("app.env.PARTNERS_PSL_OTV_JWT_PUBLIC_KEY", fake_otv_public_key)
+    monkeypatch.setattr("app.env.PARTNERS_PSL_OTV_JWE_PUBLIC_KEY", fake_psl_otv_public_key)
 
     # When
     token = generate_identity_token(
