@@ -176,36 +176,6 @@ class NotAuthenticatedNotificationController(Controller):
         )
         return Response(content=response_data, background=background_task)
 
-    @get("/api/v1/users/{user_id:uuid}/notifications", include_in_schema=False)
-    async def list_notifications(
-        self,
-        notifications_service: NotificationService,
-        users_service: UserService,
-        user_id: uuid.UUID,
-        read: bool | None = None,
-    ) -> Sequence[schemas.NotificationLegacy]:
-        # XXX keep this endpoint for mobile-app compatibility; remove it when mobile-app use authenticated endpoint
-        user: models.User | None = await users_service.get_one_or_none(id=user_id)
-        if user is None:
-            raise NotFoundException(detail="User not found")
-        if read is not None:
-            notifications: Sequence[models.Notification] = await notifications_service.list(
-                order_by=(models.Notification.created_at, True),
-                user=user,
-                read=read,
-            )
-        else:
-            notifications: Sequence[models.Notification] = await notifications_service.list(
-                order_by=(models.Notification.created_at, True),
-                user=user,
-            )
-        # We could do:
-        # return notifications_service.to_schema(notifications, schema_type=schemas.NotificationLegacy)
-        # But it adds pagination.
-        # For the moment, just return a list of dict
-        type_adapter = TypeAdapter(list[schemas.NotificationLegacy])
-        return type_adapter.validate_python(notifications)
-
 
 class PartnerNotificationController(Controller):
     dependencies = {

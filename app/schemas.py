@@ -133,16 +133,6 @@ class AdminNotificationCreate(BaseModel):
     sender: str = Field(min_length=1)
 
 
-class NotificationLegacy(BaseModel):
-    id: uuid.UUID
-    user_id: uuid.UUID
-    title: str = Field(alias="content_title")
-    message: str = Field(alias="content_body")
-    sender: str
-    read: bool
-    created_at: datetime.datetime
-
-
 class ScheduledNotificationCreate(BaseModel):
     content_title: str = Field(min_length=1)
     content_body: str = Field(min_length=1)
