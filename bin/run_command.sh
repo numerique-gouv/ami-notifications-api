@@ -11,14 +11,6 @@ export VAPID_APPLICATION_SERVER_KEY=${VAPID_APPLICATION_SERVER_KEY:-$(cat ${VAPI
 
 if [ ! -z "$CONTAINER" ]
 then
-  # We're on scalingo, so automatically build the front app
-  make build-app
-  # Rebuild the FCM secret json keys file from the env vars, see the section in CONTRIBUTING.md
-  echo "$FCM_KEYS_FILE" | base64 -d > "$GOOGLE_APPLICATION_CREDENTIALS"
-fi
-
-if [ ! -z "$CONTAINER" ]
-then
   # We're on scalingo, don't use uv
   RUN=""
 else

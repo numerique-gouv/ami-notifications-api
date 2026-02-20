@@ -30,8 +30,7 @@ fi
 
 if [ ! -z "$CONTAINER" ]
 then
-  # We're on scalingo, so automatically build the front app
-  make build-app
+  # We're on scalingo
   # Rebuild the FCM secret json keys file from the env vars, see the section in CONTRIBUTING.md
   echo "$FCM_KEYS_FILE" | base64 -d > "$GOOGLE_APPLICATION_CREDENTIALS"
 else
@@ -62,4 +61,4 @@ else
   RUN="uv run --env-file .env --env-file .env.local"
 fi
 
-make migrate && ${RUN} litestar run -p ${PORT} -H ${HOST} ${RELOAD} ${DEBUG} ${SSL}
+${RUN} litestar run -p ${PORT} -H ${HOST} ${RELOAD} ${DEBUG} ${SSL}
