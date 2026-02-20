@@ -233,15 +233,20 @@ class PartnerNotificationController(Controller):
         current_partner: Partner,
         httpx_async_client: AsyncClient,
     ) -> Response[schemas.NotificationResponse]:
+        ignore_unknown_user = env.IGNORE_NOTIFICATION_REQUESTS_FOR_UNREGISTERED_USER
         user: models.User | None = await users_with_registrations_service.get_one_or_none(
             fc_hash=data.recipient_fc_hash
         )
         if user is None:
+            if ignore_unknown_user:
+                raise NotFoundException(detail="User not found")
             user = await users_with_registrations_service.create(
                 models.User(fc_hash=data.recipient_fc_hash)
             )
             notification_send_status = False
         else:
+            if ignore_unknown_user and user.last_logged_in is None:
+                raise NotFoundException(detail="User not found")
             notification_send_status = user.last_logged_in is not None
 
         try_push = True
