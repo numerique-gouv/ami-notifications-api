@@ -1,5 +1,3 @@
-import os
-
 from litestar import Controller, Response, get
 from litestar.di import Provide
 from litestar.status_codes import HTTP_200_OK
@@ -7,8 +5,6 @@ from litestar.status_codes import HTTP_200_OK
 from app import env, models
 from app.services.user import provide_user
 from app.utils import generate_identity_token
-
-PUBLIC_OTV_URL = os.getenv("PUBLIC_OTV_URL", "")
 
 
 class PartnerController(Controller):
@@ -26,11 +22,12 @@ class PartnerController(Controller):
         address_postcode: str | None = None,
         address_name: str | None = None,
     ) -> Response[dict[str, str]]:
-        partner_url = env.PUBLIC_OTV_URL
+        partner_url = env.PARTNERS_PSL_OTV_REQUEST_URL
 
         if partner_url.endswith("caller={token-jwt}"):
-            otv_private_key = os.getenv("OTV_PRIVATE_KEY")
-            if otv_private_key is not None:
+            otv_private_key = env.PARTNERS_PSL_OTV_JWT_PRIVATE_KEY
+            psl_otv_public_key = env.PARTNERS_PSL_OTV_JWE_PUBLIC_KEY
+            if otv_private_key and psl_otv_public_key:
                 identity_token = generate_identity_token(
                     preferred_username or "",
                     email or "",
@@ -40,6 +37,8 @@ class PartnerController(Controller):
                     current_user.fc_hash,
                 )
                 partner_url = partner_url.replace("{token-jwt}", identity_token)
+            else:
+                partner_url = partner_url.replace("caller={token-jwt}", "")
 
         return Response(content={"partner_url": partner_url}, status_code=HTTP_200_OK)
 
@@ -47,6 +46,6 @@ class PartnerController(Controller):
 class NotAuthenticatedPartnerController(Controller):
     @get("/api/v1/partner/otv/public_key")
     async def get_partner_public_key(self) -> Response[dict[str, str]]:
-        public_key = env.PUBLIC_OTV_PUBLIC_KEY
+        public_key = env.PARTNERS_PSL_OTV_JWT_PUBLIC_KEY
 
         return Response(content={"public_key": public_key}, status_code=HTTP_200_OK)
