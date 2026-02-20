@@ -105,7 +105,7 @@ def generate_identity_token(
         "commune_cp": address_postcode,
         "commune_adresse": address_name,
     }
-    data_encrypted = encrypt_data(data, env.PSL_OTV_PUBLIC_KEY)
+    data_encrypted = encrypt_data(data, env.PARTNERS_PSL_OTV_JWE_PUBLIC_KEY)
     payload = {
         "iss": "ami",
         "iat": int(datetime.datetime.now().timestamp()),
@@ -115,11 +115,11 @@ def generate_identity_token(
         "data": data_encrypted,
     }
 
-    return jwt.encode(payload, env.OTV_PRIVATE_KEY.encode(), algorithm="RS256")
+    return jwt.encode(payload, env.PARTNERS_PSL_OTV_JWT_PRIVATE_KEY.encode(), algorithm="RS256")
 
 
 def decode_identity_token(token: str) -> dict[str, str]:
-    return jwt.decode(token, key=env.PUBLIC_OTV_PUBLIC_KEY.encode(), algorithms=["RS256"])
+    return jwt.decode(token, key=env.PARTNERS_PSL_OTV_JWT_PUBLIC_KEY.encode(), algorithms=["RS256"])
 
 
 def generate_identity_tokens_in_file(
