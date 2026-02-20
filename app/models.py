@@ -61,6 +61,7 @@ class Notification(Base):
     content_icon: Mapped[str | None]
 
     sender: Mapped[str]
+    partner_id: Mapped[str | None]
 
     item_type: Mapped[str | None]
     item_id: Mapped[str | None]
