@@ -208,6 +208,7 @@ async def test_create_notification_user_does_not_exist(
     db_session: AsyncSession,
     partner_auth: dict[str, str],
     httpx_mock: HTTPXMock,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     notification_data = {
         "recipient_fc_hash": "unknown_hash",
@@ -220,6 +221,25 @@ async def test_create_notification_user_does_not_exist(
         "content_body": "Merci d'avoir initié votre demande",
         "content_icon": "foo",
     }
+
+    monkeypatch.setattr(
+        "app.controllers.notification.env.IGNORE_NOTIFICATION_REQUESTS_FOR_UNREGISTERED_USER",
+        "true",
+    )
+    response = test_client.post(
+        "/api/v1/notifications", json=notification_data, headers=partner_auth
+    )
+    assert response.status_code == HTTP_404_NOT_FOUND
+    notification_count = (
+        await db_session.execute(select(func.count()).select_from(Notification))
+    ).scalar()
+    assert notification_count == 0
+    user_count = (await db_session.execute(select(func.count()).select_from(User))).scalar()
+    assert user_count == 0
+
+    monkeypatch.setattr(
+        "app.controllers.notification.env.IGNORE_NOTIFICATION_REQUESTS_FOR_UNREGISTERED_USER", ""
+    )
     response = test_client.post(
         "/api/v1/notifications", json=notification_data, headers=partner_auth
     )
@@ -265,6 +285,7 @@ async def test_create_notification_user_never_seen(
     webpush_registration: Registration,
     partner_auth: dict[str, str],
     httpx_mock: HTTPXMock,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     notification_data = {
         "recipient_fc_hash": never_seen_user.fc_hash,
@@ -277,6 +298,28 @@ async def test_create_notification_user_never_seen(
         "content_body": "Merci d'avoir initié votre demande",
         "content_icon": "foo",
     }
+
+    monkeypatch.setattr(
+        "app.controllers.notification.env.IGNORE_NOTIFICATION_REQUESTS_FOR_UNREGISTERED_USER",
+        "true",
+    )
+    response = test_client.post(
+        "/api/v1/notifications", json=notification_data, headers=partner_auth
+    )
+    assert response.status_code == HTTP_404_NOT_FOUND
+    notification_count = (
+        await db_session.execute(select(func.count()).select_from(Notification))
+    ).scalar()
+    assert notification_count == 0
+    all_users = (await db_session.execute(select(User))).scalars().all()
+    assert len(all_users) == 1
+    user = all_users[0]
+    assert user.fc_hash == never_seen_user.fc_hash
+    assert user.last_logged_in is None
+
+    monkeypatch.setattr(
+        "app.controllers.notification.env.IGNORE_NOTIFICATION_REQUESTS_FOR_UNREGISTERED_USER", ""
+    )
     response = test_client.post(
         "/api/v1/notifications", json=notification_data, headers=partner_auth
     )
