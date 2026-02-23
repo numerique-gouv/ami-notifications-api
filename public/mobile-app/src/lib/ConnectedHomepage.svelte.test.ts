@@ -4,8 +4,11 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import type { WS as WSType } from 'vitest-websocket-mock';
 import WS from 'vitest-websocket-mock';
 import * as navigationMethods from '$app/navigation';
+import * as envModule from '$env/static/public';
 import * as agendaMethods from '$lib/agenda';
 import { Agenda, Item } from '$lib/agenda';
+import * as followUpMethods from '$lib/follow-up';
+import { FollowUp, RequestItem } from '$lib/follow-up';
 import * as notificationsMethods from '$lib/notifications';
 import { PUBLIC_API_WS_URL } from '$lib/notifications';
 import { userStore } from '$lib/state/User.svelte';
@@ -29,7 +32,18 @@ describe('/ConnectedHomepage.svelte', () => {
       };
     });
 
+    vi.mock('$env/static/public', async (importOriginal) => {
+      const original = (await importOriginal()) as Record<string, any>;
+      return Promise.resolve({
+        ...original,
+        PUBLIC_API_URL: 'https://localhost:8000',
+        PUBLIC_FEATUREFLAG_REQUESTS_ENABLED: 'true',
+      });
+    });
+
     vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(new Agenda());
+
+    vi.spyOn(followUpMethods, 'buildFollowUp').mockResolvedValue(new FollowUp());
 
     window.localStorage.setItem('notifications_enabled', 'false');
     window.localStorage.setItem('user_data', 'fake-user-data');
@@ -41,6 +55,7 @@ describe('/ConnectedHomepage.svelte', () => {
 
   afterEach(() => {
     wss.close();
+    vi.resetAllMocks();
   });
 
   test("should display user's initials on menu", async () => {
@@ -257,6 +272,177 @@ describe('/ConnectedHomepage.svelte', () => {
       expect(agendaBlock).toHaveTextContent(
         'Retrouvez les temps importants de votre vie administrative ici'
       );
+    });
+  });
+
+  test('Should not display any request if feature flag is not enabled', async () => {
+    // Given
+    vi.mocked(envModule).PUBLIC_FEATUREFLAG_REQUESTS_ENABLED = 'false';
+    const followUp = new FollowUp();
+    vi.spyOn(followUp, 'current', 'get').mockReturnValue([
+      new RequestItem(
+        'Opération Tranquillité Vacances 1',
+        'Votre demande est en cours de traitement.',
+        new Date('2026-02-22T15:55:00.000Z'),
+        null,
+        'wip',
+        'En cours'
+      ),
+      new RequestItem(
+        'Opération Tranquillité Vacances 2',
+        'Votre demande est en cours de traitement.',
+        new Date('2026-02-22T15:55:00.000Z'),
+        null,
+        'wip',
+        'En cours'
+      ),
+    ]);
+    vi.spyOn(followUp, 'past', 'get').mockReturnValue([
+      new RequestItem(
+        'Opération Tranquillité Vacances 3',
+        'Votre demande est terminée.',
+        new Date('2026-02-20T15:55:00.000Z'),
+        null,
+        'closed',
+        'Terminée'
+      ),
+      new RequestItem(
+        'Opération Tranquillité Vacances 4',
+        'Votre demande est terminée.',
+        new Date('2026-02-20T15:55:00.000Z'),
+        null,
+        'closed',
+        'Terminée'
+      ),
+    ]);
+    const spy = vi.spyOn(followUpMethods, 'buildFollowUp').mockResolvedValue(followUp);
+    // When
+    const { container } = render(ConnectedHomepage);
+
+    // Then
+    await waitFor(() => {
+      const followUpBlock = container.querySelector('.requests-container');
+      expect(spy).not.toHaveBeenCalled();
+      expect(followUpBlock).not.toHaveTextContent('Opération Tranquillité Vacances 1');
+      expect(followUpBlock).not.toHaveTextContent('Opération Tranquillité Vacances 2');
+      expect(followUpBlock).not.toHaveTextContent('Opération Tranquillité Vacances 3');
+      expect(followUpBlock).not.toHaveTextContent('Opération Tranquillité Vacances 4');
+      expect(followUpBlock).toHaveTextContent('Retrouvez et suivez vos démarches ici.');
+    });
+  });
+
+  test('Should display first request found from API', async () => {
+    // Given
+    vi.mocked(envModule).PUBLIC_FEATUREFLAG_REQUESTS_ENABLED = 'true';
+    const followUp = new FollowUp();
+    vi.spyOn(followUp, 'current', 'get').mockReturnValue([
+      new RequestItem(
+        'Opération Tranquillité Vacances 1',
+        'Votre demande est en cours de traitement.',
+        new Date('2026-02-22T15:55:00.000Z'),
+        null,
+        'wip',
+        'En cours'
+      ),
+      new RequestItem(
+        'Opération Tranquillité Vacances 2',
+        'Votre demande est en cours de traitement.',
+        new Date('2026-02-22T15:55:00.000Z'),
+        null,
+        'wip',
+        'En cours'
+      ),
+    ]);
+    vi.spyOn(followUp, 'past', 'get').mockReturnValue([
+      new RequestItem(
+        'Opération Tranquillité Vacances 3',
+        'Votre demande est terminée.',
+        new Date('2026-02-20T15:55:00.000Z'),
+        null,
+        'closed',
+        'Terminée'
+      ),
+      new RequestItem(
+        'Opération Tranquillité Vacances 4',
+        'Votre demande est terminée.',
+        new Date('2026-02-20T15:55:00.000Z'),
+        null,
+        'closed',
+        'Terminée'
+      ),
+    ]);
+    const spy = vi.spyOn(followUpMethods, 'buildFollowUp').mockResolvedValue(followUp);
+    // When
+    const { container } = render(ConnectedHomepage);
+
+    // Then
+    await waitFor(() => {
+      const followUpBlock = container.querySelector('.requests-container');
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(followUpBlock).toHaveTextContent('Opération Tranquillité Vacances 1');
+      expect(followUpBlock).not.toHaveTextContent('Opération Tranquillité Vacances 2');
+      expect(followUpBlock).not.toHaveTextContent('Opération Tranquillité Vacances 3');
+      expect(followUpBlock).not.toHaveTextContent('Opération Tranquillité Vacances 4');
+      expect(followUpBlock).not.toHaveTextContent(
+        'Retrouvez et suivez vos démarches ici.'
+      );
+    });
+  });
+
+  test('Should display first request found from API - current is empty', async () => {
+    // Given
+    vi.mocked(envModule).PUBLIC_FEATUREFLAG_REQUESTS_ENABLED = 'true';
+    const followUp = new FollowUp();
+    vi.spyOn(followUp, 'current', 'get').mockReturnValue([]);
+    vi.spyOn(followUp, 'past', 'get').mockReturnValue([
+      new RequestItem(
+        'Opération Tranquillité Vacances 1',
+        'Votre demande est en cours de traitement.',
+        new Date('2026-02-22T15:55:00.000Z'),
+        null,
+        'wip',
+        'En cours'
+      ),
+      new RequestItem(
+        'Opération Tranquillité Vacances 2',
+        'Votre demande est en cours de traitement.',
+        new Date('2026-02-22T15:55:00.000Z'),
+        null,
+        'wip',
+        'En cours'
+      ),
+    ]);
+    const spy = vi.spyOn(followUpMethods, 'buildFollowUp').mockResolvedValue(followUp);
+    // When
+    const { container } = render(ConnectedHomepage);
+
+    // Then
+    await waitFor(() => {
+      const followUpBlock = container.querySelector('.requests-container');
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(followUpBlock).toHaveTextContent('Opération Tranquillité Vacances 1');
+      expect(followUpBlock).not.toHaveTextContent('Opération Tranquillité Vacances 2');
+      expect(followUpBlock).not.toHaveTextContent(
+        'Retrouvez et suivez vos démarches ici.'
+      );
+    });
+  });
+
+  test('should display requests block if follow-up is empty', async () => {
+    // Given
+    vi.mocked(envModule).PUBLIC_FEATUREFLAG_REQUESTS_ENABLED = 'true';
+    const followUp = new FollowUp();
+    vi.spyOn(followUp, 'current', 'get').mockReturnValue([]);
+    vi.spyOn(followUp, 'past', 'get').mockReturnValue([]);
+    const spy = vi.spyOn(followUpMethods, 'buildFollowUp').mockResolvedValue(followUp);
+    // When
+    const { container } = render(ConnectedHomepage);
+
+    // Then
+    await waitFor(() => {
+      const followUpBlock = container.querySelector('.requests-container');
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(followUpBlock).toHaveTextContent('Retrouvez et suivez vos démarches ici.');
     });
   });
 
