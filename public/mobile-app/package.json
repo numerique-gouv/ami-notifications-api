@@ -14,7 +14,7 @@
     "lint": "prettier --check . && eslint .",
     "test:unit": "vitest",
     "test": "npm run test:unit -- --run && npm run test:e2e",
-    "test:e2e": "playwright test",
+    "test:e2e": "PUBLIC_WEBSITE_PUBLIC=true playwright test",
     "test:cucumber": "cucumber-js tests/features"
   },
   "dependencies": {

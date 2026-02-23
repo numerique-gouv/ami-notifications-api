@@ -15,14 +15,12 @@ export const emit = (eventName: string, data?: any) => {
 
   if (isNative()) {
     // This is an interface that would have been injected in the WebView from the mobile app native code.
-    // @ts-expect-error: `NativeBridge` doesn't exist on the window object, unless it's injected.
-    NativeBridge.onEvent(eventName, payload.data)
+    window.NativeBridge.onEvent(eventName, payload.data)
     console.log('Emitted event', eventName, data)
   }
 }
 
 export const isNative = (): boolean => {
-  // @ts-expect-error: `NativeBridge` doesn't exist on the window object, unless it's injected.
   return !!window.NativeBridge
 }
 
