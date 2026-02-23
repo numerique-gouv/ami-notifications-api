@@ -10,6 +10,7 @@ from advanced_alchemy.extensions.litestar import providers
 from litestar import Controller, Request, Response, get, post
 from litestar.params import Parameter
 from litestar.response.redirect import Redirect
+from litestar.security.jwt import Token
 from litestar.status_codes import HTTP_500_INTERNAL_SERVER_ERROR
 
 from app import env, models
@@ -17,6 +18,7 @@ from app.auth import generate_nonce, jwt_cookie_auth
 from app.errors import TechnicalError
 from app.httpx import AsyncClient
 from app.services.nonce import NonceService
+from app.services.revoked_auth_token import RevokedAuthTokenService
 from app.services.scheduled_notification import ScheduledNotificationService
 from app.services.user import UserService
 from app.utils import build_fc_hash, error_from_message, retry_fc_later
@@ -35,6 +37,7 @@ class AuthController(Controller):
         "scheduled_notifications_service": providers.create_service_provider(
             ScheduledNotificationService
         ),
+        "revoked_auth_tokens_service": providers.create_service_provider(RevokedAuthTokenService),
     }
 
     @get(path="/login-france-connect", include_in_schema=False, exclude_from_auth=True)
@@ -296,7 +299,13 @@ class AuthController(Controller):
             return urlsafe_b64encode(json.dumps(address).encode("utf8")).decode("utf8")
 
     @post(path="/logout", include_in_schema=False)
-    async def logout(self) -> Response[Any]:
+    async def logout(
+        self,
+        revoked_auth_tokens_service: RevokedAuthTokenService,
+        request: Request[Any, Token, Any],
+    ) -> Response[Any]:
+        if request.auth.jti is not None:
+            await revoked_auth_tokens_service.create({"jti": request.auth.jti})
         response = Response({})
         response.delete_cookie(key=jwt_cookie_auth.key)
         return response

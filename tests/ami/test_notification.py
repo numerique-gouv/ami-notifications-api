@@ -647,8 +647,9 @@ async def test_get_notifications(
 
 async def test_get_notifications_without_auth(
     test_client: TestClient[Litestar],
+    db_session: AsyncSession,
 ) -> None:
-    await assert_query_fails_without_auth("/api/v1/users/notifications", test_client)
+    await assert_query_fails_without_auth("/api/v1/users/notifications", test_client, db_session)
 
 
 async def test_get_notifications_should_return_empty_list_by_default_legacy(
@@ -808,10 +809,14 @@ async def test_read_notification(
 
 async def test_read_notification_without_auth(
     test_client: TestClient[Litestar],
+    db_session: AsyncSession,
     notification: Notification,
 ) -> None:
     await assert_query_fails_without_auth(
-        f"/api/v1/users/notification/{notification.id}/read", test_client, method="patch"
+        f"/api/v1/users/notification/{notification.id}/read",
+        test_client,
+        db_session,
+        method="patch",
     )
 
 

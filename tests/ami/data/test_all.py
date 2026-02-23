@@ -5,6 +5,7 @@ import pytest
 from litestar import Litestar
 from litestar.status_codes import HTTP_200_OK
 from litestar.testing import TestClient
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.data.schemas import (
     AgendaCatalog,
@@ -278,5 +279,6 @@ async def test_get_agenda_items(
 
 async def test_get_agenda_items_without_auth(
     test_client: TestClient[Litestar],
+    db_session: AsyncSession,
 ) -> None:
-    await assert_query_fails_without_auth("/data/agenda/items", test_client)
+    await assert_query_fails_without_auth("/data/agenda/items", test_client, db_session)

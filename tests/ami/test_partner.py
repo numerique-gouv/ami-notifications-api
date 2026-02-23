@@ -61,8 +61,9 @@ async def test_generate_partner_url_when_url_has_template(
 
 async def test_generate_partner_url_without_auth(
     test_client: TestClient[Litestar],
+    db_session: AsyncSession,
 ) -> None:
-    await assert_query_fails_without_auth("/api/v1/partner/otv/url", test_client)
+    await assert_query_fails_without_auth("/api/v1/partner/otv/url", test_client, db_session)
 
 
 async def test_get_partner_public_key(

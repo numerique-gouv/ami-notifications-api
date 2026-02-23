@@ -1,5 +1,6 @@
 from litestar import Litestar
 from litestar.testing import TestClient
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import User
 from tests.ami.utils import assert_query_fails_without_auth, login
@@ -17,5 +18,6 @@ async def test_check_auth(
 
 async def test_check_auth_without_auth(
     test_client: TestClient[Litestar],
+    db_session: AsyncSession,
 ) -> None:
-    await assert_query_fails_without_auth("/check-auth", test_client)
+    await assert_query_fails_without_auth("/check-auth", test_client, db_session)
