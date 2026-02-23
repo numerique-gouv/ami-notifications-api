@@ -1,10 +1,14 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
+  import { PUBLIC_FEATUREFLAG_REQUESTS_ENABLED } from '$env/static/public';
   import type { Agenda } from '$lib/agenda';
   import { buildAgenda } from '$lib/agenda';
   import AgendaItem from '$lib/components/AgendaItem.svelte';
   import Icon from '$lib/components/Icon.svelte';
+  import RequestItem from '$lib/components/RequestItem.svelte';
+  import type { FollowUp } from '$lib/follow-up';
+  import { buildFollowUp } from '$lib/follow-up';
   import {
     countUnreadNotifications,
     notificationEventsSocket,
@@ -16,6 +20,9 @@
   let isMenuDisplayed: boolean = $state(false);
   let isAgendaEmpty: boolean = $state(true);
   let agenda: Agenda | null = $state(null);
+  let isFollowUpEmpty: boolean = $state(true);
+  let followUp: FollowUp | null = $state(null);
+  const requests_enabled = PUBLIC_FEATUREFLAG_REQUESTS_ENABLED === 'true';
 
   onMount(async () => {
     console.log('User is connected:', userStore.connected);
@@ -30,6 +37,11 @@
       agenda = await buildAgenda();
       console.log($state.snapshot(agenda));
       isAgendaEmpty = !(agenda.now.length || agenda.next.length);
+      if (requests_enabled) {
+        followUp = await buildFollowUp();
+        console.log($state.snapshot(followUp));
+        isFollowUpEmpty = !(followUp.current.length || followUp.past.length);
+      }
     } catch (error) {
       console.error(error);
     }
@@ -189,15 +201,40 @@
   </div>
 
   <div class="rubrique-container requests-container">
-    <div class="header-container"><span class="title">Mes demandes</span></div>
-    <div class="rubrique-content-container">
-      <div class="no-requests rubrique-content-container--empty">
-        <div class="no-requests--icon">
-          <img class="address-icon" src="/remixicons/tracking.svg" alt="Icône de suivi">
+    {#if isFollowUpEmpty}
+      <div class="header-container"><span class="title">Mes démarches</span></div>
+      <div class="rubrique-content-container">
+        <div class="no-requests rubrique-content-container--empty">
+          <div class="no-requests--icon">
+            <img
+              class="address-icon"
+              src="/remixicons/tracking.svg"
+              alt="Icône de suivi"
+            >
+          </div>
+          <div class="no-requests--title">Retrouvez et suivez vos démarches ici.</div>
         </div>
-        <div class="no-requests--title">Suivez toutes vos démarches ici.</div>
       </div>
-    </div>
+    {:else}
+      <div class="header-container">
+        <span class="title">Mes démarches</span>
+        <a class="see-all" title="Voir toutes mes démarches" href="/#/requests">
+          <span>Voir tout</span>
+          <img
+            class="arrow-line"
+            src="/remixicons/arrow-line.svg"
+            alt="Icône de flèche"
+          >
+        </a>
+      </div>
+      <div class="rubrique-content-container">
+        {#if followUp?.current.length}
+          <RequestItem item={followUp.current[0]} />
+        {:else if followUp?.past.length}
+          <RequestItem item={followUp.past[0]} />
+        {/if}
+      </div>
+    {/if}
   </div>
 </div>
 
