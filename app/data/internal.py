@@ -1,7 +1,7 @@
 import datetime
 from typing import Any, TypedDict
 
-from app.schemas import AgendaCatalog, AgendaCatalogStatus, Election
+from app.data.schemas import AgendaCatalog, AgendaCatalogStatus, Election
 
 
 class ElectionDict(TypedDict):
@@ -12,12 +12,12 @@ class ElectionDict(TypedDict):
 
 ELECTIONS: list[ElectionDict] = [
     {
-        "title": "Élection municipales - Premier tour de scrutin",
+        "title": "Élections municipales - Premier tour de scrutin",
         "description": "Votez au premier tour des municipales",
         "date": datetime.date(2026, 3, 15),
     },
     {
-        "title": "Élection municipales - Second tour de scrutin",
+        "title": "Élections municipales - Second tour de scrutin",
         "description": "Votez au second tour des municipales",
         "date": datetime.date(2026, 3, 22),
     },

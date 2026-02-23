@@ -4,6 +4,7 @@ import {
   PUBLIC_MATOMO_SITE_ID,
   PUBLIC_MATOMO_URL,
 } from '$env/static/public'
+import { userStore } from '$lib/state/User.svelte'
 
 const MATOMO_ENABLED = PUBLIC_MATOMO_ENABLED === 'true'
 
@@ -29,7 +30,10 @@ export function trackPageView(title?: string) {
   }
 
   window._paq = window._paq || []
-  const path = window.location.hash ? window.location.hash.substr(1) : '/'
+  let path = window.location.hash ? window.location.hash.substr(1) : '/'
+  if (!userStore.connected && path === '/') {
+    path = '/login'
+  }
   window._paq.push(['setCustomUrl', path])
   if (title) {
     window._paq.push(['setDocumentTitle', title])

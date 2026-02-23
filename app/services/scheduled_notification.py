@@ -33,7 +33,7 @@ class ScheduledNotificationService(
             data={
                 "user_id": user.id,
                 "content_title": "Bienvenue sur AMI 👋",
-                "content_body": "Recevez des rappels sur votre situation et suivez vos démarches en cours depuis l'application.",
+                "content_body": "Ici, vous pourrez gérer votre vie administrative, suivre l'avancement de vos démarches et recevoir des rappels personnalisés.",
                 "content_icon": "fr-icon-information-line",
                 "reference": "ami:welcome",
                 "scheduled_at": datetime.datetime.now(datetime.timezone.utc),

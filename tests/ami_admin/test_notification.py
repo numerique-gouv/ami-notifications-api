@@ -1,6 +1,7 @@
 import datetime
 import uuid
 
+import pytest
 from litestar import Litestar
 from litestar.testing import TestClient
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -8,13 +9,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models import Notification
 from tests.base import ConnectedTestClient
 
-from .utils import check_url_when_logged_out
+from .utils import check_url_access, check_url_when_logged_out
 
 
 async def test_ami_admin_test_list_users_when_logged_in(
     connected_test_client: ConnectedTestClient,
     db_session: AsyncSession,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    monkeypatch.setattr("app.admin.auth.AMI_ADMIN_RESTRICTED_ACCESS", "false")
+
     connected_user = connected_test_client.user
     response = connected_test_client.get("/ami_admin")
     assert response.status_code == 200
@@ -52,10 +56,20 @@ async def test_ami_admin_test_list_users_when_logged_out(
     await check_url_when_logged_out("/ami_admin/liste-des-usagers", test_client)
 
 
+async def test_ami_admin_test_list_users_access(
+    connected_test_client: ConnectedTestClient,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    await check_url_access("/ami_admin/liste-des-usagers", connected_test_client, monkeypatch)
+
+
 async def test_ami_admin_test_send_notification_when_logged_in(
     db_session: AsyncSession,
     connected_test_client: ConnectedTestClient,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    monkeypatch.setattr("app.admin.auth.AMI_ADMIN_RESTRICTED_ACCESS", "false")
+
     connected_user = connected_test_client.user
     response = connected_test_client.get(
         f"/ami_admin/test/user/{connected_user.id}/send-notification"
@@ -94,4 +108,15 @@ async def test_ami_admin_test_send_notification_when_logged_out(
 ) -> None:
     await check_url_when_logged_out(
         f"/ami_admin/test/user/{uuid.uuid4()}/send-notification", test_client
+    )
+
+
+async def test_ami_admin_test_send_notification_access(
+    connected_test_client: ConnectedTestClient,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    await check_url_access(
+        f"/ami_admin/test/user/{connected_test_client.user.id}/send-notification",
+        connected_test_client,
+        monkeypatch,
     )

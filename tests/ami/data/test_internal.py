@@ -5,7 +5,7 @@ import pytest
 from pytest_httpx import HTTPXMock
 
 from app.data.internal import get_elections_catalog, get_elections_data
-from app.schemas import (
+from app.data.schemas import (
     AgendaCatalog,
     AgendaCatalogItem,
     AgendaCatalogItemKind,
@@ -20,13 +20,13 @@ async def test_get_elections_data(
     result = get_elections_data(datetime.date(2025, 3, 15), datetime.date(2026, 3, 22))
     assert result == [
         Election(
-            title="Élection municipales - Premier tour de scrutin",
+            title="Élections municipales - Premier tour de scrutin",
             description="Votez au premier tour des municipales",
             date=datetime.date(2026, 3, 15),
             emoji="🗳️",
         ),
         Election(
-            title="Élection municipales - Second tour de scrutin",
+            title="Élections municipales - Second tour de scrutin",
             description="Votez au second tour des municipales",
             date=datetime.date(2026, 3, 22),
             emoji="🗳️",
@@ -35,7 +35,7 @@ async def test_get_elections_data(
     result = get_elections_data(datetime.date(2026, 3, 16), datetime.date(2026, 3, 22))
     assert result == [
         Election(
-            title="Élection municipales - Second tour de scrutin",
+            title="Élections municipales - Second tour de scrutin",
             description="Votez au second tour des municipales",
             date=datetime.date(2026, 3, 22),
             emoji="🗳️",
@@ -44,7 +44,7 @@ async def test_get_elections_data(
     result = get_elections_data(datetime.date(2026, 3, 15), datetime.date(2026, 3, 21))
     assert result == [
         Election(
-            title="Élection municipales - Premier tour de scrutin",
+            title="Élections municipales - Premier tour de scrutin",
             description="Votez au premier tour des municipales",
             date=datetime.date(2026, 3, 15),
             emoji="🗳️",

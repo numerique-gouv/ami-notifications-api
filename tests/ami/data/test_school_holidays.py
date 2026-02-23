@@ -12,7 +12,7 @@ from app.data.holidays import (
     get_school_holidays_catalog,
     get_school_holidays_data,
 )
-from app.schemas import (
+from app.data.schemas import (
     AgendaCatalog,
     AgendaCatalogItem,
     AgendaCatalogItemKind,

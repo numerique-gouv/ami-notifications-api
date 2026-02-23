@@ -32,7 +32,7 @@ async def test_login_callback(
     monkeypatch.setattr("app.controllers.auth.env.FC_AMI_CLIENT_SECRET", "fake-client-secret")
     monkeypatch.setattr(
         "app.controllers.auth.env.PUBLIC_FC_SCOPE",
-        env.PUBLIC_FC_SCOPE.replace(" cnaf_quotient_familial", ""),
+        env.PUBLIC_FC_SCOPE.replace(" cnaf_enfants cnaf_adresse", ""),
     )
 
     NONCE = decoded_id_token["nonce"]
@@ -109,7 +109,7 @@ async def test_login_callback(
     assert scheduled_notification.content_title == "Bienvenue sur AMI 👋"
     assert (
         scheduled_notification.content_body
-        == "Recevez des rappels sur votre situation et suivez vos démarches en cours depuis l'application."
+        == "Ici, vous pourrez gérer votre vie administrative, suivre l'avancement de vos démarches et recevoir des rappels personnalisés."
     )
     assert scheduled_notification.content_icon == "fr-icon-information-line"
     assert scheduled_notification.reference == "ami:welcome"
@@ -136,7 +136,7 @@ async def test_login_callback_user_already_seen(
     monkeypatch.setattr("app.controllers.auth.env.FC_AMI_CLIENT_SECRET", "fake-client-secret")
     monkeypatch.setattr(
         "app.controllers.auth.env.PUBLIC_FC_SCOPE",
-        env.PUBLIC_FC_SCOPE.replace(" cnaf_quotient_familial", ""),
+        env.PUBLIC_FC_SCOPE.replace(" cnaf_enfants cnaf_adresse", ""),
     )
 
     NONCE = decoded_id_token["nonce"]
@@ -239,7 +239,7 @@ async def test_login_callback_user_never_seen(
     monkeypatch.setattr("app.controllers.auth.env.FC_AMI_CLIENT_SECRET", "fake-client-secret")
     monkeypatch.setattr(
         "app.controllers.auth.env.PUBLIC_FC_SCOPE",
-        env.PUBLIC_FC_SCOPE.replace(" cnaf_quotient_familial", ""),
+        env.PUBLIC_FC_SCOPE.replace(" cnaf_enfants cnaf_adresse", ""),
     )
 
     NONCE = decoded_id_token["nonce"]
@@ -327,7 +327,7 @@ async def test_login_callback_user_never_seen(
     assert scheduled_notification.content_title == "Bienvenue sur AMI 👋"
     assert (
         scheduled_notification.content_body
-        == "Recevez des rappels sur votre situation et suivez vos démarches en cours depuis l'application."
+        == "Ici, vous pourrez gérer votre vie administrative, suivre l'avancement de vos démarches et recevoir des rappels personnalisés."
     )
     assert scheduled_notification.content_icon == "fr-icon-information-line"
     assert scheduled_notification.reference == "ami:welcome"

@@ -19,7 +19,7 @@ test:
 
 .PHONY: dev
 dev:
-	RELOAD="-r" DEBUG="--debug" HOSTNAME="0.0.0.0" bin/start.sh
+	RELOAD="-r" DEBUG="--debug" HOST="0.0.0.0" bin/start.sh
 
 .PHONY: serve
 serve:

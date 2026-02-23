@@ -44,7 +44,7 @@
   {#if agenda && agenda.next.length}
     <div class="agenda--events" data-testid="events-next">
       <div class="agenda--events--header">
-        <span class="title">30 prochains jours</span>
+        <span class="title">Les mois suivants</span>
       </div>
       <div class="agenda--events--container">
         {#each agenda.next as item, i}
