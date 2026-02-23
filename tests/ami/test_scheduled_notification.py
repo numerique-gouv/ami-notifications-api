@@ -259,9 +259,10 @@ async def test_create_scheduled_notification_test_fields(
 
 async def test_create_scheduled_notification_without_auth(
     test_client: TestClient[Litestar],
+    db_session: AsyncSession,
 ) -> None:
     await assert_query_fails_without_auth(
-        "/api/v1/users/scheduled-notifications", test_client, method="post"
+        "/api/v1/users/scheduled-notifications", test_client, db_session, method="post"
     )
 
 
@@ -357,7 +358,8 @@ async def test_delete_scheduled_notification_alread_sent(
 
 async def test_delete_scheduled_notification_without_auth(
     test_client: TestClient[Litestar],
+    db_session: AsyncSession,
 ) -> None:
     await assert_query_fails_without_auth(
-        "/api/v1/users/scheduled-notifications", test_client, method="delete"
+        "/api/v1/users/scheduled-notifications", test_client, db_session, method="delete"
     )

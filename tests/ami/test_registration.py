@@ -119,8 +119,11 @@ async def test_register_fields(
 
 async def test_register_without_auth(
     test_client: TestClient[Litestar],
+    db_session: AsyncSession,
 ) -> None:
-    await assert_query_fails_without_auth("/api/v1/users/registrations", test_client, method="post")
+    await assert_query_fails_without_auth(
+        "/api/v1/users/registrations", test_client, db_session, method="post"
+    )
 
 
 async def test_unregister(
@@ -158,10 +161,14 @@ async def test_unregister(
 
 async def test_unregister_without_auth(
     test_client: TestClient[Litestar],
+    db_session: AsyncSession,
     webpush_registration: Registration,
 ) -> None:
     await assert_query_fails_without_auth(
-        f"/api/v1/users/registrations/{webpush_registration.id}", test_client, method="delete"
+        f"/api/v1/users/registrations/{webpush_registration.id}",
+        test_client,
+        db_session,
+        method="delete",
     )
 
 
@@ -186,5 +193,6 @@ async def test_list_registrations(
 
 async def test_list_registrations_without_auth(
     test_client: TestClient[Litestar],
+    db_session: AsyncSession,
 ) -> None:
-    await assert_query_fails_without_auth("/api/v1/users/registrations", test_client)
+    await assert_query_fails_without_auth("/api/v1/users/registrations", test_client, db_session)

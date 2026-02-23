@@ -21,6 +21,7 @@ from app import env
 from app.database import alchemy_config
 from app.models import User
 from app.partners import Partner, partners
+from app.services.revoked_auth_token import RevokedAuthTokenService
 from app.services.user import UserService
 
 PartnerT = TypeVar("PartnerT", bound=Partner, default=Partner)
@@ -54,8 +55,25 @@ async def retrieve_user_handler(
         return user
 
 
+async def revoked_token_handler(
+    token: Token, connection: "ASGIConnection[Any, Any, Any, Any]"
+) -> bool:
+    jti = token.jti  # Unique token identifier (JWT ID)
+    if jti:
+        # Use async context manager to ensure session is properly closed
+        async with alchemy_config.provide_session(
+            connection.app.state, connection.scope
+        ) as session:
+            revoked_auth_tokens_service = RevokedAuthTokenService(session=session)
+            revoked = await revoked_auth_tokens_service.get_one_or_none(jti=jti)
+            if revoked:
+                return True
+    return False
+
+
 jwt_cookie_auth = JWTCookieAuth[User](
     retrieve_user_handler=retrieve_user_handler,
+    revoked_token_handler=revoked_token_handler,
     token_secret=str(env.AUTH_COOKIE_JWT_SECRET),
     default_token_expiration=datetime.timedelta(days=365 * 10),  # 10 years
     samesite="none",
