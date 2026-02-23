@@ -152,6 +152,7 @@ class AuthController(Controller):
 
             login = jwt_cookie_auth.login(
                 identifier=str(user_id),
+                token_unique_jwt_id=uuid.uuid4().hex,
             )
             redirect = Redirect(f"{env.PUBLIC_APP_URL}/", query_params=user_data)
             redirect.cookies = login.cookies

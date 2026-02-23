@@ -1,6 +1,7 @@
 import datetime
 from typing import Any
 
+import jwt
 import pytest
 from litestar import Litestar
 from litestar.testing import TestClient
@@ -9,8 +10,10 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import env
+from app.auth import jwt_cookie_auth
 from app.models import Nonce, ScheduledNotification, User
 from app.utils import build_fc_hash
+from tests.ami.utils import get_token
 from tests.utils import url_contains_param
 
 
@@ -22,7 +25,12 @@ async def test_login_callback(
     userinfo: dict[str, Any],
     decoded_id_token: dict[str, Any],
 ) -> None:
+    original_jwt_decode = jwt.decode
+
     def fake_jwt_decode(*args: Any, **params: Any):
+        if not args:
+            # for get_token function
+            return original_jwt_decode(*args, **params)
         encoded = args[0]
         if encoded == "fake id token":
             return decoded_id_token
@@ -90,6 +98,10 @@ async def test_login_callback(
         redirected_url,
     )
     assert "address" not in redirected_url
+
+    token = get_token(response.cookies[jwt_cookie_auth.key].split(" ")[1].replace('"', ""))
+    assert token.jti is not None
+
     all_nonces = (await db_session.execute(select(Nonce))).scalars().all()
     assert len(all_nonces) == 0
 
