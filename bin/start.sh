@@ -1,7 +1,7 @@
 #!/bin/bash
 
 PORT="${PORT:-8000}"
-HOSTNAME="${HOSTNAME:-127.0.0.1}"
+HOST="${HOST:-0.0.0.0}"
 
 # Only works when developping locally...
 VAPID_PUBLIC_KEY_FILE="public_key.pem"
@@ -30,8 +30,6 @@ fi
 
 if [ ! -z "$CONTAINER" ]
 then
-  # We're on scalingo, so automatically build the front app
-  make build-app
   # Rebuild the FCM secret json keys file from the env vars, see the section in CONTRIBUTING.md
   echo "$FCM_KEYS_FILE" | base64 -d > "$GOOGLE_APPLICATION_CREDENTIALS"
 else
@@ -62,4 +60,4 @@ else
   RUN="uv run --env-file .env --env-file .env.local"
 fi
 
-make migrate && ${RUN} litestar run -p ${PORT} -H ${HOSTNAME} ${RELOAD} ${DEBUG} ${SSL}
+make migrate && ${RUN} litestar run -p ${PORT} -H ${HOST} ${RELOAD} ${DEBUG} ${SSL}
