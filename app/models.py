@@ -99,3 +99,9 @@ class ScheduledNotification(Base):
     sent_at: Mapped[datetime.datetime | None]
 
     __table_args__ = (UniqueConstraint("user_id", "reference", name="uix_user_reference"),)
+
+
+class RevokedAuthToken(Base):
+    __tablename__ = "revoked_auth_token"  # type: ignore
+
+    jti: Mapped[str] = mapped_column(unique=True)
