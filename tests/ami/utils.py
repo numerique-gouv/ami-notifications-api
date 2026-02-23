@@ -1,7 +1,9 @@
 import asyncio
+import uuid
 
 from litestar import Litestar
 from litestar.channels import Subscriber
+from litestar.security.jwt import Token
 from litestar.testing import TestClient
 
 from app.auth import jwt_cookie_auth
@@ -9,8 +11,19 @@ from app.models import User
 
 
 def login(user: User, test_client: TestClient[Litestar]) -> None:
-    response = jwt_cookie_auth.login(identifier=str(user.id))
+    response = jwt_cookie_auth.login(
+        identifier=str(user.id),
+        token_unique_jwt_id=uuid.uuid4().hex,
+    )
     test_client.cookies.update({jwt_cookie_auth.key: str(response.cookies[0].value)})
+
+
+def get_token(encoded: str) -> Token:
+    return Token.decode(
+        encoded_token=encoded,
+        secret=jwt_cookie_auth.token_secret,
+        algorithm=jwt_cookie_auth.algorithm,
+    )
 
 
 async def assert_query_fails_without_auth(
