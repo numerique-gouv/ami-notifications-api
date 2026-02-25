@@ -8,7 +8,7 @@
   import { toastStore } from '$lib/state/toast.svelte';
   import type { DataOrigin } from '$lib/state/User.svelte';
   import { userStore } from '$lib/state/User.svelte';
-  import { formatDate } from '$lib/utils';
+  import { formatDate, scrollToInput } from '$lib/utils';
 
   let backUrl: string = '/#/profile';
   let addressFromUserStore: Address | undefined = $state();
@@ -162,6 +162,7 @@
               data-testid="address-input"
               autocomplete="address-line1"
               oninput={addressInputHandler}
+              onfocus={scrollToInput}
             >
             {#if addressInputHasError}
               <div class="fr-messages-group" aria-live="polite">
@@ -281,6 +282,8 @@
 
     .address-content-container {
       padding: 1rem;
+      height: 200dvh;
+      overflow-y: auto;
 
       .address-form {
         div.autocomplete {
