@@ -5,7 +5,7 @@
   import { toastStore } from '$lib/state/toast.svelte'
   import type { DataOrigin } from '$lib/state/User.svelte'
   import { userStore } from '$lib/state/User.svelte'
-  import { formatDate } from '$lib/utils'
+  import { formatDate, scrollToInput } from '$lib/utils'
 
   let backUrl: string = '/#/profile'
   let inputValue: string = $state('')
@@ -62,6 +62,7 @@
               bind:value={inputValue}
               data-testid="email-input"
               autocomplete="email"
+              onfocus={scrollToInput}
             >
           </div>
         </div>
@@ -105,6 +106,8 @@
   .form-page {
     .content-container {
       padding: 1rem;
+      height: 200dvh;
+      overflow-y: auto;
 
       form {
         div.autocomplete {

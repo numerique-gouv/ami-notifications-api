@@ -12,3 +12,17 @@ export const formatDate = (data: string | Date) => {
   }
   return date.toLocaleDateString('fr-FR', options)
 }
+
+export const scrollToInput = (event: FocusEvent & { currentTarget: HTMLElement }) => {
+  const input = event.currentTarget
+  const nav = document.querySelector('nav')
+  if (!nav) {
+    return
+  }
+  const inputOffsetTop =
+    input.getBoundingClientRect().top -
+    nav.getBoundingClientRect().bottom +
+    (document.scrollingElement?.scrollTop || 0) -
+    5 // Just a small margin to avoid cutting the top of the input
+  window.scrollTo({ top: inputOffsetTop, behavior: 'smooth' })
+}
