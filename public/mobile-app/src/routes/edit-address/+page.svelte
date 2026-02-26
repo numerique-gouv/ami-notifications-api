@@ -282,8 +282,7 @@
 
     .address-content-container {
       padding: 1rem;
-      height: 200dvh;
-      overflow-y: auto;
+      margin-bottom: 58px;
 
       .address-form {
         div.autocomplete {
