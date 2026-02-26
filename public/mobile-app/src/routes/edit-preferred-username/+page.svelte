@@ -105,8 +105,7 @@
   .form-page {
     .content-container {
       padding: 1rem;
-      height: 200dvh;
-      overflow-y: auto;
+      margin-bottom: 58px;
 
       form {
         div.autocomplete {
