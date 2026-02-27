@@ -3,48 +3,51 @@
   import { browser } from '$app/environment';
   import { goto } from '$app/navigation';
 
-  let { data, status, error } = $props();
-
+  let { status, error } = $props();
   let retrying = $state(false);
-  let isOnline = $state(navigator.onLine);
+  let hasTriedAutoRetry = $state(false);
 
-  function attemptRetry() {
-    if (!isOnline || retrying) return;
+  function shouldAutoRetry() {
+    return (
+      navigator.onLine &&
+      !retrying &&
+      !hasTriedAutoRetry &&
+      (status === 0 || error?.message?.includes('network') || !error)
+    );
+  }
+
+  async function attemptRetry() {
+    if (!navigator.onLine || retrying) return;
 
     retrying = true;
+    hasTriedAutoRetry = true;
 
-    goto(window.location.pathname, {
-      invalidateAll: true,
-      noScroll: true,
-    })
-      .catch(() => {
-        window.location.reload();
-      })
-      .finally(() => {
-        retrying = false;
+    try {
+      await goto(window.location.pathname, {
+        invalidateAll: true,
+        replaceState: true,
       });
+    } catch (e) {
+      window.location.reload();
+    } finally {
+      retrying = false;
+    }
   }
 
   onMount(() => {
+    if (browser && shouldAutoRetry()) {
+      setTimeout(attemptRetry, 1000);
+    }
+
     if (browser) {
       const handleOnline = () => {
-        isOnline = true;
-        attemptRetry();
-      };
-
-      const handleOffline = () => {
-        isOnline = false;
+        if (shouldAutoRetry()) {
+          setTimeout(attemptRetry, 500);
+        }
       };
 
       window.addEventListener('online', handleOnline);
-      window.addEventListener('offline', handleOffline);
-
-      handleOnline();
-
-      return () => {
-        window.removeEventListener('online', handleOnline);
-        window.removeEventListener('offline', handleOffline);
-      };
+      return () => window.removeEventListener('online', handleOnline);
     }
   });
 
