@@ -14,10 +14,6 @@ vi.mock('$lib/dsfr', () => ({
   initDsfr: vi.fn(),
 }));
 
-vi.mock('$lib/dsfr', () => ({
-  initDsfr: vi.fn(),
-}));
-
 describe('+layout.svelte', () => {
   let mockEnv: any;
 
