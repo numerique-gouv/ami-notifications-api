@@ -62,10 +62,12 @@ export const retrieveCatalog = async (date: Date | null = null): Promise<Catalog
         if (!filter_items.includes(key)) {
           continue;
         }
-        // store result, even if status is 'failed'
-        const new_data = JSON.stringify(catalog[key]);
-        catalogData[key] = new_data;
-        localStorage.setItem(`${key}_catalog`, new_data);
+        // store result if status is 'success'
+        if (catalog[key].status === 'success') {
+          const new_data = JSON.stringify(catalog[key]);
+          catalogData[key] = new_data;
+          localStorage.setItem(`${key}_catalog`, new_data);
+        }
       }
     }
   }
