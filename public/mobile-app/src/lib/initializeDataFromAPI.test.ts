@@ -39,10 +39,10 @@ describe('/initializeDataFromAPI.ts', () => {
   describe('initializeLocalStorage', () => {
     test('should set items in localStorage from url search params', async () => {
       // Given
-      window.localStorage.setItem('user_data', '');
-      window.localStorage.setItem('user_id', '');
-      window.localStorage.setItem('user_fc_hash', '');
-      window.localStorage.setItem('user_api_particulier_encoded_address', '');
+      window.localStorage.removeItem('user_data');
+      window.localStorage.removeItem('user_id');
+      window.localStorage.removeItem('user_fc_hash');
+      window.localStorage.removeItem('user_api_particulier_encoded_address');
 
       const searchParams = new URLSearchParams({
         is_logged_in: 'true',
@@ -76,7 +76,7 @@ describe('/initializeDataFromAPI.ts', () => {
       const searchParams = new URLSearchParams({});
 
       const userStore = new UserStore();
-      const checkLoggedInSpy = vi.spyOn(userStore, 'checkLoggedIn');
+      const checkLoggedInSpy = vi.spyOn(userStore, 'checkLoggedIn').mockResolvedValue();
       const buildAgendaSpy = vi
         .spyOn(agendaMethods, 'buildAgenda')
         .mockResolvedValue(new Agenda());
