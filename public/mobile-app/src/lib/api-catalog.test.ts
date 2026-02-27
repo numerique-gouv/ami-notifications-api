@@ -133,7 +133,7 @@ describe('/api-catalog', () => {
       });
       expect(window.localStorage.getItem('school_holidays_catalog')).toEqual(null);
       expect(window.localStorage.getItem('public_holidays_catalog')).toEqual(null);
-      expect(window.localStorage.getItem('elections_holidays_catalog')).toEqual(null);
+      expect(window.localStorage.getItem('elections_catalog')).toEqual(null);
     });
 
     test('should get catalog from localstorage', async () => {
@@ -345,6 +345,65 @@ describe('/api-catalog', () => {
         });
         expect(window.localStorage.getItem(`${key}_catalog`)).toEqual(
           JSON.stringify(catalogData[key])
+        );
+      }
+    });
+
+    test('should get catalog from API - catalog entry has no expiration in localstorage - with error', async () => {
+      for (const key of Object.keys(catalogData) as CatalogKey[]) {
+        // Given
+        window.localStorage.clear();
+        vi.clearAllMocks();
+        const catalogData2: { [K in CatalogKey]: any } = {
+          school_holidays: null,
+          public_holidays: null,
+          elections: null,
+        };
+        for (const key2 of Object.keys(catalogData) as CatalogKey[]) {
+          if (key2 === key) {
+            const { expires_at, ...entry } = { ...catalogData[key2] }; // old entry, no expiration date
+            catalogData2[key2] = entry;
+            window.localStorage.setItem(
+              `${key2}_catalog`,
+              JSON.stringify(catalogData2[key2])
+            );
+            continue;
+          }
+          catalogData2[key2] = catalogData[key2];
+          window.localStorage.setItem(
+            `${key2}_catalog`,
+            JSON.stringify(catalogData2[key2])
+          );
+        }
+        const responseData: { [K in CatalogKey]: any } = {
+          school_holidays: null,
+          public_holidays: null,
+          elections: null,
+        };
+        const { ...entry } = catalogData[key];
+        entry.status = 'failed';
+        responseData[key] = entry;
+        const spy = vi
+          .spyOn(globalThis, 'fetch')
+          .mockResolvedValue(
+            new Response(JSON.stringify(responseData), { status: 200 })
+          );
+
+        // When
+        const result = await retrieveCatalog(new Date('2025-11-01T12:00:00Z'));
+
+        // Then
+        expect(spy).toHaveBeenCalledExactlyOnceWith(
+          `https://localhost:8000/data/agenda/items?current_date=2025-11-01&filter-items=${key}`,
+          { credentials: 'include' }
+        );
+        expect(result).toEqual({
+          school_holidays: catalogData2.school_holidays.items,
+          public_holidays: catalogData2.public_holidays.items,
+          elections: catalogData2.elections.items,
+        });
+        expect(window.localStorage.getItem(`${key}_catalog`)).toEqual(
+          JSON.stringify(catalogData2[key])
         );
       }
     });
