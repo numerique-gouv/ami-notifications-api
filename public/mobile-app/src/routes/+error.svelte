@@ -1,16 +1,50 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { browser } from '$app/environment';
   import { goto } from '$app/navigation';
-  import { page } from '$app/state';
+
+  let { data, status, error } = $props();
+
+  let retrying = $state(false);
+  let isOnline = $state(navigator.onLine);
+
+  function attemptRetry() {
+    if (!isOnline || retrying) return;
+
+    retrying = true;
+
+    goto(window.location.pathname, {
+      invalidateAll: true,
+      noScroll: true,
+    })
+      .catch(() => {
+        window.location.reload();
+      })
+      .finally(() => {
+        retrying = false;
+      });
+  }
 
   onMount(() => {
-    // https://svelte.dev/docs/kit/routing#error
-    // If an error occurs during load, SvelteKit will render a default error page.
-    // You can customise this error page on a per-route basis by adding an +error.svelte file.
+    if (browser) {
+      const handleOnline = () => {
+        isOnline = true;
+        attemptRetry();
+      };
 
-    console.error('Page status: ', page.status);
-    if (page.error) {
-      console.error('Error message: ', page.error.message);
+      const handleOffline = () => {
+        isOnline = false;
+      };
+
+      window.addEventListener('online', handleOnline);
+      window.addEventListener('offline', handleOffline);
+
+      handleOnline();
+
+      return () => {
+        window.removeEventListener('online', handleOnline);
+        window.removeEventListener('offline', handleOffline);
+      };
     }
   });
 
