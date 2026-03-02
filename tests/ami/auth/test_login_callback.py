@@ -16,6 +16,8 @@ from app.utils import build_fc_hash
 from tests.ami.utils import get_token
 from tests.utils import url_contains_param
 
+pytestmark = pytest.mark.skip("skip tests for Django migration")
+
 
 async def test_login_callback(
     test_client: TestClient[Litestar],

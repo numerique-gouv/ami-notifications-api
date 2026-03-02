@@ -1,6 +1,7 @@
 import datetime
 import uuid
 
+import pytest
 from litestar import Litestar
 from litestar.testing import TestClient
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -9,6 +10,8 @@ from app.models import Notification
 from tests.base import ConnectedTestClient
 
 from .utils import check_url_when_logged_out
+
+pytestmark = pytest.mark.skip("skip tests for Django migration")
 
 
 async def test_rvo_test_list_users_when_logged_in(

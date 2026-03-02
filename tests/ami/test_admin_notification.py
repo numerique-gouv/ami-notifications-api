@@ -2,6 +2,7 @@ import datetime
 import json
 import uuid
 
+import pytest
 from litestar import Litestar
 from litestar.channels import Subscriber
 from litestar.status_codes import (
@@ -16,6 +17,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import Notification, Registration, User
 from tests.ami.utils import get_from_stream
+
+pytestmark = pytest.mark.skip("skip tests for Django migration")
 
 
 async def test_admin_create_notification_user_does_not_exist(

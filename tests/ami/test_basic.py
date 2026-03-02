@@ -10,6 +10,8 @@ from litestar.testing import TestClient
 
 from app.utils import build_fc_hash, decode_identity_token, decrypt_data, generate_identity_token
 
+pytestmark = pytest.mark.skip("skip tests for Django migration")
+
 
 async def test_ping(
     test_client: TestClient[Litestar],

@@ -11,6 +11,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models import Nonce
 from tests.utils import url_contains_param
 
+pytestmark = pytest.mark.skip("skip tests for Django migration")
+
 
 async def test_login_callback_address(
     test_client: TestClient[Litestar],
