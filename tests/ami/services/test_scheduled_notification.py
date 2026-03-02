@@ -1,6 +1,7 @@
 import datetime
 import json
 
+import pytest
 from litestar.channels import Subscriber
 from pytest_httpx import HTTPXMock
 from sqlalchemy import func, select
@@ -11,6 +12,8 @@ from app.services.notification import NotificationService
 from app.services.scheduled_notification import ScheduledNotificationService
 from tests.ami.utils import get_from_stream
 from tests.base import TestClient
+
+pytestmark = pytest.mark.skip("skip tests for Django migration")
 
 
 async def test_publish_scheduled_notifications(

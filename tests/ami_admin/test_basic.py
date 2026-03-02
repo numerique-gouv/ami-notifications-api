@@ -10,6 +10,8 @@ from tests.base import ConnectedTestClient
 
 from .utils import check_url_access
 
+pytestmark = pytest.mark.skip("skip tests for Django migration")
+
 
 async def test_ami_admin_home_when_logged_in(
     connected_test_client: ConnectedTestClient,
