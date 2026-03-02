@@ -9,12 +9,12 @@ from pytest_httpx import HTTPXMock
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from ami.tests.utils import url_contains_param
 from app import env
 from app.auth import jwt_cookie_auth
 from app.models import Nonce, ScheduledNotification, User
 from app.utils import build_fc_hash
 from tests.ami.utils import get_token
-from tests.utils import url_contains_param
 
 pytestmark = pytest.mark.skip("skip tests for Django migration")
 

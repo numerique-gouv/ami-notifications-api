@@ -4,11 +4,9 @@ from litestar.testing import TestClient
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from ami.tests.utils import url_contains_param
 from app import env
 from app.models import Nonce
-from tests.utils import url_contains_param
-
-pytestmark = pytest.mark.skip("skip tests for Django migration")
 
 
 async def test_login_france_connect(
