@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 import os
 from pathlib import Path
-from typing import Any
 
 import dj_database_url
 from dotenv import dotenv_values
@@ -64,7 +63,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "ami.urls"
 
-TEMPLATES: list[dict[str, Any]] = [
+TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [],
@@ -85,7 +84,7 @@ WSGI_APPLICATION = "ami.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-DATABASES = {"default": dj_database_url.parse(CONFIG["DATABASE_URL"])}  # type: ignore
+DATABASES = {"default": dj_database_url.parse(CONFIG["DATABASE_URL"])}
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
