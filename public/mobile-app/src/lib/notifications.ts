@@ -2,6 +2,7 @@ import { PUBLIC_API_URL } from '$env/static/public';
 import { apiFetch } from '$lib/auth';
 import type { Registration } from '$lib/registration';
 import { registerDevice, unregisterDevice } from '$lib/registration';
+import * as self from './notifications';
 
 export const PUBLIC_API_WS_URL = PUBLIC_API_URL.replace('https://', 'wss://').replace(
   'http://',
@@ -42,16 +43,16 @@ export const getNotificationsFromStore = async (): Promise<AppNotification[]> =>
 };
 
 export const getNotifications = async (): Promise<AppNotification[]> => {
-  await fetchAndStoreNotifications();
-  return await getNotificationsFromStore();
+  await self.fetchAndStoreNotifications();
+  return await self.getNotificationsFromStore();
 };
 
 export const retrieveNotifications = async (): Promise<AppNotification[]> => {
-  return await getNotifications();
+  return await self.getNotifications();
 };
 
 export const countUnreadNotifications = async (): Promise<number> => {
-  const notifications: AppNotification[] = await getNotifications();
+  const notifications: AppNotification[] = await self.getNotifications();
   const unreadNotifications: AppNotification[] = notifications.filter(
     (notification) => !notification.read
   );

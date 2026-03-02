@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { waitFor } from '@testing-library/svelte';
 import type { AppNotification } from '$lib/notifications';
+import * as notificationMethods from '$lib/notifications';
 import {
   countUnreadNotifications,
   disableNotifications,
@@ -99,12 +100,33 @@ describe('/notifications', () => {
     });
   });
 
-  describe('retrieveNotifications', () => {
-    test('should get notifications from API', async () => {
+  describe('getNotifications', () => {
+    test('should call fetchAndStoreNotifications then getNotificationsFromStore', async () => {
       // Given
-      const notifications = [
+      const expectedNotifications: AppNotification[] = [];
+      const fetchSpy = vi
+        .spyOn(notificationMethods, 'fetchAndStoreNotifications')
+        .mockResolvedValue(undefined);
+      const getSpy = vi
+        .spyOn(notificationMethods, 'getNotificationsFromStore')
+        .mockResolvedValue(expectedNotifications);
+
+      // When
+      const result = await notificationMethods.getNotifications();
+
+      // Then
+      expect(fetchSpy).toHaveBeenCalledOnce();
+      expect(getSpy).toHaveBeenCalledOnce();
+      expect(result).toEqual(expectedNotifications);
+    });
+  });
+
+  describe('retrieveNotifications', () => {
+    test('should call getNotifications', async () => {
+      // Given
+      const notifications: AppNotification[] = [
         {
-          created_at: '2025-09-19T13:52:23.279545',
+          created_at: new Date('2025-09-19T13:52:23.279545'),
           user_id: '3ac73f4f-4be2-456a-9c2e-ddff480d5767',
           sender: 'test 2',
           content_body: 'test 2',
@@ -114,7 +136,7 @@ describe('/notifications', () => {
           item_external_url: '',
         },
         {
-          created_at: '2025-09-19T12:59:04.950812',
+          created_at: new Date('2025-09-19T12:59:04.950812'),
           user_id: '3ac73f4f-4be2-456a-9c2e-ddff480d5767',
           sender: 'test',
           content_body: 'test',
@@ -124,8 +146,8 @@ describe('/notifications', () => {
           item_external_url: '',
         },
       ];
-      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-        new Response(JSON.stringify(notifications), { status: 200 })
+      vi.spyOn(notificationMethods, 'getNotifications').mockResolvedValue(
+        notifications
       );
 
       // When
@@ -133,18 +155,15 @@ describe('/notifications', () => {
 
       // Then
       expect(result).toEqual(notifications);
-      expect(window.localStorage.getItem('notifications')).toEqual(
-        JSON.stringify(notifications)
-      );
     });
   });
 
   describe('countUnreadNotifications', () => {
-    test('should count unread notifications from API', async () => {
+    test('should call getNotifications and filter unread notifications', async () => {
       // Given
-      const notifications = [
+      const notifications: AppNotification[] = [
         {
-          created_at: '2025-09-19T13:52:23.279545',
+          created_at: new Date('2025-09-19T13:52:23.279545'),
           user_id: '3ac73f4f-4be2-456a-9c2e-ddff480d5767',
           sender: 'test 2',
           content_body: 'test 2',
@@ -154,7 +173,7 @@ describe('/notifications', () => {
           item_external_url: '',
         },
         {
-          created_at: '2025-09-19T12:59:04.950812',
+          created_at: new Date('2025-09-19T12:59:04.950812'),
           user_id: '3ac73f4f-4be2-456a-9c2e-ddff480d5767',
           sender: 'test',
           content_body: 'test',
@@ -164,8 +183,8 @@ describe('/notifications', () => {
           item_external_url: '',
         },
       ];
-      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-        new Response(JSON.stringify(notifications), { status: 200 })
+      vi.spyOn(notificationMethods, 'getNotifications').mockResolvedValue(
+        notifications
       );
 
       // When
@@ -173,9 +192,6 @@ describe('/notifications', () => {
 
       // Then
       expect(result).toEqual(1);
-      expect(window.localStorage.getItem('notifications')).toEqual(
-        JSON.stringify(notifications)
-      );
     });
   });
 
