@@ -1,10 +1,3 @@
-ifdef CONTAINER
-  # We're on scalingo, don't use uv
-  RUN :=
-else
-  RUN := uv run --env-file .env --env-file .env.local
-endif
-
 .PHONY: install
 install:
 	npm ci
@@ -15,15 +8,15 @@ lint-and-format: install
 
 .PHONY: test
 test:
-	$(RUN) pytest
+	DJANGO_SETTINGS_MODULE=ami.settings uv run pytest ami
 
 .PHONY: dev
 dev:
-	RELOAD="-r" DEBUG="--debug" HOST="0.0.0.0" bin/start.sh
+	uv run manage.py runserver --settings=ami.settings
 
 .PHONY: serve
 serve:
-	bin/start.sh
+	uv run manage.py runserver --settings=ami.settings
 
 .PHONY: build-app
 build-app:
