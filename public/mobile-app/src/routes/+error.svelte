@@ -1,33 +1,38 @@
-<script lang="ts">
+<script>
   import { onMount } from 'svelte';
   import { browser } from '$app/environment';
   import { goto } from '$app/navigation';
 
   let { status, error } = $props();
   let retrying = $state(false);
-  let hasTriedAutoRetry = $state(false);
+  let isOnline = $state(false);
+  let cacheAvailable = $state(false);
 
-  function shouldAutoRetry() {
-    return (
-      navigator.onLine &&
-      !retrying &&
-      !hasTriedAutoRetry &&
-      (status === 0 || error?.message?.includes('network') || !error)
-    );
+  // Détecte état réseau + cache
+  function checkNetworkStatus() {
+    isOnline = navigator.onLine;
+
+    // Vérifie si SW + cache actifs
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+      caches.match(window.location.pathname).then((response) => {
+        cacheAvailable = !!response;
+      });
+    }
   }
 
-  async function attemptRetry() {
-    if (!navigator.onLine || retrying) return;
+  async function smartRetry() {
+    if (retrying || !isOnline) return;
 
     retrying = true;
-    hasTriedAutoRetry = true;
 
     try {
+      // 1. Essai navigation douce (SW devrait gérer le cache)
       await goto(window.location.pathname, {
         invalidateAll: true,
         replaceState: true,
       });
-    } catch (e) {
+    } catch {
+      // 2. Force refresh complet (SW servira cache si offline)
       window.location.reload();
     } finally {
       retrying = false;
@@ -35,78 +40,179 @@
   }
 
   onMount(() => {
-    if (browser && shouldAutoRetry()) {
-      setTimeout(attemptRetry, 1000);
-    }
-
     if (browser) {
+      checkNetworkStatus();
+
+      const handleOffline = () => {
+        isOnline = false;
+      };
+
+      // Écouteurs réseau
+      window.addEventListener('online', checkNetworkStatus);
+      window.addEventListener('offline', handleOffline);
+
+      // Retry auto si réseau revenu ET cache disponible
       const handleOnline = () => {
-        if (shouldAutoRetry()) {
-          setTimeout(attemptRetry, 500);
+        checkNetworkStatus();
+        if (isOnline && cacheAvailable && status !== 404) {
+          setTimeout(smartRetry, 800);
         }
       };
 
       window.addEventListener('online', handleOnline);
-      return () => window.removeEventListener('online', handleOnline);
+
+      return () => {
+        window.removeEventListener('online', checkNetworkStatus);
+        window.removeEventListener('offline', handleOffline);
+        window.removeEventListener('online', handleOnline);
+      };
     }
   });
-
-  const goToHomepage = () => {
-    goto('/', { invalidateAll: true });
-  };
 </script>
 
-<div class="technical-error">
-  <h1>Nous sommes désolés, une erreur s'est produite.</h1>
-  <div class="descriptive-text">
-    <p>Veuillez réessayer plus tard.</p>
-    <p>(Veuillez éventuellement vérifier la connexion)</p>
+<main class="error-container">
+  <div class="error-header">
+    <h1>Erreur {status || '?'}</h1>
+    <p class="message">{error?.message || 'Impossible de charger la page'}</p>
   </div>
-  <div class="action-buttons">
+
+  <!-- Diagnostic réseau/cache -->
+  <div class="status-grid">
+    <div class="status-item">
+      <span class="label">Réseau</span>
+      <span class="status {isOnline ? 'online' : 'offline'}">
+        {isOnline ? '🟢 En ligne' : '🔴 Hors ligne'}
+      </span>
+    </div>
+    <div class="status-item">
+      <span class="label">Cache</span>
+      <span class="status {cacheAvailable ? 'online' : 'offline'}">
+        {cacheAvailable ? '🟢 Disponible' : '⚪ Jamais chargé'}
+      </span>
+    </div>
+  </div>
+
+  <!-- Actions intelligentes selon contexte -->
+  <div class="actions">
     <button
-      class="fr-btn"
-      type="button"
-      onclick="{goToHomepage}"
-      data-testid="back-button"
+      class="retry-btn primary"
+      disabled={retrying || (!isOnline && !cacheAvailable)}
+      onclick={smartRetry}
     >
-      Revenir à l'accueil
+      {#if retrying}
+        ⓷ Reconnexion...
+      {:else if !isOnline && cacheAvailable}
+        💾 Utiliser cache
+      {:else if status === 404}
+        🔍 Page inexistante
+      {:else}
+        🔄 Réessayer
+      {/if}
     </button>
+
+    {#if status === 404}
+      <button class="home-btn" onclick={() => goto('/')}>🏠 Accueil</button>
+    {/if}
   </div>
-</div>
+
+  <!-- Messages contextuels -->
+  {#if !isOnline}
+    <div class="hint">
+      💡 Le service worker a mis vos pages en cache. Cliquez sur "Utiliser cache" pour
+      continuer hors ligne.
+    </div>
+  {:else if !cacheAvailable}
+    <div class="hint warning">
+      ⚠️ Cette page n'a jamais été chargée (pas en cache). Rechargez une fois en ligne
+      pour la rendre disponible offline.
+    </div>
+  {:else if status === 404}
+    <div class="hint">❌ Cette page n'existe pas, même dans le cache.</div>
+  {/if}
+</main>
 
 <style>
-  .technical-error {
-    padding: 1.5rem 1rem;
-    margin-top: 9rem;
+  .error-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 2rem;
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto;
+  }
 
-    h1 {
-      margin-bottom: 0.5rem;
-      font-size: 18px;
-      line-height: 20px;
-      font-weight: 700;
-      text-align: center;
-    }
-    .descriptive-text {
-      margin-bottom: 2.5rem;
-      font-size: 16px;
-      line-height: 24px;
-      font-weight: 400;
-      text-align: center;
+  .status-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 2rem 0;
+    width: 100%;
+    max-width: 400px;
+  }
 
-      p:first-child {
-        margin-bottom: 0.5rem;
-      }
-    }
-    .action-buttons {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      align-items: center;
+  .status-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    background: #f8f9fa;
+  }
 
-      button {
-        display: flex;
-        justify-content: center;
-      }
-    }
+  .status.online {
+    background: #d4edda;
+    color: #155724;
+  }
+  .status.offline {
+    background: #f8d7da;
+    color: #721c24;
+  }
+
+  .actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 2rem 0;
+  }
+
+  .retry-btn,
+  .home-btn {
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    min-width: 160px;
+  }
+
+  .primary {
+    background: #007acc;
+    color: white;
+    font-weight: 600;
+  }
+  .primary:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
+
+  .home-btn {
+    background: #6c757d;
+    color: white;
+  }
+
+  .hint {
+    margin-top: 2rem;
+    padding: 1rem;
+    background: #e7f3ff;
+    border-radius: 8px;
+    border-left: 4px solid #007acc;
+  }
+
+  .hint.warning {
+    background: #fff3cd;
+    border-left-color: #ffc107;
   }
 </style>
