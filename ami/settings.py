@@ -49,6 +49,9 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "ami.authentication",
+    "ami.notification",
+    "ami.user",
     "ami.utils",
 ]
 
