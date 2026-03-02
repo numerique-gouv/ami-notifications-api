@@ -42,11 +42,13 @@ source = { virtual = "." }
 dependencies = [
     { name = "asyncpg" },
     { name = "django" },
+    { name = "django-database-url" },
     { name = "django-stubs", extra = ["compatible-mypy"] },
     { name = "firebase-admin" },
     { name = "httpx" },
     { name = "litestar", extra = ["pydantic", "sqlalchemy", "standard"] },
     { name = "psycopg", extra = ["binary"] },
+    { name = "python-dotenv" },
     { name = "sentry-sdk", extra = ["litestar"] },
     { name = "types-requests" },
     { name = "webpush" },
@@ -72,11 +74,13 @@ dev = [
 requires-dist = [
     { name = "asyncpg", specifier = ">=0.30.0" },
     { name = "django", specifier = ">=6.0.2" },
+    { name = "django-database-url", specifier = ">=1.0.3" },
     { name = "django-stubs", extras = ["compatible-mypy"], specifier = ">=5.2.9" },
     { name = "firebase-admin", specifier = ">=7.1.0" },
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "litestar", extras = ["pydantic", "sqlalchemy", "standard"], specifier = ">=2.15.1" },
     { name = "psycopg", extras = ["binary"], specifier = ">=3.3.3" },
+    { name = "python-dotenv", specifier = ">=1.1.0" },
     { name = "sentry-sdk", extras = ["litestar"], specifier = ">=2.29.1" },
     { name = "types-requests", specifier = ">=2.32.0.20250328" },
     { name = "webpush", specifier = ">=1.0.5" },
@@ -396,6 +400,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/26/3e/a1c4207c5dea4697b7a3387e26584919ba987d8f9320f59dc0b5c557a4eb/django-6.0.2.tar.gz", hash = "sha256:3046a53b0e40d4b676c3b774c73411d7184ae2745fe8ce5e45c0f33d3ddb71a7", size = 10886874, upload-time = "2026-02-03T13:50:31.596Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/96/ba/a6e2992bc5b8c688249c00ea48cb1b7a9bc09839328c81dc603671460928/django-6.0.2-py3-none-any.whl", hash = "sha256:610dd3b13d15ec3f1e1d257caedd751db8033c5ad8ea0e2d1219a8acf446ecc6", size = 8339381, upload-time = "2026-02-03T13:50:15.501Z" },
+]
+
+[[package]]
+name = "django-database-url"
+version = "1.0.3"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "django" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/ca/3a/ae60cee85877e634b2e48807942bdc0959fe12f26db6b3da365a3f1d2c01/django-database-url-1.0.3.tar.gz", hash = "sha256:141077780995d38c4a68a0d32d5affb016f288f54ff4f6296a9f1fee9e44aae3", size = 5547, upload-time = "2022-01-11T15:28:15.386Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/37/d5/2ae1392790cdecaa49f330acfc39983e4a4021f2da407e634930ded9ba2a/django_database_url-1.0.3-py3-none-any.whl", hash = "sha256:d2e652fd9f4435b80725ad15691d7ea33ead56950614b9acc451c778f8bd2a1f", size = 5669, upload-time = "2022-01-11T15:28:13.661Z" },
 ]
 
 [[package]]

@@ -96,12 +96,12 @@ existing registrations are now obsolete, and can't be used anymore.
 
 The `DATABASE_URL` should look like the following:
 ```
-postgresql+asyncpg://[user]:[password]@[url]:[port]/[dbname]
+postgresql://[user]:[password]@[url]:[port]/[dbname]
 ```
 
 For example for a `postgres` database running locally:
 ```
-postgresql+asyncpg://postgres:some_password@localhost:5432/postgres
+postgresql://postgres:some_password@localhost:5432/postgres
 ```
 
 #### Setting up PostgreSQL with Docker

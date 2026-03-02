@@ -199,9 +199,9 @@ The tests will be run against a (postgres) database on the same server as the
 one configured for your application, with the `_test` suffix.
 
 So for example if you're using
-`DATABASE_URL="postgresql+asyncpg://postgres:some_password@localhost:5432/postgres"`
+`DATABASE_URL="postgresql://postgres:some_password@localhost:5432/postgres"`
 for your application, the tests will be running on
-`DATABASE_URL="postgresql+asyncpg://postgres:some_password@localhost:5432/postgres_test"`.
+`DATABASE_URL="postgresql://postgres:some_password@localhost:5432/postgres_test"`.
 
 This test database must be created beforehand.
 

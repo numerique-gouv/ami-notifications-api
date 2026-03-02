@@ -10,8 +10,20 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 from pathlib import Path
 from typing import Any
+
+import dj_database_url
+from dotenv import dotenv_values
+
+CONFIG = {
+    **dotenv_values(".env"),
+    **dotenv_values(".env.local"),
+    **dotenv_values(".env.development"),
+    **dotenv_values(".env.development.local"),
+    **os.environ,  # override loaded values with environment variables
+}
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,7 +36,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-08fl(&lb$**45l!h!n$e!n(+)$+#p-gnw-d7$msk^^73xj&#$d"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = CONFIG["DEBUG"] == "true"
 
 ALLOWED_HOSTS = []
 
@@ -73,13 +85,7 @@ WSGI_APPLICATION = "ami.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
-}
-
+DATABASES = {"default": dj_database_url.parse(CONFIG["DATABASE_URL"])}  # type: ignore
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
