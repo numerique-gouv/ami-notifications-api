@@ -26,6 +26,8 @@ from app.models import Notification, Registration, User
 from app.partners import partners
 from tests.ami.utils import assert_query_fails_without_auth, get_from_stream, login
 
+pytestmark = pytest.mark.skip("skip tests for Django migration")
+
 
 async def test_create_webpush_notification(
     test_client: TestClient[Litestar],

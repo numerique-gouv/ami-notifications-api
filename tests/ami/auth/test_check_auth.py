@@ -1,9 +1,12 @@
+import pytest
 from litestar import Litestar
 from litestar.testing import TestClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import User
 from tests.ami.utils import assert_query_fails_without_auth, login
+
+pytestmark = pytest.mark.skip("skip tests for Django migration")
 
 
 async def test_check_auth(

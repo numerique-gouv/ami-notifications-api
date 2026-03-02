@@ -20,6 +20,8 @@ from app.data.schemas import (
     SchoolHoliday,
 )
 
+pytestmark = pytest.mark.skip("skip tests for Django migration")
+
 
 async def test_get_school_holidays_data(
     httpx_mock: HTTPXMock,

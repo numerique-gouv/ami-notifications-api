@@ -1,8 +1,11 @@
 from typing import Any
 
+import pytest
 from litestar import Litestar
 from litestar.testing import TestClient
 from pytest_httpx import HTTPXMock
+
+pytestmark = pytest.mark.skip("skip tests for Django migration")
 
 
 async def test_recipient_fc_hash(

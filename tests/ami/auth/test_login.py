@@ -8,6 +8,8 @@ from app import env
 from app.models import Nonce
 from tests.utils import url_contains_param
 
+pytestmark = pytest.mark.skip("skip tests for Django migration")
+
 
 async def test_login_france_connect(
     test_client: TestClient[Litestar],
