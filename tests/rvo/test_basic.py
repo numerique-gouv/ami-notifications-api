@@ -5,9 +5,9 @@ from litestar import Litestar
 from litestar.testing import TestClient
 from pytest_httpx import HTTPXMock
 
+from ami.tests.utils import url_contains_param
 from app import env
 from tests.base import ConnectedTestClient
-from tests.utils import url_contains_param
 
 from .utils import check_url_when_logged_out
 
