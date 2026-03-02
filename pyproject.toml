@@ -6,9 +6,12 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "asyncpg>=0.30.0",
+    "django>=6.0.2",
+    "django-stubs[compatible-mypy]>=5.2.9",
     "firebase-admin>=7.1.0",
     "httpx>=0.28.1",
     "litestar[pydantic,sqlalchemy,standard]>=2.15.1",
+    "psycopg[binary]>=3.3.3",
     "sentry-sdk[litestar]>=2.29.1",
     "types-requests>=2.32.0.20250328",
     "webpush>=1.0.5",
@@ -68,3 +71,6 @@ extend-select = ["I"] # also sort imports with an isort rule
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
+
+[tool.django-stubs]
+django_settings_module = "ami.settings"
