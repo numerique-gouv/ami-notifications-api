@@ -25,17 +25,20 @@ dependencies = [
 dev = [
     "alembic>=1.15.2",
     "cryptography>=44.0.2",
+    "django-extensions>=4.1",
     "django-webtest>=1.9.14",
     "freezegun>=1.5.5",
     "ipdb>=0.13.13",
     "pre-commit>=4.2.0",
     "pre-commit-uv>=4.1.4",
+    "pyopenssl>=25.3.0",
     "pyright>=1.1.390",
     "pytest>=8.3.5",
     "pytest-asyncio>=0.26.0",
     "pytest-django>=4.12.0",
     "pytest-httpx>=0.35.0",
     "ruff>=0.11.2",
+    "werkzeug>=3.1.6",
 ]
 
 [tool.pyright]
