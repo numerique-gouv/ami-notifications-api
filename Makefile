@@ -15,6 +15,14 @@ lint-and-format: install
 
 .PHONY: test
 test:
+	DJANGO_SETTINGS_MODULE=ami.settings $(RUN) pytest -vvv -ll --ff -x --reuse-db ami
+
+.PHONY: test-create-db
+test-create-db:
+	DJANGO_SETTINGS_MODULE=ami.settings $(RUN) pytest -vvv -ll --ff -x --reuse-db ami --create-db
+
+.PHONY: test-ci
+test-ci:
 	DJANGO_SETTINGS_MODULE=ami.settings $(RUN) pytest ami
 
 .PHONY: dev

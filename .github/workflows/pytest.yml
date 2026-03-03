@@ -64,7 +64,7 @@ jobs:
           echo "PARTNERS_PSL_SECRET=\"secret\"" >> .env.local
 
       - name: Run tests
-        run: make test
+        run: make test-ci
 
   mobile-app-tests:
     name: mobile-app
