@@ -27,11 +27,11 @@ test-ci:
 
 .PHONY: dev
 dev:
-	$(RUN) python manage.py runserver --settings=ami.settings
+	$(RUN) python manage.py runserver
 
 .PHONY: serve
 serve:
-	$(RUN) python manage.py runserver --settings=ami.settings
+	$(RUN) python manage.py runserver
 
 .PHONY: build-app
 build-app:
