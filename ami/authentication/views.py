@@ -4,8 +4,8 @@ from django.conf import settings
 from django.shortcuts import redirect
 from django.views.decorators.http import require_GET
 
+from ami.authentication.auth import generate_nonce
 from ami.authentication.models import Nonce
-from ami.authentication.utils import generate_nonce
 
 
 @require_GET
