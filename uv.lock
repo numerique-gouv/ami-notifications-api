@@ -60,17 +60,20 @@ dependencies = [
 dev = [
     { name = "alembic" },
     { name = "cryptography" },
+    { name = "django-extensions" },
     { name = "django-webtest" },
     { name = "freezegun" },
     { name = "ipdb" },
     { name = "pre-commit" },
     { name = "pre-commit-uv" },
+    { name = "pyopenssl" },
     { name = "pyright" },
     { name = "pytest" },
     { name = "pytest-asyncio" },
     { name = "pytest-django" },
     { name = "pytest-httpx" },
     { name = "ruff" },
+    { name = "werkzeug" },
 ]
 
 [package.metadata]
@@ -95,17 +98,20 @@ requires-dist = [
 dev = [
     { name = "alembic", specifier = ">=1.15.2" },
     { name = "cryptography", specifier = ">=44.0.2" },
+    { name = "django-extensions", specifier = ">=4.1" },
     { name = "django-webtest", specifier = ">=1.9.14" },
     { name = "freezegun", specifier = ">=1.5.5" },
     { name = "ipdb", specifier = ">=0.13.13" },
     { name = "pre-commit", specifier = ">=4.2.0" },
     { name = "pre-commit-uv", specifier = ">=4.1.4" },
+    { name = "pyopenssl", specifier = ">=25.3.0" },
     { name = "pyright", specifier = ">=1.1.390" },
     { name = "pytest", specifier = ">=8.3.5" },
     { name = "pytest-asyncio", specifier = ">=0.26.0" },
     { name = "pytest-django", specifier = ">=4.12.0" },
     { name = "pytest-httpx", specifier = ">=0.35.0" },
     { name = "ruff", specifier = ">=0.11.2" },
+    { name = "werkzeug", specifier = ">=3.1.6" },
 ]
 
 [[package]]
@@ -431,6 +437,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/ca/3a/ae60cee85877e634b2e48807942bdc0959fe12f26db6b3da365a3f1d2c01/django-database-url-1.0.3.tar.gz", hash = "sha256:141077780995d38c4a68a0d32d5affb016f288f54ff4f6296a9f1fee9e44aae3", size = 5547, upload-time = "2022-01-11T15:28:15.386Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/37/d5/2ae1392790cdecaa49f330acfc39983e4a4021f2da407e634930ded9ba2a/django_database_url-1.0.3-py3-none-any.whl", hash = "sha256:d2e652fd9f4435b80725ad15691d7ea33ead56950614b9acc451c778f8bd2a1f", size = 5669, upload-time = "2022-01-11T15:28:13.661Z" },
+]
+
+[[package]]
+name = "django-extensions"
+version = "4.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "django" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/6d/b3/ed0f54ed706ec0b54fd251cc0364a249c6cd6c6ec97f04dc34be5e929eac/django_extensions-4.1.tar.gz", hash = "sha256:7b70a4d28e9b840f44694e3f7feb54f55d495f8b3fa6c5c0e5e12bcb2aa3cdeb", size = 283078, upload-time = "2025-04-11T01:15:39.617Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/64/96/d967ca440d6a8e3861120f51985d8e5aec79b9a8bdda16041206adfe7adc/django_extensions-4.1-py3-none-any.whl", hash = "sha256:0699a7af28f2523bf8db309a80278519362cd4b6e1fd0a8cd4bf063e1e023336", size = 232980, upload-time = "2025-04-11T01:15:37.701Z" },
 ]
 
 [[package]]
@@ -1639,6 +1657,18 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/81/76/599896b37e60f43078afd8354b3802eb7ca257a7e7f6253cc21c4c672877/PyMeeus-0.5.12.tar.gz", hash = "sha256:548f7186bd8b96cbc069cf649a8e8e377dce49ac74486709849fe63a99cad684", size = 5752712, upload-time = "2022-12-11T11:37:48.504Z" }
 
 [[package]]
+name = "pyopenssl"
+version = "25.3.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "cryptography" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/80/be/97b83a464498a79103036bc74d1038df4a7ef0e402cfaf4d5e113fb14759/pyopenssl-25.3.0.tar.gz", hash = "sha256:c981cb0a3fd84e8602d7afc209522773b94c1c2446a3c710a75b06fe1beae329", size = 184073, upload-time = "2025-09-17T00:32:21.037Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d1/81/ef2b1dfd1862567d573a4fdbc9f969067621764fbb74338496840a1d2977/pyopenssl-25.3.0-py3-none-any.whl", hash = "sha256:1fda6fc034d5e3d179d39e59c1895c9faeaf40a79de5fc4cbbfbe0d36f4a77b6", size = 57268, upload-time = "2025-09-17T00:32:19.474Z" },
+]
+
+[[package]]
 name = "pyright"
 version = "1.1.402"
 source = { registry = "https://pypi.org/simple" }
@@ -2156,6 +2186,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/20/85/73877efb10ba4ef02364d5671724b1326d482dc928eace5fe114215443b7/webtest-3.0.7.tar.gz", hash = "sha256:7aeab50f970d46c068e7a36dd162cb242591edf72a1d04efd21374772b931741", size = 80260, upload-time = "2025-10-06T20:38:59.293Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/73/74/cb337bb1758254589b6fdc0aeeb91fa987ac1e6877a79b75edbd214fc0a9/webtest-3.0.7-py3-none-any.whl", hash = "sha256:2f51a0844f3a8beaef89bc23d225fe05ad816f7e429ffcc655a13013a799ac6c", size = 32393, upload-time = "2025-10-06T20:38:57.728Z" },
+]
+
+[[package]]
+name = "werkzeug"
+version = "3.1.6"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "markupsafe" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/61/f1/ee81806690a87dab5f5653c1f146c92bc066d7f4cebc603ef88eb9e13957/werkzeug-3.1.6.tar.gz", hash = "sha256:210c6bede5a420a913956b4791a7f4d6843a43b6fcee4dfa08a65e93007d0d25", size = 864736, upload-time = "2026-02-19T15:17:18.884Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/4d/ec/d58832f89ede95652fd01f4f24236af7d32b70cab2196dfcc2d2fd13c5c2/werkzeug-3.1.6-py3-none-any.whl", hash = "sha256:7ddf3357bb9564e407607f988f683d72038551200c704012bb9a4c523d42f131", size = 225166, upload-time = "2026-02-19T15:17:17.475Z" },
 ]
 
 [[package]]
