@@ -1,5 +1,4 @@
 import pytest
-from django.conf import settings
 
 from ami.authentication.models import Nonce
 from ami.tests.utils import url_contains_param
@@ -7,6 +6,7 @@ from ami.tests.utils import url_contains_param
 
 @pytest.mark.django_db
 def test_login_france_connect(
+    settings,
     django_app,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
