@@ -31,11 +31,7 @@ statics:
 
 .PHONY: dev
 dev:
-	$(RUN) python manage.py runserver
-
-.PHONY: serve
-serve:
-	$(RUN) python manage.py runserver
+	$(RUN) python manage.py runserver_plus --cert-file ssl-cert.pem --key-file ssl-key.pem
 
 .PHONY: build-app
 build-app:
