@@ -25,6 +25,10 @@ test-create-db:
 test-ci:
 	DJANGO_SETTINGS_MODULE=ami.settings $(RUN) pytest ami
 
+.PHONY: statics
+statics:
+	$(RUN) python manage.py collectstatic
+
 .PHONY: dev
 dev:
 	$(RUN) python manage.py runserver
