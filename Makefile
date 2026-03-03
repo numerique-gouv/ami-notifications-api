@@ -1,22 +1,29 @@
+ifdef CONTAINER
+  # We're on scalingo, don't use uv
+  RUN :=
+else
+  RUN := uv run
+endif
+
 .PHONY: install
 install:
 	npm ci
 
 .PHONY: lint-and-format
 lint-and-format: install
-	uv run pre-commit run --all-files
+	$(RUN) pre-commit run --all-files
 
 .PHONY: test
 test:
-	DJANGO_SETTINGS_MODULE=ami.settings uv run pytest ami
+	DJANGO_SETTINGS_MODULE=ami.settings $(RUN) pytest ami
 
 .PHONY: dev
 dev:
-	uv run manage.py runserver --settings=ami.settings
+	$(RUN) python manage.py runserver --settings=ami.settings
 
 .PHONY: serve
 serve:
-	uv run manage.py runserver --settings=ami.settings
+	$(RUN) python manage.py runserver --settings=ami.settings
 
 .PHONY: build-app
 build-app:
@@ -24,7 +31,7 @@ build-app:
 
 .PHONY: migrate
 migrate:
-	uv run manage.py migrate --fake-initial
+	$(RUN) python manage.py migrate --fake-initial
 
 .PHONY: publish-scheduled-notifications
 publish-scheduled-notifications:
