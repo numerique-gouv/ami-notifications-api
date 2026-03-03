@@ -17,6 +17,9 @@
     "PUBLIC_PRO_CONNECT_AMI_ADMIN_REDIRECT_URL": {
       "generator": "url",
       "template": "%URL%/ami_admin/login-callback"
+    },
+    "DISABLE_COLLECTSTATIC": {
+      "value": "1"
     }
   }
 }
