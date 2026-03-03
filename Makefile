@@ -24,7 +24,7 @@ build-app:
 
 .PHONY: migrate
 migrate:
-	$(RUN) alembic upgrade head
+	uv run manage.py migrate --fake-initial
 
 .PHONY: publish-scheduled-notifications
 publish-scheduled-notifications:
