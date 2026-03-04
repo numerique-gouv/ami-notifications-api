@@ -64,6 +64,7 @@ dependencies = [
 dev = [
     { name = "alembic" },
     { name = "cryptography" },
+    { name = "django-cors-headers" },
     { name = "django-webtest" },
     { name = "freezegun" },
     { name = "ipdb" },
@@ -105,6 +106,7 @@ requires-dist = [
 dev = [
     { name = "alembic", specifier = ">=1.15.2" },
     { name = "cryptography", specifier = ">=44.0.2" },
+    { name = "django-cors-headers", specifier = ">=4.9.0" },
     { name = "django-webtest", specifier = ">=1.9.14" },
     { name = "freezegun", specifier = ">=1.5.5" },
     { name = "ipdb", specifier = ">=0.13.13" },
