@@ -45,19 +45,14 @@ Biome is used for:
 
 ### API
 
-[litestar](https://docs.litestar.dev/latest/index.html) "is a powerful,
-flexible, highly performant, and opinionated ASGI framework."
+[Django](https://docs.djangoproject.com/) "was invented to meet fast-moving newsroom deadlines, while satisfying the tough requirements of experienced web developers."
 
 Start the server using:
 ```sh
 make dev # With live reloading
 ```
 
-Then access http://127.0.0.1:8000, or open one of:
-- http://127.0.0.1:8000/schema (for ReDoc)
-- http://127.0.0.1:8000/schema/swagger (for Swagger UI)
-- http://127.0.0.1:8000/schema/elements (for Stoplight Elements)
-- http://127.0.0.1:8000/schema/rapidoc (for RapiDoc)
+Then access https://localhost:8000
 
 For any specific env variables, create (or edit) a `.env.local` file. Anything in here
 will overload what's in the `.env` file.
