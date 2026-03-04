@@ -30,34 +30,11 @@ fi
 
 if [ ! -z "$CONTAINER" ]
 then
+  # We're running on Scalingo
   # Rebuild the FCM secret json keys file from the env vars, see the section in CONTRIBUTING.md
   echo "$FCM_KEYS_FILE" | base64 -d > "$GOOGLE_APPLICATION_CREDENTIALS"
-else
-  # We're on local dev, FranceConnect needs HTTPS so start backend server with SSL
-  # On Scalingo, the backend is already on HTTPS
-  if [ ! -f ssl-key.pem ]
-  then
-    openssl req -x509 -newkey rsa:4096 -keyout ssl-key.pem -out ssl-cert.pem -sha256 -days 3650 -nodes -subj "/C=XX/ST=StateName/L=CityName/O=CompanyName/OU=CompanySectionName/CN=CommonNameOrHostname"
-  fi
-  SSL="${SSL:---ssl-keyfile=ssl-key.pem --ssl-certfile=ssl-cert.pem}"
-fi
-
-if [ ! -z "$CONTAINER" ]
-then
-  # We're on scalingo, don't use uv
+  # Don't use uv
   RUN=""
-else
-  if [ ! -f .env.local ]
-  then
-    # Create an empty file so uv won't fail on a missing file
-    touch .env.local
-    KEY=$(openssl rand -hex 32)
-    echo "AUTH_COOKIE_JWT_SECRET=\"$KEY\"" >> .env.local
-    KEY=$(openssl rand -hex 32)
-    echo "PARTNERS_PSL_SECRET=\"$KEY\"" >> .env.local
-  fi
-
-  RUN="uv run --env-file .env --env-file .env.local"
 fi
 
-make migrate && ${RUN} litestar run -p ${PORT} -H ${HOST} ${RELOAD} ${DEBUG} ${SSL}
+make migrate && gunicorn ami.asgi:application --bind ${HOST}:${PORT} --worker-class uvicorn.workers.UvicornWorker --forwarded-allow-ips="*" --log-file -

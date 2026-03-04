@@ -37,7 +37,10 @@ SECRET_KEY = "django-insecure-08fl(&lb$**45l!h!n$e!n(+)$+#p-gnw-d7$msk^^73xj&#$d
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = CONFIG["DEBUG"] == "true"
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    ".osc-fr1.scalingo.io",
+    "ami-back-prod.osc-secnum-fr1.scalingo.io",
+]
 
 
 # Application definition
@@ -55,9 +58,6 @@ INSTALLED_APPS = [
     "ami.user",
     "ami.utils",
 ]
-
-if DEBUG:
-    INSTALLED_APPS += ["django_extensions"]
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
@@ -114,7 +114,8 @@ WSGI_APPLICATION = "ami.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-DATABASES = {"default": dj_database_url.parse(CONFIG["DATABASE_URL"])}
+postgres_database = dj_database_url.parse(CONFIG["DATABASE_URL"])
+DATABASES = {"default": postgres_database}
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
