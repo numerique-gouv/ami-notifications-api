@@ -46,6 +46,7 @@ ALLOWED_HOSTS = [
 # Application definition
 
 INSTALLED_APPS = [
+    "channels_postgres",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -178,3 +179,21 @@ PUBLIC_API_PARTICULIER_RECIPIENT_ID = CONFIG["PUBLIC_API_PARTICULIER_RECIPIENT_I
 
 # Channels
 PUBLIC_CHANNEL_UNAUTHORIZED_CODE = 4001
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_postgres.core.PostgresChannelLayer",
+        "CONFIG": postgres_database,
+    }
+}
+
+# VAPID keys for webpush
+VAPID_PUBLIC_KEY = os.getenv("VAPID_PUBLIC_KEY", "")
+VAPID_PRIVATE_KEY = os.getenv("VAPID_PRIVATE_KEY", "")
+
+
+if DEBUG:
+    ALLOWED_HOSTS += [
+        "localhost",
+        "127.0.0.1",
+    ]
