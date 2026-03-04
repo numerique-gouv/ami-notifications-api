@@ -5,6 +5,10 @@ else
   RUN := uv run
 endif
 
+ssl-key.pem:
+	# Generate some local SSL certs for development
+	openssl req -x509 -newkey rsa:4096 -keyout ssl-key.pem -out ssl-cert.pem -sha256 -days 3650 -nodes -subj "/C=XX/ST=StateName/L=CityName/O=CompanyName/OU=CompanySectionName/CN=CommonNameOrHostname"
+
 .PHONY: install
 install:
 	npm ci
@@ -30,8 +34,8 @@ statics:
 	$(RUN) python manage.py collectstatic
 
 .PHONY: dev
-dev:
-	$(RUN) python manage.py runserver_plus --cert-file ssl-cert.pem --key-file ssl-key.pem
+dev: ssl-key.pem
+	$(RUN) uvicorn ami.asgi:application --reload --ssl-keyfile ssl-key.pem --ssl-certfile ssl-cert.pem --host localhost --port 8000
 
 .PHONY: build-app
 build-app:
