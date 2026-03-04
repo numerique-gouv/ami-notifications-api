@@ -52,6 +52,16 @@ class ScheduledNotification(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def create_notification(self) -> Notification:
+        return Notification(
+            user=self.user,
+            content_title=self.content_title,
+            content_body=self.content_body,
+            content_icon=self.content_icon,
+            sender=self.sender,
+            send_status=self.user.last_logged_in is not None,
+        )
+
     class Meta:
         db_table = "scheduled_notification"
         unique_together = (("user", "reference"),)
