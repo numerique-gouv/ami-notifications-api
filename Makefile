@@ -43,8 +43,8 @@ migrate:
 
 .PHONY: publish-scheduled-notifications
 publish-scheduled-notifications:
-	bin/run_command.sh publish-scheduled-notifications
+	$(RUN) python manage.py publish-scheduled-notifications
 
 .PHONY: delete-published-scheduled-notifications
 delete-published-scheduled-notifications:
-	bin/run_command.sh delete-published-scheduled-notifications
+	$(RUN) python manage.py delete-published-scheduled-notifications
