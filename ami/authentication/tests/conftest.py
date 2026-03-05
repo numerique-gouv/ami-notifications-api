@@ -1,6 +1,23 @@
 from typing import Any
 
 import pytest
+from django.utils.timezone import now
+
+from ami.user.models import User
+from ami.user.utils import build_fc_hash
+
+
+@pytest.fixture
+def user() -> User:
+    fc_hash = build_fc_hash(
+        given_name="Test User",
+        family_name="AMI",
+        birthdate="",
+        gender="",
+        birthplace="",
+        birthcountry="",
+    )
+    return User.objects.create(fc_hash=fc_hash, last_logged_in=now())
 
 
 @pytest.fixture
