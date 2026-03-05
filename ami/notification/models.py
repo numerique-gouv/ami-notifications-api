@@ -52,7 +52,7 @@ class ScheduledNotification(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    def create_notification(self) -> Notification:
+    def build_notification(self) -> Notification:
         return Notification(
             user=self.user,
             content_title=self.content_title,
