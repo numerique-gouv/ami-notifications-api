@@ -102,23 +102,19 @@ def test_login_callback(
     assert user.fc_hash == "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060"
     assert user.last_logged_in is not None
 
-    # TODO
-    # all_scheduled_notifications = (
-    #     (await db_session.execute(select(ScheduledNotification))).scalars().all()
-    # )
-    # assert len(all_scheduled_notifications) == 1
-    # scheduled_notification = all_scheduled_notifications[0]
-    # assert scheduled_notification.user.id == user.id
-    # assert scheduled_notification.content_title == "Bienvenue sur AMI 👋"
-    # assert (
-    #     scheduled_notification.content_body
-    #     == "Ici, vous pourrez gérer votre vie administrative, suivre l'avancement de vos démarches et recevoir des rappels personnalisés."
-    # )
-    # assert scheduled_notification.content_icon == "fr-icon-information-line"
-    # assert scheduled_notification.reference == "ami:welcome"
-    # assert scheduled_notification.scheduled_at < datetime.datetime.now(datetime.timezone.utc)
-    # assert scheduled_notification.sender == "AMI"
-    # assert scheduled_notification.sent_at is None
+    assert ScheduledNotification.objects.count() == 1
+    scheduled_notification = ScheduledNotification.objects.get()
+    assert scheduled_notification.user == user
+    assert scheduled_notification.content_title == "Bienvenue sur AMI 👋"
+    assert (
+        scheduled_notification.content_body
+        == "Ici, vous pourrez gérer votre vie administrative, suivre l'avancement de vos démarches et recevoir des rappels personnalisés."
+    )
+    assert scheduled_notification.content_icon == "fr-icon-information-line"
+    assert scheduled_notification.reference == "ami:welcome"
+    assert scheduled_notification.scheduled_at < now()
+    assert scheduled_notification.sender == "AMI"
+    assert scheduled_notification.sent_at is None
 
 
 @pytest.mark.django_db
@@ -298,23 +294,19 @@ def test_login_callback_user_never_seen(
     assert user.fc_hash == "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060"
     assert user.last_logged_in is not None
 
-    # TODO
-    # all_scheduled_notifications = (
-    #     (await db_session.execute(select(ScheduledNotification))).scalars().all()
-    # )
-    # assert len(all_scheduled_notifications) == 1
-    # scheduled_notification = all_scheduled_notifications[0]
-    # assert scheduled_notification.user.id == user.id
-    # assert scheduled_notification.content_title == "Bienvenue sur AMI 👋"
-    # assert (
-    #     scheduled_notification.content_body
-    #     == "Ici, vous pourrez gérer votre vie administrative, suivre l'avancement de vos démarches et recevoir des rappels personnalisés."
-    # )
-    # assert scheduled_notification.content_icon == "fr-icon-information-line"
-    # assert scheduled_notification.reference == "ami:welcome"
-    # assert scheduled_notification.scheduled_at < datetime.datetime.now(datetime.timezone.utc)
-    # assert scheduled_notification.sender == "AMI"
-    # assert scheduled_notification.sent_at is None
+    assert ScheduledNotification.objects.count() == 1
+    scheduled_notification = ScheduledNotification.objects.get()
+    assert scheduled_notification.user == user
+    assert scheduled_notification.content_title == "Bienvenue sur AMI 👋"
+    assert (
+        scheduled_notification.content_body
+        == "Ici, vous pourrez gérer votre vie administrative, suivre l'avancement de vos démarches et recevoir des rappels personnalisés."
+    )
+    assert scheduled_notification.content_icon == "fr-icon-information-line"
+    assert scheduled_notification.reference == "ami:welcome"
+    assert scheduled_notification.scheduled_at < now()
+    assert scheduled_notification.sender == "AMI"
+    assert scheduled_notification.sent_at is None
 
 
 @pytest.mark.django_db
