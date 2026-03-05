@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "corsheaders",
     "ami.authentication",
     "ami.notification",
     "ami.user",
@@ -59,6 +60,7 @@ if DEBUG:
     INSTALLED_APPS += ["django_extensions"]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -146,6 +148,10 @@ USE_TZ = True
 
 APPEND_SLASH = False
 PUBLIC_APP_URL = CONFIG["PUBLIC_APP_URL"]
+
+# Cors
+CORS_ALLOWED_ORIGINS = [PUBLIC_APP_URL]
+CORS_ALLOW_CREDENTIALS = True
 
 # FranceConnect authentication
 AUTH_COOKIE_JWT_NAME = "token"
