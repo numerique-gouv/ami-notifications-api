@@ -1,10 +1,18 @@
 import datetime
+from typing import Any, AsyncGenerator
 
+import jwt
 import pytest
+from channels.testing.websocket import WebsocketCommunicator
 from cryptography import x509
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.x509.oid import NameOID
+from django.conf import settings
+
+from ami.asgi import application
+from ami.user.models import Registration, User
+from ami.utils import build_fc_hash
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -63,3 +71,66 @@ def psl_cert_keys() -> dict[str, str]:
     ).decode()
 
     return {"private": pem_private, "public": pem_public}
+
+
+@pytest.fixture
+def user() -> User:
+    fc_hash = build_fc_hash(
+        given_name="Test User",
+        family_name="AMI",
+        birthdate="",
+        gender="",
+        birthplace="",
+        birthcountry="",
+    )
+    user_ = User(fc_hash=fc_hash, last_logged_in=datetime.datetime.now(datetime.timezone.utc))
+    user_.save()
+    return user_
+
+
+@pytest.fixture
+def never_seen_user(user: User) -> User:
+    user.last_logged_in = None
+    user.save()
+    return user
+
+
+@pytest.fixture
+def webpush_registration(user: User, webpushsubscription: dict[str, Any]) -> Registration:
+    registration_ = Registration(user=user, subscription=webpushsubscription)
+    registration_.save()
+    return registration_
+
+
+@pytest.fixture
+async def webpushsubscription() -> dict[str, Any]:
+    subscription = {
+        "endpoint": "https://example.com/",
+        "keys": {
+            "auth": "ribfIxhEOtCZ0lkcbB4yCg",
+            "p256dh": "BGsTJAJDhGijvPLi0DVPHB86MGLmW1Y6VzjX-FpTlKbhhOtCmU0Vffaj1djCXzR6vkUYrwkOTmh1dgbIQHEyy1k",
+        },
+    }
+    return subscription
+
+
+@pytest.fixture
+async def websocket(user: User) -> AsyncGenerator[WebsocketCommunicator, Any]:
+    token = jwt.encode({"sub": str(user.id)}, settings.AUTH_COOKIE_JWT_SECRET, algorithm="HS256")
+    headers = [(b"cookie", f"token={token}".encode())]
+    communicator = WebsocketCommunicator(
+        application, "api/v1/users/notification/events/stream", headers=headers
+    )
+    connected, subprotocol = await communicator.connect()
+    yield communicator
+    await communicator.disconnect()
+
+
+@pytest.fixture(autouse=True)
+def use_in_memory_channel_layer(settings) -> None:
+    """We don't want django-channels to use the postgresql backend during tests."""
+    settings.CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels.layers.InMemoryChannelLayer",
+        }
+    }

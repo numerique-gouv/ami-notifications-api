@@ -5,11 +5,11 @@ from typing import Any, Dict, List
 from uuid import UUID
 
 import pytest
+from django.conf import settings
 from django.core.management import call_command
 from freezegun import freeze_time
 from freezegun.api import FakeDatetime
 
-from ami.settings import CONFIG
 from ami.utils import decode_identity_token, decrypt_data, generate_identity_token
 
 
@@ -85,7 +85,7 @@ def test_generate_identity_token(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     # Given
-    CONFIG["AUTH_COOKIE_JWT_SECRET"] = "secret"
+    settings.CONFIG["AUTH_COOKIE_JWT_SECRET"] = "secret"
     preferred_username: str = "Delaforêt"
     email: str = "wossewodda-37228@yopmail.com"
     address_city: str = "Paris"
@@ -118,7 +118,7 @@ def test_generate_identity_token(
 
     monkeypatch.setattr("ami.utils.uuid4", mock_uuid_uuid4)
     monkeypatch.setattr("jwt.encode", mock_jwt_encode)
-    monkeypatch.setitem(CONFIG, "PARTNERS_PSL_OTV_JWT_PRIVATE_KEY", mock_otv_private_key)
+    monkeypatch.setitem(settings.CONFIG, "PARTNERS_PSL_OTV_JWT_PRIVATE_KEY", mock_otv_private_key)
     monkeypatch.setattr("ami.utils.encrypt_data", mock_encrypt_data)
 
     # When
@@ -157,9 +157,9 @@ def test_generate_identity_token_with_decode(
     fake_psl_otv_public_key: str = psl_cert_keys["public"]
 
     monkeypatch.setattr("ami.utils.uuid4", mock_uuid_uuid4)
-    monkeypatch.setitem(CONFIG, "PARTNERS_PSL_OTV_JWT_PRIVATE_KEY", fake_otv_private_key)
-    monkeypatch.setitem(CONFIG, "PARTNERS_PSL_OTV_JWT_PUBLIC_KEY", fake_otv_public_key)
-    monkeypatch.setitem(CONFIG, "PARTNERS_PSL_OTV_JWE_PUBLIC_KEY", fake_psl_otv_public_key)
+    monkeypatch.setitem(settings.CONFIG, "PARTNERS_PSL_OTV_JWT_PRIVATE_KEY", fake_otv_private_key)
+    monkeypatch.setitem(settings.CONFIG, "PARTNERS_PSL_OTV_JWT_PUBLIC_KEY", fake_otv_public_key)
+    monkeypatch.setitem(settings.CONFIG, "PARTNERS_PSL_OTV_JWE_PUBLIC_KEY", fake_psl_otv_public_key)
 
     # When
     token = generate_identity_token(
