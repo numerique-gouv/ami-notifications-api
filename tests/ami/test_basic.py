@@ -1,14 +1,8 @@
-import datetime
-from typing import Any, Dict
-from uuid import UUID
-
 import pytest
-from freezegun import freeze_time
-from freezegun.api import FakeDatetime
 from litestar import Litestar
 from litestar.testing import TestClient
 
-from app.utils import build_fc_hash, decode_identity_token, decrypt_data, generate_identity_token
+from app.utils import build_fc_hash
 
 pytestmark = pytest.mark.skip("skip tests for Django migration")
 
@@ -60,110 +54,3 @@ async def test_build_fc_hash(
         birthcountry=birthcountry,
     )
     assert response == "7e74df2cbebae761eccedbc24b7fe589bb83137f7808a2930031f52c73d75efe"
-
-
-@freeze_time("2026-01-23 10:36:00")
-def test_generate_identity_token(
-    test_client: TestClient[Litestar],
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    # Given
-    preferred_username: str = "Delaforêt"
-    email: str = "wossewodda-37228@yopmail.com"
-    address_city: str = "Paris"
-    address_postcode: str = "75007"
-    address_name: str = "20 Avenue de Ségur"
-    fc_hash: str = "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060"
-
-    mock_uuid_str = "550e8400-e29b-41d4-a716-446655440000"
-
-    def mock_uuid_uuid4():
-        return UUID(mock_uuid_str)
-
-    mock_otv_private_key = "test_private_key"
-    expected_token = "fake-generated-identity-token"
-    expected_data = "fake-encrypted-data"
-
-    def mock_encrypt_data(*args: Any):
-        return expected_data
-
-    def mock_jwt_encode(payload: Any, key: Any, **kwargs: Any) -> str:
-        assert payload["iss"] == "ami"
-        assert payload["iat"] == 1769164560
-        assert payload["exp"] == FakeDatetime(2026, 1, 23, 11, 6, tzinfo=datetime.timezone.utc)
-        assert payload["nonce"] == mock_uuid_str
-        assert payload["hash_fc"] == fc_hash
-        assert payload["data"] == expected_data
-        assert key.decode() == mock_otv_private_key
-        assert kwargs["algorithm"] == "RS256"
-        return expected_token
-
-    monkeypatch.setattr("app.utils.uuid4", mock_uuid_uuid4)
-    monkeypatch.setattr("jwt.encode", mock_jwt_encode)
-    monkeypatch.setattr("app.env.PARTNERS_PSL_OTV_JWT_PRIVATE_KEY", mock_otv_private_key)
-    monkeypatch.setattr("app.utils.encrypt_data", mock_encrypt_data)
-
-    # When
-    token = generate_identity_token(
-        preferred_username, email, address_city, address_postcode, address_name, fc_hash
-    )
-
-    # Then
-    assert token == expected_token
-
-
-@freeze_time("2026-01-23 10:36:00")
-def test_generate_identity_token_with_decode(
-    test_client: TestClient[Litestar],
-    monkeypatch: pytest.MonkeyPatch,
-    otv_rsa_keys: Dict[str, str],
-    psl_cert_keys: Dict[str, str],
-) -> None:
-    # Given
-    preferred_username: str = "Delaforêt"
-    email: str = "wossewodda-37228@yopmail.com"
-    address_city: str = "Paris"
-    address_postcode: str = "75007"
-    address_name: str = "20 Avenue de Ségur"
-    fc_hash: str = "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060"
-
-    mock_uuid_str = "550e8400-e29b-41d4-a716-446655440000"
-
-    def mock_uuid_uuid4():
-        return UUID(mock_uuid_str)
-
-    monkeypatch.setattr("app.utils.uuid4", mock_uuid_uuid4)
-
-    fake_otv_private_key: str = otv_rsa_keys["private"]
-    fake_otv_public_key: str = otv_rsa_keys["public"]
-    fake_psl_otv_private_key: str = psl_cert_keys["private"]
-    fake_psl_otv_public_key: str = psl_cert_keys["public"]
-
-    monkeypatch.setattr("app.utils.uuid4", mock_uuid_uuid4)
-    monkeypatch.setattr("app.env.PARTNERS_PSL_OTV_JWT_PRIVATE_KEY", fake_otv_private_key)
-    monkeypatch.setattr("app.env.PARTNERS_PSL_OTV_JWT_PUBLIC_KEY", fake_otv_public_key)
-    monkeypatch.setattr("app.env.PARTNERS_PSL_OTV_JWE_PUBLIC_KEY", fake_psl_otv_public_key)
-
-    # When
-    token = generate_identity_token(
-        preferred_username, email, address_city, address_postcode, address_name, fc_hash
-    )
-
-    decoded_result = decode_identity_token(token)
-
-    # Then
-    assert decoded_result["iss"] == "ami"
-    assert decoded_result["iat"] == 1769164560
-    assert decoded_result["exp"] == 1769166360
-    assert decoded_result["nonce"] == "550e8400-e29b-41d4-a716-446655440000"
-    assert (
-        decoded_result["hash_fc"]
-        == "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060"
-    )
-    data_encrypted = decoded_result["data"]
-    data_result = decrypt_data(data_encrypted, fake_psl_otv_private_key)
-    assert data_result["nom_usage"] == "Delaforêt"
-    assert data_result["email"] == "wossewodda-37228@yopmail.com"
-    assert data_result["commune_nom"] == "Paris"
-    assert data_result["commune_cp"] == "75007"
-    assert data_result["commune_adresse"] == "20 Avenue de Ségur"
