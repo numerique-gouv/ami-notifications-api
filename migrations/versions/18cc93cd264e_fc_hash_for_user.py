@@ -11,7 +11,7 @@ from typing import Sequence, Union
 import sqlalchemy as sa
 from alembic import op
 
-from app.utils import build_fc_hash
+from ami.utils import build_fc_hash
 
 # revision identifiers, used by Alembic.
 revision: str = "18cc93cd264e"

@@ -1,6 +1,8 @@
+import asyncio
 import uuid
 
 from litestar import Litestar
+from litestar.channels import Subscriber
 from litestar.security.jwt import Token
 from litestar.testing import TestClient
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -48,3 +50,16 @@ async def assert_query_fails_without_auth(
     await db_session.commit()
     response = getattr(test_client, method)(tested_url)
     assert response.status_code == 401
+
+
+# TODO: remove when all the litestar tests using it have been migrated to Django
+async def get_from_stream(subscriber: Subscriber, count: int) -> list[bytes]:
+    async def getter() -> list[bytes]:
+        items: list[bytes] = []
+        async for item in subscriber.iter_events():
+            items.append(item)
+            if len(items) == count:
+                break
+        return items
+
+    return await asyncio.wait_for(getter(), timeout=1)
