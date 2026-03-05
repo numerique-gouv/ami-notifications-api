@@ -2,6 +2,7 @@ import base64
 import csv
 import datetime
 import gzip
+import hashlib
 import json
 from uuid import uuid4
 
@@ -10,8 +11,7 @@ from cryptography import x509
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey, RSAPublicKey
-
-from ami.settings import CONFIG
+from django.conf import settings
 
 
 def encrypt_data(data: dict[str, str], public_key: str) -> str:
@@ -59,7 +59,7 @@ def generate_identity_token(
         "commune_cp": address_postcode,
         "commune_adresse": address_name,
     }
-    data_encrypted = encrypt_data(data, CONFIG["PARTNERS_PSL_OTV_JWE_PUBLIC_KEY"])
+    data_encrypted = encrypt_data(data, settings.CONFIG["PARTNERS_PSL_OTV_JWE_PUBLIC_KEY"])
     payload = {
         "iss": "ami",
         "iat": int(datetime.datetime.now().timestamp()),
@@ -70,13 +70,13 @@ def generate_identity_token(
     }
 
     return jwt.encode(
-        payload, CONFIG["PARTNERS_PSL_OTV_JWT_PRIVATE_KEY"].encode(), algorithm="RS256"
+        payload, settings.CONFIG["PARTNERS_PSL_OTV_JWT_PRIVATE_KEY"].encode(), algorithm="RS256"
     )
 
 
 def decode_identity_token(token: str) -> dict[str, str]:
     return jwt.decode(
-        token, key=CONFIG["PARTNERS_PSL_OTV_JWT_PUBLIC_KEY"].encode(), algorithms=["RS256"]
+        token, key=settings.CONFIG["PARTNERS_PSL_OTV_JWT_PUBLIC_KEY"].encode(), algorithms=["RS256"]
     )
 
 
@@ -144,3 +144,19 @@ def generate_identity_tokens_in_file(
                     "identity_token": row["identity_token"],
                 }
             )
+
+
+def build_fc_hash(
+    *,
+    given_name: str,
+    family_name: str,
+    birthdate: str,
+    gender: str,
+    birthplace: str,
+    birthcountry: str,
+) -> str:
+    recipient_fc_hash = hashlib.sha256()
+    recipient_fc_hash.update(
+        f"{given_name}{family_name}{birthdate}{gender}{birthplace}{birthcountry}".encode("utf-8")
+    )
+    return recipient_fc_hash.hexdigest()
