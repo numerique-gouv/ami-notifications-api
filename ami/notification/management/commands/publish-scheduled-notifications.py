@@ -28,7 +28,8 @@ class Command(BaseCommand):
         )
 
     def _publish_scheduled_notifications(self, scheduled_notification: ScheduledNotification):
-        notification = scheduled_notification.create_notification()
+        notification = scheduled_notification.build_notification()
+        notification.save()
         scheduled_notification.sent_at = notification.created_at
         scheduled_notification.save()
         push(notification, True)
