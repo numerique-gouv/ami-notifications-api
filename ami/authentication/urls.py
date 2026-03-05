@@ -5,4 +5,5 @@ from ami.authentication import views
 urlpatterns = [
     path("login-france-connect", views.login_france_connect),
     path("login-callback", views.login_callback),
+    path("logout", views.logout),
 ]
