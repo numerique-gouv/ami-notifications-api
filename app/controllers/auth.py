@@ -13,6 +13,7 @@ from litestar.response.redirect import Redirect
 from litestar.security.jwt import Token
 from litestar.status_codes import HTTP_500_INTERNAL_SERVER_ERROR
 
+from ami.utils import build_fc_hash
 from app import env, models
 from app.auth import generate_nonce, jwt_cookie_auth
 from app.errors import TechnicalError
@@ -21,7 +22,7 @@ from app.services.nonce import NonceService
 from app.services.revoked_auth_token import RevokedAuthTokenService
 from app.services.scheduled_notification import ScheduledNotificationService
 from app.services.user import UserService
-from app.utils import build_fc_hash, error_from_message, retry_fc_later
+from app.utils import error_from_message, retry_fc_later
 
 
 class FCError(Exception):
