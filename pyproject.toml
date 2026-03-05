@@ -29,6 +29,7 @@ dependencies = [
 dev = [
     "alembic>=1.15.2",
     "cryptography>=44.0.2",
+    "daphne>=4.2.1",
     "django-cors-headers>=4.9.0",
     "django-webtest>=1.9.14",
     "freezegun>=1.5.5",

@@ -1,43 +1,28 @@
 import datetime
-import json
 
 import pytest
-from litestar.channels import Subscriber
+from asgiref.sync import sync_to_async
+from channels.testing.websocket import WebsocketCommunicator
 from pytest_httpx import HTTPXMock
-from sqlalchemy import func, select
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models import Notification, Registration, ScheduledNotification, User
-from app.services.notification import NotificationService
-from app.services.scheduled_notification import ScheduledNotificationService
-from tests.ami.utils import get_from_stream
-from tests.base import TestClient
-
-pytestmark = pytest.mark.skip("skip tests for Django migration")
+from ami.notification.models import Notification, ScheduledNotification
+from ami.tests.utils import get_from_stream
+from ami.user.models import Registration, User
 
 
+@pytest.mark.django_db(transaction=True)
 async def test_publish_scheduled_notifications(
-    test_client: TestClient,
-    notification_events_subscriber: Subscriber,
-    scheduled_notifications_service: ScheduledNotificationService,
-    notifications_service: NotificationService,
-    db_session: AsyncSession,
+    websocket: WebsocketCommunicator,
     webpush_registration: Registration,
     httpx_mock: HTTPXMock,
 ) -> None:
     user = webpush_registration.user
-    httpx_mock.add_response(url=webpush_registration.subscription["endpoint"])
+    # TODO: uncomment the following line when the webpush implementation is done in ami.notification.push
+    # httpx_mock.add_response(url=webpush_registration.subscription["endpoint"])
 
     # no scheduled notifications, no effects
-    await scheduled_notifications_service.publish_scheduled_notifications(test_client.app)
-    scheduled_notification_count = (
-        await db_session.execute(select(func.count()).select_from(ScheduledNotification))
-    ).scalar()
-    assert scheduled_notification_count == 0
-    notification_count = (
-        await db_session.execute(select(func.count()).select_from(Notification))
-    ).scalar()
-    assert notification_count == 0
+    assert await ScheduledNotification.objects.acount() == 0
+    assert await Notification.objects.acount() == 0
 
     # create some scheduled notifications
     scheduled_notification1 = ScheduledNotification(
@@ -50,7 +35,7 @@ async def test_publish_scheduled_notifications(
         sender="AMI",
         sent_at=datetime.datetime.now(datetime.timezone.utc),  # already sent
     )
-    db_session.add(scheduled_notification1)
+    await scheduled_notification1.asave()
     scheduled_notification2 = ScheduledNotification(
         user_id=user.id,
         content_title="title 2",
@@ -61,7 +46,7 @@ async def test_publish_scheduled_notifications(
         + datetime.timedelta(minutes=2),  # too soon
         sender="AMI",
     )
-    db_session.add(scheduled_notification2)
+    await scheduled_notification2.asave()
     scheduled_notification3 = ScheduledNotification(
         user_id=user.id,
         content_title="title 3",
@@ -71,29 +56,23 @@ async def test_publish_scheduled_notifications(
         scheduled_at=datetime.datetime.now(datetime.timezone.utc),
         sender="AMI",
     )
-    db_session.add(scheduled_notification3)
-    await db_session.commit()
+    await scheduled_notification3.asave()
 
-    await scheduled_notifications_service.publish_scheduled_notifications(test_client.app)
-    scheduled_notification_count = (
-        await db_session.execute(select(func.count()).select_from(ScheduledNotification))
-    ).scalar()
-    assert scheduled_notification_count == 3
-    notification_count = (
-        await db_session.execute(select(func.count()).select_from(Notification))
-    ).scalar()
-    assert notification_count == 1
+    await sync_to_async(ScheduledNotification.to_publish.publish)()
 
-    await db_session.refresh(scheduled_notification1)
-    await db_session.refresh(scheduled_notification2)
-    await db_session.refresh(scheduled_notification3)
+    assert await ScheduledNotification.objects.acount() == 3
+    assert await Notification.objects.acount() == 1
+
+    await scheduled_notification1.arefresh_from_db()
+    await scheduled_notification2.arefresh_from_db()
+    await scheduled_notification3.arefresh_from_db()
     assert scheduled_notification1.sent_at is not None
     assert scheduled_notification2.sent_at is None
     assert scheduled_notification3.sent_at is not None
 
-    all_notifications = (await db_session.execute(select(Notification))).scalars().all()
-    notification = all_notifications[0]
-    assert notification.user.id == user.id
+    notification = await Notification.objects.afirst()
+    assert notification is not None
+    assert notification.user_id == user.id  # type: ignore[attr-defined]
     assert notification.content_title == "title 3"
     assert notification.content_body == "body 3"
     assert notification.content_icon == "icon 3"
@@ -110,26 +89,25 @@ async def test_publish_scheduled_notifications(
     assert notification.read is False
     assert notification.try_push is None
     assert notification.send_status is True
-    res = await get_from_stream(notification_events_subscriber, 1)
-    assert json.loads(res[0].decode()) == {
+    res = await get_from_stream(websocket, 1)
+    assert res[0] == {
         "user_id": str(user.id),
         "id": str(notification.id),
         "event": "created",
     }
-    assert httpx_mock.get_request()
+    # TODO: uncomment the following line when the webpush implementation is done in ami.notification.push
+    # assert httpx_mock.get_request()
 
 
-async def test_publish_scheduled_notification_when_registration_gone(
-    test_client: TestClient,
-    scheduled_notifications_service: ScheduledNotificationService,
-    notifications_service: NotificationService,
-    db_session: AsyncSession,
+@pytest.mark.django_db
+def test_publish_scheduled_notification_when_registration_gone(
     webpush_registration: Registration,
     httpx_mock: HTTPXMock,
 ) -> None:
     user = webpush_registration.user
     # Make sure we don't even try sending a notification to a push server.
-    httpx_mock.add_response(url=webpush_registration.subscription["endpoint"], status_code=410)
+    # TODO: uncomment the following line when the webpush implementation is done in ami.notification.push
+    # httpx_mock.add_response(url=webpush_registration.subscription["endpoint"], status_code=410)
 
     scheduled_notification = ScheduledNotification(
         user_id=user.id,
@@ -140,22 +118,18 @@ async def test_publish_scheduled_notification_when_registration_gone(
         scheduled_at=datetime.datetime.now(datetime.timezone.utc),
         sender="AMI",
     )
-    db_session.add(scheduled_notification)
-    await db_session.commit()
+    scheduled_notification.save()
 
-    await scheduled_notifications_service.publish_scheduled_notifications(test_client.app)
-    notification_count = (
-        await db_session.execute(select(func.count()).select_from(Notification))
-    ).scalar()
+    ScheduledNotification.to_publish.publish()
+
+    notification_count = Notification.objects.count()
     assert notification_count == 1
-    assert httpx_mock.get_request()
+    # TODO: uncomment the following line when the webpush implementation is done in ami.notification.push
+    # assert httpx_mock.get_request()
 
 
-async def test_publish_scheduled_notification_no_registration(
-    test_client: TestClient,
-    scheduled_notifications_service: ScheduledNotificationService,
-    notifications_service: NotificationService,
-    db_session: AsyncSession,
+@pytest.mark.django_db
+def test_publish_scheduled_notification_no_registration(
     user: User,
     httpx_mock: HTTPXMock,
 ) -> None:
@@ -168,22 +142,17 @@ async def test_publish_scheduled_notification_no_registration(
         scheduled_at=datetime.datetime.now(datetime.timezone.utc),
         sender="AMI",
     )
-    db_session.add(scheduled_notification)
-    await db_session.commit()
+    scheduled_notification.save()
 
-    await scheduled_notifications_service.publish_scheduled_notifications(test_client.app)
-    notification_count = (
-        await db_session.execute(select(func.count()).select_from(Notification))
-    ).scalar()
+    ScheduledNotification.to_publish.publish()
+
+    notification_count = Notification.objects.count()
     assert notification_count == 1
     assert not httpx_mock.get_request()
 
 
-async def test_publish_scheduled_notification_never_seen_user(
-    test_client: TestClient,
-    scheduled_notifications_service: ScheduledNotificationService,
-    notifications_service: NotificationService,
-    db_session: AsyncSession,
+@pytest.mark.django_db
+def test_publish_scheduled_notification_never_seen_user(
     never_seen_user: User,
     httpx_mock: HTTPXMock,
 ) -> None:
@@ -196,11 +165,11 @@ async def test_publish_scheduled_notification_never_seen_user(
         scheduled_at=datetime.datetime.now(datetime.timezone.utc),
         sender="AMI",
     )
-    db_session.add(scheduled_notification)
-    await db_session.commit()
+    scheduled_notification.save()
 
-    await scheduled_notifications_service.publish_scheduled_notifications(test_client.app)
-    all_notifications = (await db_session.execute(select(Notification))).scalars().all()
+    ScheduledNotification.to_publish.publish()
+
+    all_notifications = Notification.objects.all()
     assert len(all_notifications) == 1
     notification = all_notifications[0]
     assert notification.try_push is None
@@ -208,10 +177,9 @@ async def test_publish_scheduled_notification_never_seen_user(
     assert not httpx_mock.get_request()
 
 
-async def test_delete_published_scheduled_notifications(
-    scheduled_notifications_service: ScheduledNotificationService,
+@pytest.mark.django_db
+def test_delete_published_scheduled_notifications(
     user: User,
-    db_session: AsyncSession,
 ) -> None:
     scheduled_notification1 = ScheduledNotification(
         user_id=user.id,
@@ -224,7 +192,7 @@ async def test_delete_published_scheduled_notifications(
         sent_at=datetime.datetime.now(datetime.timezone.utc)
         - datetime.timedelta(days=6 * 30, minutes=-2),  # too soon
     )
-    db_session.add(scheduled_notification1)
+    scheduled_notification1.save()
     scheduled_notification2 = ScheduledNotification(
         user_id=user.id,
         content_title="title",
@@ -235,7 +203,8 @@ async def test_delete_published_scheduled_notifications(
         sender="AMI",
         sent_at=None,  # not sent
     )
-    db_session.add(scheduled_notification2)
+    scheduled_notification2.save()
+
     scheduled_notification3 = ScheduledNotification(
         user_id=user.id,
         content_title="title",
@@ -246,14 +215,11 @@ async def test_delete_published_scheduled_notifications(
         sender="AMI",
         sent_at=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=6 * 30),
     )
-    db_session.add(scheduled_notification3)
-    await db_session.commit()
+    scheduled_notification3.save()
 
-    await scheduled_notifications_service.delete_published_scheduled_notifications()
+    ScheduledNotification.to_delete.delete()
 
-    all_scheduled_notifications = (
-        (await db_session.execute(select(ScheduledNotification))).scalars().all()
-    )
+    all_scheduled_notifications = ScheduledNotification.objects.all()
     assert len(all_scheduled_notifications) == 2
     assert all_scheduled_notifications[0].id == scheduled_notification1.id
     assert all_scheduled_notifications[1].id == scheduled_notification2.id

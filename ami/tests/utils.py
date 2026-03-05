@@ -1,6 +1,7 @@
 import urllib.parse
 import uuid
 
+from channels.testing.websocket import WebsocketCommunicator
 from django.conf import settings
 
 from ami.authentication.auth import create_jwt_token, decode_jwt_token
@@ -36,3 +37,7 @@ def assert_query_fails_without_auth(
     assert token
     RevokedAuthToken.objects.create(jti=token["jti"])
     getattr(django_app, method)(tested_url, status=401)
+
+
+async def get_from_stream(communicator: WebsocketCommunicator, count: int) -> list[dict]:
+    return [await communicator.receive_json_from(timeout=1) for _ in range(count)]
