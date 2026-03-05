@@ -131,3 +131,9 @@ def logout(request):
     response = JsonResponse({}, status=201)
     response.delete_cookie(settings.AUTH_COOKIE_JWT_NAME)
     return response
+
+
+@require_GET
+@ami_login_required
+def check_auth(request):
+    return JsonResponse({"authenticated": True})
