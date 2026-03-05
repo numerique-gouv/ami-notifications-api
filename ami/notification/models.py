@@ -62,6 +62,22 @@ class ScheduledNotification(models.Model):
             send_status=self.user.last_logged_in is not None,
         )
 
+    @classmethod
+    def create_welcome_scheduled_notification(cls, user: User):
+        scheduled_notification, _ = cls.objects.get_or_create(
+            reference="ami:welcome",
+            user=user,
+            defaults={
+                "content_title": "Bienvenue sur AMI 👋",
+                "content_body": "Ici, vous pourrez gérer votre vie administrative, suivre l'avancement de vos démarches et recevoir des rappels personnalisés.",
+                "content_icon": "fr-icon-information-line",
+                "reference": "ami:welcome",
+                "scheduled_at": timezone.now(),
+                "sender": "AMI",
+            },
+        )
+        return scheduled_notification
+
     class Meta:
         db_table = "scheduled_notification"
         unique_together = (("user", "reference"),)

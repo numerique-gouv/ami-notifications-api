@@ -6,6 +6,7 @@ from django.conf import settings
 from django.utils.timezone import now
 
 from ami.authentication.exception import FCError
+from ami.notification.models import ScheduledNotification
 from ami.user.models import User
 from ami.user.utils import build_fc_hash
 from ami.utils.httpx import httpxClient
@@ -39,8 +40,7 @@ def get_fc_userinfo(*, token_type: str, access_token: str) -> tuple[dict[str, st
         create_welcome = user.last_logged_in is None
         User.objects.filter(pk=user.pk).update(last_logged_in=now())
     if create_welcome:
-        # XXX create welcome scheduled notification
-        pass
+        ScheduledNotification.create_welcome_scheduled_notification(user)
     result: dict[str, Any] = {
         "user_data": userinfo_jws,
         "user_first_login": "true" if create_welcome else "false",
