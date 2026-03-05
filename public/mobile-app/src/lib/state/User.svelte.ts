@@ -75,6 +75,8 @@ class UserStore {
     localStorage.clear();
     this.connected = null;
     await auth.logout();
+    emit('user_logged_out');
+
     // And now logout from FC
     if (id_token_hint) {
       await franceConnectLogout(id_token_hint);
