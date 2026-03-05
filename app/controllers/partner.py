@@ -2,9 +2,9 @@ from litestar import Controller, Response, get
 from litestar.di import Provide
 from litestar.status_codes import HTTP_200_OK
 
+from ami.utils import generate_identity_token
 from app import env, models
 from app.services.user import provide_user
-from app.utils import generate_identity_token
 
 
 class PartnerController(Controller):

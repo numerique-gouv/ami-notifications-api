@@ -4,17 +4,12 @@ import importlib
 import os
 import time
 from collections.abc import AsyncGenerator, Iterator
-from typing import Any, Dict, cast
+from typing import Any, cast
 
 import litestar.cli.main
 import pytest
 from advanced_alchemy.extensions.litestar.providers import create_service_provider
 from click.testing import CliRunner
-from cryptography import x509
-from cryptography.hazmat.primitives import hashes, serialization
-from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography.hazmat.primitives.serialization import pkcs12
-from cryptography.x509.oid import NameOID
 from litestar import Litestar
 from litestar.channels import ChannelsPlugin, Subscriber
 from litestar.cli._utils import LitestarExtensionGroup
@@ -306,75 +301,3 @@ async def jwt_encoded_userinfo() -> str:
 async def partner_auth() -> dict[str, str]:
     b64 = base64.b64encode(f"psl:{env.PARTNERS_PSL_SECRET}".encode("utf8")).decode("utf8")
     return {"authorization": f"Basic {b64}"}
-
-
-@pytest.fixture(scope="session", autouse=True)
-def otv_cert_keys_for_encryption() -> Dict[str, str]:
-    private_key = rsa.generate_private_key(
-        public_exponent=65537,
-        key_size=2048,
-    )
-    subject = issuer = x509.Name(
-        [
-            x509.NameAttribute(NameOID.COUNTRY_NAME, "FR"),
-            x509.NameAttribute(NameOID.ORGANIZATION_NAME, "Test Org"),
-            x509.NameAttribute(NameOID.COMMON_NAME, "test.local"),
-        ]
-    )
-    now = datetime.datetime.now(datetime.timezone.utc)
-    cert = (
-        x509.CertificateBuilder()
-        .subject_name(subject)
-        .issuer_name(issuer)
-        .public_key(private_key.public_key())
-        .serial_number(x509.random_serial_number())
-        .not_valid_before(now)
-        .not_valid_after(now + datetime.timedelta(days=365))
-        .sign(private_key, hashes.SHA256())
-    )
-    pem_public = cert.public_bytes(serialization.Encoding.PEM).decode()
-    pem_private = private_key.private_bytes(
-        serialization.Encoding.PEM,
-        serialization.PrivateFormat.PKCS8,
-        serialization.NoEncryption(),
-    ).decode()
-    return {"private": pem_private, "public": pem_public}
-
-
-@pytest.fixture(scope="session", autouse=True)
-def otv_cert_keys_for_signature() -> Dict[str, str]:
-    private_key = rsa.generate_private_key(
-        public_exponent=65537,
-        key_size=2048,
-    )
-    subject = issuer = x509.Name(
-        [
-            x509.NameAttribute(NameOID.COUNTRY_NAME, "FR"),
-            x509.NameAttribute(NameOID.ORGANIZATION_NAME, "Test Org"),
-            x509.NameAttribute(NameOID.COMMON_NAME, "test.local"),
-        ]
-    )
-    now = datetime.datetime.now(datetime.timezone.utc)
-    cert = (
-        x509.CertificateBuilder()
-        .subject_name(subject)
-        .issuer_name(issuer)
-        .public_key(private_key.public_key())
-        .serial_number(x509.random_serial_number())
-        .not_valid_before(now)
-        .not_valid_after(now + datetime.timedelta(days=365))
-        .sign(private_key, hashes.SHA256())
-    )
-    pfx_data = pkcs12.serialize_key_and_certificates(
-        name=b"test.local",
-        key=private_key,
-        cert=cert,
-        cas=None,
-        encryption_algorithm=serialization.NoEncryption(),
-    )
-    pfx_b64 = base64.b64encode(pfx_data).decode()
-    pem_cert = cert.public_bytes(serialization.Encoding.PEM).decode()
-    return {
-        "pfx_b64": pfx_b64,
-        "cert": pem_cert,
-    }
