@@ -4,11 +4,13 @@ from urllib.parse import urlencode
 from django.conf import settings
 from django.http import JsonResponse
 from django.shortcuts import redirect
-from django.views.decorators.http import require_GET
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_GET, require_POST
 
 from ami.authentication.auth import create_jwt_token, generate_nonce, get_fc_token
+from ami.authentication.decorators import ami_login_required
 from ami.authentication.exception import FCError
-from ami.authentication.models import Nonce
+from ami.authentication.models import Nonce, RevokedAuthToken
 from ami.user.data import get_fc_userinfo
 
 
@@ -118,3 +120,14 @@ def login_callback(request):
         return retry_fc_later({"error_code": e.code})
     except Exception:
         return redirect(f"{settings.PUBLIC_APP_URL}/#/technical-error")
+
+
+@require_POST
+@ami_login_required
+@csrf_exempt
+def logout(request):
+    if request.ami_payload.get("jti") is not None:
+        RevokedAuthToken.objects.create(jti=request.ami_payload["jti"])
+    response = JsonResponse({}, status=201)
+    response.delete_cookie(settings.AUTH_COOKIE_JWT_NAME)
+    return response
