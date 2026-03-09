@@ -9,19 +9,22 @@ https://docs.djangoproject.com/en/6.0/howto/deployment/asgi/
 
 import os
 
-from channels.routing import ProtocolTypeRouter, URLRouter
-from django.core.asgi import get_asgi_application
-
-from ami.notification.channel_routing import websocket_urlpatterns
+import django
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "ami.settings")
+django.setup()
+
+from channels.routing import ProtocolTypeRouter, URLRouter  # noqa: E402
+from django.core.asgi import get_asgi_application  # noqa: E402
+
+from ami.authentication.middleware import AMIJWTAuthCookieASGIMiddleware  # noqa: E402
+from ami.notification.channel_routing import websocket_urlpatterns  # noqa: E402
 
 django_application = get_asgi_application()
 
 application = ProtocolTypeRouter(
     {
         "http": django_application,
-        # TODO: when we have a proper auth middleware for our JWT login, use it here also
-        "websocket": URLRouter(websocket_urlpatterns),
+        "websocket": AMIJWTAuthCookieASGIMiddleware(URLRouter(websocket_urlpatterns)),
     }
 )
