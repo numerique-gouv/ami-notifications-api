@@ -17,8 +17,7 @@ async def test_publish_scheduled_notifications(
     httpx_mock: HTTPXMock,
 ) -> None:
     user = webpush_registration.user
-    # TODO: uncomment the following line when the webpush implementation is done in ami.notification.push
-    # httpx_mock.add_response(url=webpush_registration.subscription["endpoint"])
+    httpx_mock.add_response(url=webpush_registration.subscription["endpoint"])
 
     # no scheduled notifications, no effects
     assert await ScheduledNotification.objects.acount() == 0
@@ -95,8 +94,7 @@ async def test_publish_scheduled_notifications(
         "id": str(notification.id),
         "event": "created",
     }
-    # TODO: uncomment the following line when the webpush implementation is done in ami.notification.push
-    # assert httpx_mock.get_request()
+    assert httpx_mock.get_request()
 
 
 @pytest.mark.django_db
@@ -106,8 +104,7 @@ def test_publish_scheduled_notification_when_registration_gone(
 ) -> None:
     user = webpush_registration.user
     # Make sure we don't even try sending a notification to a push server.
-    # TODO: uncomment the following line when the webpush implementation is done in ami.notification.push
-    # httpx_mock.add_response(url=webpush_registration.subscription["endpoint"], status_code=410)
+    httpx_mock.add_response(url=webpush_registration.subscription["endpoint"], status_code=410)
 
     scheduled_notification = ScheduledNotification(
         user_id=user.id,
@@ -124,8 +121,7 @@ def test_publish_scheduled_notification_when_registration_gone(
 
     notification_count = Notification.objects.count()
     assert notification_count == 1
-    # TODO: uncomment the following line when the webpush implementation is done in ami.notification.push
-    # assert httpx_mock.get_request()
+    assert httpx_mock.get_request()
 
 
 @pytest.mark.django_db
