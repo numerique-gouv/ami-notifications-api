@@ -14,6 +14,7 @@ import os
 from pathlib import Path
 
 import dj_database_url
+import sentry_sdk
 from dotenv import dotenv_values
 
 CONFIG = {
@@ -154,6 +155,22 @@ PUBLIC_APP_URL = CONFIG["PUBLIC_APP_URL"]
 # Cors
 CORS_ALLOWED_ORIGINS = [PUBLIC_APP_URL]
 CORS_ALLOW_CREDENTIALS = True
+
+
+# Sentry
+def before_send(event, hint):
+    if "exc_info" in hint:
+        _, exc_value, _ = hint["exc_info"]
+        if hasattr(exc_value, "status_code") and exc_value.status_code == 401:
+            return None
+    return event
+
+
+sentry_sdk.init(
+    dsn=CONFIG.get("SENTRY_DSN", ""),
+    environment=CONFIG.get("SENTRY_ENV", ""),
+    before_send=before_send,  # Filter the exceptions being reported to Sentry.
+)
 
 # FranceConnect authentication
 AUTH_COOKIE_JWT_NAME = "token"
