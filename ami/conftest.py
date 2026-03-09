@@ -9,6 +9,7 @@ from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.x509.oid import NameOID
 from django.conf import settings
+from webpush.vapid import VAPID
 
 from ami.asgi import application
 from ami.user.models import Registration, User
@@ -93,6 +94,13 @@ def never_seen_user(user: User) -> User:
     user.last_logged_in = None
     user.save()
     return user
+
+
+@pytest.fixture(autouse=True)
+def patch_webpush(monkeypatch: pytest.MonkeyPatch) -> None:
+    private_key, public_key, _ = VAPID.generate_keys()
+    monkeypatch.setitem(settings.CONFIG, "VAPID_PRIVATE_KEY", private_key.decode())
+    monkeypatch.setitem(settings.CONFIG, "VAPID_PUBLIC_KEY", public_key.decode())
 
 
 @pytest.fixture
