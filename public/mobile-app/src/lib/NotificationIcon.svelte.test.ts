@@ -47,7 +47,7 @@ describe('/NotificationIcon.svelte', () => {
     const icon = container.querySelector('.notification__icon');
     expect(icon).toHaveClass('default-icon');
   });
-  test('icon is known, should display icon', async () => {
+  test('icon is known (dsfr), should display icon', async () => {
     // When
     const { container } = render(NotificationIcon, {
       icon: 'fr-icon-mail-star-line',
@@ -57,6 +57,18 @@ describe('/NotificationIcon.svelte', () => {
     // Then
     const icon = container.querySelector('.notification__icon');
     expect(icon).toHaveClass('fr-icon-mail-star-line');
+    expect(icon).not.toHaveClass('default-icon');
+  });
+  test('icon is known (custom), should display icon', async () => {
+    // When
+    const { container } = render(NotificationIcon, {
+      icon: 'fr-icon-infinity-line',
+      defaultIcon: 'default-icon',
+    });
+
+    // Then
+    const icon = container.querySelector('.notification__icon');
+    expect(icon).toHaveClass('fr-icon-infinity-line');
     expect(icon).not.toHaveClass('default-icon');
   });
 });
