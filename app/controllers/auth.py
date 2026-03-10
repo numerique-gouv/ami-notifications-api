@@ -310,7 +310,3 @@ class AuthController(Controller):
         response = Response({})
         response.delete_cookie(key=jwt_cookie_auth.key)
         return response
-
-    @get(path="/check-auth", include_in_schema=False)
-    async def check_auth(self) -> dict[str, Any]:
-        return {"authenticated": True}
