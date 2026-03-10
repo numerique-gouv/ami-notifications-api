@@ -1,4 +1,6 @@
+import json
 import uuid
+from base64 import urlsafe_b64encode
 from typing import Any
 
 import jwt
@@ -9,11 +11,13 @@ from ami.authentication.exception import FCError
 from ami.notification.models import ScheduledNotification
 from ami.user.models import User
 from ami.user.utils import build_fc_hash
-from ami.utils.httpx import httpxClient
+from ami.utils.httpx import AsyncClient
 
 
-def get_fc_userinfo(*, token_type: str, access_token: str) -> tuple[dict[str, str], uuid.UUID]:
-    response = httpxClient.get(
+async def get_fc_userinfo(
+    *, token_type: str, access_token: str, httpx_async_client: AsyncClient
+) -> tuple[dict[str, str], uuid.UUID]:
+    response = await httpx_async_client.get(
         f"{settings.PUBLIC_FC_BASE_URL}{settings.PUBLIC_FC_USERINFO_ENDPOINT}",
         headers={"authorization": f"{token_type} {access_token}"},
     )
@@ -33,14 +37,18 @@ def get_fc_userinfo(*, token_type: str, access_token: str) -> tuple[dict[str, st
         birthcountry=decoded_userinfo["birthcountry"],
     )
 
-    user, created = User.objects.get_or_create(fc_hash=fc_hash, defaults={"last_logged_in": now()})
+    user, created = await User.objects.aget_or_create(
+        fc_hash=fc_hash, defaults={"last_logged_in": now()}
+    )
     if created:
         create_welcome = True
     else:
         create_welcome = user.last_logged_in is None
-        User.objects.filter(pk=user.pk).update(last_logged_in=now())
+        await User.objects.filter(pk=user.pk).aupdate(last_logged_in=now())
+
     if create_welcome:
-        ScheduledNotification.create_welcome_scheduled_notification(user)
+        await ScheduledNotification.acreate_welcome_scheduled_notification(user)
+
     result: dict[str, Any] = {
         "user_data": userinfo_jws,
         "user_first_login": "true" if create_welcome else "false",
@@ -48,3 +56,23 @@ def get_fc_userinfo(*, token_type: str, access_token: str) -> tuple[dict[str, st
     }
 
     return result, user.id
+
+
+async def get_address_from_api_particulier_quotient(
+    *,
+    token_type: str,
+    access_token: str,
+    httpx_async_client: AsyncClient,
+) -> str | None:
+    response = await httpx_async_client.get(
+        f"{settings.PUBLIC_API_PARTICULIER_BASE_URL}{settings.PUBLIC_API_PARTICULIER_QUOTIENT_ENDPOINT}"
+        f"?recipient={settings.PUBLIC_API_PARTICULIER_RECIPIENT_ID}",
+        headers={"authorization": f"{token_type} {access_token}"},
+    )
+    if response.status_code != 200:
+        return None
+    data = response.json()
+    if data.get("data", {}).get("adresse", {}):
+        address_fields = ["numero_libelle_voie", "lieu_dit", "code_postal_ville", "pays"]
+        address = {k: v or "" for k, v in data["data"]["adresse"].items() if k in address_fields}
+        return urlsafe_b64encode(json.dumps(address).encode("utf8")).decode("utf8")
