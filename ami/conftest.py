@@ -12,7 +12,7 @@ from django.conf import settings
 
 from ami.asgi import application
 from ami.user.models import Registration, User
-from ami.utils import build_fc_hash
+from ami.user.utils import build_fc_hash
 
 
 @pytest.fixture(scope="session", autouse=True)

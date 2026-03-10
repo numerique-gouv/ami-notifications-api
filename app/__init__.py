@@ -24,7 +24,7 @@ from sentry_sdk.integrations.litestar import LitestarIntegration
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine
 
-from ami.utils import build_fc_hash
+from ami.user.utils import build_fc_hash
 from app import env, errors
 from app.auth import jwt_cookie_auth, openapi_config, partner_auth
 from app.controllers.auth import AuthController

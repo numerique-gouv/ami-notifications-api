@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from ami.utils import build_fc_hash
+from ami.user.utils import build_fc_hash
 
 pytestmark = pytest.mark.skip("skip tests for Django migration")
 
