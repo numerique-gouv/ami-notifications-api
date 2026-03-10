@@ -1,0 +1,5 @@
+.fr-icon-infinity-line::before,
+.fr-icon-infinity-line::after {
+  -webkit-mask-image: url("/icons/custom/infinity-line.svg");
+  mask-image: url("/icons/custom/infinity-line.svg");
+}
