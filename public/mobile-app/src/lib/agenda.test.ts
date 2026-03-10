@@ -440,7 +440,7 @@ describe('/agenda.ts', () => {
             'Opération Tranquillité Vacances 🏠',
             'Inscrivez-vous pour protéger votre domicile pendant votre absence',
             null,
-            new Date('2025-08-30T23:00:00Z'),
+            new Date('2025-08-23T23:00:00Z'),
             null
           )
         )
@@ -464,7 +464,7 @@ describe('/agenda.ts', () => {
             'Opération Tranquillité Vacances 🏠',
             'Inscrivez-vous pour protéger votre domicile pendant votre absence',
             null,
-            new Date('2025-09-29T23:00:00Z'),
+            new Date('2025-09-22T23:00:00Z'),
             null
           )
         )
@@ -488,7 +488,7 @@ describe('/agenda.ts', () => {
             'Opération Tranquillité Vacances 🏠',
             'Inscrivez-vous pour protéger votre domicile pendant votre absence',
             null,
-            new Date('2025-10-30T23:00:00Z'),
+            new Date('2025-10-23T23:00:00Z'),
             null
           )
         )
@@ -722,7 +722,7 @@ describe('/agenda.ts', () => {
             'Opération Tranquillité Vacances 🏠',
             'Inscrivez-vous pour protéger votre domicile pendant votre absence',
             null,
-            new Date('2026-01-23T23:00:00Z'),
+            new Date('2026-01-16T23:00:00Z'),
             null
           )
         )
@@ -861,7 +861,7 @@ describe('/agenda.ts', () => {
         content_icon: 'fr-icon-megaphone-line',
         content_title: 'Et si on veillait sur votre logement ? 👮',
         reference: 'ami-otv:d-3w:2026:holiday',
-        scheduled_at: new Date('2026-01-23T23:00:00Z'),
+        scheduled_at: new Date('2026-01-16T23:00:00Z'),
       });
       expect(spy).toHaveBeenCalledWith({
         content_body:
@@ -869,7 +869,7 @@ describe('/agenda.ts', () => {
         content_icon: 'fr-icon-megaphone-line',
         content_title: 'Et si on veillait sur votre logement ? 👮',
         reference: 'ami-otv:d-3w:2026:summer-holiday',
-        scheduled_at: new Date('2026-06-10T23:00:00Z'),
+        scheduled_at: new Date('2026-06-03T23:00:00Z'),
       });
     });
     test('should create scheduled notifications for otv when user is connected - scheduled notifications already sent', async () => {
@@ -996,7 +996,7 @@ describe('/agenda.ts', () => {
             'Opération Tranquillité Vacances 🏠',
             'Inscrivez-vous pour protéger votre domicile pendant votre absence',
             null,
-            new Date('2025-08-30T23:00:00Z'),
+            new Date('2025-08-23T23:00:00Z'),
             null
           )
         )

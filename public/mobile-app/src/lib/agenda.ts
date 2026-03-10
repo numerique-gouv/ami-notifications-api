@@ -336,7 +336,7 @@ export class Agenda {
       // exclude OTV of past school holiday
       return null;
     }
-    const startDate = new Date(holiday.start_date.getTime() - 3 * 7 * oneday_in_ms);
+    const startDate = new Date(holiday.start_date.getTime() - 4 * 7 * oneday_in_ms);
     const item = new Item(
       'otv',
       'Opération Tranquillité Vacances 🏠',
