@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     "ami.notification",
     "ami.user",
     "ami.utils",
+    "ami.api",
 ]
 
 MIDDLEWARE = [
