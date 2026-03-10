@@ -62,6 +62,8 @@ jobs:
         run: |
           echo "AUTH_COOKIE_JWT_SECRET=\"secret\"" >> .env.local
           echo "PARTNERS_PSL_SECRET=\"secret\"" >> .env.local
+          echo "PARTNERS_DINUM_DN_SECRET=\"secret\"" >> .env.local
+          echo "PARTNERS_DINUM_AMI_SECRET=\"secret\"" >> .env.local
 
       - name: Run tests
         run: make test-ci
