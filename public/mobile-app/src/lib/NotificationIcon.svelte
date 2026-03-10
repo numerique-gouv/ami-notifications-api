@@ -10,8 +10,9 @@
   let checkedIcon: string = $state('');
 
   onMount(async () => {
-    checkedIcon = dsfrIconList.filter((i) => i.name === icon?.replace('fr-icon-', ''))
-      .length
+    const customIcons = ['infinity-line'];
+    const iconList = [...dsfrIconList.map((i) => i.name), ...customIcons];
+    checkedIcon = iconList.filter((i) => i === icon?.replace('fr-icon-', '')).length
       ? icon
       : defaultIcon;
   });
