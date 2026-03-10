@@ -10,7 +10,7 @@ from django.utils.timezone import now
 
 from ami.authentication.exception import FCError
 from ami.authentication.models import Nonce
-from ami.utils.httpx import httpxClient
+from ami.utils.httpx import AsyncClient
 
 
 def generate_nonce() -> str:
@@ -47,7 +47,9 @@ def decode_jwt_token(token: str) -> dict | None:
         return None
 
 
-def get_fc_token(*, code: str, fc_state: str, client_secret: str) -> dict:
+async def get_fc_token(
+    *, code: str, fc_state: str, client_secret: str, httpx_async_client: AsyncClient
+) -> dict:
     # Validate that the STATE is coherent with the one we sent to FC
     if not fc_state:
         raise FCError("missing_state")
@@ -56,11 +58,11 @@ def get_fc_token(*, code: str, fc_state: str, client_secret: str) -> dict:
     except ValueError:
         raise FCError("invalid_state")
 
-    nonce = Nonce.objects.filter(id=state_uuid).first()
+    nonce = await Nonce.objects.filter(id=state_uuid).afirst()
     if not nonce:
         raise FCError("invalid_state")
     # Cleanup nonce as it was used
-    nonce.delete()
+    await nonce.adelete()
 
     # FC - Step 5
     redirect_uri: str = settings.PUBLIC_FC_PROXY or settings.PUBLIC_FC_AMI_REDIRECT_URL
@@ -75,7 +77,7 @@ def get_fc_token(*, code: str, fc_state: str, client_secret: str) -> dict:
 
     # FC - Step 6
     token_endpoint_headers: dict[str, str] = {"Content-Type": "application/x-www-form-urlencoded"}
-    response: Any = httpxClient.post(
+    response: Any = await httpx_async_client.post(
         f"{settings.PUBLIC_FC_BASE_URL}{settings.PUBLIC_FC_TOKEN_ENDPOINT}",
         headers=token_endpoint_headers,
         data=data,

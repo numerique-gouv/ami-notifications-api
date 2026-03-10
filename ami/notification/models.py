@@ -119,15 +119,14 @@ class ScheduledNotification(models.Model):
         async_to_sync(push)(notification, True)
 
     @classmethod
-    def create_welcome_scheduled_notification(cls, user: User):
-        scheduled_notification, _ = cls.objects.get_or_create(
+    async def acreate_welcome_scheduled_notification(cls, user: User):
+        scheduled_notification, _ = await cls.objects.aget_or_create(
             reference="ami:welcome",
             user=user,
             defaults={
                 "content_title": "Bienvenue sur AMI 👋",
                 "content_body": "Ici, vous pourrez gérer votre vie administrative, suivre l'avancement de vos démarches et recevoir des rappels personnalisés.",
                 "content_icon": "fr-icon-information-line",
-                "reference": "ami:welcome",
                 "scheduled_at": timezone.now(),
                 "sender": "AMI",
             },

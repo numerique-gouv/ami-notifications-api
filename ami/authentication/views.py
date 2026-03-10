@@ -1,3 +1,4 @@
+import asyncio
 import uuid
 from urllib.parse import urlencode
 
@@ -9,7 +10,8 @@ from django.views.decorators.http import require_GET
 from ami.authentication.auth import create_jwt_token, generate_nonce, get_fc_token
 from ami.authentication.exception import FCError
 from ami.authentication.models import Nonce
-from ami.user.data import get_fc_userinfo
+from ami.user.data import get_address_from_api_particulier_quotient, get_fc_userinfo
+from ami.utils.httpx import httpxAsyncClient
 
 
 def retry_fc_later(error_dict: dict | None = None):
@@ -53,7 +55,7 @@ def login_france_connect(request):
 
 
 @require_GET
-def login_callback(request):
+async def login_callback(request):
     try:
         code = request.GET.get("code")
         error = request.GET.get("error")
@@ -73,44 +75,70 @@ def login_callback(request):
         if not client_secret:
             return JsonResponse({"error": "Client secret manquant"}, status=500)
 
-        response_token_data = get_fc_token(
-            code=code,
-            fc_state=fc_state,
-            client_secret=client_secret,
-        )
+        async with httpxAsyncClient() as httpx_async_client:
+            response_token_data = await get_fc_token(
+                code=code,
+                fc_state=fc_state,
+                client_secret=client_secret,
+                httpx_async_client=httpx_async_client,
+            )
 
-        id_token = response_token_data["id_token"]
-        token_type = response_token_data.get("token_type", "")
-        if not token_type:
-            raise FCError("missing_token_type")
-        access_token = response_token_data.get("access_token", "")
-        if not access_token:
-            raise FCError("missing_access_token")
+            id_token = response_token_data["id_token"]
+            token_type = response_token_data.get("token_type", "")
+            if not token_type:
+                raise FCError("missing_token_type")
+            access_token = response_token_data.get("access_token", "")
+            if not access_token:
+                raise FCError("missing_access_token")
 
-        userinfo_result, user_id = get_fc_userinfo(
-            token_type=token_type,
-            access_token=access_token,
-        )
+            try:
+                async with asyncio.TaskGroup() as task_group:
+                    task_userinfo = task_group.create_task(
+                        get_fc_userinfo(
+                            token_type=token_type,
+                            access_token=access_token,
+                            httpx_async_client=httpx_async_client,
+                        )
+                    )
+                    task_api_particulier = None
+                    if (
+                        "cnaf_enfants" in settings.PUBLIC_FC_SCOPE
+                        and "cnaf_adresse" in settings.PUBLIC_FC_SCOPE
+                    ):
+                        task_api_particulier = task_group.create_task(
+                            get_address_from_api_particulier_quotient(
+                                token_type=token_type,
+                                access_token=access_token,
+                                httpx_async_client=httpx_async_client,
+                            )
+                        )
+            except* FCError as e:
+                raise e.exceptions[0]
 
-        user_data = {
-            "is_logged_in": "true",
-            "id_token": id_token,
-            **userinfo_result,
-        }
+            user_data = {
+                "is_logged_in": "true",
+                "id_token": id_token,
+            }
+            userinfo_result, user_id = task_userinfo.result()
+            user_data.update(userinfo_result)
+            if task_api_particulier:
+                address = task_api_particulier.result()
+                if address:
+                    user_data["address"] = address
 
-        jwt_token = create_jwt_token(user_id=str(user_id), jti=uuid.uuid4().hex)
+            jwt_token = create_jwt_token(user_id=str(user_id), jti=uuid.uuid4().hex)
 
-        redirect_url = f"{settings.PUBLIC_APP_URL}/?{urlencode(user_data)}"
-        response = redirect(redirect_url)
-        response.set_cookie(
-            key=settings.AUTH_COOKIE_JWT_NAME,
-            value=f"Bearer {jwt_token}",
-            max_age=365 * 10 * 24 * 3600,
-            secure=True,
-            httponly=True,
-            samesite="None",
-        )
-        return response
+            redirect_url = f"{settings.PUBLIC_APP_URL}/?{urlencode(user_data)}"
+            response = redirect(redirect_url)
+            response.set_cookie(
+                key=settings.AUTH_COOKIE_JWT_NAME,
+                value=f"Bearer {jwt_token}",
+                max_age=365 * 10 * 24 * 3600,
+                secure=True,
+                httponly=True,
+                samesite="None",
+            )
+            return response
 
     except FCError as e:
         if e.code is None:
