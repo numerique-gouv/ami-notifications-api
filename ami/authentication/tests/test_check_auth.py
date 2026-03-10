@@ -33,4 +33,4 @@ def test_check_auth_with_headers(
 def test_check_auth_without_auth(
     django_app,
 ) -> None:
-    assert_query_fails_without_auth(django_app, "/logout", method="post")
+    assert_query_fails_without_auth(django_app, "/check-auth")
