@@ -1,6 +1,7 @@
 <script>
   import '@gouvfr/dsfr/dist/dsfr.min.css';
   import '@gouvfr/dsfr/dist/utility/utility.min.css';
+  import '../app.css';
   import { onMount } from 'svelte';
   import { afterNavigate, goto } from '$app/navigation';
   import { env } from '$env/dynamic/public';
