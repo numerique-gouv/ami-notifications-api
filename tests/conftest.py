@@ -23,7 +23,7 @@ from sqlalchemy.ext.asyncio import (
 from sqlalchemy.pool import NullPool
 from webpush.vapid import VAPID
 
-from ami.utils import build_fc_hash
+from ami.user.utils import build_fc_hash
 from app import create_app, env
 from app.database import DATABASE_URL, alchemy_config
 from app.models import Base, Notification, Registration, User

@@ -13,7 +13,7 @@ from litestar.response.redirect import Redirect
 from litestar.security.jwt import Token
 from litestar.status_codes import HTTP_500_INTERNAL_SERVER_ERROR
 
-from ami.utils import build_fc_hash
+from ami.user.utils import build_fc_hash
 from app import env, models
 from app.auth import generate_nonce, jwt_cookie_auth
 from app.errors import TechnicalError
