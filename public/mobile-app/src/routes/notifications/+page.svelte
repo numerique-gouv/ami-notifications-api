@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
-  import NotificationIcon from '$lib/NotificationIcon.svelte';
+  import NotificationIcon from '$lib/components/NotificationIcon.svelte';
   import type { AppNotification } from '$lib/notifications';
   import {
     notificationEventsSocket,
