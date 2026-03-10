@@ -3,20 +3,16 @@ from base64 import urlsafe_b64encode
 from typing import Any
 
 import pytest
-from litestar import Litestar
-from litestar.testing import TestClient
 from pytest_httpx import HTTPXMock
-from sqlalchemy.ext.asyncio import AsyncSession
 
+from ami.authentication.models import Nonce
 from ami.tests.utils import url_contains_param
-from app.models import Nonce
-
-pytestmark = pytest.mark.skip("skip tests for Django migration")
 
 
-async def test_login_callback_address(
-    test_client: TestClient[Litestar],
-    db_session: AsyncSession,
+@pytest.mark.django_db
+def test_login_callback_address(
+    settings,
+    django_app,
     httpx_mock: HTTPXMock,
     monkeypatch: pytest.MonkeyPatch,
     userinfo: dict[str, Any],
@@ -29,12 +25,10 @@ async def test_login_callback_address(
         return userinfo
 
     monkeypatch.setattr("jwt.decode", fake_jwt_decode)
-    monkeypatch.setattr("app.controllers.auth.env.FC_AMI_CLIENT_SECRET", "fake-client-secret")
+    settings.FC_AMI_CLIENT_SECRET = "fake-client-secret"
 
     NONCE = decoded_id_token["nonce"]
-    nonce = Nonce(nonce=NONCE)
-    db_session.add(nonce)
-    await db_session.commit()
+    nonce = Nonce.objects.create(nonce=NONCE)
 
     fake_token_json_response = {
         "access_token": "fake access token",
@@ -75,9 +69,7 @@ async def test_login_callback_address(
         json=fake_quotient_data,
     )
 
-    response = test_client.get(
-        f"/login-callback?code=fake-code&state={nonce.id}", follow_redirects=False
-    )
+    response = django_app.get(f"/login-callback?code=fake-code&state={nonce.id}")
 
     assert response.status_code == 302
     redirected_url = response.headers["location"]
@@ -88,9 +80,7 @@ async def test_login_callback_address(
         redirected_url,
     )
 
-    nonce = Nonce(nonce=NONCE)
-    db_session.add(nonce)
-    await db_session.commit()
+    nonce = Nonce.objects.create(nonce=NONCE)
     address = {
         "numero_libelle_voie": "",
         "lieu_dit": "",
@@ -106,9 +96,7 @@ async def test_login_callback_address(
         json=fake_quotient_data,
     )
 
-    response = test_client.get(
-        f"/login-callback?code=fake-code&state={nonce.id}", follow_redirects=False
-    )
+    response = django_app.get(f"/login-callback?code=fake-code&state={nonce.id}")
 
     assert response.status_code == 302
     redirected_url = response.headers["location"]
@@ -120,9 +108,10 @@ async def test_login_callback_address(
     )
 
 
-async def test_login_callback_address_no_data(
-    test_client: TestClient[Litestar],
-    db_session: AsyncSession,
+@pytest.mark.django_db
+def test_login_callback_address_no_data(
+    settings,
+    django_app,
     httpx_mock: HTTPXMock,
     monkeypatch: pytest.MonkeyPatch,
     userinfo: dict[str, Any],
@@ -135,12 +124,10 @@ async def test_login_callback_address_no_data(
         return userinfo
 
     monkeypatch.setattr("jwt.decode", fake_jwt_decode)
-    monkeypatch.setattr("app.controllers.auth.env.FC_AMI_CLIENT_SECRET", "fake-client-secret")
+    settings.FC_AMI_CLIENT_SECRET = "fake-client-secret"
 
     NONCE = decoded_id_token["nonce"]
-    nonce = Nonce(nonce=NONCE)
-    db_session.add(nonce)
-    await db_session.commit()
+    nonce = Nonce.objects.create(nonce=NONCE)
 
     fake_token_json_response = {
         "access_token": "fake access token",
@@ -172,9 +159,7 @@ async def test_login_callback_address_no_data(
         {"data": {"address": {}}},
     ]
     for fake_quotient_data in fake_quotient_datas:
-        nonce = Nonce(nonce=NONCE)
-        db_session.add(nonce)
-        await db_session.commit()
+        nonce = Nonce.objects.create(nonce=NONCE)
 
         httpx_mock.add_response(
             method="GET",
@@ -183,9 +168,7 @@ async def test_login_callback_address_no_data(
             json=fake_quotient_data,
         )
 
-        response = test_client.get(
-            f"/login-callback?code=fake-code&state={nonce.id}", follow_redirects=False
-        )
+        response = django_app.get(f"/login-callback?code=fake-code&state={nonce.id}")
 
         assert response.status_code == 302
         redirected_url = response.headers["location"]
