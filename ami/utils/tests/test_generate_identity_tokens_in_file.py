@@ -5,7 +5,6 @@ from typing import Any, Dict, List
 from uuid import UUID
 
 import pytest
-from django.conf import settings
 from django.core.management import call_command
 from freezegun import freeze_time
 from freezegun.api import FakeDatetime
@@ -83,9 +82,9 @@ def get_data_from_file(
 @freeze_time("2026-01-23 10:36:00")
 def test_generate_identity_token(
     monkeypatch: pytest.MonkeyPatch,
+    settings,
 ) -> None:
     # Given
-    settings.CONFIG["AUTH_COOKIE_JWT_SECRET"] = "secret"
     preferred_username: str = "Delaforêt"
     email: str = "wossewodda-37228@yopmail.com"
     address_city: str = "Paris"
@@ -98,12 +97,16 @@ def test_generate_identity_token(
     def mock_uuid_uuid4():
         return UUID(mock_uuid_str)
 
-    mock_otv_private_key = "test_private_key"
+    partners_psl_otv_jwt_private_key = "fake-private-key"
+    partners_psl_otv_jwe_public_key = "fake-public-key"
     expected_token = "fake-generated-identity-token"
-    expected_data = "fake-encrypted-data"
+    encrypted_data = "fake-encrypted-data"
 
     def mock_encrypt_data(*args: Any):
-        return expected_data
+        return encrypted_data
+
+    def mock_get_partners_psl_otv_jwt_private_key(*args: Any):
+        return partners_psl_otv_jwt_private_key
 
     def mock_jwt_encode(payload: Any, key: Any, **kwargs: Any) -> str:
         assert payload["iss"] == "ami"
@@ -111,15 +114,18 @@ def test_generate_identity_token(
         assert payload["exp"] == FakeDatetime(2026, 1, 23, 11, 6, tzinfo=datetime.timezone.utc)
         assert payload["nonce"] == mock_uuid_str
         assert payload["hash_fc"] == fc_hash
-        assert payload["data"] == expected_data
-        assert key.decode() == mock_otv_private_key
+        assert payload["data"] == encrypted_data
+        assert key == partners_psl_otv_jwt_private_key
         assert kwargs["algorithm"] == "RS256"
         return expected_token
 
-    monkeypatch.setattr("ami.utils.uuid4", mock_uuid_uuid4)
-    monkeypatch.setattr("jwt.encode", mock_jwt_encode)
-    monkeypatch.setitem(settings.CONFIG, "PARTNERS_PSL_OTV_JWT_PRIVATE_KEY", mock_otv_private_key)
+    settings.CONFIG["PARTNERS_PSL_OTV_JWE_PUBLIC_KEY"] = partners_psl_otv_jwe_public_key
     monkeypatch.setattr("ami.utils.encrypt_data", mock_encrypt_data)
+    monkeypatch.setattr("ami.utils.uuid4", mock_uuid_uuid4)
+    monkeypatch.setattr(
+        "ami.utils.get_partners_psl_otv_jwt_private_key", mock_get_partners_psl_otv_jwt_private_key
+    )
+    monkeypatch.setattr("jwt.encode", mock_jwt_encode)
 
     # When
     token = generate_identity_token(
@@ -133,8 +139,9 @@ def test_generate_identity_token(
 @freeze_time("2026-01-23 10:36:00")
 def test_generate_identity_token_with_decode(
     monkeypatch: pytest.MonkeyPatch,
-    otv_rsa_keys: Dict[str, str],
-    psl_cert_keys: Dict[str, str],
+    settings,
+    otv_cert_keys_for_encryption: Dict[str, str],
+    otv_cert_keys_for_signature: Dict[str, str],
 ) -> None:
     # Given
     preferred_username: str = "Delaforêt"
@@ -151,15 +158,15 @@ def test_generate_identity_token_with_decode(
 
     monkeypatch.setattr("ami.utils.uuid4", mock_uuid_uuid4)
 
-    fake_otv_private_key: str = otv_rsa_keys["private"]
-    fake_otv_public_key: str = otv_rsa_keys["public"]
-    fake_psl_otv_private_key: str = psl_cert_keys["private"]
-    fake_psl_otv_public_key: str = psl_cert_keys["public"]
+    fake_private_key_for_encryption: str = otv_cert_keys_for_encryption["private"]
+    fake_public_key_for_encryption: str = otv_cert_keys_for_encryption["public"]
+    fake_private_key_for_signature: str = otv_cert_keys_for_signature["pfx_b64"]
+    fake_public_key_for_signature: str = otv_cert_keys_for_signature["cert"]
 
+    settings.CONFIG["PARTNERS_PSL_OTV_JWE_PUBLIC_KEY"] = fake_public_key_for_encryption
     monkeypatch.setattr("ami.utils.uuid4", mock_uuid_uuid4)
-    monkeypatch.setitem(settings.CONFIG, "PARTNERS_PSL_OTV_JWT_PRIVATE_KEY", fake_otv_private_key)
-    monkeypatch.setitem(settings.CONFIG, "PARTNERS_PSL_OTV_JWT_PUBLIC_KEY", fake_otv_public_key)
-    monkeypatch.setitem(settings.CONFIG, "PARTNERS_PSL_OTV_JWE_PUBLIC_KEY", fake_psl_otv_public_key)
+    settings.CONFIG["PARTNERS_PSL_OTV_JWT_CERT_PFX_B64"] = fake_private_key_for_signature
+    settings.CONFIG["PARTNERS_PSL_OTV_JWT_CERT_PUBLIC_KEY"] = fake_public_key_for_signature
 
     # When
     token = generate_identity_token(
@@ -178,7 +185,7 @@ def test_generate_identity_token_with_decode(
         == "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060"
     )
     data_encrypted = decoded_result["data"]
-    data_result = decrypt_data(data_encrypted, fake_psl_otv_private_key)
+    data_result = decrypt_data(data_encrypted, fake_private_key_for_encryption)
     assert data_result["nom_usage"] == "Delaforêt"
     assert data_result["email"] == "wossewodda-37228@yopmail.com"
     assert data_result["commune_nom"] == "Paris"
