@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { render } from '@testing-library/svelte';
-import NotificationIcon from '$lib/NotificationIcon.svelte';
+import NotificationIcon from '$lib/components/NotificationIcon.svelte';
 
 describe('/NotificationIcon.svelte', () => {
   test('icon is absent, should display default icon', async () => {
