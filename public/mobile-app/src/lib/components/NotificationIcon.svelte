@@ -7,15 +7,13 @@
     icon?: string;
   }
   let { defaultIcon, icon = '' }: Props = $props();
-  let checkedIcon: string = $state('');
 
-  onMount(async () => {
-    const customIcons = ['infinity-line'];
-    const iconList = [...dsfrIconList.map((i) => i.name), ...customIcons];
-    checkedIcon = iconList.filter((i) => i === icon?.replace('fr-icon-', '')).length
-      ? icon
-      : defaultIcon;
-  });
+  const customIcons = ['infinity-line'];
+  const iconList = [...dsfrIconList.map((i) => i.name), ...customIcons];
+
+  let checkedIcon = $derived(
+    iconList.includes(icon?.replace('fr-icon-', '')) ? icon : defaultIcon
+  );
 </script>
 
 <span class="notification__icon {checkedIcon}" aria-hidden="true"></span>

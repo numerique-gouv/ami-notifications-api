@@ -119,6 +119,7 @@ describe('/+page.svelte', () => {
           content_body: 'test 2',
           id: 'f62c66b2-7bd5-4696-8383-2d40c08a1',
           content_title: 'test 2',
+          content_icon: 'fr-icon-mail-star-line',
           read: false,
           item_external_url: '',
         },
@@ -141,6 +142,7 @@ describe('/+page.svelte', () => {
           content_body: 'test 2',
           id: 'f62c66b2-7bd5-4696-8383-2d40c08a1',
           content_title: 'test 2',
+          content_icon: 'fr-icon-smartphone-line',
           read: true,
           item_external_url: '',
         },
@@ -174,6 +176,14 @@ describe('/+page.svelte', () => {
     const notificationLink = await waitFor(() =>
       screen.getByTestId('notification-link-f62c66b2-7bd5-4696-8383-2d40c08a1')
     );
+    await waitFor(() => {
+      const notification1 = screen.getByTestId(
+        'notification-f62c66b2-7bd5-4696-8383-2d40c08a1'
+      );
+      expect(notification1).not.toHaveClass('read');
+      const icon = notification1.querySelector('.notification__icon');
+      expect(icon).toHaveClass('fr-icon-mail-star-line');
+    });
 
     // When
     await notificationLink.click();
@@ -188,6 +198,8 @@ describe('/+page.svelte', () => {
         'notification-f62c66b2-7bd5-4696-8383-2d40c08a1'
       );
       expect(notification1).toHaveClass('read');
+      const icon = notification1.querySelector('.notification__icon');
+      expect(icon).toHaveClass('fr-icon-smartphone-line');
     });
     const notification2 = screen.getByTestId(
       'notification-2689c3b3-e95c-4d73-b37d-55f430688af9'
@@ -220,7 +232,6 @@ describe('/+page.svelte', () => {
 
     // When
     await notificationLink.click();
-    wss.send('ping');
 
     // Then
     expect(globalThis.window.location.href).toBe('https://www.service-public.gouv.fr');
@@ -251,7 +262,6 @@ describe('/+page.svelte', () => {
 
     // When
     await notificationLink.click();
-    wss.send('ping');
 
     // Then
     expect(globalThis.window.location.href).toBe('fake-link');
