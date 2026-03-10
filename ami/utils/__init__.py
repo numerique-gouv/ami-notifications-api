@@ -3,13 +3,16 @@ import csv
 import datetime
 import gzip
 import json
+from typing import Dict, Union
 from uuid import uuid4
 
 import jwt
 from cryptography import x509
+from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey, RSAPublicKey
+from cryptography.hazmat.primitives.serialization import pkcs12
 from django.conf import settings
 
 
@@ -43,6 +46,23 @@ def decrypt_data(data: str, private_key: str) -> dict[str, str]:
     return json.loads(gzip.decompress(decrypted).decode())
 
 
+def get_partners_psl_otv_jwt_private_key() -> RSAPrivateKey:
+    pfx_b64 = settings.CONFIG["PARTNERS_PSL_OTV_JWT_CERT_PFX_B64"]
+    pfx_data = base64.b64decode(pfx_b64)
+    private_key, _, _ = pkcs12.load_key_and_certificates(pfx_data, None)
+
+    if not isinstance(private_key, RSAPrivateKey):
+        raise ValueError("Expected RSA private key")
+    rsa_private_key = private_key  # narrowed to RSAPrivateKey
+
+    return rsa_private_key
+
+
+def sign_identity_token(payload: Dict[str, Union[str, int, datetime.datetime]]) -> str:
+    private_key = get_partners_psl_otv_jwt_private_key()
+    return jwt.encode(payload, private_key, algorithm="RS256")
+
+
 def generate_identity_token(
     preferred_username: str,
     email: str,
@@ -68,15 +88,22 @@ def generate_identity_token(
         "data": data_encrypted,
     }
 
-    return jwt.encode(
-        payload, settings.CONFIG["PARTNERS_PSL_OTV_JWT_PRIVATE_KEY"].encode(), algorithm="RS256"
-    )
+    return sign_identity_token(payload)
 
 
 def decode_identity_token(token: str) -> dict[str, str]:
-    return jwt.decode(
-        token, key=settings.CONFIG["PARTNERS_PSL_OTV_JWT_PUBLIC_KEY"].encode(), algorithms=["RS256"]
+    cert_pem = settings.CONFIG["PARTNERS_PSL_OTV_JWT_CERT_PUBLIC_KEY"].encode()
+    cert = x509.load_pem_x509_certificate(cert_pem, default_backend())
+    public_key_pem = (
+        cert.public_key()
+        .public_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PublicFormat.SubjectPublicKeyInfo,
+        )
+        .decode()
     )
+
+    return jwt.decode(token, public_key_pem.encode(), algorithms=["RS256"])
 
 
 def generate_identity_tokens_in_file(
