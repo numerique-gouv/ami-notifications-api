@@ -22,6 +22,7 @@ class Notification(models.Model):
     sender = models.CharField()
     content_title = models.CharField()
     sa_orm_sentinel = models.IntegerField(blank=True, null=True)
+    user_id: uuid.UUID  # For typing purposes: this is only a type annotation
     user = models.ForeignKey(User, models.PROTECT)
     content_icon = models.CharField(blank=True, null=True)
     item_type = models.CharField(blank=True, null=True)
