@@ -2,6 +2,7 @@ import asyncio
 import uuid
 
 from channels.layers import get_channel_layer
+from django.conf import settings
 from django.db.models import QuerySet
 from rest_framework import serializers
 from rest_framework.decorators import api_view
@@ -70,6 +71,11 @@ def read_notification(
         )
     )
     return Response(NotificationSerializer(notification).data)
+
+
+@api_view(["GET"])
+def get_notification_key(request: Request) -> Response[str]:
+    return Response(settings.CONFIG.get("VAPID_APPLICATION_SERVER_KEY", ""))
 
 
 class NotificationSerializer(serializers.ModelSerializer):
