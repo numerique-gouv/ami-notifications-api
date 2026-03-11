@@ -181,3 +181,10 @@ def test_read_notification_without_auth(
         f"/api/v1/users/notification/{notification.id}/read",
         method="patch",
     )
+
+
+async def test_notification_key(
+    django_app,
+) -> None:
+    response = django_app.get("/notification-key")
+    assert response.status_code == HTTP_200_OK

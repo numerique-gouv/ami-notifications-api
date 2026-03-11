@@ -8,7 +8,6 @@ import pytest
 from litestar import Litestar
 from litestar.channels import Subscriber
 from litestar.status_codes import (
-    HTTP_200_OK,
     HTTP_201_CREATED,
     HTTP_400_BAD_REQUEST,
     HTTP_404_NOT_FOUND,
@@ -612,10 +611,3 @@ async def test_create_notification_without_auth(
     b64 = base64.b64encode("psl:foo".encode("utf8")).decode("utf8")
     response = test_client.post("/api/v1/notifications", headers={"authorization": f"Basic {b64}"})
     assert response.status_code == 401
-
-
-async def test_notification_key(
-    test_client: TestClient[Litestar],
-) -> None:
-    response = test_client.get("/notification-key")
-    assert response.status_code == HTTP_200_OK
