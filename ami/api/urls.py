@@ -7,5 +7,6 @@ from ami.utils import api_urls as util_api_urls
 urlpatterns = [
     path("", include(authentication_api_urls)),
     path("", include(util_api_urls)),
+    path("", include(notification_api_urls.root_urlpatterns)),
     path("api/v1/", include(notification_api_urls)),
 ]

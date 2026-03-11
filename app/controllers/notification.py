@@ -1,7 +1,7 @@
 from typing import Annotated
 
 from advanced_alchemy.extensions.litestar import providers
-from litestar import Controller, Response, get, post
+from litestar import Controller, Response, post
 from litestar.background_tasks import BackgroundTask
 from litestar.channels import ChannelsPlugin
 from litestar.di import Provide
@@ -26,10 +26,6 @@ class NotAuthenticatedNotificationController(Controller):
             UserService, load=[models.User.registrations]
         ),
     }
-
-    @get("/notification-key")
-    async def get_notification_key(self) -> str:
-        return env.VAPID_APPLICATION_SERVER_KEY
 
     @post("/ami_admin/notifications", include_in_schema=False)
     async def admin_create_notification(
