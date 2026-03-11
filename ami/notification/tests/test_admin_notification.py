@@ -1,28 +1,20 @@
+import asyncio
 import datetime
-import json
 import uuid
 
 import pytest
-from litestar import Litestar
-from litestar.channels import Subscriber
-from litestar.status_codes import (
-    HTTP_201_CREATED,
-    HTTP_400_BAD_REQUEST,
-    HTTP_404_NOT_FOUND,
-)
-from litestar.testing import TestClient
+from channels.testing.websocket import WebsocketCommunicator
 from pytest_httpx import HTTPXMock
-from sqlalchemy import func, select
-from sqlalchemy.ext.asyncio import AsyncSession
+from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 
-from app.models import Notification, Registration, User
-from tests.ami.utils import get_from_stream
-
-pytestmark = pytest.mark.skip("skip tests for Django migration")
+from ami.notification.models import Notification
+from ami.tests.utils import get_from_stream
+from ami.user.models import Registration, User
 
 
-async def test_admin_create_notification_user_does_not_exist(
-    test_client: TestClient[Litestar],
+@pytest.mark.django_db
+def test_admin_create_notification_user_does_not_exist(
+    django_app,
 ) -> None:
     notification_data = {
         "user_id": str(uuid.uuid4()),
@@ -30,17 +22,16 @@ async def test_admin_create_notification_user_does_not_exist(
         "title": "Some notification title",
         "sender": "Jane Doe",
     }
-    response = test_client.post("/ami_admin/notifications", json=notification_data)
+    response = django_app.post("/ami_admin/notifications", notification_data, status=404)
     assert response.status_code == HTTP_404_NOT_FOUND
 
 
-async def test_admin_create_notification_from_test_and_from_app_context(
-    test_client: TestClient[Litestar],
-    notification_events_subscriber: Subscriber,
-    app: Litestar,
-    db_session: AsyncSession,
+@pytest.mark.django_db
+def test_admin_create_notification_from_test_and_from_app_context(
+    django_app,
     webpush_notification: Notification,
     webpush_registration: Registration,
+    websocket: WebsocketCommunicator,
     httpx_mock: HTTPXMock,
 ) -> None:
     """This test makes sure we're using the same database session in tests and through the API.
@@ -56,9 +47,9 @@ async def test_admin_create_notification_from_test_and_from_app_context(
         "title": "Some notification title",
         "sender": "Jane Doe",
     }
-    response = test_client.post("/ami_admin/notifications", json=notification_data)
+    response = django_app.post("/ami_admin/notifications", notification_data)
     assert response.status_code == HTTP_201_CREATED
-    all_notifications = (await db_session.execute(select(Notification))).scalars().all()
+    all_notifications = Notification.objects.all()
     assert len(all_notifications) == 2
     notification2 = all_notifications[1]
     assert notification2.user.id == webpush_registration.user.id
@@ -69,12 +60,12 @@ async def test_admin_create_notification_from_test_and_from_app_context(
     assert notification2.try_push is None
     assert notification2.send_status is None
     assert notification2.read is False
-    assert response.json() == {
+    assert response.json == {
         "notification_id": str(notification2.id),
         "notification_send_status": True,
     }
-    res = await get_from_stream(notification_events_subscriber, 1)
-    assert json.loads(res[0].decode()) == {
+    res = asyncio.get_event_loop().run_until_complete(get_from_stream(websocket, 1))
+    assert res[0] == {
         "user_id": str(webpush_registration.user.id),
         "id": str(notification2.id),
         "event": "created",
@@ -82,9 +73,9 @@ async def test_admin_create_notification_from_test_and_from_app_context(
     assert httpx_mock.get_request()
 
 
-async def test_admin_create_notification_test_fields(
-    test_client: TestClient[Litestar],
-    db_session: AsyncSession,
+@pytest.mark.django_db
+def test_admin_create_notification_test_fields(
+    django_app,
     user: User,
 ) -> None:
     # user_id is required
@@ -94,14 +85,9 @@ async def test_admin_create_notification_test_fields(
         "title": "Some notification title",
         "sender": "Jane Doe",
     }
-    response = test_client.post("/ami_admin/notifications", json=notification_data)
+    response = django_app.post("/ami_admin/notifications", notification_data, status=400)
     assert response.status_code == HTTP_400_BAD_REQUEST
-    assert response.json()["extra"] == [
-        {
-            "message": "Input should be a valid UUID, invalid length: expected length 32 for simple format, found 0",
-            "key": "user_id",
-        }
-    ]
+    assert response.json == {"user_id": ["Must be a valid UUID."]}
 
     # message is required
     notification_data = {
@@ -110,11 +96,9 @@ async def test_admin_create_notification_test_fields(
         "title": "Some notification title",
         "sender": "Jane Doe",
     }
-    response = test_client.post("/ami_admin/notifications", json=notification_data)
+    response = django_app.post("/ami_admin/notifications", notification_data, status=400)
     assert response.status_code == HTTP_400_BAD_REQUEST
-    assert response.json()["extra"] == [
-        {"message": "String should have at least 1 character", "key": "message"}
-    ]
+    assert response.json == {"message": ["This field may not be blank."]}
 
     # id, created_at, updated_at and read are ignored
     notification_date: datetime.datetime = datetime.datetime.now(
@@ -131,10 +115,10 @@ async def test_admin_create_notification_test_fields(
         "updated_at": notification_date.isoformat(),
         "read": True,
     }
-    response = test_client.post("/ami_admin/notifications", json=notification_data)
+    response = django_app.post("/ami_admin/notifications", notification_data)
     assert response.status_code == HTTP_201_CREATED
 
-    all_notifications = (await db_session.execute(select(Notification))).scalars().all()
+    all_notifications = Notification.objects.all()
     assert len(all_notifications) == 1
     notification = all_notifications[0]
     assert notification.id != notification_id
@@ -143,9 +127,9 @@ async def test_admin_create_notification_test_fields(
     assert notification.read is False
 
 
-async def test_admin_create_notification_when_registration_gone(
-    test_client: TestClient[Litestar],
-    db_session: AsyncSession,
+@pytest.mark.django_db
+def test_admin_create_notification_when_registration_gone(
+    django_app,
     webpush_registration: Registration,
     httpx_mock: HTTPXMock,
 ) -> None:
@@ -162,16 +146,16 @@ async def test_admin_create_notification_when_registration_gone(
         "title": "Some notification title",
         "sender": "Jane Doe",
     }
-    response = test_client.post("/ami_admin/notifications", json=notification_data)
+    response = django_app.post("/ami_admin/notifications", notification_data)
     assert response.status_code == HTTP_201_CREATED
-    notification_count = (await db_session.execute(select(func.count()).select_from(User))).scalar()
+    notification_count = Notification.objects.count()
     assert notification_count == 1
     assert httpx_mock.get_request()
 
 
-async def test_admin_create_notification_no_registration(
-    test_client: TestClient[Litestar],
-    db_session: AsyncSession,
+@pytest.mark.django_db
+def test_admin_create_notification_no_registration(
+    django_app,
     user: User,
     httpx_mock: HTTPXMock,
 ) -> None:
@@ -181,8 +165,8 @@ async def test_admin_create_notification_no_registration(
         "title": "Some notification title",
         "sender": "Jane Doe",
     }
-    response = test_client.post("/ami_admin/notifications", json=notification_data)
+    response = django_app.post("/ami_admin/notifications", notification_data)
     assert response.status_code == HTTP_201_CREATED
-    notification_count = (await db_session.execute(select(func.count()).select_from(User))).scalar()
+    notification_count = Notification.objects.count()
     assert notification_count == 1
     assert not httpx_mock.get_request()

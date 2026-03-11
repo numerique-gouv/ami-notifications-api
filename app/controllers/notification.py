@@ -18,54 +18,6 @@ from app.services.notification import NotificationService
 from app.services.user import UserService
 
 
-class NotAuthenticatedNotificationController(Controller):
-    dependencies = {
-        "notifications_service": providers.create_service_provider(NotificationService),
-        "users_service": providers.create_service_provider(UserService),
-        "users_with_registrations_service": providers.create_service_provider(
-            UserService, load=[models.User.registrations]
-        ),
-    }
-
-    @post("/ami_admin/notifications", include_in_schema=False)
-    async def admin_create_notification(
-        self,
-        channels: ChannelsPlugin,
-        notifications_service: NotificationService,
-        users_with_registrations_service: UserService,
-        webpush: WebPush,
-        data: schemas.AdminNotificationCreate,
-        httpx_async_client: AsyncClient,
-    ) -> Response[schemas.NotificationResponse]:
-        user: models.User | None = await users_with_registrations_service.get_one_or_none(
-            id=data.user_id
-        )
-        if user is None:
-            raise NotFoundException(detail="User not found")
-
-        notification: models.Notification = await notifications_service.create(
-            models.Notification(**data.model_dump())
-        )
-
-        # Push notification in background after DB transaction completes
-        background_task = BackgroundTask(
-            NotificationService.push_notification,
-            channels,
-            webpush,
-            notification.id,
-            True,
-            httpx_async_client,
-        )
-
-        response_data = schemas.NotificationResponse.model_validate(
-            {
-                "notification_id": notification.id,
-                "notification_send_status": True,
-            }
-        )
-        return Response(content=response_data, background=background_task)
-
-
 class PartnerNotificationController(Controller):
     dependencies = {
         "current_partner": Provide(provide_partner),

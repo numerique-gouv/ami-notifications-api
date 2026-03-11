@@ -1,6 +1,8 @@
 import asyncio
 import uuid
+from typing import cast
 
+from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from django.conf import settings
 from django.db.models import QuerySet
@@ -10,6 +12,8 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from ami.authentication.decorators import ami_login_required
+from ami.notification.push import push
+from ami.user.models import User
 
 from .models import Notification, NotificationEvent
 
@@ -93,3 +97,37 @@ class NotificationSerializer(serializers.ModelSerializer):
             "send_status",
         ]
         model = Notification
+
+
+class NotificationResponseSerializer(serializers.Serializer):
+    notification_id = serializers.UUIDField()
+    notification_send_status = serializers.BooleanField()
+
+
+@api_view(["POST"])
+def admin_create_notification(request: Request) -> Response[NotificationResponseSerializer]:
+    serializer = AdminNotificationCreateSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    data: dict = cast(dict, serializer.validated_data)
+
+    try:
+        User.objects.get(id=data["user_id"])
+    except User.DoesNotExist:
+        return Response(status=404)
+
+    notification: Notification = Notification.objects.create(**data)
+    # TODO: this was done in a background task on litestar, migrate this to using celery?
+    async_to_sync(push)(notification, True)
+
+    response_data = {
+        "notification_id": notification.id,
+        "notification_send_status": True,
+    }
+    return Response(NotificationResponseSerializer(response_data).data, status=201)
+
+
+class AdminNotificationCreateSerializer(serializers.Serializer):
+    user_id = serializers.UUIDField()
+    title = serializers.CharField(min_length=1, source="content_title")
+    message = serializers.CharField(min_length=1, source="content_body")
+    sender = serializers.CharField(min_length=1)
