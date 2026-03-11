@@ -16,6 +16,7 @@ from ami.notification.push import push
 from ami.user.models import User
 
 from .models import Notification, NotificationEvent
+from .serializers import AdminNotificationCreateSerializer, NotificationResponseSerializer
 
 
 @api_view(["GET"])
@@ -99,11 +100,6 @@ class NotificationSerializer(serializers.ModelSerializer):
         model = Notification
 
 
-class NotificationResponseSerializer(serializers.Serializer):
-    notification_id = serializers.UUIDField()
-    notification_send_status = serializers.BooleanField()
-
-
 @api_view(["POST"])
 def admin_create_notification(request: Request) -> Response[NotificationResponseSerializer]:
     serializer = AdminNotificationCreateSerializer(data=request.data)
@@ -124,10 +120,3 @@ def admin_create_notification(request: Request) -> Response[NotificationResponse
         "notification_send_status": True,
     }
     return Response(NotificationResponseSerializer(response_data).data, status=201)
-
-
-class AdminNotificationCreateSerializer(serializers.Serializer):
-    user_id = serializers.UUIDField()
-    title = serializers.CharField(min_length=1, source="content_title")
-    message = serializers.CharField(min_length=1, source="content_body")
-    sender = serializers.CharField(min_length=1)
