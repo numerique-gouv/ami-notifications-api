@@ -1,6 +1,5 @@
 import json
 import uuid
-from collections.abc import Sequence
 from typing import Annotated, Any
 
 from advanced_alchemy.extensions.litestar import providers
@@ -13,7 +12,6 @@ from litestar.exceptions import (
     WebSocketDisconnect,
 )
 from litestar.params import Body
-from pydantic import TypeAdapter
 from webpush import WebPush
 
 from app import env, models, schemas, sentry
@@ -28,31 +26,6 @@ class NotificationController(Controller):
         "current_user": Provide(provide_user),
         "notifications_service": providers.create_service_provider(NotificationService),
     }
-
-    @get("/api/v1/users/notifications")
-    async def list_notifications(
-        self,
-        notifications_service: NotificationService,
-        current_user: models.User,
-        read: bool | None = None,
-    ) -> Sequence[schemas.Notification]:
-        if read is not None:
-            notifications: Sequence[models.Notification] = await notifications_service.list(
-                order_by=(models.Notification.created_at, True),
-                user=current_user,
-                read=read,
-            )
-        else:
-            notifications: Sequence[models.Notification] = await notifications_service.list(
-                order_by=(models.Notification.created_at, True),
-                user=current_user,
-            )
-        # We could do:
-        # return notifications_service.to_schema(notifications, schema_type=schemas.Notification)
-        # But it adds pagination.
-        # For the moment, just return a list of dict
-        type_adapter = TypeAdapter(list[schemas.Notification])
-        return type_adapter.validate_python(notifications)
 
     @patch("/api/v1/users/notification/{notification_id:uuid}/read")
     async def read_notification(

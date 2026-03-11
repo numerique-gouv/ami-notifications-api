@@ -12,6 +12,7 @@ from django.conf import settings
 from webpush.vapid import VAPID
 
 from ami.asgi import application
+from ami.notification.models import Notification
 from ami.user.models import Registration, User
 from ami.user.utils import build_fc_hash
 
@@ -142,3 +143,15 @@ def use_in_memory_channel_layer(settings) -> None:
             "BACKEND": "channels.layers.InMemoryChannelLayer",
         }
     }
+
+
+@pytest.fixture
+def notification(user: User) -> Notification:
+    notification_ = Notification(
+        user_id=user.id,
+        content_body="Hello notification",
+        content_title="Notification title",
+        sender="John Doe",
+    )
+    notification_.save()
+    return notification_
