@@ -24,7 +24,7 @@ from app import env
 from app.auth import jwt_cookie_auth
 from app.models import Notification, Registration, User
 from app.partners import partners
-from tests.ami.utils import assert_query_fails_without_auth, get_from_stream, login
+from tests.ami.utils import get_from_stream, login
 
 pytestmark = pytest.mark.skip("skip tests for Django migration")
 
@@ -615,106 +615,6 @@ async def test_create_notification_without_auth(
     b64 = base64.b64encode("psl:foo".encode("utf8")).decode("utf8")
     response = test_client.post("/api/v1/notifications", headers={"authorization": f"Basic {b64}"})
     assert response.status_code == 401
-
-
-async def test_read_notification(
-    test_client: TestClient[Litestar],
-    notification_events_subscriber: Subscriber,
-    app: Litestar,
-    db_session: AsyncSession,
-    notification: Notification,
-) -> None:
-    login(notification.user, test_client)
-
-    # notification for another user, can not be patched by test user
-    other_user = User(fc_hash="fc-hash")
-    db_session.add(other_user)
-    await db_session.commit()
-    other_notification = Notification(
-        user_id=str(other_user.id),
-        content_body="Other notification",
-        content_title="Notification title",
-        sender="John Doe",
-    )
-    db_session.add(other_notification)
-    await db_session.commit()
-
-    # invalid, no payload
-    response = test_client.patch(f"/api/v1/users/notification/{uuid.uuid4()}/read")
-    assert response.status_code == HTTP_400_BAD_REQUEST
-
-    # unknown notification
-    response = test_client.patch(
-        f"/api/v1/users/notification/{uuid.uuid4()}/read", json={"read": True}
-    )
-    assert response.status_code == HTTP_404_NOT_FOUND
-
-    # can not patch notification of another user
-    response = test_client.patch(
-        f"/api/v1/users/notification/{other_notification.id}/read",
-        json={"read": True},
-    )
-    assert response.status_code == HTTP_404_NOT_FOUND
-
-    # invalid, read is required
-    response = test_client.patch(
-        f"/api/v1/users/notification/{notification.id}/read",
-        json={"read": None},
-    )
-    assert response.status_code == HTTP_400_BAD_REQUEST
-    assert response.json()["extra"] == [
-        {"message": "Input should be a valid boolean", "key": "read"}
-    ]
-
-    response = test_client.patch(
-        f"/api/v1/users/notification/{notification.id}/read",
-        json={"read": True},
-    )
-    assert response.status_code == HTTP_200_OK
-    assert response.json() == {
-        "id": str(notification.id),
-        "user_id": str(notification.user.id),
-        "content_title": "Notification title",
-        "content_body": "Hello notification",
-        "content_icon": None,
-        "sender": "John Doe",
-        "item_type": None,
-        "item_id": None,
-        "item_status_label": None,
-        "item_generic_status": None,
-        "item_canal": None,
-        "item_milestone_start_date": None,
-        "item_milestone_end_date": None,
-        "item_external_url": None,
-        "created_at": notification.created_at.isoformat().replace("+00:00", "Z"),
-        "read": True,
-    }
-    res = await get_from_stream(notification_events_subscriber, 1)
-    assert json.loads(res[0].decode()) == {
-        "user_id": str(notification.user.id),
-        "id": str(notification.id),
-        "event": "updated",
-    }
-
-    response = test_client.patch(
-        f"/api/v1/users/notification/{notification.id}/read",
-        json={"read": False},
-    )
-    assert response.status_code == HTTP_200_OK
-    assert response.json()["read"] is False
-
-
-async def test_read_notification_without_auth(
-    test_client: TestClient[Litestar],
-    db_session: AsyncSession,
-    notification: Notification,
-) -> None:
-    await assert_query_fails_without_auth(
-        f"/api/v1/users/notification/{notification.id}/read",
-        test_client,
-        db_session,
-        method="patch",
-    )
 
 
 async def test_stream_notification_events(
