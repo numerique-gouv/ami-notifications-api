@@ -2,13 +2,11 @@ import base64
 import copy
 import datetime
 import json
-import uuid
 from unittest.mock import Mock
 
 import pytest
 from litestar import Litestar
-from litestar.channels import ChannelsPlugin, Subscriber
-from litestar.exceptions import WebSocketDisconnect
+from litestar.channels import Subscriber
 from litestar.status_codes import (
     HTTP_200_OK,
     HTTP_201_CREATED,
@@ -21,10 +19,9 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import env
-from app.auth import jwt_cookie_auth
 from app.models import Notification, Registration, User
 from app.partners import partners
-from tests.ami.utils import get_from_stream, login
+from tests.ami.utils import get_from_stream
 
 pytestmark = pytest.mark.skip("skip tests for Django migration")
 
@@ -615,54 +612,6 @@ async def test_create_notification_without_auth(
     b64 = base64.b64encode("psl:foo".encode("utf8")).decode("utf8")
     response = test_client.post("/api/v1/notifications", headers={"authorization": f"Basic {b64}"})
     assert response.status_code == 401
-
-
-async def test_stream_notification_events(
-    test_client: TestClient[Litestar],
-    channels: ChannelsPlugin,
-    app: Litestar,
-    db_session: AsyncSession,
-    user: User,
-) -> None:
-    login(user, test_client)
-
-    with test_client.websocket_connect("/api/v1/users/notification/events/stream") as ws:
-        try:
-            data = {
-                "id": str(uuid.uuid4()),
-                "user_id": str(uuid.uuid4()),
-                "event": "foo-event",
-            }
-            channels.publish(  # type: ignore
-                data,
-                "notification_events",
-            )
-            data["user_id"] = str(user.id)
-            channels.publish(  # type: ignore
-                data,
-                "notification_events",
-            )
-
-            # only second notification event is streamed: other user notification had no effect for this socket
-            message = ws.receive_json()
-            assert message == data
-        finally:
-            ws.send_text("close")
-
-
-async def test_stream_notification_events_without_auth(
-    test_client: TestClient[Litestar],
-) -> None:
-    with pytest.raises(WebSocketDisconnect):
-        with test_client.websocket_connect("/api/v1/users/notification/events/stream"):
-            # socket is immediately closed
-            pass
-
-    test_client.cookies.update({jwt_cookie_auth.key: "Bearer: bad-value"})
-    with pytest.raises(WebSocketDisconnect):
-        with test_client.websocket_connect("/api/v1/users/notification/events/stream"):
-            # socket is immediately closed
-            pass
 
 
 async def test_notification_key(

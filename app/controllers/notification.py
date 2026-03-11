@@ -1,14 +1,12 @@
-import json
-from typing import Annotated, Any
+from typing import Annotated
 
 from advanced_alchemy.extensions.litestar import providers
-from litestar import Controller, Response, WebSocket, get, post, websocket
+from litestar import Controller, Response, get, post
 from litestar.background_tasks import BackgroundTask
 from litestar.channels import ChannelsPlugin
 from litestar.di import Provide
 from litestar.exceptions import (
     NotFoundException,
-    WebSocketDisconnect,
 )
 from litestar.params import Body
 from webpush import WebPush
@@ -17,52 +15,7 @@ from app import env, models, schemas, sentry
 from app.httpx import AsyncClient
 from app.partners import Partner, provide_partner
 from app.services.notification import NotificationService
-from app.services.user import UserService, provide_user
-
-
-class NotificationController(Controller):
-    dependencies = {
-        "current_user": Provide(provide_user),
-        "notifications_service": providers.create_service_provider(NotificationService),
-    }
-
-    @websocket("/api/v1/users/notification/events/stream")
-    async def stream_notification_events(
-        self,
-        socket: WebSocket[Any, Any, Any],
-        channels: ChannelsPlugin,
-        current_user: models.User,
-    ) -> None:
-        # Extract user_id immediately and don't hold reference to User object
-        # to avoid keeping database session open for the lifetime of the WebSocket
-        sentry.add_counter("notification_websocket.connected")
-        user_id = str(current_user.id)
-
-        async def _sender(message: str) -> None:
-            data = json.loads(message)
-            if data["user_id"] != user_id:
-                return
-            await socket.send_json(data)
-
-        await socket.accept()
-
-        # then listen for notification events
-        async with (
-            channels.start_subscription(["notification_events"]) as subscriber,
-            subscriber.run_in_background(_sender),  # type:ignore
-        ):
-            while True:
-                try:
-                    message = await socket.receive_text()
-                    if message == "close":
-                        # XXX this is for tests
-                        await socket.close()
-                        sentry.add_counter("notification_websocket.disconnected")
-                        return
-                except WebSocketDisconnect:
-                    # if the socket is closed, avoid exception trace
-                    sentry.add_counter("notification_websocket.disconnected")
-                    return
+from app.services.user import UserService
 
 
 class NotAuthenticatedNotificationController(Controller):
