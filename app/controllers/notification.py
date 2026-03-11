@@ -1,9 +1,8 @@
 import json
-import uuid
 from typing import Annotated, Any
 
 from advanced_alchemy.extensions.litestar import providers
-from litestar import Controller, Response, WebSocket, get, patch, post, websocket
+from litestar import Controller, Response, WebSocket, get, post, websocket
 from litestar.background_tasks import BackgroundTask
 from litestar.channels import ChannelsPlugin
 from litestar.di import Provide
@@ -26,38 +25,6 @@ class NotificationController(Controller):
         "current_user": Provide(provide_user),
         "notifications_service": providers.create_service_provider(NotificationService),
     }
-
-    @patch("/api/v1/users/notification/{notification_id:uuid}/read")
-    async def read_notification(
-        self,
-        channels: ChannelsPlugin,
-        notifications_service: NotificationService,
-        current_user: models.User,
-        notification_id: uuid.UUID,
-        data: Annotated[
-            schemas.NotificationRead,
-            Body(
-                description="Mark a user notification as read or unread",
-            ),
-        ],
-    ) -> schemas.Notification:
-        notification: models.Notification | None = await notifications_service.get_one_or_none(
-            id=notification_id,
-            user=current_user,
-        )
-        if notification is None:
-            raise NotFoundException(detail="Notification not found")
-        notification.read = data.read
-        notification = await notifications_service.update(notification)
-        channels.publish(  # type: ignore
-            {
-                "user_id": str(current_user.id),
-                "id": str(notification.id),
-                "event": schemas.NotificationEvent.UPDATED,
-            },
-            "notification_events",
-        )
-        return notifications_service.to_schema(notification, schema_type=schemas.Notification)
 
     @websocket("/api/v1/users/notification/events/stream")
     async def stream_notification_events(
