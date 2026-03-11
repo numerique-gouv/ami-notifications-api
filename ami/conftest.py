@@ -105,6 +105,18 @@ def patch_webpush(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 @pytest.fixture
+def webpush_notification(webpush_registration: Registration) -> Notification:
+    notification_ = Notification(
+        user_id=webpush_registration.user.id,
+        content_body="Hello notification",
+        content_title="Notification title",
+        sender="John Doe",
+    )
+    notification_.save()
+    return notification_
+
+
+@pytest.fixture
 def webpush_registration(user: User, webpushsubscription: dict[str, Any]) -> Registration:
     registration_ = Registration(user=user, subscription=webpushsubscription)
     registration_.save()

@@ -21,11 +21,7 @@ from sentry_sdk.integrations.litestar import LitestarIntegration
 from app import env, errors
 from app.auth import jwt_cookie_auth, openapi_config, partner_auth
 from app.controllers.auth import AuthController
-from app.controllers.notification import (
-    NotAuthenticatedNotificationController,
-    NotificationController,
-    PartnerNotificationController,
-)
+from app.controllers.notification import PartnerNotificationController
 from app.controllers.partner import NotAuthenticatedPartnerController, PartnerController
 from app.controllers.registration import RegistrationController
 from app.controllers.scheduled_notification import ScheduledNotificationController
@@ -66,7 +62,6 @@ authenticated_router: Router = Router(
     route_handlers=[
         AuthController,
         RegistrationController,
-        NotificationController,
         PartnerController,
         ScheduledNotificationController,
         data_router,
@@ -86,7 +81,6 @@ def create_app() -> Litestar:
         route_handlers=[
             authenticated_router,
             partner_router,
-            NotAuthenticatedNotificationController,
             NotAuthenticatedPartnerController,
             create_static_files_router(
                 path="/",

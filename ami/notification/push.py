@@ -29,10 +29,10 @@ async def push(notification: Notification, try_push: bool) -> None:
     channel_layer = get_channel_layer()
     assert channel_layer is not None
     await channel_layer.group_send(
-        f"user_{notification.user.id}",
+        f"user_{notification.user_id}",
         {
             "type": "notification.event",  # maps to notification_event() on the consumer
-            "user_id": str(notification.user.id),
+            "user_id": str(notification.user_id),
             "id": str(notification.id),
             "event": NotificationEvent.CREATED,
         },
@@ -47,7 +47,7 @@ async def push(notification: Notification, try_push: bool) -> None:
         content_icon=notification.content_icon,
         sender=notification.sender,
     )
-    registrations = [r async for r in Registration.objects.filter(user_id=notification.user.id)]
+    registrations = [r async for r in Registration.objects.filter(user_id=notification.user_id)]
     for registration in registrations:
         if isinstance(registration.typed_subscription, WebPushSubscription):
             subscription = registration.typed_subscription
