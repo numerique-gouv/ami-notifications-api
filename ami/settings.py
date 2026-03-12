@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     "ami.user",
     "ami.utils",
     "ami.api",
+    "ami.partner",
 ]
 
 MIDDLEWARE = [
@@ -120,6 +121,10 @@ WSGI_APPLICATION = "ami.wsgi.application"
 
 postgres_database = dj_database_url.parse(CONFIG["DATABASE_URL"])
 DATABASES = {"default": postgres_database}
+
+# Tasks
+# TODO: use a real task backend in production
+TASKS = {"default": {"BACKEND": "django.tasks.backends.immediate.ImmediateBackend"}}
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators

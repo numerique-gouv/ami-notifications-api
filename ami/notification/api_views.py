@@ -11,11 +11,16 @@ from rest_framework.decorators import api_view
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from ami.authentication.decorators import ami_login_required
+from ami.authentication.decorators import ami_login_required, partner_auth_required
+from ami.notification.tasks import push_notification
+from ami.user.models import User
+from ami.utils import sentry
 
 from .models import Notification, NotificationEvent
 from .serializers import (
     NotificationReadSerializer,
+    NotificationResponseSerializer,
+    PartnerNotificationCreateSerializer,
 )
 
 
@@ -99,3 +104,56 @@ class NotificationSerializer(serializers.ModelSerializer):
             "user_id",
         ]
         model = Notification
+
+
+@api_view(["POST"])
+@partner_auth_required
+def partner_create_notification(request: Request) -> Response[NotificationResponseSerializer]:
+    current_partner = request.partner
+    ignore_unknown_user = settings.CONFIG.get(
+        "IGNORE_NOTIFICATION_REQUESTS_FOR_UNREGISTERED_USER", False
+    )
+
+    serializer = PartnerNotificationCreateSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    data: dict = cast(dict, serializer.validated_data)
+
+    try:
+        user = User.objects.get(fc_hash=data["recipient_fc_hash"])
+    except User.DoesNotExist:
+        user = None
+
+    if user is None:
+        if ignore_unknown_user:
+            return Response(status=404)
+        user = User.objects.create(fc_hash=data["recipient_fc_hash"])
+        notification_send_status = False
+    else:
+        if ignore_unknown_user and user.last_logged_in is None:
+            return Response(status=404)
+        notification_send_status = user.last_logged_in is not None
+
+    try_push = True
+    if not data["try_push"] or user.last_logged_in is None:
+        # don't push notification if not required or if user has never logged in on AMI
+        try_push = False
+
+    notification: Notification = Notification(
+        user_id=user.id, **{k: v for k, v in data.items() if k != "recipient_fc_hash"}
+    )
+    if notification.content_icon is None:
+        notification.content_icon = current_partner.icon or "fr-icon-mail-star-line"
+    notification.sender = current_partner.name
+    notification.partner_id = current_partner.id
+    notification.send_status = notification_send_status
+    notification.save()
+
+    push_notification.enqueue(str(notification.id), try_push)
+
+    sentry.add_counter("notification_partner.created")
+
+    response_data = {
+        "notification_id": notification.id,
+        "notification_send_status": notification_send_status,
+    }
+    return Response(NotificationResponseSerializer(response_data).data, status=201)

@@ -24,7 +24,7 @@ async def test_publish_scheduled_notifications(
     assert await Notification.objects.acount() == 0
 
     # create some scheduled notifications
-    scheduled_notification1 = ScheduledNotification(
+    scheduled_notification1 = await ScheduledNotification.objects.acreate(
         user_id=user.id,
         content_title="title 1",
         content_body="body 1",
@@ -34,8 +34,7 @@ async def test_publish_scheduled_notifications(
         sender="AMI",
         sent_at=datetime.datetime.now(datetime.timezone.utc),  # already sent
     )
-    await scheduled_notification1.asave()
-    scheduled_notification2 = ScheduledNotification(
+    scheduled_notification2 = await ScheduledNotification.objects.acreate(
         user_id=user.id,
         content_title="title 2",
         content_body="body 2",
@@ -45,8 +44,7 @@ async def test_publish_scheduled_notifications(
         + datetime.timedelta(minutes=2),  # too soon
         sender="AMI",
     )
-    await scheduled_notification2.asave()
-    scheduled_notification3 = ScheduledNotification(
+    scheduled_notification3 = await ScheduledNotification.objects.acreate(
         user_id=user.id,
         content_title="title 3",
         content_body="body 3",
@@ -55,7 +53,6 @@ async def test_publish_scheduled_notifications(
         scheduled_at=datetime.datetime.now(datetime.timezone.utc),
         sender="AMI",
     )
-    await scheduled_notification3.asave()
 
     await sync_to_async(ScheduledNotification.to_publish.publish)()
 
@@ -106,7 +103,7 @@ def test_publish_scheduled_notification_when_registration_gone(
     # Make sure we don't even try sending a notification to a push server.
     httpx_mock.add_response(url=webpush_registration.subscription["endpoint"], status_code=410)
 
-    scheduled_notification = ScheduledNotification(
+    ScheduledNotification.objects.create(
         user_id=user.id,
         content_title="title",
         content_body="body",
@@ -115,7 +112,6 @@ def test_publish_scheduled_notification_when_registration_gone(
         scheduled_at=datetime.datetime.now(datetime.timezone.utc),
         sender="AMI",
     )
-    scheduled_notification.save()
 
     ScheduledNotification.to_publish.publish()
 
@@ -129,7 +125,7 @@ def test_publish_scheduled_notification_no_registration(
     user: User,
     httpx_mock: HTTPXMock,
 ) -> None:
-    scheduled_notification = ScheduledNotification(
+    ScheduledNotification.objects.create(
         user_id=user.id,
         content_title="title",
         content_body="body",
@@ -138,7 +134,6 @@ def test_publish_scheduled_notification_no_registration(
         scheduled_at=datetime.datetime.now(datetime.timezone.utc),
         sender="AMI",
     )
-    scheduled_notification.save()
 
     ScheduledNotification.to_publish.publish()
 
@@ -152,7 +147,7 @@ def test_publish_scheduled_notification_never_seen_user(
     never_seen_user: User,
     httpx_mock: HTTPXMock,
 ) -> None:
-    scheduled_notification = ScheduledNotification(
+    ScheduledNotification.objects.create(
         user_id=never_seen_user.id,
         content_title="title",
         content_body="body",
@@ -161,7 +156,6 @@ def test_publish_scheduled_notification_never_seen_user(
         scheduled_at=datetime.datetime.now(datetime.timezone.utc),
         sender="AMI",
     )
-    scheduled_notification.save()
 
     ScheduledNotification.to_publish.publish()
 
@@ -177,7 +171,7 @@ def test_publish_scheduled_notification_never_seen_user(
 def test_delete_published_scheduled_notifications(
     user: User,
 ) -> None:
-    scheduled_notification1 = ScheduledNotification(
+    scheduled_notification1 = ScheduledNotification.objects.create(
         user_id=user.id,
         content_title="title",
         content_body="body",
@@ -188,8 +182,7 @@ def test_delete_published_scheduled_notifications(
         sent_at=datetime.datetime.now(datetime.timezone.utc)
         - datetime.timedelta(days=6 * 30, minutes=-2),  # too soon
     )
-    scheduled_notification1.save()
-    scheduled_notification2 = ScheduledNotification(
+    scheduled_notification2 = ScheduledNotification.objects.create(
         user_id=user.id,
         content_title="title",
         content_body="body",
@@ -199,9 +192,8 @@ def test_delete_published_scheduled_notifications(
         sender="AMI",
         sent_at=None,  # not sent
     )
-    scheduled_notification2.save()
 
-    scheduled_notification3 = ScheduledNotification(
+    ScheduledNotification.objects.create(
         user_id=user.id,
         content_title="title",
         content_body="body",
@@ -211,7 +203,6 @@ def test_delete_published_scheduled_notifications(
         sender="AMI",
         sent_at=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=6 * 30),
     )
-    scheduled_notification3.save()
 
     ScheduledNotification.to_delete.delete()
 
