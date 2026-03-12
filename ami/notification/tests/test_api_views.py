@@ -127,7 +127,7 @@ def test_read_notification(
         f"/api/v1/users/notification/{notification.id}/read", {"read": None}, status=400
     )
     assert response.status_code == HTTP_400_BAD_REQUEST
-    assert response.json["extra"] == [{"message": "Input should be a valid boolean", "key": "read"}]
+    assert response.json == {"read": ["Must be a valid boolean."]}
 
     response = django_app.patch(
         f"/api/v1/users/notification/{notification.id}/read",
