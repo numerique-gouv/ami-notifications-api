@@ -2,24 +2,20 @@ import asyncio
 import uuid
 from typing import cast
 
-from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from django.conf import settings
 from django.db.models import QuerySet
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.decorators import api_view
 from rest_framework.request import Request
 from rest_framework.response import Response
 
 from ami.authentication.decorators import ami_login_required
-from ami.notification.push import push
-from ami.user.models import User
 
 from .models import Notification, NotificationEvent
 from .serializers import (
-    AdminNotificationCreateSerializer,
     NotificationReadSerializer,
-    NotificationResponseSerializer,
 )
 
 
@@ -49,23 +45,12 @@ def read_notification(
     request: Request,
     notification_id: uuid.UUID,
 ) -> Response:
-    data: dict = request.data if isinstance(request.data, dict) else {}
-    if "read" not in data:
-        return Response(status=400)
-    read = data["read"]
-    truthy = ["t", "true", "True", 1]
-    falsy = ["f", "false", "False", 0]
-    if read not in truthy and read not in falsy:
-        return Response(
-            {"extra": [{"message": "Input should be a valid boolean", "key": "read"}]},
-            status=400,
-        )
-    read = read in truthy
-    try:
-        notification = Notification.objects.get(id=notification_id, user=request.ami_user)
-    except Notification.DoesNotExist:
-        return Response(status=404)
-    notification.read = read
+    serializer = NotificationReadSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    data: dict = cast(dict, serializer.validated_data)
+
+    notification = get_object_or_404(Notification, id=notification_id, user=request.ami_user)
+    notification.read = data["read"]
     notification.save()
 
     channel_layer = get_channel_layer()
@@ -114,25 +99,3 @@ class NotificationSerializer(serializers.ModelSerializer):
             "user_id",
         ]
         model = Notification
-
-
-@api_view(["POST"])
-def admin_create_notification(request: Request) -> Response[NotificationResponseSerializer]:
-    serializer = AdminNotificationCreateSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    data: dict = cast(dict, serializer.validated_data)
-
-    try:
-        User.objects.get(id=data["user_id"])
-    except User.DoesNotExist:
-        return Response(status=404)
-
-    notification: Notification = Notification.objects.create(**data)
-    # TODO: this was done in a background task on litestar, migrate this to using celery?
-    async_to_sync(push)(notification, True)
-
-    response_data = {
-        "notification_id": notification.id,
-        "notification_send_status": True,
-    }
-    return Response(NotificationResponseSerializer(response_data).data, status=201)
