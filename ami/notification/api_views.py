@@ -2,7 +2,6 @@ import asyncio
 import uuid
 from typing import cast
 
-from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from django.conf import settings
 from django.db.models import QuerySet
@@ -14,7 +13,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from ami.authentication.decorators import ami_login_required, partner_auth_required
-from ami.notification.push import push
+from ami.notification.tasks import push_notification
 from ami.user.models import User
 from ami.utils import sentry
 
@@ -150,8 +149,7 @@ def partner_create_notification(request: Request) -> Response[NotificationRespon
     notification.send_status = notification_send_status
     notification.save()
 
-    # TODO: this was done in a background task on litestar, migrate this to using celery?
-    async_to_sync(push)(notification, try_push)
+    push_notification.enqueue(str(notification.id), try_push)
 
     sentry.add_counter("notification_partner.created")
 
