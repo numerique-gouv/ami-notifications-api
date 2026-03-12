@@ -58,7 +58,7 @@ async def test_generate_partner_url_when_url_has_template(
     monkeypatch.setattr(
         "app.env.PARTNERS_PSL_OTV_REQUEST_URL", "fake-public-otv-url?caller={token-jwt}"
     )
-    monkeypatch.setattr("app.env.PARTNERS_PSL_OTV_JWT_PRIVATE_KEY", "")
+    monkeypatch.setattr("app.env.PARTNERS_PSL_OTV_JWT_CERT_PFX_B64", "")
     monkeypatch.setattr("app.env.PARTNERS_PSL_OTV_JWE_PUBLIC_KEY", "")
 
     # When
@@ -69,7 +69,7 @@ async def test_generate_partner_url_when_url_has_template(
     assert response.json() == {"partner_url": "fake-public-otv-url?"}
 
     # Given
-    monkeypatch.setattr("app.env.PARTNERS_PSL_OTV_JWT_PRIVATE_KEY", "foo")
+    monkeypatch.setattr("app.env.PARTNERS_PSL_OTV_JWT_CERT_PFX_B64", "foo")
     monkeypatch.setattr("app.env.PARTNERS_PSL_OTV_JWE_PUBLIC_KEY", "")
 
     # When
@@ -80,7 +80,7 @@ async def test_generate_partner_url_when_url_has_template(
     assert response.json() == {"partner_url": "fake-public-otv-url?"}
 
     # Given
-    monkeypatch.setattr("app.env.PARTNERS_PSL_OTV_JWT_PRIVATE_KEY", "")
+    monkeypatch.setattr("app.env.PARTNERS_PSL_OTV_JWT_CERT_PFX_B64", "")
     monkeypatch.setattr("app.env.PARTNERS_PSL_OTV_JWE_PUBLIC_KEY", "foo")
 
     # When
@@ -91,7 +91,7 @@ async def test_generate_partner_url_when_url_has_template(
     assert response.json() == {"partner_url": "fake-public-otv-url?"}
 
     # Given
-    monkeypatch.setattr("app.env.PARTNERS_PSL_OTV_JWT_PRIVATE_KEY", "foo")
+    monkeypatch.setattr("app.env.PARTNERS_PSL_OTV_JWT_CERT_PFX_B64", "foo")
     monkeypatch.setattr("app.env.PARTNERS_PSL_OTV_JWE_PUBLIC_KEY", "bar")
 
     # When
@@ -114,7 +114,9 @@ async def test_get_partner_public_key(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     # Given
-    monkeypatch.setattr("app.env.PARTNERS_PSL_OTV_JWT_PUBLIC_KEY", "fake-public-otv-public-key")
+    monkeypatch.setattr(
+        "app.env.PARTNERS_PSL_OTV_JWT_CERT_PUBLIC_KEY", "fake-public-otv-public-key"
+    )
 
     # When
     response = test_client.get("/api/v1/partner/otv/public_key")
