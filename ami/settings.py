@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     "ami.user",
     "ami.utils",
     "ami.api",
+    "ami.partner",
 ]
 
 MIDDLEWARE = [
