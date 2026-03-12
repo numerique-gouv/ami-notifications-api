@@ -1,6 +1,10 @@
 from rest_framework import serializers
 
 
+class NotificationReadSerializer(serializers.Serializer):
+    read = serializers.BooleanField()
+
+
 class NotificationResponseSerializer(serializers.Serializer):
     notification_id = serializers.UUIDField()
     notification_send_status = serializers.BooleanField()

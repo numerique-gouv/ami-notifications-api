@@ -85,9 +85,9 @@ def user() -> User:
         birthplace="",
         birthcountry="",
     )
-    user_ = User(fc_hash=fc_hash, last_logged_in=datetime.datetime.now(datetime.timezone.utc))
-    user_.save()
-    return user_
+    return User.objects.create(
+        fc_hash=fc_hash, last_logged_in=datetime.datetime.now(datetime.timezone.utc)
+    )
 
 
 @pytest.fixture
@@ -106,21 +106,17 @@ def patch_webpush(monkeypatch: pytest.MonkeyPatch) -> None:
 
 @pytest.fixture
 def webpush_notification(webpush_registration: Registration) -> Notification:
-    notification_ = Notification(
+    return Notification.objects.create(
         user_id=webpush_registration.user.id,
         content_body="Hello notification",
         content_title="Notification title",
         sender="John Doe",
     )
-    notification_.save()
-    return notification_
 
 
 @pytest.fixture
 def webpush_registration(user: User, webpushsubscription: dict[str, Any]) -> Registration:
-    registration_ = Registration(user=user, subscription=webpushsubscription)
-    registration_.save()
-    return registration_
+    return Registration.objects.create(user=user, subscription=webpushsubscription)
 
 
 @pytest.fixture
@@ -159,11 +155,9 @@ def use_in_memory_channel_layer(settings) -> None:
 
 @pytest.fixture
 def notification(user: User) -> Notification:
-    notification_ = Notification(
+    return Notification.objects.create(
         user_id=user.id,
         content_body="Hello notification",
         content_title="Notification title",
         sender="John Doe",
     )
-    notification_.save()
-    return notification_
