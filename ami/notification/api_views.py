@@ -16,15 +16,22 @@ from ami.notification.push import push
 from ami.user.models import User
 
 from .models import Notification, NotificationEvent
-from .serializers import AdminNotificationCreateSerializer, NotificationResponseSerializer
+from .serializers import (
+    AdminNotificationCreateSerializer,
+    NotificationReadSerializer,
+    NotificationResponseSerializer,
+)
 
 
 @api_view(["GET"])
 @ami_login_required
 def list_notifications(request: Request) -> Response[QuerySet[Notification]]:
-    read = request.query_params.get("read")
-    if read is not None:
-        read = read in ["t", "true", "True", "1"]
+    serializer = NotificationReadSerializer(data=request.query_params)
+    serializer.is_valid(raise_exception=True)
+    data: dict = cast(dict, serializer.validated_data)
+
+    read = data["read"]
+    if "read" in request.query_params:
         notifications: QuerySet[Notification] = Notification.objects.filter(
             user=request.ami_user, read=read
         ).order_by("-created_at")
@@ -88,14 +95,23 @@ class NotificationSerializer(serializers.ModelSerializer):
     user_id = serializers.UUIDField(source="user.id")
 
     class Meta:
-        exclude = [
-            "user",
-            "try_push",
-            "updated_at",
-            "partner_id",
-            "sa_orm_sentinel",
-            "send_date",
-            "send_status",
+        fields = [
+            "content_body",
+            "content_icon",
+            "content_title",
+            "created_at",
+            "id",
+            "item_canal",
+            "item_external_url",
+            "item_generic_status",
+            "item_id",
+            "item_milestone_end_date",
+            "item_milestone_start_date",
+            "item_status_label",
+            "item_type",
+            "read",
+            "sender",
+            "user_id",
         ]
         model = Notification
 

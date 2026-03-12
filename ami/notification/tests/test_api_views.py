@@ -14,7 +14,7 @@ from ami.user.models import User
 def test_get_notifications_should_return_empty_list_by_default(
     django_app,
     user: User,
-) -> None:  # The `user` fixture is needed so we don't get a 404 when asking for notifications.
+) -> None:
     login(django_app, user)
 
     response = django_app.get("/api/v1/users/notifications")
@@ -30,15 +30,13 @@ def test_get_notifications(
     login(django_app, notification.user)
 
     # notification for another user, not returned in notification list of current user
-    other_user = User(fc_hash="fc-hash")
-    other_user.save()
-    other_notification = Notification(
+    other_user = User.objects.create(fc_hash="fc-hash")
+    Notification.objects.create(  # Some other notification
         user_id=other_user.id,
         content_body="Other notification",
         content_title="Notification title",
         sender="John Doe",
     )
-    other_notification.save()
 
     # test user notification list
     response = django_app.get("/api/v1/users/notifications")
@@ -100,15 +98,13 @@ def test_read_notification(
     login(django_app, notification.user)
 
     # notification for another user, can not be patched by test user
-    other_user = User(fc_hash="fc-hash")
-    other_user.save()
-    other_notification = Notification(
+    other_user = User.objects.create(fc_hash="fc-hash")
+    other_notification = Notification.objects.create(
         user_id=str(other_user.id),
         content_body="Other notification",
         content_title="Notification title",
         sender="John Doe",
     )
-    other_notification.save()
 
     # invalid, no payload
     response = django_app.patch(f"/api/v1/users/notification/{uuid.uuid4()}/read", status=400)
