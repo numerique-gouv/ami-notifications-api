@@ -1095,11 +1095,11 @@ wheels = [
 
 [[package]]
 name = "multipart"
-version = "1.2.1"
+version = "1.2.2"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/df/91/6c93b6a95e6a99ef929a99d019fbf5b5f7fd3368389a0b1ec7ce0a23565b/multipart-1.2.1.tar.gz", hash = "sha256:829b909b67bc1ad1c6d4488fcdc6391c2847842b08323addf5200db88dbe9480", size = 36507, upload-time = "2024-11-29T08:45:48.818Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/b5/ae/d598fbc0cae4ac1b9da68a99a2cc871a3399f7209282a9573acb7816e50c/multipart-1.2.2.tar.gz", hash = "sha256:4b5596e533f4b859c6efb208897b9a4198776a2ef6951b28cea64eca1a9345af", size = 36550, upload-time = "2026-03-12T15:18:35.525Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/cc/d1/3598d1e73385baaab427392856f915487db7aa10abadd436f8f2d3e3b0f9/multipart-1.2.1-py3-none-any.whl", hash = "sha256:c03dc203bc2e67f6b46a599467ae0d87cf71d7530504b2c1ff4a9ea21d8b8c8c", size = 13730, upload-time = "2024-11-29T08:45:44.557Z" },
+    { url = "https://files.pythonhosted.org/packages/b2/46/93928cdc08ee95c2c93000ea9810cb779e47ab5f8d15d884ab9c1d121827/multipart-1.2.2-py3-none-any.whl", hash = "sha256:8379020c484e94e511b4d948432441362dbcf3d71cdb48f59856f2417a3eae09", size = 13766, upload-time = "2026-03-12T15:18:34.094Z" },
 ]
 
 [[package]]
