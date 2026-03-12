@@ -34,4 +34,3 @@ Several authentication artefacts are used in the workflow.
 
 # General overview
 ![](2025-11-28%20notification%20with%20firebase.excalidraw.svg)
-
