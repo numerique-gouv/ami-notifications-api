@@ -181,7 +181,7 @@ async def websocket(user: User) -> AsyncGenerator[WebsocketCommunicator, Any]:
     communicator = WebsocketCommunicator(
         application, "api/v1/users/notification/events/stream", headers=headers
     )
-    connected, subprotocol = await communicator.connect()
+    await communicator.connect()
     yield communicator
     await communicator.disconnect()
 
@@ -204,3 +204,38 @@ def notification(user: User) -> Notification:
         content_title="Notification title",
         sender="John Doe",
     )
+
+
+@pytest.fixture
+def partner_auth() -> dict[str, str]:
+    b64 = base64.b64encode(f"psl:{settings.CONFIG['PARTNERS_PSL_SECRET']}".encode("utf8")).decode(
+        "utf8"
+    )
+    return {"authorization": f"Basic {b64}"}
+
+
+@pytest.fixture
+def mobile_notification(mobile_registration: Registration) -> Notification:
+    return Notification.objects.create(
+        user_id=mobile_registration.user.id,
+        content_body="Hello notification",
+        content_title="Notification title",
+        sender="John Doe",
+    )
+
+
+@pytest.fixture
+def mobile_registration(user: User, mobileAppSubscription: dict[str, Any]) -> Registration:
+    return Registration.objects.create(user_id=user.id, subscription=mobileAppSubscription)
+
+
+@pytest.fixture
+def mobileAppSubscription() -> dict[str, Any]:
+    subscription = {
+        "app_version": "0.0-local",
+        "device_id": "some-id",
+        "fcm_token": "some-token",
+        "model": "Google sdk_gphone64_arm64",
+        "platform": "android",
+    }
+    return subscription
