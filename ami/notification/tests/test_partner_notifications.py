@@ -1,10 +1,10 @@
-import asyncio
 import base64
 import copy
 import datetime
 from unittest.mock import Mock
 
 import pytest
+from asgiref.sync import sync_to_async
 from channels.testing.websocket import WebsocketCommunicator
 from django.conf import settings
 from pytest_httpx import HTTPXMock
@@ -16,8 +16,8 @@ from ami.tests.utils import get_from_stream
 from ami.user.models import Registration, User
 
 
-@pytest.mark.django_db
-def test_create_webpush_notification(
+@pytest.mark.django_db(transaction=True)
+async def test_create_webpush_notification(
     django_app,
     webpush_notification: Notification,
     webpush_registration: Registration,
@@ -44,11 +44,15 @@ def test_create_webpush_notification(
         "try_push": True,
     }
 
-    response = django_app.post("/api/v1/notifications", notification_data, headers=partner_auth)
+    response = await sync_to_async(django_app.post)(
+        "/api/v1/notifications", notification_data, headers=partner_auth
+    )
     assert response.status_code == HTTP_201_CREATED
-    all_notifications = Notification.objects.all()
-    assert len(all_notifications) == 2
-    notification2 = all_notifications[1]
+    notification_count = await sync_to_async(Notification.objects.count)()
+    assert notification_count == 2
+    notification2 = await sync_to_async(Notification.objects.select_related("user").get)(
+        id=response.json["notification_id"]
+    )
     assert notification2.user.id == webpush_registration.user.id
     assert notification2.content_body == "Merci d'avoir initié votre demande"
     assert notification2.content_title == "Brouillon de nouvelle demande de démarche d'OTV"
@@ -77,7 +81,7 @@ def test_create_webpush_notification(
         "notification_id": str(notification2.id),
         "notification_send_status": True,
     }
-    res = asyncio.get_event_loop().run_until_complete(get_from_stream(websocket, 1))
+    res = await get_from_stream(websocket, 1)
     assert res[0] == {
         "user_id": str(webpush_registration.user.id),
         "id": str(notification2.id),
