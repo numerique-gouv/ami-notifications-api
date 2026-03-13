@@ -1,7 +1,11 @@
+import { page } from '$app/state';
+import { initializeData } from '$lib/initializeDataFromAPI';
 import { userStore } from '$lib/state/User.svelte';
 import type { LayoutLoad } from './$types';
 
 export const load: LayoutLoad = async () => {
   // Initialize user state from localStorage before anything else
-  await userStore.checkLoggedIn();
+  if (localStorage.getItem('is_logged_in')) {
+    await initializeData(page.url.searchParams, userStore);
+  }
 };
