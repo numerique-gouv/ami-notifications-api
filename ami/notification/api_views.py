@@ -1,4 +1,5 @@
 import asyncio
+import os
 import uuid
 from typing import cast
 
@@ -110,10 +111,10 @@ class NotificationSerializer(serializers.ModelSerializer):
 @api_view(["POST"])
 @partner_auth_required
 def partner_create_notification(request: Request) -> Response[NotificationResponseSerializer]:
-    current_partner = request.partner
-    ignore_unknown_user = settings.CONFIG.get(
-        "IGNORE_NOTIFICATION_REQUESTS_FOR_UNREGISTERED_USER", False
-    )
+    current_partner = request.ami_partner
+    ignore_unknown_user = os.getenv(
+        "IGNORE_NOTIFICATION_REQUESTS_FOR_UNREGISTERED_USER", "False"
+    ).lower() in ("true", "1", "t")
 
     serializer = PartnerNotificationCreateSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)

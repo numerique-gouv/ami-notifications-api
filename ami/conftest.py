@@ -10,7 +10,6 @@ from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.serialization import pkcs12
 from cryptography.x509.oid import NameOID
-from django.conf import settings
 from webpush.vapid import VAPID
 
 from ami.asgi import application
@@ -114,10 +113,10 @@ def never_seen_user(user: User) -> User:
 
 
 @pytest.fixture(autouse=True)
-def patch_webpush(monkeypatch: pytest.MonkeyPatch) -> None:
+def patch_webpush(settings) -> None:
     private_key, public_key, _ = VAPID.generate_keys()
-    monkeypatch.setitem(settings.CONFIG, "VAPID_PRIVATE_KEY", private_key.decode())
-    monkeypatch.setitem(settings.CONFIG, "VAPID_PUBLIC_KEY", public_key.decode())
+    settings.CONFIG["VAPID_PRIVATE_KEY"] = private_key.decode()
+    settings.CONFIG["VAPID_PUBLIC_KEY"] = public_key.decode()
 
 
 @pytest.fixture
@@ -148,34 +147,7 @@ async def webpushsubscription() -> dict[str, Any]:
 
 
 @pytest.fixture
-async def mobile_notification(mobile_registration: Registration) -> Notification:
-    return Notification.objects.create(
-        user_id=mobile_registration.user.id,
-        content_body="Hello notification",
-        content_title="Notification title",
-        sender="John Doe",
-    )
-
-
-@pytest.fixture
-async def mobile_registration(user: User, mobileAppSubscription: dict[str, Any]) -> Registration:
-    return Registration.objects.create(user_id=user.id, subscription=mobileAppSubscription)
-
-
-@pytest.fixture
-async def mobileAppSubscription() -> dict[str, Any]:
-    subscription = {
-        "app_version": "0.0-local",
-        "device_id": "some-id",
-        "fcm_token": "some-token",
-        "model": "Google sdk_gphone64_arm64",
-        "platform": "android",
-    }
-    return subscription
-
-
-@pytest.fixture
-async def websocket(user: User) -> AsyncGenerator[WebsocketCommunicator, Any]:
+async def websocket(user: User, settings) -> AsyncGenerator[WebsocketCommunicator, Any]:
     token = jwt.encode({"sub": str(user.id)}, settings.AUTH_COOKIE_JWT_SECRET, algorithm="HS256")
     headers = [(b"cookie", f"token={token}".encode())]
     communicator = WebsocketCommunicator(
@@ -207,7 +179,7 @@ def notification(user: User) -> Notification:
 
 
 @pytest.fixture
-def partner_auth() -> dict[str, str]:
+def partner_auth(settings) -> dict[str, str]:
     b64 = base64.b64encode(f"psl:{settings.CONFIG['PARTNERS_PSL_SECRET']}".encode("utf8")).decode(
         "utf8"
     )
