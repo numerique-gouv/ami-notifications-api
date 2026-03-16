@@ -6,9 +6,8 @@ from unittest.mock import Mock
 import pytest
 from asgiref.sync import sync_to_async
 from channels.testing.websocket import WebsocketCommunicator
-from django.conf import settings
 from pytest_httpx import HTTPXMock
-from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
+from rest_framework.status import HTTP_201_CREATED
 
 from ami.notification.models import Notification
 from ami.partner.models import partners
@@ -210,19 +209,16 @@ def test_create_notification_user_does_not_exist(
         "content_icon": "foo",
     }
 
-    monkeypatch.setitem(
-        settings.CONFIG, "IGNORE_NOTIFICATION_REQUESTS_FOR_UNREGISTERED_USER", "true"
-    )
+    monkeypatch.setenv("IGNORE_NOTIFICATION_REQUESTS_FOR_UNREGISTERED_USER", "true")
     response = django_app.post(
         "/api/v1/notifications", notification_data, headers=partner_auth, status=404
     )
-    assert response.status_code == HTTP_404_NOT_FOUND
     notification_count = Notification.objects.count()
     assert notification_count == 0
     user_count = User.objects.count()
     assert user_count == 0
 
-    monkeypatch.setitem(settings.CONFIG, "IGNORE_NOTIFICATION_REQUESTS_FOR_UNREGISTERED_USER", "")
+    monkeypatch.setenv("IGNORE_NOTIFICATION_REQUESTS_FOR_UNREGISTERED_USER", "")
     response = django_app.post("/api/v1/notifications", notification_data, headers=partner_auth)
     assert response.status_code == HTTP_201_CREATED
     all_users = User.objects.all()
@@ -267,7 +263,7 @@ def test_create_notification_user_never_seen(
     webpush_registration: Registration,
     partner_auth: dict[str, str],
     httpx_mock: HTTPXMock,
-    monkeypatch: pytest.MonkeyPatch,
+    monkeypatch,
 ) -> None:
     notification_data = {
         "recipient_fc_hash": never_seen_user.fc_hash,
@@ -281,22 +277,18 @@ def test_create_notification_user_never_seen(
         "content_icon": "foo",
     }
 
-    monkeypatch.setitem(
-        settings.CONFIG, "IGNORE_NOTIFICATION_REQUESTS_FOR_UNREGISTERED_USER", "true"
-    )
+    monkeypatch.setenv("IGNORE_NOTIFICATION_REQUESTS_FOR_UNREGISTERED_USER", "true")
     response = django_app.post(
         "/api/v1/notifications", notification_data, headers=partner_auth, status=404
     )
-    assert response.status_code == HTTP_404_NOT_FOUND
     notification_count = Notification.objects.count()
     assert notification_count == 0
-    all_users = User.objects.all()
-    assert len(all_users) == 1
-    user = all_users[0]
+    assert User.objects.count() == 1
+    user = User.objects.get()
     assert user.fc_hash == never_seen_user.fc_hash
     assert user.last_logged_in is None
 
-    monkeypatch.setitem(settings.CONFIG, "IGNORE_NOTIFICATION_REQUESTS_FOR_UNREGISTERED_USER", "")
+    monkeypatch.setenv("IGNORE_NOTIFICATION_REQUESTS_FOR_UNREGISTERED_USER", "")
     response = django_app.post("/api/v1/notifications", notification_data, headers=partner_auth)
     assert response.status_code == HTTP_201_CREATED
     all_users = User.objects.all()
@@ -396,7 +388,7 @@ def test_create_notification_partner_has_no_default_icon(
 ) -> None:
     partner = copy.deepcopy(partners["psl"])
     partner.icon = ""
-    monkeypatch.setattr("ami.authentication.decorators.partners", {"psl": partner})
+    monkeypatch.setattr("ami.authentication.middleware.partners", {"psl": partner})
     notification_data = {
         "recipient_fc_hash": user.fc_hash,
         "item_type": "OTV",
@@ -424,7 +416,7 @@ def test_create_notification_partner_has_default_icon(
 ) -> None:
     partner = copy.deepcopy(partners["psl"])
     partner.icon = "fr-icon-megaphone-line"
-    monkeypatch.setattr("ami.authentication.decorators.partners", {"psl": partner})
+    monkeypatch.setattr("ami.authentication.middleware.partners", {"psl": partner})
     notification_data = {
         "recipient_fc_hash": user.fc_hash,
         "item_type": "OTV",
@@ -452,7 +444,6 @@ def test_create_notification_send_ko_with_400_when_required_fields_are_missing(
     response = django_app.post(
         "/api/v1/notifications", notification_data, headers=partner_auth, status=400
     )
-    assert response.status_code == HTTP_400_BAD_REQUEST
     assert response.json == {
         "content_body": ["This field is required."],
         "content_title": ["This field is required."],
@@ -489,7 +480,6 @@ def test_create_notification_send_ko_with_400_when_required_fields_are_empty(
     response = django_app.post(
         "/api/v1/notifications", notification_data, headers=partner_auth, status=400
     )
-    assert response.status_code == HTTP_400_BAD_REQUEST
     assert response.json == {
         "content_body": ["This field may not be blank."],
         "content_title": ["This field may not be blank."],
@@ -505,35 +495,19 @@ def test_create_notification_send_ko_with_400_when_required_fields_are_empty(
 
 
 @pytest.mark.django_db
-def test_create_notification_without_auth(django_app) -> None:
-    response = django_app.post("/api/v1/notifications", status=401)
-    assert response.status_code == 401
+def test_create_notification_without_auth(django_app, settings) -> None:
+    django_app.post("/api/v1/notifications", status=401)
 
-    response = django_app.post(
-        "/api/v1/notifications", headers={"authorization": "foo"}, status=401
-    )
-    assert response.status_code == 401
+    django_app.post("/api/v1/notifications", headers={"authorization": "foo"}, status=401)
 
-    response = django_app.post(
-        "/api/v1/notifications", headers={"authorization": "Foo bar"}, status=401
-    )
-    assert response.status_code == 401
+    django_app.post("/api/v1/notifications", headers={"authorization": "Foo bar"}, status=401)
 
-    response = django_app.post(
-        "/api/v1/notifications", headers={"authorization": "Basic bar"}, status=401
-    )
-    assert response.status_code == 401
+    django_app.post("/api/v1/notifications", headers={"authorization": "Basic bar"}, status=401)
 
     b64 = base64.b64encode(f"foo:{settings.CONFIG['PARTNERS_PSL_SECRET']}".encode("utf8")).decode(
         "utf8"
     )
-    response = django_app.post(
-        "/api/v1/notifications", headers={"authorization": f"Basic {b64}"}, status=401
-    )
-    assert response.status_code == 401
+    django_app.post("/api/v1/notifications", headers={"authorization": f"Basic {b64}"}, status=401)
 
     b64 = base64.b64encode("psl:foo".encode("utf8")).decode("utf8")
-    response = django_app.post(
-        "/api/v1/notifications", headers={"authorization": f"Basic {b64}"}, status=401
-    )
-    assert response.status_code == 401
+    django_app.post("/api/v1/notifications", headers={"authorization": f"Basic {b64}"}, status=401)
