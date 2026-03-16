@@ -4,7 +4,6 @@ from enum import Enum
 
 from pydantic import BaseModel as PydanticBaseModel
 from pydantic import Field
-from webpush import WebPushSubscription
 
 
 class BaseModel(PydanticBaseModel):
@@ -151,14 +150,3 @@ class MobileAppSubscription(BaseModel):
     fcm_token: str
     model: str
     platform: str
-
-
-class Registration(BaseModel):
-    id: uuid.UUID
-    user_id: uuid.UUID
-    subscription: MobileAppSubscription | WebPushSubscription
-    created_at: datetime.datetime
-
-
-class RegistrationCreate(BaseModel):
-    subscription: MobileAppSubscription | WebPushSubscription
