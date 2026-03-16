@@ -12,6 +12,7 @@ dependencies = [
     "django-database-url>=1.0.3",
     "django-stubs[compatible-mypy]>=5.2.9",
     "djangorestframework>=3.16.1",
+    "djangorestframework-dataclasses>=1.4.0",
     "firebase-admin>=7.1.0",
     "gunicorn>=25.1.0",
     "httpx>=0.28.1",
