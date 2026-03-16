@@ -4,19 +4,17 @@ from unittest import mock
 import pytest
 from pytest_httpx import HTTPXMock
 
-from app.data.internal import get_elections_catalog, get_elections_data
-from app.data.schemas import (
+from ami.agenda.data.internal import get_elections_catalog, get_elections_data
+from ami.agenda.data.schemas import Election
+from ami.agenda.schemas import (
     AgendaCatalog,
     AgendaCatalogItem,
     AgendaCatalogItemKind,
     AgendaCatalogStatus,
-    Election,
 )
 
-pytestmark = pytest.mark.skip("skip tests for Django migration")
 
-
-async def test_get_elections_data(
+def test_get_elections_data(
     httpx_mock: HTTPXMock,
 ) -> None:
     result = get_elections_data(datetime.date(2025, 3, 15), datetime.date(2026, 3, 22))
@@ -54,7 +52,7 @@ async def test_get_elections_data(
     ]
 
 
-async def test_get_elections_catalog(
+def test_get_elections_catalog(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     holidays = [
@@ -72,8 +70,8 @@ async def test_get_elections_catalog(
         ),
     ]
     data_mock = mock.Mock(return_value=holidays)
-    monkeypatch.setattr("app.data.internal.get_elections_data", data_mock)
-    result = await get_elections_catalog(
+    monkeypatch.setattr("ami.agenda.data.internal.get_elections_data", data_mock)
+    result = get_elections_catalog(
         start_date=datetime.date(2025, 11, 12), end_date=datetime.date(2026, 9, 15)
     )
     items = [
