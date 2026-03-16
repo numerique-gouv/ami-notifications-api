@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.13"
 resolution-markers = [
     "python_full_version >= '3.14'",
@@ -47,6 +47,7 @@ dependencies = [
     { name = "django-database-url" },
     { name = "django-stubs", extra = ["compatible-mypy"] },
     { name = "djangorestframework" },
+    { name = "djangorestframework-dataclasses" },
     { name = "firebase-admin" },
     { name = "gunicorn" },
     { name = "httpx" },
@@ -91,6 +92,7 @@ requires-dist = [
     { name = "django-database-url", specifier = ">=1.0.3" },
     { name = "django-stubs", extras = ["compatible-mypy"], specifier = ">=5.2.9" },
     { name = "djangorestframework", specifier = ">=3.16.1" },
+    { name = "djangorestframework-dataclasses", specifier = ">=1.4.0" },
     { name = "firebase-admin", specifier = ">=7.1.0" },
     { name = "gunicorn", specifier = ">=25.1.0" },
     { name = "httpx", specifier = ">=0.28.1" },
@@ -637,6 +639,19 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/8a/95/5376fe618646fde6899b3cdc85fd959716bb67542e273a76a80d9f326f27/djangorestframework-3.16.1.tar.gz", hash = "sha256:166809528b1aced0a17dc66c24492af18049f2c9420dbd0be29422029cfc3ff7", size = 1089735, upload-time = "2025-08-06T17:50:53.251Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b0/ce/bf8b9d3f415be4ac5588545b5fcdbbb841977db1c1d923f7568eeabe1689/djangorestframework-3.16.1-py3-none-any.whl", hash = "sha256:33a59f47fb9c85ede792cbf88bde71893bcda0667bc573f784649521f1102cec", size = 1080442, upload-time = "2025-08-06T17:50:50.667Z" },
+]
+
+[[package]]
+name = "djangorestframework-dataclasses"
+version = "1.4.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "django" },
+    { name = "djangorestframework" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/8b/91/cac1ae679f6f92c1ad38f4f13e14bb75eeb469559d5e1b250efa6978cee7/djangorestframework_dataclasses-1.4.0.tar.gz", hash = "sha256:fffa19b6f650b2c4c346b3cadf42dd9aa5a265a34f0827608953910d01919039", size = 37319, upload-time = "2025-05-14T19:46:48.109Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/2b/6f/48546d114a62258bf8fe2f03a47d20bc52489887771606292aac85cb78de/djangorestframework_dataclasses-1.4.0-py3-none-any.whl", hash = "sha256:eb599f2dbaf8bdb158ac1ff7bc690ab865c2302407b4e93758bff0689a66ad0f", size = 26922, upload-time = "2025-05-14T19:46:46.355Z" },
 ]
 
 [[package]]
