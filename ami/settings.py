@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     "ami.authentication",
     "ami.notification",
     "ami.user",
+    "ami.agenda",
     "ami.utils",
     "ami.api",
     "ami.partner",
