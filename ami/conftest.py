@@ -148,6 +148,33 @@ async def webpushsubscription() -> dict[str, Any]:
 
 
 @pytest.fixture
+async def mobile_notification(mobile_registration: Registration) -> Notification:
+    return Notification.objects.create(
+        user_id=mobile_registration.user.id,
+        content_body="Hello notification",
+        content_title="Notification title",
+        sender="John Doe",
+    )
+
+
+@pytest.fixture
+async def mobile_registration(user: User, mobileAppSubscription: dict[str, Any]) -> Registration:
+    return Registration.objects.create(user_id=user.id, subscription=mobileAppSubscription)
+
+
+@pytest.fixture
+async def mobileAppSubscription() -> dict[str, Any]:
+    subscription = {
+        "app_version": "0.0-local",
+        "device_id": "some-id",
+        "fcm_token": "some-token",
+        "model": "Google sdk_gphone64_arm64",
+        "platform": "android",
+    }
+    return subscription
+
+
+@pytest.fixture
 async def websocket(user: User) -> AsyncGenerator[WebsocketCommunicator, Any]:
     token = jwt.encode({"sub": str(user.id)}, settings.AUTH_COOKIE_JWT_SECRET, algorithm="HS256")
     headers = [(b"cookie", f"token={token}".encode())]
