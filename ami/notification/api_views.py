@@ -14,9 +14,7 @@ from rest_framework.response import Response
 from ami.authentication.decorators import ami_login_required
 
 from .models import Notification, NotificationEvent
-from .serializers import (
-    NotificationReadSerializer,
-)
+from .serializers import NotificationReadSerializer
 
 
 @api_view(["GET"])
