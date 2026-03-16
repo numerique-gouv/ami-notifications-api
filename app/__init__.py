@@ -23,7 +23,6 @@ from app.auth import jwt_cookie_auth, openapi_config, partner_auth
 from app.controllers.auth import AuthController
 from app.controllers.notification import PartnerNotificationController
 from app.controllers.partner import NotAuthenticatedPartnerController, PartnerController
-from app.controllers.registration import RegistrationController
 from app.controllers.scheduled_notification import ScheduledNotificationController
 from app.database import alchemy, channels_dsn
 from app.httpx import (
@@ -61,7 +60,6 @@ authenticated_router: Router = Router(
     path="/",
     route_handlers=[
         AuthController,
-        RegistrationController,
         PartnerController,
         ScheduledNotificationController,
         data_router,

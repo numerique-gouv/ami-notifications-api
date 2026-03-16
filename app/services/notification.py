@@ -6,7 +6,7 @@ from advanced_alchemy.extensions.litestar.providers import create_service_provid
 from firebase_admin import messaging
 from firebase_admin.messaging import UnregisteredError
 from litestar.channels import ChannelsPlugin
-from webpush import WebPush
+from webpush import WebPush, WebPushSubscription
 
 from app import models, schemas, sentry
 from app.database import alchemy_config
@@ -68,7 +68,7 @@ class NotificationService(service.SQLAlchemyAsyncRepositoryService[models.Notifi
             )
             registrations = await registrations_service.list(user_id=notification.user_id)
             for registration in registrations:
-                if isinstance(registration.typed_subscription, schemas.WebPushSubscription):
+                if isinstance(registration.typed_subscription, WebPushSubscription):
                     subscription = registration.typed_subscription
                     message = webpush.get(
                         message=notification_data.model_dump_json(), subscription=subscription
