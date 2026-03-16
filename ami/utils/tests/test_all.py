@@ -1,6 +1,5 @@
 from typing import Any
 
-import pytest
 from django.conf import settings
 from pytest_httpx import HTTPXMock
 
@@ -12,11 +11,8 @@ def test_ping(django_app) -> None:
 
 def test_get_sector_identifier_url(
     django_app,
-    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    monkeypatch.setitem(
-        settings.CONFIG, "PUBLIC_SECTOR_IDENTIFIER_URL", "http://example.com\nhttp://foobar.com"
-    )
+    settings.CONFIG["PUBLIC_SECTOR_IDENTIFIER_URL"] = "http://example.com\nhttp://foobar.com"
     response = django_app.get("/sector_identifier_url")
     assert response.status_code == 200
     assert response.json == ["http://example.com", "http://foobar.com"]

@@ -126,6 +126,8 @@ def test_generate_identity_token(
         "ami.utils.get_partners_psl_otv_jwt_private_key", mock_get_partners_psl_otv_jwt_private_key
     )
     monkeypatch.setattr("jwt.encode", mock_jwt_encode)
+    monkeypatch.setattr("ami.utils.uuid4", mock_uuid_uuid4)
+    monkeypatch.setattr("jwt.encode", mock_jwt_encode)
 
     # When
     token = generate_identity_token(
