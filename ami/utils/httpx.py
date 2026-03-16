@@ -1,7 +1,7 @@
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
-from httpx import AsyncClient, Client
+from httpx import URL, AsyncClient, Client  # noqa
 
 httpxClient = Client(timeout=60)
 
