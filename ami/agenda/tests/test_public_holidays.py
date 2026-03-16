@@ -3,19 +3,17 @@ from unittest import mock
 
 import pytest
 
-from app.data.holidays import get_public_holidays_catalog, get_public_holidays_data
-from app.data.schemas import (
+from ami.agenda.data.holidays import get_public_holidays_catalog, get_public_holidays_data
+from ami.agenda.data.schemas import PublicHoliday
+from ami.agenda.schemas import (
     AgendaCatalog,
     AgendaCatalogItem,
     AgendaCatalogItemKind,
     AgendaCatalogStatus,
-    PublicHoliday,
 )
 
-pytestmark = pytest.mark.skip("skip tests for Django migration")
 
-
-async def test_get_public_holidays_data() -> None:
+def test_get_public_holidays_data() -> None:
     result = get_public_holidays_data(datetime.date(2025, 11, 12), datetime.date(2026, 9, 15))
     assert result == [
         PublicHoliday(description="Noël", date=datetime.date(2025, 12, 25), emoji="📅"),
@@ -40,7 +38,7 @@ async def test_get_public_holidays_catalog(
         PublicHoliday(description="Jour de l’An", date=datetime.date(2026, 1, 1), emoji="🎉"),
     ]
     data_mock = mock.Mock(return_value=holidays)
-    monkeypatch.setattr("app.data.holidays.get_public_holidays_data", data_mock)
+    monkeypatch.setattr("ami.agenda.data.holidays.get_public_holidays_data", data_mock)
     result = await get_public_holidays_catalog(
         start_date=datetime.date(2025, 11, 12), end_date=datetime.date(2026, 9, 15)
     )
