@@ -6,6 +6,42 @@ from ami.agenda.schemas import AgendaCatalogItem, AgendaCatalogItemKind
 
 
 @dataclass
+class SchoolHoliday:
+    description: str
+    zones: str
+    start_date: datetime.date
+    end_date: datetime.date
+    emoji: str
+
+    emoji_mapping = {
+        "Vacances de la Toussaint": "🍁",
+        "Vacances de Noël": "🎄",
+        "Vacances d'Hiver": "❄️",
+        "Vacances de Printemps": "🌸",
+        "Vacances d'Été": "☀️",
+    }
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "SchoolHoliday":
+        cls_fields = {f.name for f in fields(cls)}
+        filtered = {k: v for k, v in data.items() if k in cls_fields}
+        filtered["start_date"] = datetime.datetime.fromisoformat(filtered["start_date"]).date()
+        filtered["end_date"] = datetime.datetime.fromisoformat(filtered["end_date"]).date()
+        filtered["emoji"] = cls.emoji_mapping.get(filtered["description"], "")
+        return cls(**filtered)
+
+    def to_catalog_item(self):
+        return AgendaCatalogItem(
+            kind=AgendaCatalogItemKind.HOLIDAY,
+            title=self.description,
+            zones=self.zones,
+            start_date=self.start_date,
+            end_date=self.end_date,
+            emoji=self.emoji,
+        )
+
+
+@dataclass
 class PublicHoliday:
     description: str
     date: datetime.date
