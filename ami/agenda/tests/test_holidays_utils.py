@@ -1,13 +1,9 @@
 import datetime
 
-import pytest
-
-from app.data.holidays import get_holidays_dates
-
-pytestmark = pytest.mark.skip("skip tests for Django migration")
+from ami.agenda.data.holidays import get_holidays_dates
 
 
-async def test_get_holidays_dates() -> None:
+def test_get_holidays_dates() -> None:
     # get holidays of current school year only
     assert get_holidays_dates(datetime.date(2025, 9, 1)) == (
         datetime.date(2025, 8, 2),
