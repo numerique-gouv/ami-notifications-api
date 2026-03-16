@@ -1,10 +1,18 @@
 import datetime
 from typing import Any, Iterable, cast
 
+from django.conf import settings
 from workalendar.europe import France
 
-from ami.agenda.data.schemas import PublicHoliday
+from ami.agenda.data.schemas import PublicHoliday, SchoolHoliday
 from ami.agenda.schemas import AgendaCatalog, AgendaCatalogStatus
+from ami.utils.httpx import AsyncClient
+
+
+class SchoolHolidaysError(Exception):
+    def __init__(self, status_code: int, *args: Any, **kwargs: Any):
+        self.status_code = status_code
+        super().__init__(*args, **kwargs)
 
 
 def get_holidays_dates(current_date: datetime.date) -> tuple[datetime.date, datetime.date]:
@@ -16,6 +24,59 @@ def get_holidays_dates(current_date: datetime.date) -> tuple[datetime.date, date
     # else, take holidays until the end of the following school year
     end_date = datetime.date(current_date.year + 1, 9, 15)
     return start_date, end_date
+
+
+async def get_school_holidays_data(
+    start_date: datetime.date,
+    end_date: datetime.date,
+    httpx_async_client: AsyncClient,
+) -> list[SchoolHoliday]:
+    # target one region per zone, to limit results
+    locations = ["Bordeaux", "Lille", "Versailles"]
+    locations_query = " OR ".join(f"location = '{location}'" for location in locations)
+
+    response = await httpx_async_client.get(
+        f"{settings.PUBLIC_API_DATA_EDUCATION_BASE_URL}{settings.PUBLIC_API_DATA_EDUCATION_HOLIDAYS_ENDPOINT}",
+        params={
+            "where": f"end_date >= date'{start_date}' AND start_date < date'{end_date}' AND ({locations_query}) AND population IN ('-', 'Élèves')",
+            "order_by": "start_date",
+            "limit": 100,
+            "timezone": "Europe/Paris",
+        },
+    )
+    if response.status_code != 200:
+        raise SchoolHolidaysError(status_code=response.status_code)
+
+    holidays: dict[tuple[str, datetime.date, datetime.date], SchoolHoliday] = {}
+    for data in response.json()["results"]:
+        holiday = SchoolHoliday.from_dict(data)
+        key = (holiday.description, holiday.start_date, holiday.end_date)
+        if key in holidays:
+            # if the dates are the same for all zones, keep only one result and clear zones
+            holidays[key].zones = ""
+            continue
+        holidays[key] = holiday
+
+    return sorted(holidays.values(), key=lambda a: a.start_date)
+
+
+async def get_school_holidays_catalog(
+    *,
+    start_date: datetime.date,
+    end_date: datetime.date,
+    httpx_async_client: AsyncClient,
+    **kwargs: Any,
+) -> AgendaCatalog:
+    catalog = AgendaCatalog()
+    try:
+        holidays = await get_school_holidays_data(start_date, end_date, httpx_async_client)
+    except SchoolHolidaysError:
+        catalog.status = AgendaCatalogStatus.FAILED
+    else:
+        for holiday in holidays:
+            catalog.items.append(holiday.to_catalog_item())
+        catalog.status = AgendaCatalogStatus.SUCCESS
+    return catalog
 
 
 def get_public_holidays_data(
