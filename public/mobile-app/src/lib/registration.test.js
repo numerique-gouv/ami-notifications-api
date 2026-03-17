@@ -26,6 +26,7 @@ describe('/registration.js', () => {
         `${PUBLIC_API_URL}/api/v1/users/registrations`,
         {
           method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: '{"subscription":{"endpoint":"","keys":{"auth":"fake-auth","p256dh":"fake-p256dh"}}}',
           credentials: 'include',
         }

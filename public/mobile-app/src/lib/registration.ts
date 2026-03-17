@@ -25,8 +25,12 @@ export const registerDevice = async (
   };
   console.log('payload:', payload);
 
+  const headers = {
+    'Content-Type': 'application/json',
+  };
   const response = await apiFetch('/api/v1/users/registrations', {
     method: 'POST',
+    headers: headers,
     body: JSON.stringify(payload),
     credentials: 'include',
   });
