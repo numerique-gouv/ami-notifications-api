@@ -66,14 +66,14 @@ We use the [webpush python library](https://pypi.org/project/webpush/) to deal w
 [VAPID encryption](https://blog.mozilla.org/services/2016/08/23/sending-vapid-identified-webpush-notifications-via-mozillas-push-service/)
 for us.
 
-This needs three keys to be generated and loaded when the server start:
+This needs three keys to be generated and loaded when the server start, or have their content loaded in environment variables.
 - `public_key.pem`
 - `private_key.pem`
 - `applicationServerKey`
 
 If those aren't present on the disk at the root of this project, and are not set using
 env variables (to be used during the scalingo deployment), then running `make dev`
-or any variant that calls the `bin/start.sh` file will automatically generate them.
+or any variant that uses the `settings.py` file will automatically provision them.
 
 To generate them manually:
 ```sh
