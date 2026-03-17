@@ -11,7 +11,6 @@ from ami.user.models import User
 def test_generate_partner_url_when_url_has_no_template(
     django_app,
     user: User,
-    monkeypatch: pytest.MonkeyPatch,
     settings,
 ) -> None:
     # Given
@@ -43,7 +42,7 @@ def test_generate_partner_url_when_url_has_template(
         return "fake-identity-token"
 
     monkeypatch.setattr(
-        "ami.utils.generate_identity_token",
+        "ami.partner.api_views.generate_identity_token",
         mock_generate_identity_token,
     )
 
