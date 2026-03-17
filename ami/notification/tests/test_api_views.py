@@ -181,6 +181,8 @@ def test_read_notification_without_auth(
 
 async def test_notification_key(
     django_app,
+    settings,
 ) -> None:
-    response = django_app.get("/notification-key")
-    assert response.status_code == HTTP_200_OK
+    settings.CONFIG["VAPID_APPLICATION_SERVER_KEY"] = "some-application-key"
+    response = django_app.get("/notification-key", status=200)
+    assert response.text == "some-application-key"
