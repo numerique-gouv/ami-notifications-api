@@ -34,7 +34,6 @@ from app.httpx import (
 from app.webpush import provide_webpush
 
 from .admin.routes import router as ami_admin_router
-from .data.routes import data_router
 from .rvo.routes import router as rvo_router
 
 cors_config = CORSConfig(allow_origins=[env.PUBLIC_APP_URL], allow_credentials=True)
@@ -64,7 +63,6 @@ authenticated_router: Router = Router(
         RegistrationController,
         PartnerController,
         ScheduledNotificationController,
-        data_router,
     ],
     middleware=[jwt_cookie_auth.middleware],
 )

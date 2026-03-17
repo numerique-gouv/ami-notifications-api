@@ -52,7 +52,7 @@ def test_get_elections_data(
     ]
 
 
-async def test_get_elections_catalog(
+def test_get_elections_catalog(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     holidays = [
@@ -71,7 +71,7 @@ async def test_get_elections_catalog(
     ]
     data_mock = mock.Mock(return_value=holidays)
     monkeypatch.setattr("ami.agenda.data.internal.get_elections_data", data_mock)
-    result = await get_elections_catalog(
+    result = get_elections_catalog(
         start_date=datetime.date(2025, 11, 12), end_date=datetime.date(2026, 9, 15)
     )
     items = [

@@ -16,10 +16,10 @@ from ami.agenda.schemas import (
     AgendaCatalogItemKind,
     AgendaCatalogStatus,
 )
-from ami.utils.httpx import URL, AsyncClient
+from ami.utils.httpx import URL
 
 
-async def test_get_school_holidays_data(
+def test_get_school_holidays_data(
     httpx_mock: HTTPXMock,
 ) -> None:
     fake_holidays_data = [
@@ -128,14 +128,11 @@ async def test_get_school_holidays_data(
             emoji="❄️",
         ),
     ]
-    async with AsyncClient() as httpx_async_client:
-        result = await get_school_holidays_data(
-            datetime.date(2025, 11, 12), datetime.date(2026, 9, 15), httpx_async_client
-        )
+    result = get_school_holidays_data(datetime.date(2025, 11, 12), datetime.date(2026, 9, 15))
     assert result == holidays
 
 
-async def test_get_school_holidays_data_emoji(
+def test_get_school_holidays_data_emoji(
     httpx_mock: HTTPXMock,
 ) -> None:
     def mock_data(description: str):
@@ -160,69 +157,44 @@ async def test_get_school_holidays_data_emoji(
         )
 
     mock_data("Vacances de la Toussaint")
-    async with AsyncClient() as httpx_async_client:
-        result = await get_school_holidays_data(
-            datetime.date(2025, 11, 12), datetime.date(2026, 9, 15), httpx_async_client
-        )
+    result = get_school_holidays_data(datetime.date(2025, 11, 12), datetime.date(2026, 9, 15))
     assert result[0].emoji == "🍁"
 
     mock_data("Vacances de Noël")
-    async with AsyncClient() as httpx_async_client:
-        result = await get_school_holidays_data(
-            datetime.date(2025, 11, 12), datetime.date(2026, 9, 15), httpx_async_client
-        )
+    result = get_school_holidays_data(datetime.date(2025, 11, 12), datetime.date(2026, 9, 15))
     assert result[0].emoji == "🎄"
 
     mock_data("Vacances d'Hiver")
-    async with AsyncClient() as httpx_async_client:
-        result = await get_school_holidays_data(
-            datetime.date(2025, 11, 12), datetime.date(2026, 9, 15), httpx_async_client
-        )
+    result = get_school_holidays_data(datetime.date(2025, 11, 12), datetime.date(2026, 9, 15))
     assert result[0].emoji == "❄️"
 
     mock_data("Vacances de Printemps")
-    async with AsyncClient() as httpx_async_client:
-        result = await get_school_holidays_data(
-            datetime.date(2025, 11, 12), datetime.date(2026, 9, 15), httpx_async_client
-        )
+    result = get_school_holidays_data(datetime.date(2025, 11, 12), datetime.date(2026, 9, 15))
     assert result[0].emoji == "🌸"
 
     mock_data("Pont de l'Ascension")
-    async with AsyncClient() as httpx_async_client:
-        result = await get_school_holidays_data(
-            datetime.date(2025, 11, 12), datetime.date(2026, 9, 15), httpx_async_client
-        )
+    result = get_school_holidays_data(datetime.date(2025, 11, 12), datetime.date(2026, 9, 15))
     assert result[0].emoji == ""
 
     mock_data("Vacances d'Été")
-    async with AsyncClient() as httpx_async_client:
-        result = await get_school_holidays_data(
-            datetime.date(2025, 11, 12), datetime.date(2026, 9, 15), httpx_async_client
-        )
+    result = get_school_holidays_data(datetime.date(2025, 11, 12), datetime.date(2026, 9, 15))
     assert result[0].emoji == "☀️"
 
     mock_data("Unknown")
-    async with AsyncClient() as httpx_async_client:
-        result = await get_school_holidays_data(
-            datetime.date(2025, 11, 12), datetime.date(2026, 9, 15), httpx_async_client
-        )
+    result = get_school_holidays_data(datetime.date(2025, 11, 12), datetime.date(2026, 9, 15))
     assert result[0].emoji == ""
 
 
-async def test_get_school_holidays_data_error(
+def test_get_school_holidays_data_error(
     httpx_mock: HTTPXMock,
 ) -> None:
     httpx_mock.add_response(status_code=500)
     with pytest.raises(SchoolHolidaysError) as e:
-        async with AsyncClient() as httpx_async_client:
-            await get_school_holidays_data(
-                datetime.date(2025, 11, 12), datetime.date(2026, 9, 15), httpx_async_client
-            )
+        get_school_holidays_data(datetime.date(2025, 11, 12), datetime.date(2026, 9, 15))
     assert e.value.status_code == 500
 
 
-async def test_get_school_holidays_catalog(
-    httpx_mock: HTTPXMock,
+def test_get_school_holidays_catalog(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     holidays = [
@@ -241,14 +213,12 @@ async def test_get_school_holidays_catalog(
             emoji="❄️",
         ),
     ]
-    data_mock = mock.AsyncMock(return_value=holidays)
+    data_mock = mock.Mock(return_value=holidays)
     monkeypatch.setattr("ami.agenda.data.holidays.get_school_holidays_data", data_mock)
-    async with AsyncClient() as httpx_async_client:
-        result = await get_school_holidays_catalog(
-            start_date=datetime.date(2025, 11, 12),
-            end_date=datetime.date(2026, 9, 15),
-            httpx_async_client=httpx_async_client,
-        )
+    result = get_school_holidays_catalog(
+        start_date=datetime.date(2025, 11, 12),
+        end_date=datetime.date(2026, 9, 15),
+    )
     items = [
         AgendaCatalogItem(
             kind=AgendaCatalogItemKind.HOLIDAY,
@@ -270,14 +240,11 @@ async def test_get_school_holidays_catalog(
     assert result == AgendaCatalog(status=AgendaCatalogStatus.SUCCESS, items=items)
 
 
-async def test_get_school_holidays_catalog_error(
+def test_get_school_holidays_catalog_error(
     httpx_mock: HTTPXMock,
 ) -> None:
     httpx_mock.add_response(status_code=500)
-    async with AsyncClient() as httpx_async_client:
-        result = await get_school_holidays_catalog(
-            start_date=datetime.date(2025, 11, 12),
-            end_date=datetime.date(2026, 9, 15),
-            httpx_async_client=httpx_async_client,
-        )
+    result = get_school_holidays_catalog(
+        start_date=datetime.date(2025, 11, 12), end_date=datetime.date(2026, 9, 15)
+    )
     assert result == AgendaCatalog(status=AgendaCatalogStatus.FAILED)

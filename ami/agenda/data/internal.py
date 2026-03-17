@@ -38,7 +38,7 @@ def get_elections_data(
     return elections
 
 
-async def get_elections_catalog(
+def get_elections_catalog(
     *,
     start_date: datetime.date,
     end_date: datetime.date,

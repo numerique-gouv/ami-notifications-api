@@ -30,7 +30,7 @@ def test_get_public_holidays_data() -> None:
     ]
 
 
-async def test_get_public_holidays_catalog(
+def test_get_public_holidays_catalog(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     holidays = [
@@ -39,7 +39,7 @@ async def test_get_public_holidays_catalog(
     ]
     data_mock = mock.Mock(return_value=holidays)
     monkeypatch.setattr("ami.agenda.data.holidays.get_public_holidays_data", data_mock)
-    result = await get_public_holidays_catalog(
+    result = get_public_holidays_catalog(
         start_date=datetime.date(2025, 11, 12), end_date=datetime.date(2026, 9, 15)
     )
     items = [

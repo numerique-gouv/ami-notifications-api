@@ -6,7 +6,7 @@ from workalendar.europe import France
 
 from ami.agenda.data.schemas import PublicHoliday, SchoolHoliday
 from ami.agenda.schemas import AgendaCatalog, AgendaCatalogStatus
-from ami.utils.httpx import AsyncClient
+from ami.utils.httpx import httpxClient
 
 
 class SchoolHolidaysError(Exception):
@@ -26,16 +26,14 @@ def get_holidays_dates(current_date: datetime.date) -> tuple[datetime.date, date
     return start_date, end_date
 
 
-async def get_school_holidays_data(
-    start_date: datetime.date,
-    end_date: datetime.date,
-    httpx_async_client: AsyncClient,
+def get_school_holidays_data(
+    start_date: datetime.date, end_date: datetime.date
 ) -> list[SchoolHoliday]:
     # target one region per zone, to limit results
     locations = ["Bordeaux", "Lille", "Versailles"]
     locations_query = " OR ".join(f"location = '{location}'" for location in locations)
 
-    response = await httpx_async_client.get(
+    response = httpxClient.get(
         f"{settings.PUBLIC_API_DATA_EDUCATION_BASE_URL}{settings.PUBLIC_API_DATA_EDUCATION_HOLIDAYS_ENDPOINT}",
         params={
             "where": f"end_date >= date'{start_date}' AND start_date < date'{end_date}' AND ({locations_query}) AND population IN ('-', 'Élèves')",
@@ -60,16 +58,15 @@ async def get_school_holidays_data(
     return sorted(holidays.values(), key=lambda a: a.start_date)
 
 
-async def get_school_holidays_catalog(
+def get_school_holidays_catalog(
     *,
     start_date: datetime.date,
     end_date: datetime.date,
-    httpx_async_client: AsyncClient,
     **kwargs: Any,
 ) -> AgendaCatalog:
     catalog = AgendaCatalog()
     try:
-        holidays = await get_school_holidays_data(start_date, end_date, httpx_async_client)
+        holidays = get_school_holidays_data(start_date, end_date)
     except SchoolHolidaysError:
         catalog.status = AgendaCatalogStatus.FAILED
     else:
@@ -102,7 +99,7 @@ def get_public_holidays_data(
     return holidays
 
 
-async def get_public_holidays_catalog(
+def get_public_holidays_catalog(
     *,
     start_date: datetime.date,
     end_date: datetime.date,

@@ -2,38 +2,35 @@ import datetime
 from unittest import mock
 
 import pytest
-from litestar import Litestar
-from litestar.status_codes import HTTP_200_OK
-from litestar.testing import TestClient
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.data.schemas import (
-    AgendaCatalog,
+from ami.agenda.data.schemas import (
     AgendaCatalogItem,
     AgendaCatalogItemKind,
+)
+from ami.agenda.schemas import (
+    AgendaCatalog,
     AgendaCatalogStatus,
     FollowUpInventory,
     FollowUpInventoryItem,
     FollowUpInventoryItemKind,
     FollowUpInventoryStatus,
 )
-from app.models import User
-from app.schemas import ItemGenericStatus
-from tests.ami.utils import assert_query_fails_without_auth, login
-
-pytestmark = pytest.mark.skip("skip tests for Django migration")
+from ami.tests.utils import assert_query_fails_without_auth, login
+from ami.user.models import User
+from ami.utils.schemas import ItemGenericStatus
 
 
-async def test_get_agenda_items(
+@pytest.mark.django_db
+def test_get_agenda_items(
     user: User,
-    test_client: TestClient[Litestar],
     monkeypatch: pytest.MonkeyPatch,
+    django_app,
 ) -> None:
-    login(user, test_client)
+    login(django_app, user)
 
     today = datetime.date.today()
     dates_mock = mock.Mock(return_value=(today, today + datetime.timedelta(days=2)))
-    monkeypatch.setattr("app.data.routes.get_holidays_dates", dates_mock)
+    monkeypatch.setattr("ami.agenda.data.holidays.get_holidays_dates", dates_mock)
     school_catalog = AgendaCatalog(
         status=AgendaCatalogStatus.SUCCESS,
         items=[
@@ -55,8 +52,8 @@ async def test_get_agenda_items(
             ),
         ],
     )
-    school_data_mock = mock.AsyncMock(return_value=school_catalog)
-    monkeypatch.setattr("app.data.routes.get_school_holidays_catalog", school_data_mock)
+    school_data_mock = mock.Mock(return_value=school_catalog)
+    monkeypatch.setattr("ami.agenda.data.holidays.get_school_holidays_catalog", school_data_mock)
     public_catalog = AgendaCatalog(
         status=AgendaCatalogStatus.SUCCESS,
         items=[
@@ -74,8 +71,8 @@ async def test_get_agenda_items(
             ),
         ],
     )
-    public_data_mock = mock.AsyncMock(return_value=public_catalog)
-    monkeypatch.setattr("app.data.routes.get_public_holidays_catalog", public_data_mock)
+    public_data_mock = mock.Mock(return_value=public_catalog)
+    monkeypatch.setattr("ami.agenda.data.holidays.get_public_holidays_catalog", public_data_mock)
     election_catalog = AgendaCatalog(
         status=AgendaCatalogStatus.SUCCESS,
         items=[
@@ -95,21 +92,22 @@ async def test_get_agenda_items(
             ),
         ],
     )
-    election_data_mock = mock.AsyncMock(return_value=election_catalog)
-    monkeypatch.setattr("app.data.routes.get_elections_catalog", election_data_mock)
+    election_data_mock = mock.Mock(return_value=election_catalog)
+    monkeypatch.setattr("ami.agenda.data.internal.get_elections_catalog", election_data_mock)
 
     duration_mock = mock.Mock(
         return_value=datetime.datetime(2026, 2, 14, 11, 16, tzinfo=datetime.timezone.utc)
     )
-    monkeypatch.setattr("app.data.routes.DurationExpiration.compute_expires_at", duration_mock)
+    monkeypatch.setattr("ami.utils.schemas.DurationExpiration.compute_expires_at", duration_mock)
     monthly_mock = mock.Mock(
         return_value=datetime.datetime(2026, 3, 1, tzinfo=datetime.timezone.utc)
     )
-    monkeypatch.setattr("app.data.routes.MonthlyExpiration.compute_expires_at", monthly_mock)
+    monkeypatch.setattr("ami.utils.schemas.MonthlyExpiration.compute_expires_at", monthly_mock)
 
-    response = test_client.get("/data/agenda/items", params={"current_date": "2025-12-12"})
-    assert response.status_code == HTTP_200_OK
-    assert response.json() == {
+    response = django_app.get(
+        "/data/agenda/items", params={"current_date": "2025-12-12"}, status=200
+    )
+    assert response.json == {
         "school_holidays": {
             "status": "success",
             "items": [
@@ -195,33 +193,30 @@ async def test_get_agenda_items(
         mock.call(
             start_date=today,
             end_date=today + datetime.timedelta(days=2),
-            httpx_async_client=mock.ANY,
         )
     ]
     assert public_data_mock.call_args_list == [
         mock.call(
             start_date=today,
             end_date=today + datetime.timedelta(days=2),
-            httpx_async_client=mock.ANY,
         )
     ]
     assert election_data_mock.call_args_list == [
         mock.call(
             start_date=today,
             end_date=today + datetime.timedelta(days=2),
-            httpx_async_client=mock.ANY,
         )
     ]
 
     school_data_mock.reset_mock()
     public_data_mock.reset_mock()
     election_data_mock.reset_mock()
-    response = test_client.get(
+    response = django_app.get(
         "/data/agenda/items", params={"current_date": "2025-12-12", "filter-items": []}
     )
-    assert response.json()["school_holidays"] is not None
-    assert response.json()["public_holidays"] is not None
-    assert response.json()["elections"] is not None
+    assert response.json["school_holidays"] is not None
+    assert response.json["public_holidays"] is not None
+    assert response.json["elections"] is not None
     assert len(school_data_mock.call_args_list) == 1
     assert len(public_data_mock.call_args_list) == 1
     assert len(election_data_mock.call_args_list) == 1
@@ -229,12 +224,12 @@ async def test_get_agenda_items(
     school_data_mock.reset_mock()
     public_data_mock.reset_mock()
     election_data_mock.reset_mock()
-    response = test_client.get(
+    response = django_app.get(
         "/data/agenda/items", params={"current_date": "2025-12-12", "filter-items": ["unknown"]}
     )
-    assert response.json()["school_holidays"] is not None
-    assert response.json()["public_holidays"] is not None
-    assert response.json()["elections"] is not None
+    assert response.json["school_holidays"] is not None
+    assert response.json["public_holidays"] is not None
+    assert response.json["elections"] is not None
     assert len(school_data_mock.call_args_list) == 1
     assert len(public_data_mock.call_args_list) == 1
     assert len(election_data_mock.call_args_list) == 1
@@ -242,16 +237,16 @@ async def test_get_agenda_items(
     school_data_mock.reset_mock()
     public_data_mock.reset_mock()
     election_data_mock.reset_mock()
-    response = test_client.get(
+    response = django_app.get(
         "/data/agenda/items",
         params={
             "current_date": "2025-12-12",
             "filter-items": ["school_holidays", "public_holidays", "elections", "unknown"],
         },
     )
-    assert response.json()["school_holidays"] is not None
-    assert response.json()["public_holidays"] is not None
-    assert response.json()["elections"] is not None
+    assert response.json["school_holidays"] is not None
+    assert response.json["public_holidays"] is not None
+    assert response.json["elections"] is not None
     assert len(school_data_mock.call_args_list) == 1
     assert len(public_data_mock.call_args_list) == 1
     assert len(election_data_mock.call_args_list) == 1
@@ -259,12 +254,12 @@ async def test_get_agenda_items(
     school_data_mock.reset_mock()
     public_data_mock.reset_mock()
     election_data_mock.reset_mock()
-    response = test_client.get(
+    response = django_app.get(
         "/data/agenda/items", params={"current_date": "2025-12-12", "filter-items": ["elections"]}
     )
-    assert response.json()["school_holidays"] is None
-    assert response.json()["public_holidays"] is None
-    assert response.json()["elections"] is not None
+    assert response.json["school_holidays"] is None
+    assert response.json["public_holidays"] is None
+    assert response.json["elections"] is not None
     assert len(school_data_mock.call_args_list) == 0
     assert len(public_data_mock.call_args_list) == 0
     assert len(election_data_mock.call_args_list) == 1
@@ -272,31 +267,30 @@ async def test_get_agenda_items(
     school_data_mock.reset_mock()
     public_data_mock.reset_mock()
     election_data_mock.reset_mock()
-    response = test_client.get(
+    response = django_app.get(
         "/data/agenda/items",
         params={"current_date": "2025-12-12", "filter-items": ["elections", "public_holidays"]},
     )
-    assert response.json()["school_holidays"] is None
-    assert response.json()["public_holidays"] is not None
-    assert response.json()["elections"] is not None
+    assert response.json["school_holidays"] is None
+    assert response.json["public_holidays"] is not None
+    assert response.json["elections"] is not None
     assert len(school_data_mock.call_args_list) == 0
     assert len(public_data_mock.call_args_list) == 1
     assert len(election_data_mock.call_args_list) == 1
 
 
-async def test_get_agenda_items_without_auth(
-    test_client: TestClient[Litestar],
-    db_session: AsyncSession,
-) -> None:
-    await assert_query_fails_without_auth("/data/agenda/items", test_client, db_session)
+@pytest.mark.django_db
+def test_get_agenda_items_without_auth(django_app) -> None:
+    assert_query_fails_without_auth(django_app, "/data/agenda/items")
 
 
-async def test_get_follow_up_inventories(
+@pytest.mark.django_db
+def test_get_follow_up_inventories(
     user: User,
-    test_client: TestClient[Litestar],
     monkeypatch: pytest.MonkeyPatch,
+    django_app,
 ) -> None:
-    login(user, test_client)
+    login(django_app, user)
 
     psl_inventory = FollowUpInventory(
         status=FollowUpInventoryStatus.SUCCESS,
@@ -333,12 +327,11 @@ async def test_get_follow_up_inventories(
             ),
         ],
     )
-    psl_data_mock = mock.AsyncMock(return_value=psl_inventory)
-    monkeypatch.setattr("app.data.routes.get_psl_inventory", psl_data_mock)
+    psl_data_mock = mock.Mock(return_value=psl_inventory)
+    monkeypatch.setattr("ami.agenda.api_views.get_psl_inventory", psl_data_mock)
 
-    response = test_client.get("/data/follow-up/inventories")
-    assert response.status_code == HTTP_200_OK
-    assert response.json() == {
+    response = django_app.get("/data/follow-up/inventories", status=200)
+    assert response.json == {
         "psl": {
             "status": "success",
             "items": [
@@ -373,8 +366,8 @@ async def test_get_follow_up_inventories(
     }
 
 
-async def test_get_follow_up_inventories_without_auth(
-    test_client: TestClient[Litestar],
-    db_session: AsyncSession,
+@pytest.mark.django_db
+def test_get_follow_up_inventories_without_auth(
+    django_app,
 ) -> None:
-    await assert_query_fails_without_auth("/data/follow-up/inventories", test_client, db_session)
+    assert_query_fails_without_auth(django_app, "/data/follow-up/inventories")
