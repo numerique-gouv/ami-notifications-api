@@ -22,7 +22,6 @@ from app import env, errors
 from app.auth import jwt_cookie_auth, openapi_config
 from app.controllers.auth import AuthController
 from app.controllers.partner import NotAuthenticatedPartnerController, PartnerController
-from app.controllers.scheduled_notification import ScheduledNotificationController
 from app.database import alchemy, channels_dsn
 from app.httpx import (
     close_httpx_async_client,
@@ -60,7 +59,6 @@ authenticated_router: Router = Router(
     route_handlers=[
         AuthController,
         PartnerController,
-        ScheduledNotificationController,
         data_router,
     ],
     middleware=[jwt_cookie_auth.middleware],

@@ -132,18 +132,6 @@ class AdminNotificationCreate(BaseModel):
     sender: str = Field(min_length=1)
 
 
-class ScheduledNotificationCreate(BaseModel):
-    content_title: str = Field(min_length=1)
-    content_body: str = Field(min_length=1)
-    content_icon: str = Field(min_length=1)
-    reference: str = Field(min_length=1)
-    scheduled_at: datetime.datetime
-
-
-class ScheduledNotificationResponse(BaseModel):
-    scheduled_notification_id: uuid.UUID
-
-
 class MobileAppSubscription(BaseModel):
     app_version: str
     device_id: str
