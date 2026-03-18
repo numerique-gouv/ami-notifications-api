@@ -1,4 +1,6 @@
 from django.conf import settings
+from drf_spectacular.utils import extend_schema, inline_serializer
+from rest_framework import serializers
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK
@@ -7,6 +9,9 @@ from ami.authentication.decorators import ami_login_required
 from ami.utils import generate_identity_token
 
 
+@extend_schema(
+    responses=inline_serializer("PartnerUrlResponse", {"partner_url": serializers.CharField()})
+)
 @api_view(["GET"])
 @ami_login_required
 def generate_partner_url(request):
@@ -41,6 +46,9 @@ def generate_partner_url(request):
     )
 
 
+@extend_schema(
+    responses=inline_serializer("PartnerPublicKeyResponse", {"public_key": serializers.CharField()})
+)
 @api_view(["GET"])
 def get_partner_public_key(request) -> Response[dict[str, str]]:
     public_key = settings.CONFIG["PARTNERS_PSL_OTV_JWT_CERT_PUBLIC_KEY"]
