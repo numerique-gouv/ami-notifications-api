@@ -68,6 +68,8 @@ INSTALLED_APPS = [
     "ami.utils",
     "ami.api",
     "ami.partner",
+    #### This must come after all the apps, for drf-spectacular to be able to extract endpoints.
+    "drf_spectacular",
 ]
 
 MIDDLEWARE = [
@@ -165,6 +167,17 @@ USE_TZ = True
 
 APPEND_SLASH = False
 PUBLIC_APP_URL = CONFIG["PUBLIC_APP_URL"]
+
+# Django Rest Framework
+
+REST_FRAMEWORK = {
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+SPECTACULAR_SETTINGS = {
+    "TITLE": "AMI API",
+    "DESCRIPTION": "API de l'Application Mobile Interminitérielle",
+    "VERSION": "1.0.0",
+}
 
 # Cors
 CORS_ALLOWED_ORIGINS = [PUBLIC_APP_URL]
