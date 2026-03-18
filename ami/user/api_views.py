@@ -2,17 +2,40 @@ import uuid
 from typing import cast
 
 from django.shortcuts import get_object_or_404
-from litestar.status_codes import HTTP_201_CREATED
+from drf_spectacular.utils import PolymorphicProxySerializer, extend_schema, inline_serializer
 from rest_framework.decorators import api_view
 from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework.status import HTTP_201_CREATED
 
 from ami.authentication.decorators import ami_login_required
 
 from .models import Registration
-from .serializers import RegistrationCreateSerializer, RegistrationSerializer
+from .serializers import (
+    MobileAppSubscriptionSerializer,
+    RegistrationCreateSerializer,
+    RegistrationSerializer,
+    WebPushSubscriptionSerializer,
+)
 
 
+@extend_schema(methods=["GET"], responses=RegistrationSerializer(many=True))
+@extend_schema(
+    methods=["POST"],
+    request=PolymorphicProxySerializer(
+        component_name="RegistrationCreate",
+        serializers=[
+            inline_serializer(
+                "WebPushRegistrationCreate", {"subscription": WebPushSubscriptionSerializer()}
+            ),
+            inline_serializer(
+                "MobileRegistrationCreate", {"subscription": MobileAppSubscriptionSerializer()}
+            ),
+        ],
+        resource_type_field_name=None,
+    ),
+    responses={200: RegistrationSerializer, 201: RegistrationSerializer},
+)
 @api_view(["GET", "POST"])
 @ami_login_required
 def registrations(request: Request) -> Response:
