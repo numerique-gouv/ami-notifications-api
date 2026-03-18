@@ -1,5 +1,7 @@
 from rest_framework import serializers
 
+from ami.notification.models import Notification
+
 
 class NotificationReadSerializer(serializers.Serializer):
     read = serializers.BooleanField()
@@ -15,6 +17,48 @@ class AdminNotificationCreateSerializer(serializers.Serializer):
     title = serializers.CharField(min_length=1, source="content_title")
     message = serializers.CharField(min_length=1, source="content_body")
     sender = serializers.CharField(min_length=1)
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    # Remap the "user" field from the model to "user_id" in the serializer
+    user_id = serializers.UUIDField(source="user.id")
+
+    class Meta:
+        fields = [
+            "content_body",
+            "content_icon",
+            "content_title",
+            "created_at",
+            "id",
+            "item_canal",
+            "item_external_url",
+            "item_generic_status",
+            "item_id",
+            "item_milestone_end_date",
+            "item_milestone_start_date",
+            "item_status_label",
+            "item_type",
+            "read",
+            "sender",
+            "user_id",
+        ]
+        model = Notification
+
+
+class ScheduledNotificationCreateSerializer(serializers.Serializer):
+    content_title = serializers.CharField(min_length=1)
+    content_body = serializers.CharField(min_length=1)
+    content_icon = serializers.CharField(min_length=1)
+    reference = serializers.CharField(min_length=1)
+    scheduled_at = serializers.DateTimeField()
+
+
+class ScheduledNotificationResponseSerializer(serializers.Serializer):
+    scheduled_notification_id = serializers.UUIDField()
+
+
+class ScheduledNotificationDeleteSerializer(serializers.Serializer):
+    reference = serializers.CharField(min_length=1)
 
 
 class PartnerNotificationCreateSerializer(serializers.Serializer):

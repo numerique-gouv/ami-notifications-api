@@ -8,21 +8,25 @@ from django.conf import settings
 from django.db.models import QuerySet
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from rest_framework import serializers
 from rest_framework.decorators import api_view
 from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED
 
 from ami.authentication.decorators import ami_login_required, partner_auth_required
 from ami.notification.tasks import push_notification
 from ami.user.models import User
 from ami.utils import sentry
 
-from .models import Notification, NotificationEvent
+from .models import Notification, NotificationEvent, ScheduledNotification
 from .serializers import (
     NotificationReadSerializer,
     NotificationResponseSerializer,
+    NotificationSerializer,
     PartnerNotificationCreateSerializer,
+    ScheduledNotificationCreateSerializer,
+    ScheduledNotificationDeleteSerializer,
+    ScheduledNotificationResponseSerializer,
 )
 
 
@@ -82,30 +86,65 @@ def get_notification_key(request: Request) -> HttpResponse:
     return HttpResponse(settings.CONFIG.get("VAPID_APPLICATION_SERVER_KEY", ""))
 
 
-class NotificationSerializer(serializers.ModelSerializer):
-    # Remap the "user" field from the model to "user_id" in the serializer
-    user_id = serializers.UUIDField(source="user.id")
+@api_view(["DELETE", "POST"])
+@ami_login_required
+def scheduled_notifications(request: Request) -> Response:
+    if request.method == "DELETE":
+        return delete_scheduled_notification(request)
+    return create_scheduled_notification(request)
 
-    class Meta:
-        fields = [
-            "content_body",
-            "content_icon",
-            "content_title",
-            "created_at",
-            "id",
-            "item_canal",
-            "item_external_url",
-            "item_generic_status",
-            "item_id",
-            "item_milestone_end_date",
-            "item_milestone_start_date",
-            "item_status_label",
-            "item_type",
-            "read",
-            "sender",
-            "user_id",
-        ]
-        model = Notification
+
+def create_scheduled_notification(
+    request: Request,
+) -> Response[ScheduledNotificationResponseSerializer]:
+    serializer = ScheduledNotificationCreateSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    data: dict = cast(dict, serializer.validated_data)
+
+    existing_scheduled_notification = ScheduledNotification.objects.filter(
+        reference=data["reference"], user=request.ami_user
+    ).first()
+    status_code = HTTP_200_OK
+    if existing_scheduled_notification is None:
+        # create scheduled notification
+        scheduled_notification = ScheduledNotification.objects.create(
+            user_id=request.ami_user.id, sender="AMI", **data
+        )
+        status_code = HTTP_201_CREATED
+        scheduled_notification.refresh_from_db()
+    elif existing_scheduled_notification.sent_at is None:
+        # update scheduled notification
+        ScheduledNotification.objects.filter(id=existing_scheduled_notification.id).update(**data)
+        scheduled_notification = existing_scheduled_notification
+    else:
+        # scheduled notification was already sent as a notification to user: don't change it
+        scheduled_notification = existing_scheduled_notification
+
+    response_serializer = ScheduledNotificationResponseSerializer(
+        data={
+            "scheduled_notification_id": scheduled_notification.id,
+        }
+    )
+    response_serializer.is_valid(raise_exception=True)
+    return Response(response_serializer.data, status=status_code)
+
+
+def delete_scheduled_notification(request: Request) -> Response:
+    serializer = ScheduledNotificationDeleteSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    data: dict = cast(dict, serializer.validated_data)
+
+    scheduled_notification = ScheduledNotification.objects.filter(
+        **data, user=request.ami_user
+    ).first()
+
+    if scheduled_notification is None:
+        return Response(status=404)
+
+    if scheduled_notification.sent_at is None:
+        scheduled_notification.delete()
+
+    return Response(status=204)
 
 
 @api_view(["POST"])
