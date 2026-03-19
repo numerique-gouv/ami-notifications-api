@@ -17,10 +17,9 @@ dependencies = [
     "firebase-admin>=7.1.0",
     "gunicorn>=25.1.0",
     "httpx>=0.28.1",
-    "litestar[pydantic,sqlalchemy,standard]>=2.15.1",
     "psycopg[binary]>=3.3.3",
     "python-dotenv>=1.1.0",
-    "sentry-sdk[litestar]>=2.29.1",
+    "sentry-sdk>=2.29.1",
     "types-requests>=2.32.0.20250328",
     "uvicorn>=0.34.0",
     "webpush>=1.0.5",
@@ -30,7 +29,6 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "alembic>=1.15.2",
     "cryptography>=44.0.2",
     "daphne>=4.2.1",
     "django-cors-headers>=4.9.0",
