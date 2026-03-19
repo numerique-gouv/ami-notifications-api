@@ -106,7 +106,7 @@ please check the relevant entry in the [CONTRIBUTING.md](CONTRIBUTING.md) file.
 
 #### Migrations
 
-We use [alembic](https://alembic.sqlalchemy.org) for database migrations
+We use [django migrations](https://docs.djangoproject.com/en/6.0/topics/migrations/) for database migrations
 (changing from one database schema to another).
 You'll find detailed commands and usage in the [CONTRIBUTING.md](CONTRIBUTING.md) file.
 
