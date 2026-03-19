@@ -173,6 +173,7 @@ PUBLIC_APP_URL = CONFIG["PUBLIC_APP_URL"]
 
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_AUTHENTICATION_CLASSES": [],  # Set it explicitely to empty, because by default it has basic auth and bypasses our own partner auth decorators.
 }
 SPECTACULAR_SETTINGS = {
     "TITLE": "AMI API",
