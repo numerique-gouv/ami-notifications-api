@@ -33,6 +33,9 @@ class Notification(models.Model):
     item_milestone_start_date = models.DateTimeField(blank=True, null=True)
     item_milestone_end_date = models.DateTimeField(blank=True, null=True)
     item_external_url = models.CharField(blank=True, null=True)
+    internal_url = models.CharField(
+        blank=True, null=True
+    )  # to link notification to a front url; used by scheduled notifications
     send_date = models.DateTimeField(default=timezone.now)
     read = models.BooleanField(default=False)
     try_push = models.BooleanField(blank=True, null=True)
@@ -44,6 +47,10 @@ class Notification(models.Model):
 
     class Meta:
         db_table = "notification"
+
+    @property
+    def url(self):
+        return self.item_external_url or self.internal_url
 
 
 class ScheduledNotificationToPublishManager(models.Manager):
@@ -88,6 +95,8 @@ class ScheduledNotification(models.Model):
     content_icon = models.CharField()
     sender = models.CharField()
     reference = models.CharField()
+    internal_url = models.CharField(blank=True, null=True)
+
     scheduled_at = models.DateTimeField()
     sent_at = models.DateTimeField(blank=True, null=True)
     sa_orm_sentinel = models.IntegerField(blank=True, null=True)
@@ -105,6 +114,7 @@ class ScheduledNotification(models.Model):
             content_title=self.content_title,
             content_body=self.content_body,
             content_icon=self.content_icon,
+            internal_url=self.internal_url,
             sender=self.sender,
             send_status=self.user.last_logged_in is not None,
         )

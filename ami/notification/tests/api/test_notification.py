@@ -29,6 +29,17 @@ def test_get_notifications(
 ) -> None:
     login(django_app, notification.user)
 
+    notification.item_external_url = "http://external-url"
+    notification.internal_url = "internal-url"
+    notification.save()
+
+    other_notification = Notification.objects.create(
+        user=notification.user,
+        content_body="Other notification",
+        content_title="Notification title",
+        sender="John Doe",
+    )
+
     # notification for another user, not returned in notification list of current user
     other_user = User.objects.create(fc_hash="fc-hash")
     Notification.objects.create(  # Some other notification
@@ -41,8 +52,26 @@ def test_get_notifications(
     # test user notification list
     response = django_app.get("/api/v1/users/notifications")
     assert response.status_code == HTTP_200_OK
-    assert len(response.json) == 1
+    assert len(response.json) == 2
     assert response.json[0] == {
+        "id": str(other_notification.id),
+        "user_id": str(other_notification.user.id),
+        "content_title": "Notification title",
+        "content_body": "Other notification",
+        "content_icon": None,
+        "sender": "John Doe",
+        "item_type": None,
+        "item_id": None,
+        "item_status_label": None,
+        "item_generic_status": None,
+        "item_canal": None,
+        "item_milestone_start_date": None,
+        "item_milestone_end_date": None,
+        "url": None,
+        "created_at": other_notification.created_at.isoformat().replace("+00:00", "Z"),
+        "read": False,
+    }
+    assert response.json[1] == {
         "id": str(notification.id),
         "user_id": str(notification.user.id),
         "content_title": "Notification title",
@@ -56,24 +85,23 @@ def test_get_notifications(
         "item_canal": None,
         "item_milestone_start_date": None,
         "item_milestone_end_date": None,
-        "item_external_url": None,
+        "url": "http://external-url",
         "created_at": notification.created_at.isoformat().replace("+00:00", "Z"),
         "read": False,
     }
 
     response = django_app.get("/api/v1/users/notifications?read=false")
     assert response.status_code == HTTP_200_OK
-    assert len(response.json) == 1
+    assert len(response.json) == 2
     response = django_app.get("/api/v1/users/notifications?read=true")
     assert response.status_code == HTTP_200_OK
     assert len(response.json) == 0
 
-    notification.read = True
-    notification.save()
+    Notification.objects.update(read=True)
 
     response = django_app.get("/api/v1/users/notifications")
     assert response.status_code == HTTP_200_OK
-    assert len(response.json) == 1
+    assert len(response.json) == 2
     assert response.json[0]["read"] is True
 
     response = django_app.get("/api/v1/users/notifications?read=false")
@@ -81,7 +109,7 @@ def test_get_notifications(
     assert len(response.json) == 0
     response = django_app.get("/api/v1/users/notifications?read=true")
     assert response.status_code == HTTP_200_OK
-    assert len(response.json) == 1
+    assert len(response.json) == 2
 
 
 @pytest.mark.django_db
@@ -148,7 +176,7 @@ def test_read_notification(
         "item_canal": None,
         "item_milestone_start_date": None,
         "item_milestone_end_date": None,
-        "item_external_url": None,
+        "url": None,
         "created_at": notification.created_at.isoformat().replace("+00:00", "Z"),
         "read": True,
     }

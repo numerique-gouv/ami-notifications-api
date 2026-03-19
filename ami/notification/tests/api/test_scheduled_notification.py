@@ -19,6 +19,7 @@ def test_create_scheduled_notification(django_app, user: User) -> None:
         "content_body": "body",
         "content_icon": "icon",
         "reference": "reference",
+        "internal_url": "internal-url",
         "scheduled_at": scheduled_notification_date.isoformat(),
     }
     response = django_app.post(
@@ -32,6 +33,7 @@ def test_create_scheduled_notification(django_app, user: User) -> None:
     assert scheduled_notification.content_body == "body"
     assert scheduled_notification.content_icon == "icon"
     assert scheduled_notification.reference == "reference"
+    assert scheduled_notification.internal_url == "internal-url"
     assert scheduled_notification.scheduled_at == scheduled_notification_date
     assert scheduled_notification.sender == "AMI"
     assert scheduled_notification.sent_at is None
@@ -48,6 +50,7 @@ def test_create_scheduled_notification_known_reference(django_app, user: User) -
         content_body="body",
         content_icon="icon",
         reference="reference",
+        internal_url="internal-url",
         scheduled_at=now(),
         sender="AMI",
     )
@@ -58,6 +61,7 @@ def test_create_scheduled_notification_known_reference(django_app, user: User) -
         "content_body": "body-updated",
         "content_icon": "icon-updated",
         "reference": "reference",
+        "internal_url": "internal-url-updated",
         "scheduled_at": scheduled_notification_date.isoformat(),
     }
     response = django_app.post(
@@ -99,6 +103,7 @@ def test_create_scheduled_notification_known_reference(django_app, user: User) -
     assert scheduled_notification.content_body == "body-updated"
     assert scheduled_notification.content_icon == "icon-updated"
     assert scheduled_notification.reference == "reference"
+    assert scheduled_notification.internal_url == "internal-url-updated"
     assert scheduled_notification.scheduled_at == scheduled_notification_date
     assert scheduled_notification.sender == "AMI"
     assert scheduled_notification.sent_at is not None
@@ -134,6 +139,7 @@ def test_create_scheduled_notification_known_reference(django_app, user: User) -
     assert scheduled_notification.content_body == "body"
     assert scheduled_notification.content_icon == "icon"
     assert scheduled_notification.reference == "other-reference"
+    assert scheduled_notification.internal_url is None
     assert scheduled_notification.scheduled_at == scheduled_notification_date
     assert scheduled_notification.sender == "AMI"
     assert scheduled_notification.sent_at is None
@@ -161,6 +167,7 @@ def test_create_scheduled_notification_test_fields(django_app, user: User) -> No
         "content_title": "",
         "content_body": "",
         "content_icon": "",
+        "internal_url": "",
         "reference": "",
     }
     response = django_app.post(
