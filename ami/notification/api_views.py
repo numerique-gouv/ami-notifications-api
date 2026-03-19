@@ -8,6 +8,7 @@ from django.conf import settings
 from django.db.models import QuerySet
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from drf_spectacular.utils import extend_schema
 from rest_framework.decorators import api_view
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -147,6 +148,11 @@ def delete_scheduled_notification(request: Request) -> Response:
     return Response(status=204)
 
 
+@extend_schema(
+    methods=["POST"],
+    request=PartnerNotificationCreateSerializer,
+    responses={201: NotificationResponseSerializer},
+)
 @api_view(["POST"])
 @partner_auth_required
 def partner_create_notification(request: Request) -> Response[NotificationResponseSerializer]:
