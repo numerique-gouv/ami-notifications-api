@@ -99,8 +99,11 @@ export class Item {
     };
     const dateFormat: Intl.DateTimeFormatOptions = startFormat;
     if (this._start_date) {
-      const start = this._start_date.toLocaleDateString(locale, startFormat);
+      let start = this._start_date.toLocaleDateString(locale, startFormat);
       if (this._end_date) {
+        if (this._end_date.getTime() === this._start_date.getTime()) {
+          return start;
+        }
         const endFormat = startFormat;
         if (this._start_date.getFullYear() === this._end_date.getFullYear()) {
           startFormat = { month: 'long', day: 'numeric' };
@@ -108,7 +111,7 @@ export class Item {
             startFormat = { day: 'numeric' };
           }
         }
-        const start = this._start_date.toLocaleDateString(locale, startFormat);
+        start = this._start_date.toLocaleDateString(locale, startFormat);
         const end = this._end_date.toLocaleDateString(locale, endFormat);
         return `Du ${start} au ${end}`;
       }
