@@ -164,8 +164,7 @@ describe('/follow-up.ts', () => {
       const past = new Date(now.getTime() - 60 * 1000);
       const future = new Date(now.getTime() + 60 * 1000);
       const request1 = {
-        external_id: 'OperationTranquilliteVacances:42',
-        kind: 'otv',
+        external_id: 'psl:OperationTranquilliteVacances:42',
         status_id: 'new',
         status_label: 'Brouillon',
         milestone_start_date: new Date('2026-01-23T15:50:00Z'),
@@ -177,8 +176,7 @@ describe('/follow-up.ts', () => {
         updated_at: new Date('2026-02-23T15:55:00Z'),
       };
       const request2 = {
-        external_id: 'OperationTranquilliteVacances:43',
-        kind: 'otv',
+        external_id: 'psl:OperationTranquilliteVacances:43',
         status_id: 'wip',
         status_label: 'En cours',
         milestone_start_date: null,
@@ -190,8 +188,7 @@ describe('/follow-up.ts', () => {
         updated_at: new Date('2026-02-22T15:55:00Z'),
       };
       const request3 = {
-        external_id: 'OperationTranquilliteVacances:44',
-        kind: 'otv',
+        external_id: 'psl:OperationTranquilliteVacances:44',
         status_id: 'new',
         status_label: 'Brouillon',
         milestone_start_date: new Date('2026-01-23T15:50:00Z'),
@@ -203,8 +200,7 @@ describe('/follow-up.ts', () => {
         updated_at: new Date('2026-02-21T15:55:00Z'),
       };
       const request4 = {
-        external_id: 'OperationTranquilliteVacances:45',
-        kind: 'otv',
+        external_id: 'psl:OperationTranquilliteVacances:45',
         status_id: 'closed',
         status_label: 'Terminée',
         milestone_start_date: null,
@@ -218,7 +214,7 @@ describe('/follow-up.ts', () => {
 
       // When
       const followUp = new FollowUp({
-        psl: [request1, request2, request3, request4],
+        notifications: [request1, request2, request3, request4],
       });
 
       // Then
@@ -279,8 +275,7 @@ describe('/follow-up.ts', () => {
       // Given
       vi.stubEnv('TZ', 'Europe/Paris');
       const request1 = {
-        external_id: 'OperationTranquilliteVacances:42',
-        kind: 'otv',
+        external_id: 'psl:OperationTranquilliteVacances:42',
         status_id: 'new',
         status_label: 'Brouillon',
         milestone_start_date: null,
@@ -292,8 +287,7 @@ describe('/follow-up.ts', () => {
         updated_at: new Date('2026-02-23T15:55:00Z'),
       };
       const request2 = {
-        external_id: 'OperationTranquilliteVacances:43',
-        kind: 'otv',
+        external_id: 'psl:OperationTranquilliteVacances:43',
         status_id: 'closed',
         status_label: 'Terminée',
         milestone_start_date: null,
@@ -305,7 +299,7 @@ describe('/follow-up.ts', () => {
         updated_at: new Date('2026-02-22T15:55:00Z'),
       };
       const spy = vi.spyOn(inventoryMethods, 'retrieveInventory').mockResolvedValue({
-        psl: [request1, request2],
+        notifications: [request1, request2],
       });
 
       // When

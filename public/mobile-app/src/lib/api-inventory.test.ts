@@ -3,12 +3,11 @@ import '@testing-library/jest-dom/vitest';
 import { retrieveInventory } from '$lib/api-inventory';
 
 const inventoryData = {
-  psl: {
+  notifications: {
     status: 'success',
     items: [
       {
-        external_id: 'OperationTranquilliteVacances:42',
-        kind: 'otv',
+        external_id: 'psl:OperationTranquilliteVacances:42',
         status_id: 'new',
         status_label: 'Brouillon',
         milestone_start_date: new Date('2026-01-23T15:50:00Z'),
@@ -20,8 +19,7 @@ const inventoryData = {
         updated_at: new Date('2026-02-23T15:55:00Z'),
       },
       {
-        external_id: 'OperationTranquilliteVacances:43',
-        kind: 'otv',
+        external_id: 'psl:OperationTranquilliteVacances:43',
         status_id: 'wip',
         status_label: 'En cours',
         milestone_start_date: null,
@@ -59,14 +57,14 @@ describe('/api-inventory', () => {
 
       // Then
       expect(spy).toHaveBeenCalledExactlyOnceWith(
-        'https://localhost:8000/data/follow-up/inventories?filter-items=psl',
+        'https://localhost:8000/data/follow-up/inventories?filter-items=notifications',
         { credentials: 'include' }
       );
       expect(result).toEqual({
-        psl: inventoryData.psl.items,
+        notifications: inventoryData.notifications.items,
       });
-      expect(window.localStorage.getItem('psl_inventory')).toEqual(
-        JSON.stringify(inventoryData.psl)
+      expect(window.localStorage.getItem('notifications_inventory')).toEqual(
+        JSON.stringify(inventoryData.notifications)
       );
     });
 
@@ -81,25 +79,28 @@ describe('/api-inventory', () => {
 
       // Then
       expect(spy).toHaveBeenCalledExactlyOnceWith(
-        'https://localhost:8000/data/follow-up/inventories?filter-items=psl',
+        'https://localhost:8000/data/follow-up/inventories?filter-items=notifications',
         { credentials: 'include' }
       );
       expect(result).toEqual({
-        psl: [],
+        notifications: [],
       });
-      expect(window.localStorage.getItem('psl_inventory')).toEqual(null);
+      expect(window.localStorage.getItem('notifications_inventory')).toEqual(null);
     });
 
     test('should get inventory from localstorage', async () => {
       // Given
-      window.localStorage.setItem('psl_inventory', JSON.stringify(inventoryData.psl));
+      window.localStorage.setItem(
+        'notifications_inventory',
+        JSON.stringify(inventoryData.notifications)
+      );
 
       // When
       const result = await retrieveInventory(new Date('2025-11-01T12:00:00Z'));
 
       // Then
       expect(result).toEqual({
-        psl: inventoryData.psl.items,
+        notifications: inventoryData.notifications.items,
       });
     });
 
@@ -118,7 +119,7 @@ describe('/api-inventory', () => {
           );
         }
         const responseData: { [K in InventoryKey]: any } = {
-          psl: null,
+          notifications: null,
         };
         responseData[key] = inventoryData[key];
         const spy = vi
@@ -136,7 +137,7 @@ describe('/api-inventory', () => {
           { credentials: 'include' }
         );
         expect(result).toEqual({
-          psl: inventoryData.psl.items,
+          notifications: inventoryData.notifications.items,
         });
         expect(window.localStorage.getItem(`${key}_inventory`)).toEqual(
           JSON.stringify(inventoryData[key])
@@ -160,7 +161,7 @@ describe('/api-inventory', () => {
           );
         }
         const responseData: { [K in InventoryKey]: any } = {
-          psl: null,
+          notifications: null,
         };
         responseData[key] = inventoryData[key];
         const spy = vi
@@ -178,7 +179,7 @@ describe('/api-inventory', () => {
           { credentials: 'include' }
         );
         expect(result).toEqual({
-          psl: inventoryData.psl.items,
+          notifications: inventoryData.notifications.items,
         });
         expect(window.localStorage.getItem(`${key}_inventory`)).toEqual(
           JSON.stringify(inventoryData[key])
@@ -205,7 +206,7 @@ describe('/api-inventory', () => {
           );
         }
         const responseData: { [K in InventoryKey]: any } = {
-          psl: null,
+          notifications: null,
         };
         responseData[key] = inventoryData[key];
         const spy = vi
@@ -223,7 +224,7 @@ describe('/api-inventory', () => {
           { credentials: 'include' }
         );
         expect(result).toEqual({
-          psl: inventoryData.psl.items,
+          notifications: inventoryData.notifications.items,
         });
         expect(window.localStorage.getItem(`${key}_inventory`)).toEqual(
           JSON.stringify(inventoryData[key])
@@ -248,7 +249,7 @@ describe('/api-inventory', () => {
           );
         }
         const responseData: { [K in InventoryKey]: any } = {
-          psl: null,
+          notifications: null,
         };
         responseData[key] = inventoryData[key];
         const spy = vi
@@ -266,7 +267,7 @@ describe('/api-inventory', () => {
           { credentials: 'include' }
         );
         expect(result).toEqual({
-          psl: inventoryData.psl.items,
+          notifications: inventoryData.notifications.items,
         });
         expect(window.localStorage.getItem(`${key}_inventory`)).toEqual(
           JSON.stringify(inventoryData[key])
@@ -280,7 +281,7 @@ describe('/api-inventory', () => {
         window.localStorage.clear();
         vi.clearAllMocks();
         const inventoryData2: { [K in InventoryKey]: any } = {
-          psl: null,
+          notifications: null,
         };
         for (const key2 of Object.keys(inventoryData) as InventoryKey[]) {
           if (key2 === key) {
@@ -299,7 +300,7 @@ describe('/api-inventory', () => {
           );
         }
         const responseData: { [K in InventoryKey]: any } = {
-          psl: null,
+          notifications: null,
         };
         const { ...entry } = inventoryData[key];
         entry.status = 'failed';
@@ -319,7 +320,7 @@ describe('/api-inventory', () => {
           { credentials: 'include' }
         );
         expect(result).toEqual({
-          psl: inventoryData2.psl.items,
+          notifications: inventoryData2.notifications.items,
         });
         expect(window.localStorage.getItem(`${key}_inventory`)).toEqual(
           JSON.stringify(inventoryData2[key])
@@ -345,7 +346,7 @@ describe('/api-inventory', () => {
           );
         }
         const responseData: { [K in InventoryKey]: any } = {
-          psl: null,
+          notifications: null,
         };
         responseData[key] = inventoryData[key];
         const spy = vi
@@ -363,7 +364,7 @@ describe('/api-inventory', () => {
           { credentials: 'include' }
         );
         expect(result).toEqual({
-          psl: inventoryData.psl.items,
+          notifications: inventoryData.notifications.items,
         });
         expect(window.localStorage.getItem(`${key}_inventory`)).toEqual(
           JSON.stringify(inventoryData[key])
@@ -393,7 +394,7 @@ describe('/api-inventory', () => {
 
         // Then
         expect(result).toEqual({
-          psl: inventoryData.psl.items,
+          notifications: inventoryData.notifications.items,
         });
       }
     });

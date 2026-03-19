@@ -2,7 +2,6 @@ import { apiFetch } from '$lib/auth';
 
 export type InventoryItem = {
   external_id: string;
-  kind: string;
   status_id: string;
   status_label: string;
   milestone_start_date: Date | null;
@@ -17,7 +16,7 @@ export type InventoryItem = {
 };
 
 export type Inventory = {
-  psl: InventoryItem[];
+  notifications: InventoryItem[];
 };
 
 export const retrieveInventory = async (
@@ -26,7 +25,7 @@ export const retrieveInventory = async (
   const now = new Date(date || '');
   const filter_items = [];
   const inventoryData = {
-    psl: localStorage.getItem('psl_inventory') || '{}',
+    notifications: localStorage.getItem('notifications_inventory') || '{}',
   };
   type InventoryKey = keyof typeof inventoryData;
   for (const key of Object.keys(inventoryData) as InventoryKey[]) {
@@ -69,7 +68,8 @@ export const retrieveInventory = async (
     }
   }
   const inventory = {
-    psl: JSON.parse(inventoryData.psl).items || ([] as InventoryItem[]),
+    notifications:
+      JSON.parse(inventoryData.notifications).items || ([] as InventoryItem[]),
   } as Inventory;
   for (const items of Object.values(inventory)) {
     items.forEach((item) => {
