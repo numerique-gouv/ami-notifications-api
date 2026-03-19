@@ -18,13 +18,13 @@ class NotificationEvent(str, Enum):  # Subclassing `str` makes it automagically 
 class Notification(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
-    content_body = models.CharField()
-    sender = models.CharField()
-    content_title = models.CharField()
-    sa_orm_sentinel = models.IntegerField(blank=True, null=True)
     user_id: uuid.UUID  # For typing purposes: this is only a type annotation
     user = models.ForeignKey(User, models.PROTECT)
+
+    content_title = models.CharField()
+    content_body = models.CharField()
     content_icon = models.CharField(blank=True, null=True)
+
     item_type = models.CharField(blank=True, null=True)
     item_id = models.CharField(blank=True, null=True)
     item_status_label = models.CharField(blank=True, null=True)
@@ -33,14 +33,17 @@ class Notification(models.Model):
     item_milestone_start_date = models.DateTimeField(blank=True, null=True)
     item_milestone_end_date = models.DateTimeField(blank=True, null=True)
     item_external_url = models.CharField(blank=True, null=True)
+
+    send_status = models.BooleanField(blank=True, null=True)
+    partner_id = models.CharField(blank=True, null=True)
+    sender = models.CharField()
     internal_url = models.CharField(
         blank=True, null=True
     )  # to link notification to a front url; used by scheduled notifications
-    send_date = models.DateTimeField(default=timezone.now)
+
     read = models.BooleanField(default=False)
+    send_date = models.DateTimeField(default=timezone.now)
     try_push = models.BooleanField(blank=True, null=True)
-    send_status = models.BooleanField(blank=True, null=True)
-    partner_id = models.CharField(blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -90,16 +93,17 @@ class ScheduledNotification(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     user = models.ForeignKey(User, models.PROTECT)
+    reference = models.CharField()
+
     content_title = models.CharField()
     content_body = models.CharField()
     content_icon = models.CharField()
+
     sender = models.CharField()
-    reference = models.CharField()
     internal_url = models.CharField(blank=True, null=True)
 
     scheduled_at = models.DateTimeField()
     sent_at = models.DateTimeField(blank=True, null=True)
-    sa_orm_sentinel = models.IntegerField(blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
