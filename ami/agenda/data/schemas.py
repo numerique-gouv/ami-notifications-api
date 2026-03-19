@@ -25,8 +25,13 @@ class SchoolHoliday:
     def from_dict(cls, data: dict[str, Any]) -> "SchoolHoliday":
         cls_fields = {f.name for f in fields(cls)}
         filtered = {k: v for k, v in data.items() if k in cls_fields}
-        filtered["start_date"] = datetime.datetime.fromisoformat(filtered["start_date"]).date()
-        filtered["end_date"] = datetime.datetime.fromisoformat(filtered["end_date"]).date()
+        start_date = datetime.datetime.fromisoformat(filtered["start_date"]).date()
+        filtered["start_date"] = start_date
+        # The API returns the first day back, not the last day of the school holiday
+        end_date = datetime.datetime.fromisoformat(filtered["end_date"]).date()
+        # Sometimes, for the Ascension Day long weekend, the API only returns the period for Thursday only,
+        # not the period from Thursday through next Monday
+        filtered["end_date"] = max(start_date, end_date - datetime.timedelta(days=1))
         filtered["emoji"] = cls.emoji_mapping.get(filtered["description"], "")
         return cls(**filtered)
 
