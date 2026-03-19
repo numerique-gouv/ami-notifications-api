@@ -3,8 +3,8 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from ami.authentication.decorators import ami_login_required
-from ami.partner.models import get_psl_inventory
 
+from .data.notification import get_psl_inventory
 from .schemas import FollowUp
 from .serializers import FollowUpSerializer
 

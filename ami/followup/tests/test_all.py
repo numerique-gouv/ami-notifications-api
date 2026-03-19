@@ -8,10 +8,10 @@ from ami.followup.schemas import (
     FollowUpInventoryItem,
     FollowUpInventoryItemKind,
     FollowUpInventoryStatus,
+    ItemGenericStatus,
 )
 from ami.tests.utils import assert_query_fails_without_auth, login
 from ami.user.models import User
-from ami.utils.schemas import ItemGenericStatus
 
 
 @pytest.mark.django_db

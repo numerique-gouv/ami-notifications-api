@@ -3,16 +3,16 @@ from unittest import mock
 
 import pytest
 
+from ami.followup.data.notification import get_partner_data, get_psl_inventory
 from ami.followup.schemas import (
     FollowUpInventory,
     FollowUpInventoryItem,
     FollowUpInventoryItemKind,
     FollowUpInventoryStatus,
+    ItemGenericStatus,
 )
 from ami.notification.models import Notification
-from ami.partner.models import get_partner_data, get_psl_inventory
 from ami.user.models import User
-from ami.utils.schemas import ItemGenericStatus
 
 
 @pytest.mark.django_db
@@ -279,6 +279,6 @@ def test_get_psl_inventory(user: User, monkeypatch: pytest.MonkeyPatch) -> None:
         ),
     ]
     data_mock = mock.Mock(return_value=items)
-    monkeypatch.setattr("ami.partner.models.get_partner_data", data_mock)
+    monkeypatch.setattr("ami.followup.data.notification.get_partner_data", data_mock)
     result = get_psl_inventory(current_user=user)
     assert result == FollowUpInventory(status=FollowUpInventoryStatus.SUCCESS, items=items)

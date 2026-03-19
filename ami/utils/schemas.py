@@ -46,9 +46,3 @@ class MonthlyExpiration(ExpirationRule):
             return datetime.datetime(
                 year=now.year + 1, month=1, day=1, tzinfo=datetime.timezone.utc
             )
-
-
-class ItemGenericStatus(Enum):
-    NEW = "new"
-    WIP = "wip"
-    CLOSED = "closed"

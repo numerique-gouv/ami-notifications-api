@@ -4,7 +4,12 @@ from enum import Enum
 from typing import Self
 
 from ami.notification.models import Notification
-from ami.utils.schemas import ItemGenericStatus
+
+
+class ItemGenericStatus(Enum):
+    NEW = "new"
+    WIP = "wip"
+    CLOSED = "closed"
 
 
 class FollowUpInventoryStatus(Enum):
