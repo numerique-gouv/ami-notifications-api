@@ -77,6 +77,15 @@ def test_get_school_holidays_data(
             "zones": "Zone C",
             "annee_scolaire": "2025-2026",
         },
+        {
+            "description": "Pont de l'Ascension",
+            "population": "-",
+            "start_date": "2027-05-07T00:00:00+02:00",
+            "end_date": "2027-05-07T00:00:00+02:00",
+            "location": "Bordeaux",
+            "zones": "Zone A",
+            "annee_scolaire": "2026-2027",
+        },
     ]
     fake_holidays_data = {"total_counts": len(fake_holidays_data), "results": fake_holidays_data}
 
@@ -102,30 +111,37 @@ def test_get_school_holidays_data(
         SchoolHoliday(
             description="Vacances de Noël",
             start_date=datetime.date(2025, 12, 20),
-            end_date=datetime.date(2026, 1, 5),
+            end_date=datetime.date(2026, 1, 4),
             zones="",
             emoji="🎄",
         ),
         SchoolHoliday(
             description="Vacances d'Hiver",
             start_date=datetime.date(2026, 2, 7),
-            end_date=datetime.date(2026, 2, 23),
+            end_date=datetime.date(2026, 2, 22),
             zones="Zone A",
             emoji="❄️",
         ),
         SchoolHoliday(
             description="Vacances d'Hiver",
             start_date=datetime.date(2026, 2, 14),
-            end_date=datetime.date(2026, 3, 2),
+            end_date=datetime.date(2026, 3, 1),
             zones="Zone B",
             emoji="❄️",
         ),
         SchoolHoliday(
             description="Vacances d'Hiver",
             start_date=datetime.date(2026, 2, 21),
-            end_date=datetime.date(2026, 3, 9),
+            end_date=datetime.date(2026, 3, 8),
             zones="Zone C",
             emoji="❄️",
+        ),
+        SchoolHoliday(
+            description="Pont de l'Ascension",
+            zones="Zone A",
+            start_date=datetime.date(2027, 5, 7),
+            end_date=datetime.date(2027, 5, 7),
+            emoji="",
         ),
     ]
     result = get_school_holidays_data(datetime.date(2025, 11, 12), datetime.date(2026, 9, 15))
