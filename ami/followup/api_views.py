@@ -4,7 +4,7 @@ from rest_framework.response import Response
 
 from ami.authentication.decorators import ami_login_required
 
-from .data.notification import get_psl_inventory
+from .data.notification import get_notifications_inventory
 from .schemas import FollowUp
 from .serializers import FollowUpSerializer
 
@@ -14,7 +14,7 @@ from .serializers import FollowUpSerializer
 def get_follow_up_inventories(request: Request) -> Response[FollowUp]:
     follow_up = FollowUp()
 
-    follow_up.psl = get_psl_inventory(current_user=request.ami_user)
+    follow_up.notifications = get_notifications_inventory(current_user=request.ami_user)
     serializer = FollowUpSerializer(follow_up)
 
     return Response(serializer.data)

@@ -6,7 +6,6 @@ import pytest
 from ami.followup.schemas import (
     FollowUpInventory,
     FollowUpInventoryItem,
-    FollowUpInventoryItemKind,
     FollowUpInventoryStatus,
     ItemGenericStatus,
 )
@@ -26,8 +25,7 @@ def test_get_follow_up_inventories(
         status=FollowUpInventoryStatus.SUCCESS,
         items=[
             FollowUpInventoryItem(
-                external_id="OperationTranquilliteVacances:44",
-                kind=FollowUpInventoryItemKind.OTV,
+                external_id="psl:OperationTranquilliteVacances:44",
                 status_id=ItemGenericStatus.CLOSED,
                 status_label="Validé",
                 milestone_start_date=datetime.datetime(
@@ -43,8 +41,7 @@ def test_get_follow_up_inventories(
                 updated_at=datetime.datetime(2026, 2, 24, 17, 24, tzinfo=datetime.timezone.utc),
             ),
             FollowUpInventoryItem(
-                external_id="OperationTranquilliteVacances:43",
-                kind=FollowUpInventoryItemKind.OTV,
+                external_id="psl:OperationTranquilliteVacances:43",
                 status_id=ItemGenericStatus.NEW,
                 status_label="Nouveau",
                 milestone_start_date=None,
@@ -58,16 +55,15 @@ def test_get_follow_up_inventories(
         ],
     )
     psl_data_mock = mock.Mock(return_value=psl_inventory)
-    monkeypatch.setattr("ami.followup.api_views.get_psl_inventory", psl_data_mock)
+    monkeypatch.setattr("ami.followup.api_views.get_notifications_inventory", psl_data_mock)
 
     response = django_app.get("/data/follow-up/inventories", status=200)
     assert response.json == {
-        "psl": {
+        "notifications": {
             "status": "success",
             "items": [
                 {
-                    "external_id": "OperationTranquilliteVacances:44",
-                    "kind": "otv",
+                    "external_id": "psl:OperationTranquilliteVacances:44",
                     "status_id": "closed",
                     "status_label": "Validé",
                     "milestone_start_date": "2026-02-26T17:24:00Z",
@@ -79,8 +75,7 @@ def test_get_follow_up_inventories(
                     "updated_at": "2026-02-24T17:24:00Z",
                 },
                 {
-                    "external_id": "OperationTranquilliteVacances:43",
-                    "kind": "otv",
+                    "external_id": "psl:OperationTranquilliteVacances:43",
                     "status_id": "new",
                     "status_label": "Nouveau",
                     "milestone_start_date": None,
