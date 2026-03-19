@@ -176,6 +176,23 @@ describe('/agenda.ts', () => {
         // Then
         expect(period).equal('Du 20 décembre 2025 au 2 janvier 2026');
       });
+      test('should mention only start date and not "Du .. au .."', async () => {
+        // Given
+        const item = new Item(
+          'holiday',
+          'title',
+          'description',
+          null,
+          new Date('2027-05-07'),
+          new Date('2027-05-07')
+        );
+
+        // When
+        const period = item.period;
+
+        // Then
+        expect(period).equal('7 mai 2027');
+      });
       test('should mention "À partir de"', async () => {
         const item = new Item(
           'holiday',
