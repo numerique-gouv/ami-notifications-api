@@ -31,13 +31,13 @@ class NotificationSerializer(serializers.ModelSerializer):
             "created_at",
             "id",
             "item_canal",
-            "item_external_url",
             "item_generic_status",
             "item_id",
             "item_milestone_end_date",
             "item_milestone_start_date",
             "item_status_label",
             "item_type",
+            "url",
             "read",
             "sender",
             "user_id",
@@ -50,6 +50,7 @@ class ScheduledNotificationCreateSerializer(serializers.Serializer):
     content_body = serializers.CharField(allow_blank=False)
     content_icon = serializers.CharField(allow_blank=False)
     reference = serializers.CharField(allow_blank=False)
+    internal_url = serializers.CharField(allow_blank=False, default=None)
     scheduled_at = serializers.DateTimeField()
 
 

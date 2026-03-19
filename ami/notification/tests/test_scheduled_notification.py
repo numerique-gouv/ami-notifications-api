@@ -31,6 +31,7 @@ async def test_publish_scheduled_notifications(
         content_body="body 1",
         content_icon="icon 1",
         reference="reference 1",
+        internal_url="internal-url-1",
         scheduled_at=now(),
         sender="AMI",
         sent_at=now(),  # already sent
@@ -41,6 +42,7 @@ async def test_publish_scheduled_notifications(
         content_body="body 2",
         content_icon="icon 2",
         reference="reference 2",
+        internal_url="internal-url-2",
         scheduled_at=now() + datetime.timedelta(minutes=2),  # too soon
         sender="AMI",
     )
@@ -50,6 +52,7 @@ async def test_publish_scheduled_notifications(
         content_body="body 3",
         content_icon="icon 3",
         reference="reference 3",
+        internal_url="internal-url-3",
         scheduled_at=now(),
         sender="AMI",
     )
@@ -80,6 +83,7 @@ async def test_publish_scheduled_notifications(
     assert notification.item_milestone_end_date is None
     assert notification.item_external_url is None
     assert notification.item_canal is None
+    assert notification.internal_url == "internal-url-3"
     assert notification.send_date is not None
     assert notification.sender == "AMI"
     assert notification.read is False
