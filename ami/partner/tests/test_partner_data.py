@@ -2,76 +2,54 @@ import datetime
 from unittest import mock
 
 import pytest
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.data.partners import get_partner_data, get_psl_inventory
-from app.data.schemas import (
+from ami.followup.schemas import (
     FollowUpInventory,
     FollowUpInventoryItem,
     FollowUpInventoryItemKind,
     FollowUpInventoryStatus,
 )
-from app.models import Notification, User
-from app.schemas import ItemGenericStatus
-from app.services.notification import NotificationService
+from ami.notification.models import Notification
+from ami.partner.models import get_partner_data, get_psl_inventory
+from ami.user.models import User
+from ami.utils.schemas import ItemGenericStatus
 
-pytestmark = pytest.mark.skip("skip tests for Django migration")
 
-
-async def test_get_partner_data_no_notifications_for_user(
-    user: User,
-    db_session: AsyncSession,
-    notifications_service: NotificationService,
-) -> None:
-    other_user = User(fc_hash="fc-hash")
-    db_session.add(other_user)
-    await db_session.commit()
-    other_notification = Notification(
+@pytest.mark.django_db
+def test_get_partner_data_no_notifications_for_user(user: User) -> None:
+    other_user = User.objects.create(fc_hash="fc-hash")
+    Notification.objects.create(  # Other notification
         user_id=other_user.id,
         content_body="Other notification",
         content_title="Notification title",
         sender="PSL",
         partner_id="psl",
     )
-    db_session.add(other_notification)
-    await db_session.commit()
 
-    result = await get_partner_data(
-        current_user=user, partner_id="psl", notifications_service=notifications_service
-    )
+    result = get_partner_data(current_user=user, partner_id="psl")
 
     assert result == []
 
 
-async def test_get_partner_data_no_notifications_for_partner(
-    user: User,
-    db_session: AsyncSession,
-    notifications_service: NotificationService,
-) -> None:
-    other_notification = Notification(
+@pytest.mark.django_db
+def test_get_partner_data_no_notifications_for_partner(user: User) -> None:
+    Notification.objects.create(  # Other notification
         user_id=user.id,
         content_body="Other notification",
         content_title="Notification title",
         sender="PSL",
         partner_id="other_partner",
     )
-    db_session.add(other_notification)
-    await db_session.commit()
 
-    result = await get_partner_data(
-        current_user=user, partner_id="psl", notifications_service=notifications_service
-    )
+    result = get_partner_data(current_user=user, partner_id="psl")
 
     assert result == []
 
 
-async def test_get_partner_data_incomplete_notifications(
-    user: User,
-    db_session: AsyncSession,
-    notifications_service: NotificationService,
-) -> None:
+@pytest.mark.django_db
+def test_get_partner_data_incomplete_notifications(user: User) -> None:
     # no item_generic_status
-    notification1 = Notification(
+    Notification.objects.create(
         user_id=user.id,
         content_body="notification 1",
         content_title="Notification title 1",
@@ -81,10 +59,8 @@ async def test_get_partner_data_incomplete_notifications(
         sender="PSL",
         partner_id="psl",
     )
-    db_session.add(notification1)
-    await db_session.commit()
     # no item_status_label
-    notification1 = Notification(
+    Notification.objects.create(
         user_id=user.id,
         content_body="notification 1",
         content_title="Notification title 1",
@@ -94,10 +70,8 @@ async def test_get_partner_data_incomplete_notifications(
         sender="PSL",
         partner_id="psl",
     )
-    db_session.add(notification1)
-    await db_session.commit()
     # no item_type
-    notification1 = Notification(
+    Notification.objects.create(
         user_id=user.id,
         content_body="notification 1",
         content_title="Notification title 1",
@@ -107,10 +81,8 @@ async def test_get_partner_data_incomplete_notifications(
         sender="PSL",
         partner_id="psl",
     )
-    db_session.add(notification1)
-    await db_session.commit()
     # no item_id
-    notification1 = Notification(
+    Notification.objects.create(
         user_id=user.id,
         content_body="notification 1",
         content_title="Notification title 1",
@@ -120,23 +92,16 @@ async def test_get_partner_data_incomplete_notifications(
         sender="PSL",
         partner_id="psl",
     )
-    db_session.add(notification1)
-    await db_session.commit()
 
-    result = await get_partner_data(
-        current_user=user, partner_id="psl", notifications_service=notifications_service
-    )
+    result = get_partner_data(current_user=user, partner_id="psl")
 
     assert result == []
 
 
-async def test_get_partner_data_invalid_notifications(
-    user: User,
-    db_session: AsyncSession,
-    notifications_service: NotificationService,
-) -> None:
+@pytest.mark.django_db
+def test_get_partner_data_invalid_notifications(user: User) -> None:
     # invalid item_generic_status
-    notification1 = Notification(
+    Notification.objects.create(
         user_id=user.id,
         content_body="notification 1",
         content_title="Notification title 1",
@@ -147,22 +112,15 @@ async def test_get_partner_data_invalid_notifications(
         sender="PSL",
         partner_id="psl",
     )
-    db_session.add(notification1)
-    await db_session.commit()
 
-    result = await get_partner_data(
-        current_user=user, partner_id="psl", notifications_service=notifications_service
-    )
+    result = get_partner_data(current_user=user, partner_id="psl")
 
     assert result == []
 
 
-async def test_get_partner_data(
-    user: User,
-    db_session: AsyncSession,
-    notifications_service: NotificationService,
-) -> None:
-    notification1 = Notification(
+@pytest.mark.django_db
+def test_get_partner_data(user: User) -> None:
+    notification1 = Notification.objects.create(
         user_id=user.id,
         content_body="notification 1",
         content_title="Notification title 1",
@@ -173,9 +131,7 @@ async def test_get_partner_data(
         sender="PSL",
         partner_id="psl",
     )
-    db_session.add(notification1)
-    await db_session.commit()
-    notification2 = Notification(
+    Notification.objects.create(  # notification 2
         user_id=user.id,
         content_body="notification 2",
         content_title="Notification title 2",
@@ -186,9 +142,7 @@ async def test_get_partner_data(
         sender="PSL",
         partner_id="psl",
     )
-    db_session.add(notification2)
-    await db_session.commit()
-    notification3 = Notification(
+    notification3 = Notification.objects.create(
         user_id=user.id,
         content_body="notification 3",
         content_title="Notification title 3",
@@ -199,10 +153,8 @@ async def test_get_partner_data(
         sender="PSL",
         partner_id="psl",
     )
-    db_session.add(notification3)
-    await db_session.commit()
 
-    notification4 = Notification(
+    notification4 = Notification.objects.create(
         user_id=user.id,
         content_body="notification 4",
         content_title="Notification title 4",
@@ -214,10 +166,8 @@ async def test_get_partner_data(
         sender="PSL",
         partner_id="psl",
     )
-    db_session.add(notification4)
-    await db_session.commit()
 
-    notification5 = Notification(
+    notification5 = Notification.objects.create(
         user_id=user.id,
         content_body="notification 5",
         content_title="Notification title 5",
@@ -229,9 +179,7 @@ async def test_get_partner_data(
         sender="PSL",
         partner_id="psl",
     )
-    db_session.add(notification5)
-    await db_session.commit()
-    notification6 = Notification(
+    notification6 = Notification.objects.create(
         user_id=user.id,
         content_body="notification 6",
         content_title="Notification title 6",
@@ -244,10 +192,8 @@ async def test_get_partner_data(
         sender="PSL",
         partner_id="psl",
     )
-    db_session.add(notification6)
-    await db_session.commit()
 
-    other_notification = Notification(
+    Notification.objects.create(  # Other notification
         user_id=user.id,
         content_body="other notification",
         content_title="Other Notification title",
@@ -256,12 +202,8 @@ async def test_get_partner_data(
         sender="PSL",
         partner_id="psl",
     )
-    db_session.add(other_notification)
-    await db_session.commit()
 
-    result = await get_partner_data(
-        current_user=user, partner_id="psl", notifications_service=notifications_service
-    )
+    result = get_partner_data(current_user=user, partner_id="psl")
 
     assert result == [
         FollowUpInventoryItem(
@@ -306,11 +248,8 @@ async def test_get_partner_data(
     ]
 
 
-async def test_get_psl_inventory(
-    user: User,
-    notifications_service: NotificationService,
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
+@pytest.mark.django_db
+def test_get_psl_inventory(user: User, monkeypatch: pytest.MonkeyPatch) -> None:
     items = [
         FollowUpInventoryItem(
             external_id="OperationTranquilliteVacances:44",
@@ -339,7 +278,7 @@ async def test_get_psl_inventory(
             updated_at=datetime.datetime.now(datetime.timezone.utc),
         ),
     ]
-    data_mock = mock.AsyncMock(return_value=items)
-    monkeypatch.setattr("app.data.partners.get_partner_data", data_mock)
-    result = await get_psl_inventory(current_user=user, notifications_service=notifications_service)
+    data_mock = mock.Mock(return_value=items)
+    monkeypatch.setattr("ami.partner.models.get_partner_data", data_mock)
+    result = get_psl_inventory(current_user=user)
     assert result == FollowUpInventory(status=FollowUpInventoryStatus.SUCCESS, items=items)
