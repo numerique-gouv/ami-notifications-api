@@ -98,7 +98,7 @@ export class FollowUp {
   constructor(inventory: Inventory | null = null) {
     const requestItems: RequestItem[] = [];
 
-    const inventoryItems: InventoryItem[] = inventory?.psl || [];
+    const inventoryItems: InventoryItem[] = inventory?.notifications || [];
 
     // build items
     inventoryItems.forEach((inventoryItem) => {
