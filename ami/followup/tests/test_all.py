@@ -2,30 +2,25 @@ import datetime
 from unittest import mock
 
 import pytest
-from litestar import Litestar
-from litestar.status_codes import HTTP_200_OK
-from litestar.testing import TestClient
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.data.schemas import (
+from ami.followup.schemas import (
     FollowUpInventory,
     FollowUpInventoryItem,
     FollowUpInventoryItemKind,
     FollowUpInventoryStatus,
 )
-from app.models import User
-from app.schemas import ItemGenericStatus
-from tests.ami.utils import assert_query_fails_without_auth, login
-
-pytestmark = pytest.mark.skip("skip tests for Django migration")
+from ami.tests.utils import assert_query_fails_without_auth, login
+from ami.user.models import User
+from ami.utils.schemas import ItemGenericStatus
 
 
-async def test_get_follow_up_inventories(
+@pytest.mark.django_db
+def test_get_follow_up_inventories(
     user: User,
-    test_client: TestClient[Litestar],
     monkeypatch: pytest.MonkeyPatch,
+    django_app,
 ) -> None:
-    login(user, test_client)
+    login(django_app, user)
 
     psl_inventory = FollowUpInventory(
         status=FollowUpInventoryStatus.SUCCESS,
@@ -62,12 +57,11 @@ async def test_get_follow_up_inventories(
             ),
         ],
     )
-    psl_data_mock = mock.AsyncMock(return_value=psl_inventory)
-    monkeypatch.setattr("app.data.routes.get_psl_inventory", psl_data_mock)
+    psl_data_mock = mock.Mock(return_value=psl_inventory)
+    monkeypatch.setattr("ami.followup.api_views.get_psl_inventory", psl_data_mock)
 
-    response = test_client.get("/data/follow-up/inventories")
-    assert response.status_code == HTTP_200_OK
-    assert response.json() == {
+    response = django_app.get("/data/follow-up/inventories", status=200)
+    assert response.json == {
         "psl": {
             "status": "success",
             "items": [
@@ -102,8 +96,6 @@ async def test_get_follow_up_inventories(
     }
 
 
-async def test_get_follow_up_inventories_without_auth(
-    test_client: TestClient[Litestar],
-    db_session: AsyncSession,
-) -> None:
-    await assert_query_fails_without_auth("/data/follow-up/inventories", test_client, db_session)
+@pytest.mark.django_db
+def test_get_follow_up_inventories_without_auth(django_app) -> None:
+    assert_query_fails_without_auth(django_app, "/data/follow-up/inventories")
