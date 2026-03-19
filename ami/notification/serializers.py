@@ -14,9 +14,9 @@ class NotificationResponseSerializer(serializers.Serializer):
 
 class AdminNotificationCreateSerializer(serializers.Serializer):
     user_id = serializers.UUIDField()
-    title = serializers.CharField(min_length=1, source="content_title")
-    message = serializers.CharField(min_length=1, source="content_body")
-    sender = serializers.CharField(min_length=1)
+    title = serializers.CharField(allow_blank=False, source="content_title")
+    message = serializers.CharField(allow_blank=False, source="content_body")
+    sender = serializers.CharField(allow_blank=False)
 
 
 class NotificationSerializer(serializers.ModelSerializer):
@@ -46,10 +46,10 @@ class NotificationSerializer(serializers.ModelSerializer):
 
 
 class ScheduledNotificationCreateSerializer(serializers.Serializer):
-    content_title = serializers.CharField(min_length=1)
-    content_body = serializers.CharField(min_length=1)
-    content_icon = serializers.CharField(min_length=1)
-    reference = serializers.CharField(min_length=1)
+    content_title = serializers.CharField(allow_blank=False)
+    content_body = serializers.CharField(allow_blank=False)
+    content_icon = serializers.CharField(allow_blank=False)
+    reference = serializers.CharField(allow_blank=False)
     scheduled_at = serializers.DateTimeField()
 
 
@@ -58,38 +58,36 @@ class ScheduledNotificationResponseSerializer(serializers.Serializer):
 
 
 class ScheduledNotificationDeleteSerializer(serializers.Serializer):
-    reference = serializers.CharField(min_length=1)
+    reference = serializers.CharField(allow_blank=False)
 
 
 class PartnerNotificationCreateSerializer(serializers.Serializer):
     recipient_fc_hash = serializers.CharField(
         help_text="Hash de la concaténation des données pivot FC de l'usager destinataire, cf doc",
     )
-    content_title = serializers.CharField(min_length=1, help_text="Titre de la notification")
-    content_body = serializers.CharField(min_length=1, help_text="Contenu de la notification")
+    content_title = serializers.CharField(allow_blank=False, help_text="Titre de la notification")
+    content_body = serializers.CharField(allow_blank=False, help_text="Contenu de la notification")
     content_icon = serializers.CharField(
-        min_length=1,
         allow_blank=False,
         default=None,
         help_text="Nom technique de l'icône à associer à la notification dans l'application AMI, à choisir dans [les icones du DSFR](https://www.systeme-de-design.gouv.fr/version-courante/fr/fondamentaux/icone).",
     )
     item_type = serializers.CharField(
-        min_length=1,
+        allow_blank=False,
         help_text='Champ libre représentant le type de l\'objet associé à la notification, par exemple : "OTV" dans le cas des démarches "Opération Tranquillité Vacances"',
     )
     item_id = serializers.CharField(
-        min_length=1,
+        allow_blank=False,
         help_text="Identifiant dans le référentiel partenaire de l'objet associé à la notification",
     )
     item_status_label = serializers.CharField(
-        min_length=1, help_text='objet associé à la notification, par exemple : "Brouillon"'
+        allow_blank=False, help_text='objet associé à la notification, par exemple : "Brouillon"'
     )
     item_generic_status = serializers.ChoiceField(
         choices=["new", "wip", "closed"],
         help_text="Statut générique de l'objet associé à la notification pilotant des comportements spécifiques dans l'application AMI",
     )
     item_canal = serializers.CharField(
-        min_length=1,
         allow_blank=False,
         default=None,
         help_text="Canal source de l'objet associé à la notification (AMI, PSL, etc.) pour la mesure d'impact",
@@ -103,7 +101,6 @@ class PartnerNotificationCreateSerializer(serializers.Serializer):
         help_text="Date (au format ISO 8601) de fin de la période correspondant à l'objet associé à la notification, ex : date de fin de surveillance du logement dans le cadre d'une OTV",
     )
     item_external_url = serializers.CharField(
-        min_length=1,
         allow_blank=False,
         default=None,
         help_text="Lien vers le portail du partenaire de l'objet associé à la notification",
