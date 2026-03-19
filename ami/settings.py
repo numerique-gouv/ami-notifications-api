@@ -52,6 +52,7 @@ ALLOWED_HOSTS = [
 # Application definition
 
 INSTALLED_APPS = [
+    "channels",
     "channels_postgres",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -131,7 +132,7 @@ ASGI_APPLICATION = "ami.asgi.application"
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 postgres_database = dj_database_url.parse(CONFIG["DATABASE_URL"])
-DATABASES = {"default": postgres_database}
+DATABASES = {"default": postgres_database, "channels_postgres": postgres_database}
 
 # Tasks
 # TODO: use a real task backend in production
