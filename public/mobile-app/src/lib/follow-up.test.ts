@@ -227,18 +227,6 @@ describe('/follow-up.ts', () => {
         followUp.current[0].equals(
           new RequestItem(
             'Opération Tranquillité Vacances',
-            'Votre demande est en cours de traitement.',
-            new Date('2026-02-22T15:55:00.000Z'),
-            null,
-            'wip',
-            'En cours'
-          )
-        )
-      ).toBe(true);
-      expect(
-        followUp.current[1].equals(
-          new RequestItem(
-            'Opération Tranquillité Vacances',
             'Votre demande est en brouillon.',
             new Date('2026-02-23T15:55:00.000Z'),
             future,
@@ -247,21 +235,21 @@ describe('/follow-up.ts', () => {
           )
         )
       ).toBe(true);
-      expect(followUp.past.length).equal(2);
       expect(
-        followUp.past[0].equals(
+        followUp.current[1].equals(
           new RequestItem(
             'Opération Tranquillité Vacances',
-            'Votre demande est terminée.',
-            new Date('2026-02-20T15:55:00.000Z'),
+            'Votre demande est en cours de traitement.',
+            new Date('2026-02-22T15:55:00.000Z'),
             null,
-            'closed',
-            'Terminée'
+            'wip',
+            'En cours'
           )
         )
       ).toBe(true);
+      expect(followUp.past.length).equal(2);
       expect(
-        followUp.past[1].equals(
+        followUp.past[0].equals(
           new RequestItem(
             'Opération Tranquillité Vacances',
             'Votre demande est en brouillon.',
@@ -269,6 +257,18 @@ describe('/follow-up.ts', () => {
             past,
             'new',
             'Brouillon'
+          )
+        )
+      ).toBe(true);
+      expect(
+        followUp.past[1].equals(
+          new RequestItem(
+            'Opération Tranquillité Vacances',
+            'Votre demande est terminée.',
+            new Date('2026-02-20T15:55:00.000Z'),
+            null,
+            'closed',
+            'Terminée'
           )
         )
       ).toBe(true);

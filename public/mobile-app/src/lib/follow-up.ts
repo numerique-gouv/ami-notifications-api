@@ -107,7 +107,7 @@ export class FollowUp {
     });
 
     // sort items by date
-    requestItems.sort((a, b) => a.date.getTime() - b.date.getTime());
+    requestItems.sort((a, b) => b.date.getTime() - a.date.getTime());
 
     // organize items in _current or _past arrays
     requestItems.forEach((requestItem) => {
