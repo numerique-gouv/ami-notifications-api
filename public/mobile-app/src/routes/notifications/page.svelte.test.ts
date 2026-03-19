@@ -75,7 +75,7 @@ describe('/+page.svelte', () => {
           id: 'f62c66b2-7bd5-4696-8383-2d40c08a1',
           content_title: 'test 2',
           read: false,
-          item_external_url: '',
+          url: '',
         },
         {
           created_at: new Date('2025-09-19T12:59:04.950812'),
@@ -86,7 +86,7 @@ describe('/+page.svelte', () => {
           content_title: 'test',
           content_icon: 'some-icon',
           read: true,
-          item_external_url: '',
+          url: '',
         },
       ]);
 
@@ -121,7 +121,7 @@ describe('/+page.svelte', () => {
           content_title: 'test 2',
           content_icon: 'fr-icon-mail-star-line',
           read: false,
-          item_external_url: '',
+          url: '',
         },
         {
           created_at: new Date('2025-09-19T12:59:04.950812'),
@@ -131,7 +131,7 @@ describe('/+page.svelte', () => {
           id: '2689c3b3-e95c-4d73-b37d-55f430688af9',
           content_title: 'test',
           read: true,
-          item_external_url: '',
+          url: '',
         },
       ])
       .mockImplementationOnce(async () => [
@@ -144,7 +144,7 @@ describe('/+page.svelte', () => {
           content_title: 'test 2',
           content_icon: 'fr-icon-smartphone-line',
           read: true,
-          item_external_url: '',
+          url: '',
         },
         {
           created_at: new Date('2025-09-19T12:59:04.950812'),
@@ -154,7 +154,7 @@ describe('/+page.svelte', () => {
           id: '2689c3b3-e95c-4d73-b37d-55f430688af9',
           content_title: 'test',
           read: true,
-          item_external_url: '',
+          url: '',
         },
       ]);
     const spy2 = vi
@@ -168,7 +168,7 @@ describe('/+page.svelte', () => {
           id: 'f62c66b2-7bd5-4696-8383-2d40c08a1',
           content_title: 'test 2',
           read: true,
-          item_external_url: '',
+          url: '',
         };
       });
 
@@ -207,7 +207,7 @@ describe('/+page.svelte', () => {
     expect(notification2).toHaveClass('read');
   });
 
-  test('should redirect to item_external_url when is set and user clicks on notification', async () => {
+  test('should redirect to url when is set and user clicks on notification', async () => {
     // Given
     vi.spyOn(notificationsMethods, 'retrieveNotifications').mockImplementationOnce(
       async () => [
@@ -219,7 +219,7 @@ describe('/+page.svelte', () => {
           id: 'f62c66b2-7bd5-4696-8383-2d40c08a1',
           content_title: 'test 2',
           read: false,
-          item_external_url: 'https://www.service-public.gouv.fr',
+          url: 'https://www.service-public.gouv.fr',
         },
       ]
     );
@@ -237,7 +237,7 @@ describe('/+page.svelte', () => {
     expect(globalThis.window.location.href).toBe('https://www.service-public.gouv.fr');
   });
 
-  test('should not redirect when item_external_url is not set and user clicks on notification', async () => {
+  test('should not redirect when url is not set and user clicks on notification', async () => {
     // Given
     vi.spyOn(notificationsMethods, 'retrieveNotifications').mockImplementationOnce(
       async () => [
@@ -249,7 +249,7 @@ describe('/+page.svelte', () => {
           id: 'f62c66b2-7bd5-4696-8383-2d40c08a1',
           content_title: 'test 2',
           read: false,
-          item_external_url: '',
+          url: '',
         },
       ]
     );

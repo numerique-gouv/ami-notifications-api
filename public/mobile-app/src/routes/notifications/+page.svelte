@@ -84,7 +84,7 @@
             <h3 class="fr-tile__title">
               <a
                 href="/"
-                onclick={(event) => clickOnNotification(event, notification.id, notification.item_external_url)}
+                onclick={(event) => clickOnNotification(event, notification.id, notification.url)}
                 data-testid="notification-link-{notification.id}"
                 >{notification.content_title}</a
               >
