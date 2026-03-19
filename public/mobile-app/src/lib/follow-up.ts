@@ -70,7 +70,7 @@ export class RequestItem {
       icon: 'fr-icon-eye-fill',
     },
     closed: {
-      icon: 'fr-icon-success-fill',
+      icon: 'fr-icon-flag-fill',
     },
   };
 

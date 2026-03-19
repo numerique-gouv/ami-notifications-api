@@ -152,7 +152,7 @@ describe('/follow-up.ts', () => {
         expect(icon1).equal('');
         expect(icon2).equal('fr-icon-mail-fill');
         expect(icon3).equal('fr-icon-eye-fill');
-        expect(icon4).equal('fr-icon-success-fill');
+        expect(icon4).equal('fr-icon-flag-fill');
       });
     });
   });

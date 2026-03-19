@@ -80,20 +80,10 @@
             font-weight: 700;
             line-height: 20px;
             margin-bottom: 0.5rem;
+            color: var(--info-425-625);
+            background-color: var(--info-950-100);
             &::before {
               --icon-size: 0.75rem;
-            }
-            &.new {
-              color: var(--info-425-625);
-              background-color: var(--info-950-100);
-            }
-            &.wip {
-              color: var(--yellow-tournesol-sun-407-moon-922);
-              background-color: var(--yellow-tournesol-950-100);
-            }
-            &.closed {
-              color: var(--success-425-625);
-              background-color: var(--success-950-100);
             }
           }
           .request--item--detail--date {
