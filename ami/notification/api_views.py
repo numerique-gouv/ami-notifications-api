@@ -1,8 +1,8 @@
-import asyncio
 import os
 import uuid
 from typing import cast
 
+from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from django.conf import settings
 from django.db.models import QuerySet
@@ -68,16 +68,14 @@ def read_notification(
     channel_layer = get_channel_layer()
     assert channel_layer is not None
     # More complex version than `async_to_sync`, but this won't work in tests: "is bound to another event loop"
-    asyncio.get_event_loop().run_until_complete(
-        channel_layer.group_send(
-            f"user_{notification.user.id}",
-            {
-                "type": "notification.event",
-                "user_id": str(notification.user.id),
-                "id": str(notification.id),
-                "event": NotificationEvent.UPDATED,
-            },
-        )
+    async_to_sync(channel_layer.group_send)(
+        f"user_{notification.user.id}",
+        {
+            "type": "notification.event",
+            "user_id": str(notification.user.id),
+            "id": str(notification.id),
+            "event": NotificationEvent.UPDATED,
+        },
     )
     return Response(NotificationSerializer(notification).data)
 
