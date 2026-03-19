@@ -4,6 +4,7 @@ import uuid
 import pytest
 from asgiref.sync import sync_to_async
 from channels.testing.websocket import WebsocketCommunicator
+from django.utils.timezone import now
 from pytest_httpx import HTTPXMock
 
 from ami.notification.models import Notification, ScheduledNotification
@@ -31,9 +32,9 @@ async def test_publish_scheduled_notifications(
         content_body="body 1",
         content_icon="icon 1",
         reference="reference 1",
-        scheduled_at=datetime.datetime.now(datetime.timezone.utc),
+        scheduled_at=now(),
         sender="AMI",
-        sent_at=datetime.datetime.now(datetime.timezone.utc),  # already sent
+        sent_at=now(),  # already sent
     )
     scheduled_notification2 = await ScheduledNotification.objects.acreate(
         user_id=user.id,
@@ -41,8 +42,7 @@ async def test_publish_scheduled_notifications(
         content_body="body 2",
         content_icon="icon 2",
         reference="reference 2",
-        scheduled_at=datetime.datetime.now(datetime.timezone.utc)
-        + datetime.timedelta(minutes=2),  # too soon
+        scheduled_at=now() + datetime.timedelta(minutes=2),  # too soon
         sender="AMI",
     )
     scheduled_notification3 = await ScheduledNotification.objects.acreate(
@@ -51,7 +51,7 @@ async def test_publish_scheduled_notifications(
         content_body="body 3",
         content_icon="icon 3",
         reference="reference 3",
-        scheduled_at=datetime.datetime.now(datetime.timezone.utc),
+        scheduled_at=now(),
         sender="AMI",
     )
 
@@ -110,7 +110,7 @@ def test_publish_scheduled_notification_when_registration_gone(
         content_body="body",
         content_icon="icon",
         reference="reference",
-        scheduled_at=datetime.datetime.now(datetime.timezone.utc),
+        scheduled_at=now(),
         sender="AMI",
     )
 
@@ -132,7 +132,7 @@ def test_publish_scheduled_notification_no_registration(
         content_body="body",
         content_icon="icon",
         reference="reference",
-        scheduled_at=datetime.datetime.now(datetime.timezone.utc),
+        scheduled_at=now(),
         sender="AMI",
     )
 
@@ -154,7 +154,7 @@ def test_publish_scheduled_notification_never_seen_user(
         content_body="body",
         content_icon="icon",
         reference="reference",
-        scheduled_at=datetime.datetime.now(datetime.timezone.utc),
+        scheduled_at=now(),
         sender="AMI",
     )
 
@@ -178,10 +178,9 @@ def test_delete_published_scheduled_notifications(
         content_body="body",
         content_icon="icon",
         reference="reference1",
-        scheduled_at=datetime.datetime.now(datetime.timezone.utc),
+        scheduled_at=now(),
         sender="AMI",
-        sent_at=datetime.datetime.now(datetime.timezone.utc)
-        - datetime.timedelta(days=6 * 30, minutes=-2),  # too soon
+        sent_at=now() - datetime.timedelta(days=6 * 30, minutes=-2),  # too soon
     )
     scheduled_notification2 = ScheduledNotification.objects.create(
         user_id=user.id,
@@ -189,7 +188,7 @@ def test_delete_published_scheduled_notifications(
         content_body="body",
         content_icon="icon",
         reference="reference2",
-        scheduled_at=datetime.datetime.now(datetime.timezone.utc),
+        scheduled_at=now(),
         sender="AMI",
         sent_at=None,  # not sent
     )
@@ -200,9 +199,9 @@ def test_delete_published_scheduled_notifications(
         content_body="body",
         content_icon="icon",
         reference="reference3",
-        scheduled_at=datetime.datetime.now(datetime.timezone.utc),
+        scheduled_at=now(),
         sender="AMI",
-        sent_at=datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=6 * 30),
+        sent_at=now() - datetime.timedelta(days=6 * 30),
     )
 
     ScheduledNotification.to_delete.delete()
@@ -217,9 +216,7 @@ def test_delete_published_scheduled_notifications(
 def test_create_scheduled_notification(django_app, user: User) -> None:
     login(django_app, user)
 
-    scheduled_notification_date: datetime.datetime = datetime.datetime.now(
-        datetime.timezone.utc
-    ) + datetime.timedelta(days=1)
+    scheduled_notification_date: datetime.datetime = now() + datetime.timedelta(days=1)
     scheduled_notification_data = {
         "content_title": "title",
         "content_body": "body",
@@ -254,13 +251,11 @@ def test_create_scheduled_notification_known_reference(django_app, user: User) -
         content_body="body",
         content_icon="icon",
         reference="reference",
-        scheduled_at=datetime.datetime.now(datetime.timezone.utc),
+        scheduled_at=now(),
         sender="AMI",
     )
 
-    scheduled_notification_date: datetime.datetime = datetime.datetime.now(
-        datetime.timezone.utc
-    ) + datetime.timedelta(days=1)
+    scheduled_notification_date: datetime.datetime = now() + datetime.timedelta(days=1)
     scheduled_notification_data = {
         "content_title": "title-updated",
         "content_body": "body-updated",
@@ -285,12 +280,10 @@ def test_create_scheduled_notification_known_reference(django_app, user: User) -
     assert response.json == {"scheduled_notification_id": str(scheduled_notification.id)}
 
     # but if scheduled notification is already sent as a notification, changes are ignored
-    scheduled_notification.sent_at = datetime.datetime.now(datetime.timezone.utc)
+    scheduled_notification.sent_at = now()
     scheduled_notification.save()
 
-    scheduled_notification_date2: datetime.datetime = datetime.datetime.now(
-        datetime.timezone.utc
-    ) + datetime.timedelta(days=2)
+    scheduled_notification_date2: datetime.datetime = now() + datetime.timedelta(days=2)
     scheduled_notification_data = {
         "content_title": "title-updated-again",
         "content_body": "body-updated-again",
@@ -322,7 +315,7 @@ def test_create_scheduled_notification_known_reference(django_app, user: User) -
         content_body="body",
         content_icon="icon",
         reference="other-reference",
-        scheduled_at=datetime.datetime.now(datetime.timezone.utc),
+        scheduled_at=now(),
         sender="AMI",
     )
 
@@ -385,9 +378,7 @@ def test_create_scheduled_notification_test_fields(django_app, user: User) -> No
     }
 
     # id, created_at, updated_at, user_id, sender and sent_at are ignored
-    scheduled_notification_date: datetime.datetime = datetime.datetime.now(
-        datetime.timezone.utc
-    ) + datetime.timedelta(days=1)
+    scheduled_notification_date: datetime.datetime = now() + datetime.timedelta(days=1)
     scheduled_notification_id: uuid.UUID = uuid.uuid4()
     scheduled_notification_data = {
         "content_title": "title",
@@ -433,7 +424,7 @@ def test_delete_scheduled_notification(django_app, user: User) -> None:
         content_body="body",
         content_icon="icon",
         reference="reference",
-        scheduled_at=datetime.datetime.now(datetime.timezone.utc),
+        scheduled_at=now(),
         sender="AMI",
     )
 
@@ -472,9 +463,9 @@ def test_delete_scheduled_notification_alread_sent(django_app, user: User) -> No
         content_body="body",
         content_icon="icon",
         reference="reference",
-        scheduled_at=datetime.datetime.now(datetime.timezone.utc),
+        scheduled_at=now(),
         sender="AMI",
-        sent_at=datetime.datetime.now(datetime.timezone.utc),
+        sent_at=now(),
     )
 
     django_app.delete(
