@@ -31,7 +31,7 @@ test-ci:
 
 .PHONY: statics
 statics:
-	$(RUN) python manage.py collectstatic
+	$(RUN) python manage.py collectstatic --noinput
 
 .PHONY: dev
 dev: ssl-key.pem
