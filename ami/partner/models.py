@@ -9,10 +9,16 @@ class Partner:
     name: str
     secret: str
     icon: str
+    followup_from_notifications: bool = True
 
 
 partners: dict[str, Partner] = {
-    "psl": Partner("psl", "PSL", settings.CONFIG["PARTNERS_PSL_SECRET"], ""),
+    "psl": Partner(
+        "psl",
+        "PSL",
+        settings.CONFIG["PARTNERS_PSL_SECRET"],
+        "",
+    ),
     "dinum-dn": Partner(
         "dinum-dn",
         "demarche.numerique.gouv.fr",
@@ -20,6 +26,9 @@ partners: dict[str, Partner] = {
         "fr-icon-infinity-line",
     ),
     "dinum-ami": Partner(
-        "dinum-ami", "AMI", settings.CONFIG["PARTNERS_DINUM_AMI_SECRET"], "fr-icon-smartphone-line"
+        "dinum-ami",
+        "AMI",
+        settings.CONFIG["PARTNERS_DINUM_AMI_SECRET"],
+        "fr-icon-smartphone-line",
     ),
 }

@@ -18,14 +18,9 @@ class FollowUpInventoryStatus(Enum):
     FAILED = "failed"
 
 
-class FollowUpInventoryItemKind(Enum):
-    OTV = "otv"
-
-
 @dataclass
 class FollowUpInventoryItem:
     external_id: str
-    kind: FollowUpInventoryItemKind
     status_id: ItemGenericStatus
     status_label: str
     milestone_start_date: datetime.datetime | None
@@ -38,27 +33,17 @@ class FollowUpInventoryItem:
     created_at: datetime.datetime
     updated_at: datetime.datetime
 
-    kind_mapping = {
-        ("psl", "OperationTranquilliteVacances"): FollowUpInventoryItemKind.OTV,
-    }
-
     @classmethod
     def from_notifications(cls, notifications: list[Notification]) -> Self | None:
         first_notification = notifications[0]
         last_notification = notifications[-1]
         external_urls = [n.item_external_url for n in notifications if n.item_external_url]
-        assert last_notification.partner_id
-        assert last_notification.item_type
-        kind = cls.kind_mapping.get((last_notification.partner_id, last_notification.item_type))
-        if kind is None:
-            return None
         try:
             status_id = ItemGenericStatus(last_notification.item_generic_status)
         except ValueError:
             return None
         return cls(
-            external_id=f"{last_notification.item_type}:{last_notification.item_id}",
-            kind=kind,
+            external_id=f"{last_notification.partner_id}:{last_notification.item_type}:{last_notification.item_id}",
             status_id=status_id,
             status_label=last_notification.item_status_label or "",
             milestone_start_date=last_notification.item_milestone_start_date,
@@ -79,4 +64,4 @@ class FollowUpInventory:
 
 @dataclass
 class FollowUp:
-    psl: FollowUpInventory | None = field(default_factory=FollowUpInventory)
+    notifications: FollowUpInventory | None = field(default_factory=FollowUpInventory)
