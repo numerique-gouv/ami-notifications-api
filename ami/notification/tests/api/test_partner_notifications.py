@@ -388,7 +388,7 @@ def test_create_notification_partner_has_no_default_icon(
 ) -> None:
     partner = copy.deepcopy(partners["psl"])
     partner.icon = ""
-    monkeypatch.setattr("ami.authentication.middleware.partners", {"psl": partner})
+    monkeypatch.setattr("ami.partner.auth.partners", {"psl": partner})
     notification_data = {
         "recipient_fc_hash": user.fc_hash,
         "item_type": "OTV",
@@ -416,7 +416,7 @@ def test_create_notification_partner_has_default_icon(
 ) -> None:
     partner = copy.deepcopy(partners["psl"])
     partner.icon = "fr-icon-megaphone-line"
-    monkeypatch.setattr("ami.authentication.middleware.partners", {"psl": partner})
+    monkeypatch.setattr("ami.partner.auth.partners", {"psl": partner})
     notification_data = {
         "recipient_fc_hash": user.fc_hash,
         "item_type": "OTV",
