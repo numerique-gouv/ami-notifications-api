@@ -45,19 +45,14 @@ Biome is used for:
 
 ### API
 
-[litestar](https://docs.litestar.dev/latest/index.html) "is a powerful,
-flexible, highly performant, and opinionated ASGI framework."
+[Django](https://docs.djangoproject.com/) "was invented to meet fast-moving newsroom deadlines, while satisfying the tough requirements of experienced web developers."
 
 Start the server using:
 ```sh
 make dev # With live reloading
 ```
 
-Then access http://127.0.0.1:8000, or open one of:
-- http://127.0.0.1:8000/schema (for ReDoc)
-- http://127.0.0.1:8000/schema/swagger (for Swagger UI)
-- http://127.0.0.1:8000/schema/elements (for Stoplight Elements)
-- http://127.0.0.1:8000/schema/rapidoc (for RapiDoc)
+Then access https://localhost:8000
 
 For any specific env variables, create (or edit) a `.env.local` file. Anything in here
 will overload what's in the `.env` file.
@@ -71,14 +66,14 @@ We use the [webpush python library](https://pypi.org/project/webpush/) to deal w
 [VAPID encryption](https://blog.mozilla.org/services/2016/08/23/sending-vapid-identified-webpush-notifications-via-mozillas-push-service/)
 for us.
 
-This needs three keys to be generated and loaded when the server start:
+This needs three keys to be generated and loaded when the server start, or have their content loaded in environment variables.
 - `public_key.pem`
 - `private_key.pem`
 - `applicationServerKey`
 
 If those aren't present on the disk at the root of this project, and are not set using
 env variables (to be used during the scalingo deployment), then running `make dev`
-or any variant that calls the `bin/start.sh` file will automatically generate them.
+or any variant that uses the `settings.py` file will automatically provision them.
 
 To generate them manually:
 ```sh
@@ -96,12 +91,12 @@ existing registrations are now obsolete, and can't be used anymore.
 
 The `DATABASE_URL` should look like the following:
 ```
-postgresql+asyncpg://[user]:[password]@[url]:[port]/[dbname]
+postgresql://[user]:[password]@[url]:[port]/[dbname]
 ```
 
 For example for a `postgres` database running locally:
 ```
-postgresql+asyncpg://postgres:some_password@localhost:5432/postgres
+postgresql://postgres:some_password@localhost:5432/postgres
 ```
 
 #### Setting up PostgreSQL with Docker
@@ -111,7 +106,7 @@ please check the relevant entry in the [CONTRIBUTING.md](CONTRIBUTING.md) file.
 
 #### Migrations
 
-We use [alembic](https://alembic.sqlalchemy.org) for database migrations
+We use [django migrations](https://docs.djangoproject.com/en/6.0/topics/migrations/) for database migrations
 (changing from one database schema to another).
 You'll find detailed commands and usage in the [CONTRIBUTING.md](CONTRIBUTING.md) file.
 

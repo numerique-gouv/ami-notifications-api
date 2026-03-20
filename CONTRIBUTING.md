@@ -105,11 +105,6 @@ make test
 
 The base command to run the migrations and update to the latest database schema is:
 ```sh
-uv run --env-file .env --env-file .env.local alembic upgrade head
-```
-
-or simpler:
-```sh
 make migrate
 ```
 
@@ -118,11 +113,11 @@ make migrate
 When changing the models, create a new migration to reflect those changes in
 the database:
 ```sh
-uv run --env-file .env --env-file .env.local alembic revision --autogenerate -m "Explicit message here"
+uv run manage.py makemigrations <app> --name <explicit_migration_name>
 ```
 
-This should generate a migration file in `migrations/versions/<some
-id>_explicit_message_here.py...`, which you'll then modify according to your
+This should generate a migration file in `<app>/migrations/<some
+id>_explicit_migration_name.py`, which you'll then modify according to your
 needs.
 
 It should already have some code automatically generated to accomodate the
@@ -132,32 +127,12 @@ changes.
 
 To list the existing migrations:
 ```sh
-uv run --env-file .env --env-file .env.local alembic history
+uv run manage.py showmigrations
 ```
 
-Then, to rollback (downgrade) to a previous revision (version):
+Then, to target a revision (version):
 ```sh
-uv run --env-file .env --env-file .env.local alembic downgrade <revision>
-```
-
-###### Shortcuts
-
-It is possible to upgrade/downgrade schema without targetting a revision.
-
-To update:
-```sh
-uv run --env-file .env --env-file .env.local alembic upgrade +<n>
-```
-
-To downgrade:
-```sh
-uv run --env-file .env --env-file .env.local alembic downgrade -<n>
-```
-
-Example::
-```sh
-uv run --env-file .env --env-file .env.local alembic upgrade +1
-uv run --env-file .env --env-file .env.local alembic downgrade -1
+uv run manage.py migrate <app> <some id>
 ```
 
 ##### Reset (empty) the database (useful for demos)
@@ -199,20 +174,20 @@ The tests will be run against a (postgres) database on the same server as the
 one configured for your application, with the `_test` suffix.
 
 So for example if you're using
-`DATABASE_URL="postgresql+asyncpg://postgres:some_password@localhost:5432/postgres"`
+`DATABASE_URL="postgres://postgres:some_password@localhost:5432/postgres"`
 for your application, the tests will be running on
-`DATABASE_URL="postgresql+asyncpg://postgres:some_password@localhost:5432/postgres_test"`.
+`DATABASE_URL="postgres://postgres:some_password@localhost:5432/postgres_test"`.
 
 This test database must be created beforehand.
 
 If you'd rather run the tests manually, copy and paste the command from the Makefile:
 ```
-uv run --env-file .env --env-file .env.local pytest
+DJANGO_SETTINGS_MODULE=ami.settings uv run pytest ami
 ```
 
 To run a single test, you would use something like:
 ```
-uv run --env-file .env --env-file .env.local pytest tests/test_basic.py::test_homepage_title
+DJANGO_SETTINGS_MODULE=ami.settings uv run pytest ami/authentication/tests/test_all.py::test_generate_nonce
 ```
 
 ## FranceConnect

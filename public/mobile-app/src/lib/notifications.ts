@@ -58,10 +58,14 @@ export const readNotification = async (
     const payload = {
       read: true,
     };
+    const headers = {
+      'Content-Type': 'application/json',
+    };
     const response = await apiFetch(
       `/api/v1/users/notification/${notificationId}/read`,
       {
         method: 'PATCH',
+        headers,
         body: JSON.stringify(payload),
         credentials: 'include',
       }

@@ -6,28 +6,45 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "asyncpg>=0.30.0",
+    "channels-postgres>=1.1.4",
+    "django>=6.0.2",
+    "django-cors-headers>=4.9.0",
+    "django-database-url>=1.0.3",
+    "django-stubs[compatible-mypy]>=5.2.9",
+    "djangorestframework>=3.16.1",
+    "djangorestframework-dataclasses>=1.4.0",
+    "drf-spectacular>=0.29.0",
     "firebase-admin>=7.1.0",
+    "gunicorn>=25.1.0",
     "httpx>=0.28.1",
-    "litestar[pydantic,sqlalchemy,standard]>=2.15.1",
-    "sentry-sdk[litestar]>=2.29.1",
+    "psycopg[binary]>=3.3.3",
+    "python-dotenv>=1.1.0",
+    "sentry-sdk>=2.29.1",
     "types-requests>=2.32.0.20250328",
+    "uvicorn[standard]>=0.34.0",
     "webpush>=1.0.5",
+    "whitenoise>=6.12.0",
     "workalendar>=17.0.0",
 ]
 
 [dependency-groups]
 dev = [
-    "alembic>=1.15.2",
     "cryptography>=44.0.2",
+    "daphne>=4.2.1",
+    "django-cors-headers>=4.9.0",
+    "django-webtest>=1.9.14",
     "freezegun>=1.5.5",
     "ipdb>=0.13.13",
     "pre-commit>=4.2.0",
     "pre-commit-uv>=4.1.4",
+    "pyopenssl>=25.3.0",
     "pyright>=1.1.390",
     "pytest>=8.3.5",
     "pytest-asyncio>=0.26.0",
+    "pytest-django>=4.12.0",
     "pytest-httpx>=0.35.0",
     "ruff>=0.11.2",
+    "werkzeug>=3.1.6",
 ]
 
 [tool.pyright]
@@ -68,3 +85,6 @@ extend-select = ["I"] # also sort imports with an isort rule
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
+
+[tool.django-stubs]
+django_settings_module = "ami.settings"
