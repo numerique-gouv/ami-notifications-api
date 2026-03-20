@@ -125,7 +125,6 @@ def webpush_notification(webpush_registration: Registration) -> Notification:
         user_id=webpush_registration.user.id,
         content_body="Hello notification",
         content_title="Notification title",
-        sender="John Doe",
     )
 
 
@@ -174,7 +173,6 @@ def notification(user: User) -> Notification:
         user_id=user.id,
         content_body="Hello notification",
         content_title="Notification title",
-        sender="John Doe",
     )
 
 
@@ -192,7 +190,6 @@ def mobile_notification(mobile_registration: Registration) -> Notification:
         user_id=mobile_registration.user.id,
         content_body="Hello notification",
         content_title="Notification title",
-        sender="John Doe",
     )
 
 

@@ -33,7 +33,6 @@ async def test_publish_scheduled_notifications(
         reference="reference 1",
         internal_url="internal-url-1",
         scheduled_at=now(),
-        sender="AMI",
         sent_at=now(),  # already sent
     )
     scheduled_notification2 = await ScheduledNotification.objects.acreate(
@@ -44,7 +43,6 @@ async def test_publish_scheduled_notifications(
         reference="reference 2",
         internal_url="internal-url-2",
         scheduled_at=now() + datetime.timedelta(minutes=2),  # too soon
-        sender="AMI",
     )
     scheduled_notification3 = await ScheduledNotification.objects.acreate(
         user_id=user.id,
@@ -54,7 +52,6 @@ async def test_publish_scheduled_notifications(
         reference="reference 3",
         internal_url="internal-url-3",
         scheduled_at=now(),
-        sender="AMI",
     )
 
     await sync_to_async(ScheduledNotification.to_publish.publish)()
@@ -85,7 +82,7 @@ async def test_publish_scheduled_notifications(
     assert notification.item_canal is None
     assert notification.internal_url == "internal-url-3"
     assert notification.send_date is not None
-    assert notification.sender == "AMI"
+    assert notification.partner_id == "dinum-ami"
     assert notification.read is False
     assert notification.try_push is None
     assert notification.send_status is True
@@ -114,7 +111,6 @@ def test_publish_scheduled_notification_when_registration_gone(
         content_icon="icon",
         reference="reference",
         scheduled_at=now(),
-        sender="AMI",
     )
 
     ScheduledNotification.to_publish.publish()
@@ -136,7 +132,6 @@ def test_publish_scheduled_notification_no_registration(
         content_icon="icon",
         reference="reference",
         scheduled_at=now(),
-        sender="AMI",
     )
 
     ScheduledNotification.to_publish.publish()
@@ -158,7 +153,6 @@ def test_publish_scheduled_notification_never_seen_user(
         content_icon="icon",
         reference="reference",
         scheduled_at=now(),
-        sender="AMI",
     )
 
     ScheduledNotification.to_publish.publish()
@@ -182,7 +176,6 @@ def test_delete_published_scheduled_notifications(
         content_icon="icon",
         reference="reference1",
         scheduled_at=now(),
-        sender="AMI",
         sent_at=now() - datetime.timedelta(days=6 * 30, minutes=-2),  # too soon
     )
     scheduled_notification2 = ScheduledNotification.objects.create(
@@ -192,7 +185,6 @@ def test_delete_published_scheduled_notifications(
         content_icon="icon",
         reference="reference2",
         scheduled_at=now(),
-        sender="AMI",
         sent_at=None,  # not sent
     )
 
@@ -203,7 +195,6 @@ def test_delete_published_scheduled_notifications(
         content_icon="icon",
         reference="reference3",
         scheduled_at=now(),
-        sender="AMI",
         sent_at=now() - datetime.timedelta(days=6 * 30),
     )
 

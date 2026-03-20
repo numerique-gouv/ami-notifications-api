@@ -23,7 +23,6 @@ def test_get_notifications_data_no_notifications_for_user(user: User) -> None:
         user_id=other_user.id,
         content_body="Other notification",
         content_title="Notification title",
-        sender="PSL",
         partner_id="psl",
     )
 
@@ -43,7 +42,6 @@ def test_get_notifications_data_partner_without_notifications(
         user_id=user.id,
         content_body="Other notification",
         content_title="Notification title",
-        sender="PSL",
         partner_id="psl",
     )
 
@@ -62,7 +60,6 @@ def test_get_notifications_data_incomplete_notifications(user: User) -> None:
         item_status_label="Nouveau",
         item_type="OperationTranquilliteVacances",
         item_id="42",
-        sender="PSL",
         partner_id="psl",
     )
     # no item_status_label
@@ -73,7 +70,6 @@ def test_get_notifications_data_incomplete_notifications(user: User) -> None:
         item_generic_status="new",
         item_type="OperationTranquilliteVacances",
         item_id="42",
-        sender="PSL",
         partner_id="psl",
     )
     # no item_type
@@ -84,7 +80,6 @@ def test_get_notifications_data_incomplete_notifications(user: User) -> None:
         item_generic_status="new",
         item_status_label="Nouveau",
         item_id="42",
-        sender="PSL",
         partner_id="psl",
     )
     # no item_id
@@ -95,7 +90,6 @@ def test_get_notifications_data_incomplete_notifications(user: User) -> None:
         item_generic_status="new",
         item_status_label="Nouveau",
         item_type="OperationTranquilliteVacances",
-        sender="PSL",
         partner_id="psl",
     )
 
@@ -115,7 +109,6 @@ def test_get_notifications_data_invalid_notifications(user: User) -> None:
         item_status_label="Nouveau",
         item_type="OperationTranquilliteVacances",
         item_id="42",
-        sender="PSL",
         partner_id="psl",
     )
 
@@ -134,7 +127,6 @@ def test_get_notifications_data(user: User) -> None:
         item_status_label="Nouveau",
         item_type="OperationTranquilliteVacances",
         item_id="42",
-        sender="PSL",
         partner_id="psl",
     )
     Notification.objects.create(  # notification 2
@@ -145,7 +137,6 @@ def test_get_notifications_data(user: User) -> None:
         item_status_label="Nouveau",
         item_type="OperationTranquilliteVacances",
         item_id="42",
-        sender="PSL",
         partner_id="psl",
     )
     notification3 = Notification.objects.create(
@@ -156,7 +147,6 @@ def test_get_notifications_data(user: User) -> None:
         item_status_label="En cours",
         item_type="OperationTranquilliteVacances",
         item_id="42",
-        sender="PSL",
         partner_id="psl",
     )
 
@@ -169,7 +159,6 @@ def test_get_notifications_data(user: User) -> None:
         item_type="OtherOperationTranquilliteVacances",
         item_id="43",
         item_external_url="http://foo.com",
-        sender="PSL",
         partner_id="psl",
     )
 
@@ -182,7 +171,6 @@ def test_get_notifications_data(user: User) -> None:
         item_type="OperationTranquilliteVacances",
         item_id="44",
         item_external_url="http://bar.com",
-        sender="PSL",
         partner_id="psl",
     )
     notification6 = Notification.objects.create(
@@ -195,7 +183,6 @@ def test_get_notifications_data(user: User) -> None:
         item_id="44",
         item_milestone_start_date=datetime.datetime.now(datetime.timezone.utc),
         item_milestone_end_date=datetime.datetime.now(datetime.timezone.utc),
-        sender="PSL",
         partner_id="psl",
     )
 
@@ -207,7 +194,6 @@ def test_get_notifications_data(user: User) -> None:
         item_status_label="Validé",
         item_type="Other",
         item_id="42",
-        sender="AMI",
         partner_id="dinum-ami",
     )
 

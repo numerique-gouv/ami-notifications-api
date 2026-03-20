@@ -36,7 +36,6 @@ class Notification(models.Model):
 
     send_status = models.BooleanField(blank=True, null=True)
     partner_id = models.CharField(blank=True, null=True)
-    sender = models.CharField()
     internal_url = models.CharField(
         blank=True, null=True
     )  # to link notification to a front url; used by scheduled notifications
@@ -99,7 +98,6 @@ class ScheduledNotification(models.Model):
     content_body = models.CharField()
     content_icon = models.CharField()
 
-    sender = models.CharField()
     internal_url = models.CharField(blank=True, null=True)
 
     scheduled_at = models.DateTimeField()
@@ -119,7 +117,7 @@ class ScheduledNotification(models.Model):
             content_body=self.content_body,
             content_icon=self.content_icon,
             internal_url=self.internal_url,
-            sender=self.sender,
+            partner_id="dinum-ami",
             send_status=self.user.last_logged_in is not None,
         )
 
@@ -142,7 +140,6 @@ class ScheduledNotification(models.Model):
                 "content_body": "Ici, vous pourrez gérer votre vie administrative, suivre l'avancement de vos démarches et recevoir des rappels personnalisés.",
                 "content_icon": "fr-icon-information-line",
                 "scheduled_at": timezone.now(),
-                "sender": "AMI",
             },
         )
         return scheduled_notification

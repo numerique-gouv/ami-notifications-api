@@ -12,13 +12,6 @@ class NotificationResponseSerializer(serializers.Serializer):
     notification_send_status = serializers.BooleanField()
 
 
-class AdminNotificationCreateSerializer(serializers.Serializer):
-    user_id = serializers.UUIDField()
-    title = serializers.CharField(allow_blank=False, source="content_title")
-    message = serializers.CharField(allow_blank=False, source="content_body")
-    sender = serializers.CharField(allow_blank=False)
-
-
 class NotificationSerializer(serializers.ModelSerializer):
     # Remap the "user" field from the model to "user_id" in the serializer
     user_id = serializers.UUIDField(source="user.id")
@@ -39,7 +32,6 @@ class NotificationSerializer(serializers.ModelSerializer):
             "item_type",
             "url",
             "read",
-            "sender",
             "user_id",
         ]
         model = Notification

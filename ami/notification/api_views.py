@@ -108,7 +108,7 @@ def create_scheduled_notification(
     if existing_scheduled_notification is None:
         # create scheduled notification
         scheduled_notification = ScheduledNotification.objects.create(
-            user_id=request.ami_user.id, sender="AMI", **data
+            user_id=request.ami_user.id, **data
         )
         status_code = HTTP_201_CREATED
         scheduled_notification.refresh_from_db()
@@ -190,7 +190,6 @@ def partner_create_notification(request: Request) -> Response[NotificationRespon
     )
     if notification.content_icon is None:
         notification.content_icon = current_partner.icon or "fr-icon-mail-star-line"
-    notification.sender = current_partner.name
     notification.partner_id = current_partner.id
     notification.send_status = notification_send_status
     notification.save()
