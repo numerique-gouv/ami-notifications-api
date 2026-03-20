@@ -195,7 +195,7 @@ def partner_create_notification(request: Request) -> Response[NotificationRespon
 
     push_notification.enqueue(str(notification.id), try_push)
 
-    sentry.add_counter("notification_partner.created")
+    sentry.add_counter("notification.request.processed")
 
     response_data = {
         "notification_id": notification.id,
