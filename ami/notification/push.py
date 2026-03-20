@@ -89,7 +89,7 @@ async def push(notification: Notification, try_push: bool) -> None:
             )
             try:
                 response = messaging.send(message)
-                sentry.add_counter("notification.pushed")
+                sentry.add_counter("notification.request.pushed")
             except UnregisteredError:
                 logger.warning(
                     f"FCM token is invalid or expired for device. Token should be removed: {registration.typed_subscription.fcm_token}"
