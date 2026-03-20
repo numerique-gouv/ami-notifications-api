@@ -8,6 +8,26 @@ from ami.user.models import User
 
 
 @pytest.mark.django_db
+def test_generate_partner_url_when_no_query_parameters(
+    django_app,
+    user: User,
+    settings,
+) -> None:
+    # Given
+    login(django_app, user)
+    settings.CONFIG["PARTNERS_PSL_OTV_REQUEST_URL"] = "fake-public-otv-url"
+
+    # When
+    response = django_app.get(
+        "/api/v1/partner/otv/url?preferred_username=&email=&address_city=&address_postcode=&address_name="
+    )
+
+    # Then
+    assert response.status_code == HTTP_200_OK
+    assert response.json == {"partner_url": "fake-public-otv-url"}
+
+
+@pytest.mark.django_db
 def test_generate_partner_url_when_url_has_no_template(
     django_app,
     user: User,
