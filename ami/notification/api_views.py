@@ -52,6 +52,10 @@ def list_notifications(request: Request) -> Response[QuerySet[Notification]]:
     return Response(serialized)
 
 
+@extend_schema(
+    methods=["PATCH"],
+    request=NotificationReadSerializer,
+)
 @api_view(["PATCH"])
 @ami_login_required
 def read_notification(
