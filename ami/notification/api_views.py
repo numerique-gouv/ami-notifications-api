@@ -87,6 +87,10 @@ def get_notification_key(request: Request) -> HttpResponse:
 
 
 @extend_schema(
+    methods=["DELETE"],
+    parameters=[ScheduledNotificationDeleteSerializer],
+)
+@extend_schema(
     methods=["POST"],
     request=ScheduledNotificationCreateSerializer,
     responses={201: ScheduledNotificationResponseSerializer},
