@@ -1,4 +1,5 @@
 import json
+import logging
 import uuid
 from base64 import urlsafe_b64encode
 from typing import Any
@@ -70,9 +71,22 @@ async def get_address_from_api_particulier_quotient(
         headers={"authorization": f"{token_type} {access_token}"},
     )
     if response.status_code != 200:
+        log_address_error_to_sentry(response)
         return None
     data = response.json()
     if data.get("data", {}).get("adresse", {}):
         address_fields = ["numero_libelle_voie", "lieu_dit", "code_postal_ville", "pays"]
         address = {k: v or "" for k, v in data["data"]["adresse"].items() if k in address_fields}
         return urlsafe_b64encode(json.dumps(address).encode("utf8")).decode("utf8")
+
+
+def log_address_error_to_sentry(response):
+    logger = logging.getLogger(__name__)
+    logger.error(
+        "Error for address from API Particuliers",
+        extra={
+            "status_code": response.status_code,
+            "response_text": response.text,
+            "response_json": response.json(),
+        },
+    )
