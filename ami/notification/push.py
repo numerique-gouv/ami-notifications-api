@@ -45,7 +45,7 @@ async def push(notification: Notification, try_push: bool) -> None:
         title=notification.content_title,
         message=notification.content_body,
         content_icon=notification.content_icon,
-        sender=notification.sender,
+        sender="AMI",
     )
     registrations = [r async for r in Registration.objects.filter(user_id=notification.user_id)]
     for registration in registrations:

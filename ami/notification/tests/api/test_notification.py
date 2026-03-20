@@ -37,7 +37,6 @@ def test_get_notifications(
         user=notification.user,
         content_body="Other notification",
         content_title="Notification title",
-        sender="John Doe",
     )
 
     # notification for another user, not returned in notification list of current user
@@ -46,7 +45,6 @@ def test_get_notifications(
         user_id=other_user.id,
         content_body="Other notification",
         content_title="Notification title",
-        sender="John Doe",
     )
 
     # test user notification list
@@ -59,7 +57,6 @@ def test_get_notifications(
         "content_title": "Notification title",
         "content_body": "Other notification",
         "content_icon": None,
-        "sender": "John Doe",
         "item_type": None,
         "item_id": None,
         "item_status_label": None,
@@ -77,7 +74,6 @@ def test_get_notifications(
         "content_title": "Notification title",
         "content_body": "Hello notification",
         "content_icon": None,
-        "sender": "John Doe",
         "item_type": None,
         "item_id": None,
         "item_status_label": None,
@@ -131,7 +127,6 @@ def test_read_notification(
         user_id=str(other_user.id),
         content_body="Other notification",
         content_title="Notification title",
-        sender="John Doe",
     )
 
     # invalid, no payload
@@ -168,7 +163,6 @@ def test_read_notification(
         "content_title": "Notification title",
         "content_body": "Hello notification",
         "content_icon": None,
-        "sender": "John Doe",
         "item_type": None,
         "item_id": None,
         "item_status_label": None,

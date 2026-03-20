@@ -113,7 +113,6 @@ def test_login_callback(
     assert scheduled_notification.content_icon == "fr-icon-information-line"
     assert scheduled_notification.reference == "ami:welcome"
     assert scheduled_notification.scheduled_at < now()
-    assert scheduled_notification.sender == "AMI"
     assert scheduled_notification.sent_at is None
 
 
@@ -305,7 +304,6 @@ def test_login_callback_user_never_seen(
     assert scheduled_notification.content_icon == "fr-icon-information-line"
     assert scheduled_notification.reference == "ami:welcome"
     assert scheduled_notification.scheduled_at < now()
-    assert scheduled_notification.sender == "AMI"
     assert scheduled_notification.sent_at is None
 
 
