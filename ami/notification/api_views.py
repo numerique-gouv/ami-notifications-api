@@ -86,6 +86,11 @@ def get_notification_key(request: Request) -> HttpResponse:
     return HttpResponse(settings.CONFIG.get("VAPID_APPLICATION_SERVER_KEY", ""))
 
 
+@extend_schema(
+    methods=["POST"],
+    request=ScheduledNotificationCreateSerializer,
+    responses={201: ScheduledNotificationResponseSerializer},
+)
 @api_view(["DELETE", "POST"])
 @ami_login_required
 def scheduled_notifications(request: Request) -> Response:
