@@ -1,11 +1,15 @@
+from typing import cast
+
 from django.conf import settings
 from django.db import connection
 from django.http import HttpResponse
+from drf_spectacular.utils import extend_schema
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from ami.user.utils import build_fc_hash
 from ami.utils.httpx import httpxClient
+from ami.utils.serializers import RecipientFcHashSerializer
 
 
 @api_view(["HEAD"])
@@ -22,14 +26,21 @@ def get_sector_identifier_url(request):
     return Response(redirect_uris)
 
 
+@extend_schema(
+    parameters=[RecipientFcHashSerializer],
+)
 @api_view(["GET"])
 def _dev_utils_recipient_fc_hash(request) -> HttpResponse:
-    given_name = request.query_params["given_name"]
-    family_name = request.query_params["family_name"]
-    birthdate = request.query_params["birthdate"]
-    gender = request.query_params["gender"]
-    birthplace = request.query_params.get("birthplace", "")
-    birthcountry = request.query_params["birthcountry"]
+    serializer = RecipientFcHashSerializer(data=request.query_params)
+    serializer.is_valid(raise_exception=True)
+    data: dict = cast(dict, serializer.validated_data)
+
+    given_name = data["given_name"]
+    family_name = data["family_name"]
+    birthdate = data["birthdate"]
+    gender = data["gender"]
+    birthplace = data.get("birthplace", "")
+    birthcountry = data["birthcountry"]
 
     hashed_pivot_data: str = build_fc_hash(
         given_name=given_name,
