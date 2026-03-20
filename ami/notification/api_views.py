@@ -9,13 +9,14 @@ from django.db.models import QuerySet
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import extend_schema
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED
 
-from ami.authentication.decorators import ami_login_required, partner_auth_required
+from ami.authentication.decorators import ami_login_required
 from ami.notification.tasks import push_notification
+from ami.partner.auth import IsPartnerAuthenticated, PartnerBasicAuthentication
 from ami.user.models import User
 from ami.utils import sentry
 
@@ -152,7 +153,8 @@ def delete_scheduled_notification(request: Request) -> Response:
     responses={201: NotificationResponseSerializer},
 )
 @api_view(["POST"])
-@partner_auth_required
+@authentication_classes([PartnerBasicAuthentication])
+@permission_classes([IsPartnerAuthenticated])
 def partner_create_notification(request: Request) -> Response[NotificationResponseSerializer]:
     current_partner = request.ami_partner
     ignore_unknown_user = os.getenv(
