@@ -1,0 +1,25 @@
+import uuid
+
+from django.contrib.auth.models import User
+from django.db import models
+
+
+class Agent(models.Model):
+    class Role(models.TextChoices):
+        SUPPORT = "support", "Support"
+        NOTIFICATIONS = "notifications", "Notifications"
+        ADMIN = "admin", "Admin"
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    proconnect_sub = models.CharField(max_length=255, unique=True)
+    role = models.CharField(
+        max_length=20,
+        choices=Role,
+        null=True,
+    )
+    proconnect_last_login = models.DateTimeField(null=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
