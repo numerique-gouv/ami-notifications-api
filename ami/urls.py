@@ -1,3 +1,4 @@
+from django.contrib import admin
 from django.urls import include, path
 from django.views.generic import TemplateView
 
@@ -8,4 +9,5 @@ urlpatterns = [
     path("", include(authentication_urls)),
     path("", include(api_urls)),
     path("", TemplateView.as_view(template_name="index.html")),
+    path("ami-admin/", admin.site.urls),
 ]
