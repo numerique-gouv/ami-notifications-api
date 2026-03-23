@@ -116,9 +116,8 @@ def test_create_mobile_notification(
     }
     response = django_app.post("/api/v1/notifications", notification_data, headers=partner_auth)
     assert response.status_code == HTTP_201_CREATED
-    all_notifications = Notification.objects.all()
-    assert len(all_notifications) == 2
-    notification2 = all_notifications[1]
+    assert Notification.objects.count() == 2
+    notification2 = Notification.objects.latest("created_at")
     assert notification2.user.id == mobile_registration.user.id
     assert notification2.content_body == "Merci d'avoir initié votre demande"
     assert notification2.content_title == "Brouillon de nouvelle demande de démarche d'OTV"
@@ -180,9 +179,8 @@ def test_create_notification_dont_try_push(
     }
     response = django_app.post("/api/v1/notifications", notification_data, headers=partner_auth)
     assert response.status_code == HTTP_201_CREATED
-    all_notifications = Notification.objects.all()
-    assert len(all_notifications) == 1
-    notification = all_notifications[0]
+    assert Notification.objects.count() == 1
+    notification = Notification.objects.get()
     assert notification.try_push is False
     assert notification.send_status is True
     assert not httpx_mock.get_request()
@@ -211,22 +209,19 @@ def test_create_notification_user_does_not_exist(
     response = django_app.post(
         "/api/v1/notifications", notification_data, headers=partner_auth, status=404
     )
-    notification_count = Notification.objects.count()
-    assert notification_count == 0
+    assert Notification.objects.count() == 0
     user_count = User.objects.count()
     assert user_count == 0
 
     monkeypatch.setenv("IGNORE_NOTIFICATION_REQUESTS_FOR_UNREGISTERED_USER", "")
     response = django_app.post("/api/v1/notifications", notification_data, headers=partner_auth)
     assert response.status_code == HTTP_201_CREATED
-    all_users = User.objects.all()
-    assert len(all_users) == 1
-    user = all_users[0]
+    assert User.objects.count() == 1
+    user = User.objects.get()
     assert user.fc_hash == "unknown_hash"
     assert user.last_logged_in is None
-    all_notifications = Notification.objects.all()
-    assert len(all_notifications) == 1
-    notification = all_notifications[0]
+    assert Notification.objects.count() == 1
+    notification = Notification.objects.get()
     assert notification.user.id == user.id
     assert notification.content_body == "Merci d'avoir initié votre demande"
     assert notification.content_title == "Brouillon de nouvelle demande de démarche d'OTV"
@@ -278,8 +273,7 @@ def test_create_notification_user_never_seen(
     response = django_app.post(
         "/api/v1/notifications", notification_data, headers=partner_auth, status=404
     )
-    notification_count = Notification.objects.count()
-    assert notification_count == 0
+    assert Notification.objects.count() == 0
     assert User.objects.count() == 1
     user = User.objects.get()
     assert user.fc_hash == never_seen_user.fc_hash
@@ -288,14 +282,12 @@ def test_create_notification_user_never_seen(
     monkeypatch.setenv("IGNORE_NOTIFICATION_REQUESTS_FOR_UNREGISTERED_USER", "")
     response = django_app.post("/api/v1/notifications", notification_data, headers=partner_auth)
     assert response.status_code == HTTP_201_CREATED
-    all_users = User.objects.all()
-    assert len(all_users) == 1
-    user = all_users[0]
+    assert User.objects.count() == 1
+    user = User.objects.get()
     assert user.fc_hash == never_seen_user.fc_hash
     assert user.last_logged_in is None
-    all_notifications = Notification.objects.all()
-    assert len(all_notifications) == 1
-    notification = all_notifications[0]
+    assert Notification.objects.count() == 1
+    notification = Notification.objects.get()
     assert notification.user.id == user.id
     assert notification.content_body == "Merci d'avoir initié votre demande"
     assert notification.content_title == "Brouillon de nouvelle demande de démarche d'OTV"
@@ -346,8 +338,7 @@ def test_create_notification_when_registration_gone(
     }
     response = django_app.post("/api/v1/notifications", notification_data, headers=partner_auth)
     assert response.status_code == HTTP_201_CREATED
-    notification_count = Notification.objects.count()
-    assert notification_count == 1
+    assert Notification.objects.count() == 1
     assert httpx_mock.get_request()
 
 
@@ -370,8 +361,7 @@ def test_create_notification_no_registration(
     }
     response = django_app.post("/api/v1/notifications", notification_data, headers=partner_auth)
     assert response.status_code == HTTP_201_CREATED
-    notification_count = Notification.objects.count()
-    assert notification_count == 1
+    assert Notification.objects.count() == 1
     assert not httpx_mock.get_request()
 
 
@@ -397,9 +387,8 @@ def test_create_notification_partner_has_no_default_icon(
     }
     response = django_app.post("/api/v1/notifications", notification_data, headers=partner_auth)
     assert response.status_code == HTTP_201_CREATED
-    all_notifications = Notification.objects.all()
-    assert len(all_notifications) == 1
-    notification = all_notifications[0]
+    assert Notification.objects.count() == 1
+    notification = Notification.objects.get()
     assert notification.content_icon == "fr-icon-mail-star-line"
 
 
@@ -425,9 +414,8 @@ def test_create_notification_partner_has_default_icon(
     }
     response = django_app.post("/api/v1/notifications", notification_data, headers=partner_auth)
     assert response.status_code == HTTP_201_CREATED
-    all_notifications = Notification.objects.all()
-    assert len(all_notifications) == 1
-    notification = all_notifications[0]
+    assert Notification.objects.count() == 1
+    notification = Notification.objects.get()
     assert notification.content_icon == "fr-icon-megaphone-line"
 
 
@@ -443,10 +431,6 @@ def test_create_notification_send_ko_with_400_when_required_fields_are_missing(
     assert response.json == {
         "content_body": ["This field is required."],
         "content_title": ["This field is required."],
-        "item_generic_status": ["This field is required."],
-        "item_id": ["This field is required."],
-        "item_status_label": ["This field is required."],
-        "item_type": ["This field is required."],
         "recipient_fc_hash": ["This field is required."],
         "send_date": ["This field is required."],
     }
@@ -479,14 +463,185 @@ def test_create_notification_send_ko_with_400_when_required_fields_are_empty(
     assert response.json == {
         "content_body": ["This field may not be blank."],
         "content_title": ["This field may not be blank."],
-        "item_generic_status": ['"" is not a valid choice.'],
-        "item_id": ["This field may not be blank."],
-        "item_status_label": ["This field may not be blank."],
-        "item_type": ["This field may not be blank."],
         "recipient_fc_hash": ["This field may not be blank."],
         "send_date": [
             "Datetime has wrong format. Use one of these formats instead: YYYY-MM-DDThh:mm[:ss[.uuuuuu]][+HH:MM|-HH:MM|Z]."
         ],
+    }
+
+
+@pytest.mark.django_db
+def test_create_notification_send_ko_with_400_when_required_item_fields_are_missing(
+    django_app,
+    user: User,
+    partner_auth: dict[str, str],
+) -> None:
+    item_fields = ["item_type", "item_id", "item_status_label", "item_generic_status"]
+    item_optional_fields = [
+        "item_canal",
+        "item_milestone_start_date",
+        "item_milestone_end_date",
+        "item_external_url",
+    ]
+    item_field_values = {
+        "item_type": "OTV",
+        "item_id": "A-5-JGBJ5VMOY",
+        "item_status_label": "Brouillon",
+        "item_generic_status": "new",
+        "item_milestone_start_date": "2025-12-26T23:00:00.000Z",
+        "item_milestone_end_date": "2026-01-02T23:00:00.000Z",
+        "item_external_url": "http://otv/a-5-jgbj5vmoy",
+        "item_canal": "ami",
+    }
+    notification_data = {
+        "recipient_fc_hash": user.fc_hash,
+        "send_date": "2025-11-27T10:55:00.000Z",
+        "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
+        "content_body": "Merci d'avoir initié votre demande",
+    }
+    for field in item_fields + item_optional_fields:
+        data = {k: v for k, v in notification_data.items()}
+        data.update(
+            {
+                field: item_field_values[field],
+            }
+        )
+        response = django_app.post("/api/v1/notifications", data, headers=partner_auth, status=400)
+        assert response.json == {
+            f: ["This field is required for a notification related to an item."]
+            for f in item_fields
+            if f != field
+        }
+
+
+@pytest.mark.django_db
+def test_create_notification_check_item_milestone_dates(
+    django_app,
+    user: User,
+    partner_auth: dict[str, str],
+) -> None:
+    notification_data = {
+        "recipient_fc_hash": user.fc_hash,
+        "send_date": "2025-11-27T10:55:00.000Z",
+        "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
+        "content_body": "Merci d'avoir initié votre demande",
+        "item_type": "OTV",
+        "item_id": "A-5-JGBJ5VMOY",
+        "item_status_label": "Brouillon",
+        "item_generic_status": "new",
+        "item_milestone_start_date": "2025-12-26T23:00:00.000Z",
+    }
+    response = django_app.post("/api/v1/notifications", notification_data, headers=partner_auth)
+    assert response.status_code == HTTP_201_CREATED
+    assert Notification.objects.count() == 1
+    notification = Notification.objects.get()
+    assert notification.item_milestone_start_date is not None
+    assert notification.item_milestone_end_date is None
+
+    notification_data = {
+        "recipient_fc_hash": user.fc_hash,
+        "send_date": "2025-11-27T10:55:00.000Z",
+        "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
+        "content_body": "Merci d'avoir initié votre demande",
+        "item_type": "OTV",
+        "item_id": "A-5-JGBJ5VMOY",
+        "item_status_label": "Brouillon",
+        "item_generic_status": "new",
+        "item_milestone_end_date": "2025-12-26T23:00:00.000Z",
+    }
+    response = django_app.post("/api/v1/notifications", notification_data, headers=partner_auth)
+    assert response.status_code == HTTP_201_CREATED
+    assert Notification.objects.count() == 2
+    notification = Notification.objects.latest("created_at")
+    assert notification.item_milestone_start_date is None
+    assert notification.item_milestone_end_date is not None
+
+    notification_data = {
+        "recipient_fc_hash": user.fc_hash,
+        "send_date": "2025-11-27T10:55:00.000Z",
+        "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
+        "content_body": "Merci d'avoir initié votre demande",
+        "item_type": "OTV",
+        "item_id": "A-5-JGBJ5VMOY",
+        "item_status_label": "Brouillon",
+        "item_generic_status": "new",
+        "item_milestone_start_date": "2025-12-26T23:00:00.001Z",
+        "item_milestone_end_date": "2025-12-26T23:00:00.000Z",
+    }
+    response = django_app.post(
+        "/api/v1/notifications", notification_data, headers=partner_auth, status=400
+    )
+    assert response.json == {
+        "item_milestone_end_date": ["The end date must be later than the start date."]
+    }
+
+    notification_data = {
+        "recipient_fc_hash": user.fc_hash,
+        "send_date": "2025-11-27T10:55:00.000Z",
+        "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
+        "content_body": "Merci d'avoir initié votre demande",
+        "item_type": "OTV",
+        "item_id": "A-5-JGBJ5VMOY",
+        "item_status_label": "Brouillon",
+        "item_generic_status": "new",
+        "item_milestone_start_date": "2025-12-26T23:00:00.000Z",
+        "item_milestone_end_date": "2025-12-26T23:00:00.000Z",
+    }
+    response = django_app.post("/api/v1/notifications", notification_data, headers=partner_auth)
+    assert response.status_code == HTTP_201_CREATED
+    assert Notification.objects.count() == 3
+    notification = Notification.objects.latest("created_at")
+    assert notification.item_milestone_start_date is not None
+    assert notification.item_milestone_end_date is not None
+    assert notification.item_milestone_start_date == notification.item_milestone_end_date
+
+
+@pytest.mark.django_db
+def test_create_notification_when_optional_fields_are_empty(
+    django_app,
+    user: User,
+    partner_auth: dict[str, str],
+) -> None:
+    notification_data = {
+        "recipient_fc_hash": user.fc_hash,
+        "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
+        "content_body": "Merci d'avoir initié votre demande",
+        "content_icon": "",
+        "item_type": "",
+        "item_id": "",
+        "item_status_label": "",
+        "item_generic_status": "",
+        "item_canal": "",
+        "item_milestone_start_date": "",
+        "item_milestone_end_date": "",
+        "item_external_url": "",
+        "send_date": "2025-11-27T10:55:00.000Z",
+        "try_push": "",
+    }
+    response = django_app.post("/api/v1/notifications", notification_data, headers=partner_auth)
+    assert response.status_code == HTTP_201_CREATED
+    assert Notification.objects.count() == 1
+    notification = Notification.objects.get()
+    assert notification.user.id == user.id
+    assert notification.content_body == "Merci d'avoir initié votre demande"
+    assert notification.content_title == "Brouillon de nouvelle demande de démarche d'OTV"
+    assert notification.content_icon == "fr-icon-mail-star-line"
+    assert notification.item_type is None
+    assert notification.item_id is None
+    assert notification.item_status_label is None
+    assert notification.item_generic_status is None
+    assert notification.item_milestone_start_date is None
+    assert notification.item_milestone_end_date is None
+    assert notification.item_external_url is None
+    assert notification.item_canal is None
+    assert notification.send_date == datetime.datetime(
+        2025, 11, 27, 10, 55, tzinfo=datetime.timezone.utc
+    )
+    assert notification.partner_id == "psl"
+    assert notification.read is False
+    assert response.json == {
+        "notification_id": str(notification.id),
+        "notification_send_status": True,
     }
 
 
