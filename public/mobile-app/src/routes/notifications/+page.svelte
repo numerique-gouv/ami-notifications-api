@@ -22,6 +22,7 @@
 
     notifications = await retrieveNotifications();
     notificationEventsSocket(async () => {
+      console.log('New message received from the websocket, retrieving notifications');
       notifications = await retrieveNotifications();
     });
   });
