@@ -58,46 +58,59 @@ class PartnerNotificationCreateSerializer(serializers.Serializer):
     recipient_fc_hash = serializers.CharField(
         help_text="Hash de la concaténation des données pivot FC de l'usager destinataire, cf doc",
     )
-    content_title = serializers.CharField(allow_blank=False, help_text="Titre de la notification")
-    content_body = serializers.CharField(allow_blank=False, help_text="Contenu de la notification")
-    content_icon = serializers.CharField(
+
+    content_title = serializers.CharField(
         allow_blank=False,
-        default=None,
-        help_text="Nom technique de l'icône à associer à la notification dans l'application AMI, à choisir dans [les icones du DSFR](https://www.systeme-de-design.gouv.fr/version-courante/fr/fondamentaux/icone).",
+        help_text="Titre de la notification",
     )
-    item_type = serializers.CharField(
+    content_body = serializers.CharField(
         allow_blank=False,
-        help_text='Champ libre représentant le type de l\'objet associé à la notification, par exemple : "OTV" dans le cas des démarches "Opération Tranquillité Vacances"',
+        help_text="Contenu de la notification",
+    )
+    content_icon = serializers.CharField(
+        default=None,
+        help_text="Nom technique de l'icône à associer à la notification dans l'application AMI, "
+        "à choisir dans [les icones du DSFR](https://www.systeme-de-design.gouv.fr/version-courante/fr/fondamentaux/icone).",
+    )
+
+    item_type = serializers.CharField(
+        default=None,
+        help_text="Champ libre représentant le type de l'objet associé à la notification, par exemple : "
+        '"OTV" dans le cas des démarches "Opération Tranquillité Vacances"',
     )
     item_id = serializers.CharField(
-        allow_blank=False,
+        default=None,
         help_text="Identifiant dans le référentiel partenaire de l'objet associé à la notification",
     )
     item_status_label = serializers.CharField(
-        allow_blank=False, help_text='objet associé à la notification, par exemple : "Brouillon"'
+        default=None,
+        help_text='objet associé à la notification, par exemple : "Brouillon"',
     )
     item_generic_status = serializers.ChoiceField(
         choices=["new", "wip", "closed"],
+        default=None,
         help_text="Statut générique de l'objet associé à la notification pilotant des comportements spécifiques dans l'application AMI",
     )
+
     item_canal = serializers.CharField(
-        allow_blank=False,
         default=None,
         help_text="Canal source de l'objet associé à la notification (AMI, PSL, etc.) pour la mesure d'impact",
     )
     item_milestone_start_date = serializers.DateTimeField(
         default=None,
-        help_text="Date (au format ISO 8601) de début de la période correspondant à l'objet associé à la notification, ex : date de début de surveillance du logement dans le cadre d'une OTV",
+        help_text="Date (au format ISO 8601) de début de la période correspondant à l'objet associé à la notification, "
+        "ex : date de début de surveillance du logement dans le cadre d'une OTV",
     )
     item_milestone_end_date = serializers.DateTimeField(
         default=None,
-        help_text="Date (au format ISO 8601) de fin de la période correspondant à l'objet associé à la notification, ex : date de fin de surveillance du logement dans le cadre d'une OTV",
+        help_text="Date (au format ISO 8601) de fin de la période correspondant à l'objet associé à la notification, "
+        "ex : date de fin de surveillance du logement dans le cadre d'une OTV",
     )
     item_external_url = serializers.CharField(
-        allow_blank=False,
         default=None,
         help_text="Lien vers le portail du partenaire de l'objet associé à la notification",
     )
+
     send_date = serializers.DateTimeField(
         help_text="Date (au format ISO 8601) d'émission de la notification côté partenaire"
     )
@@ -105,3 +118,26 @@ class PartnerNotificationCreateSerializer(serializers.Serializer):
         default=True,
         help_text="Indique si le système doit essayer de déclencher une Notification Push sur les terminaux de l'usager",
     )
+
+    def validate(self, attrs):
+        # check that if at least one item field is provided, all required item fields are set
+        has_item_fields = any(bool(v) for k, v in attrs.items() if k.startswith("item_"))
+        item_required_fields = ["item_type", "item_id", "item_status_label", "item_generic_status"]
+        validation_errors = {}
+        if has_item_fields:
+            validation_errors = {
+                k: "This field is required for a notification related to an item."
+                for k, v in attrs.items()
+                if k in item_required_fields and not v
+            }
+        if validation_errors:
+            raise serializers.ValidationError(validation_errors)
+
+        # check milestone dates
+        if attrs["item_milestone_start_date"] and attrs["item_milestone_end_date"]:
+            if attrs["item_milestone_start_date"] > attrs["item_milestone_end_date"]:
+                raise serializers.ValidationError(
+                    {"item_milestone_end_date": "The end date must be later than the start date."}
+                )
+
+        return attrs
