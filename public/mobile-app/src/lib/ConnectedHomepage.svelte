@@ -30,9 +30,26 @@
       initials = userStore.connected?.getInitials() || '';
 
       unreadNotificationsCount = await countUnreadNotifications();
-      notificationEventsSocket(async () => {
+
+      const onMessage = async () => {
+        console.log(
+          'New message received from the websocket, counting unread notifications'
+        );
         unreadNotificationsCount = await countUnreadNotifications();
-      });
+      };
+      let ws = notificationEventsSocket(onMessage);
+
+      const handleVisibility = async () => {
+        if (
+          document.visibilityState === 'visible' &&
+          ws.readyState !== WebSocket.OPEN
+        ) {
+          console.log('Reconnecting the websocket');
+          ws = notificationEventsSocket(onMessage);
+          unreadNotificationsCount = await countUnreadNotifications();
+        }
+      };
+      document.addEventListener('visibilitychange', handleVisibility);
 
       agenda = await buildAgenda();
       console.log($state.snapshot(agenda));

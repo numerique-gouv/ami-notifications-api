@@ -80,11 +80,18 @@ export const readNotification = async (
   return undefined;
 };
 
-export const notificationEventsSocket = (onmessage: (event: MessageEvent) => void) => {
+export const notificationEventsSocket = (
+  onmessage: (event: MessageEvent) => void
+): WebSocket => {
   const ws = new WebSocket(
     `${PUBLIC_API_WS_URL}/api/v1/users/notification/events/stream`
   );
+  console.log(
+    'Opened the websocket on:',
+    `${PUBLIC_API_WS_URL}/api/v1/users/notification/events/stream`
+  );
   ws.onmessage = onmessage;
+  return ws;
 };
 
 export const enableNotificationsAndUpdateLocalStorage =
