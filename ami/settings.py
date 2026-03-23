@@ -134,6 +134,9 @@ ASGI_APPLICATION = "ami.asgi.application"
 postgres_database = dj_database_url.parse(CONFIG["DATABASE_URL"])
 DATABASES = {"default": postgres_database, "channels_postgres": postgres_database}
 
+# Emails
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
 # Tasks
 # TODO: use a real task backend in production
 TASKS = {"default": {"BACKEND": "django.tasks.backends.immediate.ImmediateBackend"}}
