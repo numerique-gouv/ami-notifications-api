@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.utils.timezone import now
 from mozilla_django_oidc.auth import OIDCAuthenticationBackend
 
@@ -43,3 +44,7 @@ class AgentAuthenticationBackend(OIDCAuthenticationBackend):
             Agent.objects.filter(user=user).update(proconnect_last_login=now(), updated_at=now())
 
         return user
+
+
+def provider_logout(request):
+    return settings.OIDC_OP_LOGOUT_ENDPOINT
