@@ -1,0 +1,10 @@
+<html>
+  <body>
+    Login
+    {% if user.is_authenticated %}
+      <a href="{% url 'agent-admin:home' %}">Home</a>
+    {% else %}
+      <a href="{% url 'agent-admin:oidc_authentication_init' %}">Login</a>
+    {% endif %}
+  </body>
+</html>
