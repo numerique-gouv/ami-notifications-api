@@ -27,4 +27,13 @@ def access_denied(request):
 @agent_login_required
 @role_admin_required
 def manage_access(request):
-    return render(request, "agent_admin/manage_access.html", {})
+    unauthorized_agents = Agent.objects.filter(role__isnull=True).order_by("-proconnect_last_login")
+    authorized_agents = Agent.objects.filter(role__isnull=False).order_by(
+        "user__last_name",
+        "user__first_name",
+    )
+    context = {
+        "unauthorized_agents": unauthorized_agents,
+        "authorized_agents": authorized_agents,
+    }
+    return render(request, "agent_admin/manage_access.html", context)

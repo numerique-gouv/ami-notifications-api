@@ -1,5 +1,23 @@
 <html>
   <body>
     <h1>Gestion des droits des agents</h1>
+
+    <h2>Avec droits</h2>
+    <ul id="with-role">
+      {% for agent in authorized_agents %}
+        <li>
+          {{ agent.user.last_name }} {{ agent.user.first_name }}
+        </li>
+      {% endfor %}
+    </ul>
+
+    <h2>Sans droits</h2>
+    <ul id="without-role">
+      {% for agent in unauthorized_agents %}
+        <li>
+          {{ agent.user.last_name }} {{ agent.user.first_name }} {{ agent.proconnect_last_login|date:"d/m/Y à H\Hi" }}
+        </li>
+      {% endfor %}
+    </ul>
   </body>
 </html>
