@@ -140,7 +140,7 @@ DATABASES = {"default": postgres_database, "channels_postgres": postgres_databas
 # Authentication
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
-    "mozilla_django_oidc.auth.OIDCAuthenticationBackend",
+    "ami.agent.auth.AgentAuthenticationBackend",
 ]
 
 LOGIN_URL = "/agent-admin/login/"
@@ -251,6 +251,7 @@ OIDC_OP_USER_ENDPOINT = (
     CONFIG["PUBLIC_PRO_CONNECT_BASE_URL"] + CONFIG["PUBLIC_PRO_CONNECT_USERINFO_ENDPOINT"]
 )
 OIDC_AUTHENTICATION_CALLBACK_URL = "agent-admin:oidc_authentication_callback"
+OIDC_RP_SCOPES = "openid email given_name usual_name"
 
 # APi particulier
 PUBLIC_API_PARTICULIER_BASE_URL = CONFIG["PUBLIC_API_PARTICULIER_BASE_URL"]
