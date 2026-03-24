@@ -1,3 +1,6 @@
+from urllib.parse import urlencode
+
+from django.conf import settings
 from django.utils.timezone import now
 from mozilla_django_oidc.auth import OIDCAuthenticationBackend
 
@@ -43,3 +46,13 @@ class AgentAuthenticationBackend(OIDCAuthenticationBackend):
             Agent.objects.filter(user=user).update(proconnect_last_login=now(), updated_at=now())
 
         return user
+
+
+def provider_logout(request):
+    redirect_url = settings.LOGOUT_REDIRECT_URL
+    data = {
+        "id_token_hint": request.session.get("oidc_id_token", ""),
+        "state": "state-not-implemented-yet-and-has-more-than-32-chars",
+        "post_logout_redirect_uri": request.build_absolute_uri(redirect_url),
+    }
+    return f"{settings.OIDC_OP_LOGOUT_ENDPOINT}?{urlencode(data)}"
