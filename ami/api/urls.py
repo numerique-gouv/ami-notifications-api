@@ -20,17 +20,18 @@ urlpatterns = [
     path("api/v1/", include(partner_api_urls)),
     path("api/v1/", include(user_api_urls)),
     # drf-spectacular
-    path("api/v1/schema/", SpectacularAPIView.as_view(), name="schema"),
+    path("schema", SpectacularAPIView.as_view(), name="schema"),
     path(
-        "api/v1/schema/swagger-ui/",
+        "schema/swagger",
         SpectacularSwaggerView.as_view(url_name="schema"),
-        name="swagger-ui",
+        name="swagger",
     ),
     path(
-        "api/v1/schema/rapidoc/",
+        "schema/rapidoc",
         TemplateView.as_view(
             template_name="rapidoc.html",
-            extra_context={"schema_url": "/api/v1/schema/"},
+            extra_context={"schema_url": "/schema"},
         ),
+        name="rapidoc",
     ),
 ]
