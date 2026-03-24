@@ -2,14 +2,17 @@
   <body>
     Hello admin!
 
-    {% if request.user.agent.has_role_admin %}
-      <nav>
-        <ul>
+    <nav>
+      <ul>
+        {% if request.user.agent.has_role_admin %}
           <li>
             <a href="{% url 'agent-admin:manage-access' %}">Gestion des droits des agents</a>
           </li>
-        </ul>
-      </nav>
-    {% endif %}
+        {% endif %}
+        <li>
+          <a href="{% url 'agent-admin:logout' %}">Se déconnecter</a>
+        </li>
+      </ul>
+    </nav>
   </body>
 </html>
