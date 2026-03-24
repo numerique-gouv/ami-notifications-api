@@ -49,7 +49,7 @@ async def test_stream_notification_events_without_auth() -> None:
     communicator = WebsocketCommunicator(application, "api/v1/users/notification/events/stream")
     connected, code = await communicator.connect()
     assert not connected
-    assert code == settings.PUBLIC_CHANNEL_UNAUTHORIZED_CODE
+    assert code == settings.CHANNEL_UNAUTHORIZED_CODE
 
     token = jwt.encode({"sub": "bad-value"}, "wrong-secret", algorithm="HS256")
     headers = [(b"cookie", f"{settings.AUTH_COOKIE_JWT_NAME}=Bearer {token}".encode())]
@@ -58,4 +58,4 @@ async def test_stream_notification_events_without_auth() -> None:
     )
     connected, code = await communicator.connect()
     assert not connected
-    assert code == settings.PUBLIC_CHANNEL_UNAUTHORIZED_CODE
+    assert code == settings.CHANNEL_UNAUTHORIZED_CODE

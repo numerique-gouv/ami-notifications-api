@@ -10,7 +10,7 @@ class NotificationConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         user_id = self.scope.get("ami_user_id")
         if user_id is None:
-            await self.close(code=settings.PUBLIC_CHANNEL_UNAUTHORIZED_CODE)
+            await self.close(code=settings.CHANNEL_UNAUTHORIZED_CODE)
             return
 
         assert self.channel_layer is not None, "CHANNEL_LAYERS is not configured"

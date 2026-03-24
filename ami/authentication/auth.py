@@ -65,8 +65,8 @@ async def get_fc_token(
     await nonce.adelete()
 
     # FC - Step 5
-    redirect_uri: str = settings.PUBLIC_FC_PROXY or settings.PUBLIC_FC_AMI_REDIRECT_URL
-    client_id: str = settings.PUBLIC_FC_AMI_CLIENT_ID
+    redirect_uri: str = settings.PUBLIC_FC_PROXY or settings.FC_AMI_REDIRECT_URL
+    client_id: str = settings.FC_AMI_CLIENT_ID
     data: dict[str, str] = {
         "grant_type": "authorization_code",
         "redirect_uri": redirect_uri,
@@ -78,7 +78,7 @@ async def get_fc_token(
     # FC - Step 6
     token_endpoint_headers: dict[str, str] = {"Content-Type": "application/x-www-form-urlencoded"}
     response: Any = await httpx_async_client.post(
-        f"{settings.PUBLIC_FC_BASE_URL}{settings.PUBLIC_FC_TOKEN_ENDPOINT}",
+        f"{settings.PUBLIC_FC_BASE_URL}{settings.FC_TOKEN_ENDPOINT}",
         headers=token_endpoint_headers,
         data=data,
     )

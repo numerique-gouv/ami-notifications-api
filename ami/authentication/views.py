@@ -31,12 +31,12 @@ def login_france_connect(request):
         nonce = Nonce.objects.create(nonce=NONCE)
 
         params = {
-            "scope": settings.PUBLIC_FC_SCOPE,
-            "redirect_uri": settings.PUBLIC_FC_PROXY or settings.PUBLIC_FC_AMI_REDIRECT_URL,
+            "scope": settings.FC_SCOPE,
+            "redirect_uri": settings.PUBLIC_FC_PROXY or settings.FC_AMI_REDIRECT_URL,
             "response_type": "code",
-            "client_id": settings.PUBLIC_FC_AMI_CLIENT_ID,
+            "client_id": settings.FC_AMI_CLIENT_ID,
             "state": (
-                f"{settings.PUBLIC_FC_AMI_REDIRECT_URL}?state={nonce.id}"
+                f"{settings.FC_AMI_REDIRECT_URL}?state={nonce.id}"
                 if settings.PUBLIC_FC_PROXY
                 else str(nonce.id)
             ),
@@ -46,8 +46,7 @@ def login_france_connect(request):
         }
 
         login_url = (
-            f"{settings.PUBLIC_FC_BASE_URL}{settings.PUBLIC_FC_AUTHORIZATION_ENDPOINT}"
-            f"?{urlencode(params)}"
+            f"{settings.PUBLIC_FC_BASE_URL}{settings.FC_AUTHORIZATION_ENDPOINT}?{urlencode(params)}"
         )
         return redirect(login_url)
     except Exception:
@@ -101,10 +100,7 @@ async def login_callback(request):
                         )
                     )
                     task_api_particulier = None
-                    if (
-                        "cnaf_enfants" in settings.PUBLIC_FC_SCOPE
-                        and "cnaf_adresse" in settings.PUBLIC_FC_SCOPE
-                    ):
+                    if "cnaf_enfants" in settings.FC_SCOPE and "cnaf_adresse" in settings.FC_SCOPE:
                         task_api_particulier = task_group.create_task(
                             get_address_from_api_particulier_quotient(
                                 token_type=token_type,

@@ -19,7 +19,7 @@ async def get_fc_userinfo(
     *, token_type: str, access_token: str, httpx_async_client: AsyncClient
 ) -> tuple[dict[str, str], uuid.UUID]:
     response = await httpx_async_client.get(
-        f"{settings.PUBLIC_FC_BASE_URL}{settings.PUBLIC_FC_USERINFO_ENDPOINT}",
+        f"{settings.PUBLIC_FC_BASE_URL}{settings.FC_USERINFO_ENDPOINT}",
         headers={"authorization": f"{token_type} {access_token}"},
     )
     if response.status_code != 200:
@@ -66,8 +66,8 @@ async def get_address_from_api_particulier_quotient(
     httpx_async_client: AsyncClient,
 ) -> str | None:
     response = await httpx_async_client.get(
-        f"{settings.PUBLIC_API_PARTICULIER_BASE_URL}{settings.PUBLIC_API_PARTICULIER_QUOTIENT_ENDPOINT}"
-        f"?recipient={settings.PUBLIC_API_PARTICULIER_RECIPIENT_ID}",
+        f"{settings.API_PARTICULIER_BASE_URL}{settings.API_PARTICULIER_QUOTIENT_ENDPOINT}"
+        f"?recipient={settings.API_PARTICULIER_RECIPIENT_ID}",
         headers={"authorization": f"{token_type} {access_token}"},
     )
     if response.status_code != 200:
