@@ -265,10 +265,6 @@ The Client Secret however, is... well, secret, and is available on the sandbox
 You'll need to request access to this partner's page and/or ask us for the
 Client Secret before being able to Pro Connect locally while developping.
 
-### Creating a PR with access to the PC service
-
-You'll need to add the `PRO_CONNECT_AMI_ADMIN_CLIENT_SECRET` and the `PUBLIC_PRO_CONNECT_AMI_ADMIN_REDIRECT_URL` env variables in the review-app environment on Scalingo.
-
 # Architectural diagram
 
 ![AMI architectural diagram]( AMI-technical%20architecture.excalidraw.svg)
