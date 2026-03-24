@@ -150,8 +150,8 @@ def test_create_mobile_notification(
     send_mock.assert_called_once()
     call_args = send_mock.call_args
     message = call_args[0][0]  # First positional argument
-    assert message.notification.title == "Brouillon de nouvelle demande de démarche d'OTV"
-    assert message.notification.body == "Merci d'avoir initié votre demande"
+    assert message.data["title"] == "Brouillon de nouvelle demande de démarche d'OTV"
+    assert message.data["body"] == "Merci d'avoir initié votre demande"
     assert message.token == mobile_registration.subscription["fcm_token"]
 
 
