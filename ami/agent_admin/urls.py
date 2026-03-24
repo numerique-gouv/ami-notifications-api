@@ -8,4 +8,5 @@ urlpatterns = [
     path("", views.home, name="home"),
     path("login/", views.login, name="login"),
     path("access-denied/", views.access_denied, name="access-denied"),
+    path("manage/access/", views.manage_access, name="manage-access"),
 ]

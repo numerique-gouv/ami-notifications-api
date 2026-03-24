@@ -1,5 +1,15 @@
 <html>
   <body>
     Hello admin!
+
+    {% if request.user.agent.has_role_admin %}
+      <nav>
+        <ul>
+          <li>
+            <a href="{% url 'agent-admin:manage-access' %}">Gestion des droits des agents</a>
+          </li>
+        </ul>
+      </nav>
+    {% endif %}
   </body>
 </html>
