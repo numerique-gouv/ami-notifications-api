@@ -35,7 +35,7 @@ def get_school_holidays_data(
     locations_query = " OR ".join(f"location = '{location}'" for location in locations)
 
     response = httpxClient.get(
-        f"{settings.PUBLIC_API_DATA_EDUCATION_BASE_URL}{settings.PUBLIC_API_DATA_EDUCATION_HOLIDAYS_ENDPOINT}",
+        f"{settings.API_DATA_EDUCATION_BASE_URL}{settings.API_DATA_EDUCATION_HOLIDAYS_ENDPOINT}",
         params={
             "where": f"end_date >= date'{start_date}' AND start_date < date'{end_date}' AND ({locations_query}) AND population IN ('-', 'Élèves')",
             "order_by": "start_date",

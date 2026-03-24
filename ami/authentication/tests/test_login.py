@@ -20,7 +20,7 @@ def test_login_france_connect(
     assert response.status_code == 302
     redirected_url = response.headers["location"]
     assert redirected_url.startswith(
-        f"{settings.PUBLIC_FC_BASE_URL}{settings.PUBLIC_FC_AUTHORIZATION_ENDPOINT}"
+        f"{settings.PUBLIC_FC_BASE_URL}{settings.FC_AUTHORIZATION_ENDPOINT}"
     )
     assert url_contains_param(
         "scope",
@@ -29,13 +29,13 @@ def test_login_france_connect(
     )
     assert url_contains_param(
         "redirect_uri",
-        settings.PUBLIC_FC_PROXY or settings.PUBLIC_FC_AMI_REDIRECT_URL,
+        settings.PUBLIC_FC_PROXY or settings.FC_AMI_REDIRECT_URL,
         redirected_url,
     )
     assert url_contains_param("response_type", "code", redirected_url)
-    assert url_contains_param("client_id", settings.PUBLIC_FC_AMI_CLIENT_ID, redirected_url)
+    assert url_contains_param("client_id", settings.FC_AMI_CLIENT_ID, redirected_url)
     assert url_contains_param(
-        "state", f"{settings.PUBLIC_FC_AMI_REDIRECT_URL}?state={nonce.id}", redirected_url
+        "state", f"{settings.FC_AMI_REDIRECT_URL}?state={nonce.id}", redirected_url
     )
     assert url_contains_param("nonce", nonce.nonce, redirected_url)
     assert url_contains_param("acr_values", "eidas1", redirected_url)
