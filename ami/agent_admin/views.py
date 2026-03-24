@@ -11,3 +11,8 @@ def home(request):
 
 def login(request):
     return render(request, "agent_admin/login.html", {})
+
+
+@agent_login_required
+def access_denied(request):
+    return render(request, "agent_admin/access_denied.html", {})

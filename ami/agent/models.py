@@ -26,3 +26,15 @@ class Agent(models.Model):
 
     def __str__(self):
         return f"{self.user.first_name} {self.user.last_name} ({self.user.email})"
+
+    @property
+    def has_role_support(self):
+        return self.role is not None
+
+    @property
+    def has_role_notifications(self):
+        return self.role in [Agent.Role.SUPPORT, Agent.Role.NOTIFICATIONS]
+
+    @property
+    def has_role_admin(self):
+        return self.role == Agent.Role.ADMIN
