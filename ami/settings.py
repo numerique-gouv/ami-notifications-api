@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "mozilla_django_oidc",
     "corsheaders",
     "rest_framework",
     "ami.authentication",
@@ -135,6 +136,16 @@ ASGI_APPLICATION = "ami.asgi.application"
 
 postgres_database = dj_database_url.parse(CONFIG["DATABASE_URL"])
 DATABASES = {"default": postgres_database, "channels_postgres": postgres_database}
+
+# Authentication
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    "mozilla_django_oidc.auth.OIDCAuthenticationBackend",
+]
+
+LOGIN_URL = "/agent-admin/login/"
+LOGIN_REDIRECT_URL = "/agent-admin/"
+LOGOUT_REDIRECT_URL = "/agent-admin/"
 
 # Emails
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
@@ -222,6 +233,24 @@ PUBLIC_FC_TOKEN_ENDPOINT = CONFIG["PUBLIC_FC_TOKEN_ENDPOINT"]
 PUBLIC_FC_JWKS_ENDPOINT = CONFIG["PUBLIC_FC_JWKS_ENDPOINT"]
 PUBLIC_FC_USERINFO_ENDPOINT = CONFIG["PUBLIC_FC_USERINFO_ENDPOINT"]
 PUBLIC_FC_AUTHORIZATION_ENDPOINT = CONFIG["PUBLIC_FC_AUTHORIZATION_ENDPOINT"]
+
+# ProConnect authentication
+OIDC_RP_SIGN_ALGO = "RS256"
+OIDC_RP_CLIENT_ID = CONFIG["PUBLIC_PRO_CONNECT_AMI_ADMIN_CLIENT_ID"]
+OIDC_RP_CLIENT_SECRET = CONFIG["PRO_CONNECT_AMI_ADMIN_CLIENT_SECRET"]
+OIDC_OP_AUTHORIZATION_ENDPOINT = (
+    CONFIG["PUBLIC_PRO_CONNECT_BASE_URL"] + CONFIG["PUBLIC_PRO_CONNECT_AUTHORIZATION_ENDPOINT"]
+)
+OIDC_OP_TOKEN_ENDPOINT = (
+    CONFIG["PUBLIC_PRO_CONNECT_BASE_URL"] + CONFIG["PUBLIC_PRO_CONNECT_TOKEN_ENDPOINT"]
+)
+OIDC_OP_JWKS_ENDPOINT = (
+    CONFIG["PUBLIC_PRO_CONNECT_BASE_URL"] + CONFIG["PUBLIC_PRO_CONNECT_JWKS_ENDPOINT"]
+)
+OIDC_OP_USER_ENDPOINT = (
+    CONFIG["PUBLIC_PRO_CONNECT_BASE_URL"] + CONFIG["PUBLIC_PRO_CONNECT_USERINFO_ENDPOINT"]
+)
+OIDC_AUTHENTICATION_CALLBACK_URL = "agent-admin:oidc_authentication_callback"
 
 # APi particulier
 PUBLIC_API_PARTICULIER_BASE_URL = CONFIG["PUBLIC_API_PARTICULIER_BASE_URL"]
