@@ -70,6 +70,12 @@ async def push(notification: Notification, try_push: bool) -> None:
                 except Exception as e:
                     logger.exception(f"Failed to send notification: {e}")
         else:
+            # We need to make absolutely sure that there are no values that are not strings,
+            # or the Firebase admin SDK will fail.
+            data = {
+                k: str(v)
+                for k, v in notification_data.model_dump(mode="json", exclude_none=True).items()
+            }
             message = messaging.Message(
                 # Send both a Notification (displayed automatically by the operating system)
                 # even if the app is in the background...
@@ -79,12 +85,7 @@ async def push(notification: Notification, try_push: bool) -> None:
                 ),
                 # ... and a full data dump, so the app can display more information if needed
                 # once the application is displayed.
-                # We need to make absolutely sure that there are no values that are not strings,
-                # or the Firebase admin SDK will fail.
-                data={
-                    k: str(v)
-                    for k, v in notification_data.model_dump(mode="json", exclude_none=True).items()
-                },
+                data={**data, "app_url": settings.CONFIG["PUBLIC_APP_URL"]},
                 token=registration.typed_subscription.fcm_token,
             )
             try:
