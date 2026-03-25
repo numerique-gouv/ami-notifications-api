@@ -126,7 +126,7 @@ class PartnerNotificationCreateSerializer(serializers.Serializer):
         validation_errors = {}
         if has_item_fields:
             validation_errors = {
-                k: "This field is required for a notification related to an item."
+                k: "Ce champ est obligatoire pour une notification associée à un objet."
                 for k, v in attrs.items()
                 if k in item_required_fields and not v
             }
@@ -137,7 +137,9 @@ class PartnerNotificationCreateSerializer(serializers.Serializer):
         if attrs["item_milestone_start_date"] and attrs["item_milestone_end_date"]:
             if attrs["item_milestone_start_date"] > attrs["item_milestone_end_date"]:
                 raise serializers.ValidationError(
-                    {"item_milestone_end_date": "The end date must be later than the start date."}
+                    {
+                        "item_milestone_end_date": "La date de fin doit être supérieure à la date de début."
+                    }
                 )
 
         return attrs
