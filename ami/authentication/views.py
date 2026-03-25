@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import uuid
 from urllib.parse import urlencode
 
@@ -12,6 +13,8 @@ from ami.authentication.exception import FCError
 from ami.authentication.models import Nonce
 from ami.user.data import get_address_from_api_particulier_quotient, get_fc_userinfo
 from ami.utils.httpx import httpxAsyncClient
+
+logger = logging.getLogger(__name__)
 
 
 def retry_fc_later(error_dict: dict | None = None):
@@ -50,7 +53,8 @@ def login_france_connect(request):
             f"?{urlencode(params)}"
         )
         return redirect(login_url)
-    except Exception:
+    except Exception as e:
+        logging.exception(e)
         return redirect(f"{settings.PUBLIC_APP_URL}/#/technical-error")
 
 
@@ -144,5 +148,6 @@ async def login_callback(request):
         if e.code is None:
             return retry_fc_later()
         return retry_fc_later({"error_code": e.code})
-    except Exception:
+    except Exception as e:
+        logging.exception(e)
         return redirect(f"{settings.PUBLIC_APP_URL}/#/technical-error")
