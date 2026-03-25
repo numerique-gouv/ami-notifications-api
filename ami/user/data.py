@@ -14,6 +14,8 @@ from ami.user.models import User
 from ami.user.utils import build_fc_hash
 from ami.utils.httpx import AsyncClient
 
+logger = logging.getLogger(__name__)
+
 
 async def get_fc_userinfo(
     *, token_type: str, access_token: str, httpx_async_client: AsyncClient
@@ -81,12 +83,12 @@ async def get_address_from_api_particulier_quotient(
 
 
 def log_address_error_to_sentry(response):
-    logger = logging.getLogger(__name__)
-    logger.error(
-        "Error for address from API Particuliers",
-        extra={
-            "status_code": response.status_code,
-            "response_text": response.text,
-            "response_json": response.json(),
-        },
-    )
+    extra = {
+        "status_code": response.status_code,
+        "response_text": response.text,
+    }
+    try:
+        extra["response_json"] = response.json()
+    except json.JSONDecodeError:
+        pass
+    logger.error("Error for address from API Particuliers", extra=extra)
