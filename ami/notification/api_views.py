@@ -163,7 +163,10 @@ def delete_scheduled_notification(request: Request) -> Response:
 @extend_schema(
     methods=["POST"],
     request=PartnerNotificationCreateSerializer,
-    responses={201: NotificationResponseSerializer},
+    responses={
+        200: NotificationResponseSerializer,
+        201: NotificationResponseSerializer,
+    },
 )
 @api_view(["POST"])
 @authentication_classes([PartnerBasicAuthentication])
@@ -198,21 +201,24 @@ def partner_create_notification(request: Request) -> Response[NotificationRespon
         # don't push notification if not required or if user has never logged in on AMI
         try_push = False
 
-    notification: Notification = Notification(
-        user_id=user.id, **{k: v for k, v in data.items() if k != "recipient_fc_hash"}
+    data.pop("recipient_fc_hash")
+    if data["content_icon"] is None:
+        data["content_icon"] = current_partner.icon or "fr-icon-mail-star-line"
+    notification, created = Notification.objects.get_or_create(
+        user_id=user.id,
+        partner_id=current_partner.id,
+        defaults={"send_status": notification_send_status},
+        **data,
     )
-    if notification.content_icon is None:
-        notification.content_icon = current_partner.icon or "fr-icon-mail-star-line"
-    notification.partner_id = current_partner.id
-    notification.send_status = notification_send_status
-    notification.save()
 
-    push_notification.enqueue(str(notification.id), try_push)
-
+    if created:
+        push_notification.enqueue(str(notification.id), try_push)
     sentry.add_counter("notification.request.processed")
 
     response_data = {
         "notification_id": notification.id,
         "notification_send_status": notification_send_status,
     }
-    return Response(NotificationResponseSerializer(response_data).data, status=201)
+    return Response(
+        NotificationResponseSerializer(response_data).data, status=201 if created else 200
+    )

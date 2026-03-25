@@ -7,7 +7,7 @@ import pytest
 from asgiref.sync import sync_to_async
 from channels.testing.websocket import WebsocketCommunicator
 from pytest_httpx import HTTPXMock
-from rest_framework.status import HTTP_201_CREATED
+from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED
 
 from ami.notification.models import Notification
 from ami.partner.models import partners
@@ -419,6 +419,141 @@ def test_create_notification_partner_has_default_icon(
     assert Notification.objects.count() == 1
     notification = Notification.objects.get()
     assert notification.content_icon == "fr-icon-megaphone-line"
+
+
+@pytest.mark.django_db
+def test_create_notification_duplicated_payload(
+    django_app,
+    user: User,
+    partner_auth: dict[str, str],
+) -> None:
+    notification_data = {
+        "recipient_fc_hash": user.fc_hash,
+        "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
+        "content_body": "Merci d'avoir initié votre demande",
+        "content_icon": "foo",
+        "item_type": "OTV",
+        "item_id": "A-5-JGBJ5VMOY",
+        "item_status_label": "Brouillon",
+        "item_generic_status": "new",
+        "item_milestone_start_date": "2025-12-26T23:00:00.000Z",
+        "item_milestone_end_date": "2026-01-02T23:00:00.000Z",
+        "item_external_url": "http://otv/a-5-jgbj5vmoy",
+        "item_canal": "ami",
+        "send_date": "2025-11-27T10:55:00.000Z",
+        "try_push": True,
+    }
+
+    response = django_app.post("/api/v1/notifications", notification_data, headers=partner_auth)
+    assert response.status_code == HTTP_201_CREATED
+    assert Notification.objects.count() == 1
+    notification = Notification.objects.get()
+    assert response.json == {
+        "notification_id": str(notification.id),
+        "notification_send_status": True,
+    }
+
+    # again, same payload
+    response = django_app.post("/api/v1/notifications", notification_data, headers=partner_auth)
+    assert response.status_code == HTTP_200_OK
+    assert Notification.objects.count() == 1
+    assert response.json == {
+        "notification_id": str(notification.id),
+        "notification_send_status": True,
+    }
+
+    # same payload but notification payload exists for another partner
+    Notification.objects.all().update(partner_id="foo")
+    response = django_app.post("/api/v1/notifications", notification_data, headers=partner_auth)
+    assert response.status_code == HTTP_201_CREATED
+    assert Notification.objects.count() == 2
+    notification = Notification.objects.latest("created_at")
+    assert response.json == {
+        "notification_id": str(notification.id),
+        "notification_send_status": True,
+    }
+
+    # change a random value
+    notification_count = Notification.objects.count()
+    for key, value in notification_data.items():
+        if key == "try_push":
+            continue
+        data = notification_data.copy()
+        if key == "item_generic_status":
+            data[key] = "wip"
+        else:
+            data[key] = value[:-2] + "1" + value[-1]
+        send_status = True
+        if key == "recipient_fc_hash":
+            send_status = False
+        response = django_app.post("/api/v1/notifications", data, headers=partner_auth)
+        assert response.status_code == HTTP_201_CREATED
+        notification_count += 1
+        assert Notification.objects.count() == notification_count
+        notification = Notification.objects.latest("created_at")
+        assert response.json == {
+            "notification_id": str(notification.id),
+            "notification_send_status": send_status,
+        }
+        if key not in [
+            "content_icon",
+            "item_canal",
+            "item_milestone_start_date",
+            "item_milestone_end_date",
+            "item_external_url",
+        ]:
+            continue
+        del data[key]
+        response = django_app.post("/api/v1/notifications", data, headers=partner_auth)
+        assert response.status_code == HTTP_201_CREATED
+        notification_count += 1
+        assert Notification.objects.count() == notification_count
+        notification = Notification.objects.latest("created_at")
+        assert response.json == {
+            "notification_id": str(notification.id),
+            "notification_send_status": send_status,
+        }
+
+
+@pytest.mark.django_db
+def test_create_notification_duplicated_payload_with_push(
+    django_app,
+    mobile_registration: Registration,
+    partner_auth: dict[str, str],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    send_mock = Mock()
+    monkeypatch.setattr("ami.notification.push.messaging.send", send_mock)
+    notification_data = {
+        "recipient_fc_hash": mobile_registration.user.fc_hash,
+        "item_type": "OTV",
+        "item_id": "A-5-JGBJ5VMOY",
+        "item_status_label": "Brouillon",
+        "item_generic_status": "new",
+        "send_date": "2025-11-27T10:55:00.000Z",
+        "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
+        "content_body": "Merci d'avoir initié votre demande",
+    }
+
+    response = django_app.post("/api/v1/notifications", notification_data, headers=partner_auth)
+    assert response.status_code == HTTP_201_CREATED
+    assert Notification.objects.count() == 1
+    notification = Notification.objects.get()
+    assert response.json == {
+        "notification_id": str(notification.id),
+        "notification_send_status": True,
+    }
+    send_mock.assert_called_once()
+
+    # again, same payload
+    response = django_app.post("/api/v1/notifications", notification_data, headers=partner_auth)
+    assert response.status_code == HTTP_200_OK
+    assert Notification.objects.count() == 1
+    assert response.json == {
+        "notification_id": str(notification.id),
+        "notification_send_status": True,
+    }
+    send_mock.assert_called_once()  # no new call
 
 
 @pytest.mark.django_db
