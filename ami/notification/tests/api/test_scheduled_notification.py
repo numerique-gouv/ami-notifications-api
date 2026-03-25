@@ -149,11 +149,11 @@ def test_create_scheduled_notification_test_fields(django_app, user: User) -> No
         "/api/v1/users/scheduled-notifications", scheduled_notification_data, status=400
     )
     assert response.json == {
-        "content_title": ["This field is required."],
-        "content_body": ["This field is required."],
-        "content_icon": ["This field is required."],
-        "reference": ["This field is required."],
-        "scheduled_at": ["This field is required."],
+        "content_title": ["Ce champ est obligatoire."],
+        "content_body": ["Ce champ est obligatoire."],
+        "content_icon": ["Ce champ est obligatoire."],
+        "reference": ["Ce champ est obligatoire."],
+        "scheduled_at": ["Ce champ est obligatoire."],
     }
 
     # content_title; content_body, content_icon, reference are required
@@ -168,11 +168,11 @@ def test_create_scheduled_notification_test_fields(django_app, user: User) -> No
         "/api/v1/users/scheduled-notifications", scheduled_notification_data, status=400
     )
     assert response.json == {
-        "content_title": ["This field may not be blank."],
-        "content_body": ["This field may not be blank."],
-        "content_icon": ["This field may not be blank."],
-        "reference": ["This field may not be blank."],
-        "scheduled_at": ["This field is required."],
+        "content_title": ["Ce champ ne peut être vide."],
+        "content_body": ["Ce champ ne peut être vide."],
+        "content_icon": ["Ce champ ne peut être vide."],
+        "reference": ["Ce champ ne peut être vide."],
+        "scheduled_at": ["Ce champ est obligatoire."],
     }
 
     # id, created_at, updated_at, user_id and sent_at are ignored
@@ -245,7 +245,7 @@ def test_delete_scheduled_notification_params(django_app, user: User) -> None:
     login(django_app, user)
 
     response = django_app.delete("/api/v1/users/scheduled-notifications", status=400)
-    assert response.json == {"reference": ["This field is required."]}
+    assert response.json == {"reference": ["Ce champ est obligatoire."]}
 
 
 @pytest.mark.django_db

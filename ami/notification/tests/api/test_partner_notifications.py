@@ -429,10 +429,10 @@ def test_create_notification_send_ko_with_400_when_required_fields_are_missing(
         "/api/v1/notifications", notification_data, headers=partner_auth, status=400
     )
     assert response.json == {
-        "content_body": ["This field is required."],
-        "content_title": ["This field is required."],
-        "recipient_fc_hash": ["This field is required."],
-        "send_date": ["This field is required."],
+        "content_body": ["Ce champ est obligatoire."],
+        "content_title": ["Ce champ est obligatoire."],
+        "recipient_fc_hash": ["Ce champ est obligatoire."],
+        "send_date": ["Ce champ est obligatoire."],
     }
 
 
@@ -461,11 +461,11 @@ def test_create_notification_send_ko_with_400_when_required_fields_are_empty(
         "/api/v1/notifications", notification_data, headers=partner_auth, status=400
     )
     assert response.json == {
-        "content_body": ["This field may not be blank."],
-        "content_title": ["This field may not be blank."],
-        "recipient_fc_hash": ["This field may not be blank."],
+        "content_body": ["Ce champ ne peut être vide."],
+        "content_title": ["Ce champ ne peut être vide."],
+        "recipient_fc_hash": ["Ce champ ne peut être vide."],
         "send_date": [
-            "Datetime has wrong format. Use one of these formats instead: YYYY-MM-DDThh:mm[:ss[.uuuuuu]][+HH:MM|-HH:MM|Z]."
+            "La date + heure n'a pas le bon format. Utilisez un des formats suivants\xa0: YYYY-MM-DDThh:mm[:ss[.uuuuuu]][+HH:MM|-HH:MM|Z]."
         ],
     }
 
@@ -508,7 +508,7 @@ def test_create_notification_send_ko_with_400_when_required_item_fields_are_miss
         )
         response = django_app.post("/api/v1/notifications", data, headers=partner_auth, status=400)
         assert response.json == {
-            f: ["This field is required for a notification related to an item."]
+            f: ["Ce champ est obligatoire pour une notification associée à un objet."]
             for f in item_fields
             if f != field
         }
@@ -572,7 +572,7 @@ def test_create_notification_check_item_milestone_dates(
         "/api/v1/notifications", notification_data, headers=partner_auth, status=400
     )
     assert response.json == {
-        "item_milestone_end_date": ["The end date must be later than the start date."]
+        "item_milestone_end_date": ["La date de fin doit être supérieure à la date de début."]
     }
 
     notification_data = {
