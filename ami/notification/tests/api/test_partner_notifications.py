@@ -153,7 +153,7 @@ def test_create_mobile_notification(
     assert message.notification.title == "Brouillon de nouvelle demande de démarche d'OTV"
     assert message.notification.body == "Merci d'avoir initié votre demande"
     assert message.token == mobile_registration.subscription["fcm_token"]
-    assert message.data["app_url"] == settings.CONFIG["PUBLIC_APP_URL"]
+    assert message.data["app_url"] == settings.PUBLIC_APP_URL
 
 
 @pytest.mark.django_db
