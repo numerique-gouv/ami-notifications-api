@@ -85,7 +85,7 @@ async def push(notification: Notification, try_push: bool) -> None:
                 ),
                 # ... and a full data dump, so the app can display more information if needed
                 # once the application is displayed.
-                data={**data, "app_url": settings.CONFIG["PUBLIC_APP_URL"]},
+                data={**data, "app_url": settings.PUBLIC_APP_URL},
                 token=registration.typed_subscription.fcm_token,
             )
             try:
