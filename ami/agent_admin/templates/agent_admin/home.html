@@ -1,18 +1,16 @@
-<html>
-  <body>
-    Hello admin!
+{% extends "agent_admin/base.html" %}
 
-    <nav>
-      <ul>
-        {% if request.user.agent.has_role_admin %}
-          <li>
-            <a href="{% url 'agent-admin:manage-access' %}">Gestion des droits des agents</a>
-          </li>
-        {% endif %}
+{% block content %}
+  <nav>
+    <ul>
+      {% if request.user.agent.has_role_admin %}
         <li>
-          <a href="{% url 'agent-admin:logout' %}">Se déconnecter</a>
+          <a href="{% url 'agent-admin:manage-access' %}">Gestion des droits des agents</a>
         </li>
-      </ul>
-    </nav>
-  </body>
-</html>
+      {% endif %}
+      <li>
+        <a href="{% url 'agent-admin:logout' %}">Se déconnecter</a>
+      </li>
+    </ul>
+  </nav>
+{% endblock %}
