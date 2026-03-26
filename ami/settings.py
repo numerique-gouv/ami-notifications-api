@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "widget_tweaks",
     "dsfr",
+    "sass_processor",
     "ami.authentication",
     "ami.notification",
     "ami.user",
@@ -104,6 +105,11 @@ STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "static"
 STATICFILES_DIRS = [
     BASE_DIR / "public" / "mobile-app" / "build",
+]
+STATICFILES_FINDERS = [
+    "django.contrib.staticfiles.finders.FileSystemFinder",
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+    "sass_processor.finders.CssFinder",
 ]
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
