@@ -3,49 +3,60 @@
 {% block content %}
   <h1>Gestion des droits des agents</h1>
 
-  <h2>Avec droits</h2>
-  <div class="fr-table" id="with-role">
-    <div class="fr-table__wrapper">
-      <div class="fr-table__container">
-        <div class="fr-table__content">
-          <table id="table-with-role">
-            <tbody>
-              {% for agent in authorized_agents %}
-                <tr id="table-with-role-row-key-{{ forloop.counter0 }}" data-row-key="{{ forloop.counter0 }}">
-                  <td>{{ agent.user.last_name }} {{ agent.user.first_name }}</td>
-                  <td>{{ agent.get_role_display }}</td>
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+  <div class="fr-tabs">
+    <ul class="fr-tabs__list" role="tablist" aria-label="Onglets des listes d'agents">
+      <li role="presentation">
+        <button type="button" id="tab-1" class="fr-tabs__tab" tabindex="0" role="tab" aria-selected="true" aria-controls="tab-1-panel">Avec droits</button>
+      </li>
+      <li role="presentation">
+        <button type="button" id="tab-2" class="fr-tabs__tab" tabindex="-1" role="tab" aria-selected="false" aria-controls="tab-2-panel">Sans droits</button>
+      </li>
+    </ul>
+    <div id="tab-1-panel" class="fr-tabs__panel fr-tabs__panel--selected" role="tabpanel" aria-labelledby="tab-1" tabindex="0">
+      <div class="fr-table" id="with-role">
+        <div class="fr-table__wrapper">
+          <div class="fr-table__container">
+            <div class="fr-table__content">
+              <table id="table-with-role">
+                <tbody>
+                  {% for agent in authorized_agents %}
+                    <tr id="table-with-role-row-key-{{ forloop.counter0 }}" data-row-key="{{ forloop.counter0 }}">
+                      <td>{{ agent.user.first_name }}<br />{{ agent.user.last_name }}</td>
+                      <td>{{ agent.get_role_display }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-
-  <h2>Sans droits</h2>
-  <div class="fr-table" id="without-role">
-    <div class="fr-table__wrapper">
-      <div class="fr-table__container">
-        <div class="fr-table__content">
-          <table id="table-without-role">
-            <thead>
-              <tr>
-                <th>Agent concerné</th>
-                <th>Date de connexion</th>
-                <th>Statut</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for agent in unauthorized_agents %}
-                <tr id="table-without-role-row-key-{{ forloop.counter0 }}" data-row-key="{{ forloop.counter0 }}">
-                  <td>{{ agent.user.last_name }} {{ agent.user.first_name }}</td>
-                  <td>{{ agent.proconnect_last_login|date:"d/m/Y à H\Hi" }}</td>
-                  <td></td>
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+    <div id="tab-2-panel" class="fr-tabs__panel" role="tabpanel" aria-labelledby="tab-2" tabindex="0">
+      <div class="fr-table" id="without-role">
+        <div class="fr-table__wrapper">
+          <div class="fr-table__container">
+            <div class="fr-table__content">
+              <table id="table-without-role">
+                <thead>
+                  <tr>
+                    <th>Agent concerné</th>
+                    <th>Date de connexion</th>
+                    <th>Statut</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for agent in unauthorized_agents %}
+                    <tr id="table-without-role-row-key-{{ forloop.counter0 }}" data-row-key="{{ forloop.counter0 }}">
+                      <td>{{ agent.user.first_name }}<br />{{ agent.user.last_name }}</td>
+                      <td>{{ agent.proconnect_last_login|date:"d/m/Y à H\Hi" }}</td>
+                      <td></td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
     </div>

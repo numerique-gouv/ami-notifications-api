@@ -13,14 +13,14 @@ def test_manage_access(
     django_app.set_user(admin_agent.user)
     response = django_app.get("/agent-admin/manage/access/")
     assert [PyQuery(tr).text() for tr in response.pyquery("#with-role tr")] == [
-        "AGENT Admin\nAdmin",
-        "AGENT Notifications\nNotifications",
-        "AGENT Support\nSupport",
+        "Admin\nAGENT\nAdmin",
+        "Notifications\nAGENT\nNotifications",
+        "Support\nAGENT\nSupport",
     ]
     last_login = date_format(agent.proconnect_last_login, "d/m/Y à H\\Hi")
     assert [PyQuery(tr).text() for tr in response.pyquery("#without-role tr")] == [
         "Agent concerné\nDate de connexion\nStatut",
-        f"AGENT Simple\n{last_login}",
+        f"Simple\nAGENT\n{last_login}",
     ]
 
 
