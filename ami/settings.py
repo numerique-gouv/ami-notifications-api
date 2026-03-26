@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 import os
+import sys
 from pathlib import Path
 
 import dj_database_url
@@ -64,6 +65,8 @@ INSTALLED_APPS = [
     "mozilla_django_oidc",
     "corsheaders",
     "rest_framework",
+    "widget_tweaks",
+    "dsfr",
     "ami.authentication",
     "ami.notification",
     "ami.user",
@@ -272,9 +275,18 @@ CHANNEL_LAYERS = {
 VAPID_PUBLIC_KEY = os.getenv("VAPID_PUBLIC_KEY", "")
 VAPID_PRIVATE_KEY = os.getenv("VAPID_PRIVATE_KEY", "")
 
+# Forms & DSFR
+FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
 
 if DEBUG:
     ALLOWED_HOSTS += [
         "localhost",
         "127.0.0.1",
     ]
+
+if sys.argv and sys.argv[0].endswith("pytest"):
+    MIDDLEWARE = [m for m in MIDDLEWARE if m != "whitenoise.middleware.WhiteNoiseMiddleware"]
+
+    STORAGES["staticfiles"] = {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    }
