@@ -13,6 +13,7 @@ session_data
 ssl-cert.pem
 ssl-key.pem
 static/
+!ami/*/static/
 
 # The private key file for Firebase Cloud Messaging
 *-adminsdk-*.json
