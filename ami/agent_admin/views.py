@@ -35,5 +35,6 @@ def manage_access(request):
     context = {
         "unauthorized_agents": unauthorized_agents,
         "authorized_agents": authorized_agents,
+        "roles": Agent.Role,
     }
     return render(request, "agent_admin/manage_access.html", context)
