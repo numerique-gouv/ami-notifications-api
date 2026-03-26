@@ -41,6 +41,25 @@ repos:
     - id: djhtml
       args: ['--tabwidth', '2']
 
+# SCSS linting and formatting (waiting for scss support in biome)
+- repo: https://github.com/pre-commit/mirrors-prettier
+  rev: v3.1.0
+  hooks:
+    - id: prettier
+      files: \.scss$
+      additional_dependencies:
+        - prettier@3.1.0
+
+- repo: https://github.com/awebdeveloper/pre-commit-stylelint
+  rev: 0.0.2
+  hooks:
+    - id: stylelint
+      files: \.scss$
+      args: ["--config", ".stylelintrc.json"]
+      additional_dependencies:
+        - stylelint@16.x
+        - stylelint-config-standard-scss@13.x
+
 # Python type checking
 - repo: local
   hooks:

@@ -31,6 +31,7 @@ test-ci:
 
 .PHONY: statics
 statics:
+	$(RUN) python manage.py compilescss
 	$(RUN) python manage.py collectstatic --noinput
 
 .PHONY: dev
