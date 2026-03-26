@@ -18,6 +18,7 @@ class Agent(models.Model):
         max_length=20,
         choices=Role,
         null=True,
+        blank=True,
     )
     proconnect_last_login = models.DateTimeField(null=True)
 

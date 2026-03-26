@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "widget_tweaks",
     "dsfr",
+    "django.forms",
     "ami.authentication",
     "ami.notification",
     "ami.user",

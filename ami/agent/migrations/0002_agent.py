@@ -34,6 +34,7 @@ class Migration(migrations.Migration):
                         ],
                         max_length=20,
                         null=True,
+                        blank=True,
                     ),
                 ),
                 ("proconnect_last_login", models.DateTimeField(null=True)),
