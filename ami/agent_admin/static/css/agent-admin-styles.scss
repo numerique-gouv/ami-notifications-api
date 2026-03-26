@@ -53,4 +53,15 @@
       color: var(--grey-625-425);
     }
   }
+  .fr-btns-group--form-actions {
+    display: flex;
+
+    li {
+      flex: 1;
+
+      .fr-btn {
+        width: 100%;
+      }
+    }
+  }
 }
