@@ -49,7 +49,7 @@
                   {% for agent in unauthorized_agents %}
                     <tr id="table-without-role-row-key-{{ forloop.counter0 }}" data-row-key="{{ forloop.counter0 }}">
                       <td>{{ agent.user.first_name }}<br />{{ agent.user.last_name }}</td>
-                      <td>{{ agent.proconnect_last_login|date:"d/m/Y à H\Hi" }}</td>
+                      <td>{{ agent.proconnect_last_login|date:"d/m/Y" }}<br />à {{ agent.proconnect_last_login|date:"H\Hi" }}</td>
                       <td></td>
                     </tr>
                   {% endfor %}
