@@ -112,17 +112,30 @@ STORAGES = {
     },
 }
 
+develop_loaders = [
+    "django.template.loaders.filesystem.Loader",
+    "django.template.loaders.app_directories.Loader",
+]
+production_loaders = [
+    (
+        "django.template.loaders.cached.Loader",
+        [
+            "django.template.loaders.filesystem.Loader",
+            "django.template.loaders.app_directories.Loader",
+        ],
+    )
+]
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [STATIC_ROOT],
-        "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
             ],
+            "loaders": develop_loaders if DEBUG else production_loaders,
         },
     },
 ]
