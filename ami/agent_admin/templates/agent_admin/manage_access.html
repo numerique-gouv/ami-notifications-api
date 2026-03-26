@@ -1,53 +1,53 @@
-<html>
-  <body>
-    <h1>Gestion des droits des agents</h1>
+{% extends "agent_admin/base.html" %}
 
-    <h2>Avec droits</h2>
-    <div class="fr-table" id="with-role">
-      <div class="fr-table__wrapper">
-        <div class="fr-table__container">
-          <div class="fr-table__content">
-            <table id="table-with-role">
-              <tbody>
-                {% for agent in authorized_agents %}
-                  <tr id="table-with-role-row-key-{{ forloop.counter0 }}" data-row-key="{{ forloop.counter0 }}">
-                    <td>{{ agent.user.last_name }} {{ agent.user.first_name }}</td>
-                    <td>{{ agent.get_role_display }}</td>
-                  </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
+{% block content %}
+  <h1>Gestion des droits des agents</h1>
 
-    <h2>Sans droits</h2>
-    <div class="fr-table" id="without-role">
-      <div class="fr-table__wrapper">
-        <div class="fr-table__container">
-          <div class="fr-table__content">
-            <table id="table-without-role">
-              <thead>
-                <tr>
-                  <th>Agent concerné</th>
-                  <th>Date de connexion</th>
-                  <th>Statut</th>
+  <h2>Avec droits</h2>
+  <div class="fr-table" id="with-role">
+    <div class="fr-table__wrapper">
+      <div class="fr-table__container">
+        <div class="fr-table__content">
+          <table id="table-with-role">
+            <tbody>
+              {% for agent in authorized_agents %}
+                <tr id="table-with-role-row-key-{{ forloop.counter0 }}" data-row-key="{{ forloop.counter0 }}">
+                  <td>{{ agent.user.last_name }} {{ agent.user.first_name }}</td>
+                  <td>{{ agent.get_role_display }}</td>
                 </tr>
-              </thead>
-              <tbody>
-                {% for agent in unauthorized_agents %}
-                  <tr id="table-without-role-row-key-{{ forloop.counter0 }}" data-row-key="{{ forloop.counter0 }}">
-                    <td>{{ agent.user.last_name }} {{ agent.user.first_name }}</td>
-                    <td>{{ agent.proconnect_last_login|date:"d/m/Y à H\Hi" }}</td>
-                    <td></td>
-                  </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
-  </body>
-</html>
+  </div>
+
+  <h2>Sans droits</h2>
+  <div class="fr-table" id="without-role">
+    <div class="fr-table__wrapper">
+      <div class="fr-table__container">
+        <div class="fr-table__content">
+          <table id="table-without-role">
+            <thead>
+              <tr>
+                <th>Agent concerné</th>
+                <th>Date de connexion</th>
+                <th>Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for agent in unauthorized_agents %}
+                <tr id="table-without-role-row-key-{{ forloop.counter0 }}" data-row-key="{{ forloop.counter0 }}">
+                  <td>{{ agent.user.last_name }} {{ agent.user.first_name }}</td>
+                  <td>{{ agent.proconnect_last_login|date:"d/m/Y à H\Hi" }}</td>
+                  <td></td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 import os
+import sys
 from pathlib import Path
 
 import dj_database_url
@@ -64,6 +65,8 @@ INSTALLED_APPS = [
     "mozilla_django_oidc",
     "corsheaders",
     "rest_framework",
+    "widget_tweaks",
+    "dsfr",
     "ami.authentication",
     "ami.notification",
     "ami.user",
@@ -304,9 +307,19 @@ VAPID_PRIVATE_KEY = CONFIG["VAPID_PRIVATE_KEY"]
 # Credentials for firebase
 GOOGLE_APPLICATION_CREDENTIALS = CONFIG.get("GOOGLE_APPLICATION_CREDENTIALS", "")
 
+# Forms & DSFR
+FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
+DSFR_USE_INTEGRITY_CHECKSUMS = False
 
 if DEBUG:
     ALLOWED_HOSTS += [
         "localhost",
         "127.0.0.1",
     ]
+
+if sys.argv and sys.argv[0].endswith("pytest"):
+    MIDDLEWARE = [m for m in MIDDLEWARE if m != "whitenoise.middleware.WhiteNoiseMiddleware"]
+
+    STORAGES["staticfiles"] = {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    }
