@@ -4,7 +4,7 @@
 {% block content %}
   <h1>Gestion des droits des agents</h1>
 
-  <form method="post">
+  <form method="post" id="agent-forms">
     {% csrf_token %}
     {{ unauthorized_agents_formset.management_form }}
     {{ authorized_agents_formset.management_form }}
@@ -72,7 +72,7 @@
           Annuler
         </a>
       </li>
-      <li>
+      <li id="btn-submit-wrapper">
         {% dsfr_button btn_submit %}
       </li>
     </ul>

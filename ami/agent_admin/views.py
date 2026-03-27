@@ -60,6 +60,7 @@ def manage_access(request):
         "btn_submit": {
             "label": "Enregistrer",
             "type": "submit",
+            "disabled": True,
         },
     }
 
