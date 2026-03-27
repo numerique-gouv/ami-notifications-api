@@ -23,6 +23,15 @@ header.fr-header {
       box-shadow: none;
     }
   }
+  .fr-header__menu {
+    .fr-container {
+      padding-left: 0;
+      padding-right: 0;
+      nav .fr-nav__link {
+        font-weight: 400;
+      }
+    }
+  }
 }
 
 body > .fr-container {
