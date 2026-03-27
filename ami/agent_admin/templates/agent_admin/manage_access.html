@@ -66,6 +66,15 @@
         </div>
       </div>
     </div>
-    {% dsfr_button btn_submit %}
+    <ul class="fr-btns-group fr-btns-group--inline fr-btns-group--form-actions">
+      <li>
+        <a href="/agent-admin/manage/access/" class="fr-btn fr-btn--secondary">
+          Annuler
+        </a>
+      </li>
+      <li>
+        {% dsfr_button btn_submit %}
+      </li>
+    </ul>
   </form>
 {% endblock %}

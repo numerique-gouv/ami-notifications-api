@@ -88,6 +88,17 @@ body > .fr-container {
       }
     }
   }
+  .fr-btns-group--form-actions {
+    display: flex;
+
+    li {
+      flex: 1;
+
+      .fr-btn {
+        width: 100%;
+      }
+    }
+  }
 }
 
 body > footer.fr-footer {
