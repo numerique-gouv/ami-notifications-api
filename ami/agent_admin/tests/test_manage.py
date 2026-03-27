@@ -13,9 +13,9 @@ def test_manage_access_for_form_initialization(
     django_app.set_user(admin_agent.user)
     response = django_app.get("/agent-admin/manage/access/")
     assert [PyQuery(td).text() for td in response.pyquery("#with-role td:nth-child(1)")] == [
-        "Admin\nAGENT",
-        "Notifications\nAGENT",
-        "Support\nAGENT",
+        "AGENT\nAdmin",
+        "AGENT\nNotifications",
+        "AGENT\nSupport",
     ]
     assert [
         PyQuery(opt).text()
@@ -23,7 +23,7 @@ def test_manage_access_for_form_initialization(
     ] == ["Admin", "Notifications", "Support"]
     last_login = date_format(agent.proconnect_last_login, "d/m/Y\nà H\\Hi")
     assert [PyQuery(td).text() for td in response.pyquery("#without-role td:nth-child(1)")] == [
-        "Simple\nAGENT"
+        "AGENT\nSimple"
     ]
     assert [PyQuery(td).text() for td in response.pyquery("#without-role td:nth-child(2)")] == [
         last_login
