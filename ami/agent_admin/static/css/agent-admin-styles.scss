@@ -82,18 +82,21 @@ body > .fr-container {
   .fr-table {
     margin-top: 0.5rem;
     --table-offset: none;
-  }
-  .fr-table__content table thead {
-    th,
-    th {
-      background-image: none;
-      tr {
-        border-bottom: solid 1px var(--grey-900-175);
-      }
-      th {
+
+    .fr-table__content table {
+      thead th {
+        padding: 0.5rem;
+        background-image: none;
         background-color: unset;
         font-weight: 400;
         color: var(--grey-625-425);
+      }
+      tbody td {
+        padding: 0.5rem;
+        background-image: none;
+      }
+      tbody tr {
+        border-bottom: solid 1px var(--grey-900-175);
       }
     }
   }
