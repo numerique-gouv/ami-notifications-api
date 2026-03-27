@@ -16,6 +16,9 @@
         <li role="presentation">
           <button type="button" id="tab-2" class="fr-tabs__tab" tabindex="-1" role="tab" aria-selected="false" aria-controls="tab-2-panel">Sans droits</button>
         </li>
+        <li role="presentation">
+          <button type="button" id="tab-3" class="fr-tabs__tab" tabindex="-1" role="tab" aria-selected="false" aria-controls="tab-3-panel">Activité</button>
+        </li>
       </ul>
       <div id="tab-1-panel" class="fr-tabs__panel fr-tabs__panel--selected" role="tabpanel" aria-labelledby="tab-1" tabindex="0">
         <div class="fr-table" id="with-role">
@@ -56,6 +59,34 @@
                         <td>{{ form.id }}{{ form.instance.user.first_name }}<br />{{ form.instance.user.last_name }}</td>
                         <td>{{ form.instance.proconnect_last_login|date:"d/m/Y" }}<br />à {{ form.instance.proconnect_last_login|date:"H\Hi" }}</td>
                         <td>{{ form.role }}</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="tab-3-panel" class="fr-tabs__panel" role="tabpanel" aria-labelledby="tab-3" tabindex="0">
+        <div class="fr-table" id="activity">
+          <div class="fr-table__wrapper">
+            <div class="fr-table__container">
+              <div class="fr-table__content">
+                <table id="table-activity">
+                  <thead>
+                    <tr>
+                      <th>Agent concerné</th>
+                      <th>Rôle attribué</th>
+                      <th>Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for roles_record_entry in roles_record %}
+                      <tr id="table-activity-row-key-{{ forloop.counter0 }}" data-row-key="{{ forloop.counter0 }}">
+                        <td>{{ roles_record_entry.updated_agent.user.last_name }} {{ roles_record_entry.updated_agent.user.first_name }}<br /><span class="secondary-text">par {{ roles_record_entry.admin_agent.user.last_name }} {{ roles_record_entry.admin_agent.user.first_name }}</span></td>
+                        <td>{{ roles_record_entry.new_role|capfirst }}<br /><span class="secondary-text">ex : {{ roles_record_entry.old_role|capfirst }}</span></td>
+                        <td class="date">{{ roles_record_entry.update_date|date:"d/m/Y" }}<br />à {{ roles_record_entry.update_date|date:"H\Hi" }}</td>
                       </tr>
                     {% endfor %}
                   </tbody>

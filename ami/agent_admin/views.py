@@ -36,6 +36,7 @@ def manage_access(request):
         "user__last_name",
         "user__first_name",
     )
+    roles_record = RolesRecordEntry.objects.all()
 
     if request.method == "POST":
         unauthorized_agents_formset = AgentFormSet(
@@ -65,6 +66,7 @@ def manage_access(request):
             "type": "submit",
             "disabled": True,
         },
+        "roles_record": roles_record,
     }
 
     return render(request, "agent_admin/manage_access.html", context)
