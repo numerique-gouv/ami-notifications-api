@@ -29,7 +29,7 @@
                   <tbody>
                     {% for form in authorized_agents_formset %}
                       <tr id="table-with-role-row-key-{{ forloop.counter0 }}" data-row-key="{{ forloop.counter0 }}">
-                        <td>{{ form.id }}{{ form.instance.user.first_name }}<br />{{ form.instance.user.last_name }}</td>
+                        <td>{{ form.id }}{{ form.instance.user.last_name }}<br />{{ form.instance.user.first_name }}</td>
                         <td>{{ form.role }}</td>
                       </tr>
                     {% endfor %}
@@ -56,7 +56,7 @@
                   <tbody>
                     {% for form in unauthorized_agents_formset %}
                       <tr id="table-without-role-row-key-{{ forloop.counter0 }}" data-row-key="{{ forloop.counter0 }}">
-                        <td>{{ form.id }}{{ form.instance.user.first_name }}<br />{{ form.instance.user.last_name }}</td>
+                        <td>{{ form.id }}{{ form.instance.user.last_name }}<br />{{ form.instance.user.first_name }}</td>
                         <td>{{ form.instance.proconnect_last_login|date:"d/m/Y" }}<br />à {{ form.instance.proconnect_last_login|date:"H\Hi" }}</td>
                         <td>{{ form.role }}</td>
                       </tr>
