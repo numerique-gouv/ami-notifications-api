@@ -9,7 +9,7 @@ from ami.agent_admin.forms import AgentFormSet
 @agent_login_required
 @role_support_required
 def home(request):
-    return render(request, "agent_admin/home.html", {"agents": Agent.objects.all()})
+    return render(request, "agent_admin/home.html", {})
 
 
 def login(request):
