@@ -57,9 +57,20 @@ def manage_access(request):
     context = {
         "unauthorized_agents_formset": unauthorized_agents_formset,
         "authorized_agents_formset": authorized_agents_formset,
-        "btn_submit": {
-            "label": "Enregistrer",
-            "type": "submit",
+        "btn_group": {
+            "items": [
+                {
+                    "label": "Annuler",
+                    "type": "button",
+                    "extra_classes": "fr-btn--secondary",
+                    "onclick": "window.location.href = window.location.href;",
+                },
+                {
+                    "label": "Enregistrer",
+                    "type": "submit",
+                },
+            ],
+            "extra_classes": "fr-btns-group--inline fr-btns-group--form-actions",
         },
     }
 
