@@ -1,56 +1,100 @@
-.fr-tabs {
-  box-shadow: none;
-  &::before {
-    box-shadow: none;
-  }
-}
-.fr-tabs__list {
-  padding: 0;
-  li {
-    flex: 1;
-    text-align: center;
-    line-height: 3.5rem;
-    button {
-      width: 100%;
-      margin: 0;
-      display: flex;
-      justify-content: center;
-      background: none;
-      font-weight: 400;
-      font-size: 14px;
-      line-height: 1.5rem;
-      border-bottom: solid 2px transparent;
+header.fr-header {
+  .fr-header__brand {
+    background-color: unset;
+    .fr-header__logo {
+      height: 2rem;
+      padding: 0;
+      margin: 0.75rem;
+      .fr-logo::before,
+      .fr-logo::after {
+        background-image: none;
+        background-size: 0;
+        height: 0;
+        margin: 0;
+      }
+    }
+    .header-title {
+      order: 2;
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--grey-0-1000);
+    }
+    .fr-header__navbar .fr-btn--menu {
+      box-shadow: none;
     }
   }
-}
-.fr-tabs__tab {
-  &[aria-selected="true"]:not(:disabled) {
-    background: none;
-    border-bottom: solid 2px var(--text-active-blue-france);
+  .fr-header__menu {
+    .fr-container {
+      padding-left: 0;
+      padding-right: 0;
+      nav .fr-nav__link {
+        font-weight: 400;
+      }
+    }
   }
-  &:not([aria-selected="true"]) {
-    background: none;
-  }
-}
-.fr-tabs__panel {
-  padding: 0;
 }
 
-.fr-table {
-  margin-top: 0.5rem;
-  --table-offset: none;
-}
-.fr-table__content table thead {
-  th,
-  th {
-    background-image: none;
-    tr {
-      border-bottom: solid 1px var(--grey-900-175);
+body > .fr-container {
+  margin-top: 12px !important;
+
+  nav.fr-breadcrumb {
+    display: none;
+  }
+
+  .fr-tabs {
+    box-shadow: none;
+    &::before {
+      box-shadow: none;
     }
+  }
+  .fr-tabs__list {
+    padding: 0;
+    li {
+      flex: 1;
+      text-align: center;
+      line-height: 3.5rem;
+      button {
+        width: 100%;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        background: none;
+        font-weight: 400;
+        font-size: 14px;
+        line-height: 1.5rem;
+        border-bottom: solid 2px transparent;
+      }
+    }
+  }
+  .fr-tabs__tab {
+    &[aria-selected="true"]:not(:disabled) {
+      background: none;
+      border-bottom: solid 2px var(--text-active-blue-france);
+    }
+    &:not([aria-selected="true"]) {
+      background: none;
+    }
+  }
+  .fr-tabs__panel {
+    padding: 0;
+  }
+
+  .fr-table {
+    margin-top: 0.5rem;
+    --table-offset: none;
+  }
+  .fr-table__content table thead {
+    th,
     th {
-      background-color: unset;
-      font-weight: 400;
-      color: var(--grey-625-425);
+      background-image: none;
+      tr {
+        border-bottom: solid 1px var(--grey-900-175);
+      }
+      th {
+        background-color: unset;
+        font-weight: 400;
+        color: var(--grey-625-425);
+      }
     }
   }
   .fr-btns-group--form-actions {
