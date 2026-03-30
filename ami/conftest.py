@@ -115,8 +115,8 @@ def never_seen_user(user: User) -> User:
 @pytest.fixture(autouse=True)
 def patch_webpush(settings) -> None:
     private_key, public_key, _ = VAPID.generate_keys()
-    settings.CONFIG["VAPID_PRIVATE_KEY"] = private_key.decode()
-    settings.CONFIG["VAPID_PUBLIC_KEY"] = public_key.decode()
+    settings.VAPID_PRIVATE_KEY = private_key.decode()
+    settings.VAPID_PUBLIC_KEY = public_key.decode()
 
 
 @pytest.fixture
@@ -178,9 +178,7 @@ def notification(user: User) -> Notification:
 
 @pytest.fixture
 def partner_auth(settings) -> dict[str, str]:
-    b64 = base64.b64encode(f"psl:{settings.CONFIG['PARTNERS_PSL_SECRET']}".encode("utf8")).decode(
-        "utf8"
-    )
+    b64 = base64.b64encode(f"psl:{settings.PARTNERS_PSL_SECRET}".encode("utf8")).decode("utf8")
     return {"authorization": f"Basic {b64}"}
 
 

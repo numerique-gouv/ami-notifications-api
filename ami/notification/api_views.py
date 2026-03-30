@@ -87,7 +87,7 @@ def read_notification(
 
 @api_view(["GET"])
 def get_notification_key(request: Request) -> HttpResponse:
-    return HttpResponse(settings.CONFIG.get("VAPID_APPLICATION_SERVER_KEY", ""))
+    return HttpResponse(settings.VAPID_APPLICATION_SERVER_KEY)
 
 
 @extend_schema(

@@ -792,9 +792,7 @@ def test_create_notification_without_auth(django_app, settings) -> None:
 
     django_app.post("/api/v1/notifications", headers={"authorization": "Basic bar"}, status=401)
 
-    b64 = base64.b64encode(f"foo:{settings.CONFIG['PARTNERS_PSL_SECRET']}".encode("utf8")).decode(
-        "utf8"
-    )
+    b64 = base64.b64encode(f"foo:{settings.PARTNERS_PSL_SECRET}".encode("utf8")).decode("utf8")
     django_app.post("/api/v1/notifications", headers={"authorization": f"Basic {b64}"}, status=401)
 
     b64 = base64.b64encode("psl:foo".encode("utf8")).decode("utf8")

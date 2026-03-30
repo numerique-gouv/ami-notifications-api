@@ -14,8 +14,8 @@ from ami.utils.httpx import httpxClient
 
 def provide_webpush() -> webpush.WebPush:
     webpush_ = webpush.WebPush(
-        public_key=settings.CONFIG.get("VAPID_PUBLIC_KEY", "").encode(),
-        private_key=settings.CONFIG.get("VAPID_PRIVATE_KEY", "").encode(),
+        public_key=settings.VAPID_PUBLIC_KEY.encode(),
+        private_key=settings.VAPID_PRIVATE_KEY.encode(),
         subscriber="contact.ami@numerique.gouv.fr",
     )
     return webpush_

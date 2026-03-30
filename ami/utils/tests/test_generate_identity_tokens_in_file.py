@@ -119,7 +119,7 @@ def test_generate_identity_token(
         assert kwargs["algorithm"] == "RS256"
         return expected_token
 
-    settings.CONFIG["PARTNERS_PSL_OTV_JWE_PUBLIC_KEY"] = partners_psl_otv_jwe_public_key
+    settings.PARTNERS_PSL_OTV_JWE_PUBLIC_KEY = partners_psl_otv_jwe_public_key
     monkeypatch.setattr("ami.utils.encrypt_data", mock_encrypt_data)
     monkeypatch.setattr("ami.utils.uuid4", mock_uuid_uuid4)
     monkeypatch.setattr(
@@ -165,10 +165,10 @@ def test_generate_identity_token_with_decode(
     fake_private_key_for_signature: str = otv_cert_keys_for_signature["pfx_b64"]
     fake_public_key_for_signature: str = otv_cert_keys_for_signature["cert"]
 
-    settings.CONFIG["PARTNERS_PSL_OTV_JWE_PUBLIC_KEY"] = fake_public_key_for_encryption
+    settings.PARTNERS_PSL_OTV_JWE_PUBLIC_KEY = fake_public_key_for_encryption
     monkeypatch.setattr("ami.utils.uuid4", mock_uuid_uuid4)
-    settings.CONFIG["PARTNERS_PSL_OTV_JWT_CERT_PFX_B64"] = fake_private_key_for_signature
-    settings.CONFIG["PARTNERS_PSL_OTV_JWT_CERT_PUBLIC_KEY"] = fake_public_key_for_signature
+    settings.PARTNERS_PSL_OTV_JWT_CERT_PFX_B64 = fake_private_key_for_signature
+    settings.PARTNERS_PSL_OTV_JWT_CERT_PUBLIC_KEY = fake_public_key_for_signature
 
     # When
     token = generate_identity_token(

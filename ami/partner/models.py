@@ -16,19 +16,19 @@ partners: dict[str, Partner] = {
     "psl": Partner(
         "psl",
         "PSL",
-        settings.CONFIG["PARTNERS_PSL_SECRET"],
+        settings.PARTNERS_PSL_SECRET,
         "",
     ),
     "dinum-dn": Partner(
         "dinum-dn",
         "demarche.numerique.gouv.fr",
-        settings.CONFIG["PARTNERS_DINUM_DN_SECRET"],
+        settings.PARTNERS_DINUM_DN_SECRET,
         "fr-icon-infinity-line",
     ),
     "dinum-ami": Partner(
         "dinum-ami",
         "AMI",
-        settings.CONFIG["PARTNERS_DINUM_AMI_SECRET"],
+        settings.PARTNERS_DINUM_AMI_SECRET,
         "fr-icon-smartphone-line",
     ),
 }
