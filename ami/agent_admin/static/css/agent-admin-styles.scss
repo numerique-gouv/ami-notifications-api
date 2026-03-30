@@ -121,3 +121,14 @@ body > .fr-container {
     }
   }
 }
+
+.fr-notice {
+  margin-bottom: 1rem;
+  &.fr-notice--warning {
+    background-color: var(--yellow-moutarde-950-100);
+    .fr-btn--close {
+      --hover: var(--yellow-moutarde-950-100-hover);
+      --active: var(--yellow-moutarde-950-100-active);
+    }
+  }
+}
