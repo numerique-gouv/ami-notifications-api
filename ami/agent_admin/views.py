@@ -24,7 +24,21 @@ def logout(request):
 
 @agent_login_required
 def access_denied(request):
-    return render(request, "agent_admin/access_denied.html", {})
+    home_url = reverse("agent-admin:home")
+    context = {
+        "btn_group": {
+            "items": [
+                {
+                    "label": "Recharger",
+                    "type": "button",
+                    "extra_classes": "fr-btn--secondary",
+                    "onclick": f"window.location.href = '{home_url}';",
+                },
+            ],
+            "extra_classes": "fr-btns-group--inline fr-btns-group--form-actions",
+        },
+    }
+    return render(request, "agent_admin/access_denied.html", context)
 
 
 @agent_login_required
