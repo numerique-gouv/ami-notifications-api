@@ -94,6 +94,15 @@ body > .fr-container {
       tbody td {
         padding: 0.5rem;
         background-image: none;
+        font-weight: 500;
+        span.secondary-text {
+          font-size: 12px;
+          font-weight: 400;
+          color: var(--grey-625-425);
+        }
+        &.date {
+          text-align: right;
+        }
       }
       tbody tr {
         border-bottom: solid 1px var(--grey-900-175);
