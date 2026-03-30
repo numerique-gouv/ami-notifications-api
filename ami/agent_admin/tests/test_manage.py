@@ -33,7 +33,7 @@ def test_manage_access_for_form_initialization(
     assert [
         PyQuery(opt).text()
         for opt in response.pyquery("#without-role td:nth-child(3) option[selected]")
-    ] == ["---------"]
+    ] == ["Aucun"]
 
 
 @pytest.mark.django_db
