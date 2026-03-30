@@ -1,5 +1,28 @@
-<html>
-  <body>
-    Veuillez demander l'accès au back-office d'AMI à l'un ou l'une de ses administratrices.
-  </body>
-</html>
+{% extends "agent_admin/base.html" %}
+{% load dsfr_tags %}
+
+{% block content %}
+  <h1>Bienvenue {{ user.first_name }}</h1>
+  <div class="fr-notice fr-notice--warning">
+    <div class="fr-container">
+      <div class="fr-notice__body">
+        <p>
+          <span class="fr-notice__title">Accès refusé</span>
+          {% if not user.agent.has_role_support %}
+            <span class="fr-notice__desc">
+              Pour l’instant vous n’avez pas accès à l’application.
+              <br />
+              Un administrateur-trice doit d’abord vous accorder des droits d’accès.
+            </span>
+          {% else %}
+            <span class="fr-notice__desc">
+              Vous n’avez pas accès à cette ressource.
+            </span>
+          {% endif %}
+        </p>
+        <button onclick="const notice = this.parentNode.parentNode.parentNode; notice.parentNode.removeChild(notice)" title="Masquer le message" type="button" class="fr-btn--close fr-btn">Masquer le message</button>
+      </div>
+    </div>
+  </div>
+  {% dsfr_button_group btn_group %}
+{% endblock %}
