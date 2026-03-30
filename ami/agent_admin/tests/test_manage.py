@@ -3,6 +3,7 @@ from django.utils.formats import date_format
 from pyquery import PyQuery
 
 from ami.agent.models import Agent
+from ami.agent_admin.models import AuditEntry
 from ami.agent_admin.tests.utils import assert_query_fails_without_agent_admin_auth
 
 
@@ -45,6 +46,7 @@ def test_manage_access_for_form_submission(
     response.form["unauthorized-0-role"].value = "support"
     response = response.form.submit()
     assert "/agent-admin/manage/access/" in response.headers["location"]
+
     agent.refresh_from_db()
     assert agent.role == Agent.Role.SUPPORT
     support_agent.refresh_from_db()
@@ -53,6 +55,62 @@ def test_manage_access_for_form_submission(
     assert notifications_agent.role is None
     admin_agent.refresh_from_db()
     assert admin_agent.role == Agent.Role.ADMIN
+
+    assert AuditEntry.objects.count() == 3
+    ae1, ae2, ae3 = AuditEntry.objects.all().order_by("created_at")
+
+    assert ae1.author == admin_agent
+    assert ae1.author_first_name == "Admin"
+    assert ae1.author_last_name == "AGENT"
+    assert ae1.author_email == "admin@agent.com"
+    assert ae1.author_proconnect_sub == "admin"
+    assert ae1.action_type == "access"
+    assert ae1.action_code == "role-added"
+    assert ae1.extra_data == {
+        "agent_id": str(agent.id),
+        "agent_first_name": "Simple",
+        "agent_last_name": "AGENT",
+        "agent_email": "simple@agent.com",
+        "agent_proconnect_sub": "no-role",
+        "new_role": "support",
+        "new_role_name": "Support",
+    }
+
+    assert ae2.author == admin_agent
+    assert ae2.author_first_name == "Admin"
+    assert ae2.author_last_name == "AGENT"
+    assert ae2.author_email == "admin@agent.com"
+    assert ae2.author_proconnect_sub == "admin"
+    assert ae2.action_type == "access"
+    assert ae2.action_code == "role-removed"
+    assert ae2.extra_data == {
+        "agent_id": str(notifications_agent.id),
+        "agent_email": "notifications@agent.com",
+        "agent_last_name": "AGENT",
+        "agent_first_name": "Notifications",
+        "agent_proconnect_sub": "notifications",
+        "old_role": "notifications",
+        "old_role_name": "Notifications",
+    }
+
+    assert ae3.author == admin_agent
+    assert ae3.author_first_name == "Admin"
+    assert ae3.author_last_name == "AGENT"
+    assert ae3.author_email == "admin@agent.com"
+    assert ae3.author_proconnect_sub == "admin"
+    assert ae3.action_type == "access"
+    assert ae3.action_code == "role-updated"
+    assert ae3.extra_data == {
+        "agent_id": str(support_agent.id),
+        "agent_email": "support@agent.com",
+        "agent_last_name": "AGENT",
+        "agent_first_name": "Support",
+        "agent_proconnect_sub": "support",
+        "old_role": "support",
+        "old_role_name": "Support",
+        "new_role": "notifications",
+        "new_role_name": "Notifications",
+    }
 
 
 @pytest.mark.django_db
