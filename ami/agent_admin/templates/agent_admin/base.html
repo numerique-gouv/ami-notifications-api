@@ -1,5 +1,5 @@
 {% extends "dsfr/base.html" %}
-{% load sass_tags %}
+{% load static sass_tags %}
 
 {% block extra_css %}
   <link rel="stylesheet" href="{% sass_src 'css/agent-admin-styles.scss' %}">
@@ -11,3 +11,7 @@
 
 {% block footer %}
 {% endblock footer %}
+
+{% block extra_js %}
+  <script src="{% static 'js/agent-admin-scripts.js' %}"></script>
+{% endblock extra_js %}
