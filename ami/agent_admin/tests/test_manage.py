@@ -5,6 +5,7 @@ from pyquery import PyQuery
 from ami.agent.models import Agent
 from ami.agent_admin.models import AuditEntry
 from ami.agent_admin.tests.utils import assert_query_fails_without_agent_admin_auth
+from ami.agent_admin.utils import audit
 
 
 @pytest.mark.django_db
@@ -111,6 +112,53 @@ def test_manage_access_for_form_submission(
         "new_role": "notifications",
         "new_role_name": "Notifications",
     }
+
+
+@pytest.mark.django_db
+def test_manage_access_for_logs(django_app, agent: Agent, admin_agent: Agent) -> None:
+    django_app.set_user(admin_agent.user)
+    response = django_app.get("/agent-admin/manage/access/")
+    assert [PyQuery(tr).text() for tr in response.pyquery("#table-activity tr")] == [
+        "Agent concerné\nRôle attribué\nDate",
+    ]
+
+    ae1 = audit(
+        "access:role-added",
+        admin_agent,
+        {
+            "agent": agent,
+            "new_role": Agent.Role.SUPPORT,
+        },
+    )
+    ae2 = audit(
+        "access:role-updated",
+        admin_agent,
+        {
+            "agent": agent,
+            "old_role": Agent.Role.ADMIN,
+            "new_role": Agent.Role.SUPPORT,
+        },
+    )
+    ae3 = audit(
+        "access:role-removed",
+        admin_agent,
+        {
+            "agent": agent,
+            "old_role": Agent.Role.NOTIFICATIONS,
+        },
+    )
+    audit("unknown:unknown", admin_agent, {})  # ignored, bad action_type and action_code
+
+    response = django_app.get("/agent-admin/manage/access/")
+    ae1_date = date_format(ae1.created_at, "d/m/Y\nà H\\Hi")
+    ae2_date = date_format(ae2.created_at, "d/m/Y\nà H\\Hi")
+    ae3_date = date_format(ae3.created_at, "d/m/Y\nà H\\Hi")
+    assert [PyQuery(tr).text() for tr in response.pyquery("#table-activity tr")] == [
+        "Agent concerné\nRôle attribué\nDate",
+        f"AGENT Simple\npar AGENT Admin\nAucun\nex : Notifications\n{ae3_date}",
+        f"AGENT Simple\npar AGENT Admin\nSupport\nex : Admin\n{ae2_date}",
+        f"AGENT Simple\npar AGENT Admin\nSupport\nex : Aucun\n{ae1_date}",
+    ]
 
 
 @pytest.mark.django_db

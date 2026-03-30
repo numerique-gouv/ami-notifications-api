@@ -4,6 +4,7 @@ from django.urls import reverse
 from ami.agent.decorators import agent_login_required, role_admin_required, role_support_required
 from ami.agent.models import Agent
 from ami.agent_admin.forms import AgentFormSet
+from ami.agent_admin.models import AuditEntry
 
 
 @agent_login_required
@@ -85,6 +86,10 @@ def manage_access(request):
             ],
             "extra_classes": "fr-btns-group--inline fr-btns-group--form-actions",
         },
+        "aes": AuditEntry.objects.filter(
+            action_type="access",
+            action_code__in=["role-added", "role-updated", "role-removed"],
+        ),
     }
 
     return render(request, "agent_admin/manage_access.html", context)
