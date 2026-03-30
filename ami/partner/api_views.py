@@ -30,11 +30,11 @@ def generate_partner_url(request):
     address_name = data.get("address_name", "")
     current_user = request.ami_user
 
-    partner_url = settings.CONFIG["PARTNERS_PSL_OTV_REQUEST_URL"]
+    partner_url = settings.PARTNERS_PSL_OTV_REQUEST_URL
 
     if partner_url.endswith("caller={token-jwt}"):
-        otv_private_key = settings.CONFIG["PARTNERS_PSL_OTV_JWT_CERT_PFX_B64"]
-        psl_otv_public_key = settings.CONFIG["PARTNERS_PSL_OTV_JWE_PUBLIC_KEY"]
+        otv_private_key = settings.PARTNERS_PSL_OTV_JWT_CERT_PFX_B64
+        psl_otv_public_key = settings.PARTNERS_PSL_OTV_JWE_PUBLIC_KEY
         if otv_private_key and psl_otv_public_key:
             identity_token = generate_identity_token(
                 preferred_username or "",
@@ -59,7 +59,7 @@ def generate_partner_url(request):
 )
 @api_view(["GET"])
 def get_partner_public_key(request) -> Response[dict[str, str]]:
-    public_key = settings.CONFIG["PARTNERS_PSL_OTV_JWT_CERT_PUBLIC_KEY"]
+    public_key = settings.PARTNERS_PSL_OTV_JWT_CERT_PUBLIC_KEY
 
     return Response(
         data={"public_key": public_key},

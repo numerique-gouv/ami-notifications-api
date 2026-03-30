@@ -20,8 +20,7 @@ def ping(request):
 @api_view(["GET"])
 def get_sector_identifier_url(request):
     redirect_uris: list[str] = [
-        url.strip()
-        for url in settings.CONFIG.get("PUBLIC_SECTOR_IDENTIFIER_URL", "").strip().split("\n")
+        url.strip() for url in settings.PUBLIC_SECTOR_IDENTIFIER_URL.strip().split("\n")
     ]
     return Response(redirect_uris)
 

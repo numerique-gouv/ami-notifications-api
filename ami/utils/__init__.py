@@ -47,7 +47,7 @@ def decrypt_data(data: str, private_key: str) -> dict[str, str]:
 
 
 def get_partners_psl_otv_jwt_private_key() -> RSAPrivateKey:
-    pfx_b64 = settings.CONFIG["PARTNERS_PSL_OTV_JWT_CERT_PFX_B64"]
+    pfx_b64 = settings.PARTNERS_PSL_OTV_JWT_CERT_PFX_B64
     pfx_data = base64.b64decode(pfx_b64)
     private_key, _, _ = pkcs12.load_key_and_certificates(pfx_data, None)
 
@@ -78,7 +78,7 @@ def generate_identity_token(
         "commune_cp": address_postcode,
         "commune_adresse": address_name,
     }
-    data_encrypted = encrypt_data(data, settings.CONFIG["PARTNERS_PSL_OTV_JWE_PUBLIC_KEY"])
+    data_encrypted = encrypt_data(data, settings.PARTNERS_PSL_OTV_JWE_PUBLIC_KEY)
     payload = {
         "iss": "ami",
         "iat": int(datetime.datetime.now().timestamp()),
@@ -92,7 +92,7 @@ def generate_identity_token(
 
 
 def decode_identity_token(token: str) -> dict[str, str]:
-    cert_pem = settings.CONFIG["PARTNERS_PSL_OTV_JWT_CERT_PUBLIC_KEY"].encode()
+    cert_pem = settings.PARTNERS_PSL_OTV_JWT_CERT_PUBLIC_KEY.encode()
     cert = x509.load_pem_x509_certificate(cert_pem, default_backend())
     public_key_pem = (
         cert.public_key()

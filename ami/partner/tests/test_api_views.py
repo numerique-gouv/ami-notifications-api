@@ -15,7 +15,7 @@ def test_generate_partner_url_when_no_query_parameters(
 ) -> None:
     # Given
     login(django_app, user)
-    settings.CONFIG["PARTNERS_PSL_OTV_REQUEST_URL"] = "fake-public-otv-url"
+    settings.PARTNERS_PSL_OTV_REQUEST_URL = "fake-public-otv-url"
 
     # When
     response = django_app.get(
@@ -35,7 +35,7 @@ def test_generate_partner_url_when_url_has_no_template(
 ) -> None:
     # Given
     login(django_app, user)
-    settings.CONFIG["PARTNERS_PSL_OTV_REQUEST_URL"] = "fake-public-otv-url"
+    settings.PARTNERS_PSL_OTV_REQUEST_URL = "fake-public-otv-url"
 
     # When
     response = django_app.get(
@@ -67,9 +67,9 @@ def test_generate_partner_url_when_url_has_template(
     )
 
     # Given
-    settings.CONFIG["PARTNERS_PSL_OTV_REQUEST_URL"] = "fake-public-otv-url?caller={token-jwt}"
-    settings.CONFIG["PARTNERS_PSL_OTV_JWT_CERT_PFX_B64"] = ""
-    settings.CONFIG["PARTNERS_PSL_OTV_JWE_PUBLIC_KEY"] = ""
+    settings.PARTNERS_PSL_OTV_REQUEST_URL = "fake-public-otv-url?caller={token-jwt}"
+    settings.PARTNERS_PSL_OTV_JWT_CERT_PFX_B64 = ""
+    settings.PARTNERS_PSL_OTV_JWE_PUBLIC_KEY = ""
 
     # When
     response = django_app.get(url)
@@ -79,8 +79,8 @@ def test_generate_partner_url_when_url_has_template(
     assert response.json == {"partner_url": "fake-public-otv-url?"}
 
     # Given
-    settings.CONFIG["PARTNERS_PSL_OTV_JWT_CERT_PFX_B64"] = "foo"
-    settings.CONFIG["PARTNERS_PSL_OTV_JWE_PUBLIC_KEY"] = ""
+    settings.PARTNERS_PSL_OTV_JWT_CERT_PFX_B64 = "foo"
+    settings.PARTNERS_PSL_OTV_JWE_PUBLIC_KEY = ""
 
     # When
     response = django_app.get(url)
@@ -90,8 +90,8 @@ def test_generate_partner_url_when_url_has_template(
     assert response.json == {"partner_url": "fake-public-otv-url?"}
 
     # Given
-    settings.CONFIG["PARTNERS_PSL_OTV_JWT_CERT_PFX_B64"] = ""
-    settings.CONFIG["PARTNERS_PSL_OTV_JWE_PUBLIC_KEY"] = "foo"
+    settings.PARTNERS_PSL_OTV_JWT_CERT_PFX_B64 = ""
+    settings.PARTNERS_PSL_OTV_JWE_PUBLIC_KEY = "foo"
 
     # When
     response = django_app.get(url)
@@ -101,8 +101,8 @@ def test_generate_partner_url_when_url_has_template(
     assert response.json == {"partner_url": "fake-public-otv-url?"}
 
     # Given
-    settings.CONFIG["PARTNERS_PSL_OTV_JWT_CERT_PFX_B64"] = "foo"
-    settings.CONFIG["PARTNERS_PSL_OTV_JWE_PUBLIC_KEY"] = "bar"
+    settings.PARTNERS_PSL_OTV_JWT_CERT_PFX_B64 = "foo"
+    settings.PARTNERS_PSL_OTV_JWE_PUBLIC_KEY = "bar"
 
     # When
     response = django_app.get(url)
@@ -126,7 +126,7 @@ def test_get_partner_public_key(
     settings,
 ) -> None:
     # Given
-    settings.CONFIG["PARTNERS_PSL_OTV_JWT_CERT_PUBLIC_KEY"] = "fake-public-otv-public-key"
+    settings.PARTNERS_PSL_OTV_JWT_CERT_PUBLIC_KEY = "fake-public-otv-public-key"
 
     # When
     response = django_app.get("/api/v1/partner/otv/public_key")

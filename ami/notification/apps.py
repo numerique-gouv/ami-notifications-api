@@ -10,10 +10,8 @@ class NotificationConfig(AppConfig):
 
     def ready(self) -> None:
         if os.getenv("GOOGLE_APPLICATION_CREDENTIALS") is None:
-            # It's already set in Scalingo, locally it comes from .env.local, loaded in settings.CONFIG
-            os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = settings.CONFIG.get(
-                "GOOGLE_APPLICATION_CREDENTIALS", ""
-            )
+            # It's already set in Scalingo, locally it comes from .env.local, loaded in settings
+            os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = settings.GOOGLE_APPLICATION_CREDENTIALS
         # This needs the "GOOGLE_APPLICATION_CREDENTIALS" env variable to be set to the secret json filename.
         # See the CONTRIBUTING.md file.
         firebase_admin.initialize_app()

@@ -205,6 +205,6 @@ async def test_notification_key(
     django_app,
     settings,
 ) -> None:
-    settings.CONFIG["VAPID_APPLICATION_SERVER_KEY"] = "some-application-key"
+    settings.VAPID_APPLICATION_SERVER_KEY = "some-application-key"
     response = django_app.get("/notification-key", status=200)
     assert response.text == "some-application-key"

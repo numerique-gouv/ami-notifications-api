@@ -12,7 +12,7 @@ def test_ping(django_app) -> None:
 def test_get_sector_identifier_url(
     django_app,
 ) -> None:
-    settings.CONFIG["PUBLIC_SECTOR_IDENTIFIER_URL"] = "http://example.com\nhttp://foobar.com"
+    settings.PUBLIC_SECTOR_IDENTIFIER_URL = "http://example.com\nhttp://foobar.com"
     response = django_app.get("/sector_identifier_url")
     assert response.status_code == 200
     assert response.json == ["http://example.com", "http://foobar.com"]
