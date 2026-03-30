@@ -4,7 +4,7 @@
 {% block content %}
   <h1>Gestion des droits des agents</h1>
 
-  <form method="post">
+  <form method="post" id="agent-forms">
     {% csrf_token %}
     {{ unauthorized_agents_formset.management_form }}
     {{ authorized_agents_formset.management_form }}

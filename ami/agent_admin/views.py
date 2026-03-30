@@ -68,6 +68,7 @@ def manage_access(request):
                 {
                     "label": "Enregistrer",
                     "type": "submit",
+                    "disabled": True,
                 },
             ],
             "extra_classes": "fr-btns-group--inline fr-btns-group--form-actions",
