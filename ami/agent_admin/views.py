@@ -37,10 +37,16 @@ def manage_access(request):
 
     if request.method == "POST":
         unauthorized_agents_formset = AgentFormSet(
-            request.POST, queryset=unauthorized_agents, prefix="unauthorized"
+            request.POST,
+            queryset=unauthorized_agents,
+            prefix="unauthorized",
+            form_kwargs={"author": request.user.agent},
         )
         authorized_agents_formset = AgentFormSet(
-            request.POST, queryset=authorized_agents, prefix="authorized"
+            request.POST,
+            queryset=authorized_agents,
+            prefix="authorized",
+            form_kwargs={"author": request.user.agent},
         )
         is_unauthorized_agents_formset_valid = unauthorized_agents_formset.is_valid()
         is_authorized_agents_formset_valid = authorized_agents_formset.is_valid()
@@ -50,9 +56,15 @@ def manage_access(request):
             return redirect(reverse("agent-admin:manage-access"))
     else:
         unauthorized_agents_formset = AgentFormSet(
-            queryset=unauthorized_agents, prefix="unauthorized"
+            queryset=unauthorized_agents,
+            prefix="unauthorized",
+            form_kwargs={"author": request.user.agent},
         )
-        authorized_agents_formset = AgentFormSet(queryset=authorized_agents, prefix="authorized")
+        authorized_agents_formset = AgentFormSet(
+            queryset=authorized_agents,
+            prefix="authorized",
+            form_kwargs={"author": request.user.agent},
+        )
 
     context = {
         "unauthorized_agents_formset": unauthorized_agents_formset,
