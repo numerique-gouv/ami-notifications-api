@@ -6,6 +6,7 @@ from django.db import models
 
 class Agent(models.Model):
     class Role(models.TextChoices):
+        __empty__ = "Aucun"
         SUPPORT = "support", "Support"
         NOTIFICATIONS = "notifications", "Notifications"
         ADMIN = "admin", "Admin"
