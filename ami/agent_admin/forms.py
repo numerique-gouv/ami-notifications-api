@@ -1,10 +1,11 @@
 from django import forms
+from dsfr.forms import DsfrBaseForm
 
 from ami.agent.models import Agent
 from ami.agent_admin.utils import audit
 
 
-class AgentForm(forms.ModelForm):
+class AgentForm(forms.ModelForm, DsfrBaseForm):
     class Meta:
         model = Agent
         fields = ["role"]
