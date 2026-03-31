@@ -21,7 +21,7 @@ def test_manage_access_for_form_initialization(
     ]
     assert [
         PyQuery(opt).text()
-        for opt in response.pyquery("#with-role td:nth-child(2) option[selected]")
+        for opt in response.pyquery("#with-role td:nth-child(3) option[selected]")
     ] == ["Admin", "Notifications", "Support"]
     last_login = date_format(agent.proconnect_last_login, "d/m/Y\nà H\\Hi")
     assert [PyQuery(td).text() for td in response.pyquery("#without-role td:nth-child(1)")] == [
