@@ -49,7 +49,7 @@
                   <thead>
                     <tr>
                       <th>Agent concerné</th>
-                      <th>Date de<br />connexion</th>
+                      <th>Date de connexion</th>
                       <th>Statut</th>
                     </tr>
                   </thead>
@@ -86,7 +86,7 @@
                       <tr id="table-activity-row-key-{{ forloop.counter0 }}" data-row-key="{{ forloop.counter0 }}">
                         <td>{{ ae.agent_name }}<br /><span class="secondary-text">par {{ ae.author_name }}</span></td>
                         <td>{{ ae.extra_data.new_role_name|default:"Aucun" }}<br /><span class="secondary-text">ex : {{ ae.extra_data.old_role_name|default:"Aucun" }}</span></td>
-                        <td class="date">{{ ae.created_at|date:"d/m/Y" }}<br />à {{ ae.created_at|date:"H\Hi" }}</td>
+                        <td>{{ ae.created_at|date:"d/m/Y" }}<br />à {{ ae.created_at|date:"H\Hi" }}</td>
                       </tr>
                     {% endfor %}
                   </tbody>
