@@ -269,6 +269,7 @@ OIDC_AUTHENTICATION_CALLBACK_URL = "agent-admin:oidc_authentication_callback"
 OIDC_RP_SCOPES = "openid email given_name usual_name"
 OIDC_OP_LOGOUT_URL_METHOD = "ami.agent.auth.provider_logout"
 OIDC_OP_LOGOUT_ENDPOINT = CONFIG["PRO_CONNECT_BASE_URL"] + "/api/v2/session/end"
+OIDC_STORE_ID_TOKEN = True
 
 # APi particulier
 API_PARTICULIER_BASE_URL = CONFIG["API_PARTICULIER_BASE_URL"]
