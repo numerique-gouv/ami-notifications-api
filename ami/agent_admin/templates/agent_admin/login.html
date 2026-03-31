@@ -1,10 +1,45 @@
-<html>
-  <body>
-    Login
-    {% if user.is_authenticated %}
-      <a href="{% url 'agent-admin:home' %}">Home</a>
-    {% else %}
-      <a href="{% url 'agent-admin:oidc_authentication_init' %}">Login</a>
-    {% endif %}
-  </body>
-</html>
+{% extends "dsfr/base.html" %}
+{% load static sass_tags %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% sass_src 'css/agent-admin-styles.scss' %}">
+{% endblock extra_css %}
+
+{% block header %}
+{% endblock header %}
+
+{% block content %}
+  <div class="agent-admin-login-wrapper">
+    <div class="agent-admin-login">
+      <div class="header">
+        <div class="logo">
+          <a href="{% url 'agent-admin:home' %}" title="Accueil - Espace Partenaire AMI">
+            <img src="{% static "img/logo_marianne_square.svg" %}" alt="Logo de la Marianne" />
+          </a>
+        </div>
+        <h1>Espace Partenaire AMI</h1>
+      </div>
+      {% if not user.is_authenticated %}
+        <p class="introduction-text">
+          Merci de vous <b>identifier avec ProConnect</b> pour pouvoir accéder au backoffice d'AMI
+        </p>
+        <div class="fr-connect-group">
+          <a href="{% url 'agent-admin:oidc_authentication_init' %}" class="fr-connect">
+            <span class="fr-connect__login">S’identifier avec</span>
+            <span class="fr-connect__brand">ProConnect</span>
+          </a>
+          <p>
+            <a href="https://proconnect.gouv.fr/" target="_blank" rel="noopener" title="Qu’est-ce que ProConnect ? - nouvelle fenêtre">Qu’est-ce que ProConnect ?</a>
+          </p>
+      {% else %}
+        <p class="introduction-text">
+          Vous êtes déjà connecté.
+        </p>
+      {% endif %}
+    </div>
+  </div>
+  </div>
+{% endblock %}
+
+{% block footer %}
+{% endblock footer %}
