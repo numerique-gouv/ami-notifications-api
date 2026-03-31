@@ -1,9 +1,0 @@
-<html>
-  <body>
-    Logout
-    <form action="{% url 'agent-admin:oidc_logout' %}" method="post">
-      {% csrf_token %}
-      <input type="submit" value="logout">
-    </form>
-  </body>
-</html>
