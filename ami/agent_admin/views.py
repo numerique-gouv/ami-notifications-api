@@ -18,11 +18,6 @@ def login(request):
 
 
 @agent_login_required
-def logout(request):
-    return render(request, "agent_admin/logout.html", {})
-
-
-@agent_login_required
 def access_denied(request):
     home_url = reverse("agent-admin:home")
     context = {

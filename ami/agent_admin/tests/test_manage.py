@@ -42,10 +42,10 @@ def test_manage_access_for_form_submission(
 ) -> None:
     django_app.set_user(admin_agent.user)
     response = django_app.get("/agent-admin/manage/access/")
-    response.form["authorized-1-role"].value = ""
-    response.form["authorized-2-role"].value = "notifications"
-    response.form["unauthorized-0-role"].value = "support"
-    response = response.form.submit()
+    response.forms["agent-forms"]["authorized-1-role"].value = ""
+    response.forms["agent-forms"]["authorized-2-role"].value = "notifications"
+    response.forms["agent-forms"]["unauthorized-0-role"].value = "support"
+    response = response.forms["agent-forms"].submit()
     assert "/agent-admin/manage/access/" in response.headers["location"]
 
     agent.refresh_from_db()

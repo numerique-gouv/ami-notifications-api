@@ -38,7 +38,10 @@
             </li>
           {% endif %}
           <li class="fr-nav__item">
-            <a type="link" href="{% url 'agent-admin:logout' %}" class="fr-nav__link">Se déconnecter</a>
+            <form action="{% url 'agent-admin:oidc_logout' %}" method="post" id="logout-form">
+              {% csrf_token %}
+              <input type="submit" value="Se déconnecter" class="fr-nav__link">
+            </form>
           </li>
         </ul>
       </nav>
