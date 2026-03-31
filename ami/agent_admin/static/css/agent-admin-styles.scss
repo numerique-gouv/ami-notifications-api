@@ -132,3 +132,44 @@ body > .fr-container {
     }
   }
 }
+
+.fr-select {
+  color: var(--text-action-high-blue-france);
+  background-color: transparent;
+  background-image: url("../img/chevron.svg");
+  background-position: 100% 50%;
+  box-shadow: none;
+  width: auto;
+  text-align: right;
+  padding: 0 1.5rem 0 0;
+}
+
+#table-with-role,
+#table-without-role,
+#table-activity {
+  table-layout: auto;
+  th,
+  td {
+    &:last-child {
+      width: 1%;
+      white-space: nowrap;
+      text-align: right;
+    }
+  }
+  th {
+    word-wrap: break-word;
+    white-space: normal;
+  }
+  td {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+#table-activity {
+  th {
+    &:last-child {
+      text-align: center;
+    }
+  }
+}
