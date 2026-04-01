@@ -354,7 +354,7 @@ describe('/agenda.ts', () => {
         date: null,
         start_date: new Date('2025-09-20T23:00:00Z'),
         end_date: new Date('2025-12-15T23:00:00Z'),
-        zones: 'Zone',
+        zones: ['Zone'],
         emoji: 'foo',
       };
       const holiday2 = {
@@ -364,7 +364,7 @@ describe('/agenda.ts', () => {
         date: null,
         start_date: new Date('2025-10-20T23:00:00Z'),
         end_date: new Date('2025-11-15T23:00:00Z'),
-        zones: 'Zone',
+        zones: ['Zone'],
         emoji: '',
       };
       const holiday3 = {
@@ -374,7 +374,7 @@ describe('/agenda.ts', () => {
         date: null,
         start_date: new Date('2025-11-20T23:00:00Z'),
         end_date: new Date('2025-12-15T23:00:00Z'),
-        zones: '',
+        zones: [],
         emoji: 'foo',
       };
       const holiday4 = {
@@ -384,7 +384,7 @@ describe('/agenda.ts', () => {
         date: null,
         start_date: new Date('2025-11-30T23:00:00Z'),
         end_date: new Date('2025-12-16T23:00:00Z'),
-        zones: '',
+        zones: [],
         emoji: '',
       };
       const holiday5 = {
@@ -394,7 +394,7 @@ describe('/agenda.ts', () => {
         date: null,
         start_date: new Date('2025-12-20T23:00:00Z'),
         end_date: new Date('2025-12-24T23:00:00Z'),
-        zones: '',
+        zones: [],
         emoji: '',
       };
       const holiday6 = {
@@ -404,7 +404,7 @@ describe('/agenda.ts', () => {
         date: new Date('2025-11-11T23:00:00Z'),
         start_date: null,
         end_date: null,
-        zones: '',
+        zones: [],
         emoji: 'bar',
       };
       const holiday7 = {
@@ -414,7 +414,7 @@ describe('/agenda.ts', () => {
         date: new Date('2025-12-10T23:00:00Z'),
         start_date: null,
         end_date: null,
-        zones: '',
+        zones: [],
         emoji: '',
       };
       const election1 = {
@@ -424,7 +424,7 @@ describe('/agenda.ts', () => {
         date: new Date('2025-11-11T24:00:00Z'),
         start_date: null,
         end_date: null,
-        zones: '',
+        zones: [],
         emoji: 'bar',
       };
       const election2 = {
@@ -434,7 +434,7 @@ describe('/agenda.ts', () => {
         date: new Date('2025-12-10T24:00:00Z'),
         start_date: null,
         end_date: null,
-        zones: '',
+        zones: [],
         emoji: '',
       };
 
@@ -466,8 +466,8 @@ describe('/agenda.ts', () => {
         agenda.now[1].equals(
           new Item(
             'holiday',
-            'Holiday 1 Zone foo',
-            null,
+            'Holiday 1 foo',
+            'Zone',
             null,
             holiday1.start_date,
             holiday1.end_date
@@ -490,8 +490,8 @@ describe('/agenda.ts', () => {
         agenda.now[3].equals(
           new Item(
             'holiday',
-            'Holiday 2 Zone',
-            null,
+            'Holiday 2',
+            'Zone',
             null,
             holiday2.start_date,
             holiday2.end_date
@@ -585,7 +585,7 @@ describe('/agenda.ts', () => {
         date: null,
         start_date: new Date('2026-02-06T23:00:00Z'),
         end_date: new Date('2026-02-22T23:00:00Z'),
-        zones: 'Zone A',
+        zones: ['Zone A'],
         emoji: 'foo',
       };
       const holiday2 = {
@@ -595,7 +595,7 @@ describe('/agenda.ts', () => {
         date: null,
         start_date: new Date('2026-02-13T23:00:00Z'),
         end_date: new Date('2026-03-01T23:00:00Z'),
-        zones: 'Zone B',
+        zones: ['Zone B'],
         emoji: 'foo',
       };
       const holiday3 = {
@@ -605,7 +605,7 @@ describe('/agenda.ts', () => {
         date: new Date('2026-02-02T23:00:00Z'),
         start_date: null,
         end_date: null,
-        zones: '',
+        zones: [],
         emoji: '',
       };
       const election = {
@@ -615,7 +615,7 @@ describe('/agenda.ts', () => {
         date: new Date('2026-02-02T23:00:00Z'),
         start_date: null,
         end_date: null,
-        zones: '',
+        zones: [],
         emoji: '',
       };
 
@@ -631,7 +631,7 @@ describe('/agenda.ts', () => {
 
       // Then
       expect(agenda.now.length).equal(1);
-      expect(agenda.now[0].title).toEqual('Holiday Zone B foo');
+      expect(agenda.now[0].title).toEqual('Holiday foo');
     });
     test('should generate only one OTV per holiday', async () => {
       // Given
@@ -643,7 +643,7 @@ describe('/agenda.ts', () => {
         date: null,
         start_date: new Date('2026-02-06T23:00:00Z'),
         end_date: new Date('2026-02-22T23:00:00Z'),
-        zones: 'Zone',
+        zones: ['Zone'],
         emoji: 'foo',
       };
       const holiday2 = {
@@ -653,7 +653,7 @@ describe('/agenda.ts', () => {
         date: null,
         start_date: new Date('2026-02-13T23:00:00Z'),
         end_date: new Date('2026-03-01T23:00:00Z'),
-        zones: 'Zone',
+        zones: ['Zone'],
         emoji: 'foo',
       };
 
@@ -685,7 +685,7 @@ describe('/agenda.ts', () => {
         date: null,
         start_date: new Date('2026-02-06T23:00:00Z'),
         end_date: new Date('2026-02-22T23:00:00Z'),
-        zones: 'Zone A',
+        zones: ['Zone A'],
         emoji: 'foo',
       };
       const holiday2 = {
@@ -695,7 +695,7 @@ describe('/agenda.ts', () => {
         date: null,
         start_date: new Date('2026-02-13T23:00:00Z'),
         end_date: new Date('2026-03-01T23:00:00Z'),
-        zones: 'Zone C',
+        zones: ['Zone C'],
         emoji: 'foo',
       };
       const holiday3 = {
@@ -705,7 +705,7 @@ describe('/agenda.ts', () => {
         date: null,
         start_date: new Date('2026-07-01T23:00:00Z'),
         end_date: new Date('2026-08-31T23:00:00Z'),
-        zones: '',
+        zones: ['Zone A', 'Zone B', 'Zone C'],
         emoji: 'bar',
       };
       const holiday4 = {
@@ -715,7 +715,7 @@ describe('/agenda.ts', () => {
         date: new Date('2026-02-15T23:00:00Z'),
         start_date: null,
         end_date: null,
-        zones: '',
+        zones: [],
         emoji: '',
       };
 
@@ -748,8 +748,8 @@ describe('/agenda.ts', () => {
         agenda.now[1].equals(
           new Item(
             'holiday',
-            'Holiday Zone A foo',
-            null,
+            'Holiday foo',
+            'Zone A',
             null,
             holiday1.start_date,
             holiday1.end_date
@@ -760,8 +760,8 @@ describe('/agenda.ts', () => {
         agenda.now[2].equals(
           new Item(
             'holiday',
-            'Holiday Zone C foo',
-            'Paris 🏠',
+            'Holiday foo',
+            'Paris (75) 🏠',
             null,
             holiday2.start_date,
             holiday2.end_date,
@@ -780,7 +780,7 @@ describe('/agenda.ts', () => {
           new Item(
             'holiday',
             'Summer Holiday bar',
-            'Paris 🏠',
+            'Paris (75) 🏠, Zone A, Zone B',
             null,
             holiday3.start_date,
             holiday3.end_date,
@@ -802,7 +802,7 @@ describe('/agenda.ts', () => {
         date: null,
         start_date: new Date('2026-02-06T23:00:00Z'),
         end_date: new Date('2026-02-22T23:00:00Z'),
-        zones: 'Zone A',
+        zones: ['Zone A'],
         emoji: 'foo',
       };
 
@@ -834,7 +834,7 @@ describe('/agenda.ts', () => {
         date: null,
         start_date: new Date('2026-02-06T23:00:00Z'),
         end_date: new Date('2026-02-22T23:00:00Z'),
-        zones: 'Zone A',
+        zones: ['Zone A'],
         emoji: 'foo',
       };
       const holiday2 = {
@@ -844,7 +844,7 @@ describe('/agenda.ts', () => {
         date: null,
         start_date: new Date('2026-02-13T23:00:00Z'),
         end_date: new Date('2026-03-01T23:00:00Z'),
-        zones: 'Zone C',
+        zones: ['Zone C'],
         emoji: 'foo',
       };
       const holiday3 = {
@@ -854,7 +854,7 @@ describe('/agenda.ts', () => {
         date: null,
         start_date: new Date('2026-07-01T23:00:00Z'),
         end_date: new Date('2026-08-31T23:00:00Z'),
-        zones: '',
+        zones: ['Zone A', 'Zone B', 'Zone C'],
         emoji: 'bar',
       };
 
@@ -905,7 +905,7 @@ describe('/agenda.ts', () => {
         date: null,
         start_date: new Date('2026-02-06T23:00:00Z'),
         end_date: new Date('2026-02-22T23:00:00Z'),
-        zones: 'Zone A',
+        zones: ['Zone A'],
         emoji: 'foo',
       };
       const holiday2 = {
@@ -915,7 +915,7 @@ describe('/agenda.ts', () => {
         date: null,
         start_date: new Date('2026-02-13T23:00:00Z'),
         end_date: new Date('2026-03-01T23:00:00Z'),
-        zones: 'Zone C',
+        zones: ['Zone C'],
         emoji: 'foo',
       };
       const holiday3 = {
@@ -925,7 +925,7 @@ describe('/agenda.ts', () => {
         date: null,
         start_date: new Date('2026-07-01T23:00:00Z'),
         end_date: new Date('2026-08-31T23:00:00Z'),
-        zones: '',
+        zones: [],
         emoji: 'bar',
       };
       await userStore.login(mockUserInfo);
@@ -962,7 +962,7 @@ describe('/agenda.ts', () => {
         date: null,
         start_date: new Date('2025-09-20T23:00:00Z'),
         end_date: new Date('2025-12-15T23:00:00Z'),
-        zones: 'Zone foo',
+        zones: ['Zone foo'],
         emoji: '',
       };
       const holiday2 = {
@@ -972,7 +972,7 @@ describe('/agenda.ts', () => {
         date: null,
         start_date: new Date('2025-11-30T23:00:00Z'),
         end_date: new Date('2025-12-16T23:00:00Z'),
-        zones: '',
+        zones: [],
         emoji: '',
       };
       const holiday3 = {
@@ -982,7 +982,7 @@ describe('/agenda.ts', () => {
         date: new Date('2025-11-15T23:00:00Z'),
         start_date: null,
         end_date: null,
-        zones: '',
+        zones: [],
         emoji: '',
       };
       const holiday4 = {
@@ -992,7 +992,7 @@ describe('/agenda.ts', () => {
         date: new Date('2025-12-30T23:00:00Z'),
         start_date: null,
         end_date: null,
-        zones: '',
+        zones: [],
         emoji: '',
       };
       const spy = vi.spyOn(catalogMethods, 'retrieveCatalog').mockResolvedValue({
@@ -1024,8 +1024,8 @@ describe('/agenda.ts', () => {
         agenda.now[1].equals(
           new Item(
             'holiday',
-            'Holiday 1 Zone foo',
-            null,
+            'Holiday 1',
+            'Zone foo',
             null,
             holiday1.start_date,
             holiday1.end_date
