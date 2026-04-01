@@ -12,7 +12,9 @@ export class RequestItem {
     private _milestone_end_date: Date | null,
 
     private _status_id: Status,
-    private _status_label: string
+    private _status_label: string,
+
+    private _link: string | null
   ) {}
 
   equals(other: RequestItem): boolean {
@@ -50,6 +52,10 @@ export class RequestItem {
 
   get status_label(): string {
     return this._status_label;
+  }
+
+  get link(): string | null {
+    return this._link;
   }
 
   is_past(): boolean {
@@ -126,7 +132,8 @@ export class FollowUp {
       inventoryItem.updated_at,
       inventoryItem.milestone_end_date,
       inventoryItem.status_id as Status,
-      inventoryItem.status_label
+      inventoryItem.status_label,
+      inventoryItem.external_url
     );
   }
 

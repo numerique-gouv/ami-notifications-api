@@ -13,13 +13,13 @@
     class="request--item--detail fr-tile fr-tile-sm fr-tile--horizontal fr-enlarge-link no-link"
   >
     <div class="fr-tile__body">
-      <div class="fr-tile__content no-link">
+      <div class="fr-tile__content {item.link ? '': 'no-link'}">
         <h3 class="fr-tile__title">
           <a
-            href="#"
-            onclick={(e) => {e.preventDefault()}}
+            href="{item.link}"
+            onclick={(e) => {if (!item.link) {e.preventDefault();}}}
             data-testid="request-item-link"
-            class="no-link"
+            class="{item.link ? '': 'no-link'}"
           >
             {item.title}
           </a>
@@ -52,6 +52,7 @@
         .fr-tile__title {
           font-size: 16px;
           a {
+            color: var(--text-action-high-blue-france);
             &::after {
               bottom: 1.25rem;
               right: 1.25rem;

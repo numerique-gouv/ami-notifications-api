@@ -30,7 +30,8 @@ describe('/+page.svelte', () => {
         new Date('2026-02-22T15:55:00.000Z'),
         null,
         'wip',
-        'En cours'
+        'En cours',
+        null
       ),
     ]);
     vi.spyOn(followUp, 'past', 'get').mockReturnValue([
@@ -40,7 +41,8 @@ describe('/+page.svelte', () => {
         new Date('2026-02-20T15:55:00.000Z'),
         null,
         'closed',
-        'Terminée'
+        'Terminée',
+        null
       ),
     ]);
     const spy = vi.spyOn(followUpMethods, 'buildFollowUp').mockResolvedValue(followUp);
