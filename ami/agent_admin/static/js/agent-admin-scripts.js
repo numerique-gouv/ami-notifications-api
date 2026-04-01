@@ -6,12 +6,18 @@ document.addEventListener('DOMContentLoaded', () => {
     submitBtn.disabled = true;
   }
 
+  const initSelectChange = (select) => {
+    select.dataset.initial = select.value;
+  };
   const handleSelectChange = () => {
-    const anyChanged = Array.from(selects).some((select) => select.value !== '');
+    const anyChanged = Array.from(selects).some(
+      (select) => select.value !== select.dataset.initial
+    );
     submitBtn.disabled = !anyChanged;
   };
 
   selects.forEach((select) => {
+    initSelectChange(select);
     select.addEventListener('change', handleSelectChange);
   });
 });
