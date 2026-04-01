@@ -8,7 +8,7 @@ from ami.agenda.schemas import AgendaCatalogItem, AgendaCatalogItemKind
 @dataclass
 class SchoolHoliday:
     description: str
-    zones: str
+    zones: list[str]
     start_date: datetime.date
     end_date: datetime.date
     emoji: str
@@ -33,6 +33,8 @@ class SchoolHoliday:
         # not the period from Thursday through next Monday
         filtered["end_date"] = max(start_date, end_date - datetime.timedelta(days=1))
         filtered["emoji"] = cls.emoji_mapping.get(filtered["description"], "")
+        # make a list of zones
+        filtered["zones"] = [filtered["zones"]]
         return cls(**filtered)
 
     def to_catalog_item(self):

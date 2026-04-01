@@ -24,7 +24,7 @@ class AgendaCatalogItem:
     date: datetime.date | None = field(default=None)
     start_date: datetime.date | None = field(default=None)
     end_date: datetime.date | None = field(default=None)
-    zones: str = field(default="")
+    zones: list[str] = field(default_factory=list)
     emoji: str = field(default="")
 
 

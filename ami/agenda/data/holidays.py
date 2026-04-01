@@ -51,8 +51,7 @@ def get_school_holidays_data(
         holiday = SchoolHoliday.from_dict(data)
         key = (holiday.description, holiday.start_date, holiday.end_date)
         if key in holidays:
-            # if the dates are the same for all zones, keep only one result and clear zones
-            holidays[key].zones = ""
+            holidays[key].zones += holiday.zones
             continue
         holidays[key] = holiday
 
