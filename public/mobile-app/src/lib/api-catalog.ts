@@ -7,7 +7,7 @@ export type CatalogItem = {
   date: Date | null;
   start_date: Date | null;
   end_date: Date | null;
-  zones: string;
+  zones: string[];
   emoji: string;
 };
 

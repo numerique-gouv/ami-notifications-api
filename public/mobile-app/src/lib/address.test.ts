@@ -71,8 +71,8 @@ describe('/address.ts', () => {
         // Then
         expect(zone1).toEqual('');
         expect(zone2).toEqual('');
-        expect(zone3).toEqual('A');
-        expect(zone4).toEqual('C');
+        expect(zone3).toEqual('Zone A');
+        expect(zone4).toEqual('Zone C');
         expect(zone5).toEqual('');
       });
     });
