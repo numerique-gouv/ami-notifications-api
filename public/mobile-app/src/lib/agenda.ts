@@ -230,8 +230,33 @@ export class Agenda {
     });
   }
 
-  private createSchoolHolidayItem(holiday: CatalogItem, date: Date): Item | null {
+  private getSchoolHolidayItemDescription(holiday: CatalogItem): string | null {
     const userZone = userStore.connected?.identity.address?.zone;
+    if (userZone !== undefined && holiday.zones.includes(userZone)) {
+      const userZones = [
+        `${userStore.connected?.identity.address?.city} (${userStore.connected?.identity.address?.departement}) 🏠`,
+      ];
+      holiday.zones.forEach((zone) => {
+        if (zone !== userZone) {
+          userZones.push(zone);
+        }
+      });
+      return userZones.join(', ');
+    } else if (holiday.zones.length) {
+      return holiday.zones.join(', ');
+    }
+    return null;
+  }
+
+  private getSchoolHolidayItemCustom(holiday: CatalogItem): boolean {
+    const userZone = userStore.connected?.identity.address?.zone;
+    if (userZone !== undefined && holiday.zones.includes(userZone)) {
+      return true;
+    }
+    return false;
+  }
+
+  private createSchoolHolidayItem(holiday: CatalogItem, date: Date): Item | null {
     if (!holiday.start_date || !holiday.end_date) {
       // should not happen for school holiday
       return null;
@@ -241,29 +266,17 @@ export class Agenda {
       return null;
     }
     let title = holiday.title;
-    if (holiday.zones) {
-      title += ` ${holiday.zones}`;
-    }
     if (holiday.emoji) {
       title += ` ${holiday.emoji}`;
-    }
-    let custom = false;
-    let description = null;
-    if (
-      userZone !== undefined &&
-      (holiday.zones === `Zone ${userZone}` || holiday.zones === '')
-    ) {
-      custom = true;
-      description = `${userStore.connected?.identity.address?.city} 🏠`;
     }
     return new Item(
       'holiday',
       title,
-      description,
+      this.getSchoolHolidayItemDescription(holiday),
       null,
       holiday.start_date,
       holiday.end_date,
-      custom
+      this.getSchoolHolidayItemCustom(holiday)
     );
   }
 
@@ -326,11 +339,7 @@ export class Agenda {
     if (seenSchoolHolidays.has(key)) {
       return null;
     }
-    if (
-      userZone !== undefined &&
-      holiday.zones !== '' &&
-      holiday.zones !== `Zone ${userZone}`
-    ) {
+    if (userZone !== undefined && !holiday.zones.includes(userZone)) {
       // Only create OTV for the user's zone, if present
       return null;
     }
