@@ -286,7 +286,8 @@ describe('/ConnectedHomepage.svelte', () => {
         new Date('2026-02-22T15:55:00.000Z'),
         null,
         'wip',
-        'En cours'
+        'En cours',
+        null
       ),
       new RequestItem(
         'Opération Tranquillité Vacances 2',
@@ -294,7 +295,8 @@ describe('/ConnectedHomepage.svelte', () => {
         new Date('2026-02-22T15:55:00.000Z'),
         null,
         'wip',
-        'En cours'
+        'En cours',
+        null
       ),
     ]);
     vi.spyOn(followUp, 'past', 'get').mockReturnValue([
@@ -304,7 +306,8 @@ describe('/ConnectedHomepage.svelte', () => {
         new Date('2026-02-20T15:55:00.000Z'),
         null,
         'closed',
-        'Terminée'
+        'Terminée',
+        null
       ),
       new RequestItem(
         'Opération Tranquillité Vacances 4',
@@ -312,7 +315,8 @@ describe('/ConnectedHomepage.svelte', () => {
         new Date('2026-02-20T15:55:00.000Z'),
         null,
         'closed',
-        'Terminée'
+        'Terminée',
+        null
       ),
     ]);
     const spy = vi.spyOn(followUpMethods, 'buildFollowUp').mockResolvedValue(followUp);
@@ -342,7 +346,8 @@ describe('/ConnectedHomepage.svelte', () => {
         new Date('2026-02-22T15:55:00.000Z'),
         null,
         'wip',
-        'En cours'
+        'En cours',
+        null
       ),
       new RequestItem(
         'Opération Tranquillité Vacances 2',
@@ -350,7 +355,8 @@ describe('/ConnectedHomepage.svelte', () => {
         new Date('2026-02-22T15:55:00.000Z'),
         null,
         'wip',
-        'En cours'
+        'En cours',
+        null
       ),
     ]);
     vi.spyOn(followUp, 'past', 'get').mockReturnValue([
@@ -360,7 +366,8 @@ describe('/ConnectedHomepage.svelte', () => {
         new Date('2026-02-20T15:55:00.000Z'),
         null,
         'closed',
-        'Terminée'
+        'Terminée',
+        null
       ),
       new RequestItem(
         'Opération Tranquillité Vacances 4',
@@ -368,7 +375,8 @@ describe('/ConnectedHomepage.svelte', () => {
         new Date('2026-02-20T15:55:00.000Z'),
         null,
         'closed',
-        'Terminée'
+        'Terminée',
+        null
       ),
     ]);
     const spy = vi.spyOn(followUpMethods, 'buildFollowUp').mockResolvedValue(followUp);
@@ -401,7 +409,8 @@ describe('/ConnectedHomepage.svelte', () => {
         new Date('2026-02-22T15:55:00.000Z'),
         null,
         'wip',
-        'En cours'
+        'En cours',
+        null
       ),
       new RequestItem(
         'Opération Tranquillité Vacances 2',
@@ -409,7 +418,8 @@ describe('/ConnectedHomepage.svelte', () => {
         new Date('2026-02-22T15:55:00.000Z'),
         null,
         'wip',
-        'En cours'
+        'En cours',
+        null
       ),
     ]);
     const spy = vi.spyOn(followUpMethods, 'buildFollowUp').mockResolvedValue(followUp);

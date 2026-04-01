@@ -16,7 +16,8 @@ describe('/follow-up.ts', () => {
           new Date(),
           null,
           'closed',
-          'Closed'
+          'Closed',
+          null
         );
         const item2 = new RequestItem(
           'title',
@@ -24,7 +25,8 @@ describe('/follow-up.ts', () => {
           new Date(),
           past,
           'new',
-          'New'
+          'New',
+          null
         );
 
         // When
@@ -45,7 +47,8 @@ describe('/follow-up.ts', () => {
           new Date(),
           null,
           'new',
-          'New'
+          'New',
+          null
         );
         const item2 = new RequestItem(
           'title',
@@ -53,7 +56,8 @@ describe('/follow-up.ts', () => {
           new Date(),
           null,
           'wip',
-          'Wip'
+          'Wip',
+          null
         );
         const item3 = new RequestItem(
           'title',
@@ -61,7 +65,8 @@ describe('/follow-up.ts', () => {
           new Date(),
           future,
           'new',
-          'New'
+          'New',
+          null
         );
         const item4 = new RequestItem(
           'title',
@@ -69,7 +74,8 @@ describe('/follow-up.ts', () => {
           new Date(),
           future,
           'wip',
-          'Wip'
+          'Wip',
+          null
         );
 
         // When
@@ -95,7 +101,8 @@ describe('/follow-up.ts', () => {
           new Date('2026-01-03T08:05:42Z'),
           null,
           'new',
-          'New'
+          'New',
+          null
         );
 
         // When
@@ -115,7 +122,8 @@ describe('/follow-up.ts', () => {
           null,
           // @ts-expect-error: `'incorrect'` isn't a proper Kind, so typescript will complain
           'incorrect',
-          'Incorrect'
+          'Incorrect',
+          null
         );
         const item2 = new RequestItem(
           'title',
@@ -123,7 +131,8 @@ describe('/follow-up.ts', () => {
           new Date(),
           null,
           'new',
-          'New'
+          'New',
+          null
         );
         const item3 = new RequestItem(
           'title',
@@ -131,7 +140,8 @@ describe('/follow-up.ts', () => {
           new Date(),
           null,
           'wip',
-          'WIP'
+          'WIP',
+          null
         );
         const item4 = new RequestItem(
           'title',
@@ -139,7 +149,8 @@ describe('/follow-up.ts', () => {
           new Date(),
           null,
           'closed',
-          'Closed'
+          'Closed',
+          null
         );
 
         // When
@@ -227,7 +238,8 @@ describe('/follow-up.ts', () => {
             new Date('2026-02-23T15:55:00.000Z'),
             future,
             'new',
-            'Brouillon'
+            'Brouillon',
+            null
           )
         )
       ).toBe(true);
@@ -239,7 +251,8 @@ describe('/follow-up.ts', () => {
             new Date('2026-02-22T15:55:00.000Z'),
             null,
             'wip',
-            'En cours'
+            'En cours',
+            null
           )
         )
       ).toBe(true);
@@ -252,7 +265,8 @@ describe('/follow-up.ts', () => {
             new Date('2026-02-21T15:55:00.000Z'),
             past,
             'new',
-            'Brouillon'
+            'Brouillon',
+            null
           )
         )
       ).toBe(true);
@@ -264,7 +278,8 @@ describe('/follow-up.ts', () => {
             new Date('2026-02-20T15:55:00.000Z'),
             null,
             'closed',
-            'Terminée'
+            'Terminée',
+            null
           )
         )
       ).toBe(true);
@@ -317,7 +332,8 @@ describe('/follow-up.ts', () => {
             new Date('2026-02-23T15:55:00.000Z'),
             null,
             'new',
-            'Brouillon'
+            'Brouillon',
+            null
           )
         )
       ).toBe(true);
@@ -330,7 +346,8 @@ describe('/follow-up.ts', () => {
             new Date('2026-02-22T15:55:00.000Z'),
             null,
             'closed',
-            'Terminée'
+            'Terminée',
+            null
           )
         )
       ).toBe(true);
