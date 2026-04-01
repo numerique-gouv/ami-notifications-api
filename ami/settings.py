@@ -298,6 +298,7 @@ VAPID_PRIVATE_KEY = os.getenv("VAPID_PRIVATE_KEY", "")
 
 # Forms & DSFR
 FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
+DSFR_USE_INTEGRITY_CHECKSUMS = False
 
 if DEBUG:
     ALLOWED_HOSTS += [
