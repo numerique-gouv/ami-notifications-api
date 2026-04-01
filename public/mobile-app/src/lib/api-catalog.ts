@@ -43,6 +43,11 @@ export const retrieveCatalog = async (date: Date | null = null): Promise<Catalog
       const expires_at = new Date(data.expires_at);
       if (expires_at < now) {
         filter_items.push(key);
+        continue;
+      }
+      // XXX remove it after mep, when holidays are expired
+      if (data.items.length && typeof data.items[0].zones === 'string') {
+        filter_items.push(key);
       }
     } catch {
       filter_items.push(key);
