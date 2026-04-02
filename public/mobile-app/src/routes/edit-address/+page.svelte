@@ -8,7 +8,7 @@
   import { toastStore } from '$lib/state/toast.svelte';
   import type { DataOrigin } from '$lib/state/User.svelte';
   import { userStore } from '$lib/state/User.svelte';
-  import { formatDate, scrollToInput } from '$lib/utils';
+  import { formatDate, scrollToInput, scrollToNode } from '$lib/utils';
 
   let backUrl: string = '/#/profile';
   let addressFromUserStore: Address | undefined = $state();
@@ -23,6 +23,17 @@
   let submittedAddress: Address | undefined = $state();
   let address_origin: DataOrigin | undefined = $state();
   let address_last_update: Date | undefined = $state();
+
+  $effect(() => {
+    // DO NOT REMOVE THE FOLLOWING LINE: we need to access `filteredAddresses` so the $effect
+    // triggers when it changes, and when it changes we want to scroll the input to the top.
+    console.log('filteredAddresses changed, new length:', filteredAddresses.length);
+    const addressInput: HTMLInputElement | null =
+      document.querySelector<HTMLInputElement>('#address-input');
+    if (addressInput) {
+      scrollToNode(addressInput);
+    }
+  });
 
   onMount(() => {
     if (!userStore.connected) {
