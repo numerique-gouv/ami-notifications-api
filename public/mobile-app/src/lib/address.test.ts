@@ -33,47 +33,81 @@ describe('/address.ts', () => {
     describe('departement', () => {
       test('should return departement code', async () => {
         // Given
-        const address1 = new Address('', '', '', '', '', '');
-        const address2 = new Address('', '', '', '', '', '1');
-        const address3 = new Address('', '', '', '', '', '2B');
-        const address4 = new Address('', '', '', '', '', '301');
+        const addresses = [
+          new Address('', '', '', '', '', ''),
+          new Address('', '', '', '', '', '1'),
+          new Address('', '', '', '', '', '2B'),
+          new Address('', '', '', '', '', '301'),
+          new Address('', '', '', '', '', '975'),
+          new Address('', '', '', '', '', '97'),
+          new Address('', '', '', '', '', '986'),
+          new Address('', '', '', '', '', '98'),
+        ];
+        const results = ['', '', '2B', '30', '975', '', '986', ''];
 
-        // When
-        const departement1 = address1.departement;
-        const departement2 = address2.departement;
-        const departement3 = address3.departement;
-        const departement4 = address4.departement;
+        for (let i = 0; i < addresses.length; i++) {
+          // When
+          const departement = addresses[i].departement;
 
-        // Then
-        expect(departement1).toEqual('');
-        expect(departement2).toEqual('');
-        expect(departement3).toEqual('2B');
-        expect(departement4).toEqual('30');
+          // Then
+          expect(departement).toEqual(results[i]);
+        }
       });
     });
 
     describe('zone', () => {
       test('should return zone', async () => {
         // Given
-        const address1 = new Address('', '', '', '', '', '');
-        const address2 = new Address('', '', '', '', '', '1');
-        const address3 = new Address('', '', '', '', '', '24');
-        const address4 = new Address('', '', '', '', '', '301');
-        const address5 = new Address('', '', '', '', '', 'ABC');
+        const addresses = [
+          new Address('', '', '', '', '', ''),
+          new Address('', '', '', '', '', '1'),
+          new Address('', '', '', '', '', '24'),
+          new Address('', '', '', '', '', '301'),
+          new Address('', '', '', '', '', 'ABC'),
+          new Address('', '', '', '', '', '971'),
+          new Address('', '', '', '', '', '972'),
+          new Address('', '', '', '', '', '973'),
+          new Address('', '', '', '', '', '974'),
+          new Address('', '', '', '', '', '975'),
+          new Address('', '', '', '', '', '976'),
+          new Address('', '', '', '', '', '977'),
+          new Address('', '', '', '', '', '978'),
+          new Address('', '', '', '', '', '97'),
+          new Address('', '', '', '', '', '986'),
+          new Address('', '', '', '', '', '987'),
+          new Address('', '', '', '', '', '988'),
+          new Address('', '', '', '', '', '98'),
+          new Address('', '', '', '', '', '20'),
+        ];
+        const results = [
+          '',
+          '',
+          'Zone A',
+          'Zone C',
+          '',
+          'Guadeloupe',
+          'Martinique',
+          'Guyane',
+          'Réunion',
+          'Saint Pierre et Miquelon',
+          'Mayotte',
+          'Guadeloupe',
+          'Guadeloupe',
+          '',
+          'Wallis et Futuna',
+          'Polynésie',
+          'Nouvelle Calédonie',
+          '',
+          'Corse',
+        ];
 
-        // When
-        const zone1 = address1.zone;
-        const zone2 = address2.zone;
-        const zone3 = address3.zone;
-        const zone4 = address4.zone;
-        const zone5 = address5.zone;
+        for (let i = 0; i < addresses.length; i++) {
+          // When
+          const zone = addresses[i].zone;
 
-        // Then
-        expect(zone1).toEqual('');
-        expect(zone2).toEqual('');
-        expect(zone3).toEqual('Zone A');
-        expect(zone4).toEqual('Zone C');
-        expect(zone5).toEqual('');
+          // Then
+          expect(zone).toEqual(results[i]);
+        }
       });
     });
   });
