@@ -37,7 +37,16 @@ def test_get_school_holidays_data(
             "population": "-",
             "start_date": "2025-12-20T00:00:00+01:00",
             "end_date": "2026-01-05T00:00:00+01:00",
-            "location": "Bordeaux",
+            "location": "Limoges",
+            "zones": "Zone A",
+            "annee_scolaire": "2025-2026",
+        },
+        {
+            "description": "Vacances de Noël",
+            "population": "-",
+            "start_date": "2025-12-20T00:00:00+01:00",
+            "end_date": "2026-01-05T00:00:00+01:00",
+            "location": "Lille",
             "zones": "Zone B",
             "annee_scolaire": "2025-2026",
         },
@@ -87,19 +96,15 @@ def test_get_school_holidays_data(
             "annee_scolaire": "2026-2027",
         },
     ]
-    fake_holidays_data = {"total_counts": len(fake_holidays_data), "results": fake_holidays_data}
 
     httpx_mock.add_response(
         url=URL(
-            "https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-calendrier-scolaire/records",
+            "https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-calendrier-scolaire/exports/json",
             params={
                 "where": (
-                    "end_date >= date'2025-11-12' AND start_date < date'2026-09-15' AND "
-                    "(location = 'Bordeaux' OR location = 'Lille' OR location = 'Versailles') "
-                    "AND population IN ('-', 'Élèves')"
+                    "end_date >= date'2025-11-12' AND start_date < date'2026-09-15' AND population IN ('-', 'Élèves')"
                 ),
                 "order_by": "start_date",
-                "limit": 100,
                 "timezone": "Europe/Paris",
             },
         ),
@@ -163,10 +168,6 @@ def test_get_school_holidays_data_emoji(
                 "annee_scolaire": "2025-2026",
             },
         ]
-        fake_holidays_data = {
-            "total_counts": len(fake_holidays_data),
-            "results": fake_holidays_data,
-        }
 
         httpx_mock.add_response(
             json=fake_holidays_data,

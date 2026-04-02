@@ -30,16 +30,11 @@ def get_school_holidays_data(
     start_date: datetime.date,
     end_date: datetime.date,
 ) -> list[SchoolHoliday]:
-    # target one region per zone, to limit results
-    locations = ["Bordeaux", "Lille", "Versailles"]
-    locations_query = " OR ".join(f"location = '{location}'" for location in locations)
-
     response = httpxClient.get(
         f"{settings.API_DATA_EDUCATION_BASE_URL}{settings.API_DATA_EDUCATION_HOLIDAYS_ENDPOINT}",
         params={
-            "where": f"end_date >= date'{start_date}' AND start_date < date'{end_date}' AND ({locations_query}) AND population IN ('-', 'Élèves')",
+            "where": f"end_date >= date'{start_date}' AND start_date < date'{end_date}' AND population IN ('-', 'Élèves')",
             "order_by": "start_date",
-            "limit": 100,
             "timezone": "Europe/Paris",
         },
     )
@@ -47,11 +42,12 @@ def get_school_holidays_data(
         raise SchoolHolidaysError(status_code=response.status_code)
 
     holidays: dict[tuple[str, datetime.date, datetime.date], SchoolHoliday] = {}
-    for data in response.json()["results"]:
+    for data in response.json():
         holiday = SchoolHoliday.from_dict(data)
         key = (holiday.description, holiday.start_date, holiday.end_date)
         if key in holidays:
             holidays[key].zones += holiday.zones
+            holidays[key].zones = sorted(list(set(holidays[key].zones)))  # deduplicate zones
             continue
         holidays[key] = holiday
 
