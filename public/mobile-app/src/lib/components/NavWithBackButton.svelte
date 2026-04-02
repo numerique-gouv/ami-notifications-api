@@ -65,7 +65,6 @@
         padding-top: 0rem;
         h2 {
           font-size: 18px;
-          line-height: 1.5rem;
           transition: 0.4s;
         }
       }
