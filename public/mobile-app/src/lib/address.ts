@@ -47,68 +47,145 @@ export class Address {
     if (this._postcode.length < 2) {
       return '';
     }
-    return this._postcode.substring(0, 2);
+    const departement = this._postcode.substring(0, 2);
+
+    if (!['97', '98'].includes(departement)) {
+      return departement;
+    }
+
+    // if postcode startswith 97 and 98, departement has 3 digits
+    if (this._postcode.length < 3) {
+      return '';
+    }
+    return this._postcode.substring(0, 3);
   }
 
   get zone(): string {
-    const academie = academies.find((a) => {
-      return a.departements.includes(this.departement);
+    const zone = zones.find((z) => {
+      return z.departements.includes(this.departement);
     });
-    return academie ? academie.zone : '';
+    return zone ? zone.label : '';
   }
 }
 
-const academies = [
-  { academie: 'Aix-Marseille', departements: ['04', '05', '13', '84'], zone: 'Zone B' },
-  { academie: 'Amiens', departements: ['02', '60', '80'], zone: 'Zone B' },
-  { academie: 'Besançon', departements: ['25', '39', '70', '90'], zone: 'Zone A' },
+const zones = [
   {
-    academie: 'Bordeaux',
-    departements: ['24', '33', '40', '47', '64'],
-    zone: 'Zone A',
+    label: 'Zone A',
+    departements: [
+      '01',
+      '03',
+      '07',
+      '15',
+      '16',
+      '17',
+      '19',
+      '21',
+      '23',
+      '24',
+      '25',
+      '26',
+      '33',
+      '38',
+      '39',
+      '40',
+      '42',
+      '43',
+      '47',
+      '58',
+      '63',
+      '64',
+      '69',
+      '70',
+      '71',
+      '73',
+      '74',
+      '79',
+      '86',
+      '87',
+      '89',
+      '90',
+    ],
   },
   {
-    academie: 'Clermont-Ferrand',
-    departements: ['03', '15', '43', '63'],
-    zone: 'Zone A',
+    label: 'Zone B',
+    departements: [
+      '02',
+      '04',
+      '05',
+      '06',
+      '08',
+      '10',
+      '13',
+      '14',
+      '18',
+      '22',
+      '27',
+      '28',
+      '29',
+      '35',
+      '36',
+      '37',
+      '41',
+      '44',
+      '45',
+      '49',
+      '50',
+      '51',
+      '52',
+      '53',
+      '54',
+      '55',
+      '56',
+      '57',
+      '59',
+      '60',
+      '61',
+      '62',
+      '67',
+      '68',
+      '72',
+      '76',
+      '80',
+      '83',
+      '84',
+      '85',
+      '88',
+    ],
   },
-  { academie: 'Créteil', departements: ['77', '93', '94'], zone: 'Zone C' },
-  { academie: 'Dijon', departements: ['21', '58', '71', '89'], zone: 'Zone A' },
   {
-    academie: 'Grenoble',
-    departements: ['07', '26', '38', '73', '74'],
-    zone: 'Zone A',
+    label: 'Zone C',
+    departements: [
+      '09',
+      '11',
+      '12',
+      '30',
+      '31',
+      '32',
+      '34',
+      '46',
+      '48',
+      '65',
+      '66',
+      '75',
+      '77',
+      '78',
+      '81',
+      '82',
+      '91',
+      '92',
+      '93',
+      '94',
+      '95',
+    ],
   },
-  { academie: 'Lille', departements: ['59', '62'], zone: 'Zone B' },
-  { academie: 'Limoges', departements: ['19', '23', '87'], zone: 'Zone A' },
-  { academie: 'Lyon', departements: ['01', '42', '69'], zone: 'Zone A' },
-  {
-    academie: 'Montpellier',
-    departements: ['11', '30', '34', '48', '66'],
-    zone: 'Zone C',
-  },
-  { academie: 'Nancy-Metz', departements: ['54', '55', '57', '88'], zone: 'Zone B' },
-  { academie: 'Nantes', departements: ['44', '49', '53', '72', '85'], zone: 'Zone B' },
-  { academie: 'Nice', departements: ['06', '83'], zone: 'Zone B' },
-  {
-    academie: 'Normandie',
-    departements: ['14', '27', '50', '61', '76'],
-    zone: 'Zone B',
-  },
-  {
-    academie: 'Orléans-Tours',
-    departements: ['18', '28', '36', '37', '41', '45'],
-    zone: 'Zone B',
-  },
-  { academie: 'Paris', departements: ['75'], zone: 'Zone C' },
-  { academie: 'Poitiers', departements: ['16', '17', '79', '86'], zone: 'Zone A' },
-  { academie: 'Reims', departements: ['08', '10', '51', '52'], zone: 'Zone B' },
-  { academie: 'Rennes', departements: ['22', '29', '35', '56'], zone: 'Zone B' },
-  { academie: 'Strasbourg', departements: ['67', '68'], zone: 'Zone B' },
-  {
-    academie: 'Toulouse',
-    departements: ['09', '12', '31', '32', '46', '65', '81', '82'],
-    zone: 'Zone C',
-  },
-  { academie: 'Versailles', departements: ['78', '91', '92', '95'], zone: 'Zone C' },
+  { label: 'Corse', departements: ['20'] },
+  { label: 'Guadeloupe', departements: ['971', '977', '978'] },
+  { label: 'Guyane', departements: ['973'] },
+  { label: 'Martinique', departements: ['972'] },
+  { label: 'Mayotte', departements: ['976'] },
+  { label: 'Nouvelle Calédonie', departements: ['988'] },
+  { label: 'Polynésie', departements: ['987'] },
+  { label: 'Réunion', departements: ['974'] },
+  { label: 'Saint Pierre et Miquelon', departements: ['975'] },
+  { label: 'Wallis et Futuna', departements: ['986'] },
 ];
