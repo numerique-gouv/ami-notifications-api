@@ -269,7 +269,7 @@ API_PARTICULIER_RECIPIENT_ID = CONFIG["API_PARTICULIER_RECIPIENT_ID"]
 # API data.education.gouv
 API_DATA_EDUCATION_BASE_URL = CONFIG["API_DATA_EDUCATION_BASE_URL"]
 API_DATA_EDUCATION_HOLIDAYS_ENDPOINT = (
-    "/api/explore/v2.1/catalog/datasets/fr-en-calendrier-scolaire/records"
+    "/api/explore/v2.1/catalog/datasets/fr-en-calendrier-scolaire/exports/json"
 )
 
 
