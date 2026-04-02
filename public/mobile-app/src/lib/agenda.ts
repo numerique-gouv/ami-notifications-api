@@ -232,18 +232,22 @@ export class Agenda {
 
   private getSchoolHolidayItemDescription(holiday: CatalogItem): string | null {
     const userZone = userStore.connected?.identity.address?.zone;
-    if (userZone !== undefined && holiday.zones.includes(userZone)) {
+    // XXX keep only Zones A, B, C for the moment
+    const holidayZones = ['Zone A', 'Zone B', 'Zone C'].filter((value) =>
+      holiday.zones.includes(value)
+    );
+    if (userZone !== undefined && holidayZones.includes(userZone)) {
       const userZones = [
         `${userStore.connected?.identity.address?.city} (${userStore.connected?.identity.address?.departement}) 🏠`,
       ];
-      holiday.zones.forEach((zone) => {
+      holidayZones.forEach((zone) => {
         if (zone !== userZone) {
           userZones.push(zone);
         }
       });
       return userZones.join(', ');
-    } else if (holiday.zones.length) {
-      return holiday.zones.join(', ');
+    } else if (holidayZones.length) {
+      return holidayZones.join(', ');
     }
     return null;
   }
@@ -268,6 +272,14 @@ export class Agenda {
     let title = holiday.title;
     if (holiday.emoji) {
       title += ` ${holiday.emoji}`;
+    }
+    if (
+      holiday.zones.length &&
+      !['Zone A', 'Zone B', 'Zone C'].filter((value) => holiday.zones.includes(value))
+        .length
+    ) {
+      // XXX keep only Zones A, B, C for the moment
+      return null;
     }
     return new Item(
       'holiday',
