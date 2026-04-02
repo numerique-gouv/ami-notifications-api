@@ -23,11 +23,16 @@
   let submittedAddress: Address | undefined = $state();
   let address_origin: DataOrigin | undefined = $state();
   let address_last_update: Date | undefined = $state();
+  let listContainer: HTMLElement | undefined = $state();
+  let listMinHeight: number = $state(0);
 
   $effect(() => {
     // DO NOT REMOVE THE FOLLOWING LINE: we need to access `filteredAddresses` so the $effect
     // triggers when it changes, and when it changes we want to scroll the input to the top.
-    console.log('filteredAddresses changed, new length:', filteredAddresses.length);
+    filteredAddresses;
+    if (listContainer) {
+      listMinHeight = Math.max(listMinHeight, listContainer.offsetHeight);
+    }
     const addressInput: HTMLInputElement | null =
       document.querySelector<HTMLInputElement>('#address-input');
     if (addressInput) {
@@ -189,23 +194,25 @@
             {/if}
           </div>
 
-          {#if filteredAddresses.length > 0}
-            <ul id="autocomplete-items-list">
-              <p class="autocomplete-title">Adresse</p>
-              {#each filteredAddresses as address, index}
-                <li class="autocomplete-item" data-testid="autocomplete-item-{index}">
-                  <button
-                    type="button"
-                    onclick={() => setInputVal(address)}
-                    data-testid="autocomplete-item-button-{index}"
-                  >
-                    <p><strong>{address.name}</strong></p>
-                    <p>{address.city} ({address.context})</p>
-                  </button>
-                </li>
-              {/each}
-            </ul>
-          {/if}
+          <div bind:this={listContainer} style="min-height: {listMinHeight}px">
+            {#if filteredAddresses.length > 0}
+              <ul id="autocomplete-items-list">
+                <p class="autocomplete-title">Adresse</p>
+                {#each filteredAddresses as address, index}
+                  <li class="autocomplete-item" data-testid="autocomplete-item-{index}">
+                    <button
+                      type="button"
+                      onclick={() => setInputVal(address)}
+                      data-testid="autocomplete-item-button-{index}"
+                    >
+                      <p><strong>{address.name}</strong></p>
+                      <p>{address.city} ({address.context})</p>
+                    </button>
+                  </li>
+                {/each}
+              </ul>
+            {/if}
+          </div>
         </div>
       </fieldset>
     </form>
