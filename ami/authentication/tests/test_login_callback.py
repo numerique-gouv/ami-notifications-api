@@ -16,7 +16,7 @@ from ami.user.utils import build_fc_hash
 @pytest.mark.django_db
 def test_login_callback(
     settings,
-    django_app,
+    app,
     httpx_mock: HTTPXMock,
     monkeypatch: pytest.MonkeyPatch,
     userinfo: dict[str, Any],
@@ -61,7 +61,7 @@ def test_login_callback(
         text=fake_userinfo_token,
     )
 
-    response = django_app.get(f"/login-callback?code=fake-code&state={nonce.id}")
+    response = app.get(f"/login-callback?code=fake-code&state={nonce.id}")
 
     assert response.status_code == 302
     redirected_url = response.headers["location"]
@@ -119,7 +119,7 @@ def test_login_callback(
 @pytest.mark.django_db
 def test_login_callback_user_already_seen(
     settings,
-    django_app,
+    app,
     httpx_mock: HTTPXMock,
     monkeypatch: pytest.MonkeyPatch,
     userinfo: dict[str, Any],
@@ -170,7 +170,7 @@ def test_login_callback_user_already_seen(
     )
     user = User.objects.create(fc_hash=fc_hash, last_logged_in=now())
 
-    response = django_app.get(f"/login-callback?code=fake-code&state={nonce.id}")
+    response = app.get(f"/login-callback?code=fake-code&state={nonce.id}")
 
     assert response.status_code == 302
     redirected_url = response.headers["location"]
@@ -209,7 +209,7 @@ def test_login_callback_user_already_seen(
 @pytest.mark.django_db
 def test_login_callback_user_never_seen(
     settings,
-    django_app,
+    app,
     httpx_mock: HTTPXMock,
     monkeypatch: pytest.MonkeyPatch,
     userinfo: dict[str, Any],
@@ -260,7 +260,7 @@ def test_login_callback_user_never_seen(
     )
     user = User.objects.create(fc_hash=fc_hash)
 
-    response = django_app.get(f"/login-callback?code=fake-code&state={nonce.id}")
+    response = app.get(f"/login-callback?code=fake-code&state={nonce.id}")
 
     assert response.status_code == 302
     redirected_url = response.headers["location"]
@@ -309,12 +309,12 @@ def test_login_callback_user_never_seen(
 
 @pytest.mark.django_db
 def test_login_callback_bad_state(
-    django_app,
+    app,
 ) -> None:
     NONCE = "some random nonce"
     Nonce.objects.create(nonce=NONCE)
 
-    response = django_app.get("/login-callback?code=fake-code&state=")
+    response = app.get("/login-callback?code=fake-code&state=")
     assert response.status_code == 302
     redirected_url = response.headers["location"]
     assert url_contains_param("error_type", "FranceConnect", redirected_url)
@@ -323,7 +323,7 @@ def test_login_callback_bad_state(
     )
     assert url_contains_param("code", "missing_state", redirected_url)
 
-    response = django_app.get("/login-callback?code=fake-code&state=some-other-state")
+    response = app.get("/login-callback?code=fake-code&state=some-other-state")
     assert response.status_code == 302
     redirected_url = response.headers["location"]
     assert url_contains_param("error_type", "FranceConnect", redirected_url)
@@ -332,7 +332,7 @@ def test_login_callback_bad_state(
     )
     assert url_contains_param("code", "invalid_state", redirected_url)
 
-    response = django_app.get("/login-callback?code=fake-code&state={uuid.uuid4()}")
+    response = app.get("/login-callback?code=fake-code&state={uuid.uuid4()}")
     assert response.status_code == 302
     redirected_url = response.headers["location"]
     assert url_contains_param("error_type", "FranceConnect", redirected_url)
@@ -344,7 +344,7 @@ def test_login_callback_bad_state(
 
 @pytest.mark.django_db
 def test_login_callback_bad_id_token(
-    django_app,
+    app,
     httpx_mock: HTTPXMock,
     decoded_id_token: dict[str, Any],
 ) -> None:
@@ -363,7 +363,7 @@ def test_login_callback_bad_id_token(
         json=fake_token_json_response,
     )
 
-    response = django_app.get(f"/login-callback?code=fake-code&state={nonce.id}")
+    response = app.get(f"/login-callback?code=fake-code&state={nonce.id}")
 
     assert response.status_code == 302
     redirected_url = response.headers["location"]
@@ -377,7 +377,7 @@ def test_login_callback_bad_id_token(
 @pytest.mark.django_db
 def test_login_callback_bad_nonce(
     settings,
-    django_app,
+    app,
     httpx_mock: HTTPXMock,
     monkeypatch: pytest.MonkeyPatch,
     decoded_id_token: dict[str, Any],
@@ -405,7 +405,7 @@ def test_login_callback_bad_nonce(
     )
     settings.FC_AMI_CLIENT_SECRET = "fake-client-secret"
 
-    response = django_app.get(f"/login-callback?code=fake-code&state={nonce.id}")
+    response = app.get(f"/login-callback?code=fake-code&state={nonce.id}")
 
     assert response.status_code == 302
     redirected_url = response.headers["location"]
@@ -419,7 +419,7 @@ def test_login_callback_bad_nonce(
     nonce = Nonce.objects.create(nonce=NONCE)
     decoded_id_token.pop("nonce")
 
-    response = django_app.get(f"/login-callback?code=fake-code&state={nonce.id}")
+    response = app.get(f"/login-callback?code=fake-code&state={nonce.id}")
 
     assert response.status_code == 302
     redirected_url = response.headers["location"]
@@ -434,7 +434,7 @@ def test_login_callback_bad_nonce(
 @pytest.mark.django_db
 def test_login_callback_bad_token_info(
     settings,
-    django_app,
+    app,
     httpx_mock: HTTPXMock,
     monkeypatch: pytest.MonkeyPatch,
     decoded_id_token: dict[str, Any],
@@ -460,7 +460,7 @@ def test_login_callback_bad_token_info(
         json=fake_token_json_response,
     )
 
-    response = django_app.get(f"/login-callback?code=fake-code&state={nonce.id}")
+    response = app.get(f"/login-callback?code=fake-code&state={nonce.id}")
     redirected_url = response.headers["location"]
     assert url_contains_param("error_type", "FranceConnect", redirected_url)
     assert url_contains_param(
@@ -483,7 +483,7 @@ def test_login_callback_bad_token_info(
         json=fake_token_json_response,
     )
 
-    response = django_app.get(f"/login-callback?code=fake-code&state={nonce.id}")
+    response = app.get(f"/login-callback?code=fake-code&state={nonce.id}")
     redirected_url = response.headers["location"]
     assert url_contains_param("error_type", "FranceConnect", redirected_url)
     assert url_contains_param(

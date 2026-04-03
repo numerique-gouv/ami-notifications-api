@@ -14,29 +14,29 @@ def url_contains_param(param_name: str, param_value: str, url: str) -> bool:
     return f"{param_name}={url_encoded_value}" in url
 
 
-def login(django_app, user: User) -> None:
+def login(app, user: User) -> None:
     jwt_token = create_jwt_token(user_id=str(user.id), jti=uuid.uuid4().hex)
-    django_app.set_cookie(settings.AUTH_COOKIE_JWT_NAME, f"Bearer {jwt_token}")
+    app.set_cookie(settings.AUTH_COOKIE_JWT_NAME, f"Bearer {jwt_token}")
 
 
 def assert_query_fails_without_auth(
-    django_app,
+    app,
     tested_url: str,
     method: str = "get",
 ) -> None:
-    getattr(django_app, method)(tested_url, status=401)
+    getattr(app, method)(tested_url, status=401)
 
-    django_app.set_cookie(settings.AUTH_COOKIE_JWT_NAME, "Bearer bad-value")
-    getattr(django_app, method)(tested_url, status=401)
+    app.set_cookie(settings.AUTH_COOKIE_JWT_NAME, "Bearer bad-value")
+    getattr(app, method)(tested_url, status=401)
 
     user = User.objects.create(fc_hash="foo")
-    login(django_app, user)
+    login(app, user)
     token = decode_jwt_token(
-        django_app.cookies[settings.AUTH_COOKIE_JWT_NAME].split(" ")[1].replace('"', "")
+        app.cookies[settings.AUTH_COOKIE_JWT_NAME].split(" ")[1].replace('"', "")
     )
     assert token
     RevokedAuthToken.objects.create(jti=token["jti"])
-    getattr(django_app, method)(tested_url, status=401)
+    getattr(app, method)(tested_url, status=401)
 
 
 async def get_from_stream(communicator: WebsocketCommunicator, count: int) -> list[dict]:

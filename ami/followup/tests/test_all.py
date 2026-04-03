@@ -17,9 +17,9 @@ from ami.user.models import User
 def test_get_follow_up_inventories(
     user: User,
     monkeypatch: pytest.MonkeyPatch,
-    django_app,
+    app,
 ) -> None:
-    login(django_app, user)
+    login(app, user)
 
     psl_inventory = FollowUpInventory(
         status=FollowUpInventoryStatus.SUCCESS,
@@ -57,7 +57,7 @@ def test_get_follow_up_inventories(
     psl_data_mock = mock.Mock(return_value=psl_inventory)
     monkeypatch.setattr("ami.followup.api_views.get_notifications_inventory", psl_data_mock)
 
-    response = django_app.get("/data/follow-up/inventories", status=200)
+    response = app.get("/data/follow-up/inventories", status=200)
     assert response.json == {
         "notifications": {
             "status": "success",
@@ -92,5 +92,5 @@ def test_get_follow_up_inventories(
 
 
 @pytest.mark.django_db
-def test_get_follow_up_inventories_without_auth(django_app) -> None:
-    assert_query_fails_without_auth(django_app, "/data/follow-up/inventories")
+def test_get_follow_up_inventories_without_auth(app) -> None:
+    assert_query_fails_without_auth(app, "/data/follow-up/inventories")

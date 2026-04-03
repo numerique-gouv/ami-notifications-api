@@ -12,7 +12,7 @@ from ami.tests.utils import url_contains_param
 @pytest.mark.django_db
 def test_login_callback_address(
     settings,
-    django_app,
+    app,
     httpx_mock: HTTPXMock,
     monkeypatch: pytest.MonkeyPatch,
     userinfo: dict[str, Any],
@@ -69,7 +69,7 @@ def test_login_callback_address(
         json=fake_quotient_data,
     )
 
-    response = django_app.get(f"/login-callback?code=fake-code&state={nonce.id}")
+    response = app.get(f"/login-callback?code=fake-code&state={nonce.id}")
 
     assert response.status_code == 302
     redirected_url = response.headers["location"]
@@ -96,7 +96,7 @@ def test_login_callback_address(
         json=fake_quotient_data,
     )
 
-    response = django_app.get(f"/login-callback?code=fake-code&state={nonce.id}")
+    response = app.get(f"/login-callback?code=fake-code&state={nonce.id}")
 
     assert response.status_code == 302
     redirected_url = response.headers["location"]
@@ -111,7 +111,7 @@ def test_login_callback_address(
 @pytest.mark.django_db
 def test_login_callback_address_no_data(
     settings,
-    django_app,
+    app,
     httpx_mock: HTTPXMock,
     monkeypatch: pytest.MonkeyPatch,
     userinfo: dict[str, Any],
@@ -168,7 +168,7 @@ def test_login_callback_address_no_data(
             json=fake_quotient_data,
         )
 
-        response = django_app.get(f"/login-callback?code=fake-code&state={nonce.id}")
+        response = app.get(f"/login-callback?code=fake-code&state={nonce.id}")
 
         assert response.status_code == 302
         redirected_url = response.headers["location"]

@@ -3,22 +3,22 @@ from typing import Any
 from pytest_httpx import HTTPXMock
 
 
-def test_ping(django_app) -> None:
-    response = django_app.head("/ping")
+def test_ping(app) -> None:
+    response = app.head("/ping")
     assert response.status_code == 200
 
 
 def test_get_sector_identifier_url(
     settings,
-    django_app,
+    app,
 ) -> None:
     settings.SECTOR_IDENTIFIER_URL = "http://example.com\nhttp://foobar.com"
-    response = django_app.get("/sector_identifier_url")
+    response = app.get("/sector_identifier_url")
     assert response.status_code == 200
     assert response.json == ["http://example.com", "http://foobar.com"]
 
 
-def test_recipient_fc_hash(django_app) -> None:
+def test_recipient_fc_hash(app) -> None:
     params = {
         "given_name": "Angela Claire Louise",
         "family_name": "DUBOIS",
@@ -27,33 +27,33 @@ def test_recipient_fc_hash(django_app) -> None:
         "birthplace": "75107",
         "birthcountry": "99100",
     }
-    response = django_app.get("/dev-utils/recipient-fc-hash", params=params)
+    response = app.get("/dev-utils/recipient-fc-hash", params=params)
     assert response.text == "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060"
 
     params.pop("birthplace")
-    response = django_app.get("/dev-utils/recipient-fc-hash", params=params)
+    response = app.get("/dev-utils/recipient-fc-hash", params=params)
     assert response.text == "7e74df2cbebae761eccedbc24b7fe589bb83137f7808a2930031f52c73d75efe"
 
 
-def test_review_apps(django_app, httpx_mock: HTTPXMock) -> None:
+def test_review_apps(app, httpx_mock: HTTPXMock) -> None:
     httpx_mock.add_response(
         method="GET",
         url="https://api.github.com/repos/numerique-gouv/ami-notifications-api/pulls?state=open&sort=created&per_page=100",
         json=TRUNCATED_GITHUB_JSON_RESPONSE,
     )
-    response = django_app.get("/dev-utils/review-apps")
+    response = app.get("/dev-utils/review-apps")
     json_data = response.json
     assert len(json_data) == 2  # Staging + the PR returned in GITHUB_JSON_RESPONSE
     assert json_data[0]["title"] == "Staging"
 
 
-def test_review_apps_github_failure(django_app, httpx_mock: HTTPXMock) -> None:
+def test_review_apps_github_failure(app, httpx_mock: HTTPXMock) -> None:
     httpx_mock.add_response(
         method="GET",
         url="https://api.github.com/repos/numerique-gouv/ami-notifications-api/pulls?state=open&sort=created&per_page=100",
         status_code=400,
     )
-    response = django_app.get("/dev-utils/review-apps")
+    response = app.get("/dev-utils/review-apps")
     json_data = response.json
     assert len(json_data) == 1  # Only the hardcoded Staging
     assert json_data[0]["title"] == "Staging"

@@ -9,15 +9,15 @@ from ami.user.models import User
 @pytest.mark.django_db
 def test_logout(
     settings,
-    django_app,
+    app,
     user: User,
 ) -> None:
-    login(django_app, user)
+    login(app, user)
     token = decode_jwt_token(
-        django_app.cookies[settings.AUTH_COOKIE_JWT_NAME].split(" ")[1].replace('"', "")
+        app.cookies[settings.AUTH_COOKIE_JWT_NAME].split(" ")[1].replace('"', "")
     )
     assert token
-    response = django_app.post("/logout")
+    response = app.post("/logout")
     assert response.status_code == 201
     assert not response.client.cookies.get(settings.AUTH_COOKIE_JWT_NAME)
     assert RevokedAuthToken.objects.count() == 1
@@ -27,6 +27,6 @@ def test_logout(
 
 @pytest.mark.django_db
 def test_logout_without_auth(
-    django_app,
+    app,
 ) -> None:
-    assert_query_fails_without_auth(django_app, "/logout", method="post")
+    assert_query_fails_without_auth(app, "/logout", method="post")
