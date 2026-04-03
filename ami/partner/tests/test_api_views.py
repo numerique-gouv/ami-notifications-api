@@ -9,16 +9,16 @@ from ami.user.models import User
 
 @pytest.mark.django_db
 def test_generate_partner_url_when_no_query_parameters(
-    django_app,
+    app,
     user: User,
     settings,
 ) -> None:
     # Given
-    login(django_app, user)
+    login(app, user)
     settings.PARTNERS_PSL_OTV_REQUEST_URL = "fake-public-otv-url"
 
     # When
-    response = django_app.get(
+    response = app.get(
         "/api/v1/partner/otv/url?preferred_username=&email=&address_city=&address_postcode=&address_name="
     )
 
@@ -29,16 +29,16 @@ def test_generate_partner_url_when_no_query_parameters(
 
 @pytest.mark.django_db
 def test_generate_partner_url_when_url_has_no_template(
-    django_app,
+    app,
     user: User,
     settings,
 ) -> None:
     # Given
-    login(django_app, user)
+    login(app, user)
     settings.PARTNERS_PSL_OTV_REQUEST_URL = "fake-public-otv-url"
 
     # When
-    response = django_app.get(
+    response = app.get(
         "/api/v1/partner/otv/url?preferred_username=Delaforêt&email=wossewodda-37228@yopmail.com&address_city=Paris&address_postcode=75007&address_name=20 Avenue de Ségur"
     )
 
@@ -49,12 +49,12 @@ def test_generate_partner_url_when_url_has_no_template(
 
 @pytest.mark.django_db
 def test_generate_partner_url_when_url_has_template(
-    django_app,
+    app,
     user: User,
     monkeypatch: pytest.MonkeyPatch,
     settings,
 ) -> None:
-    login(django_app, user)
+    login(app, user)
 
     url = "/api/v1/partner/otv/url?preferred_username=Delaforêt&email=wossewodda-37228@yopmail.com&address_city=Paris&address_postcode=75007&address_name=20 Avenue de Ségur"
 
@@ -72,7 +72,7 @@ def test_generate_partner_url_when_url_has_template(
     settings.PARTNERS_PSL_OTV_JWE_PUBLIC_KEY = ""
 
     # When
-    response = django_app.get(url)
+    response = app.get(url)
 
     # Then
     assert response.status_code == HTTP_200_OK
@@ -83,7 +83,7 @@ def test_generate_partner_url_when_url_has_template(
     settings.PARTNERS_PSL_OTV_JWE_PUBLIC_KEY = ""
 
     # When
-    response = django_app.get(url)
+    response = app.get(url)
 
     # Then
     assert response.status_code == HTTP_200_OK
@@ -94,7 +94,7 @@ def test_generate_partner_url_when_url_has_template(
     settings.PARTNERS_PSL_OTV_JWE_PUBLIC_KEY = "foo"
 
     # When
-    response = django_app.get(url)
+    response = app.get(url)
 
     # Then
     assert response.status_code == HTTP_200_OK
@@ -105,7 +105,7 @@ def test_generate_partner_url_when_url_has_template(
     settings.PARTNERS_PSL_OTV_JWE_PUBLIC_KEY = "bar"
 
     # When
-    response = django_app.get(url)
+    response = app.get(url)
 
     # Then
     assert response.status_code == HTTP_200_OK
@@ -114,14 +114,14 @@ def test_generate_partner_url_when_url_has_template(
 
 @pytest.mark.django_db
 def test_generate_partner_url_without_auth(
-    django_app,
+    app,
 ) -> None:
-    assert_query_fails_without_auth(django_app, "/api/v1/partner/otv/url")
+    assert_query_fails_without_auth(app, "/api/v1/partner/otv/url")
 
 
 @pytest.mark.django_db
 def test_get_partner_public_key(
-    django_app,
+    app,
     monkeypatch: pytest.MonkeyPatch,
     settings,
 ) -> None:
@@ -129,7 +129,7 @@ def test_get_partner_public_key(
     settings.PARTNERS_PSL_OTV_JWT_CERT_PUBLIC_KEY = "fake-public-otv-public-key"
 
     # When
-    response = django_app.get("/api/v1/partner/otv/public_key")
+    response = app.get("/api/v1/partner/otv/public_key")
 
     # Then
     assert response.status_code == HTTP_200_OK

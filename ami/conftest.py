@@ -10,12 +10,19 @@ from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.serialization import pkcs12
 from cryptography.x509.oid import NameOID
+from django.core.cache import cache
 from webpush.vapid import VAPID
 
 from ami.asgi import application
 from ami.notification.models import Notification
 from ami.user.models import Registration, User
 from ami.user.utils import build_fc_hash
+
+
+@pytest.fixture
+def app(django_app):
+    cache.clear()
+    yield django_app
 
 
 @pytest.fixture(scope="session", autouse=True)

@@ -12,22 +12,22 @@ from ami.user.models import User
 
 @pytest.mark.django_db
 def test_get_notifications_should_return_empty_list_by_default(
-    django_app,
+    app,
     user: User,
 ) -> None:
-    login(django_app, user)
+    login(app, user)
 
-    response = django_app.get("/api/v1/users/notifications")
+    response = app.get("/api/v1/users/notifications")
     assert response.status_code == HTTP_200_OK
     assert response.json == []
 
 
 @pytest.mark.django_db
 def test_get_notifications(
-    django_app,
+    app,
     notification: Notification,
 ) -> None:
-    login(django_app, notification.user)
+    login(app, notification.user)
 
     notification.item_external_url = "http://external-url"
     notification.internal_url = "internal-url"
@@ -48,7 +48,7 @@ def test_get_notifications(
     )
 
     # test user notification list
-    response = django_app.get("/api/v1/users/notifications")
+    response = app.get("/api/v1/users/notifications")
     assert response.status_code == HTTP_200_OK
     assert len(response.json) == 2
     assert response.json[0] == {
@@ -88,17 +88,17 @@ def test_get_notifications(
 
 
 @pytest.mark.django_db
-def test_get_notifications_without_auth(django_app) -> None:
-    assert_query_fails_without_auth(django_app, "/api/v1/users/notifications")
+def test_get_notifications_without_auth(app) -> None:
+    assert_query_fails_without_auth(app, "/api/v1/users/notifications")
 
 
 @pytest.mark.django_db
 def test_read_notification(
-    django_app,
+    app,
     notification: Notification,
     websocket: WebsocketCommunicator,
 ) -> None:
-    login(django_app, notification.user)
+    login(app, notification.user)
 
     # notification for another user, can not be patched by test user
     other_user = User.objects.create(fc_hash="fc-hash")
@@ -109,29 +109,29 @@ def test_read_notification(
     )
 
     # invalid, no payload
-    response = django_app.patch(f"/api/v1/users/notification/{uuid.uuid4()}/read", status=400)
+    response = app.patch(f"/api/v1/users/notification/{uuid.uuid4()}/read", status=400)
     assert response.status_code == HTTP_400_BAD_REQUEST
 
     # unknown notification
-    response = django_app.patch(
+    response = app.patch(
         f"/api/v1/users/notification/{uuid.uuid4()}/read", {"read": "True"}, status=404
     )
     assert response.status_code == HTTP_404_NOT_FOUND
 
     # can not patch notification of another user
-    response = django_app.patch(
+    response = app.patch(
         f"/api/v1/users/notification/{other_notification.id}/read", {"read": True}, status=404
     )
     assert response.status_code == HTTP_404_NOT_FOUND
 
     # invalid, read is required
-    response = django_app.patch(
+    response = app.patch(
         f"/api/v1/users/notification/{notification.id}/read", {"read": None}, status=400
     )
     assert response.status_code == HTTP_400_BAD_REQUEST
     assert response.json == {"read": ["Must be a valid boolean."]}
 
-    response = django_app.patch(
+    response = app.patch(
         f"/api/v1/users/notification/{notification.id}/read",
         {"read": True},
     )
@@ -160,7 +160,7 @@ def test_read_notification(
         "event": "updated",
     }
 
-    response = django_app.patch(
+    response = app.patch(
         f"/api/v1/users/notification/{notification.id}/read",
         {"read": False},
     )
@@ -170,20 +170,20 @@ def test_read_notification(
 
 @pytest.mark.django_db
 def test_read_notification_without_auth(
-    django_app,
+    app,
     notification: Notification,
 ) -> None:
     assert_query_fails_without_auth(
-        django_app,
+        app,
         f"/api/v1/users/notification/{notification.id}/read",
         method="patch",
     )
 
 
 async def test_notification_key(
-    django_app,
+    app,
     settings,
 ) -> None:
     settings.VAPID_APPLICATION_SERVER_KEY = "some-application-key"
-    response = django_app.get("/notification-key", status=200)
+    response = app.get("/notification-key", status=200)
     assert response.text == "some-application-key"

@@ -9,8 +9,8 @@ from ami.user.models import Registration, User
 
 
 @pytest.mark.django_db
-def test_register_webpush(django_app, user: User, webpushsubscription: dict[str, Any]) -> None:
-    login(django_app, user)
+def test_register_webpush(app, user: User, webpushsubscription: dict[str, Any]) -> None:
+    login(app, user)
 
     assert Registration.objects.count() == 0
 
@@ -18,7 +18,7 @@ def test_register_webpush(django_app, user: User, webpushsubscription: dict[str,
     register_data = {
         "subscription": webpushsubscription,
     }
-    django_app.post_json("/api/v1/users/registrations", register_data, status=201)
+    app.post_json("/api/v1/users/registrations", register_data, status=201)
 
     assert Registration.objects.count() == 1
     registration = Registration.objects.get()
@@ -28,7 +28,7 @@ def test_register_webpush(django_app, user: User, webpushsubscription: dict[str,
     register_data = {
         "subscription": webpushsubscription,
     }
-    django_app.post_json("/api/v1/users/registrations", register_data, status=200)
+    app.post_json("/api/v1/users/registrations", register_data, status=200)
 
     assert Registration.objects.count() == 1
     registration = Registration.objects.get()
@@ -36,8 +36,8 @@ def test_register_webpush(django_app, user: User, webpushsubscription: dict[str,
 
 
 @pytest.mark.django_db
-def test_register_mobile_app(django_app, user: User, mobileAppSubscription: dict[str, Any]) -> None:
-    login(django_app, user)
+def test_register_mobile_app(app, user: User, mobileAppSubscription: dict[str, Any]) -> None:
+    login(app, user)
 
     assert Registration.objects.count() == 0
 
@@ -45,7 +45,7 @@ def test_register_mobile_app(django_app, user: User, mobileAppSubscription: dict
     register_data = {
         "subscription": mobileAppSubscription,
     }
-    django_app.post_json("/api/v1/users/registrations", register_data, status=201)
+    app.post_json("/api/v1/users/registrations", register_data, status=201)
 
     assert Registration.objects.count() == 1
     registration = Registration.objects.get()
@@ -53,7 +53,7 @@ def test_register_mobile_app(django_app, user: User, mobileAppSubscription: dict
 
     # Second registration, we're expecting a 200 OK, not 201 CREATED.
     register_data = {"subscription": mobileAppSubscription}
-    django_app.post_json("/api/v1/users/registrations", register_data, status=200)
+    app.post_json("/api/v1/users/registrations", register_data, status=200)
 
     assert Registration.objects.count() == 1
     registration = Registration.objects.get()
@@ -61,8 +61,8 @@ def test_register_mobile_app(django_app, user: User, mobileAppSubscription: dict
 
 
 @pytest.mark.django_db
-def test_register_fields(django_app, user: User, webpushsubscription: dict[str, Any]) -> None:
-    login(django_app, user)
+def test_register_fields(app, user: User, webpushsubscription: dict[str, Any]) -> None:
+    login(app, user)
 
     # id, created_at and updated_at are ignored
     registration_date: datetime.datetime = datetime.datetime.now(
@@ -75,7 +75,7 @@ def test_register_fields(django_app, user: User, webpushsubscription: dict[str, 
         "created_at": registration_date.isoformat(),
         "updated_at": registration_date.isoformat(),
     }
-    django_app.post_json("/api/v1/users/registrations", registration_data, status=201)
+    app.post_json("/api/v1/users/registrations", registration_data, status=201)
 
     assert Registration.objects.count() == 1
     registration = Registration.objects.get()
@@ -85,43 +85,43 @@ def test_register_fields(django_app, user: User, webpushsubscription: dict[str, 
 
 
 @pytest.mark.django_db
-def test_register_without_auth(django_app) -> None:
-    assert_query_fails_without_auth(django_app, "/api/v1/users/registrations", method="post")
+def test_register_without_auth(app) -> None:
+    assert_query_fails_without_auth(app, "/api/v1/users/registrations", method="post")
 
 
 @pytest.mark.django_db
-def test_unregister(django_app, webpush_registration: Registration) -> None:
-    login(django_app, webpush_registration.user)
+def test_unregister(app, webpush_registration: Registration) -> None:
+    login(app, webpush_registration.user)
 
     assert Registration.objects.count() == 1
 
-    django_app.delete(f"/api/v1/users/registrations/{webpush_registration.id}", status=204)
+    app.delete(f"/api/v1/users/registrations/{webpush_registration.id}", status=204)
 
     assert Registration.objects.count() == 0
 
     # registration does not exist
-    django_app.delete(f"/api/v1/users/registrations/{webpush_registration.id}", status=404)
+    app.delete(f"/api/v1/users/registrations/{webpush_registration.id}", status=404)
 
     # registration of another user than current user
     other_user = User.objects.create(fc_hash="fc-hash")
     Registration.objects.create(user_id=other_user.id)  # Other registration
-    django_app.delete(f"/api/v1/users/registrations/{webpush_registration.id}", status=404)
+    app.delete(f"/api/v1/users/registrations/{webpush_registration.id}", status=404)
 
 
 @pytest.mark.django_db
-def test_unregister_without_auth(django_app, webpush_registration: Registration) -> None:
+def test_unregister_without_auth(app, webpush_registration: Registration) -> None:
     assert_query_fails_without_auth(
-        django_app,
+        app,
         f"/api/v1/users/registrations/{webpush_registration.id}",
         method="delete",
     )
 
 
 @pytest.mark.django_db
-def test_list_registrations(django_app, webpush_registration: Registration) -> None:
-    login(django_app, webpush_registration.user)
+def test_list_registrations(app, webpush_registration: Registration) -> None:
+    login(app, webpush_registration.user)
 
-    response = django_app.get("/api/v1/users/registrations", status=200)
+    response = app.get("/api/v1/users/registrations", status=200)
     registrations = response.json
     assert len(registrations) == 1
     assert set(response.json[0].keys()) == {"id", "user_id", "subscription", "created_at"}
@@ -134,5 +134,5 @@ def test_list_registrations(django_app, webpush_registration: Registration) -> N
 
 
 @pytest.mark.django_db
-def test_list_registrations_without_auth(django_app) -> None:
-    assert_query_fails_without_auth(django_app, "/api/v1/users/registrations")
+def test_list_registrations_without_auth(app) -> None:
+    assert_query_fails_without_auth(app, "/api/v1/users/registrations")

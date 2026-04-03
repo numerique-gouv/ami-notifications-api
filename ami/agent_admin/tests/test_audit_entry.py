@@ -5,7 +5,7 @@ from ami.agent_admin.utils import audit
 
 
 @pytest.mark.django_db
-def test_audit(django_app, agent: Agent, admin_agent: Agent):
+def test_audit(app, agent: Agent, admin_agent: Agent):
     ae1 = audit(
         "access:role-added",
         admin_agent,

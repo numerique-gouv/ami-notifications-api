@@ -10,10 +10,10 @@ from ami.agent_admin.utils import audit
 
 @pytest.mark.django_db
 def test_manage_access_for_form_initialization(
-    django_app, agent: Agent, support_agent: Agent, notifications_agent: Agent, admin_agent: Agent
+    app, agent: Agent, support_agent: Agent, notifications_agent: Agent, admin_agent: Agent
 ) -> None:
-    django_app.set_user(admin_agent.user)
-    response = django_app.get("/agent-admin/manage/access/")
+    app.set_user(admin_agent.user)
+    response = app.get("/agent-admin/manage/access/")
     assert [PyQuery(td).text() for td in response.pyquery("#with-role td:nth-child(1)")] == [
         "AGENT\nAdmin",
         "AGENT\nNotifications",
@@ -38,10 +38,10 @@ def test_manage_access_for_form_initialization(
 
 @pytest.mark.django_db
 def test_manage_access_for_form_submission(
-    django_app, agent: Agent, support_agent: Agent, notifications_agent: Agent, admin_agent: Agent
+    app, agent: Agent, support_agent: Agent, notifications_agent: Agent, admin_agent: Agent
 ) -> None:
-    django_app.set_user(admin_agent.user)
-    response = django_app.get("/agent-admin/manage/access/")
+    app.set_user(admin_agent.user)
+    response = app.get("/agent-admin/manage/access/")
     response.forms["agent-forms"]["authorized-1-role"].value = ""
     response.forms["agent-forms"]["authorized-2-role"].value = "notifications"
     response.forms["agent-forms"]["unauthorized-0-role"].value = "support"
@@ -115,9 +115,9 @@ def test_manage_access_for_form_submission(
 
 
 @pytest.mark.django_db
-def test_manage_access_for_logs(django_app, agent: Agent, admin_agent: Agent) -> None:
-    django_app.set_user(admin_agent.user)
-    response = django_app.get("/agent-admin/manage/access/")
+def test_manage_access_for_logs(app, agent: Agent, admin_agent: Agent) -> None:
+    app.set_user(admin_agent.user)
+    response = app.get("/agent-admin/manage/access/")
     assert [PyQuery(tr).text() for tr in response.pyquery("#table-activity tr")] == [
         "Agent concerné\nRôle attribué\nDate",
     ]
@@ -149,7 +149,7 @@ def test_manage_access_for_logs(django_app, agent: Agent, admin_agent: Agent) ->
     )
     audit("unknown:unknown", admin_agent, {})  # ignored, bad action_type and action_code
 
-    response = django_app.get("/agent-admin/manage/access/")
+    response = app.get("/agent-admin/manage/access/")
     ae1_date = date_format(ae1.created_at, "d/m/Y\nà H\\Hi")
     ae2_date = date_format(ae2.created_at, "d/m/Y\nà H\\Hi")
     ae3_date = date_format(ae3.created_at, "d/m/Y\nà H\\Hi")
@@ -162,5 +162,5 @@ def test_manage_access_for_logs(django_app, agent: Agent, admin_agent: Agent) ->
 
 
 @pytest.mark.django_db
-def test_manage_access_without_agent_admin_auth(django_app) -> None:
-    assert_query_fails_without_agent_admin_auth(django_app, "/agent-admin/manage/access/")
+def test_manage_access_without_agent_admin_auth(app) -> None:
+    assert_query_fails_without_agent_admin_auth(app, "/agent-admin/manage/access/")
