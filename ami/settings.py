@@ -258,6 +258,7 @@ FC_TOKEN_ENDPOINT = "/api/v2/token"
 FC_JWKS_ENDPOINT = "/api/v2/jwks"
 FC_USERINFO_ENDPOINT = "/api/v2/userinfo"
 FC_AUTHORIZATION_ENDPOINT = "/api/v2/authorize"
+FC_LOGOUT_CALLBACK_ENDPOINT = "/api/v2/client/logout-callback"
 
 SECTOR_IDENTIFIER_URL = CONFIG.get("SECTOR_IDENTIFIER_URL", "")
 
