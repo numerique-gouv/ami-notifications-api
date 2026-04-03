@@ -9,7 +9,7 @@ from ami.tests.utils import url_contains_param
 
 @pytest.mark.django_db
 def test_login_callback_token_query_failure(
-    django_app,
+    app,
     httpx_mock: HTTPXMock,
 ) -> None:
     NONCE = "some random nonce"
@@ -28,7 +28,7 @@ def test_login_callback_token_query_failure(
         status_code=401,
     )
 
-    response = django_app.get(f"/login-callback?code=fake-code&state={nonce.id}")
+    response = app.get(f"/login-callback?code=fake-code&state={nonce.id}")
 
     assert response.status_code == 302
     redirected_url = response.headers["location"]
@@ -41,7 +41,7 @@ def test_login_callback_token_query_failure(
 @pytest.mark.django_db
 def test_login_callback_userinfo_query_failure(
     settings,
-    django_app,
+    app,
     httpx_mock: HTTPXMock,
     monkeypatch: pytest.MonkeyPatch,
     decoded_id_token: dict[str, Any],
@@ -77,7 +77,7 @@ def test_login_callback_userinfo_query_failure(
         status_code=500,
     )
 
-    response = django_app.get(f"/login-callback?code=fake-code&state={nonce.id}")
+    response = app.get(f"/login-callback?code=fake-code&state={nonce.id}")
 
     assert response.status_code == 302
     redirected_url = response.headers["location"]
@@ -90,7 +90,7 @@ def test_login_callback_userinfo_query_failure(
 @pytest.mark.django_db
 def test_login_callback_address_query_failure_500(
     settings,
-    django_app,
+    app,
     httpx_mock: HTTPXMock,
     monkeypatch: pytest.MonkeyPatch,
     userinfo: dict[str, Any],
@@ -137,7 +137,7 @@ def test_login_callback_address_query_failure_500(
         status_code=500,
     )
 
-    response = django_app.get(f"/login-callback?code=fake-code&state={nonce.id}")
+    response = app.get(f"/login-callback?code=fake-code&state={nonce.id}")
 
     assert response.status_code == 302
     redirected_url = response.headers["location"]
@@ -168,7 +168,7 @@ def test_login_callback_address_query_failure_500(
 @pytest.mark.django_db
 def test_login_callback_address_query_failure_400(
     settings,
-    django_app,
+    app,
     httpx_mock: HTTPXMock,
     monkeypatch: pytest.MonkeyPatch,
     userinfo: dict[str, Any],
@@ -216,7 +216,7 @@ def test_login_callback_address_query_failure_400(
         json={"foo": "bar"},
     )
 
-    response = django_app.get(f"/login-callback?code=fake-code&state={nonce.id}")
+    response = app.get(f"/login-callback?code=fake-code&state={nonce.id}")
 
     assert response.status_code == 302
     redirected_url = response.headers["location"]
@@ -245,9 +245,9 @@ def test_login_callback_address_query_failure_400(
 
 
 def test_login_callback_fc_error(
-    django_app,
+    app,
 ) -> None:
-    response = django_app.get(
+    response = app.get(
         "/login-callback?error=access_denied&error_description=User+auth+aborted&state=some-state"
     )
 
@@ -260,13 +260,13 @@ def test_login_callback_fc_error(
 
 
 def test_login_callback_error(
-    django_app,
+    app,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     def fake_retry(*args):
         raise Exception()
 
     monkeypatch.setattr("ami.authentication.views.retry_fc_later", fake_retry)
-    response = django_app.get("/login-callback?state=some-state")
+    response = app.get("/login-callback?state=some-state")
     redirected_url = response.headers["location"]
     assert redirected_url == "https://localhost:5173/#/technical-error"

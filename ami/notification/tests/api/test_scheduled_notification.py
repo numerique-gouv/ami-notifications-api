@@ -10,8 +10,8 @@ from ami.user.models import User
 
 
 @pytest.mark.django_db
-def test_create_scheduled_notification(django_app, user: User) -> None:
-    login(django_app, user)
+def test_create_scheduled_notification(app, user: User) -> None:
+    login(app, user)
 
     scheduled_notification_date: datetime.datetime = now() + datetime.timedelta(days=1)
     scheduled_notification_data = {
@@ -22,7 +22,7 @@ def test_create_scheduled_notification(django_app, user: User) -> None:
         "internal_url": "internal-url",
         "scheduled_at": scheduled_notification_date.isoformat(),
     }
-    response = django_app.post(
+    response = app.post(
         "/api/v1/users/scheduled-notifications", scheduled_notification_data, status=201
     )
 
@@ -40,8 +40,8 @@ def test_create_scheduled_notification(django_app, user: User) -> None:
 
 
 @pytest.mark.django_db
-def test_create_scheduled_notification_known_reference(django_app, user: User) -> None:
-    login(django_app, user)
+def test_create_scheduled_notification_known_reference(app, user: User) -> None:
+    login(app, user)
 
     scheduled_notification = ScheduledNotification.objects.create(
         user_id=user.id,
@@ -62,7 +62,7 @@ def test_create_scheduled_notification_known_reference(django_app, user: User) -
         "internal_url": "internal-url-updated",
         "scheduled_at": scheduled_notification_date.isoformat(),
     }
-    response = django_app.post(
+    response = app.post(
         "/api/v1/users/scheduled-notifications", scheduled_notification_data, status=200
     )
     assert ScheduledNotification.objects.count() == 1
@@ -89,7 +89,7 @@ def test_create_scheduled_notification_known_reference(django_app, user: User) -
         "reference": "reference",
         "scheduled_at": scheduled_notification_date2.isoformat(),
     }
-    response = django_app.post(
+    response = app.post(
         "/api/v1/users/scheduled-notifications", scheduled_notification_data, status=200
     )
     assert ScheduledNotification.objects.count() == 1
@@ -123,7 +123,7 @@ def test_create_scheduled_notification_known_reference(django_app, user: User) -
         "reference": "other-reference",
         "scheduled_at": scheduled_notification_date.isoformat(),
     }
-    response = django_app.post(
+    response = app.post(
         "/api/v1/users/scheduled-notifications", scheduled_notification_data, status=201
     )
     all_scheduled_notifications = ScheduledNotification.objects.all()
@@ -141,11 +141,11 @@ def test_create_scheduled_notification_known_reference(django_app, user: User) -
 
 
 @pytest.mark.django_db
-def test_create_scheduled_notification_test_fields(django_app, user: User) -> None:
-    login(django_app, user)
+def test_create_scheduled_notification_test_fields(app, user: User) -> None:
+    login(app, user)
 
     scheduled_notification_data: dict[str, str] = {}
-    response = django_app.post(
+    response = app.post(
         "/api/v1/users/scheduled-notifications", scheduled_notification_data, status=400
     )
     assert response.json == {
@@ -164,7 +164,7 @@ def test_create_scheduled_notification_test_fields(django_app, user: User) -> No
         "internal_url": "",
         "reference": "",
     }
-    response = django_app.post(
+    response = app.post(
         "/api/v1/users/scheduled-notifications", scheduled_notification_data, status=400
     )
     assert response.json == {
@@ -190,7 +190,7 @@ def test_create_scheduled_notification_test_fields(django_app, user: User) -> No
         "user_id": str(uuid.uuid4()),
         "sent_at": scheduled_notification_date.isoformat(),
     }
-    response = django_app.post(
+    response = app.post(
         "/api/v1/users/scheduled-notifications", scheduled_notification_data, status=201
     )
 
@@ -204,15 +204,13 @@ def test_create_scheduled_notification_test_fields(django_app, user: User) -> No
 
 
 @pytest.mark.django_db
-def test_create_scheduled_notification_without_auth(django_app) -> None:
-    assert_query_fails_without_auth(
-        django_app, "/api/v1/users/scheduled-notifications", method="post"
-    )
+def test_create_scheduled_notification_without_auth(app) -> None:
+    assert_query_fails_without_auth(app, "/api/v1/users/scheduled-notifications", method="post")
 
 
 @pytest.mark.django_db
-def test_delete_scheduled_notification(django_app, user: User) -> None:
-    login(django_app, user)
+def test_delete_scheduled_notification(app, user: User) -> None:
+    login(app, user)
 
     ScheduledNotification.objects.create(
         user_id=user.id,
@@ -223,34 +221,30 @@ def test_delete_scheduled_notification(django_app, user: User) -> None:
         scheduled_at=now(),
     )
 
-    django_app.delete(
-        "/api/v1/users/scheduled-notifications", {"reference": "reference"}, status=204
-    )
+    app.delete("/api/v1/users/scheduled-notifications", {"reference": "reference"}, status=204)
     assert ScheduledNotification.objects.count() == 0
 
 
 @pytest.mark.django_db
-def test_delete_scheduled_notification_reference_does_not_exist(django_app, user: User) -> None:
-    login(django_app, user)
+def test_delete_scheduled_notification_reference_does_not_exist(app, user: User) -> None:
+    login(app, user)
 
-    django_app.delete("/api/v1/users/scheduled-notifications", {"reference": ""}, status=400)
+    app.delete("/api/v1/users/scheduled-notifications", {"reference": ""}, status=400)
 
-    django_app.delete(
-        "/api/v1/users/scheduled-notifications", {"reference": "reference"}, status=404
-    )
+    app.delete("/api/v1/users/scheduled-notifications", {"reference": "reference"}, status=404)
 
 
 @pytest.mark.django_db
-def test_delete_scheduled_notification_params(django_app, user: User) -> None:
-    login(django_app, user)
+def test_delete_scheduled_notification_params(app, user: User) -> None:
+    login(app, user)
 
-    response = django_app.delete("/api/v1/users/scheduled-notifications", status=400)
+    response = app.delete("/api/v1/users/scheduled-notifications", status=400)
     assert response.json == {"reference": ["Ce champ est obligatoire."]}
 
 
 @pytest.mark.django_db
-def test_delete_scheduled_notification_alread_sent(django_app, user: User) -> None:
-    login(django_app, user)
+def test_delete_scheduled_notification_alread_sent(app, user: User) -> None:
+    login(app, user)
 
     ScheduledNotification.objects.create(
         user_id=user.id,
@@ -262,14 +256,10 @@ def test_delete_scheduled_notification_alread_sent(django_app, user: User) -> No
         sent_at=now(),
     )
 
-    django_app.delete(
-        "/api/v1/users/scheduled-notifications", {"reference": "reference"}, status=204
-    )
+    app.delete("/api/v1/users/scheduled-notifications", {"reference": "reference"}, status=204)
     assert ScheduledNotification.objects.count() == 1
 
 
 @pytest.mark.django_db
-def test_delete_scheduled_notification_without_auth(django_app) -> None:
-    assert_query_fails_without_auth(
-        django_app, "/api/v1/users/scheduled-notifications", method="delete"
-    )
+def test_delete_scheduled_notification_without_auth(app) -> None:
+    assert_query_fails_without_auth(app, "/api/v1/users/scheduled-notifications", method="delete")

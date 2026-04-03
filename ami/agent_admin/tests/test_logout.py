@@ -4,9 +4,9 @@ from ami.agent.models import Agent
 
 
 @pytest.mark.django_db
-def test_logout(settings, django_app, admin_agent: Agent) -> None:
-    django_app.set_user(admin_agent.user)
-    response = django_app.get("/agent-admin/")
+def test_logout(settings, app, admin_agent: Agent) -> None:
+    app.set_user(admin_agent.user)
+    response = app.get("/agent-admin/")
     assert "/agent-admin/oidc/logout/" in response
     response = response.forms["logout-form"].submit()
     redirected_url = response.headers["location"]
@@ -14,6 +14,6 @@ def test_logout(settings, django_app, admin_agent: Agent) -> None:
 
 
 @pytest.mark.django_db
-def test_logout_on_login_page(settings, django_app) -> None:
-    response = django_app.get("/agent-admin/login/")
+def test_logout_on_login_page(settings, app) -> None:
+    response = app.get("/agent-admin/login/")
     assert "/agent-admin/oidc/logout/" not in response

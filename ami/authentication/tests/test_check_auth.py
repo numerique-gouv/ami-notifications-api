@@ -9,28 +9,28 @@ from ami.user.models import User
 
 @pytest.mark.django_db
 def test_check_auth(
-    django_app,
+    app,
     user: User,
 ) -> None:
-    login(django_app, user)
-    response = django_app.get("/check-auth")
+    login(app, user)
+    response = app.get("/check-auth")
     assert response.status_code == 200
     assert response.json == {"authenticated": True}
 
 
 @pytest.mark.django_db
 def test_check_auth_with_headers(
-    django_app,
+    app,
     user: User,
 ) -> None:
     jwt_token = create_jwt_token(user_id=str(user.id), jti=uuid.uuid4().hex)
-    response = django_app.get("/check-auth", headers={"Authorization": f"Bearer {jwt_token}"})
+    response = app.get("/check-auth", headers={"Authorization": f"Bearer {jwt_token}"})
     assert response.status_code == 200
     assert response.json == {"authenticated": True}
 
 
 @pytest.mark.django_db
 def test_check_auth_without_auth(
-    django_app,
+    app,
 ) -> None:
-    assert_query_fails_without_auth(django_app, "/check-auth")
+    assert_query_fails_without_auth(app, "/check-auth")

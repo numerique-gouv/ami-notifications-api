@@ -7,12 +7,12 @@ from ami.tests.utils import url_contains_param
 @pytest.mark.django_db
 def test_login_france_connect(
     settings,
-    django_app,
+    app,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     FAKE_NONCE = "some-random-nonce"
     monkeypatch.setattr("ami.authentication.views.generate_nonce", lambda: FAKE_NONCE)
-    response = django_app.get("/login-france-connect")
+    response = app.get("/login-france-connect")
     redirected_url = response.headers["location"]
     assert Nonce.objects.count() == 1
     nonce = Nonce.objects.get()
@@ -43,13 +43,13 @@ def test_login_france_connect(
 
 
 def test_login_france_connect_error(
-    django_app,
+    app,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     def fake_nonce():
         raise Exception()
 
     monkeypatch.setattr("ami.authentication.views.generate_nonce", fake_nonce)
-    response = django_app.get("/login-france-connect")
+    response = app.get("/login-france-connect")
     redirected_url = response.headers["location"]
     assert redirected_url == "https://localhost:5173/#/technical-error"
