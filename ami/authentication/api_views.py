@@ -19,4 +19,5 @@ def logout(request):
         RevokedAuthToken.objects.create(jti=request.ami_payload["jti"])
     response = Response({}, status=201)
     response.delete_cookie(settings.AUTH_COOKIE_JWT_NAME)
+    response.delete_cookie(settings.USERINFO_COOKIE_JWT_NAME)
     return response

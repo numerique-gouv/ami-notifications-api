@@ -17,6 +17,7 @@ def url_contains_param(param_name: str, param_value: str, url: str) -> bool:
 def login(django_app, user: User) -> None:
     jwt_token = create_jwt_token(user_id=str(user.id), jti=uuid.uuid4().hex)
     django_app.set_cookie(settings.AUTH_COOKIE_JWT_NAME, f"Bearer {jwt_token}")
+    django_app.set_cookie(settings.USERINFO_COOKIE_JWT_NAME, "fake userinfo jwt token")
 
 
 def assert_query_fails_without_auth(

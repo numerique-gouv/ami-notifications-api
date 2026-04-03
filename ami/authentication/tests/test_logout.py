@@ -20,6 +20,7 @@ def test_logout(
     response = django_app.post("/logout")
     assert response.status_code == 201
     assert not response.client.cookies.get(settings.AUTH_COOKIE_JWT_NAME)
+    assert not response.client.cookies.get(settings.USERINFO_COOKIE_JWT_NAME)
     assert RevokedAuthToken.objects.count() == 1
     revoked_auth_token = RevokedAuthToken.objects.get()
     assert revoked_auth_token.jti == token["jti"]
