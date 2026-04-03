@@ -20,6 +20,7 @@ from ami.utils.httpx import URL
 
 
 def test_get_school_holidays_data(
+    app,
     httpx_mock: HTTPXMock,
 ) -> None:
     fake_holidays_data = [
@@ -154,6 +155,8 @@ def test_get_school_holidays_data(
 
 
 def test_get_school_holidays_data_emoji(
+    nocache,
+    app,
     httpx_mock: HTTPXMock,
 ) -> None:
     def mock_data(description: str):
@@ -203,6 +206,7 @@ def test_get_school_holidays_data_emoji(
 
 
 def test_get_school_holidays_data_error(
+    app,
     httpx_mock: HTTPXMock,
 ) -> None:
     httpx_mock.add_response(status_code=500)
@@ -212,6 +216,7 @@ def test_get_school_holidays_data_error(
 
 
 def test_get_school_holidays_catalog(
+    app,
     httpx_mock: HTTPXMock,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -258,6 +263,7 @@ def test_get_school_holidays_catalog(
 
 
 def test_get_school_holidays_catalog_error(
+    app,
     httpx_mock: HTTPXMock,
 ) -> None:
     httpx_mock.add_response(status_code=500)

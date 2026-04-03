@@ -37,6 +37,7 @@ def get_school_holidays_data(
             "order_by": "start_date",
             "timezone": "Europe/Paris",
         },
+        cache_duration=600,
     )
     if response.status_code != 200:
         raise SchoolHolidaysError(status_code=response.status_code)
