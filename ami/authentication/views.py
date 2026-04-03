@@ -138,6 +138,14 @@ async def login_callback(request):
                 httponly=True,
                 samesite="None",
             )
+            response.set_cookie(
+                key=settings.USERINFO_COOKIE_JWT_NAME,
+                value=userinfo_result["user_data"],
+                max_age=365 * 10 * 24 * 3600,
+                secure=True,
+                httponly=True,
+                samesite="None",
+            )
             return response
 
     except FCError as e:
