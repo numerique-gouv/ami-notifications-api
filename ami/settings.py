@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     "django.forms",
     "sass_processor",
     "ami.authentication",
+    "ami.fi",
     "ami.notification",
     "ami.user",
     "ami.agenda",
