@@ -94,6 +94,11 @@ def test_login_callback(
     assert token
     assert token["jti"] is not None
 
+    assert (
+        response.client.cookies[settings.USERINFO_COOKIE_JWT_NAME].value
+        == '"fake userinfo jwt token"'
+    )
+
     assert Nonce.objects.count() == 0
 
     assert User.objects.count() == 1
