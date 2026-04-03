@@ -25,6 +25,15 @@ def app(django_app):
     yield django_app
 
 
+@pytest.fixture
+def nocache(settings):
+    settings.CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.dummy.DummyCache",
+        }
+    }
+
+
 @pytest.fixture(scope="session", autouse=True)
 def otv_cert_keys_for_encryption() -> Dict[str, str]:
     private_key = rsa.generate_private_key(
