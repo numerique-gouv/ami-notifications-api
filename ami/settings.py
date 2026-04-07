@@ -264,6 +264,9 @@ SECTOR_IDENTIFIER_URL = CONFIG.get("SECTOR_IDENTIFIER_URL", "")
 
 # AMI-FI authentication
 USERINFO_COOKIE_JWT_NAME = "ami-fi-userinfo"
+FI_HASH_SALT = CONFIG["FI_HASH_SALT"]
+assert FI_HASH_SALT, "set a random FI_HASH_SALT in your .env.local file"
+FI_SESSION_AGE = CONFIG.get("FI_SESSION_AGE", 5 * 60)
 
 # ProConnect authentication
 OIDC_RP_SIGN_ALGO = "RS256"
