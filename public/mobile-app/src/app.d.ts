@@ -11,6 +11,7 @@ declare global {
   interface Window {
     _paq?: any[];
     NativeBridge?: any;
+    NativeURLs?: string[];
   }
 }
 

@@ -24,6 +24,7 @@ describe('+layout.svelte', () => {
   afterEach(() => {
     vi.resetAllMocks();
     delete window.NativeBridge;
+    delete window.NativeURLs;
   });
 
   describe('whitelisting', () => {
@@ -74,6 +75,50 @@ describe('+layout.svelte', () => {
       await waitFor(() => {
         expect(spy).not.toHaveBeenCalledWith('/#/forbidden');
       });
+    });
+  });
+
+  describe('cancelling navigation to pages promoted in mobile apps', () => {
+    test('should cancel navigation if the URL is in window.NativeURLs', () => {
+      // Given
+      let beforeNavigateCallback: (navigation: any) => void;
+      vi.spyOn(navigationMethods, 'beforeNavigate').mockImplementation((cb) => {
+        beforeNavigateCallback = cb;
+      });
+      window.NativeURLs = ['/#/settings'];
+      render(Layout, { children: (() => {}) as any });
+
+      const cancel = vi.fn();
+
+      // When
+      beforeNavigateCallback!({
+        to: { url: new URL('https://localhost:5173/#/settings') },
+        cancel,
+      });
+
+      // Then
+      expect(cancel).toHaveBeenCalled();
+    });
+
+    test('should not cancel navigation if the URL is not in window.NativeURLs', () => {
+      // Given
+      let beforeNavigateCallback: (navigation: any) => void;
+      vi.spyOn(navigationMethods, 'beforeNavigate').mockImplementation((cb) => {
+        beforeNavigateCallback = cb;
+      });
+      window.NativeURLs = ['/#/settings'];
+      render(Layout, { children: (() => {}) as any });
+
+      const cancel = vi.fn();
+
+      // When
+      beforeNavigateCallback!({
+        to: { url: new URL('https://localhost:5173/#/other') },
+        cancel,
+      });
+
+      // Then
+      expect(cancel).not.toHaveBeenCalled();
     });
   });
 });
