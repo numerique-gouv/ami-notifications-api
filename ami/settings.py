@@ -263,6 +263,9 @@ FC_LOGOUT_CALLBACK_ENDPOINT = "/api/v2/client/logout-callback"
 SECTOR_IDENTIFIER_URL = CONFIG.get("SECTOR_IDENTIFIER_URL", "")
 
 # AMI-FI authentication
+FI_CLIENT_ID = CONFIG["FI_CLIENT_ID"]
+FI_CLIENT_SECRET = CONFIG["FI_CLIENT_SECRET"]
+FI_ISS = PUBLIC_API_URL + "/api/v1/fi/"
 USERINFO_COOKIE_JWT_NAME = "ami-fi-userinfo"
 FI_HASH_SALT = CONFIG["FI_HASH_SALT"]
 assert FI_HASH_SALT, "set a random FI_HASH_SALT in your .env.local file"
