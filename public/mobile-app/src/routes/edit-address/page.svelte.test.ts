@@ -247,7 +247,8 @@ describe('/+page.svelte', () => {
       expect(spy2).toHaveBeenCalledWith(
         'Information bien enregistrée !',
         'success',
-        true
+        3000,
+        false
       );
     });
 
