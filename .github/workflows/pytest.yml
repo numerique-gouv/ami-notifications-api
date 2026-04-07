@@ -75,6 +75,7 @@ jobs:
         env:
           PUBLIC_FC_PROXY: https://ami-fc-proxy-dev.osc-fr1.scalingo.io/
           DJANGO_SECRET_KEY: test-secret-key-ci
+          FI_HASH_SALT: fi-insecure-salt
         run: make test-ci
 
   mobile-app-tests:
