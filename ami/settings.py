@@ -266,10 +266,13 @@ FC_LOGOUT_CALLBACK_ENDPOINT = "/api/v2/client/logout-callback"
 SECTOR_IDENTIFIER_URL = CONFIG.get("SECTOR_IDENTIFIER_URL", "")
 
 # AMI-FI authentication
+FI_CLIENT_ID = CONFIG["FI_CLIENT_ID"]
+FI_CLIENT_SECRET = CONFIG["FI_CLIENT_SECRET"]
 USERINFO_COOKIE_JWT_NAME = "ami-fi-userinfo"
 FI_HASH_SALT = CONFIG["FI_HASH_SALT"]
 assert FI_HASH_SALT, "set a random FI_HASH_SALT in your .env.local file"
 FI_SESSION_AGE = CONFIG.get("FI_SESSION_AGE", 5 * 60)
+FI_REDIRECT_URI = PUBLIC_FC_BASE_URL + "/api/v2/oidc-callback"
 
 # ProConnect authentication
 OIDC_RP_SIGN_ALGO = "RS256"
