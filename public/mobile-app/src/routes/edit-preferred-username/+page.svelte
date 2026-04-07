@@ -38,7 +38,7 @@
     if (userStore.connected) {
       userStore.connected.setPreferredUsername(inputValue);
       console.log('Updated the preferred username to', inputValue);
-      toastStore.addToast('Information bien enregistrée !', 'success', true);
+      toastStore.addToast('Information bien enregistrée !', 'success', 3000, false);
     }
     await navigateToPreviousPage();
   };

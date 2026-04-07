@@ -14,7 +14,7 @@
 
   const enableNotificationsFunc = async () => {
     await enableNotificationsAndUpdateLocalStorage();
-    toastStore.addToast('Les notifications ont été activées', 'success');
+    toastStore.addToast('Les notifications ont été activées', 'success', 3000, false);
     goto('/');
   };
 

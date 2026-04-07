@@ -207,7 +207,12 @@ describe('/+page.svelte', () => {
 
     // Then
     await waitFor(async () => {
-      expect(spy).toHaveBeenCalledWith('Vous avez bien été déconnecté(e)', 'neutral');
+      expect(spy).toHaveBeenCalledWith(
+        'Vous avez bien été déconnecté(e)',
+        'success',
+        3000,
+        false
+      );
     });
   });
 

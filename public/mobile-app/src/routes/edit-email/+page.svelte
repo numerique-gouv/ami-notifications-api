@@ -37,7 +37,7 @@
     if (userStore.connected && inputValue) {
       userStore.connected.setEmail(inputValue);
       console.log('Updated the email to', inputValue);
-      toastStore.addToast('Information bien enregistrée !', 'success', true);
+      toastStore.addToast('Information bien enregistrée !', 'success', 3000, false);
     }
     await navigateToPreviousPage();
   };
