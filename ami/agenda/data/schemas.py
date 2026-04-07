@@ -19,6 +19,12 @@ class SchoolHoliday:
         "Vacances d'Hiver": "❄️",
         "Vacances de Printemps": "🌸",
         "Vacances d'Été": "☀️",
+        "Vacances de Carnaval": "🎭",
+        "Vacances de Pâques": "🐣",
+        "Vacances d'Été austral": "🏝️",
+        "Vacances d'Hiver austral": "🏖️",
+        "Début des Vacances d'Hiver austral": "🏖️",
+        "Début des Vacances d'Été": "☀️",
     }
 
     @classmethod

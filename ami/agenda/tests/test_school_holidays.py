@@ -192,11 +192,31 @@ def test_get_school_holidays_data_emoji(
     result = get_school_holidays_data(datetime.date(2025, 11, 12), datetime.date(2026, 9, 15))
     assert result[0].emoji == "🌸"
 
-    mock_data("Pont de l'Ascension")
-    result = get_school_holidays_data(datetime.date(2025, 11, 12), datetime.date(2026, 9, 15))
-    assert result[0].emoji == ""
-
     mock_data("Vacances d'Été")
+    result = get_school_holidays_data(datetime.date(2025, 11, 12), datetime.date(2026, 9, 15))
+    assert result[0].emoji == "☀️"
+
+    mock_data("Vacances de Carnaval")
+    result = get_school_holidays_data(datetime.date(2025, 11, 12), datetime.date(2026, 9, 15))
+    assert result[0].emoji == "🎭"
+
+    mock_data("Vacances de Pâques")
+    result = get_school_holidays_data(datetime.date(2025, 11, 12), datetime.date(2026, 9, 15))
+    assert result[0].emoji == "🐣"
+
+    mock_data("Vacances d'Été austral")
+    result = get_school_holidays_data(datetime.date(2025, 11, 12), datetime.date(2026, 9, 15))
+    assert result[0].emoji == "🏝️"
+
+    mock_data("Vacances d'Hiver austral")
+    result = get_school_holidays_data(datetime.date(2025, 11, 12), datetime.date(2026, 9, 15))
+    assert result[0].emoji == "🏖️"
+
+    mock_data("Début des Vacances d'Hiver austral")
+    result = get_school_holidays_data(datetime.date(2025, 11, 12), datetime.date(2026, 9, 15))
+    assert result[0].emoji == "🏖️"
+
+    mock_data("Début des Vacances d'Été")
     result = get_school_holidays_data(datetime.date(2025, 11, 12), datetime.date(2026, 9, 15))
     assert result[0].emoji == "☀️"
 
