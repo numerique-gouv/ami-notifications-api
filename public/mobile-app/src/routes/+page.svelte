@@ -51,7 +51,7 @@
         }
       }
       if (page.url.searchParams.has('is_logged_out')) {
-        toastStore.addToast('Vous avez bien été déconnecté(e)', 'neutral');
+        toastStore.addToast('Vous avez bien été déconnecté(e)', 'success', 3000, false);
         goto('/');
       }
     } catch (error) {

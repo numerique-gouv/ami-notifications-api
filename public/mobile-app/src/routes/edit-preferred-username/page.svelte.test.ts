@@ -105,7 +105,8 @@ describe('/+page.svelte', () => {
       expect(spy).toHaveBeenCalledWith(
         'Information bien enregistrée !',
         'success',
-        true
+        3000,
+        false
       );
     });
   });
@@ -140,7 +141,8 @@ describe('/+page.svelte', () => {
       expect(spy).toHaveBeenCalledWith(
         'Information bien enregistrée !',
         'success',
-        true
+        3000,
+        false
       );
     });
   });

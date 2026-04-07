@@ -21,7 +21,7 @@
   const copyIdentificationCode = () => {
     if (userFcHash) {
       navigator.clipboard.writeText(userFcHash);
-      toastStore.addToast("Code d'identification copié !", 'neutral');
+      toastStore.addToast("Code d'identification copié !", 'success', 3000, false);
     }
   };
 </script>

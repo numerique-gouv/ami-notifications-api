@@ -115,7 +115,7 @@
       // rebuild agenda to create new scheduled notifications
       userStore.connected.clearScheduledNotificationCreatedKey();
       await buildAgenda();
-      toastStore.addToast('Information bien enregistrée !', 'success', true);
+      toastStore.addToast('Information bien enregistrée !', 'success', 3000, false);
     }
     console.log(submittedAddress);
     await navigateToPreviousPage();

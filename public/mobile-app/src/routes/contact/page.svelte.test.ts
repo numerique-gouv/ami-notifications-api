@@ -67,7 +67,12 @@ describe('/+page.svelte', () => {
 
     // Then
     await waitFor(async () => {
-      expect(spy).toHaveBeenCalledWith("Code d'identification copié !", 'neutral');
+      expect(spy).toHaveBeenCalledWith(
+        "Code d'identification copié !",
+        'success',
+        3000,
+        false
+      );
     });
   });
 
