@@ -1,6 +1,9 @@
+import datetime
 import uuid
 
+from django.conf import settings
 from django.db import models
+from django.utils.timezone import now
 
 
 class FISession(models.Model):
@@ -14,3 +17,7 @@ class FISession(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    @property
+    def is_expired(self):
+        return self.created_at < now() - datetime.timedelta(seconds=settings.FI_SESSION_AGE)
