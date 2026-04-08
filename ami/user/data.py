@@ -86,9 +86,14 @@ def log_address_error_to_sentry(response):
     extra = {
         "status_code": response.status_code,
         "response_text": response.text,
+        "headers": response.headers,
     }
     try:
         extra["response_json"] = response.json()
     except json.JSONDecodeError:
+        pass
+    try:
+        extra["X-Request-Id"] = response.headers.get("X-Request-Id")
+    except ValueError:
         pass
     logger.error("Error for address from API Particuliers", extra=extra)
