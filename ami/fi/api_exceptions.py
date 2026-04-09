@@ -1,6 +1,12 @@
 from rest_framework.exceptions import APIException
 
 
+class MissingCookie(APIException):
+    status_code = 403
+    default_detail = "Cookie manquant"
+    default_code = "missing-cookie"
+
+
 class MissingAuthHeader(APIException):
     status_code = 403
     default_detail = "Header d'authentification manquant"
