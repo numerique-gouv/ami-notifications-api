@@ -28,7 +28,9 @@ describe('/+page.svelte', () => {
 
   test('should display date from url param', async () => {
     // Given
-    window.location.hash = '#/procedure?date=2025-12-05';
+    const { page } = await import('$app/state');
+    const mockSearchParams = new URLSearchParams('date=2025-12-05');
+    vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
 
     // When
     render(Page);
@@ -43,7 +45,9 @@ describe('/+page.svelte', () => {
 
   test('should display empty string if url param is empty', async () => {
     // Given
-    window.location.hash = '#/procedure?date=';
+    const { page } = await import('$app/state');
+    const mockSearchParams = new URLSearchParams('date=');
+    vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
 
     // When
     render(Page);
@@ -54,7 +58,9 @@ describe('/+page.svelte', () => {
 
   test('should display empty string if url param is an invalid date', async () => {
     // Given
-    window.location.hash = '#/procedure?date=coucou';
+    const { page } = await import('$app/state');
+    const mockSearchParams = new URLSearchParams('date=coucou');
+    vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
 
     // When
     render(Page);

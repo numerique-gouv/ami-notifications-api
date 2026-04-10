@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
+  import { page } from '$app/state';
   import { Address } from '$lib/address';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import { retrieveProcedureUrl } from '$lib/procedure';
@@ -50,9 +51,7 @@
 
     getProcedureUrl();
 
-    const hash = window.location.hash;
-    const url = new URL(hash.substring(1), window.location.origin);
-    const stringFromUrl = url.searchParams.get('date') || '';
+    const stringFromUrl = page.url.searchParams.get('date') || '';
     itemDate = '';
 
     if (stringFromUrl !== '') {
