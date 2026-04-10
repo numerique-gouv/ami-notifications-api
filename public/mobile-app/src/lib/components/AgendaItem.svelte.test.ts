@@ -21,6 +21,6 @@ describe('/AgendaItem.svelte', () => {
     const link = screen.getByTestId('agenda-item-link');
 
     // Then
-    expect(link.getAttribute('href')).toBe('/#/procedure?date=2025-12-05');
+    expect(link.getAttribute('href')).toBe('/procedure?date=2025-12-05');
   });
 });

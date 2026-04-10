@@ -54,7 +54,7 @@ def login_france_connect(request):
         return redirect(login_url)
     except Exception as e:
         logging.exception(e)
-        return redirect(f"{settings.PUBLIC_APP_URL}/#/technical-error")
+        return redirect(f"{settings.PUBLIC_APP_URL}/technical-error")
 
 
 @require_GET
@@ -146,4 +146,4 @@ async def login_callback(request):
         return retry_fc_later({"error_code": e.code})
     except Exception as e:
         logging.exception(e)
-        return redirect(f"{settings.PUBLIC_APP_URL}/#/technical-error")
+        return redirect(f"{settings.PUBLIC_APP_URL}/technical-error")

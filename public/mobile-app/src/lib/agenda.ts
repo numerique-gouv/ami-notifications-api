@@ -133,7 +133,7 @@ export class Item {
     otv: {
       label: 'Logement',
       icon: 'fr-icon-home-4-fill',
-      link: '/#/procedure',
+      link: '/procedure',
     },
     election: {
       label: 'Élections',

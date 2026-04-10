@@ -26,15 +26,15 @@
   });
 
   const goToEditPreferredUsername = async () => {
-    goto('/#/edit-preferred-username');
+    goto('/edit-preferred-username');
   };
 
   const goToEditEmail = async () => {
-    goto('/#/edit-email');
+    goto('/edit-email');
   };
 
   const goToEditAddress = async () => {
-    goto('/#/edit-address');
+    goto('/edit-address');
   };
 </script>
 

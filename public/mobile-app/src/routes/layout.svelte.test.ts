@@ -27,7 +27,7 @@ describe('+layout.svelte', () => {
   });
 
   describe('whitelisting', () => {
-    test('should redirect to /#/forbidden if the app is not whitelisted', async () => {
+    test('should redirect to /forbidden if the app is not whitelisted', async () => {
       // Given
       delete mockEnv.env.PUBLIC_WEBSITE_PUBLIC;
       const spy = vi
@@ -39,7 +39,7 @@ describe('+layout.svelte', () => {
 
       // Then
       await waitFor(() => {
-        expect(spy).toHaveBeenCalledWith('/#/forbidden');
+        expect(spy).toHaveBeenCalledWith('/forbidden');
       });
     });
 
@@ -55,7 +55,7 @@ describe('+layout.svelte', () => {
 
       // Then
       await waitFor(() => {
-        expect(spy).not.toHaveBeenCalledWith('/#/forbidden');
+        expect(spy).not.toHaveBeenCalledWith('/forbidden');
       });
     });
 
@@ -72,7 +72,7 @@ describe('+layout.svelte', () => {
 
       // Then
       await waitFor(() => {
-        expect(spy).not.toHaveBeenCalledWith('/#/forbidden');
+        expect(spy).not.toHaveBeenCalledWith('/forbidden');
       });
     });
   });

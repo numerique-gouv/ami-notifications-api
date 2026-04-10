@@ -269,4 +269,4 @@ def test_login_callback_error(
     monkeypatch.setattr("ami.authentication.views.retry_fc_later", fake_retry)
     response = django_app.get("/login-callback?state=some-state")
     redirected_url = response.headers["location"]
-    assert redirected_url == "https://localhost:5173/#/technical-error"
+    assert redirected_url == "https://localhost:5173/technical-error"

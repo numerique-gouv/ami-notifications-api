@@ -156,7 +156,7 @@ describe('/+page.svelte', () => {
     // Then
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenNthCalledWith(1, '/#/edit-preferred-username');
+      expect(spy).toHaveBeenNthCalledWith(1, '/edit-preferred-username');
     });
   });
 
@@ -174,7 +174,7 @@ describe('/+page.svelte', () => {
     // Then
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenNthCalledWith(1, '/#/edit-email');
+      expect(spy).toHaveBeenNthCalledWith(1, '/edit-email');
     });
   });
 
@@ -192,7 +192,7 @@ describe('/+page.svelte', () => {
     // Then
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenNthCalledWith(1, '/#/edit-address');
+      expect(spy).toHaveBeenNthCalledWith(1, '/edit-address');
     });
   });
 

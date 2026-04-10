@@ -10,7 +10,7 @@
   import { userStore } from '$lib/state/User.svelte';
   import { formatDate } from '$lib/utils';
 
-  let backUrl: string = '/#/profile';
+  let backUrl: string = '/profile';
   let addressFromUserStore: Address | undefined = $state();
   let timer: any;
   let inputValue: string = $state('');

@@ -25,7 +25,7 @@
     <li class="menu__item">
       <a
         class="menu__link {current.agenda ? 'highlight': ''}"
-        href="/#/agenda"
+        href="/agenda"
         aria-current="{current.agenda ? 'true': null}"
       >
         <img src="/remixicons/calendar-event-line.svg" alt="Icône de calendrier">
@@ -36,7 +36,7 @@
       <li class="menu__item">
         <a
           class="menu__link {current.requests ? 'highlight': ''}"
-          href="/#/requests"
+          href="/requests"
           aria-current="{current.requests ? 'true': null}"
         >
           <img src="/remixicons/vector.svg" alt="Icône de suivi">

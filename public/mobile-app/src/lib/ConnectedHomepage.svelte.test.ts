@@ -125,7 +125,7 @@ describe('/ConnectedHomepage.svelte', () => {
     // Then
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenNthCalledWith(1, '/#/profile');
+      expect(spy).toHaveBeenNthCalledWith(1, '/profile');
     });
   });
 
@@ -143,7 +143,7 @@ describe('/ConnectedHomepage.svelte', () => {
     // Then
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenNthCalledWith(1, '/#/settings');
+      expect(spy).toHaveBeenNthCalledWith(1, '/settings');
     });
   });
 
@@ -160,7 +160,7 @@ describe('/ConnectedHomepage.svelte', () => {
 
     // Then
     await waitFor(() => {
-      expect(spy).toHaveBeenCalledWith('/#/contact');
+      expect(spy).toHaveBeenCalledWith('/contact');
     });
   });
 

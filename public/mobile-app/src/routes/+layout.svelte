@@ -14,7 +14,7 @@
   onMount(async () => {
     if (env.PUBLIC_WEBSITE_PUBLIC === undefined && window.NativeBridge === undefined) {
       // The web app isn't opened to the public yet, and it's not being served in a native application.
-      goto('/#/forbidden');
+      goto('/forbidden');
     }
     await initDsfr();
 

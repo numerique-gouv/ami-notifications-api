@@ -7,7 +7,7 @@
   import { userStore } from '$lib/state/User.svelte';
   import { formatDate } from '$lib/utils';
 
-  let backUrl: string = '/#/profile';
+  let backUrl: string = '/profile';
   let inputValue: string = $state('');
   let email_origin: DataOrigin | undefined = $state();
   let email_last_update: Date | undefined = $state();

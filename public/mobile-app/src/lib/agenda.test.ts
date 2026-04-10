@@ -333,7 +333,7 @@ describe('/agenda.ts', () => {
         // Then
         expect(link1).equal('');
         expect(link2).equal('');
-        expect(link3).equal('/#/procedure');
+        expect(link3).equal('/procedure');
         expect(link4).equal('');
       });
     });

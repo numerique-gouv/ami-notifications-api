@@ -52,4 +52,4 @@ def test_login_france_connect_error(
     monkeypatch.setattr("ami.authentication.views.generate_nonce", fake_nonce)
     response = django_app.get("/login-france-connect")
     redirected_url = response.headers["location"]
-    assert redirected_url == "https://localhost:5173/#/technical-error"
+    assert redirected_url == "https://localhost:5173/technical-error"

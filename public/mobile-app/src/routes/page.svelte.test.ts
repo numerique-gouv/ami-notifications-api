@@ -62,7 +62,7 @@ describe('/+page.svelte', () => {
 
     // Then
     await waitFor(() => {
-      expect(spy).toHaveBeenCalledWith('/#/notifications-welcome-page');
+      expect(spy).toHaveBeenCalledWith('/notifications-welcome-page');
     });
   });
 
@@ -120,7 +120,7 @@ describe('/+page.svelte', () => {
       franceConnectLoginButton.click();
 
       // Then
-      expect(spy).toHaveBeenCalledWith('/#/network-error');
+      expect(spy).toHaveBeenCalledWith('/network-error');
     });
   });
 

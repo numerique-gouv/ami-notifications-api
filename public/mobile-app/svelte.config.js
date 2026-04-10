@@ -12,9 +12,6 @@ const config = {
       $routes: 'src/routes',
       $tests: 'tests',
     },
-    router: {
-      type: 'hash',
-    },
     adapter: adapter({
       pages: 'build',
       assets: 'build',
