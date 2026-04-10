@@ -10,6 +10,7 @@ import { callBAN } from '$lib/addressesFromBAN';
 import * as auth from '$lib/auth';
 import { franceConnectLogout, parseJwt } from '$lib/france-connect';
 import { emit } from '$lib/nativeEvents';
+import { Preferences } from '$lib/state/preferences';
 import { formatDate } from '$lib/utils';
 
 export type DataOrigin = 'user' | 'france-connect' | 'api-particulier' | 'cleared';
@@ -54,6 +55,7 @@ export type UserIdentity = {
   address?: AddressType;
   scheduledNotificationsCreatedKeys: string[];
   dataDetails: DataDetails;
+  preferences: Preferences;
 };
 
 export class UserStore {
@@ -126,6 +128,7 @@ export class User {
       scheduledNotificationsCreatedKeys:
         parsedIdentity?.scheduledNotificationsCreatedKeys || [],
       dataDetails: parsedIdentity?.dataDetails || {},
+      preferences: parsedIdentity?.preferences,
     };
     if (this._identity.address) {
       this._identity.address = Address.fromJSON(this._identity.address);
@@ -135,6 +138,9 @@ export class User {
       preferred_username: this._identity.dataDetails.preferred_username || {},
       email: this._identity.dataDetails.email || {},
     };
+    if (this._identity.preferences) {
+      this._identity.preferences = Preferences.fromJSON(this._identity.preferences);
+    }
   }
 
   get pivot() {
@@ -218,6 +224,11 @@ export class User {
     }
   }
 
+  setPreferences(preferences: Preferences) {
+    this._identity.preferences = preferences;
+    localStorage.setItem('user_identity', JSON.stringify(this.identity));
+  }
+
   formatBirthdate(birthdate: string) {
     return formatDate(birthdate);
   }
@@ -267,6 +278,9 @@ export class User {
     }
     if (!this._identity.dataDetails.email.origin) {
       this._identity.dataDetails.email.origin = 'france-connect';
+    }
+    if (!this._identity.preferences) {
+      this.setPreferences(Preferences.getDefault(this._identity.address));
     }
   }
 
