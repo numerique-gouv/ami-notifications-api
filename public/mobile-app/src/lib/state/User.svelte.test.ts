@@ -5,6 +5,7 @@ import * as addressesFromBANMethods from '$lib/addressesFromBAN';
 import { AddressFromBAN } from '$lib/addressesFromBAN';
 import * as authHelpers from '$lib/auth';
 import * as franceConnectHelpers from '$lib/france-connect';
+import { Preferences } from '$lib/state/preferences';
 import { User, userStore } from '$lib/state/User.svelte';
 import { mockUser, mockUserIdentity, mockUserInfo } from '$tests/utils';
 
@@ -155,6 +156,100 @@ describe('/lib/state/User.svelte.ts', () => {
         expect(globalThis.fetchSpy).toHaveBeenNthCalledWith(
           2,
           'https://tabular-api.data.gouv.fr/api/resources/3580bf65-1d11-4574-a2ca-903d64ad41bd/data/?page=1&page_size=20&COG__exact=99100'
+        );
+      });
+      test('should reconstruct a user identity from localstorage - without preferences and without address', async () => {
+        // Given
+        const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
+        newMockUserIdentity.address = undefined;
+        localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity));
+
+        // When
+        await userStore.login(mockUserInfo);
+
+        // Then
+        expect(userStore.connected?.identity?.preferences).toEqual({
+          _zones: ['Zone A', 'Zone B', 'Zone C', 'Corse'],
+          _addresses: [],
+        });
+        expect(userStore.connected?.identity?.preferences instanceof Preferences).toBe(
+          true
+        );
+      });
+      test('should reconstruct a user identity from localstorage - without preferences but with address', async () => {
+        // Given
+        const address = new Address(
+          'Orly',
+          '94, Val-de-Marne, Île-de-France',
+          '94054_0070_00023',
+          '23 Rue des Aubépines 94310 Orly',
+          '23 Rue des Aubépines',
+          '94310'
+        );
+        const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
+        newMockUserIdentity.address = address;
+        localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity));
+
+        // When
+        await userStore.login(mockUserInfo);
+
+        // Then
+        expect(userStore.connected?.identity?.preferences).toEqual({
+          _zones: ['Zone A', 'Zone B', 'Zone C', 'Corse'],
+          _addresses: [],
+        });
+        expect(userStore.connected?.identity?.preferences instanceof Preferences).toBe(
+          true
+        );
+      });
+      test('should reconstruct a user identity from localstorage - without preferences but with address out of hexagone', async () => {
+        // Given
+        const address = new Address(
+          'Saint-Denis',
+          '974, La Réunion',
+          '97411_1060_00002',
+          '2 Rue de Paris 97400 Saint-Denis',
+          '2 Rue de Paris',
+          '97400'
+        );
+        const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
+        newMockUserIdentity.address = address;
+        localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity));
+
+        // When
+        await userStore.login(mockUserInfo);
+
+        // Then
+        expect(userStore.connected?.identity?.preferences).toEqual({
+          _zones: ['Réunion'],
+          _addresses: [],
+        });
+        expect(userStore.connected?.identity?.preferences instanceof Preferences).toBe(
+          true
+        );
+      });
+      test('should reconstruct a user identity from localstorage - with preferences', async () => {
+        // Given
+        const address = new Address(
+          'Orly',
+          '94, Val-de-Marne, Île-de-France',
+          '94054_0070_00023',
+          '23 Rue des Aubépines 94310 Orly',
+          '23 Rue des Aubépines',
+          '94310'
+        );
+        const preferences = new Preferences(['Zone C', 'Réunion'], [address]);
+        const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
+        newMockUserIdentity.preferences = preferences;
+        localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity));
+
+        // When
+        await userStore.login(mockUserInfo);
+
+        // Then
+        expect(userStore.connected?.identity?.preferences).toEqual(preferences);
+        expect(userStore.connected?.identity?.preferences instanceof Preferences).toBe(
+          true
         );
       });
     });
@@ -530,6 +625,32 @@ describe('/lib/state/User.svelte.ts', () => {
         expect(
           userStore.connected?.identity?.dataDetails.address.lastUpdate
         ).not.toBeUndefined();
+      });
+    });
+
+    describe('setPreferences', () => {
+      test('should properly set preferences on the identity and save the identity to localStorage', async () => {
+        // Given
+        localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
+        const address = new Address(
+          'Orly',
+          '94, Val-de-Marne, Île-de-France',
+          '94054_0070_00023',
+          '23 Rue des Aubépines 94310 Orly',
+          '23 Rue des Aubépines',
+          '94310'
+        );
+        const preferences = new Preferences(['Zone C', 'Réunion'], [address]);
+
+        // When
+        await userStore.login(mockUserInfo);
+        expect(userStore.connected).not.toBeNull();
+        userStore.connected!.setPreferences(preferences);
+
+        // Then
+        expect(userStore.connected?.identity?.preferences).toEqual(preferences);
+        const parsed = JSON.parse(localStorage.getItem('user_identity') || '{}');
+        expect(parsed?.preferences).toEqual(preferences);
       });
     });
 
