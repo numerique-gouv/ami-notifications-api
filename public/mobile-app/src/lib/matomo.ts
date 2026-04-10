@@ -30,7 +30,7 @@ export function trackPageView(title?: string) {
   }
 
   window._paq = window._paq || [];
-  let path = window.location.hash ? window.location.hash.substr(1) : '/';
+  let path = window.location.pathname;
   if (!userStore.connected && path === '/') {
     path = '/login';
   }
