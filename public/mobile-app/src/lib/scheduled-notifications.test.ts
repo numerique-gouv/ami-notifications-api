@@ -11,6 +11,7 @@ describe('/scheduled-notifications', () => {
         content_body: 'body',
         content_icon: 'icon',
         reference: 'reference',
+        internal_url: '',
         scheduled_at: new Date(),
       };
 
@@ -31,6 +32,7 @@ describe('/scheduled-notifications', () => {
         content_body: 'body',
         content_icon: 'icon',
         reference: 'reference',
+        internal_url: '',
         scheduled_at: new Date(),
       };
 

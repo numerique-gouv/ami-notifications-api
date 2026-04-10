@@ -358,6 +358,7 @@ export class Agenda {
             "Demandez l'Opération Tranquillité Vacances afin de partir en vacances l’esprit (plus) tranquille.",
           content_icon: 'fr-icon-megaphone-line',
           reference: scheduledNotificationKey,
+          internal_url: '/#/procedure',
           scheduled_at: startDate,
         });
         userStore.connected.addScheduledNotificationCreatedKey(

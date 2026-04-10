@@ -5,6 +5,7 @@ export type ScheduledNotification = {
   content_body: string;
   content_icon: string;
   reference: string;
+  internal_url: string;
   scheduled_at: Date;
 };
 

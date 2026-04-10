@@ -878,6 +878,7 @@ describe('/agenda.ts', () => {
         content_icon: 'fr-icon-megaphone-line',
         content_title: 'Et si on veillait sur votre logement ? 👮',
         reference: 'ami-otv:d-3w:2026:holiday',
+        internal_url: '/#/procedure',
         scheduled_at: new Date('2026-01-23T23:00:00Z'),
       });
       expect(spy).toHaveBeenCalledWith({
@@ -886,6 +887,7 @@ describe('/agenda.ts', () => {
         content_icon: 'fr-icon-megaphone-line',
         content_title: 'Et si on veillait sur votre logement ? 👮',
         reference: 'ami-otv:d-3w:2026:summer-holiday',
+        internal_url: '/#/procedure',
         scheduled_at: new Date('2026-06-10T23:00:00Z'),
       });
     });
