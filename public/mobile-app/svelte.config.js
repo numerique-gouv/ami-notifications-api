@@ -13,9 +13,9 @@ const config = {
       $tests: 'tests',
     },
     adapter: adapter({
-      pages: 'build',
+      pages: '../../ami/templates/front',
       assets: 'build',
-      fallback: undefined,
+      fallback: '200.html',
       precompress: false,
       strict: true,
     }),

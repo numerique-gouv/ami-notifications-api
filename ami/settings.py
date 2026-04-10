@@ -118,7 +118,7 @@ WHITENOISE_ROOT = STATIC_ROOT
 
 STORAGES = {
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": "ami.utils.storage.AMIStorage",
     },
 }
 
@@ -138,7 +138,7 @@ production_loaders = [
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [STATIC_ROOT],
+        "DIRS": ["ami/templates"],
         "OPTIONS": {
             "context_processors": [
                 "django.template.context_processors.request",

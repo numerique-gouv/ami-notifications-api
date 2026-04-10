@@ -14,6 +14,7 @@ ssl-cert.pem
 ssl-key.pem
 static/
 !ami/*/static/
+ami/templates/front/
 
 # The private key file for Firebase Cloud Messaging
 *-adminsdk-*.json
