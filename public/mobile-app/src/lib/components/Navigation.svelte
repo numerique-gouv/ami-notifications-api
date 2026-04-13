@@ -10,7 +10,7 @@
   const requests_enabled = PUBLIC_FEATUREFLAG_REQUESTS_ENABLED === 'true';
 </script>
 
-<nav class="menu-footer" aria-label="Menu principal">
+<nav id="menu-footer" class="menu-footer" aria-label="Menu principal">
   <ul class="menu-list">
     <li class="menu__item">
       <a
