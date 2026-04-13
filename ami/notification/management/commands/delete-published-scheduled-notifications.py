@@ -7,7 +7,7 @@ from ami.notification.models import ScheduledNotification
 
 
 class Command(BaseCommand):
-    help = "Create scheduled notifications to be distributed automatically"
+    help = "Delete already sent scheduled notifications"
 
     def handle(self, *args, **kwargs):
         scheduled_notifications = ScheduledNotification.objects.filter(
