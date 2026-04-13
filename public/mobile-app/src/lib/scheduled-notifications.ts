@@ -13,8 +13,12 @@ export const createScheduledNotification = async (
   scheduledNotification: ScheduledNotification
 ): Promise<boolean> => {
   try {
+    const headers = {
+      'Content-Type': 'application/json',
+    };
     const response = await apiFetch(`/api/v1/users/scheduled-notifications`, {
       method: 'POST',
+      headers: headers,
       body: JSON.stringify(scheduledNotification),
       credentials: 'include',
     });
