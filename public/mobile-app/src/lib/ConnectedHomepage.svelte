@@ -72,8 +72,8 @@
     goto('/#/profile');
   };
 
-  const goToSettings = () => {
-    goto('/#/settings');
+  const goToPreferences = () => {
+    goto('/#/preferences');
   };
 
   const goToContact = () => {
@@ -116,17 +116,17 @@
       </button>
 
       <button
-        class="settings"
+        class="preferences"
         type="button"
-        onclick={goToSettings}
-        data-testid="settings-button"
+        onclick={goToPreferences}
+        data-testid="preferences-button"
       >
         <Icon
           className="fr-mr-2v"
           color="var(--text-active-blue-france)"
           href="/remixicons/settings.svg"
         />
-        Paramètres
+        Préférences
       </button>
 
       <button

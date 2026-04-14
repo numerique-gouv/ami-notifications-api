@@ -79,7 +79,7 @@ describe('/+page.svelte', () => {
 
     // Then
     expect(backButton).toBeInTheDocument();
-    expect(screen.getByText('Paramètres')).toBeInTheDocument();
+    expect(screen.getByText('Notifications')).toBeInTheDocument();
   });
 
   test('should navigate to previous page when user clicks on Close button', async () => {

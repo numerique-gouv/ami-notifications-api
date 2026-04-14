@@ -10,7 +10,7 @@
   import type { Registration } from '$lib/registration';
   import { userStore } from '$lib/state/User.svelte';
 
-  let backUrl: string = '/';
+  let backUrl: string = '/#/preferences';
   let registration: Registration | null = $state(null);
   let isChecked = $state(false);
 
@@ -55,10 +55,10 @@
   };
 </script>
 
-<div class="settings-page">
-  <NavWithBackButton title="Paramètres" {backUrl} />
+<div class="preferences-page">
+  <NavWithBackButton title="Notifications" {backUrl} />
 
-  <div class="settings-content-container">
+  <div class="preferences-content-container">
     <div class="fr-toggle">
       <input
         type="checkbox"
@@ -76,7 +76,7 @@
   </div>
 
   <button
-    class="fr-btn fr-btn--secondary fr-btn--lg save-settings-button"
+    class="fr-btn fr-btn--secondary fr-btn--lg save-preferences-button"
     type="button"
     onclick={navigateToPreviousPage}
     title="Retour à la page précédente"
@@ -88,8 +88,8 @@
 </div>
 
 <style>
-  .settings-page {
-    .settings-content-container {
+  .preferences-page {
+    .preferences-content-container {
       padding: 1rem;
 
       .fr-toggle {
@@ -111,7 +111,7 @@
       }
     }
 
-    .save-settings-button {
+    .save-preferences-button {
       position: fixed;
       bottom: 1rem;
       left: 50%;

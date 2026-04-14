@@ -129,7 +129,7 @@ describe('/ConnectedHomepage.svelte', () => {
     });
   });
 
-  test('should navigate to Settings page when user clicks on Paramétrer button', async () => {
+  test('should navigate to Préférences page when user clicks on Préférences button', async () => {
     // Given
     const spy = vi
       .spyOn(navigationMethods, 'goto')
@@ -137,13 +137,13 @@ describe('/ConnectedHomepage.svelte', () => {
     render(ConnectedHomepage);
 
     // When
-    const button = screen.getByTestId('settings-button');
+    const button = screen.getByTestId('preferences-button');
     await fireEvent.click(button);
 
     // Then
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenNthCalledWith(1, '/#/settings');
+      expect(spy).toHaveBeenNthCalledWith(1, '/#/preferences');
     });
   });
 
