@@ -675,15 +675,15 @@ describe('/agenda.ts', () => {
         expect(spyGetDescription).toHaveBeenCalledTimes(3);
         expect(spyGetDescription).toHaveBeenCalledWith(
           holiday1,
-          userStore.connected!.identity.address
+          userStore.connected?.identity.address
         );
         expect(spyGetDescription).toHaveBeenCalledWith(
           holiday2,
-          userStore.connected!.identity.address
+          userStore.connected?.identity.address
         );
         expect(spyGetDescription).toHaveBeenCalledWith(
           holiday3,
-          userStore.connected!.identity.address
+          userStore.connected?.identity.address
         );
 
         // Cleanup
@@ -754,7 +754,7 @@ describe('/agenda.ts', () => {
         expect(spyGetDescription).toHaveBeenCalledTimes(1);
         expect(spyGetDescription).toHaveBeenCalledWith(
           holiday1,
-          userStore.connected!.identity.address
+          userStore.connected?.identity.address
         );
 
         // Cleanup
