@@ -7,6 +7,7 @@ import {
 import type { Address as AddressType } from '$lib/address';
 import { Address } from '$lib/address';
 import { callBAN } from '$lib/addressesFromBAN';
+import type { CatalogItem } from '$lib/api-catalog';
 import * as auth from '$lib/auth';
 import { franceConnectLogout, parseJwt } from '$lib/france-connect';
 import { emit } from '$lib/nativeEvents';
@@ -227,6 +228,17 @@ export class User {
   setPreferences(preferences: Preferences) {
     this._identity.preferences = preferences;
     localStorage.setItem('user_identity', JSON.stringify(this.identity));
+  }
+
+  isSchoolHolidayConcernedByPreferences(holiday: CatalogItem): boolean {
+    return this._identity.preferences.isSchoolHolidayConcerned(holiday);
+  }
+
+  getSchoolHolidayDescriptionFromPreferences(holiday: CatalogItem): string {
+    return this._identity.preferences.getSchoolHolidayDescription(
+      holiday,
+      this._identity.address
+    );
   }
 
   formatBirthdate(birthdate: string) {

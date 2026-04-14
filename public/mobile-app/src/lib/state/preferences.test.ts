@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { Address } from '$lib/address';
+import type { CatalogItem } from '$lib/api-catalog';
 import { Preferences } from '$lib/state/preferences';
 
 describe('/preferences.ts', () => {
@@ -103,6 +104,269 @@ describe('/preferences.ts', () => {
         expect(preferences instanceof Preferences).toBe(true);
         expect(preferences.zones).toEqual(['Réunion']);
         expect(preferences.addresses).toEqual([]);
+      });
+    });
+
+    describe('isSchoolHolidayConcerned', () => {
+      test('should return true as holiday zones match user preferences', async () => {
+        // Given
+        const item = {
+          kind: 'holiday',
+          title: 'Holiday',
+          description: '',
+          date: null,
+          start_date: new Date('2026-02-06T23:00:00Z'),
+          end_date: new Date('2026-02-22T23:00:00Z'),
+          zones: ['Zone A', 'Zone B', 'Martinique'],
+          emoji: 'foo',
+        } as CatalogItem;
+        const preferences = new Preferences(['Zone A', 'Zone C'], []);
+
+        // When
+        const result = preferences.isSchoolHolidayConcerned(item);
+
+        // Then
+        expect(result).toEqual(true);
+      });
+      test('should return false as holiday zones do not match user preferences', async () => {
+        // Given
+        const item = {
+          kind: 'holiday',
+          title: 'Holiday',
+          description: '',
+          date: null,
+          start_date: new Date('2026-02-06T23:00:00Z'),
+          end_date: new Date('2026-02-22T23:00:00Z'),
+          zones: ['Zone A', 'Zone B', 'Martinique'],
+          emoji: 'foo',
+        } as CatalogItem;
+        const preferences = new Preferences(['Zone C', 'Corse'], []);
+
+        // When
+        const result = preferences.isSchoolHolidayConcerned(item);
+
+        // Then
+        expect(result).toEqual(false);
+      });
+      test('should return false as user preferences zones are empty', async () => {
+        // Given
+        const item = {
+          kind: 'holiday',
+          title: 'Holiday',
+          description: '',
+          date: null,
+          start_date: new Date('2026-02-06T23:00:00Z'),
+          end_date: new Date('2026-02-22T23:00:00Z'),
+          zones: ['Zone A', 'Zone B', 'Martinique'],
+          emoji: 'foo',
+        } as CatalogItem;
+        const preferences = new Preferences([], []);
+
+        // When
+        const result = preferences.isSchoolHolidayConcerned(item);
+
+        // Then
+        expect(result).toEqual(false);
+      });
+      test('should return false as holiday zones are empty', async () => {
+        // Given
+        const item = {
+          kind: 'holiday',
+          title: 'Holiday',
+          description: '',
+          date: null,
+          start_date: new Date('2026-02-06T23:00:00Z'),
+          end_date: new Date('2026-02-22T23:00:00Z'),
+          zones: [],
+          emoji: 'foo',
+        } as CatalogItem;
+        const preferences = new Preferences(['Zone C', 'Corse'], []);
+
+        // When
+        const result = preferences.isSchoolHolidayConcerned(item);
+
+        // Then
+        expect(result).toEqual(false);
+      });
+    });
+
+    describe('getSchoolHolidayDescription', () => {
+      test('should return "Zone A" as holiday zones match user preferences', async () => {
+        // Given
+        const item = {
+          kind: 'holiday',
+          title: 'Holiday',
+          description: '',
+          date: null,
+          start_date: new Date('2026-02-06T23:00:00Z'),
+          end_date: new Date('2026-02-22T23:00:00Z'),
+          zones: ['Zone A', 'Zone B', 'Martinique'],
+          emoji: 'foo',
+        } as CatalogItem;
+        const preferences = new Preferences(['Zone A', 'Zone C'], []);
+
+        // When
+        const result = preferences.getSchoolHolidayDescription(item, undefined);
+
+        // Then
+        expect(result).toEqual('Zone A');
+      });
+      test('should return "Périgueux (24)" instead of "Zone A" as holiday zones match user preferences - with city preferences', async () => {
+        // Given
+        const item = {
+          kind: 'holiday',
+          title: 'Holiday',
+          description: '',
+          date: null,
+          start_date: new Date('2026-02-06T23:00:00Z'),
+          end_date: new Date('2026-02-22T23:00:00Z'),
+          zones: ['Zone A', 'Zone B', 'Martinique'],
+          emoji: 'foo',
+        } as CatalogItem;
+        const address1 = new Address(
+          'Périgueux',
+          '',
+          '',
+          'Périgueux',
+          'Périgueux',
+          '24000'
+        );
+        const address2 = new Address(
+          'Bastia',
+          '2B, Haute-Corse, Corse',
+          '2B033',
+          'Bastia',
+          'Bastia',
+          '20200'
+        );
+        const preferences = new Preferences(['Zone A', 'Zone C'], [address1, address2]);
+
+        // When
+        const result = preferences.getSchoolHolidayDescription(item, undefined);
+
+        // Then
+        expect(result).toEqual('Périgueux (24)');
+      });
+      test('should return "Paris (75) 🏠, Zone A" instead of "Zone A, Zone C" as user has address in zone C', async () => {
+        // Given
+        const item = {
+          kind: 'holiday',
+          title: 'Holiday',
+          description: '',
+          date: null,
+          start_date: new Date('2026-02-06T23:00:00Z'),
+          end_date: new Date('2026-02-22T23:00:00Z'),
+          zones: ['Zone A', 'Zone C', 'Martinique'],
+          emoji: 'foo',
+        } as CatalogItem;
+        const preferences = new Preferences(['Zone A', 'Zone C'], []);
+        const userAddress = new Address('Paris', '', '', 'Paris', 'Paris', '75000');
+
+        // When
+        const result = preferences.getSchoolHolidayDescription(item, userAddress);
+
+        // Then
+        expect(result).toEqual('Paris (75) 🏠, Zone A');
+      });
+      test('should return "Paris (75) 🏠, Périgueux (24), Bastia (20), Zone B" instead of "Zone A, Zone B, Zone C" as user has address in zone C and Périgueux, Bastia in preferences', async () => {
+        // Given
+        const item = {
+          kind: 'holiday',
+          title: 'Holiday',
+          description: '',
+          date: null,
+          start_date: new Date('2026-02-06T23:00:00Z'),
+          end_date: new Date('2026-02-22T23:00:00Z'),
+          zones: ['Zone A', 'Zone B', 'Zone C', 'Corse', 'Martinique'],
+          emoji: 'foo',
+        } as CatalogItem;
+        const address1 = new Address(
+          'Périgueux',
+          '',
+          '',
+          'Périgueux',
+          'Périgueux',
+          '24000'
+        );
+        const address2 = new Address(
+          'Bastia',
+          '2B, Haute-Corse, Corse',
+          '2B033',
+          'Bastia',
+          'Bastia',
+          '20200'
+        );
+        const preferences = new Preferences(
+          ['Zone A', 'Zone B', 'Zone C', 'Corse'],
+          [address1, address2]
+        );
+        const userAddress = new Address('Paris', '', '', 'Paris', 'Paris', '75000');
+
+        // When
+        const result = preferences.getSchoolHolidayDescription(item, userAddress);
+
+        // Then
+        expect(result).toEqual('Paris (75) 🏠, Périgueux (24), Bastia (20), Zone B');
+      });
+      test('should return empty string as holiday zones do not match user preferences', async () => {
+        // Given
+        const item = {
+          kind: 'holiday',
+          title: 'Holiday',
+          description: '',
+          date: null,
+          start_date: new Date('2026-02-06T23:00:00Z'),
+          end_date: new Date('2026-02-22T23:00:00Z'),
+          zones: ['Zone A', 'Zone B', 'Martinique'],
+          emoji: 'foo',
+        } as CatalogItem;
+        const preferences = new Preferences(['Zone C', 'Corse'], []);
+
+        // When
+        const result = preferences.getSchoolHolidayDescription(item, undefined);
+
+        // Then
+        expect(result).toEqual('');
+      });
+      test('should return empty string as user preferences zones are empty', async () => {
+        // Given
+        const item = {
+          kind: 'holiday',
+          title: 'Holiday',
+          description: '',
+          date: null,
+          start_date: new Date('2026-02-06T23:00:00Z'),
+          end_date: new Date('2026-02-22T23:00:00Z'),
+          zones: ['Zone A', 'Zone B', 'Martinique'],
+          emoji: 'foo',
+        } as CatalogItem;
+        const preferences = new Preferences([], []);
+
+        // When
+        const result = preferences.getSchoolHolidayDescription(item, undefined);
+
+        // Then
+        expect(result).toEqual('');
+      });
+      test('should return empty string as holiday zones are empty', async () => {
+        // Given
+        const item = {
+          kind: 'holiday',
+          title: 'Holiday',
+          description: '',
+          date: null,
+          start_date: new Date('2026-02-06T23:00:00Z'),
+          end_date: new Date('2026-02-22T23:00:00Z'),
+          zones: [],
+          emoji: 'foo',
+        } as CatalogItem;
+        const preferences = new Preferences(['Zone C', 'Corse'], []);
+
+        // When
+        const result = preferences.getSchoolHolidayDescription(item, undefined);
+
+        // Then
+        expect(result).toEqual('');
       });
     });
   });
