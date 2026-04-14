@@ -230,26 +230,8 @@ export class Agenda {
     });
   }
 
-  private getSchoolHolidayItemDescription(holiday: CatalogItem): string | null {
-    const userZone = userStore.connected!.identity.address?.zone;
-    // XXX keep only Zones A, B, C for the moment
-    const holidayZones = ['Zone A', 'Zone B', 'Zone C'].filter((value) =>
-      holiday.zones.includes(value)
-    );
-    if (userZone !== undefined && holidayZones.includes(userZone)) {
-      const userZones = [
-        `${userStore.connected!.identity.address?.city} (${userStore.connected!.identity.address?.departement}) 🏠`,
-      ];
-      holidayZones.forEach((zone) => {
-        if (zone !== userZone) {
-          userZones.push(zone);
-        }
-      });
-      return userZones.join(', ');
-    } else if (holidayZones.length) {
-      return holidayZones.join(', ');
-    }
-    return null;
+  private getSchoolHolidayItemDescription(holiday: CatalogItem): string {
+    return userStore.connected!.getSchoolHolidayDescriptionFromPreferences(holiday);
   }
 
   private getSchoolHolidayItemCustom(holiday: CatalogItem): boolean {
@@ -273,12 +255,7 @@ export class Agenda {
     if (holiday.emoji) {
       title += ` ${holiday.emoji}`;
     }
-    if (
-      holiday.zones.length &&
-      !['Zone A', 'Zone B', 'Zone C'].filter((value) => holiday.zones.includes(value))
-        .length
-    ) {
-      // XXX keep only Zones A, B, C for the moment
+    if (!userStore.connected!.isSchoolHolidayConcernedByPreferences(holiday)) {
       return null;
     }
     return new Item(
