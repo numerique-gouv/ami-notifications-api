@@ -73,7 +73,7 @@ async def get_address_from_api_particulier_quotient(
         headers={"authorization": f"{token_type} {access_token}"},
     )
     if response.status_code != 200:
-        log_address_error_to_sentry(response)
+        log_error_to_sentry(response)
         return None
     data = response.json()
     if data.get("data", {}).get("adresse", {}):
@@ -82,7 +82,7 @@ async def get_address_from_api_particulier_quotient(
         return urlsafe_b64encode(json.dumps(address).encode("utf8")).decode("utf8")
 
 
-def log_address_error_to_sentry(response):
+def log_error_to_sentry(response):
     extra = {
         "status_code": response.status_code,
         "response_text": response.text,
@@ -96,4 +96,4 @@ def log_address_error_to_sentry(response):
         extra["X-Request-Id"] = response.headers.get("X-Request-Id")
     except ValueError:
         pass
-    logger.error("Error for address from API Particuliers", extra=extra)
+    logger.error("Error", extra=extra)
