@@ -47,7 +47,7 @@
       localStorage.setItem('notifications_enabled', 'false');
     }
   };
-  const saveSettings = async (id: string, checked: boolean) => {
+  const saveSettings = async (_id: string, checked: boolean) => {
     if (checked) {
       runOrNativeEvent(enableNotificationsFunc, 'notification_permission_requested');
     } else {

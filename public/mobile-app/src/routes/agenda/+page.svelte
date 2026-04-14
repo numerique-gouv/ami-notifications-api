@@ -23,7 +23,12 @@
   <div class="agenda--title">
     <h2>Mon agenda</h2>
     <div class="agenda--title--icon">
-      <span class="fr-icon-search-line" aria-hidden="true"></span>
+      <a href="/#/preferences/zones"
+        ><span class="fr-icon-settings-5-line" aria-hidden="true"></span><span
+          class="fr-sr-only"
+          >Préférences</span
+        ></a
+      >
     </div>
   </div>
 
@@ -72,6 +77,9 @@
       .agenda--title--icon {
         padding-top: 0.25rem;
         color: var(--text-active-blue-france);
+        a {
+          background-image: none;
+        }
       }
     }
     .agenda--events {
