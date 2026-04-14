@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
+  import Toggle from '$lib/components/Toggle.svelte';
   import { runOrNativeEvent } from '$lib/nativeEvents';
   import {
     disableNotifications,
@@ -46,8 +47,8 @@
       localStorage.setItem('notifications_enabled', 'false');
     }
   };
-  const saveSettings = async () => {
-    if (isChecked) {
+  const saveSettings = async (id: string, checked: boolean) => {
+    if (checked) {
       runOrNativeEvent(enableNotificationsFunc, 'notification_permission_requested');
     } else {
       runOrNativeEvent(disableNotificationsFunc, 'notification_permission_removed');
@@ -59,20 +60,12 @@
   <NavWithBackButton title="Notifications" {backUrl} />
 
   <div class="preferences-content-container">
-    <div class="fr-toggle">
-      <input
-        type="checkbox"
-        class="fr-toggle__input"
-        id="toggle"
-        aria-describedby="toggle-messages toggle-hint"
-        bind:checked={isChecked}
-        onchange={saveSettings}
-        data-testid="toggle-input"
-      >
-      <label class="fr-toggle__label" for="toggle">
-        Recevoir les notifications sur mon appareil mobile
-      </label>
-    </div>
+    <Toggle
+      id="notification-toggle"
+      label="Recevoir les notifications sur mon appareil mobile"
+      isChecked={isChecked}
+      onChangeAction={saveSettings}
+    />
   </div>
 
   <button
@@ -89,28 +82,6 @@
 
 <style>
   .preferences-page {
-    .preferences-content-container {
-      padding: 1rem;
-
-      .fr-toggle {
-        .fr-toggle__label {
-          display: flex;
-          position: relative;
-          &:before {
-            display: flex;
-            position: absolute;
-            right: -2rem;
-            margin: 0;
-          }
-          &:after {
-            position: absolute;
-            left: auto !important;
-            right: -1rem !important;
-          }
-        }
-      }
-    }
-
     .save-preferences-button {
       position: fixed;
       bottom: 1rem;

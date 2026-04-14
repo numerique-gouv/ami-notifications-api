@@ -44,7 +44,7 @@ describe('/+page.svelte', () => {
     render(Page);
 
     // When
-    const toggleInput = screen.getByTestId('toggle-input');
+    const toggleInput = screen.getByTestId('notification-toggle');
     await fireEvent.click(toggleInput);
 
     // Then
@@ -61,7 +61,7 @@ describe('/+page.svelte', () => {
     render(Page);
 
     // When
-    const toggleInput = screen.getByTestId('toggle-input');
+    const toggleInput = screen.getByTestId('notification-toggle');
     await fireEvent.click(toggleInput);
 
     // Then
