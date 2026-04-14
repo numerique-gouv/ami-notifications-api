@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { goto } from '$app/navigation';
   import { PUBLIC_FEATUREFLAG_REQUESTS_ENABLED } from '$env/static/public';
 
   const { currentItem } = $props();
@@ -8,6 +9,16 @@
     requests: currentItem === 'requests',
   });
   const requests_enabled = PUBLIC_FEATUREFLAG_REQUESTS_ENABLED === 'true';
+
+  const goToHomepage = (e: MouseEvent) => {
+    e.preventDefault();
+    goto('/');
+  };
+
+  const goToAgenda = (e: MouseEvent) => {
+    e.preventDefault();
+    goto('/#/agenda');
+  };
 </script>
 
 <nav class="menu-footer" aria-label="Menu principal">
@@ -15,7 +26,9 @@
     <li class="menu__item">
       <a
         class="menu__link {current.home ? 'highlight': ''}"
-        href="/"
+        href="#"
+        onclick={(e) => goToHomepage(e)}
+        data-testid="homepage-link"
         aria-current="{current.home ? 'true': null}"
       >
         <img src="/remixicons/home-4-fill.svg" alt="Icône d'accueil">
@@ -25,7 +38,9 @@
     <li class="menu__item">
       <a
         class="menu__link {current.agenda ? 'highlight': ''}"
-        href="/#/agenda"
+        href="#"
+        onclick={(e) => goToAgenda(e)}
+        data-testid="agenda-link"
         aria-current="{current.agenda ? 'true': null}"
       >
         <img src="/remixicons/calendar-event-line.svg" alt="Icône de calendrier">

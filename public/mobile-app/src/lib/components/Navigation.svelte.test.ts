@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
-import { render } from '@testing-library/svelte';
+import { render, screen } from '@testing-library/svelte';
+import * as navigationMethods from '$app/navigation';
 import * as envModule from '$env/static/public';
 import Navigation from './Navigation.svelte';
 
@@ -69,5 +70,35 @@ describe('/Navigation.svelte', () => {
     // Then
     const highlight = container.querySelector('.highlight');
     expect(highlight).toHaveTextContent('Suivi');
+  });
+
+  test('should navigate to homepage when click on homepage button', async () => {
+    // Given
+    const spy = vi
+      .spyOn(navigationMethods, 'goto')
+      .mockImplementation(() => Promise.resolve());
+    render(Navigation, { currentItem: 'home' });
+
+    // When
+    const link = screen.getByTestId('homepage-link');
+    link.click();
+
+    // Then
+    expect(spy).toHaveBeenCalledWith('/');
+  });
+
+  test('should navigate to agenda when click on agenda button', async () => {
+    // Given
+    const spy = vi
+      .spyOn(navigationMethods, 'goto')
+      .mockImplementation(() => Promise.resolve());
+    render(Navigation, { currentItem: 'home' });
+
+    // When
+    const link = screen.getByTestId('agenda-link');
+    link.click();
+
+    // Then
+    expect(spy).toHaveBeenCalledWith('/#/agenda');
   });
 });
