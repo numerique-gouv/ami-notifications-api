@@ -5,6 +5,7 @@ from django.views.generic import TemplateView
 from ami.agent_admin import urls as agent_admin_urls
 from ami.api import urls as api_urls
 from ami.authentication import urls as authentication_urls
+from ami.replication import api_urls as replication_api_urls
 
 urlpatterns = [
     path("", include(authentication_urls)),
@@ -12,4 +13,5 @@ urlpatterns = [
     path("", TemplateView.as_view(template_name="index.html")),
     path("ami-admin/", admin.site.urls),
     path("agent-admin/", include(agent_admin_urls, namespace="agent-admin")),
+    path("replication/", include(replication_api_urls)),
 ]
