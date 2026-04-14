@@ -14,8 +14,11 @@
     hasCloseLink: boolean;
   }
   let { id, title, toastType, duration, hasCloseLink }: Props = $props();
+  let toast: Toast;
 
-  let toast = new Toast(id, title, toastType, duration, hasCloseLink);
+  $effect(() => {
+    toast = new Toast(id, title, toastType, duration, hasCloseLink);
+  });
 </script>
 
 <div class="fr-notice toast-wrapper {toastType}">
