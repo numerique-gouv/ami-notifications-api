@@ -2,7 +2,7 @@ import pytest
 
 
 @pytest.mark.django_db
-def test_export(django_app) -> None:
+def test_get_anonymised_users(django_app) -> None:
     data = {"last_logged": "2024-11-01", "created_at": "2022-11-01", "updated_at": "2023-11-01"}
 
     # Appel API
@@ -10,6 +10,7 @@ def test_export(django_app) -> None:
     data = response.json()
 
     # Vérifie qu'on a pas le FC Hash et qu'on a le last_logged
+    breakpoint()
     assert "fc_hash" not in data.keys()
 
     # Vérifier écriture dans Data Warehouse

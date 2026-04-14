@@ -1,5 +1,8 @@
-# from .api_views import
+from django.urls import path
 
-# root_urlpatterns = [
-#     path("data/replication/", get_follow_up_inventories),
-# ]
+from ami.replication import api_views
+
+app_name = "replication"
+urlpatterns = [
+    path("users/", api_views.get_anonymised_users),
+]

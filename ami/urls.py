@@ -13,5 +13,5 @@ urlpatterns = [
     path("", TemplateView.as_view(template_name="index.html")),
     path("ami-admin/", admin.site.urls),
     path("agent-admin/", include(agent_admin_urls, namespace="agent-admin")),
-    path("replication/", include(replication_api_urls)),
+    path("replication/", include(replication_api_urls, namespace="replication")),
 ]
