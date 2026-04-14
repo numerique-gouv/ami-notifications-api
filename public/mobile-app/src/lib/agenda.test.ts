@@ -3,6 +3,7 @@ import '@testing-library/jest-dom/vitest';
 import { Agenda, buildAgenda, Item } from '$lib/agenda';
 import * as catalogMethods from '$lib/api-catalog';
 import * as scheduledNotificationsMethods from '$lib/scheduled-notifications';
+import { Preferences } from '$lib/state/preferences';
 import { userStore } from '$lib/state/User.svelte';
 import { mockUserIdentity, mockUserInfo } from '$tests/utils';
 
@@ -376,7 +377,7 @@ describe('/agenda.ts', () => {
           date: null,
           start_date: new Date('2025-11-20T23:00:00Z'),
           end_date: new Date('2025-12-15T23:00:00Z'),
-          zones: [],
+          zones: ['Corse'],
           emoji: 'foo',
         };
         const holiday4 = {
@@ -386,7 +387,7 @@ describe('/agenda.ts', () => {
           date: null,
           start_date: new Date('2025-11-30T23:00:00Z'),
           end_date: new Date('2025-12-16T23:00:00Z'),
-          zones: [],
+          zones: ['Zone A'],
           emoji: '',
         };
         const holiday5 = {
@@ -396,7 +397,7 @@ describe('/agenda.ts', () => {
           date: null,
           start_date: new Date('2025-12-20T23:00:00Z'),
           end_date: new Date('2025-12-24T23:00:00Z'),
-          zones: [],
+          zones: ['Zone C'],
           emoji: '',
         };
         const holiday6 = {
@@ -499,7 +500,7 @@ describe('/agenda.ts', () => {
             new Item(
               'holiday',
               'Holiday 3 foo',
-              null,
+              'Corse',
               null,
               holiday3.start_date,
               holiday3.end_date
@@ -512,7 +513,7 @@ describe('/agenda.ts', () => {
             new Item(
               'holiday',
               'Holiday 4',
-              null,
+              'Zone A',
               null,
               holiday4.start_date,
               holiday4.end_date
@@ -534,10 +535,11 @@ describe('/agenda.ts', () => {
             new Item(
               'holiday',
               'Holiday 5',
-              null,
+              'Paris (75) 🏠',
               null,
               holiday5.start_date,
-              holiday5.end_date
+              holiday5.end_date,
+              true
             )
           )
         ).toBe(true);
@@ -589,6 +591,14 @@ describe('/agenda.ts', () => {
           emoji: '',
         };
         await userStore.login(mockUserInfo);
+        const spyIsConcerned = vi
+          .spyOn(Preferences.prototype, 'isSchoolHolidayConcerned')
+          .mockReturnValue(true);
+        const spyGetDescription = vi
+          .spyOn(Preferences.prototype, 'getSchoolHolidayDescription')
+          .mockReturnValueOnce('desc 1')
+          .mockReturnValueOnce('desc 2')
+          .mockReturnValueOnce('desc 3');
 
         // When
         const agenda = new Agenda(
@@ -619,7 +629,7 @@ describe('/agenda.ts', () => {
             new Item(
               'holiday',
               'Holiday foo',
-              'Zone A',
+              'desc 1',
               null,
               holiday1.start_date,
               holiday1.end_date
@@ -631,7 +641,7 @@ describe('/agenda.ts', () => {
             new Item(
               'holiday',
               'Holiday foo',
-              'Paris (75) 🏠',
+              'desc 2',
               null,
               holiday2.start_date,
               holiday2.end_date,
@@ -650,7 +660,7 @@ describe('/agenda.ts', () => {
             new Item(
               'holiday',
               'Summer Holiday bar',
-              'Paris (75) 🏠, Zone A, Zone B',
+              'desc 3',
               null,
               holiday3.start_date,
               holiday3.end_date,
@@ -658,8 +668,29 @@ describe('/agenda.ts', () => {
             )
           )
         ).toBe(true);
+        expect(spyIsConcerned).toHaveBeenCalledTimes(3);
+        expect(spyIsConcerned).toHaveBeenCalledWith(holiday1);
+        expect(spyIsConcerned).toHaveBeenCalledWith(holiday2);
+        expect(spyIsConcerned).toHaveBeenCalledWith(holiday3);
+        expect(spyGetDescription).toHaveBeenCalledTimes(3);
+        expect(spyGetDescription).toHaveBeenCalledWith(
+          holiday1,
+          userStore.connected!.identity.address
+        );
+        expect(spyGetDescription).toHaveBeenCalledWith(
+          holiday2,
+          userStore.connected!.identity.address
+        );
+        expect(spyGetDescription).toHaveBeenCalledWith(
+          holiday3,
+          userStore.connected!.identity.address
+        );
+
+        // Cleanup
+        spyIsConcerned.mockRestore();
+        spyGetDescription.mockRestore();
       });
-      test('should ignore some zones (XXX tmp)', async () => {
+      test('should ignore some zones', async () => {
         // Given
         vi.stubEnv('TZ', 'Europe/Paris');
         localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
@@ -684,6 +715,13 @@ describe('/agenda.ts', () => {
           emoji: 'foo',
         };
         await userStore.login(mockUserInfo);
+        const spyIsConcerned = vi
+          .spyOn(Preferences.prototype, 'isSchoolHolidayConcerned')
+          .mockReturnValueOnce(true)
+          .mockReturnValueOnce(false);
+        const spyGetDescription = vi
+          .spyOn(Preferences.prototype, 'getSchoolHolidayDescription')
+          .mockReturnValueOnce('desc 1');
 
         // When
         const agenda = new Agenda(
@@ -702,7 +740,7 @@ describe('/agenda.ts', () => {
             new Item(
               'holiday',
               'Holiday foo',
-              'Zone A',
+              'desc 1',
               null,
               holiday1.start_date,
               holiday1.end_date
@@ -710,63 +748,18 @@ describe('/agenda.ts', () => {
           )
         ).toBe(true);
         expect(agenda.next.length).equal(0);
-      });
-      test('should ignore some zones - user has address (XXX tmp)', async () => {
-        // Given
-        vi.stubEnv('TZ', 'Europe/Paris');
-        const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
-        newMockUserIdentity.dataDetails.address.postcode = '75000'; // Zone C
-        localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity));
-        const holiday1 = {
-          kind: 'holiday',
-          title: 'Holiday',
-          description: '',
-          date: null,
-          start_date: new Date('2026-02-06T23:00:00Z'),
-          end_date: new Date('2026-02-22T23:00:00Z'),
-          zones: ['Zone C', 'Zone foo'],
-          emoji: 'foo',
-        };
-        await userStore.login(mockUserInfo);
-
-        // When
-        const agenda = new Agenda(
-          {
-            school_holidays: [holiday1],
-            public_holidays: [],
-            elections: [],
-          },
-          new Date('2026-02-01T12:00:00Z')
+        expect(spyIsConcerned).toHaveBeenCalledTimes(2);
+        expect(spyIsConcerned).toHaveBeenCalledWith(holiday1);
+        expect(spyIsConcerned).toHaveBeenCalledWith(holiday2);
+        expect(spyGetDescription).toHaveBeenCalledTimes(1);
+        expect(spyGetDescription).toHaveBeenCalledWith(
+          holiday1,
+          userStore.connected!.identity.address
         );
 
-        // Then
-        expect(agenda.now.length).equal(2);
-        expect(
-          agenda.now[0].equals(
-            new Item(
-              'otv',
-              'Opération Tranquillité Vacances 🏠',
-              'Inscrivez-vous pour protéger votre domicile pendant votre absence',
-              null,
-              new Date('2026-01-16T23:00:00Z'),
-              null
-            )
-          )
-        ).toBe(true);
-        expect(
-          agenda.now[1].equals(
-            new Item(
-              'holiday',
-              'Holiday foo',
-              'Paris (75) 🏠',
-              null,
-              holiday1.start_date,
-              holiday1.end_date,
-              true
-            )
-          )
-        ).toBe(true);
-        expect(agenda.next.length).equal(0);
+        // Cleanup
+        spyIsConcerned.mockRestore();
+        spyGetDescription.mockRestore();
       });
     });
     describe('OTV', () => {
@@ -1069,7 +1062,7 @@ describe('/agenda.ts', () => {
         date: null,
         start_date: new Date('2025-11-30T23:00:00Z'),
         end_date: new Date('2025-12-16T23:00:00Z'),
-        zones: [],
+        zones: ['Corse'],
         emoji: '',
       };
       const holiday3 = {
@@ -1100,6 +1093,7 @@ describe('/agenda.ts', () => {
       await userStore.login(mockUserInfo);
 
       // When
+      await userStore.login(mockUserInfo);
       const agenda = await buildAgenda(new Date('2025-11-01T12:00:00Z'));
 
       // Then
@@ -1129,7 +1123,7 @@ describe('/agenda.ts', () => {
           new Item(
             'holiday',
             'Holiday 2',
-            null,
+            'Corse',
             null,
             holiday2.start_date,
             holiday2.end_date
