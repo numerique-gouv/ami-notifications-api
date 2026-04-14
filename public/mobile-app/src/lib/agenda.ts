@@ -336,6 +336,11 @@ export class Agenda {
     holiday: CatalogItem,
     date: Date
   ): Item | null {
+    const connectedUser = userStore.connected;
+    if (!connectedUser) {
+      // user has to be connected
+      return null;
+    }
     if (!holiday.start_date || !holiday.end_date) {
       // should not happen for school holiday
       return null;
@@ -370,22 +375,18 @@ export class Agenda {
       null,
       false
     );
-    if (userStore.connected) {
-      const scheduledNotificationKey = `ami-otv:d-3w:${holiday.start_date.getFullYear()}:${slugify(holiday.title)}`;
-      if (!scheduledNotificationsCreatedKeys.has(scheduledNotificationKey)) {
-        createScheduledNotification({
-          content_title: 'Et si on veillait sur votre logement ? 👮',
-          content_body:
-            "Demandez l'Opération Tranquillité Vacances afin de partir en vacances l’esprit (plus) tranquille.",
-          content_icon: 'fr-icon-megaphone-line',
-          reference: scheduledNotificationKey,
-          internal_url: '/#/procedure',
-          scheduled_at: startDate,
-        });
-        userStore.connected.addScheduledNotificationCreatedKey(
-          scheduledNotificationKey
-        );
-      }
+    const scheduledNotificationKey = `ami-otv:d-3w:${holiday.start_date.getFullYear()}:${slugify(holiday.title)}`;
+    if (!scheduledNotificationsCreatedKeys.has(scheduledNotificationKey)) {
+      createScheduledNotification({
+        content_title: 'Et si on veillait sur votre logement ? 👮',
+        content_body:
+          "Demandez l'Opération Tranquillité Vacances afin de partir en vacances l’esprit (plus) tranquille.",
+        content_icon: 'fr-icon-megaphone-line',
+        reference: scheduledNotificationKey,
+        internal_url: '/#/procedure',
+        scheduled_at: startDate,
+      });
+      userStore.connected?.addScheduledNotificationCreatedKey(scheduledNotificationKey);
     }
     if (startDate > date) {
       // don't display OTV too early, only display them when they're close enough to their associated holiday
