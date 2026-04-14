@@ -41,7 +41,7 @@
               </a>
             </li>
             <li class="fr-sidemenu__item">
-              <a class="fr-sidemenu__link" href="#" target="_self">
+              <a class="fr-sidemenu__link" href="/#/preferences/zones" target="_self">
                 <span class="label">Zones scolaires</span>
                 <span aria-hidden="true" class="icon fr-icon-arrow-right-s-line"></span>
               </a>

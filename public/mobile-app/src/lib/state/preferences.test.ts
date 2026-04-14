@@ -381,5 +381,43 @@ describe('/preferences.ts', () => {
         expect(result).toEqual('');
       });
     });
+
+    describe('addZone', () => {
+      test('should add zone', async () => {
+        // Given
+        const preferences1 = new Preferences([], []);
+        const preferences2 = new Preferences(['Foo'], []);
+        const preferences3 = new Preferences(['Foo', 'Bar'], []);
+
+        // When
+        preferences1.addZone('Bar');
+        preferences2.addZone('Bar');
+        preferences3.addZone('Bar');
+
+        // Then
+        expect(preferences1.zones).toEqual(['Bar']);
+        expect(preferences2.zones).toEqual(['Foo', 'Bar']);
+        expect(preferences3.zones).toEqual(['Foo', 'Bar']);
+      });
+    });
+
+    describe('removeZone', () => {
+      test('should remove zone', async () => {
+        // Given
+        const preferences1 = new Preferences([], []);
+        const preferences2 = new Preferences(['Foo'], []);
+        const preferences3 = new Preferences(['Foo', 'Bar'], []);
+
+        // When
+        preferences1.removeZone('Bar');
+        preferences2.removeZone('Bar');
+        preferences3.removeZone('Bar');
+
+        // Then
+        expect(preferences1.zones).toEqual([]);
+        expect(preferences2.zones).toEqual(['Foo']);
+        expect(preferences3.zones).toEqual(['Foo']);
+      });
+    });
   });
 });

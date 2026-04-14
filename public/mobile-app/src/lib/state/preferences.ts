@@ -90,4 +90,15 @@ export class Preferences {
 
     return result.join(', ');
   }
+
+  addZone(zone: string) {
+    if (this._zones.includes(zone)) {
+      return;
+    }
+    this._zones.push(zone);
+  }
+
+  removeZone(zone: string) {
+    this._zones = this._zones.filter((value) => zone !== value);
+  }
 }

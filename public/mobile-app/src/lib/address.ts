@@ -68,7 +68,7 @@ export class Address {
   }
 }
 
-const zones = [
+export const zones = [
   {
     label: 'Zone A',
     departements: [
