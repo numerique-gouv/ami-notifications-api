@@ -231,14 +231,14 @@ export class Agenda {
   }
 
   private getSchoolHolidayItemDescription(holiday: CatalogItem): string | null {
-    const userZone = userStore.connected?.identity.address?.zone;
+    const userZone = userStore.connected!.identity.address?.zone;
     // XXX keep only Zones A, B, C for the moment
     const holidayZones = ['Zone A', 'Zone B', 'Zone C'].filter((value) =>
       holiday.zones.includes(value)
     );
     if (userZone !== undefined && holidayZones.includes(userZone)) {
       const userZones = [
-        `${userStore.connected?.identity.address?.city} (${userStore.connected?.identity.address?.departement}) 🏠`,
+        `${userStore.connected!.identity.address?.city} (${userStore.connected!.identity.address?.departement}) 🏠`,
       ];
       holidayZones.forEach((zone) => {
         if (zone !== userZone) {
@@ -253,7 +253,7 @@ export class Agenda {
   }
 
   private getSchoolHolidayItemCustom(holiday: CatalogItem): boolean {
-    const userZone = userStore.connected?.identity.address?.zone;
+    const userZone = userStore.connected!.identity.address?.zone;
     if (userZone !== undefined && holiday.zones.includes(userZone)) {
       return true;
     }
@@ -340,9 +340,9 @@ export class Agenda {
       // should not happen for school holiday
       return null;
     }
-    const userZone = userStore.connected?.identity.address?.zone;
+    const userZone = userStore.connected!.identity.address?.zone;
     const scheduledNotificationsCreatedKeys = new Set(
-      userStore.connected?.identity.scheduledNotificationsCreatedKeys
+      userStore.connected!.identity.scheduledNotificationsCreatedKeys
     );
     const key = JSON.stringify({
       desc: holiday.title,
@@ -370,22 +370,18 @@ export class Agenda {
       null,
       false
     );
-    if (userStore.connected) {
-      const scheduledNotificationKey = `ami-otv:d-3w:${holiday.start_date.getFullYear()}:${slugify(holiday.title)}`;
-      if (!scheduledNotificationsCreatedKeys.has(scheduledNotificationKey)) {
-        createScheduledNotification({
-          content_title: 'Et si on veillait sur votre logement ? 👮',
-          content_body:
-            "Demandez l'Opération Tranquillité Vacances afin de partir en vacances l’esprit (plus) tranquille.",
-          content_icon: 'fr-icon-megaphone-line',
-          reference: scheduledNotificationKey,
-          internal_url: '/#/procedure',
-          scheduled_at: startDate,
-        });
-        userStore.connected.addScheduledNotificationCreatedKey(
-          scheduledNotificationKey
-        );
-      }
+    const scheduledNotificationKey = `ami-otv:d-3w:${holiday.start_date.getFullYear()}:${slugify(holiday.title)}`;
+    if (!scheduledNotificationsCreatedKeys.has(scheduledNotificationKey)) {
+      createScheduledNotification({
+        content_title: 'Et si on veillait sur votre logement ? 👮',
+        content_body:
+          "Demandez l'Opération Tranquillité Vacances afin de partir en vacances l’esprit (plus) tranquille.",
+        content_icon: 'fr-icon-megaphone-line',
+        reference: scheduledNotificationKey,
+        internal_url: '/#/procedure',
+        scheduled_at: startDate,
+      });
+      userStore.connected!.addScheduledNotificationCreatedKey(scheduledNotificationKey);
     }
     if (startDate > date) {
       // don't display OTV too early, only display them when they're close enough to their associated holiday

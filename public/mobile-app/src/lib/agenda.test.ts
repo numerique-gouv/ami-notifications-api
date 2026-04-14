@@ -348,6 +348,7 @@ describe('/agenda.ts', () => {
       test('should organize items in now and next', async () => {
         // Given
         vi.stubEnv('TZ', 'Europe/Paris');
+        localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
         const holiday1 = {
           kind: 'holiday',
           title: 'Holiday 1',
@@ -438,6 +439,7 @@ describe('/agenda.ts', () => {
           zones: [],
           emoji: '',
         };
+        await userStore.login(mockUserInfo);
 
         // When
         const agenda = new Agenda(
@@ -450,21 +452,9 @@ describe('/agenda.ts', () => {
         );
 
         // Then
-        expect(agenda.now.length).equal(8);
+        expect(agenda.now.length).equal(5);
         expect(
           agenda.now[0].equals(
-            new Item(
-              'otv',
-              'Opération Tranquillité Vacances 🏠',
-              'Inscrivez-vous pour protéger votre domicile pendant votre absence',
-              null,
-              new Date('2025-08-30T23:00:00Z'),
-              null
-            )
-          )
-        ).toBe(true);
-        expect(
-          agenda.now[1].equals(
             new Item(
               'holiday',
               'Holiday 1 foo',
@@ -476,19 +466,7 @@ describe('/agenda.ts', () => {
           )
         ).toBe(true);
         expect(
-          agenda.now[2].equals(
-            new Item(
-              'otv',
-              'Opération Tranquillité Vacances 🏠',
-              'Inscrivez-vous pour protéger votre domicile pendant votre absence',
-              null,
-              new Date('2025-09-29T23:00:00Z'),
-              null
-            )
-          )
-        ).toBe(true);
-        expect(
-          agenda.now[3].equals(
+          agenda.now[1].equals(
             new Item(
               'holiday',
               'Holiday 2',
@@ -500,24 +478,12 @@ describe('/agenda.ts', () => {
           )
         ).toBe(true);
         expect(
-          agenda.now[4].equals(
-            new Item(
-              'otv',
-              'Opération Tranquillité Vacances 🏠',
-              'Inscrivez-vous pour protéger votre domicile pendant votre absence',
-              null,
-              new Date('2025-10-30T23:00:00Z'),
-              null
-            )
-          )
-        ).toBe(true);
-        expect(
-          agenda.now[5].equals(
+          agenda.now[2].equals(
             new Item('holiday', 'Day 6 bar', null, holiday6.date, null, null)
           )
         ).toBe(true);
         expect(
-          agenda.now[6].equals(
+          agenda.now[3].equals(
             new Item(
               'election',
               'Election1 bar',
@@ -529,7 +495,7 @@ describe('/agenda.ts', () => {
           )
         ).toBe(true);
         expect(
-          agenda.now[7].equals(
+          agenda.now[4].equals(
             new Item(
               'holiday',
               'Holiday 3 foo',
@@ -622,9 +588,9 @@ describe('/agenda.ts', () => {
           zones: [],
           emoji: '',
         };
+        await userStore.login(mockUserInfo);
 
         // When
-        await userStore.login(mockUserInfo);
         const agenda = new Agenda(
           {
             school_holidays: [holiday1, holiday2, holiday3],
@@ -696,6 +662,7 @@ describe('/agenda.ts', () => {
       test('should ignore some zones (XXX tmp)', async () => {
         // Given
         vi.stubEnv('TZ', 'Europe/Paris');
+        localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
         const holiday1 = {
           kind: 'holiday',
           title: 'Holiday',
@@ -716,6 +683,7 @@ describe('/agenda.ts', () => {
           zones: ['Zone foo'],
           emoji: 'foo',
         };
+        await userStore.login(mockUserInfo);
 
         // When
         const agenda = new Agenda(
@@ -728,21 +696,9 @@ describe('/agenda.ts', () => {
         );
 
         // Then
-        expect(agenda.now.length).equal(2);
+        expect(agenda.now.length).equal(1);
         expect(
           agenda.now[0].equals(
-            new Item(
-              'otv',
-              'Opération Tranquillité Vacances 🏠',
-              'Inscrivez-vous pour protéger votre domicile pendant votre absence',
-              null,
-              new Date('2026-01-16T23:00:00Z'),
-              null
-            )
-          )
-        ).toBe(true);
-        expect(
-          agenda.now[1].equals(
             new Item(
               'holiday',
               'Holiday foo',
@@ -861,6 +817,7 @@ describe('/agenda.ts', () => {
       test('should not display past items or OTV related to past holidays', async () => {
         // Given
         vi.stubEnv('TZ', 'Europe/Paris');
+        localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
         const holiday1 = {
           kind: 'holiday',
           title: 'Holiday',
@@ -901,6 +858,7 @@ describe('/agenda.ts', () => {
           zones: [],
           emoji: '',
         };
+        await userStore.login(mockUserInfo);
 
         // When
         const agenda = new Agenda(
@@ -919,6 +877,7 @@ describe('/agenda.ts', () => {
       test('should generate only one OTV per holiday', async () => {
         // Given
         vi.stubEnv('TZ', 'Europe/Paris');
+        localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
         const holiday1 = {
           kind: 'holiday',
           title: 'Holiday',
@@ -939,6 +898,7 @@ describe('/agenda.ts', () => {
           zones: ['Zone C'],
           emoji: 'foo',
         };
+        await userStore.login(mockUserInfo);
 
         // When
         const agenda = new Agenda(
@@ -955,38 +915,7 @@ describe('/agenda.ts', () => {
       });
     });
     describe('Scheduled notifications', () => {
-      test('should not create scheduled notifications for otv when user is not connected', async () => {
-        // Given
-        vi.stubEnv('TZ', 'Europe/Paris');
-        const spy = vi
-          .spyOn(scheduledNotificationsMethods, 'createScheduledNotification')
-          .mockResolvedValue(true);
-        const holiday = {
-          kind: 'holiday',
-          title: 'Holiday',
-          description: '',
-          date: null,
-          start_date: new Date('2026-02-06T23:00:00Z'),
-          end_date: new Date('2026-02-22T23:00:00Z'),
-          zones: ['Zone A'],
-          emoji: 'foo',
-        };
-
-        // When
-        const agenda = new Agenda(
-          {
-            school_holidays: [holiday],
-            public_holidays: [],
-            elections: [],
-          },
-          new Date('2026-02-01T12:00:00Z')
-        );
-
-        // Then
-        expect(agenda.now.length).equal(2);
-        expect(spy).not.toHaveBeenCalled();
-      });
-      test('should create scheduled notifications for otv when user is connected', async () => {
+      test('should create scheduled notifications for otv', async () => {
         // Given
         vi.stubEnv('TZ', 'Europe/Paris');
         const spy = vi
@@ -1023,9 +952,9 @@ describe('/agenda.ts', () => {
           zones: ['Zone A', 'Zone B', 'Zone C'],
           emoji: 'bar',
         };
+        await userStore.login(mockUserInfo);
 
         // When
-        await userStore.login(mockUserInfo);
         const agenda = new Agenda(
           {
             school_holidays: [holiday1, holiday2, holiday3],
@@ -1057,7 +986,7 @@ describe('/agenda.ts', () => {
           scheduled_at: new Date('2026-06-10T23:00:00Z'),
         });
       });
-      test('should create scheduled notifications for otv when user is connected - scheduled notifications already sent', async () => {
+      test('should create scheduled notifications for otv - scheduled notifications already sent', async () => {
         // Given
         vi.stubEnv('TZ', 'Europe/Paris');
         const spy = vi
@@ -1122,6 +1051,7 @@ describe('/agenda.ts', () => {
     test('should retrieve catalogs and init agenda with them', async () => {
       // Given
       vi.stubEnv('TZ', 'Europe/Paris');
+      localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
       const holiday1 = {
         kind: 'holiday',
         title: 'Holiday 1',
@@ -1167,6 +1097,7 @@ describe('/agenda.ts', () => {
         public_holidays: [holiday3, holiday4],
         elections: [],
       });
+      await userStore.login(mockUserInfo);
 
       // When
       const agenda = await buildAgenda(new Date('2025-11-01T12:00:00Z'));
@@ -1174,21 +1105,9 @@ describe('/agenda.ts', () => {
       // Then
       expect(spy).toHaveBeenCalledTimes(1);
       expect(agenda).toBeInstanceOf(Agenda);
-      expect(agenda.now.length).equal(3);
+      expect(agenda.now.length).equal(2);
       expect(
         agenda.now[0].equals(
-          new Item(
-            'otv',
-            'Opération Tranquillité Vacances 🏠',
-            'Inscrivez-vous pour protéger votre domicile pendant votre absence',
-            null,
-            new Date('2025-08-30T23:00:00Z'),
-            null
-          )
-        )
-      ).toBe(true);
-      expect(
-        agenda.now[1].equals(
           new Item(
             'holiday',
             'Holiday 1',
@@ -1200,7 +1119,7 @@ describe('/agenda.ts', () => {
         )
       ).toBe(true);
       expect(
-        agenda.now[2].equals(
+        agenda.now[1].equals(
           new Item('holiday', 'Day 3', null, holiday3.date, null, null)
         )
       ).toBe(true);
