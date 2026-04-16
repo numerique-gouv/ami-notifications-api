@@ -1,20 +1,19 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
-  import { zones } from '$lib/address';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import Toggle from '$lib/components/Toggle.svelte';
-  import { Preferences } from '$lib/state/preferences';
+  import { Preferences, type ZoneInfo } from '$lib/state/preferences';
   import { userStore } from '$lib/state/User.svelte';
 
   let backUrl: string = '/#/preferences';
-  let userZones: string[] = $state([]);
+  let zoneInfos: ZoneInfo[] = $state([]);
 
   onMount(async () => {
     if (!userStore.connected) {
       goto('/');
     } else {
-      userZones = userStore.connected!.identity.preferences.zones;
+      zoneInfos = userStore.connected!.getZoneInfosFromPreferences();
     }
   });
 
@@ -37,12 +36,13 @@
   <NavWithBackButton title="Zones scolaires" {backUrl} />
 
   <div class="preferences-content-container">
-    {#each zones as zone}
+    {#each zoneInfos as zoneInfo}
       <Toggle
-        id={zone.label}
-        label={zone.label}
-        isChecked={userZones.includes(zone.label)}
+        id={zoneInfo.zone}
+        label={zoneInfo.zone}
+        isChecked={zoneInfo.selected}
         onChangeAction={saveSettings}
+        tags={zoneInfo.tags}
       />
     {/each}
   </div>
