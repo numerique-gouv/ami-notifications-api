@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     "ami.partner",
     "ami.agent",
     "ami.agent_admin",
+    "ami.replication",
     # This must come after all the apps, for drf-spectacular to be able to extract endpoints.
     "drf_spectacular",
 ]

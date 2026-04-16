@@ -8,6 +8,9 @@
     },
     {
       "command": "0 2 * * * make delete-published-scheduled-notifications"
+    },
+    {
+      "command": "0 3 * * * make replicate-anonymized-data"
     }
   ]
 }
