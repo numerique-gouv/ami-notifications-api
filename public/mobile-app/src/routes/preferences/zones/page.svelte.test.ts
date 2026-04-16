@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { describe, expect, test, vi } from 'vitest';
 import * as navigationMethods from '$app/navigation';
+import { Preferences } from '$lib/state/preferences';
 import { userStore } from '$lib/state/User.svelte';
 import { expectBackButtonPresent, mockUserInfo } from '$tests/utils';
 import Page from './+page.svelte';
@@ -18,6 +19,54 @@ describe('/+page.svelte', () => {
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).toHaveBeenCalledWith('/');
     });
+  });
+
+  test('should display zones according to user preferences', async () => {
+    // Given
+    await userStore.login(mockUserInfo);
+    const spyGetZoneInfos = vi
+      .spyOn(Preferences.prototype, 'getZoneInfos')
+      .mockReturnValueOnce([
+        {
+          selected: true,
+          tags: [],
+          zone: 'Zone A',
+        },
+        {
+          selected: true,
+          tags: [],
+          zone: 'Zone B',
+        },
+        {
+          selected: true,
+          tags: [
+            {
+              label: 'Paris (75) 🏠',
+              removable: false,
+            },
+          ],
+          zone: 'Zone C',
+        },
+        {
+          selected: false,
+          tags: [
+            {
+              label: 'Bastia (20)',
+              removable: true,
+            },
+          ],
+          zone: 'Corse',
+        },
+      ]);
+
+    // When
+    render(Page);
+
+    // Then
+    expect(screen.getByText('Paris (75) 🏠')).toBeInTheDocument();
+    expect(screen.getByText('Bastia (20)')).toBeInTheDocument();
+    expect(spyGetZoneInfos).toHaveBeenCalledTimes(1);
+    expect(spyGetZoneInfos).toHaveBeenCalledWith(userStore.connected?.identity.address);
   });
 
   test('should enable zone when user toggles on', async () => {

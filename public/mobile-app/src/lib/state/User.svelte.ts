@@ -11,7 +11,7 @@ import type { CatalogItem } from '$lib/api-catalog';
 import * as auth from '$lib/auth';
 import { franceConnectLogout, parseJwt } from '$lib/france-connect';
 import { emit } from '$lib/nativeEvents';
-import { Preferences } from '$lib/state/preferences';
+import { Preferences, type ZoneInfo } from '$lib/state/preferences';
 import { formatDate } from '$lib/utils';
 
 export type DataOrigin = 'user' | 'france-connect' | 'api-particulier' | 'cleared';
@@ -239,6 +239,10 @@ export class User {
       holiday,
       this._identity.address
     );
+  }
+
+  getZoneInfosFromPreferences(): ZoneInfo[] {
+    return this._identity.preferences.getZoneInfos(this._identity.address);
   }
 
   formatBirthdate(birthdate: string) {
