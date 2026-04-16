@@ -186,11 +186,12 @@ export class User {
     }
     try {
       const decoded_address = JSON.parse(atob(encoded_address));
-      const numero_libelle_voie = decoded_address.numero_libelle_voie || '';
-      const lieu_dit = decoded_address.lieu_dit || '';
-      const code_postal_ville = decoded_address.code_postal_ville || '';
+      const thoroughfare = decoded_address['locn:thoroughfare'] || '';
+      const locatorName = decoded_address['locn:locatorName'] || '';
+      const postCode = decoded_address['locn:postCode'] || '';
+      const postName = decoded_address['locn:postName'] || '';
       const inputValue = String(
-        `${numero_libelle_voie} ${lieu_dit} ${code_postal_ville}`
+        `${thoroughfare} ${locatorName} ${postCode} ${postName}`
       )
         .replace(/\s+/g, ' ')
         .trim();
