@@ -35,7 +35,7 @@ class Notification(models.Model):
     item_external_url = models.CharField(blank=True, null=True)
 
     send_status = models.BooleanField(blank=True, null=True)
-    partner_id = models.CharField(blank=True, null=True)
+    partner_id = models.CharField()
     internal_url = models.CharField(
         blank=True, null=True
     )  # to link notification to a front url; used by scheduled notifications
