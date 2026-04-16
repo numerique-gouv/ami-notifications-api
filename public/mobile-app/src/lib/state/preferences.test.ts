@@ -407,5 +407,278 @@ describe('/preferences.ts', () => {
         expect(preferences3.zones).toEqual(['Foo']);
       });
     });
+
+    describe('getZoneInfos', () => {
+      test('user has no address and no preferences', async () => {
+        // Given
+        const preferences = new Preferences([], []);
+
+        // When
+        const result = preferences.getZoneInfos(undefined);
+
+        // Then
+        expect(result).toEqual([
+          {
+            selected: false,
+            tags: [],
+            zone: 'Zone A',
+          },
+          {
+            selected: false,
+            tags: [],
+            zone: 'Zone B',
+          },
+          {
+            selected: false,
+            tags: [],
+            zone: 'Zone C',
+          },
+          {
+            selected: false,
+            tags: [],
+            zone: 'Corse',
+          },
+          {
+            selected: false,
+            tags: [],
+            zone: 'Guadeloupe',
+          },
+          {
+            selected: false,
+            tags: [],
+            zone: 'Guyane',
+          },
+          {
+            selected: false,
+            tags: [],
+            zone: 'Martinique',
+          },
+          {
+            selected: false,
+            tags: [],
+            zone: 'Mayotte',
+          },
+          {
+            selected: false,
+            tags: [],
+            zone: 'Nouvelle Calédonie',
+          },
+          {
+            selected: false,
+            tags: [],
+            zone: 'Polynésie',
+          },
+          {
+            selected: false,
+            tags: [],
+            zone: 'Réunion',
+          },
+          {
+            selected: false,
+            tags: [],
+            zone: 'Saint Pierre et Miquelon',
+          },
+          {
+            selected: false,
+            tags: [],
+            zone: 'Wallis et Futuna',
+          },
+        ]);
+      });
+      test('user has preferences but no address', async () => {
+        // Given
+        const preferences = new Preferences(['Zone A', 'Zone B'], []);
+
+        // When
+        const result = preferences.getZoneInfos(undefined);
+
+        // Then
+        expect(result).toEqual([
+          {
+            selected: true,
+            tags: [],
+            zone: 'Zone A',
+          },
+          {
+            selected: true,
+            tags: [],
+            zone: 'Zone B',
+          },
+          {
+            selected: false,
+            tags: [],
+            zone: 'Zone C',
+          },
+          {
+            selected: false,
+            tags: [],
+            zone: 'Corse',
+          },
+          {
+            selected: false,
+            tags: [],
+            zone: 'Guadeloupe',
+          },
+          {
+            selected: false,
+            tags: [],
+            zone: 'Guyane',
+          },
+          {
+            selected: false,
+            tags: [],
+            zone: 'Martinique',
+          },
+          {
+            selected: false,
+            tags: [],
+            zone: 'Mayotte',
+          },
+          {
+            selected: false,
+            tags: [],
+            zone: 'Nouvelle Calédonie',
+          },
+          {
+            selected: false,
+            tags: [],
+            zone: 'Polynésie',
+          },
+          {
+            selected: false,
+            tags: [],
+            zone: 'Réunion',
+          },
+          {
+            selected: false,
+            tags: [],
+            zone: 'Saint Pierre et Miquelon',
+          },
+          {
+            selected: false,
+            tags: [],
+            zone: 'Wallis et Futuna',
+          },
+        ]);
+      });
+      test('user has preferences and address', async () => {
+        // Given
+        const address1 = new Address(
+          'Orly',
+          '94, Val-de-Marne, Île-de-France',
+          '94054_0070_00023',
+          '23 Rue des Aubépines 94310 Orly',
+          '23 Rue des Aubépines',
+          '94310'
+        );
+        const address2 = new Address(
+          'Bastia',
+          '2B, Haute-Corse, Corse',
+          '2B033',
+          'Bastia',
+          'Bastia',
+          '20200'
+        );
+        const address3 = new Address(
+          'Saint-Denis',
+          '974, La Réunion',
+          '97411_1060_00002',
+          '2 Rue de Paris 97400 Saint-Denis',
+          '2 Rue de Paris',
+          '97400'
+        );
+        const preferences = new Preferences(
+          ['Zone A', 'Zone B', 'Zone C'],
+          [address1, address2]
+        );
+
+        // When
+        const result = preferences.getZoneInfos(address3);
+
+        // Then
+        expect(result).toEqual([
+          {
+            selected: true,
+            tags: [],
+            zone: 'Zone A',
+          },
+          {
+            selected: true,
+            tags: [],
+            zone: 'Zone B',
+          },
+          {
+            selected: true,
+            tags: [
+              {
+                label: 'Orly (94)',
+                removable: true,
+              },
+            ],
+            zone: 'Zone C',
+          },
+          {
+            selected: false,
+            tags: [
+              {
+                label: 'Bastia (20)',
+                removable: true,
+              },
+            ],
+            zone: 'Corse',
+          },
+          {
+            selected: false,
+            tags: [],
+            zone: 'Guadeloupe',
+          },
+          {
+            selected: false,
+            tags: [],
+            zone: 'Guyane',
+          },
+          {
+            selected: false,
+            tags: [],
+            zone: 'Martinique',
+          },
+          {
+            selected: false,
+            tags: [],
+            zone: 'Mayotte',
+          },
+          {
+            selected: false,
+            tags: [],
+            zone: 'Nouvelle Calédonie',
+          },
+          {
+            selected: false,
+            tags: [],
+            zone: 'Polynésie',
+          },
+          {
+            selected: false,
+            tags: [
+              {
+                label: 'Saint-Denis (974) 🏠',
+                removable: false,
+              },
+            ],
+            zone: 'Réunion',
+          },
+          {
+            selected: false,
+            tags: [],
+            zone: 'Saint Pierre et Miquelon',
+          },
+          {
+            selected: false,
+            tags: [],
+            zone: 'Wallis et Futuna',
+          },
+        ]);
+      });
+    });
   });
 });

@@ -1,5 +1,13 @@
 import type { Address } from '$lib/address';
+import { zones } from '$lib/address';
 import type { CatalogItem } from '$lib/api-catalog';
+import type { ToggleTag } from '$lib/types/components/toggletag';
+
+export type ZoneInfo = {
+  zone: string;
+  tags: ToggleTag[];
+  selected: boolean;
+};
 
 type PreferencesJSON = {
   _zones: string[];
@@ -108,5 +116,29 @@ export class Preferences {
 
   removeZone(zone: string) {
     this._zones = this._zones.filter((value) => zone !== value);
+  }
+
+  getZoneInfos(userAddress: Address | undefined): ZoneInfo[] {
+    const result: ZoneInfo[] = [];
+    zones.forEach((zone) => {
+      const selected = this._zones.includes(zone.label);
+      const tags: ToggleTag[] = [];
+      if (userAddress?.zone === zone.label) {
+        tags.push({
+          label: `${userAddress.city} (${userAddress.departement}) 🏠`,
+          removable: false,
+        });
+      }
+      this._addresses.forEach((address) => {
+        if (address.zone === zone.label) {
+          tags.push({
+            label: `${address.city} (${address.departement})`,
+            removable: true,
+          });
+        }
+      });
+      result.push({ zone: zone.label, tags: tags, selected: selected });
+    });
+    return result;
   }
 }
