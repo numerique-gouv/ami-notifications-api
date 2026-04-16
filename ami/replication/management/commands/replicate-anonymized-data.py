@@ -1,6 +1,7 @@
 import logging
 
 from django.core.management.base import BaseCommand
+from django.db import utils
 
 from ami.replication.models import AnonymizedUser
 from ami.user.models import User
@@ -23,7 +24,10 @@ class Command(BaseCommand):
             if not users:
                 break
             for user in users:
-                AnonymizedUser.from_user(user, using="data_ware_house")
+                try:
+                    AnonymizedUser.from_user(user, using="data_ware_house")
+                except utils.DatabaseError:
+                    logger.error("Replication error: Cannot access the datawarehouse")
             count = len(users)
             total += count
             offset += page_size
