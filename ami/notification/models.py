@@ -1,4 +1,3 @@
-import datetime
 import uuid
 from enum import Enum
 
@@ -55,39 +54,6 @@ class Notification(models.Model):
         return self.item_external_url or self.internal_url
 
 
-class ScheduledNotificationToPublishManager(models.Manager):
-    def get_queryset(self):
-        now = timezone.now()
-        queryset = (
-            super()
-            .get_queryset()
-            .filter(
-                scheduled_at__lt=now,
-                sent_at__isnull=True,
-            )
-            .order_by("created_at")
-        )
-        return queryset
-
-    def publish(self):
-        queryset = self.get_queryset()
-        for scheduled_notification in queryset:
-            scheduled_notification.publish()
-        return queryset
-
-
-class ScheduledNotificationToDeleteManager(models.Manager):
-    def get_queryset(self):
-        now = timezone.now()
-        queryset = super().get_queryset().filter(sent_at__lt=now - datetime.timedelta(days=6 * 30))
-        return queryset
-
-    def delete(self):
-        queryset = self.get_queryset()
-        queryset.delete()
-        return queryset
-
-
 class ScheduledNotification(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
@@ -107,8 +73,6 @@ class ScheduledNotification(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     objects = models.Manager()
-    to_publish = ScheduledNotificationToPublishManager()
-    to_delete = ScheduledNotificationToDeleteManager()
 
     def build_notification(self) -> Notification:
         return Notification(
