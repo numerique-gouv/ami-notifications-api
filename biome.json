@@ -15,8 +15,9 @@
         "noUnusedImports": "error"
       },
       "style": {
-        "useBlockStatements": "warn",
-        "noShoutyConstants": "warn"
+        "noNonNullAssertion": "error",
+        "noShoutyConstants": "error",
+        "useBlockStatements": "error"
       }
     }
   },
