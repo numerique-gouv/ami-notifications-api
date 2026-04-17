@@ -11,6 +11,9 @@
   "linter": {
     "enabled": true,
     "rules": {
+      "complexity": {
+        "noImportantStyles": "error"
+      },
       "correctness": {
         "noUnusedImports": "error"
       },
