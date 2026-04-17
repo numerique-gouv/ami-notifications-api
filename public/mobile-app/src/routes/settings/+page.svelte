@@ -93,7 +93,7 @@
       padding: 1rem;
 
       .fr-toggle {
-        .fr-toggle__label {
+        label.fr-toggle__label {
           display: flex;
           position: relative;
           &:before {
@@ -104,8 +104,8 @@
           }
           &:after {
             position: absolute;
-            left: auto !important;
-            right: -1rem !important;
+            left: auto;
+            right: -1rem;
           }
         }
       }

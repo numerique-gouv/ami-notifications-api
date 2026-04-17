@@ -41,7 +41,7 @@
 <NavWithBackButton title="Mon profil" {backUrl} />
 
 {#if identity}
-  <div class="fr-m-4v profile-content-container" data-testid="profile">
+  <div class="profile-content-container" data-testid="profile">
     <Card
       id="profile-identity"
       iconHref="/remixicons/account-circle-line.svg"
@@ -141,7 +141,7 @@
 
 <style>
   .profile-content-container {
-    margin-top: 0 !important;
+    margin: 0 1rem 1rem 1rem;
 
     .paragraph-wrapper {
       margin-bottom: 1rem;
