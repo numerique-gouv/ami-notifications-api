@@ -348,39 +348,6 @@
       }
     }
 
-    .address-container {
-      .fr-tile {
-        background-color: var(--blue-france-950-100);
-        padding: 1.5rem 1.5rem 1rem 1.5rem;
-
-        .fr-tile__content {
-          display: flex;
-          flex-direction: row;
-          align-items: center;
-          padding-bottom: 1rem;
-
-          img {
-            margin-right: 0.5rem;
-          }
-
-          .fr-tile__title {
-            font-size: 16px;
-            line-height: 24px;
-            font-weight: 400;
-            a {
-              color: var(--grey-0-1000);
-              &::after {
-                color: var(--text-active-blue-france);
-                bottom: 1.25rem;
-                right: 1.25rem;
-                --icon-size: 1rem;
-              }
-            }
-          }
-        }
-      }
-    }
-
     .rubrique-container {
       margin-bottom: 24px;
 
@@ -417,6 +384,39 @@
         img {
           height: 5rem;
           width: 5rem;
+        }
+      }
+    }
+
+    .address-container {
+      .fr-tile {
+        background-color: var(--blue-france-950-100);
+        padding: 1.5rem 1.5rem 1rem 1.5rem;
+
+        .fr-tile__content {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          padding-bottom: 1rem;
+
+          img {
+            margin-right: 0.5rem;
+          }
+
+          .fr-tile__title {
+            font-size: 16px;
+            line-height: 24px;
+            font-weight: 400;
+            a {
+              color: var(--grey-0-1000);
+              &::after {
+                color: var(--text-active-blue-france);
+                bottom: 1.25rem;
+                right: 1.25rem;
+                --icon-size: 1rem;
+              }
+            }
+          }
         }
       }
     }

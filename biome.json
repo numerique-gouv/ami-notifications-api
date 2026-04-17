@@ -15,6 +15,7 @@
         "noUnusedImports": "error"
       },
       "style": {
+        "noDescendingSpecificity": "error",
         "noNonNullAssertion": "error",
         "noShoutyConstants": "error",
         "useBlockStatements": "error"
