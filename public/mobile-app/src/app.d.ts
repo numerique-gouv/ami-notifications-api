@@ -8,11 +8,21 @@ declare global {
     // interface PageState {}
     // interface Platform {}
   }
+  interface DSFRModalInstance {
+    disclose: () => void;
+    conceal: () => void;
+  }
+
+  interface DSFRInstance {
+    modal: DSFRModalInstance;
+  }
+
   interface Window {
     _paq?: (string | number | boolean | object)[][];
     NativeBridge?: {
       onEvent(eventName: string, data: unknown): void;
     };
+    dsfr: (element: Element | null) => DSFRInstance;
   }
 }
 
