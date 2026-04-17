@@ -257,6 +257,28 @@
 
 <style>
   .address-form-page {
+    .action-buttons {
+      position: fixed;
+      bottom: 0;
+      z-index: 1;
+      background-color: var(--background-default-grey);
+      display: flex;
+      gap: 1rem;
+      width: 100%;
+      margin: 0;
+      padding: 1rem;
+
+      li {
+        flex: 1;
+
+        button {
+          display: block;
+          width: 100%;
+          margin: 0;
+        }
+      }
+    }
+
     .address-content-container {
       padding: 1rem;
 
@@ -344,28 +366,6 @@
         align-items: center;
         .fr-icon-close-line {
           color: var(--text-action-high-blue-france);
-        }
-      }
-    }
-
-    .action-buttons {
-      position: fixed;
-      bottom: 0;
-      z-index: 1;
-      background-color: var(--background-default-grey);
-      display: flex;
-      gap: 1rem;
-      width: 100%;
-      margin: 0;
-      padding: 1rem;
-
-      li {
-        flex: 1;
-
-        button {
-          display: block;
-          width: 100%;
-          margin: 0;
         }
       }
     }
