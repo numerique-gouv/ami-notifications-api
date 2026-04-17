@@ -10,9 +10,9 @@ const catalogData = {
         kind: 'holiday',
         title: 'Holiday 1',
         description: '',
-        date: null,
-        start_date: new Date('2025-09-20T23:00:00Z'),
-        end_date: new Date('2025-12-15T23:00:00Z'),
+        date: null as Date | null,
+        start_date: new Date('2025-09-20T23:00:00Z') as Date | null,
+        end_date: new Date('2025-12-15T23:00:00Z') as Date | null,
         zones: '',
         emoji: '',
       },
@@ -20,9 +20,9 @@ const catalogData = {
         kind: 'holiday',
         title: 'Holiday 2',
         description: '',
-        date: null,
-        start_date: new Date('2025-10-20T23:00:00Z'),
-        end_date: new Date('2025-11-15T23:00:00Z'),
+        date: null as Date | null,
+        start_date: new Date('2025-10-20T23:00:00Z') as Date | null,
+        end_date: new Date('2025-11-15T23:00:00Z') as Date | null,
         zones: '',
         emoji: '',
       },
@@ -36,9 +36,9 @@ const catalogData = {
         kind: 'holiday',
         title: 'Holiday 3',
         description: '',
-        date: new Date('2025-09-20T23:00:00Z'),
-        start_date: null,
-        end_date: null,
+        date: new Date('2025-09-20T23:00:00Z') as Date | null,
+        start_date: null as Date | null,
+        end_date: null as Date | null,
         zones: '',
         emoji: '',
       },
@@ -46,9 +46,9 @@ const catalogData = {
         kind: 'holiday',
         title: 'Holiday 4',
         description: '',
-        date: new Date('2025-10-20T23:00:00Z'),
-        start_date: null,
-        end_date: null,
+        date: new Date('2025-10-20T23:00:00Z') as Date | null,
+        start_date: null as Date | null,
+        end_date: null as Date | null,
         zones: '',
         emoji: '',
       },
@@ -62,9 +62,9 @@ const catalogData = {
         kind: 'election',
         title: 'Election 1',
         description: '',
-        date: new Date('2025-09-20T23:00:00Z'),
-        start_date: null,
-        end_date: null,
+        date: new Date('2025-09-20T23:00:00Z') as Date | null,
+        start_date: null as Date | null,
+        end_date: null as Date | null,
         zones: '',
         emoji: '',
       },
@@ -74,6 +74,7 @@ const catalogData = {
 };
 
 type CatalogKey = keyof typeof catalogData;
+type NullableCatalog = { [K in CatalogKey]: (typeof catalogData)[K] | null };
 
 describe('/api-catalog', () => {
   afterEach(() => {
@@ -176,7 +177,7 @@ describe('/api-catalog', () => {
             JSON.stringify(catalogData[key2])
           );
         }
-        const responseData: { [K in CatalogKey]: any } = {
+        const responseData: NullableCatalog = {
           school_holidays: null,
           public_holidays: null,
           elections: null,
@@ -222,7 +223,7 @@ describe('/api-catalog', () => {
             JSON.stringify(catalogData[key2])
           );
         }
-        const responseData: { [K in CatalogKey]: any } = {
+        const responseData: NullableCatalog = {
           school_holidays: null,
           public_holidays: null,
           elections: null,
@@ -271,7 +272,7 @@ describe('/api-catalog', () => {
             JSON.stringify(catalogData[key2])
           );
         }
-        const responseData: { [K in CatalogKey]: any } = {
+        const responseData: NullableCatalog = {
           school_holidays: null,
           public_holidays: null,
           elections: null,
@@ -318,7 +319,7 @@ describe('/api-catalog', () => {
             JSON.stringify(catalogData[key2])
           );
         }
-        const responseData: { [K in CatalogKey]: any } = {
+        const responseData: NullableCatalog = {
           school_holidays: null,
           public_holidays: null,
           elections: null,
@@ -354,7 +355,7 @@ describe('/api-catalog', () => {
         // Given
         window.localStorage.clear();
         vi.clearAllMocks();
-        const catalogData2: { [K in CatalogKey]: any } = {
+        const catalogData2: NullableCatalog = {
           school_holidays: null,
           public_holidays: null,
           elections: null,
@@ -362,7 +363,7 @@ describe('/api-catalog', () => {
         for (const key2 of Object.keys(catalogData) as CatalogKey[]) {
           if (key2 === key) {
             const { expires_at, ...entry } = { ...catalogData[key2] }; // old entry, no expiration date
-            catalogData2[key2] = entry;
+            catalogData2[key2] = entry as (typeof catalogData)[typeof key2];
             window.localStorage.setItem(
               `${key2}_catalog`,
               JSON.stringify(catalogData2[key2])
@@ -375,7 +376,7 @@ describe('/api-catalog', () => {
             JSON.stringify(catalogData2[key2])
           );
         }
-        const responseData: { [K in CatalogKey]: any } = {
+        const responseData: NullableCatalog = {
           school_holidays: null,
           public_holidays: null,
           elections: null,
@@ -398,9 +399,9 @@ describe('/api-catalog', () => {
           { credentials: 'include' }
         );
         expect(result).toEqual({
-          school_holidays: catalogData2.school_holidays.items,
-          public_holidays: catalogData2.public_holidays.items,
-          elections: catalogData2.elections.items,
+          school_holidays: catalogData2.school_holidays?.items,
+          public_holidays: catalogData2.public_holidays?.items,
+          elections: catalogData2.elections?.items,
         });
         expect(window.localStorage.getItem(`${key}_catalog`)).toEqual(
           JSON.stringify(catalogData2[key])
@@ -425,7 +426,7 @@ describe('/api-catalog', () => {
             JSON.stringify(catalogData[key2])
           );
         }
-        const responseData: { [K in CatalogKey]: any } = {
+        const responseData: NullableCatalog = {
           school_holidays: null,
           public_holidays: null,
           elections: null,

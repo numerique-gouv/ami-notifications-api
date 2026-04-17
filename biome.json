@@ -23,6 +23,9 @@
         "noShoutyConstants": "error",
         "useBlockStatements": "error",
         "useTemplate": "error"
+      },
+      "suspicious": {
+        "noExplicitAny": "error"
       }
     }
   },

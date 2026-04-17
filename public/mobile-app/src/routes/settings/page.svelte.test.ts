@@ -9,7 +9,7 @@ import Page from './+page.svelte';
 describe('/+page.svelte', () => {
   beforeEach(() => {
     vi.mock('$lib/notifications', async (importOriginal) => {
-      const original = (await importOriginal()) as Record<string, any>;
+      const original = (await importOriginal()) as Record<string, unknown>;
       const registration = { id: 'fake-registration-id' };
       return {
         ...original,

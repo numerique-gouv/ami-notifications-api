@@ -36,6 +36,7 @@ const inventoryData = {
 };
 
 type InventoryKey = keyof typeof inventoryData;
+type NullableInventory = { [K in InventoryKey]: (typeof inventoryData)[K] | null };
 
 describe('/api-inventory', () => {
   afterEach(() => {
@@ -118,7 +119,7 @@ describe('/api-inventory', () => {
             JSON.stringify(inventoryData[key2])
           );
         }
-        const responseData: { [K in InventoryKey]: any } = {
+        const responseData: NullableInventory = {
           notifications: null,
         };
         responseData[key] = inventoryData[key];
@@ -160,7 +161,7 @@ describe('/api-inventory', () => {
             JSON.stringify(inventoryData[key2])
           );
         }
-        const responseData: { [K in InventoryKey]: any } = {
+        const responseData: NullableInventory = {
           notifications: null,
         };
         responseData[key] = inventoryData[key];
@@ -205,7 +206,7 @@ describe('/api-inventory', () => {
             JSON.stringify(inventoryData[key2])
           );
         }
-        const responseData: { [K in InventoryKey]: any } = {
+        const responseData: NullableInventory = {
           notifications: null,
         };
         responseData[key] = inventoryData[key];
@@ -248,7 +249,7 @@ describe('/api-inventory', () => {
             JSON.stringify(inventoryData[key2])
           );
         }
-        const responseData: { [K in InventoryKey]: any } = {
+        const responseData: NullableInventory = {
           notifications: null,
         };
         responseData[key] = inventoryData[key];
@@ -280,13 +281,13 @@ describe('/api-inventory', () => {
         // Given
         window.localStorage.clear();
         vi.clearAllMocks();
-        const inventoryData2: { [K in InventoryKey]: any } = {
+        const inventoryData2: NullableInventory = {
           notifications: null,
         };
         for (const key2 of Object.keys(inventoryData) as InventoryKey[]) {
           if (key2 === key) {
             const { expires_at, ...entry } = { ...inventoryData[key2] }; // old entry, no expiration date
-            inventoryData2[key2] = entry;
+            inventoryData2[key2] = entry as (typeof inventoryData)[typeof key2];
             window.localStorage.setItem(
               `${key2}_inventory`,
               JSON.stringify(inventoryData2[key2])
@@ -299,7 +300,7 @@ describe('/api-inventory', () => {
             JSON.stringify(inventoryData2[key2])
           );
         }
-        const responseData: { [K in InventoryKey]: any } = {
+        const responseData: NullableInventory = {
           notifications: null,
         };
         const { ...entry } = inventoryData[key];
@@ -320,7 +321,7 @@ describe('/api-inventory', () => {
           { credentials: 'include' }
         );
         expect(result).toEqual({
-          notifications: inventoryData2.notifications.items,
+          notifications: inventoryData2.notifications?.items,
         });
         expect(window.localStorage.getItem(`${key}_inventory`)).toEqual(
           JSON.stringify(inventoryData2[key])
@@ -345,7 +346,7 @@ describe('/api-inventory', () => {
             JSON.stringify(inventoryData[key2])
           );
         }
-        const responseData: { [K in InventoryKey]: any } = {
+        const responseData: NullableInventory = {
           notifications: null,
         };
         responseData[key] = inventoryData[key];

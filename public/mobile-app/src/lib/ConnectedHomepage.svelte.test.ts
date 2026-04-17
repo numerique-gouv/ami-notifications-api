@@ -22,7 +22,7 @@ describe('/ConnectedHomepage.svelte', () => {
     await userStore.login(mockUserInfo);
 
     vi.mock('$lib/notifications', async (importOriginal) => {
-      const original = (await importOriginal()) as Record<string, any>;
+      const original = (await importOriginal()) as Record<string, unknown>;
       const registration = { id: 'fake-registration-id' };
       return {
         ...original,
@@ -33,7 +33,7 @@ describe('/ConnectedHomepage.svelte', () => {
     });
 
     vi.mock('$env/static/public', async (importOriginal) => {
-      const original = (await importOriginal()) as Record<string, any>;
+      const original = (await importOriginal()) as Record<string, unknown>;
       return Promise.resolve({
         ...original,
         PUBLIC_API_URL: 'https://localhost:8000',

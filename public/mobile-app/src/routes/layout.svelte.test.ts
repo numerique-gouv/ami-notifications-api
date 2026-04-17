@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { render, waitFor } from '@testing-library/svelte';
+import type { Snippet } from 'svelte';
 import * as navigationMethods from '$app/navigation';
 import Layout from './+layout.svelte';
 
@@ -15,7 +16,7 @@ vi.mock('$lib/dsfr', () => ({
 }));
 
 describe('+layout.svelte', () => {
-  let mockEnv: any;
+  let mockEnv: { env: Record<string, string> };
 
   beforeEach(async () => {
     mockEnv = await vi.importMock('$env/dynamic/public');
@@ -35,7 +36,7 @@ describe('+layout.svelte', () => {
         .mockImplementation(() => Promise.resolve());
 
       // When
-      render(Layout, { children: (() => {}) as any });
+      render(Layout, { children: (() => {}) as unknown as Snippet });
 
       // Then
       await waitFor(() => {
@@ -51,7 +52,7 @@ describe('+layout.svelte', () => {
         .mockImplementation(() => Promise.resolve());
 
       // When
-      render(Layout, { children: (() => {}) as any });
+      render(Layout, { children: (() => {}) as unknown as Snippet });
 
       // Then
       await waitFor(() => {
@@ -62,13 +63,15 @@ describe('+layout.svelte', () => {
     test('should not redirect if running in a native app', async () => {
       // Given
       delete mockEnv.env.PUBLIC_WEBSITE_PUBLIC;
-      window.NativeBridge = {};
+      window.NativeBridge = {
+        onEvent: vi.fn(),
+      };
       const spy = vi
         .spyOn(navigationMethods, 'goto')
         .mockImplementation(() => Promise.resolve());
 
       // When
-      render(Layout, { children: (() => {}) as any });
+      render(Layout, { children: (() => {}) as unknown as Snippet });
 
       // Then
       await waitFor(() => {

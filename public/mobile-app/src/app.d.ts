@@ -9,8 +9,10 @@ declare global {
     // interface Platform {}
   }
   interface Window {
-    _paq?: any[];
-    NativeBridge?: any;
+    _paq?: (string | number | boolean | object)[][];
+    NativeBridge?: {
+      onEvent(eventName: string, data: unknown): void;
+    };
   }
 }
 
