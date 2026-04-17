@@ -49,7 +49,7 @@ export const retrieveInventory = async (
   }
   if (filter_items.length) {
     const items = (filter_items || []).map((e) => `filter-items=${e}`).join('&');
-    const response = await apiFetch(`/data/follow-up/inventories?${items}`, {
+    const response = await apiFetch(`/api/v1/users/follow-up/inventories?${items}`, {
       credentials: 'include',
     });
     if (response.ok) {
