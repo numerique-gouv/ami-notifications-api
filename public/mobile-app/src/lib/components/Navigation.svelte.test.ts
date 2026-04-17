@@ -7,7 +7,7 @@ import Navigation from './Navigation.svelte';
 describe('/Navigation.svelte', () => {
   beforeEach(async () => {
     vi.mock('$env/static/public', async (importOriginal) => {
-      const original = (await importOriginal()) as Record<string, any>;
+      const original = (await importOriginal()) as Record<string, unknown>;
       return Promise.resolve({
         ...original,
       });

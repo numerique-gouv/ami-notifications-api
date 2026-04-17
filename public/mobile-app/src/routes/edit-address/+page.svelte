@@ -12,7 +12,7 @@
 
   let backUrl: string = '/#/profile';
   let addressFromUserStore: Address | undefined = $state();
-  let timer: any;
+  let timer: ReturnType<typeof setTimeout>;
   let inputValue: string = $state('');
   let filteredAddresses: Address[] = $state([]);
   let disabledButton: boolean = $state(true);

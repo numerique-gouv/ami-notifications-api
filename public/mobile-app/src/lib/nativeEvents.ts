@@ -5,7 +5,7 @@ If `window.NativeBridge` exists, it can be used to notify the native code.
 
 ***/
 
-export const emit = (eventName: string, data?: any) => {
+export const emit = (eventName: string, data?: unknown) => {
   const payload = {
     eventName: eventName,
     data: JSON.stringify(data || {}),
@@ -15,7 +15,7 @@ export const emit = (eventName: string, data?: any) => {
 
   if (isNative()) {
     // This is an interface that would have been injected in the WebView from the mobile app native code.
-    window.NativeBridge.onEvent(eventName, payload.data);
+    window.NativeBridge?.onEvent(eventName, payload.data);
     console.log('Emitted event', eventName, data);
   }
 };
@@ -24,7 +24,11 @@ export const isNative = (): boolean => {
   return !!window.NativeBridge;
 };
 
-export const runOrNativeEvent = (func: () => any, eventName: string, data?: any) => {
+export const runOrNativeEvent = (
+  func: () => unknown,
+  eventName: string,
+  data?: unknown
+) => {
   if (isNative()) {
     console.log("We're in a native WebView, send an event");
     emit(eventName, data);

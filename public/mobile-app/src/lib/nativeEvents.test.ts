@@ -11,7 +11,9 @@ describe('/nativeEvents.ts', () => {
   describe('isNative', () => {
     test('should return true when there is a NativeBridge', async () => {
       // Given
-      globalThis.window.NativeBridge = {};
+      globalThis.window.NativeBridge = {
+        onEvent: vi.fn(),
+      };
 
       // When
       const result = isNative();

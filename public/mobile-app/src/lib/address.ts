@@ -1,3 +1,12 @@
+type AddressJSON = {
+  _city: string;
+  _context: string;
+  _idBAN: string;
+  _label: string;
+  _name: string;
+  _postcode: string;
+};
+
 export class Address {
   constructor(
     private _city: string = '',
@@ -8,7 +17,10 @@ export class Address {
     private _postcode: string = ''
   ) {}
 
-  static fromJSON(json: any): Address {
+  static fromJSON(json: Address | AddressJSON): Address {
+    if (json instanceof Address) {
+      return json;
+    }
     return new Address(
       json._city,
       json._context,
