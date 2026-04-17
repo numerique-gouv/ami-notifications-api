@@ -57,7 +57,7 @@ describe('/api-inventory', () => {
 
       // Then
       expect(spy).toHaveBeenCalledExactlyOnceWith(
-        'https://localhost:8000/data/follow-up/inventories?filter-items=notifications',
+        'https://localhost:8000/api/v1/users/follow-up/inventories?filter-items=notifications',
         { credentials: 'include' }
       );
       expect(result).toEqual({
@@ -79,7 +79,7 @@ describe('/api-inventory', () => {
 
       // Then
       expect(spy).toHaveBeenCalledExactlyOnceWith(
-        'https://localhost:8000/data/follow-up/inventories?filter-items=notifications',
+        'https://localhost:8000/api/v1/users/follow-up/inventories?filter-items=notifications',
         { credentials: 'include' }
       );
       expect(result).toEqual({
@@ -133,7 +133,7 @@ describe('/api-inventory', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `https://localhost:8000/data/follow-up/inventories?filter-items=${key}`,
+          `https://localhost:8000/api/v1/users/follow-up/inventories?filter-items=${key}`,
           { credentials: 'include' }
         );
         expect(result).toEqual({
@@ -175,7 +175,7 @@ describe('/api-inventory', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `https://localhost:8000/data/follow-up/inventories?filter-items=${key}`,
+          `https://localhost:8000/api/v1/users/follow-up/inventories?filter-items=${key}`,
           { credentials: 'include' }
         );
         expect(result).toEqual({
@@ -220,7 +220,7 @@ describe('/api-inventory', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `https://localhost:8000/data/follow-up/inventories?filter-items=${key}`,
+          `https://localhost:8000/api/v1/users/follow-up/inventories?filter-items=${key}`,
           { credentials: 'include' }
         );
         expect(result).toEqual({
@@ -263,7 +263,7 @@ describe('/api-inventory', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `https://localhost:8000/data/follow-up/inventories?filter-items=${key}`,
+          `https://localhost:8000/api/v1/users/follow-up/inventories?filter-items=${key}`,
           { credentials: 'include' }
         );
         expect(result).toEqual({
@@ -316,7 +316,7 @@ describe('/api-inventory', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `https://localhost:8000/data/follow-up/inventories?filter-items=${key}`,
+          `https://localhost:8000/api/v1/users/follow-up/inventories?filter-items=${key}`,
           { credentials: 'include' }
         );
         expect(result).toEqual({
@@ -360,7 +360,7 @@ describe('/api-inventory', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `https://localhost:8000/data/follow-up/inventories?filter-items=${key}`,
+          `https://localhost:8000/api/v1/users/follow-up/inventories?filter-items=${key}`,
           { credentials: 'include' }
         );
         expect(result).toEqual({

@@ -57,7 +57,7 @@ def test_get_follow_up_inventories(
     psl_data_mock = mock.Mock(return_value=psl_inventory)
     monkeypatch.setattr("ami.followup.api_views.get_notifications_inventory", psl_data_mock)
 
-    response = django_app.get("/data/follow-up/inventories", status=200)
+    response = django_app.get("/api/v1/users/follow-up/inventories", status=200)
     assert response.json == {
         "notifications": {
             "status": "success",
@@ -93,4 +93,4 @@ def test_get_follow_up_inventories(
 
 @pytest.mark.django_db
 def test_get_follow_up_inventories_without_auth(django_app) -> None:
-    assert_query_fails_without_auth(django_app, "/data/follow-up/inventories")
+    assert_query_fails_without_auth(django_app, "/api/v1/users/follow-up/inventories")

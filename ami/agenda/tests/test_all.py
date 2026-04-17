@@ -97,7 +97,7 @@ def test_get_agenda_items(
     )
     monkeypatch.setattr("ami.agenda.api_views.MonthlyExpiration.compute_expires_at", monthly_mock)
 
-    response = django_app.get("/data/agenda/items", params={"current_date": "2025-12-12"})
+    response = django_app.get("/api/v1/users/agenda/items", params={"current_date": "2025-12-12"})
     assert response.json == {
         "school_holidays": {
             "status": "success",
@@ -203,7 +203,7 @@ def test_get_agenda_items(
     public_data_mock.reset_mock()
     election_data_mock.reset_mock()
     response = django_app.get(
-        "/data/agenda/items", params={"current_date": "2025-12-12", "filter-items": []}
+        "/api/v1/users/agenda/items", params={"current_date": "2025-12-12", "filter-items": []}
     )
     assert response.json["school_holidays"] is not None
     assert response.json["public_holidays"] is not None
@@ -216,7 +216,8 @@ def test_get_agenda_items(
     public_data_mock.reset_mock()
     election_data_mock.reset_mock()
     response = django_app.get(
-        "/data/agenda/items", params={"current_date": "2025-12-12", "filter-items": ["unknown"]}
+        "/api/v1/users/agenda/items",
+        params={"current_date": "2025-12-12", "filter-items": ["unknown"]},
     )
     assert response.json["school_holidays"] is not None
     assert response.json["public_holidays"] is not None
@@ -229,7 +230,7 @@ def test_get_agenda_items(
     public_data_mock.reset_mock()
     election_data_mock.reset_mock()
     response = django_app.get(
-        "/data/agenda/items",
+        "/api/v1/users/agenda/items",
         params={
             "current_date": "2025-12-12",
             "filter-items": ["school_holidays", "public_holidays", "elections", "unknown"],
@@ -246,7 +247,8 @@ def test_get_agenda_items(
     public_data_mock.reset_mock()
     election_data_mock.reset_mock()
     response = django_app.get(
-        "/data/agenda/items", params={"current_date": "2025-12-12", "filter-items": ["elections"]}
+        "/api/v1/users/agenda/items",
+        params={"current_date": "2025-12-12", "filter-items": ["elections"]},
     )
     assert response.json["school_holidays"] is None
     assert response.json["public_holidays"] is None
@@ -259,7 +261,7 @@ def test_get_agenda_items(
     public_data_mock.reset_mock()
     election_data_mock.reset_mock()
     response = django_app.get(
-        "/data/agenda/items",
+        "/api/v1/users/agenda/items",
         params={"current_date": "2025-12-12", "filter-items": ["elections", "public_holidays"]},
     )
     assert response.json["school_holidays"] is None
@@ -274,4 +276,4 @@ def test_get_agenda_items(
 def test_get_agenda_items_without_auth(
     django_app,
 ) -> None:
-    assert_query_fails_without_auth(django_app, "/data/agenda/items")
+    assert_query_fails_without_auth(django_app, "/api/v1/users/agenda/items")

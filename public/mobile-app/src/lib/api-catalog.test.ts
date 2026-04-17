@@ -93,7 +93,7 @@ describe('/api-catalog', () => {
 
       // Then
       expect(spy).toHaveBeenCalledExactlyOnceWith(
-        'https://localhost:8000/data/agenda/items?current_date=2025-11-01&filter-items=school_holidays&filter-items=public_holidays&filter-items=elections',
+        'https://localhost:8000/api/v1/users/agenda/items?current_date=2025-11-01&filter-items=school_holidays&filter-items=public_holidays&filter-items=elections',
         { credentials: 'include' }
       );
       expect(result).toEqual({
@@ -123,7 +123,7 @@ describe('/api-catalog', () => {
 
       // Then
       expect(spy).toHaveBeenCalledExactlyOnceWith(
-        'https://localhost:8000/data/agenda/items?current_date=2025-11-01&filter-items=school_holidays&filter-items=public_holidays&filter-items=elections',
+        'https://localhost:8000/api/v1/users/agenda/items?current_date=2025-11-01&filter-items=school_holidays&filter-items=public_holidays&filter-items=elections',
         { credentials: 'include' }
       );
       expect(result).toEqual({
@@ -193,7 +193,7 @@ describe('/api-catalog', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `https://localhost:8000/data/agenda/items?current_date=2025-11-01&filter-items=${key}`,
+          `https://localhost:8000/api/v1/users/agenda/items?current_date=2025-11-01&filter-items=${key}`,
           { credentials: 'include' }
         );
         expect(result).toEqual({
@@ -239,7 +239,7 @@ describe('/api-catalog', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `https://localhost:8000/data/agenda/items?current_date=2025-11-01&filter-items=${key}`,
+          `https://localhost:8000/api/v1/users/agenda/items?current_date=2025-11-01&filter-items=${key}`,
           { credentials: 'include' }
         );
         expect(result).toEqual({
@@ -288,7 +288,7 @@ describe('/api-catalog', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `https://localhost:8000/data/agenda/items?current_date=2025-11-01&filter-items=${key}`,
+          `https://localhost:8000/api/v1/users/agenda/items?current_date=2025-11-01&filter-items=${key}`,
           { credentials: 'include' }
         );
         expect(result).toEqual({
@@ -335,7 +335,7 @@ describe('/api-catalog', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `https://localhost:8000/data/agenda/items?current_date=2025-11-01&filter-items=${key}`,
+          `https://localhost:8000/api/v1/users/agenda/items?current_date=2025-11-01&filter-items=${key}`,
           { credentials: 'include' }
         );
         expect(result).toEqual({
@@ -394,7 +394,7 @@ describe('/api-catalog', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `https://localhost:8000/data/agenda/items?current_date=2025-11-01&filter-items=${key}`,
+          `https://localhost:8000/api/v1/users/agenda/items?current_date=2025-11-01&filter-items=${key}`,
           { credentials: 'include' }
         );
         expect(result).toEqual({
@@ -442,7 +442,7 @@ describe('/api-catalog', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `https://localhost:8000/data/agenda/items?current_date=2025-11-01&filter-items=${key}`,
+          `https://localhost:8000/api/v1/users/agenda/items?current_date=2025-11-01&filter-items=${key}`,
           { credentials: 'include' }
         );
         expect(result).toEqual({
