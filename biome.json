@@ -18,7 +18,8 @@
         "noDescendingSpecificity": "error",
         "noNonNullAssertion": "error",
         "noShoutyConstants": "error",
-        "useBlockStatements": "error"
+        "useBlockStatements": "error",
+        "useTemplate": "error"
       }
     }
   },
