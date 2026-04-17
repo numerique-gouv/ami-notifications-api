@@ -80,8 +80,8 @@
   }
 </script>
 
-<div class="homepage">
-  {#if !userStore.connected}
+{#if !userStore.connected}
+  <div class="homepage">
     <div class="homepage-not-connected">
       {#if error}
         <div class="fr-notice fr-notice--alert">
@@ -169,11 +169,11 @@
         </p>
       </div>
     </div>
-  {:else if userStore.connected}
-    <Navigation currentItem="home" />
-    <ConnectedHomepage />
-  {/if}
-</div>
+  </div>
+{:else if userStore.connected}
+  <ConnectedHomepage />
+  <Navigation currentItem="home" />
+{/if}
 
 <style>
   .homepage {
