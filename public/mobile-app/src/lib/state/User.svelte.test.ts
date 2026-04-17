@@ -234,7 +234,7 @@ describe('/lib/state/User.svelte.ts', () => {
         // When
         await userStore.login(mockUserInfo);
         expect(userStore.connected).not.toBeNull();
-        userStore.connected!.setEmail('foo@bar.com');
+        userStore.connected?.setEmail('foo@bar.com');
 
         // Then
         expect(userStore.connected?.identity?.email).toEqual('foo@bar.com');
@@ -257,7 +257,7 @@ describe('/lib/state/User.svelte.ts', () => {
         expect(userStore.connected?.identity?.email).toEqual(
           'wossewodda-3728@yopmail.com'
         );
-        userStore.connected!.setEmail('');
+        userStore.connected?.setEmail('');
 
         // Then
         expect(userStore.connected?.identity?.email).toEqual(
@@ -278,7 +278,7 @@ describe('/lib/state/User.svelte.ts', () => {
         // When
         await userStore.login(mockUserInfo);
         expect(userStore.connected).not.toBeNull();
-        userStore.connected!.setPreferredUsername('Dupont');
+        userStore.connected?.setPreferredUsername('Dupont');
 
         // Then
         expect(userStore.connected?.identity?.preferred_username).toEqual('Dupont');
@@ -300,9 +300,9 @@ describe('/lib/state/User.svelte.ts', () => {
         // When
         await userStore.login(mockUserInfo);
         expect(userStore.connected).not.toBeNull();
-        userStore.connected!.setPreferredUsername('Dupont');
+        userStore.connected?.setPreferredUsername('Dupont');
         expect(userStore.connected?.identity?.preferred_username).toEqual('Dupont');
-        userStore.connected!.setPreferredUsername('');
+        userStore.connected?.setPreferredUsername('');
 
         // Then
         expect(userStore.connected?.identity?.preferred_username).toBeUndefined();
@@ -322,7 +322,7 @@ describe('/lib/state/User.svelte.ts', () => {
         // When
         await userStore.login(mockUserInfo);
         expect(userStore.connected).not.toBeNull();
-        userStore.connected!.setAddress(otherAddress);
+        userStore.connected?.setAddress(otherAddress);
 
         // Then
         expect(userStore.connected?.identity?.address?.city).toEqual(
@@ -350,7 +350,7 @@ describe('/lib/state/User.svelte.ts', () => {
         // When
         await userStore.login(mockUserInfo);
         expect(userStore.connected).not.toBeNull();
-        await userStore.connected!.setAddressFromAPIParticulier();
+        await userStore.connected?.setAddressFromAPIParticulier();
 
         // Then
         // @ts-expect-error
@@ -371,7 +371,7 @@ describe('/lib/state/User.svelte.ts', () => {
         // When
         await userStore.login(mockUserInfo);
         expect(userStore.connected).not.toBeNull();
-        await userStore.connected!.setAddressFromAPIParticulier();
+        await userStore.connected?.setAddressFromAPIParticulier();
 
         // Then
         // @ts-expect-error
@@ -392,7 +392,7 @@ describe('/lib/state/User.svelte.ts', () => {
         // When
         await userStore.login(mockUserInfo);
         expect(userStore.connected).not.toBeNull();
-        await userStore.connected!.setAddressFromAPIParticulier();
+        await userStore.connected?.setAddressFromAPIParticulier();
 
         // Then
         // @ts-expect-error
@@ -412,7 +412,7 @@ describe('/lib/state/User.svelte.ts', () => {
         // When
         await userStore.login(mockUserInfo);
         expect(userStore.connected).not.toBeNull();
-        await userStore.connected!.setAddressFromAPIParticulier();
+        await userStore.connected?.setAddressFromAPIParticulier();
 
         // Then
         // @ts-expect-error
@@ -439,7 +439,7 @@ describe('/lib/state/User.svelte.ts', () => {
         // When
         await userStore.login(mockUserInfo);
         expect(userStore.connected).not.toBeNull();
-        await userStore.connected!.setAddressFromAPIParticulier();
+        await userStore.connected?.setAddressFromAPIParticulier();
 
         // Then
         expect(spy).toHaveBeenCalledTimes(1);
@@ -464,7 +464,7 @@ describe('/lib/state/User.svelte.ts', () => {
         // When
         await userStore.login(mockUserInfo);
         expect(userStore.connected).not.toBeNull();
-        await userStore.connected!.setAddressFromAPIParticulier();
+        await userStore.connected?.setAddressFromAPIParticulier();
 
         // Then
         expect(spy).toHaveBeenCalledTimes(1);
@@ -519,7 +519,7 @@ describe('/lib/state/User.svelte.ts', () => {
         // When
         await userStore.login(mockUserInfo);
         expect(userStore.connected).not.toBeNull();
-        await userStore.connected!.setAddressFromAPIParticulier();
+        await userStore.connected?.setAddressFromAPIParticulier();
 
         // Then
         expect(spy).toHaveBeenCalledTimes(1);

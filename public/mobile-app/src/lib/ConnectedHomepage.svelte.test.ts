@@ -195,7 +195,7 @@ describe('/ConnectedHomepage.svelte', () => {
 
   test('should not display address block when user address is known', async () => {
     // Given
-    userStore.connected!.setAddress(mockAddress);
+    userStore.connected?.setAddress(mockAddress);
 
     // When
     const { container } = render(ConnectedHomepage);

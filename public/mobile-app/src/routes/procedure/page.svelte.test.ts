@@ -66,8 +66,8 @@ describe('/+page.svelte', () => {
   test('should retrieve procedure url', async () => {
     // Given
     await userStore.login(mockUserInfo);
-    userStore.connected!.setPreferredUsername('Dupont');
-    userStore.connected!.setAddress(mockAddress);
+    userStore.connected?.setPreferredUsername('Dupont');
+    userStore.connected?.setAddress(mockAddress);
 
     const expectedProcedureUrl = 'fake-public-otv-url?caller=fake.jwt.token';
     const spy = vi

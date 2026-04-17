@@ -176,7 +176,11 @@ describe('/+page.svelte', () => {
     expect(userStore.connected).not.toBeNull();
     delete userStore.connected?.identity?.address;
     userStore.connected?.addScheduledNotificationCreatedKey('foo');
-    const setAddressSpy = vi.spyOn(userStore.connected!, 'setAddress');
+    const connectedUser = userStore.connected;
+    if (!connectedUser) {
+      throw new Error('User should be connected');
+    }
+    const setAddressSpy = vi.spyOn(connectedUser, 'setAddress');
     const spy = vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(new Agenda());
     const spy2 = vi.spyOn(toastStore, 'addToast');
 
