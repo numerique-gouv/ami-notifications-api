@@ -261,7 +261,8 @@
   }
 
   .homepage-connected {
-    margin: 24px 16px;
+    padding: 1.5rem 1rem;
+    margin-bottom: 68px;
 
     .header {
       display: flex;
@@ -349,7 +350,9 @@
     }
 
     .rubrique-container {
-      margin-bottom: 24px;
+      &:not(:last-child) {
+        margin-bottom: 24px;
+      }
 
       .header-container {
         display: flex;
