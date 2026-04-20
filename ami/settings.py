@@ -146,7 +146,12 @@ ASGI_APPLICATION = "ami.asgi.application"
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 postgres_database = dj_database_url.parse(CONFIG["DATABASE_URL"])
-DATABASES = {"default": postgres_database, "channels_postgres": postgres_database}
+data_ware_house = dj_database_url.parse(CONFIG["DATA_WARE_HOUSE_URL"])
+DATABASES = {
+    "default": postgres_database,
+    "channels_postgres": postgres_database,
+    "data_ware_house": data_ware_house,
+}
 
 # Authentication
 AUTHENTICATION_BACKENDS = [
