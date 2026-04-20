@@ -10,9 +10,12 @@ from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.serialization import pkcs12
 from cryptography.x509.oid import NameOID
+from django.contrib.auth.models import User as DjangoUser
 from django.core.cache import cache
+from django.utils.timezone import now
 from webpush.vapid import VAPID
 
+from ami.agent.models import Agent
 from ami.asgi import application
 from ami.notification.models import Notification
 from ami.user.models import Registration, User
@@ -238,3 +241,66 @@ def mobileAppSubscription() -> dict[str, Any]:
         "platform": "android",
     }
     return subscription
+
+
+@pytest.fixture
+def agent():
+    user = DjangoUser.objects.create(
+        username="agent-user",
+        first_name="Simple",
+        last_name="AGENT",
+        email="simple@agent.com",
+    )
+    return Agent.objects.create(
+        user=user,
+        proconnect_sub="no-role",
+        proconnect_last_login=now(),
+    )
+
+
+@pytest.fixture
+def support_agent():
+    user = DjangoUser.objects.create(
+        username="agent-support-user",
+        first_name="Support",
+        last_name="AGENT",
+        email="support@agent.com",
+    )
+    return Agent.objects.create(
+        user=user,
+        role=Agent.Role.SUPPORT,
+        proconnect_sub="support",
+        proconnect_last_login=now(),
+    )
+
+
+@pytest.fixture
+def notifications_agent():
+    user = DjangoUser.objects.create(
+        username="agent-notifications-user",
+        first_name="Notifications",
+        last_name="AGENT",
+        email="notifications@agent.com",
+    )
+    return Agent.objects.create(
+        user=user,
+        role=Agent.Role.NOTIFICATIONS,
+        proconnect_sub="notifications",
+        proconnect_last_login=now(),
+    )
+
+
+@pytest.fixture
+def admin_agent():
+    user = DjangoUser.objects.create(
+        username="agent-admin-user",
+        first_name="Admin",
+        last_name="AGENT",
+        email="admin@agent.com",
+    )
+    return Agent.objects.create(
+        user=user,
+        role=Agent.Role.ADMIN,
+        proconnect_sub="admin",
+        proconnect_last_login=now(),
+    )
