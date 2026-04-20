@@ -9,6 +9,7 @@ def test_home_with_support_agent(app, support_agent: Agent) -> None:
     app.set_user(support_agent.user)
     response = app.get("/agent-admin/", status=200)
     assert "/agent-admin/manage/access/" not in response
+    assert "/agent-admin/notification/" not in response
 
 
 @pytest.mark.django_db
@@ -16,6 +17,7 @@ def test_home_with_notifications_agent(app, notifications_agent: Agent) -> None:
     app.set_user(notifications_agent.user)
     response = app.get("/agent-admin/", status=200)
     assert "/agent-admin/manage/access/" not in response
+    assert "/agent-admin/notification/" in response
 
 
 @pytest.mark.django_db
@@ -23,6 +25,7 @@ def test_home_with_admin_agent(app, admin_agent: Agent) -> None:
     app.set_user(admin_agent.user)
     response = app.get("/agent-admin/", status=200)
     assert "/agent-admin/manage/access/" in response
+    assert "/agent-admin/notification/" in response
 
 
 @pytest.mark.django_db

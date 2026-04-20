@@ -37,6 +37,11 @@
               <a type="link" href="{% url 'agent-admin:manage-access' %}" class="fr-nav__link">Gestion des droits des agents</a>
             </li>
           {% endif %}
+          {% if request.user.agent.has_role_notifications %}
+            <li class="fr-nav__item">
+              <a type="link" href="{% url 'agent-admin:send-notification' %}" class="fr-nav__link">Envoyer une notification</a>
+            </li>
+          {% endif %}
           <li class="fr-nav__item">
             <form action="{% url 'agent-admin:oidc_logout' %}" method="post" id="logout-form">
               {% csrf_token %}

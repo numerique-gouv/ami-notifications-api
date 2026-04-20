@@ -1,7 +1,12 @@
 from django.shortcuts import redirect, render
 from django.urls import reverse
 
-from ami.agent.decorators import agent_login_required, role_admin_required, role_support_required
+from ami.agent.decorators import (
+    agent_login_required,
+    role_admin_required,
+    role_notifications_required,
+    role_support_required,
+)
 from ami.agent.models import Agent
 from ami.agent_admin.forms import AgentFormSet
 from ami.agent_admin.models import AuditEntry
@@ -101,3 +106,10 @@ def manage_access(request):
     }
 
     return render(request, "agent_admin/manage_access.html", context)
+
+
+@agent_login_required
+@role_notifications_required
+def send_notification(request):
+    context = {}
+    return render(request, "agent_admin/send_notification.html", context)

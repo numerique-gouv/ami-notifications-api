@@ -9,4 +9,5 @@ urlpatterns = [
     path("login/", views.login, name="login"),
     path("access-denied/", views.access_denied, name="access-denied"),
     path("manage/access/", views.manage_access, name="manage-access"),
+    path("notification/", views.send_notification, name="send-notification"),
 ]
