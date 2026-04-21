@@ -21,3 +21,14 @@ document.addEventListener('DOMContentLoaded', () => {
     select.addEventListener('change', handleSelectChange);
   });
 });
+
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.querySelector('.form-disable-on-submit');
+
+  if (form) {
+    form.addEventListener('submit', (_ev) => {
+      const button = form.querySelector('button[type="submit"]');
+      button.disabled = true;
+    });
+  }
+});

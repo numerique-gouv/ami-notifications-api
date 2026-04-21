@@ -6,7 +6,7 @@
   {% if form_result_data_dict %}
     {% dsfr_alert form_result_data_dict %}
   {% endif %}
-  <form method="post" id="send-notification" novalidate>
+  <form method="post" id="send-notification" class="form-disable-on-submit" novalidate>
     {% csrf_token %}
     {{ form }}
     {% dsfr_button_group btn_group %}
