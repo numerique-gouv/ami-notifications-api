@@ -83,6 +83,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "ami.authentication.middleware.AMIJWTAuthCookieMiddleware",
+    "ami.utils.middleware.TimezoneMiddleware",
 ]
 
 ROOT_URLCONF = "ami.urls"

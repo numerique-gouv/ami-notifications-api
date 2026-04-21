@@ -47,6 +47,12 @@ class AgentAuthenticationBackend(OIDCAuthenticationBackend):
 
         return user
 
+    def authenticate(self, request, **kwargs):
+        user = super().authenticate(request, **kwargs)
+        if user is not None:
+            request.session["django_timezone"] = "Europe/Paris"
+        return user
+
 
 def provider_logout(request):
     redirect_url = settings.LOGOUT_REDIRECT_URL
