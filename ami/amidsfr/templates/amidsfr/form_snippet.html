@@ -1,0 +1,9 @@
+{% load amidsfr_tags  %}
+{% if form.non_field_errors %}
+  <section class="fr-my-4v fr-input-group fr-input-group--error">
+    {{ form.non_field_errors }}
+  </section>
+{% endif %}
+{% for field in form %}
+  {% amidsfr_form_field field %}
+{% endfor %}
