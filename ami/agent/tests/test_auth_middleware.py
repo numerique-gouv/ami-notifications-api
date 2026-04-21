@@ -58,6 +58,7 @@ def test_agent_does_not_exist(
     assert agent.role is None
     assert agent.proconnect_sub == "f0773fce-f744-4df3-bf97-1f382c252101"
     assert agent.proconnect_last_login is not None
+    assert auth_request.session["django_timezone"] == "Europe/Paris"
 
 
 @mock.patch("mozilla_django_oidc.auth.OIDCAuthenticationBackend._verify_jws")
