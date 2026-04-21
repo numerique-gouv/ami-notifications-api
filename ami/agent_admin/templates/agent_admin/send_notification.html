@@ -1,5 +1,14 @@
 {% extends "agent_admin/base.html" %}
+{% load dsfr_tags %}
 
 {% block content %}
   <h1>Envoyer une notification</h1>
+  {% if form_result_data_dict %}
+    {% dsfr_alert form_result_data_dict %}
+  {% endif %}
+  <form method="post" id="send-notification" novalidate>
+    {% csrf_token %}
+    {{ form }}
+    {% dsfr_button_group btn_group %}
+  </form>
 {% endblock %}
