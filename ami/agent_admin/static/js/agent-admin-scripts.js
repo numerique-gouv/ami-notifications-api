@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
   const selects = document.querySelectorAll('#agent-forms select');
-  const submitBtn = document.querySelector("button.fr-btn[type='submit']");
+  const submitBtn = document.querySelector("#agent-forms button.fr-btn[type='submit']");
 
   if (submitBtn) {
     submitBtn.disabled = true;
