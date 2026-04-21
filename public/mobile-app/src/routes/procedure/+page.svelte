@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
   import { page } from '$app/state';
   import { Address } from '$lib/address';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
@@ -46,7 +45,7 @@
 
   onMount(() => {
     if (!userStore.connected) {
-      goto('/');
+      window.location.href = '/';
     }
 
     getProcedureUrl();

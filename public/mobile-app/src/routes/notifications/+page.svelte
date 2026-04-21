@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import NotificationIcon from '$lib/components/NotificationIcon.svelte';
   import type { AppNotification } from '$lib/notifications';
@@ -17,7 +16,7 @@
 
   onMount(async () => {
     if (!userStore.connected) {
-      goto('/');
+      window.location.href = '/';
     }
 
     notifications = await retrieveNotifications();
@@ -44,7 +43,7 @@
   };
 
   const goToSettings = () => {
-    goto('/settings');
+    window.location.href = '/settings/';
   };
 </script>
 

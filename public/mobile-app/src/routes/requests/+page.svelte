@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
   import Navigation from '$lib/components/Navigation.svelte';
   import RequestItem from '$lib/components/RequestItem.svelte';
   import type { FollowUp } from '$lib/follow-up';
@@ -11,7 +10,7 @@
 
   onMount(async () => {
     if (!userStore.connected) {
-      goto('/');
+      window.location.href = '/';
     }
 
     followUp = await buildFollowUp();

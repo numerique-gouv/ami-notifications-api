@@ -1,8 +1,6 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
-
   const goToHomepage = () => {
-    goto('/');
+    window.location.href = '/';
   };
 </script>
 

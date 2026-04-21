@@ -1,7 +1,6 @@
 <script lang="ts">
   import applicationSvg from '@gouvfr/dsfr/dist/artwork/pictograms/digital/application.svg';
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
   import { page } from '$app/state';
   import {
     PUBLIC_API_URL,
@@ -45,14 +44,14 @@
       if (page.url.searchParams.has('is_logged_in')) {
         await initializeData(page.url.searchParams, userStore);
         if (page.url.searchParams.get('user_first_login') === 'true') {
-          goto('/notifications-welcome-page');
+          window.location.href = '/notifications-welcome-page/';
         } else {
-          goto('/');
+          window.location.href = '/';
         }
       }
       if (page.url.searchParams.has('is_logged_out')) {
         toastStore.addToast('Vous avez bien été déconnecté(e)', 'neutral');
-        goto('/');
+        window.location.href = '/';
       }
     } catch (error) {
       console.error(error);
@@ -69,14 +68,14 @@
       });
       window.location.href = `${PUBLIC_API_URL}/login-france-connect`;
     } catch {
-      goto('/network-error');
+      window.location.href = '/network-error/';
     }
   };
 
   function dismissError() {
     error = '';
     error_description = '';
-    goto('/');
+    window.location.href = '/';
   }
 </script>
 

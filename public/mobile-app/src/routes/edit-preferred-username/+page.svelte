@@ -1,20 +1,19 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import { toastStore } from '$lib/state/toast.svelte';
   import type { DataOrigin } from '$lib/state/User.svelte';
   import { userStore } from '$lib/state/User.svelte';
   import { formatDate } from '$lib/utils';
 
-  let backUrl: string = '/profile';
+  let backUrl: string = '/profile/';
   let inputValue: string = $state('');
   let preferred_username_origin: DataOrigin | undefined = $state();
   let preferred_username_last_update: Date | undefined = $state();
 
   onMount(() => {
     if (!userStore.connected) {
-      goto('/');
+      window.location.href = '/';
       return;
     } else {
       const identity = userStore.connected.identity;
@@ -27,7 +26,7 @@
   });
 
   const navigateToPreviousPage = async () => {
-    goto(backUrl);
+    window.location.href = backUrl;
   };
 
   const cancel = async () => {

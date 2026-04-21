@@ -1,3 +1,4 @@
+import { browser } from '$app/environment';
 import {
   PUBLIC_MATOMO_CDN_URL,
   PUBLIC_MATOMO_ENABLED,
@@ -9,7 +10,7 @@ import { userStore } from '$lib/state/User.svelte';
 const MATOMO_ENABLED = PUBLIC_MATOMO_ENABLED === 'true';
 
 export function initMatomo() {
-  if (!MATOMO_ENABLED || typeof window === 'undefined') {
+  if (!MATOMO_ENABLED || !browser) {
     return;
   }
 
@@ -25,7 +26,7 @@ export function initMatomo() {
 }
 
 export function trackPageView(title?: string) {
-  if (typeof window === 'undefined') {
+  if (!browser) {
     return;
   }
 

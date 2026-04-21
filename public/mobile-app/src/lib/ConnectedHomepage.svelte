@@ -69,15 +69,15 @@
   };
 
   const goToProfile = async () => {
-    goto('/profile');
+    goto('/profile/');
   };
 
   const goToSettings = () => {
-    goto('/settings');
+    window.location.href = '/settings/';
   };
 
   const goToContact = () => {
-    goto('/contact');
+    window.location.href = '/contact/';
   };
 </script>
 
@@ -89,7 +89,7 @@
 
     <div class="header-right">
       <div class="notification-svg-icon" id="notification-icon">
-        <a href="/notifications">
+        <a href="/notifications/">
           <img src="/remixicons/notification-3.svg" alt="Icône de notifications">
           <div class="count-number-wrapper" data-content="{unreadNotificationsCount}">
             {unreadNotificationsCount}
@@ -164,7 +164,7 @@
             <div class="fr-tile__content">
               <img class="address-icon" src="/remixicons/house.svg" alt="Icône adresse">
               <h3 class="fr-tile__title">
-                <a href="/edit-address"
+                <a href="/edit-address/"
                   ><b
                     >Renseignez votre adresse sur l'application pour faciliter vos
                     échanges&nbsp;!</b
@@ -198,7 +198,7 @@
     {:else}
       <div class="header-container">
         <span class="title">Mon agenda</span>
-        <a class="see-all" title="Voir tous mes évènements" href="/agenda">
+        <a class="see-all" title="Voir tous mes évènements" href="/agenda/">
           <span>Voir tout</span>
           <img
             class="arrow-line"
@@ -235,7 +235,7 @@
     {:else}
       <div class="header-container">
         <span class="title">Mes démarches</span>
-        <a class="see-all" title="Voir toutes mes démarches" href="/requests">
+        <a class="see-all" title="Voir toutes mes démarches" href="/requests/">
           <span>Voir tout</span>
           <img
             class="arrow-line"

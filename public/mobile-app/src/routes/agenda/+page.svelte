@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
   import type { Agenda } from '$lib/agenda';
   import { buildAgenda } from '$lib/agenda';
   import AgendaItem from '$lib/components/AgendaItem.svelte';
@@ -11,7 +10,7 @@
 
   onMount(async () => {
     if (!userStore.connected) {
-      goto('/');
+      window.location.href = '/';
     }
 
     agenda = await buildAgenda();

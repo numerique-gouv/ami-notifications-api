@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
   import type { Address } from '$lib/address';
   import Card from '$lib/components/Card.svelte';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
@@ -15,7 +14,7 @@
 
   onMount(async () => {
     if (!userStore.connected) {
-      goto('/');
+      window.location.href = '/';
       return;
     } else {
       identity = userStore.connected.identity;
@@ -26,15 +25,15 @@
   });
 
   const goToEditPreferredUsername = async () => {
-    goto('/edit-preferred-username');
+    window.location.href = '/edit-preferred-username/';
   };
 
   const goToEditEmail = async () => {
-    goto('/edit-email');
+    window.location.href = '/edit-email/';
   };
 
   const goToEditAddress = async () => {
-    goto('/edit-address');
+    window.location.href = '/edit-address/';
   };
 </script>
 

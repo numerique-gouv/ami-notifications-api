@@ -1,6 +1,5 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import { goto } from '$app/navigation';
   import BackButton from '$lib/components/BackButton.svelte';
 
   interface Props {
@@ -9,10 +8,6 @@
     children?: Snippet;
   }
   let { backUrl, children, title }: Props = $props();
-
-  const navigateToPreviousPage = async () => {
-    goto(backUrl);
-  };
 </script>
 
 <nav>

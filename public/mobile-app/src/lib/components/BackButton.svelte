@@ -1,14 +1,13 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import { goto } from '$app/navigation';
 
   interface Props {
     backUrl: string;
   }
   let { backUrl }: Props = $props();
 
-  const navigateToPreviousPage = async () => {
-    goto(backUrl);
+  const navigateToPreviousPage = () => {
+    window.location.href = backUrl;
   };
 </script>
 

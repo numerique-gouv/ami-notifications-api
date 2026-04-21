@@ -3,7 +3,7 @@
   import '@gouvfr/dsfr/dist/utility/utility.min.css';
   import '../app.css';
   import { onMount } from 'svelte';
-  import { afterNavigate, goto } from '$app/navigation';
+  import { afterNavigate } from '$app/navigation';
   import { env } from '$env/dynamic/public';
   import Toasts from '$lib/components/Toasts.svelte';
   import { initDsfr } from '$lib/dsfr';
@@ -14,7 +14,7 @@
   onMount(async () => {
     if (env.PUBLIC_WEBSITE_PUBLIC === undefined && window.NativeBridge === undefined) {
       // The web app isn't opened to the public yet, and it's not being served in a native application.
-      goto('/forbidden');
+      window.location.href = '/forbidden/';
     }
     await initDsfr();
 
@@ -26,5 +26,7 @@
   });
 </script>
 
-<Toasts />
-{@render children()}
+<div data-sveltekit-reload style="display: contents">
+  <Toasts />
+  {@render children()}
+</div>

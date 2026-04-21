@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import { runOrNativeEvent } from '$lib/nativeEvents';
   import {
@@ -16,14 +15,14 @@
 
   onMount(async () => {
     if (!userStore.connected) {
-      goto('/');
+      window.location.href = '/';
     }
 
     isChecked = localStorage.getItem('notifications_enabled') === 'true';
   });
 
   const navigateToPreviousPage = async () => {
-    goto(backUrl);
+    window.location.href = backUrl;
   };
 
   const enableNotificationsFunc = async () => {

@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
   import { runOrNativeEvent } from '$lib/nativeEvents';
   import { enableNotificationsAndUpdateLocalStorage } from '$lib/notifications';
   import { toastStore } from '$lib/state/toast.svelte';
@@ -8,14 +7,14 @@
 
   onMount(async () => {
     if (!userStore.connected) {
-      goto('/');
+      window.location.href = '/';
     }
   });
 
   const enableNotificationsFunc = async () => {
     await enableNotificationsAndUpdateLocalStorage();
     toastStore.addToast('Les notifications ont été activées', 'success');
-    goto('/');
+    window.location.href = '/';
   };
 
   const clickOnEnable = async () => {
@@ -23,7 +22,7 @@
   };
 
   const goToHomepage = () => {
-    goto('/');
+    window.location.href = '/';
   };
 </script>
 

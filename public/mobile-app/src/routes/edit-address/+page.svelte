@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
   import { Address } from '$lib/address';
   import { type AddressFromBAN, callBAN } from '$lib/addressesFromBAN';
   import { buildAgenda } from '$lib/agenda';
@@ -10,7 +9,7 @@
   import { userStore } from '$lib/state/User.svelte';
   import { formatDate } from '$lib/utils';
 
-  let backUrl: string = '/profile';
+  let backUrl: string = '/profile/';
   let addressFromUserStore: Address | undefined = $state();
   let timer: any;
   let inputValue: string = $state('');
@@ -26,7 +25,7 @@
 
   onMount(() => {
     if (!userStore.connected) {
-      goto('/');
+      window.location.href = '/';
       return;
     } else {
       const identity = userStore.connected.identity;
@@ -42,7 +41,7 @@
   });
 
   const navigateToPreviousPage = async () => {
-    goto(backUrl);
+    window.location.href = backUrl;
   };
 
   const addressInputHandler = (event: Event) => {

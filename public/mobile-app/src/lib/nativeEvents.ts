@@ -21,7 +21,7 @@ export const emit = (eventName: string, data?: any) => {
 };
 
 export const isNative = (): boolean => {
-  return !!window.NativeBridge;
+  return typeof window !== 'undefined' && !!window.NativeBridge;
 };
 
 export const runOrNativeEvent = (func: () => any, eventName: string, data?: any) => {
