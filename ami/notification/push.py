@@ -57,9 +57,10 @@ async def push(notification: Notification, try_push: bool) -> None:
             headers = cast(dict[str, str], message.headers)
 
             # fail silently
-            response = httpxClient.post(
-                str(subscription.endpoint), content=message.encrypted, headers=headers
-            )
+            with httpxClient() as httpx_client:
+                response = httpx_client.post(
+                    str(subscription.endpoint), content=message.encrypted, headers=headers
+                )
             if response.status_code < 500:
                 # For example we could have "410: gone" if the registration has been revoked.
                 # TODO: delete this registration from the database

@@ -1,6 +1,6 @@
 import hashlib
-from collections.abc import AsyncGenerator
-from contextlib import asynccontextmanager
+from collections.abc import AsyncGenerator, Generator
+from contextlib import asynccontextmanager, contextmanager
 
 from django.core.cache import cache
 from django.utils.encoding import smart_bytes
@@ -44,7 +44,10 @@ class AMIClient(Client):
         return response
 
 
-httpxClient = AMIClient(timeout=60)
+@contextmanager
+def httpxClient() -> Generator[AMIClient]:
+    with AMIClient(timeout=60) as client:
+        yield client
 
 
 @asynccontextmanager
