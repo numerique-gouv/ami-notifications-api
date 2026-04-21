@@ -179,12 +179,12 @@ def partner_create_notification(request: Request) -> Response[NotificationRespon
 
     if user is None:
         if ignore_unknown_user:
-            return Response(status=404)
+            return Response({"error": "User not found"}, status=404)
         user = User.objects.create(fc_hash=data["recipient_fc_hash"])
         notification_send_status = False
     else:
         if ignore_unknown_user and user.last_logged_in is None:
-            return Response(status=404)
+            return Response({"error": "User never seen"}, status=404)
         notification_send_status = user.last_logged_in is not None
 
     try_push = True
