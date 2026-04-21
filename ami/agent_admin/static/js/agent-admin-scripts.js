@@ -21,3 +21,24 @@ document.addEventListener('DOMContentLoaded', () => {
     select.addEventListener('change', handleSelectChange);
   });
 });
+
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.querySelector('.form-disable-on-submit');
+
+  if (form) {
+    const button = form.querySelector('button[type="submit"]');
+    window.addEventListener('pageshow', (_ev) => {
+      form.classList.remove('form-being-submitted');
+      button.disabled = false;
+    });
+
+    form.addEventListener('submit', (_ev) => {
+      if (form.classList.contains('form-being-submitted')) {
+        _ev.preventDefault();
+        return false;
+      }
+      form.classList.add('form-being-submitted');
+      button.disabled = true;
+    });
+  }
+});
