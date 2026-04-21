@@ -1,6 +1,6 @@
 from django.urls import include, path
 
-from ami.agent_admin import views
+from ami.agent_admin import api_views, views
 
 app_name = "agent_admin"
 urlpatterns = [
@@ -10,4 +10,5 @@ urlpatterns = [
     path("access-denied/", views.access_denied, name="access-denied"),
     path("manage/access/", views.manage_access, name="manage-access"),
     path("notification/", views.send_notification, name="send-notification"),
+    path("api/users/", api_views.users, name="api-users"),
 ]
