@@ -252,10 +252,20 @@ We now use a
 through the configuration of the `FC_PROXY` env variable in the `.env` file, so
 none of that is needed anymore, it's all been configured once and for all.
 
-## Pro Connect
+## agent-admin space ("Espace Partenaire AMI")
+
+Run this command to give "ADMIN" role to an agent:
+```sh
+scalingo --app ami-back-staging-pr809 run python manage.py promote-agent-to-admin foobar@baz.com
+```
+
+Replace `ami-back-staging-pr809` with the name of the review app, or the environnement in which this command is to be executed.
+
+
+### Pro Connect
 
 We're using [Pro Connect](https://partenaires.proconnect.gouv.fr/docs)
-to identify and authorize users in the AMI admin. During development and on the CI, we have a
+to identify and authorize users in the agent-admin space. During development and on the CI, we have a
 sandbox available, with the URLs and Client ID specified in the `.env` file,
 and the secrets need to be specified in the `.env.local`.
 
@@ -264,6 +274,7 @@ The Client Secret however, is... well, secret, and is available on the sandbox
 
 You'll need to request access to this partner's page and/or ask us for the
 Client Secret before being able to Pro Connect locally while developping.
+
 
 # Architectural diagram
 
