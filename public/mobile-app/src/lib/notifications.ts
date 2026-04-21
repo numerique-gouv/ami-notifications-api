@@ -38,7 +38,7 @@ export const fetchAndStoreNotifications = async () => {
 };
 
 export const getNotificationsFromStore = async (): Promise<AppNotification[]> => {
-  const notificationsString: string = localStorage.getItem('notifications') || '';
+  const notificationsString: string = localStorage.getItem('notifications') || '[]';
   return JSON.parse(notificationsString);
 };
 
