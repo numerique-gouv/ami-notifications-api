@@ -3,6 +3,8 @@ import * as initializeDataFromAPIMethods from '$lib/initializeDataFromAPI';
 import { userStore } from '$lib/state/User.svelte';
 import { load } from './+layout';
 
+vi.mock('$app/environment', () => ({ browser: true }));
+
 vi.mock('$app/state', () => {
   return {
     page: {

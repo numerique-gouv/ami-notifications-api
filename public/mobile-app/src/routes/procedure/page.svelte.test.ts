@@ -1,6 +1,5 @@
 import { render, screen, waitFor } from '@testing-library/svelte';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import * as navigationMethods from '$app/navigation';
 import * as procedureMethods from '$lib/procedure';
 import { userStore } from '$lib/state/User.svelte';
 import { expectBackButtonPresent, mockAddress, mockUserInfo } from '$tests/utils';
@@ -14,15 +13,13 @@ describe('/+page.svelte', () => {
   test('user has to be connected', async () => {
     // Given
     userStore.connected = null;
-    const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue();
 
     // When
     render(Page);
 
     // Then
     await waitFor(() => {
-      expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledWith('/');
+      expect(window.location.href).toEqual('/');
     });
   });
 

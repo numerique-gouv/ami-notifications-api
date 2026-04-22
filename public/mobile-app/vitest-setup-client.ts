@@ -50,6 +50,7 @@ beforeEach(() => {
   window.localStorage?.clear();
 
   globalThis.fetchSpy = fetchSpy();
+  globalThis.window.location = { href: null };
 });
 
 // required for svelte5 + jsdom as jsdom does not support matchMedia

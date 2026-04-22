@@ -1,6 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { afterEach, describe, expect, test, vi } from 'vitest';
-import * as navigationMethods from '$app/navigation';
 import { userStore } from '$lib/state/User.svelte';
 import {
   expectBackButtonPresent,
@@ -16,16 +15,12 @@ describe('/+page.svelte', () => {
   });
 
   test('user has to be connected', async () => {
-    // Given
-    const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue();
-
     // When
     render(Page);
 
     // Then
     await waitFor(() => {
-      expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledWith('/');
+      expect(window.location.href).toEqual('/');
     });
   });
 
@@ -144,9 +139,6 @@ describe('/+page.svelte', () => {
 
   test('should navigate to the preferred username page when user clicks on "Modifier" button', async () => {
     // Given
-    const spy = vi
-      .spyOn(navigationMethods, 'goto')
-      .mockImplementation(() => Promise.resolve());
     render(Page);
 
     // When
@@ -155,16 +147,12 @@ describe('/+page.svelte', () => {
 
     // Then
     await waitFor(() => {
-      expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenNthCalledWith(1, '/edit-preferred-username');
+      expect(window.location.href).toEqual('/edit-preferred-username/');
     });
   });
 
   test('should navigate to the email page when user clicks on "Modifier" button', async () => {
     // Given
-    const spy = vi
-      .spyOn(navigationMethods, 'goto')
-      .mockImplementation(() => Promise.resolve());
     render(Page);
 
     // When
@@ -173,16 +161,12 @@ describe('/+page.svelte', () => {
 
     // Then
     await waitFor(() => {
-      expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenNthCalledWith(1, '/edit-email');
+      expect(window.location.href).toEqual('/edit-email/');
     });
   });
 
   test('should navigate to the Address page when user clicks on "Définir une adresse" button', async () => {
     // Given
-    const spy = vi
-      .spyOn(navigationMethods, 'goto')
-      .mockImplementation(() => Promise.resolve());
     render(Page);
 
     // When
@@ -191,8 +175,7 @@ describe('/+page.svelte', () => {
 
     // Then
     await waitFor(() => {
-      expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenNthCalledWith(1, '/edit-address');
+      expect(window.location.href).toEqual('/edit-address/');
     });
   });
 

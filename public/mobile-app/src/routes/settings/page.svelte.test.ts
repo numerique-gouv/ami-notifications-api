@@ -1,6 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import * as navigationMethods from '$app/navigation';
 import * as notificationsMethods from '$lib/notifications';
 import { userStore } from '$lib/state/User.svelte';
 import { expectBackButtonPresent, mockUserInfo } from '$tests/utils';
@@ -22,16 +21,12 @@ describe('/+page.svelte', () => {
   });
 
   test('user has to be connected', async () => {
-    // Given
-    const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue();
-
     // When
     render(Page);
 
     // Then
     await waitFor(() => {
-      expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledWith('/');
+      expect(window.location.href).toEqual('/');
     });
   });
 
@@ -85,9 +80,6 @@ describe('/+page.svelte', () => {
   test('should navigate to previous page when user clicks on Close button', async () => {
     // Given
     await userStore.login(mockUserInfo);
-    const backSpy = vi
-      .spyOn(navigationMethods, 'goto')
-      .mockImplementation(() => Promise.resolve());
 
     // When
     render(Page);
@@ -95,7 +87,7 @@ describe('/+page.svelte', () => {
     await fireEvent.click(closeButton);
 
     // Then
-    expect(backSpy).toHaveBeenCalledTimes(1);
+    expect(window.location.href).toEqual('/');
   });
 
   test('should render a Back button', async () => {

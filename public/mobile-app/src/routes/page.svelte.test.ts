@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { render, screen, waitFor } from '@testing-library/svelte';
-import * as navigationMethods from '$app/navigation';
 import {
   PUBLIC_API_URL,
   PUBLIC_CONTACT_EMAIL,
@@ -34,7 +33,6 @@ describe('/+page.svelte', () => {
     const spy = vi
       .spyOn(initializeDataFromAPIMethods, 'initializeData')
       .mockResolvedValue();
-    vi.spyOn(navigationMethods, 'goto').mockImplementation(() => Promise.resolve());
 
     // When
     render(Page);
@@ -53,16 +51,13 @@ describe('/+page.svelte', () => {
     mockSearchParams.set('user_first_login', 'true');
     vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
     vi.spyOn(initializeDataFromAPIMethods, 'initializeData').mockResolvedValue();
-    const spy = vi
-      .spyOn(navigationMethods, 'goto')
-      .mockImplementation(() => Promise.resolve());
 
     // When
     render(Page);
 
     // Then
     await waitFor(() => {
-      expect(spy).toHaveBeenCalledWith('/notifications-welcome-page');
+      expect(window.location.href).toEqual('/notifications-welcome-page/');
     });
   });
 
@@ -74,14 +69,13 @@ describe('/+page.svelte', () => {
     mockSearchParams.set('user_first_login', 'false');
     vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
     vi.spyOn(initializeDataFromAPIMethods, 'initializeData').mockResolvedValue();
-    const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue();
 
     // When
     render(Page);
 
     // Then
     await waitFor(() => {
-      expect(spy).toHaveBeenCalledWith('/');
+      expect(window.location.href).toEqual('/');
     });
   });
 
@@ -106,9 +100,6 @@ describe('/+page.svelte', () => {
   test('should display network-error page on FranceConnect login button when back is down', async () => {
     // Given
     vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error());
-    const spy = vi
-      .spyOn(navigationMethods, 'goto')
-      .mockImplementation(() => Promise.resolve());
 
     render(Page);
     await waitFor(() => {
@@ -120,7 +111,7 @@ describe('/+page.svelte', () => {
       franceConnectLoginButton.click();
 
       // Then
-      expect(spy).toHaveBeenCalledWith('/network-error');
+      expect(window.location.href).toEqual('/network-error/');
     });
   });
 
@@ -217,16 +208,12 @@ describe('/+page.svelte', () => {
     const mockSearchParams = new URLSearchParams('is_logged_out');
     vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
 
-    const spy = vi
-      .spyOn(navigationMethods, 'goto')
-      .mockImplementation(() => Promise.resolve());
-
     // When
     render(Page);
 
     // Then
     await waitFor(() => {
-      expect(spy).toHaveBeenCalledWith('/');
+      expect(window.location.href).toEqual('/');
     });
   });
 

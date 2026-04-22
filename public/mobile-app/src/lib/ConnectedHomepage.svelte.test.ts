@@ -3,7 +3,6 @@ import '@testing-library/jest-dom/vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import type { WS as WSType } from 'vitest-websocket-mock';
 import WS from 'vitest-websocket-mock';
-import * as navigationMethods from '$app/navigation';
 import * as envModule from '$env/static/public';
 import * as agendaMethods from '$lib/agenda';
 import { Agenda, Item } from '$lib/agenda';
@@ -113,9 +112,6 @@ describe('/ConnectedHomepage.svelte', () => {
 
   test('should navigate to User profile page when user clicks on Mon profil button', async () => {
     // Given
-    const spy = vi
-      .spyOn(navigationMethods, 'goto')
-      .mockImplementation(() => Promise.resolve());
     render(ConnectedHomepage);
 
     // When
@@ -124,16 +120,12 @@ describe('/ConnectedHomepage.svelte', () => {
 
     // Then
     await waitFor(() => {
-      expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenNthCalledWith(1, '/profile');
+      expect(window.location.href).toEqual('/profile/');
     });
   });
 
   test('should navigate to Settings page when user clicks on Paramétrer button', async () => {
     // Given
-    const spy = vi
-      .spyOn(navigationMethods, 'goto')
-      .mockImplementation(() => Promise.resolve());
     render(ConnectedHomepage);
 
     // When
@@ -142,16 +134,12 @@ describe('/ConnectedHomepage.svelte', () => {
 
     // Then
     await waitFor(() => {
-      expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenNthCalledWith(1, '/settings');
+      expect(window.location.href).toEqual('/settings/');
     });
   });
 
   test('should navigate to Contact page when user clicks on Nous contacter button', async () => {
     // Given
-    const spy = vi
-      .spyOn(navigationMethods, 'goto')
-      .mockImplementation(() => Promise.resolve());
     render(ConnectedHomepage);
 
     // When
@@ -160,7 +148,7 @@ describe('/ConnectedHomepage.svelte', () => {
 
     // Then
     await waitFor(() => {
-      expect(spy).toHaveBeenCalledWith('/contact');
+      expect(window.location.href).toEqual('/contact/');
     });
   });
 

@@ -1,8 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
-import type { MockInstance } from 'vitest';
-import * as navigationMethods from '$app/navigation';
 import { Address } from '$lib/address';
 import * as addressesFromBANMethods from '$lib/addressesFromBAN';
 import * as agendaMethods from '$lib/agenda';
@@ -13,13 +11,7 @@ import { expectBackButtonPresent, mockUserIdentity, mockUserInfo } from '$tests/
 import Page from './+page.svelte';
 
 describe('/+page.svelte', () => {
-  let backSpy: MockInstance<typeof navigationMethods.goto>;
-
   beforeEach(async () => {
-    backSpy = vi
-      .spyOn(navigationMethods, 'goto')
-      .mockImplementation(() => Promise.resolve());
-
     await userStore.login(mockUserInfo);
 
     vi.mock('$lib/addressesFromBAN', () => {
@@ -174,9 +166,13 @@ describe('/+page.svelte', () => {
   test('should display selected address in page when user clicks on Save button, and remove it when clicking on the button', async () => {
     // Given
     expect(userStore.connected).not.toBeNull();
-    delete userStore.connected?.identity?.address;
-    userStore.connected?.addScheduledNotificationCreatedKey('foo');
-    const setAddressSpy = vi.spyOn(userStore.connected!, 'setAddress');
+    const connectedUser = userStore.connected;
+    if (!connectedUser) {
+      throw new Error('userStore.connected is null');
+    }
+    delete connectedUser.identity?.address;
+    connectedUser.addScheduledNotificationCreatedKey('foo');
+    const setAddressSpy = vi.spyOn(connectedUser, 'setAddress');
     const spy = vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(new Agenda());
     const spy2 = vi.spyOn(toastStore, 'addToast');
 
@@ -358,7 +354,7 @@ describe('/+page.svelte', () => {
     await fireEvent.click(cancelButton);
 
     // Then
-    expect(backSpy).toHaveBeenCalledTimes(1);
+    expect(window.location.href).toEqual('/profile/');
   });
 
   test('should render a Back button', async () => {

@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
   import { PUBLIC_FEATUREFLAG_REQUESTS_ENABLED } from '$env/static/public';
   import type { Agenda } from '$lib/agenda';
   import { buildAgenda } from '$lib/agenda';
@@ -69,7 +68,7 @@
   };
 
   const goToProfile = async () => {
-    goto('/profile/');
+    window.location.href = '/profile/';
   };
 
   const goToSettings = () => {
