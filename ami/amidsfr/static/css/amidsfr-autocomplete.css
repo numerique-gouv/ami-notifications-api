@@ -1,0 +1,43 @@
+div.amidsfr-autocomplete {
+  position: relative;
+}
+
+div.amidsfr-autocomplete-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 10;
+  width: 100%;
+}
+
+ul.amidsfr-autocomplete-results-list {
+  border: 1px solid var(--grey-950-100);
+  border-radius: 4px;
+  background-color: var(--grey-975-75);
+  box-shadow: 0px 4px 4px 0px #00000040;
+  margin: 0;
+  padding: 0;
+}
+
+li.amidsfr-autocomplete-results-item {
+  list-style: none;
+  padding: 0;
+  background-color: var(--background-default-grey);
+}
+
+li.amidsfr-autocomplete-results-item:hover {
+  background-color: var(--text-action-high-blue-france);
+  color: var(--text-inverted-blue-france);
+}
+
+li.amidsfr-autocomplete-results-item button {
+  padding: 0.75rem;
+  width: 100%;
+  text-align: left;
+  --hover-tint: var(--text-action-high-blue-france);
+  --active-tint: var(--text-action-high-blue-france);
+}
+
+li.amidsfr-autocomplete-results-item button p {
+  margin: 0;
+}
