@@ -16,4 +16,7 @@
 
 {% block extra_js %}
   <script src="{% static 'js/agent-admin-scripts.js' %}"></script>
+  {% if form %}
+    {{ form.media }}
+  {% endif %}
 {% endblock extra_js %}

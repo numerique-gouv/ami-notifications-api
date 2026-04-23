@@ -2,13 +2,14 @@ import json
 
 from django import forms
 from django.conf import settings
+from django.urls import reverse
 from django.utils.timezone import now
 from rest_framework.renderers import JSONRenderer
 
 from ami.agent.models import Agent
 from ami.agent_admin.utils import audit
 from ami.amidsfr.forms import AMIDsfrBaseForm
-from ami.amidsfr.widgets import ToggleInput
+from ami.amidsfr.widgets import AutocompleteInput, ToggleInput
 from ami.partner.models import partners
 from ami.utils.httpx import BasicAuth, httpxLaxClient
 
@@ -96,6 +97,12 @@ class NotificationForm(AMIDsfrBaseForm):
         initial=False,
         widget=ToggleInput,
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["recipient_fc_hash"].widget = AutocompleteInput(
+            autocomplete_url=reverse("agent-admin:api-users")
+        )
 
     def submit(self):
         payload = json.loads(JSONRenderer().render(self.cleaned_data))
