@@ -66,8 +66,8 @@ There's a `.env` file that holds all the default env variable values.
 For any specific env variables, create (or edit) a `.env.local` file. Anything in here
 will overload what's in the `.env` file.
 
-For example you'll need to overload the FranceConnect secrets for AMI and RVO in
-your `.env.local` file.
+For example you'll need to overload the FranceConnect secrets for AMI in your
+`.env.local` file.
 
 On the front end, Vite uses dotenv to load additional environment variables
 from the following files in your environment directory, in this order:
@@ -216,18 +216,6 @@ the AMI backend with the FC auth code, which it'll use to get the user auth
 token, which in turn will allow retrieving the user information from FC, which
 will finally be returned to the mobile app through a redirection.
 
-### The test Service Provider scenario: Rendez-Vous Officiel (RVO)
-
-- the FranceConnect button is displayed on `/rvo`
-- clicking on it will start the FranceConnection, by redirecting to the France
-Connect service
-- check the [FC demo users](https://github.com/france-connect/sources/blob/main/docker/volumes/fcp-low/mocks/idp/databases/citizen/base.csv)
-for some demo credentials
-- at the end of the connection, if successful, the user will be redirected to
-the test service provider (on the backend) with the FC auth code, which it'll
-use to get the user auth token, which in turn will allow retrieving the user
-information from FC, which will finally be stored on the session in the backend.
-
 ### NONCE for FranceConnect
 
 The NONCE used for FranceConnect will be built this way:
@@ -300,3 +288,16 @@ in the `FCM_KEYS_FILE` env var.
 
 This file is then discovered by the admin sdk using the
 `GOOGLE_APPLICATION_CREDENTIALS` env var.
+
+
+# SSL for local development
+
+Some of the features we use need a SSL certificate for local development. Starting the servers (django or vite) will thus need an SSL certificate.
+For vite, we used to take advantage of `basicSsl` provided by a vitejs `plugin-basic-ssl`. Since some Firefox update this wasn't cutting it anymore, so we switched to using `mkcert`, which needs:
+
+1. [mkcert to be installed locally](https://github.com/FiloSottile/mkcert#installation)
+2. the following command to be run once to add the root certificate:
+
+```sh
+mkcert -install
+```
