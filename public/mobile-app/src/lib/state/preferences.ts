@@ -77,6 +77,11 @@ export class Preferences {
       return '';
     }
 
+    if (matchingZones.length === this._zones.length) {
+      // holiday zones match all user preferences
+      return '';
+    }
+
     const zonesDict: Record<string, string[]> = {};
     matchingZones.forEach((zone) => {
       zonesDict[zone] = [];

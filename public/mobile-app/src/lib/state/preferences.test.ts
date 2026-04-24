@@ -211,6 +211,47 @@ describe('/preferences.ts', () => {
         // Then
         expect(result).toEqual('Zone A');
       });
+      test('should return empty string as holiday zones match all zones of user preferences', async () => {
+        // Given
+        const item = {
+          kind: 'holiday',
+          title: 'Holiday',
+          description: '',
+          date: null,
+          start_date: new Date('2026-02-06T23:00:00Z'),
+          end_date: new Date('2026-02-22T23:00:00Z'),
+          zones: ['Zone A', 'Zone B', 'Zone C'],
+          emoji: 'foo',
+        } as CatalogItem;
+        const preferences = new Preferences(['Zone A', 'Zone C'], []);
+
+        // When
+        const result = preferences.getSchoolHolidayDescription(item, undefined);
+
+        // Then
+        expect(result).toEqual('');
+      });
+      test('should return only user city as holiday zones match all zones of user preferences', async () => {
+        // Given
+        const item = {
+          kind: 'holiday',
+          title: 'Holiday',
+          description: '',
+          date: null,
+          start_date: new Date('2026-02-06T23:00:00Z'),
+          end_date: new Date('2026-02-22T23:00:00Z'),
+          zones: ['Zone A', 'Zone B', 'Zone C'],
+          emoji: 'foo',
+        } as CatalogItem;
+        const preferences = new Preferences(['Zone A', 'Zone C'], []);
+        const userAddress = new Address('Paris', '', '', 'Paris', 'Paris', '75000');
+
+        // When
+        const result = preferences.getSchoolHolidayDescription(item, userAddress);
+
+        // Then
+        expect(result).toEqual('');
+      });
       test('should return "Zone A" and city as holiday zones match user preferences - with city preferences', async () => {
         // Given
         const item = {
@@ -278,7 +319,7 @@ describe('/preferences.ts', () => {
         const address3 = new Address('Limoges', '', '', 'Limoges', 'Limoges', '87000');
         const address4 = new Address('Arpajon', '', '', 'Arpajon', 'Arpajon', '91290');
         const preferences = new Preferences(
-          ['Zone A', 'Zone B', 'Zone C', 'Corse'],
+          ['Zone A', 'Zone B', 'Zone C', 'Corse', 'Réunion'],
           [address1, address2, address3, address4]
         );
         const userAddress = new Address('Paris', '', '', 'Paris', 'Paris', '75000');
@@ -290,6 +331,48 @@ describe('/preferences.ts', () => {
         expect(result).toEqual(
           'Zone A&nbsp;: <strong>Limoges (87), Périgueux (24)</strong>, Zone B, Zone C&nbsp;: <strong>Arpajon (91), Paris (75) 🏠</strong>, Corse&nbsp;: <strong>Bastia (20)</strong>'
         );
+      });
+      test('should return only user city as holiday zones match all zones of user preferences - with addresses in preferences', async () => {
+        // Given
+        const item = {
+          kind: 'holiday',
+          title: 'Holiday',
+          description: '',
+          date: null,
+          start_date: new Date('2026-02-06T23:00:00Z'),
+          end_date: new Date('2026-02-22T23:00:00Z'),
+          zones: ['Zone A', 'Zone B', 'Zone C', 'Corse', 'Martinique'],
+          emoji: 'foo',
+        } as CatalogItem;
+        const address1 = new Address(
+          'Périgueux',
+          '',
+          '',
+          'Périgueux',
+          'Périgueux',
+          '24000'
+        );
+        const address2 = new Address(
+          'Bastia',
+          '2B, Haute-Corse, Corse',
+          '2B033',
+          'Bastia',
+          'Bastia',
+          '20200'
+        );
+        const address3 = new Address('Limoges', '', '', 'Limoges', 'Limoges', '87000');
+        const address4 = new Address('Arpajon', '', '', 'Arpajon', 'Arpajon', '91290');
+        const preferences = new Preferences(
+          ['Zone A', 'Zone B', 'Zone C', 'Corse'],
+          [address1, address2, address3, address4]
+        );
+        const userAddress = new Address('Paris', '', '', 'Paris', 'Paris', '75000');
+
+        // When
+        const result = preferences.getSchoolHolidayDescription(item, userAddress);
+
+        // Then
+        expect(result).toEqual('');
       });
       test('should return empty string as holiday zones do not match user preferences', async () => {
         // Given
