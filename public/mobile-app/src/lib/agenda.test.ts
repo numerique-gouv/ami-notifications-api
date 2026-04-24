@@ -651,6 +651,90 @@ describe('/agenda.ts', () => {
         spyGetDescription.mockRestore();
       });
     });
+    describe('Multitiles', () => {
+      test('should stack holidays with the same title - but only for the same year', async () => {
+        // Given
+        vi.stubEnv('TZ', 'Europe/Paris');
+        localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
+        const holiday1 = {
+          kind: 'holiday',
+          title: 'Holiday',
+          description: '',
+          date: null,
+          start_date: new Date('2026-02-06T23:00:00Z'),
+          end_date: new Date('2026-02-22T23:00:00Z'),
+          zones: ['Zone A'],
+          emoji: 'foo',
+        };
+        const holiday2 = {
+          kind: 'holiday',
+          title: 'Holiday',
+          description: '',
+          date: null,
+          start_date: new Date('2026-02-13T23:00:00Z'),
+          end_date: new Date('2026-03-01T23:00:00Z'),
+          zones: ['Zone B'],
+          emoji: 'foo',
+        };
+        const holiday3 = {
+          kind: 'holiday',
+          title: 'Holiday',
+          description: '',
+          date: null,
+          start_date: new Date('2027-02-06T23:00:00Z'),
+          end_date: new Date('2027-02-22T23:00:00Z'),
+          zones: ['Zone A'],
+          emoji: 'foo',
+        };
+        const holiday4 = {
+          kind: 'holiday',
+          title: 'Holiday',
+          description: '',
+          date: null,
+          start_date: new Date('2027-02-06T23:00:00Z'),
+          end_date: new Date('2027-02-21T23:00:00Z'),
+          zones: ['Zone B'],
+          emoji: 'foo',
+        };
+        await userStore.login(mockUserInfo);
+
+        // When
+        const agenda = new Agenda(
+          {
+            school_holidays: [holiday1, holiday2, holiday3, holiday4],
+            public_holidays: [],
+            elections: [],
+          },
+          new Date('2026-02-01T12:00:00Z')
+        );
+
+        // Then
+        expect(agenda.now.length).equal(1);
+        const item1 = new Item(
+          'holiday',
+          'Holiday foo',
+          'Zone A',
+          null,
+          holiday1.start_date,
+          holiday1.end_date
+        );
+        item1.addSubItem('Zone B', null, holiday2.start_date, holiday2.end_date);
+        expect(agenda.now[0].equals(item1)).toBe(true);
+        expect(agenda.next.length).equal(1);
+        const item2 = new Item(
+          'holiday',
+          'Holiday foo',
+          'Zone A',
+          null,
+          holiday3.start_date,
+          holiday3.end_date
+        );
+        item2.addSubItem('Zone B', null, holiday4.start_date, holiday4.end_date);
+        expect(agenda.next[0].equals(item2)).toBe(true);
+        expect(agenda.next[0].subitems[0].period).toEqual('Du 7 au 22 février 2027');
+        expect(agenda.next[0].subitems[1].period).toEqual('Du 7 au 23 février 2027');
+      });
+    });
     describe('OTV', () => {
       test('should not display OTV if holiday of user Zone is not displayed', async () => {
         // Given
@@ -841,7 +925,9 @@ describe('/agenda.ts', () => {
         );
 
         // Then
-        expect(agenda.now.length).equal(3);
+        expect(agenda.now.length).equal(2);
+        expect(agenda.now[0].title).toEqual('Opération Tranquillité Vacances 🏠');
+        expect(agenda.now[1].title).toEqual('Holiday foo');
       });
     });
     describe('Scheduled notifications', () => {
@@ -976,7 +1062,9 @@ describe('/agenda.ts', () => {
         );
 
         // Then
-        expect(agenda.now.length).equal(3);
+        expect(agenda.now.length).equal(2);
+        expect(agenda.now[0].title).toEqual('Opération Tranquillité Vacances 🏠');
+        expect(agenda.now[1].title).toEqual('Holiday foo');
         expect(spy).toHaveBeenCalledTimes(0);
       });
     });
