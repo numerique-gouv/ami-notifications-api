@@ -1,5 +1,5 @@
-import type { Address } from '$lib/address';
-import { zones } from '$lib/address';
+import type { Address as AddressType } from '$lib/address';
+import { Address, zones } from '$lib/address';
 import type { CatalogItem } from '$lib/api-catalog';
 import type { ToggleTag } from '$lib/types/components/toggletag';
 
@@ -11,31 +11,34 @@ export type ZoneInfo = {
 
 type PreferencesJSON = {
   _zones: string[];
-  _addresses: Address[];
+  _addresses: AddressType[];
 };
 
 export class Preferences {
   constructor(
     private _zones: string[],
-    private _addresses: Address[]
+    private _addresses: AddressType[]
   ) {}
 
   static fromJSON(json: Preferences | PreferencesJSON): Preferences {
     if (json instanceof Preferences) {
       return json;
     }
-    return new Preferences(json._zones || [], json._addresses || []);
+    return new Preferences(
+      json._zones || [],
+      json._addresses.map((address) => Address.fromJSON(address)) || []
+    );
   }
 
   get zones(): string[] {
     return this._zones;
   }
 
-  get addresses(): Address[] {
+  get addresses(): AddressType[] {
     return this._addresses;
   }
 
-  static getDefault(userAddress: Address | undefined): Preferences {
+  static getDefault(userAddress: AddressType | undefined): Preferences {
     const defaultZones = ['Zone A', 'Zone B', 'Zone C', 'Corse'];
     const defaultPreferences = new Preferences(defaultZones, []);
 
@@ -64,7 +67,7 @@ export class Preferences {
 
   getSchoolHolidayDescription(
     holiday: CatalogItem,
-    userAddress: Address | undefined
+    userAddress: AddressType | undefined
   ): string {
     if (!holiday.zones.length || !this._zones) {
       return '';
@@ -118,7 +121,7 @@ export class Preferences {
     this._zones = this._zones.filter((value) => zone !== value);
   }
 
-  getZoneInfos(userAddress: Address | undefined): ZoneInfo[] {
+  getZoneInfos(userAddress: AddressType | undefined): ZoneInfo[] {
     const result: ZoneInfo[] = [];
     zones.forEach((zone) => {
       const selected = this._zones.includes(zone.label);
