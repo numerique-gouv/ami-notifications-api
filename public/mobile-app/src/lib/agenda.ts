@@ -33,8 +33,7 @@ export class Item {
     private _description: string | null,
     private _date: Date | null = null,
     private _start_date: Date | null = null,
-    private _end_date: Date | null = null,
-    private _custom: boolean = false
+    private _end_date: Date | null = null
   ) {}
 
   equals(other: Item): boolean {
@@ -146,10 +145,6 @@ export class Item {
     return this._kind;
   }
 
-  get custom(): boolean {
-    return this._custom;
-  }
-
   get label(): string {
     const info = Item.KindInfo[this._kind];
     if (info === undefined) {
@@ -237,14 +232,6 @@ export class Agenda {
     return userStore.connected.getSchoolHolidayDescriptionFromPreferences(holiday);
   }
 
-  private getSchoolHolidayItemCustom(holiday: CatalogItem): boolean {
-    const userZone = userStore.connected?.identity.address?.zone;
-    if (userZone !== undefined && holiday.zones.includes(userZone)) {
-      return true;
-    }
-    return false;
-  }
-
   private createSchoolHolidayItem(holiday: CatalogItem, date: Date): Item | null {
     if (!holiday.start_date || !holiday.end_date) {
       // should not happen for school holiday
@@ -267,8 +254,7 @@ export class Agenda {
       this.getSchoolHolidayItemDescription(holiday),
       null,
       holiday.start_date,
-      holiday.end_date,
-      this.getSchoolHolidayItemCustom(holiday)
+      holiday.end_date
     );
   }
 
@@ -298,7 +284,7 @@ export class Agenda {
     if (holiday.emoji) {
       title += ` ${holiday.emoji}`;
     }
-    return new Item('holiday', title, null, holiday.date, null, null, false);
+    return new Item('holiday', title, null, holiday.date, null, null);
   }
 
   private createOTVItems(items: Item[], school_holidays: CatalogItem[], date: Date) {
@@ -352,8 +338,7 @@ export class Agenda {
       'Inscrivez-vous pour protéger votre domicile pendant votre absence',
       null,
       startDate,
-      null,
-      false
+      null
     );
     const scheduledNotificationKey = `ami-otv:d-3w:${holiday.start_date.getFullYear()}:${slugify(holiday.title)}`;
     if (!scheduledNotificationsCreatedKeys.has(scheduledNotificationKey)) {
@@ -397,15 +382,7 @@ export class Agenda {
     if (election.emoji) {
       title += ` ${election.emoji}`;
     }
-    return new Item(
-      'election',
-      title,
-      election.description,
-      election.date,
-      null,
-      null,
-      false
-    );
+    return new Item('election', title, election.description, election.date, null, null);
   }
 
   get now(): Item[] {
