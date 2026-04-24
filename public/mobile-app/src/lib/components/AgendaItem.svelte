@@ -1,4 +1,5 @@
 <script lang="ts">
+  import DOMPurify from 'dompurify';
   import { onMount } from 'svelte';
   import { Item } from '$lib/agenda';
 
@@ -37,7 +38,9 @@
           </a>
         </h3>
         {#if item.description}
-          <p class="fr-tile__detail">{item.description}</p>
+          <p class="fr-tile__detail">
+            <span>{@html DOMPurify.sanitize(item.description)}</span>
+          </p>
         {/if}
         <div class="fr-tile__start">
           <p class="fr-badge fr-badge--icon-left {item.icon} {item.kind}">
