@@ -117,7 +117,13 @@ export class Item {
     _end_date: Date | null = null
   ) {
     this._subitems.push(new SubItem(_description, _date, _start_date, _end_date));
-    this._subitems.sort((a, b) => (a.date?.getTime() || 0) - (b.date?.getTime() || 0));
+    this._subitems.sort((a, b) => {
+      const dateComparison = (a.date?.getTime() || 0) - (b.date?.getTime() || 0);
+      if (dateComparison !== 0) {
+        return dateComparison;
+      }
+      return (a.endDate?.getTime() || 0) - (b.endDate?.getTime() || 0);
+    });
   }
 
   equals(other: Item): boolean {
@@ -299,13 +305,40 @@ export class Agenda {
     school_holidays: CatalogItem[],
     date: Date
   ) {
+    const result: Item[] = [];
     school_holidays.forEach((holiday) => {
       const item = this.createSchoolHolidayItem(holiday);
       if (item !== null) {
-        if (item.endDate !== null && item.endDate >= date) {
-          // exclude past school holiday
-          items.push(item);
+        // check if an item whith this description already exists
+        const key = JSON.stringify({
+          desc: item.title,
+          year: item.date?.getFullYear(),
+        });
+        let seen = false;
+        result.forEach((_item) => {
+          const _key = JSON.stringify({
+            desc: _item.title,
+            year: _item.date?.getFullYear(),
+          });
+          if (key === _key) {
+            _item.addSubItem(
+              item.description,
+              null,
+              holiday.start_date,
+              holiday.end_date
+            );
+            seen = true;
+          }
+        });
+        if (!seen) {
+          result.push(item);
         }
+      }
+    });
+    result.forEach((item) => {
+      if (item.endDate !== null && item.endDate >= date) {
+        // exclude past school holiday
+        items.push(item);
       }
     });
   }
