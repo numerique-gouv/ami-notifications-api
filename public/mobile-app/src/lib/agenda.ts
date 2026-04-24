@@ -26,22 +26,20 @@ const slugify = (str: string): string => {
 
 const oneday_in_ms = 24 * 60 * 60 * 1000;
 
-export class Item {
+export class SubItem {
   constructor(
-    private _kind: Kind,
-    private _title: string,
     private _description: string | null,
     private _date: Date | null = null,
     private _start_date: Date | null = null,
     private _end_date: Date | null = null
   ) {}
 
-  equals(other: Item): boolean {
-    if (!(other instanceof Item)) {
+  equals(other: SubItem): boolean {
+    if (!(other instanceof SubItem)) {
       return false;
     }
     return Object.entries(this).every(([key, thisValue]) => {
-      const otherValue = other[key as keyof Item];
+      const otherValue = other[key as keyof SubItem];
       // Special handling for Date objects
       if (thisValue instanceof Date || otherValue instanceof Date) {
         return (
@@ -53,10 +51,6 @@ export class Item {
     });
   }
 
-  get title(): string {
-    return this._title;
-  }
-
   get description(): string | null {
     return this._description;
   }
@@ -65,28 +59,8 @@ export class Item {
     return this._start_date || this._date;
   }
 
-  get dayName(): string | null {
-    return this.date
-      ? capitalizeFirstLetter(
-          this.date.toLocaleDateString('fr-FR', { weekday: 'short' }).replace('.', '')
-        )
-      : null;
-  }
-
-  get fullDayName(): string | null {
-    return this.date
-      ? capitalizeFirstLetter(
-          this.date.toLocaleDateString('fr-FR', { weekday: 'long' })
-        )
-      : null;
-  }
-
-  get dayNum(): number | null {
-    return this.date ? this.date.getDate() : null;
-  }
-
-  get monthName(): string | null {
-    return this.date ? monthName(this.date) : null;
+  get endDate(): Date | null {
+    return this._end_date;
   }
 
   get period(): string | undefined {
@@ -118,6 +92,114 @@ export class Item {
     }
     const date = this._date?.toLocaleDateString(locale, dateFormat);
     return date;
+  }
+}
+
+export class Item {
+  private _subitems: SubItem[];
+
+  constructor(
+    private _kind: Kind,
+    private _title: string,
+    _description: string | null,
+    _date: Date | null = null,
+    _start_date: Date | null = null,
+    _end_date: Date | null = null
+  ) {
+    this._subitems = [];
+    this.addSubItem(_description, _date, _start_date, _end_date);
+  }
+
+  addSubItem(
+    _description: string | null,
+    _date: Date | null = null,
+    _start_date: Date | null = null,
+    _end_date: Date | null = null
+  ) {
+    this._subitems.push(new SubItem(_description, _date, _start_date, _end_date));
+    this._subitems.sort((a, b) => (a.date?.getTime() || 0) - (b.date?.getTime() || 0));
+  }
+
+  equals(other: Item): boolean {
+    if (!(other instanceof Item)) {
+      return false;
+    }
+    return Object.entries(this).every(([key, thisValue]) => {
+      const otherValue = other[key as keyof Item];
+      // Special handling for SubItem objects
+      if (
+        Array.isArray(thisValue) &&
+        Array.isArray(otherValue) &&
+        thisValue[0] instanceof SubItem
+      ) {
+        if (thisValue.length !== otherValue.length) {
+          return false;
+        }
+        for (let i = 0; i < thisValue.length; i++) {
+          if (!thisValue[i].equals(otherValue[i])) {
+            return false;
+          }
+        }
+        return true;
+      }
+      return thisValue === otherValue;
+    });
+  }
+
+  get title(): string {
+    return this._title;
+  }
+
+  get description(): string | null {
+    return this._subitems[0].description;
+  }
+
+  get subitems(): SubItem[] {
+    return this._subitems;
+  }
+
+  get date(): Date | null {
+    return this._subitems[0].date;
+  }
+
+  get endDate(): Date | null {
+    const endDates = this._subitems
+      .map((subitem) => subitem.endDate)
+      .filter((date): date is Date => date != null);
+
+    if (!endDates.length) {
+      return null;
+    }
+
+    return new Date(Math.max(...endDates.map((d) => d.getTime())));
+  }
+
+  get dayName(): string | null {
+    return this.date
+      ? capitalizeFirstLetter(
+          this.date.toLocaleDateString('fr-FR', { weekday: 'short' }).replace('.', '')
+        )
+      : null;
+  }
+
+  get fullDayName(): string | null {
+    return this.date
+      ? capitalizeFirstLetter(
+          this.date.toLocaleDateString('fr-FR', { weekday: 'long' })
+        )
+      : null;
+  }
+
+  get dayNum(): number | null {
+    return this.date ? this.date.getDate() : null;
+  }
+
+  get monthName(): string | null {
+    return this.date ? monthName(this.date) : null;
+  }
+
+  get period(): string | undefined {
+    return this._subitems[0].period;
   }
 
   private static readonly KindInfo: Record<
@@ -218,9 +300,12 @@ export class Agenda {
     date: Date
   ) {
     school_holidays.forEach((holiday) => {
-      const item = this.createSchoolHolidayItem(holiday, date);
+      const item = this.createSchoolHolidayItem(holiday);
       if (item !== null) {
-        items.push(item);
+        if (item.endDate !== null && item.endDate >= date) {
+          // exclude past school holiday
+          items.push(item);
+        }
       }
     });
   }
@@ -232,13 +317,9 @@ export class Agenda {
     return userStore.connected.getSchoolHolidayDescriptionFromPreferences(holiday);
   }
 
-  private createSchoolHolidayItem(holiday: CatalogItem, date: Date): Item | null {
+  private createSchoolHolidayItem(holiday: CatalogItem): Item | null {
     if (!holiday.start_date || !holiday.end_date) {
       // should not happen for school holiday
-      return null;
-    }
-    if (holiday.end_date < date) {
-      // exclude past school holiday
       return null;
     }
     let title = holiday.title;
