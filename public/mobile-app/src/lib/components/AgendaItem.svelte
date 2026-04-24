@@ -75,22 +75,26 @@
         font-weight: 700;
       }
     }
-    .agenda--item--detail {
-      padding: 1.5rem;
-      padding-bottom: 1rem;
+    .agenda--item--detail.fr-enlarge-link {
+      padding: 1rem 2rem 0.5rem 1rem;
       width: 100%;
       .fr-tile__content {
-        padding-bottom: 1.5rem;
-        &.no-link {
-          padding-bottom: 0;
-        }
+        padding-bottom: 0;
         .fr-tile__title {
           font-size: 16px;
+          &::before {
+            background: none;
+          }
           a {
+            &::before {
+              background: none;
+            }
             &::after {
-              bottom: 1.25rem;
-              right: 1.25rem;
-              --icon-size: 1rem;
+              bottom: 0.5rem;
+              right: 0.5rem;
+              --icon-size: 1.25rem;
+              -webkit-mask-image: url("@gouvfr/dsfr/dist/icons/arrows/arrow-right-s-line.svg");
+              mask-image: url("@gouvfr/dsfr/dist/icons/arrows/arrow-right-s-line.svg");
             }
             &.no-link {
               cursor: default;
@@ -104,6 +108,7 @@
           font-size: 14px;
           line-height: 24px;
           margin: 0;
+          padding-right: 0;
         }
         .fr-badge {
           font-size: 12px;
