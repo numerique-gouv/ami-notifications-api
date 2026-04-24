@@ -126,6 +126,39 @@ describe('/agenda.ts', () => {
         expect(name2).equal('Novembre');
       });
     });
+    describe('endDate', () => {
+      test('should return the max endDate of subitems', async () => {
+        // Given
+        const item1 = new Item('holiday', 'title', 'description', null, null, null);
+        const item2 = new Item(
+          'holiday',
+          'title',
+          'description',
+          null,
+          null,
+          new Date('2025-11-15')
+        );
+        const item3 = new Item(
+          'holiday',
+          'title',
+          'description',
+          null,
+          null,
+          new Date('2025-11-15')
+        );
+        item3.addSubItem('description', null, null, new Date('2025-11-14'));
+
+        // When
+        const endDate1 = item1.endDate;
+        const endDate2 = item2.endDate;
+        const endDate3 = item3.endDate;
+
+        // Then
+        expect(endDate1).equal(null);
+        expect(endDate2?.getTime()).equal(new Date('2025-11-15').getTime());
+        expect(endDate3?.getTime()).equal(new Date('2025-11-15').getTime());
+      });
+    });
     describe('period', () => {
       test('should not mention start date year', async () => {
         // Given
