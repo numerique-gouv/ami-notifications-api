@@ -77,36 +77,37 @@ export class Preferences {
       return '';
     }
 
-    const seenZones: string[] = [];
-    const result: string[] = [];
-
-    if (userAddress !== undefined) {
-      if (matchingZones.includes(userAddress.zone)) {
-        result.push(`${userAddress.city} (${userAddress.departement}) 🏠`);
-        seenZones.push(userAddress.zone);
-      }
-    }
-
-    // first look at cities in preferences
-    this._addresses.forEach((address) => {
-      if (seenZones.includes(address.zone)) {
-        return;
-      }
-      if (!matchingZones.includes(address.zone)) {
-        return;
-      }
-      result.push(`${address.city} (${address.departement})`);
-      seenZones.push(address.zone);
-    });
-
-    // then add remaining zones
+    const zonesDict: Record<string, string[]> = {};
     matchingZones.forEach((zone) => {
-      if (seenZones.includes(zone)) {
-        return;
+      zonesDict[zone] = [];
+      // add user address in corresponding zone
+      if (userAddress !== undefined) {
+        if (zone === userAddress.zone) {
+          zonesDict[zone].push(`${userAddress.city} (${userAddress.departement}) 🏠`);
+        }
       }
-      result.push(zone);
+      // add cities in preferences in corresponding zones
+      this._addresses.forEach((address) => {
+        if (zone !== address.zone) {
+          return;
+        }
+        zonesDict[zone].push(`${address.city} (${address.departement})`);
+      });
     });
 
+    const result: string[] = [];
+    matchingZones.forEach((zone) => {
+      const zoneInfo: string[] = [zone];
+      const cities: string[] = [];
+      zonesDict[zone].sort();
+      zonesDict[zone].forEach((city) => {
+        cities.push(city);
+      });
+      if (cities.length) {
+        zoneInfo.push(`<strong>${cities.join(', ')}</strong>`);
+      }
+      result.push(zoneInfo.join('&nbsp;: '));
+    });
     return result.join(', ');
   }
 

@@ -535,7 +535,7 @@ describe('/agenda.ts', () => {
             new Item(
               'holiday',
               'Holiday 5',
-              'Paris (75) 🏠',
+              'Zone C&nbsp;: <strong>Paris (75) 🏠</strong>',
               null,
               holiday5.start_date,
               holiday5.end_date

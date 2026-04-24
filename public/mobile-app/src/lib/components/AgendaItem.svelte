@@ -42,7 +42,7 @@
           </a>
         </h3>
         {#if item.description}
-          <p class="fr-tile__detail">{item.description}</p>
+          <p class="fr-tile__detail"><span>{@html item.description}</span></p>
         {/if}
         <div class="fr-tile__start">
           <p class="fr-badge fr-badge--icon-left {item.icon} {item.kind}">
