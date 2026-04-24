@@ -353,6 +353,10 @@ export class Agenda {
       });
       userStore.connected?.addScheduledNotificationCreatedKey(scheduledNotificationKey);
     }
+    if (!userStore.connected?.isSchoolHolidayConcernedByPreferences(holiday)) {
+      // don't display OTV if holiday match user preferences
+      return null;
+    }
     if (startDate > date) {
       // don't display OTV too early, only display them when they're close enough to their associated holiday
       return null;

@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
+import { Address } from '$lib/address';
 import { Agenda, buildAgenda, Item } from '$lib/agenda';
 import * as catalogMethods from '$lib/api-catalog';
 import * as scheduledNotificationsMethods from '$lib/scheduled-notifications';
@@ -622,7 +623,14 @@ describe('/agenda.ts', () => {
         // Given
         vi.stubEnv('TZ', 'Europe/Paris');
         const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
-        newMockUserIdentity.dataDetails.address.postcode = '20000'; // Corse
+        newMockUserIdentity.address = new Address(
+          'Bastia',
+          '2B, Haute-Corse, Corse',
+          '2B033',
+          'Bastia',
+          'Bastia',
+          '20200'
+        );
         localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity));
         const holiday1 = {
           kind: 'holiday',
@@ -660,6 +668,47 @@ describe('/agenda.ts', () => {
             )
           )
         ).toBe(true);
+        expect(agenda.next.length).equal(0);
+      });
+      test('should not display OTV if holiday zones does not match user preferences', async () => {
+        // Given
+        vi.stubEnv('TZ', 'Europe/Paris');
+        const preferences = new Preferences(['Zone A'], []);
+        const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
+        newMockUserIdentity.preferences = preferences;
+        newMockUserIdentity.address = new Address(
+          'Bastia',
+          '2B, Haute-Corse, Corse',
+          '2B033',
+          'Bastia',
+          'Bastia',
+          '20200'
+        );
+        localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity));
+        const holiday1 = {
+          kind: 'holiday',
+          title: 'Holiday',
+          description: '',
+          date: null,
+          start_date: new Date('2026-02-06T23:00:00Z'),
+          end_date: new Date('2026-02-22T23:00:00Z'),
+          zones: ['Corse'],
+          emoji: 'foo',
+        };
+        await userStore.login(mockUserInfo);
+
+        // When
+        const agenda = new Agenda(
+          {
+            school_holidays: [holiday1],
+            public_holidays: [],
+            elections: [],
+          },
+          new Date('2026-02-01T12:00:00Z')
+        );
+
+        // Then
+        expect(agenda.now.length).equal(0);
         expect(agenda.next.length).equal(0);
       });
       test('should not display past items or OTV related to past holidays', async () => {
@@ -769,7 +818,11 @@ describe('/agenda.ts', () => {
         const spy = vi
           .spyOn(scheduledNotificationsMethods, 'createScheduledNotification')
           .mockResolvedValue(true);
-        localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
+        // holidays are not displayed but otv have to be sent
+        const preferences = new Preferences(['Réunion'], []);
+        const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
+        newMockUserIdentity.preferences = preferences;
+        localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity));
         const holiday1 = {
           kind: 'holiday',
           title: 'Holiday',
@@ -813,7 +866,7 @@ describe('/agenda.ts', () => {
         );
 
         // Then
-        expect(agenda.now.length).equal(3);
+        expect(agenda.now.length).equal(0);
         expect(spy).toHaveBeenCalledTimes(2);
         expect(spy).toHaveBeenCalledWith({
           content_body:
