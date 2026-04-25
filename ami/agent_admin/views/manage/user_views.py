@@ -7,12 +7,22 @@ from ami.agent.decorators import (
     agent_login_required,
     role_admin_required,
 )
+from ami.agent_admin.forms import UserSearchForm
 
 
 @agent_login_required
 @role_admin_required
 def search_user(request):
-    context = {}
+    if request.method == "POST":
+        form = UserSearchForm(data=request.POST)
+        if form.is_valid():
+            if form.user:
+                return redirect(reverse("agent-admin:manage:detail-user", args=[form.user.id]))
+    else:
+        form = UserSearchForm()
+    context = {
+        "form": form,
+    }
     return render(request, "agent_admin/manage/search_user.html", context)
 
 
