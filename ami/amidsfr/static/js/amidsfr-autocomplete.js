@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
   const matches = document.querySelectorAll('.amidsfr-autocomplete input');
+  const buttonMatches = document.querySelectorAll('.amidsfr-autocomplete button');
   matches.forEach((input) => {
     ['input', 'focus'].forEach((event) => {
       input.addEventListener(event, (_ev) => {
@@ -8,6 +9,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     input.addEventListener('focusout', (_ev) => {
       removeAutocompleteHandler(_ev);
+    });
+  });
+  buttonMatches.forEach((button) => {
+    button.addEventListener('click', (_ev) => {
+      submitHandler(_ev);
     });
   });
 });
@@ -24,6 +30,13 @@ const removeAutocompleteHandler = (event) => {
     return;
   }
   removeResults(event.target);
+};
+
+const submitHandler = (event) => {
+  if (!event.target) {
+    return;
+  }
+  event.target.form.submit();
 };
 
 let timer;
@@ -109,6 +122,10 @@ const displayResults = (element, results) => {
       _ev.preventDefault();
       element.value = _ev.target.textContent;
       autocompleteDiv.remove();
+      const button = element.form.querySelector('.amidsfr-autocomplete button');
+      if (button) {
+        button.click();
+      }
     });
   });
 };
