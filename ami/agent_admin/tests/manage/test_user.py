@@ -4,6 +4,7 @@ import pytest
 
 from ami.agent.models import Agent
 from ami.agent_admin.tests.utils import assert_query_fails_without_agent_admin_auth
+from ami.user.models import User
 
 
 @pytest.mark.django_db
@@ -11,6 +12,25 @@ def test_search_user(app, admin_agent: Agent):
     app.set_user(admin_agent.user)
     response = app.get("/agent-admin/manage/user/")
     assert "Gestion des usagers" in response
+
+
+@pytest.mark.django_db
+def test_search_user_submit_user_not_found(app, admin_agent: Agent):
+    app.set_user(admin_agent.user)
+    response = app.get("/agent-admin/manage/user/")
+    response.forms["search-user"]["fc_hash"] = "unknown"
+    response = response.forms["search-user"].submit()
+    assert response.forms["search-user"]["fc_hash"].value == "unknown"
+    assert response.context["form"].errors == {"fc_hash": ["Utilisateur non trouvé"]}
+
+
+@pytest.mark.django_db
+def test_search_user_submit_success(app, admin_agent: Agent, user: User):
+    app.set_user(admin_agent.user)
+    response = app.get("/agent-admin/manage/user/")
+    response.forms["search-user"]["fc_hash"] = user.fc_hash
+    response = response.forms["search-user"].submit()
+    assert f"/agent-admin/manage/user/{user.id}/" in response.headers["location"]
 
 
 @pytest.mark.django_db
