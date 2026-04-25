@@ -2,4 +2,15 @@
 
 {% block content %}
   <h1>Gestion des usagers</h1>
+  <p>Renseignez l’identifiant de l’usager pour accéder au détail de ses données</p>
+  <form method="post" id="search-user" action="{% url "agent-admin:manage:search-user" %}">
+    {% csrf_token %}
+    {{ form }}
+  </form>
+  <br />
+  <p class="user-details">
+    dernier login&nbsp;:
+    <br />
+    <strong>{{ ami_user.last_logged_in|date:"d/m/Y à H\Hi"|default:"non inscrit" }}</strong>
+  </p>
 {% endblock %}
