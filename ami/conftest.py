@@ -122,6 +122,22 @@ def user() -> User:
 
 
 @pytest.fixture
+def two_users(user: User) -> list[User]:
+    fc_hash = build_fc_hash(
+        given_name="Test User 2",
+        family_name="AMI",
+        birthdate="",
+        gender="",
+        birthplace="",
+        birthcountry="",
+    )
+    second_user = User.objects.create(
+        fc_hash=fc_hash, last_logged_in=datetime.datetime.now(datetime.timezone.utc)
+    )
+    return [user, second_user]
+
+
+@pytest.fixture
 def never_seen_user(user: User) -> User:
     user.last_logged_in = None
     user.save()
