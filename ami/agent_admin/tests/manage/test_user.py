@@ -2,10 +2,13 @@ import uuid
 
 import pytest
 from django.utils.formats import date_format
+from django.utils.timezone import now
 
 from ami.agent.models import Agent
+from ami.agent_admin.models import AuditEntry
 from ami.agent_admin.tests.utils import assert_query_fails_without_agent_admin_auth
-from ami.user.models import User
+from ami.notification.models import Notification, ScheduledNotification
+from ami.user.models import Registration, User
 
 
 @pytest.mark.django_db
@@ -74,11 +77,56 @@ def test_detail_user_without_agent_admin_auth(app) -> None:
 
 
 @pytest.mark.django_db
-def test_delete_user(app, admin_agent: Agent):
+def test_delete_user(
+    app, admin_agent: Agent, webpush_notification: Notification, webpush_registration: Registration
+):
     app.set_user(admin_agent.user)
-    response = app.post(f"/agent-admin/manage/user/{uuid.uuid4()}/delete/")
+    user = webpush_notification.user
+    scheduled_notification = ScheduledNotification.objects.create(
+        user_id=user.id,
+        content_title="title",
+        content_body="body",
+        content_icon="icon",
+        reference="reference",
+        internal_url="internal-url",
+        scheduled_at=now(),
+    )
+    response = app.post(f"/agent-admin/manage/user/{user.id}/delete/")
     assert "/agent-admin/manage/user/" in response.headers["location"]
 
+    assert User.objects.filter(id=user.id).exists() is False
+    assert Registration.objects.filter(user_id=user.id).exists() is False
+    assert Registration.objects.filter(id=webpush_registration.id).exists() is False
+    assert Notification.objects.filter(user_id=user.id).exists() is False
+    assert Notification.objects.filter(id=webpush_notification.id).exists() is False
+    assert ScheduledNotification.objects.filter(user_id=user.id).exists() is False
+    assert ScheduledNotification.objects.filter(id=scheduled_notification.id).exists() is False
+
+    assert AuditEntry.objects.count() == 1
+    (ae1,) = AuditEntry.objects.all().order_by("created_at")
+
+    assert ae1.author == admin_agent
+    assert ae1.author_first_name == "Admin"
+    assert ae1.author_last_name == "AGENT"
+    assert ae1.author_email == "admin@agent.com"
+    assert ae1.author_proconnect_sub == "admin"
+    assert ae1.action_type == "user"
+    assert ae1.action_code == "deleted"
+    assert ae1.extra_data == {
+        "user_id": str(user.id),
+        "user_fc_hash": "651d806d65788bc260faa89a555fdf89bd573a5c9a4d8bb897967e14951ab65d",
+    }
+
+
+@pytest.mark.django_db
+def test_delete_user_not_found(app, admin_agent: Agent):
+    app.set_user(admin_agent.user)
+    app.post(f"/agent-admin/manage/user/{uuid.uuid4()}/delete/", status=404)
+
+
+@pytest.mark.django_db
+def test_delete_user_method_not_allowed(app, admin_agent: Agent):
+    app.set_user(admin_agent.user)
     app.get(f"/agent-admin/manage/user/{uuid.uuid4()}/delete/", status=405)
 
 

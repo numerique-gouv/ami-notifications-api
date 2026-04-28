@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.shortcuts import redirect, render
 from django.urls import reverse
 
@@ -35,8 +36,9 @@ def access(request):
         is_unauthorized_agents_formset_valid = unauthorized_agents_formset.is_valid()
         is_authorized_agents_formset_valid = authorized_agents_formset.is_valid()
         if is_unauthorized_agents_formset_valid and is_authorized_agents_formset_valid:
-            unauthorized_agents_formset.save()
-            authorized_agents_formset.save()
+            with transaction.atomic():
+                unauthorized_agents_formset.save()
+                authorized_agents_formset.save()
             return redirect(reverse("agent-admin:manage:access"))
     else:
         unauthorized_agents_formset = AgentFormSet(
