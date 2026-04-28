@@ -44,7 +44,7 @@
   };
 
   const goToSettings = () => {
-    goto('/#/settings');
+    goto('/#/preferences/notifications');
   };
 </script>
 
