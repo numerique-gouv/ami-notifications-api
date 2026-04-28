@@ -53,3 +53,7 @@ publish-scheduled-notifications:
 .PHONY: delete-published-scheduled-notifications
 delete-published-scheduled-notifications:
 	$(RUN) python manage.py delete-published-scheduled-notifications
+
+.PHONY: replicate-anonymized-data
+replicate-anonymized-data:
+	$(RUN) python manage.py replicate-anonymized-data
