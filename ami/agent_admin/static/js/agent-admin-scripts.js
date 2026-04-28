@@ -42,3 +42,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
+const confirmModal = (id_modal) => {
+  const modal = document.querySelector(`#${id_modal}`);
+  if (modal && typeof window.dsfr === 'function') {
+    window.dsfr(modal).modal.disclose();
+  }
+};
