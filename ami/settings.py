@@ -243,7 +243,12 @@ assert AUTH_COOKIE_JWT_SECRET, "set a random AUTH_COOKIE_JWT_SECRET in your .env
 FC_AMI_CLIENT_ID = CONFIG["FC_AMI_CLIENT_ID"]
 FC_AMI_CLIENT_SECRET = CONFIG["FC_AMI_CLIENT_SECRET"]
 PUBLIC_FC_BASE_URL = CONFIG["PUBLIC_FC_BASE_URL"]
-PUBLIC_FC_PROXY = CONFIG["PUBLIC_FC_PROXY"]
+
+# This should not be set in production:
+# It should be set in the .env.local file for local development
+# and in the Scalingo staging and review apps as an env variable.
+PUBLIC_FC_PROXY = CONFIG.get("PUBLIC_FC_PROXY")
+
 FC_SCOPE = CONFIG["FC_SCOPE"]
 FC_AMI_REDIRECT_URL = PUBLIC_API_URL + "/login-callback"
 FC_TOKEN_ENDPOINT = "/api/v2/token"
