@@ -63,7 +63,7 @@ describe('/+page.svelte', () => {
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(2);
       expect(spy).toHaveBeenNthCalledWith(1, '/');
-      expect(spy).toHaveBeenNthCalledWith(2, '/#/settings');
+      expect(spy).toHaveBeenNthCalledWith(2, '/#/preferences/notifications');
     });
   });
 
