@@ -74,10 +74,8 @@ from the following files in your environment directory, in this order:
 
     .env # loaded in all cases
     .env.local # loaded in all cases, ignored by git
-    .env.development # loaded only in development
+    .env.development # loaded only in development, values should be overloaded on Scalingo
     .env.development.local # loaded only in development, ignored by git
-
-`.env.development` files are not loaded by the backend unless you add them to your `uv run` command lines.
 
 ### 4. Run Database Migrations
 
@@ -249,8 +247,13 @@ on Scalingo.
 
 We now use a
 [proxy](https://ami-fc-proxy-dev.osc-fr1.scalingo.io/)
-through the configuration of the `FC_PROXY` env variable in the `.env` file, so
-none of that is needed anymore, it's all been configured once and for all.
+through the configuration of the `FC_PROXY` env variable.
+It needs to be set through Scalingo in the staging and review apps,
+and for local development, it needs to be set in the `.env.local` file.
+
+```
+PUBLIC_FC_PROXY="https://ami-fc-proxy-dev.osc-fr1.scalingo.io/"
+```
 
 ## Pro Connect
 
