@@ -8,7 +8,13 @@ describe('/Toast.svelte', () => {
   test('should remove toast from store when user clicks on close button', async () => {
     // Given
     const spy = vi.spyOn(toastStore, 'removeToast');
-    render(Toast, { id: 'id1', title: 'Title 1', level: 'neutral', top: false });
+    render(Toast, {
+      id: 'id1',
+      title: "Code d'identification copié !",
+      toastType: 'info',
+      duration: 5000,
+      hasCloseLink: true,
+    });
 
     // When
     const closeButton = screen.getByTestId('close-button');

@@ -61,7 +61,12 @@ describe('/+page.svelte', () => {
 
     // Then
     await waitFor(async () => {
-      expect(spy).toHaveBeenCalledWith('Les notifications ont été activées', 'success');
+      expect(spy).toHaveBeenCalledWith(
+        'Les notifications ont été activées',
+        'success',
+        3000,
+        false
+      );
     });
   });
 
