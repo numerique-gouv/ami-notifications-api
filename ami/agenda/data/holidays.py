@@ -30,15 +30,16 @@ def get_school_holidays_data(
     start_date: datetime.date,
     end_date: datetime.date,
 ) -> list[SchoolHoliday]:
-    response = httpxClient.get(
-        f"{settings.API_DATA_EDUCATION_BASE_URL}{settings.API_DATA_EDUCATION_HOLIDAYS_ENDPOINT}",
-        params={
-            "where": f"end_date >= date'{start_date}' AND start_date < date'{end_date}' AND population IN ('-', 'Élèves')",
-            "order_by": "start_date",
-            "timezone": "Europe/Paris",
-        },
-        cache_duration=600,
-    )
+    with httpxClient() as httpx_client:
+        response = httpx_client.get(
+            f"{settings.API_DATA_EDUCATION_BASE_URL}{settings.API_DATA_EDUCATION_HOLIDAYS_ENDPOINT}",
+            params={
+                "where": f"end_date >= date'{start_date}' AND start_date < date'{end_date}' AND population IN ('-', 'Élèves')",
+                "order_by": "start_date",
+                "timezone": "Europe/Paris",
+            },
+            cache_duration=600,
+        )
     if response.status_code != 200:
         raise SchoolHolidaysError(status_code=response.status_code)
 

@@ -35,7 +35,7 @@ class Agent(models.Model):
 
     @property
     def has_role_notifications(self):
-        return self.role in [Agent.Role.SUPPORT, Agent.Role.NOTIFICATIONS]
+        return self.role in [Agent.Role.ADMIN, Agent.Role.NOTIFICATIONS]
 
     @property
     def has_role_admin(self):

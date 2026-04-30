@@ -211,6 +211,7 @@ def test_create_notification_user_does_not_exist(
     response = app.post(
         "/api/v1/notifications", notification_data, headers=partner_auth, status=404
     )
+    assert response.json == {"error": "User not found"}
     assert Notification.objects.count() == 0
     user_count = User.objects.count()
     assert user_count == 0
@@ -275,6 +276,7 @@ def test_create_notification_user_never_seen(
     response = app.post(
         "/api/v1/notifications", notification_data, headers=partner_auth, status=404
     )
+    assert response.json == {"error": "User never seen"}
     assert Notification.objects.count() == 0
     assert User.objects.count() == 1
     user = User.objects.get()
