@@ -34,7 +34,15 @@
           </li>
           {% if request.user.agent.has_role_admin %}
             <li class="fr-nav__item">
-              <a type="link" href="{% url 'agent-admin:manage-access' %}" class="fr-nav__link">Gestion des droits des agents</a>
+              <a type="link" href="{% url 'agent-admin:manage:access' %}" class="fr-nav__link">Gestion des droits des agents</a>
+            </li>
+            <li class="fr-nav__item">
+              <a type="link" href="{% url 'agent-admin:manage:search-user' %}" class="fr-nav__link">Gestion des usagers</a>
+            </li>
+          {% endif %}
+          {% if request.user.agent.has_role_notifications %}
+            <li class="fr-nav__item">
+              <a type="link" href="{% url 'agent-admin:manage:send-notification' %}" class="fr-nav__link">Envoyer une notification</a>
             </li>
           {% endif %}
           <li class="fr-nav__item">

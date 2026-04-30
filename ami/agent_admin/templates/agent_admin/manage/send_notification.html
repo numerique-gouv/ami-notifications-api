@@ -1,0 +1,11 @@
+{% extends "agent_admin/base.html" %}
+{% load dsfr_tags %}
+
+{% block content %}
+  <h1>Envoyer une notification</h1>
+  <form method="post" id="send-notification" class="form-disable-on-submit" novalidate>
+    {% csrf_token %}
+    {{ form }}
+    {% dsfr_button_group btn_group %}
+  </form>
+{% endblock %}

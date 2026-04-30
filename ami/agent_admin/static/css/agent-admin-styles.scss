@@ -180,18 +180,62 @@ body > .fr-container {
   }
 }
 
-.fr-notice {
-  margin-bottom: 1rem;
-  &.fr-notice--warning {
+.toasts {
+  position: fixed;
+  bottom: 1rem;
+  z-index: 3;
+  margin: 0 1rem;
+  width: calc(100% - 2rem);
+}
+.toast-wrapper {
+  border-radius: 0.25rem;
+  color: var(--grey-50-1000);
+  padding: 12px 0.5rem;
+  margin-top: 1rem;
+  &.success {
+    background-color: var(--green-emeraude-975-75);
+  }
+  &.info {
+    background-color: var(--info-950-100);
+  }
+  &.warning {
     background-color: var(--yellow-moutarde-950-100);
-    .fr-btn--close {
-      --hover: var(--yellow-moutarde-950-100-hover);
-      --active: var(--yellow-moutarde-950-100-active);
+  }
+  &.error {
+    background-color: var(--error-950-100);
+  }
+  .toast-body {
+    display: flex;
+    justify-content: space-between;
+    .toast-body-left-wrapper {
+      display: flex;
+      span {
+        margin-right: 0.5rem;
+        &.success::before {
+          background-color: var(--success-425-625);
+        }
+        &.info::before {
+          background-color: var(--info-425-625);
+        }
+        &.warning::before {
+          background-color: var(--warning-425-625);
+        }
+        &.error::before {
+          background-color: var(--error-425-625);
+        }
+      }
+      p {
+        font-size: 14px;
+      }
+    }
+    button {
+      font-size: 14px;
+      color: var(--blue-france-sun-113-625);
     }
   }
 }
 
-.fr-select {
+#agent-forms .fr-select {
   color: var(--text-action-high-blue-france);
   background-color: transparent;
   background-image: url("../img/chevron.svg");

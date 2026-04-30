@@ -1,10 +1,10 @@
 import hashlib
-from collections.abc import AsyncGenerator
-from contextlib import asynccontextmanager
+from collections.abc import AsyncGenerator, Generator
+from contextlib import asynccontextmanager, contextmanager
 
 from django.core.cache import cache
 from django.utils.encoding import smart_bytes
-from httpx import URL, AsyncClient, Client, Response  # noqa
+from httpx import URL, AsyncClient, BasicAuth, Client, Response  # noqa
 
 
 def get_cache_key(url: str):
@@ -44,7 +44,16 @@ class AMIClient(Client):
         return response
 
 
-httpxClient = AMIClient(timeout=60)
+@contextmanager
+def httpxClient() -> Generator[AMIClient]:
+    with AMIClient(timeout=60) as client:
+        yield client
+
+
+@contextmanager
+def httpxLaxClient() -> Generator[AMIClient]:
+    with AMIClient(timeout=60, verify=False) as client:
+        yield client
 
 
 @asynccontextmanager
