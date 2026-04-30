@@ -117,6 +117,9 @@ def test_delete_user(
         "user_fc_hash": "651d806d65788bc260faa89a555fdf89bd573a5c9a4d8bb897967e14951ab65d",
     }
 
+    response = response.follow()
+    assert response.pyquery(".fr-notice.success").text() == "Les données ont bien été supprimées."
+
 
 @pytest.mark.django_db
 def test_delete_user_not_found(app, admin_agent: Agent):
