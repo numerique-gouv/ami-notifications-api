@@ -77,6 +77,8 @@ from the following files in your environment directory, in this order:
     .env.development # loaded only in development, values should be overloaded on Scalingo
     .env.development.local # loaded only in development, ignored by git
 
+TESTING NO PUBLIC_FC_PROXY IN .env FILE
+
 ### 4. Run Database Migrations
 
 Apply the database schema:
