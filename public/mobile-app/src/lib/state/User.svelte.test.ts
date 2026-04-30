@@ -251,6 +251,9 @@ describe('/lib/state/User.svelte.ts', () => {
         expect(userStore.connected?.identity?.preferences instanceof Preferences).toBe(
           true
         );
+        expect(
+          userStore.connected?.identity?.preferences.addresses[0] instanceof Address
+        ).toBe(true);
       });
     });
 
