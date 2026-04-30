@@ -1,3 +1,6 @@
+import json
+
+from django.contrib import messages
 from django.shortcuts import render
 
 from ami.agent.decorators import (
@@ -10,16 +13,19 @@ from ami.agent_admin.forms import NotificationForm
 @agent_login_required
 @role_notifications_required
 def send_notification(request):
-    result_data_dict = None
     if request.method == "POST":
         form = NotificationForm(data=request.POST)
         if form.is_valid():
-            result_data_dict = form.submit()
+            message_content = form.submit()
+            message = {
+                "title": "Notification envoyée avec succès",
+                "content": message_content,
+            }
+            messages.success(request, json.dumps(message))
     else:
         form = NotificationForm()
     context = {
         "form": form,
-        "form_result_data_dict": result_data_dict,
         "btn_group": {
             "items": [
                 {

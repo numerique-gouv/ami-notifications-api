@@ -39,3 +39,26 @@ const confirmModal = (id_modal) => {
     window.dsfr(modal).modal.disclose();
   }
 };
+
+document.addEventListener('DOMContentLoaded', () => {
+  const toasts = document.querySelectorAll('.toast-wrapper');
+  const buttons = document.querySelectorAll('.toast-body-right-wrapper button');
+
+  toasts.forEach((toast) => {
+    setTimeout(() => {
+      if (toast.parentNode) {
+        toast.parentNode.removeChild(toast);
+      }
+    }, 5000);
+  });
+
+  buttons.forEach((button) => {
+    button.addEventListener('click', (_ev) => {
+      if (!event.target) {
+        return;
+      }
+      const element = event.target.parentNode.parentNode.parentNode.parentNode;
+      element.parentNode.removeChild(element);
+    });
+  });
+});

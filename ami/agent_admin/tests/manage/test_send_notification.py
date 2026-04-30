@@ -162,9 +162,8 @@ def test_send_notification_submit_success(
 
     response = response.forms["send-notification"].submit()
     assert (
-        response.pyquery(".fr-alert--success").text() == "Notification envoyée avec succès\n"
-        "notification_id: 5c108865-3ca3-403b-bd53-942bcc025f2c, notification_send_status: True\n"
-        "Masquer le message"
+        response.pyquery(".fr-notice.success").text() == "Notification envoyée avec succès\n"
+        "notification_id: 5c108865-3ca3-403b-bd53-942bcc025f2c\nnotification_send_status: True"
     )
 
 
