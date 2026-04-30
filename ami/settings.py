@@ -133,7 +133,7 @@ TEMPLATES = [
             "context_processors": [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
-                "django.contrib.messages.context_processors.messages",
+                "ami.agent_admin.context_processors.messages",
             ],
             "loaders": develop_loaders if DEBUG else production_loaders,
         },
