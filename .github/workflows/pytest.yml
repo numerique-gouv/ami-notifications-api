@@ -24,7 +24,13 @@ jobs:
         working-directory: ./public/mobile-app
         run: npm ci
 
-      - run: make lint-and-format
+      - name: lint-and-format
+        env:
+          AUTH_COOKIE_JWT_SECRET: secret
+          PARTNERS_PSL_SECRET: secret
+          PUBLIC_WEBSITE_PUBLIC: true
+          PUBLIC_FC_PROXY: https://ami-fc-proxy-dev.osc-fr1.scalingo.io/
+        run: make lint-and-format
 
   run-tests:
     name: python
@@ -66,6 +72,8 @@ jobs:
           echo "PARTNERS_DINUM_AMI_SECRET=\"secret\"" >> .env.local
 
       - name: Run tests
+        env:
+          PUBLIC_FC_PROXY: https://ami-fc-proxy-dev.osc-fr1.scalingo.io/
         run: make test-ci
 
   mobile-app-tests:
@@ -95,4 +103,5 @@ jobs:
           AUTH_COOKIE_JWT_SECRET: secret
           PARTNERS_PSL_SECRET: secret
           PUBLIC_WEBSITE_PUBLIC: true
+          PUBLIC_FC_PROXY: https://ami-fc-proxy-dev.osc-fr1.scalingo.io/
         run: npm test
