@@ -140,13 +140,10 @@ class NotificationForm(AMIDsfrBaseForm):
 
         if response.status_code // 100 == 2:
             # notification request accepted
-            return {
-                "title": "Notification envoyée avec succès",
-                "type": "success",
-                "content": json.dumps(response.json()),
-                "is_collapsible": True,
-                "id": "alert-success-tag",
-            }
+            message_content = []
+            for key, value in response.json().items():
+                message_content.append(f"{key}: {value}")
+            return "<br />".join(message_content)
 
 
 class UserSearchForm(AMIDsfrBaseForm):

@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -72,4 +73,5 @@ def delete_user(request, user_id):
         ScheduledNotification.objects.filter(user=user).delete()
         user.delete()
 
+    messages.success(request, "Les données ont bien été supprimées.")
     return redirect(reverse("agent-admin:manage:search-user"))

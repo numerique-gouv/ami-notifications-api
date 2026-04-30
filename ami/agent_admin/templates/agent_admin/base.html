@@ -11,6 +11,47 @@
   {% include "agent_admin/blocks/header.html" %}
 {% endblock header %}
 
+{% block follow_newsletter_social_media %}
+  {% if messages %}
+    <div class="toasts">
+      {% for message in messages %}
+        <div class="fr-notice toast-wrapper {{ message.level_tag }}">
+          <div class="toast-body">
+            <div class="toast-body-left-wrapper">
+              {% if message.level_tag == 'success' %}
+                <span class="success fr-icon-success-fill" aria-hidden="true"></span>
+              {% elif message.level_tag == 'info' %}
+                <span class="info fr-icon-error-warning-fill" aria-hidden="true"></span>
+              {% elif message.level_tag == 'warning' %}
+                <span class="warning fr-icon-warning-fill" aria-hidden="true"></span>
+              {% elif message.level_tag == 'error' %}
+                <span class="error fr-icon-close-circle-fill" aria-hidden="true"></span>
+              {% endif %}
+              <p>
+                {% if message.message.content %}
+                  <strong>{{ message.message.title }}</strong>
+                  <br />
+                  {{ message.message.content|safe }}
+                {% else %}
+                  {{ message.message.title }}
+                {% endif %}
+              </p>
+            </div>
+            <div class="toast-body-right-wrapper">
+              <button
+                aria-label="Fermer le toast"
+                data-testid="close-button"
+              >
+                <span class="fr-icon-close-line" aria-hidden="true"></span>
+              </button>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endblock follow_newsletter_social_media %}
+
 {% block footer %}
 {% endblock footer %}
 
