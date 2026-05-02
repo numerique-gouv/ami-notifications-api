@@ -268,6 +268,8 @@
   bind:this={logoutModal}
   id="modal-logout"
   title="Suppression de vos données"
+  closeButton={false}
+  centered={true}
   component={Logout}
 />
 
