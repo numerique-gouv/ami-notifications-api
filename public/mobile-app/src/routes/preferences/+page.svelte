@@ -1,6 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
+  import Modal from '$lib/components/modal/Modal.svelte';
+  import ZonePreferences from '$lib/components/modal/ZonePreferences.svelte';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import { runOrNativeEvent } from '$lib/nativeEvents';
   import {
@@ -10,7 +12,12 @@
   import type { Registration } from '$lib/registration';
   import { userStore } from '$lib/state/User.svelte';
 
+  type ModalInstance = {
+    open: () => Promise<void>;
+  };
+
   let backUrl: string = '/';
+  let zonePreferencesModal: ModalInstance;
 
   onMount(async () => {
     if (!userStore.connected) {
@@ -20,6 +27,10 @@
 
   const navigateToPreviousPage = async () => {
     goto(backUrl);
+  };
+
+  const openZonePreferencesModal = () => {
+    zonePreferencesModal.open();
   };
 </script>
 
@@ -41,10 +52,14 @@
               </a>
             </li>
             <li class="fr-sidemenu__item">
-              <a class="fr-sidemenu__link" href="/#/preferences/zones" target="_self">
+              <button
+                class="fr-sidemenu__link"
+                type="button"
+                onclick={openZonePreferencesModal}
+              >
                 <span class="label">Zones scolaires</span>
                 <span aria-hidden="true" class="icon fr-icon-arrow-right-s-line"></span>
-              </a>
+              </button>
             </li>
           </ul>
         </div>
@@ -52,6 +67,13 @@
     </nav>
   </div>
 </div>
+
+<Modal
+  bind:this={zonePreferencesModal}
+  id="modal-zones-preferences"
+  title="Zones scolaires"
+  component={ZonePreferences}
+/>
 
 <style>
   .preferences-page {
