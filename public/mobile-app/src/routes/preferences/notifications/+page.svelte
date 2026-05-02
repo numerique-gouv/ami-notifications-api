@@ -82,6 +82,9 @@
 
 <style>
   .preferences-page {
+    .preferences-content-container {
+      padding: 0 1rem;
+    }
     .save-preferences-button {
       position: fixed;
       bottom: 1rem;

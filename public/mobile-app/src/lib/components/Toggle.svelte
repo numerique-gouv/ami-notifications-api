@@ -41,7 +41,7 @@
 
 <style>
   .fr-toggle {
-    padding: 1rem;
+    padding: 1rem 0;
     &:has(.fr-tag) {
       padding-bottom: 0;
     }

@@ -4,10 +4,17 @@
   import type { Agenda } from '$lib/agenda';
   import { buildAgenda } from '$lib/agenda';
   import AgendaItem from '$lib/components/AgendaItem.svelte';
+  import Modal from '$lib/components/modal/Modal.svelte';
+  import ZonePreferences from '$lib/components/modal/ZonePreferences.svelte';
   import Navigation from '$lib/components/Navigation.svelte';
   import { userStore } from '$lib/state/User.svelte';
 
+  type ModalInstance = {
+    open: () => Promise<void>;
+  };
+
   let agenda: Agenda | null = $state(null);
+  let zonePreferencesModal: ModalInstance;
 
   onMount(async () => {
     if (!userStore.connected) {
@@ -17,18 +24,28 @@
     agenda = await buildAgenda();
     console.log($state.snapshot(agenda));
   });
+
+  const openZonePreferencesModal = () => {
+    zonePreferencesModal.open();
+  };
+
+  const refreshAgenda = () => {
+    buildAgenda().then((result) => {
+      agenda = result;
+    });
+  };
 </script>
 
 <div class="agenda">
   <div class="agenda--title">
     <h2>Mon agenda</h2>
     <div class="agenda--title--icon">
-      <a href="/#/preferences/zones"
-        ><span class="fr-icon-settings-5-line" aria-hidden="true"></span><span
+      <button class="preferences" type="button" onclick={openZonePreferencesModal}>
+        <span class="fr-icon-settings-5-line" aria-hidden="true"></span><span
           class="fr-sr-only"
           >Préférences</span
-        ></a
-      >
+        >
+      </button>
     </div>
   </div>
 
@@ -64,6 +81,14 @@
 </div>
 <Navigation currentItem="agenda" />
 
+<Modal
+  bind:this={zonePreferencesModal}
+  id="modal-zones-preferences"
+  title="Zones scolaires"
+  onCloseCustom={refreshAgenda}
+  component={ZonePreferences}
+/>
+
 <style>
   .agenda {
     padding: 1.5rem 1rem;
@@ -77,9 +102,6 @@
       .agenda--title--icon {
         padding-top: 0.25rem;
         color: var(--text-active-blue-france);
-        a {
-          background-image: none;
-        }
       }
     }
     .agenda--events {
