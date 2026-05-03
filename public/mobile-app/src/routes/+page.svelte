@@ -46,6 +46,10 @@
         await initializeData(page.url.searchParams, userStore);
         if (page.url.searchParams.get('user_first_login') === 'true') {
           goto('/#/notifications-welcome-page');
+          /* to be replaced by:
+           * goto('/#/welcome/notifications');
+           * if app mobile is ready to intercept this new url
+           */
         } else {
           goto('/');
         }
