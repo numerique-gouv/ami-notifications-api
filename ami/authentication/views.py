@@ -58,6 +58,43 @@ def login_france_connect(request):
 
 
 @require_GET
+def login_ami_fi(request):
+    try:
+        NONCE = generate_nonce()
+        nonce = Nonce.objects.create(nonce=NONCE)
+
+        params = {
+            "scope": settings.FC_SCOPE,
+            "redirect_uri": settings.PUBLIC_FC_PROXY or settings.FC_AMI_REDIRECT_URL,
+            "response_type": "code",
+            "client_id": settings.FC_AMI_CLIENT_ID,
+            "state": (
+                f"{settings.FC_AMI_REDIRECT_URL}?state={nonce.id}"
+                if settings.PUBLIC_FC_PROXY
+                else str(nonce.id)
+            ),
+            "nonce": NONCE,
+            "acr_values": "eidas1",
+            "prompt": "login",
+            "idp_hint": settings.FI_IDP_ID,
+        }
+
+        login_url = (
+            f"{settings.PUBLIC_FC_BASE_URL}{settings.FC_AUTHORIZATION_ENDPOINT}?{urlencode(params)}"
+        )
+        if settings.PUBLIC_FC_PROXY:
+            params = {
+                "from_url": f"{settings.PUBLIC_API_URL}/",
+                "fc_url": login_url,
+            }
+            login_url = f"{settings.PUBLIC_FC_PROXY}ami-fi-authorize-request/?{urlencode(params)}"
+        return redirect(login_url)
+    except Exception as e:
+        logging.exception(e)
+        return redirect(f"{settings.PUBLIC_APP_URL}/#/technical-error")
+
+
+@require_GET
 async def login_callback(request):
     try:
         code = request.GET.get("code")
