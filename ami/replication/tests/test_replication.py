@@ -20,7 +20,7 @@ def test_replicate_anonymized_users(two_users: list[User]) -> None:
 
     assert AnonymizedUser.objects.using("data_ware_house").count() == 2
     for user in two_users:
-        anonymized = AnonymizedUser.objects.using("data_ware_house").get(original_id=user.id)
+        anonymized = AnonymizedUser.objects.using("data_ware_house").get(id=user.id)
         assert anonymized.last_logged_in == user.last_logged_in
         assert anonymized.created_at == user.created_at
         assert anonymized.updated_at == user.updated_at
@@ -32,4 +32,4 @@ def test_replicate_anonymized_users_processes_by_batch(two_users: list[User]) ->
 
     assert AnonymizedUser.objects.using("data_ware_house").count() == 2
     for user in two_users:
-        assert AnonymizedUser.objects.using("data_ware_house").filter(original_id=user.id).exists()
+        assert AnonymizedUser.objects.using("data_ware_house").filter(id=user.id).exists()
