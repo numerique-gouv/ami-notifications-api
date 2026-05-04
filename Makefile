@@ -46,6 +46,10 @@ build-app:
 migrate:
 	$(RUN) python manage.py migrate --fake-initial
 
+.PHONY: migrate-data-ware-house
+migrate-data-ware-house:
+	$(RUN) python manage.py migrate --database=data_ware_house replication
+
 .PHONY: publish-scheduled-notifications
 publish-scheduled-notifications:
 	$(RUN) python manage.py publish-scheduled-notifications
