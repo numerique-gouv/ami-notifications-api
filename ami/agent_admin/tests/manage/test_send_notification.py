@@ -10,7 +10,7 @@ from ami.agent_admin.tests.utils import assert_query_fails_without_agent_notific
 @pytest.mark.django_db
 def test_send_notification(app, notifications_agent: Agent) -> None:
     app.set_user(notifications_agent.user)
-    response = app.get("/agent-admin/notification/")
+    response = app.get("/agent-admin/manage/notification/")
     assert "Envoyer une notification" in response
 
     assert response.forms["send-notification"]["recipient_fc_hash"].value == ""
@@ -34,7 +34,7 @@ def test_send_notification(app, notifications_agent: Agent) -> None:
 @pytest.mark.django_db
 def test_send_notification_submit_validation_errors(app, notifications_agent: Agent) -> None:
     app.set_user(notifications_agent.user)
-    response = app.get("/agent-admin/notification/")
+    response = app.get("/agent-admin/manage/notification/")
     response = response.forms["send-notification"].submit()
     assert response.context["form"].errors == {
         "recipient_fc_hash": ["Ce champ est obligatoire."],
@@ -50,7 +50,7 @@ def test_send_notification_submit_with_400(
     httpx_mock: HTTPXMock,
 ) -> None:
     app.set_user(notifications_agent.user)
-    response = app.get("/agent-admin/notification/")
+    response = app.get("/agent-admin/manage/notification/")
 
     response.forms["send-notification"]["recipient_fc_hash"] = "a-recipient"
     response.forms["send-notification"]["content_title"] = "a-title"
@@ -91,7 +91,7 @@ def test_send_notification_submit_with_404(
     httpx_mock: HTTPXMock,
 ) -> None:
     app.set_user(notifications_agent.user)
-    response = app.get("/agent-admin/notification/")
+    response = app.get("/agent-admin/manage/notification/")
 
     response.forms["send-notification"]["recipient_fc_hash"] = "a-recipient"
     response.forms["send-notification"]["content_title"] = "a-title"
@@ -113,7 +113,7 @@ def test_send_notification_submit_with_404_and_message(
     httpx_mock: HTTPXMock,
 ) -> None:
     app.set_user(notifications_agent.user)
-    response = app.get("/agent-admin/notification/")
+    response = app.get("/agent-admin/manage/notification/")
 
     response.forms["send-notification"]["recipient_fc_hash"] = "a-recipient"
     response.forms["send-notification"]["content_title"] = "a-title"
@@ -145,7 +145,7 @@ def test_send_notification_submit_success(
     httpx_mock: HTTPXMock,
 ) -> None:
     app.set_user(notifications_agent.user)
-    response = app.get("/agent-admin/notification/")
+    response = app.get("/agent-admin/manage/notification/")
 
     response.forms["send-notification"]["recipient_fc_hash"] = "a-recipient"
     response.forms["send-notification"]["content_title"] = "a-title"
@@ -162,12 +162,11 @@ def test_send_notification_submit_success(
 
     response = response.forms["send-notification"].submit()
     assert (
-        response.pyquery(".fr-alert--success").text() == "Notification envoyée avec succès\n"
-        "notification_id: 5c108865-3ca3-403b-bd53-942bcc025f2c, notification_send_status: True\n"
-        "Masquer le message"
+        response.pyquery(".fr-notice.success").text() == "Notification envoyée avec succès\n"
+        "notification_id: 5c108865-3ca3-403b-bd53-942bcc025f2c\nnotification_send_status: True"
     )
 
 
 @pytest.mark.django_db
 def test_send_notification_without_agent_notifications_auth(app) -> None:
-    assert_query_fails_without_agent_notifications_auth(app, "/agent-admin/notification/")
+    assert_query_fails_without_agent_notifications_auth(app, "/agent-admin/manage/notification/")

@@ -3,9 +3,6 @@
 
 {% block content %}
   <h1>Envoyer une notification</h1>
-  {% if form_result_data_dict %}
-    {% dsfr_alert form_result_data_dict %}
-  {% endif %}
   <form method="post" id="send-notification" class="form-disable-on-submit" novalidate>
     {% csrf_token %}
     {{ form }}

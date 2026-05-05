@@ -6,9 +6,10 @@ class AutocompleteInput(TextInput):
         js = ["js/amidsfr-autocomplete.js"]
         css = {"all": ["css/amidsfr-autocomplete.css"]}
 
-    def __init__(self, autocomplete_url=None, *args, **kwargs):
+    def __init__(self, autocomplete_url=None, with_button=False, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.group_class = "fr-input-group amidsfr-autocomplete"
+        self.with_button = with_button
         self.attrs["data-autocomplete-url"] = autocomplete_url or ""
 
 

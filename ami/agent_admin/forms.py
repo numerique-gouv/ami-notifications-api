@@ -11,6 +11,7 @@ from ami.agent_admin.utils import audit
 from ami.amidsfr.forms import AMIDsfrBaseForm
 from ami.amidsfr.widgets import AutocompleteInput, ToggleInput
 from ami.partner.models import partners
+from ami.user.models import User
 from ami.utils.httpx import BasicAuth, httpxLaxClient
 
 
@@ -139,12 +140,27 @@ class NotificationForm(AMIDsfrBaseForm):
 
         if response.is_success:
             # notification request accepted
-            notification_id = response.json().get("notification_id")
-            notification_send_status = response.json().get("notification_send_status")
-            return {
-                "title": "Notification envoyée avec succès",
-                "type": "success",
-                "content": f"notification_id: {notification_id}, notification_send_status: {notification_send_status}",
-                "is_collapsible": True,
-                "id": "alert-success-tag",
-            }
+            message_content = []
+            for key, value in response.json().items():
+                message_content.append(f"{key}: {value}")
+            return "<br />".join(message_content)
+
+
+class UserSearchForm(AMIDsfrBaseForm):
+    fc_hash = forms.CharField(label="Identifiant FC-Hash")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["fc_hash"].widget = AutocompleteInput(
+            autocomplete_url=reverse("agent-admin:api-users"),
+            with_button=True,
+        )
+        self.user = None
+
+    def clean_fc_hash(self):
+        value = self.cleaned_data["fc_hash"]
+        try:
+            self.user = User.objects.get(fc_hash=value)
+        except User.DoesNotExist:
+            raise forms.ValidationError("Utilisateur non trouvé")
+        return value
