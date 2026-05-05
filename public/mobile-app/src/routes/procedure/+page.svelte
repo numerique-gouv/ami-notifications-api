@@ -53,16 +53,14 @@
     const hash = window.location.hash;
     const url = new URL(hash.substring(1), window.location.origin);
     const stringFromUrl = url.searchParams.get('date') || '';
-    itemDate = '';
+    const dateFormat: Intl.DateTimeFormatOptions = { month: 'long', day: 'numeric' };
+    const locale = 'fr-FR';
+    itemDate = new Date().toLocaleDateString(locale, dateFormat);
 
     if (stringFromUrl !== '') {
       const dateFromUrl: Date = new Date(stringFromUrl);
       if (isValidDate(dateFromUrl)) {
-        const dayNumber: string = dateFromUrl ? dateFromUrl.getDate().toString() : '';
-        const monthName: string = dateFromUrl
-          ? dateFromUrl.toLocaleString('fr-FR', { month: 'long' })
-          : '';
-        itemDate = `${dayNumber} ${monthName}`;
+        itemDate = dateFromUrl.toLocaleDateString(locale, dateFormat);
       }
     }
   });

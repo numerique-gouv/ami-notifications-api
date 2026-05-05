@@ -1,5 +1,5 @@
 import { render, screen, waitFor } from '@testing-library/svelte';
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import * as navigationMethods from '$app/navigation';
 import * as procedureMethods from '$lib/procedure';
 import { userStore } from '$lib/state/User.svelte';
@@ -9,6 +9,11 @@ import Page from './+page.svelte';
 describe('/+page.svelte', () => {
   beforeEach(async () => {
     await userStore.login(mockUserInfo);
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   test('user has to be connected', async () => {
@@ -41,26 +46,43 @@ describe('/+page.svelte', () => {
     });
   });
 
-  test('should display empty string if url param is empty', async () => {
+  test('should display default date if url param is empty', async () => {
     // Given
+    const date = new Date(2026, 5, 17, 12, 22);
+    vi.setSystemTime(date);
     window.location.hash = '#/procedure?date=';
 
     // When
     render(Page);
 
     // Then
-    expect(screen.getByTestId('item-date')).toHaveTextContent('À partir du');
+    expect(screen.getByTestId('item-date')).toHaveTextContent(`À partir du 17 juin`);
   });
 
-  test('should display empty string if url param is an invalid date', async () => {
+  test('should display default date if url param is missing', async () => {
     // Given
+    const date = new Date(2026, 5, 17, 12, 22);
+    vi.setSystemTime(date);
+    window.location.hash = '#/procedure';
+
+    // When
+    render(Page);
+
+    // Then
+    expect(screen.getByTestId('item-date')).toHaveTextContent(`À partir du 17 juin`);
+  });
+
+  test('should display default if url param is an invalid date', async () => {
+    // Given
+    const date = new Date(2026, 5, 17, 12, 22);
+    vi.setSystemTime(date);
     window.location.hash = '#/procedure?date=coucou';
 
     // When
     render(Page);
 
     // Then
-    expect(screen.getByTestId('item-date')).toHaveTextContent('À partir du');
+    expect(screen.getByTestId('item-date')).toHaveTextContent(`À partir du 17 juin`);
   });
 
   test('should retrieve procedure url', async () => {
