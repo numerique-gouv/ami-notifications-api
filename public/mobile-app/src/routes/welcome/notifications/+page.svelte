@@ -15,15 +15,15 @@
   const enableNotificationsFunc = async () => {
     await enableNotificationsAndUpdateLocalStorage();
     toastStore.addToast('Les notifications ont été activées', 'success');
-    goto('/');
+    goToZonePreferences();
   };
 
   const clickOnEnable = async () => {
     runOrNativeEvent(enableNotificationsFunc, 'notification_permission_requested');
   };
 
-  const goToHomepage = () => {
-    goto('/');
+  const goToZonePreferences = () => {
+    goto('/#/welcome/zones');
   };
 </script>
 
@@ -55,7 +55,7 @@
     <button
       class="fr-btn fr-btn--lg fr-btn--tertiary"
       type="button"
-      onclick="{goToHomepage}"
+      onclick="{goToZonePreferences}"
       data-testid="skip-button"
     >
       Peut-être plus tard

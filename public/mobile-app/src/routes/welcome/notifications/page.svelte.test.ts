@@ -65,7 +65,7 @@ describe('/+page.svelte', () => {
     });
   });
 
-  test('should navigate to the homepage when user clicks on Activer button', async () => {
+  test('should navigate to zone preferences when user clicks on Activer button', async () => {
     // Given
     await userStore.login(mockUserInfo);
     const spy = vi
@@ -79,11 +79,11 @@ describe('/+page.svelte', () => {
 
     // Then
     await waitFor(() => {
-      expect(spy).toHaveBeenCalledWith('/');
+      expect(spy).toHaveBeenCalledWith('/#/welcome/zones');
     });
   });
 
-  test('should navigate to the homepage when user clicks on Skip button', async () => {
+  test('should navigate to zone preferences when user clicks on Skip button', async () => {
     // Given
     await userStore.login(mockUserInfo);
     const spy = vi
@@ -97,7 +97,7 @@ describe('/+page.svelte', () => {
 
     // Then
     await waitFor(() => {
-      expect(spy).toHaveBeenCalledWith('/');
+      expect(spy).toHaveBeenCalledWith('/#/welcome/zones');
     });
   });
 });

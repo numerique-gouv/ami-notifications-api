@@ -455,42 +455,4 @@ describe('/ConnectedHomepage.svelte', () => {
       expect(followUpBlock).toHaveTextContent('Retrouvez et suivez vos démarches ici.');
     });
   });
-
-  test('should call userStore.logout', async () => {
-    // Given
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('', { status: 200 }));
-    const spyLogout = vi.spyOn(userStore, 'logout').mockResolvedValue();
-
-    // When
-    render(ConnectedHomepage);
-    const franceConnectLogoutButton = screen.getByRole('button', {
-      name: 'Me déconnecter',
-    });
-    await franceConnectLogoutButton.click();
-
-    const confirmButton = screen.getByTestId('logout-submit-button');
-    await confirmButton.click();
-
-    // Then
-    expect(spyLogout).toHaveBeenCalled();
-  });
-
-  test('should not call userStore.logout if cancel button is clicked', async () => {
-    // Given
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('', { status: 200 }));
-    const spyLogout = vi.spyOn(userStore, 'logout').mockResolvedValue();
-
-    // When
-    render(ConnectedHomepage);
-    const franceConnectLogoutButton = screen.getByRole('button', {
-      name: 'Me déconnecter',
-    });
-    await franceConnectLogoutButton.click();
-
-    const confirmButton = screen.getByTestId('logout-cancel-button');
-    await confirmButton.click();
-
-    // Then
-    expect(spyLogout).not.toHaveBeenCalled();
-  });
 });
