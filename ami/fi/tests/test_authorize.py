@@ -76,11 +76,7 @@ def test_authorize_invalid_data_state(
         "redirect_uri": settings.FC_AMI_REDIRECT_URL,
         "scope": "fake-scope",
         "acr_values": "eidas1",
-        "claims": json.dumps(
-            {
-                "id_token": "fake-id-token",
-            }
-        ),
+        # without claims
         "prompt": "fake-prompt",
     }
 
