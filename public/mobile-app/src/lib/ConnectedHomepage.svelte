@@ -6,6 +6,8 @@
   import { buildAgenda } from '$lib/agenda';
   import AgendaItem from '$lib/components/AgendaItem.svelte';
   import Icon from '$lib/components/Icon.svelte';
+  import Logout from '$lib/components/modal/Logout.svelte';
+  import Modal from '$lib/components/modal/Modal.svelte';
   import RequestItem from '$lib/components/RequestItem.svelte';
   import type { FollowUp } from '$lib/follow-up';
   import { buildFollowUp } from '$lib/follow-up';
@@ -14,6 +16,12 @@
     notificationEventsSocket,
   } from '$lib/notifications';
   import { userStore } from '$lib/state/User.svelte';
+
+  type ModalInstance = {
+    open: () => Promise<void>;
+  };
+
+  let logoutModal: ModalInstance;
 
   let unreadNotificationsCount: number = $state(0);
   let initials: string = $state('');
@@ -80,19 +88,9 @@
     goto('/#/contact');
   };
 
-  const logoutModal = () => {
+  const openLogoutModal = () => {
     isMenuDisplayed = false;
-    const modal = document.querySelector('#modal-logout');
-    if (modal && typeof window.dsfr === 'function') {
-      window.dsfr(modal).modal.disclose();
-    }
-  };
-
-  const logoutModalClose = () => {
-    const modal = document.querySelector('#modal-logout');
-    if (modal && typeof window.dsfr === 'function') {
-      window.dsfr(modal).modal.conceal();
-    }
+    logoutModal.open();
   };
 </script>
 
@@ -158,7 +156,7 @@
         Nous contacter
       </button>
 
-      <button class="fr-connect-logout" type="button" onclick={logoutModal}>
+      <button class="fr-connect-logout" type="button" onclick={openLogoutModal}>
         <Icon
           className="fr-mr-2v"
           color="var(--text-active-blue-france)"
@@ -270,56 +268,14 @@
   </div>
 </div>
 
-<dialog
+<Modal
+  bind:this={logoutModal}
   id="modal-logout"
-  class="fr-modal"
-  aria-labelledby="modal-logout-title"
-  data-fr-concealing-backdrop="true"
->
-  <div class="fr-container">
-    <div class="fr-grid-row fr-grid-row--center">
-      <div class="fr-col-12">
-        <div class="fr-modal__body">
-          <div class="fr-modal__header"></div>
-          <div class="fr-modal__content">
-            <h2 id="modal-logout-title" class="fr-modal__title">
-              Suppression de vos données
-            </h2>
-            <p>
-              En vous déconnectant, toutes les données enregistrées localement sur cet
-              appareil (informations saisies, modifications et paramètres de
-              personnalisation) seront supprimées.
-            </p>
-          </div>
-          <div class="fr-modal__footer">
-            <ul class="fr-btns-group action-buttons">
-              <li>
-                <button
-                  class="fr-btn fr-btn--secondary cancel-button"
-                  type="button"
-                  onclick={logoutModalClose}
-                  data-testid="logout-cancel-button"
-                >
-                  Annuler
-                </button>
-              </li>
-              <li>
-                <button
-                  class="fr-btn submit-button"
-                  type="button"
-                  onclick={userStore.logout}
-                  data-testid="logout-submit-button"
-                >
-                  Confirmer
-                </button>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</dialog>
+  title="Suppression de vos données"
+  closeButton={false}
+  centered={true}
+  component={Logout}
+/>
 
 <style>
   .is-hidden {
@@ -484,38 +440,6 @@
                 right: 1.25rem;
                 --icon-size: 1rem;
               }
-            }
-          }
-        }
-      }
-    }
-  }
-
-  .fr-modal {
-    &:after,
-    &:before {
-      flex: 1 0 10%;
-      height: 10%;
-      width: 0;
-    }
-    &:after {
-      content: "";
-    }
-    .fr-modal__body {
-      border-radius: 1.75rem;
-      .fr-modal__footer {
-        .action-buttons {
-          background-color: var(--background-default-grey);
-          display: flex;
-          gap: 1rem;
-          margin: 0;
-          padding: 1rem 0.5rem;
-          li {
-            flex: 1;
-            button {
-              display: block;
-              width: 100%;
-              margin: 0;
             }
           }
         }
