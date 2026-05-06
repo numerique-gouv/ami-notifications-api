@@ -10,7 +10,7 @@ class AuthorizeSerializer(serializers.Serializer):
     redirect_uri = serializers.CharField()
     scope = serializers.CharField()
     acr_values = serializers.CharField()
-    claims = serializers.JSONField()
+    claims = serializers.JSONField(required=False)
     prompt = serializers.CharField()
 
     def validate_response_type(self, value):
