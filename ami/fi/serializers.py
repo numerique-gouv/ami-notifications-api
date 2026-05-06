@@ -30,7 +30,7 @@ class AuthorizeSerializer(serializers.Serializer):
         return value
 
     def validate_redirect_uri(self, value):
-        expected = settings.FC_AMI_REDIRECT_URL
+        expected = settings.FI_REDIRECT_URI
         if value != expected:
             raise serializers.ValidationError(
                 f"'redirect_uri' doit être '{expected}', trouvé '{value}'",

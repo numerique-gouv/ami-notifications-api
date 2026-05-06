@@ -30,7 +30,7 @@ def test_authorize(
         "nonce": "fake-nonce",
         "response_type": "code",
         "client_id": settings.FI_CLIENT_ID,
-        "redirect_uri": settings.FC_AMI_REDIRECT_URL,
+        "redirect_uri": settings.FI_REDIRECT_URI,
         "scope": "fake-scope",
         "acr_values": "eidas1",
         "claims": json.dumps(
@@ -50,7 +50,7 @@ def test_authorize(
     assert fi_session.code == expected_code
     assert fi_session.access_token == ""
     redirected_url = response.headers["location"]
-    assert redirected_url.startswith(settings.FC_AMI_REDIRECT_URL)
+    assert redirected_url.startswith(settings.FI_REDIRECT_URI)
     assert url_contains_param(
         "code",
         "fake-code",
@@ -73,7 +73,7 @@ def test_authorize_invalid_data_state(
         "nonce": "fake-nonce",
         "response_type": "code",
         "client_id": settings.FI_CLIENT_ID,
-        "redirect_uri": settings.FC_AMI_REDIRECT_URL,
+        "redirect_uri": settings.FI_REDIRECT_URI,
         "scope": "fake-scope",
         "acr_values": "eidas1",
         # without claims
@@ -94,7 +94,7 @@ def test_authorize_invalid_data_nonce(
         "nonce": "",
         "response_type": "code",
         "client_id": settings.FI_CLIENT_ID,
-        "redirect_uri": settings.FC_AMI_REDIRECT_URL,
+        "redirect_uri": settings.FI_REDIRECT_URI,
         "scope": "fake-scope",
         "acr_values": "eidas1",
         "claims": json.dumps(
@@ -119,7 +119,7 @@ def test_authorize_invalid_data_response_type(
         "nonce": "fake-nonce",
         "response_type": "invalid-response-type",
         "client_id": settings.FI_CLIENT_ID,
-        "redirect_uri": settings.FC_AMI_REDIRECT_URL,
+        "redirect_uri": settings.FI_REDIRECT_URI,
         "scope": "fake-scope",
         "acr_values": "eidas1",
         "claims": json.dumps(
@@ -146,7 +146,7 @@ def test_authorize_invalid_data_client_id(
         "nonce": "fake-nonce",
         "response_type": "code",
         "client_id": "invalid-client-id",
-        "redirect_uri": settings.FC_AMI_REDIRECT_URL,
+        "redirect_uri": settings.FI_REDIRECT_URI,
         "scope": "fake-scope",
         "acr_values": "eidas1",
         "claims": json.dumps(
@@ -185,7 +185,7 @@ def test_authorize_invalid_data_redirect_uri(
     response = app.get("/api/v1/fi/authorize/", params=authorize_data, status=400)
     assert response.json == {
         "redirect_uri": [
-            "'redirect_uri' doit être 'https://localhost:8000/login-callback', trouvé 'invalid-redirect-uri'"
+            "'redirect_uri' doit être 'https://fcp-low.sbx.dev-franceconnect.fr/api/v2/oidc-callback', trouvé 'invalid-redirect-uri'"
         ]
     }
 
@@ -200,7 +200,7 @@ def test_authorize_invalid_data_scope(
         "nonce": "fake-nonce",
         "response_type": "code",
         "client_id": settings.FI_CLIENT_ID,
-        "redirect_uri": settings.FC_AMI_REDIRECT_URL,
+        "redirect_uri": settings.FI_REDIRECT_URI,
         "scope": "",
         "acr_values": "eidas1",
         "claims": json.dumps(
@@ -225,7 +225,7 @@ def test_authorize_invalid_acr_values(
         "nonce": "fake-nonce",
         "response_type": "code",
         "client_id": settings.FI_CLIENT_ID,
-        "redirect_uri": settings.FC_AMI_REDIRECT_URL,
+        "redirect_uri": settings.FI_REDIRECT_URI,
         "scope": "fake-scope",
         "acr_values": "invalid-acr-values",
         "claims": json.dumps(
@@ -252,7 +252,7 @@ def test_authorize_invalid_data_claims(
         "nonce": "fake-nonce",
         "response_type": "code",
         "client_id": settings.FI_CLIENT_ID,
-        "redirect_uri": settings.FC_AMI_REDIRECT_URL,
+        "redirect_uri": settings.FI_REDIRECT_URI,
         "scope": "fake-scope",
         "acr_values": "eidas1",
         "claims": "",
@@ -273,7 +273,7 @@ def test_authorize_invalid_data_prompt(
         "nonce": "fake-nonce",
         "response_type": "code",
         "client_id": settings.FI_CLIENT_ID,
-        "redirect_uri": settings.FC_AMI_REDIRECT_URL,
+        "redirect_uri": settings.FI_REDIRECT_URI,
         "scope": "fake-scope",
         "acr_values": "eidas1",
         "claims": json.dumps(
@@ -299,7 +299,7 @@ def test_authorize_missing_cookie(
         "nonce": "fake-nonce",
         "response_type": "code",
         "client_id": settings.FI_CLIENT_ID,
-        "redirect_uri": settings.FC_AMI_REDIRECT_URL,
+        "redirect_uri": settings.FI_REDIRECT_URI,
         "scope": "fake-scope",
         "acr_values": "eidas1",
         "claims": json.dumps(
