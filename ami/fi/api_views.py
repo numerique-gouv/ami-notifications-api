@@ -2,6 +2,7 @@ import logging
 import re
 from secrets import token_urlsafe
 from typing import cast
+from urllib.parse import urlencode
 
 import jwt
 from django.conf import settings
@@ -53,7 +54,13 @@ def authorize(request: Request) -> HttpResponseRedirect:
         code=make_password(code, settings.FI_HASH_SALT),
     )
 
-    return redirect(f"{data['redirect_uri']}?code={code}&state={fi_session.state}")
+    redirect_uri = f"{data['redirect_uri']}?code={code}&state={fi_session.state}"
+    if settings.PUBLIC_FC_PROXY:
+        params = {
+            "redirect_uri": redirect_uri,
+        }
+        redirect_uri = f"{settings.PUBLIC_FC_PROXY}/ami-fi-authorize-callback/?{urlencode(params)}"
+    return redirect(redirect_uri)
 
 
 @api_view(["POST"])
