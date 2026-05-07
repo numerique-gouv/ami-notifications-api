@@ -10,6 +10,9 @@
       "command": "0 2 * * * make delete-published-scheduled-notifications"
     },
     {
+      "command": "1 2 * * * make delete-expired-fi-sessions"
+    },
+    {
       "command": "0 3 * * * make replicate-anonymized-data"
     }
   ]
