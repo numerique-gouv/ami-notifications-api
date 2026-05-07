@@ -26,23 +26,20 @@ const slugify = (str: string): string => {
 
 const oneday_in_ms = 24 * 60 * 60 * 1000;
 
-export class Item {
+export class SubItem {
   constructor(
-    private _kind: Kind,
-    private _title: string,
     private _description: string | null,
     private _date: Date | null = null,
     private _start_date: Date | null = null,
-    private _end_date: Date | null = null,
-    private _custom: boolean = false
+    private _end_date: Date | null = null
   ) {}
 
-  equals(other: Item): boolean {
-    if (!(other instanceof Item)) {
+  equals(other: SubItem): boolean {
+    if (!(other instanceof SubItem)) {
       return false;
     }
     return Object.entries(this).every(([key, thisValue]) => {
-      const otherValue = other[key as keyof Item];
+      const otherValue = other[key as keyof SubItem];
       // Special handling for Date objects
       if (thisValue instanceof Date || otherValue instanceof Date) {
         return (
@@ -54,10 +51,6 @@ export class Item {
     });
   }
 
-  get title(): string {
-    return this._title;
-  }
-
   get description(): string | null {
     return this._description;
   }
@@ -66,28 +59,8 @@ export class Item {
     return this._start_date || this._date;
   }
 
-  get dayName(): string | null {
-    return this.date
-      ? capitalizeFirstLetter(
-          this.date.toLocaleDateString('fr-FR', { weekday: 'short' }).replace('.', '')
-        )
-      : null;
-  }
-
-  get fullDayName(): string | null {
-    return this.date
-      ? capitalizeFirstLetter(
-          this.date.toLocaleDateString('fr-FR', { weekday: 'long' })
-        )
-      : null;
-  }
-
-  get dayNum(): number | null {
-    return this.date ? this.date.getDate() : null;
-  }
-
-  get monthName(): string | null {
-    return this.date ? monthName(this.date) : null;
+  get endDate(): Date | null {
+    return this._end_date;
   }
 
   get period(): string | undefined {
@@ -120,6 +93,120 @@ export class Item {
     const date = this._date?.toLocaleDateString(locale, dateFormat);
     return date;
   }
+}
+
+export class Item {
+  private _subitems: SubItem[];
+
+  constructor(
+    private _kind: Kind,
+    private _title: string,
+    _description: string | null,
+    _date: Date | null = null,
+    _start_date: Date | null = null,
+    _end_date: Date | null = null
+  ) {
+    this._subitems = [];
+    this.addSubItem(_description, _date, _start_date, _end_date);
+  }
+
+  addSubItem(
+    _description: string | null,
+    _date: Date | null = null,
+    _start_date: Date | null = null,
+    _end_date: Date | null = null
+  ) {
+    this._subitems.push(new SubItem(_description, _date, _start_date, _end_date));
+    this._subitems.sort((a, b) => {
+      const dateComparison = (a.date?.getTime() || 0) - (b.date?.getTime() || 0);
+      if (dateComparison !== 0) {
+        return dateComparison;
+      }
+      return (a.endDate?.getTime() || 0) - (b.endDate?.getTime() || 0);
+    });
+  }
+
+  equals(other: Item): boolean {
+    if (!(other instanceof Item)) {
+      return false;
+    }
+    return Object.entries(this).every(([key, thisValue]) => {
+      const otherValue = other[key as keyof Item];
+      // Special handling for SubItem objects
+      if (
+        Array.isArray(thisValue) &&
+        Array.isArray(otherValue) &&
+        thisValue[0] instanceof SubItem
+      ) {
+        if (thisValue.length !== otherValue.length) {
+          return false;
+        }
+        for (let i = 0; i < thisValue.length; i++) {
+          if (!thisValue[i].equals(otherValue[i])) {
+            return false;
+          }
+        }
+        return true;
+      }
+      return thisValue === otherValue;
+    });
+  }
+
+  get title(): string {
+    return this._title;
+  }
+
+  get description(): string | null {
+    return this._subitems[0].description;
+  }
+
+  get subitems(): SubItem[] {
+    return this._subitems;
+  }
+
+  get date(): Date | null {
+    return this._subitems[0].date;
+  }
+
+  get endDate(): Date | null {
+    const endDates = this._subitems
+      .map((subitem) => subitem.endDate)
+      .filter((date): date is Date => date != null);
+
+    if (!endDates.length) {
+      return null;
+    }
+
+    return new Date(Math.max(...endDates.map((d) => d.getTime())));
+  }
+
+  get dayName(): string | null {
+    return this.date
+      ? capitalizeFirstLetter(
+          this.date.toLocaleDateString('fr-FR', { weekday: 'short' }).replace('.', '')
+        )
+      : null;
+  }
+
+  get fullDayName(): string | null {
+    return this.date
+      ? capitalizeFirstLetter(
+          this.date.toLocaleDateString('fr-FR', { weekday: 'long' })
+        )
+      : null;
+  }
+
+  get dayNum(): number | null {
+    return this.date ? this.date.getDate() : null;
+  }
+
+  get monthName(): string | null {
+    return this.date ? monthName(this.date) : null;
+  }
+
+  get period(): string | undefined {
+    return this._subitems[0].period;
+  }
 
   private static readonly KindInfo: Record<
     Kind,
@@ -144,10 +231,6 @@ export class Item {
 
   get kind(): Kind {
     return this._kind;
-  }
-
-  get custom(): boolean {
-    return this._custom;
   }
 
   get label(): string {
@@ -222,9 +305,39 @@ export class Agenda {
     school_holidays: CatalogItem[],
     date: Date
   ) {
+    const result: Item[] = [];
     school_holidays.forEach((holiday) => {
-      const item = this.createSchoolHolidayItem(holiday, date);
+      const item = this.createSchoolHolidayItem(holiday);
       if (item !== null) {
+        // check if an item whith this description already exists
+        const key = JSON.stringify({
+          desc: item.title,
+          year: item.date?.getFullYear(),
+        });
+        let seen = false;
+        result.forEach((_item) => {
+          const _key = JSON.stringify({
+            desc: _item.title,
+            year: _item.date?.getFullYear(),
+          });
+          if (key === _key) {
+            _item.addSubItem(
+              item.description,
+              null,
+              holiday.start_date,
+              holiday.end_date
+            );
+            seen = true;
+          }
+        });
+        if (!seen) {
+          result.push(item);
+        }
+      }
+    });
+    result.forEach((item) => {
+      if (item.endDate !== null && item.endDate >= date) {
+        // exclude past school holiday
         items.push(item);
       }
     });
@@ -237,21 +350,9 @@ export class Agenda {
     return userStore.connected.getSchoolHolidayDescriptionFromPreferences(holiday);
   }
 
-  private getSchoolHolidayItemCustom(holiday: CatalogItem): boolean {
-    const userZone = userStore.connected?.identity.address?.zone;
-    if (userZone !== undefined && holiday.zones.includes(userZone)) {
-      return true;
-    }
-    return false;
-  }
-
-  private createSchoolHolidayItem(holiday: CatalogItem, date: Date): Item | null {
+  private createSchoolHolidayItem(holiday: CatalogItem): Item | null {
     if (!holiday.start_date || !holiday.end_date) {
       // should not happen for school holiday
-      return null;
-    }
-    if (holiday.end_date < date) {
-      // exclude past school holiday
       return null;
     }
     let title = holiday.title;
@@ -267,8 +368,7 @@ export class Agenda {
       this.getSchoolHolidayItemDescription(holiday),
       null,
       holiday.start_date,
-      holiday.end_date,
-      this.getSchoolHolidayItemCustom(holiday)
+      holiday.end_date
     );
   }
 
@@ -298,7 +398,7 @@ export class Agenda {
     if (holiday.emoji) {
       title += ` ${holiday.emoji}`;
     }
-    return new Item('holiday', title, null, holiday.date, null, null, false);
+    return new Item('holiday', title, null, holiday.date, null, null);
   }
 
   private createOTVItems(items: Item[], school_holidays: CatalogItem[], date: Date) {
@@ -352,8 +452,7 @@ export class Agenda {
       'Inscrivez-vous pour protéger votre domicile pendant votre absence',
       null,
       startDate,
-      null,
-      false
+      null
     );
     const scheduledNotificationKey = `ami-otv:d-3w:${holiday.start_date.getFullYear()}:${slugify(holiday.title)}`;
     if (!scheduledNotificationsCreatedKeys.has(scheduledNotificationKey)) {
@@ -367,6 +466,10 @@ export class Agenda {
         scheduled_at: startDate,
       });
       userStore.connected?.addScheduledNotificationCreatedKey(scheduledNotificationKey);
+    }
+    if (!userStore.connected?.isSchoolHolidayConcernedByPreferences(holiday)) {
+      // don't display OTV if holiday match user preferences
+      return null;
     }
     if (startDate > date) {
       // don't display OTV too early, only display them when they're close enough to their associated holiday
@@ -397,15 +500,7 @@ export class Agenda {
     if (election.emoji) {
       title += ` ${election.emoji}`;
     }
-    return new Item(
-      'election',
-      title,
-      election.description,
-      election.date,
-      null,
-      null,
-      false
-    );
+    return new Item('election', title, election.description, election.date, null, null);
   }
 
   get now(): Item[] {

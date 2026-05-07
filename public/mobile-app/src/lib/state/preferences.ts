@@ -1,5 +1,5 @@
-import type { Address } from '$lib/address';
-import { zones } from '$lib/address';
+import type { Address as AddressType } from '$lib/address';
+import { Address, zones } from '$lib/address';
 import type { CatalogItem } from '$lib/api-catalog';
 import type { ToggleTag } from '$lib/types/components/toggletag';
 
@@ -11,31 +11,34 @@ export type ZoneInfo = {
 
 type PreferencesJSON = {
   _zones: string[];
-  _addresses: Address[];
+  _addresses: AddressType[];
 };
 
 export class Preferences {
   constructor(
     private _zones: string[],
-    private _addresses: Address[]
+    private _addresses: AddressType[]
   ) {}
 
   static fromJSON(json: Preferences | PreferencesJSON): Preferences {
     if (json instanceof Preferences) {
       return json;
     }
-    return new Preferences(json._zones || [], json._addresses || []);
+    return new Preferences(
+      json._zones || [],
+      json._addresses.map((address) => Address.fromJSON(address)) || []
+    );
   }
 
   get zones(): string[] {
     return this._zones;
   }
 
-  get addresses(): Address[] {
+  get addresses(): AddressType[] {
     return this._addresses;
   }
 
-  static getDefault(userAddress: Address | undefined): Preferences {
+  static getDefault(userAddress: AddressType | undefined): Preferences {
     const defaultZones = ['Zone A', 'Zone B', 'Zone C', 'Corse'];
     const defaultPreferences = new Preferences(defaultZones, []);
 
@@ -64,7 +67,7 @@ export class Preferences {
 
   getSchoolHolidayDescription(
     holiday: CatalogItem,
-    userAddress: Address | undefined
+    userAddress: AddressType | undefined
   ): string {
     if (!holiday.zones.length || !this._zones) {
       return '';
@@ -74,36 +77,42 @@ export class Preferences {
       return '';
     }
 
-    const seenZones: string[] = [];
-    const result: string[] = [];
-
-    if (userAddress !== undefined) {
-      if (matchingZones.includes(userAddress.zone)) {
-        result.push(`${userAddress.city} (${userAddress.departement}) 🏠`);
-        seenZones.push(userAddress.zone);
-      }
+    if (matchingZones.length === this._zones.length) {
+      // holiday zones match all user preferences
+      return '';
     }
 
-    // first look at cities in preferences
-    this._addresses.forEach((address) => {
-      if (seenZones.includes(address.zone)) {
-        return;
-      }
-      if (!matchingZones.includes(address.zone)) {
-        return;
-      }
-      result.push(`${address.city} (${address.departement})`);
-      seenZones.push(address.zone);
-    });
-
-    // then add remaining zones
+    const zonesDict: Record<string, string[]> = {};
     matchingZones.forEach((zone) => {
-      if (seenZones.includes(zone)) {
-        return;
+      zonesDict[zone] = [];
+      // add user address in corresponding zone
+      if (userAddress !== undefined) {
+        if (zone === userAddress.zone) {
+          zonesDict[zone].push(`${userAddress.city} (${userAddress.departement}) 🏠`);
+        }
       }
-      result.push(zone);
+      // add cities in preferences in corresponding zones
+      this._addresses.forEach((address) => {
+        if (zone !== address.zone) {
+          return;
+        }
+        zonesDict[zone].push(`${address.city} (${address.departement})`);
+      });
     });
 
+    const result: string[] = [];
+    matchingZones.forEach((zone) => {
+      const zoneInfo: string[] = [zone];
+      const cities: string[] = [];
+      zonesDict[zone].sort();
+      zonesDict[zone].forEach((city) => {
+        cities.push(city);
+      });
+      if (cities.length) {
+        zoneInfo.push(`<strong>${cities.join(', ')}</strong>`);
+      }
+      result.push(zoneInfo.join('&nbsp;: '));
+    });
     return result.join(', ');
   }
 
@@ -118,7 +127,7 @@ export class Preferences {
     this._zones = this._zones.filter((value) => zone !== value);
   }
 
-  getZoneInfos(userAddress: Address | undefined): ZoneInfo[] {
+  getZoneInfos(userAddress: AddressType | undefined): ZoneInfo[] {
     const result: ZoneInfo[] = [];
     zones.forEach((zone) => {
       const selected = this._zones.includes(zone.label);
