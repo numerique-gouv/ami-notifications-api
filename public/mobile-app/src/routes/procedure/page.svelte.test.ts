@@ -6,6 +6,9 @@ import { userStore } from '$lib/state/User.svelte';
 import { expectBackButtonPresent, mockAddress, mockUserInfo } from '$tests/utils';
 import Page from './+page.svelte';
 
+const locale = 'fr-FR';
+const dateFormat: Intl.DateTimeFormatOptions = { month: 'long', day: 'numeric' };
+
 describe('/+page.svelte', () => {
   beforeEach(async () => {
     await userStore.login(mockUserInfo);
@@ -41,26 +44,46 @@ describe('/+page.svelte', () => {
     });
   });
 
-  test('should display empty string if url param is empty', async () => {
+  test('should display default date if url param is empty', async () => {
     // Given
     window.location.hash = '#/procedure?date=';
+    const dateLabel = new Date().toLocaleDateString(locale, dateFormat);
 
     // When
     render(Page);
 
     // Then
-    expect(screen.getByTestId('item-date')).toHaveTextContent('À partir du');
+    expect(screen.getByTestId('item-date')).toHaveTextContent(
+      `À partir du ${dateLabel}`
+    );
   });
 
-  test('should display empty string if url param is an invalid date', async () => {
+  test('should display default date if url param is missing', async () => {
     // Given
-    window.location.hash = '#/procedure?date=coucou';
+    window.location.hash = '#/procedure';
+    const dateLabel = new Date().toLocaleDateString(locale, dateFormat);
 
     // When
     render(Page);
 
     // Then
-    expect(screen.getByTestId('item-date')).toHaveTextContent('À partir du');
+    expect(screen.getByTestId('item-date')).toHaveTextContent(
+      `À partir du ${dateLabel}`
+    );
+  });
+
+  test('should display default if url param is an invalid date', async () => {
+    // Given
+    window.location.hash = '#/procedure?date=coucou';
+    const dateLabel = new Date().toLocaleDateString(locale, dateFormat);
+
+    // When
+    render(Page);
+
+    // Then
+    expect(screen.getByTestId('item-date')).toHaveTextContent(
+      `À partir du ${dateLabel}`
+    );
   });
 
   test('should retrieve procedure url', async () => {

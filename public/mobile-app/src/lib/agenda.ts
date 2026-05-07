@@ -171,6 +171,9 @@ export class Item {
     if (info === undefined) {
       return '';
     }
+    if (this._kind === 'otv') {
+      return `${info.link}?date=${this.date?.toLocaleDateString('sv-SE')}`;
+    }
     return info.link;
   }
 }
@@ -363,7 +366,7 @@ export class Agenda {
           "Demandez l'Opération Tranquillité Vacances afin de partir en vacances l’esprit (plus) tranquille.",
         content_icon: 'fr-icon-megaphone-line',
         reference: scheduledNotificationKey,
-        internal_url: '/#/procedure',
+        internal_url: item.link,
         scheduled_at: startDate,
       });
       userStore.connected?.addScheduledNotificationCreatedKey(scheduledNotificationKey);
