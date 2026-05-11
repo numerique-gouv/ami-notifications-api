@@ -11,6 +11,7 @@ import type { CatalogItem } from '$lib/api-catalog';
 import * as auth from '$lib/auth';
 import { franceConnectLogout, parseJwt } from '$lib/france-connect';
 import { emit } from '$lib/nativeEvents';
+import { disableNotifications } from '$lib/notifications';
 import { Preferences, type ZoneInfo } from '$lib/state/preferences';
 import { formatDate } from '$lib/utils';
 
@@ -79,6 +80,17 @@ export class UserStore {
 
   async logout() {
     const id_token_hint = localStorage.getItem('id_token') || '';
+
+    // Disable the notifications on this device
+    const registrationId = localStorage.getItem('registration_id');
+    if (registrationId) {
+      console.log(
+        'Disabling notifications and unregistering device. registration_id when logging out:',
+        registrationId
+      );
+      await disableNotifications(registrationId);
+    }
+
     // Logout from AMI first: https://github.com/numerique-gouv/ami-notifications-api/issues/132
     localStorage.clear();
     this.connected = null;
