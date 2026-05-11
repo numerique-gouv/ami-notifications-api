@@ -5,6 +5,7 @@ import * as addressesFromBANMethods from '$lib/addressesFromBAN';
 import { AddressFromBAN } from '$lib/addressesFromBAN';
 import * as authHelpers from '$lib/auth';
 import * as franceConnectHelpers from '$lib/france-connect';
+import * as notificationsMethods from '$lib/notifications';
 import { Preferences } from '$lib/state/preferences';
 import { User, userStore } from '$lib/state/User.svelte';
 import { mockUser, mockUserIdentity, mockUserInfo } from '$tests/utils';
@@ -255,6 +256,38 @@ describe('/lib/state/User.svelte.ts', () => {
     });
 
     describe('logout', () => {
+      test('should call disableNotifications when they are enabled', async () => {
+        // Given
+        globalThis.localStorage.setItem('registration_id', 'test registration id');
+        vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+          new Response(JSON.stringify({}), { status: 200 })
+        );
+        const spyDisableNotifications = vi
+          .spyOn(notificationsMethods, 'disableNotifications')
+          .mockImplementation((_) => Promise.resolve(null));
+
+        // When
+        await userStore.logout();
+
+        // Then
+        expect(spyDisableNotifications).toHaveBeenCalledTimes(1);
+      });
+      test('should not call disableNotifications when they are disabled', async () => {
+        // Given
+        globalThis.localStorage.removeItem('registration_id');
+        vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+          new Response(JSON.stringify({}), { status: 200 })
+        );
+        const spyDisableNotifications = vi
+          .spyOn(notificationsMethods, 'disableNotifications')
+          .mockImplementation(() => Promise.resolve(null));
+
+        // When
+        await userStore.logout();
+
+        // Then
+        expect(spyDisableNotifications);
+      });
       test('should logout a user from AMI then from FC', async () => {
         // Given
         globalThis.localStorage.setItem('id_token', 'fake-id-token');
