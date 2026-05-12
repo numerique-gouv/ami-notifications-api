@@ -1,7 +1,8 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { Address } from '$lib/address';
 import type { CatalogItem } from '$lib/api-catalog';
+import * as matomoMethods from '$lib/matomo';
 import { Preferences } from '$lib/state/preferences';
 
 describe('/preferences.ts', () => {
@@ -376,6 +377,9 @@ describe('/preferences.ts', () => {
         const preferences1 = new Preferences([], []);
         const preferences2 = new Preferences(['Foo'], []);
         const preferences3 = new Preferences(['Foo', 'Bar'], []);
+        const trackZoneSpy = vi
+          .spyOn(matomoMethods, 'trackZone')
+          .mockResolvedValue(undefined);
 
         // When
         preferences1.addZone('Bar');
@@ -386,6 +390,7 @@ describe('/preferences.ts', () => {
         expect(preferences1.zones).toEqual(['Bar']);
         expect(preferences2.zones).toEqual(['Foo', 'Bar']);
         expect(preferences3.zones).toEqual(['Foo', 'Bar']);
+        expect(trackZoneSpy).toHaveBeenCalledWith('Bar', true);
       });
     });
 
@@ -395,6 +400,9 @@ describe('/preferences.ts', () => {
         const preferences1 = new Preferences([], []);
         const preferences2 = new Preferences(['Foo'], []);
         const preferences3 = new Preferences(['Foo', 'Bar'], []);
+        const trackZoneSpy = vi
+          .spyOn(matomoMethods, 'trackZone')
+          .mockResolvedValue(undefined);
 
         // When
         preferences1.removeZone('Bar');
@@ -405,6 +413,7 @@ describe('/preferences.ts', () => {
         expect(preferences1.zones).toEqual([]);
         expect(preferences2.zones).toEqual(['Foo']);
         expect(preferences3.zones).toEqual(['Foo']);
+        expect(trackZoneSpy).toHaveBeenCalledWith('Bar', false);
       });
     });
 
