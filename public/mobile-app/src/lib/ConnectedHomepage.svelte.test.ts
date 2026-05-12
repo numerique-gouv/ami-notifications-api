@@ -38,6 +38,7 @@ describe('/ConnectedHomepage.svelte', () => {
         ...original,
         PUBLIC_API_URL: 'https://localhost:8000',
         PUBLIC_FEATUREFLAG_REQUESTS_ENABLED: 'true',
+        PUBLIC_MATOMO_ENABLED: 'false',
       });
     });
 

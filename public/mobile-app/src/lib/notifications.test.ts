@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { waitFor } from '@testing-library/svelte';
 import type { AppNotification } from '$lib/notifications';
@@ -27,6 +27,19 @@ describe('/notifications', () => {
       registerDevice: vi.fn().mockReturnValue({ id: 'fake-registration-id' }),
       unregisterDevice: vi.fn(() => true),
     }));
+
+    vi.mock('$env/static/public', async (importOriginal) => {
+      const original = (await importOriginal()) as Record<string, unknown>;
+      return Promise.resolve({
+        ...original,
+        PUBLIC_API_URL: 'https://localhost:8000',
+        PUBLIC_MATOMO_ENABLED: 'true',
+      });
+    });
+  });
+
+  afterEach(() => {
+    vi.resetAllMocks();
   });
 
   describe('fetchAndStoreNotifications', () => {

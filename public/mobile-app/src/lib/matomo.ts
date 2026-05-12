@@ -40,3 +40,12 @@ export function trackPageView(title?: string) {
   }
   window._paq.push(['trackPageView']);
 }
+
+export function trackZone(zone: string, add: boolean) {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  window._paq = window._paq || [];
+  window._paq.push(['trackEvent', 'Holidays zones', add ? 'add' : 'remove', zone]);
+}
