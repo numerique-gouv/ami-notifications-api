@@ -3,6 +3,7 @@
   import { goto } from '$app/navigation';
   import { Address } from '$lib/address';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
+  import WrapperWithFooter from '$lib/components/WrapperWithFooter.svelte';
   import { retrieveProcedureUrl } from '$lib/procedure';
   import { User, type UserIdentity, userStore } from '$lib/state/User.svelte';
 
@@ -81,80 +82,88 @@
   export const getProcedureUrlForTests = () => procedureUrl;
 </script>
 
-<div class="procedure">
-  <div class="nav">
-    <NavWithBackButton {backUrl}>
-      <div class="partner-logo">
-        <img src="/icons/otv-logo.svg" alt="Icône du logo du partenaire">
-      </div>
-      <div class="title">
-        <h2>Opération Tranquillité Vacances</h2>
-      </div>
-    </NavWithBackButton>
-  </div>
-
-  <div class="procedure-content">
-    <div class="procedure-content-block">
-      <p class="title">Quand&nbsp;?</p>
-      <p data-testid="item-date">À partir du {itemDate}</p>
+<WrapperWithFooter>
+  {#snippet header()}
+    <div class="nav">
+      <NavWithBackButton {backUrl}>
+        <div class="partner-logo">
+          <img src="/icons/otv-logo.svg" alt="Icône du logo du partenaire">
+        </div>
+        <div class="title">
+          <h2>Opération Tranquillité Vacances</h2>
+        </div>
+      </NavWithBackButton>
     </div>
-    <div class="procedure-content-block">
-      <p class="title">Comment ça fonctionne&nbsp;?</p>
-      <p>
-        Pendant toute absence prolongée de votre domicile, vous pouvez vous inscrire à
-        l'<b>opération tranquillité vacances</b>.
-      </p>
-      <p>
-        <b
-          >Les services de police ou de gendarmerie se chargent alors de surveiller
-          votre logement.</b
+  {/snippet}
+
+  {#snippet content()}
+    <div class="procedure">
+      <div class="procedure-content">
+        <div class="procedure-content-block">
+          <p class="title">Quand&nbsp;?</p>
+          <p data-testid="item-date">À partir du {itemDate}</p>
+        </div>
+        <div class="procedure-content-block">
+          <p class="title">Comment ça fonctionne&nbsp;?</p>
+          <p>
+            Pendant toute absence prolongée de votre domicile, vous pouvez vous inscrire
+            à l'<b>opération tranquillité vacances</b>.
+          </p>
+          <p>
+            <b
+              >Les services de police ou de gendarmerie se chargent alors de surveiller
+              votre logement.</b
+            >
+            Des patrouilles sont organisées pour passer aux abords de votre domicile.
+          </p>
+          <p>
+            <b>Vous serez prévenu</b> en cas d'anomalies (dégradations, cambriolage...).
+          </p>
+        </div>
+      </div>
+    </div>
+  {/snippet}
+
+  {#snippet footer()}
+    <div class="procedure-action-buttons">
+      <div class="procedure-start">
+        <button
+          class="fr-btn fr-btn--lg"
+          type="button"
+          onclick={clickOnProcedureButton}
+          data-testid="procedure-button"
+          disabled="{!procedureUrl}"
         >
-        Des patrouilles sont organisées pour passer aux abords de votre domicile.
-      </p>
-      <p>
-        <b>Vous serez prévenu</b> en cas d'anomalies (dégradations, cambriolage...).
-      </p>
+          Bénéficier de ce service
+        </button>
+      </div>
     </div>
-  </div>
-
-  <div class="procedure-action-buttons">
-    <div class="procedure-start">
-      <button
-        class="fr-btn fr-btn--lg"
-        type="button"
-        onclick={clickOnProcedureButton}
-        data-testid="procedure-button"
-        disabled="{!procedureUrl}"
-      >
-        Bénéficier de ce service
-      </button>
-    </div>
-  </div>
-</div>
+  {/snippet}
+</WrapperWithFooter>
 
 <style>
-  .procedure {
-    .nav {
-      background-color: var(--green-archipel-975-75);
-      border-bottom: 0.25rem solid var(--green-archipel-sun-391-moon-716);
+  .nav {
+    background-color: var(--green-archipel-975-75);
+    border-bottom: 0.25rem solid var(--green-archipel-sun-391-moon-716);
 
-      .partner-logo {
-        display: flex;
-        justify-content: center;
-        margin-bottom: 0.5rem;
-      }
-      .title {
-        display: flex;
-        justify-content: center;
-        h2 {
-          text-align: center;
-          margin-bottom: 0;
-          font-size: 1.5rem;
-          line-height: 2rem;
-        }
+    .partner-logo {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 0.5rem;
+    }
+    .title {
+      display: flex;
+      justify-content: center;
+      h2 {
+        text-align: center;
+        margin-bottom: 0;
+        font-size: 1.5rem;
+        line-height: 2rem;
       }
     }
+  }
 
+  .procedure {
     .procedure-content {
       padding: 1.5rem 1rem;
 
@@ -168,23 +177,11 @@
         }
       }
     }
+  }
 
-    .procedure-action-buttons {
-      position: fixed;
-      bottom: 1rem;
-      left: 50%;
-      transform: translateX(-50%);
-
-      display: block;
-      width: 328px;
-
-      .procedure-start {
-        button {
-          display: flex;
-          justify-content: center;
-          width: 100%;
-        }
-      }
-    }
+  .procedure-action-buttons {
+    display: flex;
+    justify-content: center;
+    padding: 1rem;
   }
 </style>
