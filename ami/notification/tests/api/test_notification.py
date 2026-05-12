@@ -25,10 +25,16 @@ def test_get_notifications_should_return_empty_list_by_default(
 @pytest.mark.django_db
 def test_get_notifications(
     app,
+    settings,
     notification: Notification,
 ) -> None:
     login(app, notification.user)
 
+    notification.item_generic_status = "new"
+    notification.item_status_label = "Nouveau"
+    notification.item_type = "OperationTranquilliteVacances"
+    notification.item_id = "42"
+    notification.partner_id = "psl"
     notification.item_external_url = "http://external-url"
     notification.internal_url = "internal-url"
     notification.save()
@@ -77,14 +83,14 @@ def test_get_notifications(
         "content_body": "Hello notification",
         "content_private_body": None,
         "content_icon": None,
-        "item_type": None,
-        "item_id": None,
-        "item_status_label": None,
-        "item_generic_status": None,
+        "item_type": "OperationTranquilliteVacances",
+        "item_id": "42",
+        "item_status_label": "Nouveau",
+        "item_generic_status": "new",
         "item_canal": None,
         "item_milestone_start_date": None,
         "item_milestone_end_date": None,
-        "url": "http://external-url",
+        "url": f"{settings.PUBLIC_APP_URL}/#/requests",
         "created_at": notification.created_at.isoformat().replace("+00:00", "Z"),
         "read": False,
     }
