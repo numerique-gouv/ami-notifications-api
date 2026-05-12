@@ -2,9 +2,11 @@ import uuid
 from enum import Enum
 
 from asgiref.sync import async_to_sync
+from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
+from ami.partner.models import partners
 from ami.user.models import User
 
 
@@ -52,7 +54,19 @@ class Notification(models.Model):
 
     @property
     def url(self):
+        if self.has_item():
+            return f"{settings.PUBLIC_APP_URL}/#/requests"
         return self.item_external_url or self.internal_url
+
+    def has_item(self):
+        return (
+            self.item_generic_status is not None
+            and self.item_status_label is not None
+            and self.item_type is not None
+            and self.item_id is not None
+            and self.partner_id
+            in [p.id for p in partners.values() if p.followup_from_notifications]
+        )
 
 
 class ScheduledNotification(models.Model):
