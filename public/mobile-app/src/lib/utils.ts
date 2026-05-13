@@ -30,17 +30,33 @@ export const dateToISO = (date: Date | null) => {
   return `${year}-${month}-${day}`;
 };
 
+const getScrollableParent = (node: HTMLElement): HTMLElement | null => {
+  let parent = node.parentElement;
+  while (parent) {
+    const { overflow, overflowY } = getComputedStyle(parent);
+    const isScrollable =
+      overflow === 'auto' ||
+      overflow === 'scroll' ||
+      overflowY === 'auto' ||
+      overflowY === 'scroll';
+    const hasOverflow = parent.scrollHeight > parent.clientHeight;
+    if (isScrollable && hasOverflow) {
+      return parent;
+    }
+    parent = parent.parentElement;
+  }
+  return null;
+};
+
 export const scrollToNode = (node: HTMLElement) => {
-  const nav = document.querySelector('nav');
-  if (!nav) {
+  const scrollableParent = getScrollableParent(node);
+  if (!scrollableParent) {
     return;
   }
-  const nodeOffsetTop =
-    node.getBoundingClientRect().top -
-    nav.getBoundingClientRect().bottom +
-    (document.scrollingElement?.scrollTop || 0) -
-    5; // Just a small margin to avoid cutting the top of the node
-  window.scrollTo({ top: nodeOffsetTop, behavior: 'smooth' });
+  const nodeTop = node.getBoundingClientRect().top;
+  const parentTop = scrollableParent.getBoundingClientRect().top;
+  const scrollTop = scrollableParent.scrollTop + nodeTop - parentTop - 5;
+  scrollableParent.scrollTo({ top: scrollTop, behavior: 'smooth' });
 };
 
 export const scrollToInput = (event: FocusEvent & { currentTarget: HTMLElement }) => {
