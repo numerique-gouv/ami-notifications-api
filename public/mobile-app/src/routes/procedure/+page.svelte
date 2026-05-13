@@ -3,7 +3,7 @@
   import { goto } from '$app/navigation';
   import { Address } from '$lib/address';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
-  import WrapperWithFooter from '$lib/components/WrapperWithFooter.svelte';
+  import PageWrapper from '$lib/components/PageWrapper.svelte';
   import { retrieveProcedureUrl } from '$lib/procedure';
   import { User, type UserIdentity, userStore } from '$lib/state/User.svelte';
 
@@ -82,7 +82,7 @@
   export const getProcedureUrlForTests = () => procedureUrl;
 </script>
 
-<WrapperWithFooter>
+<PageWrapper>
   {#snippet header({ scrolled })}
     <div class="nav">
       <NavWithBackButton
@@ -138,7 +138,7 @@
       </div>
     </div>
   {/snippet}
-</WrapperWithFooter>
+</PageWrapper>
 
 <style>
   .nav {
