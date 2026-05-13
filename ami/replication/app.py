@@ -9,6 +9,16 @@ from ami.user.models import Registration, User
 logger = logging.getLogger(__name__)
 
 
+def replicate_anonymized_data(chunk_size=1000):
+    logger.info("Start notifications replications...")
+    replicate_anonymized_notifications(chunk_size)
+    logger.info("Start registrations replications...")
+    replicate_anonymized_registrations(chunk_size)
+    logger.info("Start users replications...")
+    replicate_anonymized_users(chunk_size)
+    logger.info("Replication complete !")
+
+
 def replicate_anonymized_users(chunk_size=1000):
     count = 0
     for user in User.objects.order_by("created_at").iterator(chunk_size=chunk_size):
