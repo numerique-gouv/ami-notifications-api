@@ -10,7 +10,7 @@
     footer: Snippet;
     header?: Snippet<[{ scrolled: boolean }]>;
   }
-  let { content, footer, header } = $props();
+  let { content, footer, header }: Props = $props();
   let scrolled: boolean = $state(false);
   let contentEl: HTMLDivElement;
 </script>
