@@ -148,10 +148,7 @@
 
   .procedure {
     .procedure-content {
-      padding: 1.5rem 1rem;
-
       .procedure-content-block {
-        padding-bottom: 1rem;
         p {
           margin-bottom: 1rem;
         }
@@ -165,6 +162,5 @@
   .procedure-action-buttons {
     display: flex;
     justify-content: center;
-    padding: 1rem;
   }
 </style>

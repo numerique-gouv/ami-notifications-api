@@ -39,6 +39,11 @@
     .content {
       flex-grow: 1;
       overflow: auto;
+      padding: 1rem;
+    }
+
+    .footer {
+      padding: 1rem;
     }
   }
 </style>
