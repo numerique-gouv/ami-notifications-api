@@ -8,14 +8,24 @@
   interface Props {
     content: Snippet;
     footer: Snippet;
-    header?: Snippet;
+    header?: Snippet<[{ scrolled: boolean }]>;
   }
   let { content, footer, header } = $props();
+  let scrolled: boolean = $state(false);
+  let contentEl: HTMLDivElement;
 </script>
 
 <div class="wrapper">
-  <div class="header">{@render header()}</div>
-  <div class="content">{@render content()}</div>
+  {#if header}
+    <div class="header">{@render header({ scrolled })}</div>
+  {/if}
+  <div
+    class="content"
+    bind:this={contentEl}
+    onscroll={() => { scrolled = contentEl.scrollTop > 20; console.log("scrolled", scrolled);}}
+  >
+    {@render content()}
+  </div>
   <div class="footer">{@render footer()}</div>
 </div>
 

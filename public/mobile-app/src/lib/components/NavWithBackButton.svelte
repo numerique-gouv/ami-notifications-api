@@ -5,18 +5,30 @@
 
   interface Props {
     backUrl: string;
+    logo?: string;
+    logoAlt?: string;
     title?: string;
+    scrolled?: boolean;
     children?: Snippet;
   }
-  let { backUrl, children, title }: Props = $props();
-  let scrolled = $state(false);
+  let {
+    backUrl,
+    logo,
+    logoAlt,
+    children,
+    title,
+    scrolled: scrolledProp = undefined,
+  }: Props = $props();
+  let scrolledInternal = $state(false);
+  let scrolled = $derived(scrolledProp !== undefined ? scrolledProp : scrolledInternal);
 
   const navigateToPreviousPage = async () => {
     goto(backUrl);
   };
 
   window.onscroll = () => {
-    scrolled = document.body.scrollTop > 20 || document.documentElement.scrollTop > 20;
+    scrolledInternal =
+      document.body.scrollTop > 20 || document.documentElement.scrollTop > 20;
   };
 </script>
 
@@ -24,8 +36,13 @@
   <div class="backbutton-wrapper">
     <BackButton {backUrl} />
   </div>
+  {#if logo}
+    <div class="logo">
+      <img src={logo} alt={logoAlt ? logoAlt : "Icône du logo"}>
+    </div>
+  {/if}
   {#if title}
-    <div class="title">
+    <div class={{title, withLogo: logo != undefined}}>
       <h2>{title}</h2>
       {#if children}
         {@render children()}
@@ -49,23 +66,44 @@
     .backbutton-wrapper {
       position: absolute;
     }
+    .logo {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 0.5rem;
+      max-height: 80px;
+      transition: 0.4s;
+    }
     .title {
       padding-top: 2rem;
       transition: 0.4s;
       h2 {
+        font-size: 1.5rem;
         line-height: 2rem;
         margin-bottom: 0;
         transition: 0.4s;
       }
+      &.withLogo {
+        padding-top: 0;
+        text-align: center;
+      }
     }
+
     &.scrolled {
       padding-bottom: 0.5rem;
+      .logo {
+        max-height: 40px;
+        margin-bottom: 0;
+      }
       .title {
         padding-left: 2rem;
         padding-top: 0rem;
         h2 {
           font-size: 18px;
+          line-height: 1.5rem;
           transition: 0.4s;
+        }
+        &.withLogo {
+          padding-left: 0;
         }
       }
     }

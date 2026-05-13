@@ -83,16 +83,15 @@
 </script>
 
 <WrapperWithFooter>
-  {#snippet header()}
+  {#snippet header({ scrolled })}
     <div class="nav">
-      <NavWithBackButton {backUrl}>
-        <div class="partner-logo">
-          <img src="/icons/otv-logo.svg" alt="Icône du logo du partenaire">
-        </div>
-        <div class="title">
-          <h2>Opération Tranquillité Vacances</h2>
-        </div>
-      </NavWithBackButton>
+      <NavWithBackButton
+        title="Opération Tranquillité Vacances"
+        logo="/icons/otv-logo.svg"
+        logoAlt="Icône du logo du partenaire"
+        {backUrl}
+        {scrolled}
+      />
     </div>
   {/snippet}
 
@@ -145,22 +144,6 @@
   .nav {
     background-color: var(--green-archipel-975-75);
     border-bottom: 0.25rem solid var(--green-archipel-sun-391-moon-716);
-
-    .partner-logo {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 0.5rem;
-    }
-    .title {
-      display: flex;
-      justify-content: center;
-      h2 {
-        text-align: center;
-        margin-bottom: 0;
-        font-size: 1.5rem;
-        line-height: 2rem;
-      }
-    }
   }
 
   .procedure {
