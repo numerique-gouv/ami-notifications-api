@@ -5,6 +5,7 @@
   import { type AddressFromBAN, callBAN } from '$lib/addressesFromBAN';
   import { buildAgenda } from '$lib/agenda';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
+  import PageWrapper from '$lib/components/PageWrapper.svelte';
   import { toastStore } from '$lib/state/toast.svelte';
   import type { DataOrigin } from '$lib/state/User.svelte';
   import { userStore } from '$lib/state/User.svelte';
@@ -151,242 +152,238 @@
   };
 </script>
 
-<div class="address-form-page">
-  <NavWithBackButton title="Où habitez-vous&nbsp;?" {backUrl} />
+<PageWrapper>
+  {#snippet header({ scrolled })}
+    <NavWithBackButton title="Où habitez-vous&nbsp;?" {backUrl} {scrolled} />
+  {/snippet}
 
-  <div class="address-content-container" data-testid="container">
-    <p>
-      L'adresse de votre <strong>résidence principale</strong> permet de
-      <strong>faciliter la communication</strong> avec les administrations.
-    </p>
+  {#snippet content()}
+    <div class="address-content-container" data-testid="container">
+      <p>
+        L'adresse de votre <strong>résidence principale</strong> permet de
+        <strong>faciliter la communication</strong> avec les administrations.
+      </p>
 
-    <form autocomplete="on" class="address-form">
-      <fieldset class="fr-fieldset">
-        <div class="fr-fieldset__element">
-          <div
-            class="fr-input-group autocomplete {addressInputHasError ? 'fr-input-group--error' : ''}"
-          >
-            <label class="fr-label" for="address-input">Adresse</label>
-            <span class="fr-hint-text"
-              >Exemple&nbsp;: 23 rue des Aubépines, Poitiers</span
+      <form autocomplete="on" class="address-form">
+        <fieldset class="fr-fieldset">
+          <div class="fr-fieldset__element">
+            <div
+              class="fr-input-group autocomplete {addressInputHasError ? 'fr-input-group--error' : ''}"
             >
-            <input
-              class="fr-input"
-              id="address-input"
-              type="text"
-              bind:value={inputValue}
-              data-testid="address-input"
-              autocomplete="address-line1"
-              oninput={addressInputHandler}
-              onfocus={scrollToInput}
-            >
-            {#if addressInputHasError}
-              <div class="fr-messages-group" aria-live="polite">
-                <p
-                  id="address-error"
-                  class="fr-message fr-message--error"
-                  data-testid="address-error"
-                >
-                  Cette adresse est invalide. Conseil&nbsp;: saisissez entre 3 à 200
-                  caractères et commencez par un nombre ou une lettre.
-                </p>
-              </div>
-            {/if}
-          </div>
+              <label class="fr-label" for="address-input">Adresse</label>
+              <span class="fr-hint-text"
+                >Exemple&nbsp;: 23 rue des Aubépines, Poitiers</span
+              >
+              <input
+                class="fr-input"
+                id="address-input"
+                type="text"
+                bind:value={inputValue}
+                data-testid="address-input"
+                autocomplete="address-line1"
+                oninput={addressInputHandler}
+                onfocus={scrollToInput}
+              >
+              {#if addressInputHasError}
+                <div class="fr-messages-group" aria-live="polite">
+                  <p
+                    id="address-error"
+                    class="fr-message fr-message--error"
+                    data-testid="address-error"
+                  >
+                    Cette adresse est invalide. Conseil&nbsp;: saisissez entre 3 à 200
+                    caractères et commencez par un nombre ou une lettre.
+                  </p>
+                </div>
+              {/if}
+            </div>
 
-          <div bind:this={listContainer} style="min-height: {listMinHeight}px">
-            {#if filteredAddresses.length > 0}
-              <ul id="autocomplete-items-list">
-                <p class="autocomplete-title">Adresse</p>
-                {#each filteredAddresses as address, index}
-                  <li class="autocomplete-item" data-testid="autocomplete-item-{index}">
-                    <button
-                      type="button"
-                      onclick={() => setInputVal(address)}
-                      data-testid="autocomplete-item-button-{index}"
+            <div bind:this={listContainer} style="min-height: {listMinHeight}px">
+              {#if filteredAddresses.length > 0}
+                <ul id="autocomplete-items-list">
+                  <p class="autocomplete-title">Adresse</p>
+                  {#each filteredAddresses as address, index}
+                    <li
+                      class="autocomplete-item"
+                      data-testid="autocomplete-item-{index}"
                     >
-                      <p><strong>{address.name}</strong></p>
-                      <p>{address.city} ({address.context})</p>
-                    </button>
-                  </li>
-                {/each}
-              </ul>
-            {/if}
+                      <button
+                        type="button"
+                        onclick={() => setInputVal(address)}
+                        data-testid="autocomplete-item-button-{index}"
+                      >
+                        <p><strong>{address.name}</strong></p>
+                        <p>{address.city} ({address.context})</p>
+                      </button>
+                    </li>
+                  {/each}
+                </ul>
+              {/if}
+            </div>
+          </div>
+        </fieldset>
+      </form>
+
+      {#if addressApiHasError}
+        <div class="fr-alert fr-alert--warning" data-testid="address-warning">
+          <h3 class="fr-alert__title">Récupération de l'adresse indisponible</h3>
+          <p>
+            Nous rencontrons des difficultés à trouver votre adresse dans notre
+            répertoire. Merci de réessayer plus tard.
+          </p>
+        </div>
+      {/if}
+
+      {#if hasSelectedAddress !== undefined && selectedAddress !== undefined}
+        <div class="selected-address-wrapper" data-testid="selected-address-wrapper">
+          <div class="left-wrapper">
+            <span>Votre résidence principale</span>
+            <span><strong>{selectedAddress.label}</strong></span>
+          </div>
+          <div class="right-wrapper">
+            <button onclick={removeAddress} aria-label="Retirer l'adresse">
+              <span class="fr-icon-close-line" aria-hidden="true"></span>
+            </button>
           </div>
         </div>
-      </fieldset>
-    </form>
+      {/if}
 
-    {#if addressApiHasError}
-      <div class="fr-alert fr-alert--warning" data-testid="address-warning">
-        <h3 class="fr-alert__title">Récupération de l'adresse indisponible</h3>
-        <p>
-          Nous rencontrons des difficultés à trouver votre adresse dans notre
-          répertoire. Merci de réessayer plus tard.
-        </p>
-      </div>
-    {/if}
-
-    {#if hasSelectedAddress !== undefined && selectedAddress !== undefined}
-      <div class="selected-address-wrapper" data-testid="selected-address-wrapper">
-        <div class="left-wrapper">
-          <span>Votre résidence principale</span>
-          <span><strong>{selectedAddress.label}</strong></span>
+      {#if address_origin == 'user' && address_last_update}
+        <div class="data-update-info">
+          Vous avez modifié cette information le
+          {formatDate(address_last_update)}.
         </div>
-        <div class="right-wrapper">
-          <button onclick={removeAddress} aria-label="Retirer l'adresse">
-            <span class="fr-icon-close-line" aria-hidden="true"></span>
-          </button>
-        </div>
-      </div>
-    {/if}
+      {/if}
+    </div>
+  {/snippet}
 
-    {#if address_origin == 'user' && address_last_update}
-      <div class="data-update-info">
-        Vous avez modifié cette information le
-        {formatDate(address_last_update)}.
-      </div>
-    {/if}
-  </div>
-
-  <ul class="fr-btns-group action-buttons">
-    <li>
-      <button
-        class="fr-btn fr-btn--secondary cancel-button"
-        type="button"
-        onclick={cancelAddress}
-        data-testid="cancel-button"
-      >
-        Annuler
-      </button>
-    </li>
-    <li>
-      <button
-        class="fr-btn submit-button"
-        type="button"
-        disabled="{disabledButton}"
-        onclick={submitAddress}
-        data-testid="submit-button"
-      >
-        Enregistrer
-      </button>
-    </li>
-  </ul>
-</div>
+  {#snippet footer()}
+    <ul class="fr-btns-group action-buttons">
+      <li>
+        <button
+          class="fr-btn fr-btn--secondary cancel-button"
+          type="button"
+          onclick={cancelAddress}
+          data-testid="cancel-button"
+        >
+          Annuler
+        </button>
+      </li>
+      <li>
+        <button
+          class="fr-btn submit-button"
+          type="button"
+          disabled="{disabledButton}"
+          onclick={submitAddress}
+          data-testid="submit-button"
+        >
+          Enregistrer
+        </button>
+      </li>
+    </ul>
+  {/snippet}
+</PageWrapper>
 
 <style>
-  .address-form-page {
-    .action-buttons {
-      position: fixed;
-      bottom: 0;
-      z-index: 1;
-      background-color: var(--background-default-grey);
-      display: flex;
-      gap: 1rem;
-      width: 100%;
-      margin: 0;
-      padding: 1rem;
+  .action-buttons {
+    background-color: var(--background-default-grey);
+    display: flex;
+    gap: 1rem;
 
-      li {
-        flex: 1;
+    li {
+      flex: 1;
+
+      button {
+        display: block;
+        width: 100%;
+        margin: 0;
+      }
+    }
+  }
+
+  .address-form {
+    div.autocomplete {
+      position: relative;
+      display: inline-block;
+      width: 100%;
+      span.fr-hint-text {
+        margin-bottom: 0.25rem;
+      }
+      input#address-input {
+        max-height: 3.25rem;
+        padding: 1rem;
+        font-size: 1rem;
+        line-height: 1.5rem;
+        margin: 0;
+      }
+    }
+
+    .fr-input-group:not(:last-child) {
+      margin-bottom: 0;
+    }
+
+    ul#autocomplete-items-list {
+      position: relative;
+      margin: 0;
+      padding: 0;
+      top: 0;
+      border: 1px solid var(--grey-950-100);
+      background-color: var(--grey-975-75);
+
+      p.autocomplete-title {
+        padding: 0.25rem 0.75rem;
+        margin: 0;
+        font-weight: 700;
+        color: var(--text-active-blue-france);
+      }
+
+      li.autocomplete-item {
+        list-style: none;
+        padding: 0;
+        background-color: var(--background-default-grey);
 
         button {
-          display: block;
+          padding: 0.75rem;
           width: 100%;
-          margin: 0;
-        }
-      }
-    }
+          text-align: left;
+          --hover-tint: var(--text-action-high-blue-france);
+          --active-tint: var(--text-action-high-blue-france);
 
-    .address-content-container {
-      padding: 1rem;
-      margin-bottom: 58px;
-
-      .address-form {
-        div.autocomplete {
-          position: relative;
-          display: inline-block;
-          width: 100%;
-          span.fr-hint-text {
-            margin-bottom: 0.25rem;
-          }
-          input#address-input {
-            max-height: 3.25rem;
-            padding: 1rem;
-            font-size: 1rem;
-            line-height: 1.5rem;
+          p {
             margin: 0;
           }
         }
-
-        .fr-input-group:not(:last-child) {
-          margin-bottom: 0;
-        }
-
-        ul#autocomplete-items-list {
-          position: relative;
-          margin: 0;
-          padding: 0;
-          top: 0;
-          border: 1px solid var(--grey-950-100);
-          background-color: var(--grey-975-75);
-
-          p.autocomplete-title {
-            padding: 0.25rem 0.75rem;
-            margin: 0;
-            font-weight: 700;
-            color: var(--text-active-blue-france);
-          }
-
-          li.autocomplete-item {
-            list-style: none;
-            padding: 0;
-            background-color: var(--background-default-grey);
-
-            button {
-              padding: 0.75rem;
-              width: 100%;
-              text-align: left;
-              --hover-tint: var(--text-action-high-blue-france);
-              --active-tint: var(--text-action-high-blue-france);
-
-              p {
-                margin: 0;
-              }
-            }
-          }
-
-          li.autocomplete-item:hover {
-            background-color: var(--text-action-high-blue-france);
-            color: var(--text-inverted-blue-france);
-          }
-        }
       }
-      .data-update-info {
-        margin-top: 1.5rem;
-        font-size: 0.75rem;
-        line-height: 1.25rem;
-        color: var(--text-mention-grey);
+
+      li.autocomplete-item:hover {
+        background-color: var(--text-action-high-blue-france);
+        color: var(--text-inverted-blue-france);
       }
     }
+  }
+  .data-update-info {
+    margin-top: 1.5rem;
+    font-size: 0.75rem;
+    line-height: 1.25rem;
+    color: var(--text-mention-grey);
+  }
 
-    .selected-address-wrapper {
+  .selected-address-wrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    border: 1px solid var(--text-action-high-blue-france);
+    padding: 1rem 0.5rem 1rem 1.5rem;
+
+    .left-wrapper {
       display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-      border: 1px solid var(--text-action-high-blue-france);
-      padding: 1rem 0.5rem 1rem 1.5rem;
-
-      .left-wrapper {
-        display: flex;
-        flex-direction: column;
-      }
-      .right-wrapper {
-        display: flex;
-        align-items: center;
-        .fr-icon-close-line {
-          color: var(--text-action-high-blue-france);
-        }
+      flex-direction: column;
+    }
+    .right-wrapper {
+      display: flex;
+      align-items: center;
+      .fr-icon-close-line {
+        color: var(--text-action-high-blue-france);
       }
     }
   }
