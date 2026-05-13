@@ -289,6 +289,7 @@
     background-color: var(--background-default-grey);
     display: flex;
     gap: 1rem;
+    margin: 0;
 
     li {
       flex: 1;
