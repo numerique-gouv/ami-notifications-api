@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
+  import PageWrapper from '$lib/components/PageWrapper.svelte';
   import { toastStore } from '$lib/state/toast.svelte';
   import type { DataOrigin } from '$lib/state/User.svelte';
   import { userStore } from '$lib/state/User.svelte';
@@ -44,115 +45,110 @@
   };
 </script>
 
-<div class="form-page">
-  <NavWithBackButton title="Mon identité" {backUrl} />
+<PageWrapper>
+  {#snippet header({ scrolled })}
+    <NavWithBackButton title="Mon identité" {backUrl} {scrolled} />
+  {/snippet}
 
-  <div class="content-container" data-testid="container">
-    <p>Vous pouvez modifier uniquement les champs ci-dessous.</p>
+  {#snippet content()}
+    <div class="content-container" data-testid="container">
+      <p>Vous pouvez modifier uniquement les champs ci-dessous.</p>
 
-    <form autocomplete="on">
-      <fieldset class="fr-fieldset">
-        <div class="fr-fieldset__element">
-          <div class="fr-input-group autocomplete">
-            <label class="fr-label" for="input">Nom d'usage</label>
-            <span class="fr-hint-text">Par exemple&nbsp;: Dupont</span>
-            <input
-              class="fr-input"
-              id="input"
-              type="text"
-              bind:value={inputValue}
-              data-testid="preferred-username-input"
-              autocomplete="username"
-              onfocus={scrollToInput}
-            >
+      <form autocomplete="on">
+        <fieldset class="fr-fieldset">
+          <div class="fr-fieldset__element">
+            <div class="fr-input-group autocomplete">
+              <label class="fr-label" for="input">Nom d'usage</label>
+              <span class="fr-hint-text">Par exemple&nbsp;: Dupont</span>
+              <input
+                class="fr-input"
+                id="input"
+                type="text"
+                bind:value={inputValue}
+                data-testid="preferred-username-input"
+                autocomplete="username"
+                onfocus={scrollToInput}
+              >
+            </div>
           </div>
+        </fieldset>
+      </form>
+      {#if preferred_username_origin == 'user' && preferred_username_last_update}
+        <div class="data-update-info">
+          Vous avez modifié cette information le
+          {formatDate(preferred_username_last_update)}.
         </div>
-      </fieldset>
-    </form>
-    {#if preferred_username_origin == 'user' && preferred_username_last_update}
-      <div class="data-update-info">
-        Vous avez modifié cette information le
-        {formatDate(preferred_username_last_update)}.
-      </div>
-    {/if}
-  </div>
+      {/if}
+    </div>
+  {/snippet}
 
-  <ul class="fr-btns-group action-buttons">
-    <li>
-      <button
-        class="fr-btn fr-btn--secondary cancel-button"
-        type="button"
-        onclick={cancel}
-        data-testid="cancel-button"
-      >
-        Annuler
-      </button>
-    </li>
-    <li>
-      <button
-        class="fr-btn submit-button"
-        type="button"
-        onclick={submit}
-        data-testid="submit-button"
-      >
-        Enregistrer
-      </button>
-    </li>
-  </ul>
-</div>
+  {#snippet footer()}
+    <ul class="fr-btns-group action-buttons">
+      <li>
+        <button
+          class="fr-btn fr-btn--secondary cancel-button"
+          type="button"
+          onclick={cancel}
+          data-testid="cancel-button"
+        >
+          Annuler
+        </button>
+      </li>
+      <li>
+        <button
+          class="fr-btn submit-button"
+          type="button"
+          onclick={submit}
+          data-testid="submit-button"
+        >
+          Enregistrer
+        </button>
+      </li>
+    </ul>
+  {/snippet}
+</PageWrapper>
 
 <style>
-  .form-page {
-    .content-container {
-      padding: 1rem;
-      margin-bottom: 58px;
-
-      form {
-        div.autocomplete {
-          position: relative;
-          display: inline-block;
-          width: 100%;
-          span.fr-hint-text {
-            margin-bottom: 0.25rem;
-          }
-          #input {
-            max-height: 3.25rem;
-            padding: 1rem;
-            font-size: 1rem;
-            line-height: 1.5rem;
-            margin: 0;
-          }
+  .content-container {
+    form {
+      div.autocomplete {
+        position: relative;
+        display: inline-block;
+        width: 100%;
+        span.fr-hint-text {
+          margin-bottom: 0.25rem;
         }
-        .fr-fieldset {
-          margin-bottom: 0.5rem;
-        }
-      }
-      .data-update-info {
-        font-size: 0.75rem;
-        line-height: 1.25rem;
-        color: var(--text-mention-grey);
-      }
-    }
-
-    .action-buttons {
-      position: fixed;
-      bottom: 0;
-      z-index: 1;
-      background-color: var(--background-default-grey);
-      display: flex;
-      gap: 1rem;
-      width: 100%;
-      margin: 0;
-      padding: 1rem;
-
-      li {
-        flex: 1;
-
-        button {
-          display: block;
-          width: 100%;
+        #input {
+          max-height: 3.25rem;
+          padding: 1rem;
+          font-size: 1rem;
+          line-height: 1.5rem;
           margin: 0;
         }
+      }
+      .fr-fieldset {
+        margin-bottom: 0.5rem;
+      }
+    }
+    .data-update-info {
+      font-size: 0.75rem;
+      line-height: 1.25rem;
+      color: var(--text-mention-grey);
+    }
+  }
+
+  .action-buttons {
+    background-color: var(--background-default-grey);
+    display: flex;
+    gap: 1rem;
+
+    li {
+      flex: 1;
+
+      button {
+        display: block;
+        width: 100%;
+        margin: 0;
       }
     }
   }
