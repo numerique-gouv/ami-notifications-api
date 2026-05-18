@@ -13,6 +13,23 @@ export const formatDate = (data: string | Date) => {
   return date.toLocaleDateString('fr-FR', options);
 };
 
+export const dateToISO = (date: Date | null) => {
+  if (date === null) {
+    return '';
+  }
+  // Return date in ISO format, with user timezone
+  const year = date.getFullYear();
+  const monthOptions: Intl.DateTimeFormatOptions = {
+    month: '2-digit',
+  };
+  const month = date.toLocaleDateString('fr-FR', monthOptions);
+  const dayOptions: Intl.DateTimeFormatOptions = {
+    day: '2-digit',
+  };
+  const day = date.toLocaleDateString('fr-FR', dayOptions);
+  return `${year}-${month}-${day}`;
+};
+
 export const scrollToNode = (node: HTMLElement) => {
   const nav = document.querySelector('nav');
   if (!nav) {
