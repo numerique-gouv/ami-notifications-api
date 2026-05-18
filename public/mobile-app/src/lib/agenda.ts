@@ -39,17 +39,7 @@ export class SubItem {
     if (!(other instanceof SubItem)) {
       return false;
     }
-    return Object.entries(this).every(([key, thisValue]) => {
-      const otherValue = other[key as keyof SubItem];
-      // Special handling for Date objects
-      if (thisValue instanceof Date || otherValue instanceof Date) {
-        return (
-          (thisValue as Date | null)?.getTime() ===
-          (otherValue as Date | null)?.getTime()
-        );
-      }
-      return thisValue === otherValue;
-    });
+    return JSON.stringify(this) === JSON.stringify(other);
   }
 
   get description(): string | null {
@@ -131,26 +121,7 @@ export class Item {
     if (!(other instanceof Item)) {
       return false;
     }
-    return Object.entries(this).every(([key, thisValue]) => {
-      const otherValue = other[key as keyof Item];
-      // Special handling for SubItem objects
-      if (
-        Array.isArray(thisValue) &&
-        Array.isArray(otherValue) &&
-        thisValue[0] instanceof SubItem
-      ) {
-        if (thisValue.length !== otherValue.length) {
-          return false;
-        }
-        for (let i = 0; i < thisValue.length; i++) {
-          if (!thisValue[i].equals(otherValue[i])) {
-            return false;
-          }
-        }
-        return true;
-      }
-      return thisValue === otherValue;
-    });
+    return JSON.stringify(this) === JSON.stringify(other);
   }
 
   get title(): string {
