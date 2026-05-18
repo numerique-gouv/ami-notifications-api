@@ -1,4 +1,5 @@
 import { apiFetch } from '$lib/auth';
+import { dateToISO } from '$lib/utils';
 
 export type CatalogItem = {
   kind: string;
@@ -21,7 +22,7 @@ export const retrieveCatalog = async (date: Date | null = null): Promise<Catalog
   const now = new Date(date || '');
   const today = new Date(now);
   today.setHours(0, 0, 0, 0);
-  const current_date = today.toLocaleDateString('sv-SE'); // this gives the locale date in ISO format ...
+  const current_date = dateToISO(today);
   const filter_items = [];
   const catalogData = {
     school_holidays: localStorage.getItem('school_holidays_catalog') || '{}',

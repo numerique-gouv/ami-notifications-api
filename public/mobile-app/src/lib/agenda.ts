@@ -2,6 +2,7 @@ import type { Catalog, CatalogItem } from '$lib/api-catalog';
 import { retrieveCatalog } from '$lib/api-catalog';
 import { createScheduledNotification } from '$lib/scheduled-notifications';
 import { userStore } from '$lib/state/User.svelte';
+import { dateToISO } from '$lib/utils';
 
 type Kind = 'holiday' | 'otv' | 'election';
 
@@ -172,7 +173,7 @@ export class Item {
       return '';
     }
     if (this._kind === 'otv') {
-      return `${info.link}?date=${this.date?.toLocaleDateString('sv-SE')}`;
+      return `${info.link}?date=${dateToISO(this.date)}`;
     }
     return info.link;
   }
