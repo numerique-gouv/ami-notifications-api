@@ -21,17 +21,7 @@ export class RequestItem {
     if (!(other instanceof RequestItem)) {
       return false;
     }
-    return Object.entries(this).every(([key, thisValue]) => {
-      const otherValue = other[key as keyof RequestItem];
-      // Special handling for Date objects
-      if (thisValue instanceof Date || otherValue instanceof Date) {
-        return (
-          (thisValue as Date | null)?.getTime() ===
-          (otherValue as Date | null)?.getTime()
-        );
-      }
-      return thisValue === otherValue;
-    });
+    return JSON.stringify(this) === JSON.stringify(other);
   }
 
   get title(): string {
