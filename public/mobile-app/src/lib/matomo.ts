@@ -49,3 +49,12 @@ export function trackZone(zone: string, add: boolean) {
   window._paq = window._paq || [];
   window._paq.push(['trackEvent', 'Holidays zones', add ? 'add' : 'remove', zone]);
 }
+
+export function trackZoneCount(count: number) {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  window._paq = window._paq || [];
+  window._paq.push(['trackEvent', 'Holidays zones', 'count', '', count]);
+}
