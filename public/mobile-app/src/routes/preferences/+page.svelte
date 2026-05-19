@@ -32,16 +32,13 @@
         <div id="fr-sidemenu-wrapper">
           <ul class="fr-sidemenu__list">
             <li class="fr-sidemenu__item">
-              <a
-                class="fr-sidemenu__link"
-                href="/#/preferences/notifications"
-                target="_self"
+              <a class="fr-sidemenu__link" href="/#/preferences/notifications"
                 ><span class="label">Notifications</span>
                 <span aria-hidden="true" class="icon fr-icon-arrow-right-s-line"></span>
               </a>
             </li>
             <li class="fr-sidemenu__item">
-              <a class="fr-sidemenu__link" href="/#/preferences/zones" target="_self">
+              <a class="fr-sidemenu__link" href="/#/preferences/zones">
                 <span class="label">Zones scolaires</span>
                 <span aria-hidden="true" class="icon fr-icon-arrow-right-s-line"></span>
               </a>
