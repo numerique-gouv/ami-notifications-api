@@ -15,7 +15,7 @@ def test_token(
     app,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    settings.PUBLIC_FC_PROXY = "https://ami-fc-proxy-dev.osc-fr1.scalingo.io/"
+    settings.PUBLIC_FC_PROXY_BASE_URL = "https://ami-fc-proxy-dev.osc-fr1.scalingo.io"
     user_data = {"sub": "fake-sub"}
     nonce = "fake-nonce"
     code = "fake-code"
@@ -47,7 +47,7 @@ def test_token(
             "aud": settings.FI_CLIENT_ID,
             "exp": 1775582760,
             "iat": 1775582460,
-            "iss": f"{settings.PUBLIC_FC_PROXY}api/v1/fi/",
+            "iss": f"{settings.PUBLIC_FC_PROXY_BASE_URL}/api/v1/fi/",
             "sub": "fake-sub",
             "nonce": "fake-nonce",
             "acr": "eidas1",
