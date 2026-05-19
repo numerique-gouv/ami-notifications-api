@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { render } from '@testing-library/svelte';
-import * as envModule from '$env/static/public';
 import Navigation from './Navigation.svelte';
 
 describe('/Navigation.svelte', () => {
@@ -19,7 +18,6 @@ describe('/Navigation.svelte', () => {
 
   test('should highlight nothing', async () => {
     // Given
-    vi.mocked(envModule).PUBLIC_FEATUREFLAG_REQUESTS_ENABLED = 'true';
     const { container } = render(Navigation);
 
     // Then
@@ -32,13 +30,12 @@ describe('/Navigation.svelte', () => {
 
   test('should highlight nothing - no requests', async () => {
     // Given
-    vi.mocked(envModule).PUBLIC_FEATUREFLAG_REQUESTS_ENABLED = 'false';
     const { container } = render(Navigation);
 
     // Then
     expect(container).toHaveTextContent('Accueil');
     expect(container).toHaveTextContent('Agenda');
-    expect(container).not.toHaveTextContent('Suivi');
+    expect(container).toHaveTextContent('Suivi');
     const highlight = container.querySelector('.highlight');
     expect(highlight).toBeNull();
   });
@@ -63,7 +60,6 @@ describe('/Navigation.svelte', () => {
 
   test('should highlight followup item', async () => {
     // Given
-    vi.mocked(envModule).PUBLIC_FEATUREFLAG_REQUESTS_ENABLED = 'true';
     const { container } = render(Navigation, { currentItem: 'requests' });
 
     // Then

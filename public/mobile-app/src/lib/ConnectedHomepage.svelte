@@ -1,7 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
-  import { PUBLIC_FEATUREFLAG_REQUESTS_ENABLED } from '$env/static/public';
   import type { Agenda } from '$lib/agenda';
   import { buildAgenda } from '$lib/agenda';
   import AgendaItem from '$lib/components/AgendaItem.svelte';
@@ -22,7 +21,6 @@
   let agenda: Agenda | null = $state(null);
   let isFollowUpEmpty: boolean = $state(true);
   let followUp: FollowUp | null = $state(null);
-  const requests_enabled = PUBLIC_FEATUREFLAG_REQUESTS_ENABLED === 'true';
 
   onMount(async () => {
     console.log('User is connected:', userStore.connected);
@@ -54,11 +52,9 @@
       agenda = await buildAgenda();
       console.log($state.snapshot(agenda));
       isAgendaEmpty = !(agenda.now.length || agenda.next.length);
-      if (requests_enabled) {
-        followUp = await buildFollowUp();
-        console.log($state.snapshot(followUp));
-        isFollowUpEmpty = !(followUp.current.length || followUp.past.length);
-      }
+      followUp = await buildFollowUp();
+      console.log($state.snapshot(followUp));
+      isFollowUpEmpty = !(followUp.current.length || followUp.past.length);
     } catch (error) {
       console.error(error);
     }
