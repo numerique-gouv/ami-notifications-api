@@ -35,6 +35,7 @@ def search_user(request):
 @role_admin_required
 def detail_user(request, user_id):
     user = get_object_or_404(User, id=user_id)
+    audit("user:seen", request.user.agent, {"user": user})
     form = UserSearchForm(initial={"fc_hash": user.fc_hash})
     context = {
         "form": form,
