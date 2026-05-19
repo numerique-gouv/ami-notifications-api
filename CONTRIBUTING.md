@@ -301,3 +301,18 @@ For vite, we used to take advantage of `basicSsl` provided by a vitejs `plugin-b
 ```sh
 mkcert -install
 ```
+
+
+# Making authenticated requests to the Github API
+
+As explained in
+https://github.com/numerique-gouv/ami-notifications-api/issues/417, we need to
+make authenticated requests to the Github API, in the staging mobile apps.
+
+To do so, the env variable GITHUB_PERSONAL_ACCESS_TOKEN_REVIEW_APPS
+needs to be set with a [Personal Access
+Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-s
+ecure/managing-your-personal-access-tokens).
+
+This token can be generated on any user, and only needs the minimal access to
+read public repositories.

@@ -55,14 +55,17 @@ def _dev_utils_recipient_fc_hash(request) -> HttpResponse:
 @api_view(["GET"])
 def _dev_utils_review_apps(request) -> Response[list[dict[str, str | int]]]:
     """Returns a list of tuples: (review app url, pull request title)."""
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+    }
+    if settings.GITHUB_PERSONAL_ACCESS_TOKEN_REVIEW_APPS:
+        headers["Authorization"] = f"Bearer {settings.GITHUB_PERSONAL_ACCESS_TOKEN_REVIEW_APPS}"
     with httpxClient() as httpx_client:
         response = httpx_client.get(
             "https://api.github.com/repos/numerique-gouv/ami-notifications-api/pulls",
             params={"state": "open", "sort": "created", "per_page": 100},
-            headers={
-                "Accept": "application/vnd.github+json",
-                "X-GitHub-Api-Version": "2022-11-28",
-            },
+            headers=headers,
         )
     staging_app = {
         "url": "https://ami-back-staging.osc-fr1.scalingo.io/",

@@ -59,6 +59,20 @@ def test_review_apps_github_failure(app, httpx_mock: HTTPXMock) -> None:
     assert json_data[0]["title"] == "Staging"
 
 
+def test_review_apps_with_personal_access_token(app, httpx_mock: HTTPXMock, settings) -> None:
+    httpx_mock.add_response(
+        method="GET",
+        url="https://api.github.com/repos/numerique-gouv/ami-notifications-api/pulls?state=open&sort=created&per_page=100",
+        json=TRUNCATED_GITHUB_JSON_RESPONSE,
+    )
+    settings.GITHUB_PERSONAL_ACCESS_TOKEN_REVIEW_APPS = "some personal access token"
+    app.get("/dev-utils/review-apps")
+    # Make sure the request to the github API had the proper auth header
+    github_request = httpx_mock.get_request()
+    assert github_request is not None
+    assert github_request.headers["Authorization"] == "Bearer some personal access token"
+
+
 TRUNCATED_GITHUB_JSON_RESPONSE: list[dict[str, Any]] = [
     {
         "url": "https://api.github.com/repos/numerique-gouv/ami-notifications-api/pulls/83",
