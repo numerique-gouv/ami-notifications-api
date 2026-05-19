@@ -301,3 +301,23 @@ For vite, we used to take advantage of `basicSsl` provided by a vitejs `plugin-b
 ```sh
 mkcert -install
 ```
+
+
+# Making authenticated requests to the Github API
+
+As explained in
+https://github.com/numerique-gouv/ami-notifications-api/issues/417, we need to
+make authenticated requests to the Github API, in the staging mobile apps.
+
+To do so, we use a Github App named `ami-reviewapps`, and store its ID in the following env variable: `GITHUB_APP_ID`.
+
+This app is then used to generate a private key stored in the `GITHUB_APP_PRIVATE_KEY` env variable,
+as a base64 value, generated using:
+
+```sh
+base64 -i ami-reviewapps.private-key.pem
+```
+
+The call chain with PyGithub is:
+
+`Auth.AppAuth → GithubIntegration → get_installation → get_pulls`

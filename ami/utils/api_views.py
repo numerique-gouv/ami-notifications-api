@@ -4,11 +4,11 @@ from django.conf import settings
 from django.db import connection
 from django.http import HttpResponse
 from drf_spectacular.utils import extend_schema
+from github import Auth, GithubIntegration
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from ami.user.utils import build_fc_hash
-from ami.utils.httpx import httpxClient
 from ami.utils.serializers import RecipientFcHashSerializer
 
 
@@ -55,34 +55,33 @@ def _dev_utils_recipient_fc_hash(request) -> HttpResponse:
 @api_view(["GET"])
 def _dev_utils_review_apps(request) -> Response[list[dict[str, str | int]]]:
     """Returns a list of tuples: (review app url, pull request title)."""
-    with httpxClient() as httpx_client:
-        response = httpx_client.get(
-            "https://api.github.com/repos/numerique-gouv/ami-notifications-api/pulls",
-            params={"state": "open", "sort": "created", "per_page": 100},
-            headers={
-                "Accept": "application/vnd.github+json",
-                "X-GitHub-Api-Version": "2022-11-28",
-            },
-        )
     staging_app = {
         "url": "https://ami-back-staging.osc-fr1.scalingo.io/",
         "title": "Staging",
         "number": 0,
         "description": "Staging",
     }
-    if response.status_code >= 400:
-        # Possibly rate limited
+    try:
+        auth = Auth.AppAuth(
+            app_id=settings.GITHUB_APP_ID,
+            private_key=settings.GITHUB_APP_PRIVATE_KEY,
+        )
+        gi = GithubIntegration(auth=auth)
+        installation = gi.get_repo_installation("numerique-gouv", "ami-notifications-api")
+        gh = installation.get_github_for_installation()
+        repo = gh.get_repo("numerique-gouv/ami-notifications-api")
+        open_pulls = repo.get_pulls(state="open", sort="created")
+    except Exception:
         return Response([staging_app])
 
-    json_data = response.json()
     review_apps = [
         {
-            "url": f"https://ami-back-staging-pr{review_app['number']}.osc-fr1.scalingo.io/",
-            "title": f"PR{review_app['number']}: {review_app['title']}",
-            "number": review_app["number"],
-            "description": review_app["body"],
+            "url": f"https://ami-back-staging-pr{pr.number}.osc-fr1.scalingo.io/",
+            "title": f"PR{pr.number}: {pr.title}",
+            "number": pr.number,
+            "description": pr.body,
         }
-        for review_app in json_data
+        for pr in open_pulls
     ]
     return Response([staging_app] + review_apps)
 

@@ -1,6 +1,5 @@
 from typing import Any
-
-from pytest_httpx import HTTPXMock
+from unittest.mock import MagicMock
 
 
 def test_ping(app) -> None:
@@ -35,24 +34,54 @@ def test_recipient_fc_hash(app) -> None:
     assert response.text == "7e74df2cbebae761eccedbc24b7fe589bb83137f7808a2930031f52c73d75efe"
 
 
-def test_review_apps(app, httpx_mock: HTTPXMock) -> None:
-    httpx_mock.add_response(
-        method="GET",
-        url="https://api.github.com/repos/numerique-gouv/ami-notifications-api/pulls?state=open&sort=created&per_page=100",
-        json=TRUNCATED_GITHUB_JSON_RESPONSE,
+def _make_github_mock(pulls: list) -> MagicMock:
+    """Build a GithubIntegration mock that returns the given list of pull requests."""
+    pr_mocks = []
+    for pr in pulls:
+        mock_pr = MagicMock()
+        mock_pr.number = pr["number"]
+        mock_pr.title = pr["title"]
+        mock_pr.body = pr["body"]
+        pr_mocks.append(mock_pr)
+
+    mock_repo = MagicMock()
+    mock_repo.get_pulls.return_value = pr_mocks
+
+    mock_gh = MagicMock()
+    mock_gh.get_repo.return_value = mock_repo
+
+    mock_installation = MagicMock()
+    mock_installation.get_github_for_installation.return_value = mock_gh
+
+    mock_gi = MagicMock()
+    mock_gi.get_repo_installation.return_value = mock_installation
+
+    return mock_gi
+
+
+def test_review_apps(app, monkeypatch, settings) -> None:
+    settings.GITHUB_APP_ID = "123456"
+    settings.GITHUB_APP_PRIVATE_KEY = "fake-key"
+    monkeypatch.setattr("ami.utils.api_views.Auth", MagicMock())
+    monkeypatch.setattr(
+        "ami.utils.api_views.GithubIntegration",
+        lambda **kwargs: _make_github_mock(TRUNCATED_GITHUB_JSON_RESPONSE),
     )
     response = app.get("/dev-utils/review-apps")
     json_data = response.json
-    assert len(json_data) == 2  # Staging + the PR returned in GITHUB_JSON_RESPONSE
+    assert len(json_data) == 2  # Staging + the PR returned in TRUNCATED_GITHUB_JSON_RESPONSE
     assert json_data[0]["title"] == "Staging"
 
 
-def test_review_apps_github_failure(app, httpx_mock: HTTPXMock) -> None:
-    httpx_mock.add_response(
-        method="GET",
-        url="https://api.github.com/repos/numerique-gouv/ami-notifications-api/pulls?state=open&sort=created&per_page=100",
-        status_code=400,
-    )
+def test_review_apps_github_failure(app, monkeypatch, settings) -> None:
+    settings.GITHUB_APP_ID = "123456"
+    settings.GITHUB_APP_PRIVATE_KEY = "fake-key"
+    monkeypatch.setattr("ami.utils.api_views.Auth", MagicMock())
+
+    def raise_error(**kwargs):
+        raise Exception("GitHub API error")
+
+    monkeypatch.setattr("ami.utils.api_views.GithubIntegration", raise_error)
     response = app.get("/dev-utils/review-apps")
     json_data = response.json
     assert len(json_data) == 1  # Only the hardcoded Staging
