@@ -42,10 +42,6 @@ class Migration(migrations.Migration):
                 ("created_at", models.DateTimeField()),
                 ("updated_at", models.DateTimeField()),
             ],
-            options={
-                "db_table": "ami_notification_anonymized",
-                "abstract": False,
-            },
         ),
         migrations.CreateModel(
             name="AnonymizedRegistration",
@@ -60,9 +56,5 @@ class Migration(migrations.Migration):
                 ("created_at", models.DateTimeField()),
                 ("updated_at", models.DateTimeField()),
             ],
-            options={
-                "db_table": "ami_registration_anonymized",
-                "abstract": False,
-            },
         ),
     ]
