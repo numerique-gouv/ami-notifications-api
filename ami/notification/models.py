@@ -22,6 +22,7 @@ class Notification(models.Model):
 
     content_title = models.CharField()
     content_body = models.CharField()
+    content_private_body = models.CharField(blank=True, null=True)
     content_icon = models.CharField(blank=True, null=True)
 
     item_type = models.CharField(blank=True, null=True)
@@ -62,6 +63,7 @@ class ScheduledNotification(models.Model):
 
     content_title = models.CharField()
     content_body = models.CharField()
+    content_private_body = models.CharField(blank=True, null=True)
     content_icon = models.CharField()
 
     internal_url = models.CharField(blank=True, null=True)
@@ -79,6 +81,7 @@ class ScheduledNotification(models.Model):
             user=self.user,
             content_title=self.content_title,
             content_body=self.content_body,
+            content_private_body=self.content_private_body,
             content_icon=self.content_icon,
             internal_url=self.internal_url,
             partner_id="dinum-ami",

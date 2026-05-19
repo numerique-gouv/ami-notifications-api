@@ -38,6 +38,7 @@ class AnonymizedNotification(AnonymizedModel):
     id = models.UUIDField(editable=False)
     content_title = models.CharField()
     content_body = models.CharField()
+    # No `content_private_body` here.
     content_icon = models.CharField(blank=True, null=True)
 
     item_type = models.CharField(blank=True, null=True)
