@@ -4,7 +4,6 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import type { WS as WSType } from 'vitest-websocket-mock';
 import WS from 'vitest-websocket-mock';
 import * as navigationMethods from '$app/navigation';
-import * as envModule from '$env/static/public';
 import * as agendaMethods from '$lib/agenda';
 import { Agenda, Item } from '$lib/agenda';
 import * as followUpMethods from '$lib/follow-up';
@@ -37,7 +36,6 @@ describe('/ConnectedHomepage.svelte', () => {
       return Promise.resolve({
         ...original,
         PUBLIC_API_URL: 'https://localhost:8000',
-        PUBLIC_FEATUREFLAG_REQUESTS_ENABLED: 'true',
         PUBLIC_MATOMO_ENABLED: 'false',
       });
     });
@@ -278,7 +276,6 @@ describe('/ConnectedHomepage.svelte', () => {
 
   test('Should not display any request if feature flag is not enabled', async () => {
     // Given
-    vi.mocked(envModule).PUBLIC_FEATUREFLAG_REQUESTS_ENABLED = 'false';
     const followUp = new FollowUp();
     vi.spyOn(followUp, 'current', 'get').mockReturnValue([
       new RequestItem(
@@ -338,7 +335,6 @@ describe('/ConnectedHomepage.svelte', () => {
 
   test('Should display first request found from API', async () => {
     // Given
-    vi.mocked(envModule).PUBLIC_FEATUREFLAG_REQUESTS_ENABLED = 'true';
     const followUp = new FollowUp();
     vi.spyOn(followUp, 'current', 'get').mockReturnValue([
       new RequestItem(
@@ -400,7 +396,6 @@ describe('/ConnectedHomepage.svelte', () => {
 
   test('Should display first request found from API - current is empty', async () => {
     // Given
-    vi.mocked(envModule).PUBLIC_FEATUREFLAG_REQUESTS_ENABLED = 'true';
     const followUp = new FollowUp();
     vi.spyOn(followUp, 'current', 'get').mockReturnValue([]);
     vi.spyOn(followUp, 'past', 'get').mockReturnValue([
@@ -441,7 +436,6 @@ describe('/ConnectedHomepage.svelte', () => {
 
   test('should display requests block if follow-up is empty', async () => {
     // Given
-    vi.mocked(envModule).PUBLIC_FEATUREFLAG_REQUESTS_ENABLED = 'true';
     const followUp = new FollowUp();
     vi.spyOn(followUp, 'current', 'get').mockReturnValue([]);
     vi.spyOn(followUp, 'past', 'get').mockReturnValue([]);

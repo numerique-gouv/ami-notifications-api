@@ -1,13 +1,10 @@
 <script lang="ts">
-  import { PUBLIC_FEATUREFLAG_REQUESTS_ENABLED } from '$env/static/public';
-
   const { currentItem } = $props();
   const current = $derived({
     home: currentItem === 'home',
     agenda: currentItem === 'agenda',
     requests: currentItem === 'requests',
   });
-  const requests_enabled = PUBLIC_FEATUREFLAG_REQUESTS_ENABLED === 'true';
 </script>
 
 <nav id="menu-footer" class="menu-footer" aria-label="Menu principal">
@@ -32,18 +29,16 @@
         <span>Agenda</span>
       </a>
     </li>
-    {#if requests_enabled}
-      <li class="menu__item">
-        <a
-          class="menu__link {current.requests ? 'highlight': ''}"
-          href="/#/requests"
-          aria-current="{current.requests ? 'true': null}"
-        >
-          <img src="/remixicons/vector.svg" alt="Icône de suivi">
-          <span>Suivi</span>
-        </a>
-      </li>
-    {/if}
+    <li class="menu__item">
+      <a
+        class="menu__link {current.requests ? 'highlight': ''}"
+        href="/#/requests"
+        aria-current="{current.requests ? 'true': null}"
+      >
+        <img src="/remixicons/vector.svg" alt="Icône de suivi">
+        <span>Suivi</span>
+      </a>
+    </li>
   </ul>
 </nav>
 
