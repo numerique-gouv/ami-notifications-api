@@ -309,10 +309,15 @@ As explained in
 https://github.com/numerique-gouv/ami-notifications-api/issues/417, we need to
 make authenticated requests to the Github API, in the staging mobile apps.
 
-To do so, the env variable GITHUB_PERSONAL_ACCESS_TOKEN_REVIEW_APPS
-needs to be set with a [Personal Access
-Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-s
-ecure/managing-your-personal-access-tokens).
+To do so, we use a Github App named `ami-reviewapps`, and store its ID in the following env variable: `GITHUB_APP_ID`.
 
-This token can be generated on any user, and only needs the minimal access to
-read public repositories.
+This app is then used to generate a private key stored in the `GITHUB_APP_PRIVATE_KEY` env variable,
+as a base64 value, generated using:
+
+```sh
+base64 -i ami-reviewapps.private-key.pem
+```
+
+The call chain with PyGithub is:
+
+`Auth.AppAuth → GithubIntegration → get_installation → get_pulls`
