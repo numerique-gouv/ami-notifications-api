@@ -17,3 +17,6 @@ static/
 
 # The private key file for Firebase Cloud Messaging
 *-adminsdk-*.json
+
+# The private key for the "ami-reviewapps" Github App
+*.private-key.pem

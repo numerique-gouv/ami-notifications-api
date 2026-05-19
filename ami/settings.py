@@ -1,3 +1,4 @@
+import base64
 import os
 import sys
 from pathlib import Path
@@ -297,9 +298,12 @@ PARTNERS_PSL_OTV_JWT_CERT_PFX_B64 = CONFIG.get("PARTNERS_PSL_OTV_JWT_CERT_PFX_B6
 PARTNERS_PSL_OTV_JWT_CERT_PUBLIC_KEY = CONFIG.get("PARTNERS_PSL_OTV_JWT_CERT_PUBLIC_KEY", "")
 PARTNERS_PSL_OTV_JWE_PUBLIC_KEY = CONFIG.get("PARTNERS_PSL_OTV_JWE_PUBLIC_KEY", "")
 
-# Github Personal Access Token to list open PRs
-GITHUB_PERSONAL_ACCESS_TOKEN_REVIEW_APPS = CONFIG.get(
-    "GITHUB_PERSONAL_ACCESS_TOKEN_REVIEW_APPS", ""
+# Github App credentials to list open PRs
+GITHUB_APP_ID = CONFIG.get("GITHUB_APP_ID", "")
+GITHUB_APP_PRIVATE_KEY = (
+    base64.b64decode(CONFIG.get("GITHUB_APP_PRIVATE_KEY", "")).decode()
+    if CONFIG.get("GITHUB_APP_PRIVATE_KEY")
+    else ""
 )
 
 # Channels
