@@ -20,12 +20,15 @@ export function parseJwt(token: string): UserInfo {
   return JSON.parse(jsonPayload);
 }
 
-export const franceConnectLogout = async (id_token_hint: string) => {
-  const redirect_url = `${PUBLIC_APP_URL}/?is_logged_out`;
+export const franceConnectLogout = async (
+  id_token_hint: string,
+  redirect_url: string | null = null
+) => {
+  const redirect_uri = redirect_url || `${PUBLIC_APP_URL}/?is_logged_out`;
   const params = new URLSearchParams({
     id_token_hint,
-    state: redirect_url,
-    post_logout_redirect_uri: PUBLIC_FC_PROXY || redirect_url,
+    state: redirect_uri,
+    post_logout_redirect_uri: PUBLIC_FC_PROXY || redirect_uri,
   });
   const url = new URL(`${PUBLIC_FC_BASE_URL}${PUBLIC_FC_LOGOUT_ENDPOINT}`);
   url.search = params.toString();
