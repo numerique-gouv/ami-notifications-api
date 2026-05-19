@@ -253,7 +253,7 @@ PUBLIC_FC_BASE_URL = CONFIG["PUBLIC_FC_BASE_URL"]
 # This should not be set in production:
 # It should be set in the .env.local file for local development
 # and in the Scalingo staging and review apps as an env variable.
-PUBLIC_FC_PROXY = CONFIG.get("PUBLIC_FC_PROXY")
+PUBLIC_FC_PROXY_BASE_URL = CONFIG.get("PUBLIC_FC_PROXY_BASE_URL")
 
 FC_SCOPE = CONFIG["FC_SCOPE"]
 FC_AMI_REDIRECT_URL = PUBLIC_API_URL + "/login-callback"

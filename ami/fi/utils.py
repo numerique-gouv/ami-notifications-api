@@ -5,8 +5,8 @@ from django.conf import settings
 
 def generate_id_token(fi_session):
     iss: str = f"{settings.PUBLIC_API_URL}/api/v1/fi/"
-    if settings.PUBLIC_FC_PROXY:
-        iss = f"{settings.PUBLIC_FC_PROXY}api/v1/fi/"
+    if settings.PUBLIC_FC_PROXY_BASE_URL:
+        iss = f"{settings.PUBLIC_FC_PROXY_BASE_URL}/api/v1/fi/"
     return {
         "aud": settings.FI_CLIENT_ID,
         "exp": int(time.time()) + settings.FI_SESSION_AGE,

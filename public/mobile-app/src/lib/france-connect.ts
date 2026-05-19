@@ -2,7 +2,7 @@ import {
   PUBLIC_APP_URL,
   PUBLIC_FC_BASE_URL,
   PUBLIC_FC_LOGOUT_ENDPOINT,
-  PUBLIC_FC_PROXY,
+  PUBLIC_FC_PROXY_BASE_URL,
 } from '$env/static/public';
 import type { UserInfo } from '$lib/state/User.svelte';
 
@@ -25,10 +25,14 @@ export const franceConnectLogout = async (
   redirect_url: string | null = null
 ) => {
   const redirect_uri = redirect_url || `${PUBLIC_APP_URL}/?is_logged_out`;
+  let post_logout_redirect_uri = redirect_uri;
+  if (PUBLIC_FC_PROXY_BASE_URL) {
+    post_logout_redirect_uri = `${PUBLIC_FC_PROXY_BASE_URL}/`;
+  }
   const params = new URLSearchParams({
     id_token_hint,
     state: redirect_uri,
-    post_logout_redirect_uri: PUBLIC_FC_PROXY || redirect_uri,
+    post_logout_redirect_uri: post_logout_redirect_uri,
   });
   const url = new URL(`${PUBLIC_FC_BASE_URL}${PUBLIC_FC_LOGOUT_ENDPOINT}`);
   url.search = params.toString();

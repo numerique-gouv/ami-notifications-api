@@ -65,7 +65,9 @@ async def get_fc_token(
     await nonce.adelete()
 
     # FC - Step 5
-    redirect_uri: str = settings.PUBLIC_FC_PROXY or settings.FC_AMI_REDIRECT_URL
+    redirect_uri: str = settings.FC_AMI_REDIRECT_URL
+    if settings.PUBLIC_FC_PROXY_BASE_URL:
+        redirect_uri = settings.PUBLIC_FC_PROXY_BASE_URL + "/"
     client_id: str = settings.FC_AMI_CLIENT_ID
     data: dict[str, str] = {
         "grant_type": "authorization_code",
