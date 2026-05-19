@@ -12,21 +12,21 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RemoveField(
-            model_name="AnonymizedUser",
+            model_name="anonymizeduser",
             name="original_id",
         ),
         migrations.AddField(
-            model_name="AnonymizedUser",
+            model_name="anonymizeduser",
             name="replication_id",
             field=models.UUIDField(default=uuid.uuid4, null=True),
         ),
         migrations.AlterField(
-            model_name="AnonymizedUser",
+            model_name="anonymizeduser",
             name="created_at",
             field=models.DateTimeField(),
         ),
         migrations.AlterField(
-            model_name="AnonymizedUser",
+            model_name="anonymizeduser",
             name="updated_at",
             field=models.DateTimeField(),
         ),

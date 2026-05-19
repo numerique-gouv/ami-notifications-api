@@ -60,9 +60,6 @@ class AnonymizedNotification(AnonymizedModel):
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField()
 
-    class Meta(AnonymizedModel.Meta):
-        db_table = "ami_notification_anonymized"
-
     @classmethod
     def from_notification(
         cls, notification: Notification, using: str = "default"
@@ -77,9 +74,6 @@ class AnonymizedUser(AnonymizedModel):
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField()
 
-    class Meta(AnonymizedModel.Meta):
-        db_table = "ami_user_anonymized"
-
     @classmethod
     def from_user(cls, user: User, using: str = "default") -> AnonymizedUser:
         return cls.from_source(user, using)
@@ -89,9 +83,6 @@ class AnonymizedRegistration(AnonymizedModel):
     id = models.UUIDField(editable=False)
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField()
-
-    class Meta(AnonymizedModel.Meta):
-        db_table = "ami_registration_anonymized"
 
     @classmethod
     def from_registration(

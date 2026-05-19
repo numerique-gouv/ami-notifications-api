@@ -4,8 +4,8 @@ from django.db import migrations
 
 
 def gen_replication_id(apps, schema_editor):
-    AnonymizedUser = apps.get_model("replication", "AnonymizedUser")
-    for row in AnonymizedUser.objects.all():
+    anonymized_user = apps.get_model("replication", "AnonymizedUser")
+    for row in anonymized_user.objects.all():
         row.replication_id = uuid.uuid4()
         row.save(update_fields=["replication_id"])
 

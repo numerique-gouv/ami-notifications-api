@@ -10,13 +10,15 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AlterField(
-            model_name="AnonymizedUser",
+            model_name="anonymizeduser",
             name="id",
             field=models.UUIDField(editable=False),
         ),
         migrations.AlterField(
-            model_name="AnonymizedUser",
+            model_name="anonymizeduser",
             name="replication_id",
-            field=models.UUIDField(default=uuid.uuid4, primary_key=True, serialize=False),
+            field=models.UUIDField(
+                default=uuid.uuid4, editable=False, primary_key=True, serialize=False
+            ),
         ),
     ]
