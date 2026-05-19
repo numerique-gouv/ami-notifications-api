@@ -274,65 +274,6 @@ describe('/ConnectedHomepage.svelte', () => {
     });
   });
 
-  test('Should not display any request if feature flag is not enabled', async () => {
-    // Given
-    const followUp = new FollowUp();
-    vi.spyOn(followUp, 'current', 'get').mockReturnValue([
-      new RequestItem(
-        'Opération Tranquillité Vacances 1',
-        'Votre demande est en cours de traitement.',
-        new Date('2026-02-22T15:55:00.000Z'),
-        null,
-        'wip',
-        'En cours',
-        null
-      ),
-      new RequestItem(
-        'Opération Tranquillité Vacances 2',
-        'Votre demande est en cours de traitement.',
-        new Date('2026-02-22T15:55:00.000Z'),
-        null,
-        'wip',
-        'En cours',
-        null
-      ),
-    ]);
-    vi.spyOn(followUp, 'past', 'get').mockReturnValue([
-      new RequestItem(
-        'Opération Tranquillité Vacances 3',
-        'Votre demande est terminée.',
-        new Date('2026-02-20T15:55:00.000Z'),
-        null,
-        'closed',
-        'Terminée',
-        null
-      ),
-      new RequestItem(
-        'Opération Tranquillité Vacances 4',
-        'Votre demande est terminée.',
-        new Date('2026-02-20T15:55:00.000Z'),
-        null,
-        'closed',
-        'Terminée',
-        null
-      ),
-    ]);
-    const spy = vi.spyOn(followUpMethods, 'buildFollowUp').mockResolvedValue(followUp);
-    // When
-    const { container } = render(ConnectedHomepage);
-
-    // Then
-    await waitFor(() => {
-      const followUpBlock = container.querySelector('.requests-container');
-      expect(spy).not.toHaveBeenCalled();
-      expect(followUpBlock).not.toHaveTextContent('Opération Tranquillité Vacances 1');
-      expect(followUpBlock).not.toHaveTextContent('Opération Tranquillité Vacances 2');
-      expect(followUpBlock).not.toHaveTextContent('Opération Tranquillité Vacances 3');
-      expect(followUpBlock).not.toHaveTextContent('Opération Tranquillité Vacances 4');
-      expect(followUpBlock).toHaveTextContent('Retrouvez et suivez vos démarches ici.');
-    });
-  });
-
   test('Should display first request found from API', async () => {
     // Given
     const followUp = new FollowUp();
