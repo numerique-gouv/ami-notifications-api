@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from 'vitest';
+import { afterEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { Address } from '$lib/address';
 import type { CatalogItem } from '$lib/api-catalog';
@@ -6,6 +6,10 @@ import * as matomoMethods from '$lib/matomo';
 import { Preferences } from '$lib/state/preferences';
 
 describe('/preferences.ts', () => {
+  afterEach(() => {
+    vi.resetAllMocks();
+  });
+
   describe('Preferences', () => {
     describe('fromJSON', () => {
       test('should init with values - empty values', async () => {
@@ -380,6 +384,9 @@ describe('/preferences.ts', () => {
         const trackZoneSpy = vi
           .spyOn(matomoMethods, 'trackZone')
           .mockResolvedValue(undefined);
+        const trackZoneCountSpy = vi
+          .spyOn(matomoMethods, 'trackZoneCount')
+          .mockResolvedValue(undefined);
 
         // When
         preferences1.addZone('Bar');
@@ -390,7 +397,12 @@ describe('/preferences.ts', () => {
         expect(preferences1.zones).toEqual(['Bar']);
         expect(preferences2.zones).toEqual(['Foo', 'Bar']);
         expect(preferences3.zones).toEqual(['Foo', 'Bar']);
-        expect(trackZoneSpy).toHaveBeenCalledWith('Bar', true);
+        expect(trackZoneSpy).toHaveBeenCalledTimes(2);
+        expect(trackZoneSpy).toHaveBeenNthCalledWith(1, 'Bar', true);
+        expect(trackZoneSpy).toHaveBeenNthCalledWith(2, 'Bar', true);
+        expect(trackZoneCountSpy).toHaveBeenCalledTimes(2);
+        expect(trackZoneCountSpy).toHaveBeenNthCalledWith(1, 1);
+        expect(trackZoneCountSpy).toHaveBeenNthCalledWith(2, 2);
       });
     });
 
@@ -403,6 +415,9 @@ describe('/preferences.ts', () => {
         const trackZoneSpy = vi
           .spyOn(matomoMethods, 'trackZone')
           .mockResolvedValue(undefined);
+        const trackZoneCountSpy = vi
+          .spyOn(matomoMethods, 'trackZoneCount')
+          .mockResolvedValue(undefined);
 
         // When
         preferences1.removeZone('Bar');
@@ -413,7 +428,11 @@ describe('/preferences.ts', () => {
         expect(preferences1.zones).toEqual([]);
         expect(preferences2.zones).toEqual(['Foo']);
         expect(preferences3.zones).toEqual(['Foo']);
-        expect(trackZoneSpy).toHaveBeenCalledWith('Bar', false);
+
+        expect(trackZoneSpy).toHaveBeenCalledTimes(1);
+        expect(trackZoneSpy).toHaveBeenNthCalledWith(1, 'Bar', false);
+        expect(trackZoneCountSpy).toHaveBeenCalledTimes(1);
+        expect(trackZoneCountSpy).toHaveBeenNthCalledWith(1, 1);
       });
     });
 

@@ -118,6 +118,9 @@ export class Preferences {
   }
 
   removeZone(zone: string) {
+    if (!this._zones.includes(zone)) {
+      return;
+    }
     this._zones = this._zones.filter((value) => zone !== value);
     trackZone(zone, false);
     trackZoneCount(this._zones.length);
