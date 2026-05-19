@@ -240,7 +240,7 @@ It needs to be set through Scalingo in the staging and review apps,
 and for local development, it needs to be set in the `.env.local` file.
 
 ```
-PUBLIC_FC_PROXY="https://ami-fc-proxy-dev.osc-fr1.scalingo.io/"
+PUBLIC_FC_PROXY_BASE_URL="https://ami-fc-proxy-dev.osc-fr1.scalingo.io"
 ```
 
 ## agent-admin space ("Espace Partenaire AMI")

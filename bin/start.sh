@@ -6,7 +6,7 @@ HOST="${HOST:-0.0.0.0}"
 if [ "$APP" == "ami-back-prod" ]
 then
   # We don't want to use the FranceConnect proxy in production
-  export PUBLIC_FC_PROXY=""
+  export PUBLIC_FC_PROXY_BASE_URL=""
 fi
 
 if [ ! -z "$CONTAINER" ]

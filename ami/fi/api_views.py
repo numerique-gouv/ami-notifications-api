@@ -55,11 +55,13 @@ def authorize(request: Request) -> HttpResponseRedirect:
     )
 
     redirect_uri = f"{data['redirect_uri']}?code={code}&state={fi_session.state}"
-    if settings.PUBLIC_FC_PROXY:
+    if settings.PUBLIC_FC_PROXY_BASE_URL:
         params = {
             "redirect_uri": redirect_uri,
         }
-        redirect_uri = f"{settings.PUBLIC_FC_PROXY}ami-fi-authorize-callback/?{urlencode(params)}"
+        redirect_uri = (
+            f"{settings.PUBLIC_FC_PROXY_BASE_URL}/ami-fi-authorize-callback/?{urlencode(params)}"
+        )
     return redirect(redirect_uri)
 
 

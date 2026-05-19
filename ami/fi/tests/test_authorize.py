@@ -18,7 +18,7 @@ def test_authorize(
     def fake_jwt_decode(*args: Any, **params: Any):
         return userinfo
 
-    settings.PUBLIC_FC_PROXY = ""
+    settings.PUBLIC_FC_PROXY_BASE_URL = ""
 
     monkeypatch.setattr("jwt.decode", fake_jwt_decode)
 
@@ -75,7 +75,7 @@ def test_authorize_with_proxy(
     def fake_jwt_decode(*args: Any, **params: Any):
         return userinfo
 
-    settings.PUBLIC_FC_PROXY = "https://ami-fc-proxy"
+    settings.PUBLIC_FC_PROXY_BASE_URL = "https://ami-fc-proxy"
 
     monkeypatch.setattr("jwt.decode", fake_jwt_decode)
 
@@ -109,7 +109,9 @@ def test_authorize_with_proxy(
     assert fi_session.code == expected_code
     assert fi_session.access_token == ""
     redirected_url = response.headers["location"]
-    assert redirected_url.startswith(f"{settings.PUBLIC_FC_PROXY}ami-fi-authorize-callback/")
+    assert redirected_url.startswith(
+        f"{settings.PUBLIC_FC_PROXY_BASE_URL}/ami-fi-authorize-callback/"
+    )
     redirect_uri = f"{settings.FI_REDIRECT_URI}?code=fake-code&state=fake-state"
     assert url_contains_param(
         "redirect_uri",
