@@ -74,6 +74,10 @@
       transition: 0.4s;
     }
     .title {
+      align-items: center;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
       padding-top: 2rem;
       transition: 0.4s;
       h2 {
