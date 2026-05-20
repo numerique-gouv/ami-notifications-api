@@ -53,6 +53,10 @@ class NotificationForm(AMIDsfrBaseForm):
     content_body = forms.CharField(
         widget=forms.Textarea(attrs={"rows": 4}),
     )
+    content_private_body = forms.CharField(
+        widget=forms.Textarea(attrs={"rows": 4}),
+        required=False,
+    )
     content_icon = forms.CharField(
         required=False,
     )
