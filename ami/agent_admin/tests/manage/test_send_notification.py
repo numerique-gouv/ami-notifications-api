@@ -16,6 +16,7 @@ def test_send_notification(app, notifications_agent: Agent) -> None:
     assert response.forms["send-notification"]["recipient_fc_hash"].value == ""
     assert response.forms["send-notification"]["content_title"].value == ""
     assert response.forms["send-notification"]["content_body"].value == ""
+    assert response.forms["send-notification"]["content_private_body"].value == ""
     assert response.forms["send-notification"]["content_icon"].value == ""
     assert response.forms["send-notification"]["item_type"].value == ""
     assert response.forms["send-notification"]["item_id"].value == ""
