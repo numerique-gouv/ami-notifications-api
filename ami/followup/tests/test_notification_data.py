@@ -197,9 +197,33 @@ def test_get_notifications_data(user: User) -> None:
         partner_id="dinum-ami",
     )
 
+    notification8 = Notification.objects.create(
+        user_id=user.id,
+        content_body="other notification",
+        content_private_body="some private body content",
+        content_title="Other Notification title",
+        item_generic_status="closed",
+        item_status_label="Validé",
+        item_type="Other",
+        item_id="52",
+        partner_id="dinum-ami",
+    )
+
     result = get_notifications_data(current_user=user)
 
     assert result == [
+        FollowUpInventoryItem(
+            external_id="dinum-ami:Other:52",
+            status_id=ItemGenericStatus.CLOSED,
+            status_label="Validé",
+            milestone_start_date=None,
+            milestone_end_date=None,
+            title="Other Notification title",
+            description="other notification\n\nsome private body content",
+            external_url=None,
+            created_at=notification8.send_date,
+            updated_at=notification8.send_date,
+        ),
         FollowUpInventoryItem(
             external_id="dinum-ami:Other:42",
             status_id=ItemGenericStatus.CLOSED,

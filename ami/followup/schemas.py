@@ -38,6 +38,9 @@ class FollowUpInventoryItem:
         first_notification = notifications[0]
         last_notification = notifications[-1]
         external_urls = [n.item_external_url for n in notifications if n.item_external_url]
+        description = last_notification.content_body
+        if last_notification.content_private_body:
+            description += f"\n\n{last_notification.content_private_body}"
         try:
             status_id = ItemGenericStatus(last_notification.item_generic_status)
         except ValueError:
@@ -49,7 +52,7 @@ class FollowUpInventoryItem:
             milestone_start_date=last_notification.item_milestone_start_date,
             milestone_end_date=last_notification.item_milestone_end_date,
             title=last_notification.content_title,
-            description=last_notification.content_body,
+            description=description,
             external_url=external_urls[-1] if external_urls else None,
             created_at=first_notification.send_date,
             updated_at=last_notification.send_date,
