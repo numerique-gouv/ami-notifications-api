@@ -17,6 +17,7 @@ def test_create_scheduled_notification(app, user: User) -> None:
     scheduled_notification_data = {
         "content_title": "title",
         "content_body": "body",
+        "content_private_body": "private content body",
         "content_icon": "icon",
         "reference": "reference",
         "internal_url": "internal-url",
@@ -31,6 +32,7 @@ def test_create_scheduled_notification(app, user: User) -> None:
     assert scheduled_notification.user.id == user.id
     assert scheduled_notification.content_title == "title"
     assert scheduled_notification.content_body == "body"
+    assert scheduled_notification.content_private_body == "private content body"
     assert scheduled_notification.content_icon == "icon"
     assert scheduled_notification.reference == "reference"
     assert scheduled_notification.internal_url == "internal-url"
@@ -47,6 +49,7 @@ def test_create_scheduled_notification_known_reference(app, user: User) -> None:
         user_id=user.id,
         content_title="title",
         content_body="body",
+        content_private_body="private body",
         content_icon="icon",
         reference="reference",
         internal_url="internal-url",
@@ -57,6 +60,7 @@ def test_create_scheduled_notification_known_reference(app, user: User) -> None:
     scheduled_notification_data = {
         "content_title": "title-updated",
         "content_body": "body-updated",
+        "content_private_body": "private-body-updated",
         "content_icon": "icon-updated",
         "reference": "reference",
         "internal_url": "internal-url-updated",
@@ -71,6 +75,7 @@ def test_create_scheduled_notification_known_reference(app, user: User) -> None:
     assert scheduled_notification.user.id == user.id
     assert scheduled_notification.content_title == "title-updated"
     assert scheduled_notification.content_body == "body-updated"
+    assert scheduled_notification.content_private_body == "private-body-updated"
     assert scheduled_notification.content_icon == "icon-updated"
     assert scheduled_notification.reference == "reference"
     assert scheduled_notification.scheduled_at == scheduled_notification_date
@@ -85,6 +90,7 @@ def test_create_scheduled_notification_known_reference(app, user: User) -> None:
     scheduled_notification_data = {
         "content_title": "title-updated-again",
         "content_body": "body-updated-again",
+        "content_private_body": "private-body-updated-again",
         "content_icon": "icon-updated-again",
         "reference": "reference",
         "scheduled_at": scheduled_notification_date2.isoformat(),
@@ -98,6 +104,7 @@ def test_create_scheduled_notification_known_reference(app, user: User) -> None:
     assert scheduled_notification.user.id == user.id
     assert scheduled_notification.content_title == "title-updated"
     assert scheduled_notification.content_body == "body-updated"
+    assert scheduled_notification.content_private_body == "private-body-updated"
     assert scheduled_notification.content_icon == "icon-updated"
     assert scheduled_notification.reference == "reference"
     assert scheduled_notification.internal_url == "internal-url-updated"
@@ -111,6 +118,7 @@ def test_create_scheduled_notification_known_reference(app, user: User) -> None:
         user_id=other_user.id,
         content_title="title",
         content_body="body",
+        content_private_body="private body",
         content_icon="icon",
         reference="other-reference",
         scheduled_at=now(),
@@ -119,6 +127,7 @@ def test_create_scheduled_notification_known_reference(app, user: User) -> None:
     scheduled_notification_data = {
         "content_title": "title",
         "content_body": "body",
+        "content_private_body": "private body",
         "content_icon": "icon",
         "reference": "other-reference",
         "scheduled_at": scheduled_notification_date.isoformat(),
@@ -132,6 +141,7 @@ def test_create_scheduled_notification_known_reference(app, user: User) -> None:
     assert scheduled_notification.user.id == user.id
     assert scheduled_notification.content_title == "title"
     assert scheduled_notification.content_body == "body"
+    assert scheduled_notification.content_private_body == "private body"
     assert scheduled_notification.content_icon == "icon"
     assert scheduled_notification.reference == "other-reference"
     assert scheduled_notification.internal_url is None

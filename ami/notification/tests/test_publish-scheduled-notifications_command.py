@@ -30,6 +30,7 @@ async def test_command_publish_scheduled_notifications(
         user_id=user.id,
         content_title="title 1",
         content_body="body 1",
+        content_private_body="private body 1",
         content_icon="icon 1",
         reference="reference 1",
         internal_url="internal-url-1",
@@ -40,6 +41,7 @@ async def test_command_publish_scheduled_notifications(
         user_id=user.id,
         content_title="title 2",
         content_body="body 2",
+        content_private_body="private body 2",
         content_icon="icon 2",
         reference="reference 2",
         internal_url="internal-url-2",
@@ -49,6 +51,7 @@ async def test_command_publish_scheduled_notifications(
         user_id=user.id,
         content_title="title 3",
         content_body="body 3",
+        content_private_body="private body 3",
         content_icon="icon 3",
         reference="reference 3",
         internal_url="internal-url-3",
@@ -72,6 +75,7 @@ async def test_command_publish_scheduled_notifications(
     assert notification.user_id == user.id  # type: ignore[attr-defined]
     assert notification.content_title == "title 3"
     assert notification.content_body == "body 3"
+    assert notification.content_private_body == "private body 3"
     assert notification.content_icon == "icon 3"
     assert notification.item_type is None
     assert notification.item_id is None

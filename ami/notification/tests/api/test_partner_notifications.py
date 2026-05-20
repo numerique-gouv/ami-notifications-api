@@ -4,6 +4,7 @@ import datetime
 from unittest.mock import Mock
 
 import pytest
+import webpush as webpush_lib
 from asgiref.sync import sync_to_async
 from channels.testing.websocket import WebsocketCommunicator
 from pytest_httpx import HTTPXMock
@@ -23,13 +24,26 @@ async def test_create_webpush_notification(
     partner_auth: dict[str, str],
     httpx_mock: HTTPXMock,
     websocket: WebsocketCommunicator,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     # Make sure we don't even try sending a notification to a push server.
     httpx_mock.add_response(url=webpush_registration.subscription["endpoint"])
+
+    # Capture the plaintext message passed to the webpush provider before encryption.
+    captured_push_messages: list[str] = []
+    original_webpush_get = webpush_lib.WebPush.get
+
+    def capturing_webpush_get(self, message, **kwargs):
+        captured_push_messages.append(message)
+        return original_webpush_get(self, message=message, **kwargs)
+
+    monkeypatch.setattr(webpush_lib.WebPush, "get", capturing_webpush_get)
+
     notification_data = {
         "recipient_fc_hash": webpush_registration.user.fc_hash,
         "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
         "content_body": "Merci d'avoir initié votre demande",
+        "content_private_body": "Ceci est privé et ne devrait jamais être `push`é",
         "content_icon": "foo",
         "item_type": "OTV",
         "item_id": "A-5-JGBJ5VMOY",
@@ -54,6 +68,7 @@ async def test_create_webpush_notification(
     )
     assert notification2.user.id == webpush_registration.user.id
     assert notification2.content_body == "Merci d'avoir initié votre demande"
+    assert notification2.content_private_body == "Ceci est privé et ne devrait jamais être `push`é"
     assert notification2.content_title == "Brouillon de nouvelle demande de démarche d'OTV"
     assert notification2.content_icon == "foo"
     assert notification2.item_type == "OTV"
@@ -85,7 +100,10 @@ async def test_create_webpush_notification(
         "id": str(notification2.id),
         "event": "created",
     }
-    assert httpx_mock.get_request()
+    request = httpx_mock.get_request()
+    assert request is not None
+    assert len(captured_push_messages) == 1
+    assert notification_data["content_private_body"] not in captured_push_messages[0]
 
 
 @pytest.mark.django_db
