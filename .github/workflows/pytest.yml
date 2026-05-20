@@ -29,7 +29,7 @@ jobs:
           AUTH_COOKIE_JWT_SECRET: secret
           PARTNERS_PSL_SECRET: secret
           PUBLIC_WEBSITE_PUBLIC: true
-          PUBLIC_FC_PROXY: https://ami-fc-proxy-dev.osc-fr1.scalingo.io/
+          PUBLIC_FC_PROXY_BASE_URL: https://ami-fc-proxy-dev.osc-fr1.scalingo.io
         run: make lint-and-format
 
   run-tests:
@@ -73,7 +73,7 @@ jobs:
 
       - name: Run tests
         env:
-          PUBLIC_FC_PROXY: https://ami-fc-proxy-dev.osc-fr1.scalingo.io/
+          PUBLIC_FC_PROXY_BASE_URL: https://ami-fc-proxy-dev.osc-fr1.scalingo.io
         run: make test-ci
 
   mobile-app-tests:
@@ -103,5 +103,5 @@ jobs:
           AUTH_COOKIE_JWT_SECRET: secret
           PARTNERS_PSL_SECRET: secret
           PUBLIC_WEBSITE_PUBLIC: true
-          PUBLIC_FC_PROXY: https://ami-fc-proxy-dev.osc-fr1.scalingo.io/
+          PUBLIC_FC_PROXY_BASE_URL: https://ami-fc-proxy-dev.osc-fr1.scalingo.io
         run: npm test

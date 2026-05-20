@@ -15,22 +15,3 @@ def decoded_id_token() -> dict[str, Any]:
         "iat": 1763455959,
         "iss": "https://fcp-low.sbx.dev-franceconnect.fr/api/v2",
     }
-
-
-@pytest.fixture
-def userinfo() -> dict[str, Any]:
-    return {
-        "sub": "fake sub",
-        "given_name": "Angela Claire Louise",
-        "given_name_array": ["Angela", "Claire", "Louise"],
-        "family_name": "DUBOIS",
-        "birthdate": "1962-08-24",
-        "birthcountry": "99100",
-        "birthplace": "75107",
-        "gender": "female",
-        "email": "angela@dubois.fr",
-        "aud": "fake aud",
-        "exp": 1753877658,
-        "iat": 1753877598,
-        "iss": "https://fcp-low.sbx.dev-franceconnect.fr/api/v2",
-    }

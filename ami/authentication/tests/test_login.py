@@ -10,10 +10,10 @@ def test_login_france_connect(
     app,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    settings.PUBLIC_FC_PROXY_BASE_URL = "https://ami-fc-proxy-dev.osc-fr1.scalingo.io"
     FAKE_NONCE = "some-random-nonce"
     monkeypatch.setattr("ami.authentication.views.generate_nonce", lambda: FAKE_NONCE)
     response = app.get("/login-france-connect")
-    redirected_url = response.headers["location"]
     assert Nonce.objects.count() == 1
     nonce = Nonce.objects.get()
     assert nonce.nonce == FAKE_NONCE
@@ -29,7 +29,7 @@ def test_login_france_connect(
     )
     assert url_contains_param(
         "redirect_uri",
-        settings.PUBLIC_FC_PROXY or settings.FC_AMI_REDIRECT_URL,
+        f"{settings.PUBLIC_FC_PROXY_BASE_URL}/",
         redirected_url,
     )
     assert url_contains_param("response_type", "code", redirected_url)

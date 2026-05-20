@@ -33,16 +33,18 @@ def login_france_connect(request):
         NONCE = generate_nonce()
         nonce = Nonce.objects.create(nonce=NONCE)
 
+        redirect_uri: str = settings.FC_AMI_REDIRECT_URL
+        if settings.PUBLIC_FC_PROXY_BASE_URL:
+            redirect_uri = f"{settings.PUBLIC_FC_PROXY_BASE_URL}/"
+        state: str = str(nonce.id)
+        if settings.PUBLIC_FC_PROXY_BASE_URL:
+            state = f"{settings.FC_AMI_REDIRECT_URL}?state={nonce.id}"
         params = {
             "scope": settings.FC_SCOPE,
-            "redirect_uri": settings.PUBLIC_FC_PROXY or settings.FC_AMI_REDIRECT_URL,
+            "redirect_uri": redirect_uri,
             "response_type": "code",
             "client_id": settings.FC_AMI_CLIENT_ID,
-            "state": (
-                f"{settings.FC_AMI_REDIRECT_URL}?state={nonce.id}"
-                if settings.PUBLIC_FC_PROXY
-                else str(nonce.id)
-            ),
+            "state": state,
             "nonce": NONCE,
             "acr_values": "eidas1",
             "prompt": "login",
@@ -51,6 +53,47 @@ def login_france_connect(request):
         login_url = (
             f"{settings.PUBLIC_FC_BASE_URL}{settings.FC_AUTHORIZATION_ENDPOINT}?{urlencode(params)}"
         )
+        return redirect(login_url)
+    except Exception as e:
+        logging.exception(e)
+        return redirect(f"{settings.PUBLIC_APP_URL}/#/technical-error")
+
+
+@require_GET
+def login_ami_fi(request):
+    try:
+        NONCE = generate_nonce()
+        nonce = Nonce.objects.create(nonce=NONCE)
+
+        redirect_uri: str = settings.FC_AMI_REDIRECT_URL
+        if settings.PUBLIC_FC_PROXY_BASE_URL:
+            redirect_uri = f"{settings.PUBLIC_FC_PROXY_BASE_URL}/"
+        state: str = str(nonce.id)
+        if settings.PUBLIC_FC_PROXY_BASE_URL:
+            state = f"{settings.FC_AMI_REDIRECT_URL}?state={nonce.id}"
+        params = {
+            "scope": settings.FC_SCOPE,
+            "redirect_uri": redirect_uri,
+            "response_type": "code",
+            "client_id": settings.FC_AMI_CLIENT_ID,
+            "state": state,
+            "nonce": NONCE,
+            "acr_values": "eidas1",
+            "prompt": "login",
+            "idp_hint": settings.FI_IDP_ID,
+        }
+
+        login_url = (
+            f"{settings.PUBLIC_FC_BASE_URL}{settings.FC_AUTHORIZATION_ENDPOINT}?{urlencode(params)}"
+        )
+        if settings.PUBLIC_FC_PROXY_BASE_URL:
+            params = {
+                "from_url": f"{settings.PUBLIC_API_URL}/",
+                "fc_url": login_url,
+            }
+            login_url = (
+                f"{settings.PUBLIC_FC_PROXY_BASE_URL}/ami-fi-authorize-request/?{urlencode(params)}"
+            )
         return redirect(login_url)
     except Exception as e:
         logging.exception(e)
@@ -133,6 +176,14 @@ async def login_callback(request):
             response.set_cookie(
                 key=settings.AUTH_COOKIE_JWT_NAME,
                 value=f"Bearer {jwt_token}",
+                max_age=365 * 10 * 24 * 3600,
+                secure=True,
+                httponly=True,
+                samesite="None",
+            )
+            response.set_cookie(
+                key=settings.USERINFO_COOKIE_JWT_NAME,
+                value=userinfo_result["user_data"],
                 max_age=365 * 10 * 24 * 3600,
                 secure=True,
                 httponly=True,
