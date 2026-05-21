@@ -3,3 +3,9 @@
   -webkit-mask-image: url("/icons/custom/infinity-line.svg");
   mask-image: url("/icons/custom/infinity-line.svg");
 }
+
+.fr-icon-more-2-fill::before,
+.fr-icon-more-2-fill::after {
+  -webkit-mask-image: url("/icons/custom/more-2-fill.svg");
+  mask-image: url("/icons/custom/more-2-fill.svg");
+}

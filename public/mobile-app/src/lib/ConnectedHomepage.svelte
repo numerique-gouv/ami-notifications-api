@@ -1,10 +1,10 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
-  import type { Agenda } from '$lib/agenda';
-  import { buildAgenda } from '$lib/agenda';
+  import { type Agenda, buildAgenda, Item } from '$lib/agenda';
   import AgendaItem from '$lib/components/AgendaItem.svelte';
   import Icon from '$lib/components/Icon.svelte';
+  import AgendaItemModal from '$lib/components/modal/AgendaItemModal.svelte';
   import Logout from '$lib/components/modal/Logout.svelte';
   import Modal from '$lib/components/modal/Modal.svelte';
   import RequestItem from '$lib/components/RequestItem.svelte';
@@ -14,6 +14,7 @@
     countUnreadNotifications,
     notificationEventsSocket,
   } from '$lib/notifications';
+  import { toastStore } from '$lib/state/toast.svelte';
   import { userStore } from '$lib/state/User.svelte';
 
   type ModalInstance = {
@@ -29,6 +30,7 @@
   let agenda: Agenda | null = $state(null);
   let isFollowUpEmpty: boolean = $state(true);
   let followUp: FollowUp | null = $state(null);
+  let selectedItem: Item | null = $state(null);
 
   onMount(async () => {
     console.log('User is connected:', userStore.connected);
@@ -87,6 +89,31 @@
   const openLogoutModal = () => {
     isMenuDisplayed = false;
     logoutModal.open();
+  };
+
+  const refreshAgenda = () => {
+    buildAgenda().then((result) => {
+      agenda = result;
+    });
+  };
+
+  const openAgendaItemModal = (item: Item | undefined) => {
+    selectedItem = item ? item : null;
+  };
+
+  const closeAgendaItemModal = () => {
+    selectedItem = null;
+  };
+
+  const clickOnHideAgendaItem = (item: Item | null) => {
+    if (item) {
+      item.hide();
+      if (agenda) {
+        refreshAgenda();
+      }
+      closeAgendaItemModal();
+      toastStore.addToast("L'élément a bien été supprimé", 'success', 3000, true);
+    }
   };
 </script>
 
@@ -218,9 +245,17 @@
       </div>
       <div class="rubrique-content-container">
         {#if agenda?.now.length}
-          <AgendaItem item={agenda.now[0]} displayDate={false} />
+          <AgendaItem
+            item={agenda.now[0]}
+            onOpen={() => openAgendaItemModal(agenda?.now[0])}
+            displayDate={false}
+          />
         {:else if agenda?.next.length}
-          <AgendaItem item={agenda.next[0]} displayDate={false} />
+          <AgendaItem
+            item={agenda.next[0]}
+            onOpen={() => openAgendaItemModal(agenda?.next[0])}
+            displayDate={false}
+          />
         {/if}
       </div>
     {/if}
@@ -272,6 +307,31 @@
   centered={true}
   component={Logout}
 />
+
+{#if selectedItem}
+  <AgendaItemModal onClose={closeAgendaItemModal}>
+    {#snippet header()}
+      <h2 class="agenda-item-modal-header">{selectedItem?.title}</h2>
+    {/snippet}
+
+    {#snippet footer()}
+      <ul class="agenda-item-modal-footer">
+        <li>
+          <span class="fr-icon-delete-line"></span>
+          <button
+            onclick={() => clickOnHideAgendaItem(selectedItem)}
+            title="Cacher l'élément de l'agenda"
+            aria-label="Cacher l'élément de l'agenda"
+            data-testid="hide-agenda-item-button"
+            class="hide-agenda-item"
+          >
+            Supprimer
+          </button>
+        </li>
+      </ul>
+    {/snippet}
+  </AgendaItemModal>
+{/if}
 
 <style>
   .is-hidden {
@@ -440,6 +500,17 @@
           }
         }
       }
+    }
+  }
+
+  h2.agenda-item-modal-header {
+    font-size: 1.25rem;
+  }
+  ul.agenda-item-modal-footer {
+    padding: 0;
+    margin: 0;
+    li {
+      list-style: none;
     }
   }
 </style>

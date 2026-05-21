@@ -7,8 +7,9 @@
     item: Item;
     // Only display the date on the agenda's page, not on the homepage
     displayDate?: boolean;
+    onOpen: () => void;
   }
-  let { item, displayDate = true }: Props = $props();
+  let { item, displayDate = true, onOpen }: Props = $props();
 </script>
 
 <div class="agenda--item">
@@ -26,6 +27,13 @@
     <div
       class="agenda--item--detail fr-tile fr-tile-sm fr-tile--horizontal fr-enlarge-link {item.link ? '': 'no-link'}"
     >
+      <button
+        onclick={onOpen}
+        title="Ouvrir la modale liée à l'élément de l'agenda"
+        aria-label="Ouvrir la modale liée à l'élément de l'agenda"
+        data-testid="open-agenda-item-modal-{item.id}"
+        class="open-agenda-item-modal fr-icon-more-2-fill"
+      ></button>
       <div class="fr-tile__body">
         <div class="fr-tile__content {item.link ? '': 'no-link'}">
           <h3 class="fr-tile__title">
@@ -129,6 +137,15 @@
         }
         &.no-link {
           --hover: transparent;
+        }
+        button.open-agenda-item-modal {
+          z-index: 2;
+          position: absolute;
+          right: 0.25rem;
+          color: var(--text-active-blue-france);
+          &::before {
+            --icon-size: 1.25rem;
+          }
         }
         .fr-tile__content {
           padding-bottom: 0;

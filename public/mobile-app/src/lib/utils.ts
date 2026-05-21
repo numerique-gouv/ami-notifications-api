@@ -30,6 +30,14 @@ export const dateToISO = (date: Date | null) => {
   return `${year}-${month}-${day}`;
 };
 
+export const getTimestamp = (date: Date | null) => {
+  if (date) {
+    return Math.floor(date.getTime() / 1000);
+  } else {
+    return null;
+  }
+};
+
 const getScrollableParent = (node: HTMLElement): HTMLElement | null => {
   let parent = node.parentElement;
   while (parent) {
@@ -62,4 +70,8 @@ export const scrollToNode = (node: HTMLElement) => {
 export const scrollToInput = (event: FocusEvent & { currentTarget: HTMLElement }) => {
   const input = event.currentTarget || event.target;
   scrollToNode(input);
+};
+
+export const uniqueId = (): string => {
+  return crypto.randomUUID();
 };

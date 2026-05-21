@@ -1,19 +1,93 @@
-import { afterEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { Address } from '$lib/address';
-import { Agenda, buildAgenda, Item } from '$lib/agenda';
+import { Agenda, buildAgenda, Item, slugify } from '$lib/agenda';
 import * as catalogMethods from '$lib/api-catalog';
 import * as scheduledNotificationsMethods from '$lib/scheduled-notifications';
 import { Preferences } from '$lib/state/preferences';
 import { userStore } from '$lib/state/User.svelte';
+import * as utilsMethods from '$lib/utils';
+import { getTimestamp } from '$lib/utils';
 import { mockUserIdentity, mockUserInfo } from '$tests/utils';
 
 describe('/agenda.ts', () => {
   describe('Item', () => {
+    describe('hide', () => {
+      test('should hide item by adding it to localstorage', () => {
+        // Given
+        localStorage.clear();
+        const item = new Item(
+          'fake-id',
+          'holiday',
+          'Holiday 1',
+          'Zone A',
+          null,
+          new Date('2025-09-20T23:00:00Z'),
+          new Date('2025-12-15T23:00:00Z')
+        );
+
+        // When
+        item.hide();
+
+        // Then
+        const result = JSON.parse(
+          localStorage.getItem('hidden_agenda_items_holiday') || '[]'
+        );
+        expect(result.length).toBe(1);
+        expect(result[0]).toBe('ami-holiday:1758409200:holiday-1');
+      });
+    });
+    describe('isHidden', () => {
+      let item1: Item;
+
+      beforeEach(() => {
+        const existing = [];
+        item1 = new Item(
+          'fake-id-otv-1',
+          'holiday',
+          'Holiday 1',
+          'Zone A',
+          null,
+          new Date('2025-09-20T23:00:00Z'),
+          new Date('2025-12-15T23:00:00Z')
+        );
+        const itemKey = `ami-holiday:${getTimestamp(item1.date)}:${slugify(item1.title)}`;
+        existing.push(itemKey);
+        localStorage.setItem('hidden_agenda_items_holiday', JSON.stringify(existing));
+      });
+
+      test('should return true if item is in hidden items list', () => {
+        // When
+        const result = item1.isHidden();
+
+        // Then
+        expect(result).toBe(true);
+      });
+
+      test('should return false if item is not in hidden items list', () => {
+        // Given
+        const item2 = new Item(
+          'fake-id-otv-2',
+          'holiday',
+          'Holiday 2',
+          'Corse',
+          null,
+          new Date('2025-11-30T23:00:00Z'),
+          new Date('2025-12-16T23:00:00Z')
+        );
+
+        // When
+        const result = item2.isHidden();
+
+        // Then
+        expect(result).toBe(false);
+      });
+    });
     describe('dayName', () => {
       test('should return short day name', async () => {
         // Given
         const item1 = new Item(
+          'fake-id-holiday-1',
           'holiday',
           'title',
           'description',
@@ -22,6 +96,7 @@ describe('/agenda.ts', () => {
           null
         );
         const item2 = new Item(
+          'fake-id-holiday-2',
           'holiday',
           'title',
           'description',
@@ -43,6 +118,7 @@ describe('/agenda.ts', () => {
       test('should return full day name', async () => {
         // Given
         const item1 = new Item(
+          'fake-id-holiday-1',
           'holiday',
           'title',
           'description',
@@ -51,6 +127,7 @@ describe('/agenda.ts', () => {
           null
         );
         const item2 = new Item(
+          'fake-id-holiday-2',
           'holiday',
           'title',
           'description',
@@ -72,6 +149,7 @@ describe('/agenda.ts', () => {
       test('should return short day num', async () => {
         // Given
         const item1 = new Item(
+          'fake-id-holiday-1',
           'holiday',
           'title',
           'description',
@@ -80,6 +158,7 @@ describe('/agenda.ts', () => {
           null
         );
         const item2 = new Item(
+          'fake-id-holiday-2',
           'holiday',
           'title',
           'description',
@@ -101,6 +180,7 @@ describe('/agenda.ts', () => {
       test('should return long month name', async () => {
         // Given
         const item1 = new Item(
+          'fake-id-holiday-1',
           'holiday',
           'title',
           'description',
@@ -109,6 +189,7 @@ describe('/agenda.ts', () => {
           null
         );
         const item2 = new Item(
+          'fake-id-holiday-2',
           'holiday',
           'title',
           'description',
@@ -129,8 +210,17 @@ describe('/agenda.ts', () => {
     describe('endDate', () => {
       test('should return the max endDate of subitems', async () => {
         // Given
-        const item1 = new Item('holiday', 'title', 'description', null, null, null);
+        const item1 = new Item(
+          'fake-id-holiday-1',
+          'holiday',
+          'title',
+          'description',
+          null,
+          null,
+          null
+        );
         const item2 = new Item(
+          'fake-id-holiday-2',
           'holiday',
           'title',
           'description',
@@ -139,6 +229,7 @@ describe('/agenda.ts', () => {
           new Date('2025-11-15')
         );
         const item3 = new Item(
+          'fake-id-holiday-3',
           'holiday',
           'title',
           'description',
@@ -163,6 +254,7 @@ describe('/agenda.ts', () => {
       test('should not mention start date year', async () => {
         // Given
         const item = new Item(
+          'fake-id-holiday',
           'holiday',
           'title',
           'description',
@@ -180,6 +272,7 @@ describe('/agenda.ts', () => {
       test('should not mention start date year and month', async () => {
         // Given
         const item = new Item(
+          'fake-id-holiday',
           'holiday',
           'title',
           'description',
@@ -197,6 +290,7 @@ describe('/agenda.ts', () => {
       test('should mention start date year and month', async () => {
         // Given
         const item = new Item(
+          'fake-id-holiday',
           'holiday',
           'title',
           'description',
@@ -214,6 +308,7 @@ describe('/agenda.ts', () => {
       test('should mention only start date and not "Du .. au .."', async () => {
         // Given
         const item = new Item(
+          'fake-id-holiday',
           'holiday',
           'title',
           'description',
@@ -230,6 +325,7 @@ describe('/agenda.ts', () => {
       });
       test('should mention "À partir de"', async () => {
         const item = new Item(
+          'fake-id-holiday',
           'holiday',
           'title',
           'description',
@@ -246,6 +342,7 @@ describe('/agenda.ts', () => {
       });
       test('should mention only the date', async () => {
         const item = new Item(
+          'fake-id-holiday',
           'holiday',
           'title',
           'description',
@@ -265,6 +362,7 @@ describe('/agenda.ts', () => {
       test('should return a label depending on kind', async () => {
         // Given
         const item1 = new Item(
+          'fake-id-item-1',
           // @ts-expect-error: `'incorrect'` isn't a proper Kind, so typescript will complain
           'incorrect',
           'title',
@@ -272,13 +370,21 @@ describe('/agenda.ts', () => {
           new Date('2025-12-20')
         );
         const item2 = new Item(
+          'fake-id-holiday-2',
           'holiday',
           'title',
           'description',
           new Date('2025-12-20')
         );
-        const item3 = new Item('otv', 'title', 'description', new Date('2025-12-20'));
+        const item3 = new Item(
+          'fake-id-otv-3',
+          'otv',
+          'title',
+          'description',
+          new Date('2025-12-20')
+        );
         const item4 = new Item(
+          'fake-id-election-4',
           'election',
           'title',
           'description',
@@ -302,6 +408,7 @@ describe('/agenda.ts', () => {
       test('should return an icon depending on kind', async () => {
         // Given
         const item1 = new Item(
+          'fake-id-item-1',
           // @ts-expect-error: `'incorrect'` isn't a proper Kind, so typescript will complain
           'incorrect',
           'title',
@@ -309,13 +416,21 @@ describe('/agenda.ts', () => {
           new Date('2025-12-20')
         );
         const item2 = new Item(
+          'fake-id-holiday-2',
           'holiday',
           'title',
           'description',
           new Date('2025-12-20')
         );
-        const item3 = new Item('otv', 'title', 'description', new Date('2025-12-20'));
+        const item3 = new Item(
+          'fake-id-otv-3',
+          'otv',
+          'title',
+          'description',
+          new Date('2025-12-20')
+        );
         const item4 = new Item(
+          'fake-id-election-4',
           'election',
           'title',
           'description',
@@ -339,6 +454,7 @@ describe('/agenda.ts', () => {
       test('should return a link depending on kind', async () => {
         // Given
         const item1 = new Item(
+          'fake-id-item-1',
           // @ts-expect-error: `'incorrect'` isn't a proper Kind, so typescript will complain
           'incorrect',
           'title',
@@ -346,13 +462,21 @@ describe('/agenda.ts', () => {
           new Date('2025-12-20')
         );
         const item2 = new Item(
+          'fake-id-holiday-2',
           'holiday',
           'title',
           'description',
           new Date('2025-12-20')
         );
-        const item3 = new Item('otv', 'title', 'description', new Date('2025-12-20'));
+        const item3 = new Item(
+          'fake-id-otv-3',
+          'otv',
+          'title',
+          'description',
+          new Date('2025-12-20')
+        );
         const item4 = new Item(
+          'fake-id-election-4',
           'election',
           'title',
           'description',
@@ -372,8 +496,59 @@ describe('/agenda.ts', () => {
         expect(link4).equal('');
       });
     });
+    describe('key', () => {
+      test('should return a key depending on kind, date and title', async () => {
+        // Given
+        const item1 = new Item(
+          'fake-id-item-1',
+          // @ts-expect-error: `'incorrect'` isn't a proper Kind, so typescript will complain
+          'incorrect',
+          'title 1',
+          'description',
+          new Date('2025-12-20')
+        );
+        const item2 = new Item(
+          'fake-id-holiday-2',
+          'holiday',
+          'title 2',
+          'description',
+          new Date('2025-12-20')
+        );
+        const item3 = new Item(
+          'fake-id-otv-3',
+          'otv',
+          'title 3',
+          'description',
+          new Date('2025-12-20')
+        );
+        const item4 = new Item(
+          'fake-id-election-4',
+          'election',
+          'title 4',
+          'description',
+          new Date('2025-12-20')
+        );
+
+        // When
+        const key1 = item1.key;
+        const key2 = item2.key;
+        const key3 = item3.key;
+        const key4 = item4.key;
+
+        // Then
+        expect(key1).equal('ami-incorrect:1766188800:title-1');
+        expect(key2).equal('ami-holiday:1766188800:title-2');
+        expect(key3).equal('ami-otv:1766188800:title-3');
+        expect(key4).equal('ami-election:1766188800:title-4');
+      });
+    });
   });
   describe('Agenda', () => {
+    beforeEach(() => {
+      localStorage.setItem('hidden_agenda_items_otv', '[]');
+      localStorage.setItem('hidden_agenda_items_holiday', '[]');
+      localStorage.setItem('hidden_agenda_items_election', '[]');
+    });
     afterEach(() => {
       localStorage.clear();
       userStore.connected = null;
@@ -475,6 +650,7 @@ describe('/agenda.ts', () => {
           emoji: '',
         };
         await userStore.login(mockUserInfo);
+        vi.spyOn(utilsMethods, 'uniqueId').mockReturnValue('fake-id');
 
         // When
         const agenda = new Agenda(
@@ -491,6 +667,7 @@ describe('/agenda.ts', () => {
         expect(
           agenda.now[0].equals(
             new Item(
+              'fake-id',
               'holiday',
               'Holiday 1 foo',
               'Zone A',
@@ -503,6 +680,7 @@ describe('/agenda.ts', () => {
         expect(
           agenda.now[1].equals(
             new Item(
+              'fake-id',
               'holiday',
               'Holiday 2',
               'Zone B',
@@ -514,12 +692,13 @@ describe('/agenda.ts', () => {
         ).toBe(true);
         expect(
           agenda.now[2].equals(
-            new Item('holiday', 'Day 6 bar', null, holiday6.date, null, null)
+            new Item('fake-id', 'holiday', 'Day 6 bar', null, holiday6.date, null, null)
           )
         ).toBe(true);
         expect(
           agenda.now[3].equals(
             new Item(
+              'fake-id',
               'election',
               'Election1 bar',
               'description',
@@ -532,6 +711,7 @@ describe('/agenda.ts', () => {
         expect(
           agenda.now[4].equals(
             new Item(
+              'fake-id',
               'holiday',
               'Holiday 3 foo',
               'Corse',
@@ -545,6 +725,7 @@ describe('/agenda.ts', () => {
         expect(
           agenda.next[0].equals(
             new Item(
+              'fake-id',
               'holiday',
               'Holiday 4',
               'Zone A',
@@ -556,17 +737,26 @@ describe('/agenda.ts', () => {
         ).toBe(true);
         expect(
           agenda.next[1].equals(
-            new Item('holiday', 'Day 7', null, holiday7.date, null, null)
+            new Item('fake-id', 'holiday', 'Day 7', null, holiday7.date, null, null)
           )
         ).toBe(true);
         expect(
           agenda.next[2].equals(
-            new Item('election', 'Election2', 'description', election2.date, null, null)
+            new Item(
+              'fake-id',
+              'election',
+              'Election2',
+              'description',
+              election2.date,
+              null,
+              null
+            )
           )
         ).toBe(true);
         expect(
           agenda.next[3].equals(
             new Item(
+              'fake-id',
               'holiday',
               'Holiday 5',
               'Zone C&nbsp;: <strong>Paris (75) 🏠</strong>',
@@ -611,6 +801,7 @@ describe('/agenda.ts', () => {
         const spyGetDescription = vi
           .spyOn(Preferences.prototype, 'getSchoolHolidayDescription')
           .mockReturnValueOnce('desc 1');
+        vi.spyOn(utilsMethods, 'uniqueId').mockReturnValue('fake-id');
 
         // When
         const agenda = new Agenda(
@@ -627,6 +818,7 @@ describe('/agenda.ts', () => {
         expect(
           agenda.now[0].equals(
             new Item(
+              'fake-id',
               'holiday',
               'Holiday foo',
               'desc 1',
@@ -697,6 +889,7 @@ describe('/agenda.ts', () => {
           emoji: 'foo',
         };
         await userStore.login(mockUserInfo);
+        vi.spyOn(utilsMethods, 'uniqueId').mockReturnValue('fake-id');
 
         // When
         const agenda = new Agenda(
@@ -711,6 +904,7 @@ describe('/agenda.ts', () => {
         // Then
         expect(agenda.now.length).equal(1);
         const item1 = new Item(
+          'fake-id',
           'holiday',
           'Holiday foo',
           'Zone A',
@@ -722,6 +916,7 @@ describe('/agenda.ts', () => {
         expect(agenda.now[0].equals(item1)).toBe(true);
         expect(agenda.next.length).equal(1);
         const item2 = new Item(
+          'fake-id',
           'holiday',
           'Holiday foo',
           'Zone A',
@@ -733,6 +928,254 @@ describe('/agenda.ts', () => {
         expect(agenda.next[0].equals(item2)).toBe(true);
         expect(agenda.next[0].subitems[0].period).toEqual('Du 7 au 22 février 2027');
         expect(agenda.next[0].subitems[1].period).toEqual('Du 7 au 23 février 2027');
+      });
+    });
+    describe('School holiday', () => {
+      test('should organize items in now and next', async () => {
+        // Given
+        vi.stubEnv('TZ', 'Europe/Paris');
+        localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
+        const holiday1 = {
+          kind: 'holiday',
+          title: 'Holiday 1',
+          description: '',
+          date: null,
+          start_date: new Date('2025-09-20T23:00:00Z'),
+          end_date: new Date('2025-12-15T23:00:00Z'),
+          zones: ['Zone A'],
+          emoji: 'foo',
+        };
+        const holiday2 = {
+          kind: 'holiday',
+          title: 'Holiday 2',
+          description: '',
+          date: null,
+          start_date: new Date('2025-10-20T23:00:00Z'),
+          end_date: new Date('2025-11-15T23:00:00Z'),
+          zones: ['Zone B'],
+          emoji: '',
+        };
+        await userStore.login(mockUserInfo);
+        vi.spyOn(utilsMethods, 'uniqueId').mockReturnValue('fake-id');
+
+        // When
+        const agenda = new Agenda(
+          {
+            school_holidays: [holiday1, holiday2],
+            public_holidays: [],
+            elections: [],
+          },
+          new Date('2025-11-01T12:00:00Z')
+        );
+
+        // Then
+        expect(agenda.now.length).equal(2);
+        expect(
+          agenda.now[0].equals(
+            new Item(
+              'fake-id',
+              'holiday',
+              'Holiday 1 foo',
+              'Zone A',
+              null,
+              holiday1.start_date,
+              holiday1.end_date
+            )
+          )
+        ).toBe(true);
+        expect(
+          agenda.now[1].equals(
+            new Item(
+              'fake-id',
+              'holiday',
+              'Holiday 2',
+              'Zone B',
+              null,
+              holiday2.start_date,
+              holiday2.end_date
+            )
+          )
+        ).toBe(true);
+      });
+      test('should not display school holiday if is listed in hidden items', async () => {
+        // Given
+        vi.stubEnv('TZ', 'Europe/Paris');
+        localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
+        const holiday1 = {
+          kind: 'holiday',
+          title: 'Holiday 1',
+          description: '',
+          date: null,
+          start_date: new Date('2025-09-20T23:00:00Z'),
+          end_date: new Date('2025-12-15T23:00:00Z'),
+          zones: ['Zone A'],
+          emoji: 'foo',
+        };
+        const holiday2 = {
+          kind: 'holiday',
+          title: 'Holiday 2',
+          description: '',
+          date: null,
+          start_date: new Date('2025-10-20T23:00:00Z'),
+          end_date: new Date('2025-11-15T23:00:00Z'),
+          zones: ['Zone B'],
+          emoji: '',
+        };
+        await userStore.login(mockUserInfo);
+
+        const existing = [];
+        const itemKey = `ami-holiday:${getTimestamp(holiday2.start_date)}:${slugify(holiday2.title)}`;
+        existing.push(itemKey);
+        localStorage.setItem('hidden_agenda_items_holiday', JSON.stringify(existing));
+        vi.spyOn(utilsMethods, 'uniqueId')
+          .mockReturnValueOnce('fake-id-1')
+          .mockReturnValueOnce('fake-id-2');
+
+        // When
+        const agenda = new Agenda(
+          {
+            school_holidays: [holiday1, holiday2],
+            public_holidays: [],
+            elections: [],
+          },
+          new Date('2025-11-01T12:00:00Z')
+        );
+
+        // Then
+        expect(agenda.now.length).equal(1);
+        expect(
+          agenda.now[0].equals(
+            new Item(
+              'fake-id-1',
+              'holiday',
+              'Holiday 1 foo',
+              'Zone A',
+              null,
+              holiday1.start_date,
+              holiday1.end_date
+            )
+          )
+        ).toBe(true);
+      });
+    });
+    describe('Public holiday', () => {
+      test('should organize items in now and next', async () => {
+        // Given
+        vi.stubEnv('TZ', 'Europe/Paris');
+        localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
+        const holiday6 = {
+          kind: 'holiday',
+          title: 'Day 6',
+          description: '',
+          date: new Date('2025-11-11T23:00:00Z'),
+          start_date: null,
+          end_date: null,
+          zones: [],
+          emoji: 'bar',
+        };
+        const holiday7 = {
+          kind: 'holiday',
+          title: 'Day 7',
+          description: '',
+          date: new Date('2025-12-10T23:00:00Z'),
+          start_date: null,
+          end_date: null,
+          zones: [],
+          emoji: '',
+        };
+        await userStore.login(mockUserInfo);
+        vi.spyOn(utilsMethods, 'uniqueId').mockReturnValue('fake-id');
+
+        // When
+        const agenda = new Agenda(
+          {
+            school_holidays: [],
+            public_holidays: [holiday6, holiday7],
+            elections: [],
+          },
+          new Date('2025-11-01T12:00:00Z')
+        );
+
+        // Then
+        expect(agenda.now.length).equal(1);
+        expect(
+          agenda.now[0].equals(
+            new Item('fake-id', 'holiday', 'Day 6 bar', null, holiday6.date, null, null)
+          )
+        ).toBe(true);
+        expect(agenda.next.length).equal(1);
+        expect(
+          agenda.next[0].equals(
+            new Item('fake-id', 'holiday', 'Day 7', null, holiday7.date, null, null)
+          )
+        ).toBe(true);
+      });
+      test('should not display public holiday if is listed in hidden items', async () => {
+        // Given
+        vi.stubEnv('TZ', 'Europe/Paris');
+        localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
+        const holiday6 = {
+          kind: 'holiday',
+          title: 'Day 6',
+          description: '',
+          date: new Date('2025-11-11T23:00:00Z'),
+          start_date: null,
+          end_date: null,
+          zones: [],
+          emoji: 'bar',
+        };
+        const holiday7 = {
+          kind: 'holiday',
+          title: 'Day 7',
+          description: '',
+          date: new Date('2025-12-10T23:00:00Z'),
+          start_date: null,
+          end_date: null,
+          zones: [],
+          emoji: '',
+        };
+        const itemHoliday6 = new Item(
+          'fake-id-6',
+          'holiday',
+          'Day 6 bar',
+          null,
+          new Date('2025-11-11T23:00:00Z'),
+          null,
+          null
+        );
+        const itemHoliday7 = new Item(
+          'fake-id-7',
+          'holiday',
+          'Day 7',
+          null,
+          new Date('2025-12-10T23:00:00Z'),
+          null,
+          null
+        );
+        await userStore.login(mockUserInfo);
+        vi.spyOn(utilsMethods, 'uniqueId')
+          .mockReturnValueOnce('fake-id-6')
+          .mockReturnValueOnce('fake-id-7');
+
+        const existing = [];
+        const itemKey = `ami-holiday:${getTimestamp(itemHoliday6.date)}:${slugify(itemHoliday6.title)}`;
+        existing.push(itemKey);
+        localStorage.setItem('hidden_agenda_items_holiday', JSON.stringify(existing));
+
+        // When
+        const agenda = new Agenda(
+          {
+            school_holidays: [],
+            public_holidays: [holiday6, holiday7],
+            elections: [],
+          },
+          new Date('2025-11-01T12:00:00Z')
+        );
+
+        // Then
+        expect(agenda.now.length).equal(0);
+        expect(agenda.next.length).equal(1);
+        expect(agenda.next[0].equals(itemHoliday7)).toBe(true);
       });
     });
     describe('OTV', () => {
@@ -760,6 +1203,7 @@ describe('/agenda.ts', () => {
           emoji: 'foo',
         };
         await userStore.login(mockUserInfo);
+        vi.spyOn(utilsMethods, 'uniqueId').mockReturnValue('fake-id');
 
         // When
         const agenda = new Agenda(
@@ -776,6 +1220,7 @@ describe('/agenda.ts', () => {
         expect(
           agenda.now[0].equals(
             new Item(
+              'fake-id',
               'holiday',
               'Holiday foo',
               'Zone A',
@@ -887,6 +1332,65 @@ describe('/agenda.ts', () => {
         // Then
         expect(agenda.now.length).equal(1);
         expect(agenda.now[0].title).toEqual('Holiday foo');
+      });
+      test('should not display OTV if is listed in hidden items', async () => {
+        // Given
+        vi.stubEnv('TZ', 'Europe/Paris');
+        localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
+        const holiday1 = {
+          kind: 'holiday',
+          title: 'Holiday',
+          description: '',
+          date: null,
+          start_date: new Date('2026-02-06T23:00:00Z'),
+          end_date: new Date('2026-02-22T23:00:00Z'),
+          zones: ['Zone B'],
+          emoji: 'foo',
+        };
+        const holiday2 = {
+          kind: 'holiday',
+          title: 'Holiday',
+          description: '',
+          date: null,
+          start_date: new Date('2026-02-13T23:00:00Z'),
+          end_date: new Date('2026-03-01T23:00:00Z'),
+          zones: ['Zone C'],
+          emoji: 'foo',
+        };
+        const itemHoliday2 = new Item(
+          'fake-id-holiday-2',
+          'otv',
+          'Opération Tranquillité Vacances 🏠',
+          'Inscrivez-vous pour protéger votre domicile pendant votre absence',
+          null,
+          holiday2.start_date,
+          null
+        );
+        await userStore.login(mockUserInfo);
+
+        const existing = [];
+        const oneday_in_ms = 24 * 60 * 60 * 1000;
+        const startDate = getTimestamp(
+          new Date(holiday2.start_date.getTime() - 3 * 7 * oneday_in_ms)
+        );
+        const itemKey = `ami-otv:${startDate}:${slugify(itemHoliday2.title)}`;
+        existing.push(itemKey);
+        localStorage.setItem('hidden_agenda_items_otv', JSON.stringify(existing));
+
+        // When
+        const agenda = new Agenda(
+          {
+            school_holidays: [holiday1, holiday2],
+            public_holidays: [],
+            elections: [],
+          },
+          new Date('2026-02-01T12:00:00Z')
+        );
+
+        // Then
+        expect(agenda.now.length).equal(1);
+        expect(agenda.now[0].title).toEqual('Holiday foo');
+        expect(agenda.next.length).equal(0);
       });
       test('should generate only one OTV per holiday', async () => {
         // Given
@@ -1068,8 +1572,152 @@ describe('/agenda.ts', () => {
         expect(spy).toHaveBeenCalledTimes(0);
       });
     });
+    describe('Election', () => {
+      test('should organize items in now and next', async () => {
+        // Given
+        vi.stubEnv('TZ', 'Europe/Paris');
+        localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
+        const election1 = {
+          kind: 'election',
+          title: 'Election1',
+          description: 'description',
+          date: new Date('2025-11-11T24:00:00Z'),
+          start_date: null,
+          end_date: null,
+          zones: [],
+          emoji: 'bar',
+        };
+        const election2 = {
+          kind: 'election',
+          title: 'Election2',
+          description: 'description',
+          date: new Date('2025-12-10T24:00:00Z'),
+          start_date: null,
+          end_date: null,
+          zones: [],
+          emoji: '',
+        };
+        await userStore.login(mockUserInfo);
+        vi.spyOn(utilsMethods, 'uniqueId').mockReturnValue('fake-id');
+
+        // When
+        const agenda = new Agenda(
+          {
+            school_holidays: [],
+            public_holidays: [],
+            elections: [election1, election2],
+          },
+          new Date('2025-11-01T12:00:00Z')
+        );
+
+        // Then
+        expect(agenda.now.length).equal(1);
+        expect(
+          agenda.now[0].equals(
+            new Item(
+              'fake-id',
+              'election',
+              'Election1 bar',
+              'description',
+              election1.date,
+              null,
+              null
+            )
+          )
+        ).toBe(true);
+        expect(agenda.next.length).equal(1);
+        expect(
+          agenda.next[0].equals(
+            new Item(
+              'fake-id',
+              'election',
+              'Election2',
+              'description',
+              election2.date,
+              null,
+              null
+            )
+          )
+        ).toBe(true);
+      });
+      test('should not display election if is listed in hidden items', async () => {
+        // Given
+        vi.stubEnv('TZ', 'Europe/Paris');
+        localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
+        const election1 = {
+          kind: 'election',
+          title: 'Election1',
+          description: 'description',
+          date: new Date('2025-11-11T24:00:00Z'),
+          start_date: null,
+          end_date: null,
+          zones: [],
+          emoji: 'bar',
+        };
+        const election2 = {
+          kind: 'election',
+          title: 'Election2',
+          description: 'description',
+          date: new Date('2025-12-10T24:00:00Z'),
+          start_date: null,
+          end_date: null,
+          zones: [],
+          emoji: '',
+        };
+        const itemElection1 = new Item(
+          'fake-id-1',
+          'election',
+          'Election1 bar',
+          'description',
+          new Date('2025-11-11T24:00:00Z'),
+          null,
+          null
+        );
+        const itemElection2 = new Item(
+          'fake-id-2',
+          'election',
+          'Election2',
+          'description',
+          new Date('2025-12-10T24:00:00Z'),
+          null,
+          null
+        );
+        await userStore.login(mockUserInfo);
+        vi.spyOn(utilsMethods, 'uniqueId')
+          .mockReturnValueOnce('fake-id-1')
+          .mockReturnValueOnce('fake-id-2');
+
+        const existing = [];
+        const itemKey = `ami-election:${getTimestamp(itemElection2.date)}:${slugify(itemElection2.title)}`;
+        existing.push(itemKey);
+        localStorage.setItem('hidden_agenda_items_election', JSON.stringify(existing));
+
+        // When
+        const agenda = new Agenda(
+          {
+            school_holidays: [],
+            public_holidays: [],
+            elections: [election1, election2],
+          },
+          new Date('2025-11-01T12:00:00Z')
+        );
+
+        // Then
+        expect(agenda.now.length).equal(1);
+        expect(agenda.now[0].equals(itemElection1)).toBe(true);
+        expect(agenda.next.length).equal(0);
+      });
+    });
   });
   describe('buildAgenda', () => {
+    beforeEach(() => {
+      localStorage.setItem('hidden_agenda_items_otv', '[]');
+      localStorage.setItem('hidden_agenda_items_holiday', '[]');
+      localStorage.setItem('hidden_agenda_items_election', '[]');
+    });
+    afterEach(() => {
+      localStorage.clear();
+    });
     test('should retrieve catalogs and init agenda with them', async () => {
       // Given
       vi.stubEnv('TZ', 'Europe/Paris');
@@ -1120,6 +1768,7 @@ describe('/agenda.ts', () => {
         elections: [],
       });
       await userStore.login(mockUserInfo);
+      vi.spyOn(utilsMethods, 'uniqueId').mockReturnValue('fake-id');
 
       // When
       await userStore.login(mockUserInfo);
@@ -1132,6 +1781,7 @@ describe('/agenda.ts', () => {
       expect(
         agenda.now[0].equals(
           new Item(
+            'fake-id',
             'holiday',
             'Holiday 1',
             'Zone A',
@@ -1143,13 +1793,14 @@ describe('/agenda.ts', () => {
       ).toBe(true);
       expect(
         agenda.now[1].equals(
-          new Item('holiday', 'Day 3', null, holiday3.date, null, null)
+          new Item('fake-id', 'holiday', 'Day 3', null, holiday3.date, null, null)
         )
       ).toBe(true);
       expect(agenda.next.length).equal(2);
       expect(
         agenda.next[0].equals(
           new Item(
+            'fake-id',
             'holiday',
             'Holiday 2',
             'Corse',
@@ -1161,7 +1812,7 @@ describe('/agenda.ts', () => {
       ).toBe(true);
       expect(
         agenda.next[1].equals(
-          new Item('holiday', 'Day 4', null, holiday4.date, null, null)
+          new Item('fake-id', 'holiday', 'Day 4', null, holiday4.date, null, null)
         )
       ).toBe(true);
     });
