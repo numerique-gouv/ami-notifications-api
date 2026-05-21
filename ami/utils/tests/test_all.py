@@ -1,5 +1,5 @@
 from typing import Any
-from unittest.mock import MagicMock
+from unittest.mock import Mock
 
 
 def test_ping(app) -> None:
@@ -34,26 +34,26 @@ def test_recipient_fc_hash(app) -> None:
     assert response.text == "7e74df2cbebae761eccedbc24b7fe589bb83137f7808a2930031f52c73d75efe"
 
 
-def _make_github_mock(pulls: list) -> MagicMock:
+def _make_github_mock(pulls: list) -> Mock:
     """Build a GithubIntegration mock that returns the given list of pull requests."""
     pr_mocks = []
     for pr in pulls:
-        mock_pr = MagicMock()
+        mock_pr = Mock()
         mock_pr.number = pr["number"]
         mock_pr.title = pr["title"]
         mock_pr.body = pr["body"]
         pr_mocks.append(mock_pr)
 
-    mock_repo = MagicMock()
+    mock_repo = Mock()
     mock_repo.get_pulls.return_value = pr_mocks
 
-    mock_gh = MagicMock()
+    mock_gh = Mock()
     mock_gh.get_repo.return_value = mock_repo
 
-    mock_installation = MagicMock()
+    mock_installation = Mock()
     mock_installation.get_github_for_installation.return_value = mock_gh
 
-    mock_gi = MagicMock()
+    mock_gi = Mock()
     mock_gi.get_repo_installation.return_value = mock_installation
 
     return mock_gi
@@ -62,7 +62,7 @@ def _make_github_mock(pulls: list) -> MagicMock:
 def test_review_apps(app, monkeypatch, settings) -> None:
     settings.GITHUB_APP_ID = "123456"
     settings.GITHUB_APP_PRIVATE_KEY = "fake-key"
-    monkeypatch.setattr("ami.utils.api_views.Auth", MagicMock())
+    monkeypatch.setattr("ami.utils.api_views.Auth", Mock())
     monkeypatch.setattr(
         "ami.utils.api_views.GithubIntegration",
         lambda **kwargs: _make_github_mock(TRUNCATED_GITHUB_JSON_RESPONSE),
@@ -76,7 +76,7 @@ def test_review_apps(app, monkeypatch, settings) -> None:
 def test_review_apps_github_failure(app, monkeypatch, settings) -> None:
     settings.GITHUB_APP_ID = "123456"
     settings.GITHUB_APP_PRIVATE_KEY = "fake-key"
-    monkeypatch.setattr("ami.utils.api_views.Auth", MagicMock())
+    monkeypatch.setattr("ami.utils.api_views.Auth", Mock())
 
     def raise_error(**kwargs):
         raise Exception("GitHub API error")
