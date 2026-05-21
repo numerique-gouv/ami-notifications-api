@@ -61,6 +61,56 @@ def test_register_mobile_app(app, user: User, mobileAppSubscription: dict[str, A
 
 
 @pytest.mark.django_db
+def test_register_mobile_app_existing_registration_different_device(
+    app, user: User, mobileAppSubscription: dict[str, Any]
+) -> None:
+    login(app, user)
+
+    assert Registration.objects.count() == 0
+
+    # First registration, we're expecting a 201 CREATED.
+    register_data = {
+        "subscription": mobileAppSubscription,
+    }
+    app.post_json("/api/v1/users/registrations", register_data, status=201)
+
+    assert Registration.objects.count() == 1
+
+    # Second registration, difference device, we're expecting a 201 CREATED.
+    mobileAppSubscription["device_id"] = "some other device"
+    register_data = {"subscription": mobileAppSubscription}
+    app.post_json("/api/v1/users/registrations", register_data, status=201)
+
+    assert Registration.objects.count() == 2
+
+
+@pytest.mark.django_db
+def test_register_mobile_app_different_registration_same_device(
+    app, user: User, mobileAppSubscription: dict[str, Any]
+) -> None:
+    login(app, user)
+
+    assert Registration.objects.count() == 0
+
+    # First registration, we're expecting a 201 CREATED.
+    register_data = {
+        "subscription": mobileAppSubscription,
+    }
+    app.post_json("/api/v1/users/registrations", register_data, status=201)
+
+    assert Registration.objects.count() == 1
+
+    # Second registration, same device, we're expecting a 201 CREATED, but only one remaining registration.
+    mobileAppSubscription["fcm_token"] = "some other token"
+    register_data = {"subscription": mobileAppSubscription}
+    app.post_json("/api/v1/users/registrations", register_data, status=201)
+
+    assert Registration.objects.count() == 1
+    registration = Registration.objects.get()
+    assert registration.subscription["fcm_token"] == "some other token"
+
+
+@pytest.mark.django_db
 def test_register_fields(app, user: User, webpushsubscription: dict[str, Any]) -> None:
     login(app, user)
 
