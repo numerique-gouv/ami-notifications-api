@@ -2,9 +2,9 @@ import type { Catalog, CatalogItem } from '$lib/api-catalog';
 import { retrieveCatalog } from '$lib/api-catalog';
 import { createScheduledNotification } from '$lib/scheduled-notifications';
 import { userStore } from '$lib/state/User.svelte';
-import { dateToISO } from '$lib/utils';
+import { dateToISO, getTimestamp, uniqueId } from '$lib/utils';
 
-type Kind = 'holiday' | 'otv' | 'election';
+export type Kind = 'holiday' | 'otv' | 'election';
 
 const capitalizeFirstLetter = (val: string) => {
   return String(val).charAt(0).toUpperCase() + String(val).slice(1);
@@ -14,7 +14,7 @@ export const monthName = (date: Date) => {
   return capitalizeFirstLetter(date.toLocaleDateString('fr-FR', { month: 'long' }));
 };
 
-const slugify = (str: string): string => {
+export const slugify = (str: string): string => {
   return str
     .replace(/\s+/g, '-') // replace spaces with hyphens
     .replace(/-+/g, '-') // remove consecutive hyphens
@@ -90,6 +90,7 @@ export class Item {
   private _subitems: SubItem[];
 
   constructor(
+    private _id: string,
     private _kind: Kind,
     private _title: string,
     _description: string | null,
@@ -122,6 +123,29 @@ export class Item {
       return false;
     }
     return JSON.stringify(this) === JSON.stringify(other);
+  }
+
+  hide() {
+    const agendaHiddenItems: string[] = getAgendaHiddenItems(
+      `hidden_agenda_items_${this._kind}`
+    );
+    agendaHiddenItems.push(this.key);
+    setAgendaHiddenItems(this, agendaHiddenItems);
+  }
+
+  isHidden(): boolean {
+    const agendaHiddenItems: [] = getAgendaHiddenItems(
+      `hidden_agenda_items_${this._kind}`
+    );
+
+    let isInHiddenList = false;
+    agendaHiddenItems.forEach((_itemKey) => {
+      if (this.key === _itemKey) {
+        isInHiddenList = true;
+      }
+    });
+
+    return isInHiddenList;
   }
 
   get title(): string {
@@ -201,6 +225,10 @@ export class Item {
     },
   };
 
+  get id(): string {
+    return this._id;
+  }
+
   get kind(): Kind {
     return this._kind;
   }
@@ -230,6 +258,10 @@ export class Item {
       return `${info.link}?date=${dateToISO(this.date)}`;
     }
     return info.link;
+  }
+
+  get key(): string {
+    return `ami-${this._kind}:${getTimestamp(this.date)}:${slugify(this._title)}`;
   }
 }
 
@@ -283,7 +315,7 @@ export class Agenda {
     const result: Item[] = [];
     school_holidays.forEach((holiday) => {
       const item = this.createSchoolHolidayItem(holiday);
-      if (item !== null) {
+      if (item !== null && !item.isHidden()) {
         // check if an item whith this description already exists
         const key = JSON.stringify({
           desc: item.title,
@@ -338,6 +370,7 @@ export class Agenda {
       return null;
     }
     return new Item(
+      uniqueId(),
       'holiday',
       title,
       this.getSchoolHolidayItemDescription(holiday),
@@ -354,7 +387,7 @@ export class Agenda {
   ) {
     public_holidays.forEach((holiday) => {
       const item = this.createPublicHolidayItem(holiday, date);
-      if (item !== null) {
+      if (item !== null && !item.isHidden()) {
         items.push(item);
       }
     });
@@ -373,14 +406,14 @@ export class Agenda {
     if (holiday.emoji) {
       title += ` ${holiday.emoji}`;
     }
-    return new Item('holiday', title, null, holiday.date, null, null);
+    return new Item(uniqueId(), 'holiday', title, null, holiday.date, null, null);
   }
 
   private createOTVItems(items: Item[], school_holidays: CatalogItem[], date: Date) {
     const seenSchoolHolidays: Set<string> = new Set();
     school_holidays.forEach((holiday) => {
       const item = this.createOTVItem(seenSchoolHolidays, holiday, date);
-      if (item !== null) {
+      if (item !== null && !item.isHidden()) {
         items.push(item);
       }
     });
@@ -422,6 +455,7 @@ export class Agenda {
     }
     const startDate = new Date(holiday.start_date.getTime() - 3 * 7 * oneday_in_ms);
     const item = new Item(
+      uniqueId(),
       'otv',
       'Opération Tranquillité Vacances 🏠',
       'Inscrivez-vous pour protéger votre domicile pendant votre absence',
@@ -456,7 +490,7 @@ export class Agenda {
   private createElectionItems(items: Item[], elections: CatalogItem[], date: Date) {
     elections.forEach((election) => {
       const item = this.createElectionItem(election, date);
-      if (item !== null) {
+      if (item !== null && !item.isHidden()) {
         items.push(item);
       }
     });
@@ -475,7 +509,15 @@ export class Agenda {
     if (election.emoji) {
       title += ` ${election.emoji}`;
     }
-    return new Item('election', title, election.description, election.date, null, null);
+    return new Item(
+      uniqueId(),
+      'election',
+      title,
+      election.description,
+      election.date,
+      null,
+      null
+    );
   }
 
   get now(): Item[] {
@@ -486,6 +528,18 @@ export class Agenda {
     return this._next;
   }
 }
+
+const getAgendaHiddenItems = (listName: string): [] => {
+  const storedAgendaHiddenItems: string = localStorage.getItem(listName) || '[]';
+  return JSON.parse(storedAgendaHiddenItems);
+};
+
+const setAgendaHiddenItems = (item: Item, parsedAgendaHiddenItems: string[]) => {
+  localStorage.setItem(
+    `hidden_agenda_items_${item.kind}`,
+    JSON.stringify(parsedAgendaHiddenItems)
+  );
+};
 
 export const buildAgenda = async (date: Date | null = null): Promise<Agenda> => {
   const today = date || new Date();

@@ -1,12 +1,13 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
-  import type { Agenda } from '$lib/agenda';
-  import { buildAgenda } from '$lib/agenda';
+  import { type Agenda, buildAgenda, Item } from '$lib/agenda';
   import AgendaItem from '$lib/components/AgendaItem.svelte';
+  import AgendaItemModal from '$lib/components/modal/AgendaItemModal.svelte';
   import Modal from '$lib/components/modal/Modal.svelte';
   import ZonePreferences from '$lib/components/modal/ZonePreferences.svelte';
   import Navigation from '$lib/components/Navigation.svelte';
+  import { toastStore } from '$lib/state/toast.svelte';
   import { userStore } from '$lib/state/User.svelte';
 
   type ModalInstance = {
@@ -15,6 +16,7 @@
 
   let agenda: Agenda | null = $state(null);
   let zonePreferencesModal: ModalInstance;
+  let selectedItem: Item | null = $state(null);
 
   onMount(async () => {
     if (!userStore.connected) {
@@ -33,6 +35,25 @@
     buildAgenda().then((result) => {
       agenda = result;
     });
+  };
+
+  const openAgendaItemModal = (item: Item) => {
+    selectedItem = item;
+  };
+
+  const closeAgendaItemModal = () => {
+    selectedItem = null;
+  };
+
+  const clickOnHideAgendaItem = (item: Item | null) => {
+    if (item) {
+      item.hide();
+      if (agenda) {
+        refreshAgenda();
+      }
+      closeAgendaItemModal();
+      toastStore.addToast("L'élément a bien été supprimé", 'success', 3000, true);
+    }
   };
 </script>
 
@@ -57,7 +78,7 @@
           {#if i == 0 || i > 0 && item.date?.getMonth() !== agenda.now[i - 1].date?.getMonth()}
             <div class="agenda--events--month">{item.monthName}</div>
           {/if}
-          <AgendaItem item={item} />
+          <AgendaItem item={item} onOpen={() => openAgendaItemModal(item)} />
         {/each}
       </div>
     </div>
@@ -73,7 +94,7 @@
           {#if i > 0 && item.date?.getMonth() !== agenda.next[i - 1].date?.getMonth() || i == 0 && (agenda.now.length && item.date?.getMonth() !== agenda.now[agenda.now.length - 1].date?.getMonth() || !agenda.now.length)}
             <div class="agenda--events--month">{item.monthName}</div>
           {/if}
-          <AgendaItem item={item} />
+          <AgendaItem item={item} onOpen={() => openAgendaItemModal(item)} />
         {/each}
       </div>
     </div>
@@ -88,6 +109,31 @@
   onCloseCustom={refreshAgenda}
   component={ZonePreferences}
 />
+
+{#if selectedItem}
+  <AgendaItemModal onClose={closeAgendaItemModal}>
+    {#snippet header()}
+      <h2 class="agenda-item-modal-header">{selectedItem?.title}</h2>
+    {/snippet}
+
+    {#snippet footer()}
+      <ul class="agenda-item-modal-footer">
+        <li>
+          <span class="fr-icon-delete-line"></span>
+          <button
+            onclick={() => clickOnHideAgendaItem(selectedItem)}
+            title="Cacher l'élément de l'agenda"
+            aria-label="Cacher l'élément de l'agenda"
+            data-testid="hide-agenda-item-button"
+            class="hide-agenda-item"
+          >
+            Supprimer
+          </button>
+        </li>
+      </ul>
+    {/snippet}
+  </AgendaItemModal>
+{/if}
 
 <style>
   .agenda {
@@ -120,6 +166,17 @@
           margin-bottom: 0.5rem;
         }
       }
+    }
+  }
+
+  h2.agenda-item-modal-header {
+    font-size: 1.25rem;
+  }
+  ul.agenda-item-modal-footer {
+    padding: 0;
+    margin: 0;
+    li {
+      list-style: none;
     }
   }
 </style>
