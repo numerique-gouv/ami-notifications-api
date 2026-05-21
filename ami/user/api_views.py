@@ -56,6 +56,17 @@ def registrations(request: Request) -> Response:
     except Registration.DoesNotExist:
         pass
 
+    if "device_id" in subscription:
+        # In case of a mobile app subscription, check if we already have a registration for this device.
+        try:
+            existing_registration: Registration | None = Registration.objects.get(
+                subscription__device_id=subscription["device_id"], user=request.ami_user
+            )
+            # and if so, delete it: we only want to keep the latest registration for a given device.
+            existing_registration.delete()
+        except Registration.DoesNotExist:
+            pass
+
     registration: Registration = Registration.objects.create(
         user=request.ami_user, subscription=subscription
     )
