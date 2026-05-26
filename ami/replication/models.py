@@ -21,13 +21,13 @@ class AnonymizedModel(models.Model):
         abstract = True
 
     @classmethod
-    def from_source(cls, source, using: str = "default"):
+    def from_source(cls, source):
         defaults = {
             field.name: getattr(source, field.name)
             for field in cls._meta.concrete_fields
             if not field.primary_key and field.name != "id"
         }
-        instance, _ = cls.objects.using(using).update_or_create(
+        instance, _ = cls.objects.update_or_create(
             id=source.id,
             defaults=defaults,
         )
@@ -65,10 +65,8 @@ class AnonymizedNotification(AnonymizedModel):
         db_table = "ami_notification_anonymized"
 
     @classmethod
-    def from_notification(
-        cls, notification: Notification, using: str = "default"
-    ) -> AnonymizedNotification:
-        return cls.from_source(notification, using)
+    def from_notification(cls, notification: Notification) -> AnonymizedNotification:
+        return cls.from_source(notification)
 
 
 class AnonymizedUser(AnonymizedModel):
@@ -82,8 +80,8 @@ class AnonymizedUser(AnonymizedModel):
         db_table = "ami_user_anonymized"
 
     @classmethod
-    def from_user(cls, user: User, using: str = "default") -> AnonymizedUser:
-        return cls.from_source(user, using)
+    def from_user(cls, user: User) -> AnonymizedUser:
+        return cls.from_source(user)
 
 
 class AnonymizedRegistration(AnonymizedModel):
@@ -95,7 +93,5 @@ class AnonymizedRegistration(AnonymizedModel):
         db_table = "ami_registration_anonymized"
 
     @classmethod
-    def from_registration(
-        cls, registration: Registration, using: str = "default"
-    ) -> AnonymizedRegistration:
-        return cls.from_source(registration, using)
+    def from_registration(cls, registration: Registration) -> AnonymizedRegistration:
+        return cls.from_source(registration)

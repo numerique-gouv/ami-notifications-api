@@ -157,11 +157,14 @@ ASGI_APPLICATION = "ami.asgi.application"
 
 postgres_database = dj_database_url.parse(CONFIG["DATABASE_URL"])
 data_ware_house = dj_database_url.parse(CONFIG["DATA_WARE_HOUSE_URL"])
+
 DATABASES = {
     "default": postgres_database,
     "channels_postgres": postgres_database,
-    "data_ware_house": data_ware_house,
+    "data_ware_house": {**data_ware_house, "TEST": {"NAME": "test_data_ware_house"}},
 }
+
+DATABASE_ROUTERS = ["ami.replication.router.DataWarehouseRouter"]
 
 # Authentication
 AUTHENTICATION_BACKENDS = [
