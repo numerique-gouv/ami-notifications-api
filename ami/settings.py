@@ -9,11 +9,16 @@ from dotenv import dotenv_values
 
 import vapid_keys
 
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = os.environ.get("DEBUG") == "true"
+print(f"Debug mode: {DEBUG}")
+
+dev_env_vars = dotenv_values(".env.development") if DEBUG else {}
+
 CONFIG = {
     **dotenv_values(".env"),
     **dotenv_values(".env.local"),
-    **dotenv_values(".env.development"),
-    **dotenv_values(".env.development.local"),
+    **dev_env_vars,
     **os.environ,  # override loaded values with environment variables
 }
 
@@ -30,9 +35,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = CONFIG["DJANGO_SECRET_KEY"]
 assert SECRET_KEY, "set a random DJANGO_SECRET_KEY in your .env.local file"
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = CONFIG["DEBUG"] == "true"
 
 ALLOWED_HOSTS = [
     ".osc-fr1.scalingo.io",

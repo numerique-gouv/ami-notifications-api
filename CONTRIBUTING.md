@@ -75,7 +75,6 @@ from the following files in your environment directory, in this order:
     .env # loaded in all cases
     .env.local # loaded in all cases, ignored by git
     .env.development # loaded only in development, values should be overloaded on Scalingo
-    .env.development.local # loaded only in development, ignored by git
 
 ### 4. Run Database Migrations
 

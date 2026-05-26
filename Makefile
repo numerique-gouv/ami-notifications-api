@@ -19,7 +19,7 @@ lint-and-format: install
 
 .PHONY: test
 test:
-	DJANGO_SETTINGS_MODULE=ami.settings $(RUN) pytest -vvv -ll --ff -x --reuse-db ami
+	DJANGO_SECRET_KEY=test-secret-key DJANGO_SETTINGS_MODULE=ami.settings $(RUN) pytest -vvv -ll --ff -x --reuse-db ami
 
 .PHONY: test-create-db
 test-create-db:
@@ -36,7 +36,7 @@ statics:
 
 .PHONY: dev
 dev: ssl-key.pem
-	$(RUN) uvicorn ami.asgi:application --reload --ssl-keyfile ssl-key.pem --ssl-certfile ssl-cert.pem --host localhost --port 8000
+	DEBUG=true $(RUN) uvicorn ami.asgi:application --reload --ssl-keyfile ssl-key.pem --ssl-certfile ssl-cert.pem --host localhost --port 8000
 
 .PHONY: build-app
 build-app:
