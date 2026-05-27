@@ -11,7 +11,11 @@ from django.views.decorators.http import require_GET
 from ami.authentication.auth import create_jwt_token, generate_nonce, get_fc_token
 from ami.authentication.exception import FCError
 from ami.authentication.models import Nonce
-from ami.user.data import get_address_from_api_particulier_quotient, get_fc_userinfo
+from ami.user.data import (
+    get_address_from_api_particulier_quotient,
+    get_api_particulier_quotient_raw_data,
+    get_fc_userinfo,
+)
 from ami.utils.httpx import httpxAsyncClient
 
 logger = logging.getLogger(__name__)
@@ -122,7 +126,7 @@ async def login_callback(request):
             return JsonResponse({"error": "Client secret manquant"}, status=500)
 
         async with httpxAsyncClient() as httpx_async_client:
-            response_token_data = await get_fc_token(
+            response_token_data, nonce_context = await get_fc_token(
                 code=code,
                 fc_state=fc_state,
                 client_secret=client_secret,
@@ -138,23 +142,12 @@ async def login_callback(request):
                 raise FCError("missing_access_token")
 
             try:
-                async with asyncio.TaskGroup() as task_group:
-                    task_userinfo = task_group.create_task(
-                        get_fc_userinfo(
-                            token_type=token_type,
-                            access_token=access_token,
-                            httpx_async_client=httpx_async_client,
-                        )
-                    )
-                    task_api_particulier = None
-                    if "cnaf_enfants" in settings.FC_SCOPE and "cnaf_adresse" in settings.FC_SCOPE:
-                        task_api_particulier = task_group.create_task(
-                            get_address_from_api_particulier_quotient(
-                                token_type=token_type,
-                                access_token=access_token,
-                                httpx_async_client=httpx_async_client,
-                            )
-                        )
+                tasks = await get_user_data(
+                    token_type=token_type,
+                    access_token=access_token,
+                    nonce_context=nonce_context,
+                    httpx_async_client=httpx_async_client,
+                )
             except* FCError as e:
                 raise e.exceptions[0]
 
@@ -162,16 +155,19 @@ async def login_callback(request):
                 "is_logged_in": "true",
                 "id_token": id_token,
             }
+            task_userinfo = tasks.pop("userinfo")
             userinfo_result, user_id = task_userinfo.result()
             user_data.update(userinfo_result)
-            if task_api_particulier:
-                address = task_api_particulier.result()
-                if address:
-                    user_data["address"] = address
+            for key, task in tasks.items():
+                result = task.result()
+                if result:
+                    user_data[key] = result
 
             jwt_token = create_jwt_token(user_id=str(user_id), jti=uuid.uuid4().hex)
 
             redirect_url = f"{settings.PUBLIC_APP_URL}/?{urlencode(user_data)}"
+            if nonce_context.get("idp") == "ami-fi":
+                redirect_url = f"{settings.PUBLIC_APP_URL}/?{urlencode(user_data)}#/fi/"
             response = redirect(redirect_url)
             response.set_cookie(
                 key=settings.AUTH_COOKIE_JWT_NAME,
@@ -198,3 +194,32 @@ async def login_callback(request):
     except Exception as e:
         logging.exception(e)
         return redirect(f"{settings.PUBLIC_APP_URL}/#/technical-error")
+
+
+async def get_user_data(*, token_type, access_token, nonce_context, httpx_async_client):
+    tasks = {}
+    async with asyncio.TaskGroup() as task_group:
+        tasks["userinfo"] = task_group.create_task(
+            get_fc_userinfo(
+                token_type=token_type,
+                access_token=access_token,
+                httpx_async_client=httpx_async_client,
+            )
+        )
+        if nonce_context.get("idp") == "ami-fi":
+            tasks["api_particulier_quotient"] = task_group.create_task(
+                get_api_particulier_quotient_raw_data(
+                    token_type=token_type,
+                    access_token=access_token,
+                    httpx_async_client=httpx_async_client,
+                )
+            )
+        elif "cnaf_enfants" in settings.FC_SCOPE and "cnaf_adresse" in settings.FC_SCOPE:
+            tasks["address"] = task_group.create_task(
+                get_address_from_api_particulier_quotient(
+                    token_type=token_type,
+                    access_token=access_token,
+                    httpx_async_client=httpx_async_client,
+                )
+            )
+    return tasks

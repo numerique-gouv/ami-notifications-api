@@ -61,7 +61,7 @@ def test_login_callback_address(
         "pays": "FRANCE",
     }
     fake_quotient_data = {"data": {"adresse": address}}
-    encoded_address = urlsafe_b64encode(json.dumps(address).encode("utf8")).decode("utf8")
+    encoded_address = urlsafe_b64encode(json.dumps(address).encode()).decode()
     httpx_mock.add_response(
         method="GET",
         url="https://staging.particulier.api.gouv.fr/v3/dss/quotient_familial/france_connect?recipient=13002526500013",
@@ -88,7 +88,7 @@ def test_login_callback_address(
         "pays": "",
     }
     fake_quotient_data = {"data": {"adresse": address}}
-    encoded_address = urlsafe_b64encode(json.dumps(address).encode("utf8")).decode("utf8")
+    encoded_address = urlsafe_b64encode(json.dumps(address).encode()).decode()
     httpx_mock.add_response(
         method="GET",
         url="https://staging.particulier.api.gouv.fr/v3/dss/quotient_familial/france_connect?recipient=13002526500013",
