@@ -23,7 +23,7 @@
   >
   <label class="fr-toggle__label" for={id}>{label}</label>
   <div class="tags-container">
-    {#each tags as tag}
+    {#each tags as tag (tag.id)}
       {#if tag.removable}
         <button
           class="fr-tag fr-tag--dismiss"
@@ -61,10 +61,14 @@
       }
     }
     .tags-container {
-      padding-top: 0.5rem;
+      display: flex;
+      flex-direction: column;
       p.fr-tag {
         background-color: var(--background-action-low-blue-france);
         color: var(--text-action-high-blue-france);
+      }
+      .fr-tag {
+        margin-top: 0.5rem;
       }
     }
   }
