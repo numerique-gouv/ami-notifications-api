@@ -17,6 +17,7 @@ def test_login_france_connect(
     assert Nonce.objects.count() == 1
     nonce = Nonce.objects.get()
     assert nonce.nonce == FAKE_NONCE
+    assert nonce.context is None
     assert response.status_code == 302
     redirected_url = response.headers["location"]
     assert redirected_url.startswith(
@@ -40,6 +41,7 @@ def test_login_france_connect(
     assert url_contains_param("nonce", nonce.nonce, redirected_url)
     assert url_contains_param("acr_values", "eidas1", redirected_url)
     assert url_contains_param("prompt", "login", redirected_url)
+    assert url_contains_param("idp_hint", "", redirected_url) is False
 
 
 def test_login_france_connect_error(

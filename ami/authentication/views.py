@@ -63,7 +63,7 @@ def login_france_connect(request):
 def login_ami_fi(request):
     try:
         NONCE = generate_nonce()
-        nonce = Nonce.objects.create(nonce=NONCE)
+        nonce = Nonce.objects.create(nonce=NONCE, context={"idp": "ami-fi"})
 
         redirect_uri: str = settings.FC_AMI_REDIRECT_URL
         if settings.PUBLIC_FC_PROXY_BASE_URL:
