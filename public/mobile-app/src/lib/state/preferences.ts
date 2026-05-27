@@ -135,6 +135,28 @@ export class Preferences {
     trackZoneCount(this._zones.length);
   }
 
+  addAddress(address: AddressType) {
+    if (
+      this._addresses.filter(
+        (value) =>
+          `${address.city} (${address.departement})` ===
+          `${value.city} (${value.departement})`
+      ).length
+    ) {
+      return;
+    }
+    this._addresses.push(address);
+    this.addZone(address.zone);
+  }
+
+  removeAddress(address: AddressType) {
+    this._addresses = this._addresses.filter(
+      (value) =>
+        `${address.city} (${address.departement})` !==
+        `${value.city} (${value.departement})`
+    );
+  }
+
   getZoneInfos(userAddress: AddressType | undefined): ZoneInfo[] {
     const result: ZoneInfo[] = [];
     zones.forEach((zone) => {
