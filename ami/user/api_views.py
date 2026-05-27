@@ -1,12 +1,14 @@
 import uuid
 from typing import cast
 
+from django.db import transaction
+from django.db.models import QuerySet
 from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import PolymorphicProxySerializer, extend_schema, inline_serializer
 from rest_framework.decorators import api_view
 from rest_framework.request import Request
 from rest_framework.response import Response
-from rest_framework.status import HTTP_201_CREATED
+from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED
 
 from ami.authentication.decorators import ami_login_required
 
@@ -48,24 +50,28 @@ def registrations(request: Request) -> Response:
     data: dict = cast(dict, serializer.validated_data)
     subscription: dict = data["subscription"]
 
+    if "device_id" in subscription:
+        with transaction.atomic():
+            # In case of a mobile app subscription, check if we already have registration(s) for this device.
+            existing_registrations: QuerySet[Registration] = Registration.objects.filter(
+                subscription__device_id=subscription["device_id"],
+                user=request.ami_user,
+            )
+            status = HTTP_200_OK if existing_registrations.count() else HTTP_201_CREATED
+            # and if so, delete them: we only want to keep the latest registration for a given device.
+            existing_registrations.delete()
+            registration: Registration = Registration.objects.create(
+                user=request.ami_user, subscription=subscription
+            )
+        return Response(RegistrationSerializer(registration).data, status=status)
+
     try:
-        existing_registration: Registration | None = Registration.objects.get(
+        existing_registration: Registration = Registration.objects.get(
             subscription=subscription, user=request.ami_user
         )
         return Response(RegistrationSerializer(existing_registration).data)
     except Registration.DoesNotExist:
         pass
-
-    if "device_id" in subscription:
-        # In case of a mobile app subscription, check if we already have a registration for this device.
-        try:
-            existing_registration: Registration | None = Registration.objects.get(
-                subscription__device_id=subscription["device_id"], user=request.ami_user
-            )
-            # and if so, delete it: we only want to keep the latest registration for a given device.
-            existing_registration.delete()
-        except Registration.DoesNotExist:
-            pass
 
     registration: Registration = Registration.objects.create(
         user=request.ami_user, subscription=subscription
