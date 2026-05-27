@@ -7,6 +7,7 @@ class Nonce(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     nonce = models.CharField(max_length=256)
+    context = models.JSONField(blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
