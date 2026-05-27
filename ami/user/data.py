@@ -12,7 +12,7 @@ from ami.authentication.exception import FCError
 from ami.notification.models import ScheduledNotification
 from ami.user.models import User
 from ami.user.utils import build_fc_hash
-from ami.utils.httpx import AsyncClient
+from ami.utils.httpx import AsyncClient, Response
 
 logger = logging.getLogger(__name__)
 
@@ -61,16 +61,40 @@ async def get_fc_userinfo(
     return result, user.id
 
 
+async def call_api_particulier_quotient(
+    *,
+    token_type: str,
+    access_token: str,
+    httpx_async_client: AsyncClient,
+) -> Response:
+    response = await httpx_async_client.get(
+        f"{settings.API_PARTICULIER_BASE_URL}{settings.API_PARTICULIER_QUOTIENT_ENDPOINT}"
+        f"?recipient={settings.API_PARTICULIER_RECIPIENT_ID}",
+        headers={"authorization": f"{token_type} {access_token}"},
+    )
+    return response
+
+
+async def get_api_particulier_quotient_raw_data(
+    *,
+    token_type: str,
+    access_token: str,
+    httpx_async_client: AsyncClient,
+) -> str | None:
+    response = await call_api_particulier_quotient(
+        token_type=token_type, access_token=access_token, httpx_async_client=httpx_async_client
+    )
+    return urlsafe_b64encode(json.dumps(response.json()).encode()).decode()
+
+
 async def get_address_from_api_particulier_quotient(
     *,
     token_type: str,
     access_token: str,
     httpx_async_client: AsyncClient,
 ) -> str | None:
-    response = await httpx_async_client.get(
-        f"{settings.API_PARTICULIER_BASE_URL}{settings.API_PARTICULIER_QUOTIENT_ENDPOINT}"
-        f"?recipient={settings.API_PARTICULIER_RECIPIENT_ID}",
-        headers={"authorization": f"{token_type} {access_token}"},
+    response = await call_api_particulier_quotient(
+        token_type=token_type, access_token=access_token, httpx_async_client=httpx_async_client
     )
     if response.status_code != 200:
         log_error_to_sentry(response)
@@ -79,7 +103,7 @@ async def get_address_from_api_particulier_quotient(
     if data.get("data", {}).get("adresse", {}):
         address_fields = ["numero_libelle_voie", "lieu_dit", "code_postal_ville", "pays"]
         address = {k: v or "" for k, v in data["data"]["adresse"].items() if k in address_fields}
-        return urlsafe_b64encode(json.dumps(address).encode("utf8")).decode("utf8")
+        return urlsafe_b64encode(json.dumps(address).encode()).decode()
 
 
 def log_error_to_sentry(response):

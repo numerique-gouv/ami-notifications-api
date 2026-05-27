@@ -49,7 +49,7 @@ def decode_jwt_token(token: str) -> dict | None:
 
 async def get_fc_token(
     *, code: str, fc_state: str, client_secret: str, httpx_async_client: AsyncClient
-) -> dict:
+) -> tuple[dict, dict]:
     # Validate that the STATE is coherent with the one we sent to FC
     if not fc_state:
         raise FCError("missing_state")
@@ -102,4 +102,4 @@ async def get_fc_token(
     if decoded_token["nonce"] != nonce.nonce:
         raise FCError("invalid_nonce")
 
-    return response_token_data
+    return response_token_data, nonce.context or {}
