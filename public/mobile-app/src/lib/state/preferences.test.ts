@@ -494,11 +494,179 @@ describe('/preferences.ts', () => {
         expect(preferences1.zones).toEqual([]);
         expect(preferences2.zones).toEqual(['Foo']);
         expect(preferences3.zones).toEqual(['Foo']);
-
         expect(trackZoneSpy).toHaveBeenCalledTimes(1);
         expect(trackZoneSpy).toHaveBeenNthCalledWith(1, 'Bar', false);
         expect(trackZoneCountSpy).toHaveBeenCalledTimes(1);
         expect(trackZoneCountSpy).toHaveBeenNthCalledWith(1, 1);
+      });
+    });
+
+    describe('addAddress', () => {
+      test('should add address', async () => {
+        // Given
+        const address1 = new Address(
+          'Orly',
+          '94, Val-de-Marne, Île-de-France',
+          '94054_0070_00023',
+          '23 Rue des Aubépines 94310 Orly',
+          '23 Rue des Aubépines',
+          '94310'
+        );
+        const address2 = new Address(
+          'Bastia',
+          '2B, Haute-Corse, Corse',
+          '2B033',
+          'Bastia',
+          'Bastia',
+          '20200'
+        );
+        const address3 = new Address(
+          'Saint-Denis',
+          '974, La Réunion',
+          '97411_1060_00002',
+          '2 Rue de Paris 97400 Saint-Denis',
+          '2 Rue de Paris',
+          '97400'
+        );
+        const address3bis = new Address(
+          'Saint-Denis',
+          '974, La Réunion',
+          '97411_1060_00003', // other id
+          '3 Rue de Paris 97400 Saint-Denis',
+          '3 Rue de Paris',
+          '97400'
+        );
+        const preferences1 = new Preferences([], []);
+        const preferences2 = new Preferences(
+          ['Zone A', 'Zone B', 'Zone C'],
+          [address1, address2]
+        );
+        const preferences3 = new Preferences(
+          ['Zone A', 'Zone B', 'Zone C', 'Réunion'],
+          [address1, address2]
+        );
+        const preferences4 = new Preferences(
+          ['Zone A', 'Zone B', 'Zone C', 'Réunion'],
+          [address1, address2, address3bis]
+        );
+        const trackZoneSpy = vi
+          .spyOn(matomoMethods, 'trackZone')
+          .mockResolvedValue(undefined);
+        const trackZoneCountSpy = vi
+          .spyOn(matomoMethods, 'trackZoneCount')
+          .mockResolvedValue(undefined);
+
+        // When
+        preferences1.addAddress(address3);
+        preferences2.addAddress(address3);
+        preferences3.addAddress(address3);
+        preferences4.addAddress(address3);
+
+        // Then
+        expect(preferences1.zones).toEqual(['Réunion']);
+        expect(preferences1.addresses).toEqual([address3]);
+        expect(preferences2.zones).toEqual(['Zone A', 'Zone B', 'Zone C', 'Réunion']);
+        expect(preferences2.addresses).toEqual([address1, address2, address3]);
+        expect(preferences3.zones).toEqual(['Zone A', 'Zone B', 'Zone C', 'Réunion']);
+        expect(preferences3.addresses).toEqual([address1, address2, address3]);
+        expect(preferences4.zones).toEqual(['Zone A', 'Zone B', 'Zone C', 'Réunion']);
+        expect(preferences4.addresses).toEqual([address1, address2, address3bis]);
+        expect(trackZoneSpy).toHaveBeenCalledTimes(2);
+        expect(trackZoneSpy).toHaveBeenNthCalledWith(1, 'Réunion', true);
+        expect(trackZoneSpy).toHaveBeenNthCalledWith(2, 'Réunion', true);
+        expect(trackZoneCountSpy).toHaveBeenCalledTimes(2);
+        expect(trackZoneCountSpy).toHaveBeenNthCalledWith(1, 1);
+        expect(trackZoneCountSpy).toHaveBeenNthCalledWith(2, 4);
+      });
+    });
+
+    describe('removeAddress', () => {
+      test('should remove address', async () => {
+        // Given
+        const address1 = new Address(
+          'Orly',
+          '94, Val-de-Marne, Île-de-France',
+          '94054_0070_00023',
+          '23 Rue des Aubépines 94310 Orly',
+          '23 Rue des Aubépines',
+          '94310'
+        );
+        const address2 = new Address(
+          'Bastia',
+          '2B, Haute-Corse, Corse',
+          '2B033',
+          'Bastia',
+          'Bastia',
+          '20200'
+        );
+        const address3 = new Address(
+          'Saint-Denis',
+          '974, La Réunion',
+          '97411_1060_00002',
+          '2 Rue de Paris 97400 Saint-Denis',
+          '2 Rue de Paris',
+          '97400'
+        );
+        const address3bis = new Address(
+          'Saint-Denis',
+          '974, La Réunion',
+          '97411_1060_00003', // other id
+          '3 Rue de Paris 97400 Saint-Denis',
+          '3 Rue de Paris',
+          '97400'
+        );
+        const address4 = new Address(
+          'Saint-Paul',
+          '974, La Réunion',
+          '97411_1060_00003',
+          '97460 Saint-Denis',
+          '',
+          '97460'
+        );
+        const preferences1 = new Preferences([], []);
+        const preferences2 = new Preferences(
+          ['Zone A', 'Zone B', 'Zone C'],
+          [address1, address2]
+        );
+        const preferences3 = new Preferences(
+          ['Zone A', 'Zone B', 'Zone C', 'Réunion'],
+          [address1, address2]
+        );
+        const preferences4 = new Preferences(
+          ['Zone A', 'Zone B', 'Zone C', 'Réunion'],
+          [address1, address2, address3bis]
+        );
+        const preferences5 = new Preferences(
+          ['Zone A', 'Zone B', 'Zone C', 'Réunion'],
+          [address1, address2, address3bis, address4]
+        );
+        const trackZoneSpy = vi
+          .spyOn(matomoMethods, 'trackZone')
+          .mockResolvedValue(undefined);
+        const trackZoneCountSpy = vi
+          .spyOn(matomoMethods, 'trackZoneCount')
+          .mockResolvedValue(undefined);
+
+        // When
+        preferences1.removeAddress(address3);
+        preferences2.removeAddress(address3);
+        preferences3.removeAddress(address3);
+        preferences4.removeAddress(address3);
+        preferences5.removeAddress(address3);
+
+        // Then
+        expect(preferences1.zones).toEqual([]);
+        expect(preferences1.addresses).toEqual([]);
+        expect(preferences2.zones).toEqual(['Zone A', 'Zone B', 'Zone C']);
+        expect(preferences2.addresses).toEqual([address1, address2]);
+        expect(preferences3.zones).toEqual(['Zone A', 'Zone B', 'Zone C', 'Réunion']);
+        expect(preferences3.addresses).toEqual([address1, address2]);
+        expect(preferences4.zones).toEqual(['Zone A', 'Zone B', 'Zone C', 'Réunion']);
+        expect(preferences4.addresses).toEqual([address1, address2]);
+        expect(preferences5.zones).toEqual(['Zone A', 'Zone B', 'Zone C', 'Réunion']);
+        expect(preferences5.addresses).toEqual([address1, address2, address4]);
+        expect(trackZoneSpy).toHaveBeenCalledTimes(0);
+        expect(trackZoneCountSpy).toHaveBeenCalledTimes(0);
       });
     });
 
