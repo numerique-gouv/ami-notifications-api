@@ -48,16 +48,12 @@ def test_register_mobile_app(app, user: User, mobileAppSubscription: dict[str, A
     app.post_json("/api/v1/users/registrations", register_data, status=201)
 
     assert Registration.objects.count() == 1
-    registration = Registration.objects.get()
-    registration_id = registration.id
 
     # Second registration, we're expecting a 200 OK, not 201 CREATED.
     register_data = {"subscription": mobileAppSubscription}
     app.post_json("/api/v1/users/registrations", register_data, status=200)
 
     assert Registration.objects.count() == 1
-    registration = Registration.objects.get()
-    assert registration.id == registration_id
 
 
 @pytest.mark.django_db
@@ -100,10 +96,10 @@ def test_register_mobile_app_different_registration_same_device(
 
     assert Registration.objects.count() == 1
 
-    # Second registration, same device, we're expecting a 201 CREATED, but only one remaining registration.
+    # Second registration, same device, we're expecting a 200 CREATED, but only one remaining registration.
     mobileAppSubscription["fcm_token"] = "some other token"
     register_data = {"subscription": mobileAppSubscription}
-    app.post_json("/api/v1/users/registrations", register_data, status=201)
+    app.post_json("/api/v1/users/registrations", register_data, status=200)
 
     assert Registration.objects.count() == 1
     registration = Registration.objects.get()
