@@ -11,25 +11,44 @@
 
   interface Props {
     footerTarget?: HTMLElement | null;
+    getFooterTarget?: (() => HTMLElement | null) | null;
     onClose?: (() => void) | null;
+    toggleModalElements?: ((visible: boolean) => void) | null;
   }
 
-  let { footerTarget = null, onClose = null }: Props = $props();
+  let {
+    footerTarget = null,
+    getFooterTarget = null,
+    onClose = null,
+    toggleModalElements = null,
+  }: Props = $props();
 
   let footerInstance: Record<string, unknown> | null = null;
 
-  $effect(() => {
+  const mountFooter = () => {
+    const target = getFooterTarget?.() ?? footerTarget;
+    if (!target) {
+      return;
+    }
+    if (footerInstance) {
+      unmount(footerInstance);
+      footerInstance = null;
+    }
+    footerInstance = mount(ZonePreferencesFooter, {
+      target,
+      props: { onClose },
+    });
+  };
+
+  onMount(() => {
     if (!userStore.connected) {
       goto('/');
     } else {
       zoneInfos = userStore.connected.getZoneInfosFromPreferences();
     }
-    if (footerTarget) {
-      footerInstance = mount(ZonePreferencesFooter, {
-        target: footerTarget,
-        props: { onClose },
-      });
-    }
+
+    mountFooter();
+
     return () => {
       if (footerInstance) {
         unmount(footerInstance);

@@ -1,11 +1,13 @@
 <script lang="ts">
   import { type Component, mount, onMount, tick, unmount } from 'svelte';
+  import { slide } from 'svelte/transition';
 
   type MountedInstance = ReturnType<typeof mount>;
 
   interface ModalProps {
-    footerTarget: HTMLElement;
+    footerTarget: HTMLElement | null;
     onClose: () => void;
+    toggleModalElements: (visible: boolean) => void;
     [key: string]: unknown;
   }
 
@@ -31,8 +33,14 @@
 
   let modalElement: HTMLDialogElement;
   let mountTarget: HTMLDivElement;
-  let footerTarget: HTMLDivElement;
+  let footerTarget: HTMLDivElement | null = $state(null);
   let instance: MountedInstance | null = null;
+  let modalElementsVisible: boolean = $state(true);
+
+  const toggleModalElements = async (visible: boolean) => {
+    modalElementsVisible = visible;
+    await tick();
+  };
 
   const dsfrModal = () => {
     if (typeof window.dsfr === 'function') {
@@ -59,7 +67,9 @@
     const modalProps: ModalProps = {
       ...props,
       footerTarget,
-      onClose: onClose,
+      getFooterTarget: () => footerTarget,
+      onClose,
+      toggleModalElements,
     };
 
     instance = mount(component, {
@@ -87,21 +97,30 @@
       <div class="fr-col-12">
         <div class="fr-modal__body">
           <div class="fr-modal__content">
-            {#if closeButton}
-              <button
-                aria-controls="modal-action"
-                title="Fermer"
-                type="button"
-                class="fr-btn--close fr-btn"
-                onclick={onClose}
-              >
-                <span class="fr-sr-only">Fermer</span>
-              </button>
+            {#if modalElementsVisible}
+              {#if closeButton}
+                <button
+                  transition:slide
+                  aria-controls="modal-action"
+                  title="Fermer"
+                  type="button"
+                  class="fr-btn--close fr-btn"
+                  onclick={onClose}
+                >
+                  <span class="fr-sr-only">Fermer</span>
+                </button>
+              {/if}
+              <h2 class="fr-modal__title" id="{id}-title" transition:slide>{title}</h2>
             {/if}
-            <h2 class="fr-modal__title" id="{id}-title">{title}</h2>
             <div bind:this={mountTarget}></div>
           </div>
-          <div class="fr-modal__footer" bind:this={footerTarget}></div>
+          {#if modalElementsVisible}
+            <div
+              class="fr-modal__footer"
+              bind:this={footerTarget}
+              transition:slide
+            ></div>
+          {/if}
         </div>
       </div>
     </div>
@@ -125,6 +144,9 @@
       .fr-modal__content {
         padding: 1.5rem 1rem 0 1rem;
         margin-bottom: 3.5rem;
+        .fr-modal__title {
+          margin-bottom: 1.5rem;
+        }
       }
       .fr-modal__footer {
         padding: 2rem 1rem 1rem 1rem;
@@ -158,11 +180,24 @@
         .fr-modal__content {
           padding: 1.5rem 1.5rem 0 1.5rem;
           margin-bottom: 2.5rem;
+          .fr-modal__title {
+            margin-bottom: 1rem;
+          }
         }
         .fr-modal__footer {
           padding: 1.5rem;
           background-image: none;
         }
+      }
+    }
+    &:not(.fr-modal-centered) {
+      .fr-container {
+        min-height: 98%;
+      }
+      .fr-grid-row,
+      .fr-col-12,
+      .fr-modal__body {
+        min-height: 100%;
       }
     }
   }
