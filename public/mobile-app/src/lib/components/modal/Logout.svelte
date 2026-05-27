@@ -1,23 +1,32 @@
 <script lang="ts">
-  import { mount, unmount } from 'svelte';
+  import { mount, onMount, unmount } from 'svelte';
   import LogoutFooter from './LogoutFooter.svelte';
 
   interface Props {
     footerTarget?: HTMLElement | null;
+    getFooterTarget?: (() => HTMLElement | null) | null;
     onClose?: (() => void) | null;
   }
 
-  let { footerTarget = null, onClose = null }: Props = $props();
+  let { footerTarget = null, getFooterTarget = null, onClose = null }: Props = $props();
 
   let footerInstance: Record<string, unknown> | null = null;
 
-  $effect(() => {
-    if (footerTarget) {
-      footerInstance = mount(LogoutFooter, {
-        target: footerTarget,
-        props: { onClose },
-      });
+  onMount(() => {
+    const target = getFooterTarget?.() ?? footerTarget;
+    if (!target) {
+      return;
     }
+
+    if (footerInstance) {
+      unmount(footerInstance);
+      footerInstance = null;
+    }
+    footerInstance = mount(LogoutFooter, {
+      target,
+      props: { onClose },
+    });
+
     return () => {
       if (footerInstance) {
         unmount(footerInstance);
