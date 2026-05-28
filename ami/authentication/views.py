@@ -8,9 +8,10 @@ from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.views.decorators.http import require_GET
 
-from ami.authentication.auth import create_jwt_token, generate_nonce, get_fc_token
+from ami.authentication.auth import create_jwt_token, generate_nonce, get_fc_scope, get_fc_token
 from ami.authentication.exception import FCError
 from ami.authentication.models import Nonce
+from ami.authentication.schemas import data_providers
 from ami.user.data import (
     get_address_from_api_particulier_quotient,
     get_api_particulier_quotient_raw_data,
@@ -44,7 +45,7 @@ def login_france_connect(request):
         if settings.PUBLIC_FC_PROXY_BASE_URL:
             state = f"{settings.FC_AMI_REDIRECT_URL}?state={nonce.id}"
         params = {
-            "scope": settings.FC_SCOPE,
+            "scope": get_fc_scope(["api_particulier_quotient"]),
             "redirect_uri": redirect_uri,
             "response_type": "code",
             "client_id": settings.FC_AMI_CLIENT_ID,
@@ -76,7 +77,7 @@ def login_ami_fi(request):
         if settings.PUBLIC_FC_PROXY_BASE_URL:
             state = f"{settings.FC_AMI_REDIRECT_URL}?state={nonce.id}"
         params = {
-            "scope": settings.FC_SCOPE,
+            "scope": get_fc_scope(["api_particulier_quotient"]),
             "redirect_uri": redirect_uri,
             "response_type": "code",
             "client_id": settings.FC_AMI_CLIENT_ID,
@@ -206,7 +207,10 @@ async def get_user_data(*, token_type, access_token, nonce_context, httpx_async_
                 httpx_async_client=httpx_async_client,
             )
         )
-        if nonce_context.get("idp") == "ami-fi":
+        if (
+            nonce_context.get("idp") == "ami-fi"
+            and data_providers["api_particulier_quotient"].is_enabled()
+        ):
             tasks["api_particulier_quotient"] = task_group.create_task(
                 get_api_particulier_quotient_raw_data(
                     token_type=token_type,
@@ -214,7 +218,7 @@ async def get_user_data(*, token_type, access_token, nonce_context, httpx_async_
                     httpx_async_client=httpx_async_client,
                 )
             )
-        elif "cnaf_enfants" in settings.FC_SCOPE and "cnaf_adresse" in settings.FC_SCOPE:
+        elif data_providers["api_particulier_quotient"].is_enabled():
             tasks["address"] = task_group.create_task(
                 get_address_from_api_particulier_quotient(
                     token_type=token_type,

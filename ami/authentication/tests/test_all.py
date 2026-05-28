@@ -3,7 +3,7 @@ from base64 import urlsafe_b64encode
 
 import pytest
 
-from ami.authentication.auth import generate_nonce
+from ami.authentication.auth import generate_nonce, get_fc_scope
 
 
 def test_generate_nonce(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -14,4 +14,21 @@ def test_generate_nonce(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr("ami.authentication.auth.now", lambda: FAKE_TIME)
     assert generate_nonce() == urlsafe_b64encode(f"{FAKE_UUID}-{FAKE_TIME}".encode("utf8")).decode(
         "utf8"
+    )
+
+
+def test_get_fc_scope(settings) -> None:
+    settings.API_PARTICULIER_QUOTIENT_ENABLED = False
+
+    assert get_fc_scope([]) == settings.FC_SCOPE
+    assert get_fc_scope(["foo"]) == settings.FC_SCOPE
+    assert get_fc_scope(["api_particulier_quotient"]) == settings.FC_SCOPE
+
+    settings.API_PARTICULIER_QUOTIENT_ENABLED = True
+
+    assert get_fc_scope([]) == settings.FC_SCOPE
+    assert get_fc_scope(["foo"]) == settings.FC_SCOPE
+    assert (
+        get_fc_scope(["api_particulier_quotient"])
+        == f"{settings.FC_SCOPE} {settings.API_PARTICULIER_QUOTIENT_SCOPE}"
     )

@@ -51,7 +51,7 @@ def test_login_callback_userinfo_query_failure(
 
     monkeypatch.setattr("jwt.decode", fake_jwt_decode)
     settings.FC_AMI_CLIENT_SECRET = "fake-client-secret"
-    settings.FC_SCOPE = settings.FC_SCOPE.replace(" cnaf_enfants cnaf_adresse", "")
+    settings.API_PARTICULIER_QUOTIENT_ENABLED = False
 
     NONCE = decoded_id_token["nonce"]
     nonce = Nonce.objects.create(nonce=NONCE)
