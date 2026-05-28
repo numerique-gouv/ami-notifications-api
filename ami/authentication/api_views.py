@@ -4,6 +4,7 @@ from rest_framework.response import Response
 
 from ami.authentication.decorators import ami_login_required
 from ami.authentication.models import RevokedAuthToken
+from ami.authentication.schemas import data_providers
 
 
 @api_view(["GET"])
@@ -21,3 +22,13 @@ def logout(request):
     response.delete_cookie(settings.AUTH_COOKIE_JWT_NAME)
     response.delete_cookie(settings.USERINFO_COOKIE_JWT_NAME)
     return response
+
+
+@api_view(["GET"])
+def providers(request):
+    data = {}
+    for provider in data_providers.values():
+        if not provider.is_enabled():
+            continue
+        data[provider.id] = provider.label
+    return Response(data)
