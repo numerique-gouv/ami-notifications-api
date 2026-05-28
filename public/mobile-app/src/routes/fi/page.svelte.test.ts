@@ -36,77 +36,141 @@ describe('/+page.svelte', () => {
       });
     });
 
-    test('should not display api_particulier_quotient value if value is not base64 encoded', async () => {
+    test('should not display data value if value is not base64 encoded', async () => {
       // Given
       const { page } = await import('$app/state');
       const mockSearchParams = new URLSearchParams({
         is_logged_in: 'true',
-        api_particulier_quotient: 'wrong',
+        data: 'wrong',
       });
       vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        new Response('{"data": "DATA"}', { status: 200 })
+      );
 
       // When
       render(Page);
 
       // Then
       await waitFor(async () => {
-        expect(screen.queryByTestId('api_particulier_quotient')).toBeNull();
+        expect(screen.queryByTestId('data')).toBeNull();
       });
     });
 
-    test('should not display api_particulier_quotient value if value is not a json base64 encoded', async () => {
+    test('should not display data value if value is not a json base64 encoded', async () => {
       // Given
       const { page } = await import('$app/state');
       const mockSearchParams = new URLSearchParams({
         is_logged_in: 'true',
-        api_particulier_quotient: btoa('wrong'),
+        data: btoa('wrong'),
       });
       vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        new Response('{"data": "DATA"}', { status: 200 })
+      );
 
       // When
       render(Page);
 
       // Then
       await waitFor(async () => {
-        expect(screen.queryByTestId('api_particulier_quotient')).toBeNull();
+        expect(screen.queryByTestId('data')).toBeNull();
       });
     });
 
-    test('should not display api_particulier_quotient value if value is an empty json base64 encode', async () => {
+    test('should not display data value if value is an empty json base64 encode', async () => {
       // Given
       const { page } = await import('$app/state');
       const mockSearchParams = new URLSearchParams({
         is_logged_in: 'true',
-        api_particulier_quotient: btoa('{}'),
+        data: btoa('{}'),
       });
       vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        new Response('{"data": "DATA"}', { status: 200 })
+      );
 
       // When
       render(Page);
 
       // Then
       await waitFor(async () => {
-        expect(screen.queryByTestId('api_particulier_quotient')).toBeNull();
+        expect(screen.queryByTestId('data')).toBeNull();
       });
     });
 
-    test('should display api_particulier_quotient', async () => {
+    test('should not display data if not in providers', async () => {
       // Given
       const { page } = await import('$app/state');
       const mockSearchParams = new URLSearchParams({
         is_logged_in: 'true',
-        api_particulier_quotient: btoa(JSON.stringify({ foo: 'bar' })),
+        data: btoa(JSON.stringify({ foo: 'bar' })),
       });
       vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        new Response('{"}', { status: 200 })
+      );
 
       // When
       render(Page);
 
       // Then
       await waitFor(async () => {
-        expect(screen.getByTestId('api_particulier_quotient')).toHaveTextContent(
-          '"foo": "bar"'
+        expect(screen.queryByTestId('data')).toBeNull();
+      });
+    });
+
+    test('should display data', async () => {
+      // Given
+      const { page } = await import('$app/state');
+      const mockSearchParams = new URLSearchParams({
+        is_logged_in: 'true',
+        data: btoa(JSON.stringify({ foo: 'bar' })),
+      });
+      vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        new Response('{"data": "DATA"}', { status: 200 })
+      );
+
+      // When
+      render(Page);
+
+      // Then
+      await waitFor(async () => {
+        expect(screen.getByTestId('data')).toHaveTextContent('"foo": "bar"');
+      });
+    });
+  });
+
+  describe('providers', () => {
+    test('should display_providers', async () => {
+      // Given
+      const { page } = await import('$app/state');
+      const mockSearchParams = new URLSearchParams({
+        is_logged_in: 'true',
+        data: btoa(JSON.stringify({ foo: 'bar' })),
+      });
+      vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        new Response(
+          '{"api_particulier_quotient": "Quotient", "api_particulier_statut_etudiant": "Etudiant"}',
+          { status: 200 }
+        )
+      );
+
+      // When
+      render(Page);
+
+      // Then
+      await waitFor(async () => {
+        expect(screen.getByTestId('radio-api_particulier_quotient')).toHaveTextContent(
+          'Quotient'
         );
+        expect(
+          screen.getByTestId('radio-api_particulier_statut_etudiant')
+        ).toHaveTextContent('Etudiant');
+        const radios = screen.getAllByRole('radio') as HTMLInputElement[];
+        expect(radios.find((r) => r.checked)?.value).toBe('api_particulier_quotient');
       });
     });
   });
@@ -114,10 +178,10 @@ describe('/+page.svelte', () => {
   describe('user wants to login again', () => {
     test('should call authorize endpoint when click on login button', async () => {
       // Given
-      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-        new Response('', { status: 200 })
-      );
       vi.stubGlobal('location', { href: 'fake-link' });
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        new Response('{"api_particulier_statut_etudiant": "Etudiant"}', { status: 200 })
+      );
 
       render(Page);
       await waitFor(() => {
@@ -130,7 +194,7 @@ describe('/+page.svelte', () => {
 
         // Then
         expect(globalThis.window.location.href).toContain(
-          `${PUBLIC_API_URL}/login-ami-fi`
+          `${PUBLIC_API_URL}/login-ami-fi?provider_id=api_particulier_statut_etudiant`
         );
       });
     });
@@ -141,6 +205,9 @@ describe('/+page.svelte', () => {
       const spyFranceConnectLogout = vi
         .spyOn(franceConnectHelpers, 'franceConnectLogout')
         .mockResolvedValue();
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        new Response('{"api_particulier_quotient": "Quotient"}', { status: 200 })
+      );
 
       render(Page);
       await waitFor(() => {
@@ -154,7 +221,7 @@ describe('/+page.svelte', () => {
         // Then
         expect(spyFranceConnectLogout).toHaveBeenCalledWith(
           'fake-id-token',
-          `${PUBLIC_API_URL}/login-ami-fi`
+          `${PUBLIC_API_URL}/login-ami-fi?provider_id=api_particulier_quotient`
         );
       });
     });
