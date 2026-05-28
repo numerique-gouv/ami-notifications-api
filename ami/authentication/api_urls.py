@@ -1,8 +1,9 @@
 from django.urls import path
 
-from .api_views import check_auth, logout
+from ami.authentication import api_views
 
 urlpatterns = [
-    path("check-auth", check_auth),
-    path("logout", logout),
+    path("check-auth", api_views.check_auth),
+    path("logout", api_views.logout),
+    path("api/v1/authentication/providers/", api_views.providers),
 ]
