@@ -69,6 +69,14 @@ will overload what's in the `.env` file.
 For example you'll need to overload the FranceConnect secrets for AMI in your
 `.env.local` file.
 
+At a minimum, you'll need a `.env.local` file with the following line, in order
+for the `.env.development` file with all the good default for local dev to be
+loaded:
+
+```ini
+DEBUG=true
+```
+
 On the front end, Vite uses dotenv to load additional environment variables
 from the following files in your environment directory, in this order:
 
