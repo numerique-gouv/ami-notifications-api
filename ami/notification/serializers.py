@@ -41,7 +41,6 @@ class NotificationSerializer(serializers.ModelSerializer):
 class ScheduledNotificationCreateSerializer(serializers.Serializer):
     content_title = serializers.CharField(allow_blank=False)
     content_body = serializers.CharField(allow_blank=False)
-    content_private_body = serializers.CharField(allow_blank=True, default=None)
     content_icon = serializers.CharField(allow_blank=False)
     reference = serializers.CharField(allow_blank=False)
     internal_url = serializers.CharField(allow_blank=False, default=None)
