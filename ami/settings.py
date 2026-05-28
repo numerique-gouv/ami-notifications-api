@@ -9,15 +9,19 @@ from dotenv import dotenv_values
 
 import vapid_keys
 
+CONFIG = {
+    **dotenv_values(".env"),
+    **dotenv_values(".env.local"),
+}
+
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("DEBUG") == "true"
+DEBUG = CONFIG.get("DEBUG") == "true"
 print(f"Debug mode: {DEBUG}")
 
 dev_env_vars = dotenv_values(".env.development") if DEBUG else {}
 
 CONFIG = {
-    **dotenv_values(".env"),
-    **dotenv_values(".env.local"),
+    **CONFIG,
     **dev_env_vars,
     **os.environ,  # override loaded values with environment variables
 }
