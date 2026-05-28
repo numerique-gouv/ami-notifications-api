@@ -10,6 +10,7 @@ from django.utils.timezone import now
 
 from ami.authentication.exception import FCError
 from ami.authentication.models import Nonce
+from ami.authentication.schemas import data_providers
 from ami.utils.httpx import AsyncClient
 
 
@@ -103,3 +104,15 @@ async def get_fc_token(
         raise FCError("invalid_nonce")
 
     return response_token_data, nonce.context or {}
+
+
+def get_fc_scope(provider_ids: list[str]):
+    fc_scopes = [settings.FC_SCOPE]
+    for provider_id in provider_ids:
+        provider = data_providers.get(provider_id)
+        if provider is None:
+            continue
+        if not provider.is_enabled():
+            continue
+        fc_scopes.append(provider.scope)
+    return " ".join(fc_scopes)

@@ -9,6 +9,7 @@ from django.conf import settings
 from django.utils.timezone import now
 
 from ami.authentication.exception import FCError
+from ami.authentication.schemas import data_providers
 from ami.notification.models import ScheduledNotification
 from ami.user.models import User
 from ami.user.utils import build_fc_hash
@@ -61,16 +62,31 @@ async def get_fc_userinfo(
     return result, user.id
 
 
+async def call_data_provider(
+    *,
+    token_type: str,
+    access_token: str,
+    provider_id: str,
+    httpx_async_client: AsyncClient,
+) -> Response:
+    response = await httpx_async_client.get(
+        data_providers[provider_id].url,
+        headers={"authorization": f"{token_type} {access_token}"},
+    )
+    return response
+
+
 async def call_api_particulier_quotient(
     *,
     token_type: str,
     access_token: str,
     httpx_async_client: AsyncClient,
 ) -> Response:
-    response = await httpx_async_client.get(
-        f"{settings.API_PARTICULIER_BASE_URL}{settings.API_PARTICULIER_QUOTIENT_ENDPOINT}"
-        f"?recipient={settings.API_PARTICULIER_RECIPIENT_ID}",
-        headers={"authorization": f"{token_type} {access_token}"},
+    response = await call_data_provider(
+        token_type=token_type,
+        access_token=access_token,
+        provider_id="api_particulier_quotient",
+        httpx_async_client=httpx_async_client,
     )
     return response
 
