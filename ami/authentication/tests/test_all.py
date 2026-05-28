@@ -19,16 +19,27 @@ def test_generate_nonce(monkeypatch: pytest.MonkeyPatch) -> None:
 
 def test_get_fc_scope(settings) -> None:
     settings.API_PARTICULIER_QUOTIENT_ENABLED = False
+    settings.API_PARTICULIER_STATUT_ETUDIANT_ENABLED = False
 
     assert get_fc_scope([]) == settings.FC_SCOPE
     assert get_fc_scope(["foo"]) == settings.FC_SCOPE
     assert get_fc_scope(["api_particulier_quotient"]) == settings.FC_SCOPE
+    assert get_fc_scope(["api_particulier_statut_etudiant"]) == settings.FC_SCOPE
 
     settings.API_PARTICULIER_QUOTIENT_ENABLED = True
+    settings.API_PARTICULIER_STATUT_ETUDIANT_ENABLED = True
 
     assert get_fc_scope([]) == settings.FC_SCOPE
     assert get_fc_scope(["foo"]) == settings.FC_SCOPE
     assert (
         get_fc_scope(["api_particulier_quotient"])
         == f"{settings.FC_SCOPE} {settings.API_PARTICULIER_QUOTIENT_SCOPE}"
+    )
+    assert (
+        get_fc_scope(["api_particulier_statut_etudiant"])
+        == f"{settings.FC_SCOPE} {settings.API_PARTICULIER_STATUT_ETUDIANT_SCOPE}"
+    )
+    assert (
+        get_fc_scope(["foo", "api_particulier_quotient", "api_particulier_statut_etudiant"])
+        == f"{settings.FC_SCOPE} {settings.API_PARTICULIER_QUOTIENT_SCOPE} {settings.API_PARTICULIER_STATUT_ETUDIANT_SCOPE}"
     )

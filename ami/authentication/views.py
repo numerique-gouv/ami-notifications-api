@@ -15,11 +15,18 @@ from ami.authentication.schemas import data_providers
 from ami.user.data import (
     get_address_from_api_particulier_quotient,
     get_api_particulier_quotient_raw_data,
+    get_api_particulier_statut_etudiant_raw_data,
     get_fc_userinfo,
 )
 from ami.utils.httpx import httpxAsyncClient
 
 logger = logging.getLogger(__name__)
+
+
+data_provider_functions = {
+    "api_particulier_quotient": get_api_particulier_quotient_raw_data,
+    "api_particulier_statut_etudiant": get_api_particulier_statut_etudiant_raw_data,
+}
 
 
 def retry_fc_later(error_dict: dict | None = None):
@@ -68,7 +75,16 @@ def login_france_connect(request):
 def login_ami_fi(request):
     try:
         NONCE = generate_nonce()
-        nonce = Nonce.objects.create(nonce=NONCE, context={"idp": "ami-fi"})
+        provider_ids = []
+        if request.GET.get("provider_id") and request.GET["provider_id"] in data_providers:
+            provider_ids.append(request.GET["provider_id"])
+        nonce = Nonce.objects.create(
+            nonce=NONCE,
+            context={
+                "idp": "ami-fi",
+                "provider_ids": provider_ids,
+            },
+        )
 
         redirect_uri: str = settings.FC_AMI_REDIRECT_URL
         if settings.PUBLIC_FC_PROXY_BASE_URL:
@@ -77,7 +93,7 @@ def login_ami_fi(request):
         if settings.PUBLIC_FC_PROXY_BASE_URL:
             state = f"{settings.FC_AMI_REDIRECT_URL}?state={nonce.id}"
         params = {
-            "scope": get_fc_scope(["api_particulier_quotient"]),
+            "scope": get_fc_scope(provider_ids),
             "redirect_uri": redirect_uri,
             "response_type": "code",
             "client_id": settings.FC_AMI_CLIENT_ID,
@@ -207,17 +223,17 @@ async def get_user_data(*, token_type, access_token, nonce_context, httpx_async_
                 httpx_async_client=httpx_async_client,
             )
         )
-        if (
-            nonce_context.get("idp") == "ami-fi"
-            and data_providers["api_particulier_quotient"].is_enabled()
-        ):
-            tasks["api_particulier_quotient"] = task_group.create_task(
-                get_api_particulier_quotient_raw_data(
-                    token_type=token_type,
-                    access_token=access_token,
-                    httpx_async_client=httpx_async_client,
-                )
-            )
+        if nonce_context.get("idp") == "ami-fi":
+            for key in nonce_context.get("provider_ids") or []:
+                provider = data_providers.get(key)
+                if provider is not None and provider.is_enabled():
+                    tasks[key] = task_group.create_task(
+                        data_provider_functions[key](
+                            token_type=token_type,
+                            access_token=access_token,
+                            httpx_async_client=httpx_async_client,
+                        )
+                    )
         elif data_providers["api_particulier_quotient"].is_enabled():
             tasks["address"] = task_group.create_task(
                 get_address_from_api_particulier_quotient(
