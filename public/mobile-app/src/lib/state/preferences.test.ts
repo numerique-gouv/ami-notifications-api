@@ -849,9 +849,17 @@ describe('/preferences.ts', () => {
           '2 Rue de Paris',
           '97400'
         );
+        const address4 = new Address(
+          'Arpajon',
+          '91, Essonne, Île-de-France',
+          '91021',
+          'Arpajon',
+          'Arpajon',
+          '91290'
+        );
         const preferences = new Preferences(
           ['Zone A', 'Zone B', 'Zone C'],
-          [address1, address2]
+          [address1, address2, address4]
         );
 
         // When
@@ -873,6 +881,12 @@ describe('/preferences.ts', () => {
             selected: true,
             tags: [
               {
+                id: '91021',
+                label: 'Arpajon (91)',
+                removable: true,
+              },
+              {
+                id: '94054_0070_00023',
                 label: 'Orly (94)',
                 removable: true,
               },
@@ -883,6 +897,7 @@ describe('/preferences.ts', () => {
             selected: false,
             tags: [
               {
+                id: '2B033',
                 label: 'Bastia (20)',
                 removable: true,
               },
@@ -923,6 +938,7 @@ describe('/preferences.ts', () => {
             selected: false,
             tags: [
               {
+                id: '97411_1060_00002',
                 label: 'Saint-Denis (974) 🏠',
                 removable: false,
               },
