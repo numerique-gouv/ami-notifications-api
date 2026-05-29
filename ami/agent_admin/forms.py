@@ -73,11 +73,9 @@ class NotificationForm(AMIDsfrBaseForm):
     item_generic_status = forms.ChoiceField(
         required=False,
         choices=[("", "--------"), ("new", "new"), ("wip", "wip"), ("closed", "closed")],
-        initial="new",
     )
     item_canal = forms.CharField(
         required=False,
-        initial="admin",
     )
     item_milestone_start_date = forms.DateTimeField(
         required=False,
