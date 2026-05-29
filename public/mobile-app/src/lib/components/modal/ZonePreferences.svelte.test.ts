@@ -219,7 +219,7 @@ describe('/ZonePreferences.svelte', () => {
 
   describe('City selection', () => {
     test('should display results when user enters a city', async () => {
-      // When
+      // Given
       await userStore.login(mockUserInfo);
       const data = [
         {
@@ -285,6 +285,7 @@ describe('/ZonePreferences.svelte', () => {
     });
 
     test('should update preferences and refresh zones when user clicks on a result', async () => {
+      // Given
       const data = [
         {
           nom: 'Arpajon',
@@ -432,6 +433,45 @@ describe('/ZonePreferences.svelte', () => {
         expect(cityWarning).toHaveTextContent(
           'Nous rencontrons des difficultés à trouver votre commune dans notre répertoire. Merci de réessayer plus tard.'
         );
+      });
+    });
+  });
+
+  describe('City remove action', () => {
+    test('should remove address in preferences', async () => {
+      // Given
+      const address = new Address(
+        'Arpajon',
+        '91, Essonne, Île-de-France',
+        '91021',
+        'Arpajon',
+        'Arpajon',
+        '91290'
+      );
+      const preferences = new Preferences(['Zone C'], [address]);
+      const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
+      newMockUserIdentity.preferences = preferences;
+      localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity));
+      await userStore.login(newMockUserIdentity);
+      const onClose = vi.fn();
+      const spy = vi.spyOn(Preferences.prototype, 'removeAddress');
+      render(ZonePreferences, { props: { onClose } });
+      await waitFor(async () => {
+        expect(screen.getByText('Arpajon (91)')).toBeInTheDocument();
+
+        // When
+        const tag = screen.getByTestId(address.idBAN);
+        await fireEvent.click(tag);
+      });
+
+      // Then
+      await waitFor(() => {
+        expect(screen.queryByText('Arpajon (91)')).not.toBeInTheDocument();
+        expect(userStore.connected?.identity.preferences.zones).toEqual(['Zone C']);
+        expect(userStore.connected?.identity.preferences.addresses).toEqual([]);
+        const parsed = JSON.parse(localStorage.getItem('user_identity') || '{}');
+        expect(parsed?.preferences).toEqual(userStore.connected?.identity.preferences);
+        expect(spy).toHaveBeenCalledWith(address);
       });
     });
   });
