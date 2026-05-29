@@ -159,19 +159,29 @@ export class Preferences {
 
   getZoneInfos(userAddress: AddressType | undefined): ZoneInfo[] {
     const result: ZoneInfo[] = [];
+    const addresses = this._addresses.map((address) => {
+      return {
+        id: address.idBAN,
+        zone: address.zone,
+        label: `${address.city} (${address.departement})`,
+      };
+    });
+    addresses.sort((a, b) => a.label.localeCompare(b.label, 'fr'));
     zones.forEach((zone) => {
       const selected = this._zones.includes(zone.label);
       const tags: ToggleTag[] = [];
       if (userAddress?.zone === zone.label) {
         tags.push({
+          id: userAddress.idBAN,
           label: `${userAddress.city} (${userAddress.departement}) 🏠`,
           removable: false,
         });
       }
-      this._addresses.forEach((address) => {
-        if (address.zone === zone.label) {
+      addresses.forEach((a) => {
+        if (a.zone === zone.label) {
           tags.push({
-            label: `${address.city} (${address.departement})`,
+            id: a.id,
+            label: a.label,
             removable: true,
           });
         }

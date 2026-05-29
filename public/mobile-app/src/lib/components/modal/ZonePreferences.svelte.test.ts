@@ -56,6 +56,7 @@ describe('/ZonePreferences.svelte', () => {
           selected: true,
           tags: [
             {
+              id: 'a',
               label: 'Paris (75) 🏠',
               removable: false,
             },
@@ -66,6 +67,7 @@ describe('/ZonePreferences.svelte', () => {
           selected: false,
           tags: [
             {
+              id: 'b',
               label: 'Bastia (20)',
               removable: true,
             },
