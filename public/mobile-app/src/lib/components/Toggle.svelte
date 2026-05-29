@@ -6,9 +6,17 @@
     label: string;
     isChecked: boolean;
     onChangeAction: (id: string, checked: boolean) => void;
+    onRemoveAction?: (id: string) => void;
     tags?: ToggleTag[];
   }
-  let { id, label, isChecked, onChangeAction, tags = [] }: Props = $props();
+  let {
+    id,
+    label,
+    isChecked,
+    onChangeAction,
+    onRemoveAction,
+    tags = [],
+  }: Props = $props();
 </script>
 
 <div class="fr-toggle">
@@ -29,6 +37,9 @@
           class="fr-tag fr-tag--dismiss"
           type="button"
           aria-label="Retirer {tag.label}"
+          id={tag.id}
+          onclick={(e) => onRemoveAction?.((e.target as HTMLInputElement).id)}
+          data-testid="{tag.id}"
         >
           {tag.label}
         </button>

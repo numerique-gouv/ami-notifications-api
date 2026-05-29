@@ -142,7 +142,7 @@
     }
   };
 
-  const saveSettings = async (id: string, checked: boolean) => {
+  const saveZones = async (id: string, checked: boolean) => {
     if (!userStore.connected) {
       return;
     }
@@ -154,6 +154,21 @@
     }
     userStore.connected.setPreferences(preferences);
     zoneInfos = userStore.connected.getZoneInfosFromPreferences();
+  };
+
+  const removeAddress = async (id: string) => {
+    if (!userStore.connected) {
+      return;
+    }
+    const preferences = userStore.connected.identity.preferences;
+    const matchingAddresses = preferences.addresses.filter(
+      (address) => address.idBAN.toString() === id
+    );
+    if (matchingAddresses.length) {
+      preferences.removeAddress(matchingAddresses[0]);
+      userStore.connected.setPreferences(preferences);
+      zoneInfos = userStore.connected.getZoneInfosFromPreferences();
+    }
   };
 </script>
 
@@ -243,7 +258,8 @@
         id={zoneInfo.zone}
         label={zoneInfo.zone}
         isChecked={zoneInfo.selected}
-        onChangeAction={saveSettings}
+        onChangeAction={saveZones}
+        onRemoveAction={removeAddress}
         tags={zoneInfo.tags}
       />
     {/each}
