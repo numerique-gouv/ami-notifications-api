@@ -1,7 +1,13 @@
-<script>
+<script lang="ts">
   import { goto } from '$app/navigation';
   import ZonePreferences from '$lib/components/modal/ZonePreferences.svelte';
   import { userStore } from '$lib/state/User.svelte';
+
+  let modalElementsVisible: boolean = $state(true);
+
+  const toggleModalElements = async (visible: boolean) => {
+    modalElementsVisible = visible;
+  };
 
   const goToNotificationsWelcomePage = () => {
     goto('/#/notifications-welcome-page');
@@ -14,20 +20,24 @@
 
 <div class="zones-welcome-page">
   <div class="zones-welcome-page-content">
-    <h2>Zones scolaires</h2>
-    <ZonePreferences />
+    {#if modalElementsVisible}
+      <h2>Zones scolaires</h2>
+    {/if}
+    <ZonePreferences toggleModalElements={toggleModalElements} />
   </div>
-  <div class="zones-welcome-page-footer">
-    <button
-      type="button"
-      class="fr-btn fr-btn--tertiary-no-outline"
-      onclick={goToNotificationsWelcomePage}
-      data-testid="skip-button"
-    >
-      Passer
-      <span class="fr-icon-arrow-right-line" aria-hidden="true"></span>
-    </button>
-  </div>
+  {#if modalElementsVisible}
+    <div class="zones-welcome-page-footer">
+      <button
+        type="button"
+        class="fr-btn fr-btn--tertiary-no-outline"
+        onclick={goToNotificationsWelcomePage}
+        data-testid="skip-button"
+      >
+        Passer
+        <span class="fr-icon-arrow-right-line" aria-hidden="true"></span>
+      </button>
+    </div>
+  {/if}
 </div>
 
 <style>
