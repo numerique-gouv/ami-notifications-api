@@ -157,6 +157,10 @@ export class Preferences {
     );
   }
 
+  clearAddresses() {
+    this._addresses = [];
+  }
+
   getZoneInfos(userAddress: AddressType | undefined): ZoneInfo[] {
     const result: ZoneInfo[] = [];
     const addresses = this._addresses.map((address) => {
