@@ -670,6 +670,52 @@ describe('/preferences.ts', () => {
       });
     });
 
+    describe('clearAddresses', () => {
+      test('should clear addresses', async () => {
+        // Given
+        const address1 = new Address(
+          'Orly',
+          '94, Val-de-Marne, Île-de-France',
+          '94054_0070_00023',
+          '23 Rue des Aubépines 94310 Orly',
+          '23 Rue des Aubépines',
+          '94310'
+        );
+        const address2 = new Address(
+          'Bastia',
+          '2B, Haute-Corse, Corse',
+          '2B033',
+          'Bastia',
+          'Bastia',
+          '20200'
+        );
+        const preferences1 = new Preferences([], []);
+        const preferences2 = new Preferences(
+          ['Zone A', 'Zone B', 'Zone C'],
+          [address1, address2]
+        );
+
+        const trackZoneSpy = vi
+          .spyOn(matomoMethods, 'trackZone')
+          .mockResolvedValue(undefined);
+        const trackZoneCountSpy = vi
+          .spyOn(matomoMethods, 'trackZoneCount')
+          .mockResolvedValue(undefined);
+
+        // When
+        preferences1.clearAddresses();
+        preferences2.clearAddresses();
+
+        // Then
+        expect(preferences1.zones).toEqual([]);
+        expect(preferences1.addresses).toEqual([]);
+        expect(preferences2.zones).toEqual(['Zone A', 'Zone B', 'Zone C']);
+        expect(preferences2.addresses).toEqual([]);
+        expect(trackZoneSpy).toHaveBeenCalledTimes(0);
+        expect(trackZoneCountSpy).toHaveBeenCalledTimes(0);
+      });
+    });
+
     describe('getZoneInfos', () => {
       test('user has no address and no preferences', async () => {
         // Given
