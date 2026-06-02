@@ -16,6 +16,7 @@
 
   let backUrl: string = '/#/preferences';
   let zoneInfos: ZoneInfo[] = $state([]);
+  let userHasAddresses: boolean = $state(false);
   let timer: ReturnType<typeof setTimeout>;
   let inputValue: string = $state('');
   let filteredCities: ResponseFromGeoAPI[] = $state([]);
@@ -53,11 +54,19 @@
     });
   };
 
+  const refreshPreferences = () => {
+    if (!userStore.connected) {
+      return;
+    }
+    zoneInfos = userStore.connected.getZoneInfosFromPreferences();
+    userHasAddresses = userStore.connected.identity.preferences.addresses.length > 0;
+  };
+
   onMount(() => {
     if (!userStore.connected) {
       goto('/');
     } else {
-      zoneInfos = userStore.connected.getZoneInfosFromPreferences();
+      refreshPreferences();
     }
 
     mountFooter();
@@ -135,7 +144,7 @@
       const preferences = userStore.connected.identity.preferences;
       preferences.addAddress(response.address);
       userStore.connected.setPreferences(preferences);
-      zoneInfos = userStore.connected.getZoneInfosFromPreferences();
+      refreshPreferences();
       showZones();
     } catch (error) {
       console.error(error);
@@ -153,7 +162,7 @@
       preferences.removeZone(id);
     }
     userStore.connected.setPreferences(preferences);
-    zoneInfos = userStore.connected.getZoneInfosFromPreferences();
+    refreshPreferences();
   };
 
   const removeAddress = async (id: string) => {
@@ -167,8 +176,18 @@
     if (matchingAddresses.length) {
       preferences.removeAddress(matchingAddresses[0]);
       userStore.connected.setPreferences(preferences);
-      zoneInfos = userStore.connected.getZoneInfosFromPreferences();
+      refreshPreferences();
     }
+  };
+
+  const clearAddresses = async () => {
+    if (!userStore.connected) {
+      return;
+    }
+    const preferences = userStore.connected.identity.preferences;
+    preferences.clearAddresses();
+    userStore.connected.setPreferences(preferences);
+    refreshPreferences();
   };
 </script>
 
@@ -185,7 +204,7 @@
   {/if}
   <form class="city-form">
     <fieldset class="fr-fieldset">
-      <div class="fr-fieldset__element">
+      <div class="fr-fieldset__element preferences-city-input-wrapper">
         <div class="fr-input-group autocomplete">
           <div class="fr-input-wrap fr-icon-search-line">
             <input
@@ -247,6 +266,18 @@
           {/if}
         </div>
       </div>
+      {#if zonesVisible && userHasAddresses}
+        <div class="preferences-city-clear">
+          <button
+            type="button"
+            class="fr-btn fr-btn--sm fr-btn--tertiary"
+            onclick={clearAddresses}
+            data-testid="clear-addresses"
+          >
+            Effacer tout
+          </button>
+        </div>
+      {/if}
     </fieldset>
   </form>
 </div>
@@ -310,6 +341,16 @@
         background-color: var(--text-action-high-blue-france);
         color: var(--text-inverted-blue-france);
       }
+    }
+    .preferences-city-input-wrapper:has(+ .preferences-city-clear) {
+      margin-bottom: 0.5rem;
+    }
+    .preferences-city-clear {
+      display: flex;
+      justify-content: flex-end;
+      flex-direction: row;
+      width: 100%;
+      padding: 0 0.5rem;
     }
   }
 </style>
