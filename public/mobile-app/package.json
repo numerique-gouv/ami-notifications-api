@@ -42,7 +42,7 @@
     "typescript": "5.9.3",
     "typescript-eslint": "8.49.0",
     "vite": "7.3.2",
-    "vitest": "4.0.15"
+    "vitest": "4.1.8"
   },
   "devDependencies": {
     "@cucumber/cucumber": "12.8.1",
