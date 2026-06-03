@@ -180,12 +180,15 @@ async def login_callback(request):
                 if result:
                     user_data[key] = result
 
-            jwt_token = create_jwt_token(user_id=str(user_id), jti=uuid.uuid4().hex)
-
             redirect_url = f"{settings.PUBLIC_APP_URL}/?{urlencode(user_data)}"
             if nonce_context.get("idp") == "ami-fi":
                 redirect_url = f"{settings.PUBLIC_APP_URL}/?{urlencode(user_data)}#/fi/"
+
             response = redirect(redirect_url)
+            if nonce_context.get("idp") == "ami-fi":
+                return response
+
+            jwt_token = create_jwt_token(user_id=str(user_id), jti=uuid.uuid4().hex)
             response.set_cookie(
                 key=settings.AUTH_COOKIE_JWT_NAME,
                 value=f"Bearer {jwt_token}",

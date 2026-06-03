@@ -6,7 +6,6 @@ import jwt
 import pytest
 from pytest_httpx import HTTPXMock
 
-from ami.authentication.auth import decode_jwt_token
 from ami.authentication.models import Nonce
 from ami.tests.utils import url_contains_param
 from ami.user.models import User
@@ -142,17 +141,6 @@ def test_login_callback_ami_fi(
         redirected_url,
     )
 
-    token = decode_jwt_token(
-        response.client.cookies[settings.AUTH_COOKIE_JWT_NAME].value.split(" ")[1].replace('"', "")
-    )
-    assert token
-    assert token["jti"] is not None
-
-    assert (
-        response.client.cookies[settings.USERINFO_COOKIE_JWT_NAME].value
-        == '"fake userinfo jwt token"'
-    )
-
     assert Nonce.objects.count() == 0
 
     assert User.objects.count() == 1
@@ -246,17 +234,6 @@ def test_login_callback_ami_fi_no_quotient(
     assert "api_particulier_quotient" not in redirected_url
     assert "api_particulier_statut_etudiant" not in redirected_url
 
-    token = decode_jwt_token(
-        response.client.cookies[settings.AUTH_COOKIE_JWT_NAME].value.split(" ")[1].replace('"', "")
-    )
-    assert token
-    assert token["jti"] is not None
-
-    assert (
-        response.client.cookies[settings.USERINFO_COOKIE_JWT_NAME].value
-        == '"fake userinfo jwt token"'
-    )
-
     assert Nonce.objects.count() == 0
 
     assert User.objects.count() == 1
@@ -348,17 +325,6 @@ def test_login_callback_ami_fi_no_statut_edudiant(
     )
     assert "api_particulier_quotient" not in redirected_url
     assert "api_particulier_statut_etudiant" not in redirected_url
-
-    token = decode_jwt_token(
-        response.client.cookies[settings.AUTH_COOKIE_JWT_NAME].value.split(" ")[1].replace('"', "")
-    )
-    assert token
-    assert token["jti"] is not None
-
-    assert (
-        response.client.cookies[settings.USERINFO_COOKIE_JWT_NAME].value
-        == '"fake userinfo jwt token"'
-    )
 
     assert Nonce.objects.count() == 0
 
