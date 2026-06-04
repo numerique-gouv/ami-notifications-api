@@ -109,7 +109,7 @@ def test_login_callback_ami_fi(
     assert response.status_code == 302
     redirected_url = response.headers["location"]
     assert redirected_url.startswith("https://localhost:5173/")
-    assert redirected_url.endswith("#/fi/")
+    assert redirected_url.endswith("#/fi")
     assert url_contains_param(
         "user_data",
         "fake userinfo jwt token",
@@ -123,6 +123,11 @@ def test_login_callback_ami_fi(
     assert url_contains_param(
         "user_fc_hash",
         "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060",
+        redirected_url,
+    )
+    assert url_contains_param(
+        "id_token",
+        "fake id token",
         redirected_url,
     )
     assert url_contains_param(
@@ -210,7 +215,7 @@ def test_login_callback_ami_fi_no_quotient(
     assert response.status_code == 302
     redirected_url = response.headers["location"]
     assert redirected_url.startswith("https://localhost:5173/")
-    assert redirected_url.endswith("#/fi/")
+    assert redirected_url.endswith("#/fi")
     assert url_contains_param(
         "user_data",
         "fake userinfo jwt token",
@@ -224,6 +229,11 @@ def test_login_callback_ami_fi_no_quotient(
     assert url_contains_param(
         "user_fc_hash",
         "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060",
+        redirected_url,
+    )
+    assert url_contains_param(
+        "id_token",
+        "fake id token",
         redirected_url,
     )
     assert url_contains_param(
@@ -302,7 +312,7 @@ def test_login_callback_ami_fi_no_statut_edudiant(
     assert response.status_code == 302
     redirected_url = response.headers["location"]
     assert redirected_url.startswith("https://localhost:5173/")
-    assert redirected_url.endswith("#/fi/")
+    assert redirected_url.endswith("#/fi")
     assert url_contains_param(
         "user_data",
         "fake userinfo jwt token",
@@ -316,6 +326,11 @@ def test_login_callback_ami_fi_no_statut_edudiant(
     assert url_contains_param(
         "user_fc_hash",
         "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060",
+        redirected_url,
+    )
+    assert url_contains_param(
+        "id_token",
+        "fake id token",
         redirected_url,
     )
     assert url_contains_param(

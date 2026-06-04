@@ -51,6 +51,13 @@ def login(request, login_type):
                 "provider_ids": provider_ids,
             }
             scope = get_fc_scope(provider_ids)
+        elif login_type == "silent-ami-fi":
+            scope = get_fc_scope([])
+            redirect_url = request.GET.get("redirect_url")
+            context = {
+                "idp": login_type,
+                "redirect_url": redirect_url or "",
+            }
         else:
             scope = get_fc_scope(["api_particulier_quotient"])
         NONCE = generate_nonce()
@@ -105,6 +112,11 @@ def login_france_connect(request):
 @require_GET
 def login_ami_fi(request):
     return login(request, "ami-fi")
+
+
+@require_GET
+def silent_login_ami_fi(request):
+    return login(request, "silent-ami-fi")
 
 
 @require_GET
@@ -171,14 +183,17 @@ async def login_callback(request):
                     if result:
                         user_data[key] = result
 
-            # build redirect_url, depending on kind of login (fc, ami-fi)
+            # build redirect_url, depending on kind of login (fc, ami-fi, silent-ami-fi)
             redirect_url = f"{settings.PUBLIC_APP_URL}/?{urlencode(user_data)}"
             if nonce_context.get("idp") == "ami-fi":
-                redirect_url = f"{settings.PUBLIC_APP_URL}/?{urlencode(user_data)}#/fi/"
+                redirect_url = f"{settings.PUBLIC_APP_URL}/?{urlencode(user_data)}#/fi"
+            if nonce_context.get("idp") == "silent-ami-fi":
+                user_data["redirect_url"] = nonce_context.get("redirect_url") or ""
+                redirect_url = f"{settings.PUBLIC_APP_URL}/?{urlencode(user_data)}#/silent-login"
 
             # set cookies only for fc
             response = redirect(redirect_url)
-            if nonce_context.get("idp") == "ami-fi":
+            if nonce_context.get("idp") in ["ami-fi", "silent-ami-fi"]:
                 return response
             jwt_token = create_jwt_token(user_id=str(user_id), jti=uuid.uuid4().hex)
             response.set_cookie(
@@ -210,6 +225,11 @@ async def login_callback(request):
 
 async def get_user_data(*, token_type, access_token, nonce_context, httpx_async_client):
     tasks = {}
+
+    if nonce_context.get("idp") == "silent-ami-fi":
+        # don't call data providers
+        return tasks
+
     async with asyncio.TaskGroup() as task_group:
         tasks["userinfo"] = task_group.create_task(
             get_fc_userinfo(
