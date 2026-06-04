@@ -238,7 +238,7 @@
                     <img
                       class="city-input-empty--icon"
                       src="/icons/city-search.svg"
-                      alt="Icône de recherche"
+                      alt=""
                     >
                   </div>
                   <div class="city-input-empty--title">

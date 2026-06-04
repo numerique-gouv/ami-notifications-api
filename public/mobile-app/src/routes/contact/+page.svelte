@@ -31,11 +31,7 @@
 
   <div class="contact-page-wrapper">
     <div class="image-wrapper">
-      <img
-        class="contact-icon"
-        src="/icons/community.svg"
-        alt="Icône de la page de contact"
-      >
+      <img class="contact-icon" src="/icons/community.svg" alt="">
     </div>
 
     <p>
@@ -55,15 +51,10 @@
           class="copy-button"
           type="button"
           onclick={copyIdentificationCode}
-          title="Copier le code d'identification"
           aria-label="Copier le code d'identification"
           data-testid="copy-button"
         >
-          <img
-            class="copy-icon"
-            src="/remixicons/file-copy-line.svg"
-            alt="Icône de copie"
-          >
+          <img class="copy-icon" src="/remixicons/file-copy-line.svg" alt="">
         </button>
       </div>
     </div>

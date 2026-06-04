@@ -55,8 +55,9 @@
       type="button"
       onclick="{goToSettings}"
       data-testid="settings-button"
+      aria-label="Gérer les notifications"
     >
-      <img src="/remixicons/settings.svg" alt="Icône de paramétrage">
+      <img src="/remixicons/settings.svg" alt="">
       Gérer
     </button>
   </div>

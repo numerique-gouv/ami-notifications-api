@@ -109,11 +109,7 @@
     {:else}
       <div class="no-requests">
         <div class="no-requests--icon">
-          <img
-            class="requests-icon"
-            src="/remixicons/tracking.svg"
-            alt="Icône de suivi"
-          >
+          <img class="requests-icon" src="/remixicons/tracking.svg" alt="">
         </div>
         <div class="no-requests--title">
           Après avoir effectué vos démarches, vous pouvez les suivre en temps réel

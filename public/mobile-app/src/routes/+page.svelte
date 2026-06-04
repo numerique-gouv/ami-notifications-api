@@ -107,7 +107,7 @@
       {/if}
       <div class="france-connect-wrapper">
         <div class="france-connect-svg-icon">
-          <img src="{applicationSvg}" alt="Icône de notification">
+          <img src="{applicationSvg}" alt="">
         </div>
 
         <div class="france-connect-text">

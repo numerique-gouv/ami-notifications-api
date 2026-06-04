@@ -29,11 +29,7 @@
 
 <div class="notifications-welcome-page">
   <div class="image-wrapper">
-    <img
-      class="address-icon"
-      src="/remixicons/notification.svg"
-      alt="Icône de notification"
-    >
+    <img class="address-icon" src="/remixicons/notification.svg" alt="">
   </div>
   <h1>Activez les notifications pour suivre vos démarches</h1>
   <div class="descriptive-text">

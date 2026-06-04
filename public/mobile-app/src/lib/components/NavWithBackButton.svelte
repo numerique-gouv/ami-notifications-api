@@ -38,7 +38,7 @@
   </div>
   {#if logo}
     <div class="logo">
-      <img src={logo} alt={logoAlt ? logoAlt : "Icône du logo"}>
+      <img src={logo} alt={logoAlt ? logoAlt : ""}>
     </div>
   {/if}
   {#if title}

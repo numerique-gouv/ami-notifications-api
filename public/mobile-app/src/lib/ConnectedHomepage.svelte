@@ -156,8 +156,11 @@
 
     <div class="header-right">
       <div class="notification-svg-icon" id="notification-icon">
-        <a href="/#/notifications">
-          <img src="/remixicons/notification-3.svg" alt="Icône de notifications">
+        <a
+          aria-label="Voir les notifications({unreadNotificationsCount})"
+          href="/#/notifications"
+        >
+          <img src="/remixicons/notification-3.svg" alt="">
           <div class="count-number-wrapper" data-content="{unreadNotificationsCount}">
             {unreadNotificationsCount}
           </div>
@@ -229,7 +232,7 @@
         >
           <div class="fr-tile__body">
             <div class="fr-tile__content">
-              <img class="address-icon" src="/remixicons/house.svg" alt="Icône adresse">
+              <img class="address-icon" src="/remixicons/house.svg" alt="">
               <h3 class="fr-tile__title">
                 <a href="/#/edit-address"
                   ><b
@@ -251,11 +254,7 @@
       <div class="rubrique-content-container">
         <div class="no-agenda rubrique-content-container--empty">
           <div class="no-agenda--icon">
-            <img
-              class="address-icon"
-              src="/remixicons/calendar.svg"
-              alt="Icône d'agenda"
-            >
+            <img class="address-icon" src="/remixicons/calendar.svg" alt="">
           </div>
           <div class="no-agenda--title">
             Retrouvez les temps importants de votre vie administrative ici
@@ -265,13 +264,9 @@
     {:else}
       <div class="header-container">
         <span class="title">Mon agenda</span>
-        <a class="see-all" title="Voir tous mes évènements" href="/#/agenda">
+        <a class="see-all" aria-label="Voir tous mes évènements" href="/#/agenda">
           <span>Voir tout</span>
-          <img
-            class="arrow-line"
-            src="/remixicons/arrow-line.svg"
-            alt="Icône de flèche"
-          >
+          <img class="arrow-line" src="/remixicons/arrow-line.svg" alt="">
         </a>
       </div>
       <div class="rubrique-content-container">
@@ -298,11 +293,7 @@
       <div class="rubrique-content-container">
         <div class="no-requests rubrique-content-container--empty">
           <div class="no-requests--icon">
-            <img
-              class="address-icon"
-              src="/remixicons/tracking.svg"
-              alt="Icône de suivi"
-            >
+            <img class="address-icon" src="/remixicons/tracking.svg" alt="">
           </div>
           <div class="no-requests--title">Retrouvez et suivez vos démarches ici.</div>
         </div>
@@ -310,13 +301,9 @@
     {:else}
       <div class="header-container">
         <span class="title">Mes démarches</span>
-        <a class="see-all" title="Voir toutes mes démarches" href="/#/requests">
+        <a class="see-all" aria-label="Voir toutes mes démarches" href="/#/requests">
           <span>Voir tout</span>
-          <img
-            class="arrow-line"
-            src="/remixicons/arrow-line.svg"
-            alt="Icône de flèche"
-          >
+          <img class="arrow-line" src="/remixicons/arrow-line.svg" alt="">
         </a>
       </div>
       <div class="rubrique-content-container">
