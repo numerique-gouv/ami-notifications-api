@@ -1,14 +1,23 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { goto } from '$app/navigation';
   import { page } from '$app/state';
-  import { PUBLIC_API_URL } from '$env/static/public';
+  import {
+    PUBLIC_API_URL,
+    PUBLIC_FEATURE_FLAG_FI_LOGIN_ENABLED,
+  } from '$env/static/public';
   import { franceConnectLogout } from '$lib/france-connect';
 
   let data_providers: Record<string, unknown> = $state({});
   let datas: Record<string, Record<string, unknown>> = $state({});
   let selected: string = $state('');
+  const fi_enabled = PUBLIC_FEATURE_FLAG_FI_LOGIN_ENABLED === 'true';
 
   onMount(async () => {
+    if (!fi_enabled) {
+      goto('/');
+      return;
+    }
     try {
       const response = await fetch(
         `${PUBLIC_API_URL}/api/v1/authentication/providers/`
