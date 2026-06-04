@@ -1,9 +1,14 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
+  import {
+    PUBLIC_API_URL,
+    PUBLIC_FEATURE_FLAG_SILENT_FC_OTV,
+  } from '$env/static/public';
   import { Address } from '$lib/address';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import PageWrapper from '$lib/components/PageWrapper.svelte';
+  import { franceConnectLogout } from '$lib/france-connect';
   import { retrieveProcedureUrl } from '$lib/procedure';
   import { User, type UserIdentity, userStore } from '$lib/state/User.svelte';
 
@@ -66,17 +71,29 @@
     }
   });
 
+  const AMIFILogin = async (procedureUrl: string) => {
+    const id_token_hint = localStorage.getItem('id_token') || '';
+    const redirect_url = `${PUBLIC_API_URL}/silent-login-ami-fi?redirect_url=${encodeURIComponent(procedureUrl)}`;
+    if (id_token_hint) {
+      await franceConnectLogout(id_token_hint, redirect_url);
+    } else {
+      window.location.href = redirect_url;
+    }
+  };
+
   const redirectToLink = (procedureUrl: string) => {
     if (procedureUrl) {
-      window.location.href = procedureUrl;
+      if (PUBLIC_FEATURE_FLAG_SILENT_FC_OTV === 'true') {
+        AMIFILogin(procedureUrl);
+      } else {
+        window.location.href = procedureUrl;
+      }
     }
   };
 
   const clickOnProcedureButton = async () => {
-    const originalProcedureUrl = procedureUrl;
-    procedureUrl = '';
     await getProcedureUrl();
-    redirectToLink(originalProcedureUrl);
+    redirectToLink(procedureUrl);
   };
 
   export const getProcedureUrlForTests = () => procedureUrl;
