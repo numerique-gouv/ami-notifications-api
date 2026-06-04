@@ -1,18 +1,39 @@
-import { render, screen, waitFor } from '@testing-library/svelte';
+import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import * as navigationMethods from '$app/navigation';
+import * as envModule from '$env/static/public';
 import * as procedureMethods from '$lib/procedure';
 import { userStore } from '$lib/state/User.svelte';
 import { expectBackButtonPresent, mockAddress, mockUserInfo } from '$tests/utils';
 import Page from './+page.svelte';
 
 describe('/+page.svelte', () => {
+  let originalWindow: typeof globalThis.window;
+
   beforeEach(async () => {
+    originalWindow = globalThis.window;
+
+    vi.mock('$env/static/public', async (importOriginal) => {
+      const original = (await importOriginal()) as Record<string, unknown>;
+      return Promise.resolve({
+        ...original,
+        PUBLIC_API_URL: 'https://localhost:8000',
+        PUBLIC_FEATURE_FLAG_SILENT_FC_OTV: 'true',
+        PUBLIC_MATOMO_ENABLED: 'false',
+        PUBLIC_FC_PROXY_BASE_URL: 'https://proxy',
+        PUBLIC_FC_BASE_URL: 'https://fc',
+        PUBLIC_FC_LOGOUT_ENDPOINT: '/api/v2/session/end',
+      });
+    });
+    vi.mocked(envModule).PUBLIC_FEATURE_FLAG_SILENT_FC_OTV = 'true';
+
     await userStore.login(mockUserInfo);
-    vi.useFakeTimers();
+    vi.useFakeTimers({ shouldAdvanceTime: true });
   });
 
   afterEach(() => {
+    globalThis.window = originalWindow;
+    vi.resetAllMocks();
     vi.useRealTimers();
   });
 
@@ -138,5 +159,94 @@ describe('/+page.svelte', () => {
 
     // Then
     expectBackButtonPresent(screen);
+  });
+
+  describe('user click on procedure button', () => {
+    test('should redirect to procedure url', async () => {
+      // Given
+      const locationMock = {
+        href: '',
+        hash: '#/procedure',
+        origin: 'http://localhost',
+      };
+      vi.stubGlobal('location', locationMock);
+      await userStore.login(mockUserInfo);
+      vi.mocked(envModule).PUBLIC_FEATURE_FLAG_SILENT_FC_OTV = 'false';
+      const procedureUrl = 'fake-public-otv-url?caller=fake.jwt.token';
+      vi.spyOn(procedureMethods, 'retrieveProcedureUrl').mockResolvedValue(
+        procedureUrl
+      );
+
+      render(Page);
+      const procedureButton = await screen.getByTestId('procedure-button');
+
+      // When
+      await fireEvent.click(procedureButton);
+
+      // Then
+      await waitFor(() => {
+        expect(procedureMethods.retrieveProcedureUrl).toHaveBeenCalled();
+        expect(locationMock.href).toEqual('fake-public-otv-url?caller=fake.jwt.token');
+      });
+    });
+
+    test('should redirect to silent login', async () => {
+      // Given
+      const locationMock = {
+        href: '',
+        hash: '#/procedure',
+        origin: 'http://localhost',
+      };
+      vi.stubGlobal('location', locationMock);
+      await userStore.login(mockUserInfo);
+      const procedureUrl = 'fake-public-otv-url?caller=fake.jwt.token';
+      vi.spyOn(procedureMethods, 'retrieveProcedureUrl').mockResolvedValue(
+        procedureUrl
+      );
+
+      render(Page);
+      const procedureButton = await screen.getByTestId('procedure-button');
+
+      // When
+      await fireEvent.click(procedureButton);
+
+      // Then
+      await waitFor(() => {
+        expect(procedureMethods.retrieveProcedureUrl).toHaveBeenCalled();
+        expect(locationMock.href).toEqual(
+          'https://localhost:8000/silent-login-ami-fi?redirect_url=fake-public-otv-url%3Fcaller%3Dfake.jwt.token'
+        );
+      });
+    });
+
+    test('should call logout endpoint as a token is stored in localstorage', async () => {
+      // Given
+      globalThis.localStorage.setItem('id_token', 'fake-id-token');
+      const locationMock = {
+        href: '',
+        hash: '#/procedure',
+        origin: 'http://localhost',
+      };
+      vi.stubGlobal('location', locationMock);
+      await userStore.login(mockUserInfo);
+      const procedureUrl = 'fake-public-otv-url?caller=fake.jwt.token';
+      vi.spyOn(procedureMethods, 'retrieveProcedureUrl').mockResolvedValue(
+        procedureUrl
+      );
+
+      render(Page);
+      const procedureButton = await screen.getByTestId('procedure-button');
+
+      // When
+      await fireEvent.click(procedureButton);
+
+      // Then
+      await waitFor(() => {
+        expect(procedureMethods.retrieveProcedureUrl).toHaveBeenCalled();
+        expect(locationMock.href).toEqual(
+          'https://fc/api/v2/session/end?id_token_hint=fake-id-token&state=https%3A%2F%2Flocalhost%3A8000%2Fsilent-login-ami-fi%3Fredirect_url%3Dfake-public-otv-url%253Fcaller%253Dfake.jwt.token&post_logout_redirect_uri=https%3A%2F%2Fproxy%2F'
+        );
+      });
+    });
   });
 });
