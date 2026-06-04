@@ -39,61 +39,36 @@ def retry_fc_later(error_dict: dict | None = None):
     return redirect(f"{settings.PUBLIC_APP_URL}/?{urlencode(params)}")
 
 
-@require_GET
-def login_france_connect(request):
+def login(request, login_type):
     try:
+        context = None
+        if login_type == "ami-fi":
+            provider_ids = []
+            if request.GET.get("provider_id") and request.GET["provider_id"] in data_providers:
+                provider_ids.append(request.GET["provider_id"])
+            context = {
+                "idp": login_type,
+                "provider_ids": provider_ids,
+            }
+            scope = get_fc_scope(provider_ids)
+        else:
+            scope = get_fc_scope(["api_particulier_quotient"])
         NONCE = generate_nonce()
-        nonce = Nonce.objects.create(nonce=NONCE)
-
-        redirect_uri: str = settings.FC_AMI_REDIRECT_URL
-        if settings.PUBLIC_FC_PROXY_BASE_URL:
-            redirect_uri = f"{settings.PUBLIC_FC_PROXY_BASE_URL}/"
-        state: str = str(nonce.id)
-        if settings.PUBLIC_FC_PROXY_BASE_URL:
-            state = f"{settings.FC_AMI_REDIRECT_URL}?state={nonce.id}"
-        params = {
-            "scope": get_fc_scope(["api_particulier_quotient"]),
-            "redirect_uri": redirect_uri,
-            "response_type": "code",
-            "client_id": settings.FC_AMI_CLIENT_ID,
-            "state": state,
-            "nonce": NONCE,
-            "acr_values": "eidas1",
-            "prompt": "login",
-        }
-
-        login_url = (
-            f"{settings.PUBLIC_FC_BASE_URL}{settings.FC_AUTHORIZATION_ENDPOINT}?{urlencode(params)}"
-        )
-        return redirect(login_url)
-    except Exception as e:
-        logging.exception(e)
-        return redirect(f"{settings.PUBLIC_APP_URL}/#/technical-error")
-
-
-@require_GET
-def login_ami_fi(request):
-    try:
-        NONCE = generate_nonce()
-        provider_ids = []
-        if request.GET.get("provider_id") and request.GET["provider_id"] in data_providers:
-            provider_ids.append(request.GET["provider_id"])
         nonce = Nonce.objects.create(
             nonce=NONCE,
-            context={
-                "idp": "ami-fi",
-                "provider_ids": provider_ids,
-            },
+            context=context,
         )
 
+        use_proxy = bool(settings.PUBLIC_FC_PROXY_BASE_URL)
+        fi_login = login_type != "fc"
+
         redirect_uri: str = settings.FC_AMI_REDIRECT_URL
-        if settings.PUBLIC_FC_PROXY_BASE_URL:
-            redirect_uri = f"{settings.PUBLIC_FC_PROXY_BASE_URL}/"
         state: str = str(nonce.id)
-        if settings.PUBLIC_FC_PROXY_BASE_URL:
+        if use_proxy:
+            redirect_uri = f"{settings.PUBLIC_FC_PROXY_BASE_URL}/"
             state = f"{settings.FC_AMI_REDIRECT_URL}?state={nonce.id}"
         params = {
-            "scope": get_fc_scope(provider_ids),
+            "scope": scope,
             "redirect_uri": redirect_uri,
             "response_type": "code",
             "client_id": settings.FC_AMI_CLIENT_ID,
@@ -101,13 +76,14 @@ def login_ami_fi(request):
             "nonce": NONCE,
             "acr_values": "eidas1",
             "prompt": "login",
-            "idp_hint": settings.FI_IDP_ID,
         }
+        if fi_login:
+            params["idp_hint"] = settings.FI_IDP_ID
 
         login_url = (
             f"{settings.PUBLIC_FC_BASE_URL}{settings.FC_AUTHORIZATION_ENDPOINT}?{urlencode(params)}"
         )
-        if settings.PUBLIC_FC_PROXY_BASE_URL:
+        if use_proxy and fi_login:
             params = {
                 "from_url": f"{settings.PUBLIC_API_URL}/",
                 "fc_url": login_url,
@@ -119,6 +95,16 @@ def login_ami_fi(request):
     except Exception as e:
         logging.exception(e)
         return redirect(f"{settings.PUBLIC_APP_URL}/#/technical-error")
+
+
+@require_GET
+def login_france_connect(request):
+    return login(request, "fc")
+
+
+@require_GET
+def login_ami_fi(request):
+    return login(request, "ami-fi")
 
 
 @require_GET
@@ -143,6 +129,7 @@ async def login_callback(request):
             return JsonResponse({"error": "Client secret manquant"}, status=500)
 
         async with httpxAsyncClient() as httpx_async_client:
+            # get FC token
             response_token_data, nonce_context = await get_fc_token(
                 code=code,
                 fc_state=fc_state,
@@ -158,6 +145,7 @@ async def login_callback(request):
             if not access_token:
                 raise FCError("missing_access_token")
 
+            # get user data: userinfo, data from providers, ...
             try:
                 tasks = await get_user_data(
                     token_type=token_type,
@@ -168,26 +156,30 @@ async def login_callback(request):
             except* FCError as e:
                 raise e.exceptions[0]
 
+            # build user_data from previous calls
             user_data = {
                 "is_logged_in": "true",
                 "id_token": id_token,
             }
-            task_userinfo = tasks.pop("userinfo")
-            userinfo_result, user_id = task_userinfo.result()
-            user_data.update(userinfo_result)
-            for key, task in tasks.items():
-                result = task.result()
-                if result:
-                    user_data[key] = result
+            user_id, userinfo_result = None, {}
+            if "userinfo" in tasks:
+                task_userinfo = tasks.pop("userinfo")
+                userinfo_result, user_id = task_userinfo.result()
+                user_data.update(userinfo_result)
+                for key, task in tasks.items():
+                    result = task.result()
+                    if result:
+                        user_data[key] = result
 
+            # build redirect_url, depending on kind of login (fc, ami-fi)
             redirect_url = f"{settings.PUBLIC_APP_URL}/?{urlencode(user_data)}"
             if nonce_context.get("idp") == "ami-fi":
                 redirect_url = f"{settings.PUBLIC_APP_URL}/?{urlencode(user_data)}#/fi/"
 
+            # set cookies only for fc
             response = redirect(redirect_url)
             if nonce_context.get("idp") == "ami-fi":
                 return response
-
             jwt_token = create_jwt_token(user_id=str(user_id), jti=uuid.uuid4().hex)
             response.set_cookie(
                 key=settings.AUTH_COOKIE_JWT_NAME,
@@ -227,6 +219,7 @@ async def get_user_data(*, token_type, access_token, nonce_context, httpx_async_
             )
         )
         if nonce_context.get("idp") == "ami-fi":
+            # providers are in nonce context, set on login view
             for key in nonce_context.get("provider_ids") or []:
                 provider = data_providers.get(key)
                 if provider is not None and provider.is_enabled():
@@ -238,6 +231,7 @@ async def get_user_data(*, token_type, access_token, nonce_context, httpx_async_
                         )
                     )
         elif data_providers["api_particulier_quotient"].is_enabled():
+            # fc, only call api_particulier_quotient, if enabled
             tasks["address"] = task_group.create_task(
                 get_address_from_api_particulier_quotient(
                     token_type=token_type,
@@ -245,4 +239,5 @@ async def get_user_data(*, token_type, access_token, nonce_context, httpx_async_
                     httpx_async_client=httpx_async_client,
                 )
             )
+
     return tasks
