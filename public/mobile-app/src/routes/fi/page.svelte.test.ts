@@ -1,6 +1,8 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { render, screen, waitFor } from '@testing-library/svelte';
+import * as navigationMethods from '$app/navigation';
+import * as envModule from '$env/static/public';
 import { PUBLIC_API_URL } from '$env/static/public';
 import * as franceConnectHelpers from '$lib/france-connect';
 import Page from './+page.svelte';
@@ -10,6 +12,16 @@ describe('/+page.svelte', () => {
 
   beforeEach(() => {
     originalWindow = globalThis.window;
+
+    vi.mock('$env/static/public', async (importOriginal) => {
+      const original = (await importOriginal()) as Record<string, unknown>;
+      return Promise.resolve({
+        ...original,
+        PUBLIC_API_URL: 'https://localhost:8000',
+        PUBLIC_FEATURE_FLAG_FI_LOGIN_ENABLED: 'true',
+      });
+    });
+    vi.mocked(envModule).PUBLIC_FEATURE_FLAG_FI_LOGIN_ENABLED = 'true';
   });
 
   afterEach(() => {
@@ -18,6 +30,34 @@ describe('/+page.svelte', () => {
   });
 
   describe('user is logged in', () => {
+    test('Should redirect to home if feature flag is not enabled', async () => {
+      // Given
+      vi.mocked(envModule).PUBLIC_FEATURE_FLAG_FI_LOGIN_ENABLED = 'false';
+      const spy = vi
+        .spyOn(navigationMethods, 'goto')
+        .mockImplementation(() => Promise.resolve());
+      render(Page);
+
+      // When
+      render(Page);
+
+      // Then
+      expect(spy).toHaveBeenCalledWith('/');
+    });
+    test('Should not redirect to home if feature flag is enabled', async () => {
+      // Given
+      vi.mocked(envModule).PUBLIC_FEATURE_FLAG_FI_LOGIN_ENABLED = 'true';
+      const spy = vi
+        .spyOn(navigationMethods, 'goto')
+        .mockImplementation(() => Promise.resolve());
+      render(Page);
+
+      // When
+      render(Page);
+
+      // Then
+      expect(spy).not.toHaveBeenCalled();
+    });
     test('should set token in localStorage', async () => {
       // Given
       const { page } = await import('$app/state');
