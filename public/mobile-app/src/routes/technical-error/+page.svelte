@@ -8,11 +8,7 @@
 
 <div class="technical-error">
   <div class="image-wrapper">
-    <img
-      class="error-icon"
-      src="/remixicons/technical-error.svg"
-      alt="Icône d'erreur technique"
-    >
+    <img class="error-icon" src="/remixicons/technical-error.svg" alt="">
   </div>
   <h1>Petit problème de notre côté...</h1>
   <div class="descriptive-text">

@@ -15,7 +15,7 @@
         href="/"
         aria-current="{current.home ? 'true': null}"
       >
-        <img src="/remixicons/home-4-fill.svg" alt="Icône d'accueil">
+        <img src="/remixicons/home-4-fill.svg" alt="">
         <span>Accueil</span>
       </a>
     </li>
@@ -25,7 +25,7 @@
         href="/#/agenda"
         aria-current="{current.agenda ? 'true': null}"
       >
-        <img src="/remixicons/calendar-event-line.svg" alt="Icône de calendrier">
+        <img src="/remixicons/calendar-event-line.svg" alt="">
         <span>Agenda</span>
       </a>
     </li>
@@ -35,7 +35,7 @@
         href="/#/requests"
         aria-current="{current.requests ? 'true': null}"
       >
-        <img src="/remixicons/vector.svg" alt="Icône de suivi">
+        <img src="/remixicons/vector.svg" alt="">
         <span>Suivi</span>
       </a>
     </li>

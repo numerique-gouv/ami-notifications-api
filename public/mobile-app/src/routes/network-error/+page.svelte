@@ -8,11 +8,7 @@
 
 <div class="network-error">
   <div class="image-wrapper">
-    <img
-      class="error-icon"
-      src="/remixicons/connection-lost.svg"
-      alt="Icône d'erreur de connexion"
-    >
+    <img class="error-icon" src="/remixicons/connection-lost.svg" alt="">
   </div>
   <h1>Problème de connexion Internet</h1>
   <div class="descriptive-text">
