@@ -11,7 +11,6 @@ describe('/AgendaItem.svelte', () => {
       'Opération Tranquillité Vacances',
       'Votre demande est terminée.',
       new Date('2026-02-20T15:55:00.000Z'),
-      null,
       'closed',
       'Terminée',
       'url'
@@ -31,7 +30,6 @@ describe('/AgendaItem.svelte', () => {
       'Opération Tranquillité Vacances',
       'Votre demande est terminée.',
       new Date('2026-02-20T15:55:00.000Z'),
-      null,
       'closed',
       'Terminée',
       null

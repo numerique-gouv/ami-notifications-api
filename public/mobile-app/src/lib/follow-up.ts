@@ -9,7 +9,6 @@ export class RequestItem {
     private _description: string,
 
     private _date: Date,
-    private _milestone_end_date: Date | null,
 
     private _status_id: Status,
     private _status_label: string,
@@ -48,16 +47,6 @@ export class RequestItem {
     return this._link;
   }
 
-  is_past(): boolean {
-    if (this._status_id === 'closed') {
-      return true;
-    }
-    if (this._milestone_end_date && this._milestone_end_date < new Date()) {
-      return true;
-    }
-    return false;
-  }
-
   private static readonly StatusInfo: Record<Status, { icon: string }> = {
     new: {
       icon: 'fr-icon-mail-fill',
@@ -88,8 +77,7 @@ export class RequestItem {
 }
 
 export class FollowUp {
-  private _current: RequestItem[] = [];
-  private _past: RequestItem[] = [];
+  private _items: RequestItem[] = [];
 
   constructor(inventory: Inventory | null = null) {
     const requestItems: RequestItem[] = [];
@@ -105,14 +93,7 @@ export class FollowUp {
     // sort items by date
     requestItems.sort((a, b) => b.date.getTime() - a.date.getTime());
 
-    // organize items in _current or _past arrays
-    requestItems.forEach((requestItem) => {
-      if (requestItem.is_past()) {
-        this._past.push(requestItem);
-      } else {
-        this._current.push(requestItem);
-      }
-    });
+    this._items = requestItems;
   }
 
   private createRequestItem(inventoryItem: InventoryItem): RequestItem {
@@ -120,19 +101,14 @@ export class FollowUp {
       inventoryItem.title,
       inventoryItem.description,
       inventoryItem.updated_at,
-      inventoryItem.milestone_end_date,
       inventoryItem.status_id as Status,
       inventoryItem.status_label,
       inventoryItem.external_url
     );
   }
 
-  get current(): RequestItem[] {
-    return this._current;
-  }
-
-  get past(): RequestItem[] {
-    return this._past;
+  get items(): RequestItem[] {
+    return this._items;
   }
 }
 

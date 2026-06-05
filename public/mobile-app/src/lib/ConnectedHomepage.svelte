@@ -64,7 +64,7 @@
       isAgendaEmpty = !(agenda.now.length || agenda.next.length);
       followUp = await buildFollowUp();
       console.log($state.snapshot(followUp));
-      isFollowUpEmpty = !(followUp.current.length || followUp.past.length);
+      isFollowUpEmpty = !followUp.items.length;
     } catch (error) {
       console.error(error);
     }
@@ -289,10 +289,8 @@
         </a>
       </div>
       <div class="rubrique-content-container">
-        {#if followUp?.current.length}
-          <RequestItem item={followUp.current[0]} />
-        {:else if followUp?.past.length}
-          <RequestItem item={followUp.past[0]} />
+        {#if followUp?.items.length}
+          <RequestItem item={followUp.items[0]} />
         {/if}
       </div>
     {/if}

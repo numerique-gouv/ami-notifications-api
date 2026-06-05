@@ -23,23 +23,19 @@ describe('/+page.svelte', () => {
   test('Should display requests from API', async () => {
     // Given
     const followUp = new FollowUp();
-    vi.spyOn(followUp, 'current', 'get').mockReturnValue([
+    vi.spyOn(followUp, 'items', 'get').mockReturnValue([
       new RequestItem(
         'Opération Tranquillité Vacances',
         'Votre demande est en cours de traitement.',
         new Date('2026-02-22T15:55:00.000Z'),
-        null,
         'wip',
         'En cours',
         null
       ),
-    ]);
-    vi.spyOn(followUp, 'past', 'get').mockReturnValue([
       new RequestItem(
         'Opération Tranquillité Vacances',
         'Votre demande est terminée.',
         new Date('2026-02-20T15:55:00.000Z'),
-        null,
         'closed',
         'Terminée',
         null
@@ -53,25 +49,21 @@ describe('/+page.svelte', () => {
     // Then
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
-      expect(screen.getByTestId('requests-current')).toHaveTextContent(
+      expect(screen.getByTestId('requests')).toHaveTextContent(
         'Votre demande est en cours de traitement.'
       );
-      expect(screen.getByTestId('requests-current')).not.toHaveTextContent(
-        'Après avoir effectué vos démarches, vous pouvez les suivre en temps réel depuis l’application.'
-      );
-      expect(screen.getByTestId('requests-past')).toHaveTextContent(
+      expect(screen.getByTestId('requests')).toHaveTextContent(
         'Votre demande est terminée.'
       );
-      expect(screen.getByTestId('requests-past')).not.toHaveTextContent(
+      expect(screen.getByTestId('requests')).not.toHaveTextContent(
         'Après avoir effectué vos démarches, vous pouvez les suivre en temps réel depuis l’application.'
       );
     });
   });
-  test('Should display empty tabs', async () => {
+  test('Should display empty followup', async () => {
     // Given
     const followUp = new FollowUp();
-    vi.spyOn(followUp, 'current', 'get').mockReturnValue([]);
-    vi.spyOn(followUp, 'past', 'get').mockReturnValue([]);
+    vi.spyOn(followUp, 'items', 'get').mockReturnValue([]);
     const spy = vi.spyOn(followUpMethods, 'buildFollowUp').mockResolvedValue(followUp);
 
     // When
@@ -80,10 +72,7 @@ describe('/+page.svelte', () => {
     // Then
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
-      expect(screen.getByTestId('requests-current')).toHaveTextContent(
-        'Après avoir effectué vos démarches, vous pouvez les suivre en temps réel depuis l’application.'
-      );
-      expect(screen.getByTestId('requests-past')).toHaveTextContent(
+      expect(screen.getByTestId('requests')).toHaveTextContent(
         'Après avoir effectué vos démarches, vous pouvez les suivre en temps réel depuis l’application.'
       );
     });
