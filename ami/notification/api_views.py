@@ -1,12 +1,9 @@
-import os
 import uuid
-from functools import partial
 from typing import cast
 
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from django.conf import settings
-from django.db import transaction
 from django.db.models import QuerySet
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -18,11 +15,9 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED
 
 from ami.authentication.decorators import ami_login_required
-from ami.notification.tasks import push_notification
 from ami.partner.auth import IsPartnerAuthenticated, PartnerBasicAuthentication
-from ami.user.models import User
-from ami.utils import sentry
 
+from .api_views_v2 import _partner_create_event
 from .models import Notification, NotificationEvent, ScheduledNotification
 from .serializers import (
     NotificationReadSerializer,
@@ -169,54 +164,8 @@ def delete_scheduled_notification(request: Request) -> Response:
 @authentication_classes([PartnerBasicAuthentication])
 @permission_classes([IsPartnerAuthenticated])
 def partner_create_notification(request: Request) -> Response[NotificationResponseSerializer]:
-    current_partner = request.ami_partner
-    ignore_unknown_user = os.getenv(
-        "IGNORE_NOTIFICATION_REQUESTS_FOR_UNREGISTERED_USER", "False"
-    ).lower() in ("true", "1", "t")
-
     serializer = PartnerNotificationCreateSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     data: dict = cast(dict, serializer.validated_data)
 
-    try:
-        user = User.objects.get(fc_hash=data["recipient_fc_hash"])
-    except User.DoesNotExist:
-        user = None
-
-    if user is None:
-        if ignore_unknown_user:
-            return Response({"error": "User not found"}, status=404)
-        user = User.objects.create(fc_hash=data["recipient_fc_hash"])
-        notification_send_status = False
-    else:
-        if ignore_unknown_user and user.last_logged_in is None:
-            return Response({"error": "User never seen"}, status=404)
-        notification_send_status = user.last_logged_in is not None
-
-    try_push = True
-    if not data["try_push"] or user.last_logged_in is None:
-        # don't push notification if not required or if user has never logged in on AMI
-        try_push = False
-
-    data.pop("recipient_fc_hash")
-    with transaction.atomic():
-        notification, created = Notification.objects.get_or_create(
-            user_id=user.id,
-            partner_id=current_partner.id,
-            defaults={"send_status": notification_send_status},
-            **data,
-        )
-        if created:
-            transaction.on_commit(
-                partial(push_notification.enqueue, str(notification.id), try_push)  # type: ignore[union-attr]
-            )
-
-    sentry.add_counter("notification.request.processed")
-
-    response_data = {
-        "notification_id": notification.id,
-        "notification_send_status": notification_send_status,
-    }
-    return Response(
-        NotificationResponseSerializer(response_data).data, status=201 if created else 200
-    )
+    return _partner_create_event(request, data)
