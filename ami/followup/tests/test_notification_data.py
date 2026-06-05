@@ -129,7 +129,7 @@ def test_get_notifications_data(user: User) -> None:
         item_id="42",
         partner_id="psl",
     )
-    Notification.objects.create(  # notification 2
+    Notification.objects.create(
         user_id=user.id,
         content_body="notification 2",
         content_title="Notification title 2",
@@ -137,6 +137,7 @@ def test_get_notifications_data(user: User) -> None:
         item_status_label="Nouveau",
         item_type="OperationTranquilliteVacances",
         item_id="42",
+        item_is_archived=True,
         partner_id="psl",
     )
     notification3 = Notification.objects.create(
@@ -159,6 +160,7 @@ def test_get_notifications_data(user: User) -> None:
         item_type="OtherOperationTranquilliteVacances",
         item_id="43",
         item_external_url="http://foo.com",
+        item_is_archived=False,
         partner_id="psl",
     )
 
@@ -171,6 +173,7 @@ def test_get_notifications_data(user: User) -> None:
         item_type="OperationTranquilliteVacances",
         item_id="44",
         item_external_url="http://bar.com",
+        item_is_archived=True,
         partner_id="psl",
     )
     notification6 = Notification.objects.create(
@@ -183,6 +186,7 @@ def test_get_notifications_data(user: User) -> None:
         item_id="44",
         item_milestone_start_date=datetime.datetime.now(datetime.timezone.utc),
         item_milestone_end_date=datetime.datetime.now(datetime.timezone.utc),
+        item_is_archived=False,
         partner_id="psl",
     )
 
@@ -221,6 +225,7 @@ def test_get_notifications_data(user: User) -> None:
             title="Other Notification title",
             description="other notification\n\nsome private body content",
             external_url=None,
+            is_archived=False,
             created_at=notification8.send_date,
             updated_at=notification8.send_date,
         ),
@@ -233,6 +238,7 @@ def test_get_notifications_data(user: User) -> None:
             title="Other Notification title",
             description="other notification",
             external_url=None,
+            is_archived=False,
             created_at=notification7.send_date,
             updated_at=notification7.send_date,
         ),
@@ -245,6 +251,7 @@ def test_get_notifications_data(user: User) -> None:
             title="Notification title 6",
             description="notification 6",
             external_url="http://bar.com",
+            is_archived=False,
             created_at=notification5.send_date,
             updated_at=notification6.send_date,
         ),
@@ -257,6 +264,7 @@ def test_get_notifications_data(user: User) -> None:
             title="Notification title 4",
             description="notification 4",
             external_url="http://foo.com",
+            is_archived=False,
             created_at=notification4.send_date,
             updated_at=notification4.send_date,
         ),
@@ -269,6 +277,7 @@ def test_get_notifications_data(user: User) -> None:
             title="Notification title 3",
             description="notification 3",
             external_url=None,
+            is_archived=True,
             created_at=notification1.send_date,
             updated_at=notification3.send_date,
         ),
@@ -287,6 +296,7 @@ def test_get_notifications_inventory(user: User, monkeypatch: pytest.MonkeyPatch
             title="Notification title 6",
             description="notification 6",
             external_url="http://bar.com",
+            is_archived=False,
             created_at=datetime.datetime.now(datetime.timezone.utc),
             updated_at=datetime.datetime.now(datetime.timezone.utc),
         ),
@@ -299,6 +309,7 @@ def test_get_notifications_inventory(user: User, monkeypatch: pytest.MonkeyPatch
             title="Notification title 4",
             description="notification 4",
             external_url="http://foo.com",
+            is_archived=False,
             created_at=datetime.datetime.now(datetime.timezone.utc),
             updated_at=datetime.datetime.now(datetime.timezone.utc),
         ),

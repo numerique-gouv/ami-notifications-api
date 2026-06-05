@@ -29,6 +29,7 @@ class FollowUpInventoryItem:
     title: str
     description: str
     external_url: str | None
+    is_archived: bool
 
     created_at: datetime.datetime
     updated_at: datetime.datetime
@@ -38,6 +39,9 @@ class FollowUpInventoryItem:
         first_notification = notifications[0]
         last_notification = notifications[-1]
         external_urls = [n.item_external_url for n in notifications if n.item_external_url]
+        is_archived_flags = [
+            n.item_is_archived for n in notifications if n.item_is_archived is not None
+        ]
         description = last_notification.content_body
         if last_notification.content_private_body:
             description += f"\n\n{last_notification.content_private_body}"
@@ -53,7 +57,10 @@ class FollowUpInventoryItem:
             milestone_end_date=last_notification.item_milestone_end_date,
             title=last_notification.content_title,
             description=description,
+            # last external_url seen
             external_url=external_urls[-1] if external_urls else None,
+            # last non null is_archived seen
+            is_archived=is_archived_flags[-1] if is_archived_flags else False,
             created_at=first_notification.send_date,
             updated_at=last_notification.send_date,
         )
