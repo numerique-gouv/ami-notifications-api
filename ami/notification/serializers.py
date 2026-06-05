@@ -149,3 +149,90 @@ class PartnerNotificationCreateSerializer(serializers.Serializer):
                 )
 
         return attrs
+
+
+class PartnerEventCreateSerializerV2(serializers.Serializer):
+    recipient_fc_hash = serializers.CharField(
+        help_text="Hash de la concaténation des données pivot FC de l'usager destinataire, cf doc",
+    )
+
+    content_title = serializers.CharField(
+        allow_blank=False,
+        help_text="Titre du contenu, utilisé en titre de notification",
+    )
+    content_body = serializers.CharField(
+        allow_blank=False,
+        help_text="Corps du contenu, utilisé en contenu de notification",
+    )
+    content_private_body = serializers.CharField(
+        allow_blank=True,
+        default=None,
+        help_text="Corps privé du contenu, qui ne sera pas pushé dans une push notification",
+    )
+    content_icon = serializers.CharField(
+        default=None,
+        help_text="Nom technique de l'icône à associer à la notification dans l'application AMI, "
+        "à choisir dans [les icones du DSFR](https://www.systeme-de-design.gouv.fr/version-courante/fr/fondamentaux/icone).",
+    )
+    content_link = serializers.CharField(
+        default=None,
+        help_text="Lien du contenu",
+    )
+
+    item_type = serializers.CharField(
+        default=None,
+        help_text="Champ libre représentant le type de l'objet associé au contenu, par exemple : "
+        '"OTV" dans le cas des démarches "Opération Tranquillité Vacances"',
+    )
+    item_id = serializers.CharField(
+        default=None,
+        help_text="Identifiant dans le référentiel partenaire de l'objet associé au contenu",
+    )
+    item_parent_partner_id = serializers.CharField(
+        default=None,
+        help_text="Identifiant du partenaire émetteur de la démarche parente",
+    )
+    item_parent_type = serializers.CharField(
+        default=None,
+        help_text="Champ libre représentant le type de la démarche parente",
+    )
+    item_parent_id = serializers.CharField(
+        default=None,
+        help_text="Identifiant dans le référentiel partenaire de la démarche parente",
+    )
+    item_status_label = serializers.CharField(
+        default=None,
+        help_text='Libellé du statut de l\'objet associé au contenu, par exemple : "Brouillon"',
+    )
+    item_generic_status = serializers.ChoiceField(
+        choices=["new", "wip", "closed"],
+        default=None,
+        help_text="Statut générique de l'objet associé au contenu pilotant des comportements spécifiques dans l'application AMI",
+    )
+
+    item_canal = serializers.CharField(
+        default=None,
+        help_text="Canal source de l'objet associé au contenu (AMI, PSL, etc.) pour la mesure d'impact",
+    )
+    item_milestone_start_date = serializers.DateTimeField(
+        default=None,
+        help_text="Date (au format ISO 8601) de début de la période correspondant à l'objet associé au contenu "
+        "ex : date de début de surveillance du logement dans le cadre d'une OTV",
+    )
+    item_milestone_end_date = serializers.DateTimeField(
+        default=None,
+        help_text="Date (au format ISO 8601) de fin de la période correspondant à l'objet associé au contenu, "
+        "ex : date de fin de surveillance du logement dans le cadre d'une OTV",
+    )
+
+    event_date = serializers.DateTimeField(
+        help_text="Date (au format ISO 8601) d'émission de l'événement côté partenaire",
+    )
+    valid_until = serializers.DateTimeField(
+        default=None,
+        help_text="Date (au format ISO 8601) après laquelle il n'est plus utile d'envoyer une notification",
+    )
+    try_push = serializers.BooleanField(
+        default=True,
+        help_text="Indique si le système doit essayer de déclencher une Notification Push sur les terminaux de l'usager",
+    )

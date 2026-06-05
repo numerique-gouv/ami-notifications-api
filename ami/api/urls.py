@@ -7,6 +7,7 @@ from ami.authentication import api_urls as authentication_api_urls
 from ami.fi import api_urls as fi_api_urls
 from ami.followup import api_urls as followup_api_urls
 from ami.notification import api_urls as notification_api_urls
+from ami.notification import api_urls_v2 as notification_api_urls_v2
 from ami.partner import api_urls as partner_api_urls
 from ami.user import api_urls as user_api_urls
 from ami.utils import api_urls as util_api_urls
@@ -21,6 +22,7 @@ urlpatterns = [
     path("api/v1/", include(notification_api_urls)),
     path("api/v1/", include(partner_api_urls)),
     path("api/v1/", include(user_api_urls)),
+    path("api/v2/", include(notification_api_urls_v2)),
     # drf-spectacular
     path("schema", SpectacularAPIView.as_view(), name="schema"),
     path(
