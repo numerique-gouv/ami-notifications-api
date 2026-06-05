@@ -81,6 +81,7 @@ async def test_command_publish_scheduled_notifications(
     assert notification.item_milestone_end_date is None
     assert notification.item_external_url is None
     assert notification.item_canal is None
+    assert notification.item_is_archived is None
     assert notification.internal_url == "internal-url-3"
     assert notification.send_date is not None
     assert notification.valid_until is None

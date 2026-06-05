@@ -35,6 +35,7 @@ class Notification(models.Model):
     item_milestone_start_date = models.DateTimeField(blank=True, null=True)
     item_milestone_end_date = models.DateTimeField(blank=True, null=True)
     item_external_url = models.CharField(blank=True, null=True)
+    item_is_archived = models.BooleanField(null=True)  # the user archived the item in followup
 
     send_status = models.BooleanField(blank=True, null=True)
     partner_id = models.CharField()

@@ -86,6 +86,7 @@ async def test_create_webpush_notification(
     )
     assert notification2.item_external_url == "http://otv/a-5-jgbj5vmoy"
     assert notification2.item_canal == "ami"
+    assert notification2.item_is_archived is None
     assert notification2.send_date == datetime.datetime(
         2025, 11, 27, 10, 55, tzinfo=datetime.timezone.utc
     )
@@ -157,6 +158,7 @@ def test_create_mobile_notification(
     )
     assert notification2.item_external_url == "http://otv/a-5-jgbj5vmoy"
     assert notification2.item_canal == "ami"
+    assert notification2.item_is_archived is None
     assert notification2.send_date == datetime.datetime(
         2025, 11, 27, 10, 55, tzinfo=datetime.timezone.utc
     )
@@ -339,6 +341,7 @@ def test_create_notification_user_does_not_exist(
     assert notification.item_milestone_end_date is None
     assert notification.item_external_url is None
     assert notification.item_canal is None
+    assert notification.item_is_archived is None
     assert notification.send_date == datetime.datetime(
         2025, 11, 27, 10, 55, tzinfo=datetime.timezone.utc
     )
@@ -407,6 +410,7 @@ def test_create_notification_user_never_seen(
     assert notification.item_milestone_end_date is None
     assert notification.item_external_url is None
     assert notification.item_canal is None
+    assert notification.item_is_archived is None
     assert notification.send_date == datetime.datetime(
         2025, 11, 27, 10, 55, tzinfo=datetime.timezone.utc
     )
@@ -880,6 +884,7 @@ def test_create_notification_when_optional_fields_are_empty(
     assert notification.item_milestone_end_date is None
     assert notification.item_external_url is None
     assert notification.item_canal is None
+    assert notification.item_is_archived is None
     assert notification.send_date == datetime.datetime(
         2025, 11, 27, 10, 55, tzinfo=datetime.timezone.utc
     )
