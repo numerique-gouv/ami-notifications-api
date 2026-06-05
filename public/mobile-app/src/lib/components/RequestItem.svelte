@@ -39,24 +39,29 @@
 <style>
   .request--item {
     display: flex;
-    margin-bottom: 0.75rem;
-    .request--item--detail {
-      padding: 1.5rem;
-      padding-bottom: 1rem;
+    flex-direction: column;
+    width: 100%;
+    &:not(:last-child) {
+      margin-bottom: 1.5rem;
+    }
+    .request--item--detail.fr-enlarge-link {
+      padding: 1rem 2rem 0.5rem 1rem;
       width: 100%;
+      &.no-link {
+        --hover: transparent;
+      }
       .fr-tile__content {
-        padding-bottom: 1.5rem;
-        &.no-link {
-          padding-bottom: 0;
-        }
+        padding-bottom: 0;
         .fr-tile__title {
           font-size: 16px;
           a {
             color: var(--text-action-high-blue-france);
             &::after {
-              bottom: 1.25rem;
-              right: 1.25rem;
-              --icon-size: 1rem;
+              bottom: 0.5rem;
+              right: 0.5rem;
+              --icon-size: 1.25rem;
+              -webkit-mask-image: url("@gouvfr/dsfr/dist/icons/arrows/arrow-right-s-line.svg");
+              mask-image: url("@gouvfr/dsfr/dist/icons/arrows/arrow-right-s-line.svg");
             }
             &.no-link {
               cursor: default;
@@ -70,6 +75,7 @@
           font-size: 14px;
           line-height: 24px;
           margin: 0;
+          padding-right: 0;
         }
         .fr-tile__start {
           width: 100%;
@@ -80,9 +86,9 @@
             font-size: 12px;
             font-weight: 700;
             line-height: 20px;
+            color: var(--text-active-blue-france);
+            background-color: var(--background-action-low-blue-france);
             margin-bottom: 0.5rem;
-            color: var(--info-425-625);
-            background-color: var(--info-950-100);
             &::before {
               --icon-size: 0.75rem;
             }

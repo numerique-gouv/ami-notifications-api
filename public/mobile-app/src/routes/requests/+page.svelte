@@ -22,9 +22,6 @@
 <div class="requests">
   <div class="requests--title">
     <h2>Mes démarches</h2>
-    <div class="requests--title--icon">
-      <span class="fr-icon-search-line" aria-hidden="true"></span>
-    </div>
   </div>
 
   <div class="requests--container" data-testid="requests">
@@ -55,16 +52,6 @@
   .requests {
     padding: 1.5rem 1rem;
     margin-bottom: 68px;
-    .requests--title {
-      display: flex;
-      h2 {
-        flex-grow: 1;
-      }
-      .requests--title--icon {
-        padding-top: 0.25rem;
-        color: var(--text-active-blue-france);
-      }
-    }
     .requests--container {
       display: flex;
       flex-direction: column;
