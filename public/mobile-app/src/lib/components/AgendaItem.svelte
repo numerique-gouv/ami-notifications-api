@@ -92,7 +92,9 @@
 <style>
   .agenda--item {
     display: flex;
-    margin-bottom: 0.75rem;
+    &:not(:last-child) {
+      margin-bottom: 0.75rem;
+    }
     .agenda--item--date {
       display: flex;
       flex-direction: column;
