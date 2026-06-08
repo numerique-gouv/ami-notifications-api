@@ -4,6 +4,7 @@
   // It also takes an optional "header" prop in case you need it to always be visible.
 
   import type { Snippet } from 'svelte';
+  import { onMount } from 'svelte';
 
   interface Props {
     content: Snippet;
@@ -13,9 +14,15 @@
   let { content, footer, header }: Props = $props();
   let scrolled: boolean = $state(false);
   let contentEl: HTMLDivElement;
+  let wrapperEl: HTMLDivElement;
+
+  onMount(() => {
+    wrapperEl.style.height = `${window.innerHeight}px`;
+    console.log('innerHeight:', window.innerHeight);
+  });
 </script>
 
-<div class="wrapper">
+<div class="wrapper" bind:this={wrapperEl}>
   {#if header}
     <div class="header">{@render header({ scrolled })}</div>
   {/if}
