@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { render, screen } from '@testing-library/svelte';
 import { RequestItem as Item } from '$lib/follow-up';
@@ -18,7 +18,8 @@ describe('/RequestItem.svelte', () => {
       false,
       'url'
     );
-    render(RequestItem, { props: { item: item } });
+    const onOpen = vi.fn();
+    render(RequestItem, { props: { item: item, onOpen: onOpen } });
 
     // When
     const link = screen.getByTestId('request-item-link');
@@ -40,7 +41,8 @@ describe('/RequestItem.svelte', () => {
       false,
       null
     );
-    render(RequestItem, { props: { item: item } });
+    const onOpen = vi.fn();
+    render(RequestItem, { props: { item: item, onOpen: onOpen } });
 
     // When
     const link = screen.getByTestId('request-item-link');
