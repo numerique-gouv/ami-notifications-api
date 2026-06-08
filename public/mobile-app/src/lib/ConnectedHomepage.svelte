@@ -7,8 +7,9 @@
   import AgendaItemModal from '$lib/components/modal/AgendaItemModal.svelte';
   import Logout from '$lib/components/modal/Logout.svelte';
   import Modal from '$lib/components/modal/Modal.svelte';
+  import RequestItemModal from '$lib/components/modal/RequestItemModal.svelte';
   import RequestItem from '$lib/components/RequestItem.svelte';
-  import type { FollowUp } from '$lib/follow-up';
+  import type { FollowUp, RequestItem as RequestItemType } from '$lib/follow-up';
   import { buildFollowUp } from '$lib/follow-up';
   import {
     countUnreadNotifications,
@@ -31,6 +32,7 @@
   let isFollowUpEmpty: boolean = $state(true);
   let followUp: FollowUp | null = $state(null);
   let selectedItem: Item | null = $state(null);
+  let selectedRequestItem: RequestItemType | null = $state(null);
 
   onMount(async () => {
     console.log('User is connected:', userStore.connected);
@@ -113,6 +115,35 @@
       }
       closeAgendaItemModal();
       toastStore.addToast("L'élément a bien été supprimé", 'success', 3000, true);
+    }
+  };
+
+  const refreshFollowUp = () => {
+    buildFollowUp().then((result) => {
+      followUp = result;
+      isFollowUpEmpty = !followUp.items.length;
+    });
+  };
+
+  const openRequestItemModal = (item: RequestItemType) => {
+    selectedRequestItem = item;
+  };
+  const closeRequestItemModal = () => {
+    selectedRequestItem = null;
+  };
+  const clickOnArchiveRequestItem = async (item: RequestItemType | null) => {
+    if (item) {
+      const result = await item.archive();
+      if (result === true) {
+        if (followUp) {
+          refreshFollowUp();
+        }
+        closeRequestItemModal();
+        toastStore.addToast("L'élément a bien été archivé", 'success', 3000, true);
+      } else {
+        closeRequestItemModal();
+        toastStore.addToast("L'élément n'a pas pu être archivé", 'error', 3000, true);
+      }
     }
   };
 </script>
@@ -289,8 +320,12 @@
         </a>
       </div>
       <div class="rubrique-content-container">
-        {#if followUp?.items.length}
-          <RequestItem item={followUp.items[0]} />
+        {#if followUp && followUp.items.length}
+          {@const firstItem = followUp.items[0]}
+          <RequestItem
+            item={firstItem}
+            onOpen={() => openRequestItemModal(firstItem)}
+          />
         {/if}
       </div>
     {/if}
@@ -329,6 +364,30 @@
       </ul>
     {/snippet}
   </AgendaItemModal>
+{/if}
+
+{#if selectedRequestItem}
+  <RequestItemModal onClose={closeRequestItemModal}>
+    {#snippet header()}
+      <h2 class="request-item-modal-header">{selectedRequestItem?.title}</h2>
+    {/snippet}
+    {#snippet footer()}
+      <ul class="request-item-modal-footer">
+        <li>
+          <span class="fr-icon-inbox-archive-line"></span>
+          <button
+            onclick={() => clickOnArchiveRequestItem(selectedRequestItem)}
+            title="Archiver l'élément"
+            aria-label="Archiver l'élément"
+            data-testid="archive-request-item-button"
+            class="archive-request-item"
+          >
+            Archiver
+          </button>
+        </li>
+      </ul>
+    {/snippet}
+  </RequestItemModal>
 {/if}
 
 <style>
@@ -505,6 +564,17 @@
     font-size: 1.25rem;
   }
   ul.agenda-item-modal-footer {
+    padding: 0;
+    margin: 0;
+    li {
+      list-style: none;
+    }
+  }
+
+  h2.request-item-modal-header {
+    font-size: 1.25rem;
+  }
+  ul.request-item-modal-footer {
     padding: 0;
     margin: 0;
     li {

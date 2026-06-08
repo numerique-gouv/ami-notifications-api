@@ -437,6 +437,7 @@ describe('/ConnectedHomepage.svelte', () => {
     const followUp = new FollowUp();
     vi.spyOn(followUp, 'items', 'get').mockReturnValue([]);
     const spy = vi.spyOn(followUpMethods, 'buildFollowUp').mockResolvedValue(followUp);
+
     // When
     const { container } = render(ConnectedHomepage);
 
@@ -445,6 +446,194 @@ describe('/ConnectedHomepage.svelte', () => {
       const followUpBlock = container.querySelector('.requests-container');
       expect(spy).toHaveBeenCalledTimes(1);
       expect(followUpBlock).toHaveTextContent('Retrouvez et suivez vos démarches ici.');
+    });
+  });
+
+  describe('Request item modal', () => {
+    test('Should open request item modal when clicks on more icon', async () => {
+      const followUp = new FollowUp();
+      vi.spyOn(followUp, 'items', 'get').mockReturnValue([
+        new RequestItem(
+          'id1',
+          'notifications',
+          'Opération Tranquillité Vacances 1',
+          'Votre demande est en cours de traitement.',
+          new Date('2026-02-22T15:55:00.000Z'),
+          'wip',
+          'En cours',
+          false,
+          null
+        ),
+        new RequestItem(
+          'id2',
+          'notifications',
+          'Opération Tranquillité Vacances 2',
+          'Votre demande est en cours de traitement.',
+          new Date('2026-02-22T15:55:00.000Z'),
+          'wip',
+          'En cours',
+          false,
+          null
+        ),
+      ]);
+      vi.spyOn(followUpMethods, 'buildFollowUp').mockResolvedValue(followUp);
+      render(ConnectedHomepage);
+
+      // When
+      await waitFor(async () => {
+        const moreIcon = screen.getByTestId('open-request-item-modal-id1');
+        await fireEvent.click(moreIcon);
+      });
+
+      // Then
+      const requestItemModal = screen.getByTestId('request-item-modal');
+      expect(requestItemModal).toBeInTheDocument();
+    });
+    test('Should close request item modal when clicks on "Archiver" button', async () => {
+      // Given
+      const followUp = new FollowUp();
+      vi.spyOn(followUp, 'items', 'get').mockReturnValue([
+        new RequestItem(
+          'id1',
+          'notifications',
+          'Opération Tranquillité Vacances 1',
+          'Votre demande est en cours de traitement.',
+          new Date('2026-02-22T15:55:00.000Z'),
+          'wip',
+          'En cours',
+          false,
+          null
+        ),
+        new RequestItem(
+          'id2',
+          'notifications',
+          'Opération Tranquillité Vacances 2',
+          'Votre demande est en cours de traitement.',
+          new Date('2026-02-22T15:55:00.000Z'),
+          'wip',
+          'En cours',
+          false,
+          null
+        ),
+      ]);
+      vi.spyOn(followUpMethods, 'buildFollowUp').mockResolvedValue(followUp);
+      vi.spyOn(RequestItem.prototype, 'archive').mockResolvedValue(true);
+      render(ConnectedHomepage);
+
+      // When
+      await waitFor(async () => {
+        const moreIcon = screen.getByTestId('open-request-item-modal-id1');
+        await fireEvent.click(moreIcon);
+        const requestItemModal = screen.getByTestId('request-item-modal');
+        expect(requestItemModal).toBeInTheDocument();
+        const archiveButton = screen.getByTestId('archive-request-item-button');
+        await fireEvent.click(archiveButton);
+      });
+
+      // Then
+      expect(screen.queryByTestId('request-item-modal')).not.toBeInTheDocument();
+    });
+    test('should add toast when user clicks on "Archiver" button - archive success', async () => {
+      // Given
+      const followUp = new FollowUp();
+      vi.spyOn(followUp, 'items', 'get').mockReturnValue([
+        new RequestItem(
+          'id1',
+          'notifications',
+          'Opération Tranquillité Vacances 1',
+          'Votre demande est en cours de traitement.',
+          new Date('2026-02-22T15:55:00.000Z'),
+          'wip',
+          'En cours',
+          false,
+          null
+        ),
+        new RequestItem(
+          'id2',
+          'notifications',
+          'Opération Tranquillité Vacances 2',
+          'Votre demande est en cours de traitement.',
+          new Date('2026-02-22T15:55:00.000Z'),
+          'wip',
+          'En cours',
+          false,
+          null
+        ),
+      ]);
+      vi.spyOn(followUpMethods, 'buildFollowUp').mockResolvedValue(followUp);
+      const spy = vi.spyOn(RequestItem.prototype, 'archive').mockResolvedValue(true);
+      const spy2 = vi.spyOn(toastStore, 'addToast');
+      render(ConnectedHomepage);
+
+      // When
+      await waitFor(async () => {
+        const moreIcon = screen.getByTestId('open-request-item-modal-id1');
+        await fireEvent.click(moreIcon);
+        const archiveButton = screen.getByTestId('archive-request-item-button');
+        await fireEvent.click(archiveButton);
+      });
+
+      // Then
+      await waitFor(async () => {
+        expect(spy).toHaveBeenCalledWith();
+        expect(spy2).toHaveBeenCalledWith(
+          "L'élément a bien été archivé",
+          'success',
+          3000,
+          true
+        );
+      });
+    });
+    test('should add toast when user clicks on "Archiver" button - archive error', async () => {
+      // Given
+      const followUp = new FollowUp();
+      vi.spyOn(followUp, 'items', 'get').mockReturnValue([
+        new RequestItem(
+          'id1',
+          'notifications',
+          'Opération Tranquillité Vacances 1',
+          'Votre demande est en cours de traitement.',
+          new Date('2026-02-22T15:55:00.000Z'),
+          'wip',
+          'En cours',
+          false,
+          null
+        ),
+        new RequestItem(
+          'id2',
+          'notifications',
+          'Opération Tranquillité Vacances 2',
+          'Votre demande est en cours de traitement.',
+          new Date('2026-02-22T15:55:00.000Z'),
+          'wip',
+          'En cours',
+          false,
+          null
+        ),
+      ]);
+      vi.spyOn(followUpMethods, 'buildFollowUp').mockResolvedValue(followUp);
+      const spy = vi.spyOn(RequestItem.prototype, 'archive').mockResolvedValue(false);
+      const spy2 = vi.spyOn(toastStore, 'addToast');
+      render(ConnectedHomepage);
+
+      // When
+      await waitFor(async () => {
+        const moreIcon = screen.getByTestId('open-request-item-modal-id1');
+        await fireEvent.click(moreIcon);
+        const archiveButton = screen.getByTestId('archive-request-item-button');
+        await fireEvent.click(archiveButton);
+      });
+
+      // Then
+      await waitFor(async () => {
+        expect(spy).toHaveBeenCalledWith();
+        expect(spy2).toHaveBeenCalledWith(
+          "L'élément n'a pas pu être archivé",
+          'error',
+          3000,
+          true
+        );
+      });
     });
   });
 });
