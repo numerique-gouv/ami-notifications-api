@@ -90,6 +90,32 @@ describe('/follow-up.ts', () => {
         expect(icon4).equal('fr-icon-flag-fill');
       });
     });
+    describe('archive', () => {
+      test('should call archiveInventoryItem', async () => {
+        // Given
+        const item = new RequestItem(
+          'id',
+          'notifications',
+          'title',
+          'description',
+          new Date('2026-01-03T08:05:42Z'),
+          'new',
+          'New',
+          false,
+          null
+        );
+        const spy = vi
+          .spyOn(inventoryMethods, 'archiveInventoryItem')
+          .mockResolvedValue(true);
+
+        // When
+        const result = await item.archive();
+
+        // Then
+        expect(result).toEqual(true);
+        expect(spy).toHaveBeenCalledExactlyOnceWith('notifications', 'id');
+      });
+    });
   });
   describe('FollowUp', () => {
     test('should organize items in items and archived_items', async () => {
