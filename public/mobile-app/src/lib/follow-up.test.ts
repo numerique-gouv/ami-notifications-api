@@ -10,6 +10,7 @@ describe('/follow-up.ts', () => {
         // Given
         vi.stubEnv('TZ', 'Europe/Paris');
         const item = new RequestItem(
+          'id',
           'title',
           'description',
           new Date('2026-01-03T08:05:42Z'),
@@ -29,6 +30,7 @@ describe('/follow-up.ts', () => {
       test('should return an icon depending on status_id', async () => {
         // Given
         const item1 = new RequestItem(
+          'id1',
           'title',
           'description',
           new Date(),
@@ -38,6 +40,7 @@ describe('/follow-up.ts', () => {
           null
         );
         const item2 = new RequestItem(
+          'id2',
           'title',
           'description',
           new Date(),
@@ -46,6 +49,7 @@ describe('/follow-up.ts', () => {
           null
         );
         const item3 = new RequestItem(
+          'id3',
           'title',
           'description',
           new Date(),
@@ -54,6 +58,7 @@ describe('/follow-up.ts', () => {
           null
         );
         const item4 = new RequestItem(
+          'id4',
           'title',
           'description',
           new Date(),
@@ -118,6 +123,7 @@ describe('/follow-up.ts', () => {
       expect(
         followUp.items[0].equals(
           new RequestItem(
+            'psl:OperationTranquilliteVacances:42',
             'Opération Tranquillité Vacances',
             'Votre demande est en brouillon.',
             new Date('2026-02-23T15:55:00.000Z'),
@@ -130,6 +136,7 @@ describe('/follow-up.ts', () => {
       expect(
         followUp.items[1].equals(
           new RequestItem(
+            'psl:OperationTranquilliteVacances:43',
             'Opération Tranquillité Vacances',
             'Votre demande est terminée.',
             new Date('2026-02-22T15:55:00.000Z'),

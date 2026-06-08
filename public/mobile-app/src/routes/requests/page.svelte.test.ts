@@ -25,6 +25,7 @@ describe('/+page.svelte', () => {
     const followUp = new FollowUp();
     vi.spyOn(followUp, 'items', 'get').mockReturnValue([
       new RequestItem(
+        'id1',
         'Opération Tranquillité Vacances',
         'Votre demande est en cours de traitement.',
         new Date('2026-02-22T15:55:00.000Z'),
@@ -33,6 +34,7 @@ describe('/+page.svelte', () => {
         null
       ),
       new RequestItem(
+        'id2',
         'Opération Tranquillité Vacances',
         'Votre demande est terminée.',
         new Date('2026-02-20T15:55:00.000Z'),
