@@ -87,3 +87,32 @@ export const retrieveInventory = async (
   }
   return inventory;
 };
+
+export const archiveInventoryItem = async (
+  inventory: string,
+  external_id: string
+): Promise<boolean> => {
+  try {
+    const payload = {
+      is_archived: true,
+    };
+    const headers = {
+      'Content-Type': 'application/json',
+    };
+    const response = await apiFetch(
+      `/api/v1/users/follow-up/item/${inventory}/${external_id}/archive`,
+      {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(payload),
+        credentials: 'include',
+      }
+    );
+    if (response.status === 200) {
+      return true;
+    }
+  } catch (error) {
+    console.error(error);
+  }
+  return false;
+};

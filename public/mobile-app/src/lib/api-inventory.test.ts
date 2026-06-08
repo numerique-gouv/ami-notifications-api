@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
-import { retrieveInventory } from '$lib/api-inventory';
+import { archiveInventoryItem, retrieveInventory } from '$lib/api-inventory';
 
 const inventoryData = {
   notifications: {
@@ -400,6 +400,72 @@ describe('/api-inventory', () => {
           notifications: inventoryData.notifications.items,
         });
       }
+    });
+  });
+
+  describe('archiveInventoryItem', () => {
+    test('should return true', async () => {
+      // Given
+      const spy = vi
+        .spyOn(globalThis, 'fetch')
+        .mockResolvedValue(new Response(JSON.stringify({}), { status: 200 }));
+
+      // When
+      const result = await archiveInventoryItem('notifications', 'id');
+
+      // Then
+      expect(result).toEqual(true);
+      expect(spy).toHaveBeenCalledExactlyOnceWith(
+        'https://localhost:8000/api/v1/users/follow-up/item/notifications/id/archive',
+        {
+          body: '{"is_archived":true}',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          method: 'POST',
+        }
+      );
+    });
+    test('should return false: 400 error', async () => {
+      // Given
+      const spy = vi
+        .spyOn(globalThis, 'fetch')
+        .mockResolvedValue(new Response(JSON.stringify({}), { status: 400 }));
+
+      // When
+      const result = await archiveInventoryItem('notifications', 'id');
+
+      // Then
+      expect(result).toEqual(false);
+      expect(spy).toHaveBeenCalledExactlyOnceWith(
+        'https://localhost:8000/api/v1/users/follow-up/item/notifications/id/archive',
+        {
+          body: '{"is_archived":true}',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          method: 'POST',
+        }
+      );
+    });
+    test('should return false: 500 error', async () => {
+      // Given
+      const spy = vi
+        .spyOn(globalThis, 'fetch')
+        .mockResolvedValue(new Response(JSON.stringify({}), { status: 500 }));
+
+      // When
+      const result = await archiveInventoryItem('notifications', 'id');
+
+      // Then
+      expect(result).toEqual(false);
+      expect(spy).toHaveBeenCalledExactlyOnceWith(
+        'https://localhost:8000/api/v1/users/follow-up/item/notifications/id/archive',
+        {
+          body: '{"is_archived":true}',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          method: 'POST',
+        }
+      );
     });
   });
 });
