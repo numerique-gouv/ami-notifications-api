@@ -10,6 +10,7 @@ export type InventoryItem = {
   title: string;
   description: string;
   external_url: string | null;
+  is_archived: boolean;
 
   created_at: Date;
   updated_at: Date;

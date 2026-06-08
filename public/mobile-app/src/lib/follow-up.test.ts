@@ -16,6 +16,7 @@ describe('/follow-up.ts', () => {
           new Date('2026-01-03T08:05:42Z'),
           'new',
           'New',
+          false,
           null
         );
 
@@ -37,6 +38,7 @@ describe('/follow-up.ts', () => {
           // @ts-expect-error: `'incorrect'` isn't a proper Kind, so typescript will complain
           'incorrect',
           'Incorrect',
+          false,
           null
         );
         const item2 = new RequestItem(
@@ -46,6 +48,7 @@ describe('/follow-up.ts', () => {
           new Date(),
           'new',
           'New',
+          false,
           null
         );
         const item3 = new RequestItem(
@@ -55,6 +58,7 @@ describe('/follow-up.ts', () => {
           new Date(),
           'wip',
           'WIP',
+          false,
           null
         );
         const item4 = new RequestItem(
@@ -64,6 +68,7 @@ describe('/follow-up.ts', () => {
           new Date(),
           'closed',
           'Closed',
+          false,
           null
         );
 
@@ -81,6 +86,129 @@ describe('/follow-up.ts', () => {
       });
     });
   });
+  describe('FollowUp', () => {
+    test('should organize items in items and archived_items', async () => {
+      // Given
+      vi.stubEnv('TZ', 'Europe/Paris');
+      const request1 = {
+        external_id: 'psl:OperationTranquilliteVacances:42',
+        status_id: 'new',
+        status_label: 'Brouillon',
+        milestone_start_date: new Date('2026-01-23T15:50:00Z'),
+        milestone_end_date: null,
+        title: 'Opération Tranquillité Vacances',
+        description: 'Votre demande est en brouillon.',
+        is_archived: false,
+        external_url: null,
+        created_at: new Date('2026-02-23T15:50:00Z'),
+        updated_at: new Date('2026-02-23T15:55:00Z'),
+      };
+      const request2 = {
+        external_id: 'psl:OperationTranquilliteVacances:43',
+        status_id: 'wip',
+        status_label: 'En cours',
+        milestone_start_date: null,
+        milestone_end_date: null,
+        title: 'Opération Tranquillité Vacances',
+        description: 'Votre demande est en cours de traitement.',
+        is_archived: false,
+        external_url: null,
+        created_at: new Date('2026-02-22T15:50:00Z'),
+        updated_at: new Date('2026-02-22T15:55:00Z'),
+      };
+      const request3 = {
+        external_id: 'psl:OperationTranquilliteVacances:44',
+        status_id: 'new',
+        status_label: 'Brouillon',
+        milestone_start_date: new Date('2026-01-23T15:50:00Z'),
+        milestone_end_date: null,
+        title: 'Opération Tranquillité Vacances',
+        description: 'Votre demande est en brouillon.',
+        is_archived: true,
+        external_url: null,
+        created_at: new Date('2026-02-21T15:50:00Z'),
+        updated_at: new Date('2026-02-21T15:55:00Z'),
+      };
+      const request4 = {
+        external_id: 'psl:OperationTranquilliteVacances:45',
+        status_id: 'closed',
+        status_label: 'Terminée',
+        milestone_start_date: null,
+        milestone_end_date: null,
+        title: 'Opération Tranquillité Vacances',
+        description: 'Votre demande est terminée.',
+        is_archived: true,
+        external_url: null,
+        created_at: new Date('2026-02-20T15:50:00Z'),
+        updated_at: new Date('2026-02-20T15:55:00Z'),
+      };
+
+      // When
+      const followUp = new FollowUp({
+        notifications: [request1, request2, request3, request4],
+      });
+
+      // Then
+      expect(followUp.items.length).equal(2);
+      expect(
+        followUp.items[0].equals(
+          new RequestItem(
+            'psl:OperationTranquilliteVacances:42',
+            'Opération Tranquillité Vacances',
+            'Votre demande est en brouillon.',
+            new Date('2026-02-23T15:55:00.000Z'),
+            'new',
+            'Brouillon',
+            false,
+            null
+          )
+        )
+      ).toBe(true);
+      expect(
+        followUp.items[1].equals(
+          new RequestItem(
+            'psl:OperationTranquilliteVacances:43',
+            'Opération Tranquillité Vacances',
+            'Votre demande est en cours de traitement.',
+            new Date('2026-02-22T15:55:00.000Z'),
+            'wip',
+            'En cours',
+            false,
+            null
+          )
+        )
+      ).toBe(true);
+      expect(followUp.archived_items.length).equal(2);
+      expect(
+        followUp.archived_items[0].equals(
+          new RequestItem(
+            'psl:OperationTranquilliteVacances:44',
+            'Opération Tranquillité Vacances',
+            'Votre demande est en brouillon.',
+            new Date('2026-02-21T15:55:00.000Z'),
+            'new',
+            'Brouillon',
+            true,
+            null
+          )
+        )
+      ).toBe(true);
+      expect(
+        followUp.archived_items[1].equals(
+          new RequestItem(
+            'psl:OperationTranquilliteVacances:45',
+            'Opération Tranquillité Vacances',
+            'Votre demande est terminée.',
+            new Date('2026-02-20T15:55:00.000Z'),
+            'closed',
+            'Terminée',
+            true,
+            null
+          )
+        )
+      ).toBe(true);
+    });
+  });
   describe('buildFollowUp', () => {
     test('should retrieve inventories and init follow-up with them', async () => {
       // Given
@@ -93,6 +221,7 @@ describe('/follow-up.ts', () => {
         milestone_end_date: null,
         title: 'Opération Tranquillité Vacances',
         description: 'Votre demande est en brouillon.',
+        is_archived: false,
         external_url: null,
         created_at: new Date('2026-02-23T15:50:00Z'),
         updated_at: new Date('2026-02-23T15:55:00Z'),
@@ -105,6 +234,7 @@ describe('/follow-up.ts', () => {
         milestone_end_date: null,
         title: 'Opération Tranquillité Vacances',
         description: 'Votre demande est terminée.',
+        is_archived: true,
         external_url: null,
         created_at: new Date('2026-02-22T15:50:00Z'),
         updated_at: new Date('2026-02-22T15:55:00Z'),
@@ -119,7 +249,7 @@ describe('/follow-up.ts', () => {
       // Then
       expect(spy).toHaveBeenCalledTimes(1);
       expect(followUp).toBeInstanceOf(FollowUp);
-      expect(followUp.items.length).equal(2);
+      expect(followUp.items.length).equal(1);
       expect(
         followUp.items[0].equals(
           new RequestItem(
@@ -129,12 +259,14 @@ describe('/follow-up.ts', () => {
             new Date('2026-02-23T15:55:00.000Z'),
             'new',
             'Brouillon',
+            false,
             null
           )
         )
       ).toBe(true);
+      expect(followUp.archived_items.length).equal(1);
       expect(
-        followUp.items[1].equals(
+        followUp.archived_items[0].equals(
           new RequestItem(
             'psl:OperationTranquilliteVacances:43',
             'Opération Tranquillité Vacances',
@@ -142,6 +274,7 @@ describe('/follow-up.ts', () => {
             new Date('2026-02-22T15:55:00.000Z'),
             'closed',
             'Terminée',
+            true,
             null
           )
         )

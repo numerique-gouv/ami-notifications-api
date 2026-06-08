@@ -31,6 +31,7 @@ describe('/+page.svelte', () => {
         new Date('2026-02-22T15:55:00.000Z'),
         'wip',
         'En cours',
+        false,
         null
       ),
       new RequestItem(
@@ -40,6 +41,7 @@ describe('/+page.svelte', () => {
         new Date('2026-02-20T15:55:00.000Z'),
         'closed',
         'Terminée',
+        false,
         null
       ),
     ]);
