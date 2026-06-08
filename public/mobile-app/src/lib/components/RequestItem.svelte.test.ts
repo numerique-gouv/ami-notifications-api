@@ -4,10 +4,11 @@ import { render, screen } from '@testing-library/svelte';
 import { RequestItem as Item } from '$lib/follow-up';
 import RequestItem from './RequestItem.svelte';
 
-describe('/AgendaItem.svelte', () => {
+describe('/RequestItem.svelte', () => {
   test('should display a link', async () => {
     // Given
     const item = new Item(
+      'id',
       'Opération Tranquillité Vacances',
       'Votre demande est terminée.',
       new Date('2026-02-20T15:55:00.000Z'),
@@ -27,6 +28,7 @@ describe('/AgendaItem.svelte', () => {
   test('should not display a link', async () => {
     // Given
     const item = new Item(
+      'id',
       'Opération Tranquillité Vacances',
       'Votre demande est terminée.',
       new Date('2026-02-20T15:55:00.000Z'),
