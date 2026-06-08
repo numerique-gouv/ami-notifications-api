@@ -11,6 +11,7 @@ describe('/follow-up.ts', () => {
         vi.stubEnv('TZ', 'Europe/Paris');
         const item = new RequestItem(
           'id',
+          'notifications',
           'title',
           'description',
           new Date('2026-01-03T08:05:42Z'),
@@ -32,6 +33,7 @@ describe('/follow-up.ts', () => {
         // Given
         const item1 = new RequestItem(
           'id1',
+          'notifications',
           'title',
           'description',
           new Date(),
@@ -43,6 +45,7 @@ describe('/follow-up.ts', () => {
         );
         const item2 = new RequestItem(
           'id2',
+          'notifications',
           'title',
           'description',
           new Date(),
@@ -53,6 +56,7 @@ describe('/follow-up.ts', () => {
         );
         const item3 = new RequestItem(
           'id3',
+          'notifications',
           'title',
           'description',
           new Date(),
@@ -63,6 +67,7 @@ describe('/follow-up.ts', () => {
         );
         const item4 = new RequestItem(
           'id4',
+          'notifications',
           'title',
           'description',
           new Date(),
@@ -154,6 +159,7 @@ describe('/follow-up.ts', () => {
         followUp.items[0].equals(
           new RequestItem(
             'psl:OperationTranquilliteVacances:42',
+            'notifications',
             'Opération Tranquillité Vacances',
             'Votre demande est en brouillon.',
             new Date('2026-02-23T15:55:00.000Z'),
@@ -168,6 +174,7 @@ describe('/follow-up.ts', () => {
         followUp.items[1].equals(
           new RequestItem(
             'psl:OperationTranquilliteVacances:43',
+            'notifications',
             'Opération Tranquillité Vacances',
             'Votre demande est en cours de traitement.',
             new Date('2026-02-22T15:55:00.000Z'),
@@ -183,6 +190,7 @@ describe('/follow-up.ts', () => {
         followUp.archived_items[0].equals(
           new RequestItem(
             'psl:OperationTranquilliteVacances:44',
+            'notifications',
             'Opération Tranquillité Vacances',
             'Votre demande est en brouillon.',
             new Date('2026-02-21T15:55:00.000Z'),
@@ -197,6 +205,7 @@ describe('/follow-up.ts', () => {
         followUp.archived_items[1].equals(
           new RequestItem(
             'psl:OperationTranquilliteVacances:45',
+            'notifications',
             'Opération Tranquillité Vacances',
             'Votre demande est terminée.',
             new Date('2026-02-20T15:55:00.000Z'),
@@ -254,6 +263,7 @@ describe('/follow-up.ts', () => {
         followUp.items[0].equals(
           new RequestItem(
             'psl:OperationTranquilliteVacances:42',
+            'notifications',
             'Opération Tranquillité Vacances',
             'Votre demande est en brouillon.',
             new Date('2026-02-23T15:55:00.000Z'),
@@ -269,6 +279,7 @@ describe('/follow-up.ts', () => {
         followUp.archived_items[0].equals(
           new RequestItem(
             'psl:OperationTranquilliteVacances:43',
+            'notifications',
             'Opération Tranquillité Vacances',
             'Votre demande est terminée.',
             new Date('2026-02-22T15:55:00.000Z'),

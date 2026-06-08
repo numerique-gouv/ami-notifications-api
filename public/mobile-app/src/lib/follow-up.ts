@@ -6,6 +6,8 @@ type Status = 'new' | 'wip' | 'closed';
 export class RequestItem {
   constructor(
     private _id: string,
+    private _inventory: string,
+
     private _title: string,
     private _description: string,
 
@@ -27,6 +29,10 @@ export class RequestItem {
 
   get id(): string {
     return this._id;
+  }
+
+  get inventory(): string {
+    return this._inventory;
   }
 
   get title(): string {
@@ -117,6 +123,7 @@ export class FollowUp {
   private createRequestItem(inventoryItem: InventoryItem): RequestItem {
     return new RequestItem(
       inventoryItem.external_id,
+      'notifications',
       inventoryItem.title,
       inventoryItem.description,
       inventoryItem.updated_at,
