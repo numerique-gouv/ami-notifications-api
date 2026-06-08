@@ -1,5 +1,5 @@
 import type { Inventory, InventoryItem } from '$lib/api-inventory';
-import { retrieveInventory } from '$lib/api-inventory';
+import { archiveInventoryItem, retrieveInventory } from '$lib/api-inventory';
 
 type Status = 'new' | 'wip' | 'closed';
 
@@ -89,6 +89,11 @@ export class RequestItem {
     const hours = String(this.date.getHours()).padStart(2, '0');
     const minutes = String(this.date.getMinutes()).padStart(2, '0');
     return `le ${day} ${month} à ${hours}H${minutes}`;
+  }
+
+  async archive(): Promise<boolean> {
+    const result = await archiveInventoryItem(this._inventory, this._id);
+    return result;
   }
 }
 
