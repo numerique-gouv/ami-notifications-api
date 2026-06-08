@@ -371,6 +371,7 @@ describe('/ConnectedHomepage.svelte', () => {
     vi.spyOn(followUp, 'items', 'get').mockReturnValue([
       new RequestItem(
         'id1',
+        'notifications',
         'Opération Tranquillité Vacances 1',
         'Votre demande est en cours de traitement.',
         new Date('2026-02-22T15:55:00.000Z'),
@@ -381,6 +382,7 @@ describe('/ConnectedHomepage.svelte', () => {
       ),
       new RequestItem(
         'id2',
+        'notifications',
         'Opération Tranquillité Vacances 2',
         'Votre demande est en cours de traitement.',
         new Date('2026-02-22T15:55:00.000Z'),
@@ -391,6 +393,7 @@ describe('/ConnectedHomepage.svelte', () => {
       ),
       new RequestItem(
         'id3',
+        'notifications',
         'Opération Tranquillité Vacances 3',
         'Votre demande est terminée.',
         new Date('2026-02-20T15:55:00.000Z'),
@@ -401,6 +404,7 @@ describe('/ConnectedHomepage.svelte', () => {
       ),
       new RequestItem(
         'id4',
+        'notifications',
         'Opération Tranquillité Vacances 4',
         'Votre demande est terminée.',
         new Date('2026-02-20T15:55:00.000Z'),

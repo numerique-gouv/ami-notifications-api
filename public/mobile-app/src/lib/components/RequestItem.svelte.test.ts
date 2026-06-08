@@ -9,6 +9,7 @@ describe('/RequestItem.svelte', () => {
     // Given
     const item = new Item(
       'id',
+      'notifications',
       'Opération Tranquillité Vacances',
       'Votre demande est terminée.',
       new Date('2026-02-20T15:55:00.000Z'),
@@ -30,6 +31,7 @@ describe('/RequestItem.svelte', () => {
     // Given
     const item = new Item(
       'id',
+      'notifications',
       'Opération Tranquillité Vacances',
       'Votre demande est terminée.',
       new Date('2026-02-20T15:55:00.000Z'),
