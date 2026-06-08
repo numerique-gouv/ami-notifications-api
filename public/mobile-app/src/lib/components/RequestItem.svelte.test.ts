@@ -14,6 +14,7 @@ describe('/RequestItem.svelte', () => {
       new Date('2026-02-20T15:55:00.000Z'),
       'closed',
       'Terminée',
+      false,
       'url'
     );
     render(RequestItem, { props: { item: item } });
@@ -34,6 +35,7 @@ describe('/RequestItem.svelte', () => {
       new Date('2026-02-20T15:55:00.000Z'),
       'closed',
       'Terminée',
+      false,
       null
     );
     render(RequestItem, { props: { item: item } });

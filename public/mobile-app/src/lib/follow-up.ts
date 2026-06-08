@@ -13,6 +13,7 @@ export class RequestItem {
 
     private _status_id: Status,
     private _status_label: string,
+    private _is_archived: boolean,
 
     private _link: string | null
   ) {}
@@ -46,6 +47,10 @@ export class RequestItem {
 
   get status_label(): string {
     return this._status_label;
+  }
+
+  get is_archived(): boolean {
+    return this._is_archived;
   }
 
   get link(): string | null {
@@ -83,6 +88,7 @@ export class RequestItem {
 
 export class FollowUp {
   private _items: RequestItem[] = [];
+  private _archived_items: RequestItem[] = [];
 
   constructor(inventory: Inventory | null = null) {
     const requestItems: RequestItem[] = [];
@@ -98,7 +104,14 @@ export class FollowUp {
     // sort items by date
     requestItems.sort((a, b) => b.date.getTime() - a.date.getTime());
 
-    this._items = requestItems;
+    // organize items in _items or _archived_items arrays
+    requestItems.forEach((requestItem) => {
+      if (requestItem.is_archived) {
+        this._archived_items.push(requestItem);
+      } else {
+        this._items.push(requestItem);
+      }
+    });
   }
 
   private createRequestItem(inventoryItem: InventoryItem): RequestItem {
@@ -109,12 +122,17 @@ export class FollowUp {
       inventoryItem.updated_at,
       inventoryItem.status_id as Status,
       inventoryItem.status_label,
+      inventoryItem.is_archived,
       inventoryItem.external_url
     );
   }
 
   get items(): RequestItem[] {
     return this._items;
+  }
+
+  get archived_items(): RequestItem[] {
+    return this._archived_items;
   }
 }
 
