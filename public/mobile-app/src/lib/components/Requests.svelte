@@ -2,12 +2,19 @@
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import RequestItemModal from '$lib/components/modal/RequestItemModal.svelte';
+  import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import RequestItem from '$lib/components/RequestItem.svelte';
   import type { FollowUp, RequestItem as RequestItemType } from '$lib/follow-up';
   import { buildFollowUp } from '$lib/follow-up';
   import { toastStore } from '$lib/state/toast.svelte';
   import { userStore } from '$lib/state/User.svelte';
 
+  interface Props {
+    archived?: boolean;
+  }
+  let { archived = false }: Props = $props();
+
+  const backUrl = '/#/requests';
   let followUp: FollowUp | null = $state(null);
   let selectedRequestItem: RequestItemType | null = $state(null);
   let menuOpened: boolean = $state(false);
@@ -54,40 +61,48 @@
   };
 </script>
 
-<div class="requests">
-  <div class="requests--title">
-    <h2>Mes démarches</h2>
-    <div class="requests--title--icon">
-      <button
-        class="more"
-        type="button"
-        data-testid="more-button"
-        onclick={toggleMoreMenu}
-      >
-        <span class="fr-icon-more-2-fill" aria-hidden="true"></span><span
-          class="fr-sr-only"
-          >Sous-menu</span
+<div class="requests {archived ? 'archived': ''}">
+  {#if archived}
+    <NavWithBackButton title="Démarches archivées" {backUrl} />
+  {:else}
+    <div class="requests--title">
+      <h2>Mes démarches</h2>
+      <div class="requests--title--icon">
+        <button
+          class="more"
+          type="button"
+          data-testid="more-button"
+          onclick={toggleMoreMenu}
         >
-      </button>
-    </div>
-    {#if menuOpened}
-      <ul id="more-menu" data-testid="more-menu">
-        <li>
-          <span class="fr-icon-inbox-archive-line" aria-hidden="true"></span>
-          <button
-            type="button"
-            onclick={gotoArchivedRequests}
-            data-testid="archived-requests-button"
+          <span class="fr-icon-more-2-fill" aria-hidden="true"></span><span
+            class="fr-sr-only"
+            >Sous-menu</span
           >
-            Démarches archivées
-          </button>
-        </li>
-      </ul>
-    {/if}
-  </div>
+        </button>
+      </div>
+      {#if menuOpened}
+        <ul id="more-menu" data-testid="more-menu">
+          <li>
+            <span class="fr-icon-inbox-archive-line" aria-hidden="true"></span>
+            <button
+              type="button"
+              onclick={gotoArchivedRequests}
+              data-testid="archived-requests-button"
+            >
+              Démarches archivées
+            </button>
+          </li>
+        </ul>
+      {/if}
+    </div>
+  {/if}
 
   <div class="requests--container" data-testid="requests">
-    {#if followUp && followUp.items.length}
+    {#if archived && followUp && followUp.archived_items.length}
+      {#each followUp.archived_items as item}
+        <RequestItem item={item} onOpen={() => openRequestItemModal(item)} />
+      {/each}
+    {:else if !archived && followUp && followUp.items.length}
       {#each followUp.items as item}
         <RequestItem item={item} onOpen={() => openRequestItemModal(item)} />
       {/each}
@@ -137,6 +152,10 @@
   .requests {
     padding: 1.5rem 1rem;
     margin-bottom: 68px;
+    &.archived {
+      padding-top: 0;
+      margin-bottom: 0;
+    }
     .requests--title {
       display: flex;
       position: relative;
