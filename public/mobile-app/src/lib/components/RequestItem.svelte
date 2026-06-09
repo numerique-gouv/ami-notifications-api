@@ -13,13 +13,15 @@
   <div
     class="request--item--detail fr-tile fr-tile-sm fr-tile--horizontal fr-enlarge-link no-link"
   >
-    <button
-      onclick={onOpen}
-      title="Ouvrir la modale liée à l'élément du suivi"
-      aria-label="Ouvrir la modale liée à l'élément du suivi"
-      data-testid="open-request-item-modal-{item.id}"
-      class="open-request-item-modal fr-icon-more-2-fill"
-    ></button>
+    {#if !item.is_archived}
+      <button
+        onclick={onOpen}
+        title="Ouvrir la modale liée à l'élément du suivi"
+        aria-label="Ouvrir la modale liée à l'élément du suivi"
+        data-testid="open-request-item-modal-{item.id}"
+        class="open-request-item-modal fr-icon-more-2-fill"
+      ></button>
+    {/if}
     <div class="fr-tile__body">
       <div class="fr-tile__content {item.link ? '': 'no-link'}">
         <h3 class="fr-tile__title">

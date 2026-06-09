@@ -90,7 +90,19 @@ describe('/Requests.svelte', () => {
       // Given
       const followUp = new FollowUp();
       vi.spyOn(followUp, 'items', 'get').mockReturnValue([]);
-      vi.spyOn(followUp, 'archived_items', 'get').mockReturnValue([]);
+      vi.spyOn(followUp, 'archived_items', 'get').mockReturnValue([
+        new RequestItem(
+          'id3',
+          'notifications',
+          'Opération Tranquillité Vacances',
+          'Votre demande est en cours de traitement 3.',
+          new Date('2026-02-22T15:55:00.000Z'),
+          'wip',
+          'En cours',
+          true,
+          null
+        ),
+      ]);
       const spy = vi
         .spyOn(followUpMethods, 'buildFollowUp')
         .mockResolvedValue(followUp);
@@ -107,7 +119,134 @@ describe('/Requests.svelte', () => {
       });
     });
   });
+  describe('Archived items', () => {
+    test('Should display requests from API', async () => {
+      // Given
+      const followUp = new FollowUp();
+      vi.spyOn(followUp, 'items', 'get').mockReturnValue([
+        new RequestItem(
+          'id1',
+          'notifications',
+          'Opération Tranquillité Vacances',
+          'Votre demande est en cours de traitement 1.',
+          new Date('2026-02-22T15:55:00.000Z'),
+          'wip',
+          'En cours',
+          false,
+          null
+        ),
+        new RequestItem(
+          'id2',
+          'notifications',
+          'Opération Tranquillité Vacances',
+          'Votre demande est terminée 2.',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'closed',
+          'Terminée',
+          false,
+          null
+        ),
+      ]);
+      vi.spyOn(followUp, 'archived_items', 'get').mockReturnValue([
+        new RequestItem(
+          'id3',
+          'notifications',
+          'Opération Tranquillité Vacances',
+          'Votre demande est en cours de traitement 3.',
+          new Date('2026-02-22T15:55:00.000Z'),
+          'wip',
+          'En cours',
+          true,
+          null
+        ),
+        new RequestItem(
+          'id4',
+          'notifications',
+          'Opération Tranquillité Vacances',
+          'Votre demande est terminée 4.',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'closed',
+          'Terminée',
+          true,
+          null
+        ),
+      ]);
+      const spy = vi
+        .spyOn(followUpMethods, 'buildFollowUp')
+        .mockResolvedValue(followUp);
+
+      // When
+      render(Requests, { archived: true });
+
+      // Then
+      await waitFor(() => {
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(screen.getByTestId('requests')).not.toHaveTextContent(
+          'Votre demande est en cours de traitement 1.'
+        );
+        expect(screen.getByTestId('requests')).not.toHaveTextContent(
+          'Votre demande est terminée 2.'
+        );
+        expect(screen.getByTestId('requests')).toHaveTextContent(
+          'Votre demande est en cours de traitement 3.'
+        );
+        expect(screen.getByTestId('requests')).toHaveTextContent(
+          'Votre demande est terminée 4.'
+        );
+        expect(screen.getByTestId('requests')).not.toHaveTextContent(
+          'Après avoir effectué vos démarches, vous pouvez les suivre en temps réel depuis l’application.'
+        );
+      });
+    });
+    test('Should display empty followup', async () => {
+      // Given
+      const followUp = new FollowUp();
+      vi.spyOn(followUp, 'items', 'get').mockReturnValue([
+        new RequestItem(
+          'id1',
+          'notifications',
+          'Opération Tranquillité Vacances',
+          'Votre demande est en cours de traitement 1.',
+          new Date('2026-02-22T15:55:00.000Z'),
+          'wip',
+          'En cours',
+          false,
+          null
+        ),
+      ]);
+      vi.spyOn(followUp, 'archived_items', 'get').mockReturnValue([]);
+      const spy = vi
+        .spyOn(followUpMethods, 'buildFollowUp')
+        .mockResolvedValue(followUp);
+
+      // When
+      render(Requests, { archived: true });
+
+      // Then
+      await waitFor(() => {
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(screen.getByTestId('requests')).toHaveTextContent(
+          'Après avoir effectué vos démarches, vous pouvez les suivre en temps réel depuis l’application.'
+        );
+      });
+    });
+  });
   describe('More menu', () => {
+    test('No "more" button for archived request items', async () => {
+      // Given
+      const followUp = new FollowUp();
+      vi.spyOn(followUp, 'items', 'get').mockReturnValue([]);
+      vi.spyOn(followUpMethods, 'buildFollowUp').mockResolvedValue(followUp);
+
+      // When
+      render(Requests, { archived: true });
+
+      // Then
+      await waitFor(async () => {
+        const button = screen.queryByTestId('more-button');
+        expect(button).toBeNull();
+      });
+    });
     test('Should open more menu when user clicks on "more" button', async () => {
       // Given
       const followUp = new FollowUp();
@@ -151,6 +290,43 @@ describe('/Requests.svelte', () => {
     });
   });
   describe('Request item modal', () => {
+    test('No more icon for archived request item', async () => {
+      const followUp = new FollowUp();
+      vi.spyOn(followUp, 'archived_items', 'get').mockReturnValue([
+        new RequestItem(
+          'id1',
+          'notifications',
+          'Opération Tranquillité Vacances 1',
+          'Votre demande est en cours de traitement.',
+          new Date('2026-02-22T15:55:00.000Z'),
+          'wip',
+          'En cours',
+          true,
+          null
+        ),
+        new RequestItem(
+          'id2',
+          'notifications',
+          'Opération Tranquillité Vacances 2',
+          'Votre demande est en cours de traitement.',
+          new Date('2026-02-22T15:55:00.000Z'),
+          'wip',
+          'En cours',
+          true,
+          null
+        ),
+      ]);
+      vi.spyOn(followUpMethods, 'buildFollowUp').mockResolvedValue(followUp);
+
+      // When
+      render(Requests, { archived: true });
+
+      // Then
+      await waitFor(async () => {
+        const moreIcon = screen.queryByTestId('open-request-item-modal-id1');
+        expect(moreIcon).toBeNull();
+      });
+    });
     test('Should open request item modal when clicks on more icon', async () => {
       const followUp = new FollowUp();
       vi.spyOn(followUp, 'items', 'get').mockReturnValue([
