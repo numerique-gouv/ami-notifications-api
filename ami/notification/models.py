@@ -44,6 +44,7 @@ class Notification(models.Model):
 
     read = models.BooleanField(default=False)
     send_date = models.DateTimeField(default=timezone.now)
+    valid_until = models.DateTimeField(blank=True, null=True)
     try_push = models.BooleanField(blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)

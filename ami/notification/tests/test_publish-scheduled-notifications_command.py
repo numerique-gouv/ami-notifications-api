@@ -83,6 +83,7 @@ async def test_command_publish_scheduled_notifications(
     assert notification.item_canal is None
     assert notification.internal_url == "internal-url-3"
     assert notification.send_date is not None
+    assert notification.valid_until is None
     assert notification.partner_id == "dinum-ami"
     assert notification.read is False
     assert notification.try_push is None
