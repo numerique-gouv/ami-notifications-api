@@ -120,6 +120,10 @@ class PartnerNotificationCreateSerializer(serializers.Serializer):
     send_date = serializers.DateTimeField(
         help_text="Date (au format ISO 8601) d'émission de la notification côté partenaire"
     )
+    valid_until = serializers.DateTimeField(
+        default=None,
+        help_text="Date (au format ISO 8601) après laquelle il n'est plus utile d'envoyer une notification",
+    )
     try_push = serializers.BooleanField(
         default=True,
         help_text="Indique si le système doit essayer de déclencher une Notification Push sur les terminaux de l'usager",
