@@ -95,6 +95,12 @@ class NotificationForm(AMIDsfrBaseForm):
             attrs={"type": "datetime-local"}, format="%Y-%m-%dT%H:%M:00.000%Z"
         ),
     )
+    valid_until = forms.DateTimeField(
+        required=False,
+        widget=forms.DateTimeInput(
+            attrs={"type": "datetime-local"}, format="%Y-%m-%dT%H:%M:00.000%Z"
+        ),
+    )
     try_push = forms.BooleanField(
         required=False,
         initial=False,
