@@ -8,6 +8,7 @@ from django.conf import settings
 from django.db.models import QuerySet
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from django.utils.timezone import now
 from drf_spectacular.utils import extend_schema
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.request import Request
@@ -35,9 +36,11 @@ from .serializers import (
 @api_view(["GET"])
 @ami_login_required
 def list_notifications(request: Request) -> Response[QuerySet[Notification]]:
-    notifications: QuerySet[Notification] = Notification.objects.filter(
-        user=request.ami_user
-    ).order_by("-created_at")
+    notifications: QuerySet[Notification] = (
+        Notification.objects.filter(user=request.ami_user)
+        .exclude(valid_until__lt=now())
+        .order_by("-created_at")
+    )
 
     serialized = NotificationSerializer(notifications, many=True).data
     return Response(serialized)

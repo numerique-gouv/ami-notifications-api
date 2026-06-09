@@ -1,8 +1,10 @@
 import asyncio
+import datetime
 import uuid
 
 import pytest
 from channels.testing.websocket import WebsocketCommunicator
+from django.utils.timezone import now
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 
 from ami.notification.models import Notification
@@ -44,6 +46,7 @@ def test_get_notifications(
         content_body="Other notification",
         content_private_body="some private body content",
         content_title="Notification title",
+        valid_until=now() + datetime.timedelta(seconds=1),
     )
 
     # notification for another user, not returned in notification list of current user
@@ -52,6 +55,15 @@ def test_get_notifications(
         user_id=other_user.id,
         content_body="Other notification",
         content_title="Notification title",
+    )
+
+    # notification with outdated valid_until
+    Notification.objects.create(
+        user=notification.user,
+        content_body="Other notification",
+        content_private_body="some private body content",
+        content_title="Notification title",
+        valid_until=now(),
     )
 
     # test user notification list
