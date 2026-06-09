@@ -4,6 +4,8 @@ import * as navigationMethods from '$app/navigation';
 import * as followUpMethods from '$lib/follow-up';
 import { FollowUp, RequestItem } from '$lib/follow-up';
 import { toastStore } from '$lib/state/toast.svelte';
+import { userStore } from '$lib/state/User.svelte';
+import { mockUserInfo } from '$tests/utils';
 import Page from './+page.svelte';
 
 describe('/+page.svelte', () => {
@@ -82,6 +84,50 @@ describe('/+page.svelte', () => {
       expect(screen.getByTestId('requests')).toHaveTextContent(
         'Après avoir effectué vos démarches, vous pouvez les suivre en temps réel depuis l’application.'
       );
+    });
+  });
+  describe('More menu', () => {
+    test('Should open more menu when user clicks on "more" button', async () => {
+      // Given
+      const followUp = new FollowUp();
+      vi.spyOn(followUp, 'items', 'get').mockReturnValue([]);
+      vi.spyOn(followUpMethods, 'buildFollowUp').mockResolvedValue(followUp);
+      render(Page);
+
+      // When
+      await waitFor(async () => {
+        const button = screen.getByTestId('more-button');
+        await fireEvent.click(button);
+      });
+
+      // Then
+      const moreMenu = screen.getByTestId('more-menu');
+      expect(moreMenu).toBeInTheDocument();
+    });
+    test('Should redirect to archived requests page when user clicks on "Démarches archivées" button', async () => {
+      // Given
+      await userStore.login(mockUserInfo);
+      const followUp = new FollowUp();
+      vi.spyOn(followUp, 'items', 'get').mockReturnValue([]);
+      vi.spyOn(followUpMethods, 'buildFollowUp').mockResolvedValue(followUp);
+      render(Page);
+      const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue();
+      await waitFor(async () => {
+        const button = screen.getByTestId('more-button');
+        await fireEvent.click(button);
+      });
+
+      // When
+      await waitFor(async () => {
+        const button = screen.getByTestId('archived-requests-button');
+        await fireEvent.click(button);
+      });
+
+      // Then
+      await waitFor(() => {
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(spy).toHaveBeenCalledWith('/#/requests/archived');
+      });
     });
   });
   describe('Request item modal', () => {
