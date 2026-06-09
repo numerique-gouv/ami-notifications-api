@@ -7,6 +7,7 @@ import pytest
 import webpush as webpush_lib
 from asgiref.sync import sync_to_async
 from channels.testing.websocket import WebsocketCommunicator
+from django.utils.timezone import now
 from pytest_httpx import HTTPXMock
 from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED
 
@@ -39,6 +40,7 @@ async def test_create_webpush_notification(
 
     monkeypatch.setattr(webpush_lib.WebPush, "get", capturing_webpush_get)
 
+    valid_until = now() + datetime.timedelta(seconds=1)
     notification_data = {
         "recipient_fc_hash": webpush_registration.user.fc_hash,
         "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
@@ -54,6 +56,7 @@ async def test_create_webpush_notification(
         "item_external_url": "http://otv/a-5-jgbj5vmoy",
         "item_canal": "ami",
         "send_date": "2025-11-27T10:55:00.000Z",
+        "valid_until": valid_until.isoformat(),
         "try_push": True,
     }
 
@@ -86,6 +89,7 @@ async def test_create_webpush_notification(
     assert notification2.send_date == datetime.datetime(
         2025, 11, 27, 10, 55, tzinfo=datetime.timezone.utc
     )
+    assert notification2.valid_until == valid_until
     assert notification2.partner_id == "psl"
     assert notification2.try_push is True
     assert notification2.send_status is True
@@ -156,6 +160,7 @@ def test_create_mobile_notification(
     assert notification2.send_date == datetime.datetime(
         2025, 11, 27, 10, 55, tzinfo=datetime.timezone.utc
     )
+    assert notification2.valid_until is None
     assert notification2.partner_id == "psl"
     assert notification2.try_push is True
     assert notification2.send_status is True
@@ -206,6 +211,85 @@ def test_create_notification_dont_try_push(
     assert not httpx_mock.get_request()
 
 
+@pytest.mark.django_db(transaction=True)
+async def test_create_webpush_notification_no_valid_until(
+    app,
+    webpush_notification: Notification,
+    webpush_registration: Registration,
+    partner_auth: dict[str, str],
+    httpx_mock: HTTPXMock,
+    websocket: WebsocketCommunicator,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # Make sure we don't even try sending a notification to a push server.
+    httpx_mock.add_response(url=webpush_registration.subscription["endpoint"])
+
+    notification_data = {
+        "recipient_fc_hash": webpush_registration.user.fc_hash,
+        "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
+        "content_body": "Merci d'avoir initié votre demande",
+        "content_private_body": "Ceci est privé et ne devrait jamais être `push`é",
+        "send_date": "2025-11-27T10:55:00.000Z",
+        "try_push": True,
+    }
+
+    response = await sync_to_async(app.post)(
+        "/api/v1/notifications", notification_data, headers=partner_auth
+    )
+    assert response.status_code == HTTP_201_CREATED
+    notification_count = await sync_to_async(Notification.objects.count)()
+    assert notification_count == 2
+    notification2 = await sync_to_async(Notification.objects.select_related("user").get)(
+        id=response.json["notification_id"]
+    )
+    assert notification2.valid_until is None
+    assert response.json == {
+        "notification_id": str(notification2.id),
+        "notification_send_status": True,
+    }
+    res = await get_from_stream(websocket, 1)
+    assert res[0] == {
+        "user_id": str(webpush_registration.user.id),
+        "id": str(notification2.id),
+        "event": "created",
+    }
+    request = httpx_mock.get_request()
+    assert request is not None
+
+
+@pytest.mark.django_db
+def test_create_notification_outdated_valid_until(
+    app,
+    webpush_registration: Registration,
+    partner_auth: dict[str, str],
+    httpx_mock: HTTPXMock,
+) -> None:
+    notification_data = {
+        "recipient_fc_hash": webpush_registration.user.fc_hash,
+        "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
+        "content_body": "Merci d'avoir initié votre demande",
+        "content_icon": "foo",
+        "item_type": "OTV",
+        "item_id": "A-5-JGBJ5VMOY",
+        "item_status_label": "Brouillon",
+        "item_generic_status": "new",
+        "item_milestone_start_date": "2025-12-26T23:00:00.000Z",
+        "item_milestone_end_date": "2026-01-02T23:00:00.000Z",
+        "item_external_url": "http://otv/a-5-jgbj5vmoy",
+        "item_canal": "ami",
+        "send_date": "2025-11-27T10:55:00.000Z",
+        "valid_until": now().isoformat(),
+        "try_push": True,
+    }
+    response = app.post("/api/v1/notifications", notification_data, headers=partner_auth)
+    assert response.status_code == HTTP_201_CREATED
+    assert Notification.objects.count() == 1
+    notification = Notification.objects.get()
+    assert notification.try_push is True
+    assert notification.send_status is True
+    assert not httpx_mock.get_request()
+
+
 @pytest.mark.django_db
 def test_create_notification_user_does_not_exist(
     app,
@@ -215,14 +299,14 @@ def test_create_notification_user_does_not_exist(
 ) -> None:
     notification_data = {
         "recipient_fc_hash": "unknown_hash",
+        "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
+        "content_body": "Merci d'avoir initié votre demande",
+        "content_icon": "foo",
         "item_type": "OTV",
         "item_id": "A-5-JGBJ5VMOY",
         "item_status_label": "Brouillon",
         "item_generic_status": "new",
         "send_date": "2025-11-27T10:55:00.000Z",
-        "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
-        "content_body": "Merci d'avoir initié votre demande",
-        "content_icon": "foo",
     }
 
     monkeypatch.setenv("IGNORE_NOTIFICATION_REQUESTS_FOR_UNREGISTERED_USER", "true")
@@ -258,6 +342,7 @@ def test_create_notification_user_does_not_exist(
     assert notification.send_date == datetime.datetime(
         2025, 11, 27, 10, 55, tzinfo=datetime.timezone.utc
     )
+    assert notification.valid_until is None
     assert notification.partner_id == "psl"
     assert notification.try_push is True
     assert notification.send_status is False
@@ -280,14 +365,14 @@ def test_create_notification_user_never_seen(
 ) -> None:
     notification_data = {
         "recipient_fc_hash": never_seen_user.fc_hash,
+        "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
+        "content_body": "Merci d'avoir initié votre demande",
+        "content_icon": "foo",
         "item_type": "OTV",
         "item_id": "A-5-JGBJ5VMOY",
         "item_status_label": "Brouillon",
         "item_generic_status": "new",
         "send_date": "2025-11-27T10:55:00.000Z",
-        "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
-        "content_body": "Merci d'avoir initié votre demande",
-        "content_icon": "foo",
     }
 
     monkeypatch.setenv("IGNORE_NOTIFICATION_REQUESTS_FOR_UNREGISTERED_USER", "true")
@@ -447,6 +532,7 @@ def test_create_notification_duplicated_payload(
     user: User,
     partner_auth: dict[str, str],
 ) -> None:
+    year = now().year + 1
     notification_data = {
         "recipient_fc_hash": user.fc_hash,
         "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
@@ -461,6 +547,7 @@ def test_create_notification_duplicated_payload(
         "item_external_url": "http://otv/a-5-jgbj5vmoy",
         "item_canal": "ami",
         "send_date": "2025-11-27T10:55:00.000Z",
+        "valid_until": f"{year}-11-27T10:55:00.000Z",
         "try_push": True,
     }
 
@@ -612,6 +699,7 @@ def test_create_notification_send_ko_with_400_when_required_fields_are_empty(
         "item_milestone_end_date": "",
         "item_external_url": "",
         "send_date": "",
+        "valid_until": "",
         "try_push": "",
     }
     response = app.post(
@@ -773,6 +861,7 @@ def test_create_notification_when_optional_fields_are_empty(
         "item_milestone_end_date": "",
         "item_external_url": "",
         "send_date": "2025-11-27T10:55:00.000Z",
+        "valid_until": "",
         "try_push": "",
     }
     response = app.post("/api/v1/notifications", notification_data, headers=partner_auth)
@@ -794,6 +883,7 @@ def test_create_notification_when_optional_fields_are_empty(
     assert notification.send_date == datetime.datetime(
         2025, 11, 27, 10, 55, tzinfo=datetime.timezone.utc
     )
+    assert notification.valid_until is None
     assert notification.partner_id == "psl"
     assert notification.read is False
     assert response.json == {

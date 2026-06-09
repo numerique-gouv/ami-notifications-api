@@ -3,6 +3,7 @@ from typing import cast
 import webpush
 from channels.layers import get_channel_layer
 from django.conf import settings
+from django.utils.timezone import now
 from firebase_admin import messaging
 from firebase_admin.messaging import UnregisteredError
 
@@ -25,6 +26,9 @@ async def push(notification: Notification, try_push: bool) -> None:
     import logging
 
     logger = logging.getLogger(__name__)
+
+    if notification.valid_until is not None and notification.valid_until < now():
+        return
 
     channel_layer = get_channel_layer()
     assert channel_layer is not None
