@@ -29,6 +29,7 @@ def test_send_notification(app, notifications_agent: Agent) -> None:
     assert response.forms["send-notification"]["send_date"].value == now().strftime(
         "%Y-%m-%dT%H:%M:00.000"
     )
+    assert response.forms["send-notification"]["valid_until"].value == ""
     assert response.forms["send-notification"]["try_push"].value is None
 
 
