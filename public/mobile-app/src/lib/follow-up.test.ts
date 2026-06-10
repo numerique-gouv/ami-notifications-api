@@ -296,6 +296,188 @@ describe('/follow-up.ts', () => {
         )
       ).toBe(true);
     });
+    describe('hasNonArchivedItems', () => {
+      test('should return true as "new" item exists for the external_item_type', async () => {
+        // Given
+        const request = {
+          partner_id: 'psl',
+          external_item_type: 'OperationTranquilliteVacances',
+          external_item_id: '42',
+          status_id: 'new',
+          status_label: 'Brouillon',
+          milestone_start_date: new Date('2026-01-23T15:50:00Z'),
+          milestone_end_date: null,
+          title: 'Opération Tranquillité Vacances',
+          description: 'Votre demande est en brouillon.',
+          is_archived: false,
+          external_url: null,
+          created_at: new Date('2026-02-23T15:50:00Z'),
+          updated_at: new Date('2026-02-23T15:55:00Z'),
+        };
+        const followUp = new FollowUp({
+          notifications: [request],
+        });
+
+        // When
+        const result = followUp.hasNonArchivedItems(
+          'psl',
+          'OperationTranquilliteVacances'
+        );
+
+        // Then
+        expect(result).toEqual(true);
+      });
+      test('should return true as "wip" item exists for the external_item_type', async () => {
+        // Given
+        const request = {
+          partner_id: 'psl',
+          external_item_type: 'OperationTranquilliteVacances',
+          external_item_id: '42',
+          status_id: 'wip',
+          status_label: 'Brouillon',
+          milestone_start_date: new Date('2026-01-23T15:50:00Z'),
+          milestone_end_date: null,
+          title: 'Opération Tranquillité Vacances',
+          description: 'Votre demande est en brouillon.',
+          is_archived: false,
+          external_url: null,
+          created_at: new Date('2026-02-23T15:50:00Z'),
+          updated_at: new Date('2026-02-23T15:55:00Z'),
+        };
+        const followUp = new FollowUp({
+          notifications: [request],
+        });
+
+        // When
+        const result = followUp.hasNonArchivedItems(
+          'psl',
+          'OperationTranquilliteVacances'
+        );
+
+        // Then
+        expect(result).toEqual(true);
+      });
+      test('should return true as "closed" item exists for the external_item_type', async () => {
+        // Given
+        const request = {
+          partner_id: 'psl',
+          external_item_type: 'OperationTranquilliteVacances',
+          external_item_id: '42',
+          status_id: 'closed',
+          status_label: 'Brouillon',
+          milestone_start_date: new Date('2026-01-23T15:50:00Z'),
+          milestone_end_date: null,
+          title: 'Opération Tranquillité Vacances',
+          description: 'Votre demande est en brouillon.',
+          is_archived: false,
+          external_url: null,
+          created_at: new Date('2026-02-23T15:50:00Z'),
+          updated_at: new Date('2026-02-23T15:55:00Z'),
+        };
+        const followUp = new FollowUp({
+          notifications: [request],
+        });
+
+        // When
+        const result = followUp.hasNonArchivedItems(
+          'psl',
+          'OperationTranquilliteVacances'
+        );
+
+        // Then
+        expect(result).toEqual(true);
+      });
+      test('should return false as archived items exist for the external_item_type', async () => {
+        // Given
+        const request1 = {
+          partner_id: 'other',
+          external_item_type: 'OperationTranquilliteVacances',
+          external_item_id: '42',
+          status_id: 'wip',
+          status_label: 'Brouillon',
+          milestone_start_date: new Date('2026-01-23T15:50:00Z'),
+          milestone_end_date: null,
+          title: 'Opération Tranquillité Vacances',
+          description: 'Votre demande est en brouillon.',
+          is_archived: false,
+          external_url: null,
+          created_at: new Date('2026-02-23T15:50:00Z'),
+          updated_at: new Date('2026-02-23T15:55:00Z'),
+        };
+        const request2 = {
+          partner_id: 'psl',
+          external_item_type: 'Other',
+          external_item_id: '43',
+          status_id: 'wip',
+          status_label: 'Brouillon',
+          milestone_start_date: new Date('2026-01-23T15:50:00Z'),
+          milestone_end_date: null,
+          title: 'Opération Tranquillité Vacances',
+          description: 'Votre demande est en brouillon.',
+          is_archived: false,
+          external_url: null,
+          created_at: new Date('2026-02-23T15:50:00Z'),
+          updated_at: new Date('2026-02-23T15:55:00Z'),
+        };
+        const request3 = {
+          partner_id: 'psl',
+          external_item_type: 'OperationTranquilliteVacances',
+          external_item_id: '44',
+          status_id: 'new',
+          status_label: 'Brouillon',
+          milestone_start_date: new Date('2026-01-23T15:50:00Z'),
+          milestone_end_date: null,
+          title: 'Opération Tranquillité Vacances',
+          description: 'Votre demande est en brouillon.',
+          is_archived: true,
+          external_url: null,
+          created_at: new Date('2026-02-23T15:50:00Z'),
+          updated_at: new Date('2026-02-23T15:55:00Z'),
+        };
+        const request4 = {
+          partner_id: 'psl',
+          external_item_type: 'OperationTranquilliteVacances',
+          external_item_id: '45',
+          status_id: 'wip',
+          status_label: 'Brouillon',
+          milestone_start_date: new Date('2026-01-23T15:50:00Z'),
+          milestone_end_date: null,
+          title: 'Opération Tranquillité Vacances',
+          description: 'Votre demande est en brouillon.',
+          is_archived: true,
+          external_url: null,
+          created_at: new Date('2026-02-23T15:50:00Z'),
+          updated_at: new Date('2026-02-23T15:55:00Z'),
+        };
+        const request5 = {
+          partner_id: 'psl',
+          external_item_type: 'OperationTranquilliteVacances',
+          external_item_id: '46',
+          status_id: 'closed',
+          status_label: 'Brouillon',
+          milestone_start_date: new Date('2026-01-23T15:50:00Z'),
+          milestone_end_date: null,
+          title: 'Opération Tranquillité Vacances',
+          description: 'Votre demande est en brouillon.',
+          is_archived: true,
+          external_url: null,
+          created_at: new Date('2026-02-23T15:50:00Z'),
+          updated_at: new Date('2026-02-23T15:55:00Z'),
+        };
+        const followUp = new FollowUp({
+          notifications: [request1, request2, request3, request4, request5],
+        });
+
+        // When
+        const result = followUp.hasNonArchivedItems(
+          'psl',
+          'OperationTranquilliteVacances'
+        );
+
+        // Then
+        expect(result).toEqual(false);
+      });
+    });
   });
   describe('buildFollowUp', () => {
     test('should retrieve inventories and init follow-up with them', async () => {
