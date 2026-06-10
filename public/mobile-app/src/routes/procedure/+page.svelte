@@ -8,6 +8,8 @@
   import { Address } from '$lib/address';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import PageWrapper from '$lib/components/PageWrapper.svelte';
+  import type { FollowUp } from '$lib/follow-up';
+  import { buildFollowUp } from '$lib/follow-up';
   import { franceConnectLogout } from '$lib/france-connect';
   import { retrieveProcedureUrl } from '$lib/procedure';
   import { User, type UserIdentity, userStore } from '$lib/state/User.svelte';
@@ -15,6 +17,7 @@
   let backUrl: string = '/';
   let procedureUrl: string = $state('');
   let itemDate: string = $state('');
+  let hasNonArchivedItems: boolean = $state(false);
 
   const isValidDate = (d: Date | number) =>
     d instanceof Date && !Number.isNaN(d.getTime());
@@ -49,7 +52,7 @@
     }
   };
 
-  onMount(() => {
+  onMount(async () => {
     if (!userStore.connected) {
       goto('/');
     }
@@ -69,6 +72,12 @@
         itemDate = dateFromUrl.toLocaleDateString(locale, dateFormat);
       }
     }
+
+    const followUp = await buildFollowUp();
+    hasNonArchivedItems = followUp.hasNonArchivedItems(
+      'psl',
+      'OperationTranquilliteVacances'
+    );
   });
 
   const AMIFILogin = async (procedureUrl: string) => {
@@ -96,7 +105,9 @@
     redirectToLink(procedureUrl);
   };
 
-  export const getProcedureUrlForTests = () => procedureUrl;
+  const gotoFollowUp = () => {
+    goto('/#/requests');
+  };
 </script>
 
 <PageWrapper>
@@ -142,7 +153,25 @@
 
   {#snippet footer()}
     <div class="procedure-action-buttons">
-      <div class="procedure-start">
+      {#if hasNonArchivedItems}
+        <button
+          class="fr-btn fr-btn--lg"
+          type="button"
+          onclick={gotoFollowUp}
+          data-testid="followup-button"
+        >
+          Accéder à ma démarche
+        </button>
+        <button
+          class="fr-btn fr-btn--lg fr-btn--tertiary"
+          type="button"
+          onclick={clickOnProcedureButton}
+          data-testid="procedure-button"
+          disabled="{!procedureUrl}"
+        >
+          Faire une nouvelle démarche
+        </button>
+      {:else}
         <button
           class="fr-btn fr-btn--lg"
           type="button"
@@ -152,7 +181,7 @@
         >
           Bénéficier de ce service
         </button>
-      </div>
+      {/if}
     </div>
   {/snippet}
 </PageWrapper>
@@ -178,6 +207,12 @@
 
   .procedure-action-buttons {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    gap: 1rem;
+    button {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+    }
   }
 </style>

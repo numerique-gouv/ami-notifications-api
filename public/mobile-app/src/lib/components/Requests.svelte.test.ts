@@ -128,6 +128,110 @@ describe('/Requests.svelte', () => {
         );
       });
     });
+    test('Should display "Reprendre ma démarche" button only if item is "new"', async () => {
+      // Given
+      const followUp = new FollowUp();
+      vi.spyOn(followUp, 'items', 'get').mockReturnValue([
+        new RequestItem(
+          'partner',
+          'type',
+          'id1',
+          'notifications',
+          'Opération Tranquillité Vacances',
+          'Votre demande est en cours de traitement 1.',
+          new Date('2026-02-22T15:55:00.000Z'),
+          'new',
+          'Nouveau',
+          false,
+          'link1'
+        ),
+        new RequestItem(
+          'partner',
+          'type',
+          'id2',
+          'notifications',
+          'Opération Tranquillité Vacances',
+          'Votre demande est terminée 2.',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'wip',
+          'En cours',
+          false,
+          'link2'
+        ),
+        new RequestItem(
+          'partner',
+          'type',
+          'id3',
+          'notifications',
+          'Opération Tranquillité Vacances',
+          'Votre demande est en cours de traitement 3.',
+          new Date('2026-02-22T15:55:00.000Z'),
+          'closed',
+          'Terminé',
+          false,
+          'link3'
+        ),
+      ]);
+      vi.spyOn(followUp, 'archived_items', 'get').mockReturnValue([]);
+      vi.spyOn(followUpMethods, 'buildFollowUp').mockResolvedValue(followUp);
+      vi.stubGlobal('location', { href: 'fake-link' });
+
+      // When
+      render(Requests);
+
+      // Then
+      await waitFor(async () => {
+        expect(
+          screen.queryByTestId('external-item-button-partner:type:id1')
+        ).not.toBeNull();
+        expect(
+          screen.queryByTestId('external-item-button-partner:type:id2')
+        ).toBeNull();
+        expect(
+          screen.queryByTestId('external-item-button-partner:type:id3')
+        ).toBeNull();
+      });
+
+      // When
+      const button = screen.getByTestId('external-item-button-partner:type:id1');
+      await fireEvent.click(button);
+
+      // Then
+      await waitFor(() => {
+        expect(window.location.href).toBe('link1');
+      });
+    });
+    test('Should not display "Reprendre ma démarche" button only if item has no link', async () => {
+      // Given
+      const followUp = new FollowUp();
+      vi.spyOn(followUp, 'items', 'get').mockReturnValue([
+        new RequestItem(
+          'partner',
+          'type',
+          'id1',
+          'notifications',
+          'Opération Tranquillité Vacances',
+          'Votre demande est en cours de traitement 1.',
+          new Date('2026-02-22T15:55:00.000Z'),
+          'new',
+          'Nouveau',
+          false,
+          null
+        ),
+      ]);
+      vi.spyOn(followUp, 'archived_items', 'get').mockReturnValue([]);
+      vi.spyOn(followUpMethods, 'buildFollowUp').mockResolvedValue(followUp);
+
+      // When
+      render(Requests);
+
+      // Then
+      await waitFor(async () => {
+        expect(
+          screen.queryByTestId('external-item-button-partner:type:id1')
+        ).toBeNull();
+      });
+    });
   });
   describe('Archived items', () => {
     test('Should display requests from API', async () => {
@@ -248,6 +352,69 @@ describe('/Requests.svelte', () => {
         expect(screen.getByTestId('requests')).toHaveTextContent(
           'Après avoir effectué vos démarches, vous pouvez les suivre en temps réel depuis l’application.'
         );
+      });
+    });
+    test('Should not display "Reprendre ma démarche" button as items are archived', async () => {
+      // Given
+      const followUp = new FollowUp();
+      vi.spyOn(followUp, 'items', 'get').mockReturnValue([]);
+      vi.spyOn(followUp, 'archived_items', 'get').mockReturnValue([
+        new RequestItem(
+          'partner',
+          'type',
+          'id1',
+          'notifications',
+          'Opération Tranquillité Vacances',
+          'Votre demande est en cours de traitement 1.',
+          new Date('2026-02-22T15:55:00.000Z'),
+          'new',
+          'Nouveau',
+          true,
+          'link1'
+        ),
+        new RequestItem(
+          'partner',
+          'type',
+          'id2',
+          'notifications',
+          'Opération Tranquillité Vacances',
+          'Votre demande est terminée 2.',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'wip',
+          'En cours',
+          true,
+          'link2'
+        ),
+        new RequestItem(
+          'partner',
+          'type',
+          'id3',
+          'notifications',
+          'Opération Tranquillité Vacances',
+          'Votre demande est en cours de traitement 3.',
+          new Date('2026-02-22T15:55:00.000Z'),
+          'closed',
+          'Terminé',
+          true,
+          'link3'
+        ),
+      ]);
+      vi.spyOn(followUpMethods, 'buildFollowUp').mockResolvedValue(followUp);
+
+      // When
+      render(Requests);
+
+      // Then
+      await waitFor(async () => {
+        expect(
+          screen.queryByTestId('external-item-button-partner:type:id1')
+        ).toBeNull();
+        expect(
+          screen.queryByTestId('external-item-button-partner:type:id2')
+        ).toBeNull();
+        expect(
+          screen.queryByTestId('external-item-button-partner:type:id3')
+        ).toBeNull();
       });
     });
   });

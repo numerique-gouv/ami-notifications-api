@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { goto } from '$app/navigation';
   import { RequestItem } from '$lib/follow-up';
 
   interface Props {
@@ -7,6 +8,12 @@
     onOpen: () => void;
   }
   let { item, onOpen }: Props = $props();
+
+  const gotoExternalItem = (item: RequestItem) => {
+    if (item.link) {
+      window.location.href = item.link;
+    }
+  };
 </script>
 
 <div class="request--item">
@@ -34,7 +41,21 @@
             {item.title}
           </a>
         </h3>
-        <p class="fr-tile__detail">{item.description}</p>
+        <p class="fr-tile__detail">
+          <span>{item.description}</span>
+          {#if !item.is_archived && item.status_id == 'new' && item.link}
+            <div class="action-buttons">
+              <button
+                class="fr-btn fr-btn--lg"
+                type="button"
+                onclick={(e) => gotoExternalItem(item)}
+                data-testid="external-item-button-{item.id}"
+              >
+                Reprendre ma démarche
+              </button>
+            </div>
+          {/if}
+        </p>
         <div class="fr-tile__start">
           <p class="fr-badge fr-badge--icon-left {item.icon} {item.status_id}">
             {item.status_label}
@@ -95,6 +116,20 @@
           line-height: 24px;
           margin: 0;
           padding-right: 0;
+          flex-direction: column;
+          .action-buttons {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            margin: 0.75rem 0 1rem;
+            button {
+              display: flex;
+              justify-content: center;
+              width: 100%;
+              font-size: 16px;
+              padding: 0.5rem 1rem;
+            }
+          }
         }
         .fr-tile__start {
           width: 100%;
