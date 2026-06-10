@@ -217,7 +217,9 @@ def test_get_notifications_data(user: User) -> None:
 
     assert result == [
         FollowUpInventoryItem(
-            external_id="dinum-ami:Other:52",
+            partner_id="dinum-ami",
+            external_item_type="Other",
+            external_item_id="52",
             status_id=ItemGenericStatus.CLOSED,
             status_label="Validé",
             milestone_start_date=None,
@@ -230,7 +232,9 @@ def test_get_notifications_data(user: User) -> None:
             updated_at=notification8.send_date,
         ),
         FollowUpInventoryItem(
-            external_id="dinum-ami:Other:42",
+            partner_id="dinum-ami",
+            external_item_type="Other",
+            external_item_id="42",
             status_id=ItemGenericStatus.CLOSED,
             status_label="Validé",
             milestone_start_date=None,
@@ -243,7 +247,9 @@ def test_get_notifications_data(user: User) -> None:
             updated_at=notification7.send_date,
         ),
         FollowUpInventoryItem(
-            external_id="psl:OperationTranquilliteVacances:44",
+            partner_id="psl",
+            external_item_type="OperationTranquilliteVacances",
+            external_item_id="44",
             status_id=ItemGenericStatus.CLOSED,
             status_label="Validé",
             milestone_start_date=notification6.item_milestone_start_date,
@@ -256,7 +262,9 @@ def test_get_notifications_data(user: User) -> None:
             updated_at=notification6.send_date,
         ),
         FollowUpInventoryItem(
-            external_id="psl:OtherOperationTranquilliteVacances:43",
+            partner_id="psl",
+            external_item_type="OtherOperationTranquilliteVacances",
+            external_item_id="43",
             status_id=ItemGenericStatus.NEW,
             status_label="Nouveau",
             milestone_start_date=None,
@@ -269,7 +277,9 @@ def test_get_notifications_data(user: User) -> None:
             updated_at=notification4.send_date,
         ),
         FollowUpInventoryItem(
-            external_id="psl:OperationTranquilliteVacances:42",
+            partner_id="psl",
+            external_item_type="OperationTranquilliteVacances",
+            external_item_id="42",
             status_id=ItemGenericStatus.WIP,
             status_label="En cours",
             milestone_start_date=None,
@@ -288,7 +298,9 @@ def test_get_notifications_data(user: User) -> None:
 def test_get_notifications_inventory(user: User, monkeypatch: pytest.MonkeyPatch) -> None:
     items = [
         FollowUpInventoryItem(
-            external_id="psl:OperationTranquilliteVacances:44",
+            partner_id="psl",
+            external_item_type="OperationTranquilliteVacances",
+            external_item_id="44",
             status_id=ItemGenericStatus.CLOSED,
             status_label="Validé",
             milestone_start_date=datetime.datetime.now(datetime.timezone.utc),
@@ -301,7 +313,9 @@ def test_get_notifications_inventory(user: User, monkeypatch: pytest.MonkeyPatch
             updated_at=datetime.datetime.now(datetime.timezone.utc),
         ),
         FollowUpInventoryItem(
-            external_id="psl:OperationTranquilliteVacances:43",
+            partner_id="psl",
+            external_item_type="OperationTranquilliteVacances",
+            external_item_id="43",
             status_id=ItemGenericStatus.NEW,
             status_label="Nouveau",
             milestone_start_date=None,
