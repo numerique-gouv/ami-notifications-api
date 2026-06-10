@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import * as navigationMethods from '$app/navigation';
 import * as envModule from '$env/static/public';
+import { FollowUp } from '$lib/follow-up';
 import * as procedureMethods from '$lib/procedure';
 import { userStore } from '$lib/state/User.svelte';
 import { expectBackButtonPresent, mockAddress, mockUserInfo } from '$tests/utils';
@@ -116,9 +117,61 @@ describe('/+page.svelte', () => {
     const spy = vi
       .spyOn(procedureMethods, 'retrieveProcedureUrl')
       .mockResolvedValue(expectedProcedureUrl);
+    vi.spyOn(FollowUp.prototype, 'hasNonArchivedItems').mockReturnValue(false);
+    vi.stubGlobal('location', {
+      href: 'fake-link',
+      hash: '',
+      origin: 'http://localhost',
+    });
 
     // When
-    const { component } = render(Page);
+    render(Page);
+
+    // Then
+    await waitFor(async () => {
+      expect(spy).toHaveBeenCalledWith(
+        'Dupont',
+        'some@email.com',
+        'Paris',
+        '75007',
+        'Avenue de Ségur'
+      );
+      expect(screen.queryByTestId('procedure-button')).not.toBeNull();
+      expect(screen.queryByTestId('followup-button')).toBeNull();
+    });
+
+    // When
+    const procedureButton = screen.getByTestId('procedure-button');
+    await fireEvent.click(procedureButton);
+
+    // Then
+    await waitFor(() => {
+      expect(window.location.href).toBe(
+        'https://localhost:8000/silent-login-ami-fi?redirect_url=fake-public-otv-url%3Fcaller%3Dfake.jwt.token'
+      );
+    });
+  });
+
+  test('should retrieve procedure url - non archived items exists', async () => {
+    // Given
+    await userStore.login(mockUserInfo);
+    userStore.connected?.setPreferredUsername('Dupont');
+    userStore.connected?.setAddress(mockAddress);
+
+    const expectedProcedureUrl = 'fake-public-otv-url?caller=fake.jwt.token';
+    const spy = vi
+      .spyOn(procedureMethods, 'retrieveProcedureUrl')
+      .mockResolvedValue(expectedProcedureUrl);
+    vi.spyOn(FollowUp.prototype, 'hasNonArchivedItems').mockReturnValue(true);
+    vi.stubGlobal('location', {
+      href: 'fake-link',
+      hash: '',
+      origin: 'http://localhost',
+    });
+    const spy2 = vi.spyOn(navigationMethods, 'goto').mockResolvedValue();
+
+    // When
+    render(Page);
 
     // Then
     await waitFor(() => {
@@ -129,7 +182,29 @@ describe('/+page.svelte', () => {
         '75007',
         'Avenue de Ségur'
       );
-      expect(component.getProcedureUrlForTests()).toBe(expectedProcedureUrl);
+      expect(screen.queryByTestId('procedure-button')).not.toBeNull();
+      expect(screen.queryByTestId('followup-button')).not.toBeNull();
+    });
+
+    // When
+    const procedureButton = screen.getByTestId('procedure-button');
+    await fireEvent.click(procedureButton);
+
+    // Then
+    await waitFor(() => {
+      expect(window.location.href).toBe(
+        'https://localhost:8000/silent-login-ami-fi?redirect_url=fake-public-otv-url%3Fcaller%3Dfake.jwt.token'
+      );
+    });
+
+    // When
+    const followupButton = screen.getByTestId('followup-button');
+    await fireEvent.click(followupButton);
+
+    // Then
+    await waitFor(() => {
+      expect(spy2).toHaveBeenCalledTimes(1);
+      expect(spy2).toHaveBeenCalledWith('/#/requests');
     });
   });
 
