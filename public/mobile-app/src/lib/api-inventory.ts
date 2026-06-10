@@ -1,7 +1,9 @@
 import { apiFetch } from '$lib/auth';
 
 export type InventoryItem = {
-  external_id: string;
+  partner_id: string;
+  external_item_type: string;
+  external_item_id: string;
   status_id: string;
   status_label: string;
   milestone_start_date: Date | null;

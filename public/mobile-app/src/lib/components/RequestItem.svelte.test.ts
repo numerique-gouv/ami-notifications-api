@@ -8,6 +8,8 @@ describe('/RequestItem.svelte', () => {
   test('should display a link', async () => {
     // Given
     const item = new Item(
+      'partner',
+      'type',
       'id',
       'notifications',
       'Opération Tranquillité Vacances',
@@ -31,6 +33,8 @@ describe('/RequestItem.svelte', () => {
   test('should not display a link', async () => {
     // Given
     const item = new Item(
+      'partner',
+      'type',
       'id',
       'notifications',
       'Opération Tranquillité Vacances',

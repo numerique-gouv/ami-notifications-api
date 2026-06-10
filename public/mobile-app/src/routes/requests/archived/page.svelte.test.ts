@@ -25,6 +25,8 @@ describe('/+page.svelte', () => {
     const followUp = new FollowUp();
     vi.spyOn(followUp, 'items', 'get').mockReturnValue([
       new RequestItem(
+        'partner',
+        'type',
         'id1',
         'notifications',
         'Opération Tranquillité Vacances',
@@ -38,6 +40,8 @@ describe('/+page.svelte', () => {
     ]);
     vi.spyOn(followUp, 'archived_items', 'get').mockReturnValue([
       new RequestItem(
+        'partner',
+        'type',
         'id2',
         'notifications',
         'Opération Tranquillité Vacances',

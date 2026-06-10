@@ -370,6 +370,8 @@ describe('/ConnectedHomepage.svelte', () => {
     const followUp = new FollowUp();
     vi.spyOn(followUp, 'items', 'get').mockReturnValue([
       new RequestItem(
+        'partner',
+        'type',
         'id1',
         'notifications',
         'Opération Tranquillité Vacances 1',
@@ -381,6 +383,8 @@ describe('/ConnectedHomepage.svelte', () => {
         null
       ),
       new RequestItem(
+        'partner',
+        'type',
         'id2',
         'notifications',
         'Opération Tranquillité Vacances 2',
@@ -392,6 +396,8 @@ describe('/ConnectedHomepage.svelte', () => {
         null
       ),
       new RequestItem(
+        'partner',
+        'type',
         'id3',
         'notifications',
         'Opération Tranquillité Vacances 3',
@@ -403,6 +409,8 @@ describe('/ConnectedHomepage.svelte', () => {
         null
       ),
       new RequestItem(
+        'partner',
+        'type',
         'id4',
         'notifications',
         'Opération Tranquillité Vacances 4',
@@ -454,6 +462,8 @@ describe('/ConnectedHomepage.svelte', () => {
       const followUp = new FollowUp();
       vi.spyOn(followUp, 'items', 'get').mockReturnValue([
         new RequestItem(
+          'partner',
+          'type',
           'id1',
           'notifications',
           'Opération Tranquillité Vacances 1',
@@ -465,6 +475,8 @@ describe('/ConnectedHomepage.svelte', () => {
           null
         ),
         new RequestItem(
+          'partner',
+          'type',
           'id2',
           'notifications',
           'Opération Tranquillité Vacances 2',
@@ -481,7 +493,7 @@ describe('/ConnectedHomepage.svelte', () => {
 
       // When
       await waitFor(async () => {
-        const moreIcon = screen.getByTestId('open-request-item-modal-id1');
+        const moreIcon = screen.getByTestId('open-request-item-modal-partner:type:id1');
         await fireEvent.click(moreIcon);
       });
 
@@ -494,6 +506,8 @@ describe('/ConnectedHomepage.svelte', () => {
       const followUp = new FollowUp();
       vi.spyOn(followUp, 'items', 'get').mockReturnValue([
         new RequestItem(
+          'partner',
+          'type',
           'id1',
           'notifications',
           'Opération Tranquillité Vacances 1',
@@ -505,6 +519,8 @@ describe('/ConnectedHomepage.svelte', () => {
           null
         ),
         new RequestItem(
+          'partner',
+          'type',
           'id2',
           'notifications',
           'Opération Tranquillité Vacances 2',
@@ -522,7 +538,7 @@ describe('/ConnectedHomepage.svelte', () => {
 
       // When
       await waitFor(async () => {
-        const moreIcon = screen.getByTestId('open-request-item-modal-id1');
+        const moreIcon = screen.getByTestId('open-request-item-modal-partner:type:id1');
         await fireEvent.click(moreIcon);
         const requestItemModal = screen.getByTestId('request-item-modal');
         expect(requestItemModal).toBeInTheDocument();
@@ -538,6 +554,8 @@ describe('/ConnectedHomepage.svelte', () => {
       const followUp = new FollowUp();
       vi.spyOn(followUp, 'items', 'get').mockReturnValue([
         new RequestItem(
+          'partner',
+          'type',
           'id1',
           'notifications',
           'Opération Tranquillité Vacances 1',
@@ -549,6 +567,8 @@ describe('/ConnectedHomepage.svelte', () => {
           null
         ),
         new RequestItem(
+          'partner',
+          'type',
           'id2',
           'notifications',
           'Opération Tranquillité Vacances 2',
@@ -567,7 +587,7 @@ describe('/ConnectedHomepage.svelte', () => {
 
       // When
       await waitFor(async () => {
-        const moreIcon = screen.getByTestId('open-request-item-modal-id1');
+        const moreIcon = screen.getByTestId('open-request-item-modal-partner:type:id1');
         await fireEvent.click(moreIcon);
         const archiveButton = screen.getByTestId('archive-request-item-button');
         await fireEvent.click(archiveButton);
@@ -589,6 +609,8 @@ describe('/ConnectedHomepage.svelte', () => {
       const followUp = new FollowUp();
       vi.spyOn(followUp, 'items', 'get').mockReturnValue([
         new RequestItem(
+          'partner',
+          'type',
           'id1',
           'notifications',
           'Opération Tranquillité Vacances 1',
@@ -600,6 +622,8 @@ describe('/ConnectedHomepage.svelte', () => {
           null
         ),
         new RequestItem(
+          'partner',
+          'type',
           'id2',
           'notifications',
           'Opération Tranquillité Vacances 2',
@@ -618,7 +642,7 @@ describe('/ConnectedHomepage.svelte', () => {
 
       // When
       await waitFor(async () => {
-        const moreIcon = screen.getByTestId('open-request-item-modal-id1');
+        const moreIcon = screen.getByTestId('open-request-item-modal-partner:type:id1');
         await fireEvent.click(moreIcon);
         const archiveButton = screen.getByTestId('archive-request-item-button');
         await fireEvent.click(archiveButton);

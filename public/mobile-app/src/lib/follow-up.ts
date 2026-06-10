@@ -5,7 +5,9 @@ type Status = 'new' | 'wip' | 'closed';
 
 export class RequestItem {
   constructor(
-    private _id: string,
+    private _partner_id: string,
+    private _external_item_type: string,
+    private _external_item_id: string,
     private _inventory: string,
 
     private _title: string,
@@ -28,7 +30,19 @@ export class RequestItem {
   }
 
   get id(): string {
-    return this._id;
+    return `${this.partner_id}:${this.external_item_type}:${this.external_item_id}`;
+  }
+
+  get partner_id(): string {
+    return this._partner_id;
+  }
+
+  get external_item_type(): string {
+    return this._external_item_type;
+  }
+
+  get external_item_id(): string {
+    return this._external_item_id;
   }
 
   get inventory(): string {
@@ -92,7 +106,7 @@ export class RequestItem {
   }
 
   async archive(): Promise<boolean> {
-    const result = await archiveInventoryItem(this._inventory, this._id);
+    const result = await archiveInventoryItem(this.inventory, this.id);
     return result;
   }
 }
@@ -127,7 +141,9 @@ export class FollowUp {
 
   private createRequestItem(inventoryItem: InventoryItem): RequestItem {
     return new RequestItem(
-      inventoryItem.external_id,
+      inventoryItem.partner_id,
+      inventoryItem.external_item_type,
+      inventoryItem.external_item_id,
       'notifications',
       inventoryItem.title,
       inventoryItem.description,
