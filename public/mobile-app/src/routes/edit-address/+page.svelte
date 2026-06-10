@@ -31,9 +31,6 @@
     // DO NOT REMOVE THE FOLLOWING LINE: we need to access `filteredAddresses` so the $effect
     // triggers when it changes, and when it changes we want to scroll the input to the top.
     filteredAddresses;
-    if (listContainer) {
-      listMinHeight = Math.max(listMinHeight, listContainer.offsetHeight);
-    }
     const addressInput: HTMLInputElement | null =
       document.querySelector<HTMLInputElement>('#address-input');
     if (addressInput) {
