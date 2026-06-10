@@ -162,6 +162,19 @@ export class FollowUp {
   get archived_items(): RequestItem[] {
     return this._archived_items;
   }
+
+  hasNonArchivedItems(partner_id: string, external_item_type: string): boolean {
+    for (const item of this.items) {
+      if (item.partner_id !== partner_id) {
+        continue;
+      }
+      if (item.external_item_type !== external_item_type) {
+        continue;
+      }
+      return true;
+    }
+    return false;
+  }
 }
 
 export const buildFollowUp = async (): Promise<FollowUp> => {
