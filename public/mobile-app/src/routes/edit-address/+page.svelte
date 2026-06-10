@@ -107,13 +107,6 @@
     selectedAddress = address;
     filteredAddresses = [];
     inputValue = selectedAddress.label;
-
-    const addressInput: HTMLInputElement | null =
-      document.querySelector<HTMLInputElement>('#address-input');
-    if (addressInput) {
-      addressInput.focus();
-    }
-
     hasSelectedAddress = true;
     disabledButton = false;
   };
