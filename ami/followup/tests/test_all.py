@@ -25,7 +25,9 @@ def test_get_follow_up_inventories(
         status=FollowUpInventoryStatus.SUCCESS,
         items=[
             FollowUpInventoryItem(
-                external_id="psl:OperationTranquilliteVacances:44",
+                partner_id="psl",
+                external_item_type="OperationTranquilliteVacances",
+                external_item_id="44",
                 status_id=ItemGenericStatus.CLOSED,
                 status_label="Validé",
                 milestone_start_date=datetime.datetime(
@@ -42,7 +44,9 @@ def test_get_follow_up_inventories(
                 updated_at=datetime.datetime(2026, 2, 24, 17, 24, tzinfo=datetime.timezone.utc),
             ),
             FollowUpInventoryItem(
-                external_id="psl:OperationTranquilliteVacances:43",
+                partner_id="psl",
+                external_item_type="OperationTranquilliteVacances",
+                external_item_id="43",
                 status_id=ItemGenericStatus.NEW,
                 status_label="Nouveau",
                 milestone_start_date=None,
@@ -65,7 +69,9 @@ def test_get_follow_up_inventories(
             "status": "success",
             "items": [
                 {
-                    "external_id": "psl:OperationTranquilliteVacances:44",
+                    "partner_id": "psl",
+                    "external_item_type": "OperationTranquilliteVacances",
+                    "external_item_id": "44",
                     "status_id": "closed",
                     "status_label": "Validé",
                     "milestone_start_date": "2026-02-26T17:24:00Z",
@@ -78,7 +84,9 @@ def test_get_follow_up_inventories(
                     "updated_at": "2026-02-24T17:24:00Z",
                 },
                 {
-                    "external_id": "psl:OperationTranquilliteVacances:43",
+                    "partner_id": "psl",
+                    "external_item_type": "OperationTranquilliteVacances",
+                    "external_item_id": "43",
                     "status_id": "new",
                     "status_label": "Nouveau",
                     "milestone_start_date": None,
