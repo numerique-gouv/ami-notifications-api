@@ -5,11 +5,38 @@ import { buildFollowUp, FollowUp, RequestItem } from '$lib/follow-up';
 
 describe('/follow-up.ts', () => {
   describe('RequestItem', () => {
+    describe('id', () => {
+      test('should return an id from partner_id, external_item_type and external_item_id', async () => {
+        // Given
+        vi.stubEnv('TZ', 'Europe/Paris');
+        const item = new RequestItem(
+          'partner',
+          'type',
+          'id',
+          'notifications',
+          'title',
+          'description',
+          new Date('2026-01-03T08:05:42Z'),
+          'new',
+          'New',
+          false,
+          null
+        );
+
+        // When
+        const id = item.id;
+
+        // Then
+        expect(id).equal('partner:type:id');
+      });
+    });
     describe('formattedDate', () => {
       test('should return localized date and hour, without year', async () => {
         // Given
         vi.stubEnv('TZ', 'Europe/Paris');
         const item = new RequestItem(
+          'partner',
+          'type',
           'id',
           'notifications',
           'title',
@@ -32,6 +59,8 @@ describe('/follow-up.ts', () => {
       test('should return an icon depending on status_id', async () => {
         // Given
         const item1 = new RequestItem(
+          'partner',
+          'type',
           'id1',
           'notifications',
           'title',
@@ -44,6 +73,8 @@ describe('/follow-up.ts', () => {
           null
         );
         const item2 = new RequestItem(
+          'partner',
+          'type',
           'id2',
           'notifications',
           'title',
@@ -55,6 +86,8 @@ describe('/follow-up.ts', () => {
           null
         );
         const item3 = new RequestItem(
+          'partner',
+          'type',
           'id3',
           'notifications',
           'title',
@@ -66,6 +99,8 @@ describe('/follow-up.ts', () => {
           null
         );
         const item4 = new RequestItem(
+          'partner',
+          'type',
           'id4',
           'notifications',
           'title',
@@ -94,6 +129,8 @@ describe('/follow-up.ts', () => {
       test('should call archiveInventoryItem', async () => {
         // Given
         const item = new RequestItem(
+          'partner',
+          'type',
           'id',
           'notifications',
           'title',
@@ -113,7 +150,7 @@ describe('/follow-up.ts', () => {
 
         // Then
         expect(result).toEqual(true);
-        expect(spy).toHaveBeenCalledExactlyOnceWith('notifications', 'id');
+        expect(spy).toHaveBeenCalledExactlyOnceWith('notifications', 'partner:type:id');
       });
     });
   });
@@ -122,7 +159,9 @@ describe('/follow-up.ts', () => {
       // Given
       vi.stubEnv('TZ', 'Europe/Paris');
       const request1 = {
-        external_id: 'psl:OperationTranquilliteVacances:42',
+        partner_id: 'psl',
+        external_item_type: 'OperationTranquilliteVacances',
+        external_item_id: '42',
         status_id: 'new',
         status_label: 'Brouillon',
         milestone_start_date: new Date('2026-01-23T15:50:00Z'),
@@ -135,7 +174,9 @@ describe('/follow-up.ts', () => {
         updated_at: new Date('2026-02-23T15:55:00Z'),
       };
       const request2 = {
-        external_id: 'psl:OperationTranquilliteVacances:43',
+        partner_id: 'psl',
+        external_item_type: 'OperationTranquilliteVacances',
+        external_item_id: '43',
         status_id: 'wip',
         status_label: 'En cours',
         milestone_start_date: null,
@@ -148,7 +189,9 @@ describe('/follow-up.ts', () => {
         updated_at: new Date('2026-02-22T15:55:00Z'),
       };
       const request3 = {
-        external_id: 'psl:OperationTranquilliteVacances:44',
+        partner_id: 'psl',
+        external_item_type: 'OperationTranquilliteVacances',
+        external_item_id: '44',
         status_id: 'new',
         status_label: 'Brouillon',
         milestone_start_date: new Date('2026-01-23T15:50:00Z'),
@@ -161,7 +204,9 @@ describe('/follow-up.ts', () => {
         updated_at: new Date('2026-02-21T15:55:00Z'),
       };
       const request4 = {
-        external_id: 'psl:OperationTranquilliteVacances:45',
+        partner_id: 'psl',
+        external_item_type: 'OperationTranquilliteVacances',
+        external_item_id: '45',
         status_id: 'closed',
         status_label: 'Terminée',
         milestone_start_date: null,
@@ -184,7 +229,9 @@ describe('/follow-up.ts', () => {
       expect(
         followUp.items[0].equals(
           new RequestItem(
-            'psl:OperationTranquilliteVacances:42',
+            'psl',
+            'OperationTranquilliteVacances',
+            '42',
             'notifications',
             'Opération Tranquillité Vacances',
             'Votre demande est en brouillon.',
@@ -199,7 +246,9 @@ describe('/follow-up.ts', () => {
       expect(
         followUp.items[1].equals(
           new RequestItem(
-            'psl:OperationTranquilliteVacances:43',
+            'psl',
+            'OperationTranquilliteVacances',
+            '43',
             'notifications',
             'Opération Tranquillité Vacances',
             'Votre demande est en cours de traitement.',
@@ -215,7 +264,9 @@ describe('/follow-up.ts', () => {
       expect(
         followUp.archived_items[0].equals(
           new RequestItem(
-            'psl:OperationTranquilliteVacances:44',
+            'psl',
+            'OperationTranquilliteVacances',
+            '44',
             'notifications',
             'Opération Tranquillité Vacances',
             'Votre demande est en brouillon.',
@@ -230,7 +281,9 @@ describe('/follow-up.ts', () => {
       expect(
         followUp.archived_items[1].equals(
           new RequestItem(
-            'psl:OperationTranquilliteVacances:45',
+            'psl',
+            'OperationTranquilliteVacances',
+            '45',
             'notifications',
             'Opération Tranquillité Vacances',
             'Votre demande est terminée.',
@@ -249,7 +302,9 @@ describe('/follow-up.ts', () => {
       // Given
       vi.stubEnv('TZ', 'Europe/Paris');
       const request1 = {
-        external_id: 'psl:OperationTranquilliteVacances:42',
+        partner_id: 'psl',
+        external_item_type: 'OperationTranquilliteVacances',
+        external_item_id: '42',
         status_id: 'new',
         status_label: 'Brouillon',
         milestone_start_date: null,
@@ -262,7 +317,9 @@ describe('/follow-up.ts', () => {
         updated_at: new Date('2026-02-23T15:55:00Z'),
       };
       const request2 = {
-        external_id: 'psl:OperationTranquilliteVacances:43',
+        partner_id: 'psl',
+        external_item_type: 'OperationTranquilliteVacances',
+        external_item_id: '43',
         status_id: 'closed',
         status_label: 'Terminée',
         milestone_start_date: null,
@@ -288,7 +345,9 @@ describe('/follow-up.ts', () => {
       expect(
         followUp.items[0].equals(
           new RequestItem(
-            'psl:OperationTranquilliteVacances:42',
+            'psl',
+            'OperationTranquilliteVacances',
+            '42',
             'notifications',
             'Opération Tranquillité Vacances',
             'Votre demande est en brouillon.',
@@ -304,7 +363,9 @@ describe('/follow-up.ts', () => {
       expect(
         followUp.archived_items[0].equals(
           new RequestItem(
-            'psl:OperationTranquilliteVacances:43',
+            'psl',
+            'OperationTranquilliteVacances',
+            '43',
             'notifications',
             'Opération Tranquillité Vacances',
             'Votre demande est terminée.',
