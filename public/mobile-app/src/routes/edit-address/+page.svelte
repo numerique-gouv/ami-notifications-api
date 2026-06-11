@@ -24,7 +24,6 @@
   let submittedAddress: Address | undefined = $state();
   let address_origin: DataOrigin | undefined = $state();
   let address_last_update: Date | undefined = $state();
-  let listMinHeight: number = $state(0);
 
   $effect(() => {
     // DO NOT REMOVE THE FOLLOWING LINE: we need to access `filteredAddresses` so the $effect
@@ -187,7 +186,7 @@
               {/if}
             </div>
 
-            <div style="min-height: {listMinHeight}px">
+            <div>
               {#if filteredAddresses.length > 0}
                 <ul id="autocomplete-items-list">
                   <p class="autocomplete-title">Adresse</p>
