@@ -69,22 +69,36 @@ def test_replicate_anonymized_notifications_processes_by_batch(notification: Not
     assert AnonymizedNotification.objects.count() == 2
 
 
-def test_anonymized_registration_does_not_have_user_nor_subscription(
+def test_anonymized_registration_does_not_have_user(
     webpush_registration: Registration,
 ) -> None:
     anonymized = AnonymizedRegistration.from_registration(webpush_registration)
     assert not hasattr(anonymized, "user")
-    assert not hasattr(anonymized, "subscription")
     assert hasattr(anonymized, "created_at")
     assert hasattr(anonymized, "updated_at")
 
 
-def test_replicate_anonymized_registrations(webpush_registration: Registration) -> None:
+def test_replicate_anonymized_registrations(mobile_registration: Registration) -> None:
+    replicate_anonymized_registrations()
+
+    anonymized = AnonymizedRegistration.objects.get(id=mobile_registration.id)
+    assert anonymized.created_at == mobile_registration.created_at
+    assert anonymized.updated_at == mobile_registration.updated_at
+    # Test non personal subscription data
+    assert anonymized.subscription["app_version"] == mobile_registration.subscription["app_version"]
+    assert anonymized.subscription["model"] == mobile_registration.subscription["model"]
+    assert anonymized.subscription["platform"] == mobile_registration.subscription["platform"]
+
+    # Test personal subscription data
+    assert anonymized.subscription["device_id"] != mobile_registration.subscription["device_id"]
+    assert anonymized.subscription["fcm_token"] != mobile_registration.subscription["fcm_token"]
+
+
+def test_replicate_webapp_subscription(webpush_registration: Registration) -> None:
     replicate_anonymized_registrations()
 
     anonymized = AnonymizedRegistration.objects.get(id=webpush_registration.id)
-    assert anonymized.created_at == webpush_registration.created_at
-    assert anonymized.updated_at == webpush_registration.updated_at
+    assert anonymized.subscription == dict()
 
 
 def test_replicate_anonymized_registrations_processes_by_batch(

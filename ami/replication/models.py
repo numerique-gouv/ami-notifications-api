@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import uuid
 
 from django.db import models
@@ -86,11 +87,40 @@ class AnonymizedUser(AnonymizedModel):
 
 class AnonymizedRegistration(AnonymizedModel):
     id = models.UUIDField(editable=False)
+
+    subscription = models.JSONField(blank=True, null=True)
+
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField()
 
     class Meta(AnonymizedModel.Meta):
         db_table = "ami_registration_anonymized"
+
+    @staticmethod
+    def _is_mobile_subscription(subscription: dict) -> bool:
+        return "app_version" in subscription
+
+    @classmethod
+    def from_source(cls, source):
+        defaults = {
+            field.name: getattr(source, field.name)
+            for field in cls._meta.concrete_fields
+            if not field.primary_key and field.name != "id"
+        }
+        if defaults.get("subscription"):
+            sub = dict(defaults["subscription"])
+            if cls._is_mobile_subscription(sub):
+                for field in ("device_id", "fcm_token"):
+                    if field in sub:
+                        sub[field] = hashlib.sha256(sub[field].encode()).hexdigest()
+            else:
+                sub = dict()
+            defaults["subscription"] = sub
+        instance, _ = cls.objects.update_or_create(
+            id=source.id,
+            defaults=defaults,
+        )
+        return instance
 
     @classmethod
     def from_registration(cls, registration: Registration) -> AnonymizedRegistration:
