@@ -24,7 +24,6 @@
   let submittedAddress: Address | undefined = $state();
   let address_origin: DataOrigin | undefined = $state();
   let address_last_update: Date | undefined = $state();
-  let listContainer: HTMLElement | undefined = $state();
   let listMinHeight: number = $state(0);
 
   $effect(() => {
@@ -188,7 +187,7 @@
               {/if}
             </div>
 
-            <div bind:this={listContainer} style="min-height: {listMinHeight}px">
+            <div style="min-height: {listMinHeight}px">
               {#if filteredAddresses.length > 0}
                 <ul id="autocomplete-items-list">
                   <p class="autocomplete-title">Adresse</p>
