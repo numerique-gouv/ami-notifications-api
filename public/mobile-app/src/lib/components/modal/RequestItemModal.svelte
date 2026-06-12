@@ -1,82 +1,84 @@
 <script lang="ts">
-  import { onMount, type Snippet } from 'svelte';
+  import ItemModal from '$lib/components/modal/ItemModal.svelte';
+  import {
+    buildFollowUp,
+    type FollowUp,
+    type RequestItem as RequestItemType,
+  } from '$lib/follow-up';
+  import { toastStore } from '$lib/state/toast.svelte';
 
   interface Props {
-    header: Snippet;
-    footer: Snippet;
-    onClose: () => void;
+    item: RequestItemType | null;
+    followUp: FollowUp | null;
+    isFollowUpEmpty: boolean;
   }
-  let { header, footer, onClose }: Props = $props();
-  let dialog: HTMLDialogElement | null = null;
-  const handleClose = () => {
-    onClose();
+  let {
+    item = $bindable(),
+    followUp = $bindable(),
+    isFollowUpEmpty = $bindable(),
+  }: Props = $props();
+
+  const closeModal = () => {
+    item = null;
   };
-  onMount(() => {
-    if (dialog && !dialog.open) {
-      dialog.showModal();
-    }
-    dialog?.addEventListener('close', handleClose);
-    return () => {
-      dialog?.removeEventListener('close', handleClose);
-    };
-  });
-  const closeDialog = () => {
-    dialog?.close();
+
+  const refreshFollowUp = () => {
+    buildFollowUp().then((result) => {
+      followUp = result;
+      isFollowUpEmpty = !followUp.items.length;
+    });
   };
-  const handleBackdropClick = (event: MouseEvent) => {
-    if (event.target === dialog) {
-      closeDialog();
+
+  const clickOnArchiveRequestItem = async (item: RequestItemType | null) => {
+    if (item) {
+      const result = await item.archive();
+      if (result === true) {
+        if (followUp) {
+          refreshFollowUp();
+        }
+        closeModal();
+        toastStore.addToast("L'élément a bien été archivé", 'success', 3000, true);
+      } else {
+        closeModal();
+        toastStore.addToast("L'élément n'a pas pu être archivé", 'error', 3000, true);
+      }
     }
   };
 </script>
-<dialog
-  bind:this={dialog}
-  class="modal"
-  onclick={handleBackdropClick}
-  data-testid="request-item-modal"
->
-  <div>
-    <button
-      onclick={closeDialog}
-      title="Fermer la modale"
-      class="close-button fr-icon-close-line"
-    ></button>
-    <div class="drag-handle"></div>
-    {@render header?.()}
-    {@render footer?.()}
-  </div>
-</dialog>
+
+<ItemModal onClose={closeModal}>
+  {#snippet header()}
+    <h2 class="request-item-modal-header" data-testid="request-item-modal-header">
+      {item?.title}
+    </h2>
+  {/snippet}
+  {#snippet footer()}
+    <ul class="request-item-modal-footer">
+      <li>
+        <span class="fr-icon-inbox-archive-line"></span>
+        <button
+          onclick={() => clickOnArchiveRequestItem(item)}
+          title="Archiver l'élément"
+          aria-label="Archiver l'élément"
+          data-testid="archive-request-item-button"
+          class="archive-request-item"
+        >
+          Archiver
+        </button>
+      </li>
+    </ul>
+  {/snippet}
+</ItemModal>
+
 <style>
-  dialog {
-    position: fixed;
-    top: auto;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    margin: 0;
-    width: 100%;
-    max-width: 100%;
-    transform: none;
-    border-radius: 1.75rem 1.75rem 0 0;
-    border: none;
-    padding: 1rem 1rem 2rem;
-    .close-button {
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-      padding: 0;
-      color: var(--text-active-blue-france);
-    }
-    .drag-handle {
-      width: 2rem;
-      height: 0.25rem;
-      border-radius: 100px;
-      background-color: #79747e;
-      margin: 0 auto 1.75rem;
-    }
+  h2.request-item-modal-header {
+    font-size: 1.25rem;
   }
-  dialog::backdrop {
-    background: var(--grey-50-1000);
-    opacity: 64%;
+  ul.request-item-modal-footer {
+    padding: 0;
+    margin: 0;
+    li {
+      list-style: none;
+    }
   }
 </style>

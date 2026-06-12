@@ -498,7 +498,7 @@ describe('/ConnectedHomepage.svelte', () => {
       });
 
       // Then
-      const requestItemModal = screen.getByTestId('request-item-modal');
+      const requestItemModal = screen.getByTestId('item-modal');
       expect(requestItemModal).toBeInTheDocument();
     });
     test('Should close request item modal when clicks on "Archiver" button', async () => {
@@ -540,14 +540,14 @@ describe('/ConnectedHomepage.svelte', () => {
       await waitFor(async () => {
         const moreIcon = screen.getByTestId('open-request-item-modal-partner:type:id1');
         await fireEvent.click(moreIcon);
-        const requestItemModal = screen.getByTestId('request-item-modal');
+        const requestItemModal = screen.getByTestId('item-modal');
         expect(requestItemModal).toBeInTheDocument();
         const archiveButton = screen.getByTestId('archive-request-item-button');
         await fireEvent.click(archiveButton);
       });
 
       // Then
-      expect(screen.queryByTestId('request-item-modal')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('item-modal')).not.toBeInTheDocument();
     });
     test('should add toast when user clicks on "Archiver" button - archive success', async () => {
       // Given

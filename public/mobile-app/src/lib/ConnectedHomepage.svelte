@@ -15,7 +15,6 @@
     countUnreadNotifications,
     notificationEventsSocket,
   } from '$lib/notifications';
-  import { toastStore } from '$lib/state/toast.svelte';
   import { userStore } from '$lib/state/User.svelte';
 
   type ModalInstance = {
@@ -97,33 +96,8 @@
     selectedAgendaItem = item;
   };
 
-  const refreshFollowUp = () => {
-    buildFollowUp().then((result) => {
-      followUp = result;
-      isFollowUpEmpty = !followUp.items.length;
-    });
-  };
-
   const openRequestItemModal = (item: RequestItemType) => {
     selectedRequestItem = item;
-  };
-  const closeRequestItemModal = () => {
-    selectedRequestItem = null;
-  };
-  const clickOnArchiveRequestItem = async (item: RequestItemType | null) => {
-    if (item) {
-      const result = await item.archive();
-      if (result === true) {
-        if (followUp) {
-          refreshFollowUp();
-        }
-        closeRequestItemModal();
-        toastStore.addToast("L'élément a bien été archivé", 'success', 3000, true);
-      } else {
-        closeRequestItemModal();
-        toastStore.addToast("L'élément n'a pas pu être archivé", 'error', 3000, true);
-      }
-    }
   };
 </script>
 
@@ -314,27 +288,11 @@
 {/if}
 
 {#if selectedRequestItem}
-  <RequestItemModal onClose={closeRequestItemModal}>
-    {#snippet header()}
-      <h2 class="request-item-modal-header">{selectedRequestItem?.title}</h2>
-    {/snippet}
-    {#snippet footer()}
-      <ul class="request-item-modal-footer">
-        <li>
-          <span class="fr-icon-inbox-archive-line"></span>
-          <button
-            onclick={() => clickOnArchiveRequestItem(selectedRequestItem)}
-            title="Archiver l'élément"
-            aria-label="Archiver l'élément"
-            data-testid="archive-request-item-button"
-            class="archive-request-item"
-          >
-            Archiver
-          </button>
-        </li>
-      </ul>
-    {/snippet}
-  </RequestItemModal>
+  <RequestItemModal
+    bind:item={selectedRequestItem}
+    bind:followUp={followUp}
+    bind:isFollowUpEmpty={isFollowUpEmpty}
+  />
 {/if}
 
 <style>
@@ -504,17 +462,6 @@
           }
         }
       }
-    }
-  }
-
-  h2.request-item-modal-header {
-    font-size: 1.25rem;
-  }
-  ul.request-item-modal-footer {
-    padding: 0;
-    margin: 0;
-    li {
-      list-style: none;
     }
   }
 </style>
