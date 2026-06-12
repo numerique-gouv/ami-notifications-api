@@ -7,7 +7,6 @@
   import Modal from '$lib/components/modal/Modal.svelte';
   import ZonePreferences from '$lib/components/modal/ZonePreferences.svelte';
   import Navigation from '$lib/components/Navigation.svelte';
-  import { toastStore } from '$lib/state/toast.svelte';
   import { userStore } from '$lib/state/User.svelte';
 
   type ModalInstance = {
@@ -16,7 +15,7 @@
 
   let agenda: Agenda | null = $state(null);
   let zonePreferencesModal: ModalInstance;
-  let selectedItem: Item | null = $state(null);
+  let selectedAgendaItem: Item | null = $state(null);
 
   onMount(async () => {
     if (!userStore.connected) {
@@ -38,22 +37,7 @@
   };
 
   const openAgendaItemModal = (item: Item) => {
-    selectedItem = item;
-  };
-
-  const closeAgendaItemModal = () => {
-    selectedItem = null;
-  };
-
-  const clickOnHideAgendaItem = (item: Item | null) => {
-    if (item) {
-      item.hide();
-      if (agenda) {
-        refreshAgenda();
-      }
-      closeAgendaItemModal();
-      toastStore.addToast("L'élément a bien été supprimé", 'success', 3000, true);
-    }
+    selectedAgendaItem = item;
   };
 </script>
 
@@ -110,29 +94,8 @@
   component={ZonePreferences}
 />
 
-{#if selectedItem}
-  <AgendaItemModal onClose={closeAgendaItemModal}>
-    {#snippet header()}
-      <h2 class="agenda-item-modal-header">{selectedItem?.title}</h2>
-    {/snippet}
-
-    {#snippet footer()}
-      <ul class="agenda-item-modal-footer">
-        <li>
-          <span class="fr-icon-delete-line"></span>
-          <button
-            onclick={() => clickOnHideAgendaItem(selectedItem)}
-            title="Cacher l'élément de l'agenda"
-            aria-label="Cacher l'élément de l'agenda"
-            data-testid="hide-agenda-item-button"
-            class="hide-agenda-item"
-          >
-            Supprimer
-          </button>
-        </li>
-      </ul>
-    {/snippet}
-  </AgendaItemModal>
+{#if selectedAgendaItem}
+  <AgendaItemModal bind:item={selectedAgendaItem} bind:agenda={agenda} />
 {/if}
 
 <style>
@@ -166,17 +129,6 @@
           margin-bottom: 0.5rem;
         }
       }
-    }
-  }
-
-  h2.agenda-item-modal-header {
-    font-size: 1.25rem;
-  }
-  ul.agenda-item-modal-footer {
-    padding: 0;
-    margin: 0;
-    li {
-      list-style: none;
     }
   }
 </style>
