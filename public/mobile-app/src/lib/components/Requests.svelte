@@ -6,8 +6,6 @@
   import RequestItem from '$lib/components/RequestItem.svelte';
   import type { FollowUp, RequestItem as RequestItemType } from '$lib/follow-up';
   import { buildFollowUp } from '$lib/follow-up';
-  import { toastStore } from '$lib/state/toast.svelte';
-  import { userStore } from '$lib/state/User.svelte';
 
   interface Props {
     archived?: boolean;
@@ -15,6 +13,7 @@
   let { archived = false }: Props = $props();
 
   const backUrl = '/#/requests';
+  let isFollowUpEmpty: boolean = $state(true);
   let followUp: FollowUp | null = $state(null);
   let selectedRequestItem: RequestItemType | null = $state(null);
   let menuOpened: boolean = $state(false);
@@ -24,32 +23,8 @@
     console.log($state.snapshot(followUp));
   });
 
-  const refreshFollowUp = () => {
-    buildFollowUp().then((result) => {
-      followUp = result;
-    });
-  };
-
   const openRequestItemModal = (item: RequestItemType) => {
     selectedRequestItem = item;
-  };
-  const closeRequestItemModal = () => {
-    selectedRequestItem = null;
-  };
-  const clickOnArchiveRequestItem = async (item: RequestItemType | null) => {
-    if (item) {
-      const result = await item.archive();
-      if (result === true) {
-        if (followUp) {
-          refreshFollowUp();
-        }
-        closeRequestItemModal();
-        toastStore.addToast("L'élément a bien été archivé", 'success', 3000, true);
-      } else {
-        closeRequestItemModal();
-        toastStore.addToast("L'élément n'a pas pu être archivé", 'error', 3000, true);
-      }
-    }
   };
 
   const toggleMoreMenu = () => {
@@ -121,27 +96,11 @@
 </div>
 
 {#if selectedRequestItem}
-  <RequestItemModal onClose={closeRequestItemModal}>
-    {#snippet header()}
-      <h2 class="request-item-modal-header">{selectedRequestItem?.title}</h2>
-    {/snippet}
-    {#snippet footer()}
-      <ul class="request-item-modal-footer">
-        <li class="request-item-modal-action">
-          <span class="fr-icon-inbox-archive-line"></span>
-          <button
-            onclick={() => clickOnArchiveRequestItem(selectedRequestItem)}
-            title="Archiver l'élément"
-            aria-label="Archiver l'élément"
-            data-testid="archive-request-item-button"
-            class="archive-request-item"
-          >
-            Archiver
-          </button>
-        </li>
-      </ul>
-    {/snippet}
-  </RequestItemModal>
+  <RequestItemModal
+    bind:item={selectedRequestItem}
+    bind:followUp={followUp}
+    bind:isFollowUpEmpty={isFollowUpEmpty}
+  />
 {/if}
 
 <style>
@@ -213,16 +172,6 @@
           text-align: left;
         }
       }
-    }
-  }
-  h2.request-item-modal-header {
-    font-size: 1.25rem;
-  }
-  ul.request-item-modal-footer {
-    padding: 0;
-    margin: 0;
-    li.request-item-modal-action {
-      list-style: none;
     }
   }
 </style>
