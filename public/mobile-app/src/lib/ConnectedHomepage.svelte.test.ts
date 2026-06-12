@@ -299,7 +299,7 @@ describe('/ConnectedHomepage.svelte', () => {
       });
 
       // Then
-      const agendaItemModal = screen.getByTestId('agenda-item-modal');
+      const agendaItemModal = screen.getByTestId('item-modal');
       expect(agendaItemModal).toBeInTheDocument();
     });
 
@@ -320,7 +320,7 @@ describe('/ConnectedHomepage.svelte', () => {
         const moreIcon = screen.getByTestId('open-agenda-item-modal-fake-id-holiday-1');
         await fireEvent.click(moreIcon);
 
-        const agendaItemModal = screen.getByTestId('agenda-item-modal');
+        const agendaItemModal = screen.getByTestId('item-modal');
         expect(agendaItemModal).toBeInTheDocument();
 
         const deleteButton = screen.getByTestId('hide-agenda-item-button');
