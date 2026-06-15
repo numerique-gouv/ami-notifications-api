@@ -56,5 +56,5 @@ export function trackZoneCount(count: number) {
   }
 
   window._paq = window._paq || [];
-  window._paq.push(['trackEvent', 'Holidays zones', 'count', '', count]);
+  window._paq.push(['trackEvent', 'Holidays zones', 'number_of_zones', '', count]);
 }

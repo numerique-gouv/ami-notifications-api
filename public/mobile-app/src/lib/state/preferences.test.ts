@@ -450,9 +450,6 @@ describe('/preferences.ts', () => {
         const trackZoneSpy = vi
           .spyOn(matomoMethods, 'trackZone')
           .mockResolvedValue(undefined);
-        const trackZoneCountSpy = vi
-          .spyOn(matomoMethods, 'trackZoneCount')
-          .mockResolvedValue(undefined);
 
         // When
         preferences1.addZone('Bar');
@@ -466,9 +463,6 @@ describe('/preferences.ts', () => {
         expect(trackZoneSpy).toHaveBeenCalledTimes(2);
         expect(trackZoneSpy).toHaveBeenNthCalledWith(1, 'Bar', true);
         expect(trackZoneSpy).toHaveBeenNthCalledWith(2, 'Bar', true);
-        expect(trackZoneCountSpy).toHaveBeenCalledTimes(2);
-        expect(trackZoneCountSpy).toHaveBeenNthCalledWith(1, 1);
-        expect(trackZoneCountSpy).toHaveBeenNthCalledWith(2, 2);
       });
     });
 
@@ -480,9 +474,6 @@ describe('/preferences.ts', () => {
         const preferences3 = new Preferences(['Foo', 'Bar'], []);
         const trackZoneSpy = vi
           .spyOn(matomoMethods, 'trackZone')
-          .mockResolvedValue(undefined);
-        const trackZoneCountSpy = vi
-          .spyOn(matomoMethods, 'trackZoneCount')
           .mockResolvedValue(undefined);
 
         // When
@@ -496,8 +487,6 @@ describe('/preferences.ts', () => {
         expect(preferences3.zones).toEqual(['Foo']);
         expect(trackZoneSpy).toHaveBeenCalledTimes(1);
         expect(trackZoneSpy).toHaveBeenNthCalledWith(1, 'Bar', false);
-        expect(trackZoneCountSpy).toHaveBeenCalledTimes(1);
-        expect(trackZoneCountSpy).toHaveBeenNthCalledWith(1, 1);
       });
     });
 
@@ -552,9 +541,6 @@ describe('/preferences.ts', () => {
         const trackZoneSpy = vi
           .spyOn(matomoMethods, 'trackZone')
           .mockResolvedValue(undefined);
-        const trackZoneCountSpy = vi
-          .spyOn(matomoMethods, 'trackZoneCount')
-          .mockResolvedValue(undefined);
 
         // When
         preferences1.addAddress(address3);
@@ -574,9 +560,6 @@ describe('/preferences.ts', () => {
         expect(trackZoneSpy).toHaveBeenCalledTimes(2);
         expect(trackZoneSpy).toHaveBeenNthCalledWith(1, 'Réunion', true);
         expect(trackZoneSpy).toHaveBeenNthCalledWith(2, 'Réunion', true);
-        expect(trackZoneCountSpy).toHaveBeenCalledTimes(2);
-        expect(trackZoneCountSpy).toHaveBeenNthCalledWith(1, 1);
-        expect(trackZoneCountSpy).toHaveBeenNthCalledWith(2, 4);
       });
     });
 
@@ -643,9 +626,6 @@ describe('/preferences.ts', () => {
         const trackZoneSpy = vi
           .spyOn(matomoMethods, 'trackZone')
           .mockResolvedValue(undefined);
-        const trackZoneCountSpy = vi
-          .spyOn(matomoMethods, 'trackZoneCount')
-          .mockResolvedValue(undefined);
 
         // When
         preferences1.removeAddress(address3);
@@ -666,7 +646,6 @@ describe('/preferences.ts', () => {
         expect(preferences5.zones).toEqual(['Zone A', 'Zone B', 'Zone C', 'Réunion']);
         expect(preferences5.addresses).toEqual([address1, address2, address4]);
         expect(trackZoneSpy).toHaveBeenCalledTimes(0);
-        expect(trackZoneCountSpy).toHaveBeenCalledTimes(0);
       });
     });
 
@@ -698,9 +677,6 @@ describe('/preferences.ts', () => {
         const trackZoneSpy = vi
           .spyOn(matomoMethods, 'trackZone')
           .mockResolvedValue(undefined);
-        const trackZoneCountSpy = vi
-          .spyOn(matomoMethods, 'trackZoneCount')
-          .mockResolvedValue(undefined);
 
         // When
         preferences1.clearAddresses();
@@ -712,7 +688,6 @@ describe('/preferences.ts', () => {
         expect(preferences2.zones).toEqual(['Zone A', 'Zone B', 'Zone C']);
         expect(preferences2.addresses).toEqual([]);
         expect(trackZoneSpy).toHaveBeenCalledTimes(0);
-        expect(trackZoneCountSpy).toHaveBeenCalledTimes(0);
       });
     });
 

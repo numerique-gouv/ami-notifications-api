@@ -4,6 +4,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import * as navigationMethods from '$app/navigation';
 import { Address } from '$lib/address';
 import * as citiesFromGeoAPIAndBANMethods from '$lib/citiesFromGeoAPIAndBAN';
+import * as matomoMethods from '$lib/matomo';
 import { Preferences } from '$lib/state/preferences';
 import { userStore } from '$lib/state/User.svelte';
 import { mockUserIdentity, mockUserInfo } from '$tests/utils';
@@ -512,6 +513,51 @@ describe('/ZonePreferences.svelte', () => {
         expect(parsed?.preferences).toEqual(userStore.connected?.identity.preferences);
         expect(spy).toHaveBeenCalledWith();
       });
+    });
+  });
+
+  describe('Zones tracking on unmount', () => {
+    test('should not track zones count has there is no change', async () => {
+      // Given
+      await userStore.login(mockUserInfo);
+      const onClose = vi.fn();
+      const trackZoneCountSpy = vi
+        .spyOn(matomoMethods, 'trackZoneCount')
+        .mockResolvedValue(undefined);
+      const { unmount } = render(ZonePreferences, { props: { onClose } });
+
+      // When
+      unmount();
+
+      // Then
+      expect(trackZoneCountSpy).toHaveBeenCalledTimes(0);
+    });
+    test('should not track zones count', async () => {
+      // Given
+      await userStore.login(mockUserInfo);
+      const onClose = vi.fn();
+      const trackZoneCountSpy = vi
+        .spyOn(matomoMethods, 'trackZoneCount')
+        .mockResolvedValue(undefined);
+      const { unmount } = render(ZonePreferences, { props: { onClose } });
+
+      // When
+      const toggleInputMartinique = screen.getByTestId('Martinique');
+      await fireEvent.click(toggleInputMartinique); // add
+      const toggleInputZoneC = screen.getByTestId('Zone C');
+      await fireEvent.click(toggleInputZoneC); // remove
+
+      unmount();
+
+      // Then
+      expect(userStore.connected?.identity.preferences.zones).toEqual([
+        'Zone A',
+        'Zone B',
+        'Corse',
+        'Martinique',
+      ]);
+      expect(trackZoneCountSpy).toHaveBeenCalledTimes(1);
+      expect(trackZoneCountSpy).toHaveBeenCalledWith(4);
     });
   });
 });
