@@ -24,7 +24,9 @@ export const franceConnectLogout = async (
   id_token_hint: string,
   redirect_url: string | null = null
 ) => {
-  const redirect_uri = redirect_url || `${PUBLIC_APP_URL}/?is_logged_out`;
+  const redirect_uri = encodeURIComponent(
+    redirect_url || `${PUBLIC_APP_URL}/?is_logged_out`
+  );
   let post_logout_redirect_uri = redirect_uri;
   if (PUBLIC_FC_PROXY_BASE_URL) {
     post_logout_redirect_uri = `${PUBLIC_FC_PROXY_BASE_URL}/`;

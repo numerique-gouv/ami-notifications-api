@@ -17,7 +17,7 @@ describe('/france-connect', () => {
 
       // Then
       expect(window.location.href).toBe(
-        'https://fcp-low.sbx.dev-franceconnect.fr/api/v2/session/end?id_token_hint=fake-id-token&state=https%3A%2F%2Flocalhost%3A5173%2F%3Fis_logged_out&post_logout_redirect_uri=https%3A%2F%2Fami-fc-proxy-dev.osc-fr1.scalingo.io%2F'
+        'https://fcp-low.sbx.dev-franceconnect.fr/api/v2/session/end?id_token_hint=fake-id-token&state=https%253A%252F%252Flocalhost%253A5173%252F%253Fis_logged_out&post_logout_redirect_uri=https%3A%2F%2Fami-fc-proxy-dev.osc-fr1.scalingo.io%2F'
       );
     });
     test('should call logout endpoint with another return url', async () => {
@@ -29,7 +29,7 @@ describe('/france-connect', () => {
 
       // Then
       expect(window.location.href).toBe(
-        'https://fcp-low.sbx.dev-franceconnect.fr/api/v2/session/end?id_token_hint=fake-id-token&state=http%3A%2F%2Fother-return-url%2F&post_logout_redirect_uri=https%3A%2F%2Fami-fc-proxy-dev.osc-fr1.scalingo.io%2F'
+        'https://fcp-low.sbx.dev-franceconnect.fr/api/v2/session/end?id_token_hint=fake-id-token&state=http%253A%252F%252Fother-return-url%252F&post_logout_redirect_uri=https%3A%2F%2Fami-fc-proxy-dev.osc-fr1.scalingo.io%2F'
       );
     });
   });

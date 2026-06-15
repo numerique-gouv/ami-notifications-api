@@ -244,7 +244,7 @@ describe('/+page.svelte', () => {
       await waitFor(() => {
         expect(procedureMethods.retrieveProcedureUrl).toHaveBeenCalled();
         expect(locationMock.href).toEqual(
-          'https://fc/api/v2/session/end?id_token_hint=fake-id-token&state=https%3A%2F%2Flocalhost%3A8000%2Fsilent-login-ami-fi%3Fredirect_url%3Dfake-public-otv-url%253Fcaller%253Dfake.jwt.token&post_logout_redirect_uri=https%3A%2F%2Fproxy%2F'
+          'https://fc/api/v2/session/end?id_token_hint=fake-id-token&state=https%253A%252F%252Flocalhost%253A8000%252Fsilent-login-ami-fi%253Fredirect_url%253Dfake-public-otv-url%25253Fcaller%25253Dfake.jwt.token&post_logout_redirect_uri=https%3A%2F%2Fproxy%2F'
         );
       });
     });
