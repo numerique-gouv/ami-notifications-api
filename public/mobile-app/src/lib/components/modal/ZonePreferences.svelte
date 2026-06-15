@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { mount, onMount, unmount } from 'svelte';
+  import { mount, onDestroy, onMount, unmount } from 'svelte';
   import { slide } from 'svelte/transition';
   import { goto } from '$app/navigation';
   import { Address } from '$lib/address';
@@ -9,6 +9,7 @@
     type ResponseFromGeoAPI,
   } from '$lib/citiesFromGeoAPIAndBAN';
   import Toggle from '$lib/components/Toggle.svelte';
+  import { trackZoneCount } from '$lib/matomo';
   import { Preferences, type ZoneInfo } from '$lib/state/preferences';
   import { userStore } from '$lib/state/User.svelte';
   import NavWithBackButton from './NavWithBackButton.svelte';
@@ -22,6 +23,7 @@
   let filteredCities: ResponseFromGeoAPI[] = $state([]);
   let cityApiHasError: boolean = $state(false);
   let zonesVisible: boolean = $state(true);
+  let zonesHasChanged: boolean = $state(false);
 
   interface Props {
     footerTarget?: HTMLElement | null;
@@ -77,6 +79,16 @@
         footerInstance = null;
       }
     };
+  });
+
+  onDestroy(() => {
+    if (zonesHasChanged) {
+      if (!userStore.connected) {
+        return;
+      }
+      const preferences = userStore.connected.identity.preferences;
+      trackZoneCount(preferences.zones.length);
+    }
   });
 
   const hideZones = async () => {
@@ -163,6 +175,7 @@
     }
     userStore.connected.setPreferences(preferences);
     refreshPreferences();
+    zonesHasChanged = true;
   };
 
   const removeAddress = async (id: string) => {

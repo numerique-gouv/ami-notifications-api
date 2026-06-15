@@ -1,7 +1,7 @@
 import type { Address as AddressType } from '$lib/address';
 import { Address, zones } from '$lib/address';
 import type { CatalogItem } from '$lib/api-catalog';
-import { trackZone, trackZoneCount } from '$lib/matomo';
+import { trackZone } from '$lib/matomo';
 import type { ToggleTag } from '$lib/types/components/toggletag';
 
 export type ZoneInfo = {
@@ -123,7 +123,6 @@ export class Preferences {
     }
     this._zones.push(zone);
     trackZone(zone, true);
-    trackZoneCount(this._zones.length);
   }
 
   removeZone(zone: string) {
@@ -132,7 +131,6 @@ export class Preferences {
     }
     this._zones = this._zones.filter((value) => zone !== value);
     trackZone(zone, false);
-    trackZoneCount(this._zones.length);
   }
 
   addAddress(address: AddressType) {
