@@ -61,7 +61,6 @@ def test_get_notifications(
     Notification.objects.create(
         user=notification.user,
         content_body="Other notification",
-        content_private_body="some private body content",
         content_title="Notification title",
         valid_until=now(),
     )
@@ -74,8 +73,7 @@ def test_get_notifications(
         "id": str(other_notification.id),
         "user_id": str(other_notification.user.id),
         "content_title": "Notification title",
-        "content_body": "Other notification",
-        "content_private_body": "some private body content",
+        "content_body": "Other notification some private body content",
         "content_icon": None,
         "item_type": None,
         "item_id": None,
@@ -93,7 +91,6 @@ def test_get_notifications(
         "user_id": str(notification.user.id),
         "content_title": "Notification title",
         "content_body": "Hello notification",
-        "content_private_body": None,
         "content_icon": None,
         "item_type": "OperationTranquilliteVacances",
         "item_id": "42",
@@ -162,7 +159,6 @@ def test_read_notification(
         "user_id": str(notification.user.id),
         "content_title": "Notification title",
         "content_body": "Hello notification",
-        "content_private_body": None,
         "content_icon": None,
         "item_type": None,
         "item_id": None,
