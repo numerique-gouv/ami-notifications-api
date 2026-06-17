@@ -18,10 +18,9 @@ class NotificationSerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = [
-            "content_body",
-            "content_private_body",
-            "content_icon",
             "content_title",
+            "content_body",
+            "content_icon",
             "created_at",
             "id",
             "item_canal",
@@ -36,6 +35,12 @@ class NotificationSerializer(serializers.ModelSerializer):
             "user_id",
         ]
         model = Notification
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if instance.content_private_body:
+            data["content_body"] += f" {instance.content_private_body}"
+        return data
 
 
 class ScheduledNotificationCreateSerializer(serializers.Serializer):
