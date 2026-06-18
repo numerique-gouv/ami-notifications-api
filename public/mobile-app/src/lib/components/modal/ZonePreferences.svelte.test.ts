@@ -7,7 +7,7 @@ import * as citiesFromGeoAPIAndBANMethods from '$lib/citiesFromGeoAPIAndBAN';
 import * as matomoMethods from '$lib/matomo';
 import { Preferences } from '$lib/state/preferences';
 import { userStore } from '$lib/state/User.svelte';
-import { mockUserIdentity, mockUserInfo } from '$tests/utils';
+import { mockUserIdentity } from '$tests/utils';
 import ZonePreferences from './ZonePreferences.svelte';
 
 vi.mock('svelte/transition', () => ({
@@ -20,15 +20,19 @@ vi.mock('svelte/transition', () => ({
 describe('/ZonePreferences.svelte', () => {
   beforeEach(async () => {
     vi.resetAllMocks();
+    HTMLDialogElement.prototype.showModal = vi.fn();
+    HTMLDialogElement.prototype.close = vi.fn();
+    HTMLDialogElement.prototype.show = vi.fn();
   });
 
   test('user has to be connected', async () => {
     // Given
     const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue();
-    const onClose = vi.fn();
 
     // When
-    render(ZonePreferences, { props: { onClose } });
+    render(ZonePreferences, {
+      props: {},
+    });
 
     // Then
     await waitFor(() => {
@@ -39,7 +43,12 @@ describe('/ZonePreferences.svelte', () => {
 
   test('should display zones according to user preferences', async () => {
     // Given
-    await userStore.login(mockUserInfo);
+    const preferences = new Preferences([], []);
+    const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
+    newMockUserIdentity.preferences = preferences;
+    localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity));
+    await userStore.login(newMockUserIdentity);
+
     const spyGetZoneInfos = vi
       .spyOn(Preferences.prototype, 'getZoneInfos')
       .mockReturnValueOnce([
@@ -76,49 +85,68 @@ describe('/ZonePreferences.svelte', () => {
           zone: 'Corse',
         },
       ]);
-    const onClose = vi.fn();
 
     // When
-    render(ZonePreferences, { props: { onClose } });
+    render(ZonePreferences, {
+      props: {},
+    });
 
     // Then
-    expect(screen.getByText('Paris (75) 🏠')).toBeInTheDocument();
-    expect(screen.getByText('Bastia (20)')).toBeInTheDocument();
-    expect(spyGetZoneInfos).toHaveBeenCalledTimes(1);
-    expect(spyGetZoneInfos).toHaveBeenCalledWith(userStore.connected?.identity.address);
+    await waitFor(async () => {
+      expect(screen.getByText('Paris (75) 🏠')).toBeInTheDocument();
+      expect(screen.getByText('Bastia (20)')).toBeInTheDocument();
+      expect(spyGetZoneInfos).toHaveBeenCalledTimes(1);
+      expect(spyGetZoneInfos).toHaveBeenCalledWith(
+        userStore.connected?.identity.address
+      );
+    });
   });
 
   describe('Zone toggle', () => {
     test('should enable zone when user toggles on', async () => {
       // Given
-      await userStore.login(mockUserInfo);
-      const onClose = vi.fn();
+      const preferences = new Preferences(['Zone A', 'Zone B', 'Zone C', 'Corse'], []);
+      const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
+      newMockUserIdentity.preferences = preferences;
+      localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity));
+      await userStore.login(newMockUserIdentity);
+
       const spy = vi.spyOn(Preferences.prototype, 'addZone');
-      render(ZonePreferences, { props: { onClose } });
+      render(ZonePreferences, {
+        props: {},
+      });
 
       // When
       const toggleInput = screen.getByTestId('Martinique');
       await fireEvent.click(toggleInput);
 
       // Then
-      expect(userStore.connected?.identity.preferences.zones).toEqual([
-        'Zone A',
-        'Zone B',
-        'Zone C',
-        'Corse',
-        'Martinique',
-      ]);
-      const parsed = JSON.parse(localStorage.getItem('user_identity') || '{}');
-      expect(parsed?.preferences).toEqual(userStore.connected?.identity.preferences);
-      expect(spy).toHaveBeenCalledWith('Martinique');
+      await waitFor(async () => {
+        expect(userStore.connected?.identity.preferences.zones).toEqual([
+          'Zone A',
+          'Zone B',
+          'Zone C',
+          'Corse',
+          'Martinique',
+        ]);
+        const parsed = JSON.parse(localStorage.getItem('user_identity') || '{}');
+        expect(parsed?.preferences).toEqual(userStore.connected?.identity.preferences);
+        expect(spy).toHaveBeenCalledWith('Martinique');
+      });
     });
 
     test('should disable zone when user toggles off', async () => {
       // Given
-      await userStore.login(mockUserInfo);
-      const onClose = vi.fn();
+      const preferences = new Preferences(['Zone A', 'Zone B', 'Zone C', 'Corse'], []);
+      const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
+      newMockUserIdentity.preferences = preferences;
+      localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity));
+      await userStore.login(newMockUserIdentity);
+
       const spy = vi.spyOn(Preferences.prototype, 'removeZone');
-      render(ZonePreferences, { props: { onClose } });
+      render(ZonePreferences, {
+        props: {},
+      });
 
       // When
       const toggleInput = screen.getByTestId('Zone C');
@@ -139,9 +167,15 @@ describe('/ZonePreferences.svelte', () => {
   describe('City input focus', () => {
     test('should hide help text when focus is on city search input', async () => {
       // Given
-      await userStore.login(mockUserInfo);
-      const onClose = vi.fn();
-      render(ZonePreferences, { props: { onClose } });
+      const preferences = new Preferences([], []);
+      const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
+      newMockUserIdentity.preferences = preferences;
+      localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity));
+      await userStore.login(newMockUserIdentity);
+
+      render(ZonePreferences, {
+        props: {},
+      });
       await waitFor(() => {
         expect(screen.queryByText(/quelles zones scolaires/i)).toBeInTheDocument();
       });
@@ -158,9 +192,15 @@ describe('/ZonePreferences.svelte', () => {
 
     test('should hide toggles when focus is on city search input', async () => {
       // Given
-      await userStore.login(mockUserInfo);
-      const onClose = vi.fn();
-      render(ZonePreferences, { props: { onClose } });
+      const preferences = new Preferences([], []);
+      const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
+      newMockUserIdentity.preferences = preferences;
+      localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity));
+      await userStore.login(newMockUserIdentity);
+
+      render(ZonePreferences, {
+        props: {},
+      });
       await waitFor(() => {
         expect(screen.queryByText(/zone c/i)).toBeInTheDocument();
       });
@@ -177,9 +217,15 @@ describe('/ZonePreferences.svelte', () => {
 
     test('should display empty text when focus is on city search input', async () => {
       // Given
-      await userStore.login(mockUserInfo);
-      const onClose = vi.fn();
-      render(ZonePreferences, { props: { onClose } });
+      const preferences = new Preferences([], []);
+      const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
+      newMockUserIdentity.preferences = preferences;
+      localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity));
+      await userStore.login(newMockUserIdentity);
+
+      render(ZonePreferences, {
+        props: {},
+      });
       await waitFor(() => {
         expect(
           screen.queryByText(/recherchez une commune pour afficher une zone/i)
@@ -200,9 +246,15 @@ describe('/ZonePreferences.svelte', () => {
 
     test('should display back button when focus is on city search input', async () => {
       // Given
-      await userStore.login(mockUserInfo);
-      const onClose = vi.fn();
-      render(ZonePreferences, { props: { onClose } });
+      const preferences = new Preferences([], []);
+      const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
+      newMockUserIdentity.preferences = preferences;
+      localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity));
+      await userStore.login(newMockUserIdentity);
+
+      render(ZonePreferences, {
+        props: {},
+      });
       await waitFor(() => {
         expect(screen.queryByTestId('back-button')).toBeNull();
       });
@@ -212,7 +264,7 @@ describe('/ZonePreferences.svelte', () => {
       await fireEvent.focus(cityInput);
 
       // Then
-      await waitFor(() => {
+      await waitFor(async () => {
         expect(screen.queryByTestId('back-button')).not.toBeNull();
       });
     });
@@ -221,7 +273,12 @@ describe('/ZonePreferences.svelte', () => {
   describe('City selection', () => {
     test('should display results when user enters a city', async () => {
       // Given
-      await userStore.login(mockUserInfo);
+      const preferences = new Preferences(['Zone A', 'Zone B', 'Zone C', 'Corse'], []);
+      const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
+      newMockUserIdentity.preferences = preferences;
+      localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity));
+      await userStore.login(newMockUserIdentity);
+
       const data = [
         {
           nom: 'Arpajon',
@@ -249,13 +306,14 @@ describe('/ZonePreferences.svelte', () => {
           departement: { code: '30', nom: 'Gard' },
         },
       ];
-      const onClose = vi.fn();
       const spy = vi
         .spyOn(citiesFromGeoAPIAndBANMethods, 'callGeoAPI')
         .mockResolvedValue({
           results: data,
         });
-      render(ZonePreferences, { props: { onClose } });
+      render(ZonePreferences, {
+        props: {},
+      });
 
       // When
       const cityInput = screen.getByTestId('city-input');
@@ -287,6 +345,12 @@ describe('/ZonePreferences.svelte', () => {
 
     test('should update preferences and refresh zones when user clicks on a result', async () => {
       // Given
+      const preferences = new Preferences(['Zone A'], []);
+      const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
+      newMockUserIdentity.preferences = preferences;
+      localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity));
+      await userStore.login(newMockUserIdentity);
+
       const data = [
         {
           nom: 'Arpajon',
@@ -294,6 +358,11 @@ describe('/ZonePreferences.svelte', () => {
           departement: { code: '91', nom: 'Essonne' },
         },
       ];
+      const spy = vi
+        .spyOn(citiesFromGeoAPIAndBANMethods, 'callGeoAPI')
+        .mockResolvedValue({
+          results: data,
+        });
       const address = new Address(
         'Arpajon',
         '91, Essonne, Île-de-France',
@@ -302,24 +371,15 @@ describe('/ZonePreferences.svelte', () => {
         'Arpajon',
         '91290'
       );
-      const preferences = new Preferences(['Zone A'], []);
-      const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
-      newMockUserIdentity.preferences = preferences;
-      localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity));
-      await userStore.login(newMockUserIdentity);
-      const onClose = vi.fn();
-      const spy = vi
-        .spyOn(citiesFromGeoAPIAndBANMethods, 'callGeoAPI')
-        .mockResolvedValue({
-          results: data,
-        });
       const spy2 = vi
         .spyOn(citiesFromGeoAPIAndBANMethods, 'cityToBAN')
         .mockResolvedValue({
           address: address,
         });
       const spy3 = vi.spyOn(Preferences.prototype, 'addAddress');
-      render(ZonePreferences, { props: { onClose } });
+      render(ZonePreferences, {
+        props: {},
+      });
 
       // When
       const cityInput = screen.getByTestId('city-input');
@@ -358,15 +418,21 @@ describe('/ZonePreferences.svelte', () => {
 
     test('should display warning block when Geo API is unavailable', async () => {
       // Given
-      await userStore.login(mockUserInfo);
-      const onClose = vi.fn();
+      const preferences = new Preferences(['Zone A', 'Zone B', 'Zone C', 'Corse'], []);
+      const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
+      newMockUserIdentity.preferences = preferences;
+      localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity));
+      await userStore.login(newMockUserIdentity);
+
       const spy = vi
         .spyOn(citiesFromGeoAPIAndBANMethods, 'callGeoAPI')
         .mockResolvedValue({
           errorCode: 'geo-api-unavailable',
           errorMessage: 'Geo API unavailable',
         });
-      render(ZonePreferences, { props: { onClose } });
+      render(ZonePreferences, {
+        props: {},
+      });
 
       // When
       const cityInput = screen.getByTestId('city-input');
@@ -390,6 +456,12 @@ describe('/ZonePreferences.svelte', () => {
 
     test('should display warning block when BAN is unavailable', async () => {
       // Given
+      const preferences = new Preferences(['Zone A', 'Zone B', 'Zone C', 'Corse'], []);
+      const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
+      newMockUserIdentity.preferences = preferences;
+      localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity));
+      await userStore.login(newMockUserIdentity);
+
       const data = [
         {
           nom: 'Arpajon',
@@ -397,8 +469,6 @@ describe('/ZonePreferences.svelte', () => {
           departement: { code: '91', nom: 'Essonne' },
         },
       ];
-      await userStore.login(mockUserInfo);
-      const onClose = vi.fn();
       const spy = vi
         .spyOn(citiesFromGeoAPIAndBANMethods, 'callGeoAPI')
         .mockResolvedValue({
@@ -410,7 +480,9 @@ describe('/ZonePreferences.svelte', () => {
           errorCode: 'ban-unavailable',
           errorMessage: 'BAN unavailable',
         });
-      render(ZonePreferences, { props: { onClose } });
+      render(ZonePreferences, {
+        props: {},
+      });
 
       // When
       const cityInput = screen.getByTestId('city-input');
@@ -454,9 +526,11 @@ describe('/ZonePreferences.svelte', () => {
       newMockUserIdentity.preferences = preferences;
       localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity));
       await userStore.login(newMockUserIdentity);
-      const onClose = vi.fn();
+
       const spy = vi.spyOn(Preferences.prototype, 'removeAddress');
-      render(ZonePreferences, { props: { onClose } });
+      render(ZonePreferences, {
+        props: {},
+      });
       await waitFor(async () => {
         expect(screen.getByText('Arpajon (91)')).toBeInTheDocument();
 
@@ -493,9 +567,11 @@ describe('/ZonePreferences.svelte', () => {
       newMockUserIdentity.preferences = preferences;
       localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity));
       await userStore.login(newMockUserIdentity);
-      const onClose = vi.fn();
+
       const spy = vi.spyOn(Preferences.prototype, 'clearAddresses');
-      render(ZonePreferences, { props: { onClose } });
+      render(ZonePreferences, {
+        props: {},
+      });
       await waitFor(async () => {
         expect(screen.getByText('Arpajon (91)')).toBeInTheDocument();
 
@@ -519,12 +595,18 @@ describe('/ZonePreferences.svelte', () => {
   describe('Zones tracking on unmount', () => {
     test('should not track zones count has there is no change', async () => {
       // Given
-      await userStore.login(mockUserInfo);
-      const onClose = vi.fn();
+      const preferences = new Preferences(['Zone A', 'Zone B', 'Zone C', 'Corse'], []);
+      const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
+      newMockUserIdentity.preferences = preferences;
+      localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity));
+      await userStore.login(newMockUserIdentity);
+
       const trackZoneCountSpy = vi
         .spyOn(matomoMethods, 'trackZoneCount')
         .mockResolvedValue(undefined);
-      const { unmount } = render(ZonePreferences, { props: { onClose } });
+      const { unmount } = render(ZonePreferences, {
+        props: {},
+      });
 
       // When
       unmount();
@@ -534,12 +616,18 @@ describe('/ZonePreferences.svelte', () => {
     });
     test('should not track zones count', async () => {
       // Given
-      await userStore.login(mockUserInfo);
-      const onClose = vi.fn();
+      const preferences = new Preferences(['Zone A', 'Zone B', 'Zone C', 'Corse'], []);
+      const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
+      newMockUserIdentity.preferences = preferences;
+      localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity));
+      await userStore.login(newMockUserIdentity);
+
       const trackZoneCountSpy = vi
         .spyOn(matomoMethods, 'trackZoneCount')
         .mockResolvedValue(undefined);
-      const { unmount } = render(ZonePreferences, { props: { onClose } });
+      const { unmount } = render(ZonePreferences, {
+        props: {},
+      });
 
       // When
       const toggleInputMartinique = screen.getByTestId('Martinique');
