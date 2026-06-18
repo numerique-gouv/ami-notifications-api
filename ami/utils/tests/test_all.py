@@ -69,8 +69,16 @@ def test_review_apps(app, monkeypatch, settings) -> None:
     )
     response = app.get("/dev-utils/review-apps")
     json_data = response.json
-    assert len(json_data) == 2  # Staging + the PR returned in TRUNCATED_GITHUB_JSON_RESPONSE
+    assert len(json_data) == 3  # Staging + the PRs returned in TRUNCATED_GITHUB_JSON_RESPONSE
     assert json_data[0]["title"] == "Staging"
+    assert json_data[0]["description"] == "Staging"
+    assert (
+        json_data[1]["title"]
+        == "PR83: Donne la possibilité d'avoir des noms de fichiers et non les valeurs …"
+    )
+    assert json_data[1]["description"] == "…dans les variables d'environnement de clé."
+    assert json_data[2]["title"] == "PR84: build(blabla)"
+    assert json_data[2]["description"] == ""
 
 
 def test_review_apps_github_failure(app, monkeypatch, settings) -> None:
@@ -103,6 +111,44 @@ TRUNCATED_GITHUB_JSON_RESPONSE: list[dict[str, Any]] = [
         "title": "Donne la possibilité d'avoir des noms de fichiers et non les valeurs …",
         "user": {},
         "body": "…dans les variables d'environnement de clé.",
+        "created_at": "2025-08-20T14:00:11Z",
+        "updated_at": "2025-08-27T13:14:35Z",
+        "closed_at": None,
+        "merged_at": None,
+        "merge_commit_sha": None,
+        "assignee": None,
+        "assignees": [],
+        "requested_reviewers": [],
+        "requested_teams": [],
+        "labels": [],
+        "milestone": None,
+        "draft": False,
+        "commits_url": "https://api.github.com/repos/numerique-gouv/ami-notifications-api/pulls/83/commits",
+        "review_comments_url": "https://api.github.com/repos/numerique-gouv/ami-notifications-api/pulls/83/comments",
+        "review_comment_url": "https://api.github.com/repos/numerique-gouv/ami-notifications-api/pulls/comments{/number}",
+        "comments_url": "https://api.github.com/repos/numerique-gouv/ami-notifications-api/issues/83/comments",
+        "statuses_url": "https://api.github.com/repos/numerique-gouv/ami-notifications-api/statuses/b9c987327a8f8e45648c1508faacf062637584c6",
+        "head": {},
+        "base": {},
+        "_links": {},
+        "author_association": "COLLABORATOR",
+        "auto_merge": None,
+        "active_lock_reason": None,
+    },
+    {
+        "url": "https://api.github.com/repos/numerique-gouv/ami-notifications-api/pulls/84",
+        "id": 2759929411,
+        "node_id": "PR_kwDOOSMCFs6kgS5E",
+        "html_url": "https://github.com/numerique-gouv/ami-notifications-api/pull/84",
+        "diff_url": "https://github.com/numerique-gouv/ami-notifications-api/pull/84.diff",
+        "patch_url": "https://github.com/numerique-gouv/ami-notifications-api/pull/84.patch",
+        "issue_url": "https://api.github.com/repos/numerique-gouv/ami-notifications-api/issues/84",
+        "number": 84,
+        "state": "open",
+        "locked": False,
+        "title": "build(blabla)",
+        "user": {},
+        "body": "beaucoup trop de mots" * 100,
         "created_at": "2025-08-20T14:00:11Z",
         "updated_at": "2025-08-27T13:14:35Z",
         "closed_at": None,

@@ -79,7 +79,7 @@ def _dev_utils_review_apps(request) -> Response[list[dict[str, str | int]]]:
             "url": f"https://ami-back-staging-pr{pr.number}.osc-fr1.scalingo.io/",
             "title": f"PR{pr.number}: {pr.title}",
             "number": pr.number,
-            "description": pr.body,
+            "description": "" if pr.title.startswith("build(") else pr.body,
         }
         for pr in open_pulls
     ]
