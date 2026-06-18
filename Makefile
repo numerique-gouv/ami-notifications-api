@@ -61,3 +61,7 @@ delete-published-scheduled-notifications:
 .PHONY: replicate-anonymized-data
 replicate-anonymized-data:
 	$(RUN) python manage.py replicate-anonymized-data
+
+.PHONY: db-worker
+db-worker:
+	$(RUN) python manage.py db_worker
