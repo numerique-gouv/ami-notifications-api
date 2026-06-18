@@ -7,6 +7,7 @@ import pytest
 import webpush as webpush_lib
 from asgiref.sync import sync_to_async
 from channels.testing.websocket import WebsocketCommunicator
+from django.test import TestCase
 from django.utils.timezone import now
 from pytest_httpx import HTTPXMock
 from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED
@@ -121,7 +122,7 @@ def test_create_mobile_notification(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     send_mock = Mock()
-    monkeypatch.setattr("ami.notification.push.messaging.send", send_mock)
+    monkeypatch.setattr("firebase_admin.messaging.send", send_mock)
     notification_data = {
         "recipient_fc_hash": mobile_registration.user.fc_hash,
         "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
@@ -138,7 +139,8 @@ def test_create_mobile_notification(
         "send_date": "2025-11-27T10:55:00.000Z",
         "try_push": True,
     }
-    response = app.post("/api/v1/notifications", notification_data, headers=partner_auth)
+    with TestCase.captureOnCommitCallbacks(execute=True):
+        response = app.post("/api/v1/notifications", notification_data, headers=partner_auth)
     assert response.status_code == HTTP_201_CREATED
     assert Notification.objects.count() == 2
     notification2 = Notification.objects.latest("created_at")
@@ -447,7 +449,8 @@ def test_create_notification_when_registration_gone(
         "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
         "content_body": "Merci d'avoir initié votre demande",
     }
-    response = app.post("/api/v1/notifications", notification_data, headers=partner_auth)
+    with TestCase.captureOnCommitCallbacks(execute=True):
+        response = app.post("/api/v1/notifications", notification_data, headers=partner_auth)
     assert response.status_code == HTTP_201_CREATED
     assert Notification.objects.count() == 1
     assert httpx_mock.get_request()
@@ -646,7 +649,8 @@ def test_create_notification_duplicated_payload_with_push(
         "content_body": "Merci d'avoir initié votre demande",
     }
 
-    response = app.post("/api/v1/notifications", notification_data, headers=partner_auth)
+    with TestCase.captureOnCommitCallbacks(execute=True):
+        response = app.post("/api/v1/notifications", notification_data, headers=partner_auth)
     assert response.status_code == HTTP_201_CREATED
     assert Notification.objects.count() == 1
     notification = Notification.objects.get()

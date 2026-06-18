@@ -1,10 +1,12 @@
 import os
 import uuid
+from functools import partial
 from typing import cast
 
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from django.conf import settings
+from django.db import transaction
 from django.db.models import QuerySet
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -198,15 +200,19 @@ def partner_create_notification(request: Request) -> Response[NotificationRespon
     data.pop("recipient_fc_hash")
     if data["content_icon"] is None:
         data["content_icon"] = current_partner.icon or "fr-icon-mail-star-line"
-    notification, created = Notification.objects.get_or_create(
-        user_id=user.id,
-        partner_id=current_partner.id,
-        defaults={"send_status": notification_send_status},
-        **data,
-    )
 
-    if created:
-        push_notification.enqueue(str(notification.id), try_push)
+    with transaction.atomic():
+        notification, created = Notification.objects.get_or_create(
+            user_id=user.id,
+            partner_id=current_partner.id,
+            defaults={"send_status": notification_send_status},
+            **data,
+        )
+        if created:
+            transaction.on_commit(
+                partial(push_notification.enqueue, str(notification.id), try_push)
+            )
+
     sentry.add_counter("notification.request.processed")
 
     response_data = {
