@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     "ami.amidsfr",
     "django.forms",
     "sass_processor",
+    "django_tasks_db",
     "ami.authentication",
     "ami.fi",
     "ami.notification",
@@ -180,8 +181,7 @@ LOGOUT_REDIRECT_URL = "/agent-admin/"
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 # Tasks
-# TODO: use a real task backend in production
-TASKS = {"default": {"BACKEND": "django.tasks.backends.immediate.ImmediateBackend"}}
+TASKS = {"default": {"BACKEND": "django_tasks_db.DatabaseBackend"}}
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators

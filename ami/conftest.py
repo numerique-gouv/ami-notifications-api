@@ -23,7 +23,12 @@ from ami.user.utils import build_fc_hash
 
 
 @pytest.fixture
-def app(django_app):
+def dummy_tasks(settings):
+    settings.TASKS = {"default": {"BACKEND": "django.tasks.backends.immediate.ImmediateBackend"}}
+
+
+@pytest.fixture
+def app(django_app, dummy_tasks):
     cache.clear()
     yield django_app
 

@@ -210,7 +210,7 @@ def partner_create_notification(request: Request) -> Response[NotificationRespon
         )
         if created:
             transaction.on_commit(
-                partial(push_notification.enqueue, str(notification.id), try_push)
+                partial(push_notification.enqueue, str(notification.id), try_push)  # type: ignore[union-attr]
             )
 
     sentry.add_counter("notification.request.processed")
