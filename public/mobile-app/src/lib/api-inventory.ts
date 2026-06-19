@@ -11,6 +11,7 @@ export type InventoryItem = {
 
   title: string;
   description: string;
+  icon: string;
   external_url: string | null;
   is_archived: boolean;
 
