@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
+  import { getDSFRIcon } from '$lib/dsfr-icon';
   import { RequestItem } from '$lib/follow-up';
 
   interface Props {
@@ -8,6 +9,8 @@
     onOpen: () => void;
   }
   let { item, onOpen }: Props = $props();
+
+  let checkedIcon = $derived(getDSFRIcon(item.icon, 'fr-icon-information-fill'));
 
   const gotoExternalItem = (item: RequestItem) => {
     if (item.link) {
@@ -57,7 +60,7 @@
           {/if}
         </p>
         <div class="fr-tile__start">
-          <p class="fr-badge fr-badge--icon-left {item.icon} {item.status_id}">
+          <p class="fr-badge fr-badge--icon-left {checkedIcon} {item.status_id}">
             {item.status_label}
           </p>
           <p class="request--item--detail--date">{item.formattedDate}</p>
