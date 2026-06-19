@@ -81,6 +81,13 @@ class Notification(models.Model):
 
         return partner.icon or "fr-icon-mail-star-line"
 
+    @property
+    def content_body_full(self):
+        body = self.content_body
+        if self.content_private_body:
+            body += f" {self.content_private_body}"
+        return body
+
 
 class ScheduledNotification(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
