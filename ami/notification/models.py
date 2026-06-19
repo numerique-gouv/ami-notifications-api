@@ -70,6 +70,17 @@ class Notification(models.Model):
             in [p.id for p in partners.values() if p.followup_from_notifications]
         )
 
+    @property
+    def icon(self):
+        partner = partners.get(self.partner_id)
+        if not partner:
+            return
+
+        if self.content_icon:
+            return self.content_icon
+
+        return partner.icon or "fr-icon-mail-star-line"
+
 
 class ScheduledNotification(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

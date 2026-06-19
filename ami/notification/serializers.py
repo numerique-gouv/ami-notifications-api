@@ -15,6 +15,7 @@ class NotificationResponseSerializer(serializers.Serializer):
 class NotificationSerializer(serializers.ModelSerializer):
     # Remap the "user" field from the model to "user_id" in the serializer
     user_id = serializers.UUIDField(source="user.id")
+    content_icon = serializers.CharField(source="icon")
 
     class Meta:
         fields = [
