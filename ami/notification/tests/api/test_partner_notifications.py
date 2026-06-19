@@ -1,5 +1,4 @@
 import base64
-import copy
 import datetime
 from unittest.mock import Mock
 
@@ -13,7 +12,6 @@ from pytest_httpx import HTTPXMock
 from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED
 
 from ami.notification.models import Notification
-from ami.partner.models import partners
 from ami.tests.utils import get_from_stream
 from ami.user.models import Registration, User
 
@@ -480,60 +478,6 @@ def test_create_notification_no_registration(
 
 
 @pytest.mark.django_db
-def test_create_notification_partner_has_no_default_icon(
-    app,
-    user: User,
-    partner_auth: dict[str, str],
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    partner = copy.deepcopy(partners["psl"])
-    partner.icon = ""
-    monkeypatch.setattr("ami.partner.auth.partners", {"psl": partner})
-    notification_data = {
-        "recipient_fc_hash": user.fc_hash,
-        "item_type": "OTV",
-        "item_id": "A-5-JGBJ5VMOY",
-        "item_status_label": "Brouillon",
-        "item_generic_status": "new",
-        "send_date": "2025-11-27T10:55:00.000Z",
-        "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
-        "content_body": "Merci d'avoir initié votre demande",
-    }
-    response = app.post("/api/v1/notifications", notification_data, headers=partner_auth)
-    assert response.status_code == HTTP_201_CREATED
-    assert Notification.objects.count() == 1
-    notification = Notification.objects.get()
-    assert notification.content_icon == "fr-icon-mail-star-line"
-
-
-@pytest.mark.django_db
-def test_create_notification_partner_has_default_icon(
-    app,
-    user: User,
-    partner_auth: dict[str, str],
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    partner = copy.deepcopy(partners["psl"])
-    partner.icon = "fr-icon-megaphone-line"
-    monkeypatch.setattr("ami.partner.auth.partners", {"psl": partner})
-    notification_data = {
-        "recipient_fc_hash": user.fc_hash,
-        "item_type": "OTV",
-        "item_id": "A-5-JGBJ5VMOY",
-        "item_status_label": "Brouillon",
-        "item_generic_status": "new",
-        "send_date": "2025-11-27T10:55:00.000Z",
-        "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
-        "content_body": "Merci d'avoir initié votre demande",
-    }
-    response = app.post("/api/v1/notifications", notification_data, headers=partner_auth)
-    assert response.status_code == HTTP_201_CREATED
-    assert Notification.objects.count() == 1
-    notification = Notification.objects.get()
-    assert notification.content_icon == "fr-icon-megaphone-line"
-
-
-@pytest.mark.django_db
 def test_create_notification_duplicated_payload(
     app,
     user: User,
@@ -879,7 +823,7 @@ def test_create_notification_when_optional_fields_are_empty(
     assert notification.user.id == user.id
     assert notification.content_body == "Merci d'avoir initié votre demande"
     assert notification.content_title == "Brouillon de nouvelle demande de démarche d'OTV"
-    assert notification.content_icon == "fr-icon-mail-star-line"
+    assert notification.content_icon is None
     assert notification.item_type is None
     assert notification.item_id is None
     assert notification.item_status_label is None
