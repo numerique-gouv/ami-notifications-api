@@ -30,6 +30,7 @@ class FollowUpInventoryItem:
 
     title: str
     description: str
+    icon: str
     external_url: str | None
     is_archived: bool
 
@@ -61,6 +62,7 @@ class FollowUpInventoryItem:
             milestone_end_date=last_notification.item_milestone_end_date,
             title=last_notification.content_title,
             description=description,
+            icon=last_notification.icon or "",
             # last external_url seen
             external_url=external_urls[-1] if external_urls else None,
             # last non null is_archived seen
