@@ -198,9 +198,6 @@ def partner_create_notification(request: Request) -> Response[NotificationRespon
         try_push = False
 
     data.pop("recipient_fc_hash")
-    if data["content_icon"] is None:
-        data["content_icon"] = current_partner.icon or "fr-icon-mail-star-line"
-
     with transaction.atomic():
         notification, created = Notification.objects.get_or_create(
             user_id=user.id,
