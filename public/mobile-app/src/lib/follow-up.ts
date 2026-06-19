@@ -12,6 +12,7 @@ export class RequestItem {
 
     private _title: string,
     private _description: string,
+    private _icon: string,
 
     private _date: Date,
 
@@ -77,24 +78,8 @@ export class RequestItem {
     return this._link;
   }
 
-  private static readonly StatusInfo: Record<Status, { icon: string }> = {
-    new: {
-      icon: 'fr-icon-mail-fill',
-    },
-    wip: {
-      icon: 'fr-icon-eye-fill',
-    },
-    closed: {
-      icon: 'fr-icon-flag-fill',
-    },
-  };
-
   get icon(): string {
-    const info = RequestItem.StatusInfo[this._status_id];
-    if (info === undefined) {
-      return '';
-    }
-    return info.icon;
+    return this._icon;
   }
 
   get formattedDate(): string {
@@ -147,6 +132,7 @@ export class FollowUp {
       'notifications',
       inventoryItem.title,
       inventoryItem.description,
+      inventoryItem.icon,
       inventoryItem.updated_at,
       inventoryItem.status_id as Status,
       inventoryItem.status_label,
