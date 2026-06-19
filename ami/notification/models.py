@@ -71,6 +71,15 @@ class Notification(models.Model):
         )
 
     @property
+    def item_status_icon(self):
+        if self.item_generic_status == "new":
+            return "fr-icon-mail-fill"
+        if self.item_generic_status == "wip":
+            return "fr-icon-eye-fill"
+        if self.item_generic_status == "closed":
+            return "fr-icon-flag-fill"
+
+    @property
     def icon(self):
         partner = partners.get(self.partner_id)
         if not partner:
@@ -78,6 +87,9 @@ class Notification(models.Model):
 
         if self.content_icon:
             return self.content_icon
+
+        if self.has_item():
+            return self.item_status_icon
 
         return partner.icon or "fr-icon-mail-star-line"
 

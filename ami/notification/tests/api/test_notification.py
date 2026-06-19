@@ -91,7 +91,7 @@ def test_get_notifications(
         "user_id": str(notification.user.id),
         "content_title": "Notification title",
         "content_body": "Hello notification",
-        "content_icon": "fr-icon-mail-star-line",
+        "content_icon": "fr-icon-mail-fill",
         "item_type": "OperationTranquilliteVacances",
         "item_id": "42",
         "item_status_label": "Nouveau",
@@ -127,6 +127,42 @@ def test_get_notifications_icon(
         content_title="Notification title",
         partner_id="psl",
     )
+    Notification.objects.create(
+        user=notification.user,
+        content_body="Notification",
+        content_title="Notification title",
+        content_icon="icon-psl-event",
+        item_generic_status="new",
+        item_status_label="Nouveau",
+        item_type="OperationTranquilliteVacances",
+        item_id="42",
+        partner_id="psl",
+    )
+    for status in ["new", "wip", "closed"]:
+        Notification.objects.create(
+            user=notification.user,
+            content_body="Notification",
+            content_title="Notification title",
+            item_generic_status=status,
+            item_status_label="Label",
+            item_type="OperationTranquilliteVacances",
+            item_id="42",
+            partner_id="psl",
+        )
+    # missing content item field
+    for field in ["item_generic_status", "item_status_label", "item_type", "item_id"]:
+        data = {
+            "user": notification.user,
+            "content_body": "Notification",
+            "content_title": "Notification title",
+            "item_generic_status": "new",
+            "item_status_label": "Nouveau",
+            "item_type": "OperationTranquilliteVacances",
+            "item_id": "42",
+            "partner_id": "psl",
+        }
+        data.pop(field)
+        Notification.objects.create(**data)
 
     # DINUM AMI as default icon
     Notification.objects.create(
@@ -142,13 +178,67 @@ def test_get_notifications_icon(
         content_title="Notification title",
         partner_id="dinum-ami",
     )
+    Notification.objects.create(
+        user=notification.user,
+        content_body="Notification",
+        content_title="Notification title",
+        content_icon="icon-dinum-ami-event",
+        item_generic_status="new",
+        item_status_label="Nouveau",
+        item_type="JeDéménage",
+        item_id="42",
+        partner_id="dinum-ami",
+    )
+    for status in ["new", "wip", "closed"]:
+        Notification.objects.create(
+            user=notification.user,
+            content_body="Notification",
+            content_title="Notification title",
+            item_generic_status=status,
+            item_status_label="Label",
+            item_type="JeDéménage",
+            item_id="42",
+            partner_id="dinum-ami",
+        )
+    # missing content item field
+    for field in ["item_generic_status", "item_status_label", "item_type", "item_id"]:
+        data = {
+            "user": notification.user,
+            "content_body": "Notification",
+            "content_title": "Notification title",
+            "item_generic_status": "new",
+            "item_status_label": "Nouveau",
+            "item_type": "JeDéménage",
+            "item_id": "42",
+            "partner_id": "dinum-ami",
+        }
+        data.pop(field)
+        Notification.objects.create(**data)
 
     response = app.get("/api/v1/users/notifications")
-    assert response.json[0]["content_icon"] == "fr-icon-smartphone-line"
-    assert response.json[1]["content_icon"] == "icon-dinum-ami"
-    assert response.json[2]["content_icon"] == "fr-icon-mail-star-line"
-    assert response.json[3]["content_icon"] == "icon-psl"
-    assert response.json[4]["content_icon"] is None
+    assert [r["content_icon"] for r in response.json] == [
+        "fr-icon-smartphone-line",
+        "fr-icon-smartphone-line",
+        "fr-icon-smartphone-line",
+        "fr-icon-smartphone-line",
+        "fr-icon-flag-fill",
+        "fr-icon-eye-fill",
+        "fr-icon-mail-fill",
+        "icon-dinum-ami-event",
+        "fr-icon-smartphone-line",
+        "icon-dinum-ami",
+        "fr-icon-mail-star-line",
+        "fr-icon-mail-star-line",
+        "fr-icon-mail-star-line",
+        "fr-icon-mail-star-line",
+        "fr-icon-flag-fill",
+        "fr-icon-eye-fill",
+        "fr-icon-mail-fill",
+        "icon-psl-event",
+        "fr-icon-mail-star-line",
+        "icon-psl",
+        None,
+    ]
 
 
 @pytest.mark.django_db
