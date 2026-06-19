@@ -1,6 +1,5 @@
 <script lang="ts">
-  import dsfrIconList from '@gouvfr/dsfr/.config/icon.json';
-  import { onMount } from 'svelte';
+  import { getDSFRIcon } from '$lib/dsfr-icon';
 
   interface Props {
     defaultIcon: string;
@@ -8,12 +7,7 @@
   }
   let { defaultIcon, icon = '' }: Props = $props();
 
-  const customIcons = ['infinity-line'];
-  const iconList = [...dsfrIconList.map((i) => i.name), ...customIcons];
-
-  let checkedIcon = $derived(
-    iconList.includes(icon?.replace('fr-icon-', '')) ? icon : defaultIcon
-  );
+  let checkedIcon = $derived(getDSFRIcon(icon, defaultIcon));
 </script>
 
 <span class="notification__icon {checkedIcon}" aria-hidden="true"></span>
