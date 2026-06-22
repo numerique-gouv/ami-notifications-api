@@ -116,10 +116,12 @@ class PartnerNotificationCreateSerializer(serializers.Serializer):
     item_external_url = serializers.CharField(
         default=None,
         help_text="Lien vers le portail du partenaire de l'objet associé à la notification",
+        source="content_link",
     )
 
     send_date = serializers.DateTimeField(
-        help_text="Date (au format ISO 8601) d'émission de la notification côté partenaire"
+        help_text="Date (au format ISO 8601) d'émission de la notification côté partenaire",
+        source="event_date",
     )
     valid_until = serializers.DateTimeField(
         default=None,
@@ -132,7 +134,9 @@ class PartnerNotificationCreateSerializer(serializers.Serializer):
 
     def validate(self, attrs):
         # check that if at least one item field is provided, all required item fields are set
-        has_item_fields = any(bool(v) for k, v in attrs.items() if k.startswith("item_"))
+        has_item_fields = any(
+            bool(v) for k, v in attrs.items() if k.startswith("item_") or k == "content_link"
+        )
         item_required_fields = ["item_type", "item_id", "item_status_label", "item_generic_status"]
         validation_errors = {}
         if has_item_fields:

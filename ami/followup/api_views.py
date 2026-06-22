@@ -66,7 +66,7 @@ def archive_followup_item(
             item_type=item_type,
             item_id=item_id,
         )
-        .order_by("send_date", "created_at")
+        .order_by("event_date", "created_at")
         .last()
     )
     if notification is None:

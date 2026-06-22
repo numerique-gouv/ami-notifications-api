@@ -37,7 +37,7 @@ def test_get_notifications(
     notification.item_type = "OperationTranquilliteVacances"
     notification.item_id = "42"
     notification.partner_id = "psl"
-    notification.item_external_url = "http://external-url"
+    notification.content_link = "http://external-url"
     notification.internal_url = "internal-url"
     notification.save()
 

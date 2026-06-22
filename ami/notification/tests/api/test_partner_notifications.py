@@ -73,8 +73,12 @@ async def test_create_webpush_notification(
     assert notification2.content_private_body == "Ceci est privé et ne devrait jamais être `push`é"
     assert notification2.content_title == "Brouillon de nouvelle demande de démarche d'OTV"
     assert notification2.content_icon == "foo"
+    assert notification2.content_link == "http://otv/a-5-jgbj5vmoy"
     assert notification2.item_type == "OTV"
     assert notification2.item_id == "A-5-JGBJ5VMOY"
+    assert notification2.item_parent_partner_id is None
+    assert notification2.item_parent_type is None
+    assert notification2.item_parent_id is None
     assert notification2.item_status_label == "Brouillon"
     assert notification2.item_generic_status == "new"
     assert notification2.item_milestone_start_date == datetime.datetime(
@@ -83,10 +87,9 @@ async def test_create_webpush_notification(
     assert notification2.item_milestone_end_date == datetime.datetime(
         2026, 1, 2, 23, 0, tzinfo=datetime.timezone.utc
     )
-    assert notification2.item_external_url == "http://otv/a-5-jgbj5vmoy"
     assert notification2.item_canal == "ami"
     assert notification2.item_is_archived is None
-    assert notification2.send_date == datetime.datetime(
+    assert notification2.event_date == datetime.datetime(
         2025, 11, 27, 10, 55, tzinfo=datetime.timezone.utc
     )
     assert notification2.valid_until == valid_until
@@ -146,8 +149,12 @@ def test_create_mobile_notification(
     assert notification2.content_body == "Merci d'avoir initié votre demande"
     assert notification2.content_title == "Brouillon de nouvelle demande de démarche d'OTV"
     assert notification2.content_icon == "foo"
+    assert notification2.content_link == "http://otv/a-5-jgbj5vmoy"
     assert notification2.item_type == "OTV"
     assert notification2.item_id == "A-5-JGBJ5VMOY"
+    assert notification2.item_parent_partner_id is None
+    assert notification2.item_parent_type is None
+    assert notification2.item_parent_id is None
     assert notification2.item_status_label == "Brouillon"
     assert notification2.item_generic_status == "new"
     assert notification2.item_milestone_start_date == datetime.datetime(
@@ -156,10 +163,9 @@ def test_create_mobile_notification(
     assert notification2.item_milestone_end_date == datetime.datetime(
         2026, 1, 2, 23, 0, tzinfo=datetime.timezone.utc
     )
-    assert notification2.item_external_url == "http://otv/a-5-jgbj5vmoy"
     assert notification2.item_canal == "ami"
     assert notification2.item_is_archived is None
-    assert notification2.send_date == datetime.datetime(
+    assert notification2.event_date == datetime.datetime(
         2025, 11, 27, 10, 55, tzinfo=datetime.timezone.utc
     )
     assert notification2.valid_until is None
@@ -333,16 +339,19 @@ def test_create_notification_user_does_not_exist(
     assert notification.content_body == "Merci d'avoir initié votre demande"
     assert notification.content_title == "Brouillon de nouvelle demande de démarche d'OTV"
     assert notification.content_icon == "foo"
+    assert notification.content_link is None
     assert notification.item_type == "OTV"
     assert notification.item_id == "A-5-JGBJ5VMOY"
+    assert notification.item_parent_partner_id is None
+    assert notification.item_parent_type is None
+    assert notification.item_parent_id is None
     assert notification.item_status_label == "Brouillon"
     assert notification.item_generic_status == "new"
     assert notification.item_milestone_start_date is None
     assert notification.item_milestone_end_date is None
-    assert notification.item_external_url is None
     assert notification.item_canal is None
     assert notification.item_is_archived is None
-    assert notification.send_date == datetime.datetime(
+    assert notification.event_date == datetime.datetime(
         2025, 11, 27, 10, 55, tzinfo=datetime.timezone.utc
     )
     assert notification.valid_until is None
@@ -402,16 +411,19 @@ def test_create_notification_user_never_seen(
     assert notification.content_body == "Merci d'avoir initié votre demande"
     assert notification.content_title == "Brouillon de nouvelle demande de démarche d'OTV"
     assert notification.content_icon == "foo"
+    assert notification.content_link is None
     assert notification.item_type == "OTV"
     assert notification.item_id == "A-5-JGBJ5VMOY"
+    assert notification.item_parent_partner_id is None
+    assert notification.item_parent_type is None
+    assert notification.item_parent_id is None
     assert notification.item_status_label == "Brouillon"
     assert notification.item_generic_status == "new"
     assert notification.item_milestone_start_date is None
     assert notification.item_milestone_end_date is None
-    assert notification.item_external_url is None
     assert notification.item_canal is None
     assert notification.item_is_archived is None
-    assert notification.send_date == datetime.datetime(
+    assert notification.event_date == datetime.datetime(
         2025, 11, 27, 10, 55, tzinfo=datetime.timezone.utc
     )
     assert notification.partner_id == "psl"
@@ -824,16 +836,19 @@ def test_create_notification_when_optional_fields_are_empty(
     assert notification.content_body == "Merci d'avoir initié votre demande"
     assert notification.content_title == "Brouillon de nouvelle demande de démarche d'OTV"
     assert notification.content_icon is None
+    assert notification.content_link is None
     assert notification.item_type is None
     assert notification.item_id is None
+    assert notification.item_parent_partner_id is None
+    assert notification.item_parent_type is None
+    assert notification.item_parent_id is None
     assert notification.item_status_label is None
     assert notification.item_generic_status is None
     assert notification.item_milestone_start_date is None
     assert notification.item_milestone_end_date is None
-    assert notification.item_external_url is None
     assert notification.item_canal is None
     assert notification.item_is_archived is None
-    assert notification.send_date == datetime.datetime(
+    assert notification.event_date == datetime.datetime(
         2025, 11, 27, 10, 55, tzinfo=datetime.timezone.utc
     )
     assert notification.valid_until is None

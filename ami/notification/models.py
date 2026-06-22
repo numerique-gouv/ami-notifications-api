@@ -26,15 +26,18 @@ class Notification(models.Model):
     content_body = models.CharField()
     content_private_body = models.CharField(blank=True, null=True)
     content_icon = models.CharField(blank=True, null=True)
+    content_link = models.CharField(blank=True, null=True)
 
     item_type = models.CharField(blank=True, null=True)
     item_id = models.CharField(blank=True, null=True)
+    item_parent_partner_id = models.CharField(blank=True, null=True)
+    item_parent_type = models.CharField(blank=True, null=True)
+    item_parent_id = models.CharField(blank=True, null=True)
     item_status_label = models.CharField(blank=True, null=True)
     item_generic_status = models.CharField(blank=True, null=True)
     item_canal = models.CharField(blank=True, null=True)
     item_milestone_start_date = models.DateTimeField(blank=True, null=True)
     item_milestone_end_date = models.DateTimeField(blank=True, null=True)
-    item_external_url = models.CharField(blank=True, null=True)
     item_is_archived = models.BooleanField(null=True)  # the user archived the item in followup
 
     send_status = models.BooleanField(blank=True, null=True)
@@ -44,12 +47,16 @@ class Notification(models.Model):
     )  # to link notification to a front url; used by scheduled notifications
 
     read = models.BooleanField(default=False)
-    send_date = models.DateTimeField(default=timezone.now)
+    event_date = models.DateTimeField(default=timezone.now)
     valid_until = models.DateTimeField(blank=True, null=True)
     try_push = models.BooleanField(blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    # to delete from DB in a future release
+    # item_external_url = models.CharField(blank=True, null=True)
+    # send_date = models.DateTimeField(default=timezone.now, null=True)
 
     class Meta:
         db_table = "notification"
@@ -58,7 +65,7 @@ class Notification(models.Model):
     def url(self):
         if self.has_item():
             return f"{settings.PUBLIC_APP_URL}/#/requests"
-        return self.item_external_url or self.internal_url
+        return self.content_link or self.internal_url
 
     def has_item(self):
         return (
