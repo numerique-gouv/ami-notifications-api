@@ -41,7 +41,7 @@ class FollowUpInventoryItem:
     def from_notifications(cls, notifications: list[Notification]) -> Self | None:
         first_notification = notifications[0]
         last_notification = notifications[-1]
-        external_urls = [n.item_external_url for n in notifications if n.item_external_url]
+        external_urls = [n.content_link for n in notifications if n.content_link]
         is_archived_flags = [
             n.item_is_archived for n in notifications if n.item_is_archived is not None
         ]
@@ -67,8 +67,8 @@ class FollowUpInventoryItem:
             external_url=external_urls[-1] if external_urls else None,
             # last non null is_archived seen
             is_archived=is_archived_flags[-1] if is_archived_flags else False,
-            created_at=first_notification.send_date,
-            updated_at=last_notification.send_date,
+            created_at=first_notification.event_date,
+            updated_at=last_notification.event_date,
         )
 
 

@@ -44,22 +44,25 @@ class AnonymizedNotification(AnonymizedModel):
     content_body = models.CharField()
     # No `content_private_body` here.
     content_icon = models.CharField(blank=True, null=True)
+    content_link = models.CharField(blank=True, null=True)
 
     item_type = models.CharField(blank=True, null=True)
     item_id = models.CharField(blank=True, null=True)
+    item_parent_partner_id = models.CharField(blank=True, null=True)
+    item_parent_type = models.CharField(blank=True, null=True)
+    item_parent_id = models.CharField(blank=True, null=True)
     item_status_label = models.CharField(blank=True, null=True)
     item_generic_status = models.CharField(blank=True, null=True)
     item_canal = models.CharField(blank=True, null=True)
     item_milestone_start_date = models.DateTimeField(blank=True, null=True)
     item_milestone_end_date = models.DateTimeField(blank=True, null=True)
-    item_external_url = models.CharField(blank=True, null=True)
 
     send_status = models.BooleanField(blank=True, null=True)
     partner_id = models.CharField()
     internal_url = models.CharField(blank=True, null=True)
 
     read = models.BooleanField(default=False)
-    send_date = models.DateTimeField(default=timezone.now)
+    event_date = models.DateTimeField(default=timezone.now)
     try_push = models.BooleanField(blank=True, null=True)
 
     created_at = models.DateTimeField()

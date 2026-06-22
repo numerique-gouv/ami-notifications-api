@@ -159,7 +159,7 @@ def test_get_notifications_data(user: User) -> None:
         item_status_label="Nouveau",
         item_type="OtherOperationTranquilliteVacances",
         item_id="43",
-        item_external_url="http://foo.com",
+        content_link="http://foo.com",
         item_is_archived=False,
         partner_id="psl",
     )
@@ -172,7 +172,7 @@ def test_get_notifications_data(user: User) -> None:
         item_status_label="Nouveau",
         item_type="OperationTranquilliteVacances",
         item_id="44",
-        item_external_url="http://bar.com",
+        content_link="http://bar.com",
         item_is_archived=True,
         partner_id="psl",
     )
@@ -230,8 +230,8 @@ def test_get_notifications_data(user: User) -> None:
             icon="dinum-ami-icon",
             external_url=None,
             is_archived=False,
-            created_at=notification8.send_date,
-            updated_at=notification8.send_date,
+            created_at=notification8.event_date,
+            updated_at=notification8.event_date,
         ),
         FollowUpInventoryItem(
             partner_id="dinum-ami",
@@ -246,8 +246,8 @@ def test_get_notifications_data(user: User) -> None:
             icon="fr-icon-flag-fill",
             external_url=None,
             is_archived=False,
-            created_at=notification7.send_date,
-            updated_at=notification7.send_date,
+            created_at=notification7.event_date,
+            updated_at=notification7.event_date,
         ),
         FollowUpInventoryItem(
             partner_id="psl",
@@ -262,8 +262,8 @@ def test_get_notifications_data(user: User) -> None:
             icon="fr-icon-flag-fill",
             external_url="http://bar.com",
             is_archived=False,
-            created_at=notification5.send_date,
-            updated_at=notification6.send_date,
+            created_at=notification5.event_date,
+            updated_at=notification6.event_date,
         ),
         FollowUpInventoryItem(
             partner_id="psl",
@@ -278,8 +278,8 @@ def test_get_notifications_data(user: User) -> None:
             icon="fr-icon-mail-fill",
             external_url="http://foo.com",
             is_archived=False,
-            created_at=notification4.send_date,
-            updated_at=notification4.send_date,
+            created_at=notification4.event_date,
+            updated_at=notification4.event_date,
         ),
         FollowUpInventoryItem(
             partner_id="psl",
@@ -294,8 +294,8 @@ def test_get_notifications_data(user: User) -> None:
             icon="fr-icon-eye-fill",
             external_url=None,
             is_archived=True,
-            created_at=notification1.send_date,
-            updated_at=notification3.send_date,
+            created_at=notification1.event_date,
+            updated_at=notification3.event_date,
         ),
     ]
 

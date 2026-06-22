@@ -73,17 +73,20 @@ async def test_command_publish_scheduled_notifications(
     assert notification.content_title == "title 3"
     assert notification.content_body == "body 3"
     assert notification.content_icon == "icon 3"
+    assert notification.content_link is None
     assert notification.item_type is None
     assert notification.item_id is None
+    assert notification.item_parent_partner_id is None
+    assert notification.item_parent_type is None
+    assert notification.item_parent_id is None
     assert notification.item_status_label is None
     assert notification.item_generic_status is None
     assert notification.item_milestone_start_date is None
     assert notification.item_milestone_end_date is None
-    assert notification.item_external_url is None
     assert notification.item_canal is None
     assert notification.item_is_archived is None
     assert notification.internal_url == "internal-url-3"
-    assert notification.send_date is not None
+    assert notification.event_date is not None
     assert notification.valid_until is None
     assert notification.partner_id == "dinum-ami"
     assert notification.read is False

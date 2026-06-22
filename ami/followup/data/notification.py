@@ -14,7 +14,7 @@ def get_notifications_data(*, current_user: User) -> list[FollowUpInventoryItem]
         item_id__isnull=False,
         user=current_user,
         partner_id__in=[p.id for p in partners.values() if p.followup_from_notifications],
-    ).order_by("send_date", "created_at")
+    ).order_by("event_date", "created_at")
 
     notifications_by_item_ids: collections.defaultdict[str, list[Notification]] = (
         collections.defaultdict(list)
