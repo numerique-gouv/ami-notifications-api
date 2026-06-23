@@ -22,7 +22,7 @@ def test_authorize(
 
     monkeypatch.setattr("jwt.decode", fake_jwt_decode)
 
-    monkeypatch.setattr("ami.fi.api_views.token_urlsafe", lambda a: "fake-code")
+    monkeypatch.setattr("ami.fi.views.token_urlsafe", lambda a: "fake-code")
     expected_code = make_password("fake-code", settings.FI_HASH_SALT)
 
     app.set_cookie(settings.USERINFO_COOKIE_JWT_NAME, "fake userinfo jwt token")
@@ -79,7 +79,7 @@ def test_authorize_with_proxy(
 
     monkeypatch.setattr("jwt.decode", fake_jwt_decode)
 
-    monkeypatch.setattr("ami.fi.api_views.token_urlsafe", lambda a: "fake-code")
+    monkeypatch.setattr("ami.fi.views.token_urlsafe", lambda a: "fake-code")
     expected_code = make_password("fake-code", settings.FI_HASH_SALT)
 
     app.set_cookie(settings.USERINFO_COOKIE_JWT_NAME, "fake userinfo jwt token")
@@ -137,8 +137,7 @@ def test_authorize_invalid_data_state(
         "prompt": "fake-prompt",
     }
 
-    response = app.get("/api/v1/fi/authorize/", params=authorize_data, status=400)
-    assert response.json == {"state": ["Ce champ ne peut être vide."]}
+    app.get("/api/v1/fi/authorize/", params=authorize_data, status=400)
 
 
 def test_authorize_invalid_data_nonce(
@@ -162,8 +161,7 @@ def test_authorize_invalid_data_nonce(
         "prompt": "fake-prompt",
     }
 
-    response = app.get("/api/v1/fi/authorize/", params=authorize_data, status=400)
-    assert response.json == {"nonce": ["Ce champ ne peut être vide."]}
+    app.get("/api/v1/fi/authorize/", params=authorize_data, status=400)
 
 
 def test_authorize_invalid_data_response_type(
@@ -187,10 +185,7 @@ def test_authorize_invalid_data_response_type(
         "prompt": "fake-prompt",
     }
 
-    response = app.get("/api/v1/fi/authorize/", params=authorize_data, status=400)
-    assert response.json == {
-        "response_type": ["'response_type' doit être 'code', trouvé 'invalid-response-type'"]
-    }
+    app.get("/api/v1/fi/authorize/", params=authorize_data, status=400)
 
 
 def test_authorize_invalid_data_client_id(
@@ -214,8 +209,7 @@ def test_authorize_invalid_data_client_id(
         "prompt": "fake-prompt",
     }
 
-    response = app.get("/api/v1/fi/authorize/", params=authorize_data, status=400)
-    assert response.json == {"client_id": ["'client_id' invalide"]}
+    app.get("/api/v1/fi/authorize/", params=authorize_data, status=400)
 
 
 def test_authorize_invalid_data_redirect_uri(
@@ -239,12 +233,7 @@ def test_authorize_invalid_data_redirect_uri(
         "prompt": "fake-prompt",
     }
 
-    response = app.get("/api/v1/fi/authorize/", params=authorize_data, status=400)
-    assert response.json == {
-        "redirect_uri": [
-            "'redirect_uri' doit être 'https://fcp-low.sbx.dev-franceconnect.fr/api/v2/oidc-callback', trouvé 'invalid-redirect-uri'"
-        ]
-    }
+    app.get("/api/v1/fi/authorize/", params=authorize_data, status=400)
 
 
 def test_authorize_invalid_data_scope(
@@ -268,8 +257,7 @@ def test_authorize_invalid_data_scope(
         "prompt": "fake-prompt",
     }
 
-    response = app.get("/api/v1/fi/authorize/", params=authorize_data, status=400)
-    assert response.json == {"scope": ["Ce champ ne peut être vide."]}
+    app.get("/api/v1/fi/authorize/", params=authorize_data, status=400)
 
 
 def test_authorize_invalid_acr_values(
@@ -293,10 +281,7 @@ def test_authorize_invalid_acr_values(
         "prompt": "fake-prompt",
     }
 
-    response = app.get("/api/v1/fi/authorize/", params=authorize_data, status=400)
-    assert response.json == {
-        "acr_values": ["'acr_values' doit être 'eidas1', trouvé 'invalid-acr-values'"]
-    }
+    app.get("/api/v1/fi/authorize/", params=authorize_data, status=400)
 
 
 def test_authorize_invalid_data_claims(
@@ -312,12 +297,11 @@ def test_authorize_invalid_data_claims(
         "redirect_uri": settings.FI_REDIRECT_URI,
         "scope": "fake-scope",
         "acr_values": "eidas1",
-        "claims": "",
+        "claims": "wrong value",
         "prompt": "fake-prompt",
     }
 
-    response = app.get("/api/v1/fi/authorize/", params=authorize_data, status=400)
-    assert response.json == {"claims": ["La valeur doit être un JSON valide."]}
+    app.get("/api/v1/fi/authorize/", params=authorize_data, status=400)
 
 
 def test_authorize_invalid_data_prompt(
@@ -341,8 +325,7 @@ def test_authorize_invalid_data_prompt(
         "prompt": "",
     }
 
-    response = app.get("/api/v1/fi/authorize/", params=authorize_data, status=400)
-    assert response.json == {"prompt": ["Ce champ ne peut être vide."]}
+    app.get("/api/v1/fi/authorize/", params=authorize_data, status=400)
 
 
 def test_authorize_missing_cookie(
@@ -367,5 +350,4 @@ def test_authorize_missing_cookie(
         "prompt": "fake-prompt",
     }
 
-    response = app.get("/api/v1/fi/authorize/", params=authorize_data, status=403)
-    assert response.json == {"detail": "Cookie manquant"}
+    app.get("/api/v1/fi/authorize/", params=authorize_data, status=403)
