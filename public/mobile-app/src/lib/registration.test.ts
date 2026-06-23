@@ -1,9 +1,18 @@
-import { describe, expect, test, vi } from 'vitest';
+import { afterEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
-import { registerDevice, unregisterDevice } from '$lib/registration.js';
+import * as authMethods from '$lib/auth';
+import {
+  registerDevice,
+  unregisterDesktopRegistration,
+  unregisterDevice,
+} from '$lib/registration.js';
 import { mockPushSubscription } from '$tests/utils';
 
-describe('/registration.js', () => {
+describe('/registration.ts', () => {
+  afterEach(() => {
+    vi.resetAllMocks();
+  });
+
   describe('registerDevice', () => {
     test('should call registrations endpoint from API', async () => {
       // Given
@@ -35,12 +44,23 @@ describe('/registration.js', () => {
       vi.spyOn(globalThis, 'fetch').mockResolvedValue(
         new Response(null, { status: 204 })
       );
+      const spy = vi
+        .spyOn(authMethods, 'apiFetch')
+        .mockResolvedValue(new Response(null, { status: 204 }));
 
       // When
-      const responseStatus = await unregisterDevice('some id');
+      const responseStatus = await unregisterDevice('some-id');
 
       // Then
       expect(responseStatus).toEqual(204);
+      const expectedRequestInit = {
+        headers: { 'Content-Type': 'application/json' },
+        method: 'DELETE',
+      };
+      expect(spy).toHaveBeenCalledWith(
+        '/api/v1/users/registrations/device_id/some-id',
+        expectedRequestInit
+      );
     });
 
     test('should call delete registrations endpoint from API and return error status when deletion failed', async () => {
@@ -50,7 +70,46 @@ describe('/registration.js', () => {
       );
 
       // When
-      const responseStatus = await unregisterDevice('some id');
+      const responseStatus = await unregisterDevice('some-id');
+
+      // Then
+      expect(responseStatus).toEqual(400);
+    });
+  });
+
+  describe('unregisterDesktopRegistration', () => {
+    test('should call delete registrations endpoint from API', async () => {
+      // Given
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        new Response(null, { status: 204 })
+      );
+      const spy = vi
+        .spyOn(authMethods, 'apiFetch')
+        .mockResolvedValue(new Response(null, { status: 204 }));
+
+      // When
+      const responseStatus = await unregisterDesktopRegistration('some-id');
+
+      // Then
+      expect(responseStatus).toEqual(204);
+      const expectedRequestInit = {
+        headers: { 'Content-Type': 'application/json' },
+        method: 'DELETE',
+      };
+      expect(spy).toHaveBeenCalledWith(
+        '/api/v1/users/registrations/some-id',
+        expectedRequestInit
+      );
+    });
+
+    test('should call delete registrations endpoint from API and return error status when deletion failed', async () => {
+      // Given
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        new Response('fake body', { status: 400 })
+      );
+
+      // When
+      const responseStatus = await unregisterDesktopRegistration('some-id');
 
       // Then
       expect(responseStatus).toEqual(400);
