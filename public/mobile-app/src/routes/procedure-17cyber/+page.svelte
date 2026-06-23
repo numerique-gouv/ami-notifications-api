@@ -53,3 +53,19 @@
     head.appendChild(appScript);
   });
 </script>
+
+{#if PUBLIC_PARTNERS_17CYBER_MODE == "page"}
+  <div class="am-widget-iframe-container">
+    <div id="widgetIframe"></div>
+  </div>
+{/if}
+
+<style>
+  .am-widget-iframe-container {
+    height: calc(100vh - 0.5rem);
+    #widgetIframe {
+      margin-top: 0;
+      padding: 0;
+    }
+  }
+</style>
