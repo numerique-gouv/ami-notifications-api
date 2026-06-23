@@ -134,9 +134,7 @@ class PartnerNotificationCreateSerializer(serializers.Serializer):
 
     def validate(self, attrs):
         # check that if at least one item field is provided, all required item fields are set
-        has_item_fields = any(
-            bool(v) for k, v in attrs.items() if k.startswith("item_") or k == "content_link"
-        )
+        has_item_fields = any(bool(v) for k, v in attrs.items() if k.startswith("item_"))
         item_required_fields = ["item_type", "item_id", "item_status_label", "item_generic_status"]
         validation_errors = {}
         if has_item_fields:
