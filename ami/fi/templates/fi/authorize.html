@@ -1,0 +1,11 @@
+<script lang="ts">
+  window.addEventListener("load", () => {
+    window.confirm("Vérification biométrique")
+    document.getElementById("authorize-form").submit();
+  });
+</script>
+
+<form method="post" id="authorize-form">
+  {% csrf_token %}
+  {{ form }}
+</form>
