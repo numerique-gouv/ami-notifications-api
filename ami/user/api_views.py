@@ -83,7 +83,7 @@ def registrations(request: Request) -> Response:
 
 @api_view(["DELETE"])
 @ami_login_required
-def unregister(
+def unregister_legacy(
     request: Request,
     registration_id: uuid.UUID,
 ) -> Response:
