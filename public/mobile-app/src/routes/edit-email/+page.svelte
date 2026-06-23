@@ -57,7 +57,7 @@
         <fieldset class="fr-fieldset">
           <div class="fr-fieldset__element">
             <div class="fr-input-group autocomplete">
-              <label class="fr-label" for="input">Email</label>
+              <label class="fr-label" for="input">E-mail</label>
               <span class="fr-hint-text">Par exemple&nbsp;: michel@dupont.com</span>
               <input
                 class="fr-input"

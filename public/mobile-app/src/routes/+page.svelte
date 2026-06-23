@@ -158,13 +158,8 @@
           </a>
         </p>
         <p>
-          <a
-            href="mailto:{contactEmail}"
-            title="Contactez-nous par email"
-            aria-label="Contactez-nous par email"
-            data-testid="contact-link-email"
-          >
-            Contactez-nous par Email
+          <a href="mailto:{contactEmail}" data-testid="contact-link-email">
+            Contactez-nous par E-mail
           </a>
         </p>
       </div>
