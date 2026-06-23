@@ -3,6 +3,7 @@ import { apiFetch } from '$lib/auth';
 export type Registration = {
   id: string;
   user_id: string;
+  device_id: string | null;
   subscription: PushSubscription;
   created_at: Date | string;
 };
@@ -45,7 +46,25 @@ export const registerDevice = async (
   }
 };
 
-export const unregisterDevice = async (registrationId: string) => {
+export const unregisterDevice = async (deviceId: string) => {
+  const headers = {
+    'Content-Type': 'application/json',
+  };
+  const response = await apiFetch(`/api/v1/users/registrations/device_id/${deviceId}`, {
+    method: 'DELETE',
+    headers: headers,
+    credentials: 'include',
+  });
+  console.log('response:', response);
+  if (response.status === 204) {
+    console.log('The device has been deleted successfully');
+  } else {
+    console.log(`error ${response.status}: ${response.statusText}, ${response.body}`);
+  }
+  return response.status;
+};
+
+export const unregisterDesktopRegistration = async (registrationId: string) => {
   const headers = {
     'Content-Type': 'application/json',
   };

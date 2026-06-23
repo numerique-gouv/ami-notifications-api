@@ -4,12 +4,6 @@
   import Modal from '$lib/components/modal/Modal.svelte';
   import ZonePreferences from '$lib/components/modal/ZonePreferences.svelte';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
-  import { runOrNativeEvent } from '$lib/nativeEvents';
-  import {
-    disableNotifications,
-    enableNotificationsAndUpdateLocalStorage,
-  } from '$lib/notifications';
-  import type { Registration } from '$lib/registration';
   import { userStore } from '$lib/state/User.svelte';
 
   type ModalInstance = {
@@ -24,10 +18,6 @@
       goto('/');
     }
   });
-
-  const navigateToPreviousPage = async () => {
-    goto(backUrl);
-  };
 
   const openZonePreferencesModal = () => {
     zonePreferencesModal.open();
