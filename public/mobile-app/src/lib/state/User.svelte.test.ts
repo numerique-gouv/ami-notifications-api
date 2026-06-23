@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { Address } from '$lib/address';
 import * as addressesFromBANMethods from '$lib/addressesFromBAN';
@@ -13,12 +13,6 @@ import { mockUser, mockUserIdentity, mockUserInfo } from '$tests/utils';
 describe('/lib/state/User.svelte.ts', () => {
   beforeEach(() => {
     userStore.connected = null;
-  });
-
-  afterEach(() => {
-    // Don't use restoreAllMocks - it would remove the fetchSpy from setup file
-    // Instead, restore only the mocks created in individual tests
-    vi.clearAllMocks();
   });
 
   describe('UserStore', () => {
@@ -259,37 +253,20 @@ describe('/lib/state/User.svelte.ts', () => {
     });
 
     describe('logout', () => {
-      test('should call disableNotifications when they are enabled', async () => {
+      test('should call disableNotificationsAtLogout', async () => {
         // Given
-        globalThis.localStorage.setItem('registration_id', 'test registration id');
         vi.spyOn(globalThis, 'fetch').mockResolvedValue(
           new Response(JSON.stringify({}), { status: 200 })
         );
         const spyDisableNotifications = vi
-          .spyOn(notificationsMethods, 'disableNotifications')
-          .mockImplementation((_) => Promise.resolve(null));
+          .spyOn(notificationsMethods, 'disableNotificationsAtLogout')
+          .mockImplementation(() => Promise.resolve());
 
         // When
         await userStore.logout();
 
         // Then
         expect(spyDisableNotifications).toHaveBeenCalledTimes(1);
-      });
-      test('should not call disableNotifications when they are disabled', async () => {
-        // Given
-        globalThis.localStorage.removeItem('registration_id');
-        vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-          new Response(JSON.stringify({}), { status: 200 })
-        );
-        const spyDisableNotifications = vi
-          .spyOn(notificationsMethods, 'disableNotifications')
-          .mockImplementation(() => Promise.resolve(null));
-
-        // When
-        await userStore.logout();
-
-        // Then
-        expect(spyDisableNotifications);
       });
       test('should logout a user from AMI then from FC', async () => {
         // Given
