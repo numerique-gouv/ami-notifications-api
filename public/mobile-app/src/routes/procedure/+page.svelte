@@ -8,9 +8,7 @@
   import { Address } from '$lib/address';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import PageWrapper from '$lib/components/PageWrapper.svelte';
-  import type { FollowUp } from '$lib/follow-up';
   import { buildFollowUp } from '$lib/follow-up';
-  import { franceConnectLogout } from '$lib/france-connect';
   import { retrieveProcedureUrl } from '$lib/procedure';
   import { User, type UserIdentity, userStore } from '$lib/state/User.svelte';
 
@@ -81,13 +79,7 @@
   });
 
   const AMIFILogin = async (procedureUrl: string) => {
-    const id_token_hint = localStorage.getItem('id_token') || '';
-    const redirect_url = `${PUBLIC_API_URL}/silent-login-ami-fi?redirect_url=${encodeURIComponent(procedureUrl)}`;
-    if (id_token_hint) {
-      await franceConnectLogout(id_token_hint, redirect_url);
-    } else {
-      window.location.href = redirect_url;
-    }
+    window.location.href = `${PUBLIC_API_URL}/silent-login-ami-fi?redirect_url=${encodeURIComponent(procedureUrl)}`;
   };
 
   const redirectToLink = (procedureUrl: string) => {
