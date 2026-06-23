@@ -136,7 +136,7 @@ def test_register_without_auth(app) -> None:
 
 
 @pytest.mark.django_db
-def test_unregister(app, webpush_registration: Registration) -> None:
+def test_unregister_legacy(app, webpush_registration: Registration) -> None:
     login(app, webpush_registration.user)
 
     assert Registration.objects.count() == 1
@@ -155,7 +155,7 @@ def test_unregister(app, webpush_registration: Registration) -> None:
 
 
 @pytest.mark.django_db
-def test_unregister_without_auth(app, webpush_registration: Registration) -> None:
+def test_unregister_legacy_without_auth(app, webpush_registration: Registration) -> None:
     assert_query_fails_without_auth(
         app,
         f"/api/v1/users/registrations/{webpush_registration.id}",
