@@ -1,7 +1,12 @@
 import { PUBLIC_API_URL } from '$env/static/public';
 import { apiFetch } from '$lib/auth';
+import { isNative } from '$lib/nativeEvents';
 import type { Registration } from '$lib/registration';
-import { registerDevice, unregisterDevice } from '$lib/registration';
+import {
+  registerDevice,
+  unregisterDesktopRegistration,
+  unregisterDevice,
+} from '$lib/registration';
 import * as self from './notifications';
 
 export const PUBLIC_API_WS_URL = PUBLIC_API_URL.replace('https://', 'wss://').replace(
@@ -162,7 +167,32 @@ export const unsubscribePush = async (pushSubscription: PushSubscription) => {
   }
 };
 
-export const disableNotifications = async (registrationId: string) => {
+export const disableNotificationsAtLogout = async () => {
+  // const deviceId = window.NativeInfos?.getInfos();
+  const deviceId = null;
+  if (isNative() && deviceId !== null) {
+    console.log(
+      'Disabling notifications on mobile app and unregistering device. deviceId when logging out:',
+      deviceId
+    );
+    await disableNotificationsForNative(deviceId);
+  } else {
+    const registrationId = localStorage.getItem('registration_id');
+    if (registrationId) {
+      console.log(
+        'Disabling notifications on desktop and unregistering device. registration_id when logging out:',
+        registrationId
+      );
+      await disableNotificationsForDesktop(registrationId);
+    }
+  }
+};
+
+export const disableNotificationsForNative = async (deviceId: string) => {
+  await unregisterDevice(deviceId);
+};
+
+export const disableNotificationsForDesktop = async (registrationId: string) => {
   if (typeof Notification === 'undefined') {
     console.error('Notification API is not available in this browser');
     return false;
@@ -177,11 +207,9 @@ export const disableNotifications = async (registrationId: string) => {
   } else {
     const pushSubscription = await registration.pushManager.getSubscription();
     if (pushSubscription) {
-      console.log('unregisterDevice');
-      await unregisterDevice(registrationId);
+      await unregisterDesktopRegistration(registrationId);
       await unsubscribePush(pushSubscription);
     }
-    return pushSubscription;
   }
 };
 

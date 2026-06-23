@@ -55,7 +55,7 @@ describe('/+page.svelte', () => {
 
   test('should disable notifications when user toggles off', async () => {
     // Given
-    const spy = vi.spyOn(notificationsMethods, 'disableNotifications');
+    const spy = vi.spyOn(notificationsMethods, 'disableNotificationsForDesktop');
     window.localStorage.setItem('registration_id', 'fake-registration-id');
     window.localStorage.setItem('notifications_enabled', 'true');
     render(Page);
