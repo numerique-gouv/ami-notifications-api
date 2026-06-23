@@ -36,3 +36,13 @@ class RegistrationCreateSerializer(serializers.Serializer):
             s = WebPushSubscriptionSerializer(data=value)
         s.is_valid(raise_exception=True)
         return s.validated_data
+
+
+class RegistrationPutActionSerializer(serializers.Serializer):
+    action = serializers.ChoiceField(
+        choices=["removeFromDeviceId"]
+    )  # test avec autre chose pour vérifier l'erreur
+
+
+class RegistrationRemoveFromDeviceIdSerializer(serializers.Serializer):
+    device_id = serializers.CharField()

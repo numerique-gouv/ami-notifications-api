@@ -1,3 +1,4 @@
+import logging
 import uuid
 from typing import cast
 
@@ -16,9 +17,13 @@ from .models import Registration
 from .serializers import (
     MobileAppSubscriptionSerializer,
     RegistrationCreateSerializer,
+    RegistrationPutActionSerializer,
+    RegistrationRemoveFromDeviceIdSerializer,
     RegistrationSerializer,
     WebPushSubscriptionSerializer,
 )
+
+logger = logging.getLogger(__name__)
 
 
 @extend_schema(methods=["GET"], responses=RegistrationSerializer(many=True))
@@ -38,12 +43,34 @@ from .serializers import (
     ),
     responses={200: RegistrationSerializer, 201: RegistrationSerializer},
 )
-@api_view(["GET", "POST"])
+@extend_schema(
+    methods=["PUT"],
+    parameters=[
+        RegistrationPutActionSerializer,
+    ],
+    request=RegistrationRemoveFromDeviceIdSerializer,
+)
+@api_view(["GET", "POST", "PUT"])
 @ami_login_required
 def registrations(request: Request) -> Response:
     if request.method == "GET":
         regs = Registration.objects.filter(user=request.ami_user)
         return Response(RegistrationSerializer(regs, many=True).data)
+
+    if request.method == "PUT":
+        serializer = RegistrationPutActionSerializer(data=request.query_params)
+        serializer.is_valid(raise_exception=True)
+
+        serializer = RegistrationRemoveFromDeviceIdSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        payload_data: dict = cast(dict, serializer.validated_data)
+
+        registrations = Registration.objects.filter(device_id=payload_data["device_id"])
+        if not registrations.exists():
+            logger.error("No registration for the device_id: %s", payload_data["device_id"])
+            return Response(status=404)
+        registrations.delete()  # TODO: archive instead of delete?
+        return Response(status=200)
 
     serializer = RegistrationCreateSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
@@ -90,5 +117,5 @@ def unregister_legacy(
     registration: Registration | None = get_object_or_404(
         Registration, id=registration_id, user=request.ami_user
     )
-    registration.delete()
+    registration.delete()  # TODO: archive instead of delete?
     return Response(status=204)
