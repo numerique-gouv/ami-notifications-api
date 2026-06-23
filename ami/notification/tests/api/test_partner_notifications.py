@@ -690,7 +690,6 @@ def test_create_notification_send_ko_with_400_when_required_item_fields_are_miss
         "item_canal",
         "item_milestone_start_date",
         "item_milestone_end_date",
-        "item_external_url",
     ]
     item_field_values = {
         "item_type": "OTV",
@@ -699,7 +698,6 @@ def test_create_notification_send_ko_with_400_when_required_item_fields_are_miss
         "item_generic_status": "new",
         "item_milestone_start_date": "2025-12-26T23:00:00.000Z",
         "item_milestone_end_date": "2026-01-02T23:00:00.000Z",
-        "item_external_url": "http://otv/a-5-jgbj5vmoy",
         "item_canal": "ami",
     }
     notification_data = {
@@ -721,6 +719,11 @@ def test_create_notification_send_ko_with_400_when_required_item_fields_are_miss
             for f in item_fields
             if f != field
         }
+
+    # item_external_url is not an item field anymore
+    data = {k: v for k, v in notification_data.items()}
+    data["item_external_url"] = "http://otv/a-5-jgbj5vmoy"
+    response = app.post("/api/v1/notifications", data, headers=partner_auth, status=201)
 
 
 @pytest.mark.django_db
