@@ -66,7 +66,6 @@
       <li>
         <a
           href="{contactUrl}"
-          title="Contacter notre équipe par tchap"
           aria-label="Contacter notre équipe par tchap"
           class="fr-btn"
         >
@@ -76,11 +75,10 @@
       <li>
         <a
           href="mailto:{contactEmail}?body=Mon code d'identification : {userFcHash}"
-          title="Contacter notre équipe par email"
-          aria-label="Contacter notre équipe par email"
+          aria-label="Contacter notre équipe par e-mail"
           class="fr-btn"
         >
-          Par Email
+          Par E-mail
         </a>
       </li>
     </ul>
