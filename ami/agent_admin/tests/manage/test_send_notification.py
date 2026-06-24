@@ -18,15 +18,18 @@ def test_send_notification(app, notifications_agent: Agent) -> None:
     assert response.forms["send-notification"]["content_body"].value == ""
     assert response.forms["send-notification"]["content_private_body"].value == ""
     assert response.forms["send-notification"]["content_icon"].value == ""
+    assert response.forms["send-notification"]["content_link"].value == ""
     assert response.forms["send-notification"]["item_type"].value == ""
     assert response.forms["send-notification"]["item_id"].value == ""
+    assert response.forms["send-notification"]["item_parent_partner_id"].value == ""
+    assert response.forms["send-notification"]["item_parent_type"].value == ""
+    assert response.forms["send-notification"]["item_parent_id"].value == ""
     assert response.forms["send-notification"]["item_status_label"].value == ""
     assert response.forms["send-notification"]["item_generic_status"].value == ""
     assert response.forms["send-notification"]["item_canal"].value == ""
     assert response.forms["send-notification"]["item_milestone_start_date"].value == ""
     assert response.forms["send-notification"]["item_milestone_end_date"].value == ""
-    assert response.forms["send-notification"]["item_external_url"].value == ""
-    assert response.forms["send-notification"]["send_date"].value == now().strftime(
+    assert response.forms["send-notification"]["event_date"].value == now().strftime(
         "%Y-%m-%dT%H:%M:00.000"
     )
     assert response.forms["send-notification"]["valid_until"].value == ""
@@ -59,10 +62,10 @@ def test_send_notification_submit_with_400(
     response.forms["send-notification"]["content_body"] = "a-body"
     response.forms["send-notification"]["item_generic_status"] = ""
     response.forms["send-notification"]["item_canal"] = ""
-    response.forms["send-notification"]["send_date"] = "2026-04-21T16:24:00.000"
+    response.forms["send-notification"]["event_date"] = "2026-04-21T16:24:00.000"
 
     httpx_mock.add_response(
-        url=f"{settings.PUBLIC_API_URL}/api/v1/notifications",
+        url=f"{settings.PUBLIC_API_URL}/api/v2/event",
         json={
             "recipient_fc_hash": ["error 1", "error 2"],
             "item_type": ["error 3"],
@@ -72,7 +75,7 @@ def test_send_notification_submit_with_400(
             "recipient_fc_hash": "a-recipient",
             "content_title": "a-title",
             "content_body": "a-body",
-            "send_date": "2026-04-21T16:24:00Z",
+            "event_date": "2026-04-21T16:24:00Z",
             "try_push": False,
         },
         status_code=400,
@@ -100,7 +103,7 @@ def test_send_notification_submit_with_404(
     response.forms["send-notification"]["content_body"] = "a-body"
 
     httpx_mock.add_response(
-        url=f"{settings.PUBLIC_API_URL}/api/v1/notifications",
+        url=f"{settings.PUBLIC_API_URL}/api/v2/event",
         status_code=404,
     )
 
@@ -122,7 +125,7 @@ def test_send_notification_submit_with_404_and_message(
     response.forms["send-notification"]["content_body"] = "a-body"
 
     httpx_mock.add_response(
-        url=f"{settings.PUBLIC_API_URL}/api/v1/notifications",
+        url=f"{settings.PUBLIC_API_URL}/api/v2/event",
         json={"error": "User not found"},
         status_code=404,
     )
@@ -131,7 +134,7 @@ def test_send_notification_submit_with_404_and_message(
     assert response.context["form"].errors == {"__all__": ["User not found"]}
 
     httpx_mock.add_response(
-        url=f"{settings.PUBLIC_API_URL}/api/v1/notifications",
+        url=f"{settings.PUBLIC_API_URL}/api/v2/event",
         json={"unknown_field": "User not found"},
         status_code=404,
     )
@@ -154,7 +157,7 @@ def test_send_notification_submit_success(
     response.forms["send-notification"]["content_body"] = "a-body"
 
     httpx_mock.add_response(
-        url=f"{settings.PUBLIC_API_URL}/api/v1/notifications",
+        url=f"{settings.PUBLIC_API_URL}/api/v2/event",
         json={
             "notification_id": "5c108865-3ca3-403b-bd53-942bcc025f2c",
             "notification_send_status": True,
