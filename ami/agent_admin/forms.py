@@ -60,11 +60,23 @@ class NotificationForm(AMIDsfrBaseForm):
     content_icon = forms.CharField(
         required=False,
     )
+    content_link = forms.CharField(
+        required=False,
+    )
 
     item_type = forms.CharField(
         required=False,
     )
     item_id = forms.CharField(
+        required=False,
+    )
+    item_parent_partner_id = forms.CharField(
+        required=False,
+    )
+    item_parent_type = forms.CharField(
+        required=False,
+    )
+    item_parent_id = forms.CharField(
         required=False,
     )
     item_status_label = forms.CharField(
@@ -85,11 +97,8 @@ class NotificationForm(AMIDsfrBaseForm):
         required=False,
         widget=forms.DateTimeInput(attrs={"type": "datetime-local"}),
     )
-    item_external_url = forms.CharField(
-        required=False,
-    )
 
-    send_date = forms.DateTimeField(
+    event_date = forms.DateTimeField(
         initial=now,
         widget=forms.DateTimeInput(
             attrs={"type": "datetime-local"}, format="%Y-%m-%dT%H:%M:00.000%Z"
@@ -123,8 +132,8 @@ class NotificationForm(AMIDsfrBaseForm):
 
         auth = BasicAuth(username=partner.id, password=partner.secret)
         with httpxLaxClient() as httpx_client:
-            response = httpx_client.post(
-                f"{settings.PUBLIC_API_URL}/api/v1/notifications",
+            response = httpx_client.put(
+                f"{settings.PUBLIC_API_URL}/api/v2/event",
                 auth=auth,
                 json=payload,
             )
