@@ -41,7 +41,7 @@ def test_replicate_anonymized_users_processes_by_batch(two_users: list[User]) ->
 
 def test_anonymized_notification_does_not_have_user(notification: Notification) -> None:
     anonymized = AnonymizedNotification.from_notification(notification)
-    assert not hasattr(anonymized, "user")
+    assert hasattr(anonymized, "user_id")
     assert hasattr(anonymized, "content_title")
     assert hasattr(anonymized, "content_body")
     assert hasattr(anonymized, "created_at")
@@ -73,7 +73,7 @@ def test_anonymized_registration_does_not_have_user(
     webpush_registration: Registration,
 ) -> None:
     anonymized = AnonymizedRegistration.from_registration(webpush_registration)
-    assert not hasattr(anonymized, "user")
+    assert hasattr(anonymized, "user_id")
     assert hasattr(anonymized, "created_at")
     assert hasattr(anonymized, "updated_at")
 

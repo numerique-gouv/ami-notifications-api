@@ -37,6 +37,9 @@ class AnonymizedModel(models.Model):
 
 class AnonymizedNotification(AnonymizedModel):
     id = models.UUIDField(editable=False)
+
+    user_id = models.UUIDField(null=True, db_index=True)
+
     content_title = models.CharField()
     content_body = models.CharField()
     # No `content_private_body` here.
@@ -87,6 +90,8 @@ class AnonymizedUser(AnonymizedModel):
 
 class AnonymizedRegistration(AnonymizedModel):
     id = models.UUIDField(editable=False)
+
+    user_id = models.UUIDField(null=True, db_index=True)
 
     subscription = models.JSONField(blank=True, null=True)
 
