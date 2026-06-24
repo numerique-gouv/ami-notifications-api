@@ -722,6 +722,46 @@ def test_create_event_send_ko_with_400_when_required_item_fields_are_missing(
 
 
 @pytest.mark.django_db
+def test_create_event_send_ko_with_400_when_required_item_parent_fields_are_missing(
+    app,
+    user: User,
+    partner_auth: dict[str, str],
+) -> None:
+    item_parent_fields = ["item_parent_partner_id", "item_parent_type", "item_parent_id"]
+    item_parent_field_values = {
+        "item_parent_partner_id": "dinum-dn",
+        "item_parent_type": "JeDéménage",
+        "item_parent_id": "B-7-CGFD6SVYT",
+    }
+    event_data = {
+        "recipient_fc_hash": user.fc_hash,
+        "event_date": "2025-11-27T10:55:00.000Z",
+        "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
+        "content_body": "Merci d'avoir initié votre demande",
+        "item_type": "OTV",
+        "item_id": "A-5-JGBJ5VMOY",
+        "item_status_label": "Brouillon",
+        "item_generic_status": "new",
+        "item_milestone_start_date": "2025-12-26T23:00:00.000Z",
+        "item_milestone_end_date": "2026-01-02T23:00:00.000Z",
+        "item_canal": "ami",
+    }
+    for field in item_parent_fields:
+        data = {k: v for k, v in event_data.items()}
+        data.update(
+            {
+                field: item_parent_field_values[field],
+            }
+        )
+        response = app.put("/api/v2/event", data, headers=partner_auth, status=400)
+        assert response.json == {
+            f: ["Ce champ est obligatoire pour une notification associée à un objet parent."]
+            for f in item_parent_fields
+            if f != field
+        }
+
+
+@pytest.mark.django_db
 def test_create_event_check_item_milestone_dates(
     app,
     user: User,
