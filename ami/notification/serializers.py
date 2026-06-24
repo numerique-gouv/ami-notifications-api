@@ -245,3 +245,23 @@ class PartnerEventCreateSerializerV2(PartnerEventCreateMixin, serializers.Serial
         default=True,
         help_text="Indique si le système doit essayer de déclencher une Notification Push sur les terminaux de l'usager",
     )
+
+    def validate(self, attrs):
+        attrs = super().validate(attrs)
+
+        # check that if at least one item parent field is provided, all item parent fields are set
+        has_item_parent_fields = any(
+            bool(v) for k, v in attrs.items() if k.startswith("item_parent_")
+        )
+        item_parent_fields = ["item_parent_partner_id", "item_parent_type", "item_parent_id"]
+        validation_errors = {}
+        if has_item_parent_fields:
+            validation_errors = {
+                k: "Ce champ est obligatoire pour une notification associée à un objet parent."
+                for k, v in attrs.items()
+                if k in item_parent_fields and not v
+            }
+        if validation_errors:
+            raise serializers.ValidationError(validation_errors)
+
+        return attrs
