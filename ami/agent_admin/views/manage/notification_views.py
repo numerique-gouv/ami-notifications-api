@@ -17,11 +17,12 @@ def send_notification(request):
         form = NotificationForm(data=request.POST)
         if form.is_valid():
             message_content = form.submit()
-            message = {
-                "title": "Notification envoyée avec succès",
-                "content": message_content,
-            }
-            messages.success(request, json.dumps(message))
+            if message_content is not None:
+                message = {
+                    "title": "Notification envoyée avec succès",
+                    "content": message_content,
+                }
+                messages.success(request, json.dumps(message))
     else:
         form = NotificationForm()
     context = {

@@ -87,6 +87,7 @@ def test_send_notification_submit_with_400(
         "recipient_fc_hash": ["error 1", "error 2"],
         "item_type": ["error 3"],
     }
+    assert response.pyquery(".fr-notice.success").text() == ""
 
 
 @pytest.mark.django_db
@@ -109,6 +110,7 @@ def test_send_notification_submit_with_404(
 
     response = response.forms["send-notification"].submit()
     assert response.context["form"].errors == {"__all__": ["Not found error"]}
+    assert response.pyquery(".fr-notice.success").text() == ""
 
 
 @pytest.mark.django_db
@@ -141,6 +143,7 @@ def test_send_notification_submit_with_404_and_message(
 
     response = response.forms["send-notification"].submit()
     assert response.context["form"].errors == {"__all__": ["Not found error"]}
+    assert response.pyquery(".fr-notice.success").text() == ""
 
 
 @pytest.mark.django_db
