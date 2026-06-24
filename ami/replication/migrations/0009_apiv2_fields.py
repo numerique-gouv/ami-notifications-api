@@ -3,7 +3,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("replication", "0007_anonymizedregistration_subscription"),
+        ("replication", "0008_user"),
     ]
 
     operations = [
