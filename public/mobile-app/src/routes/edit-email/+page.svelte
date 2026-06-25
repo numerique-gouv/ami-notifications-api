@@ -62,7 +62,7 @@
               <input
                 class="fr-input"
                 id="input"
-                type="text"
+                type="email"
                 bind:value={inputValue}
                 data-testid="email-input"
                 autocomplete="email"
