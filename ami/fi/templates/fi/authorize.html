@@ -1,21 +1,28 @@
 <script>
   window.addEventListener("load", async () => {
-    window.confirm("Vérification biométrique");
+    const dialog = document.getElementById("dialog");
+    const submitButton = document.getElementById("submit-button");
 
-    try {
-      const encoded_user_data = await getSecureValue("readAuthenticatedString", "encoded_user_data");
-      const form = document.getElementById("authorize-form");
+    submitButton.addEventListener("click", async () => {
+      dialog.close();
 
-      if (form) {
-        const field = form.elements["encoded_user_data"];
-        field.value = encoded_user_data;
-        form.submit();
-      } else {
-        console.warn("Formulaire d'autorisation introuvable.");
+      try {
+        const encoded_user_data = await getSecureValue("readAuthenticatedString", "encoded_user_data");
+        const form = document.getElementById("authorize-form");
+
+        if (form) {
+          const field = form.elements["encoded_user_data"];
+          field.value = encoded_user_data;
+          form.submit();
+        } else {
+          console.warn("Formulaire d'autorisation introuvable.");
+        }
+      } catch (err) {
+        console.error("Échec de la récupération de valeur sécurisée:", err);
       }
-    } catch (err) {
-      console.error("Échec de la récupération de valeur sécurisée:", err);
-    }
+    });
+
+    dialog.showModal();
   });
 
   const fakeRequest = async (method, valueID, requestID) => {
@@ -60,7 +67,25 @@
   });
 </script>
 
+<dialog id="dialog">
+  <p>Vérification biométrique</p>
+  <button id="submit-button">OK</button>
+</dialog>
+
 <form method="post" id="authorize-form" action="{% url "ami-fi-authorize" %}" >
   {% csrf_token %}
   {{ form }}
 </form>
+
+<style>
+  dialog[open] {
+    display: block;
+    text-align: center;
+    font-size: 70px;
+  }
+  button {
+    font-size: 100px;
+    width: 500px;
+    height: 200px;
+  }
+</style>
