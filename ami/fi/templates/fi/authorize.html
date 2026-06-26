@@ -1,11 +1,66 @@
-<script lang="ts">
-  window.addEventListener("load", () => {
-    window.confirm("Vérification biométrique")
-    document.getElementById("authorize-form").submit();
+<script>
+  window.addEventListener("load", async () => {
+    window.confirm("Vérification biométrique");
+
+    try {
+      const encoded_user_data = await getSecureValue("readAuthenticatedString", "encoded_user_data");
+      const form = document.getElementById("authorize-form");
+
+      if (form) {
+        const field = form.elements["encoded_user_data"];
+        field.value = encoded_user_data;
+        form.submit();
+      } else {
+        console.warn("Formulaire d'autorisation introuvable.");
+      }
+    } catch (err) {
+      console.error("Échec de la récupération de valeur sécurisée:", err);
+    }
+  });
+
+  const fakeRequest = async (method, valueID, requestID) => {
+    console.log("fakeRequest:", method, valueID, requestID);
+
+    setTimeout(() => {
+      const valueAsString = "{{ encoded_user_data }}";
+
+      window.dispatchEvent(
+        new CustomEvent(`nativeBridgeResponse_${requestID}`, {
+          detail: { value: valueAsString },
+        })
+      );
+    }, 3000);
+  };
+
+  const getSecureValue = async (method, valueID) =>
+  new Promise((resolve, reject) => {
+    const requestId = crypto.randomUUID();
+    let settled = false;
+
+    const timer = setTimeout(() => {
+      if (!settled) {
+        settled = true;
+        reject(new Error(`Timeout: pas de réponse native pour "${method}" et "${valueID}"`));
+      }
+    }, 5000);
+
+    window.addEventListener(
+      `nativeBridgeResponse_${requestId}`,
+      (event) => {
+        if (!settled) {
+          settled = true;
+          clearTimeout(timer);
+          resolve(event.detail.value);
+        }
+      },
+      { once: true }
+    );
+
+    fakeRequest(method, valueID, requestId);
   });
 </script>
 
-<form method="post" id="authorize-form">
+<form method="post" id="authorize-form" action="{% url "ami-fi-authorize" %}" >
   {% csrf_token %}
   {{ form }}
 </form>

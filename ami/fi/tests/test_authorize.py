@@ -46,7 +46,7 @@ def test_authorize_get(
     assert fi_session.access_token == ""
 
     assert response.form["fi_session_id"].value == str(fi_session.id)
-    assert response.form["encoded_user_data"].value == "fake userinfo jwt token"
+    assert response.context["encoded_user_data"] == "fake userinfo jwt token"
 
 
 def test_authorize_get_invalid_data_state(
@@ -299,7 +299,8 @@ def test_authorize_post(
     monkeypatch.setattr("ami.fi.views.token_urlsafe", lambda a: "fake-code")
     expected_code = make_password("fake-code", settings.FI_HASH_SALT)
 
-    app.set_cookie(settings.USERINFO_COOKIE_JWT_NAME, "fake userinfo jwt token")
+    encoded_user_data = "fake userinfo jwt token"
+    app.set_cookie(settings.USERINFO_COOKIE_JWT_NAME, encoded_user_data)
 
     authorize_data = {
         "state": "fake-state",
@@ -319,6 +320,7 @@ def test_authorize_post(
 
     response = app.get("/api/v1/fi/authorize/", params=authorize_data)
 
+    response.form["encoded_user_data"] = encoded_user_data
     response = response.form.submit()
     assert response.status_code == 302
     fi_session = FISession.objects.get()
@@ -358,7 +360,8 @@ def test_authorize_post_with_proxy(
     monkeypatch.setattr("ami.fi.views.token_urlsafe", lambda a: "fake-code")
     expected_code = make_password("fake-code", settings.FI_HASH_SALT)
 
-    app.set_cookie(settings.USERINFO_COOKIE_JWT_NAME, "fake userinfo jwt token")
+    encoded_user_data = "fake userinfo jwt token"
+    app.set_cookie(settings.USERINFO_COOKIE_JWT_NAME, encoded_user_data)
 
     authorize_data = {
         "state": "fake-state",
@@ -378,6 +381,7 @@ def test_authorize_post_with_proxy(
 
     response = app.get("/api/v1/fi/authorize/", params=authorize_data)
 
+    response.form["encoded_user_data"] = encoded_user_data
     response = response.form.submit()
     assert response.status_code == 302
     fi_session = FISession.objects.get()
