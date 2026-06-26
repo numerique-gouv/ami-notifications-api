@@ -73,8 +73,10 @@ def authorize(request):
     form = AuthorizeUserDataForm(
         initial={
             "fi_session_id": fi_session.id,
-            "encoded_user_data": encoded_user_data,
         }
     )
-    context = {"form": form}
+    context = {
+        "form": form,
+        "encoded_user_data": encoded_user_data,
+    }
     return render(request, "fi/authorize.html", context)
