@@ -2,6 +2,8 @@ import uuid
 
 from django.db import models
 
+from ami.catalog.schemas import CatalogItem
+
 
 class Procedure(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -21,3 +23,16 @@ class Procedure(models.Model):
 
     class Meta:
         unique_together = [("partner_id", "external_item_type")]
+
+    def to_catalog_item(self):
+        return CatalogItem(
+            partner_id=self.partner_id,
+            external_item_type=self.external_item_type,
+            title=self.title,
+            short_description=self.short_description,
+            description=self.description,
+            external_url=self.external_url,
+            with_silent_login=self.with_silent_login,
+            created_at=self.created_at,
+            updated_at=self.updated_at,
+        )
