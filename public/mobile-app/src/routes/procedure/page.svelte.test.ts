@@ -19,14 +19,14 @@ describe('/+page.svelte', () => {
       return Promise.resolve({
         ...original,
         PUBLIC_API_URL: 'https://localhost:8000',
-        PUBLIC_FEATURE_FLAG_SILENT_FC_OTV: 'true',
+        PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED: 'true',
         PUBLIC_MATOMO_ENABLED: 'false',
         PUBLIC_FC_PROXY_BASE_URL: 'https://proxy',
         PUBLIC_FC_BASE_URL: 'https://fc',
         PUBLIC_FC_LOGOUT_ENDPOINT: '/api/v2/session/end',
       });
     });
-    vi.mocked(envModule).PUBLIC_FEATURE_FLAG_SILENT_FC_OTV = 'true';
+    vi.mocked(envModule).PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED = 'true';
 
     await userStore.login(mockUserInfo);
     vi.useFakeTimers({ shouldAdvanceTime: true });
@@ -246,7 +246,7 @@ describe('/+page.svelte', () => {
       };
       vi.stubGlobal('location', locationMock);
       await userStore.login(mockUserInfo);
-      vi.mocked(envModule).PUBLIC_FEATURE_FLAG_SILENT_FC_OTV = 'false';
+      vi.mocked(envModule).PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED = 'false';
       const procedureUrl = 'fake-public-otv-url?caller=fake.jwt.token';
       vi.spyOn(procedureMethods, 'retrieveProcedureUrl').mockResolvedValue(
         procedureUrl

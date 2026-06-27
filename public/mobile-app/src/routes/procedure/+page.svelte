@@ -3,7 +3,7 @@
   import { goto } from '$app/navigation';
   import {
     PUBLIC_API_URL,
-    PUBLIC_FEATURE_FLAG_SILENT_FC_OTV,
+    PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED,
   } from '$env/static/public';
   import { Address } from '$lib/address';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
@@ -84,7 +84,7 @@
 
   const redirectToLink = (procedureUrl: string) => {
     if (procedureUrl) {
-      if (PUBLIC_FEATURE_FLAG_SILENT_FC_OTV === 'true') {
+      if (PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED === 'true') {
         AMIFILogin(procedureUrl);
       } else {
         window.location.href = procedureUrl;
