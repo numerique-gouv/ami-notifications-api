@@ -2,7 +2,7 @@ import { afterEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { retrieveAgenda } from '$lib/api-agenda';
 
-const catalogData = {
+const agendaItemsData = {
   school_holidays: {
     status: 'success',
     items: [
@@ -73,8 +73,10 @@ const catalogData = {
   },
 };
 
-type CatalogKey = keyof typeof catalogData;
-type NullableCatalog = { [K in CatalogKey]: (typeof catalogData)[K] | null };
+type AgendaItemsKey = keyof typeof agendaItemsData;
+type NullableAgendaItems = {
+  [K in AgendaItemsKey]: (typeof agendaItemsData)[K] | null;
+};
 
 describe('/api-agenda', () => {
   afterEach(() => {
@@ -83,11 +85,13 @@ describe('/api-agenda', () => {
   });
 
   describe('retrieveAgenda', () => {
-    test('should get catalog from API', async () => {
+    test('should get agenda items from API', async () => {
       // Given
       const spy = vi
         .spyOn(globalThis, 'fetch')
-        .mockResolvedValue(new Response(JSON.stringify(catalogData), { status: 200 }));
+        .mockResolvedValue(
+          new Response(JSON.stringify(agendaItemsData), { status: 200 })
+        );
 
       // When
       const result = await retrieveAgenda(new Date('2025-11-01T12:00:00Z'));
@@ -98,22 +102,22 @@ describe('/api-agenda', () => {
         { credentials: 'include' }
       );
       expect(result).toEqual({
-        school_holidays: catalogData.school_holidays.items,
-        public_holidays: catalogData.public_holidays.items,
-        elections: catalogData.elections.items,
+        school_holidays: agendaItemsData.school_holidays.items,
+        public_holidays: agendaItemsData.public_holidays.items,
+        elections: agendaItemsData.elections.items,
       });
-      expect(window.localStorage.getItem('school_holidays_catalog')).toEqual(
-        JSON.stringify(catalogData.school_holidays)
+      expect(window.localStorage.getItem('school_holidays_agenda_items')).toEqual(
+        JSON.stringify(agendaItemsData.school_holidays)
       );
-      expect(window.localStorage.getItem('public_holidays_catalog')).toEqual(
-        JSON.stringify(catalogData.public_holidays)
+      expect(window.localStorage.getItem('public_holidays_agenda_items')).toEqual(
+        JSON.stringify(agendaItemsData.public_holidays)
       );
-      expect(window.localStorage.getItem('elections_catalog')).toEqual(
-        JSON.stringify(catalogData.elections)
+      expect(window.localStorage.getItem('elections_agenda_items')).toEqual(
+        JSON.stringify(agendaItemsData.elections)
       );
     });
 
-    test('should get catalog from API - with error', async () => {
+    test('should get agenda items from API - with error', async () => {
       // Given
       const spy = vi
         .spyOn(globalThis, 'fetch')
@@ -132,24 +136,24 @@ describe('/api-agenda', () => {
         public_holidays: [],
         elections: [],
       });
-      expect(window.localStorage.getItem('school_holidays_catalog')).toEqual(null);
-      expect(window.localStorage.getItem('public_holidays_catalog')).toEqual(null);
-      expect(window.localStorage.getItem('elections_catalog')).toEqual(null);
+      expect(window.localStorage.getItem('school_holidays_agenda_items')).toEqual(null);
+      expect(window.localStorage.getItem('public_holidays_agenda_items')).toEqual(null);
+      expect(window.localStorage.getItem('elections_agenda_items')).toEqual(null);
     });
 
-    test('should get catalog from localstorage', async () => {
+    test('should get agenda items from localstorage', async () => {
       // Given
       window.localStorage.setItem(
-        'school_holidays_catalog',
-        JSON.stringify(catalogData.school_holidays)
+        'school_holidays_agenda_items',
+        JSON.stringify(agendaItemsData.school_holidays)
       );
       window.localStorage.setItem(
-        'public_holidays_catalog',
-        JSON.stringify(catalogData.public_holidays)
+        'public_holidays_agenda_items',
+        JSON.stringify(agendaItemsData.public_holidays)
       );
       window.localStorage.setItem(
-        'elections_catalog',
-        JSON.stringify(catalogData.elections)
+        'elections_agenda_items',
+        JSON.stringify(agendaItemsData.elections)
       );
 
       // When
@@ -157,32 +161,32 @@ describe('/api-agenda', () => {
 
       // Then
       expect(result).toEqual({
-        school_holidays: catalogData.school_holidays.items,
-        public_holidays: catalogData.public_holidays.items,
-        elections: catalogData.elections.items,
+        school_holidays: agendaItemsData.school_holidays.items,
+        public_holidays: agendaItemsData.public_holidays.items,
+        elections: agendaItemsData.elections.items,
       });
     });
 
-    test('should get catalog from API - catalog entry is missing in localstorage', async () => {
-      for (const key of Object.keys(catalogData) as CatalogKey[]) {
+    test('should get agenda items from API - agenda items entry is missing in localstorage', async () => {
+      for (const key of Object.keys(agendaItemsData) as AgendaItemsKey[]) {
         // Given
         window.localStorage.clear();
         vi.clearAllMocks();
-        for (const key2 of Object.keys(catalogData) as CatalogKey[]) {
+        for (const key2 of Object.keys(agendaItemsData) as AgendaItemsKey[]) {
           if (key2 === key) {
             continue;
           }
           window.localStorage.setItem(
-            `${key2}_catalog`,
-            JSON.stringify(catalogData[key2])
+            `${key2}_agenda_items`,
+            JSON.stringify(agendaItemsData[key2])
           );
         }
-        const responseData: NullableCatalog = {
+        const responseData: NullableAgendaItems = {
           school_holidays: null,
           public_holidays: null,
           elections: null,
         };
-        responseData[key] = catalogData[key];
+        responseData[key] = agendaItemsData[key];
         const spy = vi
           .spyOn(globalThis, 'fetch')
           .mockResolvedValue(
@@ -198,37 +202,37 @@ describe('/api-agenda', () => {
           { credentials: 'include' }
         );
         expect(result).toEqual({
-          school_holidays: catalogData.school_holidays.items,
-          public_holidays: catalogData.public_holidays.items,
-          elections: catalogData.elections.items,
+          school_holidays: agendaItemsData.school_holidays.items,
+          public_holidays: agendaItemsData.public_holidays.items,
+          elections: agendaItemsData.elections.items,
         });
-        expect(window.localStorage.getItem(`${key}_catalog`)).toEqual(
-          JSON.stringify(catalogData[key])
+        expect(window.localStorage.getItem(`${key}_agenda_items`)).toEqual(
+          JSON.stringify(agendaItemsData[key])
         );
       }
     });
 
-    test('should get catalog from API - catalog entry is wrong in localstorage', async () => {
-      for (const key of Object.keys(catalogData) as CatalogKey[]) {
+    test('should get agenda items from API - agenda items entry is wrong in localstorage', async () => {
+      for (const key of Object.keys(agendaItemsData) as AgendaItemsKey[]) {
         // Given
         window.localStorage.clear();
         vi.clearAllMocks();
-        for (const key2 of Object.keys(catalogData) as CatalogKey[]) {
+        for (const key2 of Object.keys(agendaItemsData) as AgendaItemsKey[]) {
           if (key2 === key) {
-            window.localStorage.setItem(`${key2}_catalog`, 'wrong');
+            window.localStorage.setItem(`${key2}_agenda_items`, 'wrong');
             continue;
           }
           window.localStorage.setItem(
-            `${key2}_catalog`,
-            JSON.stringify(catalogData[key2])
+            `${key2}_agenda_items`,
+            JSON.stringify(agendaItemsData[key2])
           );
         }
-        const responseData: NullableCatalog = {
+        const responseData: NullableAgendaItems = {
           school_holidays: null,
           public_holidays: null,
           elections: null,
         };
-        responseData[key] = catalogData[key];
+        responseData[key] = agendaItemsData[key];
         const spy = vi
           .spyOn(globalThis, 'fetch')
           .mockResolvedValue(
@@ -244,40 +248,40 @@ describe('/api-agenda', () => {
           { credentials: 'include' }
         );
         expect(result).toEqual({
-          school_holidays: catalogData.school_holidays.items,
-          public_holidays: catalogData.public_holidays.items,
-          elections: catalogData.elections.items,
+          school_holidays: agendaItemsData.school_holidays.items,
+          public_holidays: agendaItemsData.public_holidays.items,
+          elections: agendaItemsData.elections.items,
         });
-        expect(window.localStorage.getItem(`${key}_catalog`)).toEqual(
-          JSON.stringify(catalogData[key])
+        expect(window.localStorage.getItem(`${key}_agenda_items`)).toEqual(
+          JSON.stringify(agendaItemsData[key])
         );
       }
     });
 
-    test('should get catalog from API - catalog entry is in failed status in localstorage', async () => {
-      for (const key of Object.keys(catalogData) as CatalogKey[]) {
+    test('should get agenda items from API - agenda items entry is in failed status in localstorage', async () => {
+      for (const key of Object.keys(agendaItemsData) as AgendaItemsKey[]) {
         // Given
         window.localStorage.clear();
         vi.clearAllMocks();
-        for (const key2 of Object.keys(catalogData) as CatalogKey[]) {
+        for (const key2 of Object.keys(agendaItemsData) as AgendaItemsKey[]) {
           if (key2 === key) {
             window.localStorage.setItem(
-              `${key2}_catalog`,
+              `${key2}_agenda_items`,
               JSON.stringify({ status: 'failed' })
             );
             continue;
           }
           window.localStorage.setItem(
-            `${key2}_catalog`,
-            JSON.stringify(catalogData[key2])
+            `${key2}_agenda_items`,
+            JSON.stringify(agendaItemsData[key2])
           );
         }
-        const responseData: NullableCatalog = {
+        const responseData: NullableAgendaItems = {
           school_holidays: null,
           public_holidays: null,
           elections: null,
         };
-        responseData[key] = catalogData[key];
+        responseData[key] = agendaItemsData[key];
         const spy = vi
           .spyOn(globalThis, 'fetch')
           .mockResolvedValue(
@@ -293,38 +297,38 @@ describe('/api-agenda', () => {
           { credentials: 'include' }
         );
         expect(result).toEqual({
-          school_holidays: catalogData.school_holidays.items,
-          public_holidays: catalogData.public_holidays.items,
-          elections: catalogData.elections.items,
+          school_holidays: agendaItemsData.school_holidays.items,
+          public_holidays: agendaItemsData.public_holidays.items,
+          elections: agendaItemsData.elections.items,
         });
-        expect(window.localStorage.getItem(`${key}_catalog`)).toEqual(
-          JSON.stringify(catalogData[key])
+        expect(window.localStorage.getItem(`${key}_agenda_items`)).toEqual(
+          JSON.stringify(agendaItemsData[key])
         );
       }
     });
 
-    test('should get catalog from API - catalog entry has no expiration in localstorage', async () => {
-      for (const key of Object.keys(catalogData) as CatalogKey[]) {
+    test('should get agenda items from API - agenda items entry has no expiration in localstorage', async () => {
+      for (const key of Object.keys(agendaItemsData) as AgendaItemsKey[]) {
         // Given
         window.localStorage.clear();
         vi.clearAllMocks();
-        for (const key2 of Object.keys(catalogData) as CatalogKey[]) {
+        for (const key2 of Object.keys(agendaItemsData) as AgendaItemsKey[]) {
           if (key2 === key) {
-            const { expires_at, ...entry } = { ...catalogData[key2] }; // old entry, no expiration date
-            window.localStorage.setItem(`${key2}_catalog`, JSON.stringify(entry));
+            const { expires_at, ...entry } = { ...agendaItemsData[key2] }; // old entry, no expiration date
+            window.localStorage.setItem(`${key2}_agenda_items`, JSON.stringify(entry));
             continue;
           }
           window.localStorage.setItem(
-            `${key2}_catalog`,
-            JSON.stringify(catalogData[key2])
+            `${key2}_agenda_items`,
+            JSON.stringify(agendaItemsData[key2])
           );
         }
-        const responseData: NullableCatalog = {
+        const responseData: NullableAgendaItems = {
           school_holidays: null,
           public_holidays: null,
           elections: null,
         };
-        responseData[key] = catalogData[key];
+        responseData[key] = agendaItemsData[key];
         const spy = vi
           .spyOn(globalThis, 'fetch')
           .mockResolvedValue(
@@ -340,48 +344,48 @@ describe('/api-agenda', () => {
           { credentials: 'include' }
         );
         expect(result).toEqual({
-          school_holidays: catalogData.school_holidays.items,
-          public_holidays: catalogData.public_holidays.items,
-          elections: catalogData.elections.items,
+          school_holidays: agendaItemsData.school_holidays.items,
+          public_holidays: agendaItemsData.public_holidays.items,
+          elections: agendaItemsData.elections.items,
         });
-        expect(window.localStorage.getItem(`${key}_catalog`)).toEqual(
-          JSON.stringify(catalogData[key])
+        expect(window.localStorage.getItem(`${key}_agenda_items`)).toEqual(
+          JSON.stringify(agendaItemsData[key])
         );
       }
     });
 
-    test('should get catalog from API - catalog entry has no expiration in localstorage - with error', async () => {
-      for (const key of Object.keys(catalogData) as CatalogKey[]) {
+    test('should get agenda items from API - agenda items entry has no expiration in localstorage - with error', async () => {
+      for (const key of Object.keys(agendaItemsData) as AgendaItemsKey[]) {
         // Given
         window.localStorage.clear();
         vi.clearAllMocks();
-        const catalogData2: NullableCatalog = {
+        const agendaItemsData2: NullableAgendaItems = {
           school_holidays: null,
           public_holidays: null,
           elections: null,
         };
-        for (const key2 of Object.keys(catalogData) as CatalogKey[]) {
+        for (const key2 of Object.keys(agendaItemsData) as AgendaItemsKey[]) {
           if (key2 === key) {
-            const { expires_at, ...entry } = { ...catalogData[key2] }; // old entry, no expiration date
-            catalogData2[key2] = entry as (typeof catalogData)[typeof key2];
+            const { expires_at, ...entry } = { ...agendaItemsData[key2] }; // old entry, no expiration date
+            agendaItemsData2[key2] = entry as (typeof agendaItemsData)[typeof key2];
             window.localStorage.setItem(
-              `${key2}_catalog`,
-              JSON.stringify(catalogData2[key2])
+              `${key2}_agenda_items`,
+              JSON.stringify(agendaItemsData2[key2])
             );
             continue;
           }
-          catalogData2[key2] = catalogData[key2];
+          agendaItemsData2[key2] = agendaItemsData[key2];
           window.localStorage.setItem(
-            `${key2}_catalog`,
-            JSON.stringify(catalogData2[key2])
+            `${key2}_agenda_items`,
+            JSON.stringify(agendaItemsData2[key2])
           );
         }
-        const responseData: NullableCatalog = {
+        const responseData: NullableAgendaItems = {
           school_holidays: null,
           public_holidays: null,
           elections: null,
         };
-        const { ...entry } = catalogData[key];
+        const { ...entry } = agendaItemsData[key];
         entry.status = 'failed';
         responseData[key] = entry;
         const spy = vi
@@ -399,39 +403,39 @@ describe('/api-agenda', () => {
           { credentials: 'include' }
         );
         expect(result).toEqual({
-          school_holidays: catalogData2.school_holidays?.items,
-          public_holidays: catalogData2.public_holidays?.items,
-          elections: catalogData2.elections?.items,
+          school_holidays: agendaItemsData2.school_holidays?.items,
+          public_holidays: agendaItemsData2.public_holidays?.items,
+          elections: agendaItemsData2.elections?.items,
         });
-        expect(window.localStorage.getItem(`${key}_catalog`)).toEqual(
-          JSON.stringify(catalogData2[key])
+        expect(window.localStorage.getItem(`${key}_agenda_items`)).toEqual(
+          JSON.stringify(agendaItemsData2[key])
         );
       }
     });
 
-    test('should get catalog from API - catalog entry is expired in localstorage', async () => {
-      for (const key of Object.keys(catalogData) as CatalogKey[]) {
+    test('should get agenda items from API - agenda items entry is expired in localstorage', async () => {
+      for (const key of Object.keys(agendaItemsData) as AgendaItemsKey[]) {
         // Given
         window.localStorage.clear();
         vi.clearAllMocks();
-        for (const key2 of Object.keys(catalogData) as CatalogKey[]) {
+        for (const key2 of Object.keys(agendaItemsData) as AgendaItemsKey[]) {
           if (key2 === key) {
-            const entry = { ...catalogData[key2] };
+            const entry = { ...agendaItemsData[key2] };
             entry.expires_at = new Date('2025-11-01T11:59:59Z'); // expired
-            window.localStorage.setItem(`${key2}_catalog`, JSON.stringify(entry));
+            window.localStorage.setItem(`${key2}_agenda_items`, JSON.stringify(entry));
             continue;
           }
           window.localStorage.setItem(
-            `${key2}_catalog`,
-            JSON.stringify(catalogData[key2])
+            `${key2}_agenda_items`,
+            JSON.stringify(agendaItemsData[key2])
           );
         }
-        const responseData: NullableCatalog = {
+        const responseData: NullableAgendaItems = {
           school_holidays: null,
           public_holidays: null,
           elections: null,
         };
-        responseData[key] = catalogData[key];
+        responseData[key] = agendaItemsData[key];
         const spy = vi
           .spyOn(globalThis, 'fetch')
           .mockResolvedValue(
@@ -447,30 +451,30 @@ describe('/api-agenda', () => {
           { credentials: 'include' }
         );
         expect(result).toEqual({
-          school_holidays: catalogData.school_holidays.items,
-          public_holidays: catalogData.public_holidays.items,
-          elections: catalogData.elections.items,
+          school_holidays: agendaItemsData.school_holidays.items,
+          public_holidays: agendaItemsData.public_holidays.items,
+          elections: agendaItemsData.elections.items,
         });
-        expect(window.localStorage.getItem(`${key}_catalog`)).toEqual(
-          JSON.stringify(catalogData[key])
+        expect(window.localStorage.getItem(`${key}_agenda_items`)).toEqual(
+          JSON.stringify(agendaItemsData[key])
         );
       }
     });
 
-    test('should get catalog from API - catalog entry is not expired in localstorage', async () => {
-      for (const key of Object.keys(catalogData) as CatalogKey[]) {
+    test('should get agenda items from API - agenda items entry is not expired in localstorage', async () => {
+      for (const key of Object.keys(agendaItemsData) as AgendaItemsKey[]) {
         // Given
         window.localStorage.clear();
-        for (const key2 of Object.keys(catalogData) as CatalogKey[]) {
+        for (const key2 of Object.keys(agendaItemsData) as AgendaItemsKey[]) {
           if (key2 === key) {
-            const entry = { ...catalogData[key2] };
+            const entry = { ...agendaItemsData[key2] };
             entry.expires_at = new Date('2025-11-01T12:00:00Z'); // not yet expired
-            window.localStorage.setItem(`${key2}_catalog`, JSON.stringify(entry));
+            window.localStorage.setItem(`${key2}_agenda_items`, JSON.stringify(entry));
             continue;
           }
           window.localStorage.setItem(
-            `${key2}_catalog`,
-            JSON.stringify(catalogData[key2])
+            `${key2}_agenda_items`,
+            JSON.stringify(agendaItemsData[key2])
           );
         }
 
@@ -479,9 +483,9 @@ describe('/api-agenda', () => {
 
         // Then
         expect(result).toEqual({
-          school_holidays: catalogData.school_holidays.items,
-          public_holidays: catalogData.public_holidays.items,
-          elections: catalogData.elections.items,
+          school_holidays: agendaItemsData.school_holidays.items,
+          public_holidays: agendaItemsData.public_holidays.items,
+          elections: agendaItemsData.elections.items,
         });
       }
     });

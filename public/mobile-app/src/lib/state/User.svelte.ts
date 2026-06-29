@@ -7,7 +7,7 @@ import {
 import type { Address as AddressType } from '$lib/address';
 import { Address } from '$lib/address';
 import { callBAN } from '$lib/addressesFromBAN';
-import type { CatalogItem } from '$lib/api-agenda';
+import type { APIAgendaItem } from '$lib/api-agenda';
 import * as auth from '$lib/auth';
 import { franceConnectLogout, parseJwt } from '$lib/france-connect';
 import { emit } from '$lib/nativeEvents';
@@ -242,11 +242,11 @@ export class User {
     localStorage.setItem('user_identity', JSON.stringify(this.identity));
   }
 
-  isSchoolHolidayConcernedByPreferences(holiday: CatalogItem): boolean {
+  isSchoolHolidayConcernedByPreferences(holiday: APIAgendaItem): boolean {
     return this._identity.preferences.isSchoolHolidayConcerned(holiday);
   }
 
-  getSchoolHolidayDescriptionFromPreferences(holiday: CatalogItem): string {
+  getSchoolHolidayDescriptionFromPreferences(holiday: APIAgendaItem): string {
     return this._identity.preferences.getSchoolHolidayDescription(
       holiday,
       this._identity.address

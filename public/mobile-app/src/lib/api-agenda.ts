@@ -1,7 +1,7 @@
 import { apiFetch } from '$lib/auth';
 import { dateToISO } from '$lib/utils';
 
-export type CatalogItem = {
+export type APIAgendaItem = {
   kind: string;
   title: string;
   description: string;
@@ -12,27 +12,29 @@ export type CatalogItem = {
   emoji: string;
 };
 
-export type Catalog = {
-  school_holidays: CatalogItem[];
-  public_holidays: CatalogItem[];
-  elections: CatalogItem[];
+export type APIAgendaItems = {
+  school_holidays: APIAgendaItem[];
+  public_holidays: APIAgendaItem[];
+  elections: APIAgendaItem[];
 };
 
-export const retrieveAgenda = async (date: Date | null = null): Promise<Catalog> => {
+export const retrieveAgenda = async (
+  date: Date | null = null
+): Promise<APIAgendaItems> => {
   const now = new Date(date || '');
   const today = new Date(now);
   today.setHours(0, 0, 0, 0);
   const current_date = dateToISO(today);
   const filter_items = [];
-  const catalogData = {
-    school_holidays: localStorage.getItem('school_holidays_catalog') || '{}',
-    public_holidays: localStorage.getItem('public_holidays_catalog') || '{}',
-    elections: localStorage.getItem('elections_catalog') || '{}',
+  const agendaItemsData = {
+    school_holidays: localStorage.getItem('school_holidays_agenda_items') || '{}',
+    public_holidays: localStorage.getItem('public_holidays_agenda_items') || '{}',
+    elections: localStorage.getItem('elections_agenda_items') || '{}',
   };
-  type CatalogKey = keyof typeof catalogData;
-  for (const key of Object.keys(catalogData) as CatalogKey[]) {
+  type APIAgendaItemsKey = keyof typeof agendaItemsData;
+  for (const key of Object.keys(agendaItemsData) as APIAgendaItemsKey[]) {
     try {
-      const data = JSON.parse(catalogData[key]);
+      const data = JSON.parse(agendaItemsData[key]);
       if (!data || data.status !== 'success') {
         filter_items.push(key);
         continue;
@@ -58,28 +60,28 @@ export const retrieveAgenda = async (date: Date | null = null): Promise<Catalog>
       }
     );
     if (response.ok) {
-      const catalog = await response.json();
-      for (const key of Object.keys(catalogData) as CatalogKey[]) {
+      const agendaItems = await response.json();
+      for (const key of Object.keys(agendaItemsData) as APIAgendaItemsKey[]) {
         if (!filter_items.includes(key)) {
           continue;
         }
         // store result if status is 'success'
-        if (catalog[key].status === 'success') {
-          const new_data = JSON.stringify(catalog[key]);
-          catalogData[key] = new_data;
-          localStorage.setItem(`${key}_catalog`, new_data);
+        if (agendaItems[key].status === 'success') {
+          const new_data = JSON.stringify(agendaItems[key]);
+          agendaItemsData[key] = new_data;
+          localStorage.setItem(`${key}_agenda_items`, new_data);
         }
       }
     }
   }
-  const catalog = {
+  const agendaItems = {
     school_holidays:
-      JSON.parse(catalogData.school_holidays).items || ([] as CatalogItem[]),
+      JSON.parse(agendaItemsData.school_holidays).items || ([] as APIAgendaItem[]),
     public_holidays:
-      JSON.parse(catalogData.public_holidays).items || ([] as CatalogItem[]),
-    elections: JSON.parse(catalogData.elections).items || ([] as CatalogItem[]),
-  } as Catalog;
-  for (const items of Object.values(catalog)) {
+      JSON.parse(agendaItemsData.public_holidays).items || ([] as APIAgendaItem[]),
+    elections: JSON.parse(agendaItemsData.elections).items || ([] as APIAgendaItem[]),
+  } as APIAgendaItems;
+  for (const items of Object.values(agendaItems)) {
     items.forEach((item) => {
       // convert dates
       item.date = item.date ? new Date(item.date) : null;
@@ -87,5 +89,5 @@ export const retrieveAgenda = async (date: Date | null = null): Promise<Catalog>
       item.end_date = item.end_date ? new Date(item.end_date) : null;
     });
   }
-  return catalog;
+  return agendaItems;
 };

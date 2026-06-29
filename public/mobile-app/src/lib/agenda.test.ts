@@ -1718,7 +1718,7 @@ describe('/agenda.ts', () => {
     afterEach(() => {
       localStorage.clear();
     });
-    test('should retrieve catalogs and init agenda with them', async () => {
+    test('should retrieve agenda items and init agenda with them', async () => {
       // Given
       vi.stubEnv('TZ', 'Europe/Paris');
       localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
