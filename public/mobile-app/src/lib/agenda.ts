@@ -1,4 +1,4 @@
-import type { Catalog, CatalogItem } from '$lib/api-agenda';
+import type { APIAgenda, APIAgendaItem } from '$lib/api-agenda';
 import { retrieveAgenda } from '$lib/api-agenda';
 import { createScheduledNotification } from '$lib/scheduled-notifications';
 import { userStore } from '$lib/state/User.svelte';
@@ -269,14 +269,14 @@ export class Agenda {
   private _now: Item[] = [];
   private _next: Item[] = [];
 
-  constructor(catalog: Catalog | null = null, date: Date | null = null) {
+  constructor(apiAgenda: APIAgenda | null = null, date: Date | null = null) {
     const today = date || new Date();
     today.setHours(0, 0, 0, 0);
     const items: Item[] = [];
 
-    const school_holidays: CatalogItem[] = catalog?.school_holidays || [];
-    const public_holidays: CatalogItem[] = catalog?.public_holidays || [];
-    const elections: CatalogItem[] = catalog?.elections || [];
+    const school_holidays: APIAgendaItem[] = apiAgenda?.school_holidays || [];
+    const public_holidays: APIAgendaItem[] = apiAgenda?.public_holidays || [];
+    const elections: APIAgendaItem[] = apiAgenda?.elections || [];
 
     // build items from school_holidays
     this.createSchoolHolidayItems(items, school_holidays, today);
@@ -309,7 +309,7 @@ export class Agenda {
 
   private createSchoolHolidayItems(
     items: Item[],
-    school_holidays: CatalogItem[],
+    school_holidays: APIAgendaItem[],
     date: Date
   ) {
     const result: Item[] = [];
@@ -350,14 +350,14 @@ export class Agenda {
     });
   }
 
-  private getSchoolHolidayItemDescription(holiday: CatalogItem): string {
+  private getSchoolHolidayItemDescription(holiday: APIAgendaItem): string {
     if (!userStore.connected) {
       return '';
     }
     return userStore.connected.getSchoolHolidayDescriptionFromPreferences(holiday);
   }
 
-  private createSchoolHolidayItem(holiday: CatalogItem): Item | null {
+  private createSchoolHolidayItem(holiday: APIAgendaItem): Item | null {
     if (!holiday.start_date || !holiday.end_date) {
       // should not happen for school holiday
       return null;
@@ -382,7 +382,7 @@ export class Agenda {
 
   private createPublicHolidayItems(
     items: Item[],
-    public_holidays: CatalogItem[],
+    public_holidays: APIAgendaItem[],
     date: Date
   ) {
     public_holidays.forEach((holiday) => {
@@ -393,7 +393,7 @@ export class Agenda {
     });
   }
 
-  private createPublicHolidayItem(holiday: CatalogItem, date: Date): Item | null {
+  private createPublicHolidayItem(holiday: APIAgendaItem, date: Date): Item | null {
     if (!holiday.date) {
       // should not happen for public holiday
       return null;
@@ -409,7 +409,7 @@ export class Agenda {
     return new Item(uniqueId(), 'holiday', title, null, holiday.date, null, null);
   }
 
-  private createOTVItems(items: Item[], school_holidays: CatalogItem[], date: Date) {
+  private createOTVItems(items: Item[], school_holidays: APIAgendaItem[], date: Date) {
     const seenSchoolHolidays: Set<string> = new Set();
     school_holidays.forEach((holiday) => {
       const item = this.createOTVItem(seenSchoolHolidays, holiday, date);
@@ -421,7 +421,7 @@ export class Agenda {
 
   private createOTVItem(
     seenSchoolHolidays: Set<string>,
-    holiday: CatalogItem,
+    holiday: APIAgendaItem,
     date: Date
   ): Item | null {
     const connectedUser = userStore.connected;
@@ -487,7 +487,7 @@ export class Agenda {
     return item;
   }
 
-  private createElectionItems(items: Item[], elections: CatalogItem[], date: Date) {
+  private createElectionItems(items: Item[], elections: APIAgendaItem[], date: Date) {
     elections.forEach((election) => {
       const item = this.createElectionItem(election, date);
       if (item !== null && !item.isHidden()) {
@@ -496,7 +496,7 @@ export class Agenda {
     });
   }
 
-  private createElectionItem(election: CatalogItem, date: Date): Item | null {
+  private createElectionItem(election: APIAgendaItem, date: Date): Item | null {
     if (!election.date) {
       // should not happen for election
       return null;
@@ -543,6 +543,6 @@ const setAgendaHiddenItems = (item: Item, parsedAgendaHiddenItems: string[]) => 
 
 export const buildAgenda = async (date: Date | null = null): Promise<Agenda> => {
   const today = date || new Date();
-  const catalog: Catalog = await retrieveAgenda(today);
-  return new Agenda(catalog, today);
+  const apiAgenda: APIAgenda = await retrieveAgenda(today);
+  return new Agenda(apiAgenda, today);
 };
