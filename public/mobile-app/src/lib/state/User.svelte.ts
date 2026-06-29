@@ -111,6 +111,7 @@ export class UserStore {
       const userinfo: UserInfo = parseJwt(userData);
       console.log('User is logged in', userinfo);
       await this.login(userinfo);
+      console.log('User is logged in bis', userinfo);
     } else {
       this.connected = null;
     }

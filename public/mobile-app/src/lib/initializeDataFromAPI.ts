@@ -38,6 +38,11 @@ export const initializeLocalStorage = (searchParams: URLSearchParams) => {
   }
 };
 
+let _resolveUserReady: () => void;
+export const userReady = new Promise<void>((resolve) => {
+  _resolveUserReady = resolve;
+});
+
 export const initializeData = async (
   searchParams: URLSearchParams,
   userStore: UserStore
@@ -45,4 +50,5 @@ export const initializeData = async (
   initializeLocalStorage(searchParams);
   await userStore.checkLoggedIn();
   await Promise.all([buildAgenda(), retrieveNotifications()]);
+  _resolveUserReady();
 };
