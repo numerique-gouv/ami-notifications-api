@@ -1,6 +1,6 @@
 import type { Address as AddressType } from '$lib/address';
 import { Address, zones } from '$lib/address';
-import type { CatalogItem } from '$lib/api-agenda';
+import type { APIAgendaItem } from '$lib/api-agenda';
 import { trackZone } from '$lib/matomo';
 import type { ToggleTag } from '$lib/types/components/toggletag';
 
@@ -56,7 +56,7 @@ export class Preferences {
     return new Preferences([userZone], []);
   }
 
-  isSchoolHolidayConcerned(holiday: CatalogItem): boolean {
+  isSchoolHolidayConcerned(holiday: APIAgendaItem): boolean {
     if (!holiday.zones.length || !this._zones) {
       return false;
     }
@@ -67,7 +67,7 @@ export class Preferences {
   }
 
   getSchoolHolidayDescription(
-    holiday: CatalogItem,
+    holiday: APIAgendaItem,
     userAddress: AddressType | undefined
   ): string {
     if (!holiday.zones.length || !this._zones) {

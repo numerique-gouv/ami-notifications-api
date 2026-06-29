@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { Address } from '$lib/address';
-import type { CatalogItem } from '$lib/api-agenda';
+import type { APIAgendaItem } from '$lib/api-agenda';
 import * as matomoMethods from '$lib/matomo';
 import { Preferences } from '$lib/state/preferences';
 
@@ -124,7 +124,7 @@ describe('/preferences.ts', () => {
           end_date: new Date('2026-02-22T23:00:00Z'),
           zones: ['Zone A', 'Zone B', 'Martinique'],
           emoji: 'foo',
-        } as CatalogItem;
+        } as APIAgendaItem;
         const preferences = new Preferences(['Zone A', 'Zone C'], []);
 
         // When
@@ -144,7 +144,7 @@ describe('/preferences.ts', () => {
           end_date: new Date('2026-02-22T23:00:00Z'),
           zones: ['Zone A', 'Zone B', 'Martinique'],
           emoji: 'foo',
-        } as CatalogItem;
+        } as APIAgendaItem;
         const preferences = new Preferences(['Zone C', 'Corse'], []);
 
         // When
@@ -164,7 +164,7 @@ describe('/preferences.ts', () => {
           end_date: new Date('2026-02-22T23:00:00Z'),
           zones: ['Zone A', 'Zone B', 'Martinique'],
           emoji: 'foo',
-        } as CatalogItem;
+        } as APIAgendaItem;
         const preferences = new Preferences([], []);
 
         // When
@@ -184,7 +184,7 @@ describe('/preferences.ts', () => {
           end_date: new Date('2026-02-22T23:00:00Z'),
           zones: [],
           emoji: 'foo',
-        } as CatalogItem;
+        } as APIAgendaItem;
         const preferences = new Preferences(['Zone C', 'Corse'], []);
 
         // When
@@ -207,7 +207,7 @@ describe('/preferences.ts', () => {
           end_date: new Date('2026-02-22T23:00:00Z'),
           zones: ['Zone A', 'Zone B', 'Martinique'],
           emoji: 'foo',
-        } as CatalogItem;
+        } as APIAgendaItem;
         const preferences = new Preferences(['Zone A', 'Zone C'], []);
 
         // When
@@ -227,7 +227,7 @@ describe('/preferences.ts', () => {
           end_date: new Date('2026-02-22T23:00:00Z'),
           zones: ['Zone A', 'Zone B', 'Zone C'],
           emoji: 'foo',
-        } as CatalogItem;
+        } as APIAgendaItem;
         const preferences = new Preferences(['Zone A', 'Zone C'], []);
 
         // When
@@ -247,7 +247,7 @@ describe('/preferences.ts', () => {
           end_date: new Date('2026-02-22T23:00:00Z'),
           zones: ['Zone A', 'Zone B', 'Zone C'],
           emoji: 'foo',
-        } as CatalogItem;
+        } as APIAgendaItem;
         const preferences = new Preferences(['Zone A', 'Zone C'], []);
         const userAddress = new Address('Paris', '', '', 'Paris', 'Paris', '75000');
 
@@ -268,7 +268,7 @@ describe('/preferences.ts', () => {
           end_date: new Date('2026-02-22T23:00:00Z'),
           zones: ['Zone A', 'Zone B', 'Martinique'],
           emoji: 'foo',
-        } as CatalogItem;
+        } as APIAgendaItem;
         const address1 = new Address(
           'Périgueux',
           '',
@@ -304,7 +304,7 @@ describe('/preferences.ts', () => {
           end_date: new Date('2026-02-22T23:00:00Z'),
           zones: ['Zone A', 'Zone B', 'Zone C', 'Corse', 'Martinique'],
           emoji: 'foo',
-        } as CatalogItem;
+        } as APIAgendaItem;
         const address1 = new Address(
           'Périgueux',
           '',
@@ -348,7 +348,7 @@ describe('/preferences.ts', () => {
           end_date: new Date('2026-02-22T23:00:00Z'),
           zones: ['Zone A', 'Zone B', 'Zone C', 'Corse', 'Martinique'],
           emoji: 'foo',
-        } as CatalogItem;
+        } as APIAgendaItem;
         const address1 = new Address(
           'Périgueux',
           '',
@@ -390,7 +390,7 @@ describe('/preferences.ts', () => {
           end_date: new Date('2026-02-22T23:00:00Z'),
           zones: ['Zone A', 'Zone B', 'Martinique'],
           emoji: 'foo',
-        } as CatalogItem;
+        } as APIAgendaItem;
         const preferences = new Preferences(['Zone C', 'Corse'], []);
 
         // When
@@ -410,7 +410,7 @@ describe('/preferences.ts', () => {
           end_date: new Date('2026-02-22T23:00:00Z'),
           zones: ['Zone A', 'Zone B', 'Martinique'],
           emoji: 'foo',
-        } as CatalogItem;
+        } as APIAgendaItem;
         const preferences = new Preferences([], []);
 
         // When
@@ -430,7 +430,7 @@ describe('/preferences.ts', () => {
           end_date: new Date('2026-02-22T23:00:00Z'),
           zones: [],
           emoji: 'foo',
-        } as CatalogItem;
+        } as APIAgendaItem;
         const preferences = new Preferences(['Zone C', 'Corse'], []);
 
         // When
