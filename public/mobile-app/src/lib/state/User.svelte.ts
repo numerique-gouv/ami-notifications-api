@@ -7,7 +7,7 @@ import {
 import type { Address as AddressType } from '$lib/address';
 import { Address } from '$lib/address';
 import { callBAN } from '$lib/addressesFromBAN';
-import type { CatalogItem } from '$lib/api-catalog';
+import type { CatalogItem } from '$lib/api-agenda';
 import * as auth from '$lib/auth';
 import { franceConnectLogout, parseJwt } from '$lib/france-connect';
 import { emit } from '$lib/nativeEvents';

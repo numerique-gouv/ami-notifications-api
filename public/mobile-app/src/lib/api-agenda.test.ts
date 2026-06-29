@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
-import { retrieveCatalog } from '$lib/api-catalog';
+import { retrieveAgenda } from '$lib/api-agenda';
 
 const catalogData = {
   school_holidays: {
@@ -76,13 +76,13 @@ const catalogData = {
 type CatalogKey = keyof typeof catalogData;
 type NullableCatalog = { [K in CatalogKey]: (typeof catalogData)[K] | null };
 
-describe('/api-catalog', () => {
+describe('/api-agenda', () => {
   afterEach(() => {
     window.localStorage.clear();
     vi.clearAllMocks();
   });
 
-  describe('retrieveCatalog', () => {
+  describe('retrieveAgenda', () => {
     test('should get catalog from API', async () => {
       // Given
       const spy = vi
@@ -90,7 +90,7 @@ describe('/api-catalog', () => {
         .mockResolvedValue(new Response(JSON.stringify(catalogData), { status: 200 }));
 
       // When
-      const result = await retrieveCatalog(new Date('2025-11-01T12:00:00Z'));
+      const result = await retrieveAgenda(new Date('2025-11-01T12:00:00Z'));
 
       // Then
       expect(spy).toHaveBeenCalledExactlyOnceWith(
@@ -120,7 +120,7 @@ describe('/api-catalog', () => {
         .mockResolvedValue(new Response('error', { status: 400 }));
 
       // When
-      const result = await retrieveCatalog(new Date('2025-11-01T12:00:00Z'));
+      const result = await retrieveAgenda(new Date('2025-11-01T12:00:00Z'));
 
       // Then
       expect(spy).toHaveBeenCalledExactlyOnceWith(
@@ -153,7 +153,7 @@ describe('/api-catalog', () => {
       );
 
       // When
-      const result = await retrieveCatalog(new Date('2025-11-01T12:00:00Z'));
+      const result = await retrieveAgenda(new Date('2025-11-01T12:00:00Z'));
 
       // Then
       expect(result).toEqual({
@@ -190,7 +190,7 @@ describe('/api-catalog', () => {
           );
 
         // When
-        const result = await retrieveCatalog(new Date('2025-11-01T12:00:00Z'));
+        const result = await retrieveAgenda(new Date('2025-11-01T12:00:00Z'));
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
@@ -236,7 +236,7 @@ describe('/api-catalog', () => {
           );
 
         // When
-        const result = await retrieveCatalog(new Date('2025-11-01T12:00:00Z'));
+        const result = await retrieveAgenda(new Date('2025-11-01T12:00:00Z'));
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
@@ -285,7 +285,7 @@ describe('/api-catalog', () => {
           );
 
         // When
-        const result = await retrieveCatalog(new Date('2025-11-01T12:00:00Z'));
+        const result = await retrieveAgenda(new Date('2025-11-01T12:00:00Z'));
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
@@ -332,7 +332,7 @@ describe('/api-catalog', () => {
           );
 
         // When
-        const result = await retrieveCatalog(new Date('2025-11-01T12:00:00Z'));
+        const result = await retrieveAgenda(new Date('2025-11-01T12:00:00Z'));
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
@@ -391,7 +391,7 @@ describe('/api-catalog', () => {
           );
 
         // When
-        const result = await retrieveCatalog(new Date('2025-11-01T12:00:00Z'));
+        const result = await retrieveAgenda(new Date('2025-11-01T12:00:00Z'));
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
@@ -439,7 +439,7 @@ describe('/api-catalog', () => {
           );
 
         // When
-        const result = await retrieveCatalog(new Date('2025-11-01T12:00:00Z'));
+        const result = await retrieveAgenda(new Date('2025-11-01T12:00:00Z'));
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
@@ -475,7 +475,7 @@ describe('/api-catalog', () => {
         }
 
         // When
-        const result = await retrieveCatalog(new Date('2025-11-01T12:00:00Z'));
+        const result = await retrieveAgenda(new Date('2025-11-01T12:00:00Z'));
 
         // Then
         expect(result).toEqual({
@@ -516,7 +516,7 @@ describe('/api-catalog', () => {
           );
 
         // When
-        const result = await retrieveCatalog(new Date('2025-11-01T12:00:00Z'));
+        const result = await retrieveAgenda(new Date('2025-11-01T12:00:00Z'));
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(

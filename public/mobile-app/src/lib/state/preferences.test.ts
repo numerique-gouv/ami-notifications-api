@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { Address } from '$lib/address';
-import type { CatalogItem } from '$lib/api-catalog';
+import type { CatalogItem } from '$lib/api-agenda';
 import * as matomoMethods from '$lib/matomo';
 import { Preferences } from '$lib/state/preferences';
 

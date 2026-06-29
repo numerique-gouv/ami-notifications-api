@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
-import { archiveInventoryItem, retrieveInventory } from '$lib/api-inventory';
+import { archiveFollowUpItem, retrieveFollowUp } from '$lib/api-followup';
 
 const inventoryData = {
   notifications: {
@@ -40,13 +40,13 @@ const inventoryData = {
 type InventoryKey = keyof typeof inventoryData;
 type NullableInventory = { [K in InventoryKey]: (typeof inventoryData)[K] | null };
 
-describe('/api-inventory', () => {
+describe('/api-followup', () => {
   afterEach(() => {
     window.localStorage.clear();
     vi.clearAllMocks();
   });
 
-  describe('retrieveInventory', () => {
+  describe('retrieveFollowUp', () => {
     test('should get inventory from API', async () => {
       // Given
       const spy = vi
@@ -56,7 +56,7 @@ describe('/api-inventory', () => {
         );
 
       // When
-      const result = await retrieveInventory(new Date('2025-11-01T12:00:00Z'));
+      const result = await retrieveFollowUp(new Date('2025-11-01T12:00:00Z'));
 
       // Then
       expect(spy).toHaveBeenCalledExactlyOnceWith(
@@ -78,7 +78,7 @@ describe('/api-inventory', () => {
         .mockResolvedValue(new Response('error', { status: 400 }));
 
       // When
-      const result = await retrieveInventory(new Date('2025-11-01T12:00:00Z'));
+      const result = await retrieveFollowUp(new Date('2025-11-01T12:00:00Z'));
 
       // Then
       expect(spy).toHaveBeenCalledExactlyOnceWith(
@@ -99,7 +99,7 @@ describe('/api-inventory', () => {
       );
 
       // When
-      const result = await retrieveInventory(new Date('2025-11-01T12:00:00Z'));
+      const result = await retrieveFollowUp(new Date('2025-11-01T12:00:00Z'));
 
       // Then
       expect(result).toEqual({
@@ -132,7 +132,7 @@ describe('/api-inventory', () => {
           );
 
         // When
-        const result = await retrieveInventory(new Date('2025-11-01T12:00:00Z'));
+        const result = await retrieveFollowUp(new Date('2025-11-01T12:00:00Z'));
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
@@ -174,7 +174,7 @@ describe('/api-inventory', () => {
           );
 
         // When
-        const result = await retrieveInventory(new Date('2025-11-01T12:00:00Z'));
+        const result = await retrieveFollowUp(new Date('2025-11-01T12:00:00Z'));
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
@@ -219,7 +219,7 @@ describe('/api-inventory', () => {
           );
 
         // When
-        const result = await retrieveInventory(new Date('2025-11-01T12:00:00Z'));
+        const result = await retrieveFollowUp(new Date('2025-11-01T12:00:00Z'));
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
@@ -262,7 +262,7 @@ describe('/api-inventory', () => {
           );
 
         // When
-        const result = await retrieveInventory(new Date('2025-11-01T12:00:00Z'));
+        const result = await retrieveFollowUp(new Date('2025-11-01T12:00:00Z'));
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
@@ -315,7 +315,7 @@ describe('/api-inventory', () => {
           );
 
         // When
-        const result = await retrieveInventory(new Date('2025-11-01T12:00:00Z'));
+        const result = await retrieveFollowUp(new Date('2025-11-01T12:00:00Z'));
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
@@ -359,7 +359,7 @@ describe('/api-inventory', () => {
           );
 
         // When
-        const result = await retrieveInventory(new Date('2025-11-01T12:00:00Z'));
+        const result = await retrieveFollowUp(new Date('2025-11-01T12:00:00Z'));
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
@@ -393,7 +393,7 @@ describe('/api-inventory', () => {
         }
 
         // When
-        const result = await retrieveInventory(new Date('2025-11-01T12:00:00Z'));
+        const result = await retrieveFollowUp(new Date('2025-11-01T12:00:00Z'));
 
         // Then
         expect(result).toEqual({
@@ -403,7 +403,7 @@ describe('/api-inventory', () => {
     });
   });
 
-  describe('archiveInventoryItem', () => {
+  describe('archiveFollowUpItem', () => {
     test('should return true', async () => {
       // Given
       const spy = vi
@@ -411,7 +411,7 @@ describe('/api-inventory', () => {
         .mockResolvedValue(new Response(JSON.stringify({}), { status: 200 }));
 
       // When
-      const result = await archiveInventoryItem('notifications', 'id');
+      const result = await archiveFollowUpItem('notifications', 'id');
 
       // Then
       expect(result).toEqual(true);
@@ -432,7 +432,7 @@ describe('/api-inventory', () => {
         .mockResolvedValue(new Response(JSON.stringify({}), { status: 400 }));
 
       // When
-      const result = await archiveInventoryItem('notifications', 'id');
+      const result = await archiveFollowUpItem('notifications', 'id');
 
       // Then
       expect(result).toEqual(false);
@@ -453,7 +453,7 @@ describe('/api-inventory', () => {
         .mockResolvedValue(new Response(JSON.stringify({}), { status: 500 }));
 
       // When
-      const result = await archiveInventoryItem('notifications', 'id');
+      const result = await archiveFollowUpItem('notifications', 'id');
 
       // Then
       expect(result).toEqual(false);

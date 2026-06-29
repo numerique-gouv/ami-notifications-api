@@ -18,7 +18,7 @@ export type Catalog = {
   elections: CatalogItem[];
 };
 
-export const retrieveCatalog = async (date: Date | null = null): Promise<Catalog> => {
+export const retrieveAgenda = async (date: Date | null = null): Promise<Catalog> => {
   const now = new Date(date || '');
   const today = new Date(now);
   today.setHours(0, 0, 0, 0);
