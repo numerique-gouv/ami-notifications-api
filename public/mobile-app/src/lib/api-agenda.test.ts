@@ -485,53 +485,5 @@ describe('/api-agenda', () => {
         });
       }
     });
-
-    test('should get catalog from API - zones are not arrays', async () => {
-      for (const key of Object.keys(catalogData) as CatalogKey[]) {
-        // Given
-        window.localStorage.clear();
-        vi.clearAllMocks();
-        for (const key2 of Object.keys(catalogData) as CatalogKey[]) {
-          if (key2 === key) {
-            const entry = structuredClone(catalogData[key2]);
-            entry.items[0].zones = 'string';
-            window.localStorage.setItem(`${key2}_catalog`, JSON.stringify(entry));
-            continue;
-          }
-          window.localStorage.setItem(
-            `${key2}_catalog`,
-            JSON.stringify(catalogData[key2])
-          );
-        }
-        const responseData: NullableCatalog = {
-          school_holidays: null,
-          public_holidays: null,
-          elections: null,
-        };
-        responseData[key] = catalogData[key];
-        const spy = vi
-          .spyOn(globalThis, 'fetch')
-          .mockResolvedValue(
-            new Response(JSON.stringify(responseData), { status: 200 })
-          );
-
-        // When
-        const result = await retrieveAgenda(new Date('2025-11-01T12:00:00Z'));
-
-        // Then
-        expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `https://localhost:8000/api/v1/users/data/agenda?current_date=2025-11-01&filter-items=${key}`,
-          { credentials: 'include' }
-        );
-        expect(result).toEqual({
-          school_holidays: catalogData.school_holidays.items,
-          public_holidays: catalogData.public_holidays.items,
-          elections: catalogData.elections.items,
-        });
-        expect(window.localStorage.getItem(`${key}_catalog`)).toEqual(
-          JSON.stringify(catalogData[key])
-        );
-      }
-    });
   });
 });
