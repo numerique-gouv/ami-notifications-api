@@ -11,6 +11,7 @@
   import RequestItem from '$lib/components/RequestItem.svelte';
   import type { FollowUp, RequestItem as RequestItemType } from '$lib/follow-up';
   import { buildFollowUp } from '$lib/follow-up';
+  import { userReady } from '$lib/initializeDataFromAPI';
   import {
     countUnreadNotifications,
     notificationEventsSocket,
@@ -60,6 +61,7 @@
       };
       document.addEventListener('visibilitychange', handleVisibility);
 
+      await userReady;
       agenda = await buildAgenda();
       console.log($state.snapshot(agenda));
       isAgendaEmpty = !(agenda.now.length || agenda.next.length);
