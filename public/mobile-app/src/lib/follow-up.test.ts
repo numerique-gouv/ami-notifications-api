@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
-import * as inventoryMethods from '$lib/api-inventory';
+import * as apiFollowUpMethods from '$lib/api-followup';
 import { buildFollowUp, FollowUp, RequestItem } from '$lib/follow-up';
 
 describe('/follow-up.ts', () => {
@@ -58,7 +58,7 @@ describe('/follow-up.ts', () => {
       });
     });
     describe('archive', () => {
-      test('should call archiveInventoryItem', async () => {
+      test('should call archiveFollowUpItem', async () => {
         // Given
         const item = new RequestItem(
           'partner',
@@ -75,7 +75,7 @@ describe('/follow-up.ts', () => {
           null
         );
         const spy = vi
-          .spyOn(inventoryMethods, 'archiveInventoryItem')
+          .spyOn(apiFollowUpMethods, 'archiveFollowUpItem')
           .mockResolvedValue(true);
 
         // When
@@ -464,7 +464,7 @@ describe('/follow-up.ts', () => {
         created_at: new Date('2026-02-22T15:50:00Z'),
         updated_at: new Date('2026-02-22T15:55:00Z'),
       };
-      const spy = vi.spyOn(inventoryMethods, 'retrieveInventory').mockResolvedValue({
+      const spy = vi.spyOn(apiFollowUpMethods, 'retrieveFollowUp').mockResolvedValue({
         notifications: [request1, request2],
       });
 

@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { Address } from '$lib/address';
 import { Agenda, buildAgenda, Item, slugify } from '$lib/agenda';
-import * as catalogMethods from '$lib/api-catalog';
+import * as apiAgendaMethods from '$lib/api-agenda';
 import * as scheduledNotificationsMethods from '$lib/scheduled-notifications';
 import { Preferences } from '$lib/state/preferences';
 import { userStore } from '$lib/state/User.svelte';
@@ -1762,7 +1762,7 @@ describe('/agenda.ts', () => {
         zones: [],
         emoji: '',
       };
-      const spy = vi.spyOn(catalogMethods, 'retrieveCatalog').mockResolvedValue({
+      const spy = vi.spyOn(apiAgendaMethods, 'retrieveAgenda').mockResolvedValue({
         school_holidays: [holiday1, holiday2],
         public_holidays: [holiday3, holiday4],
         elections: [],

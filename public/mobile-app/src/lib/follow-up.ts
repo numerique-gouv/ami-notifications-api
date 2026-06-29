@@ -1,5 +1,5 @@
-import type { Inventory, InventoryItem } from '$lib/api-inventory';
-import { archiveInventoryItem, retrieveInventory } from '$lib/api-inventory';
+import type { Inventory, InventoryItem } from '$lib/api-followup';
+import { archiveFollowUpItem, retrieveFollowUp } from '$lib/api-followup';
 
 type Status = 'new' | 'wip' | 'closed';
 
@@ -91,7 +91,7 @@ export class RequestItem {
   }
 
   async archive(): Promise<boolean> {
-    const result = await archiveInventoryItem(this.inventory, this.id);
+    const result = await archiveFollowUpItem(this.inventory, this.id);
     return result;
   }
 }
@@ -158,6 +158,6 @@ export class FollowUp {
 }
 
 export const buildFollowUp = async (): Promise<FollowUp> => {
-  const inventory: Inventory = await retrieveInventory();
+  const inventory: Inventory = await retrieveFollowUp();
   return new FollowUp(inventory);
 };
