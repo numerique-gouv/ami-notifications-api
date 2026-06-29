@@ -1,4 +1,4 @@
-import type { Inventory, InventoryItem } from '$lib/api-followup';
+import type { APIFollowUpItem, APIFollowUpItems } from '$lib/api-followup';
 import { archiveFollowUpItem, retrieveFollowUp } from '$lib/api-followup';
 
 type Status = 'new' | 'wip' | 'closed';
@@ -100,14 +100,14 @@ export class FollowUp {
   private _items: RequestItem[] = [];
   private _archived_items: RequestItem[] = [];
 
-  constructor(inventory: Inventory | null = null) {
+  constructor(followUpItems: APIFollowUpItems | null = null) {
     const requestItems: RequestItem[] = [];
 
-    const inventoryItems: InventoryItem[] = inventory?.notifications || [];
+    const items: APIFollowUpItem[] = followUpItems?.notifications || [];
 
     // build items
-    inventoryItems.forEach((inventoryItem) => {
-      const requestItem = this.createRequestItem(inventoryItem);
+    items.forEach((item) => {
+      const requestItem = this.createRequestItem(item);
       requestItems.push(requestItem);
     });
 
@@ -124,20 +124,20 @@ export class FollowUp {
     });
   }
 
-  private createRequestItem(inventoryItem: InventoryItem): RequestItem {
+  private createRequestItem(item: APIFollowUpItem): RequestItem {
     return new RequestItem(
-      inventoryItem.partner_id,
-      inventoryItem.external_item_type,
-      inventoryItem.external_item_id,
+      item.partner_id,
+      item.external_item_type,
+      item.external_item_id,
       'notifications',
-      inventoryItem.title,
-      inventoryItem.description,
-      inventoryItem.icon,
-      inventoryItem.updated_at,
-      inventoryItem.status_id as Status,
-      inventoryItem.status_label,
-      inventoryItem.is_archived,
-      inventoryItem.external_url
+      item.title,
+      item.description,
+      item.icon,
+      item.updated_at,
+      item.status_id as Status,
+      item.status_label,
+      item.is_archived,
+      item.external_url
     );
   }
 
@@ -158,6 +158,6 @@ export class FollowUp {
 }
 
 export const buildFollowUp = async (): Promise<FollowUp> => {
-  const inventory: Inventory = await retrieveFollowUp();
-  return new FollowUp(inventory);
+  const followUpItems: APIFollowUpItems = await retrieveFollowUp();
+  return new FollowUp(followUpItems);
 };

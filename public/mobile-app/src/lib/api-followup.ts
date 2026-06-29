@@ -1,6 +1,6 @@
 import { apiFetch } from '$lib/auth';
 
-export type InventoryItem = {
+export type APIFollowUpItem = {
   partner_id: string;
   external_item_type: string;
   external_item_id: string;
@@ -19,22 +19,22 @@ export type InventoryItem = {
   updated_at: Date;
 };
 
-export type Inventory = {
-  notifications: InventoryItem[];
+export type APIFollowUpItems = {
+  notifications: APIFollowUpItem[];
 };
 
 export const retrieveFollowUp = async (
   date: Date | null = null
-): Promise<Inventory> => {
+): Promise<APIFollowUpItems> => {
   const now = new Date(date || '');
   const filter_items = [];
-  const inventoryData = {
-    notifications: localStorage.getItem('notifications_inventory') || '{}',
+  const followUpItemsData = {
+    notifications: localStorage.getItem('notifications_followup_items') || '{}',
   };
-  type InventoryKey = keyof typeof inventoryData;
-  for (const key of Object.keys(inventoryData) as InventoryKey[]) {
+  type APIFollowUpItemsKey = keyof typeof followUpItemsData;
+  for (const key of Object.keys(followUpItemsData) as APIFollowUpItemsKey[]) {
     try {
-      const data = JSON.parse(inventoryData[key]);
+      const data = JSON.parse(followUpItemsData[key]);
       if (!data || data.status !== 'success') {
         filter_items.push(key);
         continue;
@@ -57,25 +57,25 @@ export const retrieveFollowUp = async (
       credentials: 'include',
     });
     if (response.ok) {
-      const inventory = await response.json();
-      for (const key of Object.keys(inventoryData) as InventoryKey[]) {
+      const followUpItems = await response.json();
+      for (const key of Object.keys(followUpItemsData) as APIFollowUpItemsKey[]) {
         if (!filter_items.includes(key)) {
           continue;
         }
         // store result if status is 'success'
-        if (inventory[key].status === 'success') {
-          const new_data = JSON.stringify(inventory[key]);
-          inventoryData[key] = new_data;
-          localStorage.setItem(`${key}_inventory`, new_data);
+        if (followUpItems[key].status === 'success') {
+          const new_data = JSON.stringify(followUpItems[key]);
+          followUpItemsData[key] = new_data;
+          localStorage.setItem(`${key}_followup_items`, new_data);
         }
       }
     }
   }
-  const inventory = {
+  const followUpItems = {
     notifications:
-      JSON.parse(inventoryData.notifications).items || ([] as InventoryItem[]),
-  } as Inventory;
-  for (const items of Object.values(inventory)) {
+      JSON.parse(followUpItemsData.notifications).items || ([] as APIFollowUpItem[]),
+  } as APIFollowUpItems;
+  for (const items of Object.values(followUpItems)) {
     items.forEach((item) => {
       // convert dates
       item.created_at = new Date(item.created_at);
@@ -88,7 +88,7 @@ export const retrieveFollowUp = async (
         : null;
     });
   }
-  return inventory;
+  return followUpItems;
 };
 
 export const archiveFollowUpItem = async (
