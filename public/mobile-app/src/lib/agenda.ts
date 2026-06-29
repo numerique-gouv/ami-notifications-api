@@ -1,5 +1,5 @@
-import type { Catalog, CatalogItem } from '$lib/api-catalog';
-import { retrieveCatalog } from '$lib/api-catalog';
+import type { Catalog, CatalogItem } from '$lib/api-agenda';
+import { retrieveAgenda } from '$lib/api-agenda';
 import { createScheduledNotification } from '$lib/scheduled-notifications';
 import { userStore } from '$lib/state/User.svelte';
 import { dateToISO, getTimestamp, uniqueId } from '$lib/utils';
@@ -543,6 +543,6 @@ const setAgendaHiddenItems = (item: Item, parsedAgendaHiddenItems: string[]) => 
 
 export const buildAgenda = async (date: Date | null = null): Promise<Agenda> => {
   const today = date || new Date();
-  const catalog: Catalog = await retrieveCatalog(today);
+  const catalog: Catalog = await retrieveAgenda(today);
   return new Agenda(catalog, today);
 };

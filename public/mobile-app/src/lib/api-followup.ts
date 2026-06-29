@@ -23,7 +23,7 @@ export type Inventory = {
   notifications: InventoryItem[];
 };
 
-export const retrieveInventory = async (
+export const retrieveFollowUp = async (
   date: Date | null = null
 ): Promise<Inventory> => {
   const now = new Date(date || '');
@@ -91,7 +91,7 @@ export const retrieveInventory = async (
   return inventory;
 };
 
-export const archiveInventoryItem = async (
+export const archiveFollowUpItem = async (
   inventory: string,
   external_id: string
 ): Promise<boolean> => {
