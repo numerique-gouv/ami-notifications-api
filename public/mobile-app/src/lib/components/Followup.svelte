@@ -41,7 +41,7 @@
     <NavWithBackButton title="Démarches archivées" {backUrl} />
   {:else}
     <div class="followup--title">
-      <h2>Mes démarches</h2>
+      <h1 class="fr-h2">Mes démarches</h1>
       <div class="followup--title--icon">
         <button
           class="more"
@@ -114,7 +114,7 @@
     .followup--title {
       display: flex;
       position: relative;
-      h2 {
+      h1 {
         flex-grow: 1;
       }
       .followup--title--icon {

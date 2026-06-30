@@ -9,3 +9,7 @@
   -webkit-mask-image: url("/icons/custom/more-2-fill.svg");
   mask-image: url("/icons/custom/more-2-fill.svg");
 }
+
+.am-text--smbold {
+  font-weight: 500 !important;
+}
