@@ -60,7 +60,7 @@ describe('/api-inventory', () => {
 
       // Then
       expect(spy).toHaveBeenCalledExactlyOnceWith(
-        'https://localhost:8000/api/v1/users/follow-up/inventories?filter-items=notifications',
+        'https://localhost:8000/api/v1/users/data/followup?filter-items=notifications',
         { credentials: 'include' }
       );
       expect(result).toEqual({
@@ -82,7 +82,7 @@ describe('/api-inventory', () => {
 
       // Then
       expect(spy).toHaveBeenCalledExactlyOnceWith(
-        'https://localhost:8000/api/v1/users/follow-up/inventories?filter-items=notifications',
+        'https://localhost:8000/api/v1/users/data/followup?filter-items=notifications',
         { credentials: 'include' }
       );
       expect(result).toEqual({
@@ -136,7 +136,7 @@ describe('/api-inventory', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `https://localhost:8000/api/v1/users/follow-up/inventories?filter-items=${key}`,
+          `https://localhost:8000/api/v1/users/data/followup?filter-items=${key}`,
           { credentials: 'include' }
         );
         expect(result).toEqual({
@@ -178,7 +178,7 @@ describe('/api-inventory', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `https://localhost:8000/api/v1/users/follow-up/inventories?filter-items=${key}`,
+          `https://localhost:8000/api/v1/users/data/followup?filter-items=${key}`,
           { credentials: 'include' }
         );
         expect(result).toEqual({
@@ -223,7 +223,7 @@ describe('/api-inventory', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `https://localhost:8000/api/v1/users/follow-up/inventories?filter-items=${key}`,
+          `https://localhost:8000/api/v1/users/data/followup?filter-items=${key}`,
           { credentials: 'include' }
         );
         expect(result).toEqual({
@@ -266,7 +266,7 @@ describe('/api-inventory', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `https://localhost:8000/api/v1/users/follow-up/inventories?filter-items=${key}`,
+          `https://localhost:8000/api/v1/users/data/followup?filter-items=${key}`,
           { credentials: 'include' }
         );
         expect(result).toEqual({
@@ -319,7 +319,7 @@ describe('/api-inventory', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `https://localhost:8000/api/v1/users/follow-up/inventories?filter-items=${key}`,
+          `https://localhost:8000/api/v1/users/data/followup?filter-items=${key}`,
           { credentials: 'include' }
         );
         expect(result).toEqual({
@@ -363,7 +363,7 @@ describe('/api-inventory', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `https://localhost:8000/api/v1/users/follow-up/inventories?filter-items=${key}`,
+          `https://localhost:8000/api/v1/users/data/followup?filter-items=${key}`,
           { credentials: 'include' }
         );
         expect(result).toEqual({
@@ -416,7 +416,7 @@ describe('/api-inventory', () => {
       // Then
       expect(result).toEqual(true);
       expect(spy).toHaveBeenCalledExactlyOnceWith(
-        'https://localhost:8000/api/v1/users/follow-up/item/notifications/id/archive',
+        'https://localhost:8000/api/v1/users/data/followup/item/notifications/id/archive',
         {
           body: '{"is_archived":true}',
           credentials: 'include',
@@ -437,7 +437,7 @@ describe('/api-inventory', () => {
       // Then
       expect(result).toEqual(false);
       expect(spy).toHaveBeenCalledExactlyOnceWith(
-        'https://localhost:8000/api/v1/users/follow-up/item/notifications/id/archive',
+        'https://localhost:8000/api/v1/users/data/followup/item/notifications/id/archive',
         {
           body: '{"is_archived":true}',
           credentials: 'include',
@@ -458,7 +458,7 @@ describe('/api-inventory', () => {
       // Then
       expect(result).toEqual(false);
       expect(spy).toHaveBeenCalledExactlyOnceWith(
-        'https://localhost:8000/api/v1/users/follow-up/item/notifications/id/archive',
+        'https://localhost:8000/api/v1/users/data/followup/item/notifications/id/archive',
         {
           body: '{"is_archived":true}',
           credentials: 'include',
