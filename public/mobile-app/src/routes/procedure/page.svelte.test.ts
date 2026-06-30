@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import * as navigationMethods from '$app/navigation';
 import * as envModule from '$env/static/public';
-import { FollowUp } from '$lib/followup';
+import { Followup } from '$lib/followup';
 import * as procedureMethods from '$lib/procedure';
 import { userStore } from '$lib/state/User.svelte';
 import { expectBackButtonPresent, mockAddress, mockUserInfo } from '$tests/utils';
@@ -117,7 +117,7 @@ describe('/+page.svelte', () => {
     const spy = vi
       .spyOn(procedureMethods, 'retrieveProcedureUrl')
       .mockResolvedValue(expectedProcedureUrl);
-    vi.spyOn(FollowUp.prototype, 'hasNonArchivedItems').mockReturnValue(false);
+    vi.spyOn(Followup.prototype, 'hasNonArchivedItems').mockReturnValue(false);
     vi.stubGlobal('location', {
       href: 'fake-link',
       hash: '',
@@ -162,7 +162,7 @@ describe('/+page.svelte', () => {
     const spy = vi
       .spyOn(procedureMethods, 'retrieveProcedureUrl')
       .mockResolvedValue(expectedProcedureUrl);
-    vi.spyOn(FollowUp.prototype, 'hasNonArchivedItems').mockReturnValue(true);
+    vi.spyOn(Followup.prototype, 'hasNonArchivedItems').mockReturnValue(true);
     vi.stubGlobal('location', {
       href: 'fake-link',
       hash: '',

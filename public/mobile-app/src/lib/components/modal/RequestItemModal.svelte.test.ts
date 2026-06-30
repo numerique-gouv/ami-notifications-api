@@ -1,15 +1,15 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
-import * as followUpMethods from '$lib/followup';
-import { FollowUp, RequestItem } from '$lib/followup';
+import * as followupMethods from '$lib/followup';
+import { Followup, RequestItem } from '$lib/followup';
 import { toastStore } from '$lib/state/toast.svelte';
 import RequestItemModal from './RequestItemModal.svelte';
 
 describe('/RequestItemModal.svelte', () => {
   let item: RequestItem;
-  let followUp: FollowUp;
-  const isFollowUpEmpty = false;
+  let followup: Followup;
+  const isFollowupEmpty = false;
 
   beforeEach(() => {
     HTMLDialogElement.prototype.showModal = vi.fn();
@@ -30,8 +30,8 @@ describe('/RequestItemModal.svelte', () => {
       false,
       null
     );
-    followUp = new FollowUp();
-    vi.spyOn(followUp, 'items', 'get').mockReturnValue([
+    followup = new Followup();
+    vi.spyOn(followup, 'items', 'get').mockReturnValue([
       item,
       new RequestItem(
         'partner',
@@ -48,12 +48,12 @@ describe('/RequestItemModal.svelte', () => {
         null
       ),
     ]);
-    vi.spyOn(followUpMethods, 'buildFollowUp').mockResolvedValue(followUp);
+    vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
   });
 
   test('should display item title', async () => {
     // When
-    render(RequestItemModal, { props: { item, followUp, isFollowUpEmpty } });
+    render(RequestItemModal, { props: { item, followup, isFollowupEmpty } });
 
     // Then
     const title = screen.getByTestId('request-item-modal-header');
@@ -63,7 +63,7 @@ describe('/RequestItemModal.svelte', () => {
     // Given
     const spy = vi.spyOn(RequestItem.prototype, 'archive').mockResolvedValue(true);
     const spy2 = vi.spyOn(toastStore, 'addToast');
-    render(RequestItemModal, { props: { item, followUp, isFollowUpEmpty } });
+    render(RequestItemModal, { props: { item, followup, isFollowupEmpty } });
 
     // When
     await waitFor(async () => {
@@ -86,7 +86,7 @@ describe('/RequestItemModal.svelte', () => {
     // Given
     const spy = vi.spyOn(RequestItem.prototype, 'archive').mockResolvedValue(false);
     const spy2 = vi.spyOn(toastStore, 'addToast');
-    render(RequestItemModal, { props: { item, followUp, isFollowUpEmpty } });
+    render(RequestItemModal, { props: { item, followup, isFollowupEmpty } });
 
     // When
     await waitFor(async () => {

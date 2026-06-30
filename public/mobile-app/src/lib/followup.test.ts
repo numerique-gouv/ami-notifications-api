@@ -1,7 +1,7 @@
 import { describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
-import * as apiFollowUpMethods from '$lib/api-followup';
-import { buildFollowUp, FollowUp, RequestItem } from '$lib/followup';
+import * as apiFollowupMethods from '$lib/api-followup';
+import { buildFollowup, Followup, RequestItem } from '$lib/followup';
 
 describe('/followup.ts', () => {
   describe('RequestItem', () => {
@@ -58,7 +58,7 @@ describe('/followup.ts', () => {
       });
     });
     describe('archive', () => {
-      test('should call archiveFollowUpItem', async () => {
+      test('should call archiveFollowupItem', async () => {
         // Given
         const item = new RequestItem(
           'partner',
@@ -75,7 +75,7 @@ describe('/followup.ts', () => {
           null
         );
         const spy = vi
-          .spyOn(apiFollowUpMethods, 'archiveFollowUpItem')
+          .spyOn(apiFollowupMethods, 'archiveFollowupItem')
           .mockResolvedValue(true);
 
         // When
@@ -87,7 +87,7 @@ describe('/followup.ts', () => {
       });
     });
   });
-  describe('FollowUp', () => {
+  describe('Followup', () => {
     test('should organize items in items and archived_items', async () => {
       // Given
       vi.stubEnv('TZ', 'Europe/Paris');
@@ -157,14 +157,14 @@ describe('/followup.ts', () => {
       };
 
       // When
-      const followUp = new FollowUp({
+      const followup = new Followup({
         notifications: [request1, request2, request3, request4],
       });
 
       // Then
-      expect(followUp.items.length).equal(2);
+      expect(followup.items.length).equal(2);
       expect(
-        followUp.items[0].equals(
+        followup.items[0].equals(
           new RequestItem(
             'psl',
             'OperationTranquilliteVacances',
@@ -182,7 +182,7 @@ describe('/followup.ts', () => {
         )
       ).toBe(true);
       expect(
-        followUp.items[1].equals(
+        followup.items[1].equals(
           new RequestItem(
             'psl',
             'OperationTranquilliteVacances',
@@ -199,9 +199,9 @@ describe('/followup.ts', () => {
           )
         )
       ).toBe(true);
-      expect(followUp.archived_items.length).equal(2);
+      expect(followup.archived_items.length).equal(2);
       expect(
-        followUp.archived_items[0].equals(
+        followup.archived_items[0].equals(
           new RequestItem(
             'psl',
             'OperationTranquilliteVacances',
@@ -219,7 +219,7 @@ describe('/followup.ts', () => {
         )
       ).toBe(true);
       expect(
-        followUp.archived_items[1].equals(
+        followup.archived_items[1].equals(
           new RequestItem(
             'psl',
             'OperationTranquilliteVacances',
@@ -256,12 +256,12 @@ describe('/followup.ts', () => {
           created_at: new Date('2026-02-23T15:50:00Z'),
           updated_at: new Date('2026-02-23T15:55:00Z'),
         };
-        const followUp = new FollowUp({
+        const followup = new Followup({
           notifications: [request],
         });
 
         // When
-        const result = followUp.hasNonArchivedItems(
+        const result = followup.hasNonArchivedItems(
           'psl',
           'OperationTranquilliteVacances'
         );
@@ -287,12 +287,12 @@ describe('/followup.ts', () => {
           created_at: new Date('2026-02-23T15:50:00Z'),
           updated_at: new Date('2026-02-23T15:55:00Z'),
         };
-        const followUp = new FollowUp({
+        const followup = new Followup({
           notifications: [request],
         });
 
         // When
-        const result = followUp.hasNonArchivedItems(
+        const result = followup.hasNonArchivedItems(
           'psl',
           'OperationTranquilliteVacances'
         );
@@ -318,12 +318,12 @@ describe('/followup.ts', () => {
           created_at: new Date('2026-02-23T15:50:00Z'),
           updated_at: new Date('2026-02-23T15:55:00Z'),
         };
-        const followUp = new FollowUp({
+        const followup = new Followup({
           notifications: [request],
         });
 
         // When
-        const result = followUp.hasNonArchivedItems(
+        const result = followup.hasNonArchivedItems(
           'psl',
           'OperationTranquilliteVacances'
         );
@@ -413,12 +413,12 @@ describe('/followup.ts', () => {
           created_at: new Date('2026-02-23T15:50:00Z'),
           updated_at: new Date('2026-02-23T15:55:00Z'),
         };
-        const followUp = new FollowUp({
+        const followup = new Followup({
           notifications: [request1, request2, request3, request4, request5],
         });
 
         // When
-        const result = followUp.hasNonArchivedItems(
+        const result = followup.hasNonArchivedItems(
           'psl',
           'OperationTranquilliteVacances'
         );
@@ -428,7 +428,7 @@ describe('/followup.ts', () => {
       });
     });
   });
-  describe('buildFollowUp', () => {
+  describe('buildFollowup', () => {
     test('should retrieve inventories and init followup with them', async () => {
       // Given
       vi.stubEnv('TZ', 'Europe/Paris');
@@ -464,19 +464,19 @@ describe('/followup.ts', () => {
         created_at: new Date('2026-02-22T15:50:00Z'),
         updated_at: new Date('2026-02-22T15:55:00Z'),
       };
-      const spy = vi.spyOn(apiFollowUpMethods, 'retrieveFollowUp').mockResolvedValue({
+      const spy = vi.spyOn(apiFollowupMethods, 'retrieveFollowup').mockResolvedValue({
         notifications: [request1, request2],
       });
 
       // When
-      const followUp = await buildFollowUp();
+      const followup = await buildFollowup();
 
       // Then
       expect(spy).toHaveBeenCalledTimes(1);
-      expect(followUp).toBeInstanceOf(FollowUp);
-      expect(followUp.items.length).equal(1);
+      expect(followup).toBeInstanceOf(Followup);
+      expect(followup.items.length).equal(1);
       expect(
-        followUp.items[0].equals(
+        followup.items[0].equals(
           new RequestItem(
             'psl',
             'OperationTranquilliteVacances',
@@ -493,9 +493,9 @@ describe('/followup.ts', () => {
           )
         )
       ).toBe(true);
-      expect(followUp.archived_items.length).equal(1);
+      expect(followup.archived_items.length).equal(1);
       expect(
-        followUp.archived_items[0].equals(
+        followup.archived_items[0].equals(
           new RequestItem(
             'psl',
             'OperationTranquilliteVacances',

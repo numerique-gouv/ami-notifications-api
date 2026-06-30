@@ -8,7 +8,7 @@
   import { Address } from '$lib/address';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import PageWrapper from '$lib/components/PageWrapper.svelte';
-  import { buildFollowUp } from '$lib/followup';
+  import { buildFollowup } from '$lib/followup';
   import { retrieveProcedureUrl } from '$lib/procedure';
   import { User, type UserIdentity, userStore } from '$lib/state/User.svelte';
 
@@ -71,8 +71,8 @@
       }
     }
 
-    const followUp = await buildFollowUp();
-    hasNonArchivedItems = followUp.hasNonArchivedItems(
+    const followup = await buildFollowup();
+    hasNonArchivedItems = followup.hasNonArchivedItems(
       'psl',
       'OperationTranquilliteVacances'
     );
@@ -97,7 +97,7 @@
     redirectToLink(procedureUrl);
   };
 
-  const gotoFollowUp = () => {
+  const gotoFollowup = () => {
     goto('/#/requests');
   };
 </script>
@@ -149,7 +149,7 @@
         <button
           class="fr-btn fr-btn--lg"
           type="button"
-          onclick={gotoFollowUp}
+          onclick={gotoFollowup}
           data-testid="followup-button"
         >
           Accéder à ma démarche

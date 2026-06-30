@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
-import { archiveFollowUpItem, retrieveFollowUp } from '$lib/api-followup';
+import { archiveFollowupItem, retrieveFollowup } from '$lib/api-followup';
 
-const inventoryData = {
+const followupItemsData = {
   notifications: {
     status: 'success',
     items: [
@@ -37,8 +37,10 @@ const inventoryData = {
   },
 };
 
-type InventoryKey = keyof typeof inventoryData;
-type NullableInventory = { [K in InventoryKey]: (typeof inventoryData)[K] | null };
+type APIFollowupItemsKey = keyof typeof followupItemsData;
+type NullableAPIFollowupItems = {
+  [K in APIFollowupItemsKey]: (typeof followupItemsData)[K] | null;
+};
 
 describe('/api-followup', () => {
   afterEach(() => {
@@ -46,17 +48,17 @@ describe('/api-followup', () => {
     vi.clearAllMocks();
   });
 
-  describe('retrieveFollowUp', () => {
-    test('should get inventory from API', async () => {
+  describe('retrieveFollowup', () => {
+    test('should get followup items from API', async () => {
       // Given
       const spy = vi
         .spyOn(globalThis, 'fetch')
         .mockResolvedValue(
-          new Response(JSON.stringify(inventoryData), { status: 200 })
+          new Response(JSON.stringify(followupItemsData), { status: 200 })
         );
 
       // When
-      const result = await retrieveFollowUp(new Date('2025-11-01T12:00:00Z'));
+      const result = await retrieveFollowup(new Date('2025-11-01T12:00:00Z'));
 
       // Then
       expect(spy).toHaveBeenCalledExactlyOnceWith(
@@ -64,21 +66,21 @@ describe('/api-followup', () => {
         { credentials: 'include' }
       );
       expect(result).toEqual({
-        notifications: inventoryData.notifications.items,
+        notifications: followupItemsData.notifications.items,
       });
-      expect(window.localStorage.getItem('notifications_inventory')).toEqual(
-        JSON.stringify(inventoryData.notifications)
+      expect(window.localStorage.getItem('notifications_followup_source')).toEqual(
+        JSON.stringify(followupItemsData.notifications)
       );
     });
 
-    test('should get inventory from API - with error', async () => {
+    test('should get followup items from API - with error', async () => {
       // Given
       const spy = vi
         .spyOn(globalThis, 'fetch')
         .mockResolvedValue(new Response('error', { status: 400 }));
 
       // When
-      const result = await retrieveFollowUp(new Date('2025-11-01T12:00:00Z'));
+      const result = await retrieveFollowup(new Date('2025-11-01T12:00:00Z'));
 
       // Then
       expect(spy).toHaveBeenCalledExactlyOnceWith(
@@ -88,43 +90,45 @@ describe('/api-followup', () => {
       expect(result).toEqual({
         notifications: [],
       });
-      expect(window.localStorage.getItem('notifications_inventory')).toEqual(null);
+      expect(window.localStorage.getItem('notifications_followup_source')).toEqual(
+        null
+      );
     });
 
-    test('should get inventory from localstorage', async () => {
+    test('should get followup items from localstorage', async () => {
       // Given
       window.localStorage.setItem(
-        'notifications_inventory',
-        JSON.stringify(inventoryData.notifications)
+        'notifications_followup_source',
+        JSON.stringify(followupItemsData.notifications)
       );
 
       // When
-      const result = await retrieveFollowUp(new Date('2025-11-01T12:00:00Z'));
+      const result = await retrieveFollowup(new Date('2025-11-01T12:00:00Z'));
 
       // Then
       expect(result).toEqual({
-        notifications: inventoryData.notifications.items,
+        notifications: followupItemsData.notifications.items,
       });
     });
 
-    test('should get inventory from API - inventory entry is missing in localstorage', async () => {
-      for (const key of Object.keys(inventoryData) as InventoryKey[]) {
+    test('should get followup items from API - followup items entry is missing in localstorage', async () => {
+      for (const key of Object.keys(followupItemsData) as APIFollowupItemsKey[]) {
         // Given
         window.localStorage.clear();
         vi.clearAllMocks();
-        for (const key2 of Object.keys(inventoryData) as InventoryKey[]) {
+        for (const key2 of Object.keys(followupItemsData) as APIFollowupItemsKey[]) {
           if (key2 === key) {
             continue;
           }
           window.localStorage.setItem(
-            `${key2}_inventory`,
-            JSON.stringify(inventoryData[key2])
+            `${key2}_followup_source`,
+            JSON.stringify(followupItemsData[key2])
           );
         }
-        const responseData: NullableInventory = {
+        const responseData: NullableAPIFollowupItems = {
           notifications: null,
         };
-        responseData[key] = inventoryData[key];
+        responseData[key] = followupItemsData[key];
         const spy = vi
           .spyOn(globalThis, 'fetch')
           .mockResolvedValue(
@@ -132,7 +136,7 @@ describe('/api-followup', () => {
           );
 
         // When
-        const result = await retrieveFollowUp(new Date('2025-11-01T12:00:00Z'));
+        const result = await retrieveFollowup(new Date('2025-11-01T12:00:00Z'));
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
@@ -140,33 +144,33 @@ describe('/api-followup', () => {
           { credentials: 'include' }
         );
         expect(result).toEqual({
-          notifications: inventoryData.notifications.items,
+          notifications: followupItemsData.notifications.items,
         });
-        expect(window.localStorage.getItem(`${key}_inventory`)).toEqual(
-          JSON.stringify(inventoryData[key])
+        expect(window.localStorage.getItem(`${key}_followup_source`)).toEqual(
+          JSON.stringify(followupItemsData[key])
         );
       }
     });
 
-    test('should get inventory from API - inventory entry is wrong in localstorage', async () => {
-      for (const key of Object.keys(inventoryData) as InventoryKey[]) {
+    test('should get followup items from API - followup items entry is wrong in localstorage', async () => {
+      for (const key of Object.keys(followupItemsData) as APIFollowupItemsKey[]) {
         // Given
         window.localStorage.clear();
         vi.clearAllMocks();
-        for (const key2 of Object.keys(inventoryData) as InventoryKey[]) {
+        for (const key2 of Object.keys(followupItemsData) as APIFollowupItemsKey[]) {
           if (key2 === key) {
-            window.localStorage.setItem(`${key2}_inventory`, 'wrong');
+            window.localStorage.setItem(`${key2}_followup_source`, 'wrong');
             continue;
           }
           window.localStorage.setItem(
-            `${key2}_inventory`,
-            JSON.stringify(inventoryData[key2])
+            `${key2}_followup_source`,
+            JSON.stringify(followupItemsData[key2])
           );
         }
-        const responseData: NullableInventory = {
+        const responseData: NullableAPIFollowupItems = {
           notifications: null,
         };
-        responseData[key] = inventoryData[key];
+        responseData[key] = followupItemsData[key];
         const spy = vi
           .spyOn(globalThis, 'fetch')
           .mockResolvedValue(
@@ -174,7 +178,7 @@ describe('/api-followup', () => {
           );
 
         // When
-        const result = await retrieveFollowUp(new Date('2025-11-01T12:00:00Z'));
+        const result = await retrieveFollowup(new Date('2025-11-01T12:00:00Z'));
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
@@ -182,36 +186,36 @@ describe('/api-followup', () => {
           { credentials: 'include' }
         );
         expect(result).toEqual({
-          notifications: inventoryData.notifications.items,
+          notifications: followupItemsData.notifications.items,
         });
-        expect(window.localStorage.getItem(`${key}_inventory`)).toEqual(
-          JSON.stringify(inventoryData[key])
+        expect(window.localStorage.getItem(`${key}_followup_source`)).toEqual(
+          JSON.stringify(followupItemsData[key])
         );
       }
     });
 
-    test('should get inventory from API - inventory entry is in failed status in localstorage', async () => {
-      for (const key of Object.keys(inventoryData) as InventoryKey[]) {
+    test('should get followup items from API - followup items entry is in failed status in localstorage', async () => {
+      for (const key of Object.keys(followupItemsData) as APIFollowupItemsKey[]) {
         // Given
         window.localStorage.clear();
         vi.clearAllMocks();
-        for (const key2 of Object.keys(inventoryData) as InventoryKey[]) {
+        for (const key2 of Object.keys(followupItemsData) as APIFollowupItemsKey[]) {
           if (key2 === key) {
             window.localStorage.setItem(
-              `${key2}_inventory`,
+              `${key2}_followup_source`,
               JSON.stringify({ status: 'failed' })
             );
             continue;
           }
           window.localStorage.setItem(
-            `${key2}_inventory`,
-            JSON.stringify(inventoryData[key2])
+            `${key2}_followup_source`,
+            JSON.stringify(followupItemsData[key2])
           );
         }
-        const responseData: NullableInventory = {
+        const responseData: NullableAPIFollowupItems = {
           notifications: null,
         };
-        responseData[key] = inventoryData[key];
+        responseData[key] = followupItemsData[key];
         const spy = vi
           .spyOn(globalThis, 'fetch')
           .mockResolvedValue(
@@ -219,7 +223,7 @@ describe('/api-followup', () => {
           );
 
         // When
-        const result = await retrieveFollowUp(new Date('2025-11-01T12:00:00Z'));
+        const result = await retrieveFollowup(new Date('2025-11-01T12:00:00Z'));
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
@@ -227,85 +231,88 @@ describe('/api-followup', () => {
           { credentials: 'include' }
         );
         expect(result).toEqual({
-          notifications: inventoryData.notifications.items,
+          notifications: followupItemsData.notifications.items,
         });
-        expect(window.localStorage.getItem(`${key}_inventory`)).toEqual(
-          JSON.stringify(inventoryData[key])
+        expect(window.localStorage.getItem(`${key}_followup_source`)).toEqual(
+          JSON.stringify(followupItemsData[key])
         );
       }
     });
 
-    test('should get inventory from API - inventory entry has no expiration in localstorage', async () => {
-      for (const key of Object.keys(inventoryData) as InventoryKey[]) {
+    test('should get followup items from API - followup items entry has no expiration in localstorage', async () => {
+      for (const key of Object.keys(followupItemsData) as APIFollowupItemsKey[]) {
         // Given
         window.localStorage.clear();
         vi.clearAllMocks();
-        for (const key2 of Object.keys(inventoryData) as InventoryKey[]) {
+        for (const key2 of Object.keys(followupItemsData) as APIFollowupItemsKey[]) {
           if (key2 === key) {
-            const { expires_at, ...entry } = { ...inventoryData[key2] }; // old entry, no expiration date
-            window.localStorage.setItem(`${key2}_inventory`, JSON.stringify(entry));
-            continue;
-          }
-          window.localStorage.setItem(
-            `${key2}_inventory`,
-            JSON.stringify(inventoryData[key2])
-          );
-        }
-        const responseData: NullableInventory = {
-          notifications: null,
-        };
-        responseData[key] = inventoryData[key];
-        const spy = vi
-          .spyOn(globalThis, 'fetch')
-          .mockResolvedValue(
-            new Response(JSON.stringify(responseData), { status: 200 })
-          );
-
-        // When
-        const result = await retrieveFollowUp(new Date('2025-11-01T12:00:00Z'));
-
-        // Then
-        expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `https://localhost:8000/api/v1/users/data/followup?filter-items=${key}`,
-          { credentials: 'include' }
-        );
-        expect(result).toEqual({
-          notifications: inventoryData.notifications.items,
-        });
-        expect(window.localStorage.getItem(`${key}_inventory`)).toEqual(
-          JSON.stringify(inventoryData[key])
-        );
-      }
-    });
-
-    test('should get inventory from API - inventory entry has no expiration in localstorage - with error', async () => {
-      for (const key of Object.keys(inventoryData) as InventoryKey[]) {
-        // Given
-        window.localStorage.clear();
-        vi.clearAllMocks();
-        const inventoryData2: NullableInventory = {
-          notifications: null,
-        };
-        for (const key2 of Object.keys(inventoryData) as InventoryKey[]) {
-          if (key2 === key) {
-            const { expires_at, ...entry } = { ...inventoryData[key2] }; // old entry, no expiration date
-            inventoryData2[key2] = entry as (typeof inventoryData)[typeof key2];
+            const { expires_at, ...entry } = { ...followupItemsData[key2] }; // old entry, no expiration date
             window.localStorage.setItem(
-              `${key2}_inventory`,
-              JSON.stringify(inventoryData2[key2])
+              `${key2}_followup_source`,
+              JSON.stringify(entry)
             );
             continue;
           }
-          inventoryData2[key2] = inventoryData[key2];
           window.localStorage.setItem(
-            `${key2}_inventory`,
-            JSON.stringify(inventoryData2[key2])
+            `${key2}_followup_source`,
+            JSON.stringify(followupItemsData[key2])
           );
         }
-        const responseData: NullableInventory = {
+        const responseData: NullableAPIFollowupItems = {
           notifications: null,
         };
-        const { ...entry } = inventoryData[key];
+        responseData[key] = followupItemsData[key];
+        const spy = vi
+          .spyOn(globalThis, 'fetch')
+          .mockResolvedValue(
+            new Response(JSON.stringify(responseData), { status: 200 })
+          );
+
+        // When
+        const result = await retrieveFollowup(new Date('2025-11-01T12:00:00Z'));
+
+        // Then
+        expect(spy).toHaveBeenCalledExactlyOnceWith(
+          `https://localhost:8000/api/v1/users/data/followup?filter-items=${key}`,
+          { credentials: 'include' }
+        );
+        expect(result).toEqual({
+          notifications: followupItemsData.notifications.items,
+        });
+        expect(window.localStorage.getItem(`${key}_followup_source`)).toEqual(
+          JSON.stringify(followupItemsData[key])
+        );
+      }
+    });
+
+    test('should get followup items from API - followup items entry has no expiration in localstorage - with error', async () => {
+      for (const key of Object.keys(followupItemsData) as APIFollowupItemsKey[]) {
+        // Given
+        window.localStorage.clear();
+        vi.clearAllMocks();
+        const followupItemsData2: NullableAPIFollowupItems = {
+          notifications: null,
+        };
+        for (const key2 of Object.keys(followupItemsData) as APIFollowupItemsKey[]) {
+          if (key2 === key) {
+            const { expires_at, ...entry } = { ...followupItemsData[key2] }; // old entry, no expiration date
+            followupItemsData2[key2] = entry as (typeof followupItemsData)[typeof key2];
+            window.localStorage.setItem(
+              `${key2}_followup_source`,
+              JSON.stringify(followupItemsData2[key2])
+            );
+            continue;
+          }
+          followupItemsData2[key2] = followupItemsData[key2];
+          window.localStorage.setItem(
+            `${key2}_followup_source`,
+            JSON.stringify(followupItemsData2[key2])
+          );
+        }
+        const responseData: NullableAPIFollowupItems = {
+          notifications: null,
+        };
+        const { ...entry } = followupItemsData[key];
         entry.status = 'failed';
         responseData[key] = entry;
         const spy = vi
@@ -315,7 +322,7 @@ describe('/api-followup', () => {
           );
 
         // When
-        const result = await retrieveFollowUp(new Date('2025-11-01T12:00:00Z'));
+        const result = await retrieveFollowup(new Date('2025-11-01T12:00:00Z'));
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
@@ -323,35 +330,38 @@ describe('/api-followup', () => {
           { credentials: 'include' }
         );
         expect(result).toEqual({
-          notifications: inventoryData2.notifications?.items,
+          notifications: followupItemsData2.notifications?.items,
         });
-        expect(window.localStorage.getItem(`${key}_inventory`)).toEqual(
-          JSON.stringify(inventoryData2[key])
+        expect(window.localStorage.getItem(`${key}_followup_source`)).toEqual(
+          JSON.stringify(followupItemsData2[key])
         );
       }
     });
 
-    test('should get inventory from API - inventory entry is expired in localstorage', async () => {
-      for (const key of Object.keys(inventoryData) as InventoryKey[]) {
+    test('should get followup items from API - followup items entry is expired in localstorage', async () => {
+      for (const key of Object.keys(followupItemsData) as APIFollowupItemsKey[]) {
         // Given
         window.localStorage.clear();
         vi.clearAllMocks();
-        for (const key2 of Object.keys(inventoryData) as InventoryKey[]) {
+        for (const key2 of Object.keys(followupItemsData) as APIFollowupItemsKey[]) {
           if (key2 === key) {
-            const entry = { ...inventoryData[key2] };
+            const entry = { ...followupItemsData[key2] };
             entry.expires_at = new Date('2025-11-01T11:59:59Z'); // expired
-            window.localStorage.setItem(`${key2}_inventory`, JSON.stringify(entry));
+            window.localStorage.setItem(
+              `${key2}_followup_source`,
+              JSON.stringify(entry)
+            );
             continue;
           }
           window.localStorage.setItem(
-            `${key2}_inventory`,
-            JSON.stringify(inventoryData[key2])
+            `${key2}_followup_source`,
+            JSON.stringify(followupItemsData[key2])
           );
         }
-        const responseData: NullableInventory = {
+        const responseData: NullableAPIFollowupItems = {
           notifications: null,
         };
-        responseData[key] = inventoryData[key];
+        responseData[key] = followupItemsData[key];
         const spy = vi
           .spyOn(globalThis, 'fetch')
           .mockResolvedValue(
@@ -359,7 +369,7 @@ describe('/api-followup', () => {
           );
 
         // When
-        const result = await retrieveFollowUp(new Date('2025-11-01T12:00:00Z'));
+        const result = await retrieveFollowup(new Date('2025-11-01T12:00:00Z'));
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
@@ -367,43 +377,46 @@ describe('/api-followup', () => {
           { credentials: 'include' }
         );
         expect(result).toEqual({
-          notifications: inventoryData.notifications.items,
+          notifications: followupItemsData.notifications.items,
         });
-        expect(window.localStorage.getItem(`${key}_inventory`)).toEqual(
-          JSON.stringify(inventoryData[key])
+        expect(window.localStorage.getItem(`${key}_followup_source`)).toEqual(
+          JSON.stringify(followupItemsData[key])
         );
       }
     });
 
-    test('should get inventory from API - inventory entry is not expired in localstorage', async () => {
-      for (const key of Object.keys(inventoryData) as InventoryKey[]) {
+    test('should get followup items from API - followup items entry is not expired in localstorage', async () => {
+      for (const key of Object.keys(followupItemsData) as APIFollowupItemsKey[]) {
         // Given
         window.localStorage.clear();
-        for (const key2 of Object.keys(inventoryData) as InventoryKey[]) {
+        for (const key2 of Object.keys(followupItemsData) as APIFollowupItemsKey[]) {
           if (key2 === key) {
-            const entry = { ...inventoryData[key2] };
+            const entry = { ...followupItemsData[key2] };
             entry.expires_at = new Date('2025-11-01T12:00:00Z'); // not yet expired
-            window.localStorage.setItem(`${key2}_inventory`, JSON.stringify(entry));
+            window.localStorage.setItem(
+              `${key2}_followup_source`,
+              JSON.stringify(entry)
+            );
             continue;
           }
           window.localStorage.setItem(
-            `${key2}_inventory`,
-            JSON.stringify(inventoryData[key2])
+            `${key2}_followup_source`,
+            JSON.stringify(followupItemsData[key2])
           );
         }
 
         // When
-        const result = await retrieveFollowUp(new Date('2025-11-01T12:00:00Z'));
+        const result = await retrieveFollowup(new Date('2025-11-01T12:00:00Z'));
 
         // Then
         expect(result).toEqual({
-          notifications: inventoryData.notifications.items,
+          notifications: followupItemsData.notifications.items,
         });
       }
     });
   });
 
-  describe('archiveFollowUpItem', () => {
+  describe('archiveFollowupItem', () => {
     test('should return true', async () => {
       // Given
       const spy = vi
@@ -411,7 +424,7 @@ describe('/api-followup', () => {
         .mockResolvedValue(new Response(JSON.stringify({}), { status: 200 }));
 
       // When
-      const result = await archiveFollowUpItem('notifications', 'id');
+      const result = await archiveFollowupItem('notifications', 'id');
 
       // Then
       expect(result).toEqual(true);
@@ -432,7 +445,7 @@ describe('/api-followup', () => {
         .mockResolvedValue(new Response(JSON.stringify({}), { status: 400 }));
 
       // When
-      const result = await archiveFollowUpItem('notifications', 'id');
+      const result = await archiveFollowupItem('notifications', 'id');
 
       // Then
       expect(result).toEqual(false);
@@ -453,7 +466,7 @@ describe('/api-followup', () => {
         .mockResolvedValue(new Response(JSON.stringify({}), { status: 500 }));
 
       // When
-      const result = await archiveFollowUpItem('notifications', 'id');
+      const result = await archiveFollowupItem('notifications', 'id');
 
       // Then
       expect(result).toEqual(false);

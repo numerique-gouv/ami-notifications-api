@@ -9,8 +9,8 @@
   import Modal from '$lib/components/modal/Modal.svelte';
   import RequestItemModal from '$lib/components/modal/RequestItemModal.svelte';
   import RequestItem from '$lib/components/RequestItem.svelte';
-  import type { FollowUp, RequestItem as RequestItemType } from '$lib/followup';
-  import { buildFollowUp } from '$lib/followup';
+  import type { Followup, RequestItem as RequestItemType } from '$lib/followup';
+  import { buildFollowup } from '$lib/followup';
   import { userReady } from '$lib/initializeDataFromAPI';
   import {
     countUnreadNotifications,
@@ -29,8 +29,8 @@
   let isMenuDisplayed: boolean = $state(false);
   let isAgendaEmpty: boolean = $state(true);
   let agenda: Agenda | null = $state(null);
-  let isFollowUpEmpty: boolean = $state(true);
-  let followUp: FollowUp | null = $state(null);
+  let isFollowupEmpty: boolean = $state(true);
+  let followup: Followup | null = $state(null);
   let selectedAgendaItem: AgendaItemType | null = $state(null);
   let selectedRequestItem: RequestItemType | null = $state(null);
 
@@ -65,9 +65,9 @@
       agenda = await buildAgenda();
       console.log($state.snapshot(agenda));
       isAgendaEmpty = !(agenda.now.length || agenda.next.length);
-      followUp = await buildFollowUp();
-      console.log($state.snapshot(followUp));
-      isFollowUpEmpty = !followUp.items.length;
+      followup = await buildFollowup();
+      console.log($state.snapshot(followup));
+      isFollowupEmpty = !followup.items.length;
     } catch (error) {
       console.error(error);
     }
@@ -245,7 +245,7 @@
   </div>
 
   <div class="rubrique-container requests-container">
-    {#if isFollowUpEmpty}
+    {#if isFollowupEmpty}
       <div class="header-container"><span class="title">Mes démarches</span></div>
       <div class="rubrique-content-container">
         <div class="no-requests rubrique-content-container--empty">
@@ -264,8 +264,8 @@
         </a>
       </div>
       <div class="rubrique-content-container">
-        {#if followUp && followUp.items.length}
-          {@const firstItem = followUp.items[0]}
+        {#if followup && followup.items.length}
+          {@const firstItem = followup.items[0]}
           <RequestItem
             item={firstItem}
             onOpen={() => openRequestItemModal(firstItem)}
@@ -292,8 +292,8 @@
 {#if selectedRequestItem}
   <RequestItemModal
     bind:item={selectedRequestItem}
-    bind:followUp={followUp}
-    bind:isFollowUpEmpty={isFollowUpEmpty}
+    bind:followup={followup}
+    bind:isFollowupEmpty={isFollowupEmpty}
   />
 {/if}
 

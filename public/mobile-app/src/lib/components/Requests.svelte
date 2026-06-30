@@ -4,8 +4,8 @@
   import RequestItemModal from '$lib/components/modal/RequestItemModal.svelte';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import RequestItem from '$lib/components/RequestItem.svelte';
-  import type { FollowUp, RequestItem as RequestItemType } from '$lib/followup';
-  import { buildFollowUp } from '$lib/followup';
+  import type { Followup, RequestItem as RequestItemType } from '$lib/followup';
+  import { buildFollowup } from '$lib/followup';
 
   interface Props {
     archived?: boolean;
@@ -13,14 +13,14 @@
   let { archived = false }: Props = $props();
 
   const backUrl = '/#/requests';
-  let isFollowUpEmpty: boolean = $state(true);
-  let followUp: FollowUp | null = $state(null);
+  let isFollowupEmpty: boolean = $state(true);
+  let followup: Followup | null = $state(null);
   let selectedRequestItem: RequestItemType | null = $state(null);
   let menuOpened: boolean = $state(false);
 
   onMount(async () => {
-    followUp = await buildFollowUp();
-    console.log($state.snapshot(followUp));
+    followup = await buildFollowup();
+    console.log($state.snapshot(followup));
   });
 
   const openRequestItemModal = (item: RequestItemType) => {
@@ -73,12 +73,12 @@
   {/if}
 
   <div class="requests--container" data-testid="requests">
-    {#if archived && followUp && followUp.archived_items.length}
-      {#each followUp.archived_items as item}
+    {#if archived && followup && followup.archived_items.length}
+      {#each followup.archived_items as item}
         <RequestItem item={item} onOpen={() => openRequestItemModal(item)} />
       {/each}
-    {:else if !archived && followUp && followUp.items.length}
-      {#each followUp.items as item}
+    {:else if !archived && followup && followup.items.length}
+      {#each followup.items as item}
         <RequestItem item={item} onOpen={() => openRequestItemModal(item)} />
       {/each}
     {:else}
@@ -98,8 +98,8 @@
 {#if selectedRequestItem}
   <RequestItemModal
     bind:item={selectedRequestItem}
-    bind:followUp={followUp}
-    bind:isFollowUpEmpty={isFollowUpEmpty}
+    bind:followup={followup}
+    bind:isFollowupEmpty={isFollowupEmpty}
   />
 {/if}
 
