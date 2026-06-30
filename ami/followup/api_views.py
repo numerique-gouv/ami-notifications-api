@@ -9,38 +9,38 @@ from rest_framework.response import Response
 from ami.authentication.decorators import ami_login_required
 from ami.notification.models import Notification
 
-from .data.notification import get_notifications_inventory
-from .schemas import FollowUp
+from .data.notification import get_notifications_source
+from .schemas import Followup
 from .serializers import (
-    FollowUpItemArchiveResponse,
-    FollowUpItemArchiveSerializer,
-    FollowUpSerializer,
+    FollowupItemArchiveResponse,
+    FollowupItemArchiveSerializer,
+    FollowupSerializer,
 )
 
 
 @api_view(["GET"])
 @ami_login_required
-def get_follow_up_inventories(request: Request) -> Response[FollowUp]:
-    follow_up = FollowUp()
+def get_followup(request: Request) -> Response[Followup]:
+    followup = Followup()
 
-    follow_up.notifications = get_notifications_inventory(current_user=request.ami_user)
-    serializer = FollowUpSerializer(follow_up)
+    followup.notifications = get_notifications_source(current_user=request.ami_user)
+    serializer = FollowupSerializer(followup)
 
     return Response(serializer.data)
 
 
 @extend_schema(
     methods=["POST"],
-    request=FollowUpItemArchiveSerializer,
+    request=FollowupItemArchiveSerializer,
     responses={
-        200: FollowUpItemArchiveResponse,
+        200: FollowupItemArchiveResponse,
     },
 )
 @api_view(["POST"])
 @ami_login_required
 def archive_followup_item(
-    request: Request, inventory: str, item_external_id: str
-) -> Response[FollowUpItemArchiveResponse]:
+    request: Request, source: str, item_external_id: str
+) -> Response[FollowupItemArchiveResponse]:
     parts = item_external_id.split(":")
     if len(parts) != 3:
         raise Http404
@@ -48,10 +48,10 @@ def archive_followup_item(
         raise Http404
     partner_id, item_type, item_id = parts
 
-    if inventory != "notifications":
+    if source != "notifications":
         raise Http404
 
-    serializer = FollowUpItemArchiveSerializer(data=request.data)
+    serializer = FollowupItemArchiveSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     data: dict = cast(dict, serializer.validated_data)
 
@@ -76,8 +76,8 @@ def archive_followup_item(
     notification.save()
 
     response_data = {
-        "inventory": inventory,
+        "source": source,
         "item_external_id": item_external_id,
         "is_archived": data["is_archived"],
     }
-    return Response(FollowUpItemArchiveResponse(response_data).data)
+    return Response(FollowupItemArchiveResponse(response_data).data)

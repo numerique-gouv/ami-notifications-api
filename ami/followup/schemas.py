@@ -12,14 +12,14 @@ class ItemGenericStatus(Enum):
     CLOSED = "closed"
 
 
-class FollowUpInventoryStatus(Enum):
+class FollowupSourceStatus(Enum):
     LOADING = "loading"
     SUCCESS = "success"
     FAILED = "failed"
 
 
 @dataclass
-class FollowUpInventoryItem:
+class FollowupItem:
     partner_id: str
     external_item_type: str
     external_item_id: str
@@ -73,11 +73,11 @@ class FollowUpInventoryItem:
 
 
 @dataclass
-class FollowUpInventory:
-    status: FollowUpInventoryStatus = field(default=FollowUpInventoryStatus.LOADING)
-    items: list[FollowUpInventoryItem] = field(default_factory=list[FollowUpInventoryItem])
+class FollowupSource:
+    status: FollowupSourceStatus = field(default=FollowupSourceStatus.LOADING)
+    items: list[FollowupItem] = field(default_factory=list[FollowupItem])
 
 
 @dataclass
-class FollowUp:
-    notifications: FollowUpInventory | None = field(default_factory=FollowUpInventory)
+class Followup:
+    notifications: FollowupSource | None = field(default_factory=FollowupSource)

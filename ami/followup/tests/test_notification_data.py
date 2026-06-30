@@ -4,11 +4,11 @@ from unittest import mock
 
 import pytest
 
-from ami.followup.data.notification import get_notifications_data, get_notifications_inventory
+from ami.followup.data.notification import get_notifications_data, get_notifications_source
 from ami.followup.schemas import (
-    FollowUpInventory,
-    FollowUpInventoryItem,
-    FollowUpInventoryStatus,
+    FollowupItem,
+    FollowupSource,
+    FollowupSourceStatus,
     ItemGenericStatus,
 )
 from ami.notification.models import Notification
@@ -217,7 +217,7 @@ def test_get_notifications_data(user: User) -> None:
     result = get_notifications_data(current_user=user)
 
     assert result == [
-        FollowUpInventoryItem(
+        FollowupItem(
             partner_id="dinum-ami",
             external_item_type="Other",
             external_item_id="52",
@@ -233,7 +233,7 @@ def test_get_notifications_data(user: User) -> None:
             created_at=notification8.event_date,
             updated_at=notification8.event_date,
         ),
-        FollowUpInventoryItem(
+        FollowupItem(
             partner_id="dinum-ami",
             external_item_type="Other",
             external_item_id="42",
@@ -249,7 +249,7 @@ def test_get_notifications_data(user: User) -> None:
             created_at=notification7.event_date,
             updated_at=notification7.event_date,
         ),
-        FollowUpInventoryItem(
+        FollowupItem(
             partner_id="psl",
             external_item_type="OperationTranquilliteVacances",
             external_item_id="44",
@@ -265,7 +265,7 @@ def test_get_notifications_data(user: User) -> None:
             created_at=notification5.event_date,
             updated_at=notification6.event_date,
         ),
-        FollowUpInventoryItem(
+        FollowupItem(
             partner_id="psl",
             external_item_type="OtherOperationTranquilliteVacances",
             external_item_id="43",
@@ -281,7 +281,7 @@ def test_get_notifications_data(user: User) -> None:
             created_at=notification4.event_date,
             updated_at=notification4.event_date,
         ),
-        FollowUpInventoryItem(
+        FollowupItem(
             partner_id="psl",
             external_item_type="OperationTranquilliteVacances",
             external_item_id="42",
@@ -301,9 +301,9 @@ def test_get_notifications_data(user: User) -> None:
 
 
 @pytest.mark.django_db
-def test_get_notifications_inventory(user: User, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_get_notifications_source(user: User, monkeypatch: pytest.MonkeyPatch) -> None:
     items = [
-        FollowUpInventoryItem(
+        FollowupItem(
             partner_id="psl",
             external_item_type="OperationTranquilliteVacances",
             external_item_id="44",
@@ -319,7 +319,7 @@ def test_get_notifications_inventory(user: User, monkeypatch: pytest.MonkeyPatch
             created_at=datetime.datetime.now(datetime.timezone.utc),
             updated_at=datetime.datetime.now(datetime.timezone.utc),
         ),
-        FollowUpInventoryItem(
+        FollowupItem(
             partner_id="psl",
             external_item_type="OperationTranquilliteVacances",
             external_item_id="43",
@@ -338,5 +338,5 @@ def test_get_notifications_inventory(user: User, monkeypatch: pytest.MonkeyPatch
     ]
     data_mock = mock.Mock(return_value=items)
     monkeypatch.setattr("ami.followup.data.notification.get_notifications_data", data_mock)
-    result = get_notifications_inventory(current_user=user)
-    assert result == FollowUpInventory(status=FollowUpInventoryStatus.SUCCESS, items=items)
+    result = get_notifications_source(current_user=user)
+    assert result == FollowupSource(status=FollowupSourceStatus.SUCCESS, items=items)

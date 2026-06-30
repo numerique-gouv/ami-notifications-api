@@ -1,19 +1,19 @@
 from rest_framework import serializers
 from rest_framework_dataclasses.serializers import DataclassSerializer
 
-from .schemas import FollowUp
+from .schemas import Followup
 
 
-class FollowUpSerializer(DataclassSerializer):
+class FollowupSerializer(DataclassSerializer):
     class Meta:
-        dataclass = FollowUp
+        dataclass = Followup
 
 
-class FollowUpItemArchiveSerializer(serializers.Serializer):
+class FollowupItemArchiveSerializer(serializers.Serializer):
     is_archived = serializers.BooleanField()
 
 
-class FollowUpItemArchiveResponse(serializers.Serializer):
-    inventory = serializers.CharField()
+class FollowupItemArchiveResponse(serializers.Serializer):
+    source = serializers.CharField()
     item_external_id = serializers.CharField()
     is_archived = serializers.BooleanField()

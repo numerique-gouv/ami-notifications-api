@@ -1,12 +1,12 @@
 import collections
 
-from ami.followup.schemas import FollowUpInventory, FollowUpInventoryItem, FollowUpInventoryStatus
+from ami.followup.schemas import FollowupItem, FollowupSource, FollowupSourceStatus
 from ami.notification.models import Notification
 from ami.partner.models import partners
 from ami.user.models import User
 
 
-def get_notifications_data(*, current_user: User) -> list[FollowUpInventoryItem]:
+def get_notifications_data(*, current_user: User) -> list[FollowupItem]:
     notifications = Notification.objects.filter(
         item_generic_status__isnull=False,
         item_status_label__isnull=False,
@@ -23,10 +23,10 @@ def get_notifications_data(*, current_user: User) -> list[FollowUpInventoryItem]
         external_id = f"{notification.partner_id}:{notification.item_type}:{notification.item_id}"
         notifications_by_item_ids[external_id].append(notification)
 
-    items: list[FollowUpInventoryItem] = []
+    items: list[FollowupItem] = []
 
     for notifications in notifications_by_item_ids.values():
-        item = FollowUpInventoryItem.from_notifications(notifications)
+        item = FollowupItem.from_notifications(notifications)
         if item is None:
             continue
         items.append(item)
@@ -34,15 +34,15 @@ def get_notifications_data(*, current_user: User) -> list[FollowUpInventoryItem]
     return sorted(items, key=lambda a: (a.updated_at, a.created_at), reverse=True)
 
 
-def get_notifications_inventory(
+def get_notifications_source(
     *,
     current_user: User,
-) -> FollowUpInventory:
-    inventory = FollowUpInventory()
+) -> FollowupSource:
+    source = FollowupSource()
 
     items = get_notifications_data(current_user=current_user)
 
-    inventory.items = items
-    inventory.status = FollowUpInventoryStatus.SUCCESS
+    source.items = items
+    source.status = FollowupSourceStatus.SUCCESS
 
-    return inventory
+    return source

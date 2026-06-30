@@ -37,11 +37,11 @@ def test_archive_notification_item(
         "is_archived": True,
     }
     response = app.post(
-        "/api/v1/users/follow-up/item/notifications/psl:OperationTranquilliteVacances:42/archive",
+        "/api/v1/users/data/followup/item/notifications/psl:OperationTranquilliteVacances:42/archive",
         payload,
     )
     assert response.json == {
-        "inventory": "notifications",
+        "source": "notifications",
         "item_external_id": "psl:OperationTranquilliteVacances:42",
         "is_archived": True,
     }
@@ -55,11 +55,11 @@ def test_archive_notification_item(
         "is_archived": False,
     }
     response = app.post(
-        "/api/v1/users/follow-up/item/notifications/psl:OperationTranquilliteVacances:42/archive",
+        "/api/v1/users/data/followup/item/notifications/psl:OperationTranquilliteVacances:42/archive",
         payload,
     )
     assert response.json == {
-        "inventory": "notifications",
+        "source": "notifications",
         "item_external_id": "psl:OperationTranquilliteVacances:42",
         "is_archived": False,
     }
@@ -78,7 +78,7 @@ def test_archive_notification_item_empty_payload(
     login(app, user)
 
     response = app.post(
-        "/api/v1/users/follow-up/item/notifications/psl:OperationTranquilliteVacances:42/archive",
+        "/api/v1/users/data/followup/item/notifications/psl:OperationTranquilliteVacances:42/archive",
         status=400,
     )
     assert response.json == {
@@ -94,19 +94,19 @@ def test_archive_notification_item_wrong_id(
     login(app, user)
 
     app.post(
-        "/api/v1/users/follow-up/item/notifications/psl:OperationTranquilliteVacances:/archive",
+        "/api/v1/users/data/followup/item/notifications/psl:OperationTranquilliteVacances:/archive",
         status=404,
     )
     app.post(
-        "/api/v1/users/follow-up/item/notifications/psl:OperationTranquilliteVacances/archive",
+        "/api/v1/users/data/followup/item/notifications/psl:OperationTranquilliteVacances/archive",
         status=404,
     )
-    app.post("/api/v1/users/follow-up/item/notifications/psl:/archive", status=404)
-    app.post("/api/v1/users/follow-up/item/notifications/psl/archive", status=404)
+    app.post("/api/v1/users/data/followup/item/notifications/psl:/archive", status=404)
+    app.post("/api/v1/users/data/followup/item/notifications/psl/archive", status=404)
 
 
 @pytest.mark.django_db
-def test_archive_notification_item_wrong_inventory(
+def test_archive_notification_item_wrong_source(
     user: User,
     app,
 ) -> None:
@@ -116,7 +116,7 @@ def test_archive_notification_item_wrong_inventory(
         "is_archived": True,
     }
     app.post(
-        "/api/v1/users/follow-up/item/other/psl:OperationTranquilliteVacances:42/archive",
+        "/api/v1/users/data/followup/item/other/psl:OperationTranquilliteVacances:42/archive",
         payload,
         status=404,
     )
@@ -216,11 +216,11 @@ def test_archive_notification_item_notification_not_found(
     )
 
     payload = {
-        "inventory": "notifications",
+        "source": "notifications",
         "is_archived": True,
     }
     app.post(
-        "/api/v1/users/follow-up/item/notifications/psl:OperationTranquilliteVacances:42/archive",
+        "/api/v1/users/data/followup/item/notifications/psl:OperationTranquilliteVacances:42/archive",
         payload,
         status=404,
     )
@@ -233,6 +233,6 @@ def test_archive_notification_item_notification_not_found(
 def test_archive_item_without_auth(app) -> None:
     assert_query_fails_without_auth(
         app,
-        "/api/v1/users/follow-up/item/notifications/psl:OperationTranquilliteVacances:42/archive",
+        "/api/v1/users/data/followup/item/notifications/psl:OperationTranquilliteVacances:42/archive",
         method="post",
     )
