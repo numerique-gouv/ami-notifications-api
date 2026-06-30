@@ -53,7 +53,7 @@ export const retrieveInventory = async (
   }
   if (filter_items.length) {
     const items = (filter_items || []).map((e) => `filter-items=${e}`).join('&');
-    const response = await apiFetch(`/api/v1/users/follow-up/inventories?${items}`, {
+    const response = await apiFetch(`/api/v1/users/data/followup?${items}`, {
       credentials: 'include',
     });
     if (response.ok) {
@@ -103,7 +103,7 @@ export const archiveInventoryItem = async (
       'Content-Type': 'application/json',
     };
     const response = await apiFetch(
-      `/api/v1/users/follow-up/item/${inventory}/${external_id}/archive`,
+      `/api/v1/users/data/followup/item/${inventory}/${external_id}/archive`,
       {
         method: 'POST',
         headers,
