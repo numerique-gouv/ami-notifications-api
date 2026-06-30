@@ -5,7 +5,7 @@ from django.conf import settings
 from workalendar.europe import France
 
 from ami.agenda.data.schemas import PublicHoliday, SchoolHoliday
-from ami.agenda.schemas import AgendaCatalog, AgendaCatalogStatus
+from ami.agenda.schemas import AgendaSource, AgendaSourceStatus
 from ami.utils.httpx import httpxClient
 
 
@@ -56,22 +56,22 @@ def get_school_holidays_data(
     return sorted(holidays.values(), key=lambda a: a.start_date)
 
 
-def get_school_holidays_catalog(
+def get_school_holidays_source(
     *,
     start_date: datetime.date,
     end_date: datetime.date,
     **kwargs: Any,
-) -> AgendaCatalog:
-    catalog = AgendaCatalog()
+) -> AgendaSource:
+    source = AgendaSource()
     try:
         holidays = get_school_holidays_data(start_date, end_date)
     except SchoolHolidaysError:
-        catalog.status = AgendaCatalogStatus.FAILED
+        source.status = AgendaSourceStatus.FAILED
     else:
         for holiday in holidays:
-            catalog.items.append(holiday.to_catalog_item())
-        catalog.status = AgendaCatalogStatus.SUCCESS
-    return catalog
+            source.items.append(holiday.to_agenda_item())
+        source.status = AgendaSourceStatus.SUCCESS
+    return source
 
 
 def get_public_holidays_data(
@@ -97,15 +97,15 @@ def get_public_holidays_data(
     return holidays
 
 
-def get_public_holidays_catalog(
+def get_public_holidays_source(
     *,
     start_date: datetime.date,
     end_date: datetime.date,
     **kwargs: Any,
-) -> AgendaCatalog:
+) -> AgendaSource:
     holidays = get_public_holidays_data(start_date, end_date)
-    catalog = AgendaCatalog()
+    source = AgendaSource()
     for holiday in holidays:
-        catalog.items.append(holiday.to_catalog_item())
-    catalog.status = AgendaCatalogStatus.SUCCESS
-    return catalog
+        source.items.append(holiday.to_agenda_item())
+    source.status = AgendaSourceStatus.SUCCESS
+    return source

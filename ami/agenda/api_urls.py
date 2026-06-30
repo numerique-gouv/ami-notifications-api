@@ -1,7 +1,7 @@
 from django.urls import path
 
-from .api_views import get_agenda_items
+from .api_views import get_agenda
 
 root_urlpatterns = [
-    path("users/agenda/items", get_agenda_items),
+    path("users/data/agenda", get_agenda),
 ]

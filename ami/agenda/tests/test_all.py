@@ -4,10 +4,10 @@ from unittest import mock
 import pytest
 
 from ami.agenda.schemas import (
-    AgendaCatalog,
-    AgendaCatalogItem,
-    AgendaCatalogItemKind,
-    AgendaCatalogStatus,
+    AgendaItem,
+    AgendaItemKind,
+    AgendaSource,
+    AgendaSourceStatus,
 )
 from ami.tests.utils import assert_query_fails_without_auth, login
 from ami.user.models import User
@@ -24,19 +24,19 @@ def test_get_agenda_items(
     today = datetime.date.today()
     dates_mock = mock.Mock(return_value=(today, today + datetime.timedelta(days=2)))
     monkeypatch.setattr("ami.agenda.api_views.get_holidays_dates", dates_mock)
-    school_catalog = AgendaCatalog(
-        status=AgendaCatalogStatus.SUCCESS,
+    school_source = AgendaSource(
+        status=AgendaSourceStatus.SUCCESS,
         items=[
-            AgendaCatalogItem(
-                kind=AgendaCatalogItemKind.HOLIDAY,
+            AgendaItem(
+                kind=AgendaItemKind.HOLIDAY,
                 title="Vacances de Noël",
                 start_date=datetime.date(2025, 12, 20),
                 end_date=datetime.date(2026, 1, 5),
                 zones=["Zone A", "Zone B"],
                 emoji="🎄",
             ),
-            AgendaCatalogItem(
-                kind=AgendaCatalogItemKind.HOLIDAY,
+            AgendaItem(
+                kind=AgendaItemKind.HOLIDAY,
                 title="Vacances d'Hiver",
                 start_date=datetime.date(2026, 2, 7),
                 end_date=datetime.date(2026, 2, 23),
@@ -45,39 +45,39 @@ def test_get_agenda_items(
             ),
         ],
     )
-    school_data_mock = mock.Mock(return_value=school_catalog)
-    monkeypatch.setattr("ami.agenda.api_views.get_school_holidays_catalog", school_data_mock)
-    public_catalog = AgendaCatalog(
-        status=AgendaCatalogStatus.SUCCESS,
+    school_data_mock = mock.Mock(return_value=school_source)
+    monkeypatch.setattr("ami.agenda.api_views.get_school_holidays_source", school_data_mock)
+    public_source = AgendaSource(
+        status=AgendaSourceStatus.SUCCESS,
         items=[
-            AgendaCatalogItem(
-                kind=AgendaCatalogItemKind.HOLIDAY,
+            AgendaItem(
+                kind=AgendaItemKind.HOLIDAY,
                 title="Noël",
                 date=datetime.date(2025, 12, 25),
                 emoji="📅",
             ),
-            AgendaCatalogItem(
-                kind=AgendaCatalogItemKind.HOLIDAY,
+            AgendaItem(
+                kind=AgendaItemKind.HOLIDAY,
                 title="Jour de l’An",
                 date=datetime.date(2026, 1, 1),
                 emoji="🎉",
             ),
         ],
     )
-    public_data_mock = mock.Mock(return_value=public_catalog)
-    monkeypatch.setattr("ami.agenda.api_views.get_public_holidays_catalog", public_data_mock)
-    election_catalog = AgendaCatalog(
-        status=AgendaCatalogStatus.SUCCESS,
+    public_data_mock = mock.Mock(return_value=public_source)
+    monkeypatch.setattr("ami.agenda.api_views.get_public_holidays_source", public_data_mock)
+    election_source = AgendaSource(
+        status=AgendaSourceStatus.SUCCESS,
         items=[
-            AgendaCatalogItem(
-                kind=AgendaCatalogItemKind.ELECTION,
+            AgendaItem(
+                kind=AgendaItemKind.ELECTION,
                 title="Foo",
                 description="Votez au premier tour des municipales",
                 date=datetime.date(2026, 3, 15),
                 emoji="🗳️",
             ),
-            AgendaCatalogItem(
-                kind=AgendaCatalogItemKind.ELECTION,
+            AgendaItem(
+                kind=AgendaItemKind.ELECTION,
                 title="Foo",
                 description="Votez au second tour des municipales",
                 date=datetime.date(2026, 3, 22),
@@ -85,8 +85,8 @@ def test_get_agenda_items(
             ),
         ],
     )
-    election_data_mock = mock.Mock(return_value=election_catalog)
-    monkeypatch.setattr("ami.agenda.api_views.get_elections_catalog", election_data_mock)
+    election_data_mock = mock.Mock(return_value=election_source)
+    monkeypatch.setattr("ami.agenda.api_views.get_elections_source", election_data_mock)
 
     duration_mock = mock.Mock(
         return_value=datetime.datetime(2026, 2, 14, 11, 16, tzinfo=datetime.timezone.utc)
@@ -97,7 +97,7 @@ def test_get_agenda_items(
     )
     monkeypatch.setattr("ami.agenda.api_views.MonthlyExpiration.compute_expires_at", monthly_mock)
 
-    response = app.get("/api/v1/users/agenda/items", params={"current_date": "2025-12-12"})
+    response = app.get("/api/v1/users/data/agenda", params={"current_date": "2025-12-12"})
     assert response.json == {
         "school_holidays": {
             "status": "success",
@@ -203,7 +203,7 @@ def test_get_agenda_items(
     public_data_mock.reset_mock()
     election_data_mock.reset_mock()
     response = app.get(
-        "/api/v1/users/agenda/items", params={"current_date": "2025-12-12", "filter-items": []}
+        "/api/v1/users/data/agenda", params={"current_date": "2025-12-12", "filter-items": []}
     )
     assert response.json["school_holidays"] is not None
     assert response.json["public_holidays"] is not None
@@ -216,7 +216,7 @@ def test_get_agenda_items(
     public_data_mock.reset_mock()
     election_data_mock.reset_mock()
     response = app.get(
-        "/api/v1/users/agenda/items",
+        "/api/v1/users/data/agenda",
         params={"current_date": "2025-12-12", "filter-items": ["unknown"]},
     )
     assert response.json["school_holidays"] is not None
@@ -230,7 +230,7 @@ def test_get_agenda_items(
     public_data_mock.reset_mock()
     election_data_mock.reset_mock()
     response = app.get(
-        "/api/v1/users/agenda/items",
+        "/api/v1/users/data/agenda",
         params={
             "current_date": "2025-12-12",
             "filter-items": ["school_holidays", "public_holidays", "elections", "unknown"],
@@ -247,7 +247,7 @@ def test_get_agenda_items(
     public_data_mock.reset_mock()
     election_data_mock.reset_mock()
     response = app.get(
-        "/api/v1/users/agenda/items",
+        "/api/v1/users/data/agenda",
         params={"current_date": "2025-12-12", "filter-items": ["elections"]},
     )
     assert response.json["school_holidays"] is None
@@ -261,7 +261,7 @@ def test_get_agenda_items(
     public_data_mock.reset_mock()
     election_data_mock.reset_mock()
     response = app.get(
-        "/api/v1/users/agenda/items",
+        "/api/v1/users/data/agenda",
         params={"current_date": "2025-12-12", "filter-items": ["elections", "public_holidays"]},
     )
     assert response.json["school_holidays"] is None
@@ -276,4 +276,4 @@ def test_get_agenda_items(
 def test_get_agenda_items_without_auth(
     app,
 ) -> None:
-    assert_query_fails_without_auth(app, "/api/v1/users/agenda/items")
+    assert_query_fails_without_auth(app, "/api/v1/users/data/agenda")

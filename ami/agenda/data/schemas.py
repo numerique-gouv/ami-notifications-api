@@ -2,7 +2,7 @@ import datetime
 from dataclasses import dataclass, fields
 from typing import Any
 
-from ami.agenda.schemas import AgendaCatalogItem, AgendaCatalogItemKind
+from ami.agenda.schemas import AgendaItem, AgendaItemKind
 
 
 @dataclass
@@ -43,9 +43,9 @@ class SchoolHoliday:
         filtered["zones"] = [filtered["zones"]]
         return cls(**filtered)
 
-    def to_catalog_item(self):
-        return AgendaCatalogItem(
-            kind=AgendaCatalogItemKind.HOLIDAY,
+    def to_agenda_item(self):
+        return AgendaItem(
+            kind=AgendaItemKind.HOLIDAY,
             title=self.description,
             zones=self.zones,
             start_date=self.start_date,
@@ -91,9 +91,9 @@ class PublicHoliday:
         filtered["emoji"] = cls.emoji_mapping.get(original_description, cls.default_emoji)
         return cls(**filtered)
 
-    def to_catalog_item(self):
-        return AgendaCatalogItem(
-            kind=AgendaCatalogItemKind.HOLIDAY,
+    def to_agenda_item(self):
+        return AgendaItem(
+            kind=AgendaItemKind.HOLIDAY,
             title=self.description,
             date=self.date,
             emoji=self.emoji,
@@ -116,9 +116,9 @@ class Election:
         filtered["emoji"] = cls.default_emoji
         return cls(**filtered)
 
-    def to_catalog_item(self):
-        return AgendaCatalogItem(
-            kind=AgendaCatalogItemKind.ELECTION,
+    def to_agenda_item(self):
+        return AgendaItem(
+            kind=AgendaItemKind.ELECTION,
             title=self.title,
             description=self.description,
             date=self.date,

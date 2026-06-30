@@ -3,13 +3,13 @@ from unittest import mock
 
 import pytest
 
-from ami.agenda.data.holidays import get_public_holidays_catalog, get_public_holidays_data
+from ami.agenda.data.holidays import get_public_holidays_data, get_public_holidays_source
 from ami.agenda.data.schemas import PublicHoliday
 from ami.agenda.schemas import (
-    AgendaCatalog,
-    AgendaCatalogItem,
-    AgendaCatalogItemKind,
-    AgendaCatalogStatus,
+    AgendaItem,
+    AgendaItemKind,
+    AgendaSource,
+    AgendaSourceStatus,
 )
 
 
@@ -30,7 +30,7 @@ def test_get_public_holidays_data() -> None:
     ]
 
 
-def test_get_public_holidays_catalog(
+def test_get_public_holidays_source(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     holidays = [
@@ -39,21 +39,21 @@ def test_get_public_holidays_catalog(
     ]
     data_mock = mock.Mock(return_value=holidays)
     monkeypatch.setattr("ami.agenda.data.holidays.get_public_holidays_data", data_mock)
-    result = get_public_holidays_catalog(
+    result = get_public_holidays_source(
         start_date=datetime.date(2025, 11, 12), end_date=datetime.date(2026, 9, 15)
     )
     items = [
-        AgendaCatalogItem(
-            kind=AgendaCatalogItemKind.HOLIDAY,
+        AgendaItem(
+            kind=AgendaItemKind.HOLIDAY,
             title="Noël",
             date=datetime.date(2025, 12, 25),
             emoji="📅",
         ),
-        AgendaCatalogItem(
-            kind=AgendaCatalogItemKind.HOLIDAY,
+        AgendaItem(
+            kind=AgendaItemKind.HOLIDAY,
             title="Jour de l’An",
             date=datetime.date(2026, 1, 1),
             emoji="🎉",
         ),
     ]
-    assert result == AgendaCatalog(status=AgendaCatalogStatus.SUCCESS, items=items)
+    assert result == AgendaSource(status=AgendaSourceStatus.SUCCESS, items=items)

@@ -2,7 +2,7 @@ import datetime
 from typing import Any, TypedDict
 
 from ami.agenda.data.schemas import Election
-from ami.agenda.schemas import AgendaCatalog, AgendaCatalogStatus
+from ami.agenda.schemas import AgendaSource, AgendaSourceStatus
 
 
 class ElectionDict(TypedDict):
@@ -38,15 +38,15 @@ def get_elections_data(
     return elections
 
 
-def get_elections_catalog(
+def get_elections_source(
     *,
     start_date: datetime.date,
     end_date: datetime.date,
     **kwargs: Any,
-) -> AgendaCatalog:
+) -> AgendaSource:
     elections = get_elections_data(start_date, end_date)
-    catalog = AgendaCatalog()
+    source = AgendaSource()
     for election in elections:
-        catalog.items.append(election.to_catalog_item())
-    catalog.status = AgendaCatalogStatus.SUCCESS
-    return catalog
+        source.items.append(election.to_agenda_item())
+    source.status = AgendaSourceStatus.SUCCESS
+    return source

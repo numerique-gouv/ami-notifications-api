@@ -5,20 +5,20 @@ from enum import Enum
 from ami.utils.schemas import ExpirationRule
 
 
-class AgendaCatalogStatus(Enum):
+class AgendaSourceStatus(Enum):
     LOADING = "loading"
     SUCCESS = "success"
     FAILED = "failed"
 
 
-class AgendaCatalogItemKind(Enum):
+class AgendaItemKind(Enum):
     HOLIDAY = "holiday"
     ELECTION = "election"
 
 
 @dataclass
-class AgendaCatalogItem:
-    kind: AgendaCatalogItemKind
+class AgendaItem:
+    kind: AgendaItemKind
     title: str
     description: str = field(default="")
     date: datetime.date | None = field(default=None)
@@ -29,9 +29,9 @@ class AgendaCatalogItem:
 
 
 @dataclass
-class AgendaCatalog:
-    status: AgendaCatalogStatus = field(default=AgendaCatalogStatus.LOADING)
-    items: list[AgendaCatalogItem] = field(default_factory=list[AgendaCatalogItem])
+class AgendaSource:
+    status: AgendaSourceStatus = field(default=AgendaSourceStatus.LOADING)
+    items: list[AgendaItem] = field(default_factory=list[AgendaItem])
     expires_at: datetime.datetime | None = field(default=None)
 
     def set_expires_at(self, expiration_rule: ExpirationRule):
@@ -40,6 +40,6 @@ class AgendaCatalog:
 
 @dataclass
 class Agenda:
-    school_holidays: AgendaCatalog | None = field(default_factory=AgendaCatalog)
-    public_holidays: AgendaCatalog | None = field(default_factory=AgendaCatalog)
-    elections: AgendaCatalog | None = field(default_factory=AgendaCatalog)
+    school_holidays: AgendaSource | None = field(default_factory=AgendaSource)
+    public_holidays: AgendaSource | None = field(default_factory=AgendaSource)
+    elections: AgendaSource | None = field(default_factory=AgendaSource)
