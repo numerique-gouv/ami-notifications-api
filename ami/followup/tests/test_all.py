@@ -4,9 +4,9 @@ from unittest import mock
 import pytest
 
 from ami.followup.schemas import (
-    FollowUpInventory,
-    FollowUpInventoryItem,
-    FollowUpInventoryStatus,
+    FollowupItem,
+    FollowupSource,
+    FollowupSourceStatus,
     ItemGenericStatus,
 )
 from ami.tests.utils import assert_query_fails_without_auth, login
@@ -14,17 +14,17 @@ from ami.user.models import User
 
 
 @pytest.mark.django_db
-def test_get_follow_up_inventories(
+def test_get_followup(
     user: User,
     monkeypatch: pytest.MonkeyPatch,
     app,
 ) -> None:
     login(app, user)
 
-    psl_inventory = FollowUpInventory(
-        status=FollowUpInventoryStatus.SUCCESS,
+    psl_source = FollowupSource(
+        status=FollowupSourceStatus.SUCCESS,
         items=[
-            FollowUpInventoryItem(
+            FollowupItem(
                 partner_id="psl",
                 external_item_type="OperationTranquilliteVacances",
                 external_item_id="44",
@@ -44,7 +44,7 @@ def test_get_follow_up_inventories(
                 created_at=datetime.datetime(2026, 2, 23, 17, 24, tzinfo=datetime.timezone.utc),
                 updated_at=datetime.datetime(2026, 2, 24, 17, 24, tzinfo=datetime.timezone.utc),
             ),
-            FollowUpInventoryItem(
+            FollowupItem(
                 partner_id="psl",
                 external_item_type="OperationTranquilliteVacances",
                 external_item_id="43",
@@ -62,10 +62,10 @@ def test_get_follow_up_inventories(
             ),
         ],
     )
-    psl_data_mock = mock.Mock(return_value=psl_inventory)
-    monkeypatch.setattr("ami.followup.api_views.get_notifications_inventory", psl_data_mock)
+    psl_data_mock = mock.Mock(return_value=psl_source)
+    monkeypatch.setattr("ami.followup.api_views.get_notifications_source", psl_data_mock)
 
-    response = app.get("/api/v1/users/follow-up/inventories", status=200)
+    response = app.get("/api/v1/users/data/followup", status=200)
     assert response.json == {
         "notifications": {
             "status": "success",
@@ -108,5 +108,5 @@ def test_get_follow_up_inventories(
 
 
 @pytest.mark.django_db
-def test_get_follow_up_inventories_without_auth(app) -> None:
-    assert_query_fails_without_auth(app, "/api/v1/users/follow-up/inventories")
+def test_get_followup_without_auth(app) -> None:
+    assert_query_fails_without_auth(app, "/api/v1/users/data/followup")
