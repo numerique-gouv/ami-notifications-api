@@ -45,11 +45,12 @@
   <div class="agenda--title fr-mb-1w">
     <h1 class="fr-h2 fr-mb-0">Mon agenda</h1>
     <div class="agenda--title--icon">
-      <button class="preferences" type="button" onclick={openZonePreferencesModal}>
-        <span class="fr-icon-settings-5-line" aria-hidden="true"></span><span
-          class="fr-sr-only"
-          >Préférences</span
-        >
+      <button
+        class="fr-btn fr-icon-settings-5-line fr-btn--tertiary-no-outline"
+        type="button"
+        onclick={openZonePreferencesModal}
+      >
+        Préférences
       </button>
     </div>
   </div>
@@ -112,10 +113,6 @@
       display: flex;
       h1 {
         flex-grow: 1;
-      }
-      .agenda--title--icon {
-        padding-top: 0.25rem;
-        color: var(--text-active-blue-france);
       }
     }
   }
