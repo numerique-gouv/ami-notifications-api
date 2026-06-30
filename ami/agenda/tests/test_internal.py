@@ -4,13 +4,13 @@ from unittest import mock
 import pytest
 from pytest_httpx import HTTPXMock
 
-from ami.agenda.data.internal import get_elections_catalog, get_elections_data
+from ami.agenda.data.internal import get_elections_data, get_elections_source
 from ami.agenda.data.schemas import Election
 from ami.agenda.schemas import (
-    AgendaCatalog,
-    AgendaCatalogItem,
-    AgendaCatalogItemKind,
-    AgendaCatalogStatus,
+    AgendaItem,
+    AgendaItemKind,
+    AgendaSource,
+    AgendaSourceStatus,
 )
 
 
@@ -52,7 +52,7 @@ def test_get_elections_data(
     ]
 
 
-def test_get_elections_catalog(
+def test_get_elections_source(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     holidays = [
@@ -71,23 +71,23 @@ def test_get_elections_catalog(
     ]
     data_mock = mock.Mock(return_value=holidays)
     monkeypatch.setattr("ami.agenda.data.internal.get_elections_data", data_mock)
-    result = get_elections_catalog(
+    result = get_elections_source(
         start_date=datetime.date(2025, 11, 12), end_date=datetime.date(2026, 9, 15)
     )
     items = [
-        AgendaCatalogItem(
-            kind=AgendaCatalogItemKind.ELECTION,
+        AgendaItem(
+            kind=AgendaItemKind.ELECTION,
             title="Foo",
             description="Votez au premier tour des municipales",
             date=datetime.date(2026, 3, 15),
             emoji="🗳️",
         ),
-        AgendaCatalogItem(
-            kind=AgendaCatalogItemKind.ELECTION,
+        AgendaItem(
+            kind=AgendaItemKind.ELECTION,
             title="Foo",
             description="Votez au second tour des municipales",
             date=datetime.date(2026, 3, 22),
             emoji="🗳️",
         ),
     ]
-    assert result == AgendaCatalog(status=AgendaCatalogStatus.SUCCESS, items=items)
+    assert result == AgendaSource(status=AgendaSourceStatus.SUCCESS, items=items)

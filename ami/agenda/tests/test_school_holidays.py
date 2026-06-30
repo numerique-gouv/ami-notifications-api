@@ -6,15 +6,15 @@ from pytest_httpx import HTTPXMock
 
 from ami.agenda.data.holidays import (
     SchoolHolidaysError,
-    get_school_holidays_catalog,
     get_school_holidays_data,
+    get_school_holidays_source,
 )
 from ami.agenda.data.schemas import SchoolHoliday
 from ami.agenda.schemas import (
-    AgendaCatalog,
-    AgendaCatalogItem,
-    AgendaCatalogItemKind,
-    AgendaCatalogStatus,
+    AgendaItem,
+    AgendaItemKind,
+    AgendaSource,
+    AgendaSourceStatus,
 )
 from ami.utils.httpx import URL
 
@@ -235,7 +235,7 @@ def test_get_school_holidays_data_error(
     assert e.value.status_code == 500
 
 
-def test_get_school_holidays_catalog(
+def test_get_school_holidays_source(
     app,
     httpx_mock: HTTPXMock,
     monkeypatch: pytest.MonkeyPatch,
@@ -258,20 +258,20 @@ def test_get_school_holidays_catalog(
     ]
     data_mock = mock.Mock(return_value=holidays)
     monkeypatch.setattr("ami.agenda.data.holidays.get_school_holidays_data", data_mock)
-    result = get_school_holidays_catalog(
+    result = get_school_holidays_source(
         start_date=datetime.date(2025, 11, 12), end_date=datetime.date(2026, 9, 15)
     )
     items = [
-        AgendaCatalogItem(
-            kind=AgendaCatalogItemKind.HOLIDAY,
+        AgendaItem(
+            kind=AgendaItemKind.HOLIDAY,
             title="Vacances de Noël",
             start_date=datetime.date(2025, 12, 20),
             end_date=datetime.date(2026, 1, 5),
             zones=[],
             emoji="🎄",
         ),
-        AgendaCatalogItem(
-            kind=AgendaCatalogItemKind.HOLIDAY,
+        AgendaItem(
+            kind=AgendaItemKind.HOLIDAY,
             title="Vacances d'Hiver",
             start_date=datetime.date(2026, 2, 7),
             end_date=datetime.date(2026, 2, 23),
@@ -279,15 +279,15 @@ def test_get_school_holidays_catalog(
             emoji="❄️",
         ),
     ]
-    assert result == AgendaCatalog(status=AgendaCatalogStatus.SUCCESS, items=items)
+    assert result == AgendaSource(status=AgendaSourceStatus.SUCCESS, items=items)
 
 
-def test_get_school_holidays_catalog_error(
+def test_get_school_holidays_source_error(
     app,
     httpx_mock: HTTPXMock,
 ) -> None:
     httpx_mock.add_response(status_code=500)
-    result = get_school_holidays_catalog(
+    result = get_school_holidays_source(
         start_date=datetime.date(2025, 11, 12), end_date=datetime.date(2026, 9, 15)
     )
-    assert result == AgendaCatalog(status=AgendaCatalogStatus.FAILED)
+    assert result == AgendaSource(status=AgendaSourceStatus.FAILED)

@@ -8,16 +8,16 @@ from rest_framework.response import Response
 
 from ami.agenda.data.holidays import (
     get_holidays_dates,
-    get_public_holidays_catalog,
-    get_school_holidays_catalog,
+    get_public_holidays_source,
+    get_school_holidays_source,
 )
-from ami.agenda.data.internal import get_elections_catalog
-from ami.agenda.schemas import Agenda, AgendaCatalogStatus
+from ami.agenda.data.internal import get_elections_source
+from ami.agenda.schemas import Agenda, AgendaSourceStatus
 from ami.agenda.serializers import AgendaQueryParamsSerializer, AgendaSerializer
 from ami.authentication.decorators import ami_login_required
 from ami.utils.schemas import DurationExpiration, MonthlyExpiration, TimeUnit
 
-CATALOG_EXPIRATION_RULES = {
+SOURCE_EXPIRATION_RULES = {
     "school_holidays": MonthlyExpiration(),
     "public_holidays": MonthlyExpiration(),
     "elections": DurationExpiration(amount=1, unit=TimeUnit.DAYS),
@@ -26,7 +26,7 @@ CATALOG_EXPIRATION_RULES = {
 
 @api_view(["GET"])
 @ami_login_required
-def get_agenda_items(
+def get_agenda(
     request: Request,
 ) -> Response[Agenda]:
     serializer = AgendaQueryParamsSerializer(data=request.query_params)
@@ -39,30 +39,30 @@ def get_agenda_items(
     start_date, end_date = get_holidays_dates(current_date)
     agenda = Agenda()
 
-    catalogs_mapping = {
-        "school_holidays": get_school_holidays_catalog,
-        "public_holidays": get_public_holidays_catalog,
-        "elections": get_elections_catalog,
+    sources_mapping = {
+        "school_holidays": get_school_holidays_source,
+        "public_holidays": get_public_holidays_source,
+        "elections": get_elections_source,
     }
 
     item_keys = filter_items or []
-    item_keys = [f for f in item_keys if f in catalogs_mapping] or catalogs_mapping.keys()
+    item_keys = [f for f in item_keys if f in sources_mapping] or sources_mapping.keys()
 
     tasks: dict[str, Future] = {}
     with ThreadPoolExecutor() as executor:
-        for catalog_name in item_keys:
-            tasks[catalog_name] = executor.submit(
-                catalogs_mapping[catalog_name],
+        for source_name in item_keys:
+            tasks[source_name] = executor.submit(
+                sources_mapping[source_name],
                 start_date=start_date,
                 end_date=end_date,
             )
 
-    for catalog_name in catalogs_mapping:
-        if catalog_name not in item_keys:
-            agenda.__dict__[catalog_name] = None
+    for source_name in sources_mapping:
+        if source_name not in item_keys:
+            agenda.__dict__[source_name] = None
             continue
-        result = tasks[catalog_name].result()
-        if result.status == AgendaCatalogStatus.SUCCESS:
-            result.set_expires_at(CATALOG_EXPIRATION_RULES[catalog_name])
-        agenda.__dict__[catalog_name] = result
+        result = tasks[source_name].result()
+        if result.status == AgendaSourceStatus.SUCCESS:
+            result.set_expires_at(SOURCE_EXPIRATION_RULES[source_name])
+        agenda.__dict__[source_name] = result
     return Response(AgendaSerializer(agenda).data)
