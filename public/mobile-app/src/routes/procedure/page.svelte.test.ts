@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import * as navigationMethods from '$app/navigation';
 import * as envModule from '$env/static/public';
-import { FollowUp } from '$lib/follow-up';
+import { FollowUp } from '$lib/followup';
 import * as procedureMethods from '$lib/procedure';
 import { userStore } from '$lib/state/User.svelte';
 import { expectBackButtonPresent, mockAddress, mockUserInfo } from '$tests/utils';

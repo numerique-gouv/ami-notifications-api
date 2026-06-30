@@ -6,8 +6,8 @@ import WS from 'vitest-websocket-mock';
 import * as navigationMethods from '$app/navigation';
 import * as agendaMethods from '$lib/agenda';
 import { Agenda, Item } from '$lib/agenda';
-import * as followUpMethods from '$lib/follow-up';
-import { FollowUp, RequestItem } from '$lib/follow-up';
+import * as followUpMethods from '$lib/followup';
+import { FollowUp, RequestItem } from '$lib/followup';
 import * as notificationsMethods from '$lib/notifications';
 import { PUBLIC_API_WS_URL } from '$lib/notifications';
 import { toastStore } from '$lib/state/toast.svelte';
@@ -452,7 +452,7 @@ describe('/ConnectedHomepage.svelte', () => {
     });
   });
 
-  test('should display requests block if follow-up is empty', async () => {
+  test('should display requests block if followup is empty', async () => {
     // Given
     const followUp = new FollowUp();
     vi.spyOn(followUp, 'items', 'get').mockReturnValue([]);

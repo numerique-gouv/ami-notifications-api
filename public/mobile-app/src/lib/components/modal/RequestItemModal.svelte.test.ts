@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
-import * as followUpMethods from '$lib/follow-up';
-import { FollowUp, RequestItem } from '$lib/follow-up';
+import * as followUpMethods from '$lib/followup';
+import { FollowUp, RequestItem } from '$lib/followup';
 import { toastStore } from '$lib/state/toast.svelte';
 import RequestItemModal from './RequestItemModal.svelte';
 

@@ -2,8 +2,8 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { describe, expect, test, vi } from 'vitest';
 import * as navigationMethods from '$app/navigation';
 import Requests from '$lib/components/Requests.svelte';
-import * as followUpMethods from '$lib/follow-up';
-import { FollowUp, RequestItem } from '$lib/follow-up';
+import * as followUpMethods from '$lib/followup';
+import { FollowUp, RequestItem } from '$lib/followup';
 import { toastStore } from '$lib/state/toast.svelte';
 
 describe('/Requests.svelte', () => {

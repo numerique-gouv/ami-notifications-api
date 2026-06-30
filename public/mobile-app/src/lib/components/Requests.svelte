@@ -4,8 +4,8 @@
   import RequestItemModal from '$lib/components/modal/RequestItemModal.svelte';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import RequestItem from '$lib/components/RequestItem.svelte';
-  import type { FollowUp, RequestItem as RequestItemType } from '$lib/follow-up';
-  import { buildFollowUp } from '$lib/follow-up';
+  import type { FollowUp, RequestItem as RequestItemType } from '$lib/followup';
+  import { buildFollowUp } from '$lib/followup';
 
   interface Props {
     archived?: boolean;

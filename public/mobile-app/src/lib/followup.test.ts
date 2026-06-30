@@ -1,9 +1,9 @@
 import { describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import * as apiFollowUpMethods from '$lib/api-followup';
-import { buildFollowUp, FollowUp, RequestItem } from '$lib/follow-up';
+import { buildFollowUp, FollowUp, RequestItem } from '$lib/followup';
 
-describe('/follow-up.ts', () => {
+describe('/followup.ts', () => {
   describe('RequestItem', () => {
     describe('id', () => {
       test('should return an id from partner_id, external_item_type and external_item_id', async () => {
@@ -429,7 +429,7 @@ describe('/follow-up.ts', () => {
     });
   });
   describe('buildFollowUp', () => {
-    test('should retrieve inventories and init follow-up with them', async () => {
+    test('should retrieve inventories and init followup with them', async () => {
       // Given
       vi.stubEnv('TZ', 'Europe/Paris');
       const request1 = {

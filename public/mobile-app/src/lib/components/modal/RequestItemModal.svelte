@@ -4,7 +4,7 @@
     buildFollowUp,
     type FollowUp,
     type RequestItem as RequestItemType,
-  } from '$lib/follow-up';
+  } from '$lib/followup';
   import { toastStore } from '$lib/state/toast.svelte';
 
   interface Props {
