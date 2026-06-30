@@ -43,7 +43,7 @@
   {/if}
   {#if title}
     <div class={{title, withLogo: logo != undefined}}>
-      <h2>{title}</h2>
+      <h1 class="fr-h3 fr-mb-0">{title}</h1>
       {#if children}
         {@render children()}
       {/if}
@@ -80,10 +80,7 @@
       justify-content: space-between;
       padding-top: 2rem;
       transition: 0.4s;
-      h2 {
-        font-size: 1.5rem;
-        line-height: 2rem;
-        margin-bottom: 0;
+      h1 {
         transition: 0.4s;
       }
       &.withLogo {

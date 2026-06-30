@@ -104,7 +104,7 @@
 </script>
 
 <div class="homepage-connected">
-  <div class="header">
+  <div class="header fr-mb-3w">
     <button class="header-left" onclick={toggleMenu} data-testid="toggle-menu-button">
       <span class="user-profile"> {initials} </span>
     </button>
@@ -205,7 +205,9 @@
 
   <div class="rubrique-container agenda-container">
     {#if isAgendaEmpty}
-      <div class="header-container"><span class="title">Mon agenda</span></div>
+      <div class="header-container fr-mb-1w">
+        <h2 class="fr-h6 fr-mb-0 am-text--smbold title">Mon agenda</h2>
+      </div>
       <div class="rubrique-content-container">
         <div class="no-agenda rubrique-content-container--empty">
           <div class="no-agenda--icon">
@@ -217,8 +219,8 @@
         </div>
       </div>
     {:else}
-      <div class="header-container">
-        <span class="title">Mon agenda</span>
+      <div class="header-container fr-mb-1w">
+        <h2 class="fr-h6 fr-mb-0 am-text--smbold title">Mon agenda</h2>
         <a class="see-all" aria-label="Voir tous mes évènements" href="/#/agenda">
           <span>Voir tout</span>
           <img class="arrow-line" src="/remixicons/arrow-line.svg" alt="">
@@ -246,7 +248,9 @@
 
   <div class="rubrique-container followup-container">
     {#if isFollowupEmpty}
-      <div class="header-container"><span class="title">Mes démarches</span></div>
+      <div class="header-container fr-mb-1w">
+        <h2 class="fr-h6 fr-mb-0 am-text--smbold title">Mes démarches</h2>
+      </div>
       <div class="rubrique-content-container">
         <div class="no-followup rubrique-content-container--empty">
           <div class="no-followup--icon">
@@ -256,8 +260,8 @@
         </div>
       </div>
     {:else}
-      <div class="header-container">
-        <span class="title">Mes démarches</span>
+      <div class="header-container fr-mb-1w">
+        <h2 class="fr-h6 fr-mb-0 am-text--smbold title">Mes démarches</h2>
         <a class="see-all" aria-label="Voir toutes mes démarches" href="/#/followup">
           <span>Voir tout</span>
           <img class="arrow-line" src="/remixicons/arrow-line.svg" alt="">
@@ -309,7 +313,6 @@
     .header {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 24px;
 
       .header-left {
         display: flex;
@@ -400,13 +403,6 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 8px;
-
-        .title {
-          font-size: 18px;
-          font-weight: 500;
-          line-height: 28px;
-        }
 
         .see-all {
           font-size: 14px;

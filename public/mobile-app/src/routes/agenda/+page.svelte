@@ -42,8 +42,8 @@
 </script>
 
 <div class="agenda">
-  <div class="agenda--title">
-    <h2>Mon agenda</h2>
+  <div class="agenda--title fr-mb-1w">
+    <h1 class="fr-h2 fr-mb-0">Mon agenda</h1>
     <div class="agenda--title--icon">
       <button class="preferences" type="button" onclick={openZonePreferencesModal}>
         <span class="fr-icon-settings-5-line" aria-hidden="true"></span><span
@@ -55,12 +55,16 @@
   </div>
 
   {#if agenda && agenda.now.length}
-    <div class="agenda--events" data-testid="events-now">
-      <div class="agenda--events--header"><span class="title">Prochainement</span></div>
+    <div class="agenda--events fr-mb-3w" data-testid="events-now">
+      <div class="agenda--events--header">
+        <h2 class="fr-h6 fr-mb-3v am-text--smbold">Prochainement</h2>
+      </div>
       <div class="agenda--events--container">
         {#each agenda.now as item, i}
           {#if i == 0 || i > 0 && item.date?.getMonth() !== agenda.now[i - 1].date?.getMonth()}
-            <div class="agenda--events--month">{item.monthName}</div>
+            <h3 class="fr-text--sm fr-mb-1w am-text--smbold agenda--events--month">
+              {item.monthName}
+            </h3>
           {/if}
           <AgendaItem item={item} onOpen={() => openAgendaItemModal(item)} />
         {/each}
@@ -71,12 +75,14 @@
   {#if agenda && agenda.next.length}
     <div class="agenda--events" data-testid="events-next">
       <div class="agenda--events--header">
-        <span class="title">Les mois suivants</span>
+        <h2 class="fr-h6 fr-mb-3v am-text--smbold">Les mois suivants</h2>
       </div>
       <div class="agenda--events--container">
         {#each agenda.next as item, i}
           {#if i > 0 && item.date?.getMonth() !== agenda.next[i - 1].date?.getMonth() || i == 0 && (agenda.now.length && item.date?.getMonth() !== agenda.now[agenda.now.length - 1].date?.getMonth() || !agenda.now.length)}
-            <div class="agenda--events--month">{item.monthName}</div>
+            <h3 class="fr-text--sm fr-mb-1w am-text--smbold agenda--events--month">
+              {item.monthName}
+            </h3>
           {/if}
           <AgendaItem item={item} onOpen={() => openAgendaItemModal(item)} />
         {/each}
@@ -101,33 +107,15 @@
 <style>
   .agenda {
     padding: 1.5rem 1rem;
-    margin-bottom: 68px;
+    margin-bottom: 4.25rem;
     .agenda--title {
       display: flex;
-      h2 {
+      h1 {
         flex-grow: 1;
-        margin-bottom: 0.5rem;
       }
       .agenda--title--icon {
         padding-top: 0.25rem;
         color: var(--text-active-blue-france);
-      }
-    }
-    .agenda--events {
-      .agenda--events--header {
-        margin-bottom: 0.75rem;
-        .title {
-          font-weight: 500;
-          color: #000;
-        }
-      }
-      .agenda--events--container {
-        .agenda--events--month {
-          font-weight: 500;
-          color: #000;
-          font-size: 14px;
-          margin-bottom: 0.5rem;
-        }
       }
     }
   }

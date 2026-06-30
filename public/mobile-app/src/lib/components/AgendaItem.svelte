@@ -36,7 +36,7 @@
       ></button>
       <div class="fr-tile__body">
         <div class="fr-tile__content {item.link ? '': 'no-link'}">
-          <h3 class="fr-tile__title">
+          <h4 class="fr-tile__title">
             <a
               href="{item.link}"
               onclick={(e) => {if (!item.link) {e.preventDefault();}}}
@@ -45,7 +45,7 @@
             >
               {item.title}
             </a>
-          </h3>
+          </h4>
           {#if item.subitems.length == 1}
             {#if item.description}
               <p class="fr-tile__detail">
