@@ -1,7 +1,7 @@
 import { describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { render, screen } from '@testing-library/svelte';
-import { RequestItem as Item } from '$lib/follow-up';
+import { RequestItem as Item } from '$lib/followup';
 import RequestItem from './RequestItem.svelte';
 
 describe('/RequestItem.svelte', () => {

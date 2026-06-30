@@ -9,8 +9,8 @@
   import Modal from '$lib/components/modal/Modal.svelte';
   import RequestItemModal from '$lib/components/modal/RequestItemModal.svelte';
   import RequestItem from '$lib/components/RequestItem.svelte';
-  import type { FollowUp, RequestItem as RequestItemType } from '$lib/follow-up';
-  import { buildFollowUp } from '$lib/follow-up';
+  import type { FollowUp, RequestItem as RequestItemType } from '$lib/followup';
+  import { buildFollowUp } from '$lib/followup';
   import { userReady } from '$lib/initializeDataFromAPI';
   import {
     countUnreadNotifications,

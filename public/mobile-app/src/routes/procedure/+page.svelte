@@ -8,7 +8,7 @@
   import { Address } from '$lib/address';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import PageWrapper from '$lib/components/PageWrapper.svelte';
-  import { buildFollowUp } from '$lib/follow-up';
+  import { buildFollowUp } from '$lib/followup';
   import { retrieveProcedureUrl } from '$lib/procedure';
   import { User, type UserIdentity, userStore } from '$lib/state/User.svelte';
 

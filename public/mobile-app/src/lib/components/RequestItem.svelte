@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import { getDSFRIcon } from '$lib/dsfr-icon';
-  import { RequestItem } from '$lib/follow-up';
+  import { RequestItem } from '$lib/followup';
 
   interface Props {
     item: RequestItem;
