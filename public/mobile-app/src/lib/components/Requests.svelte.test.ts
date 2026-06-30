@@ -2,16 +2,16 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { describe, expect, test, vi } from 'vitest';
 import * as navigationMethods from '$app/navigation';
 import Requests from '$lib/components/Requests.svelte';
-import * as followUpMethods from '$lib/followup';
-import { FollowUp, RequestItem } from '$lib/followup';
+import * as followupMethods from '$lib/followup';
+import { Followup, RequestItem } from '$lib/followup';
 import { toastStore } from '$lib/state/toast.svelte';
 
 describe('/Requests.svelte', () => {
   describe('Current items', () => {
     test('Should display requests from API', async () => {
       // Given
-      const followUp = new FollowUp();
-      vi.spyOn(followUp, 'items', 'get').mockReturnValue([
+      const followup = new Followup();
+      vi.spyOn(followup, 'items', 'get').mockReturnValue([
         new RequestItem(
           'partner',
           'type',
@@ -41,7 +41,7 @@ describe('/Requests.svelte', () => {
           null
         ),
       ]);
-      vi.spyOn(followUp, 'archived_items', 'get').mockReturnValue([
+      vi.spyOn(followup, 'archived_items', 'get').mockReturnValue([
         new RequestItem(
           'partner',
           'type',
@@ -72,8 +72,8 @@ describe('/Requests.svelte', () => {
         ),
       ]);
       const spy = vi
-        .spyOn(followUpMethods, 'buildFollowUp')
-        .mockResolvedValue(followUp);
+        .spyOn(followupMethods, 'buildFollowup')
+        .mockResolvedValue(followup);
 
       // When
       render(Requests);
@@ -100,9 +100,9 @@ describe('/Requests.svelte', () => {
     });
     test('Should display empty followup', async () => {
       // Given
-      const followUp = new FollowUp();
-      vi.spyOn(followUp, 'items', 'get').mockReturnValue([]);
-      vi.spyOn(followUp, 'archived_items', 'get').mockReturnValue([
+      const followup = new Followup();
+      vi.spyOn(followup, 'items', 'get').mockReturnValue([]);
+      vi.spyOn(followup, 'archived_items', 'get').mockReturnValue([
         new RequestItem(
           'partner',
           'type',
@@ -119,8 +119,8 @@ describe('/Requests.svelte', () => {
         ),
       ]);
       const spy = vi
-        .spyOn(followUpMethods, 'buildFollowUp')
-        .mockResolvedValue(followUp);
+        .spyOn(followupMethods, 'buildFollowup')
+        .mockResolvedValue(followup);
 
       // When
       render(Requests);
@@ -135,8 +135,8 @@ describe('/Requests.svelte', () => {
     });
     test('Should display "Reprendre ma démarche" button only if item is "new"', async () => {
       // Given
-      const followUp = new FollowUp();
-      vi.spyOn(followUp, 'items', 'get').mockReturnValue([
+      const followup = new Followup();
+      vi.spyOn(followup, 'items', 'get').mockReturnValue([
         new RequestItem(
           'partner',
           'type',
@@ -180,8 +180,8 @@ describe('/Requests.svelte', () => {
           'link3'
         ),
       ]);
-      vi.spyOn(followUp, 'archived_items', 'get').mockReturnValue([]);
-      vi.spyOn(followUpMethods, 'buildFollowUp').mockResolvedValue(followUp);
+      vi.spyOn(followup, 'archived_items', 'get').mockReturnValue([]);
+      vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
       vi.stubGlobal('location', { href: 'fake-link' });
 
       // When
@@ -211,8 +211,8 @@ describe('/Requests.svelte', () => {
     });
     test('Should not display "Reprendre ma démarche" button only if item has no link', async () => {
       // Given
-      const followUp = new FollowUp();
-      vi.spyOn(followUp, 'items', 'get').mockReturnValue([
+      const followup = new Followup();
+      vi.spyOn(followup, 'items', 'get').mockReturnValue([
         new RequestItem(
           'partner',
           'type',
@@ -228,8 +228,8 @@ describe('/Requests.svelte', () => {
           null
         ),
       ]);
-      vi.spyOn(followUp, 'archived_items', 'get').mockReturnValue([]);
-      vi.spyOn(followUpMethods, 'buildFollowUp').mockResolvedValue(followUp);
+      vi.spyOn(followup, 'archived_items', 'get').mockReturnValue([]);
+      vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
 
       // When
       render(Requests);
@@ -245,8 +245,8 @@ describe('/Requests.svelte', () => {
   describe('Archived items', () => {
     test('Should display requests from API', async () => {
       // Given
-      const followUp = new FollowUp();
-      vi.spyOn(followUp, 'items', 'get').mockReturnValue([
+      const followup = new Followup();
+      vi.spyOn(followup, 'items', 'get').mockReturnValue([
         new RequestItem(
           'partner',
           'type',
@@ -276,7 +276,7 @@ describe('/Requests.svelte', () => {
           null
         ),
       ]);
-      vi.spyOn(followUp, 'archived_items', 'get').mockReturnValue([
+      vi.spyOn(followup, 'archived_items', 'get').mockReturnValue([
         new RequestItem(
           'partner',
           'type',
@@ -307,8 +307,8 @@ describe('/Requests.svelte', () => {
         ),
       ]);
       const spy = vi
-        .spyOn(followUpMethods, 'buildFollowUp')
-        .mockResolvedValue(followUp);
+        .spyOn(followupMethods, 'buildFollowup')
+        .mockResolvedValue(followup);
 
       // When
       render(Requests, { archived: true });
@@ -335,8 +335,8 @@ describe('/Requests.svelte', () => {
     });
     test('Should display empty followup', async () => {
       // Given
-      const followUp = new FollowUp();
-      vi.spyOn(followUp, 'items', 'get').mockReturnValue([
+      const followup = new Followup();
+      vi.spyOn(followup, 'items', 'get').mockReturnValue([
         new RequestItem(
           'partner',
           'type',
@@ -352,10 +352,10 @@ describe('/Requests.svelte', () => {
           null
         ),
       ]);
-      vi.spyOn(followUp, 'archived_items', 'get').mockReturnValue([]);
+      vi.spyOn(followup, 'archived_items', 'get').mockReturnValue([]);
       const spy = vi
-        .spyOn(followUpMethods, 'buildFollowUp')
-        .mockResolvedValue(followUp);
+        .spyOn(followupMethods, 'buildFollowup')
+        .mockResolvedValue(followup);
 
       // When
       render(Requests, { archived: true });
@@ -370,9 +370,9 @@ describe('/Requests.svelte', () => {
     });
     test('Should not display "Reprendre ma démarche" button as items are archived', async () => {
       // Given
-      const followUp = new FollowUp();
-      vi.spyOn(followUp, 'items', 'get').mockReturnValue([]);
-      vi.spyOn(followUp, 'archived_items', 'get').mockReturnValue([
+      const followup = new Followup();
+      vi.spyOn(followup, 'items', 'get').mockReturnValue([]);
+      vi.spyOn(followup, 'archived_items', 'get').mockReturnValue([
         new RequestItem(
           'partner',
           'type',
@@ -416,7 +416,7 @@ describe('/Requests.svelte', () => {
           'link3'
         ),
       ]);
-      vi.spyOn(followUpMethods, 'buildFollowUp').mockResolvedValue(followUp);
+      vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
 
       // When
       render(Requests);
@@ -438,9 +438,9 @@ describe('/Requests.svelte', () => {
   describe('More menu', () => {
     test('No "more" button for archived request items', async () => {
       // Given
-      const followUp = new FollowUp();
-      vi.spyOn(followUp, 'items', 'get').mockReturnValue([]);
-      vi.spyOn(followUpMethods, 'buildFollowUp').mockResolvedValue(followUp);
+      const followup = new Followup();
+      vi.spyOn(followup, 'items', 'get').mockReturnValue([]);
+      vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
 
       // When
       render(Requests, { archived: true });
@@ -453,9 +453,9 @@ describe('/Requests.svelte', () => {
     });
     test('Should open more menu when user clicks on "more" button', async () => {
       // Given
-      const followUp = new FollowUp();
-      vi.spyOn(followUp, 'items', 'get').mockReturnValue([]);
-      vi.spyOn(followUpMethods, 'buildFollowUp').mockResolvedValue(followUp);
+      const followup = new Followup();
+      vi.spyOn(followup, 'items', 'get').mockReturnValue([]);
+      vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
       render(Requests);
 
       // When
@@ -470,9 +470,9 @@ describe('/Requests.svelte', () => {
     });
     test('Should redirect to archived requests page when user clicks on "Démarches archivées" button', async () => {
       // Given
-      const followUp = new FollowUp();
-      vi.spyOn(followUp, 'items', 'get').mockReturnValue([]);
-      vi.spyOn(followUpMethods, 'buildFollowUp').mockResolvedValue(followUp);
+      const followup = new Followup();
+      vi.spyOn(followup, 'items', 'get').mockReturnValue([]);
+      vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
       render(Requests);
       const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue();
       await waitFor(async () => {
@@ -495,8 +495,8 @@ describe('/Requests.svelte', () => {
   });
   describe('Request item modal', () => {
     test('No more icon for archived request item', async () => {
-      const followUp = new FollowUp();
-      vi.spyOn(followUp, 'archived_items', 'get').mockReturnValue([
+      const followup = new Followup();
+      vi.spyOn(followup, 'archived_items', 'get').mockReturnValue([
         new RequestItem(
           'partner',
           'type',
@@ -526,7 +526,7 @@ describe('/Requests.svelte', () => {
           null
         ),
       ]);
-      vi.spyOn(followUpMethods, 'buildFollowUp').mockResolvedValue(followUp);
+      vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
 
       // When
       render(Requests, { archived: true });
@@ -540,8 +540,8 @@ describe('/Requests.svelte', () => {
       });
     });
     test('Should open request item modal when clicks on more icon', async () => {
-      const followUp = new FollowUp();
-      vi.spyOn(followUp, 'items', 'get').mockReturnValue([
+      const followup = new Followup();
+      vi.spyOn(followup, 'items', 'get').mockReturnValue([
         new RequestItem(
           'partner',
           'type',
@@ -571,7 +571,7 @@ describe('/Requests.svelte', () => {
           null
         ),
       ]);
-      vi.spyOn(followUpMethods, 'buildFollowUp').mockResolvedValue(followUp);
+      vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
       render(Requests);
 
       // When
@@ -586,8 +586,8 @@ describe('/Requests.svelte', () => {
     });
     test('Should close request item modal when clicks on "Archiver" button', async () => {
       // Given
-      const followUp = new FollowUp();
-      vi.spyOn(followUp, 'items', 'get').mockReturnValue([
+      const followup = new Followup();
+      vi.spyOn(followup, 'items', 'get').mockReturnValue([
         new RequestItem(
           'partner',
           'type',
@@ -617,7 +617,7 @@ describe('/Requests.svelte', () => {
           null
         ),
       ]);
-      vi.spyOn(followUpMethods, 'buildFollowUp').mockResolvedValue(followUp);
+      vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
       vi.spyOn(RequestItem.prototype, 'archive').mockResolvedValue(true);
       render(Requests);
 
@@ -636,8 +636,8 @@ describe('/Requests.svelte', () => {
     });
     test('should add toast when user clicks on "Archiver" button - archive success', async () => {
       // Given
-      const followUp = new FollowUp();
-      vi.spyOn(followUp, 'items', 'get').mockReturnValue([
+      const followup = new Followup();
+      vi.spyOn(followup, 'items', 'get').mockReturnValue([
         new RequestItem(
           'partner',
           'type',
@@ -667,7 +667,7 @@ describe('/Requests.svelte', () => {
           null
         ),
       ]);
-      vi.spyOn(followUpMethods, 'buildFollowUp').mockResolvedValue(followUp);
+      vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
       const spy = vi.spyOn(RequestItem.prototype, 'archive').mockResolvedValue(true);
       const spy2 = vi.spyOn(toastStore, 'addToast');
       render(Requests);
@@ -693,8 +693,8 @@ describe('/Requests.svelte', () => {
     });
     test('should add toast when user clicks on "Archiver" button - archive error', async () => {
       // Given
-      const followUp = new FollowUp();
-      vi.spyOn(followUp, 'items', 'get').mockReturnValue([
+      const followup = new Followup();
+      vi.spyOn(followup, 'items', 'get').mockReturnValue([
         new RequestItem(
           'partner',
           'type',
@@ -724,7 +724,7 @@ describe('/Requests.svelte', () => {
           null
         ),
       ]);
-      vi.spyOn(followUpMethods, 'buildFollowUp').mockResolvedValue(followUp);
+      vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
       const spy = vi.spyOn(RequestItem.prototype, 'archive').mockResolvedValue(false);
       const spy2 = vi.spyOn(toastStore, 'addToast');
       render(Requests);

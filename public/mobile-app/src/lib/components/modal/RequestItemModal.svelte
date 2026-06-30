@@ -1,31 +1,31 @@
 <script lang="ts">
   import ItemModal from '$lib/components/modal/ItemModal.svelte';
   import {
-    buildFollowUp,
-    type FollowUp,
+    buildFollowup,
+    type Followup,
     type RequestItem as RequestItemType,
   } from '$lib/followup';
   import { toastStore } from '$lib/state/toast.svelte';
 
   interface Props {
     item: RequestItemType | null;
-    followUp: FollowUp | null;
-    isFollowUpEmpty: boolean;
+    followup: Followup | null;
+    isFollowupEmpty: boolean;
   }
   let {
     item = $bindable(),
-    followUp = $bindable(),
-    isFollowUpEmpty = $bindable(),
+    followup = $bindable(),
+    isFollowupEmpty = $bindable(),
   }: Props = $props();
 
   const closeModal = () => {
     item = null;
   };
 
-  const refreshFollowUp = () => {
-    buildFollowUp().then((result) => {
-      followUp = result;
-      isFollowUpEmpty = !followUp.items.length;
+  const refreshFollowup = () => {
+    buildFollowup().then((result) => {
+      followup = result;
+      isFollowupEmpty = !followup.items.length;
     });
   };
 
@@ -33,8 +33,8 @@
     if (item) {
       const result = await item.archive();
       if (result === true) {
-        if (followUp) {
-          refreshFollowUp();
+        if (followup) {
+          refreshFollowup();
         }
         closeModal();
         toastStore.addToast("L'élément a bien été archivé", 'success', 3000, true);

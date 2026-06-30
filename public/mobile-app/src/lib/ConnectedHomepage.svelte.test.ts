@@ -6,8 +6,8 @@ import WS from 'vitest-websocket-mock';
 import * as navigationMethods from '$app/navigation';
 import * as agendaMethods from '$lib/agenda';
 import { Agenda, Item } from '$lib/agenda';
-import * as followUpMethods from '$lib/followup';
-import { FollowUp, RequestItem } from '$lib/followup';
+import * as followupMethods from '$lib/followup';
+import { Followup, RequestItem } from '$lib/followup';
 import * as notificationsMethods from '$lib/notifications';
 import { PUBLIC_API_WS_URL } from '$lib/notifications';
 import { toastStore } from '$lib/state/toast.svelte';
@@ -51,7 +51,7 @@ describe('/ConnectedHomepage.svelte', () => {
 
     vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(new Agenda());
 
-    vi.spyOn(followUpMethods, 'buildFollowUp').mockResolvedValue(new FollowUp());
+    vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(new Followup());
 
     window.localStorage.setItem('notifications_enabled', 'false');
     window.localStorage.setItem('user_data', 'fake-user-data');
@@ -375,8 +375,8 @@ describe('/ConnectedHomepage.svelte', () => {
 
   test('Should display first request found from API', async () => {
     // Given
-    const followUp = new FollowUp();
-    vi.spyOn(followUp, 'items', 'get').mockReturnValue([
+    const followup = new Followup();
+    vi.spyOn(followup, 'items', 'get').mockReturnValue([
       new RequestItem(
         'partner',
         'type',
@@ -434,19 +434,19 @@ describe('/ConnectedHomepage.svelte', () => {
         null
       ),
     ]);
-    const spy = vi.spyOn(followUpMethods, 'buildFollowUp').mockResolvedValue(followUp);
+    const spy = vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
     // When
     const { container } = render(ConnectedHomepage);
 
     // Then
     await waitFor(() => {
-      const followUpBlock = container.querySelector('.requests-container');
+      const followupBlock = container.querySelector('.requests-container');
       expect(spy).toHaveBeenCalledTimes(1);
-      expect(followUpBlock).toHaveTextContent('Opération Tranquillité Vacances 1');
-      expect(followUpBlock).not.toHaveTextContent('Opération Tranquillité Vacances 2');
-      expect(followUpBlock).not.toHaveTextContent('Opération Tranquillité Vacances 3');
-      expect(followUpBlock).not.toHaveTextContent('Opération Tranquillité Vacances 4');
-      expect(followUpBlock).not.toHaveTextContent(
+      expect(followupBlock).toHaveTextContent('Opération Tranquillité Vacances 1');
+      expect(followupBlock).not.toHaveTextContent('Opération Tranquillité Vacances 2');
+      expect(followupBlock).not.toHaveTextContent('Opération Tranquillité Vacances 3');
+      expect(followupBlock).not.toHaveTextContent('Opération Tranquillité Vacances 4');
+      expect(followupBlock).not.toHaveTextContent(
         'Retrouvez et suivez vos démarches ici.'
       );
     });
@@ -454,25 +454,25 @@ describe('/ConnectedHomepage.svelte', () => {
 
   test('should display requests block if followup is empty', async () => {
     // Given
-    const followUp = new FollowUp();
-    vi.spyOn(followUp, 'items', 'get').mockReturnValue([]);
-    const spy = vi.spyOn(followUpMethods, 'buildFollowUp').mockResolvedValue(followUp);
+    const followup = new Followup();
+    vi.spyOn(followup, 'items', 'get').mockReturnValue([]);
+    const spy = vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
 
     // When
     const { container } = render(ConnectedHomepage);
 
     // Then
     await waitFor(() => {
-      const followUpBlock = container.querySelector('.requests-container');
+      const followupBlock = container.querySelector('.requests-container');
       expect(spy).toHaveBeenCalledTimes(1);
-      expect(followUpBlock).toHaveTextContent('Retrouvez et suivez vos démarches ici.');
+      expect(followupBlock).toHaveTextContent('Retrouvez et suivez vos démarches ici.');
     });
   });
 
   describe('Request item modal', () => {
     test('Should open request item modal when clicks on more icon', async () => {
-      const followUp = new FollowUp();
-      vi.spyOn(followUp, 'items', 'get').mockReturnValue([
+      const followup = new Followup();
+      vi.spyOn(followup, 'items', 'get').mockReturnValue([
         new RequestItem(
           'partner',
           'type',
@@ -502,7 +502,7 @@ describe('/ConnectedHomepage.svelte', () => {
           null
         ),
       ]);
-      vi.spyOn(followUpMethods, 'buildFollowUp').mockResolvedValue(followUp);
+      vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
       render(ConnectedHomepage);
 
       // When
@@ -517,8 +517,8 @@ describe('/ConnectedHomepage.svelte', () => {
     });
     test('Should close request item modal when clicks on "Archiver" button', async () => {
       // Given
-      const followUp = new FollowUp();
-      vi.spyOn(followUp, 'items', 'get').mockReturnValue([
+      const followup = new Followup();
+      vi.spyOn(followup, 'items', 'get').mockReturnValue([
         new RequestItem(
           'partner',
           'type',
@@ -548,7 +548,7 @@ describe('/ConnectedHomepage.svelte', () => {
           null
         ),
       ]);
-      vi.spyOn(followUpMethods, 'buildFollowUp').mockResolvedValue(followUp);
+      vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
       vi.spyOn(RequestItem.prototype, 'archive').mockResolvedValue(true);
       render(ConnectedHomepage);
 
@@ -567,8 +567,8 @@ describe('/ConnectedHomepage.svelte', () => {
     });
     test('should add toast when user clicks on "Archiver" button - archive success', async () => {
       // Given
-      const followUp = new FollowUp();
-      vi.spyOn(followUp, 'items', 'get').mockReturnValue([
+      const followup = new Followup();
+      vi.spyOn(followup, 'items', 'get').mockReturnValue([
         new RequestItem(
           'partner',
           'type',
@@ -598,7 +598,7 @@ describe('/ConnectedHomepage.svelte', () => {
           null
         ),
       ]);
-      vi.spyOn(followUpMethods, 'buildFollowUp').mockResolvedValue(followUp);
+      vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
       const spy = vi.spyOn(RequestItem.prototype, 'archive').mockResolvedValue(true);
       const spy2 = vi.spyOn(toastStore, 'addToast');
       render(ConnectedHomepage);
@@ -624,8 +624,8 @@ describe('/ConnectedHomepage.svelte', () => {
     });
     test('should add toast when user clicks on "Archiver" button - archive error', async () => {
       // Given
-      const followUp = new FollowUp();
-      vi.spyOn(followUp, 'items', 'get').mockReturnValue([
+      const followup = new Followup();
+      vi.spyOn(followup, 'items', 'get').mockReturnValue([
         new RequestItem(
           'partner',
           'type',
@@ -655,7 +655,7 @@ describe('/ConnectedHomepage.svelte', () => {
           null
         ),
       ]);
-      vi.spyOn(followUpMethods, 'buildFollowUp').mockResolvedValue(followUp);
+      vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
       const spy = vi.spyOn(RequestItem.prototype, 'archive').mockResolvedValue(false);
       const spy2 = vi.spyOn(toastStore, 'addToast');
       render(ConnectedHomepage);

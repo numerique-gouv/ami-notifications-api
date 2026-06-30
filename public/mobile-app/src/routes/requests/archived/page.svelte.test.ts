@@ -1,14 +1,14 @@
 import { render, screen, waitFor } from '@testing-library/svelte';
 import { describe, expect, test, vi } from 'vitest';
 import * as navigationMethods from '$app/navigation';
-import * as followUpMethods from '$lib/followup';
-import { FollowUp, RequestItem } from '$lib/followup';
+import * as followupMethods from '$lib/followup';
+import { Followup, RequestItem } from '$lib/followup';
 import Page from './+page.svelte';
 
 describe('/+page.svelte', () => {
   test('user has to be connected', async () => {
     // Given
-    vi.spyOn(followUpMethods, 'buildFollowUp').mockResolvedValue(new FollowUp());
+    vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(new Followup());
     const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue();
 
     // When
@@ -22,8 +22,8 @@ describe('/+page.svelte', () => {
   });
   test('Should display archived requests', async () => {
     // Given
-    const followUp = new FollowUp();
-    vi.spyOn(followUp, 'items', 'get').mockReturnValue([
+    const followup = new Followup();
+    vi.spyOn(followup, 'items', 'get').mockReturnValue([
       new RequestItem(
         'partner',
         'type',
@@ -39,7 +39,7 @@ describe('/+page.svelte', () => {
         null
       ),
     ]);
-    vi.spyOn(followUp, 'archived_items', 'get').mockReturnValue([
+    vi.spyOn(followup, 'archived_items', 'get').mockReturnValue([
       new RequestItem(
         'partner',
         'type',
@@ -55,7 +55,7 @@ describe('/+page.svelte', () => {
         null
       ),
     ]);
-    const spy = vi.spyOn(followUpMethods, 'buildFollowUp').mockResolvedValue(followUp);
+    const spy = vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
 
     // When
     render(Page);
