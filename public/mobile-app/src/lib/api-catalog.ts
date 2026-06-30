@@ -57,7 +57,7 @@ export const retrieveCatalog = async (date: Date | null = null): Promise<Catalog
   if (filter_items.length) {
     const items = (filter_items || []).map((e) => `filter-items=${e}`).join('&');
     const response = await apiFetch(
-      `/api/v1/users/agenda/items?current_date=${current_date}&${items}`,
+      `/api/v1/users/data/agenda?current_date=${current_date}&${items}`,
       {
         credentials: 'include',
       }
