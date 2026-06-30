@@ -22,6 +22,7 @@
 <div class="followup--item">
   <div
     class="followup--item--detail fr-tile fr-tile-sm fr-tile--horizontal fr-enlarge-link no-link"
+    class:fr-tile--no-icon={!item.is_archived && item.status_id == 'new' && item.link}
   >
     {#if !item.is_archived}
       <button
@@ -44,21 +45,7 @@
             {item.title}
           </a>
         </h3>
-        <p class="fr-tile__detail">
-          <span>{item.description}</span>
-          {#if !item.is_archived && item.status_id == 'new' && item.link}
-            <div class="action-buttons">
-              <button
-                class="fr-btn fr-btn--lg"
-                type="button"
-                onclick={(e) => gotoExternalItem(item)}
-                data-testid="external-item-button-{item.id}"
-              >
-                Reprendre ma démarche
-              </button>
-            </div>
-          {/if}
-        </p>
+        <p class="fr-tile__detail"><span>{item.description}</span></p>
         <div class="fr-tile__start">
           <p class="fr-badge fr-badge--icon-left {checkedIcon} {item.status_id}">
             {item.status_label}
@@ -66,6 +53,20 @@
           <p class="followup--item--detail--date">{item.formattedDate}</p>
         </div>
       </div>
+      {#if !item.is_archived && item.status_id == 'new' && item.link}
+        <div class="am-tile__footer fr-pt-1w">
+          <div class="fr-btns-group">
+            <button
+              class="fr-btn fr-mb-0"
+              type="button"
+              onclick={(e) => gotoExternalItem(item)}
+              data-testid="external-item-button-{item.id}"
+            >
+              Reprendre ma démarche
+            </button>
+          </div>
+        </div>
+      {/if}
     </div>
   </div>
 </div>
@@ -79,7 +80,7 @@
       margin-bottom: 1.5rem;
     }
     .followup--item--detail.fr-enlarge-link {
-      padding: 1rem 2rem 0.5rem 1rem;
+      padding: 1rem 2rem 1.25rem 1rem;
       width: 100%;
       &.no-link {
         --hover: transparent;
@@ -120,19 +121,6 @@
           margin: 0;
           padding-right: 0;
           flex-direction: column;
-          .action-buttons {
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-            margin: 0.75rem 0 1rem;
-            button {
-              display: flex;
-              justify-content: center;
-              width: 100%;
-              font-size: 16px;
-              padding: 0.5rem 1rem;
-            }
-          }
         }
         .fr-tile__start {
           width: 100%;
@@ -156,6 +144,9 @@
             color: var(--text-mention-grey);
           }
         }
+      }
+      .am-tile__footer {
+        position: relative;
       }
     }
   }
