@@ -99,7 +99,7 @@ def test_get_notifications(
         "item_canal": None,
         "item_milestone_start_date": None,
         "item_milestone_end_date": None,
-        "url": f"{settings.PUBLIC_APP_URL}/#/requests",
+        "url": f"{settings.PUBLIC_APP_URL}/#/followup",
         "created_at": notification.created_at.isoformat().replace("+00:00", "Z"),
         "read": False,
     }
