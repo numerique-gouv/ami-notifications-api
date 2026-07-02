@@ -47,16 +47,23 @@ export const registerDevice = async (
 };
 
 export const unregisterDevice = async (deviceId: string) => {
+  const payload = {
+    device_id: deviceId,
+  };
   const headers = {
     'Content-Type': 'application/json',
   };
-  const response = await apiFetch(`/api/v1/users/registrations/device_id/${deviceId}`, {
-    method: 'DELETE',
-    headers: headers,
-    credentials: 'include',
-  });
+  const response = await apiFetch(
+    '/api/v1/users/registrations?action=removeFromDeviceId',
+    {
+      method: 'PUT',
+      headers: headers,
+      body: JSON.stringify(payload),
+      credentials: 'include',
+    }
+  );
   console.log('response:', response);
-  if (response.status === 204) {
+  if (response.status < 400) {
     console.log('The device has been deleted successfully');
   } else {
     console.log(`error ${response.status}: ${response.statusText}, ${response.body}`);
