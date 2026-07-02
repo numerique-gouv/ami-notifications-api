@@ -4,8 +4,8 @@ import { isNative } from '$lib/nativeEvents';
 import type { Registration } from '$lib/registration';
 import {
   registerDevice,
-  unregisterDevice,
   unregisterRegistrationsForDesktop,
+  unregisterRegistrationsForNative,
 } from '$lib/registration';
 import * as self from './notifications';
 
@@ -188,7 +188,7 @@ export const disableNotificationsAtLogout = async () => {
 };
 
 export const disableNotificationsForNative = async (deviceId: string) => {
-  await unregisterDevice(deviceId);
+  await unregisterRegistrationsForNative(deviceId);
 };
 
 export const disableNotificationsForDesktop = async (registrationId: string) => {
