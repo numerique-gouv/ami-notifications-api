@@ -105,7 +105,10 @@ export const notificationEventsSocket = (
 };
 
 export const enableNotifications = async () => {
-  await enableNotificationsForDesktop();
+  const deviceId = getDeviceId();
+  if (deviceId === '') {
+    await enableNotificationsForDesktop();
+  }
 };
 
 export const subscribePush = async () => {
