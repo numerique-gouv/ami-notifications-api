@@ -1,10 +1,10 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
-  import RequestItemModal from '$lib/components/modal/RequestItemModal.svelte';
+  import FollowupItem from '$lib/components/FollowupItem.svelte';
+  import FollowupItemModal from '$lib/components/modal/FollowupItemModal.svelte';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
-  import RequestItem from '$lib/components/RequestItem.svelte';
-  import type { Followup, RequestItem as RequestItemType } from '$lib/followup';
+  import type { Followup, FollowupItem as FollowupItemType } from '$lib/followup';
   import { buildFollowup } from '$lib/followup';
 
   interface Props {
@@ -15,7 +15,7 @@
   const backUrl = '/#/requests';
   let isFollowupEmpty: boolean = $state(true);
   let followup: Followup | null = $state(null);
-  let selectedRequestItem: RequestItemType | null = $state(null);
+  let selectedFollowupItem: FollowupItemType | null = $state(null);
   let menuOpened: boolean = $state(false);
 
   onMount(async () => {
@@ -23,26 +23,26 @@
     console.log($state.snapshot(followup));
   });
 
-  const openRequestItemModal = (item: RequestItemType) => {
-    selectedRequestItem = item;
+  const openFollowupItemModal = (item: FollowupItemType) => {
+    selectedFollowupItem = item;
   };
 
   const toggleMoreMenu = () => {
     menuOpened = !menuOpened;
   };
 
-  const gotoArchivedRequests = () => {
+  const gotoArchivedFollowup = () => {
     goto('/#/requests/archived');
   };
 </script>
 
-<div class="requests {archived ? 'archived': ''}">
+<div class="followup {archived ? 'archived': ''}">
   {#if archived}
     <NavWithBackButton title="Démarches archivées" {backUrl} />
   {:else}
-    <div class="requests--title">
+    <div class="followup--title">
       <h2>Mes démarches</h2>
-      <div class="requests--title--icon">
+      <div class="followup--title--icon">
         <button
           class="more"
           type="button"
@@ -61,8 +61,8 @@
             <span class="fr-icon-inbox-archive-line" aria-hidden="true"></span>
             <button
               type="button"
-              onclick={gotoArchivedRequests}
-              data-testid="archived-requests-button"
+              onclick={gotoArchivedFollowup}
+              data-testid="archived-followup-button"
             >
               Démarches archivées
             </button>
@@ -72,21 +72,21 @@
     </div>
   {/if}
 
-  <div class="requests--container" data-testid="requests">
+  <div class="followup--container" data-testid="followup">
     {#if archived && followup && followup.archived_items.length}
       {#each followup.archived_items as item}
-        <RequestItem item={item} onOpen={() => openRequestItemModal(item)} />
+        <FollowupItem item={item} onOpen={() => openFollowupItemModal(item)} />
       {/each}
     {:else if !archived && followup && followup.items.length}
       {#each followup.items as item}
-        <RequestItem item={item} onOpen={() => openRequestItemModal(item)} />
+        <FollowupItem item={item} onOpen={() => openFollowupItemModal(item)} />
       {/each}
     {:else}
-      <div class="no-requests">
-        <div class="no-requests--icon">
-          <img class="requests-icon" src="/remixicons/tracking.svg" alt="">
+      <div class="no-followup">
+        <div class="no-followup--icon">
+          <img class="followup-icon" src="/remixicons/tracking.svg" alt="">
         </div>
-        <div class="no-requests--title">
+        <div class="no-followup--title">
           Après avoir effectué vos démarches, vous pouvez les suivre en temps réel
           depuis l’application.
         </div>
@@ -95,29 +95,29 @@
   </div>
 </div>
 
-{#if selectedRequestItem}
-  <RequestItemModal
-    bind:item={selectedRequestItem}
+{#if selectedFollowupItem}
+  <FollowupItemModal
+    bind:item={selectedFollowupItem}
     bind:followup={followup}
     bind:isFollowupEmpty={isFollowupEmpty}
   />
 {/if}
 
 <style>
-  .requests {
+  .followup {
     padding: 1.5rem 1rem;
     margin-bottom: 68px;
     &.archived {
       padding-top: 0;
       margin-bottom: 0;
     }
-    .requests--title {
+    .followup--title {
       display: flex;
       position: relative;
       h2 {
         flex-grow: 1;
       }
-      .requests--title--icon {
+      .followup--title--icon {
         padding-top: 0.25rem;
         color: var(--text-active-blue-france);
       }
@@ -147,16 +147,16 @@
         }
       }
     }
-    .requests--container {
+    .followup--container {
       display: flex;
       flex-direction: column;
-      &:has(div.no-requests) {
+      &:has(div.no-followup) {
         align-items: center;
         justify-content: center;
         height: calc(100vh - 15rem);
         min-height: 10rem;
       }
-      .no-requests {
+      .no-followup {
         flex-direction: column;
         text-align: center;
         padding: 1rem;
@@ -168,7 +168,7 @@
           height: 5rem;
           width: 5rem;
         }
-        .no-requests--title {
+        .no-followup--title {
           text-align: left;
         }
       }

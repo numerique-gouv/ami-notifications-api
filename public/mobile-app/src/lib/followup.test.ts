@@ -1,15 +1,15 @@
 import { describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import * as apiFollowupMethods from '$lib/api-followup';
-import { buildFollowup, Followup, RequestItem } from '$lib/followup';
+import { buildFollowup, Followup, FollowupItem } from '$lib/followup';
 
 describe('/followup.ts', () => {
-  describe('RequestItem', () => {
+  describe('FollowupItem', () => {
     describe('id', () => {
       test('should return an id from partner_id, external_item_type and external_item_id', async () => {
         // Given
         vi.stubEnv('TZ', 'Europe/Paris');
-        const item = new RequestItem(
+        const item = new FollowupItem(
           'partner',
           'type',
           'id',
@@ -35,7 +35,7 @@ describe('/followup.ts', () => {
       test('should return localized date and hour, without year', async () => {
         // Given
         vi.stubEnv('TZ', 'Europe/Paris');
-        const item = new RequestItem(
+        const item = new FollowupItem(
           'partner',
           'type',
           'id',
@@ -60,7 +60,7 @@ describe('/followup.ts', () => {
     describe('archive', () => {
       test('should call archiveFollowupItem', async () => {
         // Given
-        const item = new RequestItem(
+        const item = new FollowupItem(
           'partner',
           'type',
           'id',
@@ -91,7 +91,7 @@ describe('/followup.ts', () => {
     test('should organize items in items and archived_items', async () => {
       // Given
       vi.stubEnv('TZ', 'Europe/Paris');
-      const request1 = {
+      const followupItem1 = {
         partner_id: 'psl',
         external_item_type: 'OperationTranquilliteVacances',
         external_item_id: '42',
@@ -107,7 +107,7 @@ describe('/followup.ts', () => {
         created_at: new Date('2026-02-23T15:50:00Z'),
         updated_at: new Date('2026-02-23T15:55:00Z'),
       };
-      const request2 = {
+      const followupItem2 = {
         partner_id: 'psl',
         external_item_type: 'OperationTranquilliteVacances',
         external_item_id: '43',
@@ -123,7 +123,7 @@ describe('/followup.ts', () => {
         created_at: new Date('2026-02-22T15:50:00Z'),
         updated_at: new Date('2026-02-22T15:55:00Z'),
       };
-      const request3 = {
+      const followupItem3 = {
         partner_id: 'psl',
         external_item_type: 'OperationTranquilliteVacances',
         external_item_id: '44',
@@ -139,7 +139,7 @@ describe('/followup.ts', () => {
         created_at: new Date('2026-02-21T15:50:00Z'),
         updated_at: new Date('2026-02-21T15:55:00Z'),
       };
-      const request4 = {
+      const followupItem4 = {
         partner_id: 'psl',
         external_item_type: 'OperationTranquilliteVacances',
         external_item_id: '45',
@@ -158,14 +158,14 @@ describe('/followup.ts', () => {
 
       // When
       const followup = new Followup({
-        notifications: [request1, request2, request3, request4],
+        notifications: [followupItem1, followupItem2, followupItem3, followupItem4],
       });
 
       // Then
       expect(followup.items.length).equal(2);
       expect(
         followup.items[0].equals(
-          new RequestItem(
+          new FollowupItem(
             'psl',
             'OperationTranquilliteVacances',
             '42',
@@ -183,7 +183,7 @@ describe('/followup.ts', () => {
       ).toBe(true);
       expect(
         followup.items[1].equals(
-          new RequestItem(
+          new FollowupItem(
             'psl',
             'OperationTranquilliteVacances',
             '43',
@@ -202,7 +202,7 @@ describe('/followup.ts', () => {
       expect(followup.archived_items.length).equal(2);
       expect(
         followup.archived_items[0].equals(
-          new RequestItem(
+          new FollowupItem(
             'psl',
             'OperationTranquilliteVacances',
             '44',
@@ -220,7 +220,7 @@ describe('/followup.ts', () => {
       ).toBe(true);
       expect(
         followup.archived_items[1].equals(
-          new RequestItem(
+          new FollowupItem(
             'psl',
             'OperationTranquilliteVacances',
             '45',
@@ -240,7 +240,7 @@ describe('/followup.ts', () => {
     describe('hasNonArchivedItems', () => {
       test('should return true as "new" item exists for the external_item_type', async () => {
         // Given
-        const request = {
+        const followupItem = {
           partner_id: 'psl',
           external_item_type: 'OperationTranquilliteVacances',
           external_item_id: '42',
@@ -257,7 +257,7 @@ describe('/followup.ts', () => {
           updated_at: new Date('2026-02-23T15:55:00Z'),
         };
         const followup = new Followup({
-          notifications: [request],
+          notifications: [followupItem],
         });
 
         // When
@@ -271,7 +271,7 @@ describe('/followup.ts', () => {
       });
       test('should return true as "wip" item exists for the external_item_type', async () => {
         // Given
-        const request = {
+        const followupItem = {
           partner_id: 'psl',
           external_item_type: 'OperationTranquilliteVacances',
           external_item_id: '42',
@@ -288,7 +288,7 @@ describe('/followup.ts', () => {
           updated_at: new Date('2026-02-23T15:55:00Z'),
         };
         const followup = new Followup({
-          notifications: [request],
+          notifications: [followupItem],
         });
 
         // When
@@ -302,7 +302,7 @@ describe('/followup.ts', () => {
       });
       test('should return true as "closed" item exists for the external_item_type', async () => {
         // Given
-        const request = {
+        const followupItem = {
           partner_id: 'psl',
           external_item_type: 'OperationTranquilliteVacances',
           external_item_id: '42',
@@ -319,7 +319,7 @@ describe('/followup.ts', () => {
           updated_at: new Date('2026-02-23T15:55:00Z'),
         };
         const followup = new Followup({
-          notifications: [request],
+          notifications: [followupItem],
         });
 
         // When
@@ -333,7 +333,7 @@ describe('/followup.ts', () => {
       });
       test('should return false as archived items exist for the external_item_type', async () => {
         // Given
-        const request1 = {
+        const followupItem1 = {
           partner_id: 'other',
           external_item_type: 'OperationTranquilliteVacances',
           external_item_id: '42',
@@ -349,7 +349,7 @@ describe('/followup.ts', () => {
           created_at: new Date('2026-02-23T15:50:00Z'),
           updated_at: new Date('2026-02-23T15:55:00Z'),
         };
-        const request2 = {
+        const followupItem2 = {
           partner_id: 'psl',
           external_item_type: 'Other',
           external_item_id: '43',
@@ -365,7 +365,7 @@ describe('/followup.ts', () => {
           created_at: new Date('2026-02-23T15:50:00Z'),
           updated_at: new Date('2026-02-23T15:55:00Z'),
         };
-        const request3 = {
+        const followupItem3 = {
           partner_id: 'psl',
           external_item_type: 'OperationTranquilliteVacances',
           external_item_id: '44',
@@ -381,7 +381,7 @@ describe('/followup.ts', () => {
           created_at: new Date('2026-02-23T15:50:00Z'),
           updated_at: new Date('2026-02-23T15:55:00Z'),
         };
-        const request4 = {
+        const followupItem4 = {
           partner_id: 'psl',
           external_item_type: 'OperationTranquilliteVacances',
           external_item_id: '45',
@@ -397,7 +397,7 @@ describe('/followup.ts', () => {
           created_at: new Date('2026-02-23T15:50:00Z'),
           updated_at: new Date('2026-02-23T15:55:00Z'),
         };
-        const request5 = {
+        const followupItem5 = {
           partner_id: 'psl',
           external_item_type: 'OperationTranquilliteVacances',
           external_item_id: '46',
@@ -414,7 +414,13 @@ describe('/followup.ts', () => {
           updated_at: new Date('2026-02-23T15:55:00Z'),
         };
         const followup = new Followup({
-          notifications: [request1, request2, request3, request4, request5],
+          notifications: [
+            followupItem1,
+            followupItem2,
+            followupItem3,
+            followupItem4,
+            followupItem5,
+          ],
         });
 
         // When
@@ -432,7 +438,7 @@ describe('/followup.ts', () => {
     test('should retrieve inventories and init followup with them', async () => {
       // Given
       vi.stubEnv('TZ', 'Europe/Paris');
-      const request1 = {
+      const followupItem1 = {
         partner_id: 'psl',
         external_item_type: 'OperationTranquilliteVacances',
         external_item_id: '42',
@@ -448,7 +454,7 @@ describe('/followup.ts', () => {
         created_at: new Date('2026-02-23T15:50:00Z'),
         updated_at: new Date('2026-02-23T15:55:00Z'),
       };
-      const request2 = {
+      const followupItem2 = {
         partner_id: 'psl',
         external_item_type: 'OperationTranquilliteVacances',
         external_item_id: '43',
@@ -465,7 +471,7 @@ describe('/followup.ts', () => {
         updated_at: new Date('2026-02-22T15:55:00Z'),
       };
       const spy = vi.spyOn(apiFollowupMethods, 'retrieveFollowup').mockResolvedValue({
-        notifications: [request1, request2],
+        notifications: [followupItem1, followupItem2],
       });
 
       // When
@@ -477,7 +483,7 @@ describe('/followup.ts', () => {
       expect(followup.items.length).equal(1);
       expect(
         followup.items[0].equals(
-          new RequestItem(
+          new FollowupItem(
             'psl',
             'OperationTranquilliteVacances',
             '42',
@@ -496,7 +502,7 @@ describe('/followup.ts', () => {
       expect(followup.archived_items.length).equal(1);
       expect(
         followup.archived_items[0].equals(
-          new RequestItem(
+          new FollowupItem(
             'psl',
             'OperationTranquilliteVacances',
             '43',

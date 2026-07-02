@@ -2,7 +2,7 @@ import { render, screen, waitFor } from '@testing-library/svelte';
 import { describe, expect, test, vi } from 'vitest';
 import * as navigationMethods from '$app/navigation';
 import * as followupMethods from '$lib/followup';
-import { Followup, RequestItem } from '$lib/followup';
+import { Followup, FollowupItem } from '$lib/followup';
 import Page from './+page.svelte';
 
 describe('/+page.svelte', () => {
@@ -20,11 +20,11 @@ describe('/+page.svelte', () => {
       expect(spy).toHaveBeenCalledWith('/');
     });
   });
-  test('Should display current requests', async () => {
+  test('Should display current followup', async () => {
     // Given
     const followup = new Followup();
     vi.spyOn(followup, 'items', 'get').mockReturnValue([
-      new RequestItem(
+      new FollowupItem(
         'partner',
         'type',
         'id1',
@@ -40,7 +40,7 @@ describe('/+page.svelte', () => {
       ),
     ]);
     vi.spyOn(followup, 'archived_items', 'get').mockReturnValue([
-      new RequestItem(
+      new FollowupItem(
         'partner',
         'type',
         'id2',
@@ -63,10 +63,10 @@ describe('/+page.svelte', () => {
     // Then
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
-      expect(screen.getByTestId('requests')).toHaveTextContent(
+      expect(screen.getByTestId('followup')).toHaveTextContent(
         'Votre demande est en cours de traitement.'
       );
-      expect(screen.getByTestId('requests')).not.toHaveTextContent(
+      expect(screen.getByTestId('followup')).not.toHaveTextContent(
         'Votre demande est terminée.'
       );
     });

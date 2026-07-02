@@ -2,34 +2,34 @@
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import { getDSFRIcon } from '$lib/dsfr-icon';
-  import { RequestItem } from '$lib/followup';
+  import { FollowupItem } from '$lib/followup';
 
   interface Props {
-    item: RequestItem;
+    item: FollowupItem;
     onOpen: () => void;
   }
   let { item, onOpen }: Props = $props();
 
   let checkedIcon = $derived(getDSFRIcon(item.icon, 'fr-icon-information-fill'));
 
-  const gotoExternalItem = (item: RequestItem) => {
+  const gotoExternalItem = (item: FollowupItem) => {
     if (item.link) {
       window.location.href = item.link;
     }
   };
 </script>
 
-<div class="request--item">
+<div class="followup--item">
   <div
-    class="request--item--detail fr-tile fr-tile-sm fr-tile--horizontal fr-enlarge-link no-link"
+    class="followup--item--detail fr-tile fr-tile-sm fr-tile--horizontal fr-enlarge-link no-link"
   >
     {#if !item.is_archived}
       <button
         onclick={onOpen}
         title="Ouvrir la modale liée à l'élément du suivi"
         aria-label="Ouvrir la modale liée à l'élément du suivi"
-        data-testid="open-request-item-modal-{item.id}"
-        class="open-request-item-modal fr-icon-more-2-fill"
+        data-testid="open-followup-item-modal-{item.id}"
+        class="open-followup-item-modal fr-icon-more-2-fill"
       ></button>
     {/if}
     <div class="fr-tile__body">
@@ -38,7 +38,7 @@
           <a
             href="{item.link}"
             onclick={(e) => {if (!item.link) {e.preventDefault();}}}
-            data-testid="request-item-link"
+            data-testid="followup-item-link"
             class="{item.link ? '': 'no-link'}"
           >
             {item.title}
@@ -63,7 +63,7 @@
           <p class="fr-badge fr-badge--icon-left {checkedIcon} {item.status_id}">
             {item.status_label}
           </p>
-          <p class="request--item--detail--date">{item.formattedDate}</p>
+          <p class="followup--item--detail--date">{item.formattedDate}</p>
         </div>
       </div>
     </div>
@@ -71,20 +71,20 @@
 </div>
 
 <style>
-  .request--item {
+  .followup--item {
     display: flex;
     flex-direction: column;
     width: 100%;
     &:not(:last-child) {
       margin-bottom: 1.5rem;
     }
-    .request--item--detail.fr-enlarge-link {
+    .followup--item--detail.fr-enlarge-link {
       padding: 1rem 2rem 0.5rem 1rem;
       width: 100%;
       &.no-link {
         --hover: transparent;
       }
-      button.open-request-item-modal {
+      button.open-followup-item-modal {
         z-index: 2;
         position: absolute;
         right: 0.25rem;
@@ -150,7 +150,7 @@
               --icon-size: 0.75rem;
             }
           }
-          .request--item--detail--date {
+          .followup--item--detail--date {
             font-size: 12px;
             line-height: 20px;
             color: var(--text-mention-grey);
