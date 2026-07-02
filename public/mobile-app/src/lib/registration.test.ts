@@ -3,8 +3,8 @@ import '@testing-library/jest-dom/vitest';
 import * as authMethods from '$lib/auth';
 import {
   registerDevice,
-  unregisterDevice,
   unregisterRegistrationsForDesktop,
+  unregisterRegistrationsForNative,
 } from '$lib/registration.js';
 import { mockPushSubscription } from '$tests/utils';
 
@@ -38,7 +38,7 @@ describe('/registration.ts', () => {
     });
   });
 
-  describe('unregisterDevice', () => {
+  describe('unregisterRegistrationsForNative', () => {
     test('should call delete registrations endpoint from API', async () => {
       // Given
       vi.spyOn(globalThis, 'fetch').mockResolvedValue(
@@ -49,7 +49,7 @@ describe('/registration.ts', () => {
         .mockResolvedValue(new Response(null, { status: 204 }));
 
       // When
-      const responseStatus = await unregisterDevice('some-id');
+      const responseStatus = await unregisterRegistrationsForNative('some-id');
 
       // Then
       expect(responseStatus).toEqual(204);
@@ -71,7 +71,7 @@ describe('/registration.ts', () => {
       );
 
       // When
-      const responseStatus = await unregisterDevice('some-id');
+      const responseStatus = await unregisterRegistrationsForNative('some-id');
 
       // Then
       expect(responseStatus).toEqual(400);
