@@ -98,7 +98,7 @@
   };
 
   const gotoFollowup = () => {
-    goto('/#/requests');
+    goto('/#/followup');
   };
 </script>
 

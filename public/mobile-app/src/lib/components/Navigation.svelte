@@ -3,7 +3,7 @@
   const current = $derived({
     home: currentItem === 'home',
     agenda: currentItem === 'agenda',
-    requests: currentItem === 'requests',
+    followup: currentItem === 'followup',
   });
 </script>
 
@@ -31,9 +31,9 @@
     </li>
     <li class="menu__item">
       <a
-        class="menu__link {current.requests ? 'highlight': ''}"
-        href="/#/requests"
-        aria-current="{current.requests ? 'true': null}"
+        class="menu__link {current.followup ? 'highlight': ''}"
+        href="/#/followup"
+        aria-current="{current.followup ? 'true': null}"
       >
         <img src="/remixicons/vector.svg" alt="">
         <span>Suivi</span>

@@ -489,7 +489,7 @@ describe('/Followup.svelte', () => {
       // Then
       await waitFor(() => {
         expect(spy).toHaveBeenCalledTimes(1);
-        expect(spy).toHaveBeenCalledWith('/#/requests/archived');
+        expect(spy).toHaveBeenCalledWith('/#/followup/archived');
       });
     });
   });

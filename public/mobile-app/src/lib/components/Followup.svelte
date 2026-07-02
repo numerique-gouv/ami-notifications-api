@@ -12,7 +12,7 @@
   }
   let { archived = false }: Props = $props();
 
-  const backUrl = '/#/requests';
+  const backUrl = '/#/followup';
   let isFollowupEmpty: boolean = $state(true);
   let followup: Followup | null = $state(null);
   let selectedFollowupItem: FollowupItemType | null = $state(null);
@@ -32,7 +32,7 @@
   };
 
   const gotoArchivedFollowup = () => {
-    goto('/#/requests/archived');
+    goto('/#/followup/archived');
   };
 </script>
 
