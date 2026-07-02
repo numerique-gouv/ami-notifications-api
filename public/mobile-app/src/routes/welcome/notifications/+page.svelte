@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import { runOrNativeEvent } from '$lib/nativeEvents';
-  import { enableNotificationsAndUpdateLocalStorage } from '$lib/notifications';
+  import { enableNotifications } from '$lib/notifications';
   import { toastStore } from '$lib/state/toast.svelte';
   import { userStore } from '$lib/state/User.svelte';
 
@@ -13,7 +13,7 @@
   });
 
   const enableNotificationsFunc = async () => {
-    await enableNotificationsAndUpdateLocalStorage();
+    await enableNotifications();
     toastStore.addToast('Les notifications ont été activées', 'success', 3000, false);
     goToHomePage();
   };
