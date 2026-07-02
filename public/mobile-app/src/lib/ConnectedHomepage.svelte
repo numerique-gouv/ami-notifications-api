@@ -3,13 +3,13 @@
   import { goto } from '$app/navigation';
   import { type Agenda, Item as AgendaItemType, buildAgenda } from '$lib/agenda';
   import AgendaItem from '$lib/components/AgendaItem.svelte';
+  import FollowupItem from '$lib/components/FollowupItem.svelte';
   import Icon from '$lib/components/Icon.svelte';
   import AgendaItemModal from '$lib/components/modal/AgendaItemModal.svelte';
+  import FollowupItemModal from '$lib/components/modal/FollowupItemModal.svelte';
   import Logout from '$lib/components/modal/Logout.svelte';
   import Modal from '$lib/components/modal/Modal.svelte';
-  import RequestItemModal from '$lib/components/modal/RequestItemModal.svelte';
-  import RequestItem from '$lib/components/RequestItem.svelte';
-  import type { Followup, RequestItem as RequestItemType } from '$lib/followup';
+  import type { Followup, FollowupItem as FollowupItemType } from '$lib/followup';
   import { buildFollowup } from '$lib/followup';
   import { userReady } from '$lib/initializeDataFromAPI';
   import {
@@ -32,7 +32,7 @@
   let isFollowupEmpty: boolean = $state(true);
   let followup: Followup | null = $state(null);
   let selectedAgendaItem: AgendaItemType | null = $state(null);
-  let selectedRequestItem: RequestItemType | null = $state(null);
+  let selectedFollowupItem: FollowupItemType | null = $state(null);
 
   onMount(async () => {
     console.log('User is connected:', userStore.connected);
@@ -98,8 +98,8 @@
     selectedAgendaItem = item;
   };
 
-  const openRequestItemModal = (item: RequestItemType) => {
-    selectedRequestItem = item;
+  const openFollowupItemModal = (item: FollowupItemType) => {
+    selectedFollowupItem = item;
   };
 </script>
 
@@ -244,15 +244,15 @@
     {/if}
   </div>
 
-  <div class="rubrique-container requests-container">
+  <div class="rubrique-container followup-container">
     {#if isFollowupEmpty}
       <div class="header-container"><span class="title">Mes démarches</span></div>
       <div class="rubrique-content-container">
-        <div class="no-requests rubrique-content-container--empty">
-          <div class="no-requests--icon">
+        <div class="no-followup rubrique-content-container--empty">
+          <div class="no-followup--icon">
             <img class="address-icon" src="/remixicons/tracking.svg" alt="">
           </div>
-          <div class="no-requests--title">Retrouvez et suivez vos démarches ici.</div>
+          <div class="no-followup--title">Retrouvez et suivez vos démarches ici.</div>
         </div>
       </div>
     {:else}
@@ -266,9 +266,9 @@
       <div class="rubrique-content-container">
         {#if followup && followup.items.length}
           {@const firstItem = followup.items[0]}
-          <RequestItem
+          <FollowupItem
             item={firstItem}
-            onOpen={() => openRequestItemModal(firstItem)}
+            onOpen={() => openFollowupItemModal(firstItem)}
           />
         {/if}
       </div>
@@ -289,9 +289,9 @@
   <AgendaItemModal bind:item={selectedAgendaItem} bind:agenda={agenda} />
 {/if}
 
-{#if selectedRequestItem}
-  <RequestItemModal
-    bind:item={selectedRequestItem}
+{#if selectedFollowupItem}
+  <FollowupItemModal
+    bind:item={selectedFollowupItem}
     bind:followup={followup}
     bind:isFollowupEmpty={isFollowupEmpty}
   />

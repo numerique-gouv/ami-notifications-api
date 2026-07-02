@@ -2,12 +2,12 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import * as followupMethods from '$lib/followup';
-import { Followup, RequestItem } from '$lib/followup';
+import { Followup, FollowupItem } from '$lib/followup';
 import { toastStore } from '$lib/state/toast.svelte';
-import RequestItemModal from './RequestItemModal.svelte';
+import FollowupItemModal from './FollowupItemModal.svelte';
 
-describe('/RequestItemModal.svelte', () => {
-  let item: RequestItem;
+describe('/FollowupItemModal.svelte', () => {
+  let item: FollowupItem;
   let followup: Followup;
   const isFollowupEmpty = false;
 
@@ -16,7 +16,7 @@ describe('/RequestItemModal.svelte', () => {
     HTMLDialogElement.prototype.close = vi.fn();
     HTMLDialogElement.prototype.show = vi.fn();
 
-    item = new RequestItem(
+    item = new FollowupItem(
       'partner',
       'type',
       'id1',
@@ -33,7 +33,7 @@ describe('/RequestItemModal.svelte', () => {
     followup = new Followup();
     vi.spyOn(followup, 'items', 'get').mockReturnValue([
       item,
-      new RequestItem(
+      new FollowupItem(
         'partner',
         'type',
         'id2',
@@ -53,21 +53,21 @@ describe('/RequestItemModal.svelte', () => {
 
   test('should display item title', async () => {
     // When
-    render(RequestItemModal, { props: { item, followup, isFollowupEmpty } });
+    render(FollowupItemModal, { props: { item, followup, isFollowupEmpty } });
 
     // Then
-    const title = screen.getByTestId('request-item-modal-header');
+    const title = screen.getByTestId('followup-item-modal-header');
     expect(title).toHaveTextContent('Opération Tranquillité Vacances 1');
   });
   test('should add toast when user clicks on "Archiver" button - archive success', async () => {
     // Given
-    const spy = vi.spyOn(RequestItem.prototype, 'archive').mockResolvedValue(true);
+    const spy = vi.spyOn(FollowupItem.prototype, 'archive').mockResolvedValue(true);
     const spy2 = vi.spyOn(toastStore, 'addToast');
-    render(RequestItemModal, { props: { item, followup, isFollowupEmpty } });
+    render(FollowupItemModal, { props: { item, followup, isFollowupEmpty } });
 
     // When
     await waitFor(async () => {
-      const archiveButton = screen.getByTestId('archive-request-item-button');
+      const archiveButton = screen.getByTestId('archive-followup-item-button');
       await fireEvent.click(archiveButton);
     });
 
@@ -84,13 +84,13 @@ describe('/RequestItemModal.svelte', () => {
   });
   test('should add toast when user clicks on "Archiver" button - archive error', async () => {
     // Given
-    const spy = vi.spyOn(RequestItem.prototype, 'archive').mockResolvedValue(false);
+    const spy = vi.spyOn(FollowupItem.prototype, 'archive').mockResolvedValue(false);
     const spy2 = vi.spyOn(toastStore, 'addToast');
-    render(RequestItemModal, { props: { item, followup, isFollowupEmpty } });
+    render(FollowupItemModal, { props: { item, followup, isFollowupEmpty } });
 
     // When
     await waitFor(async () => {
-      const archiveButton = screen.getByTestId('archive-request-item-button');
+      const archiveButton = screen.getByTestId('archive-followup-item-button');
       await fireEvent.click(archiveButton);
     });
 

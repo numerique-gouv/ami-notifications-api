@@ -3,12 +3,12 @@
   import {
     buildFollowup,
     type Followup,
-    type RequestItem as RequestItemType,
+    type FollowupItem as FollowupItemType,
   } from '$lib/followup';
   import { toastStore } from '$lib/state/toast.svelte';
 
   interface Props {
-    item: RequestItemType | null;
+    item: FollowupItemType | null;
     followup: Followup | null;
     isFollowupEmpty: boolean;
   }
@@ -29,7 +29,7 @@
     });
   };
 
-  const clickOnArchiveRequestItem = async (item: RequestItemType | null) => {
+  const clickOnArchiveFollowupItem = async (item: FollowupItemType | null) => {
     if (item) {
       const result = await item.archive();
       if (result === true) {
@@ -48,20 +48,20 @@
 
 <ItemModal onClose={closeModal}>
   {#snippet header()}
-    <h2 class="request-item-modal-header" data-testid="request-item-modal-header">
+    <h2 class="followup-item-modal-header" data-testid="followup-item-modal-header">
       {item?.title}
     </h2>
   {/snippet}
   {#snippet footer()}
-    <ul class="request-item-modal-footer">
+    <ul class="followup-item-modal-footer">
       <li>
         <span class="fr-icon-inbox-archive-line"></span>
         <button
-          onclick={() => clickOnArchiveRequestItem(item)}
+          onclick={() => clickOnArchiveFollowupItem(item)}
           title="Archiver l'élément"
           aria-label="Archiver l'élément"
-          data-testid="archive-request-item-button"
-          class="archive-request-item"
+          data-testid="archive-followup-item-button"
+          class="archive-followup-item"
         >
           Archiver
         </button>
@@ -71,10 +71,10 @@
 </ItemModal>
 
 <style>
-  h2.request-item-modal-header {
+  h2.followup-item-modal-header {
     font-size: 1.25rem;
   }
-  ul.request-item-modal-footer {
+  ul.followup-item-modal-footer {
     padding: 0;
     margin: 0;
     li {

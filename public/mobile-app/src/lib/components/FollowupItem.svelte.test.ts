@@ -1,10 +1,10 @@
 import { describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { render, screen } from '@testing-library/svelte';
-import { RequestItem as Item } from '$lib/followup';
-import RequestItem from './RequestItem.svelte';
+import { FollowupItem as Item } from '$lib/followup';
+import FollowupItem from './FollowupItem.svelte';
 
-describe('/RequestItem.svelte', () => {
+describe('/FollowupItem.svelte', () => {
   test('should display a link', async () => {
     // Given
     const item = new Item(
@@ -22,10 +22,10 @@ describe('/RequestItem.svelte', () => {
       'url'
     );
     const onOpen = vi.fn();
-    render(RequestItem, { props: { item: item, onOpen: onOpen } });
+    render(FollowupItem, { props: { item: item, onOpen: onOpen } });
 
     // When
-    const link = screen.getByTestId('request-item-link');
+    const link = screen.getByTestId('followup-item-link');
 
     // Then
     expect(link.getAttribute('href')).toBe('url');
@@ -48,10 +48,10 @@ describe('/RequestItem.svelte', () => {
       null
     );
     const onOpen = vi.fn();
-    render(RequestItem, { props: { item: item, onOpen: onOpen } });
+    render(FollowupItem, { props: { item: item, onOpen: onOpen } });
 
     // When
-    const link = screen.getByTestId('request-item-link');
+    const link = screen.getByTestId('followup-item-link');
 
     // Then
     expect(link.getAttribute('href')).toBe(null);

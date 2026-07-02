@@ -3,7 +3,7 @@ import { archiveFollowupItem, retrieveFollowup } from '$lib/api-followup';
 
 type Status = 'new' | 'wip' | 'closed';
 
-export class RequestItem {
+export class FollowupItem {
   constructor(
     private _partner_id: string,
     private _external_item_type: string,
@@ -23,8 +23,8 @@ export class RequestItem {
     private _link: string | null
   ) {}
 
-  equals(other: RequestItem): boolean {
-    if (!(other instanceof RequestItem)) {
+  equals(other: FollowupItem): boolean {
+    if (!(other instanceof FollowupItem)) {
       return false;
     }
     return JSON.stringify(this) === JSON.stringify(other);
@@ -97,35 +97,35 @@ export class RequestItem {
 }
 
 export class Followup {
-  private _items: RequestItem[] = [];
-  private _archived_items: RequestItem[] = [];
+  private _items: FollowupItem[] = [];
+  private _archived_items: FollowupItem[] = [];
 
   constructor(apiFollowup: APIFollowup | null = null) {
-    const requestItems: RequestItem[] = [];
+    const followupItems: FollowupItem[] = [];
 
     const items: APIFollowupItem[] = apiFollowup?.notifications || [];
 
     // build items
     items.forEach((item) => {
-      const requestItem = this.createRequestItem(item);
-      requestItems.push(requestItem);
+      const followupItem = this.createFollowupItem(item);
+      followupItems.push(followupItem);
     });
 
     // sort items by date
-    requestItems.sort((a, b) => b.date.getTime() - a.date.getTime());
+    followupItems.sort((a, b) => b.date.getTime() - a.date.getTime());
 
     // organize items in _items or _archived_items arrays
-    requestItems.forEach((requestItem) => {
-      if (requestItem.is_archived) {
-        this._archived_items.push(requestItem);
+    followupItems.forEach((followupItem) => {
+      if (followupItem.is_archived) {
+        this._archived_items.push(followupItem);
       } else {
-        this._items.push(requestItem);
+        this._items.push(followupItem);
       }
     });
   }
 
-  private createRequestItem(item: APIFollowupItem): RequestItem {
-    return new RequestItem(
+  private createFollowupItem(item: APIFollowupItem): FollowupItem {
+    return new FollowupItem(
       item.partner_id,
       item.external_item_type,
       item.external_item_id,
@@ -141,11 +141,11 @@ export class Followup {
     );
   }
 
-  get items(): RequestItem[] {
+  get items(): FollowupItem[] {
     return this._items;
   }
 
-  get archived_items(): RequestItem[] {
+  get archived_items(): FollowupItem[] {
     return this._archived_items;
   }
 
