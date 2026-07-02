@@ -107,16 +107,14 @@ export const notificationEventsSocket = (
   return ws;
 };
 
-export const enableNotificationsAndUpdateLocalStorage =
-  async (): Promise<Registration | null> => {
-    let registration: Registration | null;
-    registration = await enableNotificationsForDesktop();
-    if (registration) {
-      localStorage.setItem('registration_id', registration.id);
-      localStorage.setItem('notifications_enabled', 'true');
-    }
-    return registration;
-  };
+export const enableNotificationsAndUpdateLocalStorage = async () => {
+  let registration: Registration | null;
+  registration = await enableNotificationsForDesktop();
+  if (registration) {
+    localStorage.setItem('registration_id', registration.id);
+    localStorage.setItem('notifications_enabled', 'true');
+  }
+};
 
 export const subscribePush = async () => {
   const registration = await getServiceWorkerRegistration();
