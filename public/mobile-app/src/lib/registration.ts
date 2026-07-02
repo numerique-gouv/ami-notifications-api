@@ -71,7 +71,7 @@ export const unregisterDevice = async (deviceId: string) => {
   return response.status;
 };
 
-export const unregisterDesktopRegistration = async (registrationId: string) => {
+export const unregisterRegistrationsForDesktop = async (registrationId: string) => {
   const headers = {
     'Content-Type': 'application/json',
   };
