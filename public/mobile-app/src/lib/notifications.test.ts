@@ -249,6 +249,8 @@ describe('/notifications', () => {
   describe('enableNotifications', () => {
     test('should perform enableNotificationsForDesktop and update localStorage', async () => {
       // Given
+      vi.spyOn(nativeInfosMethods, 'getDeviceId').mockReturnValue('');
+
       vi.stubGlobal('Notification', {
         requestPermission: () => Promise.resolve(true),
       });
