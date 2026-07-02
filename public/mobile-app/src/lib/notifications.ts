@@ -110,7 +110,7 @@ export const notificationEventsSocket = (
 export const enableNotificationsAndUpdateLocalStorage =
   async (): Promise<Registration | null> => {
     let registration: Registration | null;
-    registration = await enableNotifications();
+    registration = await enableNotificationsForDesktop();
     if (registration) {
       localStorage.setItem('registration_id', registration.id);
       localStorage.setItem('notifications_enabled', 'true');
@@ -133,7 +133,7 @@ export const subscribePush = async () => {
   }
 };
 
-export const enableNotifications = async (): Promise<Registration | null> => {
+export const enableNotificationsForDesktop = async (): Promise<Registration | null> => {
   if (typeof Notification === 'undefined') {
     console.error('Notification API is not available in this browser');
     return null;
