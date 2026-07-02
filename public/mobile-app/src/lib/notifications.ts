@@ -108,12 +108,7 @@ export const notificationEventsSocket = (
 };
 
 export const enableNotificationsAndUpdateLocalStorage = async () => {
-  let registration: Registration | null;
-  registration = await enableNotificationsForDesktop();
-  if (registration) {
-    localStorage.setItem('registration_id', registration.id);
-    localStorage.setItem('notifications_enabled', 'true');
-  }
+  await enableNotificationsForDesktop();
 };
 
 export const subscribePush = async () => {
@@ -137,15 +132,21 @@ export const enableNotificationsForDesktop = async (): Promise<Registration | nu
     return null;
   }
   const permissionGranted = await Notification.requestPermission();
-  const registration = await getServiceWorkerRegistration();
-  if (!permissionGranted || !registration) {
+  const serviceWorkerRegistration = await getServiceWorkerRegistration();
+  if (!permissionGranted || !serviceWorkerRegistration) {
     console.log(
       'No notification: missing permission or missing service worker registration'
     );
   } else {
     const pushSubscription = await subscribePush();
     if (pushSubscription) {
-      return await registerDevice(pushSubscription);
+      let registration: Registration | null;
+      registration = await registerDevice(pushSubscription);
+      if (registration) {
+        localStorage.setItem('registration_id', registration.id);
+        localStorage.setItem('notifications_enabled', 'true');
+      }
+      return registration;
     }
   }
   return null;
