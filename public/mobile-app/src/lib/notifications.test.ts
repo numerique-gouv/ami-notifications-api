@@ -8,7 +8,7 @@ import {
   countUnreadNotifications,
   disableNotificationsAtLogout,
   disableNotificationsForDesktop,
-  enableNotificationsAndUpdateLocalStorage,
+  enableNotifications,
   fetchAndStoreNotifications,
   getNotificationsFromStore,
   readNotification,
@@ -246,8 +246,8 @@ describe('/notifications', () => {
     });
   });
 
-  describe('enableNotificationsAndUpdateLocalStorage', () => {
-    test('should perform enableNotifications and update localStorage', async () => {
+  describe('enableNotifications', () => {
+    test('should perform enableNotificationsForDesktop and update localStorage', async () => {
       // Given
       vi.stubGlobal('Notification', {
         requestPermission: () => Promise.resolve(true),
@@ -278,7 +278,7 @@ describe('/notifications', () => {
       vi.spyOn(registrationMethods, 'registerDevice').mockResolvedValue(registration);
 
       // When
-      await enableNotificationsAndUpdateLocalStorage();
+      await enableNotifications();
 
       // Then
       await waitFor(() => {
