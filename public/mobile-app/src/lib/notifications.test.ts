@@ -249,6 +249,22 @@ describe('/notifications', () => {
   });
 
   describe('enableNotifications', () => {
+    // TODO: implement when NativeInfos exists
+    // test('should call unregisterRegistrationsForNative when user is using a mobile app and has deviceId', async () => {
+    //   // Given
+    //   globalThis.window.NativeInfos = {
+    //     getInfos: () => 'fake-device-id',
+    //   };
+    //   vi.spyOn(nativeEventsMethods, 'isNative').mockReturnValue(true);
+    //   const spyUnregisterRegistrationsForNative = vi.spyOn(registrationMethods, 'unregisterRegistrationsForNative');
+    //
+    //   // When
+    //   await enableNotifications();
+    //
+    //   // Then
+    //   expect(spyUnregisterRegistrationsForNative).toHaveBeenCalledWith('11');
+    // });
+
     test('should perform enableNotificationsForDesktop and update localStorage', async () => {
       // Given
       vi.stubGlobal('Notification', {

@@ -108,6 +108,12 @@ export const notificationEventsSocket = (
 };
 
 export const enableNotifications = async () => {
+  // const deviceId = window.NativeInfos?.getInfos();
+  const deviceId = null;
+  if (isNative() && deviceId !== null) {
+    await disableNotificationsForNative(deviceId);
+  }
+
   await enableNotificationsForDesktop();
 };
 
