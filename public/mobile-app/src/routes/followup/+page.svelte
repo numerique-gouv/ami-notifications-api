@@ -13,4 +13,4 @@
 </script>
 
 <Followup />
-<Navigation currentItem="requests" />
+<Navigation currentItem="followup" />

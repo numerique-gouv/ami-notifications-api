@@ -204,7 +204,7 @@ describe('/+page.svelte', () => {
     // Then
     await waitFor(() => {
       expect(spy2).toHaveBeenCalledTimes(1);
-      expect(spy2).toHaveBeenCalledWith('/#/requests');
+      expect(spy2).toHaveBeenCalledWith('/#/followup');
     });
   });
 

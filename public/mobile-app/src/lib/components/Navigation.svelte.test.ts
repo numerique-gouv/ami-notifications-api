@@ -28,7 +28,7 @@ describe('/Navigation.svelte', () => {
     expect(highlight).toBeNull();
   });
 
-  test('should highlight nothing - no requests', async () => {
+  test('should highlight nothing - no followup', async () => {
     // Given
     const { container } = render(Navigation);
 
@@ -60,7 +60,7 @@ describe('/Navigation.svelte', () => {
 
   test('should highlight followup item', async () => {
     // Given
-    const { container } = render(Navigation, { currentItem: 'requests' });
+    const { container } = render(Navigation, { currentItem: 'followup' });
 
     // Then
     const highlight = container.querySelector('.highlight');

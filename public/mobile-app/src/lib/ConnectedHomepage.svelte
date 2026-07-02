@@ -258,7 +258,7 @@
     {:else}
       <div class="header-container">
         <span class="title">Mes démarches</span>
-        <a class="see-all" aria-label="Voir toutes mes démarches" href="/#/requests">
+        <a class="see-all" aria-label="Voir toutes mes démarches" href="/#/followup">
           <span>Voir tout</span>
           <img class="arrow-line" src="/remixicons/arrow-line.svg" alt="">
         </a>
