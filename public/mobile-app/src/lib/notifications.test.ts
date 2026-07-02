@@ -31,7 +31,7 @@ describe('/notifications', () => {
           .fn()
           .mockReturnValue({ id: 'fake-registration-id', device_id: 'fake-device-id' }),
         unregisterDevice: vi.fn(() => true),
-        unregisterDesktopRegistration: vi.fn(() => true),
+        unregisterRegistrationsForDesktop: vi.fn(() => true),
       };
     });
 
@@ -407,7 +407,7 @@ describe('/notifications', () => {
       const spyUnregisterDevice = vi.spyOn(registrationMethods, 'unregisterDevice');
       const spyUnregisterDesktopRegistration = vi.spyOn(
         registrationMethods,
-        'unregisterDesktopRegistration'
+        'unregisterRegistrationsForDesktop'
       );
 
       // When
@@ -450,7 +450,7 @@ describe('/notifications', () => {
       const spyUnregisterDevice = vi.spyOn(registrationMethods, 'unregisterDevice');
       const spyUnregisterDesktopRegistration = vi.spyOn(
         registrationMethods,
-        'unregisterDesktopRegistration'
+        'unregisterRegistrationsForDesktop'
       );
 
       // When
@@ -478,7 +478,7 @@ describe('/notifications', () => {
       const spyUnregisterDevice = vi.spyOn(registrationMethods, 'unregisterDevice');
       const spyUnregisterDesktopRegistration = vi.spyOn(
         registrationMethods,
-        'unregisterDesktopRegistration'
+        'unregisterRegistrationsForDesktop'
       );
 
       // When
@@ -510,7 +510,7 @@ describe('/notifications', () => {
       const spyUnregisterDevice = vi.spyOn(registrationMethods, 'unregisterDevice');
       const spyUnregisterDesktopRegistration = vi.spyOn(
         registrationMethods,
-        'unregisterDesktopRegistration'
+        'unregisterRegistrationsForDesktop'
       );
 
       // When

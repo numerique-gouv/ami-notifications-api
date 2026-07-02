@@ -4,8 +4,8 @@ import { isNative } from '$lib/nativeEvents';
 import type { Registration } from '$lib/registration';
 import {
   registerDevice,
-  unregisterDesktopRegistration,
   unregisterDevice,
+  unregisterRegistrationsForDesktop,
 } from '$lib/registration';
 import * as self from './notifications';
 
@@ -206,7 +206,7 @@ export const disableNotificationsForDesktop = async (registrationId: string) => 
   } else {
     const pushSubscription = await registration.pushManager.getSubscription();
     if (pushSubscription) {
-      await unregisterDesktopRegistration(registrationId);
+      await unregisterRegistrationsForDesktop(registrationId);
       await unsubscribePush(pushSubscription);
     }
   }
