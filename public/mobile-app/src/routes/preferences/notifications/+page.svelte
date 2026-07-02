@@ -8,11 +8,9 @@
     disableNotificationsForDesktop,
     enableNotificationsAndUpdateLocalStorage,
   } from '$lib/notifications';
-  import type { Registration } from '$lib/registration';
   import { userStore } from '$lib/state/User.svelte';
 
   let backUrl: string = '/#/preferences';
-  let registration: Registration | null = $state(null);
   let isChecked = $state(false);
 
   onMount(async () => {
@@ -28,14 +26,12 @@
   };
 
   const enableNotificationsFunc = async () => {
-    registration = await enableNotificationsAndUpdateLocalStorage();
+    await enableNotificationsAndUpdateLocalStorage();
   };
 
   const disableNotificationsFunc = async () => {
     let registrationId: string | null = null;
-    if (registration) {
-      registrationId = registration.id;
-    } else if (localStorage.getItem('registration_id')) {
+    if (localStorage.getItem('registration_id')) {
       registrationId = localStorage.getItem('registration_id');
     } else {
       console.log('no registration');
