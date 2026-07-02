@@ -61,10 +61,11 @@ describe('/registration.ts', () => {
       const expectedRequestInit = {
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        method: 'DELETE',
+        body: JSON.stringify({ device_id: 'some-id' }),
+        method: 'PUT',
       };
       expect(spy).toHaveBeenCalledWith(
-        '/api/v1/users/registrations/device_id/some-id',
+        '/api/v1/users/registrations?action=removeFromDeviceId',
         expectedRequestInit
       );
     });
