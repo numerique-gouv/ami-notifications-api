@@ -107,7 +107,7 @@ export const notificationEventsSocket = (
   return ws;
 };
 
-export const enableNotificationsAndUpdateLocalStorage = async () => {
+export const enableNotifications = async () => {
   await enableNotificationsForDesktop();
 };
 

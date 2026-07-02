@@ -6,7 +6,7 @@
   import { runOrNativeEvent } from '$lib/nativeEvents';
   import {
     disableNotificationsForDesktop,
-    enableNotificationsAndUpdateLocalStorage,
+    enableNotifications,
   } from '$lib/notifications';
   import { userStore } from '$lib/state/User.svelte';
 
@@ -26,7 +26,7 @@
   };
 
   const enableNotificationsFunc = async () => {
-    await enableNotificationsAndUpdateLocalStorage();
+    await enableNotifications();
   };
 
   const disableNotificationsFunc = async () => {
