@@ -1,10 +1,14 @@
 <script lang="ts">
+  import { PUBLIC_FEATURE_FLAG_SERVICES_ENABLED } from '$env/static/public';
+
   const { currentItem } = $props();
   const current = $derived({
     home: currentItem === 'home',
     agenda: currentItem === 'agenda',
+    services: currentItem === 'services',
     followup: currentItem === 'followup',
   });
+  const services_enabled = PUBLIC_FEATURE_FLAG_SERVICES_ENABLED === 'true';
 
   const menuItems = $derived([
     {
@@ -12,6 +16,7 @@
       label: 'Accueil',
       iconClass: current.home ? 'fr-icon-home-4-fill' : 'fr-icon-home-4-line',
       isSelected: current.home,
+      isEnabled: true,
     },
     {
       url: '/#/agenda',
@@ -20,12 +25,23 @@
         ? 'fr-icon-calendar-event-fill'
         : 'fr-icon-calendar-event-line',
       isSelected: current.agenda,
+      isEnabled: true,
+    },
+    {
+      url: '/#/services',
+      label: 'Services',
+      iconClass: current.services
+        ? 'fr-icon-layout-grid-fill'
+        : 'fr-icon-layout-grid-line',
+      isSelected: current.services,
+      isEnabled: services_enabled,
     },
     {
       url: '/#/followup',
       label: 'Suivi',
       iconClass: current.followup ? 'fr-icon-vector-fill' : 'fr-icon-vector-line',
       isSelected: current.followup,
+      isEnabled: true,
     },
   ]);
 </script>
@@ -33,19 +49,21 @@
 <nav id="menu-footer" class="menu-footer" aria-label="Menu principal">
   <ul class="menu__list fr-raw-list">
     {#each menuItems as menuItem}
-      <li class="menu__item">
-        <a
-          href={menuItem.url}
-          class="menu__link {menuItem.isSelected ? 'highlight fr-text--bold' : ''}"
-          aria-current={menuItem.isSelected ? 'page' : null}
-        >
-          <span
-            aria-hidden="true"
-            class="fr-icon { menuItem.iconClass } fr-mb-1w"
-          ></span>
-          <span class="menu__label fr-text--xs fr-mb-0">{menuItem.label}</span>
-        </a>
-      </li>
+      {#if menuItem.isEnabled}
+        <li class="menu__item">
+          <a
+            href={menuItem.url}
+            class="menu__link {menuItem.isSelected ? 'highlight fr-text--bold' : ''}"
+            aria-current={menuItem.isSelected ? 'page' : null}
+          >
+            <span
+              aria-hidden="true"
+              class="fr-icon { menuItem.iconClass } fr-mb-1w"
+            ></span>
+            <span class="menu__label fr-text--xs fr-mb-0">{menuItem.label}</span>
+          </a>
+        </li>
+      {/if}
     {/each}
   </ul>
 </nav>
