@@ -10,7 +10,7 @@ import Page from './+page.svelte';
 describe('/+page.svelte', () => {
   beforeEach(() => {
     vi.mock('$lib/notifications', () => ({
-      enableNotificationsAndUpdateLocalStorage: vi.fn().mockReturnValue(true),
+      enableNotifications: vi.fn().mockReturnValue(true),
     }));
   });
 
@@ -33,10 +33,7 @@ describe('/+page.svelte', () => {
   test('should enable notifications when user clicks on Activer button', async () => {
     // Given
     await userStore.login(mockUserInfo);
-    const spy = vi.spyOn(
-      notificationsMethods,
-      'enableNotificationsAndUpdateLocalStorage'
-    );
+    const spy = vi.spyOn(notificationsMethods, 'enableNotifications');
     render(Page);
 
     // When
