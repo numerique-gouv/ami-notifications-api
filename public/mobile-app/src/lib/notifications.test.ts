@@ -31,7 +31,7 @@ describe('/notifications', () => {
         registerDevice: vi
           .fn()
           .mockReturnValue({ id: 'fake-registration-id', device_id: 'fake-device-id' }),
-        unregisterDevice: vi.fn(() => true),
+        unregisterRegistrationsForNative: vi.fn(() => true),
         unregisterRegistrationsForDesktop: vi.fn(() => true),
       };
     });
@@ -362,17 +362,22 @@ describe('/notifications', () => {
   });
 
   describe('disableNotificationsAtLogout', () => {
-    test('should call unregisterDevice when user is using a mobile app and has deviceId', async () => {
+    test('should call unregisterRegistrationsForNative when user is using a mobile app and has deviceId', async () => {
       // Given
       vi.spyOn(nativeEventsMethods, 'isNative').mockReturnValue(true);
       vi.spyOn(nativeInfosMethods, 'getDeviceId').mockReturnValue('fake-device-id');
-      const spyUnregisterDevice = vi.spyOn(registrationMethods, 'unregisterDevice');
+      const spyUnregisterRegistrationsForNative = vi.spyOn(
+        registrationMethods,
+        'unregisterRegistrationsForNative'
+      );
 
       // When
       await disableNotificationsAtLogout();
 
       // Then
-      expect(spyUnregisterDevice).toHaveBeenCalledWith('fake-device-id');
+      expect(spyUnregisterRegistrationsForNative).toHaveBeenCalledWith(
+        'fake-device-id'
+      );
     });
 
     test('should call unregisterDesktopRegistration when user is using a mobile app and does not have deviceId', async () => {
@@ -400,7 +405,10 @@ describe('/notifications', () => {
         },
       });
 
-      const spyUnregisterDevice = vi.spyOn(registrationMethods, 'unregisterDevice');
+      const spyUnregisterDevice = vi.spyOn(
+        registrationMethods,
+        'unregisterRegistrationsForNative'
+      );
       const spyUnregisterDesktopRegistration = vi.spyOn(
         registrationMethods,
         'unregisterRegistrationsForDesktop'
@@ -441,7 +449,10 @@ describe('/notifications', () => {
         },
       });
 
-      const spyUnregisterDevice = vi.spyOn(registrationMethods, 'unregisterDevice');
+      const spyUnregisterDevice = vi.spyOn(
+        registrationMethods,
+        'unregisterRegistrationsForNative'
+      );
       const spyUnregisterDesktopRegistration = vi.spyOn(
         registrationMethods,
         'unregisterRegistrationsForDesktop'
@@ -467,7 +478,10 @@ describe('/notifications', () => {
         requestPermission: () => Promise.resolve(false),
       });
 
-      const spyUnregisterDevice = vi.spyOn(registrationMethods, 'unregisterDevice');
+      const spyUnregisterDevice = vi.spyOn(
+        registrationMethods,
+        'unregisterRegistrationsForNative'
+      );
       const spyUnregisterDesktopRegistration = vi.spyOn(
         registrationMethods,
         'unregisterRegistrationsForDesktop'
@@ -497,7 +511,10 @@ describe('/notifications', () => {
         },
       });
 
-      const spyUnregisterDevice = vi.spyOn(registrationMethods, 'unregisterDevice');
+      const spyUnregisterDevice = vi.spyOn(
+        registrationMethods,
+        'unregisterRegistrationsForNative'
+      );
       const spyUnregisterDesktopRegistration = vi.spyOn(
         registrationMethods,
         'unregisterRegistrationsForDesktop'

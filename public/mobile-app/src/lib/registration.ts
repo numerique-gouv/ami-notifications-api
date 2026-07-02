@@ -46,7 +46,7 @@ export const registerDevice = async (
   }
 };
 
-export const unregisterDevice = async (deviceId: string) => {
+export const unregisterRegistrationsForNative = async (deviceId: string) => {
   const payload = {
     device_id: deviceId,
   };
