@@ -21,7 +21,7 @@ class FollowupSourceStatus(Enum):
 @dataclass
 class FollowupItem:
     partner_id: str
-    external_item_type: str
+    item_type: str
     external_item_id: str
     status_id: ItemGenericStatus
     status_label: str
@@ -54,7 +54,7 @@ class FollowupItem:
             return None
         return cls(
             partner_id=last_notification.partner_id,
-            external_item_type=last_notification.item_type,
+            item_type=last_notification.item_type,
             external_item_id=last_notification.item_id,
             status_id=status_id,
             status_label=last_notification.item_status_label or "",

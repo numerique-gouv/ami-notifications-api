@@ -2,7 +2,7 @@ import { apiFetch } from '$lib/auth';
 
 export type APIFollowupItem = {
   partner_id: string;
-  external_item_type: string;
+  item_type: string;
   external_item_id: string;
   status_id: string;
   status_label: string;

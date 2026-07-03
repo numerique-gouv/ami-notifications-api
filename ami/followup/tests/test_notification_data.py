@@ -219,7 +219,7 @@ def test_get_notifications_data(user: User) -> None:
     assert result == [
         FollowupItem(
             partner_id="dinum-ami",
-            external_item_type="Other",
+            item_type="Other",
             external_item_id="52",
             status_id=ItemGenericStatus.CLOSED,
             status_label="Validé",
@@ -235,7 +235,7 @@ def test_get_notifications_data(user: User) -> None:
         ),
         FollowupItem(
             partner_id="dinum-ami",
-            external_item_type="Other",
+            item_type="Other",
             external_item_id="42",
             status_id=ItemGenericStatus.CLOSED,
             status_label="Validé",
@@ -251,7 +251,7 @@ def test_get_notifications_data(user: User) -> None:
         ),
         FollowupItem(
             partner_id="psl",
-            external_item_type="OperationTranquilliteVacances",
+            item_type="OperationTranquilliteVacances",
             external_item_id="44",
             status_id=ItemGenericStatus.CLOSED,
             status_label="Validé",
@@ -267,7 +267,7 @@ def test_get_notifications_data(user: User) -> None:
         ),
         FollowupItem(
             partner_id="psl",
-            external_item_type="OtherOperationTranquilliteVacances",
+            item_type="OtherOperationTranquilliteVacances",
             external_item_id="43",
             status_id=ItemGenericStatus.NEW,
             status_label="Nouveau",
@@ -283,7 +283,7 @@ def test_get_notifications_data(user: User) -> None:
         ),
         FollowupItem(
             partner_id="psl",
-            external_item_type="OperationTranquilliteVacances",
+            item_type="OperationTranquilliteVacances",
             external_item_id="42",
             status_id=ItemGenericStatus.WIP,
             status_label="En cours",
@@ -305,7 +305,7 @@ def test_get_notifications_source(user: User, monkeypatch: pytest.MonkeyPatch) -
     items = [
         FollowupItem(
             partner_id="psl",
-            external_item_type="OperationTranquilliteVacances",
+            item_type="OperationTranquilliteVacances",
             external_item_id="44",
             status_id=ItemGenericStatus.CLOSED,
             status_label="Validé",
@@ -321,7 +321,7 @@ def test_get_notifications_source(user: User, monkeypatch: pytest.MonkeyPatch) -
         ),
         FollowupItem(
             partner_id="psl",
-            external_item_type="OperationTranquilliteVacances",
+            item_type="OperationTranquilliteVacances",
             external_item_id="43",
             status_id=ItemGenericStatus.NEW,
             status_label="Nouveau",

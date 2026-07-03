@@ -6,7 +6,7 @@ type Status = 'new' | 'wip' | 'closed';
 export class FollowupItem {
   constructor(
     private _partner_id: string,
-    private _external_item_type: string,
+    private _item_type: string,
     private _external_item_id: string,
     private _source: string,
 
@@ -31,15 +31,15 @@ export class FollowupItem {
   }
 
   get id(): string {
-    return `${this.partner_id}:${this.external_item_type}:${this.external_item_id}`;
+    return `${this.partner_id}:${this.item_type}:${this.external_item_id}`;
   }
 
   get partner_id(): string {
     return this._partner_id;
   }
 
-  get external_item_type(): string {
-    return this._external_item_type;
+  get item_type(): string {
+    return this._item_type;
   }
 
   get external_item_id(): string {
@@ -127,7 +127,7 @@ export class Followup {
   private createFollowupItem(item: APIFollowupItem): FollowupItem {
     return new FollowupItem(
       item.partner_id,
-      item.external_item_type,
+      item.item_type,
       item.external_item_id,
       'notifications',
       item.title,
@@ -149,10 +149,9 @@ export class Followup {
     return this._archived_items;
   }
 
-  hasNonArchivedItems(partner_id: string, external_item_type: string): boolean {
+  hasNonArchivedItems(partner_id: string, item_type: string): boolean {
     return this.items.some(
-      (item) =>
-        item.partner_id === partner_id && item.external_item_type === external_item_type
+      (item) => item.partner_id === partner_id && item.item_type === item_type
     );
   }
 }
