@@ -99,4 +99,140 @@ describe('/+page.svelte', () => {
       expectBackButtonPresent(screen);
     });
   });
+  describe('description parameters', () => {
+    test('should format description with date from url param', async () => {
+      // Given
+      await userStore.login(mockUserInfo);
+      vi.spyOn(servicesMethods, 'buildServices').mockResolvedValue(new Services());
+      vi.spyOn(Services.prototype, 'find').mockReturnValueOnce(
+        new ServicesItem(
+          'psl',
+          'OperationTranquilliteVacances',
+          'Opération Tranquillité Vacances',
+          'Sécurisez votre logement !',
+          'Vous partez en vacances ? **Securisez votre logement.** À partir du {date}',
+          'http://external-url',
+          true
+        )
+      );
+      const spyFormatDescription = vi
+        .spyOn(ServicesItem.prototype, 'formatDescription')
+        .mockReturnValueOnce('formatted description');
+      window.location.hash = '#/services/service/foo/bar?date=2025-12-05';
+
+      // When
+      render(Page, {
+        props: { params: { partner_id: 'foo', item_type: 'bar' } },
+      });
+
+      // Then
+      await waitFor(() => {
+        expect(screen.getByText(/formatted description/)).toBeInTheDocument();
+        expect(spyFormatDescription).toHaveBeenCalledTimes(1);
+        expect(spyFormatDescription).toHaveBeenCalledWith('5 décembre');
+      });
+    });
+    test('should format description with default date if url param is empty', async () => {
+      // Given
+      await userStore.login(mockUserInfo);
+      vi.spyOn(servicesMethods, 'buildServices').mockResolvedValue(new Services());
+      const spyFormatDescription = vi
+        .spyOn(ServicesItem.prototype, 'formatDescription')
+        .mockReturnValueOnce('formatted description');
+      vi.spyOn(Services.prototype, 'find').mockReturnValueOnce(
+        new ServicesItem(
+          'psl',
+          'OperationTranquilliteVacances',
+          'Opération Tranquillité Vacances',
+          'Sécurisez votre logement !',
+          'Vous partez en vacances ? **Securisez votre logement.** À partir du {date}',
+          'http://external-url',
+          true
+        )
+      );
+      const date = new Date(2026, 5, 17, 12, 22);
+      vi.setSystemTime(date);
+      window.location.hash = '#/services/service/foo/bar?date=';
+
+      // When
+      render(Page, {
+        props: { params: { partner_id: 'foo', item_type: 'bar' } },
+      });
+
+      // Then
+      await waitFor(() => {
+        expect(screen.getByText(/formatted description/)).toBeInTheDocument();
+        expect(spyFormatDescription).toHaveBeenCalledTimes(1);
+        expect(spyFormatDescription).toHaveBeenCalledWith('17 juin');
+      });
+    });
+    test('should format description with default date if url param is missing', async () => {
+      // Given
+      await userStore.login(mockUserInfo);
+      vi.spyOn(servicesMethods, 'buildServices').mockResolvedValue(new Services());
+      vi.spyOn(Services.prototype, 'find').mockReturnValueOnce(
+        new ServicesItem(
+          'psl',
+          'OperationTranquilliteVacances',
+          'Opération Tranquillité Vacances',
+          'Sécurisez votre logement !',
+          'Vous partez en vacances ? **Securisez votre logement.** À partir du {date}',
+          'http://external-url',
+          true
+        )
+      );
+      const spyFormatDescription = vi
+        .spyOn(ServicesItem.prototype, 'formatDescription')
+        .mockReturnValueOnce('formatted description');
+      const date = new Date(2026, 5, 17, 12, 22);
+      vi.setSystemTime(date);
+      window.location.hash = '#/services/service/foo/bar';
+
+      // When
+      render(Page, {
+        props: { params: { partner_id: 'foo', item_type: 'bar' } },
+      });
+
+      // Then
+      await waitFor(() => {
+        expect(screen.getByText(/formatted description/)).toBeInTheDocument();
+        expect(spyFormatDescription).toHaveBeenCalledTimes(1);
+        expect(spyFormatDescription).toHaveBeenCalledWith('17 juin');
+      });
+    });
+    test('should format description with default if url param is an invalid date', async () => {
+      // Given
+      await userStore.login(mockUserInfo);
+      vi.spyOn(servicesMethods, 'buildServices').mockResolvedValue(new Services());
+      vi.spyOn(Services.prototype, 'find').mockReturnValueOnce(
+        new ServicesItem(
+          'psl',
+          'OperationTranquilliteVacances',
+          'Opération Tranquillité Vacances',
+          'Sécurisez votre logement !',
+          'Vous partez en vacances ? **Securisez votre logement.** À partir du {date}',
+          'http://external-url',
+          true
+        )
+      );
+      const spyFormatDescription = vi
+        .spyOn(ServicesItem.prototype, 'formatDescription')
+        .mockReturnValueOnce('formatted description');
+      const date = new Date(2026, 5, 17, 12, 22);
+      vi.setSystemTime(date);
+      window.location.hash = '#/services/service/foo/bar?date=coucou';
+
+      // When
+      render(Page, {
+        props: { params: { partner_id: 'foo', item_type: 'bar' } },
+      });
+
+      // Then
+      await waitFor(() => {
+        expect(screen.getByText(/formatted description/)).toBeInTheDocument();
+        expect(spyFormatDescription).toHaveBeenCalledTimes(1);
+        expect(spyFormatDescription).toHaveBeenCalledWith('17 juin');
+      });
+    });
+  });
 });

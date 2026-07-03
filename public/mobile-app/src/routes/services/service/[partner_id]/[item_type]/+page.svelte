@@ -12,6 +12,10 @@
 
   let backUrl: string = '/#/services';
   let service: ServicesItem | null = $state(null);
+  let date: string = $state('');
+
+  const isValidDate = (d: Date | number) =>
+    d instanceof Date && !Number.isNaN(d.getTime());
 
   onMount(async () => {
     if (!userStore.connected) {
@@ -24,6 +28,20 @@
     console.log($state.snapshot(service));
     if (!service) {
       goto('/#/services');
+    }
+
+    const hash = window.location.hash;
+    const url = new URL(hash.substring(1), window.location.origin);
+    const stringFromUrl = url.searchParams.get('date') || '';
+    const dateFormat: Intl.DateTimeFormatOptions = { month: 'long', day: 'numeric' };
+    const locale = 'fr-FR';
+    date = new Date().toLocaleDateString(locale, dateFormat);
+
+    if (stringFromUrl !== '') {
+      const dateFromUrl: Date = new Date(stringFromUrl);
+      if (isValidDate(dateFromUrl)) {
+        date = dateFromUrl.toLocaleDateString(locale, dateFormat);
+      }
     }
   });
 </script>
@@ -38,7 +56,9 @@
   {#snippet content()}
     {#if service}
       <div class="service">
-        <div class="service-content">{@html renderMarkdown(service.description)}</div>
+        <div class="service-content">
+          {@html renderMarkdown(service.formatDescription(date))}
+        </div>
       </div>
     {/if}
   {/snippet}
