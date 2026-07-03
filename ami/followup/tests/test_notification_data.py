@@ -7,6 +7,7 @@ import pytest
 from ami.followup.data.notification import get_notifications_data, get_notifications_source
 from ami.followup.schemas import (
     FollowupItem,
+    FollowupItemEvent,
     FollowupSource,
     FollowupSourceStatus,
     ItemGenericStatus,
@@ -118,18 +119,22 @@ def test_get_notifications_data_invalid_notifications(user: User) -> None:
 
 
 @pytest.mark.django_db
-def test_get_notifications_data(user: User) -> None:
+def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> None:
+    FAKE_TIME = datetime.datetime.now(datetime.timezone.utc)
+
     notification1 = Notification.objects.create(
         user_id=user.id,
         content_body="notification 1",
+        content_private_body="with private body",
         content_title="Notification title 1",
         item_generic_status="new",
         item_status_label="Nouveau",
         item_type="OperationTranquilliteVacances",
         item_id="42",
         partner_id="psl",
+        created_at=FAKE_TIME,
     )
-    Notification.objects.create(
+    notification2 = Notification.objects.create(
         user_id=user.id,
         content_body="notification 2",
         content_title="Notification title 2",
@@ -139,6 +144,7 @@ def test_get_notifications_data(user: User) -> None:
         item_id="42",
         item_is_archived=True,
         partner_id="psl",
+        created_at=FAKE_TIME,
     )
     notification3 = Notification.objects.create(
         user_id=user.id,
@@ -149,6 +155,7 @@ def test_get_notifications_data(user: User) -> None:
         item_type="OperationTranquilliteVacances",
         item_id="42",
         partner_id="psl",
+        created_at=FAKE_TIME,
     )
 
     notification4 = Notification.objects.create(
@@ -162,6 +169,7 @@ def test_get_notifications_data(user: User) -> None:
         content_link="http://foo.com",
         item_is_archived=False,
         partner_id="psl",
+        created_at=FAKE_TIME,
     )
 
     notification5 = Notification.objects.create(
@@ -175,6 +183,7 @@ def test_get_notifications_data(user: User) -> None:
         content_link="http://bar.com",
         item_is_archived=True,
         partner_id="psl",
+        created_at=FAKE_TIME,
     )
     notification6 = Notification.objects.create(
         user_id=user.id,
@@ -188,6 +197,7 @@ def test_get_notifications_data(user: User) -> None:
         item_milestone_end_date=datetime.datetime.now(datetime.timezone.utc),
         item_is_archived=False,
         partner_id="psl",
+        created_at=FAKE_TIME,
     )
 
     notification7 = Notification.objects.create(
@@ -199,6 +209,7 @@ def test_get_notifications_data(user: User) -> None:
         item_type="Other",
         item_id="42",
         partner_id="dinum-ami",
+        created_at=FAKE_TIME,
     )
 
     notification8 = Notification.objects.create(
@@ -212,6 +223,7 @@ def test_get_notifications_data(user: User) -> None:
         item_type="Other",
         item_id="52",
         partner_id="dinum-ami",
+        created_at=FAKE_TIME,
     )
 
     result = get_notifications_data(current_user=user)
@@ -225,6 +237,13 @@ def test_get_notifications_data(user: User) -> None:
             status_label="Validé",
             milestone_start_date=None,
             milestone_end_date=None,
+            events=[
+                FollowupItemEvent(
+                    notification8.id,
+                    notification8.created_at,
+                    "other notification\n\nsome private body content",
+                ),
+            ],
             title="Other Notification title",
             description="other notification\n\nsome private body content",
             icon="dinum-ami-icon",
@@ -241,6 +260,13 @@ def test_get_notifications_data(user: User) -> None:
             status_label="Validé",
             milestone_start_date=None,
             milestone_end_date=None,
+            events=[
+                FollowupItemEvent(
+                    notification7.id,
+                    notification7.created_at,
+                    "other notification",
+                ),
+            ],
             title="Other Notification title",
             description="other notification",
             icon="fr-icon-flag-fill",
@@ -257,6 +283,18 @@ def test_get_notifications_data(user: User) -> None:
             status_label="Validé",
             milestone_start_date=notification6.item_milestone_start_date,
             milestone_end_date=notification6.item_milestone_end_date,
+            events=[
+                FollowupItemEvent(
+                    notification5.id,
+                    notification5.created_at,
+                    "notification 5",
+                ),
+                FollowupItemEvent(
+                    notification6.id,
+                    notification6.created_at,
+                    "notification 6",
+                ),
+            ],
             title="Notification title 6",
             description="notification 6",
             icon="fr-icon-flag-fill",
@@ -273,6 +311,13 @@ def test_get_notifications_data(user: User) -> None:
             status_label="Nouveau",
             milestone_start_date=None,
             milestone_end_date=None,
+            events=[
+                FollowupItemEvent(
+                    notification4.id,
+                    notification4.created_at,
+                    "notification 4",
+                ),
+            ],
             title="Notification title 4",
             description="notification 4",
             icon="fr-icon-mail-fill",
@@ -289,6 +334,23 @@ def test_get_notifications_data(user: User) -> None:
             status_label="En cours",
             milestone_start_date=None,
             milestone_end_date=None,
+            events=[
+                FollowupItemEvent(
+                    notification1.id,
+                    notification1.created_at,
+                    "notification 1\n\nwith private body",
+                ),
+                FollowupItemEvent(
+                    notification2.id,
+                    notification2.created_at,
+                    "notification 2",
+                ),
+                FollowupItemEvent(
+                    notification3.id,
+                    notification3.created_at,
+                    "notification 3",
+                ),
+            ],
             title="Notification title 3",
             description="notification 3",
             icon="fr-icon-eye-fill",
@@ -311,6 +373,7 @@ def test_get_notifications_source(user: User, monkeypatch: pytest.MonkeyPatch) -
             status_label="Validé",
             milestone_start_date=datetime.datetime.now(datetime.timezone.utc),
             milestone_end_date=datetime.datetime.now(datetime.timezone.utc),
+            events=[],
             title="Notification title 6",
             description="notification 6",
             icon="",
@@ -327,6 +390,7 @@ def test_get_notifications_source(user: User, monkeypatch: pytest.MonkeyPatch) -
             status_label="Nouveau",
             milestone_start_date=None,
             milestone_end_date=None,
+            events=[],
             title="Notification title 4",
             description="notification 4",
             icon="",

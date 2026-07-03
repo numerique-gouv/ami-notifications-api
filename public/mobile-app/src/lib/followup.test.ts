@@ -1,9 +1,33 @@
 import { describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import * as apiFollowupMethods from '$lib/api-followup';
-import { buildFollowup, Followup, FollowupItem } from '$lib/followup';
+import {
+  buildFollowup,
+  Followup,
+  FollowupItem,
+  FollowupItemEvent,
+} from '$lib/followup';
 
 describe('/followup.ts', () => {
+  describe('FollowupItemEvent', () => {
+    describe('formattedDate', () => {
+      test('should return localized date and hour', async () => {
+        // Given
+        vi.stubEnv('TZ', 'Europe/Paris');
+        const item = new FollowupItemEvent(
+          'fake-id',
+          new Date('2026-01-03T08:05:42Z'),
+          'Lorem ipsum'
+        );
+
+        // When
+        const date = item.formattedDate;
+
+        // Then
+        expect(date).equal('03 janvier 2026 - 09:05');
+      });
+    });
+  });
   describe('FollowupItem', () => {
     describe('id', () => {
       test('should return an id from partner_id, item_type and item_external_id', async () => {
@@ -14,6 +38,7 @@ describe('/followup.ts', () => {
           'type',
           'id',
           'notifications',
+          [],
           'title',
           'description',
           'icon',
@@ -40,6 +65,7 @@ describe('/followup.ts', () => {
           'type',
           'id',
           'notifications',
+          [],
           'title',
           'description',
           'icon',
@@ -65,6 +91,7 @@ describe('/followup.ts', () => {
           'type',
           'id',
           'notifications',
+          [],
           'title',
           'description',
           'icon',
@@ -99,6 +126,7 @@ describe('/followup.ts', () => {
         status_label: 'Brouillon',
         milestone_start_date: new Date('2026-01-23T15:50:00Z'),
         milestone_end_date: null,
+        events: [],
         title: 'Opération Tranquillité Vacances',
         description: 'Votre demande est en brouillon.',
         icon: 'icon',
@@ -115,6 +143,7 @@ describe('/followup.ts', () => {
         status_label: 'En cours',
         milestone_start_date: null,
         milestone_end_date: null,
+        events: [],
         title: 'Opération Tranquillité Vacances',
         description: 'Votre demande est en cours de traitement.',
         icon: 'icon',
@@ -131,6 +160,7 @@ describe('/followup.ts', () => {
         status_label: 'Brouillon',
         milestone_start_date: new Date('2026-01-23T15:50:00Z'),
         milestone_end_date: null,
+        events: [],
         title: 'Opération Tranquillité Vacances',
         description: 'Votre demande est en brouillon.',
         icon: 'icon',
@@ -147,6 +177,7 @@ describe('/followup.ts', () => {
         status_label: 'Terminée',
         milestone_start_date: null,
         milestone_end_date: null,
+        events: [],
         title: 'Opération Tranquillité Vacances',
         description: 'Votre demande est terminée.',
         icon: 'icon',
@@ -170,6 +201,7 @@ describe('/followup.ts', () => {
             'OperationTranquilliteVacances',
             '42',
             'notifications',
+            [],
             'Opération Tranquillité Vacances',
             'Votre demande est en brouillon.',
             'icon',
@@ -188,6 +220,7 @@ describe('/followup.ts', () => {
             'OperationTranquilliteVacances',
             '43',
             'notifications',
+            [],
             'Opération Tranquillité Vacances',
             'Votre demande est en cours de traitement.',
             'icon',
@@ -207,6 +240,7 @@ describe('/followup.ts', () => {
             'OperationTranquilliteVacances',
             '44',
             'notifications',
+            [],
             'Opération Tranquillité Vacances',
             'Votre demande est en brouillon.',
             'icon',
@@ -225,6 +259,7 @@ describe('/followup.ts', () => {
             'OperationTranquilliteVacances',
             '45',
             'notifications',
+            [],
             'Opération Tranquillité Vacances',
             'Votre demande est terminée.',
             'icon',
@@ -248,6 +283,7 @@ describe('/followup.ts', () => {
           status_label: 'Brouillon',
           milestone_start_date: new Date('2026-01-23T15:50:00Z'),
           milestone_end_date: null,
+          events: [],
           title: 'Opération Tranquillité Vacances',
           description: 'Votre demande est en brouillon.',
           icon: 'icon',
@@ -279,6 +315,7 @@ describe('/followup.ts', () => {
           status_label: 'Brouillon',
           milestone_start_date: new Date('2026-01-23T15:50:00Z'),
           milestone_end_date: null,
+          events: [],
           title: 'Opération Tranquillité Vacances',
           description: 'Votre demande est en brouillon.',
           icon: 'icon',
@@ -310,6 +347,7 @@ describe('/followup.ts', () => {
           status_label: 'Brouillon',
           milestone_start_date: new Date('2026-01-23T15:50:00Z'),
           milestone_end_date: null,
+          events: [],
           title: 'Opération Tranquillité Vacances',
           description: 'Votre demande est en brouillon.',
           icon: 'icon',
@@ -341,6 +379,7 @@ describe('/followup.ts', () => {
           status_label: 'Brouillon',
           milestone_start_date: new Date('2026-01-23T15:50:00Z'),
           milestone_end_date: null,
+          events: [],
           title: 'Opération Tranquillité Vacances',
           description: 'Votre demande est en brouillon.',
           icon: 'icon',
@@ -357,6 +396,7 @@ describe('/followup.ts', () => {
           status_label: 'Brouillon',
           milestone_start_date: new Date('2026-01-23T15:50:00Z'),
           milestone_end_date: null,
+          events: [],
           title: 'Opération Tranquillité Vacances',
           description: 'Votre demande est en brouillon.',
           icon: 'icon',
@@ -373,6 +413,7 @@ describe('/followup.ts', () => {
           status_label: 'Brouillon',
           milestone_start_date: new Date('2026-01-23T15:50:00Z'),
           milestone_end_date: null,
+          events: [],
           title: 'Opération Tranquillité Vacances',
           description: 'Votre demande est en brouillon.',
           icon: 'icon',
@@ -389,6 +430,7 @@ describe('/followup.ts', () => {
           status_label: 'Brouillon',
           milestone_start_date: new Date('2026-01-23T15:50:00Z'),
           milestone_end_date: null,
+          events: [],
           title: 'Opération Tranquillité Vacances',
           description: 'Votre demande est en brouillon.',
           icon: 'icon',
@@ -405,6 +447,7 @@ describe('/followup.ts', () => {
           status_label: 'Brouillon',
           milestone_start_date: new Date('2026-01-23T15:50:00Z'),
           milestone_end_date: null,
+          events: [],
           title: 'Opération Tranquillité Vacances',
           description: 'Votre demande est en brouillon.',
           icon: 'icon',
@@ -446,6 +489,7 @@ describe('/followup.ts', () => {
         status_label: 'Brouillon',
         milestone_start_date: null,
         milestone_end_date: null,
+        events: [],
         title: 'Opération Tranquillité Vacances',
         description: 'Votre demande est en brouillon.',
         icon: 'icon',
@@ -462,6 +506,7 @@ describe('/followup.ts', () => {
         status_label: 'Terminée',
         milestone_start_date: null,
         milestone_end_date: null,
+        events: [],
         title: 'Opération Tranquillité Vacances',
         description: 'Votre demande est terminée.',
         icon: 'icon',
@@ -488,6 +533,7 @@ describe('/followup.ts', () => {
             'OperationTranquilliteVacances',
             '42',
             'notifications',
+            [],
             'Opération Tranquillité Vacances',
             'Votre demande est en brouillon.',
             'icon',
@@ -507,6 +553,7 @@ describe('/followup.ts', () => {
             'OperationTranquilliteVacances',
             '43',
             'notifications',
+            [],
             'Opération Tranquillité Vacances',
             'Votre demande est terminée.',
             'icon',

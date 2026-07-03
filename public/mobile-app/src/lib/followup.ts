@@ -1,7 +1,36 @@
 import type { APIFollowup, APIFollowupItem } from '$lib/api-followup';
 import { archiveFollowupItem, retrieveFollowup } from '$lib/api-followup';
 
-type Status = 'new' | 'wip' | 'closed';
+export type Status = 'new' | 'wip' | 'closed';
+
+export class FollowupItemEvent {
+  constructor(
+    private _id: string,
+    private _created_at: Date,
+    private _description: string
+  ) {}
+
+  get id(): string {
+    return this._id;
+  }
+
+  get created_at(): Date {
+    return this._created_at;
+  }
+
+  get description(): string {
+    return this._description;
+  }
+
+  get formattedDate(): string {
+    const day = String(this.created_at.getDate()).padStart(2, '0');
+    const month = this.created_at.toLocaleString('fr-FR', { month: 'long' });
+    const year = this.created_at.getFullYear();
+    const hours = String(this.created_at.getHours()).padStart(2, '0');
+    const minutes = String(this.created_at.getMinutes()).padStart(2, '0');
+    return `${day} ${month} ${year} - ${hours}:${minutes}`;
+  }
+}
 
 export class FollowupItem {
   constructor(
@@ -9,6 +38,7 @@ export class FollowupItem {
     private _item_type: string,
     private _item_external_id: string,
     private _source: string,
+    private _events: FollowupItemEvent[],
 
     private _title: string,
     private _description: string,
@@ -48,6 +78,10 @@ export class FollowupItem {
 
   get source(): string {
     return this._source;
+  }
+
+  get events(): FollowupItemEvent[] {
+    return this._events;
   }
 
   get title(): string {
@@ -125,11 +159,19 @@ export class Followup {
   }
 
   private createFollowupItem(item: APIFollowupItem): FollowupItem {
+    const events: FollowupItemEvent[] = item.events
+      .map(
+        (event) =>
+          new FollowupItemEvent(event.id, new Date(event.created_at), event.description)
+      )
+      .sort((a, b) => b.created_at.getTime() - a.created_at.getTime());
+
     return new FollowupItem(
       item.partner_id,
       item.item_type,
       item.item_external_id,
       'notifications',
+      events,
       item.title,
       item.description,
       item.icon,

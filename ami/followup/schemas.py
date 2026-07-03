@@ -19,6 +19,13 @@ class FollowupSourceStatus(Enum):
 
 
 @dataclass
+class FollowupItemEvent:
+    id: str
+    created_at: datetime.datetime
+    description: str
+
+
+@dataclass
 class FollowupItem:
     partner_id: str
     item_type: str
@@ -27,6 +34,7 @@ class FollowupItem:
     status_label: str
     milestone_start_date: datetime.datetime | None
     milestone_end_date: datetime.datetime | None
+    events: list[FollowupItemEvent]
 
     title: str
     description: str
@@ -52,6 +60,7 @@ class FollowupItem:
             status_id = ItemGenericStatus(last_notification.item_generic_status)
         except ValueError:
             return None
+        events = cls.build_events(notifications)
         return cls(
             partner_id=last_notification.partner_id,
             item_type=last_notification.item_type,
@@ -60,6 +69,7 @@ class FollowupItem:
             status_label=last_notification.item_status_label or "",
             milestone_start_date=last_notification.item_milestone_start_date,
             milestone_end_date=last_notification.item_milestone_end_date,
+            events=events,
             title=last_notification.content_title,
             description=description,
             icon=last_notification.icon or "",
@@ -70,6 +80,18 @@ class FollowupItem:
             created_at=first_notification.event_date,
             updated_at=last_notification.event_date,
         )
+
+    @classmethod
+    def build_events(cls, notifications):
+        events = []
+        for notification in notifications:
+            event_description = notification.content_body
+            if notification.content_private_body:
+                event_description += f"\n\n{notification.content_private_body}"
+            events.append(
+                FollowupItemEvent(notification.id, notification.created_at, event_description)
+            )
+        return events
 
 
 @dataclass
