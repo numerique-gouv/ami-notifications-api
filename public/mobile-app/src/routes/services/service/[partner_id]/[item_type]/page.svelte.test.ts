@@ -68,9 +68,8 @@ describe('/+page.svelte', () => {
     await waitFor(() => {
       expect(spy).not.toHaveBeenCalled();
       expect(screen.getByText('Opération Tranquillité Vacances')).toBeInTheDocument();
-      expect(
-        screen.getByText('Vous partez en vacances ? **Securisez votre logement.**')
-      ).toBeInTheDocument();
+      expect(screen.getByText('Vous partez en vacances ?')).toBeInTheDocument();
+      expect(screen.getByText('Securisez votre logement.')).toBeInTheDocument();
       expect(screen.queryByText('Sécurisez votre logement !')).toBeNull();
     });
   });

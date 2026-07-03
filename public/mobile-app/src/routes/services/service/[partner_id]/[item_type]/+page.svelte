@@ -3,6 +3,7 @@
   import { goto } from '$app/navigation';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import PageWrapper from '$lib/components/PageWrapper.svelte';
+  import { renderMarkdown } from '$lib/markdown';
   import type { Services, ServicesItem } from '$lib/services';
   import { buildServices } from '$lib/services';
   import { userStore } from '$lib/state/User.svelte';
@@ -37,7 +38,7 @@
   {#snippet content()}
     {#if service}
       <div class="service">
-        <div class="service-content">{service.description}</div>
+        <div class="service-content">{@html renderMarkdown(service.description)}</div>
       </div>
     {/if}
   {/snippet}
