@@ -6,7 +6,7 @@ import { buildFollowup, Followup, FollowupItem } from '$lib/followup';
 describe('/followup.ts', () => {
   describe('FollowupItem', () => {
     describe('id', () => {
-      test('should return an id from partner_id, external_item_type and external_item_id', async () => {
+      test('should return an id from partner_id, item_type and external_item_id', async () => {
         // Given
         vi.stubEnv('TZ', 'Europe/Paris');
         const item = new FollowupItem(
@@ -93,7 +93,7 @@ describe('/followup.ts', () => {
       vi.stubEnv('TZ', 'Europe/Paris');
       const followupItem1 = {
         partner_id: 'psl',
-        external_item_type: 'OperationTranquilliteVacances',
+        item_type: 'OperationTranquilliteVacances',
         external_item_id: '42',
         status_id: 'new',
         status_label: 'Brouillon',
@@ -109,7 +109,7 @@ describe('/followup.ts', () => {
       };
       const followupItem2 = {
         partner_id: 'psl',
-        external_item_type: 'OperationTranquilliteVacances',
+        item_type: 'OperationTranquilliteVacances',
         external_item_id: '43',
         status_id: 'wip',
         status_label: 'En cours',
@@ -125,7 +125,7 @@ describe('/followup.ts', () => {
       };
       const followupItem3 = {
         partner_id: 'psl',
-        external_item_type: 'OperationTranquilliteVacances',
+        item_type: 'OperationTranquilliteVacances',
         external_item_id: '44',
         status_id: 'new',
         status_label: 'Brouillon',
@@ -141,7 +141,7 @@ describe('/followup.ts', () => {
       };
       const followupItem4 = {
         partner_id: 'psl',
-        external_item_type: 'OperationTranquilliteVacances',
+        item_type: 'OperationTranquilliteVacances',
         external_item_id: '45',
         status_id: 'closed',
         status_label: 'Terminée',
@@ -238,11 +238,11 @@ describe('/followup.ts', () => {
       ).toBe(true);
     });
     describe('hasNonArchivedItems', () => {
-      test('should return true as "new" item exists for the external_item_type', async () => {
+      test('should return true as "new" item exists for the item_type', async () => {
         // Given
         const followupItem = {
           partner_id: 'psl',
-          external_item_type: 'OperationTranquilliteVacances',
+          item_type: 'OperationTranquilliteVacances',
           external_item_id: '42',
           status_id: 'new',
           status_label: 'Brouillon',
@@ -269,11 +269,11 @@ describe('/followup.ts', () => {
         // Then
         expect(result).toEqual(true);
       });
-      test('should return true as "wip" item exists for the external_item_type', async () => {
+      test('should return true as "wip" item exists for the item_type', async () => {
         // Given
         const followupItem = {
           partner_id: 'psl',
-          external_item_type: 'OperationTranquilliteVacances',
+          item_type: 'OperationTranquilliteVacances',
           external_item_id: '42',
           status_id: 'wip',
           status_label: 'Brouillon',
@@ -300,11 +300,11 @@ describe('/followup.ts', () => {
         // Then
         expect(result).toEqual(true);
       });
-      test('should return true as "closed" item exists for the external_item_type', async () => {
+      test('should return true as "closed" item exists for the item_type', async () => {
         // Given
         const followupItem = {
           partner_id: 'psl',
-          external_item_type: 'OperationTranquilliteVacances',
+          item_type: 'OperationTranquilliteVacances',
           external_item_id: '42',
           status_id: 'closed',
           status_label: 'Brouillon',
@@ -331,11 +331,11 @@ describe('/followup.ts', () => {
         // Then
         expect(result).toEqual(true);
       });
-      test('should return false as archived items exist for the external_item_type', async () => {
+      test('should return false as archived items exist for the item_type', async () => {
         // Given
         const followupItem1 = {
           partner_id: 'other',
-          external_item_type: 'OperationTranquilliteVacances',
+          item_type: 'OperationTranquilliteVacances',
           external_item_id: '42',
           status_id: 'wip',
           status_label: 'Brouillon',
@@ -351,7 +351,7 @@ describe('/followup.ts', () => {
         };
         const followupItem2 = {
           partner_id: 'psl',
-          external_item_type: 'Other',
+          item_type: 'Other',
           external_item_id: '43',
           status_id: 'wip',
           status_label: 'Brouillon',
@@ -367,7 +367,7 @@ describe('/followup.ts', () => {
         };
         const followupItem3 = {
           partner_id: 'psl',
-          external_item_type: 'OperationTranquilliteVacances',
+          item_type: 'OperationTranquilliteVacances',
           external_item_id: '44',
           status_id: 'new',
           status_label: 'Brouillon',
@@ -383,7 +383,7 @@ describe('/followup.ts', () => {
         };
         const followupItem4 = {
           partner_id: 'psl',
-          external_item_type: 'OperationTranquilliteVacances',
+          item_type: 'OperationTranquilliteVacances',
           external_item_id: '45',
           status_id: 'wip',
           status_label: 'Brouillon',
@@ -399,7 +399,7 @@ describe('/followup.ts', () => {
         };
         const followupItem5 = {
           partner_id: 'psl',
-          external_item_type: 'OperationTranquilliteVacances',
+          item_type: 'OperationTranquilliteVacances',
           external_item_id: '46',
           status_id: 'closed',
           status_label: 'Brouillon',
@@ -440,7 +440,7 @@ describe('/followup.ts', () => {
       vi.stubEnv('TZ', 'Europe/Paris');
       const followupItem1 = {
         partner_id: 'psl',
-        external_item_type: 'OperationTranquilliteVacances',
+        item_type: 'OperationTranquilliteVacances',
         external_item_id: '42',
         status_id: 'new',
         status_label: 'Brouillon',
@@ -456,7 +456,7 @@ describe('/followup.ts', () => {
       };
       const followupItem2 = {
         partner_id: 'psl',
-        external_item_type: 'OperationTranquilliteVacances',
+        item_type: 'OperationTranquilliteVacances',
         external_item_id: '43',
         status_id: 'closed',
         status_label: 'Terminée',

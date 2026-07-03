@@ -26,7 +26,7 @@ def test_get_followup(
         items=[
             FollowupItem(
                 partner_id="psl",
-                external_item_type="OperationTranquilliteVacances",
+                item_type="OperationTranquilliteVacances",
                 external_item_id="44",
                 status_id=ItemGenericStatus.CLOSED,
                 status_label="Validé",
@@ -46,7 +46,7 @@ def test_get_followup(
             ),
             FollowupItem(
                 partner_id="psl",
-                external_item_type="OperationTranquilliteVacances",
+                item_type="OperationTranquilliteVacances",
                 external_item_id="43",
                 status_id=ItemGenericStatus.NEW,
                 status_label="Nouveau",
@@ -72,7 +72,7 @@ def test_get_followup(
             "items": [
                 {
                     "partner_id": "psl",
-                    "external_item_type": "OperationTranquilliteVacances",
+                    "item_type": "OperationTranquilliteVacances",
                     "external_item_id": "44",
                     "status_id": "closed",
                     "status_label": "Validé",
@@ -88,7 +88,7 @@ def test_get_followup(
                 },
                 {
                     "partner_id": "psl",
-                    "external_item_type": "OperationTranquilliteVacances",
+                    "item_type": "OperationTranquilliteVacances",
                     "external_item_id": "43",
                     "status_id": "new",
                     "status_label": "Nouveau",
