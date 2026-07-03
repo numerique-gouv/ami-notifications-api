@@ -1,5 +1,11 @@
 import { apiFetch } from '$lib/auth';
 
+export type APIFollowupItemEvent = {
+  id: string;
+  created_at: Date;
+  description: string;
+};
+
 export type APIFollowupItem = {
   partner_id: string;
   item_type: string;
@@ -8,6 +14,7 @@ export type APIFollowupItem = {
   status_label: string;
   milestone_start_date: Date | null;
   milestone_end_date: Date | null;
+  events: APIFollowupItemEvent[];
 
   title: string;
   description: string;
