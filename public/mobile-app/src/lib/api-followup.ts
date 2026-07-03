@@ -3,7 +3,7 @@ import { apiFetch } from '$lib/auth';
 export type APIFollowupItem = {
   partner_id: string;
   item_type: string;
-  external_item_id: string;
+  item_external_id: string;
   status_id: string;
   status_label: string;
   milestone_start_date: Date | null;

@@ -6,7 +6,7 @@ import { buildFollowup, Followup, FollowupItem } from '$lib/followup';
 describe('/followup.ts', () => {
   describe('FollowupItem', () => {
     describe('id', () => {
-      test('should return an id from partner_id, item_type and external_item_id', async () => {
+      test('should return an id from partner_id, item_type and item_external_id', async () => {
         // Given
         vi.stubEnv('TZ', 'Europe/Paris');
         const item = new FollowupItem(
@@ -94,7 +94,7 @@ describe('/followup.ts', () => {
       const followupItem1 = {
         partner_id: 'psl',
         item_type: 'OperationTranquilliteVacances',
-        external_item_id: '42',
+        item_external_id: '42',
         status_id: 'new',
         status_label: 'Brouillon',
         milestone_start_date: new Date('2026-01-23T15:50:00Z'),
@@ -110,7 +110,7 @@ describe('/followup.ts', () => {
       const followupItem2 = {
         partner_id: 'psl',
         item_type: 'OperationTranquilliteVacances',
-        external_item_id: '43',
+        item_external_id: '43',
         status_id: 'wip',
         status_label: 'En cours',
         milestone_start_date: null,
@@ -126,7 +126,7 @@ describe('/followup.ts', () => {
       const followupItem3 = {
         partner_id: 'psl',
         item_type: 'OperationTranquilliteVacances',
-        external_item_id: '44',
+        item_external_id: '44',
         status_id: 'new',
         status_label: 'Brouillon',
         milestone_start_date: new Date('2026-01-23T15:50:00Z'),
@@ -142,7 +142,7 @@ describe('/followup.ts', () => {
       const followupItem4 = {
         partner_id: 'psl',
         item_type: 'OperationTranquilliteVacances',
-        external_item_id: '45',
+        item_external_id: '45',
         status_id: 'closed',
         status_label: 'Terminée',
         milestone_start_date: null,
@@ -243,7 +243,7 @@ describe('/followup.ts', () => {
         const followupItem = {
           partner_id: 'psl',
           item_type: 'OperationTranquilliteVacances',
-          external_item_id: '42',
+          item_external_id: '42',
           status_id: 'new',
           status_label: 'Brouillon',
           milestone_start_date: new Date('2026-01-23T15:50:00Z'),
@@ -274,7 +274,7 @@ describe('/followup.ts', () => {
         const followupItem = {
           partner_id: 'psl',
           item_type: 'OperationTranquilliteVacances',
-          external_item_id: '42',
+          item_external_id: '42',
           status_id: 'wip',
           status_label: 'Brouillon',
           milestone_start_date: new Date('2026-01-23T15:50:00Z'),
@@ -305,7 +305,7 @@ describe('/followup.ts', () => {
         const followupItem = {
           partner_id: 'psl',
           item_type: 'OperationTranquilliteVacances',
-          external_item_id: '42',
+          item_external_id: '42',
           status_id: 'closed',
           status_label: 'Brouillon',
           milestone_start_date: new Date('2026-01-23T15:50:00Z'),
@@ -336,7 +336,7 @@ describe('/followup.ts', () => {
         const followupItem1 = {
           partner_id: 'other',
           item_type: 'OperationTranquilliteVacances',
-          external_item_id: '42',
+          item_external_id: '42',
           status_id: 'wip',
           status_label: 'Brouillon',
           milestone_start_date: new Date('2026-01-23T15:50:00Z'),
@@ -352,7 +352,7 @@ describe('/followup.ts', () => {
         const followupItem2 = {
           partner_id: 'psl',
           item_type: 'Other',
-          external_item_id: '43',
+          item_external_id: '43',
           status_id: 'wip',
           status_label: 'Brouillon',
           milestone_start_date: new Date('2026-01-23T15:50:00Z'),
@@ -368,7 +368,7 @@ describe('/followup.ts', () => {
         const followupItem3 = {
           partner_id: 'psl',
           item_type: 'OperationTranquilliteVacances',
-          external_item_id: '44',
+          item_external_id: '44',
           status_id: 'new',
           status_label: 'Brouillon',
           milestone_start_date: new Date('2026-01-23T15:50:00Z'),
@@ -384,7 +384,7 @@ describe('/followup.ts', () => {
         const followupItem4 = {
           partner_id: 'psl',
           item_type: 'OperationTranquilliteVacances',
-          external_item_id: '45',
+          item_external_id: '45',
           status_id: 'wip',
           status_label: 'Brouillon',
           milestone_start_date: new Date('2026-01-23T15:50:00Z'),
@@ -400,7 +400,7 @@ describe('/followup.ts', () => {
         const followupItem5 = {
           partner_id: 'psl',
           item_type: 'OperationTranquilliteVacances',
-          external_item_id: '46',
+          item_external_id: '46',
           status_id: 'closed',
           status_label: 'Brouillon',
           milestone_start_date: new Date('2026-01-23T15:50:00Z'),
@@ -441,7 +441,7 @@ describe('/followup.ts', () => {
       const followupItem1 = {
         partner_id: 'psl',
         item_type: 'OperationTranquilliteVacances',
-        external_item_id: '42',
+        item_external_id: '42',
         status_id: 'new',
         status_label: 'Brouillon',
         milestone_start_date: null,
@@ -457,7 +457,7 @@ describe('/followup.ts', () => {
       const followupItem2 = {
         partner_id: 'psl',
         item_type: 'OperationTranquilliteVacances',
-        external_item_id: '43',
+        item_external_id: '43',
         status_id: 'closed',
         status_label: 'Terminée',
         milestone_start_date: null,

@@ -22,7 +22,7 @@ class FollowupSourceStatus(Enum):
 class FollowupItem:
     partner_id: str
     item_type: str
-    external_item_id: str
+    item_external_id: str
     status_id: ItemGenericStatus
     status_label: str
     milestone_start_date: datetime.datetime | None
@@ -55,7 +55,7 @@ class FollowupItem:
         return cls(
             partner_id=last_notification.partner_id,
             item_type=last_notification.item_type,
-            external_item_id=last_notification.item_id,
+            item_external_id=last_notification.item_id,
             status_id=status_id,
             status_label=last_notification.item_status_label or "",
             milestone_start_date=last_notification.item_milestone_start_date,
