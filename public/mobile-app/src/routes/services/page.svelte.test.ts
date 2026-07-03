@@ -28,8 +28,8 @@ describe('/+page.svelte', () => {
         'psl',
         'OperationTranquilliteVacances',
         'Opération Tranquillité Vacances',
-        'Vous partez en vacances ? **Securisez votre logement.**',
         'Sécurisez votre logement',
+        'Vous partez en vacances ? **Securisez votre logement.**',
         'http://external-url',
         true
       ),
@@ -44,6 +44,12 @@ describe('/+page.svelte', () => {
       expect(spy).toHaveBeenCalledTimes(1);
       expect(screen.getByTestId('services')).toHaveTextContent(
         'Opération Tranquillité Vacances'
+      );
+      expect(screen.getByTestId('services')).toHaveTextContent(
+        'Sécurisez votre logement'
+      );
+      expect(screen.getByTestId('services')).not.toHaveTextContent(
+        'Vous partez en vacances ? **Securisez votre logement.**'
       );
     });
   });

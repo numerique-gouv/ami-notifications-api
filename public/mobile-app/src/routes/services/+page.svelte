@@ -33,18 +33,20 @@
             <ul class="fr-sidemenu__list">
               {#if services && services.items.length}
                 {#each services.items as item}
-                  <li class="fr-sidemenu__item"><a class="fr-sidemenu__link" href="#">
-                    <span class="services--item-details">
-                      <span class="services--item-label">{item.title}</span>
-                      <span class="services--item-description"
-                        >{item.short_description}</span
-                      >
-                    </span>
-                    <span
-                      aria-hidden="true"
-                      class="icon fr-icon-arrow-right-s-line"
-                    ></span>
-                  </a></li>
+                  <li class="fr-sidemenu__item">
+                    <a class="fr-sidemenu__link" href="{item.url}">
+                      <span class="services--item-details">
+                        <span class="services--item-label">{item.title}</span>
+                        <span class="services--item-description"
+                          >{item.short_description}</span
+                        >
+                      </span>
+                      <span
+                        aria-hidden="true"
+                        class="icon fr-icon-arrow-right-s-line"
+                      ></span>
+                    </a>
+                  </li>
                 {/each}
               {/if}
             </ul>
