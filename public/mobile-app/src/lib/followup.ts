@@ -7,7 +7,7 @@ export class FollowupItem {
   constructor(
     private _partner_id: string,
     private _item_type: string,
-    private _external_item_id: string,
+    private _item_external_id: string,
     private _source: string,
 
     private _title: string,
@@ -31,7 +31,7 @@ export class FollowupItem {
   }
 
   get id(): string {
-    return `${this.partner_id}:${this.item_type}:${this.external_item_id}`;
+    return `${this.partner_id}:${this.item_type}:${this.item_external_id}`;
   }
 
   get partner_id(): string {
@@ -42,8 +42,8 @@ export class FollowupItem {
     return this._item_type;
   }
 
-  get external_item_id(): string {
-    return this._external_item_id;
+  get item_external_id(): string {
+    return this._item_external_id;
   }
 
   get source(): string {
@@ -128,7 +128,7 @@ export class Followup {
     return new FollowupItem(
       item.partner_id,
       item.item_type,
-      item.external_item_id,
+      item.item_external_id,
       'notifications',
       item.title,
       item.description,

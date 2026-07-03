@@ -27,7 +27,7 @@ def test_get_followup(
             FollowupItem(
                 partner_id="psl",
                 item_type="OperationTranquilliteVacances",
-                external_item_id="44",
+                item_external_id="44",
                 status_id=ItemGenericStatus.CLOSED,
                 status_label="Validé",
                 milestone_start_date=datetime.datetime(
@@ -47,7 +47,7 @@ def test_get_followup(
             FollowupItem(
                 partner_id="psl",
                 item_type="OperationTranquilliteVacances",
-                external_item_id="43",
+                item_external_id="43",
                 status_id=ItemGenericStatus.NEW,
                 status_label="Nouveau",
                 milestone_start_date=None,
@@ -73,7 +73,7 @@ def test_get_followup(
                 {
                     "partner_id": "psl",
                     "item_type": "OperationTranquilliteVacances",
-                    "external_item_id": "44",
+                    "item_external_id": "44",
                     "status_id": "closed",
                     "status_label": "Validé",
                     "milestone_start_date": "2026-02-26T17:24:00Z",
@@ -89,7 +89,7 @@ def test_get_followup(
                 {
                     "partner_id": "psl",
                     "item_type": "OperationTranquilliteVacances",
-                    "external_item_id": "43",
+                    "item_external_id": "43",
                     "status_id": "new",
                     "status_label": "Nouveau",
                     "milestone_start_date": None,
