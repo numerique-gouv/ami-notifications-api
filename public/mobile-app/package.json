@@ -35,6 +35,7 @@
     "eslint-plugin-svelte": "3.13.1",
     "globals": "16.5.0",
     "jsdom": "27.3.0",
+    "marked": "18.0.5",
     "prettier": "3.7.4",
     "prettier-plugin-svelte": "3.4.0",
     "svelte": "5.55.8",
