@@ -1,11 +1,12 @@
 import { describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
-import { render, screen } from '@testing-library/svelte';
+import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
+import * as navigationMethods from '$app/navigation';
 import { FollowupItem as Item } from '$lib/followup';
 import FollowupItem from './FollowupItem.svelte';
 
 describe('/FollowupItem.svelte', () => {
-  test('should display a link', async () => {
+  test('should display a link without is_archived query param when item is not archived', async () => {
     // Given
     const item = new Item(
       'partner',
@@ -30,10 +31,9 @@ describe('/FollowupItem.svelte', () => {
     const link = screen.getByTestId('followup-item-link');
 
     // Then
-    expect(link.getAttribute('href')).toBe('url');
-    expect(link).not.toHaveClass('no-link');
+    expect(link.getAttribute('href')).toBe('/#/followup/item/partner/type/id');
   });
-  test('should not display a link', async () => {
+  test('should display a link with is_archived query param when item is archived', async () => {
     // Given
     const item = new Item(
       'partner',
@@ -48,8 +48,8 @@ describe('/FollowupItem.svelte', () => {
       new Date('2026-02-20T15:55:00.000Z'),
       'closed',
       'Terminée',
-      false,
-      null
+      true,
+      'url'
     );
     const onOpen = vi.fn();
     render(FollowupItem, { props: { item: item, onOpen: onOpen } });
@@ -58,7 +58,112 @@ describe('/FollowupItem.svelte', () => {
     const link = screen.getByTestId('followup-item-link');
 
     // Then
-    expect(link.getAttribute('href')).toBe(null);
-    expect(link).toHaveClass('no-link');
+    expect(link.getAttribute('href')).toBe(
+      '/#/followup/item/partner/type/id?is_archived=true'
+    );
+  });
+  describe('"Reprendre ma démarche" button', () => {
+    test('Should display "Reprendre ma démarche" button only if item is "new"', async () => {
+      // Given
+      const item = new Item(
+        'partner',
+        'partner-name',
+        'type',
+        'id1',
+        'notifications',
+        [],
+        'Opération Tranquillité Vacances',
+        'Votre demande est terminée.',
+        'icon',
+        new Date('2026-02-20T15:55:00.000Z'),
+        'new',
+        'Terminée',
+        false,
+        'link1'
+      );
+      const onOpen = vi.fn();
+      const spy = vi
+        .spyOn(navigationMethods, 'goto')
+        .mockImplementation(() => Promise.resolve());
+
+      // When
+      render(FollowupItem, { props: { item: item, onOpen: onOpen } });
+
+      // Then
+      await waitFor(async () => {
+        expect(
+          screen.queryByTestId('external-item-button-partner:type:id1')
+        ).not.toBeNull();
+      });
+
+      // When
+      const button = screen.getByTestId('external-item-button-partner:type:id1');
+      await fireEvent.click(button);
+
+      // Then
+      await waitFor(() => {
+        expect(spy).toHaveBeenCalledWith('/#/followup/item/partner/type/id1');
+      });
+    });
+    test('Should not display "Reprendre ma démarche" button if item has no link', async () => {
+      // Given
+      const item = new Item(
+        'partner',
+        'partner-name',
+        'type',
+        'id1',
+        'notifications',
+        [],
+        'Opération Tranquillité Vacances',
+        'Votre demande est en cours de traitement 1.',
+        'icon',
+        new Date('2026-02-22T15:55:00.000Z'),
+        'new',
+        'Nouveau',
+        false,
+        null
+      );
+      const onOpen = vi.fn();
+
+      // When
+      render(FollowupItem, { props: { item: item, onOpen: onOpen } });
+
+      // Then
+      await waitFor(async () => {
+        expect(
+          screen.queryByTestId('external-item-button-partner:type:id1')
+        ).toBeNull();
+      });
+    });
+    test('Should not display "Reprendre ma démarche" button if item is archived', async () => {
+      // Given
+      const item = new Item(
+        'partner',
+        'partner-name',
+        'type',
+        'id1',
+        'notifications',
+        [],
+        'Opération Tranquillité Vacances',
+        'Votre demande est en cours de traitement 1.',
+        'icon',
+        new Date('2026-02-22T15:55:00.000Z'),
+        'new',
+        'Nouveau',
+        true,
+        'link1'
+      );
+      const onOpen = vi.fn();
+
+      // When
+      render(FollowupItem, { props: { item: item, onOpen: onOpen } });
+
+      // Then
+      await waitFor(async () => {
+        expect(
+          screen.queryByTestId('external-item-button-partner:type:id1')
+        ).toBeNull();
+      });
+    });
   });
 });

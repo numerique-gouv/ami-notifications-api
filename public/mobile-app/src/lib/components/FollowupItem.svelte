@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import { getDSFRIcon } from '$lib/dsfr-icon';
   import { FollowupItem } from '$lib/followup';
@@ -12,17 +11,14 @@
 
   let checkedIcon = $derived(getDSFRIcon(item.icon, 'fr-icon-information-fill'));
 
-  const gotoExternalItem = (item: FollowupItem) => {
-    if (item.link) {
-      window.location.href = item.link;
-    }
+  const gotoDetailPage = (itemDetailPageUrl: string) => {
+    goto(itemDetailPageUrl);
   };
 </script>
 
 <div class="followup--item">
   <div
-    class="followup--item--detail fr-tile fr-tile-sm fr-tile--horizontal fr-enlarge-link no-link"
-    class:fr-tile--no-icon={!item.is_archived && item.status_id == 'new' && item.link}
+    class="followup--item--detail fr-tile fr-tile-sm fr-tile--horizontal fr-enlarge-link"
   >
     {#if !item.is_archived}
       <button
@@ -34,13 +30,12 @@
       ></button>
     {/if}
     <div class="fr-tile__body">
-      <div class="fr-tile__content {item.link ? '': 'no-link'}">
+      <div class="fr-tile__content">
         <h3 class="fr-tile__title">
           <a
-            href="{item.link}"
-            onclick={(e) => {if (!item.link) {e.preventDefault();}}}
+            href="{item.itemDetailPageUrl}"
+            onclick={(e) => {if (!item.itemDetailPageUrl) {e.preventDefault();}}}
             data-testid="followup-item-link"
-            class="{item.link ? '': 'no-link'}"
           >
             {item.title}
           </a>
@@ -59,7 +54,7 @@
             <button
               class="fr-btn fr-mb-0"
               type="button"
-              onclick={(e) => gotoExternalItem(item)}
+              onclick={(e) => gotoDetailPage(item.itemDetailPageUrl)}
               data-testid="external-item-button-{item.id}"
             >
               Reprendre ma démarche
@@ -82,9 +77,6 @@
     .followup--item--detail.fr-enlarge-link {
       padding: 1rem 2rem 1.25rem 1rem;
       width: 100%;
-      &.no-link {
-        --hover: transparent;
-      }
       button.open-followup-item-modal {
         z-index: 2;
         position: absolute;
@@ -106,12 +98,6 @@
               --icon-size: 1.25rem;
               -webkit-mask-image: url("@gouvfr/dsfr/dist/icons/arrows/arrow-right-s-line.svg");
               mask-image: url("@gouvfr/dsfr/dist/icons/arrows/arrow-right-s-line.svg");
-            }
-            &.no-link {
-              cursor: default;
-              &::after {
-                display: none;
-              }
             }
           }
         }
@@ -144,9 +130,6 @@
             color: var(--text-mention-grey);
           }
         }
-      }
-      .am-tile__footer {
-        position: relative;
       }
     }
   }

@@ -129,6 +129,14 @@ export class FollowupItem {
     return `le ${day} ${month} à ${hours}H${minutes}`;
   }
 
+  get itemDetailPageUrl(): string {
+    const link = `/#/followup/item/${this.partner_id}/${this.item_type}/${this.item_external_id}`;
+    if (!this.is_archived) {
+      return link;
+    }
+    return `${link}?is_archived=${this.is_archived}`;
+  }
+
   async archive(): Promise<boolean> {
     const result = await archiveFollowupItem(this.source, this.id);
     return result;

@@ -6,6 +6,7 @@ import {
   Followup,
   FollowupItem,
   FollowupItemEvent,
+  FollowupItem as Item,
 } from '$lib/followup';
 
 describe('/followup.ts', () => {
@@ -83,6 +84,60 @@ describe('/followup.ts', () => {
 
         // Then
         expect(date).equal('le 3 janvier à 09H05');
+      });
+    });
+    describe('itemDetailPageUrl', () => {
+      test('should return detail page url without is_archived query param when item is not archived', async () => {
+        // Given
+        vi.stubEnv('TZ', 'Europe/Paris');
+        const item = new Item(
+          'partner',
+          'partner-name',
+          'type',
+          'id',
+          'notifications',
+          [],
+          'Opération Tranquillité Vacances',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'closed',
+          'Terminée',
+          false,
+          'url'
+        );
+
+        // When
+        const link = item.itemDetailPageUrl;
+
+        // Then
+        expect(link).equal('/#/followup/item/partner/type/id');
+      });
+      test('should return detail page url with is_archived query param when item is archived', async () => {
+        // Given
+        vi.stubEnv('TZ', 'Europe/Paris');
+        const item = new Item(
+          'partner',
+          'partner-name',
+          'type',
+          'id',
+          'notifications',
+          [],
+          'Opération Tranquillité Vacances',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'closed',
+          'Terminée',
+          true,
+          'url'
+        );
+
+        // When
+        const link = item.itemDetailPageUrl;
+
+        // Then
+        expect(link).equal('/#/followup/item/partner/type/id?is_archived=true');
       });
     });
     describe('archive', () => {
