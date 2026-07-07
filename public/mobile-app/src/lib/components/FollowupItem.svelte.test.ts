@@ -9,6 +9,7 @@ describe('/FollowupItem.svelte', () => {
     // Given
     const item = new Item(
       'partner',
+      'partner-name',
       'type',
       'id',
       'notifications',
@@ -36,6 +37,7 @@ describe('/FollowupItem.svelte', () => {
     // Given
     const item = new Item(
       'partner',
+      'partner-name',
       'type',
       'id',
       'notifications',

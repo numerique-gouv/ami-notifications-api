@@ -27,6 +27,7 @@ def test_get_followup(
         items=[
             FollowupItem(
                 partner_id="psl",
+                partner_name="PSL",
                 item_type="OperationTranquilliteVacances",
                 item_external_id="44",
                 status_id=ItemGenericStatus.CLOSED,
@@ -56,6 +57,7 @@ def test_get_followup(
             ),
             FollowupItem(
                 partner_id="psl",
+                partner_name="PSL",
                 item_type="OperationTranquilliteVacances",
                 item_external_id="43",
                 status_id=ItemGenericStatus.NEW,
@@ -83,6 +85,7 @@ def test_get_followup(
             "items": [
                 {
                     "partner_id": "psl",
+                    "partner_name": "PSL",
                     "item_type": "OperationTranquilliteVacances",
                     "item_external_id": "44",
                     "status_id": "closed",
@@ -106,6 +109,7 @@ def test_get_followup(
                 },
                 {
                     "partner_id": "psl",
+                    "partner_name": "PSL",
                     "item_type": "OperationTranquilliteVacances",
                     "item_external_id": "43",
                     "status_id": "new",

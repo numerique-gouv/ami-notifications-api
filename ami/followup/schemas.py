@@ -4,6 +4,7 @@ from enum import Enum
 from typing import Self
 
 from ami.notification.models import Notification
+from ami.partner.models import Partner, partners
 
 
 class ItemGenericStatus(Enum):
@@ -28,6 +29,7 @@ class FollowupItemEvent:
 @dataclass
 class FollowupItem:
     partner_id: str
+    partner_name: str
     item_type: str
     item_external_id: str
     status_id: ItemGenericStatus
@@ -49,6 +51,8 @@ class FollowupItem:
     def from_notifications(cls, notifications: list[Notification]) -> Self | None:
         first_notification = notifications[0]
         last_notification = notifications[-1]
+        partner: Partner | None = partners.get(last_notification.partner_id)
+        partner_name = partner.name if partner else ""
         external_urls = [n.content_link for n in notifications if n.content_link]
         is_archived_flags = [
             n.item_is_archived for n in notifications if n.item_is_archived is not None
@@ -63,6 +67,7 @@ class FollowupItem:
         events = cls.build_events(notifications)
         return cls(
             partner_id=last_notification.partner_id,
+            partner_name=partner_name,
             item_type=last_notification.item_type,
             item_external_id=last_notification.item_id,
             status_id=status_id,

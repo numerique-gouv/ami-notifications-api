@@ -35,6 +35,7 @@ export class FollowupItemEvent {
 export class FollowupItem {
   constructor(
     private _partner_id: string,
+    private _partner_name: string,
     private _item_type: string,
     private _item_external_id: string,
     private _source: string,
@@ -66,6 +67,10 @@ export class FollowupItem {
 
   get partner_id(): string {
     return this._partner_id;
+  }
+
+  get partner_name(): string {
+    return this._partner_name;
   }
 
   get item_type(): string {
@@ -168,6 +173,7 @@ export class Followup {
 
     return new FollowupItem(
       item.partner_id,
+      item.partner_name,
       item.item_type,
       item.item_external_id,
       'notifications',

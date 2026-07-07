@@ -8,6 +8,7 @@ export type APIFollowupItemEvent = {
 
 export type APIFollowupItem = {
   partner_id: string;
+  partner_name: string;
   item_type: string;
   item_external_id: string;
   status_id: string;
