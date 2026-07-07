@@ -18,6 +18,7 @@ describe('/FollowupItemModal.svelte', () => {
 
     item = new FollowupItem(
       'partner',
+      'partner-name',
       'type',
       'id1',
       'notifications',
@@ -36,6 +37,7 @@ describe('/FollowupItemModal.svelte', () => {
       item,
       new FollowupItem(
         'partner',
+        'partner-name',
         'type',
         'id2',
         'notifications',

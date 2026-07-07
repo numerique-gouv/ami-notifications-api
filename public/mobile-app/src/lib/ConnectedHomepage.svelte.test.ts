@@ -379,6 +379,7 @@ describe('/ConnectedHomepage.svelte', () => {
     vi.spyOn(followup, 'items', 'get').mockReturnValue([
       new FollowupItem(
         'partner',
+        'partner-name',
         'type',
         'id1',
         'notifications',
@@ -394,6 +395,7 @@ describe('/ConnectedHomepage.svelte', () => {
       ),
       new FollowupItem(
         'partner',
+        'partner-name',
         'type',
         'id2',
         'notifications',
@@ -409,6 +411,7 @@ describe('/ConnectedHomepage.svelte', () => {
       ),
       new FollowupItem(
         'partner',
+        'partner-name',
         'type',
         'id3',
         'notifications',
@@ -424,6 +427,7 @@ describe('/ConnectedHomepage.svelte', () => {
       ),
       new FollowupItem(
         'partner',
+        'partner-name',
         'type',
         'id4',
         'notifications',
@@ -479,6 +483,7 @@ describe('/ConnectedHomepage.svelte', () => {
       vi.spyOn(followup, 'items', 'get').mockReturnValue([
         new FollowupItem(
           'partner',
+          'partner-name',
           'type',
           'id1',
           'notifications',
@@ -494,6 +499,7 @@ describe('/ConnectedHomepage.svelte', () => {
         ),
         new FollowupItem(
           'partner',
+          'partner-name',
           'type',
           'id2',
           'notifications',
@@ -529,6 +535,7 @@ describe('/ConnectedHomepage.svelte', () => {
       vi.spyOn(followup, 'items', 'get').mockReturnValue([
         new FollowupItem(
           'partner',
+          'partner-name',
           'type',
           'id1',
           'notifications',
@@ -544,6 +551,7 @@ describe('/ConnectedHomepage.svelte', () => {
         ),
         new FollowupItem(
           'partner',
+          'partner-name',
           'type',
           'id2',
           'notifications',
@@ -583,6 +591,7 @@ describe('/ConnectedHomepage.svelte', () => {
       vi.spyOn(followup, 'items', 'get').mockReturnValue([
         new FollowupItem(
           'partner',
+          'partner-name',
           'type',
           'id1',
           'notifications',
@@ -598,6 +607,7 @@ describe('/ConnectedHomepage.svelte', () => {
         ),
         new FollowupItem(
           'partner',
+          'partner-name',
           'type',
           'id2',
           'notifications',
@@ -644,6 +654,7 @@ describe('/ConnectedHomepage.svelte', () => {
       vi.spyOn(followup, 'items', 'get').mockReturnValue([
         new FollowupItem(
           'partner',
+          'partner-name',
           'type',
           'id1',
           'notifications',
@@ -659,6 +670,7 @@ describe('/ConnectedHomepage.svelte', () => {
         ),
         new FollowupItem(
           'partner',
+          'partner-name',
           'type',
           'id2',
           'notifications',

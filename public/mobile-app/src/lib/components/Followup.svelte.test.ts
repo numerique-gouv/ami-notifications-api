@@ -14,6 +14,7 @@ describe('/Followup.svelte', () => {
       vi.spyOn(followup, 'items', 'get').mockReturnValue([
         new FollowupItem(
           'partner',
+          'partner-name',
           'type',
           'id1',
           'notifications',
@@ -29,6 +30,7 @@ describe('/Followup.svelte', () => {
         ),
         new FollowupItem(
           'partner',
+          'partner-name',
           'type',
           'id2',
           'notifications',
@@ -46,6 +48,7 @@ describe('/Followup.svelte', () => {
       vi.spyOn(followup, 'archived_items', 'get').mockReturnValue([
         new FollowupItem(
           'partner',
+          'partner-name',
           'type',
           'id3',
           'notifications',
@@ -61,6 +64,7 @@ describe('/Followup.svelte', () => {
         ),
         new FollowupItem(
           'partner',
+          'partner-name',
           'type',
           'id4',
           'notifications',
@@ -109,6 +113,7 @@ describe('/Followup.svelte', () => {
       vi.spyOn(followup, 'archived_items', 'get').mockReturnValue([
         new FollowupItem(
           'partner',
+          'partner-name',
           'type',
           'id3',
           'notifications',
@@ -144,6 +149,7 @@ describe('/Followup.svelte', () => {
       vi.spyOn(followup, 'items', 'get').mockReturnValue([
         new FollowupItem(
           'partner',
+          'partner-name',
           'type',
           'id1',
           'notifications',
@@ -159,6 +165,7 @@ describe('/Followup.svelte', () => {
         ),
         new FollowupItem(
           'partner',
+          'partner-name',
           'type',
           'id2',
           'notifications',
@@ -174,6 +181,7 @@ describe('/Followup.svelte', () => {
         ),
         new FollowupItem(
           'partner',
+          'partner-name',
           'type',
           'id3',
           'notifications',
@@ -223,6 +231,7 @@ describe('/Followup.svelte', () => {
       vi.spyOn(followup, 'items', 'get').mockReturnValue([
         new FollowupItem(
           'partner',
+          'partner-name',
           'type',
           'id1',
           'notifications',
@@ -258,6 +267,7 @@ describe('/Followup.svelte', () => {
       vi.spyOn(followup, 'items', 'get').mockReturnValue([
         new FollowupItem(
           'partner',
+          'partner-name',
           'type',
           'id1',
           'notifications',
@@ -273,6 +283,7 @@ describe('/Followup.svelte', () => {
         ),
         new FollowupItem(
           'partner',
+          'partner-name',
           'type',
           'id2',
           'notifications',
@@ -290,6 +301,7 @@ describe('/Followup.svelte', () => {
       vi.spyOn(followup, 'archived_items', 'get').mockReturnValue([
         new FollowupItem(
           'partner',
+          'partner-name',
           'type',
           'id3',
           'notifications',
@@ -305,6 +317,7 @@ describe('/Followup.svelte', () => {
         ),
         new FollowupItem(
           'partner',
+          'partner-name',
           'type',
           'id4',
           'notifications',
@@ -352,6 +365,7 @@ describe('/Followup.svelte', () => {
       vi.spyOn(followup, 'items', 'get').mockReturnValue([
         new FollowupItem(
           'partner',
+          'partner-name',
           'type',
           'id1',
           'notifications',
@@ -389,6 +403,7 @@ describe('/Followup.svelte', () => {
       vi.spyOn(followup, 'archived_items', 'get').mockReturnValue([
         new FollowupItem(
           'partner',
+          'partner-name',
           'type',
           'id1',
           'notifications',
@@ -404,6 +419,7 @@ describe('/Followup.svelte', () => {
         ),
         new FollowupItem(
           'partner',
+          'partner-name',
           'type',
           'id2',
           'notifications',
@@ -419,6 +435,7 @@ describe('/Followup.svelte', () => {
         ),
         new FollowupItem(
           'partner',
+          'partner-name',
           'type',
           'id3',
           'notifications',
@@ -516,6 +533,7 @@ describe('/Followup.svelte', () => {
       vi.spyOn(followup, 'archived_items', 'get').mockReturnValue([
         new FollowupItem(
           'partner',
+          'partner-name',
           'type',
           'id1',
           'notifications',
@@ -531,6 +549,7 @@ describe('/Followup.svelte', () => {
         ),
         new FollowupItem(
           'partner',
+          'partner-name',
           'type',
           'id2',
           'notifications',
@@ -563,6 +582,7 @@ describe('/Followup.svelte', () => {
       vi.spyOn(followup, 'items', 'get').mockReturnValue([
         new FollowupItem(
           'partner',
+          'partner-name',
           'type',
           'id1',
           'notifications',
@@ -578,6 +598,7 @@ describe('/Followup.svelte', () => {
         ),
         new FollowupItem(
           'partner',
+          'partner-name',
           'type',
           'id2',
           'notifications',
@@ -613,6 +634,7 @@ describe('/Followup.svelte', () => {
       vi.spyOn(followup, 'items', 'get').mockReturnValue([
         new FollowupItem(
           'partner',
+          'partner-name',
           'type',
           'id1',
           'notifications',
@@ -628,6 +650,7 @@ describe('/Followup.svelte', () => {
         ),
         new FollowupItem(
           'partner',
+          'partner-name',
           'type',
           'id2',
           'notifications',
@@ -667,6 +690,7 @@ describe('/Followup.svelte', () => {
       vi.spyOn(followup, 'items', 'get').mockReturnValue([
         new FollowupItem(
           'partner',
+          'partner-name',
           'type',
           'id1',
           'notifications',
@@ -682,6 +706,7 @@ describe('/Followup.svelte', () => {
         ),
         new FollowupItem(
           'partner',
+          'partner-name',
           'type',
           'id2',
           'notifications',
@@ -728,6 +753,7 @@ describe('/Followup.svelte', () => {
       vi.spyOn(followup, 'items', 'get').mockReturnValue([
         new FollowupItem(
           'partner',
+          'partner-name',
           'type',
           'id1',
           'notifications',
@@ -743,6 +769,7 @@ describe('/Followup.svelte', () => {
         ),
         new FollowupItem(
           'partner',
+          'partner-name',
           'type',
           'id2',
           'notifications',
