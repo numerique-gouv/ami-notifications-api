@@ -6,6 +6,8 @@
     PUBLIC_PARTNERS_17CYBER_TOKEN,
   } from '$env/static/public';
 
+  let wrapperEl: HTMLDivElement;
+
   interface WidgetConfig {
     token: string;
     domainName: string;
@@ -29,6 +31,7 @@
     frameColor: '#000091', // Facultatif : Couleur du cadre (mode div)
     frameTitleColor: '', // Facultatif : Couleur du titre du cadre (mode div)
   };
+
   onMount(() => {
     const head = document.getElementsByTagName('head')[0];
 
@@ -51,11 +54,14 @@
       ).loadWidget(widgetConfig);
     };
     head.appendChild(appScript);
+
+    wrapperEl.style.height = `${window.innerHeight}px`;
+    console.log('innerHeight:', window.innerHeight);
   });
 </script>
 
 {#if PUBLIC_PARTNERS_17CYBER_MODE == "page"}
-  <div class="am-widget-iframe-container">
+  <div class="am-widget-iframe-container" bind:this={wrapperEl}>
     <div id="widgetIframe"></div>
   </div>
 {/if}
