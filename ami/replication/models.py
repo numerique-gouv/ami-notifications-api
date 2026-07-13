@@ -43,6 +43,7 @@ class AnonymizedNotification(AnonymizedModel):
     content_title = models.CharField()
     content_body = models.CharField()
     # No `content_private_body` here.
+    content_subheading = models.CharField(blank=True, null=True)
     content_icon = models.CharField(blank=True, null=True)
     content_link = models.CharField(blank=True, null=True)
 

@@ -45,6 +45,7 @@ async def test_create_webpush_event(
         "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
         "content_body": "Merci d'avoir initié votre demande",
         "content_private_body": "Ceci est privé et ne devrait jamais être `push`é",
+        "content_subheading": "Un partenaire",
         "content_icon": "foo",
         "content_link": "http://otv/a-5-jgbj5vmoy",
         "item_type": "OTV",
@@ -73,6 +74,7 @@ async def test_create_webpush_event(
     assert notification2.content_body == "Merci d'avoir initié votre demande"
     assert notification2.content_private_body == "Ceci est privé et ne devrait jamais être `push`é"
     assert notification2.content_title == "Brouillon de nouvelle demande de démarche d'OTV"
+    assert notification2.content_subheading == "Un partenaire"
     assert notification2.content_icon == "foo"
     assert notification2.content_link == "http://otv/a-5-jgbj5vmoy"
     assert notification2.item_type == "OTV"
@@ -152,6 +154,7 @@ def test_create_mobile_event(
     assert notification2.user.id == mobile_registration.user.id
     assert notification2.content_body == "Merci d'avoir initié votre demande"
     assert notification2.content_title == "Brouillon de nouvelle demande de démarche d'OTV"
+    assert notification2.content_subheading is None
     assert notification2.content_icon == "foo"
     assert notification2.content_link == "http://otv/a-5-jgbj5vmoy"
     assert notification2.item_type == "OTV"
@@ -338,6 +341,7 @@ def test_create_event_user_does_not_exist(
     assert notification.user.id == user.id
     assert notification.content_body == "Merci d'avoir initié votre demande"
     assert notification.content_title == "Brouillon de nouvelle demande de démarche d'OTV"
+    assert notification.content_subheading is None
     assert notification.content_icon == "foo"
     assert notification.content_link is None
     assert notification.item_type == "OTV"
@@ -408,6 +412,7 @@ def test_create_event_user_never_seen(
     assert notification.user.id == user.id
     assert notification.content_body == "Merci d'avoir initié votre demande"
     assert notification.content_title == "Brouillon de nouvelle demande de démarche d'OTV"
+    assert notification.content_subheading is None
     assert notification.content_icon == "foo"
     assert notification.content_link is None
     assert notification.item_type == "OTV"
@@ -851,6 +856,7 @@ def test_create_event_when_optional_fields_are_empty(
         "recipient_fc_hash": user.fc_hash,
         "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
         "content_body": "Merci d'avoir initié votre demande",
+        "content_subheading": "",
         "content_icon": "",
         "content_link": "",
         "item_type": "",
@@ -874,6 +880,7 @@ def test_create_event_when_optional_fields_are_empty(
     assert notification.user.id == user.id
     assert notification.content_body == "Merci d'avoir initié votre demande"
     assert notification.content_title == "Brouillon de nouvelle demande de démarche d'OTV"
+    assert notification.content_subheading is None
     assert notification.content_icon is None
     assert notification.content_link is None
     assert notification.item_type is None

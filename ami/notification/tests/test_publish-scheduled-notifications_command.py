@@ -72,6 +72,7 @@ async def test_command_publish_scheduled_notifications(
     assert notification.user_id == user.id  # type: ignore[attr-defined]
     assert notification.content_title == "title 3"
     assert notification.content_body == "body 3"
+    assert notification.content_subheading is None
     assert notification.content_icon == "icon 3"
     assert notification.content_link is None
     assert notification.item_type is None

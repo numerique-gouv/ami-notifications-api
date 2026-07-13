@@ -25,6 +25,7 @@ class Notification(models.Model):
     content_title = models.CharField()
     content_body = models.CharField()
     content_private_body = models.CharField(blank=True, null=True)
+    content_subheading = models.CharField(blank=True, null=True)
     content_icon = models.CharField(blank=True, null=True)
     content_link = models.CharField(blank=True, null=True)
 
