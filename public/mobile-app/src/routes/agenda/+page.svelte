@@ -41,6 +41,7 @@
   };
 </script>
 
+<Navigation currentItem="agenda" />
 <div class="agenda">
   <div class="agenda--title fr-mb-1w">
     <h1 class="fr-h2 fr-mb-0">Mon agenda</h1>
@@ -91,7 +92,6 @@
     </div>
   {/if}
 </div>
-<Navigation currentItem="agenda" />
 
 <Modal
   bind:this={zonePreferencesModal}

@@ -5,40 +5,48 @@
     agenda: currentItem === 'agenda',
     followup: currentItem === 'followup',
   });
+
+  const menuItems = $derived([
+    {
+      url: '/',
+      label: 'Accueil',
+      iconClass: current.home ? 'fr-icon-home-4-fill' : 'fr-icon-home-4-line',
+      isSelected: current.home,
+    },
+    {
+      url: '/#/agenda',
+      label: 'Agenda',
+      iconClass: current.agenda
+        ? 'fr-icon-calendar-event-fill'
+        : 'fr-icon-calendar-event-line',
+      isSelected: current.agenda,
+    },
+    {
+      url: '/#/followup',
+      label: 'Suivi',
+      iconClass: current.followup ? 'fr-icon-vector-fill' : 'fr-icon-vector-line',
+      isSelected: current.followup,
+    },
+  ]);
 </script>
 
 <nav id="menu-footer" class="menu-footer" aria-label="Menu principal">
-  <ul class="menu-list">
-    <li class="menu__item">
-      <a
-        class="menu__link {current.home ? 'highlight': ''}"
-        href="/"
-        aria-current="{current.home ? 'true': null}"
-      >
-        <img src="/remixicons/home-4-fill.svg" alt="">
-        <span>Accueil</span>
-      </a>
-    </li>
-    <li class="menu__item">
-      <a
-        class="menu__link {current.agenda ? 'highlight': ''}"
-        href="/#/agenda"
-        aria-current="{current.agenda ? 'true': null}"
-      >
-        <img src="/remixicons/calendar-event-line.svg" alt="">
-        <span>Agenda</span>
-      </a>
-    </li>
-    <li class="menu__item">
-      <a
-        class="menu__link {current.followup ? 'highlight': ''}"
-        href="/#/followup"
-        aria-current="{current.followup ? 'true': null}"
-      >
-        <img src="/remixicons/vector.svg" alt="">
-        <span>Suivi</span>
-      </a>
-    </li>
+  <ul class="menu__list fr-raw-list">
+    {#each menuItems as menuItem}
+      <li class="menu__item">
+        <a
+          href={menuItem.url}
+          class="menu__link {menuItem.isSelected ? 'highlight fr-text--bold' : ''}"
+          aria-current={menuItem.isSelected ? 'page' : null}
+        >
+          <span
+            aria-hidden="true"
+            class="fr-icon { menuItem.iconClass } fr-mb-1w"
+          ></span>
+          <span class="menu__label fr-text--xs fr-mb-0">{menuItem.label}</span>
+        </a>
+      </li>
+    {/each}
   </ul>
 </nav>
 
@@ -50,19 +58,12 @@
     background: var(--background-default-grey);
     border-top: solid 1px var(--background-alt-grey-active);
     width: 100%;
-
-    .menu-list {
+    .menu__list {
       display: flex;
-      list-style-type: none;
-      padding-inline-start: 0;
-      margin-block-start: 0;
-      margin-block-end: 0;
     }
-
     .menu__item {
       padding-bottom: 0;
       width: 100%;
-
       .menu__link {
         position: relative;
         display: flex;
@@ -71,23 +72,16 @@
         background: none;
         padding: 0.75rem 0 0.375rem;
         height: 4.25rem;
-
-        img {
-          margin-bottom: 0.5rem;
+        .fr-icon {
           height: 1.5rem;
           width: 1.5rem;
+          color: var(--text-action-high-blue-france);
         }
-
-        span {
+        .menu__label {
           display: block;
           width: 100%;
-          color: var(--grey-200-850);
           text-align: center;
-          font-size: 0.75rem;
-          font-weight: 400;
-          line-height: 1.25rem;
         }
-
         &.highlight {
           &:before {
             z-index: -1;

@@ -10,6 +10,18 @@
   mask-image: url("/icons/custom/more-2-fill.svg");
 }
 
+.fr-icon-vector-fill::before,
+.fr-icon-vector-fill::after {
+  -webkit-mask-image: url("/icons/custom/vector-fill.svg");
+  mask-image: url("/icons/custom/vector-fill.svg");
+}
+
+.fr-icon-vector-line::before,
+.fr-icon-vector-line::after {
+  -webkit-mask-image: url("/icons/custom/vector-line.svg");
+  mask-image: url("/icons/custom/vector-line.svg");
+}
+
 .am-text--smbold {
   font-weight: 500 !important;
 }
