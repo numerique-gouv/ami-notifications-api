@@ -178,6 +178,10 @@ class PartnerEventCreateSerializerV2(PartnerEventCreateMixin, serializers.Serial
         default=None,
         help_text="Corps privé du contenu, qui ne sera pas pushé dans une push notification",
     )
+    content_subheading = serializers.CharField(
+        default=None,
+        help_text="Sous-titre / service instructeur",
+    )
     content_icon = serializers.CharField(
         default=None,
         help_text="Nom technique de l'icône à associer à la notification dans l'application AMI, "
