@@ -166,8 +166,8 @@
     </div>
   </div>
 {:else if userStore.connected}
-  <ConnectedHomepage />
   <Navigation currentItem="home" />
+  <ConnectedHomepage />
 {/if}
 
 <style>

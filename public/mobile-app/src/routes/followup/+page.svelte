@@ -12,5 +12,5 @@
   });
 </script>
 
-<Followup />
 <Navigation currentItem="followup" />
+<Followup />
