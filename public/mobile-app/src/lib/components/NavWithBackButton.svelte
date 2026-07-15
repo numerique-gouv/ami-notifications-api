@@ -1,6 +1,5 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import { goto } from '$app/navigation';
   import BackButton from '$lib/components/BackButton.svelte';
 
   interface Props {
@@ -21,10 +20,6 @@
   }: Props = $props();
   let scrolledInternal = $state(false);
   let scrolled = $derived(scrolledProp !== undefined ? scrolledProp : scrolledInternal);
-
-  const navigateToPreviousPage = async () => {
-    goto(backUrl);
-  };
 
   window.onscroll = () => {
     scrolledInternal =
@@ -98,11 +93,6 @@
       .title {
         padding-left: 2rem;
         padding-top: 0rem;
-        h2 {
-          font-size: 18px;
-          line-height: 1.5rem;
-          transition: 0.4s;
-        }
         &.withLogo {
           padding-left: 0;
         }
