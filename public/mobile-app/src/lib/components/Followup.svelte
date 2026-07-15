@@ -36,10 +36,12 @@
   };
 </script>
 
+{#if archived}
+  <NavWithBackButton title="Démarches archivées" {backUrl} />
+{/if}
+
 <div class="followup {archived ? 'archived': ''}">
-  {#if archived}
-    <NavWithBackButton title="Démarches archivées" {backUrl} />
-  {:else}
+  {#if !archived}
     <div class="followup--title">
       <h1 class="fr-h2">Mes démarches</h1>
       <div class="followup--title--icon">
