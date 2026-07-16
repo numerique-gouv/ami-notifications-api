@@ -1,9 +1,12 @@
-import { describe, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import * as apiServicesMethods from '$lib/api-services';
 import { buildServices, Services, ServicesItem } from '$lib/services';
 
 describe('/services.ts', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
   describe('ServicesItem', () => {
     describe('id', () => {
       test('should return an id from partner_id and item_type', async () => {
@@ -54,6 +57,45 @@ describe('/services.ts', () => {
         // Then
         expect(description1).equal('description');
         expect(description2).equal('description date2');
+      });
+    });
+    describe('getServiceUrl', () => {
+      test('should replace {fc_hash}', async () => {
+        // Given
+        window.localStorage.setItem('user_fc_hash', 'fake-user-fc-hash');
+        const item = new ServicesItem(
+          'partner',
+          'type',
+          'title',
+          'short description',
+          'description',
+          'external-url?id_hash_fc={fc_hash}',
+          false
+        );
+
+        // When
+        const url = await item.getServiceUrl();
+
+        // Then
+        expect(url).equal('external-url?id_hash_fc=fake-user-fc-hash');
+      });
+      test('should replace {fc_hash} - fc_hash is empty', async () => {
+        // Given
+        const item = new ServicesItem(
+          'partner',
+          'type',
+          'title',
+          'short description',
+          'description',
+          'external-url?id_hash_fc={fc_hash}',
+          false
+        );
+
+        // When
+        const url = await item.getServiceUrl();
+
+        // Then
+        expect(url).equal('external-url?id_hash_fc=');
       });
     });
   });
