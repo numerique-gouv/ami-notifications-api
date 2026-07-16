@@ -59,7 +59,7 @@ describe('/+page.svelte', () => {
         'Opération Tranquillité Vacances',
         'Sécurisez votre logement !',
         'Vous partez en vacances ? **Securisez votre logement.**',
-        'http://external-url',
+        'fake-link',
         true
       )
     );
@@ -78,6 +78,36 @@ describe('/+page.svelte', () => {
       expect(screen.queryByText('Sécurisez votre logement !')).toBeNull();
     });
   });
+  test('should call getServiceUrl from ServicesItem', async () => {
+    // Given
+    await userStore.login(mockUserInfo);
+    vi.spyOn(servicesMethods, 'buildServices').mockResolvedValue(new Services());
+    vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(new Followup());
+    vi.spyOn(Services.prototype, 'find').mockReturnValueOnce(
+      new ServicesItem(
+        'psl',
+        'OperationTranquilliteVacances',
+        'Opération Tranquillité Vacances',
+        'Sécurisez votre logement !',
+        'Vous partez en vacances ? **Securisez votre logement.**',
+        'fake-link',
+        true
+      )
+    );
+    const spy = vi
+      .spyOn(ServicesItem.prototype, 'getServiceUrl')
+      .mockResolvedValue('http://external-url');
+
+    // When
+    render(Page, {
+      props: { params: { partner_id: 'foo', item_type: 'bar' } },
+    });
+
+    // Then
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledTimes(1);
+    });
+  });
   test('should render a Back button', async () => {
     // Given
     await userStore.login(mockUserInfo);
@@ -89,7 +119,7 @@ describe('/+page.svelte', () => {
         'Opération Tranquillité Vacances',
         'Sécurisez votre logement !',
         'Vous partez en vacances ? **Securisez votre logement.**',
-        'http://external-url',
+        'fake-link',
         true
       )
     );
@@ -117,7 +147,7 @@ describe('/+page.svelte', () => {
           'Opération Tranquillité Vacances',
           'Sécurisez votre logement !',
           'Vous partez en vacances ? **Securisez votre logement.** À partir du {date}',
-          'http://external-url',
+          'fake-link',
           true
         )
       );
@@ -153,7 +183,7 @@ describe('/+page.svelte', () => {
           'Opération Tranquillité Vacances',
           'Sécurisez votre logement !',
           'Vous partez en vacances ? **Securisez votre logement.** À partir du {date}',
-          'http://external-url',
+          'fake-link',
           true
         )
       );
@@ -185,7 +215,7 @@ describe('/+page.svelte', () => {
           'Opération Tranquillité Vacances',
           'Sécurisez votre logement !',
           'Vous partez en vacances ? **Securisez votre logement.** À partir du {date}',
-          'http://external-url',
+          'fake-link',
           true
         )
       );
@@ -220,7 +250,7 @@ describe('/+page.svelte', () => {
           'Opération Tranquillité Vacances',
           'Sécurisez votre logement !',
           'Vous partez en vacances ? **Securisez votre logement.** À partir du {date}',
-          'http://external-url',
+          'fake-link',
           true
         )
       );
@@ -258,7 +288,7 @@ describe('/+page.svelte', () => {
             'Opération Tranquillité Vacances',
             'Sécurisez votre logement !',
             'Vous partez en vacances ? **Securisez votre logement.**',
-            'http://external-url',
+            'fake-link',
             true
           )
         );
@@ -295,7 +325,7 @@ describe('/+page.svelte', () => {
             'Opération Tranquillité Vacances',
             'Sécurisez votre logement !',
             'Vous partez en vacances ? **Securisez votre logement.**',
-            'http://external-url',
+            'fake-link',
             true
           )
         );
@@ -333,6 +363,9 @@ describe('/+page.svelte', () => {
             true
           )
         );
+        const spyUrl = vi
+          .spyOn(ServicesItem.prototype, 'getServiceUrl')
+          .mockResolvedValue('');
         vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(new Followup());
         vi.spyOn(Followup.prototype, 'hasNonArchivedItems').mockReturnValue(false);
 
@@ -346,6 +379,7 @@ describe('/+page.svelte', () => {
           const serviceButton = screen.getByTestId('service-button');
           expect(serviceButton).toBeDisabled();
           expect(screen.queryByTestId('followup-button')).toBeNull();
+          expect(spyUrl).toHaveBeenCalledTimes(1);
         });
       });
     });
@@ -362,10 +396,13 @@ describe('/+page.svelte', () => {
               'Opération Tranquillité Vacances',
               'Sécurisez votre logement !',
               'Vous partez en vacances ? **Securisez votre logement.**',
-              'http://external-url',
+              'fake-link',
               true
             )
           );
+          const spyUrl = vi
+            .spyOn(ServicesItem.prototype, 'getServiceUrl')
+            .mockResolvedValue('http://external-url');
           vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(new Followup());
           vi.spyOn(Followup.prototype, 'hasNonArchivedItems').mockReturnValue(true);
           const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue();
@@ -381,6 +418,7 @@ describe('/+page.svelte', () => {
           });
 
           // Then
+          expect(spyUrl).toHaveBeenCalledTimes(1);
           expect(spy).toHaveBeenCalledTimes(1);
           expect(spy).toHaveBeenCalledWith('/#/followup');
         });
@@ -397,10 +435,13 @@ describe('/+page.svelte', () => {
               'Opération Tranquillité Vacances',
               'Sécurisez votre logement !',
               'Vous partez en vacances ? **Securisez votre logement.**',
-              'http://external-url',
+              'fake-link',
               true
             )
           );
+          const spyUrl = vi
+            .spyOn(ServicesItem.prototype, 'getServiceUrl')
+            .mockResolvedValue('http://external-url');
           vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(new Followup());
           vi.spyOn(Followup.prototype, 'hasNonArchivedItems').mockReturnValue(true);
           vi.stubGlobal('location', {
@@ -420,6 +461,7 @@ describe('/+page.svelte', () => {
           });
 
           // Then
+          expect(spyUrl).toHaveBeenCalledTimes(2);
           expect(window.location.href).toBe('http://external-url');
         });
         test('should redirect to service link - no non archived items', async () => {
@@ -433,10 +475,13 @@ describe('/+page.svelte', () => {
               'Opération Tranquillité Vacances',
               'Sécurisez votre logement !',
               'Vous partez en vacances ? **Securisez votre logement.**',
-              'http://external-url',
+              'fake-link',
               true
             )
           );
+          const spyUrl = vi
+            .spyOn(ServicesItem.prototype, 'getServiceUrl')
+            .mockResolvedValue('http://external-url');
           vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(new Followup());
           vi.spyOn(Followup.prototype, 'hasNonArchivedItems').mockReturnValue(false);
           vi.stubGlobal('location', {
@@ -456,6 +501,7 @@ describe('/+page.svelte', () => {
           });
 
           // Then
+          expect(spyUrl).toHaveBeenCalledTimes(2);
           expect(window.location.href).toBe('http://external-url');
         });
       });

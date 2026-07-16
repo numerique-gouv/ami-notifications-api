@@ -36,7 +36,7 @@
       return;
     }
 
-    const _serviceLink = _service.link || '';
+    const _serviceUrl = await getServiceUrl(_service);
 
     followup = await buildFollowup();
     const _hasNonArchivedItems = followup.hasNonArchivedItems(
@@ -59,13 +59,21 @@
     }
 
     // assign variables after all await calls
-    serviceUrl = _serviceLink;
+    serviceUrl = _serviceUrl;
     service = _service;
     hasNonArchivedItems = _hasNonArchivedItems;
     date = _date;
   });
 
+  const getServiceUrl = async (_service: ServicesItem) => {
+    return await _service.getServiceUrl();
+  };
+
   const gotoService = async () => {
+    if (service === null) {
+      return;
+    }
+    serviceUrl = await getServiceUrl(service);
     if (serviceUrl) {
       window.location.href = serviceUrl;
     }

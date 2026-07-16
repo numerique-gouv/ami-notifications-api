@@ -60,6 +60,11 @@ export class ServicesItem {
   formatDescription(date: string): string {
     return this.description.replace('{date}', date);
   }
+
+  async getServiceUrl(): Promise<string> {
+    const _serviceUrl = this.link || '';
+    return _serviceUrl;
+  }
 }
 
 export class Services {
