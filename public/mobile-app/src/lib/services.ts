@@ -62,7 +62,11 @@ export class ServicesItem {
   }
 
   async getServiceUrl(): Promise<string> {
-    const _serviceUrl = this.link || '';
+    let _serviceUrl = this.link || '';
+    _serviceUrl = _serviceUrl.replace(
+      '{fc_hash}',
+      localStorage.getItem('user_fc_hash') || ''
+    );
     return _serviceUrl;
   }
 }
