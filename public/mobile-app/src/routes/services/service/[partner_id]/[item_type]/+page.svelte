@@ -1,6 +1,10 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
+  import {
+    PUBLIC_API_URL,
+    PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED,
+  } from '$env/static/public';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import PageWrapper from '$lib/components/PageWrapper.svelte';
   import type { Followup } from '$lib/followup';
@@ -69,13 +73,24 @@
     return await _service.getServiceUrl();
   };
 
+  const AMIFILogin = async (url: string) => {
+    window.location.href = `${PUBLIC_API_URL}/silent-login-ami-fi?redirect_url=${encodeURIComponent(url)}`;
+  };
+
   const gotoService = async () => {
     if (service === null) {
       return;
     }
     serviceUrl = await getServiceUrl(service);
     if (serviceUrl) {
-      window.location.href = serviceUrl;
+      if (
+        PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED === 'true' &&
+        service.with_silent_login
+      ) {
+        AMIFILogin(serviceUrl);
+      } else {
+        window.location.href = serviceUrl;
+      }
     }
   };
 
