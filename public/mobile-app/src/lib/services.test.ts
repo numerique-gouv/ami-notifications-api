@@ -2,10 +2,14 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import * as apiServicesMethods from '$lib/api-services';
 import { buildServices, Services, ServicesItem } from '$lib/services';
+import { userStore } from '$lib/state/User.svelte';
+import { mockAddress, mockUserInfo } from '$tests/utils';
 
 describe('/services.ts', () => {
   beforeEach(() => {
     localStorage.clear();
+    vi.clearAllMocks();
+    userStore.connected = null;
   });
   describe('ServicesItem', () => {
     describe('id', () => {
@@ -96,6 +100,139 @@ describe('/services.ts', () => {
 
         // Then
         expect(url).equal('external-url?id_hash_fc=');
+      });
+      test('should replace {back_param_otv_jwt_token}', async () => {
+        // Given
+        await userStore.login(mockUserInfo);
+        userStore.connected?.setPreferredUsername('Dupont');
+        userStore.connected?.setAddress(mockAddress);
+        const spy = vi
+          .spyOn(apiServicesMethods, 'getServicesItemParameters')
+          .mockResolvedValue({
+            otv_jwt_token: 'fake.jwt.token',
+          });
+        const item = new ServicesItem(
+          'partner',
+          'type',
+          'title',
+          'short description',
+          'description',
+          'external-url?caller={back_param_otv_jwt_token}',
+          false
+        );
+
+        // When
+        const url = await item.getServiceUrl();
+
+        // Then
+        expect(url).equal('external-url?caller=fake.jwt.token');
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(spy).toHaveBeenCalledWith([
+          {
+            parameter: 'otv_jwt_token',
+            values: {
+              address_city: 'Paris',
+              address_name: 'Avenue de Ségur',
+              address_postcode: '75007',
+              email: 'some@email.com',
+              preferred_username: 'Dupont',
+            },
+          },
+        ]);
+      });
+      test('should replace {back_param_otv_jwt_token} - otv_jwt_token is empty', async () => {
+        // Given
+        await userStore.login(mockUserInfo);
+        const spy = vi
+          .spyOn(apiServicesMethods, 'getServicesItemParameters')
+          .mockResolvedValue({
+            otv_jwt_token: '',
+          });
+        const item = new ServicesItem(
+          'partner',
+          'type',
+          'title',
+          'short description',
+          'description',
+          'external-url?caller={back_param_otv_jwt_token}',
+          false
+        );
+
+        // When
+        const url = await item.getServiceUrl();
+
+        // Then
+        expect(url).equal('external-url?caller=');
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(spy).toHaveBeenCalledWith([
+          {
+            parameter: 'otv_jwt_token',
+            values: {
+              address_city: '',
+              address_name: '',
+              address_postcode: '',
+              email: 'some@email.com',
+              preferred_username: '',
+            },
+          },
+        ]);
+      });
+      test('should replace {back_param_otv_jwt_token} - no result', async () => {
+        // Given
+        await userStore.login(mockUserInfo);
+        const spy = vi
+          .spyOn(apiServicesMethods, 'getServicesItemParameters')
+          .mockResolvedValue({});
+        const item = new ServicesItem(
+          'partner',
+          'type',
+          'title',
+          'short description',
+          'description',
+          'external-url?caller={back_param_otv_jwt_token}',
+          false
+        );
+
+        // When
+        const url = await item.getServiceUrl();
+
+        // Then
+        expect(url).equal('external-url?caller=');
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(spy).toHaveBeenCalledWith([
+          {
+            parameter: 'otv_jwt_token',
+            values: {
+              address_city: '',
+              address_name: '',
+              address_postcode: '',
+              email: 'some@email.com',
+              preferred_username: '',
+            },
+          },
+        ]);
+      });
+      test('should replace {back_param_otv_jwt_token} - user is not connected', async () => {
+        // Given
+        const spy = vi
+          .spyOn(apiServicesMethods, 'getServicesItemParameters')
+          .mockResolvedValue({});
+        const item = new ServicesItem(
+          'partner',
+          'type',
+          'title',
+          'short description',
+          'description',
+          'external-url?caller={back_param_otv_jwt_token}',
+          false
+        );
+
+        // When
+        const url = await item.getServiceUrl();
+
+        // Then
+        expect(url).equal('external-url?caller=');
+        expect(spy).toHaveBeenCalledTimes(0);
       });
     });
   });

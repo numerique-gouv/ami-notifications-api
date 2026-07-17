@@ -1,5 +1,17 @@
-import type { APIServices, APIServicesItem } from '$lib/api-services';
-import { retrieveServices } from '$lib/api-services';
+import type {
+  APIServices,
+  APIServicesItem,
+  Parameter,
+  ParameterKey,
+  ServicesItemsParameters,
+} from '$lib/api-services';
+import {
+  getServicesItemParameters,
+  isParameterKey,
+  PARAMETER_KEYS,
+  retrieveServices,
+} from '$lib/api-services';
+import { userStore } from '$lib/state/User.svelte';
 
 export class ServicesItem {
   constructor(
@@ -63,10 +75,63 @@ export class ServicesItem {
 
   async getServiceUrl(): Promise<string> {
     let _serviceUrl = this.link || '';
+
+    // first replace front values
     _serviceUrl = _serviceUrl.replace(
       '{fc_hash}',
       localStorage.getItem('user_fc_hash') || ''
     );
+
+    // and try to replace back values
+    const parametersRegexp = new RegExp(
+      `\\{back_param_(${PARAMETER_KEYS.join('|')})\\}`,
+      'g'
+    );
+    const matches = [..._serviceUrl.matchAll(parametersRegexp)];
+    const keys: ParameterKey[] = [...new Set(matches.map((m) => m[1]))].filter(
+      isParameterKey
+    );
+    const parameters: Parameter[] = [];
+    // build parameters for getServicesItemParameters call
+    keys.forEach((parameter) => {
+      switch (parameter) {
+        case 'otv_jwt_token': {
+          if (!userStore.connected) {
+            return;
+          }
+          const userIdentity = userStore.connected.identity;
+          if (!userIdentity) {
+            return;
+          }
+          parameters.push({
+            parameter: 'otv_jwt_token',
+            values: {
+              preferred_username: userIdentity.preferred_username || '',
+              email: userIdentity.email || '',
+              address_city: userIdentity.address?.city || '',
+              address_postcode: userIdentity.address?.postcode || '',
+              address_name: userIdentity.address?.name || '',
+            },
+          });
+          break;
+        }
+        default: {
+          console.log(`no handler found for back_param ${parameter}`);
+        }
+      }
+    });
+    let parametersValues: ServicesItemsParameters = {};
+    if (parameters.length) {
+      // call getServicesItemParameters
+      parametersValues = await getServicesItemParameters(parameters);
+    }
+    // and replace params in url
+    keys.forEach((key) => {
+      _serviceUrl = _serviceUrl.replace(
+        `{back_param_${key}}`,
+        parametersValues[key] || ''
+      );
+    });
     return _serviceUrl;
   }
 }
