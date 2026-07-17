@@ -1,6 +1,11 @@
 import { afterEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
-import { retrieveServices } from '$lib/api-services';
+import { waitFor } from '@testing-library/svelte';
+import {
+  getServicesItemParameters,
+  isParameterKey,
+  retrieveServices,
+} from '$lib/api-services';
 
 const apiServicesData = {
   internal: {
@@ -410,6 +415,128 @@ describe('/api-services', () => {
           internal: apiServicesData.internal.items,
         });
       }
+    });
+  });
+
+  describe('isParameterKey', () => {
+    test('should return true only if key is correct', async () => {
+      // Given
+      const key1 = 'otv_jwt_token';
+      const key2 = 'bad-value';
+
+      // When
+      const result1 = isParameterKey(key1);
+      const result2 = isParameterKey(key2);
+
+      // Then
+      expect(result1).toEqual(true);
+      expect(result2).toEqual(false);
+    });
+  });
+
+  describe('getServicesItemParameters', () => {
+    test('should get parameters', async () => {
+      // Given
+      const expectedResponse = { otv_jwt_token: 'fake.jwt.token' };
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        new Response(JSON.stringify({ data: expectedResponse }), { status: 200 })
+      );
+
+      // When
+      const response = await getServicesItemParameters([
+        {
+          parameter: 'otv_jwt_token',
+          values: {
+            preferred_username: 'Dupont',
+            email: 'some@email.com',
+            address_city: 'Paris',
+            address_postcode: '75007',
+            address_name: 'Avenue de Ségur',
+          },
+        },
+      ]);
+
+      // Then
+      await waitFor(() => {
+        expect(response).toEqual(expectedResponse);
+      });
+    });
+
+    test('should return empty otv_jwt_token', async () => {
+      // Given
+      const expectedResponse = { otv_jwt_token: 'en' };
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        new Response(JSON.stringify({ data: expectedResponse }), { status: 200 })
+      );
+
+      // When
+      const response = await getServicesItemParameters([
+        {
+          parameter: 'otv_jwt_token',
+          values: {
+            preferred_username: 'Dupont',
+            email: 'some@email.com',
+            address_city: 'Paris',
+            address_postcode: '75007',
+            address_name: 'Avenue de Ségur',
+          },
+        },
+      ]);
+
+      // Then
+      await waitFor(() => {
+        expect(response).toEqual(expectedResponse);
+      });
+    });
+
+    test('should return empty result', async () => {
+      // Given
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        new Response(JSON.stringify({ data: {} }), { status: 200 })
+      );
+
+      // When
+      const response = await getServicesItemParameters([
+        {
+          parameter: 'otv_jwt_token',
+          values: {
+            preferred_username: 'Dupont',
+            email: 'some@email.com',
+            address_city: 'Paris',
+            address_postcode: '75007',
+            address_name: 'Avenue de Ségur',
+          },
+        },
+      ]);
+
+      // Then
+      await waitFor(() => {
+        expect(response).toEqual({});
+      });
+    });
+
+    test('should return empty string when apiFetch has an error', async () => {
+      // Given
+      vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('Fetch failed'));
+
+      // When
+      const response = await getServicesItemParameters([
+        {
+          parameter: 'otv_jwt_token',
+          values: {
+            preferred_username: 'Dupont',
+            email: 'some@email.com',
+            address_city: 'Paris',
+            address_postcode: '75007',
+            address_name: 'Avenue de Ségur',
+          },
+        },
+      ]);
+
+      // Then
+      await waitFor(() => {
+        expect(response).toEqual({});
+      });
     });
   });
 });

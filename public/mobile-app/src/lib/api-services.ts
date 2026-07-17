@@ -67,3 +67,57 @@ export const retrieveServices = async (
   } as APIServices;
   return apiServices;
 };
+
+const PARAMETER_DEFINITIONS = {
+  otv_jwt_token: {} as {
+    preferred_username: string;
+    email: string;
+    address_city: string;
+    address_postcode: string;
+    address_name: string;
+  },
+};
+
+export type ParameterKey = keyof typeof PARAMETER_DEFINITIONS;
+
+export const PARAMETER_KEYS = Object.keys(PARAMETER_DEFINITIONS) as ParameterKey[];
+
+export function isParameterKey(key: string): key is ParameterKey {
+  return (PARAMETER_KEYS as string[]).includes(key);
+}
+
+export type Parameter = {
+  [key in ParameterKey]: {
+    parameter: key;
+    values: (typeof PARAMETER_DEFINITIONS)[key];
+  };
+}[ParameterKey];
+
+export type ServicesItemsParameters = {
+  [key: string]: string;
+};
+
+interface ServicesItemsParametersResponse {
+  data: ServicesItemsParameters;
+}
+
+export const getServicesItemParameters = async (
+  parameters: Parameter[]
+): Promise<ServicesItemsParameters> => {
+  try {
+    const response = await apiFetch('/api/v1/users/data/services/item/parameters', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ parameters: parameters }),
+      credentials: 'include',
+    });
+    if (response.status === 200) {
+      const result = (await response.json()) as ServicesItemsParametersResponse;
+      return result.data;
+    }
+    return {};
+  } catch (error) {
+    console.error(error);
+    return {};
+  }
+};
