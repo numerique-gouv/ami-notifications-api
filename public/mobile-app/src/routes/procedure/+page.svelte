@@ -3,6 +3,7 @@
   import { goto } from '$app/navigation';
   import {
     PUBLIC_API_URL,
+    PUBLIC_FEATURE_FLAG_SERVICES_ENABLED,
     PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED,
   } from '$env/static/public';
   import { Address } from '$lib/address';
@@ -51,6 +52,12 @@
   };
 
   onMount(async () => {
+    if (PUBLIC_FEATURE_FLAG_SERVICES_ENABLED === 'true') {
+      goto('/#/services/service/psl/OperationTranquilliteVacances', {
+        replaceState: true,
+      });
+      return;
+    }
     if (!userStore.connected) {
       goto('/');
     }

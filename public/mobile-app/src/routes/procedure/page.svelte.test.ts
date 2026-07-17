@@ -20,6 +20,7 @@ describe('/+page.svelte', () => {
         ...original,
         PUBLIC_API_URL: 'https://localhost:8000',
         PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED: 'true',
+        PUBLIC_FEATURE_FLAG_SERVICES_ENABLED: 'false',
         PUBLIC_MATOMO_ENABLED: 'false',
         PUBLIC_FC_PROXY_BASE_URL: 'https://proxy',
         PUBLIC_FC_BASE_URL: 'https://fc',
@@ -27,6 +28,7 @@ describe('/+page.svelte', () => {
       });
     });
     vi.mocked(envModule).PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED = 'true';
+    vi.mocked(envModule).PUBLIC_FEATURE_FLAG_SERVICES_ENABLED = 'false';
 
     await userStore.login(mockUserInfo);
     vi.useFakeTimers({ shouldAdvanceTime: true });
@@ -36,6 +38,24 @@ describe('/+page.svelte', () => {
     globalThis.window = originalWindow;
     vi.resetAllMocks();
     vi.useRealTimers();
+  });
+
+  test('services feature flag is enabled', async () => {
+    // Given
+    vi.mocked(envModule).PUBLIC_FEATURE_FLAG_SERVICES_ENABLED = 'true';
+    const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue();
+
+    // When
+    render(Page);
+
+    // Then
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(
+        '/#/services/service/psl/OperationTranquilliteVacances',
+        { replaceState: true }
+      );
+    });
   });
 
   test('user has to be connected', async () => {
