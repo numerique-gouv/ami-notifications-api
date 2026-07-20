@@ -6,7 +6,7 @@ import { FollowupItem as Item } from '$lib/followup';
 import FollowupItem from './FollowupItem.svelte';
 
 describe('/FollowupItem.svelte', () => {
-  test('should display a link without is_archived query param when item is not archived', async () => {
+  test('should display a link', async () => {
     // Given
     const item = new Item(
       'partner',
@@ -32,35 +32,6 @@ describe('/FollowupItem.svelte', () => {
 
     // Then
     expect(link.getAttribute('href')).toBe('/#/followup/item/partner/type/id');
-  });
-  test('should display a link with is_archived query param when item is archived', async () => {
-    // Given
-    const item = new Item(
-      'partner',
-      'type',
-      'id',
-      'notifications',
-      [],
-      'Opération Tranquillité Vacances',
-      'subheading',
-      'Votre demande est terminée.',
-      'icon',
-      new Date('2026-02-20T15:55:00.000Z'),
-      'closed',
-      'Terminée',
-      true,
-      'url'
-    );
-    const onOpen = vi.fn();
-    render(FollowupItem, { props: { item: item, onOpen: onOpen } });
-
-    // When
-    const link = screen.getByTestId('followup-item-link');
-
-    // Then
-    expect(link.getAttribute('href')).toBe(
-      '/#/followup/item/partner/type/id?is_archived=true'
-    );
   });
   describe('"Reprendre ma démarche" button', () => {
     test('Should display "Reprendre ma démarche" button only if item is "new"', async () => {

@@ -87,7 +87,7 @@ describe('/followup.ts', () => {
       });
     });
     describe('itemDetailPageUrl', () => {
-      test('should return detail page url without is_archived query param when item is not archived', async () => {
+      test('should return detail page url from partner_id, item_type and item_external_id', async () => {
         // Given
         vi.stubEnv('TZ', 'Europe/Paris');
         const item = new Item(
@@ -112,32 +112,6 @@ describe('/followup.ts', () => {
 
         // Then
         expect(link).equal('/#/followup/item/partner/type/id');
-      });
-      test('should return detail page url with is_archived query param when item is archived', async () => {
-        // Given
-        vi.stubEnv('TZ', 'Europe/Paris');
-        const item = new Item(
-          'partner',
-          'type',
-          'id',
-          'notifications',
-          [],
-          'Opération Tranquillité Vacances',
-          'subheading',
-          'Votre demande est terminée.',
-          'icon',
-          new Date('2026-02-20T15:55:00.000Z'),
-          'closed',
-          'Terminée',
-          true,
-          'url'
-        );
-
-        // When
-        const link = item.itemDetailPageUrl;
-
-        // Then
-        expect(link).equal('/#/followup/item/partner/type/id?is_archived=true');
       });
     });
     describe('archive', () => {
