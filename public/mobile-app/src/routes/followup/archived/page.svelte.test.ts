@@ -26,12 +26,12 @@ describe('/+page.svelte', () => {
     vi.spyOn(followup, 'items', 'get').mockReturnValue([
       new FollowupItem(
         'partner',
-        'partner-name',
         'type',
         'id1',
         'notifications',
         [],
         'Opération Tranquillité Vacances',
+        'subheading',
         'Votre demande est en cours de traitement.',
         'icon',
         new Date('2026-02-22T15:55:00.000Z'),
@@ -44,12 +44,12 @@ describe('/+page.svelte', () => {
     vi.spyOn(followup, 'archived_items', 'get').mockReturnValue([
       new FollowupItem(
         'partner',
-        'partner-name',
         'type',
         'id2',
         'notifications',
         [],
         'Opération Tranquillité Vacances',
+        'subheading',
         'Votre demande est terminée.',
         'icon',
         new Date('2026-02-20T15:55:00.000Z'),

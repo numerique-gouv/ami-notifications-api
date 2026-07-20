@@ -15,12 +15,12 @@ describe('/+page.svelte', () => {
     );
     const item = new FollowupItem(
       'partner',
-      'partner-name',
       'type',
       'id',
       'notifications',
       [event],
       'title',
+      'subheading',
       'description',
       'icon',
       new Date('2026-01-03T08:05:42Z'),
@@ -47,12 +47,12 @@ describe('/+page.svelte', () => {
   test('should navigate to /followup on click on back button when item is not archived', async () => {
     const item = new FollowupItem(
       'partner',
-      'partner-name',
       'type',
       'id1',
       'notifications',
       [],
       'title',
+      'subheading',
       'description',
       'icon',
       new Date('2026-01-03T08:05:42Z'),
@@ -82,12 +82,12 @@ describe('/+page.svelte', () => {
   test('should navigate to /followup/archived on click on back button when item is archived', async () => {
     const item = new FollowupItem(
       'partner',
-      'partner-name',
       'type',
       'id1',
       'notifications',
       [],
       'title',
+      'subheading',
       'description',
       'icon',
       new Date('2026-01-03T08:05:42Z'),
@@ -123,12 +123,12 @@ describe('/+page.svelte', () => {
     );
     const item = new FollowupItem(
       'partner',
-      'partner-name',
       'type',
       'id1',
       'notifications',
       [event],
       'title',
+      'subheading',
       'description',
       'icon',
       new Date('2026-01-03T08:05:42Z'),

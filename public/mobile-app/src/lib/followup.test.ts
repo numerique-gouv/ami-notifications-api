@@ -36,12 +36,12 @@ describe('/followup.ts', () => {
         vi.stubEnv('TZ', 'Europe/Paris');
         const item = new FollowupItem(
           'partner',
-          'partner-name',
           'type',
           'id',
           'notifications',
           [],
           'title',
+          'subheading',
           'description',
           'icon',
           new Date('2026-01-03T08:05:42Z'),
@@ -64,12 +64,12 @@ describe('/followup.ts', () => {
         vi.stubEnv('TZ', 'Europe/Paris');
         const item = new FollowupItem(
           'partner',
-          'partner-name',
           'type',
           'id',
           'notifications',
           [],
           'title',
+          'subheading',
           'description',
           'icon',
           new Date('2026-01-03T08:05:42Z'),
@@ -92,12 +92,12 @@ describe('/followup.ts', () => {
         vi.stubEnv('TZ', 'Europe/Paris');
         const item = new Item(
           'partner',
-          'partner-name',
           'type',
           'id',
           'notifications',
           [],
           'Opération Tranquillité Vacances',
+          'subheading',
           'Votre demande est terminée.',
           'icon',
           new Date('2026-02-20T15:55:00.000Z'),
@@ -118,12 +118,12 @@ describe('/followup.ts', () => {
         vi.stubEnv('TZ', 'Europe/Paris');
         const item = new Item(
           'partner',
-          'partner-name',
           'type',
           'id',
           'notifications',
           [],
           'Opération Tranquillité Vacances',
+          'subheading',
           'Votre demande est terminée.',
           'icon',
           new Date('2026-02-20T15:55:00.000Z'),
@@ -145,12 +145,12 @@ describe('/followup.ts', () => {
         // Given
         const item = new FollowupItem(
           'partner',
-          'partner-name',
           'type',
           'id',
           'notifications',
           [],
           'title',
+          'subheading',
           'description',
           'icon',
           new Date('2026-01-03T08:05:42Z'),
@@ -178,7 +178,6 @@ describe('/followup.ts', () => {
       vi.stubEnv('TZ', 'Europe/Paris');
       const followupItem1 = {
         partner_id: 'psl',
-        partner_name: 'PSL',
         item_type: 'OperationTranquilliteVacances',
         item_external_id: '42',
         status_id: 'new',
@@ -187,6 +186,7 @@ describe('/followup.ts', () => {
         milestone_end_date: null,
         events: [],
         title: 'Opération Tranquillité Vacances',
+        subheading: 'subheading',
         description: 'Votre demande est en brouillon.',
         icon: 'icon',
         is_archived: false,
@@ -196,7 +196,6 @@ describe('/followup.ts', () => {
       };
       const followupItem2 = {
         partner_id: 'psl',
-        partner_name: 'PSL',
         item_type: 'OperationTranquilliteVacances',
         item_external_id: '43',
         status_id: 'wip',
@@ -205,6 +204,7 @@ describe('/followup.ts', () => {
         milestone_end_date: null,
         events: [],
         title: 'Opération Tranquillité Vacances',
+        subheading: 'subheading',
         description: 'Votre demande est en cours de traitement.',
         icon: 'icon',
         is_archived: false,
@@ -214,7 +214,6 @@ describe('/followup.ts', () => {
       };
       const followupItem3 = {
         partner_id: 'psl',
-        partner_name: 'PSL',
         item_type: 'OperationTranquilliteVacances',
         item_external_id: '44',
         status_id: 'new',
@@ -223,6 +222,7 @@ describe('/followup.ts', () => {
         milestone_end_date: null,
         events: [],
         title: 'Opération Tranquillité Vacances',
+        subheading: 'subheading',
         description: 'Votre demande est en brouillon.',
         icon: 'icon',
         is_archived: true,
@@ -232,7 +232,6 @@ describe('/followup.ts', () => {
       };
       const followupItem4 = {
         partner_id: 'psl',
-        partner_name: 'PSL',
         item_type: 'OperationTranquilliteVacances',
         item_external_id: '45',
         status_id: 'closed',
@@ -241,6 +240,7 @@ describe('/followup.ts', () => {
         milestone_end_date: null,
         events: [],
         title: 'Opération Tranquillité Vacances',
+        subheading: 'subheading',
         description: 'Votre demande est terminée.',
         icon: 'icon',
         is_archived: true,
@@ -260,12 +260,12 @@ describe('/followup.ts', () => {
         followup.items[0].equals(
           new FollowupItem(
             'psl',
-            'PSL',
             'OperationTranquilliteVacances',
             '42',
             'notifications',
             [],
             'Opération Tranquillité Vacances',
+            'subheading',
             'Votre demande est en brouillon.',
             'icon',
             new Date('2026-02-23T15:55:00.000Z'),
@@ -280,12 +280,12 @@ describe('/followup.ts', () => {
         followup.items[1].equals(
           new FollowupItem(
             'psl',
-            'PSL',
             'OperationTranquilliteVacances',
             '43',
             'notifications',
             [],
             'Opération Tranquillité Vacances',
+            'subheading',
             'Votre demande est en cours de traitement.',
             'icon',
             new Date('2026-02-22T15:55:00.000Z'),
@@ -301,12 +301,12 @@ describe('/followup.ts', () => {
         followup.archived_items[0].equals(
           new FollowupItem(
             'psl',
-            'PSL',
             'OperationTranquilliteVacances',
             '44',
             'notifications',
             [],
             'Opération Tranquillité Vacances',
+            'subheading',
             'Votre demande est en brouillon.',
             'icon',
             new Date('2026-02-21T15:55:00.000Z'),
@@ -321,12 +321,12 @@ describe('/followup.ts', () => {
         followup.archived_items[1].equals(
           new FollowupItem(
             'psl',
-            'PSL',
             'OperationTranquilliteVacances',
             '45',
             'notifications',
             [],
             'Opération Tranquillité Vacances',
+            'subheading',
             'Votre demande est terminée.',
             'icon',
             new Date('2026-02-20T15:55:00.000Z'),
@@ -343,7 +343,6 @@ describe('/followup.ts', () => {
         // Given
         const followupItem = {
           partner_id: 'psl',
-          partner_name: 'PSL',
           item_type: 'OperationTranquilliteVacances',
           item_external_id: '42',
           status_id: 'new',
@@ -352,6 +351,7 @@ describe('/followup.ts', () => {
           milestone_end_date: null,
           events: [],
           title: 'Opération Tranquillité Vacances',
+          subheading: 'subheading',
           description: 'Votre demande est en brouillon.',
           icon: 'icon',
           is_archived: false,
@@ -376,7 +376,6 @@ describe('/followup.ts', () => {
         // Given
         const followupItem = {
           partner_id: 'psl',
-          partner_name: 'PSL',
           item_type: 'OperationTranquilliteVacances',
           item_external_id: '42',
           status_id: 'wip',
@@ -385,6 +384,7 @@ describe('/followup.ts', () => {
           milestone_end_date: null,
           events: [],
           title: 'Opération Tranquillité Vacances',
+          subheading: 'subheading',
           description: 'Votre demande est en brouillon.',
           icon: 'icon',
           is_archived: false,
@@ -409,7 +409,6 @@ describe('/followup.ts', () => {
         // Given
         const followupItem = {
           partner_id: 'psl',
-          partner_name: 'PSL',
           item_type: 'OperationTranquilliteVacances',
           item_external_id: '42',
           status_id: 'closed',
@@ -418,6 +417,7 @@ describe('/followup.ts', () => {
           milestone_end_date: null,
           events: [],
           title: 'Opération Tranquillité Vacances',
+          subheading: 'subheading',
           description: 'Votre demande est en brouillon.',
           icon: 'icon',
           is_archived: false,
@@ -442,7 +442,6 @@ describe('/followup.ts', () => {
         // Given
         const followupItem1 = {
           partner_id: 'other',
-          partner_name: 'Other',
           item_type: 'OperationTranquilliteVacances',
           item_external_id: '42',
           status_id: 'wip',
@@ -451,6 +450,7 @@ describe('/followup.ts', () => {
           milestone_end_date: null,
           events: [],
           title: 'Opération Tranquillité Vacances',
+          subheading: 'subheading',
           description: 'Votre demande est en brouillon.',
           icon: 'icon',
           is_archived: false,
@@ -460,7 +460,6 @@ describe('/followup.ts', () => {
         };
         const followupItem2 = {
           partner_id: 'psl',
-          partner_name: 'PSL',
           item_type: 'Other',
           item_external_id: '43',
           status_id: 'wip',
@@ -469,6 +468,7 @@ describe('/followup.ts', () => {
           milestone_end_date: null,
           events: [],
           title: 'Opération Tranquillité Vacances',
+          subheading: 'subheading',
           description: 'Votre demande est en brouillon.',
           icon: 'icon',
           is_archived: false,
@@ -478,7 +478,6 @@ describe('/followup.ts', () => {
         };
         const followupItem3 = {
           partner_id: 'psl',
-          partner_name: 'PSL',
           item_type: 'OperationTranquilliteVacances',
           item_external_id: '44',
           status_id: 'new',
@@ -487,6 +486,7 @@ describe('/followup.ts', () => {
           milestone_end_date: null,
           events: [],
           title: 'Opération Tranquillité Vacances',
+          subheading: 'subheading',
           description: 'Votre demande est en brouillon.',
           icon: 'icon',
           is_archived: true,
@@ -496,7 +496,6 @@ describe('/followup.ts', () => {
         };
         const followupItem4 = {
           partner_id: 'psl',
-          partner_name: 'PSL',
           item_type: 'OperationTranquilliteVacances',
           item_external_id: '45',
           status_id: 'wip',
@@ -505,6 +504,7 @@ describe('/followup.ts', () => {
           milestone_end_date: null,
           events: [],
           title: 'Opération Tranquillité Vacances',
+          subheading: 'subheading',
           description: 'Votre demande est en brouillon.',
           icon: 'icon',
           is_archived: true,
@@ -514,7 +514,6 @@ describe('/followup.ts', () => {
         };
         const followupItem5 = {
           partner_id: 'psl',
-          partner_name: 'PSL',
           item_type: 'OperationTranquilliteVacances',
           item_external_id: '46',
           status_id: 'closed',
@@ -523,6 +522,7 @@ describe('/followup.ts', () => {
           milestone_end_date: null,
           events: [],
           title: 'Opération Tranquillité Vacances',
+          subheading: 'subheading',
           description: 'Votre demande est en brouillon.',
           icon: 'icon',
           is_archived: true,
@@ -557,7 +557,6 @@ describe('/followup.ts', () => {
       vi.stubEnv('TZ', 'Europe/Paris');
       const followupItem1 = {
         partner_id: 'psl',
-        partner_name: 'PSL',
         item_type: 'OperationTranquilliteVacances',
         item_external_id: '42',
         status_id: 'new',
@@ -566,6 +565,7 @@ describe('/followup.ts', () => {
         milestone_end_date: null,
         events: [],
         title: 'Opération Tranquillité Vacances',
+        subheading: 'subheading',
         description: 'Votre demande est en brouillon.',
         icon: 'icon',
         is_archived: false,
@@ -575,7 +575,6 @@ describe('/followup.ts', () => {
       };
       const followupItem2 = {
         partner_id: 'psl',
-        partner_name: 'PSL',
         item_type: 'OperationTranquilliteVacances',
         item_external_id: '43',
         status_id: 'closed',
@@ -584,6 +583,7 @@ describe('/followup.ts', () => {
         milestone_end_date: null,
         events: [],
         title: 'Opération Tranquillité Vacances',
+        subheading: 'subheading',
         description: 'Votre demande est terminée.',
         icon: 'icon',
         is_archived: true,
@@ -606,12 +606,12 @@ describe('/followup.ts', () => {
         followup.items[0].equals(
           new FollowupItem(
             'psl',
-            'PSL',
             'OperationTranquilliteVacances',
             '42',
             'notifications',
             [],
             'Opération Tranquillité Vacances',
+            'subheading',
             'Votre demande est en brouillon.',
             'icon',
             new Date('2026-02-23T15:55:00.000Z'),
@@ -627,12 +627,12 @@ describe('/followup.ts', () => {
         followup.archived_items[0].equals(
           new FollowupItem(
             'psl',
-            'PSL',
             'OperationTranquilliteVacances',
             '43',
             'notifications',
             [],
             'Opération Tranquillité Vacances',
+            'subheading',
             'Votre demande est terminée.',
             'icon',
             new Date('2026-02-22T15:55:00.000Z'),

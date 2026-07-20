@@ -15,12 +15,12 @@ describe('/+page.ts', () => {
     );
     const nonArchivedItem = new FollowupItem(
       'partner',
-      'partner-name',
       'type',
       'id1',
       'notifications',
       [event],
       'Opération Tranquillité Vacances',
+      'subheading',
       'Votre demande est en cours de traitement.',
       'icon',
       new Date('2026-02-22T15:55:00.000Z'),
@@ -31,12 +31,12 @@ describe('/+page.ts', () => {
     );
     const archivedItem = new FollowupItem(
       'partner',
-      'partner-name',
       'type',
       'id2',
       'notifications',
       [event],
       'Opération Tranquillité Vacances',
+      'subheading',
       'Votre demande est terminée.',
       'icon',
       new Date('2026-02-20T15:55:00.000Z'),
@@ -77,12 +77,12 @@ describe('/+page.ts', () => {
     );
     const nonArchivedItem = new FollowupItem(
       'partner',
-      'partner-name',
       'type',
       'id1',
       'notifications',
       [event],
       'Opération Tranquillité Vacances',
+      'subheading',
       'Votre demande est en cours de traitement.',
       'icon',
       new Date('2026-02-22T15:55:00.000Z'),
@@ -93,12 +93,12 @@ describe('/+page.ts', () => {
     );
     const archivedItem = new FollowupItem(
       'partner',
-      'partner-name',
       'type',
       'id2',
       'notifications',
       [event],
       'Opération Tranquillité Vacances',
+      'subheading',
       'Votre demande est terminée.',
       'icon',
       new Date('2026-02-20T15:55:00.000Z'),

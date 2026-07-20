@@ -29,7 +29,6 @@ class FollowupItemEvent:
 @dataclass
 class FollowupItem:
     partner_id: str
-    partner_name: str
     item_type: str
     item_external_id: str
     status_id: ItemGenericStatus
@@ -39,6 +38,7 @@ class FollowupItem:
     events: list[FollowupItemEvent]
 
     title: str
+    subheading: str
     description: str
     icon: str
     external_url: str | None
@@ -67,7 +67,6 @@ class FollowupItem:
         events = cls.build_events(notifications)
         return cls(
             partner_id=last_notification.partner_id,
-            partner_name=partner_name,
             item_type=last_notification.item_type,
             item_external_id=last_notification.item_id,
             status_id=status_id,
@@ -76,6 +75,7 @@ class FollowupItem:
             milestone_end_date=last_notification.item_milestone_end_date,
             events=events,
             title=last_notification.content_title,
+            subheading=last_notification.content_subheading or partner_name,
             description=description,
             icon=last_notification.icon or "",
             # last external_url seen

@@ -43,7 +43,7 @@
       <h1 class="fr-h2 fr-mb-2v">{item.title}</h1>
     </div>
 
-    <p class="demarche--subheading fr-mb-2v">{item.partner_name}</p>
+    <p class="demarche--subheading fr-mb-2v">{item.subheading}</p>
     <p class="demarche--item-external-id">
       <span>référence dossier :</span>
       {item.item_external_id}

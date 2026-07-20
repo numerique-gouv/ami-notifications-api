@@ -10,12 +10,12 @@ describe('/FollowupItem.svelte', () => {
     // Given
     const item = new Item(
       'partner',
-      'partner-name',
       'type',
       'id',
       'notifications',
       [],
       'Opération Tranquillité Vacances',
+      'subheading',
       'Votre demande est terminée.',
       'icon',
       new Date('2026-02-20T15:55:00.000Z'),
@@ -37,12 +37,12 @@ describe('/FollowupItem.svelte', () => {
     // Given
     const item = new Item(
       'partner',
-      'partner-name',
       'type',
       'id',
       'notifications',
       [],
       'Opération Tranquillité Vacances',
+      'subheading',
       'Votre demande est terminée.',
       'icon',
       new Date('2026-02-20T15:55:00.000Z'),
@@ -67,12 +67,12 @@ describe('/FollowupItem.svelte', () => {
       // Given
       const item = new Item(
         'partner',
-        'partner-name',
         'type',
         'id1',
         'notifications',
         [],
         'Opération Tranquillité Vacances',
+        'subheading',
         'Votre demande est terminée.',
         'icon',
         new Date('2026-02-20T15:55:00.000Z'),
@@ -109,12 +109,12 @@ describe('/FollowupItem.svelte', () => {
       // Given
       const item = new Item(
         'partner',
-        'partner-name',
         'type',
         'id1',
         'notifications',
         [],
         'Opération Tranquillité Vacances',
+        'subheading',
         'Votre demande est en cours de traitement 1.',
         'icon',
         new Date('2026-02-22T15:55:00.000Z'),
@@ -139,12 +139,12 @@ describe('/FollowupItem.svelte', () => {
       // Given
       const item = new Item(
         'partner',
-        'partner-name',
         'type',
         'id1',
         'notifications',
         [],
         'Opération Tranquillité Vacances',
+        'subheading',
         'Votre demande est en cours de traitement 1.',
         'icon',
         new Date('2026-02-22T15:55:00.000Z'),
