@@ -4,7 +4,7 @@ import { Followup, FollowupItem, FollowupItemEvent } from '$lib/followup';
 import { load } from './+page';
 
 describe('/+page.ts', () => {
-  test('load should return non archived item when url does not have is_archived query param', async () => {
+  test('load should return non archived item when item is not archived', async () => {
     // Given
     window.location.hash = '#/followup';
 
@@ -66,7 +66,7 @@ describe('/+page.ts', () => {
     // @ts-expect-error
     expect(result.item).toEqual(nonArchivedItem);
   });
-  test('load should return archived item when url has is_archived query param', async () => {
+  test('load should return archived item when item is archived', async () => {
     // Given
     window.location.hash = '#/followup/archived';
 

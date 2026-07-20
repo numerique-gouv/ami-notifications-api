@@ -130,11 +130,7 @@ export class FollowupItem {
   }
 
   get itemDetailPageUrl(): string {
-    const link = `/#/followup/item/${this.partner_id}/${this.item_type}/${this.item_external_id}`;
-    if (!this.is_archived) {
-      return link;
-    }
-    return `${link}?is_archived=${this.is_archived}`;
+    return `/#/followup/item/${this.partner_id}/${this.item_type}/${this.item_external_id}`;
   }
 
   async archive(): Promise<boolean> {
