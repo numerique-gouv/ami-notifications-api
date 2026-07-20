@@ -14,7 +14,6 @@
   let { params } = $props();
 
   let backUrl: string = '/#/services';
-  let serviceUrl: string = $state('');
   let service: ServicesItem | null = $state(null);
   let followup: Followup | null = $state(null);
   let hasNonArchivedItems: boolean = $state(false);
@@ -37,8 +36,6 @@
       return;
     }
 
-    const _serviceUrl = await getServiceUrl(_service);
-
     followup = await buildFollowup();
     const _hasNonArchivedItems = followup.hasNonArchivedItems(
       _service.partner_id,
@@ -60,24 +57,17 @@
     }
 
     // assign variables after all await calls
-    serviceUrl = _serviceUrl;
     service = _service;
     hasNonArchivedItems = _hasNonArchivedItems;
     date = _date;
   });
 
-  const getServiceUrl = async (_service: ServicesItem) => {
-    return await _service.getServiceUrl();
-  };
-
   const gotoService = async () => {
     if (service === null) {
       return;
     }
-    serviceUrl = await getServiceUrl(service);
-    if (serviceUrl) {
-      AMIGoto(serviceUrl, service.with_silent_login);
-    }
+    const url = await service.getServiceUrl();
+    AMIGoto(url, service.with_silent_login);
   };
 
   const gotoFollowup = () => {
@@ -119,7 +109,6 @@
             type="button"
             onclick={gotoService}
             data-testid="service-button"
-            disabled="{!serviceUrl}"
           >
             Faire une nouvelle démarche
           </button>
@@ -129,7 +118,6 @@
             type="button"
             onclick={gotoService}
             data-testid="service-button"
-            disabled="{!serviceUrl}"
           >
             Bénéficier de ce service
           </button>

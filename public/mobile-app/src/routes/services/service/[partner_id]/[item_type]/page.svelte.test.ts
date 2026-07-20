@@ -79,36 +79,6 @@ describe('/+page.svelte', () => {
       expect(screen.queryByText('Sécurisez votre logement !')).toBeNull();
     });
   });
-  test('should call getServiceUrl from ServicesItem', async () => {
-    // Given
-    await userStore.login(mockUserInfo);
-    vi.spyOn(servicesMethods, 'buildServices').mockResolvedValue(new Services());
-    vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(new Followup());
-    vi.spyOn(Services.prototype, 'find').mockReturnValueOnce(
-      new ServicesItem(
-        'psl',
-        'OperationTranquilliteVacances',
-        'Opération Tranquillité Vacances',
-        'Sécurisez votre logement !',
-        'Vous partez en vacances ? **Securisez votre logement.**',
-        'fake-link',
-        true
-      )
-    );
-    const spy = vi
-      .spyOn(ServicesItem.prototype, 'getServiceUrl')
-      .mockResolvedValue('http://external-url');
-
-    // When
-    render(Page, {
-      props: { params: { partner_id: 'foo', item_type: 'bar' } },
-    });
-
-    // Then
-    await waitFor(() => {
-      expect(spy).toHaveBeenCalledTimes(1);
-    });
-  });
   test('should render a Back button', async () => {
     // Given
     await userStore.login(mockUserInfo);
@@ -348,41 +318,6 @@ describe('/+page.svelte', () => {
           expect(spyHasNonArchivedItems).toHaveBeenCalledWith('psl', 'MonService');
         });
       });
-
-      test('should disable button when service url is empty', async () => {
-        // Given
-        await userStore.login(mockUserInfo);
-        vi.spyOn(servicesMethods, 'buildServices').mockResolvedValue(new Services());
-        vi.spyOn(Services.prototype, 'find').mockReturnValueOnce(
-          new ServicesItem(
-            'partner',
-            'OperationTranquilliteVacances',
-            'Opération Tranquillité Vacances',
-            'Sécurisez votre logement !',
-            'Vous partez en vacances ? **Securisez votre logement.**',
-            '',
-            true
-          )
-        );
-        const spyUrl = vi
-          .spyOn(ServicesItem.prototype, 'getServiceUrl')
-          .mockResolvedValue('');
-        vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(new Followup());
-        vi.spyOn(Followup.prototype, 'hasNonArchivedItems').mockReturnValue(false);
-
-        // When
-        render(Page, {
-          props: { params: { partner_id: 'foo', item_type: 'bar' } },
-        });
-
-        // Then
-        await waitFor(async () => {
-          const serviceButton = screen.getByTestId('service-button');
-          expect(serviceButton).toBeDisabled();
-          expect(screen.queryByTestId('followup-button')).toBeNull();
-          expect(spyUrl).toHaveBeenCalledTimes(1);
-        });
-      });
     });
     describe('buttons onclick', () => {
       describe('followup button', () => {
@@ -401,9 +336,6 @@ describe('/+page.svelte', () => {
               true
             )
           );
-          const spyUrl = vi
-            .spyOn(ServicesItem.prototype, 'getServiceUrl')
-            .mockResolvedValue('http://external-url');
           vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(new Followup());
           vi.spyOn(Followup.prototype, 'hasNonArchivedItems').mockReturnValue(true);
           const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue();
@@ -419,7 +351,6 @@ describe('/+page.svelte', () => {
           });
 
           // Then
-          expect(spyUrl).toHaveBeenCalledTimes(1);
           expect(spy).toHaveBeenCalledTimes(1);
           expect(spy).toHaveBeenCalledWith('/#/followup');
         });
@@ -463,7 +394,7 @@ describe('/+page.svelte', () => {
             });
 
             // Then
-            expect(spyUrl).toHaveBeenCalledTimes(2);
+            expect(spyUrl).toHaveBeenCalledTimes(1);
             expect(spy).toHaveBeenCalledTimes(1);
             expect(spy).toHaveBeenCalledWith('http://external-url', false);
           });
@@ -504,7 +435,7 @@ describe('/+page.svelte', () => {
             });
 
             // Then
-            expect(spyUrl).toHaveBeenCalledTimes(2);
+            expect(spyUrl).toHaveBeenCalledTimes(1);
             expect(spy).toHaveBeenCalledTimes(1);
             expect(spy).toHaveBeenCalledWith('http://external-url', false);
           });
@@ -547,7 +478,7 @@ describe('/+page.svelte', () => {
             });
 
             // Then
-            expect(spyUrl).toHaveBeenCalledTimes(2);
+            expect(spyUrl).toHaveBeenCalledTimes(1);
             expect(spy).toHaveBeenCalledTimes(1);
             expect(spy).toHaveBeenCalledWith('http://external-url', true);
           });
@@ -588,7 +519,7 @@ describe('/+page.svelte', () => {
             });
 
             // Then
-            expect(spyUrl).toHaveBeenCalledTimes(2);
+            expect(spyUrl).toHaveBeenCalledTimes(1);
             expect(spy).toHaveBeenCalledTimes(1);
             expect(spy).toHaveBeenCalledWith('http://external-url', true);
           });
