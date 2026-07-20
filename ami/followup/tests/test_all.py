@@ -27,7 +27,6 @@ def test_get_followup(
         items=[
             FollowupItem(
                 partner_id="psl",
-                partner_name="PSL",
                 item_type="OperationTranquilliteVacances",
                 item_external_id="44",
                 status_id=ItemGenericStatus.CLOSED,
@@ -48,6 +47,7 @@ def test_get_followup(
                     ),
                 ],
                 title="Notification title 6",
+                subheading="Notification subheading 6",
                 description="notification 6",
                 icon="icon 6",
                 external_url="http://bar.com",
@@ -57,7 +57,6 @@ def test_get_followup(
             ),
             FollowupItem(
                 partner_id="psl",
-                partner_name="PSL",
                 item_type="OperationTranquilliteVacances",
                 item_external_id="43",
                 status_id=ItemGenericStatus.NEW,
@@ -66,6 +65,7 @@ def test_get_followup(
                 milestone_end_date=None,
                 events=[],
                 title="Notification title 4",
+                subheading="Notification subheading 4",
                 description="notification 4",
                 icon="icon 4",
                 external_url="http://foo.com",
@@ -85,7 +85,6 @@ def test_get_followup(
             "items": [
                 {
                     "partner_id": "psl",
-                    "partner_name": "PSL",
                     "item_type": "OperationTranquilliteVacances",
                     "item_external_id": "44",
                     "status_id": "closed",
@@ -100,6 +99,7 @@ def test_get_followup(
                         },
                     ],
                     "title": "Notification title 6",
+                    "subheading": "Notification subheading 6",
                     "description": "notification 6",
                     "icon": "icon 6",
                     "external_url": "http://bar.com",
@@ -109,7 +109,6 @@ def test_get_followup(
                 },
                 {
                     "partner_id": "psl",
-                    "partner_name": "PSL",
                     "item_type": "OperationTranquilliteVacances",
                     "item_external_id": "43",
                     "status_id": "new",
@@ -118,6 +117,7 @@ def test_get_followup(
                     "milestone_end_date": None,
                     "events": [],
                     "title": "Notification title 4",
+                    "subheading": "Notification subheading 4",
                     "description": "notification 4",
                     "icon": "icon 4",
                     "external_url": "http://foo.com",

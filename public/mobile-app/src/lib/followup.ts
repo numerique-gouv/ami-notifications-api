@@ -35,13 +35,13 @@ export class FollowupItemEvent {
 export class FollowupItem {
   constructor(
     private _partner_id: string,
-    private _partner_name: string,
     private _item_type: string,
     private _item_external_id: string,
     private _source: string,
     private _events: FollowupItemEvent[],
 
     private _title: string,
+    private _subheading: string,
     private _description: string,
     private _icon: string,
 
@@ -69,10 +69,6 @@ export class FollowupItem {
     return this._partner_id;
   }
 
-  get partner_name(): string {
-    return this._partner_name;
-  }
-
   get item_type(): string {
     return this._item_type;
   }
@@ -91,6 +87,10 @@ export class FollowupItem {
 
   get title(): string {
     return this._title;
+  }
+
+  get subheading(): string {
+    return this._subheading;
   }
 
   get description(): string {
@@ -181,12 +181,12 @@ export class Followup {
 
     return new FollowupItem(
       item.partner_id,
-      item.partner_name,
       item.item_type,
       item.item_external_id,
       'notifications',
       events,
       item.title,
+      item.subheading,
       item.description,
       item.icon,
       item.updated_at,

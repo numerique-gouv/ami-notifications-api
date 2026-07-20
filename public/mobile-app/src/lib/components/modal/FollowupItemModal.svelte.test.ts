@@ -18,12 +18,12 @@ describe('/FollowupItemModal.svelte', () => {
 
     item = new FollowupItem(
       'partner',
-      'partner-name',
       'type',
       'id1',
       'notifications',
       [],
       'Opération Tranquillité Vacances 1',
+      'subheading',
       'Votre demande est en cours de traitement.',
       'icon',
       new Date('2026-02-22T15:55:00.000Z'),
@@ -37,12 +37,12 @@ describe('/FollowupItemModal.svelte', () => {
       item,
       new FollowupItem(
         'partner',
-        'partner-name',
         'type',
         'id2',
         'notifications',
         [],
         'Opération Tranquillité Vacances 2',
+        'subheading',
         'Votre demande est en cours de traitement.',
         'icon',
         new Date('2026-02-22T15:55:00.000Z'),

@@ -216,6 +216,7 @@ def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> 
         user_id=user.id,
         content_body="other notification",
         content_private_body="some private body content",
+        content_subheading="content subheading",
         content_title="Other Notification title",
         content_icon="dinum-ami-icon",
         item_generic_status="closed",
@@ -231,7 +232,6 @@ def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> 
     assert result == [
         FollowupItem(
             partner_id="dinum-ami",
-            partner_name="AMI",
             item_type="Other",
             item_external_id="52",
             status_id=ItemGenericStatus.CLOSED,
@@ -246,6 +246,7 @@ def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> 
                 ),
             ],
             title="Other Notification title",
+            subheading="content subheading",
             description="other notification\n\nsome private body content",
             icon="dinum-ami-icon",
             external_url=None,
@@ -255,7 +256,6 @@ def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> 
         ),
         FollowupItem(
             partner_id="dinum-ami",
-            partner_name="AMI",
             item_type="Other",
             item_external_id="42",
             status_id=ItemGenericStatus.CLOSED,
@@ -270,6 +270,7 @@ def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> 
                 ),
             ],
             title="Other Notification title",
+            subheading="AMI",
             description="other notification",
             icon="fr-icon-flag-fill",
             external_url=None,
@@ -279,7 +280,6 @@ def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> 
         ),
         FollowupItem(
             partner_id="psl",
-            partner_name="PSL",
             item_type="OperationTranquilliteVacances",
             item_external_id="44",
             status_id=ItemGenericStatus.CLOSED,
@@ -299,6 +299,7 @@ def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> 
                 ),
             ],
             title="Notification title 6",
+            subheading="PSL",
             description="notification 6",
             icon="fr-icon-flag-fill",
             external_url="http://bar.com",
@@ -308,7 +309,6 @@ def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> 
         ),
         FollowupItem(
             partner_id="psl",
-            partner_name="PSL",
             item_type="OtherOperationTranquilliteVacances",
             item_external_id="43",
             status_id=ItemGenericStatus.NEW,
@@ -323,6 +323,7 @@ def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> 
                 ),
             ],
             title="Notification title 4",
+            subheading="PSL",
             description="notification 4",
             icon="fr-icon-mail-fill",
             external_url="http://foo.com",
@@ -332,7 +333,6 @@ def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> 
         ),
         FollowupItem(
             partner_id="psl",
-            partner_name="PSL",
             item_type="OperationTranquilliteVacances",
             item_external_id="42",
             status_id=ItemGenericStatus.WIP,
@@ -357,6 +357,7 @@ def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> 
                 ),
             ],
             title="Notification title 3",
+            subheading="PSL",
             description="notification 3",
             icon="fr-icon-eye-fill",
             external_url=None,
@@ -372,7 +373,6 @@ def test_get_notifications_source(user: User, monkeypatch: pytest.MonkeyPatch) -
     items = [
         FollowupItem(
             partner_id="psl",
-            partner_name="PSL",
             item_type="OperationTranquilliteVacances",
             item_external_id="44",
             status_id=ItemGenericStatus.CLOSED,
@@ -381,6 +381,7 @@ def test_get_notifications_source(user: User, monkeypatch: pytest.MonkeyPatch) -
             milestone_end_date=datetime.datetime.now(datetime.timezone.utc),
             events=[],
             title="Notification title 6",
+            subheading="PSL",
             description="notification 6",
             icon="",
             external_url="http://bar.com",
@@ -390,7 +391,6 @@ def test_get_notifications_source(user: User, monkeypatch: pytest.MonkeyPatch) -
         ),
         FollowupItem(
             partner_id="psl",
-            partner_name="PSL",
             item_type="OperationTranquilliteVacances",
             item_external_id="43",
             status_id=ItemGenericStatus.NEW,
@@ -399,6 +399,7 @@ def test_get_notifications_source(user: User, monkeypatch: pytest.MonkeyPatch) -
             milestone_end_date=None,
             events=[],
             title="Notification title 4",
+            subheading="PSL",
             description="notification 4",
             icon="",
             external_url="http://foo.com",
