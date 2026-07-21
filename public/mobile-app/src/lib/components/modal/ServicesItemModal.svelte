@@ -25,11 +25,11 @@
   };
 </script>
 
-<ItemModal onClose={closeModal}>
+<ItemModal onClose={closeModal} centered={true}>
   {#snippet header()}
-    <h2 class="services-item-modal-header" data-testid="services-item-modal-header">
+    <h4 class="services-item-modal-header" data-testid="services-item-modal-header">
       Que voulez-vous faire&nbsp;?
-    </h2>
+    </h4>
     <p>Vous avez commencé ou réalisé une ou plusieurs {item?.title}</p>
   {/snippet}
   {#snippet footer()}
@@ -53,3 +53,16 @@
     </div>
   {/snippet}
 </ItemModal>
+
+<style>
+  .service-action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    button {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+    }
+  }
+</style>
