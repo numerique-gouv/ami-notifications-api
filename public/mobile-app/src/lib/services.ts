@@ -11,6 +11,7 @@ import {
   PARAMETER_KEYS,
   retrieveServices,
 } from '$lib/api-services';
+import { getVersion } from '$lib/nativeInfos';
 import { userStore } from '$lib/state/User.svelte';
 
 export class ServicesItem {
@@ -81,6 +82,7 @@ export class ServicesItem {
       '{fc_hash}',
       localStorage.getItem('user_fc_hash') || ''
     );
+    _serviceUrl = _serviceUrl.replace('{app_version_id}', getVersion());
 
     // and try to replace back values
     const parametersRegexp = new RegExp(
