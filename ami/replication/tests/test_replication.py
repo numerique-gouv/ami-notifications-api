@@ -16,6 +16,7 @@ def test_anonymized_user_does_not_have_fc_hash(user: User) -> None:
     anonymized = AnonymizedUser.from_user(user)
     assert not hasattr(anonymized, "fc_hash")
     assert hasattr(anonymized, "last_logged_in")
+    assert hasattr(anonymized, "consent_datetime")
     assert hasattr(anonymized, "created_at")
     assert hasattr(anonymized, "updated_at")
 
@@ -27,6 +28,7 @@ def test_replicate_anonymized_users(two_users: list[User]) -> None:
     for user in two_users:
         anonymized = AnonymizedUser.objects.get(id=user.id)
         assert anonymized.last_logged_in == user.last_logged_in
+        assert anonymized.consent_datetime == user.consent_datetime
         assert anonymized.created_at == user.created_at
         assert anonymized.updated_at == user.updated_at
 
