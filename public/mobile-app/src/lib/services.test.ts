@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import * as apiServicesMethods from '$lib/api-services';
+import * as nativeInfosMethods from '$lib/nativeInfos';
 import { buildServices, Services, ServicesItem } from '$lib/services';
 import { userStore } from '$lib/state/User.svelte';
 import { mockAddress, mockUserInfo } from '$tests/utils';
@@ -100,6 +101,46 @@ describe('/services.ts', () => {
 
         // Then
         expect(url).equal('external-url?id_hash_fc=');
+      });
+      test('should replace {app_version_id}', async () => {
+        // Given
+        vi.spyOn(nativeInfosMethods, 'getVersion').mockReturnValue(
+          'fake-app-version-id'
+        );
+        const item = new ServicesItem(
+          'partner',
+          'type',
+          'title',
+          'short description',
+          'description',
+          'external-url?id_version={app_version_id}',
+          false
+        );
+
+        // When
+        const url = await item.getServiceUrl();
+
+        // Then
+        expect(url).equal('external-url?id_version=fake-app-version-id');
+      });
+      test('should replace {app_version_id} - app_version_id is empty', async () => {
+        // Given
+        vi.spyOn(nativeInfosMethods, 'getVersion').mockReturnValue('');
+        const item = new ServicesItem(
+          'partner',
+          'type',
+          'title',
+          'short description',
+          'description',
+          'external-url?id_version={app_version_id}',
+          false
+        );
+
+        // When
+        const url = await item.getServiceUrl();
+
+        // Then
+        expect(url).equal('external-url?id_version=');
       });
       test('should replace {back_param_otv_jwt_token}', async () => {
         // Given
