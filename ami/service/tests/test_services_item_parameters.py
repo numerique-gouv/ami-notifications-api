@@ -62,8 +62,21 @@ def test_get_services_items_parameters_otv_jwt_token(
 def test_get_services_items_parameters_otv_jwt_token_missing_payload(
     app,
     user: User,
+    monkeypatch: pytest.MonkeyPatch,
+    settings,
 ) -> None:
     login(app, user)
+
+    settings.PARTNERS_PSL_OTV_JWT_CERT_PFX_B64 = "foo"
+    settings.PARTNERS_PSL_OTV_JWE_PUBLIC_KEY = "bar"
+
+    def mock_generate_identity_token(*args: Any, **kwargs: Any):
+        return "fake-identity-token"
+
+    monkeypatch.setattr(
+        "ami.service.serializers.generate_identity_token",
+        mock_generate_identity_token,
+    )
 
     parameters_data = {
         "parameters": [
@@ -74,15 +87,28 @@ def test_get_services_items_parameters_otv_jwt_token_missing_payload(
         ]
     }
     response = app.post_json("/api/v1/users/data/services/item/parameters", parameters_data)
-    assert response.json == {"data": {"otv_jwt_token": ""}}
+    assert response.json == {"data": {"otv_jwt_token": "fake-identity-token"}}
 
 
 @pytest.mark.django_db
 def test_get_services_items_parameters_otv_jwt_token_empty_fields(
     app,
     user: User,
+    monkeypatch: pytest.MonkeyPatch,
+    settings,
 ) -> None:
     login(app, user)
+
+    settings.PARTNERS_PSL_OTV_JWT_CERT_PFX_B64 = "foo"
+    settings.PARTNERS_PSL_OTV_JWE_PUBLIC_KEY = "bar"
+
+    def mock_generate_identity_token(*args: Any, **kwargs: Any):
+        return "fake-identity-token"
+
+    monkeypatch.setattr(
+        "ami.service.serializers.generate_identity_token",
+        mock_generate_identity_token,
+    )
 
     parameters_data = {
         "parameters": [
@@ -99,7 +125,7 @@ def test_get_services_items_parameters_otv_jwt_token_empty_fields(
         ]
     }
     response = app.post_json("/api/v1/users/data/services/item/parameters", parameters_data)
-    assert response.json == {"data": {"otv_jwt_token": ""}}
+    assert response.json == {"data": {"otv_jwt_token": "fake-identity-token"}}
 
 
 @pytest.mark.django_db
