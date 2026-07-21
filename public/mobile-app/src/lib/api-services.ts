@@ -17,7 +17,7 @@ export type APIServices = {
 export const retrieveServices = async (
   date: Date | null = null
 ): Promise<APIServices> => {
-  const now = new Date(date || '');
+  const now = date || new Date();
   const filter_items = [];
   const apiServicesData = {
     internal: localStorage.getItem('internal_services_source') || '{}',
