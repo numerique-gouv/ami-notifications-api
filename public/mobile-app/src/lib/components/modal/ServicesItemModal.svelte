@@ -1,7 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { AMIGoto } from '$lib/ami-goto';
-  import BottomModal from '$lib/components/modal/BottomModal.svelte';
+  import CenteredModal from '$lib/components/modal/CenteredModal.svelte';
   import { type ServicesItem as ServicesItemType } from '$lib/services';
 
   interface Props {
@@ -25,11 +25,11 @@
   };
 </script>
 
-<BottomModal onClose={closeModal}>
+<CenteredModal onClose={closeModal}>
   {#snippet header()}
-    <h2 class="services-item-modal-header" data-testid="services-item-modal-header">
+    <h4 class="services-item-modal-header" data-testid="services-item-modal-header">
       Que voulez-vous faire&nbsp;?
-    </h2>
+    </h4>
     <p>Vous avez commencé ou réalisé une ou plusieurs {item?.title}</p>
   {/snippet}
   {#snippet footer()}
@@ -52,4 +52,17 @@
       </button>
     </div>
   {/snippet}
-</BottomModal>
+</CenteredModal>
+
+<style>
+  .service-action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    button {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+    }
+  }
+</style>
