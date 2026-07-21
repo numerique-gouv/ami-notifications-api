@@ -17,10 +17,23 @@ declare global {
     modal: DSFRModalInstance;
   }
 
+  interface NativeInfosData {
+    platform: 'android' | 'ios';
+    app_name: string;
+    version: string;
+    build: number;
+    environment: string;
+    mode: string;
+    device_id: string;
+  }
+
   interface Window {
     _paq?: (string | number | boolean | object)[][];
     NativeBridge?: {
       onEvent(eventName: string, data: unknown): void;
+    };
+    NativeInfos?: {
+      getInfos(): NativeInfosData;
     };
     dsfr: (element: Element | null) => DSFRInstance;
   }
