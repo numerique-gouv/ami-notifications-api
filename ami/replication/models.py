@@ -81,6 +81,7 @@ class AnonymizedUser(AnonymizedModel):
     # Fields synchronized from original class
     id = models.UUIDField(editable=False)
     last_logged_in = models.DateTimeField(blank=True, null=True)
+    consent_datetime = models.DateTimeField(blank=True, null=True)
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField()
 

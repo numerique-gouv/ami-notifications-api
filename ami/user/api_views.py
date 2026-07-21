@@ -5,14 +5,15 @@ from django.db import transaction
 from django.db.models import QuerySet
 from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import PolymorphicProxySerializer, extend_schema, inline_serializer
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED
 
 from ami.authentication.decorators import ami_login_required
+from ami.partner.auth import IsPartnerAuthenticated, PartnerBasicAuthentication
 
-from .models import Registration
+from .models import Registration, User
 from .serializers import (
     MobileAppSubscriptionSerializer,
     RegistrationCreateSerializer,
@@ -92,3 +93,12 @@ def unregister(
     )
     registration.delete()
     return Response(status=204)
+
+
+@api_view(["GET"])
+@authentication_classes([PartnerBasicAuthentication])
+@permission_classes([IsPartnerAuthenticated])
+def get_consent(request: Request, fc_hash: str) -> Response:
+    get_object_or_404(User.objects.filter(consent_datetime__isnull=False), fc_hash=fc_hash)
+
+    return Response({"Consent": "OK"})

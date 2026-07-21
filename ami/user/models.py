@@ -10,6 +10,7 @@ class User(models.Model):
 
     fc_hash = models.CharField(unique=True)
     last_logged_in = models.DateTimeField(blank=True, null=True)
+    consent_datetime = models.DateTimeField(blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
