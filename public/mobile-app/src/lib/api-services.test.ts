@@ -113,6 +113,34 @@ describe('/api-services', () => {
       });
     });
 
+    test('should get services items from API - no date param', async () => {
+      // Given
+      window.localStorage.setItem(
+        'internal_services_source',
+        JSON.stringify(apiServicesData.internal)
+      );
+      const spy = vi
+        .spyOn(globalThis, 'fetch')
+        .mockResolvedValue(
+          new Response(JSON.stringify(apiServicesData), { status: 200 })
+        );
+
+      // When
+      const result = await retrieveServices();
+
+      // Then
+      expect(spy).toHaveBeenCalledExactlyOnceWith(
+        'https://localhost:8000/api/v1/users/data/services?filter-items=internal',
+        { credentials: 'include' }
+      );
+      expect(result).toEqual({
+        internal: apiServicesData.internal.items,
+      });
+      expect(window.localStorage.getItem('internal_services_source')).toEqual(
+        JSON.stringify(apiServicesData.internal)
+      );
+    });
+
     test('should get services items from API - services items entry is missing in localstorage', async () => {
       for (const key of Object.keys(apiServicesData) as APIServicesItemsKey[]) {
         // Given
