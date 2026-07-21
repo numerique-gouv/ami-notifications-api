@@ -37,7 +37,7 @@ dependencies = [
 [dependency-groups]
 dev = [
     "cryptography>=48.0.1",
-    "daphne>=4.2.1",
+    "daphne>=4.2.2",
     "django-cors-headers>=4.9.0",
     "django-webtest>=1.9.14",
     "freezegun>=1.5.5",
