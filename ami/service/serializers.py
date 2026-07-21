@@ -13,11 +13,11 @@ class ServicesSerializer(DataclassSerializer):
 
 
 class OTVJWTTokenSerializer(serializers.Serializer):
-    preferred_username = serializers.CharField(allow_blank=True, required=False)
-    email = serializers.CharField(allow_blank=True, required=False)
-    address_city = serializers.CharField(allow_blank=True, required=False)
-    address_postcode = serializers.CharField(allow_blank=True, required=False)
-    address_name = serializers.CharField(allow_blank=True, required=False)
+    preferred_username = serializers.CharField(allow_blank=True, required=False, default="")
+    email = serializers.CharField(allow_blank=True, required=False, default="")
+    address_city = serializers.CharField(allow_blank=True, required=False, default="")
+    address_postcode = serializers.CharField(allow_blank=True, required=False, default="")
+    address_name = serializers.CharField(allow_blank=True, required=False, default="")
 
     @classmethod
     def get_parameter_value(cls, *, validated_data, user):
