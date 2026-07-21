@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { retrieveAgenda } from '$lib/api-agenda';
+import { dateToISO } from '$lib/utils';
 
 const apiAgendaData = {
   school_holidays: {
@@ -169,6 +170,50 @@ describe('/api-agenda', () => {
         public_holidays: apiAgendaData.public_holidays.items,
         elections: apiAgendaData.elections.items,
       });
+    });
+
+    test('should get agenda items from API - no date param', async () => {
+      // Given
+      window.localStorage.setItem(
+        'school_holidays_agenda_source',
+        JSON.stringify(apiAgendaData.school_holidays)
+      );
+      window.localStorage.setItem(
+        'public_holidays_agenda_source',
+        JSON.stringify(apiAgendaData.public_holidays)
+      );
+      window.localStorage.setItem(
+        'elections_agenda_source',
+        JSON.stringify(apiAgendaData.elections)
+      );
+      const spy = vi
+        .spyOn(globalThis, 'fetch')
+        .mockResolvedValue(
+          new Response(JSON.stringify(apiAgendaData), { status: 200 })
+        );
+
+      // When
+      const result = await retrieveAgenda();
+
+      // Then
+      expect(spy).toHaveBeenCalledExactlyOnceWith(
+        `https://localhost:8000/api/v1/users/data/agenda?current_date=${dateToISO(new Date())}&filter-items=school_holidays&filter-items=public_holidays&filter-items=elections`,
+        { credentials: 'include' }
+      );
+      expect(result).toEqual({
+        school_holidays: apiAgendaData.school_holidays.items,
+        public_holidays: apiAgendaData.public_holidays.items,
+        elections: apiAgendaData.elections.items,
+      });
+      expect(window.localStorage.getItem('school_holidays_agenda_source')).toEqual(
+        JSON.stringify(apiAgendaData.school_holidays)
+      );
+      expect(window.localStorage.getItem('public_holidays_agenda_source')).toEqual(
+        JSON.stringify(apiAgendaData.public_holidays)
+      );
+      expect(window.localStorage.getItem('elections_agenda_source')).toEqual(
+        JSON.stringify(apiAgendaData.elections)
+      );
     });
 
     test('should get agenda items from API - agenda items entry is missing in localstorage', async () => {

@@ -26,7 +26,7 @@ export type APIFollowup = {
 export const retrieveFollowup = async (
   date: Date | null = null
 ): Promise<APIFollowup> => {
-  const now = new Date(date || '');
+  const now = date || new Date();
   const filter_items = [];
   const apiFollowupData = {
     notifications: localStorage.getItem('notifications_followup_source') || '{}',
