@@ -22,6 +22,9 @@ declare global {
     NativeBridge?: {
       onEvent(eventName: string, data: unknown): void;
     };
+    NativeInfos?: {
+      getInfos(): string;
+    };
     dsfr: (element: Element | null) => DSFRInstance;
   }
 }

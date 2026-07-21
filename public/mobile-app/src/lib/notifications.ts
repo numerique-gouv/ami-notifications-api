@@ -1,7 +1,12 @@
 import { PUBLIC_API_URL } from '$env/static/public';
 import { apiFetch } from '$lib/auth';
+import { isNative } from '$lib/nativeEvents';
 import type { Registration } from '$lib/registration';
-import { registerDevice, unregisterDevice } from '$lib/registration';
+import {
+  registerDevice,
+  unregisterRegistrationsForDesktop,
+  unregisterRegistrationsForNative,
+} from '$lib/registration';
 import * as self from './notifications';
 
 export const PUBLIC_API_WS_URL = PUBLIC_API_URL.replace('https://', 'wss://').replace(
@@ -102,16 +107,15 @@ export const notificationEventsSocket = (
   return ws;
 };
 
-export const enableNotificationsAndUpdateLocalStorage =
-  async (): Promise<Registration | null> => {
-    let registration: Registration | null;
-    registration = await enableNotifications();
-    if (registration) {
-      localStorage.setItem('registration_id', registration.id);
-      localStorage.setItem('notifications_enabled', 'true');
-    }
-    return registration;
-  };
+export const enableNotifications = async () => {
+  // const deviceId = window.NativeInfos?.getInfos();
+  const deviceId = null;
+  if (isNative() && deviceId !== null) {
+    await disableNotificationsForNative(deviceId);
+  }
+
+  await enableNotificationsForDesktop();
+};
 
 export const subscribePush = async () => {
   const registration = await getServiceWorkerRegistration();
@@ -128,21 +132,27 @@ export const subscribePush = async () => {
   }
 };
 
-export const enableNotifications = async (): Promise<Registration | null> => {
+export const enableNotificationsForDesktop = async (): Promise<Registration | null> => {
   if (typeof Notification === 'undefined') {
     console.error('Notification API is not available in this browser');
     return null;
   }
   const permissionGranted = await Notification.requestPermission();
-  const registration = await getServiceWorkerRegistration();
-  if (!permissionGranted || !registration) {
+  const serviceWorkerRegistration = await getServiceWorkerRegistration();
+  if (!permissionGranted || !serviceWorkerRegistration) {
     console.log(
       'No notification: missing permission or missing service worker registration'
     );
   } else {
     const pushSubscription = await subscribePush();
     if (pushSubscription) {
-      return await registerDevice(pushSubscription);
+      let registration: Registration | null;
+      registration = await registerDevice(pushSubscription);
+      if (registration) {
+        localStorage.setItem('registration_id', registration.id);
+        localStorage.setItem('notifications_enabled', 'true');
+      }
+      return registration;
     }
   }
   return null;
@@ -162,7 +172,32 @@ export const unsubscribePush = async (pushSubscription: PushSubscription) => {
   }
 };
 
-export const disableNotifications = async (registrationId: string) => {
+export const disableNotificationsAtLogout = async () => {
+  // const deviceId = window.NativeInfos?.getInfos();
+  const deviceId = null;
+  if (isNative() && deviceId !== null) {
+    console.log(
+      'Disabling notifications on mobile app and unregistering device. deviceId when logging out:',
+      deviceId
+    );
+    await disableNotificationsForNative(deviceId);
+  } else {
+    const registrationId = localStorage.getItem('registration_id');
+    if (registrationId) {
+      console.log(
+        'Disabling notifications on desktop and unregistering device. registration_id when logging out:',
+        registrationId
+      );
+      await disableNotificationsForDesktop(registrationId);
+    }
+  }
+};
+
+export const disableNotificationsForNative = async (deviceId: string) => {
+  await unregisterRegistrationsForNative(deviceId);
+};
+
+export const disableNotificationsForDesktop = async (registrationId: string) => {
   if (typeof Notification === 'undefined') {
     console.error('Notification API is not available in this browser');
     return false;
@@ -177,11 +212,9 @@ export const disableNotifications = async (registrationId: string) => {
   } else {
     const pushSubscription = await registration.pushManager.getSubscription();
     if (pushSubscription) {
-      console.log('unregisterDevice');
-      await unregisterDevice(registrationId);
+      await unregisterRegistrationsForDesktop(registrationId);
       await unsubscribePush(pushSubscription);
     }
-    return pushSubscription;
   }
 };
 
