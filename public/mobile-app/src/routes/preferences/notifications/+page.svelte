@@ -5,7 +5,7 @@
   import Toggle from '$lib/components/Toggle.svelte';
   import { runOrNativeEvent } from '$lib/nativeEvents';
   import {
-    disableNotifications,
+    disableNotificationsForDesktop,
     enableNotificationsAndUpdateLocalStorage,
   } from '$lib/notifications';
   import type { Registration } from '$lib/registration';
@@ -42,7 +42,7 @@
     }
 
     if (registrationId) {
-      await disableNotifications(registrationId);
+      await disableNotificationsForDesktop(registrationId);
       localStorage.setItem('registration_id', '');
       localStorage.setItem('notifications_enabled', 'false');
     }
