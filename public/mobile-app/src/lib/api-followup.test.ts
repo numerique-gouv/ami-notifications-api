@@ -111,6 +111,34 @@ describe('/api-followup', () => {
       });
     });
 
+    test('should get followup items from API - no date param', async () => {
+      // Given
+      window.localStorage.setItem(
+        'notifications_followup_source',
+        JSON.stringify(followupItemsData.notifications)
+      );
+      const spy = vi
+        .spyOn(globalThis, 'fetch')
+        .mockResolvedValue(
+          new Response(JSON.stringify(followupItemsData), { status: 200 })
+        );
+
+      // When
+      const result = await retrieveFollowup();
+
+      // Then
+      expect(spy).toHaveBeenCalledExactlyOnceWith(
+        'https://localhost:8000/api/v1/users/data/followup?filter-items=notifications',
+        { credentials: 'include' }
+      );
+      expect(result).toEqual({
+        notifications: followupItemsData.notifications.items,
+      });
+      expect(window.localStorage.getItem('notifications_followup_source')).toEqual(
+        JSON.stringify(followupItemsData.notifications)
+      );
+    });
+
     test('should get followup items from API - followup items entry is missing in localstorage', async () => {
       for (const key of Object.keys(followupItemsData) as APIFollowupItemsKey[]) {
         // Given

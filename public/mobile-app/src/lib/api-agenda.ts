@@ -19,7 +19,7 @@ export type APIAgenda = {
 };
 
 export const retrieveAgenda = async (date: Date | null = null): Promise<APIAgenda> => {
-  const now = new Date(date || '');
+  const now = date || new Date();
   const today = new Date(now);
   today.setHours(0, 0, 0, 0);
   const current_date = dateToISO(today);
