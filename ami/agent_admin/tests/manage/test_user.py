@@ -15,7 +15,7 @@ from ami.user.models import Registration, User
 def test_search_user(app, admin_agent: Agent):
     app.set_user(admin_agent.user)
     response = app.get("/agent-admin/manage/user/")
-    assert "Gestion des usagers" in response
+    assert "Gestion des usagers" in response.pyquery("main").text()
 
 
 @pytest.mark.django_db
@@ -46,7 +46,7 @@ def test_search_user_without_agent_admin_auth(app) -> None:
 def test_detail_user(app, admin_agent: Agent, user: User):
     app.set_user(admin_agent.user)
     response = app.get(f"/agent-admin/manage/user/{user.id}/")
-    assert "Gestion des usagers" in response
+    assert "Gestion des usagers" in response.pyquery("main").text()
     assert response.forms["search-user"]["fc_hash"].value == user.fc_hash
     assert response.forms["search-user"].action == "/agent-admin/manage/user/"
     last_logged_in = date_format(user.last_logged_in, "d/m/Y à H\\Hi")
@@ -72,7 +72,7 @@ def test_detail_user(app, admin_agent: Agent, user: User):
 def test_detail_user_never_seen(app, admin_agent: Agent, never_seen_user: User):
     app.set_user(admin_agent.user)
     response = app.get(f"/agent-admin/manage/user/{never_seen_user.id}/")
-    assert "Gestion des usagers" in response
+    assert "Gestion des usagers" in response.pyquery("main").text()
     assert response.forms["search-user"]["fc_hash"].value == never_seen_user.fc_hash
     assert response.forms["search-user"].action == "/agent-admin/manage/user/"
     assert response.pyquery("p.user-details").text() == "dernier login\xa0:\nnon inscrit"
