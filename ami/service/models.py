@@ -12,9 +12,9 @@ class Service(models.Model):
     item_type = models.CharField()
 
     title = models.CharField()
-    short_description = models.TextField()
+    short_description = models.CharField("Service")
     description = models.TextField()
-    url = models.TextField()
+    url = models.CharField()
 
     with_silent_login = models.BooleanField(default=False)
 
