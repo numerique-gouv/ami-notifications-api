@@ -19,6 +19,13 @@ class Service(models.Model):
 
     with_silent_login = models.BooleanField(default=False)
 
+    restricted_to = models.CharField(
+        null=True,
+        blank=True,
+        help_text="fc_hash des utilisateurs autorisés à voir cette démarche dans le catalogue de démarches, séparés par un espace. "
+        "Laisser vide pour un accès à tous les utilisateurs.",
+    )
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

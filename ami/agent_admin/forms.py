@@ -185,9 +185,25 @@ class UserSearchForm(AMIDsfrBaseForm):
 
 
 class ServiceForm(forms.ModelForm, AMIDsfrBaseForm):
+    add_fc_hash = forms.CharField(
+        label="Ajouter un identifiant FC-Hash au champ « Restricted to »", required=False
+    )
+
     class Meta:
         model = Service
         exclude = []
         widgets = {
             "with_silent_login": ToggleInput,
+            "restricted_to": forms.Textarea(),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["add_fc_hash"].widget = AutocompleteInput(
+            autocomplete_url=reverse("agent-admin:api-users"),
+            attrs={"data-append-to": "restricted_to"},
+        )
+
+    def clean_restricted_to(self):
+        value = self.cleaned_data["restricted_to"] or ""
+        return " ".join(sorted(set(value.split(" "))))

@@ -62,3 +62,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 });
+
+document.addEventListener('DOMContentLoaded', () => {
+  const element = document.querySelector('#id_add_fc_hash');
+  if (element && element.dataset.appendTo) {
+    const target = document.querySelector(`#id_${element.dataset.appendTo}`);
+    if (target) {
+      element.addEventListener('autocomplete', () => {
+        target.value = `${target.value} ${element.value}`.trim();
+        element.value = '';
+      });
+    }
+  }
+});

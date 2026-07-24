@@ -16,6 +16,7 @@ def service() -> Service:
         short_description="Faites-nous votre retour",
         description="Pour tout retour sur l'application AMI, vous pouvez nous contacter par le biais de ce formulaire",
         url="https://localhost:8000/commencer/todo?id_hash_fc={fc_hash}&id_version={app_version_id}",
+        restricted_to="fake-fc-hash",
     )
 
 
@@ -69,6 +70,7 @@ def test_add_service(app, admin_agent: Agent) -> None:
     assert response.forms["service-form"]["description"].value == ""
     assert response.forms["service-form"]["url"].value == ""
     assert response.forms["service-form"]["with_silent_login"].value is None
+    assert response.forms["service-form"]["restricted_to"].value == ""
 
 
 @pytest.mark.django_db
@@ -99,6 +101,7 @@ def test_add_service_submit_success(app, admin_agent: Agent) -> None:
     response.forms["service-form"]["description"] = "**Démarche de changement d'adresse**"
     response.forms["service-form"]["url"] = "http://demarche-demenagement"
     response.forms["service-form"]["with_silent_login"] = True
+    response.forms["service-form"]["restricted_to"] = "fake-fc-hash another-fake-fc-hash"
 
     response = response.forms["service-form"].submit()
     assert response.headers["location"] == "/agent-admin/manage/service/"
@@ -111,9 +114,32 @@ def test_add_service_submit_success(app, admin_agent: Agent) -> None:
     assert service.description == "**Démarche de changement d'adresse**"
     assert service.url == "http://demarche-demenagement"
     assert service.with_silent_login is True
+    assert service.restricted_to == "another-fake-fc-hash fake-fc-hash"
 
     response = response.follow()
     assert response.pyquery(".fr-notice.success").text() == "La démarche a bien été ajoutée."
+
+
+@pytest.mark.django_db
+def test_add_service_submit_success_duplicated_restricted_to(app, admin_agent: Agent) -> None:
+    app.set_user(admin_agent.user)
+    response = app.get("/agent-admin/manage/service/add/")
+    assert Service.objects.count() == 0
+
+    response.forms["service-form"]["partner_id"] = "dinum-ami"
+    response.forms["service-form"]["item_type"] = "JeDéménage"
+    response.forms["service-form"]["title"] = "Je déménage"
+    response.forms["service-form"]["short_description"] = "Démarche de changement d'adresse"
+    response.forms["service-form"]["description"] = "**Démarche de changement d'adresse**"
+    response.forms["service-form"]["url"] = "http://demarche-demenagement"
+    response.forms["service-form"]["with_silent_login"] = True
+    response.forms["service-form"]["restricted_to"] = "duplicated-value duplicated-value"
+
+    response = response.forms["service-form"].submit()
+    assert response.headers["location"] == "/agent-admin/manage/service/"
+    assert Service.objects.count() == 1
+    service = Service.objects.get()
+    assert service.restricted_to == "duplicated-value"
 
 
 @pytest.mark.django_db
@@ -140,6 +166,7 @@ def test_edit_service(app, admin_agent: Agent, service: Service) -> None:
         == "https://localhost:8000/commencer/todo?id_hash_fc={fc_hash}&id_version={app_version_id}"
     )
     assert response.forms["service-form"]["with_silent_login"].value is None
+    assert response.forms["service-form"]["restricted_to"].value == "fake-fc-hash"
 
 
 @pytest.mark.django_db
@@ -158,6 +185,7 @@ def test_edit_service_submit_validation_errors(app, admin_agent: Agent, service:
     response.forms["service-form"]["short_description"].value = ""
     response.forms["service-form"]["description"].value = ""
     response.forms["service-form"]["url"].value = ""
+    response.forms["service-form"]["restricted_to"].value = ""
     response = response.forms["service-form"].submit()
     assert response.context["form"].errors == {
         "partner_id": ["Ce champ est obligatoire."],
@@ -181,6 +209,7 @@ def test_edit_service_submit_success(app, admin_agent: Agent, service: Service) 
     response.forms["service-form"]["description"] = "**Démarche de changement d'adresse**"
     response.forms["service-form"]["url"] = "http://demarche-demenagement"
     response.forms["service-form"]["with_silent_login"] = True
+    response.forms["service-form"]["restricted_to"] = "fake-fc-hash another-fake-fc-hash"
 
     response = response.forms["service-form"].submit()
     assert response.headers["location"] == "/agent-admin/manage/service/"
@@ -193,9 +222,26 @@ def test_edit_service_submit_success(app, admin_agent: Agent, service: Service) 
     assert service.description == "**Démarche de changement d'adresse**"
     assert service.url == "http://demarche-demenagement"
     assert service.with_silent_login is True
+    assert service.restricted_to == "another-fake-fc-hash fake-fc-hash"
 
     response = response.follow()
     assert response.pyquery(".fr-notice.success").text() == "La démarche a bien été modifiée."
+
+
+@pytest.mark.django_db
+def test_edit_service_submit_success_duplicated_value(
+    app, admin_agent: Agent, service: Service
+) -> None:
+    app.set_user(admin_agent.user)
+    response = app.get(f"/agent-admin/manage/service/{service.id}/")
+
+    response.forms["service-form"]["restricted_to"] = "duplicated-value duplicated-value"
+
+    response = response.forms["service-form"].submit()
+    assert response.headers["location"] == "/agent-admin/manage/service/"
+    assert Service.objects.count() == 1
+    service.refresh_from_db()
+    assert service.restricted_to == "duplicated-value"
 
 
 @pytest.mark.django_db
