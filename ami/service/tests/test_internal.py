@@ -11,10 +11,12 @@ from ami.service.schemas import (
     ServicesSource,
     ServicesSourceStatus,
 )
+from ami.user.models import User
 
 
 @pytest.mark.django_db
 def test_get_internal_data(
+    user: User,
     httpx_mock: HTTPXMock,
 ) -> None:
     service1 = Service.objects.create(
@@ -33,8 +35,18 @@ def test_get_internal_data(
         short_description="Faites-nous votre retour",
         description="Pour tout retour sur l'application AMI, vous pouvez nous contacter par le biais de ce formulaire",
         url="https://localhost:8000/commencer/todo?id_hash_fc={fc_hash}&id_version={app_version_id}",
+        restricted_to=f"{user.fc_hash} another-fake-fc-hash",
     )
-    result = get_internal_data()
+    Service.objects.create(
+        partner_id="dinum-dn",
+        item_type="Restricted",
+        title="Démarche restreinte",
+        short_description="Non publiée",
+        description="Cette démarche n'est pas encore visible pour tout le monde",
+        url="https://localhost:8000/",
+        restricted_to="another-fake-fc-hash",
+    )
+    result = get_internal_data(current_user=user)
     assert result == [
         ServicesItem(
             partner_id="dinum-dn",
@@ -61,7 +73,9 @@ def test_get_internal_data(
     ]
 
 
+@pytest.mark.django_db
 def test_get_internal_source(
+    user: User,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     items = [
@@ -90,5 +104,5 @@ def test_get_internal_source(
     ]
     data_mock = mock.Mock(return_value=items)
     monkeypatch.setattr("ami.service.data.internal.get_internal_data", data_mock)
-    result = get_internal_source()
+    result = get_internal_source(current_user=user)
     assert result == ServicesSource(status=ServicesSourceStatus.SUCCESS, items=items)
