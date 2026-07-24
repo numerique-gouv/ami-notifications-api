@@ -23,7 +23,16 @@ class Migration(migrations.Migration):
                         serialize=False,
                     ),
                 ),
-                ("partner_id", models.CharField()),
+                (
+                    "partner_id",
+                    models.CharField(
+                        choices=[
+                            ("psl", "PSL"),
+                            ("dinum-dn", "demarche.numerique.gouv.fr"),
+                            ("dinum-ami", "AMI"),
+                        ]
+                    ),
+                ),
                 ("item_type", models.CharField()),
                 ("title", models.CharField()),
                 ("short_description", models.TextField()),

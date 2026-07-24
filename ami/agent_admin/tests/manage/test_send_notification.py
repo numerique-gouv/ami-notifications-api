@@ -11,7 +11,7 @@ from ami.agent_admin.tests.utils import assert_query_fails_without_agent_notific
 def test_send_notification(app, notifications_agent: Agent) -> None:
     app.set_user(notifications_agent.user)
     response = app.get("/agent-admin/manage/notification/")
-    assert "Envoyer une notification" in response
+    assert "Envoyer une notification" in response.pyquery("main").text()
 
     assert response.forms["send-notification"]["recipient_fc_hash"].value == ""
     assert response.forms["send-notification"]["content_title"].value == ""

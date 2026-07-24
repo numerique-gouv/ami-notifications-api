@@ -2,21 +2,30 @@ import uuid
 
 from django.db import models
 
+from ami.partner.models import partners
 from ami.service.schemas import ServicesItem
+from ami.user.models import User
 
 
 class Service(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
-    partner_id = models.CharField()
+    partner_id = models.CharField(choices=[(p.id, p.name) for p in partners.values()])
     item_type = models.CharField()
 
     title = models.CharField()
-    short_description = models.TextField()
+    short_description = models.CharField("Service")
     description = models.TextField()
-    url = models.TextField()
+    url = models.CharField()
 
     with_silent_login = models.BooleanField(default=False)
+
+    restricted_to = models.CharField(
+        null=True,
+        blank=True,
+        help_text="fc_hash des utilisateurs autorisés à voir cette démarche dans le catalogue de démarches, séparés par un espace. "
+        "Laisser vide pour un accès à tous les utilisateurs.",
+    )
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -36,3 +45,10 @@ class Service(models.Model):
             created_at=self.created_at,
             updated_at=self.updated_at,
         )
+
+    def accessible_to(self, user: User):
+        if not self.restricted_to:
+            return True
+        if user.fc_hash in [r.strip() for r in self.restricted_to.split(" ")]:
+            return True
+        return False

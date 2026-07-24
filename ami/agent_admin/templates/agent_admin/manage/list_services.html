@@ -1,0 +1,32 @@
+{% extends "agent_admin/base.html" %}
+{% load dsfr_tags %}
+
+{% block content %}
+  <h1>Gestion du catalogue de démarches</h1>
+
+  <div class="fr-table fr-table--multiline">
+    <div class="fr-table__wrapper">
+      <div class="fr-table__container">
+        <div class="fr-table__content">
+          <table>
+            <tbody>
+              {% for service in object_list %}
+                <tr>
+                  <td>
+                    {{ service.title }}
+                    <br />
+                    <span class="fr-text--xs">{{ service.short_description }}</span>
+                  </td>
+                  <td>
+                    <a href="{% url 'agent-admin:manage:edit-service' service.id %}" class="fr-link"><span class="fr-text--xs">modifier</span></a>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% dsfr_button_group btn_group %}
+{% endblock %}
