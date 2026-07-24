@@ -1,10 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
-  import {
-    PUBLIC_API_URL,
-    PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED,
-  } from '$env/static/public';
+  import { AMIGoto } from '$lib/ami-goto';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import PageWrapper from '$lib/components/PageWrapper.svelte';
   import type { Followup } from '$lib/followup';
@@ -17,7 +14,6 @@
   let { params } = $props();
 
   let backUrl: string = '/#/services';
-  let serviceUrl: string = $state('');
   let service: ServicesItem | null = $state(null);
   let followup: Followup | null = $state(null);
   let hasNonArchivedItems: boolean = $state(false);
@@ -40,8 +36,6 @@
       return;
     }
 
-    const _serviceUrl = await getServiceUrl(_service);
-
     followup = await buildFollowup();
     const _hasNonArchivedItems = followup.hasNonArchivedItems(
       _service.partner_id,
@@ -63,35 +57,17 @@
     }
 
     // assign variables after all await calls
-    serviceUrl = _serviceUrl;
     service = _service;
     hasNonArchivedItems = _hasNonArchivedItems;
     date = _date;
   });
 
-  const getServiceUrl = async (_service: ServicesItem) => {
-    return await _service.getServiceUrl();
-  };
-
-  const AMIFILogin = async (url: string) => {
-    window.location.href = `${PUBLIC_API_URL}/silent-login-ami-fi?redirect_url=${encodeURIComponent(url)}`;
-  };
-
   const gotoService = async () => {
     if (service === null) {
       return;
     }
-    serviceUrl = await getServiceUrl(service);
-    if (serviceUrl) {
-      if (
-        PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED === 'true' &&
-        service.with_silent_login
-      ) {
-        AMIFILogin(serviceUrl);
-      } else {
-        window.location.href = serviceUrl;
-      }
-    }
+    const url = await service.getServiceUrl();
+    AMIGoto(url, service.with_silent_login);
   };
 
   const gotoFollowup = () => {
@@ -133,7 +109,6 @@
             type="button"
             onclick={gotoService}
             data-testid="service-button"
-            disabled="{!serviceUrl}"
           >
             Faire une nouvelle démarche
           </button>
@@ -143,7 +118,6 @@
             type="button"
             onclick={gotoService}
             data-testid="service-button"
-            disabled="{!serviceUrl}"
           >
             Bénéficier de ce service
           </button>

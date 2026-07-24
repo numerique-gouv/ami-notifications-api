@@ -4,10 +4,12 @@
   interface Props {
     header: Snippet;
     footer: Snippet;
+    centered?: boolean;
     onClose: () => void;
   }
-  let { header, footer, onClose }: Props = $props();
+  let { header, footer, centered = false, onClose }: Props = $props();
   let dialog: HTMLDialogElement | null = null;
+  let modalClass = $derived(centered ? 'dialog--centered' : '');
   const handleClose = () => {
     onClose();
   };
@@ -31,7 +33,7 @@
 </script>
 <dialog
   bind:this={dialog}
-  class="modal"
+  class="modal {modalClass}"
   onclick={handleBackdropClick}
   data-testid="item-modal"
 >
@@ -73,6 +75,22 @@
       border-radius: 100px;
       background-color: #79747e;
       margin: 0 auto 1.75rem;
+    }
+    &.dialog--centered {
+      top: 50%;
+      bottom: auto;
+      left: 50%;
+      right: auto;
+      transform: translate(-50%, -50%);
+      width: 90%;
+      border-radius: 1.75rem;
+      padding: 1.5rem;
+      .close-button {
+        display: none;
+      }
+      .drag-handle {
+        display: none;
+      }
     }
   }
   dialog::backdrop {
