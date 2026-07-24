@@ -110,7 +110,7 @@
     padding: 1.5rem 1rem;
     margin-bottom: 68px;
     &.archived {
-      padding-top: 0;
+      padding-top: 7rem;
       margin-bottom: 0;
     }
     .followup--title {

@@ -46,8 +46,8 @@
 </script>
 
 <PageWrapper>
-  {#snippet header({ scrolled })}
-    <NavWithBackButton title="Mon identité" {backUrl} {scrolled} />
+  {#snippet header()}
+    <NavWithBackButton title="Mon identité" {backUrl} />
   {/snippet}
 
   {#snippet content()}

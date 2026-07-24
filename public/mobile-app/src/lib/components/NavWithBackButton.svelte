@@ -7,27 +7,17 @@
     logo?: string;
     logoAlt?: string;
     title?: string;
-    scrolled?: boolean;
     children?: Snippet;
   }
-  let {
-    backUrl,
-    logo,
-    logoAlt,
-    children,
-    title,
-    scrolled: scrolledProp = undefined,
-  }: Props = $props();
-  let scrolledInternal = $state(false);
-  let scrolled = $derived(scrolledProp !== undefined ? scrolledProp : scrolledInternal);
+  let { backUrl, logo, logoAlt, children, title }: Props = $props();
+  let scrolled = $state(false);
 
   window.onscroll = () => {
-    scrolledInternal =
-      document.body.scrollTop > 20 || document.documentElement.scrollTop > 20;
+    scrolled = document.body.scrollTop > 20 || document.documentElement.scrollTop > 20;
   };
 </script>
 
-<nav class={[{scrolled}]}>
+<nav class={["fr-p-2w", {scrolled}]}>
   <div class="backbutton-wrapper">
     <BackButton {backUrl} />
   </div>
@@ -52,14 +42,18 @@
 
 <style>
   nav {
-    background-color: white;
-    padding: 1.5rem 1rem;
-    position: sticky;
+    position: fixed;
     top: 0;
+    left: 0;
+    width: 100%;
+    min-height: 4rem;
+    background-color: var(--background-default-grey);
     transition: 0.4s;
     z-index: 1000;
     .backbutton-wrapper {
       position: absolute;
+      left: 0.5rem;
+      z-index: 50;
     }
     .logo {
       display: flex;
@@ -73,10 +67,13 @@
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
-      padding-top: 2rem;
       transition: 0.4s;
+      transform: translateY(2.5rem);
       h1 {
         transition: 0.4s;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
       }
       &.withLogo {
         padding-top: 0;
@@ -91,8 +88,11 @@
         margin-bottom: 0;
       }
       .title {
-        padding-left: 2rem;
-        padding-top: 0rem;
+        transform: translateY(0);
+        h1 {
+          transform: translateX(2rem);
+          transition: 0.4s;
+        }
         &.withLogo {
           padding-left: 0;
         }

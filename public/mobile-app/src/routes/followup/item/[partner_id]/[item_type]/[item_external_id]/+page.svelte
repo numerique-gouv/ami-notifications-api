@@ -35,7 +35,9 @@
 
 {#if item}
   <div class="demarche-content-container">
-    <p class="fr-badge fr-badge--icon-left {checkedIcon} {item.status_id}">
+    <p
+      class="fr-badge am-badge--blue-dsfr fr-mb-1w fr-badge--icon-left {checkedIcon} {item.status_id}"
+    >
       {item.status_label}
     </p>
 
@@ -43,9 +45,11 @@
       <h1 class="fr-h2 fr-mb-2v">{item.title}</h1>
     </div>
 
-    <p class="demarche--subheading fr-mb-2v">{item.subheading}</p>
-    <p class="demarche--item-external-id">
-      <span>référence dossier :</span>
+    <p class="fr-text--sm am-text-mention-grey demarche--subheading fr-mb-1w">
+      {item.subheading}
+    </p>
+    <p class="fr-text--sm demarche--item-external-id">
+      <span class="am-text-mention-grey">référence dossier :</span>
       {item.item_external_id}
     </p>
 
@@ -63,8 +67,12 @@
       <ul class="demarche--events fr-m-0 fr-p-0">
         {#each item.events as event}
           <li class="fr-py-2v">
-            <p class="demarche--events--date fr-m-0 fr-p-0">{event.formattedDate}</p>
-            <p class="fr-m-0 fr-p-0">{event.description}</p>
+            <p
+              class="fr-text--sm am-text-mention-grey demarche--events--date fr-m-0 fr-p-0"
+            >
+              {event.formattedDate}
+            </p>
+            <p class="fr-text--sm fr-m-0 fr-p-0">{event.description}</p>
           </li>
         {/each}
       </ul>
@@ -74,22 +82,7 @@
 
 <style>
   div.demarche-content-container {
-    padding: 1rem;
-    .fr-badge {
-      margin-bottom: 0.5rem;
-      color: var(--text-active-blue-france);
-      background-color: var(--background-action-low-blue-france);
-    }
-    .demarche--subheading {
-      font-size: 14px;
-      color: var(--text-mention-grey);
-    }
-    .demarche--item-external-id {
-      font-size: 14px;
-      span {
-        color: var(--text-mention-grey);
-      }
-    }
+    padding: 4rem 1rem 1rem;
     button#external-item-button {
       width: 100%;
       display: flex;
@@ -99,12 +92,6 @@
       li {
         list-style: none;
         border-bottom: solid 1px var(--border-default-grey);
-        p {
-          font-size: 14px;
-        }
-        .demarche--events--date {
-          color: var(--text-mention-grey);
-        }
       }
     }
   }

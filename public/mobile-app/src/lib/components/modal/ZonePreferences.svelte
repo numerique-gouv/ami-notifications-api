@@ -12,7 +12,7 @@
   import { trackZoneCount } from '$lib/matomo';
   import { Preferences, type ZoneInfo } from '$lib/state/preferences';
   import { userStore } from '$lib/state/User.svelte';
-  import NavWithBackButton from './NavWithBackButton.svelte';
+  import NavWithBackButtonModal from './NavWithBackButtonModal.svelte';
   import ZonePreferencesFooter from './ZonePreferencesFooter.svelte';
 
   let backUrl: string = '/#/preferences';
@@ -205,7 +205,7 @@
 </script>
 
 {#if !zonesVisible}
-  <NavWithBackButton title="Commune" onClick={showZones} />
+  <NavWithBackButtonModal title="Commune" onClick={showZones} />
 {/if}
 
 <div class="preferences-city-search-container">
