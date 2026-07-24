@@ -17,6 +17,9 @@
                     <br />
                     <span class="fr-text--xs">{{ service.short_description }}</span>
                   </td>
+                  <td>
+                    <a href="{% url 'agent-admin:manage:edit-service' service.id %}" class="fr-link"><span class="fr-text--xs">modifier</span></a>
+                  </td>
                 </tr>
               {% endfor %}
             </tbody>
