@@ -42,3 +42,11 @@ def test_logout_bad_request_wrong_redirect_uri(
     app,
 ) -> None:
     app.get("/api/v1/fi/logout/", params={"post_logout_redirect_uri": "wrong-uri"}, status=400)
+
+
+def test_logout_flag_disabled(
+    settings,
+    app,
+) -> None:
+    settings.FI_SILENT_LOGIN_ENABLED = False
+    app.get("/api/v1/fi/logout/", status=404)

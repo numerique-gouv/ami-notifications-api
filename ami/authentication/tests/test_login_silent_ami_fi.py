@@ -123,3 +123,11 @@ def test_silent_login_ami_fi_error(
     response = app.get("/silent-login-ami-fi")
     redirected_url = response.headers["location"]
     assert redirected_url == "https://localhost:5173/#/technical-error"
+
+
+def test_login_ami_fi_flag_disabled(
+    settings,
+    app,
+) -> None:
+    settings.FI_SILENT_LOGIN_ENABLED = False
+    app.get("/silent-login-ami-fi", status=404)

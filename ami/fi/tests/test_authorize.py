@@ -282,6 +282,14 @@ def test_authorize_get_missing_cookie(
     app.get("/api/v1/fi/authorize/", params=authorize_data, status=403)
 
 
+def test_authorize_flag_disabled(
+    settings,
+    app,
+) -> None:
+    settings.FI_SILENT_LOGIN_ENABLED = False
+    app.get("/api/v1/fi/authorize/", status=404)
+
+
 @pytest.mark.django_db
 def test_authorize_post(
     settings,
