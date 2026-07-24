@@ -3,9 +3,9 @@ import '@testing-library/jest-dom/vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import type { WS as WSType } from 'vitest-websocket-mock';
 import WS from 'vitest-websocket-mock';
-import * as navigationMethods from '$app/navigation';
 import * as agendaMethods from '$lib/agenda';
 import { Agenda, Item } from '$lib/agenda';
+import * as AMIGotoMethods from '$lib/ami-goto';
 import * as followupMethods from '$lib/followup';
 import { Followup, FollowupItem } from '$lib/followup';
 import * as notificationsMethods from '$lib/notifications';
@@ -121,9 +121,7 @@ describe('/ConnectedHomepage.svelte', () => {
 
   test('should navigate to User profile page when user clicks on Mon profil button', async () => {
     // Given
-    const spy = vi
-      .spyOn(navigationMethods, 'goto')
-      .mockImplementation(() => Promise.resolve());
+    const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
     render(ConnectedHomepage);
 
     // When
@@ -139,9 +137,7 @@ describe('/ConnectedHomepage.svelte', () => {
 
   test('should navigate to Préférences page when user clicks on Préférences button', async () => {
     // Given
-    const spy = vi
-      .spyOn(navigationMethods, 'goto')
-      .mockImplementation(() => Promise.resolve());
+    const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
     render(ConnectedHomepage);
 
     // When
@@ -157,9 +153,7 @@ describe('/ConnectedHomepage.svelte', () => {
 
   test('should navigate to Contact page when user clicks on Nous contacter button', async () => {
     // Given
-    const spy = vi
-      .spyOn(navigationMethods, 'goto')
-      .mockImplementation(() => Promise.resolve());
+    const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
     render(ConnectedHomepage);
 
     // When

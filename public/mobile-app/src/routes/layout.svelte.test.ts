@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { render, waitFor } from '@testing-library/svelte';
 import type { Snippet } from 'svelte';
-import * as navigationMethods from '$app/navigation';
+import * as AMIGotoMethods from '$lib/ami-goto';
 import Layout from './+layout.svelte';
 
 vi.mock('$env/dynamic/public', () => ({
@@ -31,9 +31,7 @@ describe('+layout.svelte', () => {
     test('should redirect to /#/forbidden if the app is not whitelisted', async () => {
       // Given
       delete mockEnv.env.PUBLIC_WEBSITE_PUBLIC;
-      const spy = vi
-        .spyOn(navigationMethods, 'goto')
-        .mockImplementation(() => Promise.resolve());
+      const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
 
       // When
       render(Layout, { children: (() => {}) as unknown as Snippet });
@@ -47,9 +45,7 @@ describe('+layout.svelte', () => {
     test('should not redirect if PUBLIC_WEBSITE_PUBLIC is set', async () => {
       // Given
       mockEnv.env.PUBLIC_WEBSITE_PUBLIC = 'true';
-      const spy = vi
-        .spyOn(navigationMethods, 'goto')
-        .mockImplementation(() => Promise.resolve());
+      const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
 
       // When
       render(Layout, { children: (() => {}) as unknown as Snippet });
@@ -66,9 +62,7 @@ describe('+layout.svelte', () => {
       window.NativeBridge = {
         onEvent: vi.fn(),
       };
-      const spy = vi
-        .spyOn(navigationMethods, 'goto')
-        .mockImplementation(() => Promise.resolve());
+      const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
 
       // When
       render(Layout, { children: (() => {}) as unknown as Snippet });

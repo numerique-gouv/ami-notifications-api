@@ -1,8 +1,8 @@
 <script lang="ts">
   import { mount, onDestroy, onMount, unmount } from 'svelte';
   import { slide } from 'svelte/transition';
-  import { goto } from '$app/navigation';
   import { Address } from '$lib/address';
+  import { AMIGoto } from '$lib/ami-goto';
   import {
     callGeoAPI,
     cityToBAN,
@@ -66,7 +66,7 @@
 
   onMount(() => {
     if (!userStore.connected) {
-      goto('/');
+      AMIGoto('/');
     } else {
       refreshPreferences();
     }

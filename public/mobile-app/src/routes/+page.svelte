@@ -1,13 +1,13 @@
 <script lang="ts">
   import applicationSvg from '@gouvfr/dsfr/dist/artwork/pictograms/digital/application.svg';
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
   import { page } from '$app/state';
   import {
     PUBLIC_API_URL,
     PUBLIC_CONTACT_EMAIL,
     PUBLIC_CONTACT_URL,
   } from '$env/static/public';
+  import { AMIGoto } from '$lib/ami-goto';
 
   import ConnectedHomepage from '$lib/ConnectedHomepage.svelte';
   import Navigation from '$lib/components/Navigation.svelte';
@@ -45,14 +45,14 @@
       if (page.url.searchParams.has('is_logged_in')) {
         await initializeData(page.url.searchParams, userStore);
         if (page.url.searchParams.get('user_first_login') === 'true') {
-          goto('/#/welcome/zones');
+          AMIGoto('/#/welcome/zones');
         } else {
-          goto('/');
+          AMIGoto('/');
         }
       }
       if (page.url.searchParams.has('is_logged_out')) {
         toastStore.addToast('Vous avez bien été déconnecté(e)', 'success', 3000, false);
-        goto('/');
+        AMIGoto('/');
       }
     } catch (error) {
       console.error(error);
@@ -67,16 +67,16 @@
         mode: 'no-cors',
         cache: 'no-store',
       });
-      window.location.href = `${PUBLIC_API_URL}/login-france-connect`;
+      AMIGoto(`${PUBLIC_API_URL}/login-france-connect`);
     } catch {
-      goto('/#/network-error');
+      AMIGoto('/#/network-error');
     }
   };
 
   function dismissError() {
     error = '';
     error_description = '';
-    goto('/');
+    AMIGoto('/');
   }
 </script>
 

@@ -1,7 +1,6 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
-import { beforeEach, describe, expect, test, vi } from 'vitest';
-import * as navigationMethods from '$app/navigation';
-import * as envModule from '$env/static/public';
+import { describe, expect, test, vi } from 'vitest';
+import * as AMIGotoMethods from '$lib/ami-goto';
 import * as followupMethods from '$lib/followup';
 import { Followup } from '$lib/followup';
 import * as servicesMethods from '$lib/services';
@@ -11,26 +10,11 @@ import { expectBackButtonPresent, mockUserInfo } from '$tests/utils';
 import Page from './+page.svelte';
 
 describe('/+page.svelte', () => {
-  beforeEach(async () => {
-    vi.mock('$env/static/public', async (importOriginal) => {
-      const original = (await importOriginal()) as Record<string, unknown>;
-      return Promise.resolve({
-        ...original,
-        PUBLIC_API_URL: 'https://localhost:8000',
-        PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED: 'true',
-        PUBLIC_MATOMO_ENABLED: 'false',
-        PUBLIC_FC_PROXY_BASE_URL: 'https://proxy',
-        PUBLIC_FC_BASE_URL: 'https://fc',
-        PUBLIC_FC_LOGOUT_ENDPOINT: '/api/v2/session/end',
-      });
-    });
-    vi.mocked(envModule).PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED = 'true';
-  });
   test('user has to be connected', async () => {
     // Given
     vi.spyOn(servicesMethods, 'buildServices').mockResolvedValue(new Services());
     vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(new Followup());
-    const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue();
+    const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
 
     // When
     render(Page);
@@ -46,7 +30,7 @@ describe('/+page.svelte', () => {
     await userStore.login(mockUserInfo);
     vi.spyOn(servicesMethods, 'buildServices').mockResolvedValue(new Services());
     vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(new Followup());
-    const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue();
+    const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
     const spyFind = vi.spyOn(Services.prototype, 'find').mockReturnValueOnce(null);
 
     // When
@@ -67,7 +51,7 @@ describe('/+page.svelte', () => {
     await userStore.login(mockUserInfo);
     vi.spyOn(servicesMethods, 'buildServices').mockResolvedValue(new Services());
     vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(new Followup());
-    const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue();
+    const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
     vi.spyOn(Services.prototype, 'find').mockReturnValueOnce(
       new ServicesItem(
         'psl',
@@ -92,36 +76,6 @@ describe('/+page.svelte', () => {
       expect(screen.getByText('Vous partez en vacances ?')).toBeInTheDocument();
       expect(screen.getByText('Securisez votre logement.')).toBeInTheDocument();
       expect(screen.queryByText('Sécurisez votre logement !')).toBeNull();
-    });
-  });
-  test('should call getServiceUrl from ServicesItem', async () => {
-    // Given
-    await userStore.login(mockUserInfo);
-    vi.spyOn(servicesMethods, 'buildServices').mockResolvedValue(new Services());
-    vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(new Followup());
-    vi.spyOn(Services.prototype, 'find').mockReturnValueOnce(
-      new ServicesItem(
-        'psl',
-        'OperationTranquilliteVacances',
-        'Opération Tranquillité Vacances',
-        'Sécurisez votre logement !',
-        'Vous partez en vacances ? **Securisez votre logement.**',
-        'fake-link',
-        true
-      )
-    );
-    const spy = vi
-      .spyOn(ServicesItem.prototype, 'getServiceUrl')
-      .mockResolvedValue('http://external-url');
-
-    // When
-    render(Page, {
-      props: { params: { partner_id: 'foo', item_type: 'bar' } },
-    });
-
-    // Then
-    await waitFor(() => {
-      expect(spy).toHaveBeenCalledTimes(1);
     });
   });
   test('should render a Back button', async () => {
@@ -363,41 +317,6 @@ describe('/+page.svelte', () => {
           expect(spyHasNonArchivedItems).toHaveBeenCalledWith('psl', 'MonService');
         });
       });
-
-      test('should disable button when service url is empty', async () => {
-        // Given
-        await userStore.login(mockUserInfo);
-        vi.spyOn(servicesMethods, 'buildServices').mockResolvedValue(new Services());
-        vi.spyOn(Services.prototype, 'find').mockReturnValueOnce(
-          new ServicesItem(
-            'partner',
-            'OperationTranquilliteVacances',
-            'Opération Tranquillité Vacances',
-            'Sécurisez votre logement !',
-            'Vous partez en vacances ? **Securisez votre logement.**',
-            '',
-            true
-          )
-        );
-        const spyUrl = vi
-          .spyOn(ServicesItem.prototype, 'getServiceUrl')
-          .mockResolvedValue('');
-        vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(new Followup());
-        vi.spyOn(Followup.prototype, 'hasNonArchivedItems').mockReturnValue(false);
-
-        // When
-        render(Page, {
-          props: { params: { partner_id: 'foo', item_type: 'bar' } },
-        });
-
-        // Then
-        await waitFor(async () => {
-          const serviceButton = screen.getByTestId('service-button');
-          expect(serviceButton).toBeDisabled();
-          expect(screen.queryByTestId('followup-button')).toBeNull();
-          expect(spyUrl).toHaveBeenCalledTimes(1);
-        });
-      });
     });
     describe('buttons onclick', () => {
       describe('followup button', () => {
@@ -416,12 +335,9 @@ describe('/+page.svelte', () => {
               true
             )
           );
-          const spyUrl = vi
-            .spyOn(ServicesItem.prototype, 'getServiceUrl')
-            .mockResolvedValue('http://external-url');
           vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(new Followup());
           vi.spyOn(Followup.prototype, 'hasNonArchivedItems').mockReturnValue(true);
-          const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue();
+          const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
 
           render(Page, {
             props: { params: { partner_id: 'foo', item_type: 'bar' } },
@@ -434,13 +350,12 @@ describe('/+page.svelte', () => {
           });
 
           // Then
-          expect(spyUrl).toHaveBeenCalledTimes(1);
           expect(spy).toHaveBeenCalledTimes(1);
           expect(spy).toHaveBeenCalledWith('/#/followup');
         });
       });
       describe('service button', () => {
-        describe('without silent-login', () => {
+        describe('without silent login', () => {
           test('should redirect to service link - with non archived items', async () => {
             // Given
             await userStore.login(mockUserInfo);
@@ -465,11 +380,7 @@ describe('/+page.svelte', () => {
               new Followup()
             );
             vi.spyOn(Followup.prototype, 'hasNonArchivedItems').mockReturnValue(true);
-            vi.stubGlobal('location', {
-              href: 'fake-link',
-              hash: '',
-              origin: 'http://localhost',
-            });
+            const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
 
             render(Page, {
               props: { params: { partner_id: 'foo', item_type: 'bar' } },
@@ -482,8 +393,9 @@ describe('/+page.svelte', () => {
             });
 
             // Then
-            expect(spyUrl).toHaveBeenCalledTimes(2);
-            expect(window.location.href).toBe('http://external-url');
+            expect(spyUrl).toHaveBeenCalledTimes(1);
+            expect(spy).toHaveBeenCalledTimes(1);
+            expect(spy).toHaveBeenCalledWith('http://external-url', false);
           });
           test('should redirect to service link - no non archived items', async () => {
             // Given
@@ -509,11 +421,7 @@ describe('/+page.svelte', () => {
               new Followup()
             );
             vi.spyOn(Followup.prototype, 'hasNonArchivedItems').mockReturnValue(false);
-            vi.stubGlobal('location', {
-              href: 'fake-link',
-              hash: '',
-              origin: 'http://localhost',
-            });
+            const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
 
             render(Page, {
               props: { params: { partner_id: 'foo', item_type: 'bar' } },
@@ -526,11 +434,12 @@ describe('/+page.svelte', () => {
             });
 
             // Then
-            expect(spyUrl).toHaveBeenCalledTimes(2);
-            expect(window.location.href).toBe('http://external-url');
+            expect(spyUrl).toHaveBeenCalledTimes(1);
+            expect(spy).toHaveBeenCalledTimes(1);
+            expect(spy).toHaveBeenCalledWith('http://external-url', false);
           });
         });
-        describe('with silent-login', () => {
+        describe('with silent login', () => {
           test('should redirect to service link - with non archived items', async () => {
             // Given
             await userStore.login(mockUserInfo);
@@ -555,11 +464,7 @@ describe('/+page.svelte', () => {
               new Followup()
             );
             vi.spyOn(Followup.prototype, 'hasNonArchivedItems').mockReturnValue(true);
-            vi.stubGlobal('location', {
-              href: 'fake-link',
-              hash: '',
-              origin: 'http://localhost',
-            });
+            const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
 
             render(Page, {
               props: { params: { partner_id: 'foo', item_type: 'bar' } },
@@ -572,10 +477,9 @@ describe('/+page.svelte', () => {
             });
 
             // Then
-            expect(spyUrl).toHaveBeenCalledTimes(2);
-            expect(window.location.href).toBe(
-              'https://localhost:8000/silent-login-ami-fi?redirect_url=http%3A%2F%2Fexternal-url'
-            );
+            expect(spyUrl).toHaveBeenCalledTimes(1);
+            expect(spy).toHaveBeenCalledTimes(1);
+            expect(spy).toHaveBeenCalledWith('http://external-url', true);
           });
           test('should redirect to service link - no non archived items', async () => {
             // Given
@@ -601,11 +505,7 @@ describe('/+page.svelte', () => {
               new Followup()
             );
             vi.spyOn(Followup.prototype, 'hasNonArchivedItems').mockReturnValue(false);
-            vi.stubGlobal('location', {
-              href: 'fake-link',
-              hash: '',
-              origin: 'http://localhost',
-            });
+            const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
 
             render(Page, {
               props: { params: { partner_id: 'foo', item_type: 'bar' } },
@@ -618,102 +518,9 @@ describe('/+page.svelte', () => {
             });
 
             // Then
-            expect(spyUrl).toHaveBeenCalledTimes(2);
-            expect(window.location.href).toBe(
-              'https://localhost:8000/silent-login-ami-fi?redirect_url=http%3A%2F%2Fexternal-url'
-            );
-          });
-        });
-        describe('with silent-login - flag disabled', () => {
-          test('should redirect to service link - with non archived items', async () => {
-            // Given
-            vi.mocked(envModule).PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED = 'false';
-            await userStore.login(mockUserInfo);
-            vi.spyOn(servicesMethods, 'buildServices').mockResolvedValue(
-              new Services()
-            );
-            vi.spyOn(Services.prototype, 'find').mockReturnValueOnce(
-              new ServicesItem(
-                'psl',
-                'MonService',
-                'Opération Tranquillité Vacances',
-                'Sécurisez votre logement !',
-                'Vous partez en vacances ? **Securisez votre logement.**',
-                'fake-link',
-                true
-              )
-            );
-            const spyUrl = vi
-              .spyOn(ServicesItem.prototype, 'getServiceUrl')
-              .mockResolvedValue('http://external-url');
-            vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(
-              new Followup()
-            );
-            vi.spyOn(Followup.prototype, 'hasNonArchivedItems').mockReturnValue(true);
-            vi.stubGlobal('location', {
-              href: 'fake-link',
-              hash: '',
-              origin: 'http://localhost',
-            });
-
-            render(Page, {
-              props: { params: { partner_id: 'foo', item_type: 'bar' } },
-            });
-
-            // When
-            await waitFor(async () => {
-              const serviceButton = screen.getByTestId('service-button');
-              await fireEvent.click(serviceButton);
-            });
-
-            // Then
-            expect(spyUrl).toHaveBeenCalledTimes(2);
-            expect(window.location.href).toBe('http://external-url');
-          });
-          test('should redirect to service link - no non archived items', async () => {
-            // Given
-            vi.mocked(envModule).PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED = 'false';
-            await userStore.login(mockUserInfo);
-            vi.spyOn(servicesMethods, 'buildServices').mockResolvedValue(
-              new Services()
-            );
-            vi.spyOn(Services.prototype, 'find').mockReturnValueOnce(
-              new ServicesItem(
-                'psl',
-                'MonService',
-                'Opération Tranquillité Vacances',
-                'Sécurisez votre logement !',
-                'Vous partez en vacances ? **Securisez votre logement.**',
-                'fake-link',
-                true
-              )
-            );
-            const spyUrl = vi
-              .spyOn(ServicesItem.prototype, 'getServiceUrl')
-              .mockResolvedValue('http://external-url');
-            vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(
-              new Followup()
-            );
-            vi.spyOn(Followup.prototype, 'hasNonArchivedItems').mockReturnValue(false);
-            vi.stubGlobal('location', {
-              href: 'fake-link',
-              hash: '',
-              origin: 'http://localhost',
-            });
-
-            render(Page, {
-              props: { params: { partner_id: 'foo', item_type: 'bar' } },
-            });
-
-            // When
-            await waitFor(async () => {
-              const serviceButton = screen.getByTestId('service-button');
-              await fireEvent.click(serviceButton);
-            });
-
-            // Then
-            expect(spyUrl).toHaveBeenCalledTimes(2);
-            expect(window.location.href).toBe('http://external-url');
+            expect(spyUrl).toHaveBeenCalledTimes(1);
+            expect(spy).toHaveBeenCalledTimes(1);
+            expect(spy).toHaveBeenCalledWith('http://external-url', true);
           });
         });
       });

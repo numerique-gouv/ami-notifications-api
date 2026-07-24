@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
   import type { Address } from '$lib/address';
+  import { AMIGoto } from '$lib/ami-goto';
   import Card from '$lib/components/Card.svelte';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import type { DataOrigin, UserIdentity } from '$lib/state/User.svelte';
@@ -15,7 +15,7 @@
 
   onMount(async () => {
     if (!userStore.connected) {
-      goto('/');
+      AMIGoto('/');
       return;
     } else {
       identity = userStore.connected.identity;
@@ -26,15 +26,15 @@
   });
 
   const goToEditPreferredUsername = async () => {
-    goto('/#/edit-preferred-username');
+    AMIGoto('/#/edit-preferred-username');
   };
 
   const goToEditEmail = async () => {
-    goto('/#/edit-email');
+    AMIGoto('/#/edit-email');
   };
 
   const goToEditAddress = async () => {
-    goto('/#/edit-address');
+    AMIGoto('/#/edit-address');
   };
 </script>
 

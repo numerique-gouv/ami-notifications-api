@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
+  import { AMIGoto } from '$lib/ami-goto';
   import { getDSFRIcon } from '$lib/dsfr-icon';
   import { FollowupItem } from '$lib/followup';
 
@@ -11,8 +11,8 @@
 
   let checkedIcon = $derived(getDSFRIcon(item.icon, 'fr-icon-information-fill'));
 
-  const gotoDetailPage = (itemDetailPageUrl: string) => {
-    goto(itemDetailPageUrl);
+  const goToDetailPage = (itemDetailPageUrl: string) => {
+    AMIGoto(itemDetailPageUrl);
   };
 </script>
 
@@ -54,7 +54,7 @@
             <button
               class="fr-btn fr-mb-0"
               type="button"
-              onclick={(e) => gotoDetailPage(item.itemDetailPageUrl)}
+              onclick={(e) => goToDetailPage(item.itemDetailPageUrl)}
               data-testid="external-item-button-{item.id}"
             >
               Reprendre ma démarche

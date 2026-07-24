@@ -1,12 +1,8 @@
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { render, screen, waitFor } from '@testing-library/svelte';
-import * as navigationMethods from '$app/navigation';
-import {
-  PUBLIC_API_URL,
-  PUBLIC_CONTACT_EMAIL,
-  PUBLIC_CONTACT_URL,
-} from '$env/static/public';
+import { PUBLIC_CONTACT_EMAIL, PUBLIC_CONTACT_URL } from '$env/static/public';
+import * as AMIGotoMethods from '$lib/ami-goto';
 import * as initializeDataFromAPIMethods from '$lib/initializeDataFromAPI';
 import { toastStore } from '$lib/state/toast.svelte';
 import { userStore } from '$lib/state/User.svelte';
@@ -14,14 +10,7 @@ import { mockUserInfo } from '$tests/utils';
 import Page from './+page.svelte';
 
 describe('/+page.svelte', () => {
-  let originalWindow: typeof globalThis.window;
-
-  beforeEach(() => {
-    originalWindow = globalThis.window;
-  });
-
   afterEach(() => {
-    globalThis.window = originalWindow;
     vi.resetAllMocks();
   });
 
@@ -34,7 +23,7 @@ describe('/+page.svelte', () => {
     const spy = vi
       .spyOn(initializeDataFromAPIMethods, 'initializeData')
       .mockResolvedValue();
-    vi.spyOn(navigationMethods, 'goto').mockImplementation(() => Promise.resolve());
+    vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
 
     // When
     render(Page);
@@ -53,9 +42,7 @@ describe('/+page.svelte', () => {
     mockSearchParams.set('user_first_login', 'true');
     vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
     vi.spyOn(initializeDataFromAPIMethods, 'initializeData').mockResolvedValue();
-    const spy = vi
-      .spyOn(navigationMethods, 'goto')
-      .mockImplementation(() => Promise.resolve());
+    const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
 
     // When
     render(Page);
@@ -74,7 +61,7 @@ describe('/+page.svelte', () => {
     mockSearchParams.set('user_first_login', 'false');
     vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
     vi.spyOn(initializeDataFromAPIMethods, 'initializeData').mockResolvedValue();
-    const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue();
+    const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
 
     // When
     render(Page);
@@ -106,9 +93,7 @@ describe('/+page.svelte', () => {
   test('should display network-error page on FranceConnect login button when back is down', async () => {
     // Given
     vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error());
-    const spy = vi
-      .spyOn(navigationMethods, 'goto')
-      .mockImplementation(() => Promise.resolve());
+    const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
 
     render(Page);
     await waitFor(() => {
@@ -127,7 +112,7 @@ describe('/+page.svelte', () => {
   test('should call authorize endpoint when click on FranceConnect login button', async () => {
     // Given
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('', { status: 200 }));
-    vi.stubGlobal('location', { href: 'fake-link' });
+    const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
 
     render(Page);
     await waitFor(() => {
@@ -139,8 +124,7 @@ describe('/+page.svelte', () => {
       franceConnectLoginButton.click();
 
       // Then
-      expect(globalThis.window.location.href).toContain(PUBLIC_API_URL);
-      expect(globalThis.window.location.href).toContain('login-france-connect');
+      expect(spy).toHaveBeenCalledWith('https://localhost:8000/login-france-connect');
     });
   });
 
@@ -199,6 +183,7 @@ describe('/+page.svelte', () => {
     const { page } = await import('$app/state');
     const mockSearchParams = new URLSearchParams('is_logged_out');
     vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
+    vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
 
     const spy = vi.spyOn(toastStore, 'addToast');
 
@@ -222,9 +207,7 @@ describe('/+page.svelte', () => {
     const mockSearchParams = new URLSearchParams('is_logged_out');
     vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
 
-    const spy = vi
-      .spyOn(navigationMethods, 'goto')
-      .mockImplementation(() => Promise.resolve());
+    const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
 
     // When
     render(Page);

@@ -1,21 +1,47 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
+  import { AMIGoto } from '$lib/ami-goto';
+  import ServicesItemModal from '$lib/components/modal/ServicesItemModal.svelte';
   import Navigation from '$lib/components/Navigation.svelte';
-  import type { Services } from '$lib/services';
+  import type { Followup } from '$lib/followup';
+  import { buildFollowup } from '$lib/followup';
+  import type { Services, ServicesItem } from '$lib/services';
   import { buildServices } from '$lib/services';
   import { userStore } from '$lib/state/User.svelte';
 
   let services: Services | null = $state(null);
+  let selectedServicesItem: ServicesItem | null = $state(null);
+  let followup: Followup | null = $state(null);
 
   onMount(async () => {
     if (!userStore.connected) {
-      goto('/');
+      AMIGoto('/');
+      return;
     }
 
+    followup = await buildFollowup();
     services = await buildServices();
     console.log($state.snapshot(services));
   });
+
+  const getServiceUrl = async (service: ServicesItem) => {
+    return await service.getServiceUrl();
+  };
+
+  const goToService = async (service: ServicesItem) => {
+    const url = await service.getServiceUrl();
+    AMIGoto(url, service.with_silent_login);
+  };
+
+  const clickOnService = (service: ServicesItem) => {
+    const hasNonArchivedItems =
+      followup?.hasNonArchivedItems(service.partner_id, service.item_type) || false;
+    if (hasNonArchivedItems) {
+      selectedServicesItem = service;
+    } else {
+      goToService(service);
+    }
+  };
 </script>
 
 <Navigation currentItem="services" />
@@ -34,7 +60,12 @@
               {#if services && services.items.length}
                 {#each services.items as item}
                   <li class="fr-sidemenu__item">
-                    <a class="fr-sidemenu__link" href="{item.url}">
+                    <button
+                      type="button"
+                      class="fr-sidemenu__link"
+                      onclick={() => clickOnService(item)}
+                      data-testid="service-{item.id}"
+                    >
                       <span class="services--item-details">
                         <span class="services--item-label">{item.title}</span>
                         <span class="services--item-description"
@@ -45,7 +76,7 @@
                         aria-hidden="true"
                         class="icon fr-icon-arrow-right-s-line"
                       ></span>
-                    </a>
+                    </button>
                   </li>
                 {/each}
               {/if}
@@ -56,6 +87,10 @@
     </div>
   </div>
 </div>
+
+{#if selectedServicesItem}
+  <ServicesItemModal bind:item={selectedServicesItem} />
+{/if}
 
 <style>
   .services {
@@ -68,7 +103,13 @@
       box-shadow: none;
       margin: 0;
       .fr-sidemenu__item {
-        .fr-sidemenu__link {
+        button.fr-sidemenu__link {
+          background: none;
+          border: none;
+          width: 100%;
+          text-align: left;
+          font: inherit;
+          cursor: pointer;
           padding: 1.5rem 0;
           color: #000;
           --hover-tint: none;

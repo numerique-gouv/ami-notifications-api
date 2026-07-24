@@ -1,8 +1,8 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { describe, expect, test, vi } from 'vitest';
-import * as navigationMethods from '$app/navigation';
 import * as agendaMethods from '$lib/agenda';
 import { Agenda, Item, monthName } from '$lib/agenda';
+import * as AMIGotoMethods from '$lib/ami-goto';
 import { toastStore } from '$lib/state/toast.svelte';
 import Page from './+page.svelte';
 
@@ -14,7 +14,7 @@ describe('/+page.svelte', () => {
   test('user has to be connected', async () => {
     // Given
     vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(new Agenda());
-    const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue();
+    const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
 
     // When
     render(Page);

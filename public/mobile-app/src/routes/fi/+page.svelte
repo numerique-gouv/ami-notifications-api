@@ -1,11 +1,11 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
   import { page } from '$app/state';
   import {
     PUBLIC_API_URL,
     PUBLIC_FEATURE_FLAG_FI_LOGIN_ENABLED,
   } from '$env/static/public';
+  import { AMIGoto } from '$lib/ami-goto';
   import { franceConnectLogout } from '$lib/france-connect';
 
   let data_providers: Record<string, unknown> = $state({});
@@ -15,7 +15,7 @@
 
   onMount(async () => {
     if (!fi_enabled) {
-      goto('/');
+      AMIGoto('/');
       return;
     }
     try {
@@ -52,7 +52,7 @@
     if (id_token_hint) {
       await franceConnectLogout(id_token_hint, redirect_url);
     } else {
-      window.location.href = redirect_url;
+      AMIGoto(redirect_url);
     }
   };
 </script>

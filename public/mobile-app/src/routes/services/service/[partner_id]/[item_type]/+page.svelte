@@ -1,10 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
-  import {
-    PUBLIC_API_URL,
-    PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED,
-  } from '$env/static/public';
+  import { AMIGoto } from '$lib/ami-goto';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import PageWrapper from '$lib/components/PageWrapper.svelte';
   import type { Followup } from '$lib/followup';
@@ -17,7 +13,6 @@
   let { params } = $props();
 
   let backUrl: string = '/#/services';
-  let serviceUrl: string = $state('');
   let service: ServicesItem | null = $state(null);
   let followup: Followup | null = $state(null);
   let hasNonArchivedItems: boolean = $state(false);
@@ -28,7 +23,7 @@
 
   onMount(async () => {
     if (!userStore.connected) {
-      goto('/');
+      AMIGoto('/');
       return;
     }
 
@@ -36,11 +31,9 @@
     const _service = services.find(params.partner_id, params.item_type);
     console.log($state.snapshot(_service));
     if (!_service) {
-      goto('/#/services');
+      AMIGoto('/#/services');
       return;
     }
-
-    const _serviceUrl = await getServiceUrl(_service);
 
     followup = await buildFollowup();
     const _hasNonArchivedItems = followup.hasNonArchivedItems(
@@ -63,39 +56,21 @@
     }
 
     // assign variables after all await calls
-    serviceUrl = _serviceUrl;
     service = _service;
     hasNonArchivedItems = _hasNonArchivedItems;
     date = _date;
   });
 
-  const getServiceUrl = async (_service: ServicesItem) => {
-    return await _service.getServiceUrl();
-  };
-
-  const AMIFILogin = async (url: string) => {
-    window.location.href = `${PUBLIC_API_URL}/silent-login-ami-fi?redirect_url=${encodeURIComponent(url)}`;
-  };
-
-  const gotoService = async () => {
+  const goToService = async () => {
     if (service === null) {
       return;
     }
-    serviceUrl = await getServiceUrl(service);
-    if (serviceUrl) {
-      if (
-        PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED === 'true' &&
-        service.with_silent_login
-      ) {
-        AMIFILogin(serviceUrl);
-      } else {
-        window.location.href = serviceUrl;
-      }
-    }
+    const url = await service.getServiceUrl();
+    AMIGoto(url, service.with_silent_login);
   };
 
-  const gotoFollowup = () => {
-    goto('/#/followup');
+  const goToFollowup = () => {
+    AMIGoto('/#/followup');
   };
 </script>
 
@@ -123,7 +98,7 @@
           <button
             class="fr-btn fr-btn--lg"
             type="button"
-            onclick={gotoFollowup}
+            onclick={goToFollowup}
             data-testid="followup-button"
           >
             Accéder à ma démarche
@@ -131,9 +106,8 @@
           <button
             class="fr-btn fr-btn--lg fr-btn--tertiary"
             type="button"
-            onclick={gotoService}
+            onclick={goToService}
             data-testid="service-button"
-            disabled="{!serviceUrl}"
           >
             Faire une nouvelle démarche
           </button>
@@ -141,9 +115,8 @@
           <button
             class="fr-btn fr-btn--lg"
             type="button"
-            onclick={gotoService}
+            onclick={goToService}
             data-testid="service-button"
-            disabled="{!serviceUrl}"
           >
             Bénéficier de ce service
           </button>

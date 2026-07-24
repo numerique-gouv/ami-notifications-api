@@ -1,18 +1,14 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { render, screen, waitFor } from '@testing-library/svelte';
-import * as navigationMethods from '$app/navigation';
 import * as envModule from '$env/static/public';
 import { PUBLIC_API_URL } from '$env/static/public';
+import * as AMIGotoMethods from '$lib/ami-goto';
 import * as franceConnectHelpers from '$lib/france-connect';
 import Page from './+page.svelte';
 
 describe('/+page.svelte', () => {
-  let originalWindow: typeof globalThis.window;
-
   beforeEach(() => {
-    originalWindow = globalThis.window;
-
     vi.mock('$env/static/public', async (importOriginal) => {
       const original = (await importOriginal()) as Record<string, unknown>;
       return Promise.resolve({
@@ -25,7 +21,6 @@ describe('/+page.svelte', () => {
   });
 
   afterEach(() => {
-    globalThis.window = originalWindow;
     vi.resetAllMocks();
   });
 
@@ -33,9 +28,7 @@ describe('/+page.svelte', () => {
     test('Should redirect to home if feature flag is not enabled', async () => {
       // Given
       vi.mocked(envModule).PUBLIC_FEATURE_FLAG_FI_LOGIN_ENABLED = 'false';
-      const spy = vi
-        .spyOn(navigationMethods, 'goto')
-        .mockImplementation(() => Promise.resolve());
+      const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
       render(Page);
 
       // When
@@ -47,9 +40,7 @@ describe('/+page.svelte', () => {
     test('Should not redirect to home if feature flag is enabled', async () => {
       // Given
       vi.mocked(envModule).PUBLIC_FEATURE_FLAG_FI_LOGIN_ENABLED = 'true';
-      const spy = vi
-        .spyOn(navigationMethods, 'goto')
-        .mockImplementation(() => Promise.resolve());
+      const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
       render(Page);
 
       // When
@@ -218,10 +209,10 @@ describe('/+page.svelte', () => {
   describe('user wants to login again', () => {
     test('should call authorize endpoint when click on login button', async () => {
       // Given
-      vi.stubGlobal('location', { href: 'fake-link' });
       vi.spyOn(globalThis, 'fetch').mockResolvedValue(
         new Response('{"api_particulier_statut_etudiant": "Etudiant"}', { status: 200 })
       );
+      const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
 
       render(Page);
       await waitFor(() => {
@@ -233,7 +224,7 @@ describe('/+page.svelte', () => {
         loginButton.click();
 
         // Then
-        expect(globalThis.window.location.href).toContain(
+        expect(spy).toHaveBeenCalledWith(
           `${PUBLIC_API_URL}/login-ami-fi?provider_id=api_particulier_statut_etudiant`
         );
       });

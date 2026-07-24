@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { afterEach, describe, expect, test, vi } from 'vitest';
-import * as navigationMethods from '$app/navigation';
+import * as AMIGotoMethods from '$lib/ami-goto';
 import { userStore } from '$lib/state/User.svelte';
 import {
   expectBackButtonPresent,
@@ -17,7 +17,7 @@ describe('/+page.svelte', () => {
 
   test('user has to be connected', async () => {
     // Given
-    const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue();
+    const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
 
     // When
     render(Page);
@@ -144,9 +144,7 @@ describe('/+page.svelte', () => {
 
   test('should navigate to the preferred username page when user clicks on "Modifier" button', async () => {
     // Given
-    const spy = vi
-      .spyOn(navigationMethods, 'goto')
-      .mockImplementation(() => Promise.resolve());
+    const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
     render(Page);
 
     // When
@@ -162,9 +160,7 @@ describe('/+page.svelte', () => {
 
   test('should navigate to the email page when user clicks on "Modifier" button', async () => {
     // Given
-    const spy = vi
-      .spyOn(navigationMethods, 'goto')
-      .mockImplementation(() => Promise.resolve());
+    const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
     render(Page);
 
     // When
@@ -180,9 +176,7 @@ describe('/+page.svelte', () => {
 
   test('should navigate to the Address page when user clicks on "Définir une adresse" button', async () => {
     // Given
-    const spy = vi
-      .spyOn(navigationMethods, 'goto')
-      .mockImplementation(() => Promise.resolve());
+    const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
     render(Page);
 
     // When

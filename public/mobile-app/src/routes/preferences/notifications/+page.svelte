@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
+  import { AMIGoto } from '$lib/ami-goto';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import Toggle from '$lib/components/Toggle.svelte';
   import { runOrNativeEvent } from '$lib/nativeEvents';
@@ -17,14 +17,14 @@
 
   onMount(async () => {
     if (!userStore.connected) {
-      goto('/');
+      AMIGoto('/');
     }
 
     isChecked = localStorage.getItem('notifications_enabled') === 'true';
   });
 
   const navigateToPreviousPage = async () => {
-    goto(backUrl);
+    AMIGoto(backUrl);
   };
 
   const enableNotificationsFunc = async () => {

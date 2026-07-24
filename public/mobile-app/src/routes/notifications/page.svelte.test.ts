@@ -2,10 +2,11 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import type { WS as WSType } from 'vitest-websocket-mock';
 import WS from 'vitest-websocket-mock';
-import * as navigationMethods from '$app/navigation';
+import * as AMIGotoMethods from '$lib/ami-goto';
 import * as notificationsMethods from '$lib/notifications';
 import { type AppNotification, PUBLIC_API_WS_URL } from '$lib/notifications';
-import { expectBackButtonPresent } from '$tests/utils';
+import { userStore } from '$lib/state/User.svelte';
+import { expectBackButtonPresent, mockUserInfo } from '$tests/utils';
 import Page from './+page.svelte';
 
 let wss: WSType;
@@ -26,9 +27,7 @@ describe('/+page.svelte', () => {
 
   test('user has to be connected', async () => {
     // Given
-    const spy = vi
-      .spyOn(navigationMethods, 'goto')
-      .mockImplementation(() => Promise.resolve());
+    const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
 
     // When
     render(Page);
@@ -42,6 +41,7 @@ describe('/+page.svelte', () => {
 
   test('should render a Back button', async () => {
     // When
+    await userStore.login(mockUserInfo);
     render(Page);
 
     // Then
@@ -50,9 +50,8 @@ describe('/+page.svelte', () => {
 
   test('should navigate to Settings when user clicks on Gérer button', async () => {
     // Given
-    const spy = vi
-      .spyOn(navigationMethods, 'goto')
-      .mockImplementation(() => Promise.resolve());
+    await userStore.login(mockUserInfo);
+    const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
     render(Page);
 
     // When
@@ -61,17 +60,17 @@ describe('/+page.svelte', () => {
 
     // Then
     await waitFor(() => {
-      expect(spy).toHaveBeenCalledTimes(2);
-      expect(spy).toHaveBeenNthCalledWith(1, '/');
-      expect(spy).toHaveBeenNthCalledWith(2, '/#/preferences/notifications');
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenNthCalledWith(1, '/#/preferences/notifications');
     });
   });
 
   test('notification display', async () => {
     // Given
+    await userStore.login(mockUserInfo);
     const spy = vi
       .spyOn(notificationsMethods, 'retrieveNotifications')
-      .mockImplementation(async () => [
+      .mockResolvedValue([
         {
           created_at: new Date('2025-09-19T13:52:23.279545'),
           user_id: '3ac73f4f-4be2-456a-9c2e-ddff480d5767',
@@ -114,9 +113,10 @@ describe('/+page.svelte', () => {
 
   test('notification mark as read', async () => {
     // Given
+    await userStore.login(mockUserInfo);
     const spy = vi
       .spyOn(notificationsMethods, 'retrieveNotifications')
-      .mockImplementationOnce(async () => [
+      .mockResolvedValueOnce([
         {
           created_at: new Date('2025-09-19T13:52:23.279545'),
           user_id: '3ac73f4f-4be2-456a-9c2e-ddff480d5767',
@@ -139,7 +139,7 @@ describe('/+page.svelte', () => {
           url: '',
         },
       ])
-      .mockImplementationOnce(async () => [
+      .mockResolvedValueOnce([
         {
           created_at: new Date('2025-09-19T13:52:23.279545'),
           user_id: '3ac73f4f-4be2-456a-9c2e-ddff480d5767',
@@ -162,20 +162,16 @@ describe('/+page.svelte', () => {
           url: '',
         },
       ]);
-    const spy2 = vi
-      .spyOn(notificationsMethods, 'readNotification')
-      .mockImplementation(async () => {
-        return {
-          created_at: new Date('2025-09-19T13:52:23.279545'),
-          user_id: '3ac73f4f-4be2-456a-9c2e-ddff480d5767',
-          sender: 'test 2',
-          content_body: 'test 2',
-          id: 'f62c66b2-7bd5-4696-8383-2d40c08a1',
-          content_title: 'test 2',
-          read: true,
-          url: '',
-        };
-      });
+    const spy2 = vi.spyOn(notificationsMethods, 'readNotification').mockResolvedValue({
+      created_at: new Date('2025-09-19T13:52:23.279545'),
+      user_id: '3ac73f4f-4be2-456a-9c2e-ddff480d5767',
+      sender: 'test 2',
+      content_body: 'test 2',
+      id: 'f62c66b2-7bd5-4696-8383-2d40c08a1',
+      content_title: 'test 2',
+      read: true,
+      url: '',
+    });
 
     render(Page);
     const notificationLink = await waitFor(() =>
@@ -214,21 +210,20 @@ describe('/+page.svelte', () => {
 
   test('should redirect to url when is set and user clicks on notification', async () => {
     // Given
-    vi.spyOn(notificationsMethods, 'retrieveNotifications').mockImplementationOnce(
-      async () => [
-        {
-          created_at: new Date('2025-09-19T13:52:23.279545'),
-          user_id: '3ac73f4f-4be2-456a-9c2e-ddff480d5767',
-          sender: 'test 2',
-          content_body: 'test 2',
-          id: 'f62c66b2-7bd5-4696-8383-2d40c08a1',
-          content_title: 'test 2',
-          read: false,
-          url: 'https://www.service-public.gouv.fr',
-        },
-      ]
-    );
-    vi.stubGlobal('location', { href: 'fake-link' });
+    await userStore.login(mockUserInfo);
+    vi.spyOn(notificationsMethods, 'retrieveNotifications').mockResolvedValue([
+      {
+        created_at: new Date('2025-09-19T13:52:23.279545'),
+        user_id: '3ac73f4f-4be2-456a-9c2e-ddff480d5767',
+        sender: 'test 2',
+        content_body: 'test 2',
+        id: 'f62c66b2-7bd5-4696-8383-2d40c08a1',
+        content_title: 'test 2',
+        read: false,
+        url: 'https://www.service-public.gouv.fr',
+      },
+    ]);
+    const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
 
     render(Page);
     const notificationLink = await waitFor(() =>
@@ -239,26 +234,25 @@ describe('/+page.svelte', () => {
     await notificationLink.click();
 
     // Then
-    expect(globalThis.window.location.href).toBe('https://www.service-public.gouv.fr');
+    expect(spy).toHaveBeenCalledWith('https://www.service-public.gouv.fr');
   });
 
   test('should not redirect when url is not set and user clicks on notification', async () => {
     // Given
-    vi.spyOn(notificationsMethods, 'retrieveNotifications').mockImplementationOnce(
-      async () => [
-        {
-          created_at: new Date('2025-09-19T13:52:23.279545'),
-          user_id: '3ac73f4f-4be2-456a-9c2e-ddff480d5767',
-          sender: 'test 2',
-          content_body: 'test 2',
-          id: 'f62c66b2-7bd5-4696-8383-2d40c08a1',
-          content_title: 'test 2',
-          read: false,
-          url: '',
-        },
-      ]
-    );
-    vi.stubGlobal('location', { href: 'fake-link' });
+    await userStore.login(mockUserInfo);
+    vi.spyOn(notificationsMethods, 'retrieveNotifications').mockResolvedValue([
+      {
+        created_at: new Date('2025-09-19T13:52:23.279545'),
+        user_id: '3ac73f4f-4be2-456a-9c2e-ddff480d5767',
+        sender: 'test 2',
+        content_body: 'test 2',
+        id: 'f62c66b2-7bd5-4696-8383-2d40c08a1',
+        content_title: 'test 2',
+        read: false,
+        url: '',
+      },
+    ]);
+    const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
 
     render(Page);
     const notificationLink = await waitFor(() =>
@@ -269,6 +263,6 @@ describe('/+page.svelte', () => {
     await notificationLink.click();
 
     // Then
-    expect(globalThis.window.location.href).toBe('fake-link');
+    expect(spy).not.toHaveBeenCalled();
   });
 });

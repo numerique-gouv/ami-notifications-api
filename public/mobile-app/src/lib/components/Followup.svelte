@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
+  import { AMIGoto } from '$lib/ami-goto';
   import FollowupItem from '$lib/components/FollowupItem.svelte';
   import FollowupItemModal from '$lib/components/modal/FollowupItemModal.svelte';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
@@ -31,8 +31,8 @@
     menuOpened = !menuOpened;
   };
 
-  const gotoArchivedFollowup = () => {
-    goto('/#/followup/archived');
+  const goToArchivedFollowup = () => {
+    AMIGoto('/#/followup/archived');
   };
 </script>
 
@@ -63,7 +63,7 @@
             <span class="fr-icon-inbox-archive-line" aria-hidden="true"></span>
             <button
               type="button"
-              onclick={gotoArchivedFollowup}
+              onclick={goToArchivedFollowup}
               data-testid="archived-followup-button"
             >
               Démarches archivées

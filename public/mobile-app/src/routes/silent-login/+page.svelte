@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
   import { page } from '$app/state';
+  import { AMIGoto } from '$lib/ami-goto';
 
   onMount(async () => {
     const searchParams = page.url.searchParams;
@@ -14,9 +14,9 @@
       }
     }
     if (searchParams.has('redirect_url')) {
-      window.location.href = searchParams.get('redirect_url') || '';
+      AMIGoto(searchParams.get('redirect_url') || '');
     } else {
-      goto('/');
+      AMIGoto('/');
     }
   });
 </script>

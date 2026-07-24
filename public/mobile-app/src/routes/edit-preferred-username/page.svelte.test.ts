@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import type { MockInstance } from 'vitest';
-import * as navigationMethods from '$app/navigation';
+import * as AMIGotoMethods from '$lib/ami-goto';
 import { toastStore } from '$lib/state/toast.svelte';
 import { userStore } from '$lib/state/User.svelte';
 import {
@@ -14,12 +14,10 @@ import {
 import Page from './+page.svelte';
 
 describe('/+page.svelte', () => {
-  let backSpy: MockInstance<typeof navigationMethods.goto>;
+  let backSpy: MockInstance<typeof AMIGotoMethods.AMIGoto>;
 
   beforeEach(() => {
-    backSpy = vi
-      .spyOn(navigationMethods, 'goto')
-      .mockImplementation(() => Promise.resolve());
+    backSpy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
   });
   afterEach(() => {
     vi.resetAllMocks();

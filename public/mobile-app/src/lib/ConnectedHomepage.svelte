@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
   import { type Agenda, Item as AgendaItemType, buildAgenda } from '$lib/agenda';
+  import { AMIGoto } from '$lib/ami-goto';
   import AgendaItem from '$lib/components/AgendaItem.svelte';
   import FollowupItem from '$lib/components/FollowupItem.svelte';
   import Icon from '$lib/components/Icon.svelte';
@@ -78,15 +78,15 @@
   };
 
   const goToProfile = async () => {
-    goto('/#/profile');
+    AMIGoto('/#/profile');
   };
 
   const goToPreferences = () => {
-    goto('/#/preferences');
+    AMIGoto('/#/preferences');
   };
 
   const goToContact = () => {
-    goto('/#/contact');
+    AMIGoto('/#/contact');
   };
 
   const openLogoutModal = () => {

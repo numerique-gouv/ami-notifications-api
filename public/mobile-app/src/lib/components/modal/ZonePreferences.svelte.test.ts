@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
-import * as navigationMethods from '$app/navigation';
 import { Address } from '$lib/address';
+import * as AMIGotoMethods from '$lib/ami-goto';
 import * as citiesFromGeoAPIAndBANMethods from '$lib/citiesFromGeoAPIAndBAN';
 import * as matomoMethods from '$lib/matomo';
 import { Preferences } from '$lib/state/preferences';
@@ -27,7 +27,7 @@ describe('/ZonePreferences.svelte', () => {
 
   test('user has to be connected', async () => {
     // Given
-    const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue();
+    const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
 
     // When
     render(ZonePreferences, {
