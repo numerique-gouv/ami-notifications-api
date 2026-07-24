@@ -28,7 +28,7 @@ describe('/ami-navigation', () => {
 
       // Then
       expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledWith('/');
+      expect(spy).toHaveBeenCalledWith('/', undefined);
     });
     test('should redirect to url - external url', async () => {
       // Given
@@ -79,7 +79,7 @@ describe('/ami-navigation', () => {
 
       // Then
       expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledWith('/');
+      expect(spy).toHaveBeenCalledWith('/', undefined);
     });
     test('should redirect to url - external url', async () => {
       // Given
