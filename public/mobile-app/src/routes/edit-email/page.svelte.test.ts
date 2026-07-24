@@ -12,9 +12,7 @@ describe('/+page.svelte', () => {
   let backSpy: MockInstance<typeof AMIGotoMethods.AMIGoto>;
 
   beforeEach(() => {
-    backSpy = vi
-      .spyOn(AMIGotoMethods, 'AMIGoto')
-      .mockImplementation(() => Promise.resolve());
+    backSpy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
   });
   afterEach(() => {
     vi.resetAllMocks();

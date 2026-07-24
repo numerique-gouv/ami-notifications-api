@@ -144,9 +144,7 @@ describe('/+page.svelte', () => {
 
   test('should navigate to the preferred username page when user clicks on "Modifier" button', async () => {
     // Given
-    const spy = vi
-      .spyOn(AMIGotoMethods, 'AMIGoto')
-      .mockImplementation(() => Promise.resolve());
+    const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
     render(Page);
 
     // When
@@ -162,9 +160,7 @@ describe('/+page.svelte', () => {
 
   test('should navigate to the email page when user clicks on "Modifier" button', async () => {
     // Given
-    const spy = vi
-      .spyOn(AMIGotoMethods, 'AMIGoto')
-      .mockImplementation(() => Promise.resolve());
+    const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
     render(Page);
 
     // When
@@ -180,9 +176,7 @@ describe('/+page.svelte', () => {
 
   test('should navigate to the Address page when user clicks on "Définir une adresse" button', async () => {
     // Given
-    const spy = vi
-      .spyOn(AMIGotoMethods, 'AMIGoto')
-      .mockImplementation(() => Promise.resolve());
+    const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
     render(Page);
 
     // When

@@ -267,7 +267,7 @@ describe('/lib/state/User.svelte.ts', () => {
         );
         const spyDisableNotifications = vi
           .spyOn(notificationsMethods, 'disableNotifications')
-          .mockImplementation((_) => Promise.resolve(null));
+          .mockResolvedValue(null);
 
         // When
         await userStore.logout();
@@ -283,7 +283,7 @@ describe('/lib/state/User.svelte.ts', () => {
         );
         const spyDisableNotifications = vi
           .spyOn(notificationsMethods, 'disableNotifications')
-          .mockImplementation(() => Promise.resolve(null));
+          .mockResolvedValue(null);
 
         // When
         await userStore.logout();

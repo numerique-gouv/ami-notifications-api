@@ -6,9 +6,7 @@ import Page from './BackButton.svelte';
 describe('/BackButton.svelte', () => {
   test('should navigate to previous page when user clicks on Back button', async () => {
     // Given
-    const backSpy = vi
-      .spyOn(AMIGotoMethods, 'AMIGoto')
-      .mockImplementation(() => Promise.resolve());
+    const backSpy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
 
     // When
     render(Page, { backUrl: '/foobar' });

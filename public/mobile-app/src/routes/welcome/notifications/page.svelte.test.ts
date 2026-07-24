@@ -16,9 +16,7 @@ describe('/+page.svelte', () => {
 
   test('user has to be connected', async () => {
     // Given
-    const spy = vi
-      .spyOn(AMIGotoMethods, 'AMIGoto')
-      .mockImplementation(() => Promise.resolve());
+    const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
 
     // When
     render(Page);
@@ -73,9 +71,7 @@ describe('/+page.svelte', () => {
   test('should navigate to zone preferences when user clicks on Activer button', async () => {
     // Given
     await userStore.login(mockUserInfo);
-    const spy = vi
-      .spyOn(AMIGotoMethods, 'AMIGoto')
-      .mockImplementation(() => Promise.resolve());
+    const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
     render(Page);
 
     // When
@@ -91,9 +87,7 @@ describe('/+page.svelte', () => {
   test('should navigate to zone preferences when user clicks on Skip button', async () => {
     // Given
     await userStore.login(mockUserInfo);
-    const spy = vi
-      .spyOn(AMIGotoMethods, 'AMIGoto')
-      .mockImplementation(() => Promise.resolve());
+    const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
     render(Page);
 
     // When

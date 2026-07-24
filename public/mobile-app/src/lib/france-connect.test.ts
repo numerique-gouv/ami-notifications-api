@@ -11,9 +11,7 @@ describe('/france-connect', () => {
   describe('franceConnectLogout', () => {
     test('should call logout endpoint with home as return url', async () => {
       // Given
-      const spy = vi
-        .spyOn(AMIGotoMethods, 'AMIGoto')
-        .mockImplementation(() => Promise.resolve());
+      const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
 
       // When
       await franceConnectLogout('fake-id-token');
@@ -25,9 +23,7 @@ describe('/france-connect', () => {
     });
     test('should call logout endpoint with another return url', async () => {
       // Given
-      const spy = vi
-        .spyOn(AMIGotoMethods, 'AMIGoto')
-        .mockImplementation(() => Promise.resolve());
+      const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
 
       // When
       await franceConnectLogout('fake-id-token', 'http://other-return-url/');

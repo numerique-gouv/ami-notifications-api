@@ -12,7 +12,7 @@ describe('/+page.svelte', () => {
   test('should set token in localStorage', async () => {
     // Given
     const { page } = await import('$app/state');
-    vi.spyOn(AMIGotoMethods, 'AMIGoto').mockImplementation(() => Promise.resolve());
+    vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
     const mockSearchParams = new URLSearchParams({
       is_logged_in: 'true',
       id_token: 'fake-id-token',
@@ -30,9 +30,7 @@ describe('/+page.svelte', () => {
   test('should redirect to redirect_url as redirect_url is provided', async () => {
     // Given
     const { page } = await import('$app/state');
-    const spy = vi
-      .spyOn(AMIGotoMethods, 'AMIGoto')
-      .mockImplementation(() => Promise.resolve());
+    const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
     const mockSearchParams = new URLSearchParams({
       redirect_url: 'http://foo.bar',
     });
@@ -48,9 +46,7 @@ describe('/+page.svelte', () => {
   });
   test('should redirect to home as redirect_url is not provided', async () => {
     // Given
-    const spy = vi
-      .spyOn(AMIGotoMethods, 'AMIGoto')
-      .mockImplementation(() => Promise.resolve());
+    const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
 
     // When
     render(Page);

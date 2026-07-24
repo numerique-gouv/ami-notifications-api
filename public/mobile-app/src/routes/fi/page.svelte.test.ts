@@ -28,9 +28,7 @@ describe('/+page.svelte', () => {
     test('Should redirect to home if feature flag is not enabled', async () => {
       // Given
       vi.mocked(envModule).PUBLIC_FEATURE_FLAG_FI_LOGIN_ENABLED = 'false';
-      const spy = vi
-        .spyOn(AMIGotoMethods, 'AMIGoto')
-        .mockImplementation(() => Promise.resolve());
+      const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
       render(Page);
 
       // When
@@ -42,9 +40,7 @@ describe('/+page.svelte', () => {
     test('Should not redirect to home if feature flag is enabled', async () => {
       // Given
       vi.mocked(envModule).PUBLIC_FEATURE_FLAG_FI_LOGIN_ENABLED = 'true';
-      const spy = vi
-        .spyOn(AMIGotoMethods, 'AMIGoto')
-        .mockImplementation(() => Promise.resolve());
+      const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
       render(Page);
 
       // When
@@ -216,9 +212,7 @@ describe('/+page.svelte', () => {
       vi.spyOn(globalThis, 'fetch').mockResolvedValue(
         new Response('{"api_particulier_statut_etudiant": "Etudiant"}', { status: 200 })
       );
-      const spy = vi
-        .spyOn(AMIGotoMethods, 'AMIGoto')
-        .mockImplementation(() => Promise.resolve());
+      const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
 
       render(Page);
       await waitFor(() => {

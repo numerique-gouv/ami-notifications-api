@@ -85,9 +85,7 @@ describe('/+page.svelte', () => {
   test('should navigate to previous page when user clicks on Close button', async () => {
     // Given
     await userStore.login(mockUserInfo);
-    const backSpy = vi
-      .spyOn(AMIGotoMethods, 'AMIGoto')
-      .mockImplementation(() => Promise.resolve());
+    const backSpy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
 
     // When
     render(Page);
