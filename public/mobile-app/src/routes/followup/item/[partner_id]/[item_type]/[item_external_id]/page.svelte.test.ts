@@ -1,13 +1,13 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { describe, expect, test, vi } from 'vitest';
-import * as navigationMethods from '$app/navigation';
+import * as AMINavigationMethods from '$lib/ami-navigation';
 import { FollowupItem, FollowupItemEvent } from '$lib/followup';
 import Page from '$routes/followup/item/[partner_id]/[item_type]/[item_external_id]/+page.svelte';
 
 describe('/+page.svelte', () => {
   test('user has to be connected', async () => {
     // Given
-    const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue();
+    const spy = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
     const event = new FollowupItemEvent(
       'event-id',
       new Date('2026-02-03T08:05:42Z'),
@@ -67,7 +67,7 @@ describe('/+page.svelte', () => {
       item_external_id: 'id',
     };
     vi.stubGlobal('location', { href: 'fake-link' });
-    const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue();
+    const spy = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
 
     // When
     render(Page, { props: { data: { item }, params: params } });
@@ -102,7 +102,7 @@ describe('/+page.svelte', () => {
       item_external_id: 'id',
     };
     vi.stubGlobal('location', { href: 'fake-link' });
-    const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue();
+    const spy = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
 
     // When
     render(Page, { props: { data: { item }, params: params } });

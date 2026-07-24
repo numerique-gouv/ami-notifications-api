@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
+  import { AMIGoto } from '$lib/ami-navigation';
 
   interface Props {
     backUrl: string;
@@ -7,7 +7,7 @@
   let { backUrl }: Props = $props();
 
   const navigateToPreviousPage = async () => {
-    goto(backUrl);
+    AMIGoto(backUrl);
   };
 </script>
 
