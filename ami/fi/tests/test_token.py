@@ -199,3 +199,11 @@ def test_token_fi_session_not_found(
 
     response = app.post("/api/v1/fi/token/", token_data, status=403)
     assert response.json == {"detail": "Session de connexion à AMI-FI non trouvée"}
+
+
+def test_token_flag_disabled(
+    settings,
+    app,
+) -> None:
+    settings.FI_SILENT_LOGIN_ENABLED = False
+    app.post("/api/v1/fi/token/", status=404)

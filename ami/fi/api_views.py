@@ -6,7 +6,7 @@ from typing import cast
 import jwt
 from django.conf import settings
 from django.contrib.auth.hashers import make_password
-from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
+from django.http import Http404, HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect
 from rest_framework import serializers
 from rest_framework.decorators import api_view
@@ -27,6 +27,8 @@ logger = logging.getLogger(__name__)
 
 @api_view(["POST"])
 def token(request: Request) -> JsonResponse:
+    if not settings.FI_SILENT_LOGIN_ENABLED:
+        raise Http404
     serializer = TokenSerializer(data=request.data)
     try:
         serializer.is_valid(raise_exception=True)
@@ -67,6 +69,8 @@ def token(request: Request) -> JsonResponse:
 
 @api_view(["GET"])
 def userinfo(request: Request) -> JsonResponse:
+    if not settings.FI_SILENT_LOGIN_ENABLED:
+        raise Http404
     auth_header = request.META.get("HTTP_AUTHORIZATION")
     if not auth_header:
         logger.error("Header d'authentification manquant")
@@ -93,6 +97,8 @@ def userinfo(request: Request) -> JsonResponse:
 
 @api_view(["GET"])
 def logout(request: Request) -> HttpResponseBadRequest | HttpResponseRedirect:
+    if not settings.FI_SILENT_LOGIN_ENABLED:
+        raise Http404
     redirect_uri = request.GET.get("post_logout_redirect_uri")
     if redirect_uri != f"{settings.PUBLIC_FC_BASE_URL}{settings.FC_LOGOUT_CALLBACK_ENDPOINT}":
         return HttpResponseBadRequest()
