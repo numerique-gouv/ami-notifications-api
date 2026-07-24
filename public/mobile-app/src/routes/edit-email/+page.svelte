@@ -45,8 +45,8 @@
 </script>
 
 <PageWrapper>
-  {#snippet header({ scrolled })}
-    <NavWithBackButton title="Contact" {backUrl} {scrolled} />
+  {#snippet header()}
+    <NavWithBackButton title="Contact" {backUrl} />
   {/snippet}
 
   {#snippet content()}

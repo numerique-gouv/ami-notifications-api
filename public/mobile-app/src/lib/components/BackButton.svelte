@@ -14,20 +14,12 @@
 <div class="back-button-wrapper">
   <button
     onclick={navigateToPreviousPage}
-    title="Retour à la page précédente"
-    aria-label="Retour à la page précédente"
     data-testid="back-button"
+    class="fr-btn fr-icon-arrow-left-line fr-btn--tertiary-no-outline"
   >
-    <span aria-hidden="true" class="fr-icon-arrow-left-line"></span>
+    Retour à la page précédente
   </button>
 </div>
 
 <style>
-  .back-button-wrapper {
-    margin-bottom: 0.5rem;
-    color: var(--text-active-blue-france);
-    button {
-      padding: 0;
-    }
-  }
 </style>

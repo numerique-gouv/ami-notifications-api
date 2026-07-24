@@ -108,9 +108,9 @@
 <style>
   .followup {
     padding: 1.5rem 1rem;
-    margin-bottom: 68px;
+    margin-bottom: 4.25rem;
     &.archived {
-      padding-top: 0;
+      padding-top: 7rem;
       margin-bottom: 0;
     }
     .followup--title {

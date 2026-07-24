@@ -37,7 +37,7 @@
 <div class="preferences-page">
   <NavWithBackButton title="Préférences" {backUrl} />
 
-  <div class="preferences-content-container">
+  <div class="preferences-content-container fr-pt-14w">
     <nav class="fr-sidemenu" aria-labelledby="fr-sidemenu-title">
       <div class="fr-sidemenu__inner">
         <div id="fr-sidemenu-wrapper">
