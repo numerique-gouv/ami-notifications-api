@@ -4,6 +4,7 @@ from django.db import models
 
 from ami.partner.models import partners
 from ami.service.schemas import ServicesItem
+from ami.user.models import User
 
 
 class Service(models.Model):
@@ -44,3 +45,10 @@ class Service(models.Model):
             created_at=self.created_at,
             updated_at=self.updated_at,
         )
+
+    def accessible_to(self, user: User):
+        if not self.restricted_to:
+            return True
+        if user.fc_hash in [r.strip() for r in self.restricted_to.split(" ")]:
+            return True
+        return False

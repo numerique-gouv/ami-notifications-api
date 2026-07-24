@@ -28,7 +28,7 @@ def get_services(request: Request) -> Response[Services]:
     }
 
     for service_name in services_mapping:
-        result = services_mapping[service_name]()
+        result = services_mapping[service_name](current_user=request.ami_user)
         if result.status == ServicesSourceStatus.SUCCESS:
             result.set_expires_at(SOURCE_EXPIRATION_RULES[service_name])
         service.__dict__[service_name] = result
