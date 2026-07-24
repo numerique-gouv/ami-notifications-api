@@ -8,11 +8,7 @@ import * as franceConnectHelpers from '$lib/france-connect';
 import Page from './+page.svelte';
 
 describe('/+page.svelte', () => {
-  let originalWindow: typeof globalThis.window;
-
   beforeEach(() => {
-    originalWindow = globalThis.window;
-
     vi.mock('$env/static/public', async (importOriginal) => {
       const original = (await importOriginal()) as Record<string, unknown>;
       return Promise.resolve({
@@ -25,7 +21,6 @@ describe('/+page.svelte', () => {
   });
 
   afterEach(() => {
-    globalThis.window = originalWindow;
     vi.resetAllMocks();
   });
 
@@ -218,10 +213,12 @@ describe('/+page.svelte', () => {
   describe('user wants to login again', () => {
     test('should call authorize endpoint when click on login button', async () => {
       // Given
-      vi.stubGlobal('location', { href: 'fake-link' });
       vi.spyOn(globalThis, 'fetch').mockResolvedValue(
         new Response('{"api_particulier_statut_etudiant": "Etudiant"}', { status: 200 })
       );
+      const spy = vi
+        .spyOn(AMIGotoMethods, 'AMIGoto')
+        .mockImplementation(() => Promise.resolve());
 
       render(Page);
       await waitFor(() => {
@@ -233,7 +230,7 @@ describe('/+page.svelte', () => {
         loginButton.click();
 
         // Then
-        expect(globalThis.window.location.href).toContain(
+        expect(spy).toHaveBeenCalledWith(
           `${PUBLIC_API_URL}/login-ami-fi?provider_id=api_particulier_statut_etudiant`
         );
       });

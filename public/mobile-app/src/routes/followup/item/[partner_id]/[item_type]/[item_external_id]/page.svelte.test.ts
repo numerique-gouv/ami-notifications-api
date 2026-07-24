@@ -66,7 +66,6 @@ describe('/+page.svelte', () => {
       item_type: 'type',
       item_external_id: 'id',
     };
-    vi.stubGlobal('location', { href: 'fake-link' });
     const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
 
     // When
@@ -101,7 +100,6 @@ describe('/+page.svelte', () => {
       item_type: 'type',
       item_external_id: 'id',
     };
-    vi.stubGlobal('location', { href: 'fake-link' });
     const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
 
     // When
@@ -142,7 +140,7 @@ describe('/+page.svelte', () => {
       item_type: 'type',
       item_external_id: 'id',
     };
-    vi.stubGlobal('location', { href: 'fake-link' });
+    const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
 
     // When
     render(Page, { props: { data: { item }, params: params } });
@@ -160,7 +158,7 @@ describe('/+page.svelte', () => {
 
     // Then
     await waitFor(() => {
-      expect(window.location.href).toBe('link1');
+      expect(spy).toHaveBeenCalledWith('link1');
     });
   });
 });

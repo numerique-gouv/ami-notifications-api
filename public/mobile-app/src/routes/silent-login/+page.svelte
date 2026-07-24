@@ -14,7 +14,7 @@
       }
     }
     if (searchParams.has('redirect_url')) {
-      window.location.href = searchParams.get('redirect_url') || '';
+      AMIGoto(searchParams.get('redirect_url') || '');
     } else {
       AMIGoto('/');
     }

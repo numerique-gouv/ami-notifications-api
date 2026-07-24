@@ -5,7 +5,8 @@ import WS from 'vitest-websocket-mock';
 import * as AMIGotoMethods from '$lib/ami-goto';
 import * as notificationsMethods from '$lib/notifications';
 import { type AppNotification, PUBLIC_API_WS_URL } from '$lib/notifications';
-import { expectBackButtonPresent } from '$tests/utils';
+import { userStore } from '$lib/state/User.svelte';
+import { expectBackButtonPresent, mockUserInfo } from '$tests/utils';
 import Page from './+page.svelte';
 
 let wss: WSType;
@@ -42,6 +43,7 @@ describe('/+page.svelte', () => {
 
   test('should render a Back button', async () => {
     // When
+    await userStore.login(mockUserInfo);
     render(Page);
 
     // Then
@@ -50,6 +52,7 @@ describe('/+page.svelte', () => {
 
   test('should navigate to Settings when user clicks on Gérer button', async () => {
     // Given
+    await userStore.login(mockUserInfo);
     const spy = vi
       .spyOn(AMIGotoMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
@@ -61,14 +64,14 @@ describe('/+page.svelte', () => {
 
     // Then
     await waitFor(() => {
-      expect(spy).toHaveBeenCalledTimes(2);
-      expect(spy).toHaveBeenNthCalledWith(1, '/');
-      expect(spy).toHaveBeenNthCalledWith(2, '/#/preferences/notifications');
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenNthCalledWith(1, '/#/preferences/notifications');
     });
   });
 
   test('notification display', async () => {
     // Given
+    await userStore.login(mockUserInfo);
     const spy = vi
       .spyOn(notificationsMethods, 'retrieveNotifications')
       .mockImplementation(async () => [
@@ -114,6 +117,7 @@ describe('/+page.svelte', () => {
 
   test('notification mark as read', async () => {
     // Given
+    await userStore.login(mockUserInfo);
     const spy = vi
       .spyOn(notificationsMethods, 'retrieveNotifications')
       .mockImplementationOnce(async () => [
@@ -214,6 +218,7 @@ describe('/+page.svelte', () => {
 
   test('should redirect to url when is set and user clicks on notification', async () => {
     // Given
+    await userStore.login(mockUserInfo);
     vi.spyOn(notificationsMethods, 'retrieveNotifications').mockImplementationOnce(
       async () => [
         {
@@ -228,7 +233,9 @@ describe('/+page.svelte', () => {
         },
       ]
     );
-    vi.stubGlobal('location', { href: 'fake-link' });
+    const spy = vi
+      .spyOn(AMIGotoMethods, 'AMIGoto')
+      .mockImplementation(() => Promise.resolve());
 
     render(Page);
     const notificationLink = await waitFor(() =>
@@ -239,11 +246,12 @@ describe('/+page.svelte', () => {
     await notificationLink.click();
 
     // Then
-    expect(globalThis.window.location.href).toBe('https://www.service-public.gouv.fr');
+    expect(spy).toHaveBeenCalledWith('https://www.service-public.gouv.fr');
   });
 
   test('should not redirect when url is not set and user clicks on notification', async () => {
     // Given
+    await userStore.login(mockUserInfo);
     vi.spyOn(notificationsMethods, 'retrieveNotifications').mockImplementationOnce(
       async () => [
         {
@@ -258,7 +266,9 @@ describe('/+page.svelte', () => {
         },
       ]
     );
-    vi.stubGlobal('location', { href: 'fake-link' });
+    const spy = vi
+      .spyOn(AMIGotoMethods, 'AMIGoto')
+      .mockImplementation(() => Promise.resolve());
 
     render(Page);
     const notificationLink = await waitFor(() =>
@@ -269,6 +279,6 @@ describe('/+page.svelte', () => {
     await notificationLink.click();
 
     // Then
-    expect(globalThis.window.location.href).toBe('fake-link');
+    expect(spy).not.toHaveBeenCalled();
   });
 });

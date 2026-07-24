@@ -4,6 +4,7 @@ import {
   PUBLIC_FC_LOGOUT_ENDPOINT,
   PUBLIC_FC_PROXY_BASE_URL,
 } from '$env/static/public';
+import { AMIGoto } from '$lib/ami-goto';
 import type { UserInfo } from '$lib/state/User.svelte';
 
 export function parseJwt(token: string): UserInfo {
@@ -40,5 +41,5 @@ export const franceConnectLogout = async (
   url.search = params.toString();
 
   // Now logout from FC.
-  window.location.href = url.toString();
+  AMIGoto(url.toString());
 };

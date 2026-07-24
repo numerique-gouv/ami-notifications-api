@@ -1,11 +1,7 @@
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { render, screen, waitFor } from '@testing-library/svelte';
-import {
-  PUBLIC_API_URL,
-  PUBLIC_CONTACT_EMAIL,
-  PUBLIC_CONTACT_URL,
-} from '$env/static/public';
+import { PUBLIC_CONTACT_EMAIL, PUBLIC_CONTACT_URL } from '$env/static/public';
 import * as AMIGotoMethods from '$lib/ami-goto';
 import * as initializeDataFromAPIMethods from '$lib/initializeDataFromAPI';
 import { toastStore } from '$lib/state/toast.svelte';
@@ -14,14 +10,7 @@ import { mockUserInfo } from '$tests/utils';
 import Page from './+page.svelte';
 
 describe('/+page.svelte', () => {
-  let originalWindow: typeof globalThis.window;
-
-  beforeEach(() => {
-    originalWindow = globalThis.window;
-  });
-
   afterEach(() => {
-    globalThis.window = originalWindow;
     vi.resetAllMocks();
   });
 
@@ -127,7 +116,9 @@ describe('/+page.svelte', () => {
   test('should call authorize endpoint when click on FranceConnect login button', async () => {
     // Given
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('', { status: 200 }));
-    vi.stubGlobal('location', { href: 'fake-link' });
+    const spy = vi
+      .spyOn(AMIGotoMethods, 'AMIGoto')
+      .mockImplementation(() => Promise.resolve());
 
     render(Page);
     await waitFor(() => {
@@ -139,8 +130,7 @@ describe('/+page.svelte', () => {
       franceConnectLoginButton.click();
 
       // Then
-      expect(globalThis.window.location.href).toContain(PUBLIC_API_URL);
-      expect(globalThis.window.location.href).toContain('login-france-connect');
+      expect(spy).toHaveBeenCalledWith('https://localhost:8000/login-france-connect');
     });
   });
 

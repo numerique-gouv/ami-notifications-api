@@ -67,7 +67,7 @@
         mode: 'no-cors',
         cache: 'no-store',
       });
-      window.location.href = `${PUBLIC_API_URL}/login-france-connect`;
+      AMIGoto(`${PUBLIC_API_URL}/login-france-connect`);
     } catch {
       AMIGoto('/#/network-error');
     }
