@@ -4,7 +4,7 @@ import uuid
 from urllib.parse import urlencode
 
 from django.conf import settings
-from django.http import JsonResponse
+from django.http import Http404, JsonResponse
 from django.shortcuts import redirect
 from django.views.decorators.http import require_GET
 
@@ -116,6 +116,8 @@ def login_ami_fi(request):
 
 @require_GET
 def silent_login_ami_fi(request):
+    if not settings.FI_SILENT_LOGIN_ENABLED:
+        raise Http404
     return login(request, "silent-ami-fi")
 
 

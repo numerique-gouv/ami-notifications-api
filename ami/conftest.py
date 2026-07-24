@@ -28,8 +28,9 @@ def dummy_tasks(settings):
 
 
 @pytest.fixture
-def app(django_app, dummy_tasks):
+def app(django_app, dummy_tasks, settings):
     cache.clear()
+    settings.FI_SILENT_LOGIN_ENABLED = True
     yield django_app
 
 
