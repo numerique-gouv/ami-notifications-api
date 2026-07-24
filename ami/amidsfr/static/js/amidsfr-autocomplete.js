@@ -121,6 +121,8 @@ const displayResults = (element, results) => {
     button.addEventListener('mousedown', (_ev) => {
       _ev.preventDefault();
       element.value = _ev.target.textContent;
+      const event = new Event('autocomplete');
+      element.dispatchEvent(event);
       autocompleteDiv.remove();
       const button = element.form.querySelector('.amidsfr-autocomplete button');
       if (button) {
