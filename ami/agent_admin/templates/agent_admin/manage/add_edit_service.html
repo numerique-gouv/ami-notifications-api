@@ -2,7 +2,11 @@
 {% load dsfr_tags %}
 
 {% block content %}
-  <h1>Ajouter une démarche</h1>
+  {% if instance.id %}
+    <h1>Modifier une démarche</h1>
+  {% else %}
+    <h1>Ajouter une démarche</h1>
+  {% endif %}
   <form method="post" id="service-form" class="form-disable-on-submit" novalidate>
     {% csrf_token %}
     {{ form }}
