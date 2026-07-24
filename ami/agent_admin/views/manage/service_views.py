@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
 from ami.agent.decorators import (
@@ -29,18 +29,20 @@ def list_services(request):
     return render(request, "agent_admin/manage/list_services.html", context)
 
 
-@agent_login_required
-@role_admin_required
-def add_service(request):
+def add_edit_service(service: Service | None, request):
     if request.method == "POST":
-        form = ServiceForm(data=request.POST)
+        form = ServiceForm(data=request.POST, instance=service)
         if form.is_valid():
             form.save()
-            messages.success(request, "La démarche a bien été ajoutée.")
+            if service is not None:
+                messages.success(request, "La démarche a bien été modifiée.")
+            else:
+                messages.success(request, "La démarche a bien été ajoutée.")
             return redirect(reverse("agent-admin:manage:list-services"))
     else:
-        form = ServiceForm()
+        form = ServiceForm(instance=service)
     context = {
+        "instance": service,
         "form": form,
         "btn_group": {
             "items": [
@@ -58,4 +60,17 @@ def add_service(request):
             "extra_classes": "fr-btns-group--inline fr-btns-group--form-actions",
         },
     }
-    return render(request, "agent_admin/manage/add_service.html", context)
+    return render(request, "agent_admin/manage/add_edit_service.html", context)
+
+
+@agent_login_required
+@role_admin_required
+def add_service(request):
+    return add_edit_service(None, request)
+
+
+@agent_login_required
+@role_admin_required
+def edit_service(request, service_id):
+    service = get_object_or_404(Service, id=service_id)
+    return add_edit_service(service, request)
