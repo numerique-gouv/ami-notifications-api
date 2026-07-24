@@ -53,9 +53,7 @@ describe('/FollowupItem.svelte', () => {
         'link1'
       );
       const onOpen = vi.fn();
-      const spy = vi
-        .spyOn(AMINavigationMethods, 'AMIGoto')
-        .mockImplementation(() => Promise.resolve());
+      const spy = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
 
       // When
       render(FollowupItem, { props: { item: item, onOpen: onOpen } });

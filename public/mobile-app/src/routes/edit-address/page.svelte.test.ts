@@ -16,9 +16,7 @@ describe('/+page.svelte', () => {
   let backSpy: MockInstance<typeof AMINavigationMethods.AMIGoto>;
 
   beforeEach(async () => {
-    backSpy = vi
-      .spyOn(AMINavigationMethods, 'AMIGoto')
-      .mockImplementation(() => Promise.resolve());
+    backSpy = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
 
     await userStore.login(mockUserInfo);
 

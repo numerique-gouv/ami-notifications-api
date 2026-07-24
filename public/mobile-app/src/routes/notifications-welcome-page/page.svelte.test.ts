@@ -7,9 +7,7 @@ import Page from './+page.svelte';
 describe('/+page.svelte', () => {
   test('should redirect to new page', async () => {
     // Given
-    const spy = vi
-      .spyOn(AMINavigationMethods, 'AMIGoto')
-      .mockImplementation(() => Promise.resolve());
+    const spy = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
 
     // When
     render(Page);
