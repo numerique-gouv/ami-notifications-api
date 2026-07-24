@@ -109,15 +109,14 @@
   };
 </script>
 
-<PageWrapper>
-  {#snippet header({ scrolled })}
+<PageWrapper className="header-fix-with-logo">
+  {#snippet header()}
     <div class="nav">
       <NavWithBackButton
         title="Opération Tranquillité Vacances"
         logo="/icons/otv-logo.svg"
         logoAlt="Icône du logo du partenaire"
         {backUrl}
-        {scrolled}
       />
     </div>
   {/snippet}

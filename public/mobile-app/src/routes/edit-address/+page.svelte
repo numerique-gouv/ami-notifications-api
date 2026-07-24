@@ -141,8 +141,8 @@
 </script>
 
 <PageWrapper>
-  {#snippet header({ scrolled })}
-    <NavWithBackButton title="Où habitez-vous&nbsp;?" {backUrl} {scrolled} />
+  {#snippet header()}
+    <NavWithBackButton title="Où habitez-vous&nbsp;?" {backUrl} />
   {/snippet}
 
   {#snippet content()}

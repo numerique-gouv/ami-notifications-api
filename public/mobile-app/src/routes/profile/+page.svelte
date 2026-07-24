@@ -41,13 +41,13 @@
 <NavWithBackButton title="Mon profil" {backUrl} />
 
 {#if identity}
-  <div class="profile-content-container" data-testid="profile">
+  <div class="fr-container profile-content-container fr-pt-14w" data-testid="profile">
     <Card
       id="profile-identity"
       iconHref="/remixicons/account-circle-line.svg"
       title="Mon identité"
     >
-      <p class="paragraph-wrapper">
+      <p class="paragraph-wrapper fr-mb-0">
         Vous êtes&nbsp;:
         <br>
         <b
@@ -82,7 +82,7 @@
     </Card>
 
     <Card id="profile-email" iconHref="/remixicons/mail-line.svg" title="Contact">
-      <p class="paragraph-wrapper">
+      <p class="paragraph-wrapper fr-mb-0">
         Pour vous contacter&nbsp;:
         <br>
         <b>{identity.email}</b>
@@ -110,7 +110,7 @@
       title="Mon adresse"
     >
       {#if address}
-        <p class="paragraph-wrapper">
+        <p class="paragraph-wrapper fr-mb-0">
           Votre résidence principale
           <br>
           <b>{address.name}</b>
@@ -138,13 +138,3 @@
     </Card>
   </div>
 {/if}
-
-<style>
-  .profile-content-container {
-    margin: 0 1rem 1rem 1rem;
-
-    .paragraph-wrapper {
-      margin-bottom: 1rem;
-    }
-  }
-</style>

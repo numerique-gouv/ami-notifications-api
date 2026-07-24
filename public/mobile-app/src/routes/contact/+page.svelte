@@ -26,10 +26,10 @@
   };
 </script>
 
-<div class="contact-page">
+<div class="fr-container contact-page">
   <NavWithBackButton title="Nous contacter" {backUrl} />
 
-  <div class="contact-page-wrapper">
+  <div class="contact-page-wrapper fr-pt-14w">
     <div class="image-wrapper">
       <img class="contact-icon" src="/icons/community.svg" alt="">
     </div>
@@ -88,7 +88,7 @@
 <style>
   .contact-page {
     .contact-page-wrapper {
-      padding: 0 1rem;
+      padding-top: 7rem;
       .image-wrapper {
         display: flex;
         justify-content: center;
@@ -103,7 +103,7 @@
           overflow: hidden;
           padding: 12px;
           margin: 0;
-          background-color: #ececfe;
+          background-color: var(--background-contrast-blue-france);
           font-weight: 500;
         }
         .button-wrapper {
