@@ -12,4 +12,37 @@
     {{ form }}
     {% dsfr_button_group btn_group %}
   </form>
+
+  {% if instance.id %}
+    <dialog id="modal-delete-service" class="fr-modal" aria-labelledby="modal-delete-service-title">
+      <div class="fr-container fr-container--fluid fr-container-md">
+        <div class="fr-grid-row fr-grid-row--center">
+          <div class="fr-col-12 fr-col-md-8 fr-col-lg-6">
+            <div class="fr-modal__body">
+              <form method="post" id="delete-service" action="{% url "agent-admin:manage:delete-service" instance.id %}">
+                <div class="fr-modal__header">
+                </div>
+                <div class="fr-modal__content">
+                  <h2 id="modal-delete-service-title" class="fr-modal__title">
+                    Suppression
+                  </h2>
+                  <p>Êtes-vous sûr de vouloir supprimer cette démarche&nbsp;?</p>
+                </div>
+                <div class="fr-modal__footer">
+                  <ul class="fr-btns-group fr-btns-group--right fr-btns-group--inline-reverse fr-btns-group--inline-lg fr-btns-group--icon-left">
+                    <li>
+                      <button type="submit" class="fr-btn">Confirmer</button>
+                    </li>
+                    <li>
+                      <button type="button" aria-controls="modal-delete-service" class="fr-btn fr-btn--secondary">Annuler</button>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </dialog>
+  {% endif %}
 {% endblock %}
