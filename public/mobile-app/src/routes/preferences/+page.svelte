@@ -73,6 +73,9 @@
 />
 
 <style>
+  .preferences-content-container {
+    padding-top: 7rem;
+  }
   .preferences-page {
     .fr-sidemenu {
       padding: 1rem;

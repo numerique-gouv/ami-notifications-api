@@ -51,13 +51,12 @@
 <NavWithBackButton title="Notifications" {backUrl}>
   <div class="settings-svg-icon">
     <button
-      class="fr-btn fr-btn--tertiary"
+      class="fr-btn fr-icon-settings-3-line fr-btn--icon-left fr-btn--tertiary"
       type="button"
       onclick="{goToSettings}"
       data-testid="settings-button"
       aria-label="Gérer les notifications"
     >
-      <img src="/remixicons/settings.svg" alt="">
       Gérer
     </button>
   </div>
@@ -103,16 +102,8 @@
 </div>
 
 <style>
-  .settings-svg-icon {
-    padding-top: 0.25rem;
-    color: var(--text-active-blue-france);
-    img {
-      margin-right: 0.5rem;
-      width: 1rem;
-      height: 1rem;
-    }
-  }
   .notifications-content-container {
+    padding-top: 7rem;
     .notification {
       background: none;
       border-bottom: 1px solid var(--background-alt-grey-active);

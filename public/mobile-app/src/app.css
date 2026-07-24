@@ -22,6 +22,28 @@
   mask-image: url("/icons/custom/vector-line.svg");
 }
 
+.fr-icon-settings-3-line::before,
+.fr-icon-settings-3-line::after {
+  -webkit-mask-image: url("/icons/custom/settings-3-line.svg");
+  mask-image: url("/icons/custom/settings-3-line.svg");
+}
+
 .am-text--smbold {
   font-weight: 500 !important;
+}
+
+.am-badge--blue-dsfr {
+  color: var(--text-active-blue-france);
+  background-color: var(--background-action-low-blue-france);
+}
+
+.am-text-mention-grey {
+  color: var(--text-mention-grey);
+}
+
+nav.scrolled .title h1 {
+  /* stylelint-disable declaration-no-important */
+  font-size: 1.125rem !important;
+  line-height: 2.5rem !important;
+  /* stylelint-enable declaration-no-important */
 }

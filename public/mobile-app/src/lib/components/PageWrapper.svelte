@@ -9,48 +9,34 @@
   interface Props {
     content: Snippet;
     footer: Snippet;
-    header?: Snippet<[{ scrolled: boolean }]>;
+    header?: Snippet;
+    className?: string;
   }
-  let { content, footer, header }: Props = $props();
-  let scrolled: boolean = $state(false);
-  let contentEl: HTMLDivElement;
-  let wrapperEl: HTMLDivElement;
-
-  onMount(() => {
-    wrapperEl.style.height = `${window.innerHeight}px`;
-    console.log('innerHeight:', window.innerHeight);
-  });
+  let { content, footer, header, className = '' }: Props = $props();
 </script>
 
-<div class="wrapper" bind:this={wrapperEl}>
+<div class="wrapper content-header-fixe fr-container { className }">
   {#if header}
-    <div class="header">{@render header({ scrolled })}</div>
+    <div class="header">{@render header()}</div>
   {/if}
-  <div
-    class="content"
-    bind:this={contentEl}
-    onscroll={() => { scrolled = contentEl.scrollTop > 20; console.log("scrolled", scrolled);}}
-  >
-    {@render content()}
-  </div>
-  <div class="footer">{@render footer()}</div>
+  <div class="content">{@render content()}</div>
+  <div class="footer fr-p-2w">{@render footer()}</div>
 </div>
 
 <style>
-  .wrapper {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    overflow: hidden;
+  .content-header-fixe {
+    padding-top: 7rem;
+    padding-bottom: 9rem;
 
-    .content {
-      flex-grow: 1;
-      overflow: auto;
-      padding: 1rem;
+    &.header-fix-with-logo {
+      padding-top: 12rem;
     }
-
     .footer {
-      padding: 1rem;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background-color: var(--background-default-grey);
     }
   }
 </style>

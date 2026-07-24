@@ -100,9 +100,9 @@
 </script>
 
 <PageWrapper>
-  {#snippet header({ scrolled })}
+  {#snippet header()}
     {#if service}
-      <NavWithBackButton title={service.title} {backUrl} {scrolled} />
+      <NavWithBackButton title={service.title} {backUrl} />
     {/if}
   {/snippet}
 
