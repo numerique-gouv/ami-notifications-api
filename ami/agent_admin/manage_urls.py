@@ -10,4 +10,5 @@ urlpatterns = [
     path("user/<uuid:user_id>/", user_views.detail_user, name="detail-user"),
     path("user/<uuid:user_id>/delete/", user_views.delete_user, name="delete-user"),
     path("service/", service_views.list_services, name="list-services"),
+    path("service/add/", service_views.add_service, name="add-service"),
 ]

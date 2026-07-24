@@ -1,4 +1,5 @@
 {% extends "agent_admin/base.html" %}
+{% load dsfr_tags %}
 
 {% block content %}
   <h1>Gestion du catalogue de démarches</h1>
@@ -24,4 +25,5 @@
       </div>
     </div>
   </div>
+  {% dsfr_button_group btn_group %}
 {% endblock %}

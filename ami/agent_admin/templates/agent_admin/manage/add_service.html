@@ -1,0 +1,11 @@
+{% extends "agent_admin/base.html" %}
+{% load dsfr_tags %}
+
+{% block content %}
+  <h1>Ajouter une démarche</h1>
+  <form method="post" id="service-form" class="form-disable-on-submit" novalidate>
+    {% csrf_token %}
+    {{ form }}
+    {% dsfr_button_group btn_group %}
+  </form>
+{% endblock %}

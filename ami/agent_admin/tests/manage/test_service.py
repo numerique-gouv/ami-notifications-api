@@ -52,3 +52,68 @@ def test_list_services_empty(app, admin_agent: Agent) -> None:
 @pytest.mark.django_db
 def test_list_services_without_agent_admin_auth(app) -> None:
     assert_query_fails_without_agent_admin_auth(app, "/agent-admin/manage/service/")
+
+
+@pytest.mark.django_db
+def test_add_service(app, admin_agent: Agent) -> None:
+    app.set_user(admin_agent.user)
+    response = app.get("/agent-admin/manage/service/add/")
+    assert "Ajouter une démarche" in response.pyquery("main").text()
+
+    assert response.forms["service-form"]["partner_id"].value == ""
+    assert response.forms["service-form"]["item_type"].value == ""
+    assert response.forms["service-form"]["title"].value == ""
+    assert response.forms["service-form"]["short_description"].value == ""
+    assert response.forms["service-form"]["description"].value == ""
+    assert response.forms["service-form"]["url"].value == ""
+    assert response.forms["service-form"]["with_silent_login"].value is None
+
+
+@pytest.mark.django_db
+def test_add_service_submit_validation_errors(app, admin_agent: Agent) -> None:
+    app.set_user(admin_agent.user)
+    response = app.get("/agent-admin/manage/service/add/")
+    response = response.forms["service-form"].submit()
+    assert response.context["form"].errors == {
+        "partner_id": ["Ce champ est obligatoire."],
+        "item_type": ["Ce champ est obligatoire."],
+        "title": ["Ce champ est obligatoire."],
+        "short_description": ["Ce champ est obligatoire."],
+        "description": ["Ce champ est obligatoire."],
+        "url": ["Ce champ est obligatoire."],
+    }
+
+
+@pytest.mark.django_db
+def test_add_service_submit_success(app, admin_agent: Agent) -> None:
+    app.set_user(admin_agent.user)
+    response = app.get("/agent-admin/manage/service/add/")
+    assert Service.objects.count() == 0
+
+    response.forms["service-form"]["partner_id"] = "dinum-ami"
+    response.forms["service-form"]["item_type"] = "JeDéménage"
+    response.forms["service-form"]["title"] = "Je déménage"
+    response.forms["service-form"]["short_description"] = "Démarche de changement d'adresse"
+    response.forms["service-form"]["description"] = "**Démarche de changement d'adresse**"
+    response.forms["service-form"]["url"] = "http://demarche-demenagement"
+    response.forms["service-form"]["with_silent_login"] = True
+
+    response = response.forms["service-form"].submit()
+    assert response.headers["location"] == "/agent-admin/manage/service/"
+    assert Service.objects.count() == 1
+    service = Service.objects.get()
+    assert service.partner_id == "dinum-ami"
+    assert service.item_type == "JeDéménage"
+    assert service.title == "Je déménage"
+    assert service.short_description == "Démarche de changement d'adresse"
+    assert service.description == "**Démarche de changement d'adresse**"
+    assert service.url == "http://demarche-demenagement"
+    assert service.with_silent_login is True
+
+    response = response.follow()
+    assert response.pyquery(".fr-notice.success").text() == "La démarche a bien été ajoutée."
+
+
+@pytest.mark.django_db
+def test_add_service_without_agent_admin_auth(app) -> None:
+    assert_query_fails_without_agent_admin_auth(app, "/agent-admin/manage/service/add/")
