@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
   import { AMIGoto } from '$lib/ami-goto';
   import ItemModal from '$lib/components/modal/ItemModal.svelte';
   import { type ServicesItem as ServicesItemType } from '$lib/services';
@@ -13,15 +12,15 @@
     item = null;
   };
 
-  const gotoService = async (item: ServicesItemType | null) => {
+  const goToService = async (item: ServicesItemType | null) => {
     if (item) {
       const url = await item.getServiceUrl();
       AMIGoto(url, item.with_silent_login);
     }
   };
 
-  const gotoFollowup = () => {
-    goto('/#/followup');
+  const goToFollowup = () => {
+    AMIGoto('/#/followup');
   };
 </script>
 
@@ -37,7 +36,7 @@
       <button
         class="fr-btn fr-btn--lg"
         type="button"
-        onclick={gotoFollowup}
+        onclick={goToFollowup}
         data-testid="followup-button"
       >
         Voir les démarches en cours
@@ -45,7 +44,7 @@
       <button
         class="fr-btn fr-btn--lg fr-btn--tertiary"
         type="button"
-        onclick={() => gotoService(item)}
+        onclick={() => goToService(item)}
         data-testid="service-button"
       >
         Faire une nouvelle démarche

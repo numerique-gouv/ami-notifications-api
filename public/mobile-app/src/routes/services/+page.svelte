@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
   import { AMIGoto } from '$lib/ami-goto';
   import ServicesItemModal from '$lib/components/modal/ServicesItemModal.svelte';
   import Navigation from '$lib/components/Navigation.svelte';
@@ -16,7 +15,7 @@
 
   onMount(async () => {
     if (!userStore.connected) {
-      goto('/');
+      AMIGoto('/');
       return;
     }
 
@@ -29,7 +28,7 @@
     return await service.getServiceUrl();
   };
 
-  const gotoService = async (service: ServicesItem) => {
+  const goToService = async (service: ServicesItem) => {
     const url = await service.getServiceUrl();
     AMIGoto(url, service.with_silent_login);
   };
@@ -40,7 +39,7 @@
     if (hasNonArchivedItems) {
       selectedServicesItem = service;
     } else {
-      gotoService(service);
+      goToService(service);
     }
   };
 </script>

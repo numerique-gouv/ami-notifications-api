@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
   import { AMIGoto } from '$lib/ami-goto';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import PageWrapper from '$lib/components/PageWrapper.svelte';
@@ -24,7 +23,7 @@
 
   onMount(async () => {
     if (!userStore.connected) {
-      goto('/');
+      AMIGoto('/');
       return;
     }
 
@@ -32,7 +31,7 @@
     const _service = services.find(params.partner_id, params.item_type);
     console.log($state.snapshot(_service));
     if (!_service) {
-      goto('/#/services');
+      AMIGoto('/#/services');
       return;
     }
 
@@ -62,7 +61,7 @@
     date = _date;
   });
 
-  const gotoService = async () => {
+  const goToService = async () => {
     if (service === null) {
       return;
     }
@@ -70,8 +69,8 @@
     AMIGoto(url, service.with_silent_login);
   };
 
-  const gotoFollowup = () => {
-    goto('/#/followup');
+  const goToFollowup = () => {
+    AMIGoto('/#/followup');
   };
 </script>
 
@@ -99,7 +98,7 @@
           <button
             class="fr-btn fr-btn--lg"
             type="button"
-            onclick={gotoFollowup}
+            onclick={goToFollowup}
             data-testid="followup-button"
           >
             Accéder à ma démarche
@@ -107,7 +106,7 @@
           <button
             class="fr-btn fr-btn--lg fr-btn--tertiary"
             type="button"
-            onclick={gotoService}
+            onclick={goToService}
             data-testid="service-button"
           >
             Faire une nouvelle démarche
@@ -116,7 +115,7 @@
           <button
             class="fr-btn fr-btn--lg"
             type="button"
-            onclick={gotoService}
+            onclick={goToService}
             data-testid="service-button"
           >
             Bénéficier de ce service

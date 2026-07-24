@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
   import { PUBLIC_CONTACT_EMAIL, PUBLIC_CONTACT_URL } from '$env/static/public';
+  import { AMIGoto } from '$lib/ami-goto';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import { toastStore } from '$lib/state/toast.svelte';
   import { userStore } from '$lib/state/User.svelte';
@@ -13,7 +13,7 @@
 
   onMount(async () => {
     if (!userStore.connected) {
-      goto('/');
+      AMIGoto('/');
     }
     userFcHash = localStorage.getItem('user_fc_hash');
   });

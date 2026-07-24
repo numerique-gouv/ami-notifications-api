@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
+  import { AMIGoto } from '$lib/ami-goto';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import { getDSFRIcon } from '$lib/dsfr-icon';
   import { FollowupItem } from '$lib/followup';
@@ -15,7 +15,7 @@
 
   onMount(async () => {
     if (!userStore.connected) {
-      goto('/');
+      AMIGoto('/');
     }
     if (data.item) {
       item = data.item as FollowupItem;
@@ -24,7 +24,7 @@
     }
   });
 
-  const gotoExternalItem = (item: FollowupItem | null) => {
+  const goToExternalItem = (item: FollowupItem | null) => {
     if (item?.link) {
       window.location.href = item.link;
     }
@@ -53,7 +53,7 @@
       id="external-item-button"
       class="fr-btn fr-btn--secondary fr-btn--lg fr-mb-6v"
       type="button"
-      onclick={(e) => gotoExternalItem(item)}
+      onclick={(e) => goToExternalItem(item)}
       data-testid="external-item-button-{item.id}"
     >
       Accéder à ma démarche

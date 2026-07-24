@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
   import { PUBLIC_FEATURE_FLAG_SERVICES_ENABLED } from '$env/static/public';
   import { Address } from '$lib/address';
   import { AMIGoto } from '$lib/ami-goto';
@@ -50,13 +49,13 @@
 
   onMount(async () => {
     if (PUBLIC_FEATURE_FLAG_SERVICES_ENABLED === 'true') {
-      goto('/#/services/service/psl/OperationTranquilliteVacances', {
+      AMIGoto('/#/services/service/psl/OperationTranquilliteVacances', false, {
         replaceState: true,
       });
       return;
     }
     if (!userStore.connected) {
-      goto('/');
+      AMIGoto('/');
     }
 
     getProcedureUrl();
@@ -93,8 +92,8 @@
     redirectToLink(procedureUrl);
   };
 
-  const gotoFollowup = () => {
-    goto('/#/followup');
+  const goToFollowup = () => {
+    AMIGoto('/#/followup');
   };
 </script>
 
@@ -145,7 +144,7 @@
         <button
           class="fr-btn fr-btn--lg"
           type="button"
-          onclick={gotoFollowup}
+          onclick={goToFollowup}
           data-testid="followup-button"
         >
           Accéder à ma démarche

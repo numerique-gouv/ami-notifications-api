@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { render, screen, waitFor } from '@testing-library/svelte';
-import * as navigationMethods from '$app/navigation';
 import * as envModule from '$env/static/public';
 import { PUBLIC_API_URL } from '$env/static/public';
+import * as AMIGotoMethods from '$lib/ami-goto';
 import * as franceConnectHelpers from '$lib/france-connect';
 import Page from './+page.svelte';
 
@@ -34,7 +34,7 @@ describe('/+page.svelte', () => {
       // Given
       vi.mocked(envModule).PUBLIC_FEATURE_FLAG_FI_LOGIN_ENABLED = 'false';
       const spy = vi
-        .spyOn(navigationMethods, 'goto')
+        .spyOn(AMIGotoMethods, 'AMIGoto')
         .mockImplementation(() => Promise.resolve());
       render(Page);
 
@@ -48,7 +48,7 @@ describe('/+page.svelte', () => {
       // Given
       vi.mocked(envModule).PUBLIC_FEATURE_FLAG_FI_LOGIN_ENABLED = 'true';
       const spy = vi
-        .spyOn(navigationMethods, 'goto')
+        .spyOn(AMIGotoMethods, 'AMIGoto')
         .mockImplementation(() => Promise.resolve());
       render(Page);
 

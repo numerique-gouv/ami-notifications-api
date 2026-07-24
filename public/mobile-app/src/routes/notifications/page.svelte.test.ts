@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import type { WS as WSType } from 'vitest-websocket-mock';
 import WS from 'vitest-websocket-mock';
-import * as navigationMethods from '$app/navigation';
+import * as AMIGotoMethods from '$lib/ami-goto';
 import * as notificationsMethods from '$lib/notifications';
 import { type AppNotification, PUBLIC_API_WS_URL } from '$lib/notifications';
 import { expectBackButtonPresent } from '$tests/utils';
@@ -27,7 +27,7 @@ describe('/+page.svelte', () => {
   test('user has to be connected', async () => {
     // Given
     const spy = vi
-      .spyOn(navigationMethods, 'goto')
+      .spyOn(AMIGotoMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
 
     // When
@@ -51,7 +51,7 @@ describe('/+page.svelte', () => {
   test('should navigate to Settings when user clicks on Gérer button', async () => {
     // Given
     const spy = vi
-      .spyOn(navigationMethods, 'goto')
+      .spyOn(AMIGotoMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
     render(Page);
 

@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { describe, expect, test, vi } from 'vitest';
-import * as navigationMethods from '$app/navigation';
+import * as AMIGotoMethods from '$lib/ami-goto';
 import FollowupComponent from '$lib/components/Followup.svelte';
 import * as followupMethods from '$lib/followup';
 import { Followup, FollowupItem } from '$lib/followup';
@@ -320,7 +320,7 @@ describe('/Followup.svelte', () => {
       vi.spyOn(followup, 'items', 'get').mockReturnValue([]);
       vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
       render(FollowupComponent);
-      const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue();
+      const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
       await waitFor(async () => {
         const button = screen.getByTestId('more-button');
         await fireEvent.click(button);

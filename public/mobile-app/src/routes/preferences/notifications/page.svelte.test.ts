@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import * as navigationMethods from '$app/navigation';
+import * as AMIGotoMethods from '$lib/ami-goto';
 import * as notificationsMethods from '$lib/notifications';
 import { userStore } from '$lib/state/User.svelte';
 import { expectBackButtonPresent, mockUserInfo } from '$tests/utils';
@@ -23,7 +23,7 @@ describe('/+page.svelte', () => {
 
   test('user has to be connected', async () => {
     // Given
-    const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue();
+    const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
 
     // When
     render(Page);
@@ -86,7 +86,7 @@ describe('/+page.svelte', () => {
     // Given
     await userStore.login(mockUserInfo);
     const backSpy = vi
-      .spyOn(navigationMethods, 'goto')
+      .spyOn(AMIGotoMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
 
     // When

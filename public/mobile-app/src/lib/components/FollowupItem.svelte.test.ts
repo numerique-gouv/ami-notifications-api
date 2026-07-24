@@ -1,7 +1,7 @@
 import { describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
-import * as navigationMethods from '$app/navigation';
+import * as AMIGotoMethods from '$lib/ami-goto';
 import { FollowupItem as Item } from '$lib/followup';
 import FollowupItem from './FollowupItem.svelte';
 
@@ -54,7 +54,7 @@ describe('/FollowupItem.svelte', () => {
       );
       const onOpen = vi.fn();
       const spy = vi
-        .spyOn(navigationMethods, 'goto')
+        .spyOn(AMIGotoMethods, 'AMIGoto')
         .mockImplementation(() => Promise.resolve());
 
       // When

@@ -1,9 +1,9 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
+  import { AMIGoto } from '$lib/ami-goto';
 
   onMount(() => {
-    goto('/#/welcome/notifications', {
+    AMIGoto('/#/welcome/notifications', false, {
       replaceState: true,
     });
   });

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
+  import { AMIGoto } from '$lib/ami-goto';
   import Modal from '$lib/components/modal/Modal.svelte';
   import ZonePreferences from '$lib/components/modal/ZonePreferences.svelte';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
@@ -21,12 +21,12 @@
 
   onMount(async () => {
     if (!userStore.connected) {
-      goto('/');
+      AMIGoto('/');
     }
   });
 
   const navigateToPreviousPage = async () => {
-    goto(backUrl);
+    AMIGoto(backUrl);
   };
 
   const openZonePreferencesModal = () => {

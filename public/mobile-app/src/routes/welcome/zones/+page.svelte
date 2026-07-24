@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
+  import { AMIGoto } from '$lib/ami-goto';
   import ZonePreferences from '$lib/components/modal/ZonePreferences.svelte';
   import { userStore } from '$lib/state/User.svelte';
 
@@ -10,9 +10,9 @@
   };
 
   const goToNotificationsWelcomePage = () => {
-    goto('/#/notifications-welcome-page');
+    AMIGoto('/#/notifications-welcome-page');
     /* to be replaced by:
-     * goto('/#/welcome/notifications')
+     * AMIGoto('/#/welcome/notifications')
      * when app mobile is ready to intercept this new url
      */
   };

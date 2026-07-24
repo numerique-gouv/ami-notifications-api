@@ -1,6 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { describe, expect, test, vi } from 'vitest';
-import * as navigationMethods from '$app/navigation';
 import * as AMIGotoMethods from '$lib/ami-goto';
 import * as followupMethods from '$lib/followup';
 import { Followup } from '$lib/followup';
@@ -15,7 +14,7 @@ describe('/+page.svelte', () => {
     // Given
     vi.spyOn(servicesMethods, 'buildServices').mockResolvedValue(new Services());
     vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(new Followup());
-    const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue();
+    const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
 
     // When
     render(Page);
@@ -31,7 +30,7 @@ describe('/+page.svelte', () => {
     await userStore.login(mockUserInfo);
     vi.spyOn(servicesMethods, 'buildServices').mockResolvedValue(new Services());
     vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(new Followup());
-    const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue();
+    const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
     const spyFind = vi.spyOn(Services.prototype, 'find').mockReturnValueOnce(null);
 
     // When
@@ -52,7 +51,7 @@ describe('/+page.svelte', () => {
     await userStore.login(mockUserInfo);
     vi.spyOn(servicesMethods, 'buildServices').mockResolvedValue(new Services());
     vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(new Followup());
-    const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue();
+    const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
     vi.spyOn(Services.prototype, 'find').mockReturnValueOnce(
       new ServicesItem(
         'psl',
@@ -338,7 +337,7 @@ describe('/+page.svelte', () => {
           );
           vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(new Followup());
           vi.spyOn(Followup.prototype, 'hasNonArchivedItems').mockReturnValue(true);
-          const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue();
+          const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
 
           render(Page, {
             props: { params: { partner_id: 'foo', item_type: 'bar' } },

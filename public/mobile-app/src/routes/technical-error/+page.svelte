@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
+  import { AMIGoto } from '$lib/ami-goto';
 
   const goToHomepage = () => {
-    goto('/');
+    AMIGoto('/');
   };
 </script>
 

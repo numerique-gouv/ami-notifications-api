@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
   import { type Agenda, buildAgenda, Item } from '$lib/agenda';
+  import { AMIGoto } from '$lib/ami-goto';
   import AgendaItem from '$lib/components/AgendaItem.svelte';
   import AgendaItemModal from '$lib/components/modal/AgendaItemModal.svelte';
   import Modal from '$lib/components/modal/Modal.svelte';
@@ -19,7 +19,7 @@
 
   onMount(async () => {
     if (!userStore.connected) {
-      goto('/');
+      AMIGoto('/');
     }
 
     agenda = await buildAgenda();

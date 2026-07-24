@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { render, waitFor } from '@testing-library/svelte';
 import type { Snippet } from 'svelte';
-import * as navigationMethods from '$app/navigation';
+import * as AMIGotoMethods from '$lib/ami-goto';
 import Layout from './+layout.svelte';
 
 vi.mock('$env/dynamic/public', () => ({
@@ -32,7 +32,7 @@ describe('+layout.svelte', () => {
       // Given
       delete mockEnv.env.PUBLIC_WEBSITE_PUBLIC;
       const spy = vi
-        .spyOn(navigationMethods, 'goto')
+        .spyOn(AMIGotoMethods, 'AMIGoto')
         .mockImplementation(() => Promise.resolve());
 
       // When
@@ -48,7 +48,7 @@ describe('+layout.svelte', () => {
       // Given
       mockEnv.env.PUBLIC_WEBSITE_PUBLIC = 'true';
       const spy = vi
-        .spyOn(navigationMethods, 'goto')
+        .spyOn(AMIGotoMethods, 'AMIGoto')
         .mockImplementation(() => Promise.resolve());
 
       // When
@@ -67,7 +67,7 @@ describe('+layout.svelte', () => {
         onEvent: vi.fn(),
       };
       const spy = vi
-        .spyOn(navigationMethods, 'goto')
+        .spyOn(AMIGotoMethods, 'AMIGoto')
         .mockImplementation(() => Promise.resolve());
 
       // When
