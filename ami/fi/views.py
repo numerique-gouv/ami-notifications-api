@@ -7,7 +7,7 @@ from urllib.parse import urlencode
 import jwt
 from django.conf import settings
 from django.contrib.auth.hashers import make_password
-from django.http import HttpResponseBadRequest, HttpResponseForbidden
+from django.http import Http404, HttpResponseBadRequest, HttpResponseForbidden
 from django.shortcuts import redirect, render
 
 from ami.fi.forms import AuthorizeForm, AuthorizeUserDataForm
@@ -17,6 +17,8 @@ logger = logging.getLogger(__name__)
 
 
 def authorize(request):
+    if not settings.FI_SILENT_LOGIN_ENABLED:
+        raise Http404
     if request.method == "POST":
         form = AuthorizeUserDataForm(data=request.POST)
         if not form.is_valid():

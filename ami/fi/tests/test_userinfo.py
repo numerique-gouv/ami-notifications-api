@@ -66,3 +66,11 @@ def test_userinfo_fi_session_not_found(
         "/api/v1/fi/userinfo/", headers={"AUTHORIZATION": "Bearer azerty"}, status=403
     )
     assert response.json == {"detail": "Session de connexion à AMI-FI non trouvée"}
+
+
+def test_userinfo_flag_disabled(
+    settings,
+    app,
+) -> None:
+    settings.FI_SILENT_LOGIN_ENABLED = False
+    app.get("/api/v1/fi/userinfo/", status=404)
