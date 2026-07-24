@@ -52,7 +52,7 @@
     if (id_token_hint) {
       await franceConnectLogout(id_token_hint, redirect_url);
     } else {
-      window.location.href = redirect_url;
+      AMIGoto(redirect_url);
     }
   };
 </script>

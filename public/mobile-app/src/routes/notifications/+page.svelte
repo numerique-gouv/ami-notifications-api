@@ -18,6 +18,7 @@
   onMount(async () => {
     if (!userStore.connected) {
       AMIGoto('/');
+      return;
     }
 
     notifications = await retrieveNotifications();
@@ -29,7 +30,7 @@
 
   const redirectToLink = (notificationItemExternalUrl: string) => {
     if (notificationItemExternalUrl) {
-      window.location.href = notificationItemExternalUrl;
+      AMIGoto(notificationItemExternalUrl);
     }
   };
 

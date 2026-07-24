@@ -26,7 +26,7 @@
 
   const goToExternalItem = (item: FollowupItem | null) => {
     if (item?.link) {
-      window.location.href = item.link;
+      AMIGoto(item.link);
     }
   };
 </script>
