@@ -201,3 +201,35 @@ def test_edit_service_submit_success(app, admin_agent: Agent, service: Service) 
 @pytest.mark.django_db
 def test_edit_service_without_agent_admin_auth(app) -> None:
     assert_query_fails_without_agent_admin_auth(app, f"/agent-admin/manage/service/{uuid.uuid4()}/")
+
+
+@pytest.mark.django_db
+def test_delete_service(app, admin_agent: Agent, services: list[Service]):
+    service = services[0]
+    app.set_user(admin_agent.user)
+    response = app.post(f"/agent-admin/manage/service/{service.id}/delete/")
+    assert response.headers["location"] == "/agent-admin/manage/service/"
+    assert Service.objects.count() == 1
+    assert Service.objects.filter(id=service.id).exists() is False
+
+    response = response.follow()
+    assert response.pyquery(".fr-notice.success").text() == "La démarche a bien été supprimée."
+
+
+@pytest.mark.django_db
+def test_delete_service_not_found(app, admin_agent: Agent):
+    app.set_user(admin_agent.user)
+    app.post(f"/agent-admin/manage/service/{uuid.uuid4()}/delete/", status=404)
+
+
+@pytest.mark.django_db
+def test_delete_user_method_not_allowed(app, admin_agent: Agent):
+    app.set_user(admin_agent.user)
+    app.get(f"/agent-admin/manage/service/{uuid.uuid4()}/delete/", status=405)
+
+
+@pytest.mark.django_db
+def test_delete_user_without_agent_admin_auth(app) -> None:
+    assert_query_fails_without_agent_admin_auth(
+        app, f"/agent-admin/manage/service/{uuid.uuid4()}/delete/", method="post"
+    )
