@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
+  import Banner from '$lib/components/Banner.svelte';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import PageWrapper from '$lib/components/PageWrapper.svelte';
   import { toastStore } from '$lib/state/toast.svelte';
@@ -54,8 +55,8 @@
       <p>Vous pouvez modifier uniquement les champs ci-dessous.</p>
 
       <form autocomplete="on">
-        <fieldset class="fr-fieldset">
-          <div class="fr-fieldset__element">
+        <fieldset class="fr-fieldset fr-mb-3w">
+          <div class="fr-fieldset__element fr-mb-0">
             <div class="fr-input-group autocomplete">
               <label class="fr-label" for="input">E-mail</label>
               <span class="fr-hint-text">Par exemple&nbsp;: michel@dupont.com</span>
@@ -74,11 +75,18 @@
       </form>
 
       {#if email_origin == 'user' && email_last_update}
-        <div class="data-update-info">
+        <div class="data-update-info fr-mb-3w">
           Vous avez modifié cette information le
           {formatDate(email_last_update)}.
         </div>
       {/if}
+
+      <Banner
+        id="edit-email-change-not-submitted-info"
+        title="Modification non transmise"
+        description="La modification de la donnée ne sera pas transmise aux differentes administrations."
+        bannerType="info"
+      />
     </div>
   {/snippet}
 
@@ -126,9 +134,6 @@
           line-height: 1.5rem;
           margin: 0;
         }
-      }
-      .fr-fieldset {
-        margin-bottom: 0.5rem;
       }
     }
     .data-update-info {

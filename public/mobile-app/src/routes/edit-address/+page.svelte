@@ -4,6 +4,7 @@
   import { Address } from '$lib/address';
   import { type AddressFromBAN, callBAN } from '$lib/addressesFromBAN';
   import { buildAgenda } from '$lib/agenda';
+  import Banner from '$lib/components/Banner.svelte';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import PageWrapper from '$lib/components/PageWrapper.svelte';
   import { toastStore } from '$lib/state/toast.svelte';
@@ -153,8 +154,8 @@
       </p>
 
       <form autocomplete="on" class="address-form">
-        <fieldset class="fr-fieldset">
-          <div class="fr-fieldset__element">
+        <fieldset class="fr-fieldset fr-mb-3w">
+          <div class="fr-fieldset__element fr-mb-0">
             <div
               class="fr-input-group autocomplete {addressInputHasError ? 'fr-input-group--error' : ''}"
             >
@@ -213,7 +214,7 @@
       </form>
 
       {#if addressApiHasError}
-        <div class="fr-alert fr-alert--warning" data-testid="address-warning">
+        <div class="fr-alert fr-alert--warning fr-mb-3w" data-testid="address-warning">
           <h3 class="fr-alert__title">Récupération de l'adresse indisponible</h3>
           <p>
             Nous rencontrons des difficultés à trouver votre adresse dans notre
@@ -223,7 +224,10 @@
       {/if}
 
       {#if hasSelectedAddress !== undefined && selectedAddress !== undefined}
-        <div class="selected-address-wrapper" data-testid="selected-address-wrapper">
+        <div
+          class="selected-address-wrapper fr-mb-3w"
+          data-testid="selected-address-wrapper"
+        >
           <div class="left-wrapper">
             <span>Votre résidence principale</span>
             <span><strong>{selectedAddress.label}</strong></span>
@@ -237,11 +241,18 @@
       {/if}
 
       {#if address_origin == 'user' && address_last_update}
-        <div class="data-update-info">
+        <div class="data-update-info fr-mb-3w">
           Vous avez modifié cette information le
           {formatDate(address_last_update)}.
         </div>
       {/if}
+
+      <Banner
+        id="edit-address-change-not-submitted-info"
+        title="Modification non transmise"
+        description="La modification de la donnée ne sera pas transmise aux differentes administrations. Vous pouvez néanmoins déclarer un changement d’adresse en ligne."
+        bannerType="info"
+      />
     </div>
   {/snippet}
 
