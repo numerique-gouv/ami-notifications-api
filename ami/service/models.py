@@ -2,13 +2,14 @@ import uuid
 
 from django.db import models
 
+from ami.partner.models import partners
 from ami.service.schemas import ServicesItem
 
 
 class Service(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
-    partner_id = models.CharField()
+    partner_id = models.CharField(choices=[(p.id, p.name) for p in partners.values()])
     item_type = models.CharField()
 
     title = models.CharField()

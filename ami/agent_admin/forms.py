@@ -11,6 +11,7 @@ from ami.agent_admin.utils import audit
 from ami.amidsfr.forms import AMIDsfrBaseForm
 from ami.amidsfr.widgets import AutocompleteInput, ToggleInput
 from ami.partner.models import partners
+from ami.service.models import Service
 from ami.user.models import User
 from ami.utils.httpx import BasicAuth, httpxLaxClient
 
@@ -181,3 +182,12 @@ class UserSearchForm(AMIDsfrBaseForm):
         except User.DoesNotExist:
             raise forms.ValidationError("Utilisateur non trouvé")
         return value
+
+
+class ServiceForm(forms.ModelForm, AMIDsfrBaseForm):
+    class Meta:
+        model = Service
+        exclude = []
+        widgets = {
+            "with_silent_login": ToggleInput,
+        }
