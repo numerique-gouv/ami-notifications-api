@@ -194,7 +194,6 @@
         .fr-connect-group {
           display: flex;
           flex-direction: column;
-          flex-grow: 1;
           justify-content: center;
           text-align: center;
         }
