@@ -111,6 +111,7 @@
         </div>
 
         <div class="france-connect-text">
+          <h1 class="fr-h4 france-connect-title">Me connecter à AMI</h1>
           <p class="fr-text--sm">
             <strong>FranceConnect</strong> est la solution proposée par l’État pour
             <strong>sécuriser</strong> et <strong>simplifier</strong> la connexion à vos
@@ -196,6 +197,10 @@
           flex-grow: 1;
           justify-content: center;
           text-align: center;
+        }
+        .france-connect-title {
+          text-align: center;
+          margin-bottom: 8px;
         }
       }
 
