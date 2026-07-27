@@ -188,7 +188,11 @@
 
         .france-connect-svg-icon {
           text-align: center;
-          margin-bottom: 1rem;
+          margin-bottom: 2rem;
+          img {
+            height: 100px;
+            width: 100px;
+          }
         }
 
         .fr-connect-group {
