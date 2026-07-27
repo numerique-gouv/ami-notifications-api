@@ -111,12 +111,6 @@
         </div>
 
         <div class="france-connect-text">
-          <p>
-            Pour pouvoir accéder à
-            <strong>vos droits, à des conseils, et aux échéances</strong> liées à votre
-            situation personnelle, veuillez vous connecter via
-            <strong>FranceConnect</strong>.
-          </p>
           <p class="fr-text--sm">
             <strong>FranceConnect</strong> est la solution proposée par l’État pour
             <strong>sécuriser</strong> et <strong>simplifier</strong> la connexion à vos
