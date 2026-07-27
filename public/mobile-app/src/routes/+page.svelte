@@ -8,8 +8,8 @@
     PUBLIC_CONTACT_EMAIL,
     PUBLIC_CONTACT_URL,
   } from '$env/static/public';
-
   import ConnectedHomepage from '$lib/ConnectedHomepage.svelte';
+  import ItemModal from '$lib/components/modal/ItemModal.svelte';
   import Navigation from '$lib/components/Navigation.svelte';
   import { initializeData } from '$lib/initializeDataFromAPI';
   import { toastStore } from '$lib/state/toast.svelte';
@@ -78,6 +78,14 @@
     error_description = '';
     goto('/');
   }
+
+  let connectionHelpModal = $state(false);
+  const onConnectionHelpOpen = () => {
+    connectionHelpModal = true;
+  };
+  const closeConnectionHelpModal = () => {
+    connectionHelpModal = false;
+  };
 </script>
 
 {#if !userStore.connected}
@@ -141,24 +149,42 @@
         </div>
       </div>
 
-      <div class="contact-links-wrapper">
-        <p>Difficultés de connexion&nbsp;?</p>
-        <p>
-          <a
-            href="{contactUrl}"
-            title="Contactez-nous sur Tchap"
-            aria-label="Contactez-nous sur Tchap"
-            data-testid="contact-link-tchap"
-          >
-            Contactez-nous sur Tchap
-          </a>
-        </p>
-        <p>
-          <a href="mailto:{contactEmail}" data-testid="contact-link-email">
-            Contactez-nous par E-mail
-          </a>
-        </p>
+      <div class="connection-help-wrapper">
+        <a
+          role="button"
+          href="."
+          onclick={onConnectionHelpOpen}
+          data-testid="connection-help-link"
+          >Je n’arrive pas à me connecter</a
+        >
       </div>
+
+      {#if connectionHelpModal}
+        <ItemModal onClose={closeConnectionHelpModal}>
+          {#snippet header()}
+            <ul class="connection-help-links">
+              <li>
+                <a
+                  class="fr-icon-edit-fill"
+                  href="{contactUrl}"
+                  data-testid="connection-help-link-url"
+                  >Faire une demande en ligne</a
+                >
+              </li>
+              <li>
+                <a
+                  class="fr-icon-mail-fill"
+                  href="mailto:{contactEmail}"
+                  data-testid="connection-help-link-email"
+                  >Envoyer un mail</a
+                >
+              </li>
+            </ul>
+          {/snippet}
+          {#snippet footer()}
+          {/snippet}
+        </ItemModal>
+      {/if}
     </div>
   </div>
 {:else if userStore.connected}
@@ -207,15 +233,25 @@
         }
       }
 
-      .contact-links-wrapper {
+      .connection-help-wrapper {
         text-align: center;
-
-        p {
-          margin: 0;
-          font-size: 14px;
-
-          a {
-            color: var(--text-active-blue-france);
+        a {
+          color: var(--text-action-high-blue-france);
+        }
+      }
+      .connection-help-links {
+        margin: 0;
+        padding: 0 0.25em;
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        a {
+          padding: 0.5rem 0;
+          display: block;
+          background: none;
+          &::before {
+            margin-right: 0.5rem;
+            color: var(--text-action-high-blue-france);
           }
         }
       }
