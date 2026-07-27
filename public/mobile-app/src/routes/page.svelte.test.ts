@@ -235,7 +235,11 @@ describe('/+page.svelte', () => {
     });
   });
 
-  test('should display contact links when user is logged out', async () => {
+  test('should display connection help links when user is logged out', async () => {
+    HTMLDialogElement.prototype.showModal = vi.fn();
+    HTMLDialogElement.prototype.close = vi.fn();
+    HTMLDialogElement.prototype.show = vi.fn();
+
     // Given
     await userStore.logout();
 
@@ -243,10 +247,14 @@ describe('/+page.svelte', () => {
     render(Page);
 
     // Then
+    const connectionHelpButton = screen.getByTestId('connection-help-button');
+    expect(screen.queryByTestId('connection-help-link-url')).not.toBeInTheDocument();
     await waitFor(() => {
-      const contactLinkTchap = screen.getByTestId('contact-link-tchap');
-      expect(contactLinkTchap).toHaveAttribute('href', PUBLIC_CONTACT_URL);
-      const contactLinkEmail = screen.getByTestId('contact-link-email');
+      connectionHelpButton.click();
+      // now the popup is open
+      const connectionHelpLinkUrl = screen.getByTestId('connection-help-link-url');
+      expect(connectionHelpLinkUrl).toHaveAttribute('href', PUBLIC_CONTACT_URL);
+      const contactLinkEmail = screen.getByTestId('connection-help-link-email');
       expect(contactLinkEmail).toHaveAttribute(
         'href',
         `mailto:${PUBLIC_CONTACT_EMAIL}`
