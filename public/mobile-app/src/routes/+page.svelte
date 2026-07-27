@@ -118,8 +118,9 @@
             <strong>FranceConnect</strong>.
           </p>
           <p class="fr-text--sm">
-            FranceConnect est la solution proposée par l’État pour sécuriser et
-            simplifier la connexion à vos services en ligne.
+            <strong>FranceConnect</strong> est la solution proposée par l’État pour
+            <strong>sécuriser</strong> et <strong>simplifier</strong> la connexion à vos
+            services en ligne.
           </p>
         </div>
 
