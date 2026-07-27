@@ -27,7 +27,7 @@ describe('/Navigation.svelte', () => {
     expect(container).toHaveTextContent('Agenda');
     expect(container).toHaveTextContent('Services');
     expect(container).toHaveTextContent('Suivi');
-    const highlight = container.querySelector('.highlight');
+    const highlight = container.querySelector('.am-link--menu-item-highlight');
     expect(highlight).toBeNull();
   });
 
@@ -41,7 +41,7 @@ describe('/Navigation.svelte', () => {
     expect(container).toHaveTextContent('Agenda');
     expect(container).not.toHaveTextContent('Services');
     expect(container).toHaveTextContent('Suivi');
-    const highlight = container.querySelector('.highlight');
+    const highlight = container.querySelector('.am-link--menu-item-highlight');
     expect(highlight).toBeNull();
   });
 
@@ -51,7 +51,7 @@ describe('/Navigation.svelte', () => {
     const { container } = render(Navigation, { currentItem: 'home' });
 
     // Then
-    const highlight = container.querySelector('.highlight');
+    const highlight = container.querySelector('.am-link--menu-item-highlight');
     expect(highlight).toHaveTextContent('Accueil');
   });
 
@@ -61,7 +61,7 @@ describe('/Navigation.svelte', () => {
     const { container } = render(Navigation, { currentItem: 'agenda' });
 
     // Then
-    const highlight = container.querySelector('.highlight');
+    const highlight = container.querySelector('.am-link--menu-item-highlight');
     expect(highlight).toHaveTextContent('Agenda');
   });
 
@@ -71,7 +71,7 @@ describe('/Navigation.svelte', () => {
     const { container } = render(Navigation, { currentItem: 'services' });
 
     // Then
-    const highlight = container.querySelector('.highlight');
+    const highlight = container.querySelector('.am-link--menu-item-highlight');
     expect(highlight).toHaveTextContent('Services');
   });
 
@@ -81,7 +81,7 @@ describe('/Navigation.svelte', () => {
     const { container } = render(Navigation, { currentItem: 'followup' });
 
     // Then
-    const highlight = container.querySelector('.highlight');
+    const highlight = container.querySelector('.am-link--menu-item-highlight');
     expect(highlight).toHaveTextContent('Suivi');
   });
 });

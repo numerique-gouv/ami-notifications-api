@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { AMIGoto } from '$lib/ami-navigation';
+  import AMILink from '$lib/components/AMILink.svelte';
   import Modal from '$lib/components/modal/Modal.svelte';
   import ZonePreferences from '$lib/components/modal/ZonePreferences.svelte';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
@@ -29,6 +30,10 @@
     AMIGoto(backUrl);
   };
 
+  const gotoNotificationPreferences = () => {
+    AMIGoto('/#/preferences/notifications');
+  };
+
   const openZonePreferencesModal = () => {
     zonePreferencesModal.open();
   };
@@ -43,14 +48,18 @@
         <div id="fr-sidemenu-wrapper">
           <ul class="fr-sidemenu__list">
             <li class="fr-sidemenu__item">
-              <a class="fr-sidemenu__link" href="/#/preferences/notifications"
-                ><span class="label">Notifications</span>
+              <AMILink
+                url="/#/preferences/notifications"
+                variant="preferences-item"
+                class="fr-sidemenu__link"
+              >
+                <span class="label">Notifications</span>
                 <span aria-hidden="true" class="icon fr-icon-arrow-right-s-line"></span>
-              </a>
+              </AMILink>
             </li>
             <li class="fr-sidemenu__item">
               <button
-                class="fr-sidemenu__link"
+                class="fr-sidemenu__link am-preferences-item-link"
                 type="button"
                 onclick={openZonePreferencesModal}
               >

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { AMIGoto } from '$lib/ami-navigation';
+  import AMILink from '$lib/components/AMILink.svelte';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import NotificationIcon from '$lib/components/NotificationIcon.svelte';
   import type { AppNotification } from '$lib/notifications';
@@ -84,12 +85,14 @@
         <div class="fr-tile__content">
           <div class="notification__title">
             <h3 class="fr-tile__title">
-              <a
-                href="/"
+              <AMILink
+                url={notification.url}
+                variant="notification-item"
                 onclick={(event) => clickOnNotification(event, notification.id, notification.url)}
                 data-testid="notification-link-{notification.id}"
-                >{notification.content_title}</a
               >
+                {notification.content_title}
+              </AMILink>
             </h3>
             <span class="notification__age">
               {prettyDate(notification.created_at)}
@@ -135,16 +138,6 @@
             margin-bottom: 0;
             &::before {
               background: none;
-            }
-            a {
-              font-size: 14px;
-              color: var(--text-black-white-grey);
-              &::before {
-                background: none;
-              }
-              &::after {
-                width: 0;
-              }
             }
           }
           .notification__age {

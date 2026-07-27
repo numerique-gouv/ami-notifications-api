@@ -3,6 +3,7 @@
   import { type Agenda, Item as AgendaItemType, buildAgenda } from '$lib/agenda';
   import { AMIGoto } from '$lib/ami-navigation';
   import AgendaItem from '$lib/components/AgendaItem.svelte';
+  import AMILink from '$lib/components/AMILink.svelte';
   import FollowupItem from '$lib/components/FollowupItem.svelte';
   import Icon from '$lib/components/Icon.svelte';
   import AgendaItemModal from '$lib/components/modal/AgendaItemModal.svelte';
@@ -109,15 +110,16 @@
 
     <div class="header-right">
       <div class="notification-svg-icon" id="notification-icon">
-        <a
+        <AMILink
+          variant="notifications"
           aria-label="Voir les notifications({unreadNotificationsCount})"
-          href="/#/notifications"
+          url="/#/notifications"
         >
           <img src="/remixicons/notification-3.svg" alt="">
           <div class="count-number-wrapper" data-content="{unreadNotificationsCount}">
             {unreadNotificationsCount}
           </div>
-        </a>
+        </AMILink>
       </div>
     </div>
   </div>
@@ -187,12 +189,12 @@
             <div class="fr-tile__content">
               <img class="address-icon" src="/remixicons/house.svg" alt="">
               <h3 class="fr-tile__title">
-                <a href="/#/edit-address"
-                  ><b
+                <AMILink variant="edit-address" url="/#/edit-address">
+                  <b
                     >Renseignez votre adresse sur l'application pour faciliter vos
                     échanges&nbsp;!</b
-                  ></a
-                >
+                  >
+                </AMILink>
               </h3>
             </div>
           </div>
@@ -219,10 +221,14 @@
     {:else}
       <div class="header-container fr-mb-1w">
         <h2 class="fr-h6 fr-mb-0 am-text--smbold title">Mon agenda</h2>
-        <a class="see-all" aria-label="Voir tous mes évènements" href="/#/agenda">
+        <AMILink
+          variant="see-all"
+          aria-label="Voir tous mes évènements"
+          url="/#/agenda"
+        >
           <span>Voir tout</span>
           <img class="arrow-line" src="/remixicons/arrow-line.svg" alt="">
-        </a>
+        </AMILink>
       </div>
       <div class="rubrique-content-container">
         {#if agenda && agenda.now.length}
@@ -260,10 +266,14 @@
     {:else}
       <div class="header-container fr-mb-1w">
         <h2 class="fr-h6 fr-mb-0 am-text--smbold title">Mes démarches</h2>
-        <a class="see-all" aria-label="Voir toutes mes démarches" href="/#/followup">
+        <AMILink
+          variant="see-all"
+          aria-label="Voir toutes mes démarches"
+          url="/#/followup"
+        >
           <span>Voir tout</span>
           <img class="arrow-line" src="/remixicons/arrow-line.svg" alt="">
-        </a>
+        </AMILink>
       </div>
       <div class="rubrique-content-container">
         {#if followup && followup.items.length}
@@ -381,10 +391,6 @@
           margin-right: 16px;
           position: relative;
 
-          & a[href] {
-            background: none;
-          }
-
           .count-number-wrapper {
             position: absolute;
             top: 0;
@@ -444,16 +450,6 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-
-        .see-all {
-          font-size: 14px;
-          font-weight: 400;
-          line-height: 24px;
-          color: var(--blue-france-sun-113-625);
-          margin-right: 4px;
-          display: inline-flex;
-          gap: 4px;
-        }
       }
       .rubrique-content-container--empty {
         padding: 1rem;
@@ -489,15 +485,6 @@
             font-size: 16px;
             line-height: 24px;
             font-weight: 400;
-            a {
-              color: var(--grey-0-1000);
-              &::after {
-                color: var(--text-active-blue-france);
-                bottom: 1.25rem;
-                right: 1.25rem;
-                --icon-size: 1rem;
-              }
-            }
           }
         }
       }
