@@ -4,8 +4,11 @@ import {
   PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED,
 } from '$env/static/public';
 
-const AMIFILogin = async (url: string) => {
-  window.location.href = `${PUBLIC_API_URL}/silent-login-ami-fi?redirect_url=${encodeURIComponent(url)}`;
+export const AMIUrl = (url: string, silentLogin: boolean = false): string => {
+  if (PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED === 'true' && silentLogin && url) {
+    return `${PUBLIC_API_URL}/silent-login-ami-fi?redirect_url=${encodeURIComponent(url)}`;
+  }
+  return url;
 };
 
 export const AMIGoto = async (
@@ -15,11 +18,10 @@ export const AMIGoto = async (
     replaceState?: boolean | undefined;
   }
 ) => {
-  if (PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED === 'true' && silentLogin) {
-    AMIFILogin(url);
-  } else if (url.startsWith('/')) {
+  const newUrl = AMIUrl(url, silentLogin);
+  if (newUrl.startsWith('/')) {
     goto(url, opts);
   } else {
-    window.location.href = url;
+    window.location.href = newUrl;
   }
 };
