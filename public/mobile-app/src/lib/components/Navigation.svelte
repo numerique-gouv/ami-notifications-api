@@ -71,7 +71,7 @@
 <style>
   nav.menu-footer {
     position: fixed;
-    z-index: 2;
+    z-index: 300;
     bottom: 0;
     background: var(--background-default-grey);
     border-top: solid 1px var(--background-alt-grey-active);
