@@ -68,7 +68,6 @@ async def get_fc_userinfo(
     result: dict[str, Any] = {
         "user_data": userinfo_jws,
         "decoded_user_data": decoded_user_data,
-        "user_first_login": "true" if create_welcome else "false",
         "user_fc_hash": fc_hash,
     }
 
