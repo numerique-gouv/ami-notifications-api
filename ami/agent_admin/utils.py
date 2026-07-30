@@ -18,6 +18,12 @@ def audit(action, author, extra_data):
         if key in extra_data:
             extra_data[f"{key}_name"] = Agent.Role(extra_data[key]).label
 
+    for key in ["service", "old_service_values"]:
+        if key in extra_data:
+            extra_data[f"{key}_partner_id"] = extra_data[key].partner_id
+            extra_data[f"{key}_item_type"] = extra_data[key].item_type
+            del extra_data[key]
+
     if "user" in extra_data:
         user = extra_data["user"]
         extra_data["user_id"] = str(user.id)

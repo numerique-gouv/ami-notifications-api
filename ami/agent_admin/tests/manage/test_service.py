@@ -3,35 +3,9 @@ import uuid
 import pytest
 
 from ami.agent.models import Agent
+from ami.agent_admin.models import AuditEntry
 from ami.agent_admin.tests.utils import assert_query_fails_without_agent_admin_auth
 from ami.service.models import Service
-
-
-@pytest.fixture
-def service() -> Service:
-    return Service.objects.create(
-        partner_id="dinum-dn",
-        item_type="ContacterAMI",
-        title="Contacter l'équipe AMI",
-        short_description="Faites-nous votre retour",
-        description="Pour tout retour sur l'application AMI, vous pouvez nous contacter par le biais de ce formulaire",
-        url="https://localhost:8000/commencer/todo?id_hash_fc={fc_hash}&id_version={app_version_id}",
-        restricted_to="fake-fc-hash",
-    )
-
-
-@pytest.fixture
-def services(service) -> list[Service]:
-    service2 = Service.objects.create(
-        partner_id="psl",
-        item_type="OperationTranquilliteVacances",
-        title="Opération Tranquillité Vacances",
-        short_description="Inscrivez-vous pour protéger votre domicile pendant votre absence",
-        description="Pendant toute absence prolongée de votre domicile, vous pouvez vous inscrire à l'**opération tranquillité vacances**.",
-        url="https://localhost:8000/mademarche/demarcheGenerique/?codeDemarche=OperationTranquilliteVacances&caller={back_param_token_jwt}",
-        with_silent_login=True,
-    )
-    return [service, service2]
 
 
 @pytest.mark.django_db
@@ -118,6 +92,21 @@ def test_add_service_submit_success(app, admin_agent: Agent) -> None:
 
     response = response.follow()
     assert response.pyquery(".fr-notice.success").text() == "La démarche a bien été ajoutée."
+
+    assert AuditEntry.objects.count() == 1
+    ae1 = AuditEntry.objects.get()
+
+    assert ae1.author == admin_agent
+    assert ae1.author_first_name == "Admin"
+    assert ae1.author_last_name == "AGENT"
+    assert ae1.author_email == "admin@agent.com"
+    assert ae1.author_proconnect_sub == "admin"
+    assert ae1.action_type == "services"
+    assert ae1.action_code == "service-added"
+    assert ae1.extra_data == {
+        "service_item_type": "JeDéménage",
+        "service_partner_id": "dinum-ami",
+    }
 
 
 @pytest.mark.django_db
@@ -227,6 +216,23 @@ def test_edit_service_submit_success(app, admin_agent: Agent, service: Service) 
     response = response.follow()
     assert response.pyquery(".fr-notice.success").text() == "La démarche a bien été modifiée."
 
+    assert AuditEntry.objects.count() == 1
+    ae1 = AuditEntry.objects.get()
+
+    assert ae1.author == admin_agent
+    assert ae1.author_first_name == "Admin"
+    assert ae1.author_last_name == "AGENT"
+    assert ae1.author_email == "admin@agent.com"
+    assert ae1.author_proconnect_sub == "admin"
+    assert ae1.action_type == "services"
+    assert ae1.action_code == "service-updated"
+    assert ae1.extra_data == {
+        "service_item_type": "JeDéménage",
+        "service_partner_id": "dinum-ami",
+        "old_service_values_item_type": "ContacterAMI",
+        "old_service_values_partner_id": "dinum-dn",
+    }
+
 
 @pytest.mark.django_db
 def test_edit_service_submit_success_duplicated_value(
@@ -260,6 +266,21 @@ def test_delete_service(app, admin_agent: Agent, services: list[Service]):
 
     response = response.follow()
     assert response.pyquery(".fr-notice.success").text() == "La démarche a bien été supprimée."
+
+    assert AuditEntry.objects.count() == 1
+    ae1 = AuditEntry.objects.get()
+
+    assert ae1.author == admin_agent
+    assert ae1.author_first_name == "Admin"
+    assert ae1.author_last_name == "AGENT"
+    assert ae1.author_email == "admin@agent.com"
+    assert ae1.author_proconnect_sub == "admin"
+    assert ae1.action_type == "services"
+    assert ae1.action_code == "service-removed"
+    assert ae1.extra_data == {
+        "service_item_type": "ContacterAMI",
+        "service_partner_id": "dinum-dn",
+    }
 
 
 @pytest.mark.django_db

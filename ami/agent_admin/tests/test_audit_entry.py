@@ -2,11 +2,12 @@ import pytest
 
 from ami.agent.models import Agent
 from ami.agent_admin.utils import audit
+from ami.service.models import Service
 from ami.user.models import User
 
 
 @pytest.mark.django_db
-def test_audit(app, agent: Agent, admin_agent: Agent, user: User):
+def test_audit(app, agent: Agent, admin_agent: Agent, user: User, services: list[Service]):
     ae1 = audit(
         "access:role-added",
         admin_agent,
@@ -46,12 +47,37 @@ def test_audit(app, agent: Agent, admin_agent: Agent, user: User):
             "user": user,
         },
     )
+    ae6 = audit(
+        "services:service-added",
+        admin_agent,
+        {
+            "service": services[0],
+        },
+    )
+    ae7 = audit(
+        "services:service-updated",
+        admin_agent,
+        {
+            "service": services[0],
+            "old_service_values": services[1],
+        },
+    )
+    ae8 = audit(
+        "services:service-removed",
+        admin_agent,
+        {
+            "service": services[0],
+        },
+    )
 
     ae1.refresh_from_db()
     ae2.refresh_from_db()
     ae3.refresh_from_db()
     ae4.refresh_from_db()
     ae5.refresh_from_db()
+    ae6.refresh_from_db()
+    ae7.refresh_from_db()
+    ae8.refresh_from_db()
 
     assert ae1.author == admin_agent
     assert ae1.author_first_name == "Admin"
@@ -128,4 +154,42 @@ def test_audit(app, agent: Agent, admin_agent: Agent, user: User):
     assert ae5.extra_data == {
         "user_id": str(user.id),
         "user_fc_hash": "651d806d65788bc260faa89a555fdf89bd573a5c9a4d8bb897967e14951ab65d",
+    }
+
+    assert ae6.author == admin_agent
+    assert ae6.author_first_name == "Admin"
+    assert ae6.author_last_name == "AGENT"
+    assert ae6.author_email == "admin@agent.com"
+    assert ae6.author_proconnect_sub == "admin"
+    assert ae6.action_type == "services"
+    assert ae6.action_code == "service-added"
+    assert ae6.extra_data == {
+        "service_item_type": "ContacterAMI",
+        "service_partner_id": "dinum-dn",
+    }
+
+    assert ae7.author == admin_agent
+    assert ae7.author_first_name == "Admin"
+    assert ae7.author_last_name == "AGENT"
+    assert ae7.author_email == "admin@agent.com"
+    assert ae7.author_proconnect_sub == "admin"
+    assert ae7.action_type == "services"
+    assert ae7.action_code == "service-updated"
+    assert ae7.extra_data == {
+        "service_item_type": "ContacterAMI",
+        "service_partner_id": "dinum-dn",
+        "old_service_values_item_type": "OperationTranquilliteVacances",
+        "old_service_values_partner_id": "psl",
+    }
+
+    assert ae8.author == admin_agent
+    assert ae8.author_first_name == "Admin"
+    assert ae8.author_last_name == "AGENT"
+    assert ae8.author_email == "admin@agent.com"
+    assert ae8.author_proconnect_sub == "admin"
+    assert ae8.action_type == "services"
+    assert ae8.action_code == "service-removed"
+    assert ae8.extra_data == {
+        "service_item_type": "ContacterAMI",
+        "service_partner_id": "dinum-dn",
     }

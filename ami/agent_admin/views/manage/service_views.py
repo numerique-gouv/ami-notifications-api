@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
@@ -9,6 +10,7 @@ from ami.agent.decorators import (
     role_admin_required,
 )
 from ami.agent_admin.forms import ServiceForm
+from ami.agent_admin.utils import audit
 from ami.service.models import Service
 
 
@@ -33,16 +35,17 @@ def list_services(request):
 
 def add_edit_service(service: Service | None, request):
     if request.method == "POST":
-        form = ServiceForm(data=request.POST, instance=service)
+        form = ServiceForm(data=request.POST, instance=service, author=request.user.agent)
         if form.is_valid():
-            form.save()
+            with transaction.atomic():
+                form.save()
             if service is not None:
                 messages.success(request, "La démarche a bien été modifiée.")
             else:
                 messages.success(request, "La démarche a bien été ajoutée.")
             return redirect(reverse("agent-admin:manage:list-services"))
     else:
-        form = ServiceForm(instance=service)
+        form = ServiceForm(instance=service, author=request.user.agent)
     buttons = [
         {
             "label": "Annuler",
@@ -96,7 +99,9 @@ def edit_service(request, service_id):
 @csrf_exempt
 def delete_service(request, service_id):
     service = get_object_or_404(Service, id=service_id)
-    service.delete()
+    with transaction.atomic():
+        audit("services:service-removed", request.user.agent, {"service": service})
+        service.delete()
 
     messages.success(request, "La démarche a bien été supprimée.")
     return redirect(reverse("agent-admin:manage:list-services"))
