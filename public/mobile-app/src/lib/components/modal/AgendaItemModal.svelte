@@ -1,6 +1,6 @@
 <script lang="ts">
   import { type Agenda, buildAgenda, Item } from '$lib/agenda';
-  import ItemModal from '$lib/components/modal/ItemModal.svelte';
+  import BottomModal from '$lib/components/modal/BottomModal.svelte';
   import { toastStore } from '$lib/state/toast.svelte';
 
   interface Props {
@@ -31,7 +31,7 @@
   };
 </script>
 
-<ItemModal onClose={closeModal}>
+<BottomModal onClose={closeModal}>
   {#snippet header()}
     <h2 class="agenda-item-modal-header" data-testid="agenda-item-modal-header">
       {item?.title}
@@ -54,14 +54,14 @@
       </li>
     </ul>
   {/snippet}
-</ItemModal>
+</BottomModal>
 
 <style>
   h2.agenda-item-modal-header {
     font-size: 1.25rem;
   }
   ul.agenda-item-modal-footer {
-    padding: 0;
+    padding: 0 0 1rem 0;
     margin: 0;
     li {
       list-style: none;

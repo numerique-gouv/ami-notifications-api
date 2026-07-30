@@ -1,5 +1,5 @@
 <script lang="ts">
-  import ItemModal from '$lib/components/modal/ItemModal.svelte';
+  import BottomModal from '$lib/components/modal/BottomModal.svelte';
   import {
     buildFollowup,
     type Followup,
@@ -46,7 +46,7 @@
   };
 </script>
 
-<ItemModal onClose={closeModal}>
+<BottomModal onClose={closeModal}>
   {#snippet header()}
     <h2 class="followup-item-modal-header" data-testid="followup-item-modal-header">
       {item?.title}
@@ -68,14 +68,14 @@
       </li>
     </ul>
   {/snippet}
-</ItemModal>
+</BottomModal>
 
 <style>
   h2.followup-item-modal-header {
     font-size: 1.25rem;
   }
   ul.followup-item-modal-footer {
-    padding: 0;
+    padding: 0 0 1rem 0;
     margin: 0;
     li {
       list-style: none;

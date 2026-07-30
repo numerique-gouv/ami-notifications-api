@@ -59,7 +59,7 @@
     transform: none;
     border-radius: 1.75rem 1.75rem 0 0;
     border: none;
-    padding: 1rem 1rem 2rem;
+    padding: 1rem;
     .close-button {
       position: absolute;
       top: 1rem;
