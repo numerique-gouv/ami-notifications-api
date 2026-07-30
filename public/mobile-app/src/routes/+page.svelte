@@ -44,11 +44,7 @@
       }
       if (page.url.searchParams.has('is_logged_in')) {
         await initializeData(page.url.searchParams, userStore);
-        if (page.url.searchParams.get('user_first_login') === 'true') {
-          AMIGoto('/#/welcome/zones');
-        } else {
-          AMIGoto('/');
-        }
+        AMIGoto('/#/welcome/zones');
       }
       if (page.url.searchParams.has('is_logged_out')) {
         toastStore.addToast('Vous avez bien été déconnecté(e)', 'success', 3000, false);

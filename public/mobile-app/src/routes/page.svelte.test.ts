@@ -34,7 +34,7 @@ describe('/+page.svelte', () => {
     });
   });
 
-  test('should navigate to notifications welcome page when it is the first user login', async () => {
+  test('should navigate to zones welcome page when it is the first user login', async () => {
     // Given
     const { page } = await import('$app/state');
     const mockSearchParams = new URLSearchParams();
@@ -53,7 +53,7 @@ describe('/+page.svelte', () => {
     });
   });
 
-  test('should navigate to homepage when user has already logged in', async () => {
+  test('should navigate to zones welcome page when user has already logged in', async () => {
     // Given
     const { page } = await import('$app/state');
     const mockSearchParams = new URLSearchParams();
@@ -68,7 +68,7 @@ describe('/+page.svelte', () => {
 
     // Then
     await waitFor(() => {
-      expect(spy).toHaveBeenCalledWith('/');
+      expect(spy).toHaveBeenCalledWith('/#/welcome/zones');
     });
   });
 
