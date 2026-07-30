@@ -76,11 +76,6 @@ def test_login_callback(
         redirected_url,
     )
     assert url_contains_param(
-        "user_first_login",
-        "true",
-        redirected_url,
-    )
-    assert url_contains_param(
         "user_fc_hash",
         "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060",
         redirected_url,
@@ -197,11 +192,6 @@ def test_login_callback_user_already_seen(
         redirected_url,
     )
     assert url_contains_param(
-        "user_first_login",
-        "false",
-        redirected_url,
-    )
-    assert url_contains_param(
         "user_fc_hash",
         "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060",
         redirected_url,
@@ -284,11 +274,6 @@ def test_login_callback_user_never_seen(
     assert url_contains_param(
         "user_data",
         "fake userinfo jwt token",
-        redirected_url,
-    )
-    assert url_contains_param(
-        "user_first_login",
-        "true",
         redirected_url,
     )
     assert url_contains_param(
