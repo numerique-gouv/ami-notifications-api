@@ -40,10 +40,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = CONFIG["DJANGO_SECRET_KEY"]
 assert SECRET_KEY, "set a random DJANGO_SECRET_KEY in your .env.local file"
 
-ALLOWED_HOSTS = [
-    ".osc-fr1.scalingo.io",
-    "ami-back-prod.osc-secnum-fr1.scalingo.io",
-]
+ALLOWED_HOSTS = [CONFIG["ALLOWED_HOST"]]
 
 
 # Application definition

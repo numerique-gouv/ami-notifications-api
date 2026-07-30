@@ -240,15 +240,9 @@ and we thus had to update the URLs in the
 and update the `PUBLIC_SECTOR_IDENTIFIER_URL` env variable in the staging app
 on Scalingo.
 
-We now use a
-[proxy](https://ami-fc-proxy-dev.osc-fr1.scalingo.io/)
-through the configuration of the `FC_PROXY` env variable.
+We now use a proxy through the configuration of the `FC_PROXY` env variable.
 It needs to be set through Scalingo in the staging and review apps,
 and for local development, it needs to be set in the `.env.local` file.
-
-```
-PUBLIC_FC_PROXY_BASE_URL="https://ami-fc-proxy-dev.osc-fr1.scalingo.io"
-```
 
 ## agent-admin space ("Espace Partenaire AMI")
 

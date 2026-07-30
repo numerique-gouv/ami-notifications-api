@@ -12,7 +12,7 @@ def test_login_ami_fi(
     app,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    settings.PUBLIC_FC_PROXY_BASE_URL = "https://ami-fc-proxy-dev.osc-fr1.scalingo.io"
+    settings.PUBLIC_FC_PROXY_BASE_URL = "https://fake-fc-proxy"
     FAKE_NONCE = "some-random-nonce"
     monkeypatch.setattr("ami.authentication.views.generate_nonce", lambda: FAKE_NONCE)
     response = app.get("/login-ami-fi")
@@ -65,7 +65,7 @@ def test_login_ami_fi_quotient(
     app,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    settings.PUBLIC_FC_PROXY_BASE_URL = "https://ami-fc-proxy-dev.osc-fr1.scalingo.io"
+    settings.PUBLIC_FC_PROXY_BASE_URL = "https://fake-fc-proxy"
     FAKE_NONCE = "some-random-nonce"
     monkeypatch.setattr("ami.authentication.views.generate_nonce", lambda: FAKE_NONCE)
     response = app.get("/login-ami-fi?provider_id=api_particulier_quotient")
@@ -118,7 +118,7 @@ def test_login_ami_fi_statut_etudiant(
     app,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    settings.PUBLIC_FC_PROXY_BASE_URL = "https://ami-fc-proxy-dev.osc-fr1.scalingo.io"
+    settings.PUBLIC_FC_PROXY_BASE_URL = "https://fake-fc-proxy"
     FAKE_NONCE = "some-random-nonce"
     monkeypatch.setattr("ami.authentication.views.generate_nonce", lambda: FAKE_NONCE)
     response = app.get("/login-ami-fi?provider_id=api_particulier_statut_etudiant")
