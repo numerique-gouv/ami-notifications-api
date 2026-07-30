@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import * as navigationMethods from '$app/navigation';
 import * as envModule from '$env/static/public';
-import { AMIGoto } from '$lib/ami-goto';
+import { AMIGoto } from '$lib/ami-navigation';
 
-describe('/ami-goto', () => {
+describe('/ami-navigation', () => {
   beforeEach(async () => {
     vi.mock('$env/static/public', async (importOriginal) => {
       const original = (await importOriginal()) as Record<string, unknown>;

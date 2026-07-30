@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { describe, expect, test, vi } from 'vitest';
 import * as navigationMethods from '$app/navigation';
-import * as AMIGotoMethods from '$lib/ami-goto';
+import * as AMINavigationMethods from '$lib/ami-navigation';
 import * as followupMethods from '$lib/followup';
 import { Followup } from '$lib/followup';
 import * as servicesMethods from '$lib/services';
@@ -82,7 +82,7 @@ describe('/+page.svelte', () => {
           .mockResolvedValue('http://external-url');
         vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(new Followup());
         vi.spyOn(Followup.prototype, 'hasNonArchivedItems').mockReturnValue(false);
-        const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
+        const spy = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
 
         render(Page);
 
@@ -120,7 +120,7 @@ describe('/+page.svelte', () => {
           .mockResolvedValue('http://external-url');
         vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(new Followup());
         vi.spyOn(Followup.prototype, 'hasNonArchivedItems').mockReturnValue(false);
-        const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
+        const spy = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
 
         render(Page);
 
@@ -237,7 +237,7 @@ describe('/+page.svelte', () => {
               new Followup()
             );
             vi.spyOn(Followup.prototype, 'hasNonArchivedItems').mockReturnValue(true);
-            const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
+            const spy = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
 
             render(Page);
 
@@ -282,7 +282,7 @@ describe('/+page.svelte', () => {
               new Followup()
             );
             vi.spyOn(Followup.prototype, 'hasNonArchivedItems').mockReturnValue(true);
-            const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
+            const spy = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
 
             render(Page);
 
