@@ -56,7 +56,7 @@ def _dev_utils_recipient_fc_hash(request) -> HttpResponse:
 def _dev_utils_review_apps(request) -> Response[list[dict[str, str | int]]]:
     """Returns a list of tuples: (review app url, pull request title)."""
     staging_app = {
-        "url": "https://ami-back-staging.osc-fr1.scalingo.io/",
+        "url": settings.STAGING_URL,
         "title": "Staging",
         "number": 0,
         "description": "Staging",
@@ -74,9 +74,10 @@ def _dev_utils_review_apps(request) -> Response[list[dict[str, str | int]]]:
     except Exception:
         return Response([staging_app])
 
+    url_start, url_end = settings.STAGING_URL.split(".", 1)
     review_apps = [
         {
-            "url": f"https://ami-back-staging-pr{pr.number}.osc-fr1.scalingo.io/",
+            "url": f"{url_start}-pr{pr.number}.{url_end}",
             "title": f"PR{pr.number}: {pr.title}",
             "number": pr.number,
             "description": "" if pr.title.startswith("build(") else pr.body,

@@ -62,6 +62,7 @@ def _make_github_mock(pulls: list) -> Mock:
 def test_review_apps(app, monkeypatch, settings) -> None:
     settings.GITHUB_APP_ID = "123456"
     settings.GITHUB_APP_PRIVATE_KEY = "fake-key"
+    settings.STAGING_URL = "https://fake-start.fake-end/"
     monkeypatch.setattr("ami.utils.api_views.Auth", Mock())
     monkeypatch.setattr(
         "ami.utils.api_views.GithubIntegration",
@@ -84,6 +85,7 @@ def test_review_apps(app, monkeypatch, settings) -> None:
 def test_review_apps_github_failure(app, monkeypatch, settings) -> None:
     settings.GITHUB_APP_ID = "123456"
     settings.GITHUB_APP_PRIVATE_KEY = "fake-key"
+    settings.STAGING_URL = "https://fake-start.fake-end/"
     monkeypatch.setattr("ami.utils.api_views.Auth", Mock())
 
     def raise_error(**kwargs):

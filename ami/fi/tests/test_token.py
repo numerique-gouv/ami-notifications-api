@@ -15,7 +15,7 @@ def test_token(
     app,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    settings.PUBLIC_FC_PROXY_BASE_URL = "https://ami-fc-proxy-dev.osc-fr1.scalingo.io"
+    settings.PUBLIC_FC_PROXY_BASE_URL = "https://fake-fc-proxy"
     user_data = {"sub": "fake-sub"}
     nonce = "fake-nonce"
     code = "fake-code"
