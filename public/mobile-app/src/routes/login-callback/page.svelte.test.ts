@@ -58,28 +58,6 @@ describe('/+page.svelte', () => {
     });
   });
 
-  test('should navigate to notifications welcome page when it is the first user login', async () => {
-    // Given
-    const { page } = await import('$app/state');
-    const mockSearchParams = new URLSearchParams();
-    mockSearchParams.set('user_first_login', 'true');
-    window.localStorage.setItem('user_data', 'fake-user-data');
-    vi.spyOn(franceConnectHelpers, 'parseJwt').mockReturnValue(mockUserInfo);
-    vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
-    vi.spyOn(initializeDataFromAPIMethods, 'initializeData').mockResolvedValue();
-    const spy = vi
-      .spyOn(AMINavigationMethods, 'AMIGoto')
-      .mockImplementation(() => Promise.resolve());
-
-    // When
-    render(Page);
-
-    // Then
-    await waitFor(() => {
-      expect(spy).toHaveBeenCalledWith('/#/welcome/zones');
-    });
-  });
-
   test('should navigate to homepage when user has already logged in', async () => {
     // Given
     const { page } = await import('$app/state');
@@ -94,7 +72,7 @@ describe('/+page.svelte', () => {
 
     render(Page);
     await waitFor(() => {
-      expect(spy).toHaveBeenCalledWith('/');
+      expect(spy).toHaveBeenCalledWith('/#/welcome/zones');
     });
   });
 
@@ -673,7 +651,7 @@ describe('/+page.svelte - with passkey feature flag', () => {
       // check user store registered that the user has a passkey
       expect(userStore.getHasWorkingPasskey()).toBe(true);
 
-      expect(spy).toHaveBeenCalledWith('/?passkey_toast=true');
+      expect(spy).toHaveBeenCalledWith('/?passkey_toast=true#/welcome/zones');
     });
   });
 
@@ -699,7 +677,7 @@ describe('/+page.svelte - with passkey feature flag', () => {
       await waitFor(async () => {
         const bypassPasskeyButton = screen.getByTestId('bypass-passkey-button');
         await fireEvent.click(bypassPasskeyButton);
-        expect(spy).toHaveBeenCalledWith('/');
+        expect(spy).toHaveBeenCalledWith('/#/welcome/zones');
         expect(userStore.getHasSuggestPasskeyCreationToday()).toBe(true);
       });
     });
@@ -723,7 +701,7 @@ describe('/+page.svelte - with passkey feature flag', () => {
 
       // Then
       await waitFor(() => {
-        expect(spy).toHaveBeenCalledWith('/');
+        expect(spy).toHaveBeenCalledWith('/#/welcome/zones');
         expect(screen.queryByTestId('create-passkey-button')).toBeNull();
       });
     });
@@ -748,7 +726,7 @@ describe('/+page.svelte - with passkey feature flag', () => {
 
       // Then
       await waitFor(() => {
-        expect(spy).toHaveBeenCalledWith('/');
+        expect(spy).toHaveBeenCalledWith('/#/welcome/zones');
         expect(screen.queryByTestId('create-passkey-button')).toBeNull();
       });
     });

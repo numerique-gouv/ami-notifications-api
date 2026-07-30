@@ -68,7 +68,6 @@ def test_login_callback_silent_ami_fi(
     )
     assert "?login_redirect_url=&id_token=fake+id+token#/login-callback" in redirected_url
     assert "user_data" not in redirected_url
-    assert "user_first_login" not in redirected_url
     assert "user_fc_hash" not in redirected_url
     assert "address" not in redirected_url
     assert "api_particulier_quotient" not in redirected_url
@@ -141,7 +140,6 @@ def test_login_callback_silent_ami_fi_with_redirect_url(
         redirected_url,
     )
     assert "user_data" not in redirected_url
-    assert "user_first_login" not in redirected_url
     assert "user_fc_hash" not in redirected_url
     assert "address" not in redirected_url
     assert "api_particulier_quotient" not in redirected_url
