@@ -1,24 +1,25 @@
 <script lang="ts">
   interface Props {
-    href: string;
     className?: string;
-    color?: string;
   }
-  let { className, href, color = 'var(--text-default-grey)' }: Props = $props();
+  let { className }: Props = $props();
 </script>
 
-<span
-  class="icon {className}"
-  style="--svg: url('{href}'); --icon-color: {color};"
-></span>
+<span class="icon {className}"></span>
 
 <style>
   .icon {
-    background-color: var(--icon-color);
     display: inline-block;
-    mask: var(--svg) no-repeat center;
-    mask-size: contain;
-    width: 20px;
-    height: 20px;
+    width: 1.25rem;
+    height: 1.25rem;
+    flex-shrink: 0;
+
+    &:before {
+      display: block;
+    }
+  }
+
+  .am-icon-20:before {
+    --icon-size: 1.25rem;
   }
 </style>

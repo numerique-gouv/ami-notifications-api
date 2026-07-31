@@ -10,16 +10,16 @@
 	mask-image: url('/icons/custom/more-2-fill.svg');
 }
 
-.fr-icon-vector-fill::before,
-.fr-icon-vector-fill::after {
-	-webkit-mask-image: url('/icons/custom/vector-fill.svg');
-	mask-image: url('/icons/custom/vector-fill.svg');
+.fr-icon-search-eye-fill::before,
+.fr-icon-search-eye-fill::after {
+  -webkit-mask-image: url("/icons/custom/search-eye-fill.svg");
+  mask-image: url("/icons/custom/search-eye-fill.svg");
 }
 
-.fr-icon-vector-line::before,
-.fr-icon-vector-line::after {
-	-webkit-mask-image: url('/icons/custom/vector-line.svg');
-	mask-image: url('/icons/custom/vector-line.svg');
+.fr-icon-search-eye-line::before,
+.fr-icon-search-eye-line::after {
+  -webkit-mask-image: url("/icons/custom/search-eye-line.svg");
+  mask-image: url("/icons/custom/search-eye-line.svg");
 }
 
 .fr-icon-settings-3-line::before,

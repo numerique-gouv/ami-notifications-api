@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
-import { render } from '@testing-library/svelte';
+import { fireEvent, render, waitFor } from '@testing-library/svelte';
+import * as navigationMethods from '$app/navigation';
 import * as envModule from '$env/static/public';
 import Navigation from './Navigation.svelte';
 
@@ -83,5 +84,58 @@ describe('/Navigation.svelte', () => {
     // Then
     const highlight = container.querySelector('.highlight');
     expect(highlight).toHaveTextContent('Suivi');
+  });
+
+  test('should navigate to User profile page when user clicks on Mon profil button', async () => {
+    // Given
+    const spy = vi
+      .spyOn(navigationMethods, 'goto')
+      .mockImplementation(() => Promise.resolve());
+    const { getByTestId } = render(Navigation);
+
+    // When
+    const button = getByTestId('profile-button');
+    await fireEvent.click(button);
+
+    // Then
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenNthCalledWith(1, '/#/profile');
+    });
+  });
+
+  test('should navigate to Préférences page when user clicks on Préférences button', async () => {
+    // Given
+    const spy = vi
+      .spyOn(navigationMethods, 'goto')
+      .mockImplementation(() => Promise.resolve());
+    const { getByTestId } = render(Navigation);
+
+    // When
+    const button = getByTestId('preferences-button');
+    await fireEvent.click(button);
+
+    // Then
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenNthCalledWith(1, '/#/preferences');
+    });
+  });
+
+  test('should navigate to Contact page when user clicks on Nous contacter button', async () => {
+    // Given
+    const spy = vi
+      .spyOn(navigationMethods, 'goto')
+      .mockImplementation(() => Promise.resolve());
+    const { getByTestId } = render(Navigation);
+
+    // When
+    const button = getByTestId('contact-button');
+    await fireEvent.click(button);
+
+    // Then
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledWith('/#/contact');
+    });
   });
 });
