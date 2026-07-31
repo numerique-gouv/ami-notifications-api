@@ -6,6 +6,7 @@
   import { afterNavigate } from '$app/navigation';
   import { env } from '$env/dynamic/public';
   import { AMIGoto } from '$lib/ami-navigation';
+  import { notifyWebappBridgeReady } from '$lib/bridges/webappBridge';
   import Toasts from '$lib/components/Toasts.svelte';
   import { initDsfr } from '$lib/dsfr';
   import { initMatomo, trackPageView } from '$lib/matomo';
@@ -20,6 +21,8 @@
     await initDsfr();
 
     initMatomo();
+
+    notifyWebappBridgeReady();
   });
 
   afterNavigate(() => {
