@@ -1,8 +1,8 @@
 import { describe, expect, test, vi } from 'vitest';
 import * as envModule from '$env/static/public';
 import '@testing-library/jest-dom/vitest';
+import * as nativeInfosMethods from '$lib/bridges/nativeInfos';
 import { getContactMailToUri, getContactUrl } from '$lib/contact';
-import * as nativeInfosMethods from '$lib/nativeInfos';
 
 vi.mock('$env/static/public', async (importOriginal) => {
   const original = (await importOriginal()) as Record<string, unknown>;

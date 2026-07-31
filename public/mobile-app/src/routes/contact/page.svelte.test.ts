@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/svelte';
 import { describe, expect, test, vi } from 'vitest';
 import * as AMINavigationMethods from '$lib/ami-navigation';
-import * as nativeInfosMethods from '$lib/nativeInfos';
+import * as nativeInfosMethods from '$lib/bridges/nativeInfos';
 import { expectBackButtonPresent } from '$tests/utils';
 import Page from './+page.svelte';
 

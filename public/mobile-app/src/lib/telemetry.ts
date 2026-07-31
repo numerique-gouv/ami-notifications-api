@@ -1,6 +1,6 @@
 import * as Sentry from '@sentry/svelte';
+import { getDeviceId } from '$lib/bridges/nativeInfos';
 import { trackTelemetryEvent } from '$lib/matomo';
-import { getDeviceId } from '$lib/nativeInfos';
 
 const shortDigest = async (message: string) => {
   const encoder = new TextEncoder();

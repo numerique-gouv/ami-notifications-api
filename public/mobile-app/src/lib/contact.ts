@@ -3,7 +3,7 @@ import {
   PUBLIC_CONTACT_EMAIL_BODY,
   PUBLIC_CONTACT_URL,
 } from '$env/static/public';
-import { getPlatform, getVersion } from '$lib/nativeInfos';
+import { getPlatform, getVersion } from '$lib/bridges/nativeInfos';
 
 export const getContactMailToUri = (userFcHash?: string): string => {
   const contactEmail = PUBLIC_CONTACT_EMAIL;
