@@ -6,8 +6,8 @@
   import FollowupItem from '$lib/components/FollowupItem.svelte';
   import Icon from '$lib/components/Icon.svelte';
   import AgendaItemModal from '$lib/components/modal/AgendaItemModal.svelte';
+  import CenteredModal from '$lib/components/modal/CenteredModal.svelte';
   import FollowupItemModal from '$lib/components/modal/FollowupItemModal.svelte';
-  import Logout from '$lib/components/modal/Logout.svelte';
   import Modal from '$lib/components/modal/Modal.svelte';
   import type { Followup, FollowupItem as FollowupItemType } from '$lib/followup';
   import { buildFollowup } from '$lib/followup';
@@ -18,12 +18,6 @@
   } from '$lib/notifications';
   import { userStore } from '$lib/state/User.svelte';
 
-  type ModalInstance = {
-    open: () => Promise<void>;
-  };
-
-  let logoutModal: ModalInstance;
-
   let unreadNotificationsCount: number = $state(0);
   let initials: string = $state('');
   let isMenuDisplayed: boolean = $state(false);
@@ -33,6 +27,7 @@
   let followup: Followup | null = $state(null);
   let selectedAgendaItem: AgendaItemType | null = $state(null);
   let selectedFollowupItem: FollowupItemType | null = $state(null);
+  let logoutModal = $state(false);
 
   onMount(async () => {
     console.log('User is connected:', userStore.connected);
@@ -91,7 +86,10 @@
 
   const openLogoutModal = () => {
     isMenuDisplayed = false;
-    logoutModal.open();
+    logoutModal = true;
+  };
+  const closeLogoutModal = () => {
+    logoutModal = false;
   };
 
   const openAgendaItemModal = (item: AgendaItemType) => {
@@ -280,14 +278,42 @@
   </div>
 </div>
 
-<Modal
-  bind:this={logoutModal}
-  id="modal-logout"
-  title="Suppression de vos données"
-  closeButton={false}
-  centered={true}
-  component={Logout}
-/>
+{#if logoutModal}
+  <CenteredModal onClose={closeLogoutModal}>
+    {#snippet header()}
+      <h2 class="fr-h4">Suppression de vos données</h2>
+      <p>
+        En vous déconnectant, toutes les données enregistrées localement sur cet
+        appareil (informations saisies, modifications et paramètres de personnalisation)
+        seront supprimées.
+      </p>
+    {/snippet}
+    {#snippet footer()}
+      <ul class="fr-btns-group logout-modal-action-buttons">
+        <li>
+          <button
+            class="fr-btn fr-btn--secondary cancel-button"
+            type="button"
+            onclick={closeLogoutModal}
+            data-testid="logout-cancel-button"
+          >
+            Annuler
+          </button>
+        </li>
+        <li>
+          <button
+            class="fr-btn submit-button"
+            type="button"
+            onclick={userStore.logout}
+            data-testid="logout-submit-button"
+          >
+            Confirmer
+          </button>
+        </li>
+      </ul>
+    {/snippet}
+  </CenteredModal>
+{/if}
 
 {#if selectedAgendaItem}
   <AgendaItemModal bind:item={selectedAgendaItem} bind:agenda={agenda} />
@@ -304,6 +330,21 @@
 <style>
   .is-hidden {
     display: none;
+  }
+
+  .logout-modal-action-buttons {
+    background-color: var(--background-default-grey);
+    display: flex;
+    gap: 1rem;
+    margin: 0;
+    li {
+      flex: 1;
+      button {
+        display: block;
+        width: 100%;
+        margin: 0;
+      }
+    }
   }
 
   .homepage-connected {
