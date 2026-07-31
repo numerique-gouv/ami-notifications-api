@@ -1,6 +1,11 @@
 import { afterEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
-import { getDeviceId, getVersion, isNative } from '$lib/bridges/nativeInfos';
+import {
+  getDeviceId,
+  getPromotedUrlAliases,
+  getVersion,
+  isNative,
+} from '$lib/bridges/nativeInfos';
 
 describe('/nativeEvents.ts', () => {
   afterEach(() => {
@@ -105,6 +110,57 @@ describe('/nativeEvents.ts', () => {
 
       // Then
       expect(result).toEqual('');
+    });
+  });
+
+  describe('getPromotedUrlAliases', () => {
+    test('should return aliases if isNative() == true', async () => {
+      // Given
+      window.NativeInfos = {
+        getInfos: vi.fn().mockReturnValue({
+          promoted_url_aliases: JSON.stringify(['alias1', 'alias2']),
+        }),
+      };
+
+      // When
+      const result = getPromotedUrlAliases();
+
+      // Then
+      expect(result).toEqual(['alias1', 'alias2']);
+    });
+    test('should return empty list if there is not NativeInfos', async () => {
+      // Given
+      expect(globalThis.window.NativeInfos).toBeUndefined();
+
+      // When
+      const result = getPromotedUrlAliases();
+
+      // Then
+      expect(result).toEqual([]);
+    });
+    test('should return empty list if promoted_url_aliases is missing', async () => {
+      // Given
+      globalThis.window.NativeInfos = {
+        getInfos: vi.fn(),
+      };
+
+      // When
+      const result = getPromotedUrlAliases();
+
+      // Then
+      expect(result).toEqual([]);
+    });
+    test('should return empty list if promoted_url_aliases is empty list', async () => {
+      // Given
+      globalThis.window.NativeInfos = {
+        getInfos: vi.fn().mockReturnValue({ promoted_url_aliases: JSON.stringify([]) }),
+      };
+
+      // When
+      const result = getPromotedUrlAliases();
+
+      // Then
+      expect(result).toEqual([]);
     });
   });
 });
