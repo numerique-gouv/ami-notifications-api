@@ -35,6 +35,9 @@ declare global {
     NativeInfos?: {
       getInfos(): NativeInfosData;
     };
+    WebAppBridge: {
+      getUrlAliases(): string;
+    };
     dsfr: (element: Element | null) => DSFRInstance;
   }
 }
