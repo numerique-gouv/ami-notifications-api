@@ -3,6 +3,7 @@ import {
   PUBLIC_API_URL,
   PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED,
 } from '$env/static/public';
+import { isPromotedUrl } from '$lib/urlAliases';
 
 export const AMIUrl = (url: string, silentLogin: boolean = false): string => {
   if (PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED === 'true' && silentLogin && url) {
@@ -19,7 +20,12 @@ export const AMIGoto = async (
   }
 ) => {
   const newUrl = AMIUrl(url, silentLogin);
-  if (newUrl.startsWith('/')) {
+  const isInternal = newUrl.startsWith('/');
+  let isPromoted = false;
+  if (isInternal) {
+    isPromoted = isPromotedUrl(newUrl);
+  }
+  if (isInternal && !isPromoted) {
     goto(url, opts);
   } else {
     window.location.href = newUrl;

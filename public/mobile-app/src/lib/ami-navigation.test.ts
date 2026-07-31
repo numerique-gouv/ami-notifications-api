@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 import * as navigationMethods from '$app/navigation';
 import * as envModule from '$env/static/public';
 import { AMIGoto, AMIUrl } from '$lib/ami-navigation';
+import * as urlAliasesMethods from '$lib/urlAliases';
 
 describe('/ami-navigation', () => {
   beforeEach(async () => {
@@ -85,7 +86,23 @@ describe('/ami-navigation', () => {
 
         // Then
         expect(spy).toHaveBeenCalledTimes(1);
-        expect(spy).toHaveBeenCalledWith('/', undefined);
+        expect(spy).toHaveBeenCalledWith(url, undefined);
+      });
+      test('should redirect to url - promoted internal url', async () => {
+        // Given
+        vi.spyOn(urlAliasesMethods, 'isPromotedUrl').mockReturnValue(true);
+        const url = '/';
+        vi.stubGlobal('location', {
+          href: 'fake-link',
+          hash: '',
+          origin: 'http://localhost',
+        });
+
+        // When
+        AMIGoto(url);
+
+        // Then
+        expect(window.location.href).toBe(url);
       });
       test('should redirect to url - external url', async () => {
         // Given
@@ -100,7 +117,7 @@ describe('/ami-navigation', () => {
         AMIGoto(url);
 
         // Then
-        expect(window.location.href).toBe('http://external-url');
+        expect(window.location.href).toBe(url);
       });
     });
 
@@ -136,7 +153,24 @@ describe('/ami-navigation', () => {
 
         // Then
         expect(spy).toHaveBeenCalledTimes(1);
-        expect(spy).toHaveBeenCalledWith('/', undefined);
+        expect(spy).toHaveBeenCalledWith(url, undefined);
+      });
+      test('should redirect to url - promoted internal url', async () => {
+        // Given
+        vi.mocked(envModule).PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED = 'false';
+        vi.spyOn(urlAliasesMethods, 'isPromotedUrl').mockReturnValue(true);
+        const url = '/';
+        vi.stubGlobal('location', {
+          href: 'fake-link',
+          hash: '',
+          origin: 'http://localhost',
+        });
+
+        // When
+        AMIGoto(url, true);
+
+        // Then
+        expect(window.location.href).toBe(url);
       });
       test('should redirect to url - external url', async () => {
         // Given
@@ -152,7 +186,7 @@ describe('/ami-navigation', () => {
         AMIGoto(url, true);
 
         // Then
-        expect(window.location.href).toBe('http://external-url');
+        expect(window.location.href).toBe(url);
       });
     });
   });
