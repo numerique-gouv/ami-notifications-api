@@ -1,8 +1,8 @@
 import { describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import * as sentryMethods from '@sentry/svelte';
+import * as nativeInfosMethods from '$lib/bridges/nativeInfos';
 import * as matomoMethods from '$lib/matomo';
-import * as nativeInfosMethods from '$lib/nativeInfos';
 import { debug, error, info, setGlobalScope, trace, warn } from './telemetry';
 
 vi.mock('@sentry/svelte', () => ({

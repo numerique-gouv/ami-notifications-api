@@ -1,10 +1,10 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { AMIGoto } from '$lib/ami-navigation';
+  import { getPlatform, getVersion } from '$lib/bridges/nativeInfos';
   import BottomModal from '$lib/components/modal/BottomModal.svelte';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import { getContactMailToUri, getContactUrl } from '$lib/contact';
-  import { getPlatform, getVersion } from '$lib/nativeInfos';
   import { toastStore } from '$lib/state/toast.svelte';
   import { userStore } from '$lib/state/User.svelte';
 
