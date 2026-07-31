@@ -313,12 +313,11 @@ export class User {
     }
   }
 
-  getInitials(): string {
-    let initials_: string = '';
+  getFirstName(): string {
     if (this._pivot.given_name_array.length) {
-      initials_ += this._pivot.given_name_array[0].substring(0, 1);
+      return this._pivot.given_name_array[0];
     }
-    return initials_;
+    return '';
   }
 }
 

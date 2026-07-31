@@ -3,7 +3,6 @@ import '@testing-library/jest-dom/vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import type { WS as WSType } from 'vitest-websocket-mock';
 import WS from 'vitest-websocket-mock';
-import * as navigationMethods from '$app/navigation';
 import * as agendaMethods from '$lib/agenda';
 import { Agenda, Item } from '$lib/agenda';
 import * as followupMethods from '$lib/followup';
@@ -58,23 +57,41 @@ describe('/ConnectedHomepage.svelte', () => {
     window.localStorage.setItem('emailLocalStorage', 'test@email.fr');
     window.localStorage.setItem('pushSubscriptionLocalStorage', '{}');
 
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+
     wss = new WS(`${PUBLIC_API_WS_URL}/api/v1/users/notification/events/stream`);
   });
 
   afterEach(() => {
     wss.close();
     vi.resetAllMocks();
+    vi.useRealTimers();
   });
 
-  test("should display user's initials on menu", async () => {
+  test("should display user's first name on top of the page", async () => {
     // When
     const { container } = render(ConnectedHomepage);
 
     // Then
     await waitFor(() => {
-      const initials = container.querySelector('.user-profile');
-      expect(initials).toHaveTextContent('A');
-      expect(initials).not.toHaveTextContent('ACL');
+      const initials = container.querySelector('.header');
+      expect(initials).toHaveTextContent('Bonjour Angela');
+      expect(initials).not.toHaveTextContent('Bonjour Angela Claire Louise');
+    });
+  });
+
+  test('should display current date on top of the page', async () => {
+    // Given
+    const date = new Date(2026, 7, 4, 12, 22);
+    vi.setSystemTime(date);
+
+    // When
+    const { container } = render(ConnectedHomepage);
+
+    // Then
+    await waitFor(() => {
+      const initials = container.querySelector('.header');
+      expect(initials).toHaveTextContent('mardi 4 août 2026');
     });
   });
 
@@ -116,59 +133,6 @@ describe('/ConnectedHomepage.svelte', () => {
     await waitFor(() => {
       const icon = container.querySelector('#notification-icon');
       expect(icon).toHaveTextContent('4');
-    });
-  });
-
-  test('should navigate to User profile page when user clicks on Mon profil button', async () => {
-    // Given
-    const spy = vi
-      .spyOn(navigationMethods, 'goto')
-      .mockImplementation(() => Promise.resolve());
-    render(ConnectedHomepage);
-
-    // When
-    const button = screen.getByTestId('profile-button');
-    await fireEvent.click(button);
-
-    // Then
-    await waitFor(() => {
-      expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenNthCalledWith(1, '/#/profile');
-    });
-  });
-
-  test('should navigate to Préférences page when user clicks on Préférences button', async () => {
-    // Given
-    const spy = vi
-      .spyOn(navigationMethods, 'goto')
-      .mockImplementation(() => Promise.resolve());
-    render(ConnectedHomepage);
-
-    // When
-    const button = screen.getByTestId('preferences-button');
-    await fireEvent.click(button);
-
-    // Then
-    await waitFor(() => {
-      expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenNthCalledWith(1, '/#/preferences');
-    });
-  });
-
-  test('should navigate to Contact page when user clicks on Nous contacter button', async () => {
-    // Given
-    const spy = vi
-      .spyOn(navigationMethods, 'goto')
-      .mockImplementation(() => Promise.resolve());
-    render(ConnectedHomepage);
-
-    // When
-    const button = screen.getByTestId('contact-button');
-    await fireEvent.click(button);
-
-    // Then
-    await waitFor(() => {
-      expect(spy).toHaveBeenCalledWith('/#/contact');
     });
   });
 

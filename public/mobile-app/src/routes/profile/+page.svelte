@@ -44,7 +44,7 @@
   <div class="fr-container profile-content-container fr-pt-14w" data-testid="profile">
     <Card
       id="profile-identity"
-      iconHref="/remixicons/account-circle-line.svg"
+      iconClassName="fr-icon-account-circle-line fr-mr-1w am-icon-20"
       title="Mon identité"
     >
       <p class="paragraph-wrapper fr-mb-0">
@@ -81,7 +81,11 @@
       </button>
     </Card>
 
-    <Card id="profile-email" iconHref="/remixicons/mail-line.svg" title="Contact">
+    <Card
+      id="profile-email"
+      iconClassName="fr-icon-mail-line fr-mr-1w am-icon-20"
+      title="Contact"
+    >
       <p class="paragraph-wrapper fr-mb-0">
         Pour vous contacter&nbsp;:
         <br>
@@ -106,7 +110,7 @@
 
     <Card
       id="profile-address"
-      iconHref="/remixicons/map-pin-user-line.svg"
+      iconClassName="fr-icon-map-pin-user-line fr-mr-1w am-icon-20"
       title="Mon adresse"
     >
       {#if address}

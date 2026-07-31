@@ -1,14 +1,11 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
   import { type Agenda, Item as AgendaItemType, buildAgenda } from '$lib/agenda';
   import AgendaItem from '$lib/components/AgendaItem.svelte';
   import FollowupItem from '$lib/components/FollowupItem.svelte';
-  import Icon from '$lib/components/Icon.svelte';
   import AgendaItemModal from '$lib/components/modal/AgendaItemModal.svelte';
   import CenteredModal from '$lib/components/modal/CenteredModal.svelte';
   import FollowupItemModal from '$lib/components/modal/FollowupItemModal.svelte';
-  import Modal from '$lib/components/modal/Modal.svelte';
   import type { Followup, FollowupItem as FollowupItemType } from '$lib/followup';
   import { buildFollowup } from '$lib/followup';
   import { userReady } from '$lib/initializeDataFromAPI';
@@ -17,22 +14,23 @@
     notificationEventsSocket,
   } from '$lib/notifications';
   import { userStore } from '$lib/state/User.svelte';
+  import { formatDate } from '$lib/utils';
 
   let unreadNotificationsCount: number = $state(0);
-  let initials: string = $state('');
-  let isMenuDisplayed: boolean = $state(false);
+  let firstName: string = $state('');
+  let today: Date | null = $state(null);
   let isAgendaEmpty: boolean = $state(true);
   let agenda: Agenda | null = $state(null);
   let isFollowupEmpty: boolean = $state(true);
   let followup: Followup | null = $state(null);
   let selectedAgendaItem: AgendaItemType | null = $state(null);
   let selectedFollowupItem: FollowupItemType | null = $state(null);
-  let logoutModal = $state(false);
 
   onMount(async () => {
     console.log('User is connected:', userStore.connected);
     try {
-      initials = userStore.connected?.getInitials() || '';
+      firstName = userStore.connected?.getFirstName() || '';
+      today = new Date();
 
       unreadNotificationsCount = await countUnreadNotifications();
 
@@ -68,30 +66,6 @@
     }
   });
 
-  const toggleMenu = () => {
-    isMenuDisplayed = !isMenuDisplayed;
-  };
-
-  const goToProfile = async () => {
-    goto('/#/profile');
-  };
-
-  const goToPreferences = () => {
-    goto('/#/preferences');
-  };
-
-  const goToContact = () => {
-    goto('/#/contact');
-  };
-
-  const openLogoutModal = () => {
-    isMenuDisplayed = false;
-    logoutModal = true;
-  };
-  const closeLogoutModal = () => {
-    logoutModal = false;
-  };
-
   const openAgendaItemModal = (item: AgendaItemType) => {
     selectedAgendaItem = item;
   };
@@ -103,9 +77,10 @@
 
 <div class="homepage-connected">
   <div class="header fr-mb-3w">
-    <button class="header-left" onclick={toggleMenu} data-testid="toggle-menu-button">
-      <span class="user-profile"> {initials} </span>
-    </button>
+    <div class="header-left fr-ellipsis">
+      <p class="fr-ellipsis fr-h5 fr-mb-1w">Bonjour {firstName}</p>
+      <p class="fr-text--sm fr-mb-0">{today ? formatDate(today): ''}</p>
+    </div>
 
     <div class="header-right">
       <div class="notification-svg-icon" id="notification-icon">
@@ -119,61 +94,6 @@
           </div>
         </a>
       </div>
-    </div>
-  </div>
-
-  <div class="menu {isMenuDisplayed ? '' : 'is-hidden'}">
-    <div class="container">
-      <button
-        class="profile"
-        type="button"
-        onclick={goToProfile}
-        data-testid="profile-button"
-      >
-        <Icon
-          className="fr-mr-2v"
-          color="var(--text-active-blue-france)"
-          href="/remixicons/user-line.svg"
-        />
-        Mon profil
-      </button>
-
-      <button
-        class="preferences"
-        type="button"
-        onclick={goToPreferences}
-        data-testid="preferences-button"
-      >
-        <Icon
-          className="fr-mr-2v"
-          color="var(--text-active-blue-france)"
-          href="/remixicons/settings.svg"
-        />
-        Préférences
-      </button>
-
-      <button
-        class="contact"
-        type="button"
-        onclick={goToContact}
-        data-testid="contact-button"
-      >
-        <Icon
-          className="fr-mr-2v"
-          color="var(--text-active-blue-france)"
-          href="/remixicons/question-answer-line.svg"
-        />
-        Nous contacter
-      </button>
-
-      <button class="fr-connect-logout" type="button" onclick={openLogoutModal}>
-        <Icon
-          className="fr-mr-2v"
-          color="var(--text-active-blue-france)"
-          href="/remixicons/shut-down-line.svg"
-        />
-        Me déconnecter
-      </button>
     </div>
   </div>
 
@@ -278,43 +198,6 @@
   </div>
 </div>
 
-{#if logoutModal}
-  <CenteredModal onClose={closeLogoutModal}>
-    {#snippet header()}
-      <h2 class="fr-h4">Suppression de vos données</h2>
-      <p>
-        En vous déconnectant, toutes les données enregistrées localement sur cet
-        appareil (informations saisies, modifications et paramètres de personnalisation)
-        seront supprimées.
-      </p>
-    {/snippet}
-    {#snippet footer()}
-      <ul class="fr-btns-group logout-modal-action-buttons">
-        <li>
-          <button
-            class="fr-btn fr-btn--secondary cancel-button"
-            type="button"
-            onclick={closeLogoutModal}
-            data-testid="logout-cancel-button"
-          >
-            Annuler
-          </button>
-        </li>
-        <li>
-          <button
-            class="fr-btn submit-button"
-            type="button"
-            onclick={userStore.logout}
-            data-testid="logout-submit-button"
-          >
-            Confirmer
-          </button>
-        </li>
-      </ul>
-    {/snippet}
-  </CenteredModal>
-{/if}
-
 {#if selectedAgendaItem}
   <AgendaItemModal bind:item={selectedAgendaItem} bind:agenda={agenda} />
 {/if}
@@ -328,25 +211,6 @@
 {/if}
 
 <style>
-  .is-hidden {
-    display: none;
-  }
-
-  .logout-modal-action-buttons {
-    background-color: var(--background-default-grey);
-    display: flex;
-    gap: 1rem;
-    margin: 0;
-    li {
-      flex: 1;
-      button {
-        display: block;
-        width: 100%;
-        margin: 0;
-      }
-    }
-  }
-
   .homepage-connected {
     padding: 1.5rem 1rem;
     margin-bottom: 68px;
@@ -356,29 +220,13 @@
       justify-content: space-between;
 
       .header-left {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-
-        height: 48px;
-        width: 48px;
-        border-radius: 50%;
-        background-color: var(--blue-france-925-125-hover);
-
-        .user-profile {
-          font-size: 18px;
-          font-weight: 500;
-          line-height: 28px;
-          color: var(--blue-france-sun-113-625);
-        }
+        max-width: calc(100% - 3.5rem);
       }
 
       .header-right {
         display: flex;
-        align-items: center;
 
         .notification-svg-icon {
-          margin-right: 16px;
           position: relative;
 
           & a[href] {
@@ -404,33 +252,6 @@
               display: none;
             }
           }
-        }
-      }
-    }
-
-    .menu {
-      position: absolute;
-      z-index: 1000;
-
-      margin-top: -20px;
-      padding: 8px;
-      background-color: white;
-      border-radius: 4px;
-      box-shadow: 2px 2px 2px gray;
-
-      .container {
-        display: flex;
-        flex-direction: column;
-        align-items: start;
-
-        button {
-          align-items: center;
-          display: flex;
-          flex-direction: row;
-          padding: 8px 12px;
-
-          font-size: 14px;
-          line-height: 24px;
         }
       }
     }
