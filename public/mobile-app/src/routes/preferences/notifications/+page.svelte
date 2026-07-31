@@ -59,7 +59,7 @@
 <div class="preferences-page">
   <NavWithBackButton title="Notifications" {backUrl} />
 
-  <div class="preferences-content-container">
+  <div class="preferences-content-container fr-pt-14w">
     <Toggle
       id="notification-toggle"
       label="Recevoir les notifications sur mon appareil mobile"
