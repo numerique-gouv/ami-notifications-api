@@ -25,6 +25,7 @@ declare global {
     environment: string;
     mode: string;
     device_id: string;
+    promoted_url_aliases: string;
   }
 
   interface Window {
@@ -34,6 +35,9 @@ declare global {
     };
     NativeInfos?: {
       getInfos(): NativeInfosData;
+    };
+    WebAppBridge: {
+      getUrlAliases(): string;
     };
     dsfr: (element: Element | null) => DSFRInstance;
   }

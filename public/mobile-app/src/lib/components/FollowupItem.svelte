@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
+  import { AMIGoto } from '$lib/ami-navigation';
+  import AMILink from '$lib/components/AMILink.svelte';
   import { getDSFRIcon } from '$lib/dsfr-icon';
   import { FollowupItem } from '$lib/followup';
 
@@ -11,8 +12,8 @@
 
   let checkedIcon = $derived(getDSFRIcon(item.icon, 'fr-icon-information-fill'));
 
-  const gotoDetailPage = (itemDetailPageUrl: string) => {
-    goto(itemDetailPageUrl);
+  const goToDetailPage = (itemDetailPageUrl: string) => {
+    AMIGoto(itemDetailPageUrl);
   };
 </script>
 
@@ -32,13 +33,13 @@
     <div class="fr-tile__body">
       <div class="fr-tile__content">
         <h3 class="fr-tile__title">
-          <a
-            href="{item.itemDetailPageUrl}"
-            onclick={(e) => {if (!item.itemDetailPageUrl) {e.preventDefault();}}}
+          <AMILink
+            url={item.itemDetailPageUrl}
+            variant="followup-item"
             data-testid="followup-item-link"
           >
             {item.title}
-          </a>
+          </AMILink>
         </h3>
         <p class="fr-tile__detail"><span>{item.description}</span></p>
         <div class="fr-tile__start">
@@ -54,7 +55,7 @@
             <button
               class="fr-btn fr-mb-0"
               type="button"
-              onclick={(e) => gotoDetailPage(item.itemDetailPageUrl)}
+              onclick={(e) => goToDetailPage(item.itemDetailPageUrl)}
               data-testid="external-item-button-{item.id}"
             >
               Reprendre ma démarche
@@ -90,16 +91,6 @@
         padding-bottom: 0;
         .fr-tile__title {
           font-size: 16px;
-          a {
-            color: var(--text-action-high-blue-france);
-            &::after {
-              bottom: 0.5rem;
-              right: 0.5rem;
-              --icon-size: 1.25rem;
-              -webkit-mask-image: url("@gouvfr/dsfr/dist/icons/arrows/arrow-right-s-line.svg");
-              mask-image: url("@gouvfr/dsfr/dist/icons/arrows/arrow-right-s-line.svg");
-            }
-          }
         }
         .fr-tile__detail {
           font-size: 14px;

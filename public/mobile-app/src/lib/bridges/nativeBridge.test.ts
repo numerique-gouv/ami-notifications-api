@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
-import { emit, isNative, runOrNativeEvent } from '$lib/nativeEvents';
+import { emit, isNative, runOrNativeEvent } from '$lib/bridges/nativeBridge';
 
 describe('/nativeEvents.ts', () => {
   afterEach(() => {

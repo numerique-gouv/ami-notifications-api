@@ -7,4 +7,4 @@
   let props: Props = $props();
 </script>
 
-<LightModal {...props} />
+<LightModal {...props} centered />

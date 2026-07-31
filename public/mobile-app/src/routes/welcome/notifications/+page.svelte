@@ -1,14 +1,14 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
-  import { runOrNativeEvent } from '$lib/nativeEvents';
+  import { AMIGoto } from '$lib/ami-navigation';
+  import { runOrNativeEvent } from '$lib/bridges/nativeBridge';
   import { enableNotificationsAndUpdateLocalStorage } from '$lib/notifications';
   import { toastStore } from '$lib/state/toast.svelte';
   import { userStore } from '$lib/state/User.svelte';
 
   onMount(async () => {
     if (!userStore.connected) {
-      goto('/');
+      AMIGoto('/');
     }
   });
 
@@ -23,7 +23,7 @@
   };
 
   const goToHomePage = () => {
-    goto('/');
+    AMIGoto('/');
   };
 </script>
 

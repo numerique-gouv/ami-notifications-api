@@ -2,6 +2,7 @@
   import DOMPurify from 'dompurify';
   import { onMount } from 'svelte';
   import { Item } from '$lib/agenda';
+  import AMILink from '$lib/components/AMILink.svelte';
 
   interface Props {
     item: Item;
@@ -35,16 +36,15 @@
         class="open-agenda-item-modal fr-icon-more-2-fill"
       ></button>
       <div class="fr-tile__body">
-        <div class="fr-tile__content {item.link ? '': 'no-link'}">
+        <div class="fr-tile__content">
           <h4 class="fr-tile__title">
-            <a
-              href="{item.link}"
-              onclick={(e) => {if (!item.link) {e.preventDefault();}}}
+            <AMILink
+              url={item.link}
+              variant="agenda-item"
               data-testid="agenda-item-link"
-              class="{item.link ? '': 'no-link'}"
             >
               {item.title}
-            </a>
+            </AMILink>
           </h4>
           {#if item.subitems.length == 1}
             {#if item.description}
@@ -74,7 +74,7 @@
           class="agenda--item--detail fr-tile fr-tile-sm fr-tile--horizontal fr-enlarge-link {item.link ? '': 'no-link'}"
         >
           <div class="fr-tile__body">
-            <div class="fr-tile__content {item.link ? '': 'no-link'}">
+            <div class="fr-tile__content">
               <p class="fr-tile__detail">
                 <span>{@html DOMPurify.sanitize(subitem.description || '')}</span>
               </p>
@@ -155,24 +155,6 @@
             font-size: 16px;
             &::before {
               background: none;
-            }
-            a {
-              &::before {
-                background: none;
-              }
-              &::after {
-                bottom: 0.5rem;
-                right: 0.5rem;
-                --icon-size: 1.25rem;
-                -webkit-mask-image: url("@gouvfr/dsfr/dist/icons/arrows/arrow-right-s-line.svg");
-                mask-image: url("@gouvfr/dsfr/dist/icons/arrows/arrow-right-s-line.svg");
-              }
-              &.no-link {
-                cursor: default;
-                &::after {
-                  display: none;
-                }
-              }
             }
           }
           .fr-tile__detail {
