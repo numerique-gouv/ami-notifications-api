@@ -1,5 +1,6 @@
 import { goto } from '$app/navigation';
 import { PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED } from '$env/static/public';
+import { isPromotedUrl } from '$lib/urlAliases';
 import * as self from './ami-navigation';
 
 const AMIFILogin = (url: string) => {
@@ -15,7 +16,16 @@ export const AMIGoto = (
 ) => {
   if (PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED === 'true' && silentLogin) {
     AMIFILogin(link);
-  } else if (link === '/' || link.startsWith('/#/')) {
+    return;
+  }
+
+  const isInternal = link === '/' || link.startsWith('/#/');
+  let isPromoted = false;
+  if (isInternal) {
+    isPromoted = isPromotedUrl(link);
+  }
+
+  if (isInternal && !isPromoted) {
     if (opts !== undefined) {
       goto(link, opts);
     } else {
