@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import * as apiServicesMethods from '$lib/api-services';
-import * as nativeInfosMethods from '$lib/nativeInfos';
+import * as nativeInfosMethods from '$lib/bridges/nativeInfos';
 import { buildServices, Services, ServicesItem } from '$lib/services';
 import { userStore } from '$lib/state/User.svelte';
 import { mockAddress, mockUserInfo } from '$tests/utils';

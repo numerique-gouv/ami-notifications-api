@@ -11,7 +11,7 @@ import {
   PARAMETER_KEYS,
   retrieveServices,
 } from '$lib/api-services';
-import { getVersion } from '$lib/nativeInfos';
+import { getVersion } from '$lib/bridges/nativeInfos';
 import { userStore } from '$lib/state/User.svelte';
 
 export class ServicesItem {

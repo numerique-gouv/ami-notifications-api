@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { AMIGoto } from '$lib/ami-navigation';
-  import { runOrNativeEvent } from '$lib/nativeEvents';
+  import { runOrNativeEvent } from '$lib/bridges/nativeBridge';
   import { enableNotificationsAndUpdateLocalStorage } from '$lib/notifications';
   import { toastStore } from '$lib/state/toast.svelte';
   import { userStore } from '$lib/state/User.svelte';

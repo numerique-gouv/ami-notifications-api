@@ -1,11 +1,11 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { AMIGoto } from '$lib/ami-navigation';
+  import { runOrNativeEvent } from '$lib/bridges/nativeBridge';
   import AMILink from '$lib/components/AMILink.svelte';
   import Modal from '$lib/components/modal/Modal.svelte';
   import ZonePreferences from '$lib/components/modal/ZonePreferences.svelte';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
-  import { runOrNativeEvent } from '$lib/nativeEvents';
   import {
     disableNotifications,
     enableNotificationsAndUpdateLocalStorage,
