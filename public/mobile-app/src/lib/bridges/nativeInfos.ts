@@ -1,4 +1,4 @@
-const isNative = (): boolean => {
+export const isNative = (): boolean => {
   return !!window.NativeInfos;
 };
 
