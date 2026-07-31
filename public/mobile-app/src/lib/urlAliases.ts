@@ -1,3 +1,4 @@
+import { getPromotedUrlAliases } from '$lib/bridges/nativeInfos';
 import * as self from './urlAliases';
 
 interface UrlAlias {
@@ -36,4 +37,13 @@ export const resolveUrl = (url: string): string | null => {
     .getUrlAliases()
     .find(({ pattern }) => patternToRegex(pattern).test(url));
   return match?.alias || null;
+};
+
+export const isPromotedUrl = (url: string): boolean => {
+  const alias = resolveUrl(url);
+  if (alias === null) {
+    return false;
+  }
+  const promotedAliases = getPromotedUrlAliases();
+  return promotedAliases.includes(alias);
 };
