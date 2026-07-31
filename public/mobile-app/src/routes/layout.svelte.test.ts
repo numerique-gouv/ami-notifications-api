@@ -3,6 +3,7 @@ import '@testing-library/jest-dom/vitest';
 import { render, waitFor } from '@testing-library/svelte';
 import type { Snippet } from 'svelte';
 import * as AMINavigationMethods from '$lib/ami-navigation';
+import * as NativeBridgeMethods from '$lib/bridges/nativeBridge';
 import Layout from './+layout.svelte';
 
 vi.mock('$env/dynamic/public', () => ({
@@ -70,6 +71,22 @@ describe('+layout.svelte', () => {
       // Then
       await waitFor(() => {
         expect(spy).not.toHaveBeenCalledWith('/#/forbidden');
+      });
+    });
+  });
+
+  describe('webappBridge', () => {
+    test('should emit event when webappBridge is ready', async () => {
+      // Given
+      const spy = vi.spyOn(NativeBridgeMethods, 'emit').mockResolvedValue();
+      vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
+
+      // When
+      render(Layout, { children: (() => {}) as unknown as Snippet });
+
+      // Then
+      await waitFor(() => {
+        expect(spy).toHaveBeenCalledWith('webappBridgeReady');
       });
     });
   });
