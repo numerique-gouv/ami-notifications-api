@@ -251,6 +251,10 @@ sentry_sdk.init(
     before_send=before_send,  # Filter the exceptions being reported to Sentry.
 )
 
+WEB_APP_ACCESS_KEYS = set(
+    CONFIG["WEB_APP_ACCESS_KEYS"].split(",") if CONFIG.get("WEB_APP_ACCESS_KEYS") else []
+)
+
 # FranceConnect authentication
 AUTH_COOKIE_JWT_NAME = "token"
 AUTH_COOKIE_JWT_SECRET = CONFIG["AUTH_COOKIE_JWT_SECRET"]
