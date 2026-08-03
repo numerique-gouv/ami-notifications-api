@@ -55,10 +55,6 @@ class Notification(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    # to delete from DB in a future release
-    # item_external_url = models.CharField(blank=True, null=True)
-    # send_date = models.DateTimeField(default=timezone.now, null=True)
-
     class Meta:
         db_table = "notification"
 
