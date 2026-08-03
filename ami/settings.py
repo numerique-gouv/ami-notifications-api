@@ -166,7 +166,11 @@ DATABASES = {
     "data_ware_house": {**data_ware_house, "TEST": {"NAME": "test_data_ware_house"}},
 }
 
-DATABASE_ROUTERS = ["ami.replication.router.DataWarehouseRouter"]
+if (
+    "staging-pr" not in CONFIG.get("PUBLIC_APP_URL", "")
+    or CONFIG.get("FORCE_DATA_WAREHOUSE_ROUTER") == "true"
+):
+    DATABASE_ROUTERS = ["ami.replication.router.DataWarehouseRouter"]
 
 # Authentication
 AUTHENTICATION_BACKENDS = [
