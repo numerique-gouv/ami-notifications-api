@@ -1,12 +1,14 @@
 import asyncio
+import json
 import logging
 import uuid
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlparse
 
 from django.conf import settings
 from django.http import Http404, JsonResponse
 from django.shortcuts import redirect
 from django.views.decorators.http import require_GET
+from webauthn import generate_registration_options, options_to_json
 
 from ami.authentication.auth import create_jwt_token, generate_nonce, get_fc_scope, get_fc_token
 from ami.authentication.exception import FCError
@@ -263,3 +265,12 @@ async def get_user_data(*, token_type, access_token, nonce_context, httpx_async_
             )
 
     return tasks
+
+
+def passkey_generate_registration_options(request):
+    options = generate_registration_options(
+        rp_id=urlparse(settings.PUBLIC_APP_URL).netloc,
+        rp_name="Example Co",
+        user_name="fc-hash",
+    )
+    return JsonResponse(json.loads(options_to_json(options)))

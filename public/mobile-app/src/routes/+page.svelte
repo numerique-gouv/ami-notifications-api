@@ -86,24 +86,6 @@
   const closeConnectionHelpModal = () => {
     connectionHelpModal = false;
   };
-
-  const createPasskey = async () => {
-    const challengeFromServer = new ArrayBuffer(32);
-    const publicKey = {
-      challenge: challengeFromServer,
-      rp: { id: 'localhost', name: 'ACME Corporation' },
-      user: {
-        id: new Uint8Array([79, 252, 83, 72, 214, 7, 89, 26]),
-        name: 'jamiedoe',
-        displayName: 'Jamie Doe',
-      },
-      pubKeyCredParams: [{ type: 'public-key', alg: -7 }],
-    };
-
-    // @ts-expect-error
-    const publicKeyCredential = await navigator.credentials.create({ publicKey });
-    console.log('publicKeyCredential', publicKeyCredential);
-  };
 </script>
 
 {#if !userStore.connected}
@@ -207,14 +189,6 @@
   </div>
 {:else if userStore.connected}
   <Navigation currentItem="home" />
-  <button
-    onclick="{createPasskey}"
-    title="Créer une passkey"
-    type="button"
-    class="fr-btn--close fr-btn"
-  >
-    Créer une passkey
-  </button>
   <ConnectedHomepage />
 {/if}
 

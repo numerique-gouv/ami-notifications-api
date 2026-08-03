@@ -7,4 +7,5 @@ urlpatterns = [
     path("login-ami-fi", views.login_ami_fi),
     path("silent-login-ami-fi", views.silent_login_ami_fi),
     path("login-callback", views.login_callback),
+    path("generate-registration-options", views.passkey_generate_registration_options),
 ]
