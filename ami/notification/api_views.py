@@ -1,3 +1,4 @@
+import logging
 import uuid
 from typing import cast
 
@@ -9,6 +10,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.timezone import now
 from drf_spectacular.utils import extend_schema
+from rest_framework import serializers
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -28,6 +30,8 @@ from .serializers import (
     ScheduledNotificationDeleteSerializer,
     ScheduledNotificationResponseSerializer,
 )
+
+logger = logging.getLogger(__name__)
 
 
 @api_view(["GET"])
@@ -165,7 +169,11 @@ def delete_scheduled_notification(request: Request) -> Response:
 @permission_classes([IsPartnerAuthenticated])
 def partner_create_notification(request: Request) -> Response[NotificationResponseSerializer]:
     serializer = PartnerNotificationCreateSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
+    try:
+        serializer.is_valid(raise_exception=True)
+    except serializers.ValidationError:
+        logger.exception("Partner create notification serialization error")
+        raise
     data: dict = cast(dict, serializer.validated_data)
 
     return _partner_create_event(request, data)
