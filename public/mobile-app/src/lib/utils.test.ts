@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
-import { dateToISO, formatShortDate } from '$lib/utils';
+import { dateToISO, formatDate, formatShortDate } from '$lib/utils';
 
 describe('/lib/utils.ts', () => {
   describe('formatShortDate', () => {
@@ -23,6 +23,28 @@ describe('/lib/utils.ts', () => {
 
       // Then
       expect(formattedDate).toEqual('24/08/1962');
+    });
+  });
+  describe('formatDate', () => {
+    test('should format date str to day d month yyyy format', async () => {
+      // Given
+      const date = '2026-08-04';
+
+      // When
+      const formattedDate = formatDate(date);
+
+      // Then
+      expect(formattedDate).toEqual('mardi 4 août 2026');
+    });
+    test('should format date object to day d month yyyy format', async () => {
+      // Given
+      const date = new Date(2026, 7, 4);
+
+      // When
+      const formattedDate = formatDate(date);
+
+      // Then
+      expect(formattedDate).toEqual('mardi 4 août 2026');
     });
   });
 

@@ -13,6 +13,22 @@ export const formatShortDate = (data: string | Date) => {
   return date.toLocaleDateString('fr-FR', options);
 };
 
+export const formatDate = (data: string | Date) => {
+  let date: Date;
+  if (typeof data === 'string') {
+    date = new Date(data);
+  } else {
+    date = data;
+  }
+  const options: Intl.DateTimeFormatOptions = {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  };
+  return date.toLocaleDateString('fr-FR', options);
+};
+
 export const dateToISO = (date: Date | null) => {
   if (date === null) {
     return '';
