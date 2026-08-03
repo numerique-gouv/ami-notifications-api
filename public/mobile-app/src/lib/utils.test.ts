@@ -1,15 +1,15 @@
 import { describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
-import { dateToISO, formatDate } from '$lib/utils';
+import { dateToISO, formatShortDate } from '$lib/utils';
 
 describe('/lib/utils.ts', () => {
-  describe('formatDate', () => {
+  describe('formatShortDate', () => {
     test('should format date str to DD/MM/YYYY format', async () => {
       // Given
       const date = '1962-08-24';
 
       // When
-      const formattedDate = formatDate(date);
+      const formattedDate = formatShortDate(date);
 
       // Then
       expect(formattedDate).toEqual('24/08/1962');
@@ -19,7 +19,7 @@ describe('/lib/utils.ts', () => {
       const date = new Date(1962, 7, 24);
 
       // When
-      const formattedDate = formatDate(date);
+      const formattedDate = formatShortDate(date);
 
       // Then
       expect(formattedDate).toEqual('24/08/1962');

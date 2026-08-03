@@ -10,7 +10,7 @@
   import { toastStore } from '$lib/state/toast.svelte';
   import type { DataOrigin } from '$lib/state/User.svelte';
   import { userStore } from '$lib/state/User.svelte';
-  import { formatDate, scrollToInput, scrollToNode } from '$lib/utils';
+  import { formatShortDate, scrollToInput, scrollToNode } from '$lib/utils';
 
   let backUrl: string = '/#/profile';
   let addressFromUserStore: Address | undefined = $state();
@@ -243,7 +243,7 @@
       {#if address_origin == 'user' && address_last_update}
         <div class="data-update-info fr-mb-3w">
           Vous avez modifié cette information le
-          {formatDate(address_last_update)}.
+          {formatShortDate(address_last_update)}.
         </div>
       {/if}
 

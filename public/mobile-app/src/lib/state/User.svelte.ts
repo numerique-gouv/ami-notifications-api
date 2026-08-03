@@ -13,7 +13,7 @@ import { franceConnectLogout, parseJwt } from '$lib/france-connect';
 import { emit } from '$lib/nativeEvents';
 import { disableNotifications } from '$lib/notifications';
 import { Preferences, type ZoneInfo } from '$lib/state/preferences';
-import { formatDate } from '$lib/utils';
+import { formatShortDate } from '$lib/utils';
 
 export type DataOrigin = 'user' | 'france-connect' | 'api-particulier' | 'cleared';
 
@@ -259,7 +259,7 @@ export class User {
   }
 
   formatBirthdate(birthdate: string) {
-    return formatDate(birthdate);
+    return formatShortDate(birthdate);
   }
 
   addScheduledNotificationCreatedKey(key: string) {

@@ -703,13 +703,13 @@ describe('/lib/state/User.svelte.ts', () => {
       });
     });
 
-    describe('getInitials', () => {
-      test('should display initial of firt given name element only', async () => {
+    describe('getFirstName', () => {
+      test('should display firt given name element', async () => {
         // When
-        const initials = mockUser.getInitials();
+        const firstName = mockUser.getFirstName();
 
         // Then
-        expect(initials).toEqual('A');
+        expect(firstName).toEqual('Angela');
       });
     });
   });
