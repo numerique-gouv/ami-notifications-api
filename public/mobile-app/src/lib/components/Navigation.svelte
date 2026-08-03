@@ -61,7 +61,7 @@
 
   // Menu Plus
 
-  const menuPlus = $derived([
+  const menuPlus = [
     {
       isEnabled: true,
       url: '/#/profile',
@@ -83,7 +83,7 @@
       iconClassName: 'fr-icon-question-answer-line',
       id: 'contact',
     },
-  ]);
+  ];
 
   let logoutModal = $state(false);
 
@@ -93,10 +93,6 @@
 
   const closeLogoutModal = () => {
     logoutModal = false;
-  };
-
-  const redirection = (url: string) => {
-    goto(url);
   };
 </script>
 
@@ -169,7 +165,7 @@
                     <button
                       class="fr-sidemenu__btn fr-text--regular"
                       type="button"
-                      onclick={() => redirection(menuPlusItem.url)}
+                      onclick={() => goto(menuPlusItem.url)}
                       data-testid="{menuPlusItem.id}-button"
                     >
                       <Icon
