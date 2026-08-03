@@ -1,4 +1,4 @@
-export const formatDate = (data: string | Date) => {
+export const formatShortDate = (data: string | Date) => {
   let date: Date;
   if (typeof data === 'string') {
     date = new Date(data);
