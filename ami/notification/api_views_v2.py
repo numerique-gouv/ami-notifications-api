@@ -1,9 +1,11 @@
+import logging
 import os
 from functools import partial
 from typing import cast
 
 from django.db import transaction
 from drf_spectacular.utils import extend_schema
+from rest_framework import serializers
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -19,6 +21,8 @@ from .serializers import (
     PartnerEventCreateSerializerV2,
 )
 
+logger = logging.getLogger(__name__)
+
 
 def _partner_create_event(request: Request, data: dict):
     current_partner = request.ami_partner
@@ -33,11 +37,13 @@ def _partner_create_event(request: Request, data: dict):
 
     if user is None:
         if ignore_unknown_user:
+            logger.info("User not found")
             return Response({"error": "User not found"}, status=404)
         user = User.objects.create(fc_hash=data["recipient_fc_hash"])
         notification_send_status = False
     else:
         if ignore_unknown_user and user.last_logged_in is None:
+            logger.info("User never seen")
             return Response({"error": "User never seen"}, status=404)
         notification_send_status = user.last_logged_in is not None
 
@@ -83,7 +89,11 @@ def _partner_create_event(request: Request, data: dict):
 @permission_classes([IsPartnerAuthenticated])
 def partner_create_event(request: Request) -> Response[NotificationResponseSerializer]:
     serializer = PartnerEventCreateSerializerV2(data=request.data)
-    serializer.is_valid(raise_exception=True)
+    try:
+        serializer.is_valid(raise_exception=True)
+    except serializers.ValidationError:
+        logger.exception("Partner create event serialization error")
+        raise
     data: dict = cast(dict, serializer.validated_data)
 
     return _partner_create_event(request, data)
