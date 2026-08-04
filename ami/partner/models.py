@@ -31,4 +31,10 @@ partners: dict[str, Partner] = {
         settings.PARTNERS_DINUM_AMI_SECRET,
         "fr-icon-smartphone-line",
     ),
+    "dinum-rdvsp": Partner(
+        "dinum-rdvsp",
+        "RDV SP",
+        settings.PARTNERS_DINUM_RDVSP_SECRET,
+        "",
+    ),
 }
