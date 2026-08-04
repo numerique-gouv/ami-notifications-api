@@ -1,7 +1,7 @@
 import type { APIAgenda, APIAgendaItem } from '$lib/api-agenda';
 import { retrieveAgenda } from '$lib/api-agenda';
 import { createScheduledNotification } from '$lib/scheduled-notifications';
-import { userStore } from '$lib/state/User.svelte';
+import { type User, userStore } from '$lib/state/User.svelte';
 import { dateToISO, getTimestamp, uniqueId } from '$lib/utils';
 
 export type Kind = 'holiday' | 'election';
@@ -260,8 +260,15 @@ export class Item {
 export class Agenda {
   private _now: Item[] = [];
   private _next: Item[] = [];
+  private _connectedUser: User | null = null;
 
   constructor(apiAgenda: APIAgenda | null = null, date: Date | null = null) {
+    this._connectedUser = userStore.connected;
+    if (!this._connectedUser) {
+      // user has to be connected
+      return;
+    }
+
     const today = date || new Date();
     today.setHours(0, 0, 0, 0);
     const items: Item[] = [];
@@ -343,10 +350,9 @@ export class Agenda {
   }
 
   private getSchoolHolidayItemDescription(holiday: APIAgendaItem): string {
-    if (!userStore.connected) {
-      return '';
-    }
-    return userStore.connected.getSchoolHolidayDescriptionFromPreferences(holiday);
+    return (
+      this._connectedUser?.getSchoolHolidayDescriptionFromPreferences(holiday) || ''
+    );
   }
 
   private createSchoolHolidayItem(holiday: APIAgendaItem): Item | null {
@@ -358,7 +364,7 @@ export class Agenda {
     if (holiday.emoji) {
       title += ` ${holiday.emoji}`;
     }
-    if (!userStore.connected?.isSchoolHolidayConcernedByPreferences(holiday)) {
+    if (!this._connectedUser?.isSchoolHolidayConcernedByPreferences(holiday)) {
       return null;
     }
     return new Item(
@@ -413,18 +419,13 @@ export class Agenda {
     holiday: APIAgendaItem,
     date: Date
   ) {
-    const connectedUser = userStore.connected;
-    if (!connectedUser) {
-      // user has to be connected
-      return;
-    }
     if (!holiday.start_date || !holiday.end_date) {
       // should not happen for school holiday
       return;
     }
-    const userZone = userStore.connected?.identity.address?.zone;
+    const userZone = this._connectedUser?.identity.address?.zone;
     const scheduledNotificationsCreatedKeys = new Set(
-      userStore.connected?.identity.scheduledNotificationsCreatedKeys
+      this._connectedUser?.identity.scheduledNotificationsCreatedKeys
     );
     const key = JSON.stringify({
       desc: holiday.title,
@@ -454,7 +455,7 @@ export class Agenda {
         internal_url: `/#/procedure?date=${dateToISO(startDate)}`,
         scheduled_at: startDate,
       });
-      userStore.connected?.addScheduledNotificationCreatedKey(scheduledNotificationKey);
+      this._connectedUser?.addScheduledNotificationCreatedKey(scheduledNotificationKey);
     }
   }
 
