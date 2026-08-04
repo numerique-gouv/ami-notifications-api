@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { goto } from '$app/navigation';
   import { type Agenda, Item as AgendaItemType, buildAgenda } from '$lib/agenda';
   import AgendaItem from '$lib/components/AgendaItem.svelte';
   import FollowupItem from '$lib/components/FollowupItem.svelte';
@@ -75,7 +76,7 @@
   };
 </script>
 
-<div class="homepage-connected">
+<div class="fr-container fr-py-3w fr-mb-17v homepage-connected">
   <div class="header fr-mb-3w">
     <div class="header-left fr-ellipsis">
       <p class="fr-ellipsis fr-h5 fr-mb-1w">Bonjour {firstName}</p>
@@ -84,15 +85,19 @@
 
     <div class="header-right">
       <div class="notification-svg-icon" id="notification-icon">
-        <a
-          aria-label="Voir les notifications({unreadNotificationsCount})"
-          href="/#/notifications"
+        <button
+          type="button"
+          class="fr-btn fr-icon-notification-3-line fr-btn--tertiary-no-outline"
+          onclick={() => goto("/#/notifications")}
         >
-          <img src="/remixicons/notification-3.svg" alt="">
-          <div class="count-number-wrapper" data-content="{unreadNotificationsCount}">
+          Voir les notifications({unreadNotificationsCount})
+          <div
+            class="fr-text--bold count-number-wrapper"
+            data-content="{unreadNotificationsCount}"
+          >
             {unreadNotificationsCount}
           </div>
-        </a>
+        </button>
       </div>
     </div>
   </div>
@@ -139,10 +144,14 @@
     {:else}
       <div class="header-container fr-mb-1w">
         <h2 class="fr-h6 fr-mb-0 am-text--smbold title">Mon agenda</h2>
-        <a class="see-all" aria-label="Voir tous mes évènements" href="/#/agenda">
-          <span>Voir tout</span>
-          <img class="arrow-line" src="/remixicons/arrow-line.svg" alt="">
-        </a>
+        <button
+          type="button"
+          class="fr-link fr-icon-arrow-right-line fr-link--icon-right fr-text--sm am-link-bordered"
+          aria-label="Voir tous mes évènements"
+          onclick={() => goto("/#/agenda")}
+        >
+          Voir tout
+        </button>
       </div>
       <div class="rubrique-content-container">
         {#if agenda && agenda.now.length}
@@ -180,10 +189,14 @@
     {:else}
       <div class="header-container fr-mb-1w">
         <h2 class="fr-h6 fr-mb-0 am-text--smbold title">Mes démarches</h2>
-        <a class="see-all" aria-label="Voir toutes mes démarches" href="/#/followup">
-          <span>Voir tout</span>
-          <img class="arrow-line" src="/remixicons/arrow-line.svg" alt="">
-        </a>
+        <button
+          type="button"
+          class="fr-link fr-icon-arrow-right-line fr-link--icon-right fr-text--sm am-link-bordered"
+          aria-label="Voir toutes mes démarches"
+          onclick={() => goto("/#/followup")}
+        >
+          Voir tout
+        </button>
       </div>
       <div class="rubrique-content-container">
         {#if followup && followup.items.length}
@@ -210,44 +223,31 @@
   />
 {/if}
 
-<style>
+<style lang="scss">
   .homepage-connected {
-    padding: 1.5rem 1rem;
-    margin-bottom: 68px;
-
     .header {
       display: flex;
       justify-content: space-between;
-
-      .header-left {
+      &-left {
         max-width: calc(100% - 3.5rem);
       }
-
-      .header-right {
+      &-right {
         display: flex;
-
         .notification-svg-icon {
           position: relative;
-
-          & a[href] {
-            background: none;
-          }
-
           .count-number-wrapper {
             position: absolute;
-            top: 0;
-            left: 0.75rem;
             display: flex;
             justify-content: center;
             align-items: center;
-            width: 18px;
-            height: 18px;
-            border-radius: 0.5rem;
-            background-color: #e1000f;
-            color: white;
+            top: .125rem;
+            right: .125rem;
+            width: 1.125rem;
+            height: 1.125rem;
+            border-radius: 1.125rem;
+            background-color: var(--red-marianne-main-472);
+            color: var(--grey-1000-50);
             font-size: 10px;
-            font-weight: 700;
-
             &[data-content="0"] {
               display: none;
             }
@@ -258,23 +258,12 @@
 
     .rubrique-container {
       &:not(:last-child) {
-        margin-bottom: 24px;
+        margin-bottom: 1.5rem;
       }
-
       .header-container {
         display: flex;
         justify-content: space-between;
         align-items: center;
-
-        .see-all {
-          font-size: 14px;
-          font-weight: 400;
-          line-height: 24px;
-          color: var(--blue-france-sun-113-625);
-          margin-right: 4px;
-          display: inline-flex;
-          gap: 4px;
-        }
       }
       .rubrique-content-container--empty {
         padding: 1rem;

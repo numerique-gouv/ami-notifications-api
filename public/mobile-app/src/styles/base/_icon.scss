@@ -1,3 +1,15 @@
+.am-icon-20 {
+	&:before {
+		--icon-size: 1.25rem;
+	}
+
+	&.fr-btn[class*=' fr-icon-']:not([class*='fr-btn--icon-']):before {
+		--icon-size: 1.25rem;
+		margin-left: 0.125rem;
+		margin-right: 0.625rem;
+	}
+}
+
 .fr-icon-infinity-line::before,
 .fr-icon-infinity-line::after {
 	-webkit-mask-image: url('/icons/custom/infinity-line.svg');

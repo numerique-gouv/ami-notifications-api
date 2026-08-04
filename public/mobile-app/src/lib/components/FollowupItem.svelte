@@ -22,12 +22,13 @@
   >
     {#if !item.is_archived}
       <button
+        type="button"
         onclick={onOpen}
-        title="Ouvrir la modale liée à l'élément du suivi"
-        aria-label="Ouvrir la modale liée à l'élément du suivi"
         data-testid="open-followup-item-modal-{item.id}"
-        class="open-followup-item-modal fr-icon-more-2-fill"
-      ></button>
+        class="fr-btn fr-btn--icon fr-icon-more-2-fill fr-btn--tertiary-no-outline fr-pt-2w am-icon-20 open-followup-item-modal fr-icon-more-2-fill"
+      >
+        Ouvrir la modale liée à l'élément du suivi
+      </button>
     {/if}
     <div class="fr-tile__body">
       <div class="fr-tile__content">
@@ -45,7 +46,7 @@
           <p class="fr-badge fr-badge--icon-left {checkedIcon} {item.status_id}">
             {item.status_label}
           </p>
-          <p class="followup--item--detail--date">{item.formattedDate}</p>
+          <p class="fr-pr-2w followup--item--detail--date">{item.formattedDate}</p>
         </div>
       </div>
       {#if !item.is_archived && item.status_id == 'new' && item.link}
@@ -80,11 +81,9 @@
       button.open-followup-item-modal {
         z-index: 2;
         position: absolute;
-        right: 0.25rem;
-        color: var(--text-active-blue-france);
-        &::before {
-          --icon-size: 1.25rem;
-        }
+        top: 1px;
+        right: 1px;
+        min-height: 3rem;
       }
       .fr-tile__content {
         padding-bottom: 0;

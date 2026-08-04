@@ -28,12 +28,13 @@
       class="agenda--item--detail fr-tile fr-tile-sm fr-tile--horizontal fr-enlarge-link {item.link ? '': 'no-link'}"
     >
       <button
+        type="button"
         onclick={onOpen}
-        title="Ouvrir la modale liée à l'élément de l'agenda"
-        aria-label="Ouvrir la modale liée à l'élément de l'agenda"
         data-testid="open-agenda-item-modal-{item.id}"
-        class="open-agenda-item-modal fr-icon-more-2-fill"
-      ></button>
+        class="fr-btn fr-btn--icon fr-icon-more-2-fill fr-btn--tertiary-no-outline fr-pt-2w am-icon-20 open-agenda-item-modal"
+      >
+        Ouvrir la modale liée à l'élément de l'agenda
+      </button>
       <div class="fr-tile__body">
         <div class="fr-tile__content {item.link ? '': 'no-link'}">
           <h4 class="fr-tile__title">
@@ -143,11 +144,9 @@
         button.open-agenda-item-modal {
           z-index: 2;
           position: absolute;
-          right: 0.25rem;
-          color: var(--text-active-blue-france);
-          &::before {
-            --icon-size: 1.25rem;
-          }
+          top: 1px;
+          right: 1px;
+          min-height: 3rem;
         }
         .fr-tile__content {
           padding-bottom: 0;

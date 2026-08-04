@@ -18,8 +18,4 @@
       display: block;
     }
   }
-
-  .am-icon-20:before {
-    --icon-size: 1.25rem;
-  }
 </style>
