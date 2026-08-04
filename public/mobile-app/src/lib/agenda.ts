@@ -4,7 +4,7 @@ import { createScheduledNotification } from '$lib/scheduled-notifications';
 import { userStore } from '$lib/state/User.svelte';
 import { dateToISO, getTimestamp, uniqueId } from '$lib/utils';
 
-export type Kind = 'holiday' | 'otv' | 'election';
+export type Kind = 'holiday' | 'election';
 
 const capitalizeFirstLetter = (val: string) => {
   return String(val).charAt(0).toUpperCase() + String(val).slice(1);
@@ -213,11 +213,6 @@ export class Item {
       icon: 'fr-icon-calendar-event-fill',
       link: '',
     },
-    otv: {
-      label: 'Logement',
-      icon: 'fr-icon-home-4-fill',
-      link: '/#/procedure',
-    },
     election: {
       label: 'Élections',
       icon: 'fr-icon-chat-check-fill',
@@ -254,9 +249,6 @@ export class Item {
     if (info === undefined) {
       return '';
     }
-    if (this._kind === 'otv') {
-      return `${info.link}?date=${dateToISO(this.date)}`;
-    }
     return info.link;
   }
 
@@ -284,11 +276,11 @@ export class Agenda {
     // build items from public_holidays
     this.createPublicHolidayItems(items, public_holidays, today);
 
-    // create OTV items
-    this.createOTVItems(items, school_holidays, today);
-
     // build items from elections
     this.createElectionItems(items, elections, today);
+
+    // do something with school holidays for OTVs
+    this.processOTVs(school_holidays, today);
 
     // sort items by date
     items.sort((a, b) => (a.date?.getTime() || 0) - (b.date?.getTime() || 0));
@@ -409,29 +401,26 @@ export class Agenda {
     return new Item(uniqueId(), 'holiday', title, null, holiday.date, null, null);
   }
 
-  private createOTVItems(items: Item[], school_holidays: APIAgendaItem[], date: Date) {
+  private processOTVs(school_holidays: APIAgendaItem[], date: Date) {
     const seenSchoolHolidays: Set<string> = new Set();
     school_holidays.forEach((holiday) => {
-      const item = this.createOTVItem(seenSchoolHolidays, holiday, date);
-      if (item !== null && !item.isHidden()) {
-        items.push(item);
-      }
+      this.pushOTVNotification(seenSchoolHolidays, holiday, date);
     });
   }
 
-  private createOTVItem(
+  private pushOTVNotification(
     seenSchoolHolidays: Set<string>,
     holiday: APIAgendaItem,
     date: Date
-  ): Item | null {
+  ) {
     const connectedUser = userStore.connected;
     if (!connectedUser) {
       // user has to be connected
-      return null;
+      return;
     }
     if (!holiday.start_date || !holiday.end_date) {
       // should not happen for school holiday
-      return null;
+      return;
     }
     const userZone = userStore.connected?.identity.address?.zone;
     const scheduledNotificationsCreatedKeys = new Set(
@@ -442,27 +431,18 @@ export class Agenda {
       year: holiday.start_date.getFullYear(),
     });
     if (seenSchoolHolidays.has(key)) {
-      return null;
+      return;
     }
     if (userZone !== undefined && !holiday.zones.includes(userZone)) {
-      // Only create OTV for the user's zone, if present
-      return null;
+      // Only push OTV notification for the user's zone, if present
+      return;
     }
     seenSchoolHolidays.add(key);
     if (holiday.end_date < date) {
       // exclude OTV of past school holiday
-      return null;
+      return;
     }
     const startDate = new Date(holiday.start_date.getTime() - 3 * 7 * oneday_in_ms);
-    const item = new Item(
-      uniqueId(),
-      'otv',
-      'Opération Tranquillité Vacances 🏠',
-      'Inscrivez-vous pour protéger votre domicile pendant votre absence',
-      null,
-      startDate,
-      null
-    );
     const scheduledNotificationKey = `ami-otv:d-3w:${holiday.start_date.getFullYear()}:${slugify(holiday.title)}`;
     if (!scheduledNotificationsCreatedKeys.has(scheduledNotificationKey)) {
       createScheduledNotification({
@@ -471,20 +451,11 @@ export class Agenda {
           "Demandez l'Opération Tranquillité Vacances afin de partir en vacances l’esprit (plus) tranquille.",
         content_icon: 'fr-icon-megaphone-line',
         reference: scheduledNotificationKey,
-        internal_url: item.link,
+        internal_url: `/#/procedure?date=${dateToISO(startDate)}`,
         scheduled_at: startDate,
       });
       userStore.connected?.addScheduledNotificationCreatedKey(scheduledNotificationKey);
     }
-    if (!userStore.connected?.isSchoolHolidayConcernedByPreferences(holiday)) {
-      // don't display OTV if holiday match user preferences
-      return null;
-    }
-    if (startDate > date) {
-      // don't display OTV too early, only display them when they're close enough to their associated holiday
-      return null;
-    }
-    return item;
   }
 
   private createElectionItems(items: Item[], elections: APIAgendaItem[], date: Date) {
