@@ -1,14 +1,22 @@
 import asyncio
+import base64
 import json
 import logging
 import uuid
 from urllib.parse import urlencode, urlparse
 
 from django.conf import settings
+from django.core.cache import cache
 from django.http import Http404, JsonResponse
 from django.shortcuts import redirect
 from django.views.decorators.http import require_GET
-from webauthn import generate_registration_options, options_to_json
+from rest_framework.decorators import api_view
+from webauthn import (
+    base64url_to_bytes,
+    generate_registration_options,
+    options_to_json,
+    verify_registration_response,
+)
 
 from ami.authentication.auth import create_jwt_token, generate_nonce, get_fc_scope, get_fc_token
 from ami.authentication.exception import FCError
@@ -269,8 +277,42 @@ async def get_user_data(*, token_type, access_token, nonce_context, httpx_async_
 
 def passkey_generate_registration_options(request):
     options = generate_registration_options(
-        rp_id=urlparse(settings.PUBLIC_APP_URL).netloc,
+        rp_id=urlparse(settings.PUBLIC_APP_URL).hostname,
         rp_name="Example Co",
         user_name="fc-hash",
     )
+    print(options)
+    print(options.challenge)
+    cache.set("challenge", base64.encodebytes(options.challenge))
+
+    # PublicKeyCredentialCreationOptions(
+    #     rp=PublicKeyCredentialRpEntity(name='Example Co', id='localhost'),
+    #
+    #                                    user=PublicKeyCredentialUserEntity(
+    #                                        id=b'lh\xd8\x84W\xa7\xe6\x00\xd3\xa7\xb6\x13d\xc7\n\x98\x0c\xac\x8a\xcd\n\xf4\xdc\xcdVw\x82o\xf5\xb7"7\xe9hw\x86R\xa3\xd38\xfc\xc7\xcc\xe4\x8b\x8af/=\xc0\xd5\x1c\xd5\nT7\x82>\x80\xd5_\xc3\xe4\x8f',
+    #                                        name='fc-hash', display_name='fc-hash'),
+    #                                    challenge=b'\xad\xaa\x98\xd7\x98\xafWH\xbdh\xe0l\x98m\x1d\x84=\xf7\x90\x1d\x82\x86RG\x8b\xe4i2?\xc9~\xd0\x9a\xc5\xba\x0b\xf5\x85;\xbe\x8f\xdfI\xd2&hb\x89~\x9c:\xfb\xb2\xf2\xa1\x92\xf6qwQ\x8cL\x80<',
+    #                                    pub_key_cred_params=[PublicKeyCredentialParameters(type='public-key',
+    #                                                                                       alg= < COSEAlgorithmIdentifier.EDDSA: -8 >), PublicKeyCredentialParameters(
+    #     type='public-key', alg= < COSEAlgorithmIdentifier.ECDSA_SHA_256: -7 >), PublicKeyCredentialParameters(
+    #     type='public-key',
+    #     alg= < COSEAlgorithmIdentifier.RSASSA_PKCS1_v1_5_SHA_256: -257 >)], timeout = 60000, exclude_credentials = [], authenticator_selection = None, hints = None, attestation = < AttestationConveyancePreference.NONE: 'none' >)
     return JsonResponse(json.loads(options_to_json(options)))
+
+
+@api_view(["POST"])
+def passkey_verify_registration(request):
+    print(request.data)
+    print("CACHE")
+    print(cache.get("challenge"))
+    registration_verification = verify_registration_response(
+        credential=request.data,
+        expected_challenge=base64url_to_bytes(cache.get("challenge")),
+        expected_origin=settings.PUBLIC_APP_URL,
+        expected_rp_id=urlparse(settings.PUBLIC_APP_URL).hostname,
+        require_user_verification=True,
+    )
+
+    print("\n[Registration Verification - None]")
+    print(registration_verification)
+    return JsonResponse("{}")
