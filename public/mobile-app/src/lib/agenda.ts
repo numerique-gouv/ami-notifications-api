@@ -408,41 +408,56 @@ export class Agenda {
   }
 
   private processOTVs(school_holidays: APIAgendaItem[], date: Date) {
-    const seenSchoolHolidays: Set<string> = new Set();
-    school_holidays.forEach((holiday) => {
-      this.pushOTVNotification(seenSchoolHolidays, holiday, date);
+    const relevantSchoolHolidays = this.getRelevantSchoolHolidaysForOTV(
+      school_holidays,
+      date
+    );
+    relevantSchoolHolidays.forEach((holiday) => {
+      this.pushOTVNotification(holiday);
     });
   }
 
-  private pushOTVNotification(
-    seenSchoolHolidays: Set<string>,
-    holiday: APIAgendaItem,
+  private getRelevantSchoolHolidaysForOTV(
+    school_holidays: APIAgendaItem[],
     date: Date
-  ) {
-    if (!holiday.start_date || !holiday.end_date) {
+  ): APIAgendaItem[] {
+    const seenSchoolHolidays: Set<string> = new Set();
+    const relevantSchoolHolidays: APIAgendaItem[] = [];
+    school_holidays.forEach((holiday) => {
+      if (!holiday.start_date || !holiday.end_date) {
+        // should not happen for school holiday
+        return;
+      }
+      const userZone = this._connectedUser?.identity.address?.zone;
+      const key = JSON.stringify({
+        desc: holiday.title,
+        year: holiday.start_date.getFullYear(),
+      });
+      if (seenSchoolHolidays.has(key)) {
+        return;
+      }
+      if (userZone !== undefined && !holiday.zones.includes(userZone)) {
+        // Only push OTV notification for the user's zone, if present
+        return;
+      }
+      seenSchoolHolidays.add(key);
+      if (holiday.end_date < date) {
+        // exclude past school holiday
+        return;
+      }
+      relevantSchoolHolidays.push(holiday);
+    });
+    return relevantSchoolHolidays;
+  }
+
+  private pushOTVNotification(holiday: APIAgendaItem) {
+    if (!holiday.start_date) {
       // should not happen for school holiday
       return;
     }
-    const userZone = this._connectedUser?.identity.address?.zone;
     const scheduledNotificationsCreatedKeys = new Set(
       this._connectedUser?.identity.scheduledNotificationsCreatedKeys
     );
-    const key = JSON.stringify({
-      desc: holiday.title,
-      year: holiday.start_date.getFullYear(),
-    });
-    if (seenSchoolHolidays.has(key)) {
-      return;
-    }
-    if (userZone !== undefined && !holiday.zones.includes(userZone)) {
-      // Only push OTV notification for the user's zone, if present
-      return;
-    }
-    seenSchoolHolidays.add(key);
-    if (holiday.end_date < date) {
-      // exclude OTV of past school holiday
-      return;
-    }
     const startDate = new Date(holiday.start_date.getTime() - 3 * 7 * oneday_in_ms);
     const scheduledNotificationKey = `ami-otv:d-3w:${holiday.start_date.getFullYear()}:${slugify(holiday.title)}`;
     if (!scheduledNotificationsCreatedKeys.has(scheduledNotificationKey)) {
