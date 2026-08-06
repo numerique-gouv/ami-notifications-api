@@ -52,7 +52,8 @@ Start the server using:
 make dev # With live reloading
 ```
 
-Then access https://localhost:8000
+It will start a server on http://localhost:8000, it is accessible but actual
+accesses will go through the Svelte/Mobile app local server. (see below)
 
 For any specific env variables, create (or edit) a `.env.local` file. Anything in here
 will overload what's in the `.env` file.
@@ -136,6 +137,11 @@ Or simpler:
 ```
 make build-app
 ```
+
+For development running ```npm ci --include "dev" && npm run dev``` (or just
+```npm run dev``` if there were no changes to dependencies) from the
+```public/mobile-app/``` directory.
+
 
 ### User connection
 

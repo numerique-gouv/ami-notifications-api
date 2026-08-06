@@ -293,8 +293,7 @@ This file is then discovered by the admin sdk using the
 
 # SSL for local development
 
-Some of the features we use need a SSL certificate for local development. Starting the servers (django or vite) will thus need an SSL certificate.
-For vite, we used to take advantage of `basicSsl` provided by a vitejs `plugin-basic-ssl`. Since some Firefox update this wasn't cutting it anymore, so we switched to using `mkcert`, which needs:
+Some of the features we use need a SSL certificate for local development. Starting the Vite server will thus need an SSL certificate, which needs:
 
 1. [mkcert to be installed locally](https://github.com/FiloSottile/mkcert#installation)
 2. the following command to be run once to add the root certificate:
