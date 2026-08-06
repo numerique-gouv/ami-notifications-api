@@ -99,7 +99,7 @@ describe('/api-agenda', () => {
 
       // Then
       expect(spy).toHaveBeenCalledExactlyOnceWith(
-        'https://localhost:8000/api/v1/users/data/agenda?current_date=2025-11-01&filter-items=school_holidays&filter-items=public_holidays&filter-items=elections',
+        '/api/v1/users/data/agenda?current_date=2025-11-01&filter-items=school_holidays&filter-items=public_holidays&filter-items=elections',
         { credentials: 'include' }
       );
       expect(result).toEqual({
@@ -129,7 +129,7 @@ describe('/api-agenda', () => {
 
       // Then
       expect(spy).toHaveBeenCalledExactlyOnceWith(
-        'https://localhost:8000/api/v1/users/data/agenda?current_date=2025-11-01&filter-items=school_holidays&filter-items=public_holidays&filter-items=elections',
+        '/api/v1/users/data/agenda?current_date=2025-11-01&filter-items=school_holidays&filter-items=public_holidays&filter-items=elections',
         { credentials: 'include' }
       );
       expect(result).toEqual({
@@ -197,7 +197,7 @@ describe('/api-agenda', () => {
 
       // Then
       expect(spy).toHaveBeenCalledExactlyOnceWith(
-        `https://localhost:8000/api/v1/users/data/agenda?current_date=${dateToISO(new Date())}&filter-items=school_holidays&filter-items=public_holidays&filter-items=elections`,
+        `/api/v1/users/data/agenda?current_date=${dateToISO(new Date())}&filter-items=school_holidays&filter-items=public_holidays&filter-items=elections`,
         { credentials: 'include' }
       );
       expect(result).toEqual({
@@ -247,7 +247,7 @@ describe('/api-agenda', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `https://localhost:8000/api/v1/users/data/agenda?current_date=2025-11-01&filter-items=${key}`,
+          `/api/v1/users/data/agenda?current_date=2025-11-01&filter-items=${key}`,
           { credentials: 'include' }
         );
         expect(result).toEqual({
@@ -293,7 +293,7 @@ describe('/api-agenda', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `https://localhost:8000/api/v1/users/data/agenda?current_date=2025-11-01&filter-items=${key}`,
+          `/api/v1/users/data/agenda?current_date=2025-11-01&filter-items=${key}`,
           { credentials: 'include' }
         );
         expect(result).toEqual({
@@ -342,7 +342,7 @@ describe('/api-agenda', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `https://localhost:8000/api/v1/users/data/agenda?current_date=2025-11-01&filter-items=${key}`,
+          `/api/v1/users/data/agenda?current_date=2025-11-01&filter-items=${key}`,
           { credentials: 'include' }
         );
         expect(result).toEqual({
@@ -389,7 +389,7 @@ describe('/api-agenda', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `https://localhost:8000/api/v1/users/data/agenda?current_date=2025-11-01&filter-items=${key}`,
+          `/api/v1/users/data/agenda?current_date=2025-11-01&filter-items=${key}`,
           { credentials: 'include' }
         );
         expect(result).toEqual({
@@ -448,7 +448,7 @@ describe('/api-agenda', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `https://localhost:8000/api/v1/users/data/agenda?current_date=2025-11-01&filter-items=${key}`,
+          `/api/v1/users/data/agenda?current_date=2025-11-01&filter-items=${key}`,
           { credentials: 'include' }
         );
         expect(result).toEqual({
@@ -496,7 +496,7 @@ describe('/api-agenda', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `https://localhost:8000/api/v1/users/data/agenda?current_date=2025-11-01&filter-items=${key}`,
+          `/api/v1/users/data/agenda?current_date=2025-11-01&filter-items=${key}`,
           { credentials: 'include' }
         );
         expect(result).toEqual({
