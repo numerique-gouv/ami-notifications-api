@@ -39,3 +39,9 @@
 	-webkit-mask-image: url('/icons/custom/settings-3-line.svg');
 	mask-image: url('/icons/custom/settings-3-line.svg');
 }
+
+.fr-icon-flight-land-line::before,
+.fr-icon-flight-land-line::after {
+	-webkit-mask-image: url('/icons/custom/flight-land-line.svg');
+	mask-image: url('/icons/custom/flight-land-line.svg');
+}
