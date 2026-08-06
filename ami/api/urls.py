@@ -42,4 +42,18 @@ urlpatterns = [
         ),
         name="rapidoc",
     ),
+    path("schema/internal-apis", SpectacularAPIView.as_view(), name="internal-apis-schema"),
+    path(
+        "schema/internal-apis/rapidoc",
+        TemplateView.as_view(
+            template_name="rapidoc.html",
+            extra_context={"schema_url": "/schema/internal-apis"},
+        ),
+        name="internal-apis-rapidoc",
+    ),
+    path(
+        "schema/internal-apis/swagger",
+        SpectacularSwaggerView.as_view(url_name="internal-apis-schema"),
+        name="swagger",
+    ),
 ]

@@ -225,10 +225,15 @@ REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_AUTHENTICATION_CLASSES": [],  # Set it explicitely to empty, because by default it has basic auth and bypasses our own partner auth decorators.
 }
+
 SPECTACULAR_SETTINGS = {
     "TITLE": "AMI API",
     "DESCRIPTION": "API de l’Application Mobile Interministérielle",
     "VERSION": "1.0.0",
+    "POSTPROCESSING_HOOKS": [
+        "ami.utils.schemas.custom_postprocessing_hook",
+        "drf_spectacular.hooks.postprocess_schema_enums",
+    ],
 }
 
 # Cors
