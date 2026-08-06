@@ -62,7 +62,7 @@ describe('/api-followup', () => {
 
       // Then
       expect(spy).toHaveBeenCalledExactlyOnceWith(
-        'https://localhost:8000/api/v1/users/data/followup?filter-items=notifications',
+        '/api/v1/users/data/followup?filter-items=notifications',
         { credentials: 'include' }
       );
       expect(result).toEqual({
@@ -84,7 +84,7 @@ describe('/api-followup', () => {
 
       // Then
       expect(spy).toHaveBeenCalledExactlyOnceWith(
-        'https://localhost:8000/api/v1/users/data/followup?filter-items=notifications',
+        '/api/v1/users/data/followup?filter-items=notifications',
         { credentials: 'include' }
       );
       expect(result).toEqual({
@@ -128,7 +128,7 @@ describe('/api-followup', () => {
 
       // Then
       expect(spy).toHaveBeenCalledExactlyOnceWith(
-        'https://localhost:8000/api/v1/users/data/followup?filter-items=notifications',
+        '/api/v1/users/data/followup?filter-items=notifications',
         { credentials: 'include' }
       );
       expect(result).toEqual({
@@ -168,7 +168,7 @@ describe('/api-followup', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `https://localhost:8000/api/v1/users/data/followup?filter-items=${key}`,
+          `/api/v1/users/data/followup?filter-items=${key}`,
           { credentials: 'include' }
         );
         expect(result).toEqual({
@@ -210,7 +210,7 @@ describe('/api-followup', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `https://localhost:8000/api/v1/users/data/followup?filter-items=${key}`,
+          `/api/v1/users/data/followup?filter-items=${key}`,
           { credentials: 'include' }
         );
         expect(result).toEqual({
@@ -255,7 +255,7 @@ describe('/api-followup', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `https://localhost:8000/api/v1/users/data/followup?filter-items=${key}`,
+          `/api/v1/users/data/followup?filter-items=${key}`,
           { credentials: 'include' }
         );
         expect(result).toEqual({
@@ -301,7 +301,7 @@ describe('/api-followup', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `https://localhost:8000/api/v1/users/data/followup?filter-items=${key}`,
+          `/api/v1/users/data/followup?filter-items=${key}`,
           { credentials: 'include' }
         );
         expect(result).toEqual({
@@ -354,7 +354,7 @@ describe('/api-followup', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `https://localhost:8000/api/v1/users/data/followup?filter-items=${key}`,
+          `/api/v1/users/data/followup?filter-items=${key}`,
           { credentials: 'include' }
         );
         expect(result).toEqual({
@@ -401,7 +401,7 @@ describe('/api-followup', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `https://localhost:8000/api/v1/users/data/followup?filter-items=${key}`,
+          `/api/v1/users/data/followup?filter-items=${key}`,
           { credentials: 'include' }
         );
         expect(result).toEqual({
@@ -457,7 +457,7 @@ describe('/api-followup', () => {
       // Then
       expect(result).toEqual(true);
       expect(spy).toHaveBeenCalledExactlyOnceWith(
-        'https://localhost:8000/api/v1/users/data/followup/item/notifications/id/archive',
+        '/api/v1/users/data/followup/item/notifications/id/archive',
         {
           body: '{"is_archived":true}',
           credentials: 'include',
@@ -478,7 +478,7 @@ describe('/api-followup', () => {
       // Then
       expect(result).toEqual(false);
       expect(spy).toHaveBeenCalledExactlyOnceWith(
-        'https://localhost:8000/api/v1/users/data/followup/item/notifications/id/archive',
+        '/api/v1/users/data/followup/item/notifications/id/archive',
         {
           body: '{"is_archived":true}',
           credentials: 'include',
@@ -499,7 +499,7 @@ describe('/api-followup', () => {
       // Then
       expect(result).toEqual(false);
       expect(spy).toHaveBeenCalledExactlyOnceWith(
-        'https://localhost:8000/api/v1/users/data/followup/item/notifications/id/archive',
+        '/api/v1/users/data/followup/item/notifications/id/archive',
         {
           body: '{"is_archived":true}',
           credentials: 'include',

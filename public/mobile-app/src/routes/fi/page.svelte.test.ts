@@ -3,7 +3,6 @@ import '@testing-library/jest-dom/vitest';
 import { render, screen, waitFor } from '@testing-library/svelte';
 import * as navigationMethods from '$app/navigation';
 import * as envModule from '$env/static/public';
-import { PUBLIC_API_URL } from '$env/static/public';
 import * as franceConnectHelpers from '$lib/france-connect';
 import Page from './+page.svelte';
 
@@ -17,7 +16,6 @@ describe('/+page.svelte', () => {
       const original = (await importOriginal()) as Record<string, unknown>;
       return Promise.resolve({
         ...original,
-        PUBLIC_API_URL: 'https://localhost:8000',
         PUBLIC_FEATURE_FLAG_FI_LOGIN_ENABLED: 'true',
       });
     });
@@ -234,7 +232,7 @@ describe('/+page.svelte', () => {
 
         // Then
         expect(globalThis.window.location.href).toContain(
-          `${PUBLIC_API_URL}/login-ami-fi?provider_id=api_particulier_statut_etudiant`
+          '/login-ami-fi?provider_id=api_particulier_statut_etudiant'
         );
       });
     });
@@ -261,7 +259,7 @@ describe('/+page.svelte', () => {
         // Then
         expect(spyFranceConnectLogout).toHaveBeenCalledWith(
           'fake-id-token',
-          `${PUBLIC_API_URL}/login-ami-fi?provider_id=api_particulier_quotient`
+          '/login-ami-fi?provider_id=api_particulier_quotient'
         );
       });
     });

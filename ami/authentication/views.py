@@ -92,7 +92,7 @@ def login(request, login_type):
         )
         if use_proxy and fi_login:
             params = {
-                "from_url": f"{settings.PUBLIC_API_URL}/",
+                "from_url": f"{settings.PUBLIC_APP_URL}/",
                 "fc_url": login_url,
             }
             login_url = (

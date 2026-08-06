@@ -2,7 +2,6 @@ import uuid
 from enum import Enum
 
 from asgiref.sync import async_to_sync
-from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
@@ -61,7 +60,7 @@ class Notification(models.Model):
     @property
     def url(self):
         if self.has_item():
-            return f"{settings.PUBLIC_APP_URL}/#/followup"
+            return "/#/followup"
         return self.content_link or self.internal_url
 
     def has_item(self):

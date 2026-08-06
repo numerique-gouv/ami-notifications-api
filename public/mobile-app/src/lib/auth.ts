@@ -1,9 +1,8 @@
-import { PUBLIC_API_URL } from '$env/static/public';
 import { userStore } from '$lib/state/User.svelte';
 
 export const logout = async (): Promise<boolean> => {
   // delete auth cookie
-  const response = await fetch(`${PUBLIC_API_URL}/logout`, {
+  const response = await fetch('/logout', {
     method: 'POST',
     credentials: 'include',
   });
@@ -20,7 +19,7 @@ export const apiFetch = async (
   input: string,
   init?: RequestInit
 ): Promise<Response> => {
-  const response = await fetch(`${PUBLIC_API_URL}${input}`, init);
+  const response = await fetch(input, init);
 
   if (response.status === 401) {
     console.log(

@@ -19,7 +19,7 @@ const apiServicesData = {
           'Inscrivez-vous pour protéger votre domicile pendant votre absence',
         description:
           "Pendant toute absence prolongée de votre domicile, vous pouvez vous inscrire à l'**opération tranquillité vacances**.",
-        url: 'https://localhost:8000/mademarche/demarcheGenerique/?codeDemarche=OperationTranquilliteVacances&caller={back_param_token_jwt}',
+        url: 'https://localhost:5173/mademarche/demarcheGenerique/?codeDemarche=OperationTranquilliteVacances&caller={back_param_token_jwt}',
         with_silent_login: true,
         created_at: '2026-02-23T17:24:00Z',
         updated_at: '2026-02-24T17:24:00Z',
@@ -31,7 +31,7 @@ const apiServicesData = {
         short_description: 'Faites-nous votre retour',
         description:
           "Pour tout retour sur l'application AMI, vous pouvez nous contacter par le biais de ce formulaire",
-        url: 'https://localhost:8000/commencer/todo?id_hash_fc={fc_hash}&id_version={app_version_id}',
+        url: 'https://localhost:5173/commencer/todo?id_hash_fc={fc_hash}&id_version={app_version_id}',
         with_silent_login: false,
         created_at: '2026-01-26T17:24:00Z',
         updated_at: '2026-01-27T17:24:00Z',
@@ -66,7 +66,7 @@ describe('/api-services', () => {
 
       // Then
       expect(spy).toHaveBeenCalledExactlyOnceWith(
-        'https://localhost:8000/api/v1/users/data/services?filter-items=internal',
+        '/api/v1/users/data/services?filter-items=internal',
         { credentials: 'include' }
       );
       expect(result).toEqual({
@@ -88,7 +88,7 @@ describe('/api-services', () => {
 
       // Then
       expect(spy).toHaveBeenCalledExactlyOnceWith(
-        'https://localhost:8000/api/v1/users/data/services?filter-items=internal',
+        '/api/v1/users/data/services?filter-items=internal',
         { credentials: 'include' }
       );
       expect(result).toEqual({
@@ -130,7 +130,7 @@ describe('/api-services', () => {
 
       // Then
       expect(spy).toHaveBeenCalledExactlyOnceWith(
-        'https://localhost:8000/api/v1/users/data/services?filter-items=internal',
+        '/api/v1/users/data/services?filter-items=internal',
         { credentials: 'include' }
       );
       expect(result).toEqual({
@@ -170,7 +170,7 @@ describe('/api-services', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `https://localhost:8000/api/v1/users/data/services?filter-items=${key}`,
+          `/api/v1/users/data/services?filter-items=${key}`,
           { credentials: 'include' }
         );
         expect(result).toEqual({
@@ -212,7 +212,7 @@ describe('/api-services', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `https://localhost:8000/api/v1/users/data/services?filter-items=${key}`,
+          `/api/v1/users/data/services?filter-items=${key}`,
           { credentials: 'include' }
         );
         expect(result).toEqual({
@@ -257,7 +257,7 @@ describe('/api-services', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `https://localhost:8000/api/v1/users/data/services?filter-items=${key}`,
+          `/api/v1/users/data/services?filter-items=${key}`,
           { credentials: 'include' }
         );
         expect(result).toEqual({
@@ -303,7 +303,7 @@ describe('/api-services', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `https://localhost:8000/api/v1/users/data/services?filter-items=${key}`,
+          `/api/v1/users/data/services?filter-items=${key}`,
           { credentials: 'include' }
         );
         expect(result).toEqual({
@@ -356,7 +356,7 @@ describe('/api-services', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `https://localhost:8000/api/v1/users/data/services?filter-items=${key}`,
+          `/api/v1/users/data/services?filter-items=${key}`,
           { credentials: 'include' }
         );
         expect(result).toEqual({
@@ -403,7 +403,7 @@ describe('/api-services', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `https://localhost:8000/api/v1/users/data/services?filter-items=${key}`,
+          `/api/v1/users/data/services?filter-items=${key}`,
           { credentials: 'include' }
         );
         expect(result).toEqual({
