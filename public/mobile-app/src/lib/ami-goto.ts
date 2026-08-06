@@ -1,11 +1,8 @@
 import { goto } from '$app/navigation';
-import {
-  PUBLIC_API_URL,
-  PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED,
-} from '$env/static/public';
+import { PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED } from '$env/static/public';
 
 const AMIFILogin = async (url: string) => {
-  window.location.href = `${PUBLIC_API_URL}/silent-login-ami-fi?redirect_url=${encodeURIComponent(url)}`;
+  window.location.href = `/silent-login-ami-fi?redirect_url=${encodeURIComponent(url)}`;
 };
 
 export const AMIGoto = async (url: string, silentLogin: boolean = false) => {

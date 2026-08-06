@@ -32,7 +32,6 @@ describe('/notifications', () => {
       const original = (await importOriginal()) as Record<string, unknown>;
       return Promise.resolve({
         ...original,
-        PUBLIC_API_URL: 'https://localhost:8000',
         PUBLIC_MATOMO_ENABLED: 'true',
       });
     });

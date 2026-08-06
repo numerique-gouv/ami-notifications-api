@@ -1,5 +1,4 @@
 import { describe, expect, test, vi } from 'vitest';
-import { PUBLIC_API_URL } from '$env/static/public';
 import '@testing-library/jest-dom/vitest';
 import { registerDevice, unregisterDevice } from '$lib/registration.js';
 import { mockPushSubscription } from '$tests/utils';
@@ -22,15 +21,12 @@ describe('/registration.js', () => {
       await registerDevice(pushSubscription);
 
       // Then
-      expect(mockFetch).toHaveBeenCalledWith(
-        `${PUBLIC_API_URL}/api/v1/users/registrations`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: '{"subscription":{"endpoint":"","keys":{"auth":"fake-auth","p256dh":"fake-p256dh"}}}',
-          credentials: 'include',
-        }
-      );
+      expect(mockFetch).toHaveBeenCalledWith('/api/v1/users/registrations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: '{"subscription":{"endpoint":"","keys":{"auth":"fake-auth","p256dh":"fake-p256dh"}}}',
+        credentials: 'include',
+      });
     });
   });
 

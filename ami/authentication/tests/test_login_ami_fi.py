@@ -30,7 +30,7 @@ def test_login_ami_fi(
     )
     assert url_contains_param(
         "from_url",
-        "https://localhost:8000/",
+        "https://localhost:5173/",
         redirected_url,
     )
     parsed = urlparse(redirected_url)
@@ -83,7 +83,7 @@ def test_login_ami_fi_quotient(
     )
     assert url_contains_param(
         "from_url",
-        "https://localhost:8000/",
+        "https://localhost:5173/",
         redirected_url,
     )
     parsed = urlparse(redirected_url)
@@ -136,7 +136,7 @@ def test_login_ami_fi_statut_etudiant(
     )
     assert url_contains_param(
         "from_url",
-        "https://localhost:8000/",
+        "https://localhost:5173/",
         redirected_url,
     )
     parsed = urlparse(redirected_url)
