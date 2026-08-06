@@ -83,6 +83,7 @@ def _partner_create_event(request: Request, data: dict):
         200: NotificationResponseSerializer,
         201: NotificationResponseSerializer,
     },
+    tags=["API partenaires"],
 )
 @api_view(["PUT"])
 @authentication_classes([PartnerBasicAuthentication])

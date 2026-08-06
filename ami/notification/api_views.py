@@ -158,6 +158,7 @@ def delete_scheduled_notification(request: Request) -> Response:
 
 @extend_schema(
     methods=["POST"],
+    tags=["API partenaires"],
     request=PartnerNotificationCreateSerializer,
     responses={
         200: NotificationResponseSerializer,

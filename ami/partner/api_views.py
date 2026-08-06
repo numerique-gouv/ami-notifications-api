@@ -55,7 +55,10 @@ def generate_partner_url(request):
 
 
 @extend_schema(
-    responses=inline_serializer("PartnerPublicKeyResponse", {"public_key": serializers.CharField()})
+    responses=inline_serializer(
+        "PartnerPublicKeyResponse", {"public_key": serializers.CharField()}
+    ),
+    tags=["API partenaires"],
 )
 @api_view(["GET"])
 def get_partner_public_key(request) -> Response[dict[str, str]]:
