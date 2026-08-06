@@ -262,6 +262,7 @@ export class Agenda {
   private _next: Item[] = [];
   private _connectedUser: User | null = null;
   private _today: Date = new Date();
+  private _holidayForOTV: APIAgendaItem | null = null;
 
   constructor(apiAgenda: APIAgenda | null = null, date: Date | null = null) {
     this._connectedUser = userStore.connected;
@@ -405,6 +406,20 @@ export class Agenda {
       this.getRelevantSchoolHolidaysForOTV(school_holidays);
     relevantSchoolHolidays.forEach((holiday) => {
       this.pushOTVNotification(holiday);
+      if (!holiday.start_date) {
+        // should not happen for school holiday
+        return;
+      }
+      if (this._holidayForOTV !== null) {
+        return;
+      }
+      // set first holiday
+      const startDate = new Date(holiday.start_date.getTime() - 3 * 7 * oneday_in_ms);
+      if (startDate > this._today) {
+        // but only when it is close enough to it associated holiday
+        return;
+      }
+      this._holidayForOTV = holiday;
     });
   }
 
@@ -503,6 +518,10 @@ export class Agenda {
 
   get next(): Item[] {
     return this._next;
+  }
+
+  get holidayForOTV(): APIAgendaItem | null {
+    return this._holidayForOTV;
   }
 }
 
