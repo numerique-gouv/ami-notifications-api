@@ -261,6 +261,7 @@ export class Agenda {
   private _now: Item[] = [];
   private _next: Item[] = [];
   private _connectedUser: User | null = null;
+  private _today: Date = new Date();
 
   constructor(apiAgenda: APIAgenda | null = null, date: Date | null = null) {
     this._connectedUser = userStore.connected;
@@ -269,8 +270,8 @@ export class Agenda {
       return;
     }
 
-    const today = date || new Date();
-    today.setHours(0, 0, 0, 0);
+    this._today = date || new Date();
+    this._today.setHours(0, 0, 0, 0);
     const items: Item[] = [];
 
     const school_holidays: APIAgendaItem[] = apiAgenda?.school_holidays || [];
@@ -278,16 +279,16 @@ export class Agenda {
     const elections: APIAgendaItem[] = apiAgenda?.elections || [];
 
     // build items from school_holidays
-    this.createSchoolHolidayItems(items, school_holidays, today);
+    this.createSchoolHolidayItems(items, school_holidays);
 
     // build items from public_holidays
-    this.createPublicHolidayItems(items, public_holidays, today);
+    this.createPublicHolidayItems(items, public_holidays);
 
     // build items from elections
-    this.createElectionItems(items, elections, today);
+    this.createElectionItems(items, elections);
 
     // do something with school holidays for OTVs
-    this.processOTVs(school_holidays, today);
+    this.processOTVs(school_holidays);
 
     // sort items by date
     items.sort((a, b) => (a.date?.getTime() || 0) - (b.date?.getTime() || 0));
@@ -296,8 +297,8 @@ export class Agenda {
     items.forEach((item) => {
       if (
         item.date &&
-        (item.date <= today ||
-          item.date < new Date(today.getTime() + 30 * oneday_in_ms))
+        (item.date <= this._today ||
+          item.date < new Date(this._today.getTime() + 30 * oneday_in_ms))
       ) {
         this._now.push(item);
       } else {
@@ -306,11 +307,7 @@ export class Agenda {
     });
   }
 
-  private createSchoolHolidayItems(
-    items: Item[],
-    school_holidays: APIAgendaItem[],
-    date: Date
-  ) {
+  private createSchoolHolidayItems(items: Item[], school_holidays: APIAgendaItem[]) {
     const result: Item[] = [];
     school_holidays.forEach((holiday) => {
       const item = this.createSchoolHolidayItem(holiday);
@@ -342,7 +339,7 @@ export class Agenda {
       }
     });
     result.forEach((item) => {
-      if (item.endDate !== null && item.endDate >= date) {
+      if (item.endDate !== null && item.endDate >= this._today) {
         // exclude past school holiday
         items.push(item);
       }
@@ -378,25 +375,21 @@ export class Agenda {
     );
   }
 
-  private createPublicHolidayItems(
-    items: Item[],
-    public_holidays: APIAgendaItem[],
-    date: Date
-  ) {
+  private createPublicHolidayItems(items: Item[], public_holidays: APIAgendaItem[]) {
     public_holidays.forEach((holiday) => {
-      const item = this.createPublicHolidayItem(holiday, date);
+      const item = this.createPublicHolidayItem(holiday);
       if (item !== null && !item.isHidden()) {
         items.push(item);
       }
     });
   }
 
-  private createPublicHolidayItem(holiday: APIAgendaItem, date: Date): Item | null {
+  private createPublicHolidayItem(holiday: APIAgendaItem): Item | null {
     if (!holiday.date) {
       // should not happen for public holiday
       return null;
     }
-    if (holiday.date < date) {
+    if (holiday.date < this._today) {
       // exclude past public holiday
       return null;
     }
@@ -407,19 +400,16 @@ export class Agenda {
     return new Item(uniqueId(), 'holiday', title, null, holiday.date, null, null);
   }
 
-  private processOTVs(school_holidays: APIAgendaItem[], date: Date) {
-    const relevantSchoolHolidays = this.getRelevantSchoolHolidaysForOTV(
-      school_holidays,
-      date
-    );
+  private processOTVs(school_holidays: APIAgendaItem[]) {
+    const relevantSchoolHolidays =
+      this.getRelevantSchoolHolidaysForOTV(school_holidays);
     relevantSchoolHolidays.forEach((holiday) => {
       this.pushOTVNotification(holiday);
     });
   }
 
   private getRelevantSchoolHolidaysForOTV(
-    school_holidays: APIAgendaItem[],
-    date: Date
+    school_holidays: APIAgendaItem[]
   ): APIAgendaItem[] {
     const seenSchoolHolidays: Set<string> = new Set();
     const relevantSchoolHolidays: APIAgendaItem[] = [];
@@ -441,7 +431,7 @@ export class Agenda {
         return;
       }
       seenSchoolHolidays.add(key);
-      if (holiday.end_date < date) {
+      if (holiday.end_date < this._today) {
         // exclude past school holiday
         return;
       }
@@ -474,21 +464,21 @@ export class Agenda {
     }
   }
 
-  private createElectionItems(items: Item[], elections: APIAgendaItem[], date: Date) {
+  private createElectionItems(items: Item[], elections: APIAgendaItem[]) {
     elections.forEach((election) => {
-      const item = this.createElectionItem(election, date);
+      const item = this.createElectionItem(election);
       if (item !== null && !item.isHidden()) {
         items.push(item);
       }
     });
   }
 
-  private createElectionItem(election: APIAgendaItem, date: Date): Item | null {
+  private createElectionItem(election: APIAgendaItem): Item | null {
     if (!election.date) {
       // should not happen for election
       return null;
     }
-    if (election.date < date) {
+    if (election.date < this._today) {
       // exclude past election
       return null;
     }
