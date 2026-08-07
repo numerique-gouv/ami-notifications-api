@@ -133,12 +133,10 @@
         <h2 class="fr-h6 fr-mb-0 am-text--smbold title">Mon agenda</h2>
         <button
           type="button"
-          class="fr-link fr-icon-arrow-right-line fr-link--icon-right fr-text--sm am-link-bordered"
+          class="fr-link fr-icon-arrow-right-line fr-link--icon-right am-link-icon-xl"
           aria-label="Voir tous mes évènements"
           onclick={() => goto("/#/agenda")}
-        >
-          Voir tout
-        </button>
+        ></button>
       </div>
       <div class="rubrique-content-container">
         {#if agenda && agenda.now.length}
@@ -178,12 +176,10 @@
         <h2 class="fr-h6 fr-mb-0 am-text--smbold title">Mes démarches</h2>
         <button
           type="button"
-          class="fr-link fr-icon-arrow-right-line fr-link--icon-right fr-text--sm am-link-bordered"
+          class="fr-link fr-icon-arrow-right-line fr-link--icon-right am-link-icon-xl"
           aria-label="Voir toutes mes démarches"
           onclick={() => goto("/#/followup")}
-        >
-          Voir tout
-        </button>
+        ></button>
       </div>
       <div class="rubrique-content-container">
         {#if followup && followup.items.length}
