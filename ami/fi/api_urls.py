@@ -7,4 +7,5 @@ urlpatterns = [
     path("token/", api_views.token),
     path("userinfo/", api_views.userinfo),
     path("logout/", api_views.logout),
+    path("login/", views.login),
 ]

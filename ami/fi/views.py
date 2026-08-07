@@ -82,3 +82,8 @@ def authorize(request):
         "encoded_user_data": encoded_user_data,
     }
     return render(request, "fi/authorize.html", context)
+
+
+def login(request):
+    context = {}
+    return render(request, "fi/login.html", context)
