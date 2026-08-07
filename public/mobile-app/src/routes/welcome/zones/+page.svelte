@@ -1,6 +1,8 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
+  import { page } from '$app/state';
   import ZonePreferences from '$lib/components/modal/ZonePreferences.svelte';
+  import { toastStore } from '$lib/state/toast.svelte';
   import { userStore } from '$lib/state/User.svelte';
 
   let modalElementsVisible: boolean = $state(true);
@@ -8,6 +10,10 @@
   const toggleModalElements = async (visible: boolean) => {
     modalElementsVisible = visible;
   };
+
+  if (page.url.searchParams.has('passkey_toast')) {
+    toastStore.addToast('La clé a bien été ajoutée', 'success', 3000, false);
+  }
 
   const goToNotificationsWelcomePage = () => {
     goto('/#/notifications-welcome-page');

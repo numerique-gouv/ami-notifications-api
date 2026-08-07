@@ -5,16 +5,22 @@
   import { toastStore } from '$lib/state/toast.svelte';
 
   let aboveMenu = false;
+  let aboveWelcomePageFooter = false;
 
   onMount(async () => {
     if (document.getElementById('menu-footer')) {
       aboveMenu = true;
     }
+    if (document.querySelector('.zones-welcome-page-footer')) {
+      aboveWelcomePageFooter = true;
+    }
   });
 </script>
 
 {#if toastStore.toasts.length}
-  <div class="toasts {aboveMenu ? 'above-menu' : ''}">
+  <div
+    class="toasts {aboveMenu ? 'above-menu' : ''} {aboveWelcomePageFooter ?  'above-welcome-page-footer' : ''}"
+  >
     {#each toastStore.toasts as toast (toast.id)}
       <div animate:flip={{ duration: 200 }}>
         <Toast
@@ -39,5 +45,8 @@
   }
   .above-menu {
     bottom: calc(68px + 1rem);
+  }
+  .above-welcome-page-footer {
+    bottom: 3.5rem;
   }
 </style>
