@@ -1,6 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
-import { Address } from '$lib/address';
 import { Agenda, buildAgenda, Item, slugify } from '$lib/agenda';
 import * as apiAgendaMethods from '$lib/api-agenda';
 import * as scheduledNotificationsMethods from '$lib/scheduled-notifications';
@@ -43,7 +42,7 @@ describe('/agenda.ts', () => {
       beforeEach(() => {
         const existing = [];
         item1 = new Item(
-          'fake-id-otv-1',
+          'fake-id-holyday-1',
           'holiday',
           'Holiday 1',
           'Zone A',
@@ -67,7 +66,7 @@ describe('/agenda.ts', () => {
       test('should return false if item is not in hidden items list', () => {
         // Given
         const item2 = new Item(
-          'fake-id-otv-2',
+          'fake-id-holiday-2',
           'holiday',
           'Holiday 2',
           'Corse',
@@ -377,14 +376,7 @@ describe('/agenda.ts', () => {
           new Date('2025-12-20')
         );
         const item3 = new Item(
-          'fake-id-otv-3',
-          'otv',
-          'title',
-          'description',
-          new Date('2025-12-20')
-        );
-        const item4 = new Item(
-          'fake-id-election-4',
+          'fake-id-election-3',
           'election',
           'title',
           'description',
@@ -395,13 +387,11 @@ describe('/agenda.ts', () => {
         const label1 = item1.label;
         const label2 = item2.label;
         const label3 = item3.label;
-        const label4 = item4.label;
 
         // Then
         expect(label1).equal('');
         expect(label2).equal('Vacances et jours fériés');
-        expect(label3).equal('Logement');
-        expect(label4).equal('Élections');
+        expect(label3).equal('Élections');
       });
     });
     describe('icon', () => {
@@ -423,14 +413,7 @@ describe('/agenda.ts', () => {
           new Date('2025-12-20')
         );
         const item3 = new Item(
-          'fake-id-otv-3',
-          'otv',
-          'title',
-          'description',
-          new Date('2025-12-20')
-        );
-        const item4 = new Item(
-          'fake-id-election-4',
+          'fake-id-election-3',
           'election',
           'title',
           'description',
@@ -441,13 +424,11 @@ describe('/agenda.ts', () => {
         const icon1 = item1.icon;
         const icon2 = item2.icon;
         const icon3 = item3.icon;
-        const icon4 = item4.icon;
 
         // Then
         expect(icon1).equal('');
         expect(icon2).equal('fr-icon-calendar-event-fill');
-        expect(icon3).equal('fr-icon-home-4-fill');
-        expect(icon4).equal('fr-icon-chat-check-fill');
+        expect(icon3).equal('fr-icon-chat-check-fill');
       });
     });
     describe('link', () => {
@@ -469,14 +450,7 @@ describe('/agenda.ts', () => {
           new Date('2025-12-20')
         );
         const item3 = new Item(
-          'fake-id-otv-3',
-          'otv',
-          'title',
-          'description',
-          new Date('2025-12-20')
-        );
-        const item4 = new Item(
-          'fake-id-election-4',
+          'fake-id-election-3',
           'election',
           'title',
           'description',
@@ -487,13 +461,11 @@ describe('/agenda.ts', () => {
         const link1 = item1.link;
         const link2 = item2.link;
         const link3 = item3.link;
-        const link4 = item4.link;
 
         // Then
         expect(link1).equal('');
         expect(link2).equal('');
-        expect(link3).equal('/#/procedure?date=2025-12-20');
-        expect(link4).equal('');
+        expect(link3).equal('');
       });
     });
     describe('key', () => {
@@ -515,16 +487,9 @@ describe('/agenda.ts', () => {
           new Date('2025-12-20')
         );
         const item3 = new Item(
-          'fake-id-otv-3',
-          'otv',
-          'title 3',
-          'description',
-          new Date('2025-12-20')
-        );
-        const item4 = new Item(
-          'fake-id-election-4',
+          'fake-id-election-3',
           'election',
-          'title 4',
+          'title 3',
           'description',
           new Date('2025-12-20')
         );
@@ -533,19 +498,16 @@ describe('/agenda.ts', () => {
         const key1 = item1.key;
         const key2 = item2.key;
         const key3 = item3.key;
-        const key4 = item4.key;
 
         // Then
         expect(key1).equal('ami-incorrect:1766188800:title-1');
         expect(key2).equal('ami-holiday:1766188800:title-2');
-        expect(key3).equal('ami-otv:1766188800:title-3');
-        expect(key4).equal('ami-election:1766188800:title-4');
+        expect(key3).equal('ami-election:1766188800:title-3');
       });
     });
   });
   describe('Agenda', () => {
     beforeEach(() => {
-      localStorage.setItem('hidden_agenda_items_otv', '[]');
       localStorage.setItem('hidden_agenda_items_holiday', '[]');
       localStorage.setItem('hidden_agenda_items_election', '[]');
     });
@@ -1178,274 +1140,13 @@ describe('/agenda.ts', () => {
         expect(agenda.next[0].equals(itemHoliday7)).toBe(true);
       });
     });
-    describe('OTV', () => {
-      test('should not display OTV if holiday of user Zone is not displayed', async () => {
-        // Given
-        vi.stubEnv('TZ', 'Europe/Paris');
-        const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
-        newMockUserIdentity.address = new Address(
-          'Bastia',
-          '2B, Haute-Corse, Corse',
-          '2B033',
-          'Bastia',
-          'Bastia',
-          '20200'
-        );
-        localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity));
-        const holiday1 = {
-          kind: 'holiday',
-          title: 'Holiday',
-          description: '',
-          date: null,
-          start_date: new Date('2026-02-06T23:00:00Z'),
-          end_date: new Date('2026-02-22T23:00:00Z'),
-          zones: ['Zone A'],
-          emoji: 'foo',
-        };
-        await userStore.login(mockUserInfo);
-        vi.spyOn(utilsMethods, 'uniqueId').mockReturnValue('fake-id');
-
-        // When
-        const agenda = new Agenda(
-          {
-            school_holidays: [holiday1],
-            public_holidays: [],
-            elections: [],
-          },
-          new Date('2026-02-01T12:00:00Z')
-        );
-
-        // Then
-        expect(agenda.now.length).equal(1);
-        expect(
-          agenda.now[0].equals(
-            new Item(
-              'fake-id',
-              'holiday',
-              'Holiday foo',
-              'Zone A',
-              null,
-              holiday1.start_date,
-              holiday1.end_date
-            )
-          )
-        ).toBe(true);
-        expect(agenda.next.length).equal(0);
-      });
-      test('should not display OTV if holiday zones does not match user preferences', async () => {
-        // Given
-        vi.stubEnv('TZ', 'Europe/Paris');
-        const preferences = new Preferences(['Zone A'], []);
-        const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
-        newMockUserIdentity.preferences = preferences;
-        newMockUserIdentity.address = new Address(
-          'Bastia',
-          '2B, Haute-Corse, Corse',
-          '2B033',
-          'Bastia',
-          'Bastia',
-          '20200'
-        );
-        localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity));
-        const holiday1 = {
-          kind: 'holiday',
-          title: 'Holiday',
-          description: '',
-          date: null,
-          start_date: new Date('2026-02-06T23:00:00Z'),
-          end_date: new Date('2026-02-22T23:00:00Z'),
-          zones: ['Corse'],
-          emoji: 'foo',
-        };
-        await userStore.login(mockUserInfo);
-
-        // When
-        const agenda = new Agenda(
-          {
-            school_holidays: [holiday1],
-            public_holidays: [],
-            elections: [],
-          },
-          new Date('2026-02-01T12:00:00Z')
-        );
-
-        // Then
-        expect(agenda.now.length).equal(0);
-        expect(agenda.next.length).equal(0);
-      });
-      test('should not display past items or OTV related to past holidays', async () => {
-        // Given
-        vi.stubEnv('TZ', 'Europe/Paris');
-        localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
-        const holiday1 = {
-          kind: 'holiday',
-          title: 'Holiday',
-          description: '',
-          date: null,
-          start_date: new Date('2026-02-06T23:00:00Z'),
-          end_date: new Date('2026-02-22T23:00:00Z'),
-          zones: ['Zone A'],
-          emoji: 'foo',
-        };
-        const holiday2 = {
-          kind: 'holiday',
-          title: 'Holiday',
-          description: '',
-          date: null,
-          start_date: new Date('2026-02-13T23:00:00Z'),
-          end_date: new Date('2026-03-01T23:00:00Z'),
-          zones: ['Zone B'],
-          emoji: 'foo',
-        };
-        const holiday3 = {
-          kind: 'holiday',
-          title: 'Day',
-          description: '',
-          date: new Date('2026-02-02T23:00:00Z'),
-          start_date: null,
-          end_date: null,
-          zones: [],
-          emoji: '',
-        };
-        const election = {
-          kind: 'election',
-          title: 'Election',
-          description: '',
-          date: new Date('2026-02-02T23:00:00Z'),
-          start_date: null,
-          end_date: null,
-          zones: [],
-          emoji: '',
-        };
-        await userStore.login(mockUserInfo);
-
-        // When
-        const agenda = new Agenda(
-          {
-            school_holidays: [holiday1, holiday2],
-            public_holidays: [holiday3],
-            elections: [election],
-          },
-          new Date('2026-02-24T12:00:00Z')
-        );
-
-        // Then
-        expect(agenda.now.length).equal(1);
-        expect(agenda.now[0].title).toEqual('Holiday foo');
-      });
-      test('should not display OTV if is listed in hidden items', async () => {
-        // Given
-        vi.stubEnv('TZ', 'Europe/Paris');
-        localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
-        const holiday1 = {
-          kind: 'holiday',
-          title: 'Holiday',
-          description: '',
-          date: null,
-          start_date: new Date('2026-02-06T23:00:00Z'),
-          end_date: new Date('2026-02-22T23:00:00Z'),
-          zones: ['Zone B'],
-          emoji: 'foo',
-        };
-        const holiday2 = {
-          kind: 'holiday',
-          title: 'Holiday',
-          description: '',
-          date: null,
-          start_date: new Date('2026-02-13T23:00:00Z'),
-          end_date: new Date('2026-03-01T23:00:00Z'),
-          zones: ['Zone C'],
-          emoji: 'foo',
-        };
-        const itemHoliday2 = new Item(
-          'fake-id-holiday-2',
-          'otv',
-          'Opération Tranquillité Vacances 🏠',
-          'Inscrivez-vous pour protéger votre domicile pendant votre absence',
-          null,
-          holiday2.start_date,
-          null
-        );
-        await userStore.login(mockUserInfo);
-
-        const existing = [];
-        const oneday_in_ms = 24 * 60 * 60 * 1000;
-        const startDate = getTimestamp(
-          new Date(holiday2.start_date.getTime() - 3 * 7 * oneday_in_ms)
-        );
-        const itemKey = `ami-otv:${startDate}:${slugify(itemHoliday2.title)}`;
-        existing.push(itemKey);
-        localStorage.setItem('hidden_agenda_items_otv', JSON.stringify(existing));
-
-        // When
-        const agenda = new Agenda(
-          {
-            school_holidays: [holiday1, holiday2],
-            public_holidays: [],
-            elections: [],
-          },
-          new Date('2026-02-01T12:00:00Z')
-        );
-
-        // Then
-        expect(agenda.now.length).equal(1);
-        expect(agenda.now[0].title).toEqual('Holiday foo');
-        expect(agenda.next.length).equal(0);
-      });
-      test('should generate only one OTV per holiday', async () => {
-        // Given
-        vi.stubEnv('TZ', 'Europe/Paris');
-        localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
-        const holiday1 = {
-          kind: 'holiday',
-          title: 'Holiday',
-          description: '',
-          date: null,
-          start_date: new Date('2026-02-06T23:00:00Z'),
-          end_date: new Date('2026-02-22T23:00:00Z'),
-          zones: ['Zone B'],
-          emoji: 'foo',
-        };
-        const holiday2 = {
-          kind: 'holiday',
-          title: 'Holiday',
-          description: '',
-          date: null,
-          start_date: new Date('2026-02-13T23:00:00Z'),
-          end_date: new Date('2026-03-01T23:00:00Z'),
-          zones: ['Zone C'],
-          emoji: 'foo',
-        };
-        await userStore.login(mockUserInfo);
-
-        // When
-        const agenda = new Agenda(
-          {
-            school_holidays: [holiday1, holiday2],
-            public_holidays: [],
-            elections: [],
-          },
-          new Date('2026-02-01T12:00:00Z')
-        );
-
-        // Then
-        expect(agenda.now.length).equal(2);
-        expect(agenda.now[0].title).toEqual('Opération Tranquillité Vacances 🏠');
-        expect(agenda.now[1].title).toEqual('Holiday foo');
-      });
-    });
     describe('Scheduled notifications', () => {
-      test('should create scheduled notifications for otv', async () => {
+      test('should create scheduled notifications for otv - user has no address', async () => {
         // Given
         vi.stubEnv('TZ', 'Europe/Paris');
         const spy = vi
           .spyOn(scheduledNotificationsMethods, 'createScheduledNotification')
           .mockResolvedValue(true);
-        // holidays are not displayed but otv have to be sent
-        const preferences = new Preferences(['Réunion'], []);
-        const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
-        newMockUserIdentity.preferences = preferences;
-        localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity));
         const holiday1 = {
           kind: 'holiday',
           title: 'Holiday',
@@ -1453,7 +1154,7 @@ describe('/agenda.ts', () => {
           date: null,
           start_date: new Date('2026-02-06T23:00:00Z'),
           end_date: new Date('2026-02-22T23:00:00Z'),
-          zones: ['Zone A'],
+          zones: ['Zone A'], // user has no address, take first date
           emoji: 'foo',
         };
         const holiday2 = {
@@ -1476,12 +1177,189 @@ describe('/agenda.ts', () => {
           zones: ['Zone A', 'Zone B', 'Zone C'],
           emoji: 'bar',
         };
+        const holiday4 = {
+          kind: 'holiday',
+          title: 'Past Holiday',
+          description: '',
+          date: null,
+          start_date: new Date('2025-07-01T23:00:00Z'),
+          end_date: new Date('2025-08-31T23:00:00Z'), // past holiday
+          zones: ['Zone A', 'Zone B', 'Zone C'],
+          emoji: 'bar',
+        };
         await userStore.login(mockUserInfo);
 
         // When
         const agenda = new Agenda(
           {
-            school_holidays: [holiday1, holiday2, holiday3],
+            school_holidays: [holiday1, holiday2, holiday3, holiday4],
+            public_holidays: [],
+            elections: [],
+          },
+          new Date('2026-02-01T12:00:00Z')
+        );
+
+        // Then
+        expect(agenda.now.length).equal(1);
+        expect(agenda.next.length).equal(1);
+        expect(spy).toHaveBeenCalledTimes(2);
+        expect(spy).toHaveBeenCalledWith({
+          content_body:
+            "Demandez l'Opération Tranquillité Vacances afin de partir en vacances l’esprit (plus) tranquille.",
+          content_icon: 'fr-icon-megaphone-line',
+          content_title: 'Et si on veillait sur votre logement ? 👮',
+          reference: 'ami-otv:d-3w:2026:holiday',
+          internal_url: '/#/procedure?date=2026-01-17',
+          scheduled_at: new Date('2026-01-16T23:00:00Z'),
+        });
+        expect(spy).toHaveBeenCalledWith({
+          content_body:
+            "Demandez l'Opération Tranquillité Vacances afin de partir en vacances l’esprit (plus) tranquille.",
+          content_icon: 'fr-icon-megaphone-line',
+          content_title: 'Et si on veillait sur votre logement ? 👮',
+          reference: 'ami-otv:d-3w:2026:summer-holiday',
+          internal_url: '/#/procedure?date=2026-06-11',
+          scheduled_at: new Date('2026-06-10T23:00:00Z'),
+        });
+      });
+      test('should create scheduled notifications for otv - holidays are displayed', async () => {
+        // Given
+        vi.stubEnv('TZ', 'Europe/Paris');
+        const spy = vi
+          .spyOn(scheduledNotificationsMethods, 'createScheduledNotification')
+          .mockResolvedValue(true);
+        localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
+        const holiday1 = {
+          kind: 'holiday',
+          title: 'Holiday',
+          description: '',
+          date: null,
+          start_date: new Date('2026-02-06T23:00:00Z'),
+          end_date: new Date('2026-02-22T23:00:00Z'),
+          zones: ['Zone A'],
+          emoji: 'foo',
+        };
+        const holiday2 = {
+          kind: 'holiday',
+          title: 'Holiday',
+          description: '',
+          date: null,
+          start_date: new Date('2026-02-13T23:00:00Z'),
+          end_date: new Date('2026-03-01T23:00:00Z'),
+          zones: ['Zone C'], // matches user's zone
+          emoji: 'foo',
+        };
+        const holiday3 = {
+          kind: 'holiday',
+          title: 'Summer Holiday',
+          description: '',
+          date: null,
+          start_date: new Date('2026-07-01T23:00:00Z'),
+          end_date: new Date('2026-08-31T23:00:00Z'),
+          zones: ['Zone A', 'Zone B', 'Zone C'],
+          emoji: 'bar',
+        };
+        const holiday4 = {
+          kind: 'holiday',
+          title: 'Past Holiday',
+          description: '',
+          date: null,
+          start_date: new Date('2025-07-01T23:00:00Z'),
+          end_date: new Date('2025-08-31T23:00:00Z'), // past holiday
+          zones: ['Zone A', 'Zone B', 'Zone C'],
+          emoji: 'bar',
+        };
+        await userStore.login(mockUserInfo);
+
+        // When
+        const agenda = new Agenda(
+          {
+            school_holidays: [holiday1, holiday2, holiday3, holiday4],
+            public_holidays: [],
+            elections: [],
+          },
+          new Date('2026-02-01T12:00:00Z')
+        );
+
+        // Then
+        expect(agenda.now.length).equal(1);
+        expect(agenda.next.length).equal(1);
+        expect(spy).toHaveBeenCalledTimes(2);
+        expect(spy).toHaveBeenCalledWith({
+          content_body:
+            "Demandez l'Opération Tranquillité Vacances afin de partir en vacances l’esprit (plus) tranquille.",
+          content_icon: 'fr-icon-megaphone-line',
+          content_title: 'Et si on veillait sur votre logement ? 👮',
+          reference: 'ami-otv:d-3w:2026:holiday',
+          internal_url: '/#/procedure?date=2026-01-24',
+          scheduled_at: new Date('2026-01-23T23:00:00Z'),
+        });
+        expect(spy).toHaveBeenCalledWith({
+          content_body:
+            "Demandez l'Opération Tranquillité Vacances afin de partir en vacances l’esprit (plus) tranquille.",
+          content_icon: 'fr-icon-megaphone-line',
+          content_title: 'Et si on veillait sur votre logement ? 👮',
+          reference: 'ami-otv:d-3w:2026:summer-holiday',
+          internal_url: '/#/procedure?date=2026-06-11',
+          scheduled_at: new Date('2026-06-10T23:00:00Z'),
+        });
+      });
+      test('should create scheduled notifications for otv - holidays are not displayed but otv have to be sent', async () => {
+        // Given
+        vi.stubEnv('TZ', 'Europe/Paris');
+        const spy = vi
+          .spyOn(scheduledNotificationsMethods, 'createScheduledNotification')
+          .mockResolvedValue(true);
+        const preferences = new Preferences(['Réunion'], []); // preferences are not matching holidays
+        const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
+        newMockUserIdentity.preferences = preferences;
+        localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity));
+        const holiday1 = {
+          kind: 'holiday',
+          title: 'Holiday',
+          description: '',
+          date: null,
+          start_date: new Date('2026-02-06T23:00:00Z'),
+          end_date: new Date('2026-02-22T23:00:00Z'),
+          zones: ['Zone A'],
+          emoji: 'foo',
+        };
+        const holiday2 = {
+          kind: 'holiday',
+          title: 'Holiday',
+          description: '',
+          date: null,
+          start_date: new Date('2026-02-13T23:00:00Z'),
+          end_date: new Date('2026-03-01T23:00:00Z'),
+          zones: ['Zone C'], // matches user's zone
+          emoji: 'foo',
+        };
+        const holiday3 = {
+          kind: 'holiday',
+          title: 'Summer Holiday',
+          description: '',
+          date: null,
+          start_date: new Date('2026-07-01T23:00:00Z'),
+          end_date: new Date('2026-08-31T23:00:00Z'),
+          zones: ['Zone A', 'Zone B', 'Zone C'],
+          emoji: 'bar',
+        };
+        const holiday4 = {
+          kind: 'holiday',
+          title: 'Past Holiday',
+          description: '',
+          date: null,
+          start_date: new Date('2025-07-01T23:00:00Z'),
+          end_date: new Date('2025-08-31T23:00:00Z'), // past holiday
+          zones: ['Zone A', 'Zone B', 'Zone C'],
+          emoji: 'bar',
+        };
+        await userStore.login(mockUserInfo);
+
+        // When
+        const agenda = new Agenda(
+          {
+            school_holidays: [holiday1, holiday2, holiday3, holiday4],
             public_holidays: [],
             elections: [],
           },
@@ -1490,6 +1368,7 @@ describe('/agenda.ts', () => {
 
         // Then
         expect(agenda.now.length).equal(0);
+        expect(agenda.next.length).equal(0);
         expect(spy).toHaveBeenCalledTimes(2);
         expect(spy).toHaveBeenCalledWith({
           content_body:
@@ -1516,7 +1395,6 @@ describe('/agenda.ts', () => {
         const spy = vi
           .spyOn(scheduledNotificationsMethods, 'createScheduledNotification')
           .mockResolvedValue(true);
-        localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
         const holiday1 = {
           kind: 'holiday',
           title: 'Holiday',
@@ -1534,7 +1412,7 @@ describe('/agenda.ts', () => {
           date: null,
           start_date: new Date('2026-02-13T23:00:00Z'),
           end_date: new Date('2026-03-01T23:00:00Z'),
-          zones: ['Zone C'],
+          zones: ['Zone C'], // matches user's zone
           emoji: 'foo',
         };
         const holiday3 = {
@@ -1566,10 +1444,245 @@ describe('/agenda.ts', () => {
         );
 
         // Then
-        expect(agenda.now.length).equal(2);
-        expect(agenda.now[0].title).toEqual('Opération Tranquillité Vacances 🏠');
-        expect(agenda.now[1].title).toEqual('Holiday foo');
+        expect(agenda.now.length).equal(1);
+        expect(agenda.now[0].title).toEqual('Holiday foo');
         expect(spy).toHaveBeenCalledTimes(0);
+      });
+    });
+    describe('School holiday for otv', () => {
+      test('should be defined to first school holiday as user has no address', async () => {
+        // Given
+        vi.stubEnv('TZ', 'Europe/Paris');
+        const holiday1 = {
+          kind: 'holiday',
+          title: 'Holiday',
+          description: '',
+          date: null,
+          start_date: new Date('2026-02-06T23:00:00Z'),
+          end_date: new Date('2026-02-22T23:00:00Z'),
+          zones: ['Zone A'], // user has no address, take first date
+          emoji: 'foo',
+        };
+        const holiday2 = {
+          kind: 'holiday',
+          title: 'Holiday',
+          description: '',
+          date: null,
+          start_date: new Date('2026-02-13T23:00:00Z'),
+          end_date: new Date('2026-03-01T23:00:00Z'),
+          zones: ['Zone C'],
+          emoji: 'foo',
+        };
+        const holiday3 = {
+          kind: 'holiday',
+          title: 'Summer Holiday',
+          description: '',
+          date: null,
+          start_date: new Date('2026-07-01T23:00:00Z'),
+          end_date: new Date('2026-08-31T23:00:00Z'),
+          zones: ['Zone A', 'Zone B', 'Zone C'],
+          emoji: 'bar',
+        };
+        const holiday4 = {
+          kind: 'holiday',
+          title: 'Past Holiday',
+          description: '',
+          date: null,
+          start_date: new Date('2025-07-01T23:00:00Z'),
+          end_date: new Date('2025-08-31T23:00:00Z'), // past holiday
+          zones: ['Zone A', 'Zone B', 'Zone C'],
+          emoji: 'bar',
+        };
+        await userStore.login(mockUserInfo);
+
+        // When
+        const agenda = new Agenda(
+          {
+            school_holidays: [holiday1, holiday2, holiday3, holiday4],
+            public_holidays: [],
+            elections: [],
+          },
+          new Date('2026-01-17T12:00:00Z')
+        );
+
+        // Then
+        expect(agenda.holidayForOTV).equal(holiday1);
+      });
+      test('should be defined to first school holiday matching user zone', async () => {
+        // Given
+        vi.stubEnv('TZ', 'Europe/Paris');
+        localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
+        const holiday1 = {
+          kind: 'holiday',
+          title: 'Holiday',
+          description: '',
+          date: null,
+          start_date: new Date('2026-02-06T23:00:00Z'),
+          end_date: new Date('2026-02-22T23:00:00Z'),
+          zones: ['Zone A'],
+          emoji: 'foo',
+        };
+        const holiday2 = {
+          kind: 'holiday',
+          title: 'Holiday',
+          description: '',
+          date: null,
+          start_date: new Date('2026-02-13T23:00:00Z'),
+          end_date: new Date('2026-03-01T23:00:00Z'),
+          zones: ['Zone C'], // matches user's zone
+          emoji: 'foo',
+        };
+        const holiday3 = {
+          kind: 'holiday',
+          title: 'Summer Holiday',
+          description: '',
+          date: null,
+          start_date: new Date('2026-07-01T23:00:00Z'),
+          end_date: new Date('2026-08-31T23:00:00Z'),
+          zones: ['Zone A', 'Zone B', 'Zone C'],
+          emoji: 'bar',
+        };
+        const holiday4 = {
+          kind: 'holiday',
+          title: 'Past Holiday',
+          description: '',
+          date: null,
+          start_date: new Date('2025-07-01T23:00:00Z'),
+          end_date: new Date('2025-08-31T23:00:00Z'), // past holiday
+          zones: ['Zone A', 'Zone B', 'Zone C'],
+          emoji: 'bar',
+        };
+        await userStore.login(mockUserInfo);
+
+        // When
+        const agenda = new Agenda(
+          {
+            school_holidays: [holiday1, holiday2, holiday3, holiday4],
+            public_holidays: [],
+            elections: [],
+          },
+          new Date('2026-01-24T12:00:00Z')
+        );
+
+        // Then
+        expect(agenda.holidayForOTV).equal(holiday2);
+      });
+      test('should be null as first school holiday is in more than 3 weeks - user has no address', async () => {
+        // Given
+        vi.stubEnv('TZ', 'Europe/Paris');
+        const holiday1 = {
+          kind: 'holiday',
+          title: 'Holiday',
+          description: '',
+          date: null,
+          start_date: new Date('2026-02-06T23:00:00Z'),
+          end_date: new Date('2026-02-22T23:00:00Z'),
+          zones: ['Zone A'], // user has no address, take first date
+          emoji: 'foo',
+        };
+        const holiday2 = {
+          kind: 'holiday',
+          title: 'Holiday',
+          description: '',
+          date: null,
+          start_date: new Date('2026-02-13T23:00:00Z'),
+          end_date: new Date('2026-03-01T23:00:00Z'),
+          zones: ['Zone C'],
+          emoji: 'foo',
+        };
+        const holiday3 = {
+          kind: 'holiday',
+          title: 'Summer Holiday',
+          description: '',
+          date: null,
+          start_date: new Date('2026-07-01T23:00:00Z'),
+          end_date: new Date('2026-08-31T23:00:00Z'),
+          zones: ['Zone A', 'Zone B', 'Zone C'],
+          emoji: 'bar',
+        };
+        const holiday4 = {
+          kind: 'holiday',
+          title: 'Past Holiday',
+          description: '',
+          date: null,
+          start_date: new Date('2025-07-01T23:00:00Z'),
+          end_date: new Date('2025-08-31T23:00:00Z'), // past holiday
+          zones: ['Zone A', 'Zone B', 'Zone C'],
+          emoji: 'bar',
+        };
+        await userStore.login(mockUserInfo);
+
+        // When
+        const agenda = new Agenda(
+          {
+            school_holidays: [holiday1, holiday2, holiday3, holiday4],
+            public_holidays: [],
+            elections: [],
+          },
+          new Date('2026-01-16T12:00:00Z')
+        );
+
+        // Then
+        expect(agenda.holidayForOTV).equal(null);
+      });
+      test('should be null as first school holiday is in more than 3 weeks - matching user zone', async () => {
+        // Given
+        vi.stubEnv('TZ', 'Europe/Paris');
+        localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
+        const holiday1 = {
+          kind: 'holiday',
+          title: 'Holiday',
+          description: '',
+          date: null,
+          start_date: new Date('2026-02-06T23:00:00Z'),
+          end_date: new Date('2026-02-22T23:00:00Z'),
+          zones: ['Zone A'],
+          emoji: 'foo',
+        };
+        const holiday2 = {
+          kind: 'holiday',
+          title: 'Holiday',
+          description: '',
+          date: null,
+          start_date: new Date('2026-02-13T23:00:00Z'),
+          end_date: new Date('2026-03-01T23:00:00Z'),
+          zones: ['Zone C'], // matches user's zone
+          emoji: 'foo',
+        };
+        const holiday3 = {
+          kind: 'holiday',
+          title: 'Summer Holiday',
+          description: '',
+          date: null,
+          start_date: new Date('2026-07-01T23:00:00Z'),
+          end_date: new Date('2026-08-31T23:00:00Z'),
+          zones: ['Zone A', 'Zone B', 'Zone C'],
+          emoji: 'bar',
+        };
+        const holiday4 = {
+          kind: 'holiday',
+          title: 'Past Holiday',
+          description: '',
+          date: null,
+          start_date: new Date('2025-07-01T23:00:00Z'),
+          end_date: new Date('2025-08-31T23:00:00Z'), // past holiday
+          zones: ['Zone A', 'Zone B', 'Zone C'],
+          emoji: 'bar',
+        };
+        await userStore.login(mockUserInfo);
+
+        // When
+        const agenda = new Agenda(
+          {
+            school_holidays: [holiday1, holiday2, holiday3, holiday4],
+            public_holidays: [],
+            elections: [],
+          },
+          new Date('2026-01-23T12:00:00Z')
+        );
+
+        // Then
+        expect(agenda.holidayForOTV).equal(null);
       });
     });
     describe('Election', () => {
@@ -1711,7 +1824,6 @@ describe('/agenda.ts', () => {
   });
   describe('buildAgenda', () => {
     beforeEach(() => {
-      localStorage.setItem('hidden_agenda_items_otv', '[]');
       localStorage.setItem('hidden_agenda_items_holiday', '[]');
       localStorage.setItem('hidden_agenda_items_election', '[]');
     });

@@ -190,10 +190,6 @@
             &::before {
               --icon-size: 0.75rem;
             }
-            &.otv {
-              color: var(--text-action-high-green-archipel);
-              background-color: var(--background-alt-green-archipel);
-            }
             &.election {
               color: var(--text-action-high-green-tilleul-verveine);
               background-color: var(--background-contrast-green-tilleul-verveine);

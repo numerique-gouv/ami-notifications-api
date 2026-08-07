@@ -1,10 +1,10 @@
 import type { APIAgenda, APIAgendaItem } from '$lib/api-agenda';
 import { retrieveAgenda } from '$lib/api-agenda';
 import { createScheduledNotification } from '$lib/scheduled-notifications';
-import { userStore } from '$lib/state/User.svelte';
+import { type User, userStore } from '$lib/state/User.svelte';
 import { dateToISO, getTimestamp, uniqueId } from '$lib/utils';
 
-export type Kind = 'holiday' | 'otv' | 'election';
+export type Kind = 'holiday' | 'election';
 
 const capitalizeFirstLetter = (val: string) => {
   return String(val).charAt(0).toUpperCase() + String(val).slice(1);
@@ -213,11 +213,6 @@ export class Item {
       icon: 'fr-icon-calendar-event-fill',
       link: '',
     },
-    otv: {
-      label: 'Logement',
-      icon: 'fr-icon-home-4-fill',
-      link: '/#/procedure',
-    },
     election: {
       label: 'Élections',
       icon: 'fr-icon-chat-check-fill',
@@ -254,9 +249,6 @@ export class Item {
     if (info === undefined) {
       return '';
     }
-    if (this._kind === 'otv') {
-      return `${info.link}?date=${dateToISO(this.date)}`;
-    }
     return info.link;
   }
 
@@ -268,10 +260,19 @@ export class Item {
 export class Agenda {
   private _now: Item[] = [];
   private _next: Item[] = [];
+  private _connectedUser: User | null = null;
+  private _today: Date = new Date();
+  private _holidayForOTV: APIAgendaItem | null = null;
 
   constructor(apiAgenda: APIAgenda | null = null, date: Date | null = null) {
-    const today = date || new Date();
-    today.setHours(0, 0, 0, 0);
+    this._connectedUser = userStore.connected;
+    if (!this._connectedUser) {
+      // user has to be connected
+      return;
+    }
+
+    this._today = date || new Date();
+    this._today.setHours(0, 0, 0, 0);
     const items: Item[] = [];
 
     const school_holidays: APIAgendaItem[] = apiAgenda?.school_holidays || [];
@@ -279,16 +280,16 @@ export class Agenda {
     const elections: APIAgendaItem[] = apiAgenda?.elections || [];
 
     // build items from school_holidays
-    this.createSchoolHolidayItems(items, school_holidays, today);
+    this.createSchoolHolidayItems(items, school_holidays);
 
     // build items from public_holidays
-    this.createPublicHolidayItems(items, public_holidays, today);
-
-    // create OTV items
-    this.createOTVItems(items, school_holidays, today);
+    this.createPublicHolidayItems(items, public_holidays);
 
     // build items from elections
-    this.createElectionItems(items, elections, today);
+    this.createElectionItems(items, elections);
+
+    // do something with school holidays for OTVs
+    this.processOTVs(school_holidays);
 
     // sort items by date
     items.sort((a, b) => (a.date?.getTime() || 0) - (b.date?.getTime() || 0));
@@ -297,8 +298,8 @@ export class Agenda {
     items.forEach((item) => {
       if (
         item.date &&
-        (item.date <= today ||
-          item.date < new Date(today.getTime() + 30 * oneday_in_ms))
+        (item.date <= this._today ||
+          item.date < new Date(this._today.getTime() + 30 * oneday_in_ms))
       ) {
         this._now.push(item);
       } else {
@@ -307,11 +308,7 @@ export class Agenda {
     });
   }
 
-  private createSchoolHolidayItems(
-    items: Item[],
-    school_holidays: APIAgendaItem[],
-    date: Date
-  ) {
+  private createSchoolHolidayItems(items: Item[], school_holidays: APIAgendaItem[]) {
     const result: Item[] = [];
     school_holidays.forEach((holiday) => {
       const item = this.createSchoolHolidayItem(holiday);
@@ -343,7 +340,7 @@ export class Agenda {
       }
     });
     result.forEach((item) => {
-      if (item.endDate !== null && item.endDate >= date) {
+      if (item.endDate !== null && item.endDate >= this._today) {
         // exclude past school holiday
         items.push(item);
       }
@@ -351,10 +348,9 @@ export class Agenda {
   }
 
   private getSchoolHolidayItemDescription(holiday: APIAgendaItem): string {
-    if (!userStore.connected) {
-      return '';
-    }
-    return userStore.connected.getSchoolHolidayDescriptionFromPreferences(holiday);
+    return (
+      this._connectedUser?.getSchoolHolidayDescriptionFromPreferences(holiday) || ''
+    );
   }
 
   private createSchoolHolidayItem(holiday: APIAgendaItem): Item | null {
@@ -366,7 +362,7 @@ export class Agenda {
     if (holiday.emoji) {
       title += ` ${holiday.emoji}`;
     }
-    if (!userStore.connected?.isSchoolHolidayConcernedByPreferences(holiday)) {
+    if (!this._connectedUser?.isSchoolHolidayConcernedByPreferences(holiday)) {
       return null;
     }
     return new Item(
@@ -380,25 +376,21 @@ export class Agenda {
     );
   }
 
-  private createPublicHolidayItems(
-    items: Item[],
-    public_holidays: APIAgendaItem[],
-    date: Date
-  ) {
+  private createPublicHolidayItems(items: Item[], public_holidays: APIAgendaItem[]) {
     public_holidays.forEach((holiday) => {
-      const item = this.createPublicHolidayItem(holiday, date);
+      const item = this.createPublicHolidayItem(holiday);
       if (item !== null && !item.isHidden()) {
         items.push(item);
       }
     });
   }
 
-  private createPublicHolidayItem(holiday: APIAgendaItem, date: Date): Item | null {
+  private createPublicHolidayItem(holiday: APIAgendaItem): Item | null {
     if (!holiday.date) {
       // should not happen for public holiday
       return null;
     }
-    if (holiday.date < date) {
+    if (holiday.date < this._today) {
       // exclude past public holiday
       return null;
     }
@@ -409,60 +401,69 @@ export class Agenda {
     return new Item(uniqueId(), 'holiday', title, null, holiday.date, null, null);
   }
 
-  private createOTVItems(items: Item[], school_holidays: APIAgendaItem[], date: Date) {
-    const seenSchoolHolidays: Set<string> = new Set();
-    school_holidays.forEach((holiday) => {
-      const item = this.createOTVItem(seenSchoolHolidays, holiday, date);
-      if (item !== null && !item.isHidden()) {
-        items.push(item);
+  private processOTVs(school_holidays: APIAgendaItem[]) {
+    const relevantSchoolHolidays =
+      this.getRelevantSchoolHolidaysForOTV(school_holidays);
+    relevantSchoolHolidays.forEach((holiday) => {
+      this.pushOTVNotification(holiday);
+      if (!holiday.start_date) {
+        // should not happen for school holiday
+        return;
       }
+      if (this._holidayForOTV !== null) {
+        return;
+      }
+      // set first holiday
+      const startDate = new Date(holiday.start_date.getTime() - 3 * 7 * oneday_in_ms);
+      if (startDate > this._today) {
+        // but only when it is close enough to it associated holiday
+        return;
+      }
+      this._holidayForOTV = holiday;
     });
   }
 
-  private createOTVItem(
-    seenSchoolHolidays: Set<string>,
-    holiday: APIAgendaItem,
-    date: Date
-  ): Item | null {
-    const connectedUser = userStore.connected;
-    if (!connectedUser) {
-      // user has to be connected
-      return null;
-    }
-    if (!holiday.start_date || !holiday.end_date) {
-      // should not happen for school holiday
-      return null;
-    }
-    const userZone = userStore.connected?.identity.address?.zone;
-    const scheduledNotificationsCreatedKeys = new Set(
-      userStore.connected?.identity.scheduledNotificationsCreatedKeys
-    );
-    const key = JSON.stringify({
-      desc: holiday.title,
-      year: holiday.start_date.getFullYear(),
+  private getRelevantSchoolHolidaysForOTV(
+    school_holidays: APIAgendaItem[]
+  ): APIAgendaItem[] {
+    const seenSchoolHolidays: Set<string> = new Set();
+    const relevantSchoolHolidays: APIAgendaItem[] = [];
+    school_holidays.forEach((holiday) => {
+      if (!holiday.start_date || !holiday.end_date) {
+        // should not happen for school holiday
+        return;
+      }
+      const userZone = this._connectedUser?.identity.address?.zone;
+      const key = JSON.stringify({
+        desc: holiday.title,
+        year: holiday.start_date.getFullYear(),
+      });
+      if (seenSchoolHolidays.has(key)) {
+        return;
+      }
+      if (userZone !== undefined && !holiday.zones.includes(userZone)) {
+        // Only push OTV notification for the user's zone, if present
+        return;
+      }
+      seenSchoolHolidays.add(key);
+      if (holiday.end_date < this._today) {
+        // exclude past school holiday
+        return;
+      }
+      relevantSchoolHolidays.push(holiday);
     });
-    if (seenSchoolHolidays.has(key)) {
-      return null;
+    return relevantSchoolHolidays;
+  }
+
+  private pushOTVNotification(holiday: APIAgendaItem) {
+    if (!holiday.start_date) {
+      // should not happen for school holiday
+      return;
     }
-    if (userZone !== undefined && !holiday.zones.includes(userZone)) {
-      // Only create OTV for the user's zone, if present
-      return null;
-    }
-    seenSchoolHolidays.add(key);
-    if (holiday.end_date < date) {
-      // exclude OTV of past school holiday
-      return null;
-    }
-    const startDate = new Date(holiday.start_date.getTime() - 3 * 7 * oneday_in_ms);
-    const item = new Item(
-      uniqueId(),
-      'otv',
-      'Opération Tranquillité Vacances 🏠',
-      'Inscrivez-vous pour protéger votre domicile pendant votre absence',
-      null,
-      startDate,
-      null
+    const scheduledNotificationsCreatedKeys = new Set(
+      this._connectedUser?.identity.scheduledNotificationsCreatedKeys
     );
+    const startDate = new Date(holiday.start_date.getTime() - 3 * 7 * oneday_in_ms);
     const scheduledNotificationKey = `ami-otv:d-3w:${holiday.start_date.getFullYear()}:${slugify(holiday.title)}`;
     if (!scheduledNotificationsCreatedKeys.has(scheduledNotificationKey)) {
       createScheduledNotification({
@@ -471,37 +472,28 @@ export class Agenda {
           "Demandez l'Opération Tranquillité Vacances afin de partir en vacances l’esprit (plus) tranquille.",
         content_icon: 'fr-icon-megaphone-line',
         reference: scheduledNotificationKey,
-        internal_url: item.link,
+        internal_url: `/#/procedure?date=${dateToISO(startDate)}`,
         scheduled_at: startDate,
       });
-      userStore.connected?.addScheduledNotificationCreatedKey(scheduledNotificationKey);
+      this._connectedUser?.addScheduledNotificationCreatedKey(scheduledNotificationKey);
     }
-    if (!userStore.connected?.isSchoolHolidayConcernedByPreferences(holiday)) {
-      // don't display OTV if holiday match user preferences
-      return null;
-    }
-    if (startDate > date) {
-      // don't display OTV too early, only display them when they're close enough to their associated holiday
-      return null;
-    }
-    return item;
   }
 
-  private createElectionItems(items: Item[], elections: APIAgendaItem[], date: Date) {
+  private createElectionItems(items: Item[], elections: APIAgendaItem[]) {
     elections.forEach((election) => {
-      const item = this.createElectionItem(election, date);
+      const item = this.createElectionItem(election);
       if (item !== null && !item.isHidden()) {
         items.push(item);
       }
     });
   }
 
-  private createElectionItem(election: APIAgendaItem, date: Date): Item | null {
+  private createElectionItem(election: APIAgendaItem): Item | null {
     if (!election.date) {
       // should not happen for election
       return null;
     }
-    if (election.date < date) {
+    if (election.date < this._today) {
       // exclude past election
       return null;
     }
@@ -526,6 +518,10 @@ export class Agenda {
 
   get next(): Item[] {
     return this._next;
+  }
+
+  get holidayForOTV(): APIAgendaItem | null {
+    return this._holidayForOTV;
   }
 }
 
