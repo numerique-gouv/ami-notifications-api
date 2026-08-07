@@ -1,12 +1,9 @@
 <script lang="ts">
   import { startRegistration } from '@simplewebauthn/browser';
-  import { onMount } from 'svelte';
 
   let debugTitle: string = $state('');
   let debugMessage: string = $state('');
   let debugMoreMessage: string = $state('');
-
-  onMount(async () => {});
 
   const log = (title: string, message: string) => {
     debugTitle = title;
