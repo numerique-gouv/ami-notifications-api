@@ -227,7 +227,7 @@ REST_FRAMEWORK = {
 }
 SPECTACULAR_SETTINGS = {
     "TITLE": "AMI API",
-    "DESCRIPTION": "API de l'Application Mobile Interminitérielle",
+    "DESCRIPTION": "API de l’Application Mobile Interministérielle",
     "VERSION": "1.0.0",
 }
 
