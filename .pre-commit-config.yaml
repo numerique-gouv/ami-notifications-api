@@ -1,3 +1,4 @@
+default_install_hook_types: [pre-commit, commit-msg]
 repos:
 - repo: https://github.com/astral-sh/ruff-pre-commit
   # Ruff version.
@@ -5,14 +6,17 @@ repos:
   hooks:
     # Run the linter.
     - id: ruff
+      stages: [pre-commit]
       args: [ --fix ]
     # Run the formatter.
     - id: ruff-format
+      stages: [pre-commit]
 
 # Make sure no code is using httpx straight out of the box instead of our own configured one.
 - repo: local
   hooks:
     - id: no-vanilla-httpx-usage
+      stages: [pre-commit]
       name: no vanilla httpx usage
       entry: bin/check-no-vanilla-httpx-usage.sh
       language: system
@@ -23,11 +27,13 @@ repos:
 - repo: local
   hooks:
     - id: npm-lint-and-format
+      stages: [pre-commit]
       name: npm lint and format
       entry: npm run lint-and-format
       language: system
       files: \.(js|ts|svelte|json)$
     - id: typescript-check
+      stages: [pre-commit]
       name: typescript type checking
       entry: npm run type-check
       language: system
@@ -39,6 +45,7 @@ repos:
   rev: 3.0.9
   hooks:
     - id: djhtml
+      stages: [pre-commit]
       args: ['--tabwidth', '2']
 
 # SCSS linting and formatting (waiting for scss support in biome)
@@ -46,6 +53,7 @@ repos:
   rev: v3.1.0
   hooks:
     - id: prettier
+      stages: [pre-commit]
       files: \.scss$
       additional_dependencies:
         - prettier@3.7.4
@@ -55,6 +63,7 @@ repos:
   rev: 0.0.2
   hooks:
     - id: stylelint
+      stages: [pre-commit]
       files: \.scss$
       args: ["--config", ".stylelintrc.json"]
       additional_dependencies:
@@ -65,7 +74,17 @@ repos:
 - repo: local
   hooks:
     - id: pyright
+      stages: [pre-commit]
       name: pyright type checking
       entry: uv run pyright
       language: system
       files: \.py$
+
+# Commit message
+- repo: local
+  hooks:
+    - id: commit-message
+      stages: [commit-msg]
+      name: commit message
+      entry: bin/check_commit_message.py
+      language: system
