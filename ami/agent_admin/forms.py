@@ -135,7 +135,7 @@ class NotificationForm(AMIDsfrBaseForm):
         auth = BasicAuth(username=partner.id, password=partner.secret)
         with httpxLaxClient() as httpx_client:
             response = httpx_client.put(
-                f"{settings.PUBLIC_API_URL}/api/v2/event",
+                f"{settings.PUBLIC_APP_URL}/api/v2/event",
                 auth=auth,
                 json=payload,
             )

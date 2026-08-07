@@ -1,5 +1,5 @@
 import { page } from '$app/state';
-import { PUBLIC_API_URL, PUBLIC_PROMPT_FOR_ACCESS_KEY } from '$env/static/public';
+import { PUBLIC_PROMPT_FOR_ACCESS_KEY } from '$env/static/public';
 import { initializeData } from '$lib/initializeDataFromAPI';
 import { userStore } from '$lib/state/User.svelte';
 import type { LayoutLoad } from './$types';
@@ -19,7 +19,7 @@ export const load: LayoutLoad = async () => {
     } else {
       access_key = access_key_cookie.value || '';
     }
-    const response = await fetch(`${PUBLIC_API_URL}/api/v1/access-key`, {
+    const response = await fetch('/api/v1/access-key', {
       method: 'POST',
       body: new URLSearchParams({ key: access_key }),
     });

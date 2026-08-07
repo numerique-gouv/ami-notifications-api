@@ -1,10 +1,10 @@
-import { PUBLIC_API_URL } from '$env/static/public';
+import { PUBLIC_APP_URL } from '$env/static/public';
 import { apiFetch } from '$lib/auth';
 import type { Registration } from '$lib/registration';
 import { registerDevice, unregisterDevice } from '$lib/registration';
 import * as self from './notifications';
 
-export const PUBLIC_API_WS_URL = PUBLIC_API_URL.replace('https://', 'wss://').replace(
+export const PUBLIC_APP_WS_URL = PUBLIC_APP_URL.replace('https://', 'wss://').replace(
   'http://',
   'ws://'
 );
@@ -92,11 +92,11 @@ export const notificationEventsSocket = (
   onmessage: (event: MessageEvent) => void
 ): WebSocket => {
   const ws = new WebSocket(
-    `${PUBLIC_API_WS_URL}/api/v1/users/notification/events/stream`
+    `${PUBLIC_APP_WS_URL}/api/v1/users/notification/events/stream`
   );
   console.log(
     'Opened the websocket on:',
-    `${PUBLIC_API_WS_URL}/api/v1/users/notification/events/stream`
+    `${PUBLIC_APP_WS_URL}/api/v1/users/notification/events/stream`
   );
   ws.onmessage = onmessage;
   return ws;

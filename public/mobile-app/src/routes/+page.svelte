@@ -3,11 +3,7 @@
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import { page } from '$app/state';
-  import {
-    PUBLIC_API_URL,
-    PUBLIC_CONTACT_EMAIL,
-    PUBLIC_CONTACT_URL,
-  } from '$env/static/public';
+  import { PUBLIC_CONTACT_EMAIL, PUBLIC_CONTACT_URL } from '$env/static/public';
   import ConnectedHomepage from '$lib/ConnectedHomepage.svelte';
   import BottomModal from '$lib/components/modal/BottomModal.svelte';
   import Navigation from '$lib/components/Navigation.svelte';
@@ -62,12 +58,12 @@
   // FC - Step 3
   const franceConnectLogin = async () => {
     try {
-      await fetch(`${PUBLIC_API_URL}/ping`, {
+      await fetch('/ping', {
         method: 'HEAD',
         mode: 'no-cors',
         cache: 'no-store',
       });
-      window.location.href = `${PUBLIC_API_URL}/login-france-connect`;
+      window.location.href = '/login-france-connect';
     } catch {
       goto('/#/network-error');
     }

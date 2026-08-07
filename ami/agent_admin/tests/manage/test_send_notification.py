@@ -65,7 +65,7 @@ def test_send_notification_submit_with_400(
     response.forms["send-notification"]["event_date"] = "2026-04-21T16:24:00.000"
 
     httpx_mock.add_response(
-        url=f"{settings.PUBLIC_API_URL}/api/v2/event",
+        url=f"{settings.PUBLIC_APP_URL}/api/v2/event",
         json={
             "recipient_fc_hash": ["error 1", "error 2"],
             "item_type": ["error 3"],
@@ -104,7 +104,7 @@ def test_send_notification_submit_with_404(
     response.forms["send-notification"]["content_body"] = "a-body"
 
     httpx_mock.add_response(
-        url=f"{settings.PUBLIC_API_URL}/api/v2/event",
+        url=f"{settings.PUBLIC_APP_URL}/api/v2/event",
         status_code=404,
     )
 
@@ -127,7 +127,7 @@ def test_send_notification_submit_with_404_and_message(
     response.forms["send-notification"]["content_body"] = "a-body"
 
     httpx_mock.add_response(
-        url=f"{settings.PUBLIC_API_URL}/api/v2/event",
+        url=f"{settings.PUBLIC_APP_URL}/api/v2/event",
         json={"error": "User not found"},
         status_code=404,
     )
@@ -136,7 +136,7 @@ def test_send_notification_submit_with_404_and_message(
     assert response.context["form"].errors == {"__all__": ["User not found"]}
 
     httpx_mock.add_response(
-        url=f"{settings.PUBLIC_API_URL}/api/v2/event",
+        url=f"{settings.PUBLIC_APP_URL}/api/v2/event",
         json={"unknown_field": "User not found"},
         status_code=404,
     )
@@ -160,7 +160,7 @@ def test_send_notification_submit_success(
     response.forms["send-notification"]["content_body"] = "a-body"
 
     httpx_mock.add_response(
-        url=f"{settings.PUBLIC_API_URL}/api/v2/event",
+        url=f"{settings.PUBLIC_APP_URL}/api/v2/event",
         json={
             "notification_id": "5c108865-3ca3-403b-bd53-942bcc025f2c",
             "notification_send_status": True,

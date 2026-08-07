@@ -9,7 +9,6 @@ describe('/ami-goto', () => {
       const original = (await importOriginal()) as Record<string, unknown>;
       return Promise.resolve({
         ...original,
-        PUBLIC_API_URL: 'https://localhost:8000',
         PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED: 'true',
       });
     });
@@ -62,7 +61,7 @@ describe('/ami-goto', () => {
 
       // Then
       expect(window.location.href).toBe(
-        'https://localhost:8000/silent-login-ami-fi?redirect_url=http%3A%2F%2Fexternal-url'
+        '/silent-login-ami-fi?redirect_url=http%3A%2F%2Fexternal-url'
       );
     });
   });

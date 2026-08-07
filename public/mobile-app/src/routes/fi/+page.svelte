@@ -2,10 +2,7 @@
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import { page } from '$app/state';
-  import {
-    PUBLIC_API_URL,
-    PUBLIC_FEATURE_FLAG_FI_LOGIN_ENABLED,
-  } from '$env/static/public';
+  import { PUBLIC_FEATURE_FLAG_FI_LOGIN_ENABLED } from '$env/static/public';
   import { franceConnectLogout } from '$lib/france-connect';
 
   let data_providers: Record<string, unknown> = $state({});
@@ -19,9 +16,7 @@
       return;
     }
     try {
-      const response = await fetch(
-        `${PUBLIC_API_URL}/api/v1/authentication/providers/`
-      );
+      const response = await fetch('/api/v1/authentication/providers/');
       data_providers = await response.json();
       selected = Object.keys(data_providers)[0];
     } catch {}
@@ -48,7 +43,7 @@
 
   const AMIFILogin = async () => {
     const id_token_hint = localStorage.getItem('id_token') || '';
-    const redirect_url = `${PUBLIC_API_URL}/login-ami-fi?provider_id=${selected}`;
+    const redirect_url = `/login-ami-fi?provider_id=${selected}`;
     if (id_token_hint) {
       await franceConnectLogout(id_token_hint, redirect_url);
     } else {
