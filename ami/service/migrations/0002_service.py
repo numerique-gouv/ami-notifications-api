@@ -30,6 +30,7 @@ class Migration(migrations.Migration):
                             ("psl", "PSL"),
                             ("dinum-dn", "demarche.numerique.gouv.fr"),
                             ("dinum-ami", "AMI"),
+                            ("dinum-rdvsp", "RDV SP"),
                         ]
                     ),
                 ),
