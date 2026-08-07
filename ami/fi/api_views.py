@@ -2,14 +2,15 @@ import base64
 import json
 import logging
 import re
+import uuid
 from secrets import token_urlsafe
 from typing import cast
-from urllib.parse import urlparse
+from urllib.parse import urlencode, urlparse
 
 import jwt
 from django.conf import settings
 from django.contrib.auth.hashers import make_password
-from django.http import Http404, HttpResponseBadRequest, HttpResponseRedirect
+from django.http import Http404, HttpResponseBadRequest, HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import redirect
 from rest_framework import serializers
 from rest_framework.decorators import api_view
@@ -38,6 +39,7 @@ from ami.fi.api_exceptions import (
 from ami.fi.models import FISession, UserPasskey
 from ami.fi.serializers import TokenSerializer
 from ami.fi.utils import generate_id_token
+from ami.user.utils import build_fc_hash
 
 logger = logging.getLogger(__name__)
 
@@ -193,5 +195,59 @@ def passkey_verify_authentication(request):
         credential_current_sign_count=0,
         require_user_verification=True,
     )
+
+    code = token_urlsafe(64)
+    fi_session_id = request.session.get("fi_session_id")
+    if not fi_session_id:
+        logger.error("Missing FI Session")
+        return HttpResponseBadRequest("missing-fi-session")
+    try:
+        fi_session_id = uuid.UUID(fi_session_id)
+    except ValueError:
+        logger.error("Invalid FI Session")
+        return HttpResponseBadRequest("invalid-fi-session")
+    try:
+        fi_session = FISession.objects.get(id=fi_session_id)
+    except FISession.DoesNotExist:
+        logger.error("Unknown FI Session")
+        return HttpResponseBadRequest("unkown-fi-session")
+
+    if settings.USERINFO_COOKIE_JWT_NAME not in request.COOKIES:
+        logger.error("Missing cookie")
+        return HttpResponseForbidden("missing-cookie")
+
+    encoded_user_data = request.COOKIES[settings.USERINFO_COOKIE_JWT_NAME]
+    decoded_user_data = jwt.decode(
+        encoded_user_data, options={"verify_signature": False}, algorithms=["ES256"]
+    )
+
+    # check that user associated with passkey matches with données pivot
+    fc_hash = build_fc_hash(
+        given_name=decoded_user_data.get("given_name") or "",
+        family_name=decoded_user_data.get("family_name") or "",
+        birthdate=decoded_user_data.get("birthdate") or "",
+        gender=decoded_user_data.get("gender") or "",
+        birthplace=decoded_user_data.get("birthplace") or "",
+        birthcountry=decoded_user_data.get("birthcountry") or "",
+    )
+    assert fc_hash == user_passkey.user.fc_hash
+
+    # XXX check if user associated with passkey is request.ami_user if not None ? cf DAT
+
+    fi_session.user_data = decoded_user_data
+    fi_session.code = make_password(code, settings.FI_HASH_SALT)
+    fi_session.save()
+
+    redirect_uri = f"{settings.FI_REDIRECT_URI}?code={code}&state={fi_session.state}"
+    if settings.PUBLIC_FC_PROXY_BASE_URL:
+        params = {
+            "redirect_uri": redirect_uri,
+        }
+        redirect_uri = (
+            f"{settings.PUBLIC_FC_PROXY_BASE_URL}/ami-fi-authorize-callback/?{urlencode(params)}"
+        )
+
     request.session.delete()
-    return Response({"verified": authentication_verification.user_verified})
+    return Response(
+        {"verified": authentication_verification.user_verified, "redirect_uri": redirect_uri}
+    )

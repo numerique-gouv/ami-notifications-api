@@ -48,6 +48,8 @@
         `Oh no, something went wrong! Response: ${JSON.stringify(verificationJSON)}`
       );
     }
+
+    window.location = verificationJSON?.redirect_uri;
   };
 </script>
 
