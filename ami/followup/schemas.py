@@ -5,6 +5,7 @@ from typing import Self
 
 from ami.notification.models import Notification
 from ami.partner.models import Partner, partners
+from ami.service.models import Service
 
 
 class ItemGenericStatus(Enum):
@@ -48,7 +49,9 @@ class FollowupItem:
     updated_at: datetime.datetime
 
     @classmethod
-    def from_notifications(cls, notifications: list[Notification]) -> Self | None:
+    def from_notifications(
+        cls, notifications: list[Notification], services_by_id: dict[str, Service]
+    ) -> Self | None:
         first_notification = notifications[0]
         last_notification = notifications[-1]
         partner: Partner | None = partners.get(last_notification.partner_id)
@@ -57,6 +60,12 @@ class FollowupItem:
         is_archived_flags = [
             n.item_is_archived for n in notifications if n.item_is_archived is not None
         ]
+        title = last_notification.content_title
+        service: Service | None = services_by_id.get(
+            f"{last_notification.partner_id}:{last_notification.item_type}"
+        )
+        if service is not None:
+            title = service.title
         description = last_notification.content_body
         if last_notification.content_private_body:
             description += f"\n\n{last_notification.content_private_body}"
@@ -74,7 +83,7 @@ class FollowupItem:
             milestone_start_date=last_notification.item_milestone_start_date,
             milestone_end_date=last_notification.item_milestone_end_date,
             events=events,
-            title=last_notification.content_title,
+            title=title,
             subheading=last_notification.content_subheading or partner_name,
             description=description,
             icon=last_notification.icon or "",

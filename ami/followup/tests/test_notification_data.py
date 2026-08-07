@@ -14,6 +14,7 @@ from ami.followup.schemas import (
 )
 from ami.notification.models import Notification
 from ami.partner.models import partners
+from ami.service.models import Service
 from ami.user.models import User
 
 
@@ -120,7 +121,15 @@ def test_get_notifications_data_invalid_notifications(user: User) -> None:
 
 @pytest.mark.django_db
 def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> None:
-    FAKE_TIME = datetime.datetime.now(datetime.timezone.utc)
+    Service.objects.create(
+        partner_id="psl",
+        item_type="OperationTranquilliteVacances",
+        title="Opération Tranquillité Vacances",
+        short_description="Inscrivez-vous pour protéger votre domicile pendant votre absence",
+        description="Pendant toute absence prolongée de votre domicile, vous pouvez vous inscrire à l'**opération tranquillité vacances**.",
+        url="https://localhost:8000/mademarche/demarcheGenerique/?codeDemarche=OperationTranquilliteVacances&caller={back_param_token_jwt}",
+        with_silent_login=True,
+    )
 
     notification1 = Notification.objects.create(
         user_id=user.id,
@@ -132,7 +141,6 @@ def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> 
         item_type="OperationTranquilliteVacances",
         item_id="42",
         partner_id="psl",
-        created_at=FAKE_TIME,
     )
     notification2 = Notification.objects.create(
         user_id=user.id,
@@ -144,7 +152,6 @@ def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> 
         item_id="42",
         item_is_archived=True,
         partner_id="psl",
-        created_at=FAKE_TIME,
     )
     notification3 = Notification.objects.create(
         user_id=user.id,
@@ -155,7 +162,6 @@ def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> 
         item_type="OperationTranquilliteVacances",
         item_id="42",
         partner_id="psl",
-        created_at=FAKE_TIME,
     )
 
     notification4 = Notification.objects.create(
@@ -169,7 +175,6 @@ def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> 
         content_link="http://foo.com",
         item_is_archived=False,
         partner_id="psl",
-        created_at=FAKE_TIME,
     )
 
     notification5 = Notification.objects.create(
@@ -183,7 +188,6 @@ def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> 
         content_link="http://bar.com",
         item_is_archived=True,
         partner_id="psl",
-        created_at=FAKE_TIME,
     )
     notification6 = Notification.objects.create(
         user_id=user.id,
@@ -197,7 +201,6 @@ def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> 
         item_milestone_end_date=datetime.datetime.now(datetime.timezone.utc),
         item_is_archived=False,
         partner_id="psl",
-        created_at=FAKE_TIME,
     )
 
     notification7 = Notification.objects.create(
@@ -209,7 +212,6 @@ def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> 
         item_type="Other",
         item_id="42",
         partner_id="dinum-ami",
-        created_at=FAKE_TIME,
     )
 
     notification8 = Notification.objects.create(
@@ -224,7 +226,6 @@ def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> 
         item_type="Other",
         item_id="52",
         partner_id="dinum-ami",
-        created_at=FAKE_TIME,
     )
 
     result = get_notifications_data(current_user=user)
@@ -298,7 +299,7 @@ def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> 
                     "notification 6",
                 ),
             ],
-            title="Notification title 6",
+            title="Opération Tranquillité Vacances",
             subheading="PSL",
             description="notification 6",
             icon="fr-icon-flag-fill",
@@ -356,7 +357,7 @@ def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> 
                     "notification 3",
                 ),
             ],
-            title="Notification title 3",
+            title="Opération Tranquillité Vacances",
             subheading="PSL",
             description="notification 3",
             icon="fr-icon-eye-fill",
