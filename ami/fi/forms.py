@@ -49,8 +49,3 @@ class AuthorizeForm(forms.Form):
                 f"'acr_values' doit être '{expected}', trouvé '{value}'", "invalid"
             )
         return value
-
-
-class AuthorizeUserDataForm(forms.Form):
-    fi_session_id = forms.CharField(widget=forms.HiddenInput)
-    encoded_user_data = forms.CharField(widget=forms.HiddenInput)
