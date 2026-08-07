@@ -295,17 +295,20 @@ def passkey_generate_registration_options(request):
     )
     challenge = base64.encodebytes(options.challenge).decode()
     print("generate/registration/challenge:", challenge)
-    cache.set("registration_challenge", challenge)
+    request.session["passkey_registration_challenge"] = challenge
 
     return Response(json.loads(options_to_json(options)))
 
 
 @api_view(["POST"])
 def passkey_verify_registration(request):
-    print("verify/registration/challenge:", cache.get("registration_challenge"))
+    challenge = request.session.get("passkey_registration_challenge")
+    if not challenge:
+        raise Exception("ho no ! challenge not found !")
+    print("verify/registration/challenge:", challenge)
     registration_verification = verify_registration_response(
         credential=request.data,
-        expected_challenge=base64.decodebytes(cache.get("registration_challenge").encode()),
+        expected_challenge=base64.decodebytes(challenge.encode()),
         expected_origin=settings.PUBLIC_APP_URL,
         expected_rp_id=urlparse(settings.PUBLIC_APP_URL).hostname,
         require_user_verification=True,
@@ -316,6 +319,7 @@ def passkey_verify_registration(request):
     public_key = base64.encodebytes(registration_verification.credential_public_key).decode()
     print("verify/registration/public_key:", public_key)
     cache.set("credential_public_key", public_key)
+    request.session.delete()
     return Response({"verified": registration_verification.user_verified})
 
 
@@ -326,27 +330,28 @@ def passkey_generate_authentication_options(request):
     )
     challenge = base64.encodebytes(options.challenge).decode()
     print("generate/authentication/challenge:", challenge)
-    cache.set("authentication_challenge", challenge)
+    request.session["passkey_authentication_challenge"] = challenge
     return Response(json.loads(options_to_json(options)))
 
 
 @api_view(["POST"])
 def passkey_verify_authentication(request):
-    from pprint import pprint
-
-    pprint(request.data)
+    challenge = request.session.get("passkey_authentication_challenge")
+    if not challenge:
+        raise Exception("ho no ! challenge not found !")
     print("verify/authentication/data/credential_id:", request.data["id"])
     print("verify/authentication/data/credential_id(encode):", request.data["id"].encode())
-    print("verify/authentication/challenge:", cache.get("authentication_challenge"))
+    print("verify/authentication/challenge:", challenge)
     print("verify/authentication/credential_id:", cache.get("credential_id"))
     print("verify/authentication/public_key:", cache.get("credential_public_key"))
     authentication_verification = verify_authentication_response(
         credential=request.data,
-        expected_challenge=base64.decodebytes(cache.get("authentication_challenge").encode()),
+        expected_challenge=base64.decodebytes(challenge.encode()),
         expected_origin=settings.PUBLIC_APP_URL,
         expected_rp_id=urlparse(settings.PUBLIC_APP_URL).hostname,
         credential_public_key=base64.decodebytes(cache.get("credential_public_key").encode()),
         credential_current_sign_count=0,
         require_user_verification=True,
     )
+    request.session.delete()
     return Response({"verified": authentication_verification.user_verified})
