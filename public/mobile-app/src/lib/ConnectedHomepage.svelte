@@ -2,7 +2,9 @@
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import { type Agenda, Item as AgendaItemType, buildAgenda } from '$lib/agenda';
+  import { AutoPromo, buildAutoPromo } from '$lib/auto-promo';
   import AgendaItem from '$lib/components/AgendaItem.svelte';
+  import AutoPromoItem from '$lib/components/AutoPromoItem.svelte';
   import FollowupItem from '$lib/components/FollowupItem.svelte';
   import AgendaItemModal from '$lib/components/modal/AgendaItemModal.svelte';
   import CenteredModal from '$lib/components/modal/CenteredModal.svelte';
@@ -26,6 +28,7 @@
   let followup: Followup | null = $state(null);
   let selectedAgendaItem: AgendaItemType | null = $state(null);
   let selectedFollowupItem: FollowupItemType | null = $state(null);
+  let autoPromo: AutoPromo | null = $state(null);
 
   onMount(async () => {
     console.log('User is connected:', userStore.connected);
@@ -59,6 +62,7 @@
       agenda = await buildAgenda();
       console.log($state.snapshot(agenda));
       isAgendaEmpty = !(agenda.now.length || agenda.next.length);
+      autoPromo = buildAutoPromo(agenda);
       followup = await buildFollowup();
       console.log($state.snapshot(followup));
       isFollowupEmpty = !followup.items.length;
@@ -102,27 +106,10 @@
     </div>
   </div>
 
-  {#if !userStore.connected?.identity?.address}
-    <div class="rubrique-container address-container">
-      <div class="rubrique-content-container">
-        <div
-          class="fr-tile fr-tile-sm fr-tile--horizontal fr-tile--no-border fr-enlarge-link"
-        >
-          <div class="fr-tile__body">
-            <div class="fr-tile__content">
-              <img class="address-icon" src="/remixicons/house.svg" alt="">
-              <h3 class="fr-tile__title">
-                <a href="/#/edit-address"
-                  ><b
-                    >Renseignez votre adresse sur l'application pour faciliter vos
-                    échanges&nbsp;!</b
-                  ></a
-                >
-              </h3>
-            </div>
-          </div>
-        </div>
-      </div>
+  {#if autoPromo && autoPromo.items.length}
+    {@const firstItem = autoPromo.items[0]}
+    <div class="rubrique-container">
+      <AutoPromoItem item={firstItem} />
     </div>
   {/if}
 
@@ -134,7 +121,7 @@
       <div class="rubrique-content-container">
         <div class="no-agenda rubrique-content-container--empty">
           <div class="no-agenda--icon">
-            <img class="address-icon" src="/remixicons/calendar.svg" alt="">
+            <img src="/remixicons/calendar.svg" alt="">
           </div>
           <div class="no-agenda--title">
             Retrouvez les temps importants de votre vie administrative ici
@@ -181,7 +168,7 @@
       <div class="rubrique-content-container">
         <div class="no-followup rubrique-content-container--empty">
           <div class="no-followup--icon">
-            <img class="address-icon" src="/remixicons/tracking.svg" alt="">
+            <img src="/remixicons/tracking.svg" alt="">
           </div>
           <div class="no-followup--title">Retrouvez et suivez vos démarches ici.</div>
         </div>
@@ -276,39 +263,6 @@
         img {
           height: 5rem;
           width: 5rem;
-        }
-      }
-    }
-
-    .address-container {
-      .fr-tile {
-        background-color: var(--blue-france-950-100);
-        padding: 1.5rem 1.5rem 1rem 1.5rem;
-
-        .fr-tile__content {
-          display: flex;
-          flex-direction: row;
-          align-items: center;
-          padding-bottom: 1rem;
-
-          img {
-            margin-right: 0.5rem;
-          }
-
-          .fr-tile__title {
-            font-size: 16px;
-            line-height: 24px;
-            font-weight: 400;
-            a {
-              color: var(--grey-0-1000);
-              &::after {
-                color: var(--text-active-blue-france);
-                bottom: 1.25rem;
-                right: 1.25rem;
-                --icon-size: 1rem;
-              }
-            }
-          }
         }
       }
     }

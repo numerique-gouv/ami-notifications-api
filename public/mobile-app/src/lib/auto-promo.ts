@@ -89,3 +89,7 @@ export class AutoPromo {
     return this._items;
   }
 }
+
+export const buildAutoPromo = (agenda: Agenda): AutoPromo => {
+  return new AutoPromo(agenda);
+};
