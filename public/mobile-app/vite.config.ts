@@ -5,6 +5,22 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   plugins: [sveltekit(), mkcert()],
+  server: {
+    proxy: {
+      '/agent-admin': { target: 'http://localhost:8000', xfwd: true },
+      '/api': { target: 'http://localhost:8000', xfwd: true },
+      '/check-auth': { target: 'http://localhost:8000', xfwd: true },
+      '/dev-utils': { target: 'http://localhost:8000', xfwd: true },
+      '/login-ami-fi': { target: 'http://localhost:8000', xfwd: true },
+      '/login-callback': { target: 'http://localhost:8000', xfwd: true },
+      '/login-france-connect': { target: 'http://localhost:8000', xfwd: true },
+      '/logout': { target: 'http://localhost:8000', xfwd: true },
+      '/ping': { target: 'http://localhost:8000', xfwd: true },
+      '/schema': { target: 'http://localhost:8000', xfwd: true },
+      '/sector_identifier_url ': { target: 'http://localhost:8000', xfwd: true },
+      '/silent-login-ami-fi': { target: 'http://localhost:8000', xfwd: true },
+    },
+  },
   test: {
     projects: [
       {

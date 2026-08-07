@@ -8,7 +8,7 @@ import { Agenda, Item } from '$lib/agenda';
 import * as followupMethods from '$lib/followup';
 import { Followup, FollowupItem } from '$lib/followup';
 import * as notificationsMethods from '$lib/notifications';
-import { PUBLIC_API_WS_URL } from '$lib/notifications';
+import { PUBLIC_APP_WS_URL } from '$lib/notifications';
 import { toastStore } from '$lib/state/toast.svelte';
 import { userStore } from '$lib/state/User.svelte';
 import { mockAddress, mockUserInfo } from '$tests/utils';
@@ -35,7 +35,6 @@ describe('/ConnectedHomepage.svelte', () => {
       const original = (await importOriginal()) as Record<string, unknown>;
       return Promise.resolve({
         ...original,
-        PUBLIC_API_URL: 'https://localhost:8000',
         PUBLIC_MATOMO_ENABLED: 'false',
       });
     });
@@ -59,7 +58,7 @@ describe('/ConnectedHomepage.svelte', () => {
 
     vi.useFakeTimers({ shouldAdvanceTime: true });
 
-    wss = new WS(`${PUBLIC_API_WS_URL}/api/v1/users/notification/events/stream`);
+    wss = new WS(`${PUBLIC_APP_WS_URL}/api/v1/users/notification/events/stream`);
   });
 
   afterEach(() => {

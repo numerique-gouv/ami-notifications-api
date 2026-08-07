@@ -2,11 +2,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { render, screen, waitFor } from '@testing-library/svelte';
 import * as navigationMethods from '$app/navigation';
-import {
-  PUBLIC_API_URL,
-  PUBLIC_CONTACT_EMAIL,
-  PUBLIC_CONTACT_URL,
-} from '$env/static/public';
+import { PUBLIC_CONTACT_EMAIL, PUBLIC_CONTACT_URL } from '$env/static/public';
 import * as initializeDataFromAPIMethods from '$lib/initializeDataFromAPI';
 import { toastStore } from '$lib/state/toast.svelte';
 import { userStore } from '$lib/state/User.svelte';
@@ -139,7 +135,6 @@ describe('/+page.svelte', () => {
       franceConnectLoginButton.click();
 
       // Then
-      expect(globalThis.window.location.href).toContain(PUBLIC_API_URL);
       expect(globalThis.window.location.href).toContain('login-france-connect');
     });
   });
