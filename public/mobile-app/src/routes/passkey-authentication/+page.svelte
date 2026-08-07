@@ -15,7 +15,7 @@
   };
 
   const authenticate = async () => {
-    const resp = await fetch('/api/passkey/generate-authentication-options');
+    const resp = await fetch('/api/v1/fi/passkey/generate-authentication-options');
 
     let attResp: unknown;
     try {
@@ -30,7 +30,7 @@
       throw error;
     }
 
-    const verificationResp = await fetch('/api/passkey/verify-authentication', {
+    const verificationResp = await fetch('/api/v1/fi/passkey/verify-authentication', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

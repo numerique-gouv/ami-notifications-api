@@ -1,24 +1,41 @@
+import base64
+import json
 import logging
 import re
 from secrets import token_urlsafe
 from typing import cast
+from urllib.parse import urlparse
 
 import jwt
 from django.conf import settings
 from django.contrib.auth.hashers import make_password
-from django.http import Http404, HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
+from django.http import Http404, HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import redirect
 from rest_framework import serializers
 from rest_framework.decorators import api_view
 from rest_framework.request import Request
+from rest_framework.response import Response
+from webauthn import (
+    generate_authentication_options,
+    generate_registration_options,
+    options_to_json,
+    verify_authentication_response,
+    verify_registration_response,
+)
+from webauthn.helpers.structs import (
+    AuthenticatorAttachment,
+    AuthenticatorSelectionCriteria,
+    ResidentKeyRequirement,
+)
 
+from ami.authentication.decorators import ami_login_required
 from ami.fi.api_exceptions import (
     FISessionExpired,
     FISessionNotFound,
     MissingAuthHeader,
     WrongFormatAuthHeader,
 )
-from ami.fi.models import FISession
+from ami.fi.models import FISession, UserPasskey
 from ami.fi.serializers import TokenSerializer
 from ami.fi.utils import generate_id_token
 
@@ -26,7 +43,7 @@ logger = logging.getLogger(__name__)
 
 
 @api_view(["POST"])
-def token(request: Request) -> JsonResponse:
+def token(request: Request) -> Response:
     if not settings.FI_SILENT_LOGIN_ENABLED:
         raise Http404
     serializer = TokenSerializer(data=request.data)
@@ -57,7 +74,7 @@ def token(request: Request) -> JsonResponse:
     fi_session.access_token = make_password(access_token, settings.FI_HASH_SALT)
     fi_session.save()
 
-    return JsonResponse(
+    return Response(
         {
             "access_token": access_token,
             "expires_in": 60,
@@ -68,7 +85,7 @@ def token(request: Request) -> JsonResponse:
 
 
 @api_view(["GET"])
-def userinfo(request: Request) -> JsonResponse:
+def userinfo(request: Request) -> Response:
     if not settings.FI_SILENT_LOGIN_ENABLED:
         raise Http404
     auth_header = request.META.get("HTTP_AUTHORIZATION")
@@ -92,7 +109,7 @@ def userinfo(request: Request) -> JsonResponse:
         logger.error("Session de connexion à AMI-FI non trouvée")
         raise FISessionNotFound
 
-    return JsonResponse(fi_session.user_data)
+    return Response(fi_session.user_data)
 
 
 @api_view(["GET"])
@@ -106,3 +123,75 @@ def logout(request: Request) -> HttpResponseBadRequest | HttpResponseRedirect:
     redirect_uri = f"{redirect_uri}?state={request.GET.get('state')}"
 
     return redirect(redirect_uri)
+
+
+@api_view(["GET"])
+@ami_login_required
+def passkey_generate_registration_options(request):
+    options = generate_registration_options(
+        rp_id=urlparse(settings.PUBLIC_APP_URL).hostname,
+        rp_name="Example Co",
+        user_name="fc-hash",
+        authenticator_selection=AuthenticatorSelectionCriteria(
+            authenticator_attachment=AuthenticatorAttachment.PLATFORM,
+            resident_key=ResidentKeyRequirement.REQUIRED,
+        ),
+    )
+    challenge = base64.encodebytes(options.challenge).decode()
+    request.session["passkey_registration_challenge"] = challenge
+
+    return Response(json.loads(options_to_json(options)))
+
+
+@api_view(["POST"])
+@ami_login_required
+def passkey_verify_registration(request):
+    challenge = request.session.get("passkey_registration_challenge")
+    if not challenge:
+        raise Exception("ho no ! challenge not found !")
+    registration_verification = verify_registration_response(
+        credential=request.data,
+        expected_challenge=base64.decodebytes(challenge.encode()),
+        expected_origin=settings.PUBLIC_APP_URL,
+        expected_rp_id=urlparse(settings.PUBLIC_APP_URL).hostname,
+        require_user_verification=True,
+    )
+    credential_id = (
+        base64.encodebytes(registration_verification.credential_id).decode().split("=")[0]
+    )
+    public_key = base64.encodebytes(registration_verification.credential_public_key).decode()
+    UserPasskey.objects.create(
+        user=request.ami_user, credential_id=credential_id, credential_public_key=public_key
+    )
+    request.session.delete()
+    return Response({"verified": registration_verification.user_verified})
+
+
+@api_view(["GET"])
+def passkey_generate_authentication_options(request):
+    options = generate_authentication_options(
+        rp_id=urlparse(settings.PUBLIC_APP_URL).hostname,
+    )
+    challenge = base64.encodebytes(options.challenge).decode()
+    request.session["passkey_authentication_challenge"] = challenge
+    return Response(json.loads(options_to_json(options)))
+
+
+@api_view(["POST"])
+def passkey_verify_authentication(request):
+    challenge = request.session.get("passkey_authentication_challenge")
+    if not challenge:
+        raise Exception("ho no ! challenge not found !")
+    credential_id = request.data["id"]
+    user_passkey = UserPasskey.objects.get(credential_id=credential_id)
+    authentication_verification = verify_authentication_response(
+        credential=request.data,
+        expected_challenge=base64.decodebytes(challenge.encode()),
+        expected_origin=settings.PUBLIC_APP_URL,
+        expected_rp_id=urlparse(settings.PUBLIC_APP_URL).hostname,
+        credential_public_key=base64.decodebytes(user_passkey.credential_public_key.encode()),
+        credential_current_sign_count=0,
+        require_user_verification=True,
+    )
+    request.session.delete()
+    return Response({"verified": authentication_verification.user_verified})
