@@ -1,6 +1,8 @@
 import datetime
 from dataclasses import dataclass, field
 from enum import Enum
+from functools import cached_property
+from itertools import chain
 
 from ami.notification.models import Notification
 from ami.partner.models import partners
@@ -237,6 +239,55 @@ class NotificationsItem(NotificationsSubItem):
             )
         except ValueError:
             return None
+
+    @cached_property
+    def sub_items_notifications(self):
+        notifications = list(
+            chain.from_iterable(sub_item.notifications for sub_item in self.sub_items.values())
+        )
+        return sorted(notifications, key=lambda a: (a.event_date, a.created_at))
+
+    @property
+    def first_notification(self):
+        if not self.notifications:
+            return self.sub_items_notifications[0]
+        return self.notifications[0]
+
+    @property
+    def last_notification(self):
+        if not self.notifications:
+            return self.sub_items_notifications[-1]
+        return self.notifications[-1]
+
+    @property
+    def partner_id(self):
+        if not self.notifications and self.sub_items:
+            # take sub_item parent value
+            return self.last_notification.item_parent_partner_id
+        return self.last_notification.partner_id
+
+    @property
+    def item_type(self):
+        if not self.notifications and self.sub_items:
+            # take sub_item parent value
+            return self.last_notification.item_parent_type
+        return self.last_notification.item_type
+
+    @property
+    def item_external_id(self):
+        if not self.notifications and self.sub_items:
+            # take sub_item parent value
+            return self.last_notification.item_parent_id
+        return self.last_notification.item_id
+
+    @property
+    def subheading(self):
+        if not self.notifications and self.sub_items:
+            # take partner name if found, else item_parent_type
+            if self.partner:
+                return self.partner.name
+            return self.item_type
+        return super().subheading
 
 
 @dataclass
