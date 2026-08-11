@@ -103,11 +103,11 @@
         <li class="menu__item">
           {#if menuItem.label === "Plus"}
             <button
+              type="button"
               data-fr-opened="false"
               aria-controls="modal-main-nav-plus-6655"
               id="button-modal-main-nav-plus-6655"
               data-testid="button-modal-main-nav-plus-6655"
-              type="button"
               class="menu__link {menuItem.isSelected ? 'highlight fr-text--bold' : ''}"
             >
               <span
@@ -117,8 +117,9 @@
               <span class="menu__label fr-text--xs fr-mb-0">{menuItem.label}</span>
             </button>
           {:else}
-            <a
-              href={menuItem.url}
+            <button
+              type="button"
+              onclick={()=>goto(menuItem.url)}
               class="menu__link {menuItem.isSelected ? 'highlight fr-text--bold' : ''}"
               aria-current={menuItem.isSelected ? 'page' : null}
             >
@@ -127,7 +128,7 @@
                 class="fr-icon { menuItem.iconClass } fr-mb-1w"
               ></span>
               <span class="menu__label fr-text--xs fr-mb-0">{menuItem.label}</span>
-            </a>
+            </button>
           {/if}
         </li>
       {/if}
@@ -144,9 +145,9 @@
     <div class="fr-modal__body">
       <div class="fr-modal__header fr-py-1v">
         <button
+          type="button"
           aria-label="Fermer"
           aria-controls="modal-main-nav-plus-6655"
-          type="button"
           id="button-6045"
           class="fr-btn--close fr-btn fr-icon-close-line fr-btn--tertiary-no-outline"
         ></button>
@@ -163,8 +164,8 @@
                 {#if menuPlusItem.isEnabled}
                   <li class="fr-sidemenu__item">
                     <button
-                      class="fr-sidemenu__btn fr-text--regular"
                       type="button"
+                      class="fr-sidemenu__btn fr-text--regular"
                       onclick={() => goto(menuPlusItem.url)}
                       data-testid="{menuPlusItem.id}-button"
                     >
@@ -178,8 +179,8 @@
               {/each}
               <li class="fr-sidemenu__item">
                 <button
-                  class="fr-sidemenu__btn fr-text--regular fr-connect-logout"
                   type="button"
+                  class="fr-sidemenu__btn fr-text--regular fr-connect-logout"
                   onclick={openLogoutModal}
                 >
                   <Icon
@@ -210,8 +211,8 @@
       <ul class="fr-btns-group logout-modal-action-buttons">
         <li>
           <button
-            class="fr-btn fr-btn--secondary cancel-button"
             type="button"
+            class="fr-btn fr-btn--secondary cancel-button"
             onclick={closeLogoutModal}
             data-testid="logout-cancel-button"
           >
@@ -220,8 +221,8 @@
         </li>
         <li>
           <button
-            class="fr-btn submit-button"
             type="button"
+            class="fr-btn submit-button"
             onclick={userStore.logout}
             data-testid="logout-submit-button"
           >

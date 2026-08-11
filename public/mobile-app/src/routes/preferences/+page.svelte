@@ -43,15 +43,19 @@
         <div id="fr-sidemenu-wrapper">
           <ul class="fr-sidemenu__list">
             <li class="fr-sidemenu__item">
-              <a class="fr-sidemenu__link" href="/#/preferences/notifications"
-                ><span class="label">Notifications</span>
+              <button
+                type="button"
+                class="fr-sidemenu__link"
+                onclick={()=>goto("/#/preferences/notifications")}
+              >
+                <span class="label">Notifications</span>
                 <span aria-hidden="true" class="icon fr-icon-arrow-right-s-line"></span>
-              </a>
+              </button>
             </li>
             <li class="fr-sidemenu__item">
               <button
-                class="fr-sidemenu__link"
                 type="button"
+                class="fr-sidemenu__link"
                 onclick={openZonePreferencesModal}
               >
                 <span class="label">Zones scolaires</span>
@@ -82,7 +86,7 @@
         .fr-sidemenu__link {
           padding: 1.5rem 0;
           font-weight: 500;
-          color: #000;
+          color: var(--text-default-grey);
           --hover-tint: none;
           --active-tint: none;
           justify-content: space-between;

@@ -64,22 +64,24 @@
       class="fr-btns-group fr-btns-group--center fr-btns-group--equisized fr-btns-group--inline contact-links-wrapper"
     >
       <li>
-        <a
-          href="{contactUrl}"
+        <button
+          type="button"
+          onclick={()=>window.location.href = contactUrl}
           aria-label="Contacter notre équipe par tchap"
           class="fr-btn"
         >
           Par Tchap
-        </a>
+        </button>
       </li>
       <li>
-        <a
-          href="mailto:{contactEmail}?body=Mon code d'identification : {userFcHash}"
+        <button
+          type="button"
+          onclick={()=> window.location.href = `mailto:${contactEmail}?body=Mon code d'identification : ${userFcHash}`}
           aria-label="Contacter notre équipe par e-mail"
           class="fr-btn"
         >
           Par E-mail
-        </a>
+        </button>
       </li>
     </ul>
   </div>

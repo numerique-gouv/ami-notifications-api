@@ -86,7 +86,7 @@
 
 {#if !userStore.connected}
   <div class="homepage">
-    <div class="homepage-not-connected">
+    <div class="fr-px-2w fr-py-3w homepage-not-connected">
       {#if error}
         <div class="fr-notice fr-notice--alert">
           <div class="fr-container">
@@ -98,9 +98,9 @@
                 {/if}
               </p>
               <button
+                type="button"
                 onclick="{dismissError}"
                 title="Masquer le message"
-                type="button"
                 class="fr-btn--close fr-btn"
               >
                 Masquer le message
@@ -110,12 +110,12 @@
         </div>
       {/if}
       <div class="france-connect-wrapper">
-        <div class="france-connect-svg-icon">
+        <div class="fr-mb-4w france-connect-svg-icon">
           <img src="{applicationSvg}" alt="">
         </div>
 
         <div class="france-connect-text">
-          <h1 class="fr-h4 france-connect-title">Me connecter à AMI</h1>
+          <h1 class="fr-h4 fr-mb-1w france-connect-title">Me connecter à AMI</h1>
           <p class="fr-text--sm">
             <strong>FranceConnect</strong> est la solution proposée par l’État pour
             <strong>sécuriser</strong> et <strong>simplifier</strong> la connexion à vos
@@ -125,8 +125,8 @@
 
         <div class="fr-connect-group">
           <button
-            class="fr-connect"
             type="button"
+            class="fr-connect"
             id="fr-connect-button"
             onclick={franceConnectLogin}
           >
@@ -134,13 +134,13 @@
             <span class="fr-connect__brand">FranceConnect</span>
           </button>
           <p>
-            <a
-              href="https://franceconnect.gouv.fr/"
-              target="_blank"
-              rel="noopener"
-              title="Qu’est-ce que FranceConnect ? - nouvelle fenêtre"
-              >Qu’est-ce que FranceConnect&nbsp;?</a
+            <button
+              onclick={()=> window.open("https://franceconnect.gouv.fr/", "_blank")}
+              aria-label="Qu’est-ce que FranceConnect ? - nouvelle fenêtre"
+              class="fr-link fr-text--sm am-link-bordered"
             >
+              Qu’est-ce que FranceConnect&nbsp;?
+            </button>
           </p>
         </div>
       </div>
@@ -148,6 +148,7 @@
       <div class="connection-help-wrapper">
         <button
           id="connection-help-button"
+          class="fr-link fr-px-4w fr-py-3v"
           onclick={onConnectionHelpOpen}
           data-testid="connection-help-button"
         >
@@ -158,24 +159,30 @@
       {#if connectionHelpModal}
         <BottomModal onClose={closeConnectionHelpModal}>
           {#snippet header()}
-            <ul class="connection-help-links">
-              <li>
-                <a
-                  class="fr-icon-edit-fill"
-                  href="{contactUrl}"
-                  data-testid="connection-help-link-url"
-                  >Faire une demande en ligne</a
-                >
-              </li>
-              <li>
-                <a
-                  class="fr-icon-mail-fill"
-                  href="mailto:{contactEmail}"
-                  data-testid="connection-help-link-email"
-                  >Envoyer un mail</a
-                >
-              </li>
-            </ul>
+            <div class="fr-sidemenu">
+              <ul class="fr-sidemenu__list connection-help-links">
+                <li>
+                  <button
+                    type="button"
+                    class="fr-sidemenu__link fr-text--regular fr-icon-edit-fill"
+                    onclick={()=> goto(contactUrl)}
+                    data-testid="connection-help-link-url"
+                  >
+                    Faire une demande en ligne
+                  </button>
+                </li>
+                <li>
+                  <button
+                    type="button"
+                    class="fr-sidemenu__link fr-text--regular fr-icon-mail-fill"
+                    onclick={()=> window.location.href="mailto:"+contactEmail}
+                    data-testid="connection-help-link-email"
+                  >
+                    Envoyer un mail
+                  </button>
+                </li>
+              </ul>
+            </div>
           {/snippet}
           {#snippet footer()}
           {/snippet}
@@ -193,12 +200,12 @@
     display: flex;
     flex-direction: column;
     height: 100vh;
+    text-align: center;
 
     .homepage-not-connected {
       display: flex;
       flex-direction: column;
       position: relative;
-      margin: 24px 16px;
       height: 100vh;
 
       .france-connect-wrapper {
@@ -208,56 +215,38 @@
         align-items: center;
         justify-content: center;
 
-        .france-connect-svg-icon {
-          text-align: center;
-          margin-bottom: 2rem;
-          img {
-            height: 100px;
-            width: 100px;
-          }
+        .france-connect-svg-icon img {
+          height: 6.25rem;
+          width: 6.25rem;
         }
 
-        .fr-connect-group {
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          text-align: center;
-        }
-        .france-connect-title {
-          text-align: center;
-          margin-bottom: 8px;
+        .france-connect-text p {
+          text-align: left;
         }
       }
 
       .connection-help-wrapper {
-        text-align: center;
-        margin-bottom: 0.5rem;
         #connection-help-button {
-          padding: 0.75rem 2rem;
-          color: var(--text-action-high-blue-france);
           text-decoration: underline;
-          text-underline-offset: 0.75ex;
+          text-underline-offset: 0.5rem;
           &:hover {
             background: inherit;
             text-decoration-thickness: 2px;
           }
         }
       }
-      .connection-help-links {
-        margin: 0;
-        padding: 0 0.25em;
-        list-style: none;
-        display: flex;
-        flex-direction: column;
-        a {
-          padding: 0.5rem 0;
-          display: block;
-          background: none;
-          &::before {
+      ul.connection-help-links {
+        button {
+          color: var(--text-default-grey);
+          &:before {
             margin-right: 0.5rem;
             color: var(--text-action-high-blue-france);
           }
         }
+      }
+
+      .fr-sidemenu {
+        box-shadow: none;
       }
     }
   }
