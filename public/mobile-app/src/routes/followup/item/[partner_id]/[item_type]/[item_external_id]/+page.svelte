@@ -50,7 +50,7 @@
     </p>
     <p class="fr-text--sm demarche--item-external-id">
       <span class="am-text-mention-grey">référence dossier :</span>
-      {item.item_external_id}
+      {item.reference}
     </p>
 
     <button
