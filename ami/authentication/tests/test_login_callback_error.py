@@ -34,7 +34,7 @@ def test_login_callback_token_query_failure(
     redirected_url = response.headers["location"]
     assert (
         redirected_url
-        == "https://localhost:5173/?error=Erreur+lors+de+la+FranceConnexion%2C+veuillez+r%C3%A9essayer+plus+tard.&error_type=FranceConnect"
+        == "https://localhost:5173/?error=Erreur+lors+de+la+FranceConnexion%2C+veuillez+r%C3%A9essayer+plus+tard.&error_type=FranceConnect#/login"
     )
 
 
@@ -83,7 +83,7 @@ def test_login_callback_userinfo_query_failure(
     redirected_url = response.headers["location"]
     assert (
         redirected_url
-        == "https://localhost:5173/?error=Erreur+lors+de+la+FranceConnexion%2C+veuillez+r%C3%A9essayer+plus+tard.&error_type=FranceConnect"
+        == "https://localhost:5173/?error=Erreur+lors+de+la+FranceConnexion%2C+veuillez+r%C3%A9essayer+plus+tard.&error_type=FranceConnect#/login"
     )
 
 
@@ -142,6 +142,7 @@ def test_login_callback_address_query_failure_500(
     assert response.status_code == 302
     redirected_url = response.headers["location"]
     assert redirected_url.startswith("https://localhost:5173")
+    assert not redirected_url.endswith("#/login")
     assert url_contains_param(
         "user_data",
         "fake userinfo jwt token",
@@ -221,6 +222,7 @@ def test_login_callback_address_query_failure_400(
     assert response.status_code == 302
     redirected_url = response.headers["location"]
     assert redirected_url.startswith("https://localhost:5173")
+    assert not redirected_url.endswith("#/login")
     assert url_contains_param(
         "user_data",
         "fake userinfo jwt token",
@@ -253,6 +255,7 @@ def test_login_callback_fc_error(
 
     assert response.status_code == 302
     redirected_url = response.headers["location"]
+    assert redirected_url.endswith("#/login")
     assert url_contains_param("error_type", "FranceConnect", redirected_url)
     assert url_contains_param("error", "access_denied", redirected_url)
     assert url_contains_param("error_description", "User auth aborted", redirected_url)

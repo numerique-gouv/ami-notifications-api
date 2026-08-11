@@ -337,6 +337,7 @@ def test_login_callback_bad_state(
     response = app.get("/login-callback?code=fake-code&state=")
     assert response.status_code == 302
     redirected_url = response.headers["location"]
+    assert redirected_url.endswith("#/login")
     assert url_contains_param("error_type", "FranceConnect", redirected_url)
     assert url_contains_param(
         "error", "Erreur lors de la FranceConnexion, veuillez réessayer plus tard.", redirected_url
@@ -346,6 +347,7 @@ def test_login_callback_bad_state(
     response = app.get("/login-callback?code=fake-code&state=some-other-state")
     assert response.status_code == 302
     redirected_url = response.headers["location"]
+    assert redirected_url.endswith("#/login")
     assert url_contains_param("error_type", "FranceConnect", redirected_url)
     assert url_contains_param(
         "error", "Erreur lors de la FranceConnexion, veuillez réessayer plus tard.", redirected_url
@@ -355,6 +357,7 @@ def test_login_callback_bad_state(
     response = app.get("/login-callback?code=fake-code&state={uuid.uuid4()}")
     assert response.status_code == 302
     redirected_url = response.headers["location"]
+    assert redirected_url.endswith("#/login")
     assert url_contains_param("error_type", "FranceConnect", redirected_url)
     assert url_contains_param(
         "error", "Erreur lors de la FranceConnexion, veuillez réessayer plus tard.", redirected_url
@@ -387,6 +390,7 @@ def test_login_callback_bad_id_token(
 
     assert response.status_code == 302
     redirected_url = response.headers["location"]
+    assert redirected_url.endswith("#/login")
     assert url_contains_param("error_type", "FranceConnect", redirected_url)
     assert url_contains_param(
         "error", "Erreur lors de la FranceConnexion, veuillez réessayer plus tard.", redirected_url
@@ -429,6 +433,7 @@ def test_login_callback_bad_nonce(
 
     assert response.status_code == 302
     redirected_url = response.headers["location"]
+    assert redirected_url.endswith("#/login")
     assert url_contains_param("error_type", "FranceConnect", redirected_url)
     assert url_contains_param(
         "error", "Erreur lors de la FranceConnexion, veuillez réessayer plus tard.", redirected_url
@@ -443,6 +448,7 @@ def test_login_callback_bad_nonce(
 
     assert response.status_code == 302
     redirected_url = response.headers["location"]
+    assert redirected_url.endswith("#/login")
     assert url_contains_param("error_type", "FranceConnect", redirected_url)
     assert url_contains_param(
         "error", "Erreur lors de la FranceConnexion, veuillez réessayer plus tard.", redirected_url
@@ -482,6 +488,7 @@ def test_login_callback_bad_token_info(
 
     response = app.get(f"/login-callback?code=fake-code&state={nonce.id}")
     redirected_url = response.headers["location"]
+    assert redirected_url.endswith("#/login")
     assert url_contains_param("error_type", "FranceConnect", redirected_url)
     assert url_contains_param(
         "error", "Erreur lors de la FranceConnexion, veuillez réessayer plus tard.", redirected_url
@@ -505,6 +512,7 @@ def test_login_callback_bad_token_info(
 
     response = app.get(f"/login-callback?code=fake-code&state={nonce.id}")
     redirected_url = response.headers["location"]
+    assert redirected_url.endswith("#/login")
     assert url_contains_param("error_type", "FranceConnect", redirected_url)
     assert url_contains_param(
         "error", "Erreur lors de la FranceConnexion, veuillez réessayer plus tard.", redirected_url
