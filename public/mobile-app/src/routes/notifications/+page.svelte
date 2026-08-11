@@ -51,8 +51,8 @@
 <NavWithBackButton title="Notifications" {backUrl}>
   <div class="settings-svg-icon">
     <button
-      class="fr-btn fr-icon-settings-3-line fr-btn--icon-left fr-btn--tertiary"
       type="button"
+      class="fr-btn fr-icon-settings-3-line fr-btn--icon-left fr-btn--tertiary"
       onclick="{goToSettings}"
       data-testid="settings-button"
       aria-label="Gérer les notifications"
@@ -65,10 +65,10 @@
 <div class="notifications-content-container fr-pt-14w">
   {#each notifications as notification}
     <div
-      class="fr-tile fr-tile-sm fr-tile--horizontal fr-enlarge-link notification {notification.read ? 'read': ''}"
+      class="fr-tile fr-tile--sm fr-tile--horizontal fr-enlarge-button fr-p-3v notification {notification.read ? 'read': ''}"
       data-testid="notification-{notification.id}"
     >
-      <div class="fr-tile__header">
+      <div class="fr-tile__header fr-mr-3v">
         <span
           class="notification__status {notification.read ? 'read': ''}"
           aria-hidden="true"
@@ -80,21 +80,23 @@
         />
       </div>
       <div class="fr-tile__body">
-        <div class="fr-tile__content">
+        <div class="fr-tile__content fr-pb-0">
           <div class="notification__title">
-            <h3 class="fr-tile__title">
-              <a
-                href="/"
+            <h3 class="fr-tile__title fr-mb-0">
+              <button
+                type="button"
+                class="fr-text--sm"
                 onclick={(event) => clickOnNotification(event, notification.id, notification.url)}
                 data-testid="notification-link-{notification.id}"
-                >{notification.content_title}</a
               >
+                {notification.content_title}
+              </button>
             </h3>
-            <span class="notification__age">
+            <span class="notification__age fr-text--xs">
               {prettyDate(notification.created_at)}
             </span>
           </div>
-          <p class="fr-tile__desc">{notification.content_body}</p>
+          <p class="fr-tile__desc fr-text--xs">{notification.content_body}</p>
         </div>
       </div>
     </div>
@@ -104,26 +106,23 @@
 <style>
   .notifications-content-container {
     .notification {
-      background: none;
+      background-color: var(--background-contrast-blue-france);
       border-bottom: 1px solid var(--background-alt-grey-active);
-      padding: 0.75rem;
-      &:not(.read) {
-        background-color: var(--background-contrast-blue-france);
+      &.read {
+        background: none;
+        .notification__status i {
+          display: none;
+        }
       }
       .fr-tile__header {
         display: flex;
-        margin-right: 0.75rem;
         .notification__status {
           width: 1rem;
           font-size: 22px;
           color: var(--red-marianne-main-472);
-          &.read i {
-            display: none;
-          }
         }
       }
       .fr-tile__content {
-        padding-bottom: 0;
         .notification__title {
           display: flex;
           align-items: center;
@@ -131,33 +130,25 @@
           .fr-tile__title {
             order: 1;
             width: 100%;
-            margin-bottom: 0;
             &::before {
               background: none;
             }
-            a {
-              font-size: 14px;
-              color: var(--text-black-white-grey);
+            button {
+              color: var(--text-title-grey);
               &::before {
                 background: none;
               }
               &::after {
-                width: 0;
+                display: none;
               }
             }
           }
           .notification__age {
             order: 2;
-            font-size: 0.75rem;
             color: var(--text-mention-grey);
             width: 2rem;
             text-align: right;
           }
-        }
-        .fr-tile__desc {
-          font-size: 12px;
-          line-height: 1.25rem;
-          color: var(--text-black-white-grey);
         }
       }
     }

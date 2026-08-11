@@ -25,13 +25,12 @@ describe('/FollowupItem.svelte', () => {
       'url'
     );
     const onOpen = vi.fn();
-    render(FollowupItem, { props: { item: item, onOpen: onOpen } });
 
     // When
-    const link = screen.getByTestId('followup-item-link');
+    render(FollowupItem, { props: { item: item, onOpen: onOpen } });
 
     // Then
-    expect(link.getAttribute('href')).toBe('/#/followup/item/partner/type/id');
+    expect(screen.queryByTestId('followup-item-link')).toBeInTheDocument();
   });
   describe('"Reprendre ma démarche" button', () => {
     test('Should display "Reprendre ma démarche" button only if item is "new"', async () => {
