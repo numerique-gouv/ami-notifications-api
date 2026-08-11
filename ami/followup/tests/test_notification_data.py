@@ -555,6 +555,68 @@ def test_get_notifications_data_parent_and_sub_items(
 
 
 @pytest.mark.django_db
+def test_get_notifications_data_parent_fields_do_not_match(
+    user: User, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    Notification.objects.create(
+        user_id=user.id,
+        content_body="notification",
+        content_title="Notification title",
+        item_generic_status="wip",
+        item_status_label="En cours",
+        item_type="OperationTranquilliteVacances",
+        item_id="42",
+        partner_id="psl",
+    )
+    Notification.objects.create(
+        user_id=user.id,
+        content_body="Sub notification body 1",
+        content_title="Sub notification title 1",
+        item_generic_status="new",
+        item_status_label="Nouveau",
+        item_type="SousDémarche",
+        item_id="35",
+        partner_id="dinum-ami",
+        item_parent_partner_id="wrong",  # wrong partner_id
+        item_parent_type="OperationTranquilliteVacances",
+        item_parent_id="42",
+    )
+    Notification.objects.create(
+        user_id=user.id,
+        content_body="Sub notification body 2",
+        content_title="Sub notification title 2",
+        item_generic_status="wip",
+        item_status_label="En cours",
+        item_type="SousDémarche",
+        item_id="35",
+        partner_id="dinum-ami",
+        item_parent_partner_id="psl",
+        item_parent_type="Wrong",  # wrong item_type
+        item_parent_id="42",
+    )
+    Notification.objects.create(
+        user_id=user.id,
+        content_body="Sub notification body 3",
+        content_title="Sub notification title 3",
+        content_subheading="Autre service",
+        item_generic_status="new",
+        item_status_label="Nouveau",
+        item_type="SousDémarcheBis",
+        item_id="104",
+        partner_id="dinum-ami",
+        item_parent_partner_id="psl",
+        item_parent_type="OperationTranquilliteVacances",
+        item_parent_id="wrong",  # wrong id
+    )
+
+    result = get_notifications_data(current_user=user)
+
+    assert len(result) == 4
+    for item in result:
+        assert len(item.sub_items) == 0
+
+
+@pytest.mark.django_db
 def test_get_notifications_data_unknown_parent(user: User, monkeypatch: pytest.MonkeyPatch) -> None:
     sub_notification1 = Notification.objects.create(
         user_id=user.id,
@@ -737,6 +799,96 @@ def test_get_notifications_data_unknown_parent(user: User, monkeypatch: pytest.M
                     updated_at=sub_notification1.event_date,
                 ),
             ],
+        )
+    ]
+
+
+@pytest.mark.django_db
+def test_get_notifications_data_unknown_parent_but_only_one_sub_item(
+    user: User, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    sub_notification = Notification.objects.create(
+        user_id=user.id,
+        content_body="Sub notification body",
+        content_title="Sub notification title",
+        item_generic_status="new",
+        item_status_label="Nouveau",
+        item_type="SousDémarche",
+        item_id="35",
+        partner_id="dinum-ami",
+        item_parent_partner_id="psl",
+        item_parent_type="OperationTranquilliteVacances",
+        item_parent_id="42",
+    )
+
+    result = get_notifications_data(current_user=user)
+
+    assert result == [
+        FollowupItem(
+            partner_id="dinum-ami",
+            item_type="SousDémarche",
+            item_external_id="35",
+            status_id=ItemGenericStatus.NEW,
+            status_label="Nouveau",
+            milestone_start_date=None,
+            milestone_end_date=None,
+            events=[
+                FollowupItemEvent(
+                    id=sub_notification.id,
+                    created_at=sub_notification.created_at,
+                    description="Sub notification body",
+                )
+            ],
+            title="Sub notification title",
+            subheading="AMI",
+            description="Sub notification body",
+            icon="fr-icon-mail-fill",
+            external_url=None,
+            is_archived=False,
+            created_at=sub_notification.event_date,
+            updated_at=sub_notification.event_date,
+            sub_items=[],
+        )
+    ]
+
+    # same but a service exists for parent item
+    Service.objects.create(
+        partner_id="dinum-ami",
+        item_type="SousDémarche",
+        title="Sous-démarche",
+        short_description="Sous-démarche d'une autre démarche",
+        description="Sous-démarche d'une autre démarche d'un autre service.",
+        url="https://localhost:8000/",
+        with_silent_login=True,
+    )
+
+    result = get_notifications_data(current_user=user)
+
+    assert result == [
+        FollowupItem(
+            partner_id="dinum-ami",
+            item_type="SousDémarche",
+            item_external_id="35",
+            status_id=ItemGenericStatus.NEW,
+            status_label="Nouveau",
+            milestone_start_date=None,
+            milestone_end_date=None,
+            events=[
+                FollowupItemEvent(
+                    id=sub_notification.id,
+                    created_at=sub_notification.created_at,
+                    description="Sub notification body",
+                )
+            ],
+            title="Sous-démarche",
+            subheading="AMI",
+            description="Sub notification body",
+            icon="fr-icon-mail-fill",
+            external_url=None,
+            is_archived=False,
+            created_at=sub_notification.event_date,
+            updated_at=sub_notification.event_date,
+            sub_items=[],
         )
     ]
 
