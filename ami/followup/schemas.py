@@ -314,6 +314,12 @@ class NotificationsFollowup:
                     # item is child and parent ...
                     self.items[item_id].notifications += sub_item.notifications
 
+        # special case: no notifications for parent and only one sub_item: transform sub_item into item
+        for item in self.items.values():
+            if not item.notifications and len(item.sub_items.values()) == 1:
+                item.notifications = list(item.sub_items.values())[0].notifications
+                item.sub_items = {}
+
         # sort notifications
         for item in self.items.values():
             item.notifications = sorted(
