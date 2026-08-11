@@ -10,6 +10,7 @@ export type APIFollowupItem = {
   partner_id: string;
   item_type: string;
   item_external_id: string;
+  reference: string;
   status_id: string;
   status_label: string;
   milestone_start_date: Date | null;

@@ -37,6 +37,7 @@ export class FollowupItem {
     private _partner_id: string,
     private _item_type: string,
     private _item_external_id: string,
+    private _reference: string,
     private _source: string,
     private _events: FollowupItemEvent[],
 
@@ -75,6 +76,10 @@ export class FollowupItem {
 
   get item_external_id(): string {
     return this._item_external_id;
+  }
+
+  get reference(): string {
+    return this._reference;
   }
 
   get source(): string {
@@ -179,6 +184,7 @@ export class Followup {
       item.partner_id,
       item.item_type,
       item.item_external_id,
+      item.reference,
       'notifications',
       events,
       item.title,
