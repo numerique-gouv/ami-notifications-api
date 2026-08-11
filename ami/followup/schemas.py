@@ -33,6 +33,7 @@ class FollowupSubItem:
     partner_id: str
     item_type: str
     item_external_id: str
+    reference: str
     status_id: ItemGenericStatus
     status_label: str
     milestone_start_date: datetime.datetime | None
@@ -103,6 +104,11 @@ class NotificationsSubItem:
         return self.last_notification.item_id
 
     @property
+    def reference(self):
+        # sub item has no reference
+        return ""
+
+    @property
     def status_id(self):
         # adapt status (typing)
         return ItemGenericStatus(self.last_notification.item_generic_status)
@@ -133,17 +139,12 @@ class NotificationsSubItem:
 
     @property
     def title(self):
-        if self.service is not None:
-            # take service name if exists
-            return self.service.title
-        return self.last_notification.content_title
+        # get sub item title from subheading and item_id
+        return self.last_notification.content_subheading or self.last_notification.item_id
 
     @property
-    def subheading(self):
-        if self.last_notification.content_subheading:
-            return self.last_notification.content_subheading
-        if self.partner:
-            return self.partner.name
+    def subheading(self) -> str:
+        # sub item has no subheading
         return ""
 
     @property
@@ -159,9 +160,8 @@ class NotificationsSubItem:
 
     @property
     def external_url(self):
-        # last external_url seen
-        external_urls = [n.content_link for n in self.notifications if n.content_link]
-        return external_urls[-1] if external_urls else None
+        # sub item has no external_url
+        return None
 
     @property
     def is_archived(self):
@@ -184,6 +184,7 @@ class NotificationsSubItem:
             "partner_id": self.partner_id,
             "item_type": self.item_type,
             "item_external_id": self.item_external_id,
+            "reference": self.reference,
             "status_id": self.status_id,
             "status_label": self.status_label,
             "milestone_start_date": self.milestone_start_date,
@@ -281,13 +282,34 @@ class NotificationsItem(NotificationsSubItem):
         return self.last_notification.item_id
 
     @property
+    def reference(self):
+        return self.item_external_id
+
+    @property
+    def title(self):
+        if self.service is not None:
+            # take service name if exists
+            return self.service.title
+        return self.last_notification.content_title
+
+    @property
     def subheading(self):
         if not self.notifications and self.sub_items:
             # take partner name if found, else item_parent_type
             if self.partner:
                 return self.partner.name
             return self.item_type
-        return super().subheading
+        if self.last_notification.content_subheading:
+            return self.last_notification.content_subheading
+        if self.partner:
+            return self.partner.name
+        return ""
+
+    @property
+    def external_url(self):
+        # last external_url seen
+        external_urls = [n.content_link for n in self.notifications if n.content_link]
+        return external_urls[-1] if external_urls else None
 
 
 @dataclass
