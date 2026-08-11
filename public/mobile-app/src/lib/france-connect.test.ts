@@ -17,7 +17,7 @@ describe('/france-connect', () => {
   });
 
   describe('franceConnectLogout', () => {
-    test('should call logout endpoint with home as return url', async () => {
+    test('should call logout endpoint with login page as return url', async () => {
       // Given
       vi.mocked(envModule).PUBLIC_FC_PROXY_BASE_URL = 'https://fake-fc-proxy';
       vi.stubGlobal('location', { href: 'http://example.com' });
@@ -27,7 +27,7 @@ describe('/france-connect', () => {
 
       // Then
       expect(window.location.href).toBe(
-        'https://fcp-low.sbx.dev-franceconnect.fr/api/v2/session/end?id_token_hint=fake-id-token&state=https%253A%252F%252Flocalhost%253A5173%252F%253Fis_logged_out&post_logout_redirect_uri=https%3A%2F%2Ffake-fc-proxy%2F'
+        'https://fcp-low.sbx.dev-franceconnect.fr/api/v2/session/end?id_token_hint=fake-id-token&state=https%253A%252F%252Flocalhost%253A5173%252F%253Fis_logged_out%2523%252Flogin&post_logout_redirect_uri=https%3A%2F%2Ffake-fc-proxy%2F'
       );
     });
     test('should call logout endpoint with another return url', async () => {

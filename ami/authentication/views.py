@@ -36,7 +36,7 @@ def retry_fc_later(error_dict: dict | None = None):
         "error_type": "FranceConnect",
         **error_dict,
     }
-    return redirect(f"{settings.PUBLIC_APP_URL}/?{urlencode(params)}")
+    return redirect(f"{settings.PUBLIC_APP_URL}/?{urlencode(params)}#/login")
 
 
 def login(request, login_type):
