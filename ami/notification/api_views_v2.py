@@ -4,6 +4,7 @@ from functools import partial
 from typing import cast
 
 from django.db import transaction
+from django.utils.timezone import now
 from drf_spectacular.utils import extend_schema
 from rest_framework import serializers
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
@@ -12,7 +13,7 @@ from rest_framework.response import Response
 
 from ami.notification.tasks import push_notification
 from ami.partner.auth import IsPartnerAuthenticated, PartnerBasicAuthentication
-from ami.user.models import User
+from ami.user.models import Consent, User
 from ami.utils import sentry
 
 from .models import Notification
@@ -30,6 +31,9 @@ def _partner_create_event(request: Request, data: dict):
         "IGNORE_NOTIFICATION_REQUESTS_FOR_UNREGISTERED_USER", "False"
     ).lower() in ("true", "1", "t")
 
+    if current_partner.consent_is_enabled:
+        ignore_unknown_user = False
+
     try:
         user = User.objects.get(fc_hash=data["recipient_fc_hash"])
     except User.DoesNotExist:
@@ -46,6 +50,14 @@ def _partner_create_event(request: Request, data: dict):
             logger.info("User never seen")
             return Response({"error": "User never seen"}, status=404)
         notification_send_status = user.last_logged_in is not None
+
+    if current_partner.consent_is_enabled:
+        consent, created = Consent.objects.get_or_create(
+            user=user, partner_id=current_partner.id, defaults={"consent_datetime": now()}
+        )
+        if not created and consent.consent_datetime is None:
+            consent.consent_datetime = now()
+            consent.save()
 
     try_push = True
     if not data["try_push"] or user.last_logged_in is None:
