@@ -9,6 +9,7 @@ import { Address } from '$lib/address';
 import { callBAN } from '$lib/addressesFromBAN';
 import type { APIAgendaItem } from '$lib/api-agenda';
 import * as auth from '$lib/auth';
+import { buildConsents, type Consents } from '$lib/consents';
 import { franceConnectLogout, parseJwt } from '$lib/france-connect';
 import { emit } from '$lib/nativeEvents';
 import { disableNotifications } from '$lib/notifications';
@@ -75,6 +76,8 @@ export class UserStore {
   private async buildConnectedAttribute(userinfo: UserInfo): Promise<User> {
     this.connected = new User(userinfo);
     await this.connected.updateIdentity();
+    await this.connected.updateConsents();
+    console.log('COUCOU', this.connected);
     return this.connected;
   }
 
@@ -121,6 +124,7 @@ export class UserStore {
 export class User {
   private _pivot: UserInfo = $state() as UserInfo;
   private _identity: UserIdentity = $state() as UserIdentity;
+  private _consents: Consents = $state() as Consents;
 
   constructor(userinfo: UserInfo) {
     this._pivot = userinfo;
@@ -163,6 +167,10 @@ export class User {
 
   get identity() {
     return this._identity;
+  }
+
+  get consents() {
+    return this._consents;
   }
 
   setPreferredUsername(preferred_username: string, origin?: DataOrigin) {
@@ -310,6 +318,27 @@ export class User {
     }
     if (!this._identity.preferences) {
       this.setPreferences(Preferences.getDefault(this._identity.address));
+    }
+  }
+
+  async updateConsents() {
+    this._consents = await buildConsents();
+  }
+
+  getConsentsItems() {
+    console.log(this._consents);
+    if (this._consents?.items) {
+      return this._consents.items;
+    } else {
+      return [];
+    }
+  }
+
+  hasConsented() {
+    if (this._consents?.items) {
+      return this._consents.items.length > 0;
+    } else {
+      return false;
     }
   }
 

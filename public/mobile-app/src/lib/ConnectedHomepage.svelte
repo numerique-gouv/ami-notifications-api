@@ -28,6 +28,7 @@
   let selectedAgendaItem: AgendaItemType | null = $state(null);
   let selectedFollowupItem: FollowupItemType | null = $state(null);
   let autoPromo: AutoPromo | null = $state(null);
+  const has_consented = userStore.connected?.hasConsented();
 
   onMount(async () => {
     console.log('User is connected:', userStore.connected);
@@ -75,6 +76,10 @@
 
   const openFollowupItemModal = (item: FollowupItemType) => {
     selectedFollowupItem = item;
+  };
+
+  const gotoConsents = () => {
+    goto('/#/consents');
   };
 </script>
 
@@ -156,40 +161,73 @@
     {/if}
   </div>
 
-  <div class="rubrique-container followup-container">
-    {#if isFollowupEmpty}
-      <div class="header-container fr-mb-1w">
-        <h2 class="fr-h6 fr-mb-0 am-text--smbold title">Mes démarches</h2>
-      </div>
-      <div class="rubrique-content-container">
-        <div class="no-followup rubrique-content-container--empty">
-          <div class="no-followup--icon">
-            <img src="/remixicons/tracking.svg" alt="">
-          </div>
-          <div class="no-followup--title">Retrouvez et suivez vos démarches ici.</div>
+  {#if has_consented}
+    <div class="rubrique-container followup-container">
+      {#if isFollowupEmpty}
+        <div class="header-container fr-mb-1w">
+          <h2 class="fr-h6 fr-mb-0 am-text--smbold title">Mes démarches</h2>
         </div>
-      </div>
-    {:else}
+        <div class="rubrique-content-container">
+          <div class="no-followup rubrique-content-container--empty">
+            <div class="no-followup--icon">
+              <img src="/remixicons/tracking.svg" alt="">
+            </div>
+            <div class="no-followup--title">Suivez vos démarches ici.</div>
+          </div>
+        </div>
+      {:else}
+        <div class="header-container fr-mb-1w">
+          <h2 class="fr-h6 fr-mb-0 am-text--smbold title">Mes démarches</h2>
+          <button
+            type="button"
+            class="fr-link fr-icon-arrow-right-line fr-link--icon-right am-link-icon-xl"
+            aria-label="Voir toutes mes démarches"
+            onclick={() => goto("/#/followup")}
+          ></button>
+        </div>
+        <div class="rubrique-content-container">
+          {#if followup && followup.items.length}
+            {@const firstItem = followup.items[0]}
+            <FollowupItem
+              item={firstItem}
+              onOpen={() => openFollowupItemModal(firstItem)}
+            />
+          {/if}
+        </div>
+      {/if}
+    </div>
+  {:else}
+    <div class="rubrique-container followup-container">
       <div class="header-container fr-mb-1w">
         <h2 class="fr-h6 fr-mb-0 am-text--smbold title">Mes démarches</h2>
         <button
           type="button"
-          class="fr-link fr-icon-arrow-right-line fr-link--icon-right am-link-icon-xl"
+          class="fr-link fr-icon-arrow-right-line fr-link--icon-right fr-text--sm am-link-bordered"
           aria-label="Voir toutes mes démarches"
           onclick={() => goto("/#/followup")}
-        ></button>
+        >
+          Voir tout
+        </button>
       </div>
       <div class="rubrique-content-container">
-        {#if followup && followup.items.length}
-          {@const firstItem = followup.items[0]}
-          <FollowupItem
-            item={firstItem}
-            onOpen={() => openFollowupItemModal(firstItem)}
-          />
-        {/if}
+        <div class="fr-pt-2v">
+          <p class="fr-mb-4v">
+            Suivez vos démarches administratives au même endroit&nbsp;!
+          </p>
+          <div class="consent-action-button">
+            <button
+              class="fr-btn fr-btn--lg"
+              type="button"
+              onclick={gotoConsents}
+              data-testid="consent-button"
+            >
+              Je veux suivre mes démarches
+            </button>
+          </div>
+        </div>
       </div>
-    {/if}
-  </div>
+    </div>
+  {/if}
 </div>
 
 {#if selectedAgendaItem}
@@ -257,6 +295,19 @@
         img {
           height: 5rem;
           width: 5rem;
+        }
+      }
+    }
+
+    .followup-container {
+      .consent-action-button {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        button {
+          display: flex;
+          justify-content: center;
+          width: 100%;
         }
       }
     }

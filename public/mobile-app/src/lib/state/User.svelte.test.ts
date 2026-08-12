@@ -136,7 +136,13 @@ describe('/lib/state/User.svelte.ts', () => {
 
         // Then
         // @ts-expect-error
-        expect(globalThis.fetchSpy).not.toHaveBeenCalled();
+        expect(globalThis.fetchSpy).toHaveBeenCalledTimes(1);
+        // @ts-expect-error
+        expect(globalThis.fetchSpy).toHaveBeenNthCalledWith(
+          1,
+          `/api/v1/users/consents`,
+          { credentials: 'include' }
+        );
       });
       test("should query the geo API to update the identity if it didn't have the birthplace and birthcountry", async () => {
         // Given
@@ -147,7 +153,7 @@ describe('/lib/state/User.svelte.ts', () => {
 
         // Then
         // @ts-expect-error
-        expect(globalThis.fetchSpy).toHaveBeenCalledTimes(2);
+        expect(globalThis.fetchSpy).toHaveBeenCalledTimes(3);
         // @ts-expect-error
         expect(globalThis.fetchSpy).toHaveBeenNthCalledWith(
           1,
@@ -485,7 +491,13 @@ describe('/lib/state/User.svelte.ts', () => {
 
         // Then
         // @ts-expect-error
-        expect(globalThis.fetchSpy).not.toHaveBeenCalled();
+        expect(globalThis.fetchSpy).toHaveBeenCalledTimes(1);
+        // @ts-expect-error
+        expect(globalThis.fetchSpy).toHaveBeenNthCalledWith(
+          1,
+          `/api/v1/users/consents`,
+          { credentials: 'include' }
+        );
         expect(userStore.connected?.identity?.address?.city).toEqual('Paris');
         expect(userStore.connected?.identity?.dataDetails.address.origin).toEqual(
           'user'
@@ -506,7 +518,13 @@ describe('/lib/state/User.svelte.ts', () => {
 
         // Then
         // @ts-expect-error
-        expect(globalThis.fetchSpy).not.toHaveBeenCalled();
+        expect(globalThis.fetchSpy).toHaveBeenCalledTimes(1);
+        // @ts-expect-error
+        expect(globalThis.fetchSpy).toHaveBeenNthCalledWith(
+          1,
+          `/api/v1/users/consents`,
+          { credentials: 'include' }
+        );
         expect(userStore.connected?.identity?.address?.city).toEqual('Paris');
         expect(userStore.connected?.identity?.dataDetails.address.origin).toEqual(
           'user'
@@ -527,7 +545,13 @@ describe('/lib/state/User.svelte.ts', () => {
 
         // Then
         // @ts-expect-error
-        expect(globalThis.fetchSpy).not.toHaveBeenCalled();
+        expect(globalThis.fetchSpy).toHaveBeenCalledTimes(1);
+        // @ts-expect-error
+        expect(globalThis.fetchSpy).toHaveBeenNthCalledWith(
+          1,
+          `/api/v1/users/consents`,
+          { credentials: 'include' }
+        );
         expect(userStore.connected?.identity?.address?.city).toEqual('Paris');
         expect(userStore.connected?.identity?.dataDetails.address.origin).toEqual(
           'user'
@@ -547,7 +571,13 @@ describe('/lib/state/User.svelte.ts', () => {
 
         // Then
         // @ts-expect-error
-        expect(globalThis.fetchSpy).not.toHaveBeenCalled();
+        expect(globalThis.fetchSpy).toHaveBeenCalledTimes(1);
+        // @ts-expect-error
+        expect(globalThis.fetchSpy).toHaveBeenNthCalledWith(
+          1,
+          `/api/v1/users/consents`,
+          { credentials: 'include' }
+        );
         expect(userStore.connected?.identity?.address?.city).toEqual('Paris');
         expect(userStore.connected?.identity?.dataDetails.address.origin).toEqual(
           'user'
