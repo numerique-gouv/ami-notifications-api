@@ -51,7 +51,9 @@ async def test_stream_notification_events_without_auth() -> None:
     assert not connected
     assert code == settings.CHANNEL_UNAUTHORIZED_CODE
 
-    token = jwt.encode({"sub": "bad-value"}, "wrong-secret", algorithm="HS256")
+    token = jwt.encode(
+        {"sub": "bad-value"}, "wrong-but-long-enough-to-avoid-warning-secret", algorithm="HS256"
+    )
     headers = [(b"cookie", f"{settings.AUTH_COOKIE_JWT_NAME}=Bearer {token}".encode())]
     communicator = WebsocketCommunicator(
         application, "api/v1/users/notification/events/stream", headers=headers
