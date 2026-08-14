@@ -6,7 +6,7 @@ export type APIFollowupItemEvent = {
   description: string;
 };
 
-export type APIFollowupItem = {
+export type APIFollowupSubItem = {
   partner_id: string;
   item_type: string;
   item_external_id: string;
@@ -26,6 +26,10 @@ export type APIFollowupItem = {
 
   created_at: Date;
   updated_at: Date;
+};
+
+export type APIFollowupItem = APIFollowupSubItem & {
+  sub_items: APIFollowupSubItem[];
 };
 
 export type APIFollowup = {
@@ -93,6 +97,22 @@ export const retrieveFollowup = async (
       item.milestone_end_date = item.milestone_end_date
         ? new Date(item.milestone_end_date)
         : null;
+      item.events.forEach((event) => {
+        event.created_at = new Date(event.created_at);
+      });
+      item.sub_items.forEach((sub_item) => {
+        sub_item.created_at = new Date(sub_item.created_at);
+        sub_item.updated_at = new Date(sub_item.updated_at);
+        sub_item.milestone_start_date = sub_item.milestone_start_date
+          ? new Date(sub_item.milestone_start_date)
+          : null;
+        sub_item.milestone_end_date = sub_item.milestone_end_date
+          ? new Date(sub_item.milestone_end_date)
+          : null;
+        sub_item.events.forEach((event) => {
+          event.created_at = new Date(event.created_at);
+        });
+      });
     });
   }
   return apiFollowup;
