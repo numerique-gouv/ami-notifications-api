@@ -87,7 +87,7 @@ describe('/followup.ts', () => {
         const date = item.formattedDate;
 
         // Then
-        expect(date).equal('le 3 janvier à 09H05');
+        expect(date).equal('03 janvier 2026 - 09:05');
       });
     });
     describe('itemDetailPageUrl', () => {
