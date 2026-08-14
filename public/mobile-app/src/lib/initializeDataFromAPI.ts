@@ -1,4 +1,4 @@
-import { buildAgenda } from '$lib/agenda';
+import { retrieveAgenda } from '$lib/api-agenda';
 import { retrieveNotifications } from '$lib/notifications';
 import type { UserStore } from '$lib/state/User.svelte';
 
@@ -38,17 +38,7 @@ export const initializeLocalStorage = (searchParams: URLSearchParams) => {
   }
 };
 
-let _resolveUserReady: () => void;
-export const userReady = new Promise<void>((resolve) => {
-  _resolveUserReady = resolve;
-});
-
-export const initializeData = async (
-  searchParams: URLSearchParams,
-  userStore: UserStore
-) => {
-  initializeLocalStorage(searchParams);
+export const initializeData = async (userStore: UserStore) => {
   await userStore.checkLoggedIn();
-  await Promise.all([buildAgenda(), retrieveNotifications()]);
-  _resolveUserReady();
+  await Promise.all([retrieveAgenda(), retrieveNotifications()]);
 };

@@ -1,12 +1,18 @@
 import { describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { waitFor } from '@testing-library/svelte';
-import * as agendaMethods from '$lib/agenda';
-import { Agenda } from '$lib/agenda';
+import type { APIAgenda } from '$lib/api-agenda';
+import * as apiAgendaMethods from '$lib/api-agenda';
 import { initializeData, initializeLocalStorage } from '$lib/initializeDataFromAPI';
 import type { AppNotification } from '$lib/notifications';
 import * as notificationsMethods from '$lib/notifications';
 import { UserStore } from '$lib/state/User.svelte';
+
+const apiAgendaData = {
+  school_holidays: [],
+  public_holidays: [],
+  elections: [],
+} as APIAgenda;
 
 const buildNotifications = (): AppNotification[] => {
   return [
@@ -73,24 +79,22 @@ describe('/initializeDataFromAPI.ts', () => {
   describe('initializeData', () => {
     test('should call dedicated methods to initialize data', async () => {
       // Given
-      const searchParams = new URLSearchParams({});
-
       const userStore = new UserStore();
       const checkLoggedInSpy = vi.spyOn(userStore, 'checkLoggedIn').mockResolvedValue();
-      const buildAgendaSpy = vi
-        .spyOn(agendaMethods, 'buildAgenda')
-        .mockResolvedValue(new Agenda());
+      const retrieveAgendaSpy = vi
+        .spyOn(apiAgendaMethods, 'retrieveAgenda')
+        .mockResolvedValue(apiAgendaData);
       const notifications: AppNotification[] = buildNotifications();
       const retrieveNotificationsSpy = vi
         .spyOn(notificationsMethods, 'retrieveNotifications')
         .mockResolvedValue(notifications);
 
       // When
-      await initializeData(searchParams, userStore);
+      await initializeData(userStore);
 
       // Then
       expect(checkLoggedInSpy).toHaveBeenCalledTimes(1);
-      expect(buildAgendaSpy).toHaveBeenCalledTimes(1);
+      expect(retrieveAgendaSpy).toHaveBeenCalledTimes(1);
       expect(retrieveNotificationsSpy).toHaveBeenCalledTimes(1);
     });
   });

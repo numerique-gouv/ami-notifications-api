@@ -35,16 +35,13 @@ describe('+layout.ts', () => {
       .mockResolvedValue();
 
     const { page } = await import('$app/state');
-    const mockSearchParams = new URLSearchParams();
-    mockSearchParams.set('is_logged_in', 'true');
-    vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
 
     // When
     // @ts-expect-error
     await load();
 
     // Then
-    expect(spy).toHaveBeenCalledWith(mockSearchParams, userStore);
+    expect(spy).toHaveBeenCalledWith(userStore);
   });
 
   test('should not call initializeData when user is not logged in', async () => {

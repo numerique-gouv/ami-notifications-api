@@ -41,14 +41,6 @@ describe('/ConnectedHomepage.svelte', () => {
       });
     });
 
-    vi.mock('$lib/initializeDataFromAPI', async (importOriginal) => {
-      const original = (await importOriginal()) as Record<string, unknown>;
-      return Promise.resolve({
-        ...original,
-        userReady: Promise.resolve(),
-      });
-    });
-
     vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(new Agenda());
     vi.spyOn(autoPromoMethods, 'buildAutoPromo').mockReturnValue(
       new AutoPromo(new Agenda())
