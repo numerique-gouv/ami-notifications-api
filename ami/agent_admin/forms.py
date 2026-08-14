@@ -59,6 +59,9 @@ class NotificationForm(AMIDsfrBaseForm):
         widget=forms.Textarea(attrs={"rows": 4}),
         required=False,
     )
+    content_subheading = forms.CharField(
+        required=False,
+    )
     content_icon = forms.CharField(
         required=False,
     )
