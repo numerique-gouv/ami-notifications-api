@@ -2,7 +2,7 @@ import { describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import * as navigationMethods from '$app/navigation';
-import { FollowupItem as Item } from '$lib/followup';
+import { FollowupItem as Item, FollowupSubItem as SubItem } from '$lib/followup';
 import FollowupItem from './FollowupItem.svelte';
 
 describe('/FollowupItem.svelte', () => {
@@ -33,6 +33,89 @@ describe('/FollowupItem.svelte', () => {
 
     // Then
     expect(screen.queryByTestId('followup-item-link')).toBeInTheDocument();
+  });
+  describe('Description', () => {
+    test('Should display item description if item has no sub items', async () => {
+      const item = new Item(
+        'partner',
+        'type',
+        'id1',
+        'ref1',
+        'notifications',
+        [],
+        'Opération Tranquillité Vacances',
+        'subheading',
+        'Votre demande est terminée.',
+        'icon',
+        new Date('2026-02-20T15:55:00.000Z'),
+        'new',
+        'Terminée',
+        false,
+        'link1',
+        []
+      );
+      const onOpen = vi.fn();
+
+      // When
+      render(FollowupItem, { props: { item: item, onOpen: onOpen } });
+
+      // Then
+      await waitFor(async () => {
+        expect(
+          screen.queryByTestId('followup-item-detail-partner:type:id1')
+        ).toHaveTextContent('Votre demande est terminée.');
+      });
+    });
+    test('Should display sub items progression if item has sub items', async () => {
+      // Given
+      const item = new Item(
+        'partner',
+        'type',
+        'id1',
+        'ref1',
+        'notifications',
+        [],
+        'Opération Tranquillité Vacances',
+        'subheading',
+        'Votre demande est en cours de traitement 1.',
+        'icon',
+        new Date('2026-02-22T15:55:00.000Z'),
+        'new',
+        'Nouveau',
+        true,
+        'link1',
+        [
+          new SubItem(
+            'partner',
+            'type',
+            'id1',
+            'ref1',
+            'notifications',
+            [],
+            'Opération Tranquillité Vacances',
+            'subheading',
+            'Votre demande est en cours de traitement 1.',
+            'icon',
+            new Date('2026-02-22T15:55:00.000Z'),
+            'new',
+            'Nouveau',
+            true,
+            'link1'
+          ),
+        ]
+      );
+      const onOpen = vi.fn();
+
+      // When
+      render(FollowupItem, { props: { item: item, onOpen: onOpen } });
+
+      // Then
+      await waitFor(async () => {
+        expect(
+          screen.queryByTestId('followup-item-detail-partner:type:id1')
+        ).toHaveTextContent('En cours par 1 service Terminé par 0 services');
+      });
+    });
   });
   describe('"Reprendre ma démarche" button', () => {
     test('Should display "Reprendre ma démarche" button only if item is "new"', async () => {
@@ -130,6 +213,56 @@ describe('/FollowupItem.svelte', () => {
         true,
         'link1',
         []
+      );
+      const onOpen = vi.fn();
+
+      // When
+      render(FollowupItem, { props: { item: item, onOpen: onOpen } });
+
+      // Then
+      await waitFor(async () => {
+        expect(
+          screen.queryByTestId('external-item-button-partner:type:id1')
+        ).toBeNull();
+      });
+    });
+    test('Should not display "Reprendre ma démarche" button if item has sub items', async () => {
+      // Given
+      const item = new Item(
+        'partner',
+        'type',
+        'id1',
+        'ref1',
+        'notifications',
+        [],
+        'Opération Tranquillité Vacances',
+        'subheading',
+        'Votre demande est en cours de traitement 1.',
+        'icon',
+        new Date('2026-02-22T15:55:00.000Z'),
+        'new',
+        'Nouveau',
+        true,
+        'link1',
+        [
+          new SubItem(
+            'partner',
+            'type',
+            'id1',
+            'ref1',
+            'notifications',
+            [],
+            'Opération Tranquillité Vacances',
+            'subheading',
+            'Votre demande est en cours de traitement 1.',
+            'icon',
+            new Date('2026-02-22T15:55:00.000Z'),
+            'new',
+            'Nouveau',
+            true,
+            'link1'
+          ),
+        ]
       );
       const onOpen = vi.fn();
 

@@ -3,6 +3,15 @@ import { archiveFollowupItem, retrieveFollowup } from '$lib/api-followup';
 
 export type Status = 'new' | 'wip' | 'closed';
 
+const formatDate = (date: Date): string => {
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = date.toLocaleString('fr-FR', { month: 'long' });
+  const year = date.getFullYear();
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  return `${day} ${month} ${year} - ${hours}:${minutes}`;
+};
+
 export class FollowupItemEvent {
   constructor(
     private _id: string,
@@ -23,12 +32,7 @@ export class FollowupItemEvent {
   }
 
   get formattedDate(): string {
-    const day = String(this.created_at.getDate()).padStart(2, '0');
-    const month = this.created_at.toLocaleString('fr-FR', { month: 'long' });
-    const year = this.created_at.getFullYear();
-    const hours = String(this.created_at.getHours()).padStart(2, '0');
-    const minutes = String(this.created_at.getMinutes()).padStart(2, '0');
-    return `${day} ${month} ${year} - ${hours}:${minutes}`;
+    return formatDate(this.created_at);
   }
 }
 
@@ -120,11 +124,7 @@ export class FollowupSubItem {
   }
 
   get formattedDate(): string {
-    const day = this.date.getDate();
-    const month = this.date.toLocaleString('fr-FR', { month: 'long' });
-    const hours = String(this.date.getHours()).padStart(2, '0');
-    const minutes = String(this.date.getMinutes()).padStart(2, '0');
-    return `le ${day} ${month} à ${hours}H${minutes}`;
+    return formatDate(this.date);
   }
 
   get itemDetailPageUrl(): string {
@@ -189,6 +189,14 @@ export class FollowupItem extends FollowupSubItem {
 
   get sub_items(): FollowupSubItem[] {
     return this._sub_items;
+  }
+
+  get wipSubItems(): FollowupSubItem[] {
+    return this.sub_items.filter((sub_item) => sub_item.status_id !== 'closed');
+  }
+
+  get closedSubItems(): FollowupSubItem[] {
+    return this.sub_items.filter((sub_item) => sub_item.status_id === 'closed');
   }
 }
 
