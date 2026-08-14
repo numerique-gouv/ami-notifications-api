@@ -262,6 +262,27 @@ def test_login_callback_fc_error(
     assert url_contains_param("code", "fc_error", redirected_url)
 
 
+def test_login_callback_fc_temporary_unavailable_error(
+    app,
+) -> None:
+    response = app.get(
+        "/login-callback?error=temporarily_unavailable&error_description=authentication aborted due to a technical error on the authorization server&state=...&iss=..."
+    )
+
+    assert response.status_code == 302
+    redirected_url = response.headers["location"]
+    assert redirected_url.endswith("#/login")
+    assert url_contains_param("error_type", "FranceConnect", redirected_url)
+    assert url_contains_param(
+        "error", "Erreur lors de la FranceConnexion, veuillez réessayer plus tard.", redirected_url
+    )
+    assert url_contains_param(
+        "error_description",
+        "La connexion a été interrompue à cause d’un problème technique sur le serveur d’autorisation.",
+        redirected_url,
+    )
+
+
 def test_login_callback_error(
     app,
     monkeypatch: pytest.MonkeyPatch,
