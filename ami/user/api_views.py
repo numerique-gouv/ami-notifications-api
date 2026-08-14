@@ -21,6 +21,7 @@ from .serializers import (
     ConsentPostResponseSerializer,
     ConsentPostSerializer,
     ConsentResponseSerializer,
+    ConsentSerializer,
     MobileAppSubscriptionSerializer,
     RegistrationCreateSerializer,
     RegistrationSerializer,
@@ -156,3 +157,10 @@ def consent(request: Request, fc_hash: str) -> Response:
         {"message": "Consent given" if data["consent"] else "Consent withdrawn"}
     )
     return Response(response_serializer.data)
+
+
+@api_view(["GET"])
+@ami_login_required
+def consents(request: Request) -> Response:
+    consents_qs: QuerySet[Consent] = request.ami_user.consent_set.all()
+    return Response(ConsentSerializer(consents_qs, many=True).data)

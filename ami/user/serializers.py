@@ -48,3 +48,9 @@ class ConsentPostSerializer(serializers.Serializer):
 
 class ConsentPostResponseSerializer(serializers.Serializer):
     message = serializers.ChoiceField(choices=["Consent given", "Consent withdrawn"])
+
+
+class ConsentSerializer(serializers.Serializer):
+    id = serializers.UUIDField()
+    partner_id = serializers.CharField()
+    consent_datetime = serializers.DateTimeField()
