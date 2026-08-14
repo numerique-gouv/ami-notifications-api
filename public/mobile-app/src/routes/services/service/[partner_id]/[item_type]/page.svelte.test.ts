@@ -23,7 +23,7 @@ describe('/+page.svelte', () => {
     // Then
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledWith('/');
+      expect(spy).toHaveBeenCalledWith('/#/login');
     });
   });
   test('redirect to services if service is not found', async () => {

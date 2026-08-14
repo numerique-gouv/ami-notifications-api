@@ -16,7 +16,7 @@
 
   onMount(async () => {
     if (!userStore.connected) {
-      goto('/');
+      goto('/#/login');
       return;
     }
 

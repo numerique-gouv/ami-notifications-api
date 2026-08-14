@@ -56,7 +56,7 @@
       return;
     }
     if (!userStore.connected) {
-      goto('/');
+      goto('/#/login');
     }
 
     getProcedureUrl();

@@ -5,7 +5,8 @@ import WS from 'vitest-websocket-mock';
 import * as navigationMethods from '$app/navigation';
 import * as notificationsMethods from '$lib/notifications';
 import { type AppNotification, PUBLIC_APP_WS_URL } from '$lib/notifications';
-import { expectBackButtonPresent } from '$tests/utils';
+import { userStore } from '$lib/state/User.svelte';
+import { expectBackButtonPresent, mockUserInfo } from '$tests/utils';
 import Page from './+page.svelte';
 
 let wss: WSType;
@@ -36,7 +37,7 @@ describe('/+page.svelte', () => {
     // Then
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledWith('/');
+      expect(spy).toHaveBeenCalledWith('/#/login');
     });
   });
 
@@ -50,6 +51,7 @@ describe('/+page.svelte', () => {
 
   test('should navigate to Settings when user clicks on Gérer button', async () => {
     // Given
+    await userStore.login(mockUserInfo);
     const spy = vi
       .spyOn(navigationMethods, 'goto')
       .mockImplementation(() => Promise.resolve());
@@ -61,9 +63,8 @@ describe('/+page.svelte', () => {
 
     // Then
     await waitFor(() => {
-      expect(spy).toHaveBeenCalledTimes(2);
-      expect(spy).toHaveBeenNthCalledWith(1, '/');
-      expect(spy).toHaveBeenNthCalledWith(2, '/#/preferences/notifications');
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith('/#/preferences/notifications');
     });
   });
 
