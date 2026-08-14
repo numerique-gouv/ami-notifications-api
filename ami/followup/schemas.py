@@ -255,3 +255,20 @@ class NotificationsFollowup:
         if item_id not in self.items[item_parent_id].sub_items:
             self.items[item_parent_id].sub_items[item_id] = NotificationsSubItem()
         self.items[item_parent_id].sub_items[item_id].notifications.append(notification)
+
+    def complete_notifications(self):
+        for item in self.items.values():
+            for item_id, sub_item in item.sub_items.items():
+                if item_id in self.items:
+                    # item is child and parent ...
+                    self.items[item_id].notifications += sub_item.notifications
+
+        # sort notifications
+        for item in self.items.values():
+            item.notifications = sorted(
+                item.notifications, key=lambda a: (a.event_date, a.created_at)
+            )
+            for sub_item in item.sub_items.values():
+                sub_item.notifications = sorted(
+                    sub_item.notifications, key=lambda a: (a.event_date, a.created_at)
+                )

@@ -555,6 +555,154 @@ def test_get_notifications_data_parent_and_sub_items(
 
 
 @pytest.mark.django_db
+def test_get_notifications_data_parent_and_sub_sub_items(
+    user: User, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    notification = Notification.objects.create(
+        user_id=user.id,
+        content_body="notification",
+        content_title="Notification title",
+        item_generic_status="wip",
+        item_status_label="En cours",
+        item_type="OperationTranquilliteVacances",
+        item_id="42",
+        partner_id="psl",
+    )
+    sub_notification = Notification.objects.create(
+        user_id=user.id,
+        content_body="Sub notification body",
+        content_title="Sub notification title",
+        item_generic_status="new",
+        item_status_label="Nouveau",
+        item_type="SousDémarche",
+        item_id="35",
+        partner_id="dinum-ami",
+        item_parent_partner_id="psl",
+        item_parent_type="OperationTranquilliteVacances",
+        item_parent_id="42",
+    )
+    sub_sub_notification = Notification.objects.create(
+        user_id=user.id,
+        content_body="Sub sub notification body",
+        content_title="Sub sub notification title",
+        item_generic_status="new",
+        item_status_label="Nouveau",
+        item_type="SousSousDémarche",
+        item_id="350",
+        partner_id="dinum-dn",
+        item_parent_partner_id="dinum-ami",
+        item_parent_type="SousDémarche",
+        item_parent_id="35",
+    )
+
+    result = get_notifications_data(current_user=user)
+
+    # sub_notification is parent AND child
+    assert result == [
+        FollowupItem(
+            partner_id="dinum-ami",
+            item_type="SousDémarche",
+            item_external_id="35",
+            status_id=ItemGenericStatus.NEW,
+            status_label="Nouveau",
+            milestone_start_date=None,
+            milestone_end_date=None,
+            events=[
+                FollowupItemEvent(
+                    id=sub_notification.id,
+                    created_at=sub_notification.created_at,
+                    description="Sub notification body",
+                )
+            ],
+            title="Sub notification title",
+            subheading="AMI",
+            description="Sub notification body",
+            icon="fr-icon-mail-fill",
+            external_url=None,
+            is_archived=False,
+            created_at=sub_notification.event_date,
+            updated_at=sub_notification.event_date,
+            sub_items=[
+                FollowupSubItem(
+                    partner_id="dinum-dn",
+                    item_type="SousSousDémarche",
+                    item_external_id="350",
+                    status_id=ItemGenericStatus.NEW,
+                    status_label="Nouveau",
+                    milestone_start_date=None,
+                    milestone_end_date=None,
+                    events=[
+                        FollowupItemEvent(
+                            id=sub_sub_notification.id,
+                            created_at=sub_sub_notification.created_at,
+                            description="Sub sub notification body",
+                        )
+                    ],
+                    title="Sub sub notification title",
+                    subheading="demarche.numerique.gouv.fr",
+                    description="Sub sub notification body",
+                    icon="fr-icon-mail-fill",
+                    external_url=None,
+                    is_archived=False,
+                    created_at=sub_sub_notification.event_date,
+                    updated_at=sub_sub_notification.event_date,
+                )
+            ],
+        ),
+        FollowupItem(
+            partner_id="psl",
+            item_type="OperationTranquilliteVacances",
+            item_external_id="42",
+            status_id=ItemGenericStatus.WIP,
+            status_label="En cours",
+            milestone_start_date=None,
+            milestone_end_date=None,
+            events=[
+                FollowupItemEvent(
+                    id=notification.id,
+                    created_at=notification.created_at,
+                    description="notification",
+                )
+            ],
+            title="Notification title",
+            subheading="PSL",
+            description="notification",
+            icon="fr-icon-eye-fill",
+            external_url=None,
+            is_archived=False,
+            created_at=notification.event_date,
+            updated_at=notification.event_date,
+            sub_items=[
+                FollowupSubItem(
+                    partner_id="dinum-ami",
+                    item_type="SousDémarche",
+                    item_external_id="35",
+                    status_id=ItemGenericStatus.NEW,
+                    status_label="Nouveau",
+                    milestone_start_date=None,
+                    milestone_end_date=None,
+                    events=[
+                        FollowupItemEvent(
+                            id=sub_notification.id,
+                            created_at=sub_notification.created_at,
+                            description="Sub notification body",
+                        )
+                    ],
+                    title="Sub notification title",
+                    subheading="AMI",
+                    description="Sub notification body",
+                    icon="fr-icon-mail-fill",
+                    external_url=None,
+                    is_archived=False,
+                    created_at=sub_notification.event_date,
+                    updated_at=sub_notification.event_date,
+                )
+            ],
+        ),
+    ]
+
+
+@pytest.mark.django_db
 def test_get_notifications_source(user: User, monkeypatch: pytest.MonkeyPatch) -> None:
     items = [
         FollowupItem(
