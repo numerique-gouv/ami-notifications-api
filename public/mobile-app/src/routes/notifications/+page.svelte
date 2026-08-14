@@ -17,7 +17,8 @@
 
   onMount(async () => {
     if (!userStore.connected) {
-      goto('/');
+      goto('/#/login');
+      return;
     }
 
     notifications = await retrieveNotifications();

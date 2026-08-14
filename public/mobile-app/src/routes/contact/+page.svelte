@@ -13,7 +13,7 @@
 
   onMount(async () => {
     if (!userStore.connected) {
-      goto('/');
+      goto('/#/login');
     }
     userFcHash = localStorage.getItem('user_fc_hash');
   });

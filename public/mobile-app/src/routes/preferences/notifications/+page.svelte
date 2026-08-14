@@ -17,7 +17,7 @@
 
   onMount(async () => {
     if (!userStore.connected) {
-      goto('/');
+      goto('/#/login');
     }
 
     isChecked = localStorage.getItem('notifications_enabled') === 'true';
