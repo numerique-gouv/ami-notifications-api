@@ -37,8 +37,21 @@
             {item.title}
           </button>
         </h3>
-        <p class="fr-tile__detail fr-text--sm fr-m-0 fr-pr-0">
-          <span>{item.description}</span>
+        <p
+          class="fr-tile__detail fr-text--sm fr-m-0 fr-pr-0"
+          data-testid="followup-item-detail-{item.id}"
+        >
+          <span>
+            {#if item.sub_items.length}
+              <strong>En cours</strong> par {item.wipSubItems.length}
+              {item.wipSubItems.length === 1 ? 'service': 'services'}
+              <br>
+              <strong>Terminé</strong> par {item.closedSubItems.length}
+              {item.closedSubItems.length === 1 ? 'service': 'services'}
+            {:else}
+              {item.description}
+            {/if}
+          </span>
         </p>
         <div class="fr-tile__start">
           <p
@@ -51,7 +64,7 @@
           </p>
         </div>
       </div>
-      {#if !item.is_archived && item.status_id == 'new' && item.link}
+      {#if !item.sub_items.length && !item.is_archived && item.status_id == 'new' && item.link}
         <div class="am-tile__footer fr-pt-1w">
           <div class="fr-btns-group">
             <button
