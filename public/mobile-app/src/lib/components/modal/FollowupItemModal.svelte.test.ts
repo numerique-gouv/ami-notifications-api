@@ -31,7 +31,8 @@ describe('/FollowupItemModal.svelte', () => {
       'wip',
       'En cours',
       false,
-      null
+      null,
+      []
     );
     followup = new Followup();
     vi.spyOn(followup, 'items', 'get').mockReturnValue([
@@ -51,7 +52,8 @@ describe('/FollowupItemModal.svelte', () => {
         'wip',
         'En cours',
         false,
-        null
+        null,
+        []
       ),
     ]);
     vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);

@@ -27,7 +27,8 @@ describe('/Followup.svelte', () => {
           'wip',
           'En cours',
           false,
-          null
+          null,
+          []
         ),
         new FollowupItem(
           'partner',
@@ -44,7 +45,8 @@ describe('/Followup.svelte', () => {
           'closed',
           'Terminée',
           false,
-          null
+          null,
+          []
         ),
       ]);
       vi.spyOn(followup, 'archived_items', 'get').mockReturnValue([
@@ -63,7 +65,8 @@ describe('/Followup.svelte', () => {
           'wip',
           'En cours',
           true,
-          null
+          null,
+          []
         ),
         new FollowupItem(
           'partner',
@@ -80,7 +83,8 @@ describe('/Followup.svelte', () => {
           'closed',
           'Terminée',
           true,
-          null
+          null,
+          []
         ),
       ]);
       const spy = vi
@@ -130,7 +134,8 @@ describe('/Followup.svelte', () => {
           'wip',
           'En cours',
           true,
-          null
+          null,
+          []
         ),
       ]);
       const spy = vi
@@ -169,7 +174,8 @@ describe('/Followup.svelte', () => {
           'wip',
           'En cours',
           false,
-          null
+          null,
+          []
         ),
         new FollowupItem(
           'partner',
@@ -186,7 +192,8 @@ describe('/Followup.svelte', () => {
           'closed',
           'Terminée',
           false,
-          null
+          null,
+          []
         ),
       ]);
       vi.spyOn(followup, 'archived_items', 'get').mockReturnValue([
@@ -205,7 +212,8 @@ describe('/Followup.svelte', () => {
           'wip',
           'En cours',
           true,
-          null
+          null,
+          []
         ),
         new FollowupItem(
           'partner',
@@ -222,7 +230,8 @@ describe('/Followup.svelte', () => {
           'closed',
           'Terminée',
           true,
-          null
+          null,
+          []
         ),
       ]);
       const spy = vi
@@ -271,7 +280,8 @@ describe('/Followup.svelte', () => {
           'wip',
           'En cours',
           false,
-          null
+          null,
+          []
         ),
       ]);
       vi.spyOn(followup, 'archived_items', 'get').mockReturnValue([]);
@@ -368,7 +378,8 @@ describe('/Followup.svelte', () => {
           'wip',
           'En cours',
           true,
-          null
+          null,
+          []
         ),
         new FollowupItem(
           'partner',
@@ -385,7 +396,8 @@ describe('/Followup.svelte', () => {
           'wip',
           'En cours',
           true,
-          null
+          null,
+          []
         ),
       ]);
       vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
@@ -419,7 +431,8 @@ describe('/Followup.svelte', () => {
           'wip',
           'En cours',
           false,
-          null
+          null,
+          []
         ),
         new FollowupItem(
           'partner',
@@ -436,7 +449,8 @@ describe('/Followup.svelte', () => {
           'wip',
           'En cours',
           false,
-          null
+          null,
+          []
         ),
       ]);
       vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
@@ -473,7 +487,8 @@ describe('/Followup.svelte', () => {
           'wip',
           'En cours',
           false,
-          null
+          null,
+          []
         ),
         new FollowupItem(
           'partner',
@@ -490,7 +505,8 @@ describe('/Followup.svelte', () => {
           'wip',
           'En cours',
           false,
-          null
+          null,
+          []
         ),
       ]);
       vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
@@ -531,7 +547,8 @@ describe('/Followup.svelte', () => {
           'wip',
           'En cours',
           false,
-          null
+          null,
+          []
         ),
         new FollowupItem(
           'partner',
@@ -548,7 +565,8 @@ describe('/Followup.svelte', () => {
           'wip',
           'En cours',
           false,
-          null
+          null,
+          []
         ),
       ]);
       vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
@@ -596,7 +614,8 @@ describe('/Followup.svelte', () => {
           'wip',
           'En cours',
           false,
-          null
+          null,
+          []
         ),
         new FollowupItem(
           'partner',
@@ -613,7 +632,8 @@ describe('/Followup.svelte', () => {
           'wip',
           'En cours',
           false,
-          null
+          null,
+          []
         ),
       ]);
       vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);

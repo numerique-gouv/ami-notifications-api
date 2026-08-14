@@ -28,7 +28,8 @@ describe('/+page.svelte', () => {
       'new',
       'New',
       false,
-      null
+      null,
+      []
     );
     const params = {
       partner_id: 'partner',
@@ -61,7 +62,8 @@ describe('/+page.svelte', () => {
       'new',
       'New',
       false,
-      'link1'
+      'link1',
+      []
     );
     const params = {
       partner_id: 'partner',
@@ -97,7 +99,8 @@ describe('/+page.svelte', () => {
       'new',
       'New',
       true,
-      'link1'
+      'link1',
+      []
     );
     const params = {
       partner_id: 'partner',
@@ -139,7 +142,8 @@ describe('/+page.svelte', () => {
       'new',
       'New',
       false,
-      'link1'
+      'link1',
+      []
     );
     const params = {
       partner_id: 'partner',

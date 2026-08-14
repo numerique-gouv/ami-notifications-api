@@ -358,7 +358,8 @@ describe('/ConnectedHomepage.svelte', () => {
           'wip',
           'En cours',
           false,
-          null
+          null,
+          []
         ),
         new FollowupItem(
           'partner',
@@ -375,7 +376,8 @@ describe('/ConnectedHomepage.svelte', () => {
           'wip',
           'En cours',
           false,
-          null
+          null,
+          []
         ),
         new FollowupItem(
           'partner',
@@ -392,7 +394,8 @@ describe('/ConnectedHomepage.svelte', () => {
           'closed',
           'Terminée',
           false,
-          null
+          null,
+          []
         ),
         new FollowupItem(
           'partner',
@@ -409,7 +412,8 @@ describe('/ConnectedHomepage.svelte', () => {
           'closed',
           'Terminée',
           false,
-          null
+          null,
+          []
         ),
       ]);
       const spy = vi
@@ -478,7 +482,8 @@ describe('/ConnectedHomepage.svelte', () => {
             'wip',
             'En cours',
             false,
-            null
+            null,
+            []
           ),
           new FollowupItem(
             'partner',
@@ -495,7 +500,8 @@ describe('/ConnectedHomepage.svelte', () => {
             'wip',
             'En cours',
             false,
-            null
+            null,
+            []
           ),
         ]);
         vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
@@ -532,7 +538,8 @@ describe('/ConnectedHomepage.svelte', () => {
             'wip',
             'En cours',
             false,
-            null
+            null,
+            []
           ),
           new FollowupItem(
             'partner',
@@ -549,7 +556,8 @@ describe('/ConnectedHomepage.svelte', () => {
             'wip',
             'En cours',
             false,
-            null
+            null,
+            []
           ),
         ]);
         vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
@@ -590,7 +598,8 @@ describe('/ConnectedHomepage.svelte', () => {
             'wip',
             'En cours',
             false,
-            null
+            null,
+            []
           ),
           new FollowupItem(
             'partner',
@@ -607,7 +616,8 @@ describe('/ConnectedHomepage.svelte', () => {
             'wip',
             'En cours',
             false,
-            null
+            null,
+            []
           ),
         ]);
         vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
@@ -655,7 +665,8 @@ describe('/ConnectedHomepage.svelte', () => {
             'wip',
             'En cours',
             false,
-            null
+            null,
+            []
           ),
           new FollowupItem(
             'partner',
@@ -672,7 +683,8 @@ describe('/ConnectedHomepage.svelte', () => {
             'wip',
             'En cours',
             false,
-            null
+            null,
+            []
           ),
         ]);
         vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
