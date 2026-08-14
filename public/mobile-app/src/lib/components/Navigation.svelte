@@ -72,7 +72,7 @@
     {
       isEnabled: true,
       url: '/#/preferences',
-      label: 'Préférence',
+      label: 'Préférences',
       iconClassName: 'fr-icon-settings-3-line',
       id: 'preferences',
     },
