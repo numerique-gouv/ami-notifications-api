@@ -36,3 +36,15 @@ class RegistrationCreateSerializer(serializers.Serializer):
             s = WebPushSubscriptionSerializer(data=value)
         s.is_valid(raise_exception=True)
         return s.validated_data
+
+
+class ConsentSerializer(serializers.Serializer):
+    id = serializers.UUIDField()
+    user_id = serializers.UUIDField()
+    partner_id = serializers.CharField()
+    consent_datetime = serializers.DateTimeField()
+
+
+class ConsentUpdateSerializer(serializers.Serializer):
+    partner_id = serializers.CharField()
+    consent_datetime = serializers.DateTimeField(allow_null=True)

@@ -11,10 +11,12 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED
 
 from ami.authentication.decorators import ami_login_required
+from ami.partner.auth import IsPartnerAuthenticated, PartnerBasicAuthentication
 
-from ..partner.auth import IsPartnerAuthenticated, PartnerBasicAuthentication
 from .models import Consent, Registration
 from .serializers import (
+    ConsentSerializer,
+    ConsentUpdateSerializer,
     MobileAppSubscriptionSerializer,
     RegistrationCreateSerializer,
     RegistrationSerializer,
@@ -107,3 +109,41 @@ def get_consent(request: Request, fc_hash: str) -> Response:
         return Response({"consent_datetime": "null"}, status=404)
 
     return Response({"consent_datetime": consent.consent_datetime})
+
+
+@extend_schema(
+    methods=["POST"],
+    request=ConsentUpdateSerializer,
+)
+@api_view(["GET", "POST"])
+@ami_login_required
+def consents(request: Request) -> Response:
+    if request.method == "GET":
+        consents_set: QuerySet[Consent] = Consent.objects.filter(user=request.ami_user)
+        return Response(ConsentSerializer(consents_set, many=True).data)
+
+    serializer = ConsentUpdateSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    data: dict = cast(dict, serializer.validated_data)
+
+    try:
+        consent = Consent.objects.get(
+            user=request.ami_user,
+            partner_id=data["partner_id"],
+        )
+    except Consent.DoesNotExist:
+        consent = None
+
+    if consent is None:
+        Consent.objects.create(
+            user=request.ami_user,
+            partner_id=data["partner_id"],
+            consent_datetime=data["consent_datetime"],
+        )
+        status_code = HTTP_201_CREATED
+    else:
+        consent.consent_datetime = data["consent_datetime"]
+        consent.save()
+        status_code = HTTP_200_OK
+
+    return Response(status=status_code)
