@@ -109,13 +109,18 @@ class NotificationsSubItem:
         return ""
 
     @property
+    def notification_for_status(self):
+        # for a sub_item, take last notification status (more recent)
+        return self.last_notification
+
+    @property
     def status_id(self):
         # adapt status (typing)
-        return ItemGenericStatus(self.last_notification.item_generic_status)
+        return ItemGenericStatus(self.notification_for_status.item_generic_status)
 
     @property
     def status_label(self):
-        return self.last_notification.item_status_label or ""
+        return self.notification_for_status.item_status_label or ""
 
     @property
     def milestone_start_date(self):
@@ -248,6 +253,11 @@ class NotificationsItem(NotificationsSubItem):
         )
         return sorted(notifications, key=lambda a: (a.event_date, a.created_at))
 
+    @cached_property
+    def all_notifications(self):
+        notifications = self.notifications + self.sub_items_notifications
+        return sorted(notifications, key=lambda a: (a.event_date, a.created_at))
+
     @property
     def first_notification(self):
         if not self.notifications:
@@ -284,6 +294,41 @@ class NotificationsItem(NotificationsSubItem):
     @property
     def reference(self):
         return self.item_external_id
+
+    @property
+    def notification_for_status(self):
+        def is_last_notification_about_item():
+            # return True if parent fields are empty
+            if self.all_notifications[-1].item_parent_partner_id:
+                return False
+            if self.all_notifications[-1].item_parent_type:
+                return False
+            if self.all_notifications[-1].item_parent_id:
+                return False
+            return True
+
+        if not self.sub_items:
+            # return last notification
+            return self.last_notification
+
+        if is_last_notification_about_item():
+            # return the last notification (from all notifications) if it is about item
+            return self.all_notifications[-1]
+
+        # return the last notification of sub_items by priority (new then wip then closed)
+        status_priority = {
+            ItemGenericStatus.NEW.value: 2,
+            ItemGenericStatus.WIP.value: 1,
+            ItemGenericStatus.CLOSED.value: 0,
+        }
+        last_sub_item_notifications = [
+            sub_item.last_notification for sub_item in self.sub_items.values()
+        ]
+        last_sub_item_notifications = sorted(
+            last_sub_item_notifications,
+            key=lambda a: (status_priority[a.item_generic_status], a.event_date, a.created_at),
+        )
+        return last_sub_item_notifications[-1]
 
     @property
     def title(self):
