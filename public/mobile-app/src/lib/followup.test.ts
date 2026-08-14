@@ -172,6 +172,7 @@ describe('/followup.ts', () => {
         external_url: null,
         created_at: new Date('2026-02-23T15:50:00Z'),
         updated_at: new Date('2026-02-23T15:55:00Z'),
+        sub_items: [],
       };
       const followupItem2 = {
         partner_id: 'psl',
@@ -191,6 +192,7 @@ describe('/followup.ts', () => {
         external_url: null,
         created_at: new Date('2026-02-22T15:50:00Z'),
         updated_at: new Date('2026-02-22T15:55:00Z'),
+        sub_items: [],
       };
       const followupItem3 = {
         partner_id: 'psl',
@@ -210,6 +212,7 @@ describe('/followup.ts', () => {
         external_url: null,
         created_at: new Date('2026-02-21T15:50:00Z'),
         updated_at: new Date('2026-02-21T15:55:00Z'),
+        sub_items: [],
       };
       const followupItem4 = {
         partner_id: 'psl',
@@ -229,6 +232,7 @@ describe('/followup.ts', () => {
         external_url: null,
         created_at: new Date('2026-02-20T15:50:00Z'),
         updated_at: new Date('2026-02-20T15:55:00Z'),
+        sub_items: [],
       };
 
       // When
@@ -345,6 +349,7 @@ describe('/followup.ts', () => {
           external_url: null,
           created_at: new Date('2026-02-23T15:50:00Z'),
           updated_at: new Date('2026-02-23T15:55:00Z'),
+          sub_items: [],
         };
         const followup = new Followup({
           notifications: [followupItem],
@@ -379,6 +384,7 @@ describe('/followup.ts', () => {
           external_url: null,
           created_at: new Date('2026-02-23T15:50:00Z'),
           updated_at: new Date('2026-02-23T15:55:00Z'),
+          sub_items: [],
         };
         const followup = new Followup({
           notifications: [followupItem],
@@ -413,6 +419,7 @@ describe('/followup.ts', () => {
           external_url: null,
           created_at: new Date('2026-02-23T15:50:00Z'),
           updated_at: new Date('2026-02-23T15:55:00Z'),
+          sub_items: [],
         };
         const followup = new Followup({
           notifications: [followupItem],
@@ -447,6 +454,7 @@ describe('/followup.ts', () => {
           external_url: null,
           created_at: new Date('2026-02-23T15:50:00Z'),
           updated_at: new Date('2026-02-23T15:55:00Z'),
+          sub_items: [],
         };
         const followupItem2 = {
           partner_id: 'psl',
@@ -466,6 +474,7 @@ describe('/followup.ts', () => {
           external_url: null,
           created_at: new Date('2026-02-23T15:50:00Z'),
           updated_at: new Date('2026-02-23T15:55:00Z'),
+          sub_items: [],
         };
         const followupItem3 = {
           partner_id: 'psl',
@@ -485,6 +494,7 @@ describe('/followup.ts', () => {
           external_url: null,
           created_at: new Date('2026-02-23T15:50:00Z'),
           updated_at: new Date('2026-02-23T15:55:00Z'),
+          sub_items: [],
         };
         const followupItem4 = {
           partner_id: 'psl',
@@ -504,6 +514,7 @@ describe('/followup.ts', () => {
           external_url: null,
           created_at: new Date('2026-02-23T15:50:00Z'),
           updated_at: new Date('2026-02-23T15:55:00Z'),
+          sub_items: [],
         };
         const followupItem5 = {
           partner_id: 'psl',
@@ -523,6 +534,7 @@ describe('/followup.ts', () => {
           external_url: null,
           created_at: new Date('2026-02-23T15:50:00Z'),
           updated_at: new Date('2026-02-23T15:55:00Z'),
+          sub_items: [],
         };
         const followup = new Followup({
           notifications: [
@@ -567,6 +579,7 @@ describe('/followup.ts', () => {
         external_url: null,
         created_at: new Date('2026-02-23T15:50:00Z'),
         updated_at: new Date('2026-02-23T15:55:00Z'),
+        sub_items: [],
       };
       const followupItem2 = {
         partner_id: 'psl',
@@ -586,6 +599,7 @@ describe('/followup.ts', () => {
         external_url: null,
         created_at: new Date('2026-02-22T15:50:00Z'),
         updated_at: new Date('2026-02-22T15:55:00Z'),
+        sub_items: [],
       };
       const spy = vi.spyOn(apiFollowupMethods, 'retrieveFollowup').mockResolvedValue({
         notifications: [followupItem1, followupItem2],
