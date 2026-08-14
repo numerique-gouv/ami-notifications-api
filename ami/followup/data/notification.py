@@ -20,7 +20,7 @@ def get_notifications_data(*, current_user: User) -> list[FollowupItem]:
         item_id__isnull=False,
         user=current_user,
         partner_id__in=[p.id for p in partners.values() if p.followup_from_notifications],
-    ).order_by("event_date", "created_at")
+    )
 
     services_by_id: collections.defaultdict[str, Service] = collections.defaultdict()
     for service in Service.objects.all():
@@ -42,6 +42,8 @@ def get_notifications_data(*, current_user: User) -> list[FollowupItem]:
             )
         else:
             notifications_followup.add_notification(external_id, notification)
+
+    notifications_followup.complete_notifications()
 
     items: list[FollowupItem] = []
 
