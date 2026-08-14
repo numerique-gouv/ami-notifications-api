@@ -28,6 +28,14 @@ data_provider_functions = {
     "api_particulier_statut_etudiant": get_api_particulier_statut_etudiant_raw_data,
 }
 
+FC_ERROR_TRANSLATIONS = {
+    "temporarily_unavailable": "Erreur lors de la FranceConnexion, veuillez réessayer plus tard.",
+}
+
+FC_ERROR_DESCRIPTION_TRANSLATIONS = {
+    "authentication aborted due to a technical error on the authorization server": "La connexion a été interrompue à cause d’un problème technique sur le serveur d’autorisation.",
+}
+
 
 def retry_fc_later(error_dict: dict | None = None):
     error_dict = error_dict or {}
@@ -130,6 +138,10 @@ async def login_callback(request):
         fc_state = request.GET.get("state", "")
 
         if error or not code:
+            error = FC_ERROR_TRANSLATIONS.get(error, error)
+            error_description = FC_ERROR_DESCRIPTION_TRANSLATIONS.get(
+                error_description, error_description
+            )
             return retry_fc_later(
                 {
                     "error_code": "fc_error",
