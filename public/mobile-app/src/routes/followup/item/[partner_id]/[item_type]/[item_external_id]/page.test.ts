@@ -28,7 +28,8 @@ describe('/+page.ts', () => {
       'wip',
       'En cours',
       false,
-      null
+      null,
+      []
     );
     const archivedItem = new FollowupItem(
       'partner',
@@ -45,7 +46,8 @@ describe('/+page.ts', () => {
       'closed',
       'Terminée',
       true,
-      null
+      null,
+      []
     );
     const followup = new Followup();
     vi.spyOn(followup, 'items', 'get').mockReturnValue([nonArchivedItem]);
@@ -92,7 +94,8 @@ describe('/+page.ts', () => {
       'wip',
       'En cours',
       false,
-      null
+      null,
+      []
     );
     const archivedItem = new FollowupItem(
       'partner',
@@ -109,7 +112,8 @@ describe('/+page.ts', () => {
       'closed',
       'Terminée',
       true,
-      null
+      null,
+      []
     );
     const followup = new Followup();
     vi.spyOn(followup, 'items', 'get').mockReturnValue([nonArchivedItem]);

@@ -39,7 +39,8 @@ describe('/+page.svelte', () => {
         'wip',
         'En cours',
         false,
-        null
+        null,
+        []
       ),
     ]);
     vi.spyOn(followup, 'archived_items', 'get').mockReturnValue([
@@ -58,7 +59,8 @@ describe('/+page.svelte', () => {
         'closed',
         'Terminée',
         true,
-        null
+        null,
+        []
       ),
     ]);
     const spy = vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);

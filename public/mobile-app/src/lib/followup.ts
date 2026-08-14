@@ -32,7 +32,7 @@ export class FollowupItemEvent {
   }
 }
 
-export class FollowupItem {
+export class FollowupSubItem {
   constructor(
     private _partner_id: string,
     private _item_type: string,
@@ -54,13 +54,6 @@ export class FollowupItem {
 
     private _link: string | null
   ) {}
-
-  equals(other: FollowupItem): boolean {
-    if (!(other instanceof FollowupItem)) {
-      return false;
-    }
-    return JSON.stringify(this) === JSON.stringify(other);
-  }
 
   get id(): string {
     return `${this.partner_id}:${this.item_type}:${this.item_external_id}`;
@@ -144,6 +137,61 @@ export class FollowupItem {
   }
 }
 
+export class FollowupItem extends FollowupSubItem {
+  constructor(
+    _partner_id: string,
+    _item_type: string,
+    _item_external_id: string,
+    _reference: string,
+    _source: string,
+    _events: FollowupItemEvent[],
+
+    _title: string,
+    _subheading: string,
+    _description: string,
+    _icon: string,
+
+    _date: Date,
+
+    _status_id: Status,
+    _status_label: string,
+    _is_archived: boolean,
+
+    _link: string | null,
+
+    private _sub_items: FollowupSubItem[]
+  ) {
+    super(
+      _partner_id,
+      _item_type,
+      _item_external_id,
+      _reference,
+      _source,
+      _events,
+      _title,
+      _subheading,
+      _description,
+      _icon,
+      _date,
+      _status_id,
+      _status_label,
+      _is_archived,
+      _link
+    );
+  }
+
+  equals(other: FollowupItem): boolean {
+    if (!(other instanceof FollowupItem)) {
+      return false;
+    }
+    return JSON.stringify(this) === JSON.stringify(other);
+  }
+
+  get sub_items(): FollowupSubItem[] {
+    return this._sub_items;
+  }
+}
+
 export class Followup {
   private _items: FollowupItem[] = [];
   private _archived_items: FollowupItem[] = [];
@@ -173,12 +221,34 @@ export class Followup {
   }
 
   private createFollowupItem(item: APIFollowupItem): FollowupItem {
-    const events: FollowupItemEvent[] = item.events
-      .map(
+    const events: FollowupItemEvent[] = item.events.map(
+      (event) =>
+        new FollowupItemEvent(event.id, new Date(event.created_at), event.description)
+    );
+
+    const sub_items: FollowupSubItem[] = item.sub_items.map((sub_item) => {
+      const sub_item_events: FollowupItemEvent[] = sub_item.events.map(
         (event) =>
           new FollowupItemEvent(event.id, new Date(event.created_at), event.description)
-      )
-      .sort((a, b) => b.created_at.getTime() - a.created_at.getTime());
+      );
+      return new FollowupSubItem(
+        sub_item.partner_id,
+        sub_item.item_type,
+        sub_item.item_external_id,
+        sub_item.reference,
+        'notifications',
+        sub_item_events,
+        sub_item.title,
+        sub_item.subheading,
+        sub_item.description,
+        sub_item.icon,
+        sub_item.updated_at,
+        sub_item.status_id as Status,
+        sub_item.status_label,
+        sub_item.is_archived,
+        sub_item.external_url
+      );
+    });
 
     return new FollowupItem(
       item.partner_id,
@@ -195,7 +265,8 @@ export class Followup {
       item.status_id as Status,
       item.status_label,
       item.is_archived,
-      item.external_url
+      item.external_url,
+      sub_items
     );
   }
 
