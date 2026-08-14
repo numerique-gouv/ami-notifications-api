@@ -4,6 +4,7 @@ import datetime
 import pytest
 from django.utils.timezone import now
 
+from ami.tests.utils import assert_query_fails_without_auth, login
 from ami.user.models import Consent, User
 
 
@@ -165,3 +166,24 @@ def test_post_consent_without_auth(app, settings) -> None:
 
     b64 = base64.b64encode("dinum-ami:foo".encode("utf8")).decode("utf8")
     app.post("/api/v1/consent/fake-fc-hash", headers={"authorization": f"Basic {b64}"}, status=401)
+
+
+@pytest.mark.django_db
+def test_consents(app, user: User) -> None:
+    login(app, user)
+
+    consent_datetime = datetime.datetime(2020, 12, 25, 17, 5, 55, tzinfo=datetime.timezone.utc)
+    consent = Consent.objects.create(user=user, partner_id="psl", consent_datetime=consent_datetime)
+
+    response = app.get("/api/v1/users/consents", status=200)
+    consents = response.json
+    assert len(consents) == 1
+    assert set(response.json[0].keys()) == {"consent_datetime", "id", "partner_id"}
+    assert response.json[0]["id"] == str(consent.id)
+    assert response.json[0]["partner_id"] == consent.partner_id
+    assert response.json[0]["consent_datetime"] == "2020-12-25T17:05:55Z"
+
+
+@pytest.mark.django_db
+def test_consents_without_auth(app) -> None:
+    assert_query_fails_without_auth(app, "/api/v1/users/consents")
