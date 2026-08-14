@@ -49,7 +49,8 @@ describe('/followup.ts', () => {
           'new',
           'New',
           false,
-          null
+          null,
+          []
         );
 
         // When
@@ -78,7 +79,8 @@ describe('/followup.ts', () => {
           'new',
           'New',
           false,
-          null
+          null,
+          []
         );
 
         // When
@@ -107,7 +109,8 @@ describe('/followup.ts', () => {
           'closed',
           'Terminée',
           false,
-          'url'
+          'url',
+          []
         );
 
         // When
@@ -135,7 +138,8 @@ describe('/followup.ts', () => {
           'new',
           'New',
           false,
-          null
+          null,
+          []
         );
         const spy = vi
           .spyOn(apiFollowupMethods, 'archiveFollowupItem')
@@ -259,7 +263,8 @@ describe('/followup.ts', () => {
             'new',
             'Brouillon',
             false,
-            null
+            null,
+            []
           )
         )
       ).toBe(true);
@@ -280,7 +285,8 @@ describe('/followup.ts', () => {
             'wip',
             'En cours',
             false,
-            null
+            null,
+            []
           )
         )
       ).toBe(true);
@@ -302,7 +308,8 @@ describe('/followup.ts', () => {
             'new',
             'Brouillon',
             true,
-            null
+            null,
+            []
           )
         )
       ).toBe(true);
@@ -323,7 +330,8 @@ describe('/followup.ts', () => {
             'closed',
             'Terminée',
             true,
-            null
+            null,
+            []
           )
         )
       ).toBe(true);
@@ -629,7 +637,8 @@ describe('/followup.ts', () => {
             'new',
             'Brouillon',
             false,
-            null
+            null,
+            []
           )
         )
       ).toBe(true);
@@ -651,7 +660,8 @@ describe('/followup.ts', () => {
             'closed',
             'Terminée',
             true,
-            null
+            null,
+            []
           )
         )
       ).toBe(true);

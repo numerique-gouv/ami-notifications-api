@@ -23,7 +23,8 @@ describe('/FollowupItem.svelte', () => {
       'closed',
       'Terminée',
       false,
-      'url'
+      'url',
+      []
     );
     const onOpen = vi.fn();
 
@@ -51,7 +52,8 @@ describe('/FollowupItem.svelte', () => {
         'new',
         'Terminée',
         false,
-        'link1'
+        'link1',
+        []
       );
       const onOpen = vi.fn();
       const spy = vi
@@ -94,7 +96,8 @@ describe('/FollowupItem.svelte', () => {
         'new',
         'Nouveau',
         false,
-        null
+        null,
+        []
       );
       const onOpen = vi.fn();
 
@@ -125,7 +128,8 @@ describe('/FollowupItem.svelte', () => {
         'new',
         'Nouveau',
         true,
-        'link1'
+        'link1',
+        []
       );
       const onOpen = vi.fn();
 
