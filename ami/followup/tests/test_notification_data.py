@@ -388,7 +388,7 @@ def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> 
             external_url=None,
             is_archived=True,
             created_at=notification1.event_date,
-            updated_at=notification3.event_date,
+            updated_at=sub_notification31.event_date,
             sub_items=[
                 FollowupSubItem(
                     partner_id="dinum-ami",
@@ -498,11 +498,11 @@ def test_get_notifications_data_parent_and_sub_items(
             title="Notification title",
             subheading="PSL",
             description="notification",
-            icon="fr-icon-eye-fill",
-            external_url=None,
+            icon="fr-icon-mail-fill",
+            external_url="http://bar.com",
             is_archived=False,
             created_at=notification.event_date,
-            updated_at=notification.event_date,
+            updated_at=sub_notification3.event_date,
             sub_items=[
                 FollowupSubItem(
                     partner_id="dinum-ami",
@@ -673,7 +673,7 @@ def test_get_notifications_data_unknown_parent(user: User, monkeypatch: pytest.M
             subheading="PSL",
             description="Sub notification body 2",
             icon="fr-icon-eye-fill",
-            external_url=None,
+            external_url="http://bar.com",
             is_archived=False,
             created_at=sub_notification1.event_date,
             updated_at=sub_notification2.event_date,
@@ -760,7 +760,7 @@ def test_get_notifications_data_unknown_parent(user: User, monkeypatch: pytest.M
             subheading="PSL",
             description="Sub notification body 2",
             icon="fr-icon-eye-fill",
-            external_url=None,
+            external_url="http://bar.com",
             is_archived=False,
             created_at=sub_notification1.event_date,
             updated_at=sub_notification2.event_date,
@@ -1124,7 +1124,7 @@ def test_get_notifications_data_parent_and_sub_sub_items(
             external_url=None,
             is_archived=False,
             created_at=sub_notification.event_date,
-            updated_at=sub_notification.event_date,
+            updated_at=sub_sub_notification.event_date,
             sub_items=[
                 FollowupSubItem(
                     partner_id="dinum-dn",
@@ -1172,11 +1172,11 @@ def test_get_notifications_data_parent_and_sub_sub_items(
             title="Notification title",
             subheading="PSL",
             description="notification",
-            icon="fr-icon-eye-fill",
+            icon="fr-icon-mail-fill",
             external_url=None,
             is_archived=False,
             created_at=notification.event_date,
-            updated_at=notification.event_date,
+            updated_at=sub_notification.event_date,
             sub_items=[
                 FollowupSubItem(
                     partner_id="dinum-ami",
