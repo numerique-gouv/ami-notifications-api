@@ -351,10 +351,22 @@ class NotificationsItem(NotificationsSubItem):
         return ""
 
     @property
+    def icon(self):
+        return self.all_notifications[-1].icon or ""
+
+    @property
     def external_url(self):
         # last external_url seen
-        external_urls = [n.content_link for n in self.notifications if n.content_link]
+        external_urls = [n.content_link for n in self.all_notifications if n.content_link]
         return external_urls[-1] if external_urls else None
+
+    @property
+    def created_at(self):
+        return self.all_notifications[0].event_date
+
+    @property
+    def updated_at(self):
+        return self.all_notifications[-1].event_date
 
 
 @dataclass
