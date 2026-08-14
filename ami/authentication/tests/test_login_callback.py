@@ -66,6 +66,7 @@ def test_login_callback(
     assert response.status_code == 302
     redirected_url = response.headers["location"]
     assert redirected_url.startswith("https://localhost:5173")
+    assert redirected_url.endswith("#/login-callback")
     assert url_contains_param(
         "user_data",
         "fake userinfo jwt token",

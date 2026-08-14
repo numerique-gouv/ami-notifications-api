@@ -198,7 +198,7 @@ async def login_callback(request):
                         user_data[key] = result
 
             # build redirect_url, depending on kind of login (fc, ami-fi, silent-ami-fi)
-            redirect_url = f"{settings.PUBLIC_APP_URL}/?{urlencode(user_data)}"
+            redirect_url = f"{settings.PUBLIC_APP_URL}/?{urlencode(user_data)}#/login-callback"
             if nonce_context.get("idp") == "ami-fi":
                 redirect_url = f"{settings.PUBLIC_APP_URL}/?{urlencode(user_data)}#/fi"
             if nonce_context.get("idp") == "silent-ami-fi":
