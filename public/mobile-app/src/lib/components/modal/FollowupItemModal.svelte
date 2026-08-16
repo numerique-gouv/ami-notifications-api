@@ -37,10 +37,10 @@
           refreshFollowup();
         }
         closeModal();
-        toastStore.addToast("L'élément a bien été archivé", 'success', 3000, true);
+        toastStore.addToast('L’élément a bien été archivé', 'success', 3000, true);
       } else {
         closeModal();
-        toastStore.addToast("L'élément n'a pas pu être archivé", 'error', 3000, true);
+        toastStore.addToast("L’élément n'a pas pu être archivé", 'error', 3000, true);
       }
     }
   };

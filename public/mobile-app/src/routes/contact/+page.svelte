@@ -21,7 +21,7 @@
   const copyIdentificationCode = () => {
     if (userFcHash) {
       navigator.clipboard.writeText(userFcHash);
-      toastStore.addToast("Code d'identification copié !", 'success', 3000, false);
+      toastStore.addToast('Code d’identification copié !', 'success', 3000, false);
     }
   };
 </script>
@@ -39,7 +39,7 @@
       Nous sommes là pour vous écouter et pour vous aider.
     </p>
     <p>
-      <b>Copiez</b> et transmettez votre <b>code d'identification</b> ci-dessous pour
+      <b>Copiez</b> et transmettez votre <b>code d’identification</b> ci-dessous pour
       <b>échanger avec nous</b> sur notre canal Tchap.
     </p>
 
@@ -51,7 +51,7 @@
           class="copy-button"
           type="button"
           onclick={copyIdentificationCode}
-          aria-label="Copier le code d'identification"
+          aria-label="Copier le code d’identification"
           data-testid="copy-button"
         >
           <img class="copy-icon" src="/remixicons/file-copy-line.svg" alt="">
@@ -76,7 +76,7 @@
       <li>
         <button
           type="button"
-          onclick={()=> window.location.href = `mailto:${contactEmail}?body=Mon code d'identification : ${userFcHash}`}
+          onclick={()=> window.location.href = `mailto:${contactEmail}?body=Mon code d’identification : ${userFcHash}`}
           aria-label="Contacter notre équipe par e-mail"
           class="fr-btn"
         >

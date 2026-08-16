@@ -131,7 +131,7 @@
             Des patrouilles sont organisées pour passer aux abords de votre domicile.
           </p>
           <p>
-            <b>Vous serez prévenu</b> en cas d'anomalies (dégradations, cambriolage...).
+            <b>Vous serez prévenu</b> en cas d’anomalies (dégradations, cambriolage...).
           </p>
         </div>
       </div>

@@ -149,7 +149,7 @@
   {#snippet content()}
     <div class="address-content-container" data-testid="container">
       <p>
-        L'adresse de votre <strong>résidence principale</strong> permet de
+        L’adresse de votre <strong>résidence principale</strong> permet de
         <strong>faciliter la communication</strong> avec les administrations.
       </p>
 
@@ -215,7 +215,7 @@
 
       {#if addressApiHasError}
         <div class="fr-alert fr-alert--warning fr-mb-3w" data-testid="address-warning">
-          <h3 class="fr-alert__title">Récupération de l'adresse indisponible</h3>
+          <h3 class="fr-alert__title">Récupération de l’adresse indisponible</h3>
           <p>
             Nous rencontrons des difficultés à trouver votre adresse dans notre
             répertoire. Merci de réessayer plus tard.
@@ -233,7 +233,7 @@
             <span><strong>{selectedAddress.label}</strong></span>
           </div>
           <div class="right-wrapper">
-            <button onclick={removeAddress} aria-label="Retirer l'adresse">
+            <button onclick={removeAddress} aria-label="Retirer l’adresse">
               <span class="fr-icon-close-line" aria-hidden="true"></span>
             </button>
           </div>

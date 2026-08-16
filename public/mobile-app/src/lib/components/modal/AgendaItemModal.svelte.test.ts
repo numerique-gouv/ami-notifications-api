@@ -49,7 +49,7 @@ describe('/AgendaItemModal.svelte', () => {
     // Then
     await waitFor(async () => {
       expect(spy).toHaveBeenCalledWith(
-        "L'élément a bien été supprimé",
+        'L’élément a bien été supprimé',
         'success',
         3000,
         true

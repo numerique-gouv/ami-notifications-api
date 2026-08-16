@@ -469,7 +469,7 @@ export class Agenda {
       createScheduledNotification({
         content_title: 'Et si on veillait sur votre logement ? 👮',
         content_body:
-          "Demandez l'Opération Tranquillité Vacances afin de partir en vacances l’esprit (plus) tranquille.",
+          'Demandez l’Opération Tranquillité Vacances afin de partir en vacances l’esprit (plus) tranquille.',
         content_icon: 'fr-icon-megaphone-line',
         reference: scheduledNotificationKey,
         internal_url: `/#/procedure?date=${dateToISO(startDate)}`,

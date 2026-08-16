@@ -10,6 +10,6 @@ describe('/Installation.svelte', () => {
 
     // Then
     const title = screen.getByRole('heading', { level: 1 });
-    expect(title).toHaveTextContent("Installation de l'application AMI");
+    expect(title).toHaveTextContent('Installation de l’application AMI');
   });
 });

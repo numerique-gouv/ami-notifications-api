@@ -256,7 +256,7 @@ describe('/+page.svelte', () => {
     userStore.connected?.addScheduledNotificationCreatedKey('foo');
 
     // When - user clicks the remove button
-    const removeButton = screen.getByRole('button', { name: /retirer l'adresse/i });
+    const removeButton = screen.getByRole('button', { name: /retirer l’adresse/i });
     await fireEvent.click(removeButton);
 
     // Then
@@ -338,7 +338,7 @@ describe('/+page.svelte', () => {
       expect(spy).toHaveBeenCalledTimes(1);
       const addressWarning = screen.getByTestId('address-warning');
       expect(addressWarning).toHaveTextContent(
-        "Récupération de l'adresse indisponible"
+        'Récupération de l’adresse indisponible'
       );
       expect(addressWarning).toHaveTextContent(
         'Nous rencontrons des difficultés à trouver votre adresse dans notre répertoire. Merci de réessayer plus tard.'

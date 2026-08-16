@@ -328,7 +328,7 @@ describe('/ConnectedHomepage.svelte', () => {
         // Then
         await waitFor(async () => {
           expect(spy).toHaveBeenCalledWith(
-            "L'élément a bien été supprimé",
+            'L’élément a bien été supprimé',
             'success',
             3000,
             true
@@ -619,7 +619,7 @@ describe('/ConnectedHomepage.svelte', () => {
         await waitFor(async () => {
           expect(spy).toHaveBeenCalledWith();
           expect(spy2).toHaveBeenCalledWith(
-            "L'élément a bien été archivé",
+            'L’élément a bien été archivé',
             'success',
             3000,
             true
@@ -684,7 +684,7 @@ describe('/ConnectedHomepage.svelte', () => {
         await waitFor(async () => {
           expect(spy).toHaveBeenCalledWith();
           expect(spy2).toHaveBeenCalledWith(
-            "L'élément n'a pas pu être archivé",
+            "L’élément n'a pas pu être archivé",
             'error',
             3000,
             true
