@@ -10,7 +10,7 @@ describe('/Toast.svelte', () => {
     const spy = vi.spyOn(toastStore, 'removeToast');
     render(Toast, {
       id: 'id1',
-      title: "Code d'identification copié !",
+      title: 'Code d’identification copié !',
       toastType: 'info',
       duration: 5000,
       hasCloseLink: true,

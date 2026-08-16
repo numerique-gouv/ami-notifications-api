@@ -17,7 +17,7 @@
       </div>
       {% if not user.is_authenticated %}
         <p class="introduction-text">
-          Merci de vous <b>identifier avec ProConnect</b> pour pouvoir accéder au backoffice d'AMI
+          Merci de vous <b>identifier avec ProConnect</b> pour pouvoir accéder au backoffice d’AMI
         </p>
         <div class="fr-connect-group">
           <a href="{% url 'agent-admin:oidc_authentication_init' %}" class="fr-connect">

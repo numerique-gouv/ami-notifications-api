@@ -40,7 +40,7 @@
         data-testid="open-agenda-item-modal-{item.id}"
         class="fr-btn fr-btn--icon fr-icon-more-2-fill fr-btn--tertiary-no-outline fr-pt-2w am-icon-20 am-btn-modal open-agenda-item-modal"
       >
-        Ouvrir la modale liée à l'élément de l'agenda
+        Ouvrir la modale liée à l’élément de l’agenda
       </button>
       <div class="fr-tile__body">
         <div class="fr-tile__content fr-pb-0 {item.link ? '': 'no-link'}">

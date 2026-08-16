@@ -1205,7 +1205,7 @@ describe('/agenda.ts', () => {
         expect(spy).toHaveBeenCalledTimes(2);
         expect(spy).toHaveBeenCalledWith({
           content_body:
-            "Demandez l'Opération Tranquillité Vacances afin de partir en vacances l’esprit (plus) tranquille.",
+            'Demandez l’Opération Tranquillité Vacances afin de partir en vacances l’esprit (plus) tranquille.',
           content_icon: 'fr-icon-megaphone-line',
           content_title: 'Et si on veillait sur votre logement ? 👮',
           reference: 'ami-otv:d-3w:2026:holiday',
@@ -1214,7 +1214,7 @@ describe('/agenda.ts', () => {
         });
         expect(spy).toHaveBeenCalledWith({
           content_body:
-            "Demandez l'Opération Tranquillité Vacances afin de partir en vacances l’esprit (plus) tranquille.",
+            'Demandez l’Opération Tranquillité Vacances afin de partir en vacances l’esprit (plus) tranquille.',
           content_icon: 'fr-icon-megaphone-line',
           content_title: 'Et si on veillait sur votre logement ? 👮',
           reference: 'ami-otv:d-3w:2026:summer-holiday',
@@ -1287,7 +1287,7 @@ describe('/agenda.ts', () => {
         expect(spy).toHaveBeenCalledTimes(2);
         expect(spy).toHaveBeenCalledWith({
           content_body:
-            "Demandez l'Opération Tranquillité Vacances afin de partir en vacances l’esprit (plus) tranquille.",
+            'Demandez l’Opération Tranquillité Vacances afin de partir en vacances l’esprit (plus) tranquille.',
           content_icon: 'fr-icon-megaphone-line',
           content_title: 'Et si on veillait sur votre logement ? 👮',
           reference: 'ami-otv:d-3w:2026:holiday',
@@ -1296,7 +1296,7 @@ describe('/agenda.ts', () => {
         });
         expect(spy).toHaveBeenCalledWith({
           content_body:
-            "Demandez l'Opération Tranquillité Vacances afin de partir en vacances l’esprit (plus) tranquille.",
+            'Demandez l’Opération Tranquillité Vacances afin de partir en vacances l’esprit (plus) tranquille.',
           content_icon: 'fr-icon-megaphone-line',
           content_title: 'Et si on veillait sur votre logement ? 👮',
           reference: 'ami-otv:d-3w:2026:summer-holiday',
@@ -1372,7 +1372,7 @@ describe('/agenda.ts', () => {
         expect(spy).toHaveBeenCalledTimes(2);
         expect(spy).toHaveBeenCalledWith({
           content_body:
-            "Demandez l'Opération Tranquillité Vacances afin de partir en vacances l’esprit (plus) tranquille.",
+            'Demandez l’Opération Tranquillité Vacances afin de partir en vacances l’esprit (plus) tranquille.',
           content_icon: 'fr-icon-megaphone-line',
           content_title: 'Et si on veillait sur votre logement ? 👮',
           reference: 'ami-otv:d-3w:2026:holiday',
@@ -1381,7 +1381,7 @@ describe('/agenda.ts', () => {
         });
         expect(spy).toHaveBeenCalledWith({
           content_body:
-            "Demandez l'Opération Tranquillité Vacances afin de partir en vacances l’esprit (plus) tranquille.",
+            'Demandez l’Opération Tranquillité Vacances afin de partir en vacances l’esprit (plus) tranquille.',
           content_icon: 'fr-icon-megaphone-line',
           content_title: 'Et si on veillait sur votre logement ? 👮',
           reference: 'ami-otv:d-3w:2026:summer-holiday',

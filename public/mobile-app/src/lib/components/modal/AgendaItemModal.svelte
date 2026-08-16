@@ -26,7 +26,7 @@
         refreshAgenda();
       }
       closeModal();
-      toastStore.addToast("L'élément a bien été supprimé", 'success', 3000, true);
+      toastStore.addToast('L’élément a bien été supprimé', 'success', 3000, true);
     }
   };
 </script>
@@ -44,8 +44,8 @@
         <span class="fr-icon-delete-line"></span>
         <button
           onclick={() => clickOnHideAgendaItem(item)}
-          title="Cacher l'élément de l'agenda"
-          aria-label="Cacher l'élément de l'agenda"
+          title="Cacher l’élément de l’agenda"
+          aria-label="Cacher l’élément de l’agenda"
           data-testid="hide-agenda-item-button"
           class="hide-agenda-item"
         >

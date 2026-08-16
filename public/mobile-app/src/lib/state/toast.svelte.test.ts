@@ -9,13 +9,13 @@ describe('/lib/state/toast.svelte.ts', () => {
       toastStore.toasts = [];
 
       // When
-      toastStore.addToast("Code d'identification copié !", 'info', 5000, true);
+      toastStore.addToast('Code d’identification copié !', 'info', 5000, true);
       toastStore.addToast('Information bien enregistrée !', 'success', 5000, false);
       toastStore.addToast('Les notifications ont été activées', 'success', null, false);
 
       // Then
       expect(toastStore.toasts).toHaveLength(3);
-      expect(toastStore.toasts[0].title).toBe("Code d'identification copié !");
+      expect(toastStore.toasts[0].title).toBe('Code d’identification copié !');
       expect(toastStore.toasts[0].toastType).toBe('info');
       expect(toastStore.toasts[0].duration).toBe(5000);
       expect(toastStore.toasts[0].hasCloseLink).toBe(true);
@@ -35,7 +35,7 @@ describe('/lib/state/toast.svelte.ts', () => {
       // Given
       const toast1 = new Toast(
         '1',
-        "Code d'identification copié !",
+        'Code d’identification copié !',
         'info',
         5000,
         true

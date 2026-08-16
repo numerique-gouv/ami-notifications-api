@@ -59,7 +59,7 @@
         <fieldset class="fr-fieldset fr-mb-3w">
           <div class="fr-fieldset__element fr-mb-0">
             <div class="fr-input-group autocomplete">
-              <label class="fr-label" for="input">Nom d'usage</label>
+              <label class="fr-label" for="input">Nom d’usage</label>
               <span class="fr-hint-text">Par exemple&nbsp;: Dupont</span>
               <input
                 class="fr-input"

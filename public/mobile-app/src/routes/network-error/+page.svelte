@@ -13,7 +13,7 @@
   <h1>Problème de connexion Internet</h1>
   <div class="descriptive-text">
     <p>
-      Vérifiez votre réseau (données mobiles ou Wi-Fi) et relancez l'application pour
+      Vérifiez votre réseau (données mobiles ou Wi-Fi) et relancez l’application pour
       vous connecter.
     </p>
   </div>

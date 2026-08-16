@@ -79,7 +79,7 @@ describe('/FollowupItemModal.svelte', () => {
     await waitFor(async () => {
       expect(spy).toHaveBeenCalledWith();
       expect(spy2).toHaveBeenCalledWith(
-        "L'élément a bien été archivé",
+        'L’élément a bien été archivé',
         'success',
         3000,
         true
@@ -102,7 +102,7 @@ describe('/FollowupItemModal.svelte', () => {
     await waitFor(async () => {
       expect(spy).toHaveBeenCalledWith();
       expect(spy2).toHaveBeenCalledWith(
-        "L'élément n'a pas pu être archivé",
+        "L’élément n'a pas pu être archivé",
         'error',
         3000,
         true
