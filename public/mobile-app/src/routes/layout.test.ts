@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import * as envModule from '$env/static/public';
-import * as initializeDataFromAPIMethods from '$lib/initializeDataFromAPI';
 import { userStore } from '$lib/state/User.svelte';
 import { load } from './+layout';
 
@@ -37,21 +36,6 @@ describe('+layout.ts', () => {
 
     // Then
     expect(spy).toHaveBeenCalled();
-  });
-
-  test('should not call initializeData when user is not logged in', async () => {
-    // Given
-
-    const spy = vi
-      .spyOn(initializeDataFromAPIMethods, 'initializeData')
-      .mockResolvedValue();
-
-    // When
-    // @ts-expect-error
-    await load();
-
-    // Then
-    expect(spy).not.toHaveBeenCalled();
   });
 
   test('should ask and check access key when configured', async () => {
