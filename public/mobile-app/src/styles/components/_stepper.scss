@@ -1,0 +1,9 @@
+@for $i from 9 through 15 {
+	.fr-stepper__steps[data-fr-steps='#{$i}'] {
+		--steps: #{$i};
+		--step-width: calc(100% / #{$i});
+	}
+	.fr-stepper__steps[data-fr-current-step='#{$i}'] {
+		--current-step: #{$i};
+	}
+}
