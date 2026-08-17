@@ -9,6 +9,7 @@
   import { AMIGoto } from '$lib/ami-goto';
   import ServicesItemModal from '$lib/components/modal/ServicesItemModal.svelte';
   import Navigation from '$lib/components/Navigation.svelte';
+  import SideMenu from '$lib/components/SideMenu.svelte';
   import type { Followup } from '$lib/followup';
   import { buildFollowup } from '$lib/followup';
   import type { Services, ServicesItem } from '$lib/services';
@@ -125,6 +126,12 @@
 
       <h2 class="fr-h5 fr-mb-1w">Comment faire si ... ?</h2>
 
+      <!--
+      {#if services && services.steps.length }
+        <SideMenu sideMenus={services.steps} />
+      {/if}
+      -->
+
       <nav class="fr-sidemenu cfsi-sidemenu fr-mb-3w fr-mx-0">
         <div class="fr-sidemenu__inner">
           <ul class="fr-sidemenu__list" data-testid="steps">
@@ -132,7 +139,7 @@
               {#each services.steps as steps}
                 <li class="fr-sidemenu__item">
                   <button
-                    class="fr-sidemenu__btn fr-pr-4w am-text--smbold  {steps.icon} {steps.icon ? 'fr-tag--icon-left': ''}"
+                    class="fr-sidemenu__btn fr-pl-0 fr-pr-4w am-text--smbold  {steps.icon} {steps.icon ? 'fr-tag--icon-left': ''}"
                     type="button"
                     data-testid="service-steps-{steps.id}"
                     onclick={()=> gotoService(steps)}
