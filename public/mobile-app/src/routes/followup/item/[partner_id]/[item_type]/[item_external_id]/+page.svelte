@@ -15,7 +15,7 @@
 
   onMount(async () => {
     if (!userStore.connected) {
-      goto('/');
+      goto('/#/login');
     }
     if (data.item) {
       item = data.item as FollowupItem;

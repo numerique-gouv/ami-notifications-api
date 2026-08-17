@@ -19,7 +19,7 @@
 
   onMount(async () => {
     if (!userStore.connected) {
-      goto('/');
+      goto('/#/login');
     }
 
     agenda = await buildAgenda();

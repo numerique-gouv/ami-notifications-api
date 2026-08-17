@@ -16,7 +16,7 @@
 
   onMount(() => {
     if (!userStore.connected) {
-      goto('/');
+      goto('/#/login');
       return;
     } else {
       const identity = userStore.connected.identity;

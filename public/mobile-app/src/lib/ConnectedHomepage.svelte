@@ -11,7 +11,6 @@
   import FollowupItemModal from '$lib/components/modal/FollowupItemModal.svelte';
   import type { Followup, FollowupItem as FollowupItemType } from '$lib/followup';
   import { buildFollowup } from '$lib/followup';
-  import { userReady } from '$lib/initializeDataFromAPI';
   import {
     countUnreadNotifications,
     notificationEventsSocket,
@@ -58,7 +57,6 @@
       };
       document.addEventListener('visibilitychange', handleVisibility);
 
-      await userReady;
       agenda = await buildAgenda();
       console.log($state.snapshot(agenda));
       isAgendaEmpty = !(agenda.now.length || agenda.next.length);

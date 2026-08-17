@@ -28,6 +28,14 @@ data_provider_functions = {
     "api_particulier_statut_etudiant": get_api_particulier_statut_etudiant_raw_data,
 }
 
+FC_ERROR_TRANSLATIONS = {
+    "temporarily_unavailable": "Erreur lors de la FranceConnexion, veuillez réessayer plus tard.",
+}
+
+FC_ERROR_DESCRIPTION_TRANSLATIONS = {
+    "authentication aborted due to a technical error on the authorization server": "La connexion a été interrompue à cause d’un problème technique sur le serveur d’autorisation.",
+}
+
 
 def retry_fc_later(error_dict: dict | None = None):
     error_dict = error_dict or {}
@@ -36,7 +44,7 @@ def retry_fc_later(error_dict: dict | None = None):
         "error_type": "FranceConnect",
         **error_dict,
     }
-    return redirect(f"{settings.PUBLIC_APP_URL}/?{urlencode(params)}")
+    return redirect(f"{settings.PUBLIC_APP_URL}/?{urlencode(params)}#/login")
 
 
 def login(request, login_type):
@@ -130,6 +138,10 @@ async def login_callback(request):
         fc_state = request.GET.get("state", "")
 
         if error or not code:
+            error = FC_ERROR_TRANSLATIONS.get(error, error)
+            error_description = FC_ERROR_DESCRIPTION_TRANSLATIONS.get(
+                error_description, error_description
+            )
             return retry_fc_later(
                 {
                     "error_code": "fc_error",
@@ -172,7 +184,6 @@ async def login_callback(request):
 
             # build user_data from previous calls
             user_data = {
-                "is_logged_in": "true",
                 "id_token": id_token,
             }
             user_id, userinfo_result = None, {}
@@ -186,7 +197,7 @@ async def login_callback(request):
                         user_data[key] = result
 
             # build redirect_url, depending on kind of login (fc, ami-fi, silent-ami-fi)
-            redirect_url = f"{settings.PUBLIC_APP_URL}/?{urlencode(user_data)}"
+            redirect_url = f"{settings.PUBLIC_APP_URL}/?{urlencode(user_data)}#/login-callback"
             if nonce_context.get("idp") == "ami-fi":
                 redirect_url = f"{settings.PUBLIC_APP_URL}/?{urlencode(user_data)}#/fi"
             if nonce_context.get("idp") == "silent-ami-fi":

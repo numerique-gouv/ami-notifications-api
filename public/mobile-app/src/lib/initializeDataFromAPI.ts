@@ -1,14 +1,8 @@
-import { buildAgenda } from '$lib/agenda';
+import { retrieveAgenda } from '$lib/api-agenda';
 import { retrieveNotifications } from '$lib/notifications';
 import type { UserStore } from '$lib/state/User.svelte';
 
 export const initializeLocalStorage = (searchParams: URLSearchParams) => {
-  if (
-    localStorage.getItem('is_logged_in') === null &&
-    searchParams.get('is_logged_in') !== ''
-  ) {
-    localStorage.setItem('is_logged_in', searchParams.get('is_logged_in') || '');
-  }
   if (
     localStorage.getItem('id_token') === null &&
     searchParams.get('id_token') !== ''
@@ -38,17 +32,6 @@ export const initializeLocalStorage = (searchParams: URLSearchParams) => {
   }
 };
 
-let _resolveUserReady: () => void;
-export const userReady = new Promise<void>((resolve) => {
-  _resolveUserReady = resolve;
-});
-
-export const initializeData = async (
-  searchParams: URLSearchParams,
-  userStore: UserStore
-) => {
-  initializeLocalStorage(searchParams);
-  await userStore.checkLoggedIn();
-  await Promise.all([buildAgenda(), retrieveNotifications()]);
-  _resolveUserReady();
+export const initializeData = async (userStore: UserStore) => {
+  await Promise.all([retrieveAgenda(), retrieveNotifications()]);
 };

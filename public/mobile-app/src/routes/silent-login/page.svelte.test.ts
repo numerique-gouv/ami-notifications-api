@@ -21,7 +21,6 @@ describe('/+page.svelte', () => {
     const { page } = await import('$app/state');
     vi.spyOn(navigationMethods, 'goto').mockImplementation(() => Promise.resolve());
     const mockSearchParams = new URLSearchParams({
-      is_logged_in: 'true',
       id_token: 'fake-id-token',
     });
     vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);

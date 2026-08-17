@@ -66,7 +66,7 @@
 
   onMount(() => {
     if (!userStore.connected) {
-      goto('/');
+      goto('/#/login');
     } else {
       refreshPreferences();
     }

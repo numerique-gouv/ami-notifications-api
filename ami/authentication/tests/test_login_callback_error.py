@@ -34,7 +34,7 @@ def test_login_callback_token_query_failure(
     redirected_url = response.headers["location"]
     assert (
         redirected_url
-        == "https://localhost:5173/?error=Erreur+lors+de+la+FranceConnexion%2C+veuillez+r%C3%A9essayer+plus+tard.&error_type=FranceConnect"
+        == "https://localhost:5173/?error=Erreur+lors+de+la+FranceConnexion%2C+veuillez+r%C3%A9essayer+plus+tard.&error_type=FranceConnect#/login"
     )
 
 
@@ -83,7 +83,7 @@ def test_login_callback_userinfo_query_failure(
     redirected_url = response.headers["location"]
     assert (
         redirected_url
-        == "https://localhost:5173/?error=Erreur+lors+de+la+FranceConnexion%2C+veuillez+r%C3%A9essayer+plus+tard.&error_type=FranceConnect"
+        == "https://localhost:5173/?error=Erreur+lors+de+la+FranceConnexion%2C+veuillez+r%C3%A9essayer+plus+tard.&error_type=FranceConnect#/login"
     )
 
 
@@ -142,6 +142,7 @@ def test_login_callback_address_query_failure_500(
     assert response.status_code == 302
     redirected_url = response.headers["location"]
     assert redirected_url.startswith("https://localhost:5173")
+    assert not redirected_url.endswith("#/login")
     assert url_contains_param(
         "user_data",
         "fake userinfo jwt token",
@@ -155,11 +156,6 @@ def test_login_callback_address_query_failure_500(
     assert url_contains_param(
         "user_fc_hash",
         "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060",
-        redirected_url,
-    )
-    assert url_contains_param(
-        "is_logged_in",
-        "true",
         redirected_url,
     )
     assert "address" not in redirected_url
@@ -221,6 +217,7 @@ def test_login_callback_address_query_failure_400(
     assert response.status_code == 302
     redirected_url = response.headers["location"]
     assert redirected_url.startswith("https://localhost:5173")
+    assert not redirected_url.endswith("#/login")
     assert url_contains_param(
         "user_data",
         "fake userinfo jwt token",
@@ -236,11 +233,6 @@ def test_login_callback_address_query_failure_400(
         "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060",
         redirected_url,
     )
-    assert url_contains_param(
-        "is_logged_in",
-        "true",
-        redirected_url,
-    )
     assert "address" not in redirected_url
 
 
@@ -253,10 +245,32 @@ def test_login_callback_fc_error(
 
     assert response.status_code == 302
     redirected_url = response.headers["location"]
+    assert redirected_url.endswith("#/login")
     assert url_contains_param("error_type", "FranceConnect", redirected_url)
     assert url_contains_param("error", "access_denied", redirected_url)
     assert url_contains_param("error_description", "User auth aborted", redirected_url)
     assert url_contains_param("code", "fc_error", redirected_url)
+
+
+def test_login_callback_fc_temporary_unavailable_error(
+    app,
+) -> None:
+    response = app.get(
+        "/login-callback?error=temporarily_unavailable&error_description=authentication aborted due to a technical error on the authorization server&state=...&iss=..."
+    )
+
+    assert response.status_code == 302
+    redirected_url = response.headers["location"]
+    assert redirected_url.endswith("#/login")
+    assert url_contains_param("error_type", "FranceConnect", redirected_url)
+    assert url_contains_param(
+        "error", "Erreur lors de la FranceConnexion, veuillez réessayer plus tard.", redirected_url
+    )
+    assert url_contains_param(
+        "error_description",
+        "La connexion a été interrompue à cause d’un problème technique sur le serveur d’autorisation.",
+        redirected_url,
+    )
 
 
 def test_login_callback_error(
