@@ -60,7 +60,6 @@ describe('/+page.svelte', () => {
       // Given
       const { page } = await import('$app/state');
       const mockSearchParams = new URLSearchParams({
-        is_logged_in: 'true',
         id_token: 'fake-id-token',
       });
       vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
@@ -78,7 +77,6 @@ describe('/+page.svelte', () => {
       // Given
       const { page } = await import('$app/state');
       const mockSearchParams = new URLSearchParams({
-        is_logged_in: 'true',
         data: 'wrong',
       });
       vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
@@ -99,7 +97,6 @@ describe('/+page.svelte', () => {
       // Given
       const { page } = await import('$app/state');
       const mockSearchParams = new URLSearchParams({
-        is_logged_in: 'true',
         data: btoa('wrong'),
       });
       vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
@@ -120,7 +117,6 @@ describe('/+page.svelte', () => {
       // Given
       const { page } = await import('$app/state');
       const mockSearchParams = new URLSearchParams({
-        is_logged_in: 'true',
         data: btoa('{}'),
       });
       vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
@@ -141,7 +137,6 @@ describe('/+page.svelte', () => {
       // Given
       const { page } = await import('$app/state');
       const mockSearchParams = new URLSearchParams({
-        is_logged_in: 'true',
         data: btoa(JSON.stringify({ foo: 'bar' })),
       });
       vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
@@ -162,7 +157,6 @@ describe('/+page.svelte', () => {
       // Given
       const { page } = await import('$app/state');
       const mockSearchParams = new URLSearchParams({
-        is_logged_in: 'true',
         data: btoa(JSON.stringify({ foo: 'bar' })),
       });
       vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
@@ -185,7 +179,6 @@ describe('/+page.svelte', () => {
       // Given
       const { page } = await import('$app/state');
       const mockSearchParams = new URLSearchParams({
-        is_logged_in: 'true',
         data: btoa(JSON.stringify({ foo: 'bar' })),
       });
       vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);

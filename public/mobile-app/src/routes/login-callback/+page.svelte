@@ -8,13 +8,10 @@
   onMount(async () => {
     try {
       initializeLocalStorage(page.url.searchParams);
-      await userStore.checkLoggedIn();
+      await userStore.buildUser();
       if (!userStore.connected) {
         goto('/#/login');
-      } else if (
-        page.url.searchParams.has('is_logged_in') &&
-        page.url.searchParams.get('user_first_login') === 'true'
-      ) {
+      } else if (page.url.searchParams.get('user_first_login') === 'true') {
         goto('/#/welcome/zones');
       } else {
         goto('/');

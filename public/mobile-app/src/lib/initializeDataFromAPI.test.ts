@@ -51,7 +51,6 @@ describe('/initializeDataFromAPI.ts', () => {
       window.localStorage.removeItem('user_api_particulier_encoded_address');
 
       const searchParams = new URLSearchParams({
-        is_logged_in: 'true',
         id_token: 'fake-id-token',
         user_data: 'fake-user-data',
         user_fc_hash: 'fake-user-fc-hash',
@@ -63,7 +62,6 @@ describe('/initializeDataFromAPI.ts', () => {
 
       // Then
       await waitFor(async () => {
-        expect(window.localStorage.getItem('is_logged_in')).toEqual('true');
         expect(window.localStorage.getItem('id_token')).toEqual('fake-id-token');
         expect(window.localStorage.getItem('user_data')).toEqual('fake-user-data');
         expect(window.localStorage.getItem('user_fc_hash')).toEqual(
@@ -80,7 +78,6 @@ describe('/initializeDataFromAPI.ts', () => {
     test('should call dedicated methods to initialize data', async () => {
       // Given
       const userStore = new UserStore();
-      const checkLoggedInSpy = vi.spyOn(userStore, 'checkLoggedIn').mockResolvedValue();
       const retrieveAgendaSpy = vi
         .spyOn(apiAgendaMethods, 'retrieveAgenda')
         .mockResolvedValue(apiAgendaData);
@@ -93,7 +90,6 @@ describe('/initializeDataFromAPI.ts', () => {
       await initializeData(userStore);
 
       // Then
-      expect(checkLoggedInSpy).toHaveBeenCalledTimes(1);
       expect(retrieveAgendaSpy).toHaveBeenCalledTimes(1);
       expect(retrieveNotificationsSpy).toHaveBeenCalledTimes(1);
     });

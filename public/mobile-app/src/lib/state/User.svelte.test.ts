@@ -310,7 +310,7 @@ describe('/lib/state/User.svelte.ts', () => {
       });
     });
 
-    describe('checkLoggedIn', () => {
+    describe('buildUser', () => {
       test("should detect that we're already logged in", async () => {
         // Given
         localStorage.setItem('user_data', 'some data');
@@ -320,7 +320,7 @@ describe('/lib/state/User.svelte.ts', () => {
 
         // When
         expect(userStore.connected).not.toBeTruthy();
-        const isLoggedIn = userStore.checkLoggedIn();
+        const isLoggedIn = userStore.buildUser();
 
         // Then
         expect(isLoggedIn).toBeTruthy();
@@ -348,7 +348,7 @@ describe('/lib/state/User.svelte.ts', () => {
         localStorage.removeItem('user_data');
 
         // When
-        userStore.checkLoggedIn();
+        userStore.buildUser();
 
         // Then
         expect(userStore.connected).not.toBeTruthy();

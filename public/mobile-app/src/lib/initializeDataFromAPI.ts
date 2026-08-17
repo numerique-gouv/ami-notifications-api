@@ -4,12 +4,6 @@ import type { UserStore } from '$lib/state/User.svelte';
 
 export const initializeLocalStorage = (searchParams: URLSearchParams) => {
   if (
-    localStorage.getItem('is_logged_in') === null &&
-    searchParams.get('is_logged_in') !== ''
-  ) {
-    localStorage.setItem('is_logged_in', searchParams.get('is_logged_in') || '');
-  }
-  if (
     localStorage.getItem('id_token') === null &&
     searchParams.get('id_token') !== ''
   ) {
@@ -39,6 +33,5 @@ export const initializeLocalStorage = (searchParams: URLSearchParams) => {
 };
 
 export const initializeData = async (userStore: UserStore) => {
-  await userStore.checkLoggedIn();
   await Promise.all([retrieveAgenda(), retrieveNotifications()]);
 };

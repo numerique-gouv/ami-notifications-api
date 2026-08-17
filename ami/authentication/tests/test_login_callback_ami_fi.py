@@ -131,11 +131,6 @@ def test_login_callback_ami_fi(
         redirected_url,
     )
     assert url_contains_param(
-        "is_logged_in",
-        "true",
-        redirected_url,
-    )
-    assert url_contains_param(
         "api_particulier_quotient",
         encoded_address,
         redirected_url,
@@ -236,11 +231,6 @@ def test_login_callback_ami_fi_no_quotient(
         "fake id token",
         redirected_url,
     )
-    assert url_contains_param(
-        "is_logged_in",
-        "true",
-        redirected_url,
-    )
     assert "api_particulier_quotient" not in redirected_url
     assert "api_particulier_statut_etudiant" not in redirected_url
 
@@ -331,11 +321,6 @@ def test_login_callback_ami_fi_no_statut_edudiant(
     assert url_contains_param(
         "id_token",
         "fake id token",
-        redirected_url,
-    )
-    assert url_contains_param(
-        "is_logged_in",
-        "true",
         redirected_url,
     )
     assert "api_particulier_quotient" not in redirected_url

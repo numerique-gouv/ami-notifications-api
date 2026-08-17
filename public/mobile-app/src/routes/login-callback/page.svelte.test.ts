@@ -25,7 +25,6 @@ describe('/+page.svelte', () => {
     // Given
     const { page } = await import('$app/state');
     const mockSearchParams = new URLSearchParams();
-    mockSearchParams.set('is_logged_in', 'true');
     vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
     const spy = vi
       .spyOn(initializeDataFromAPIMethods, 'initializeLocalStorage')
@@ -45,7 +44,6 @@ describe('/+page.svelte', () => {
     // Given
     const { page } = await import('$app/state');
     const mockSearchParams = new URLSearchParams();
-    mockSearchParams.set('is_logged_in', 'true');
     mockSearchParams.set('user_first_login', 'true');
     window.localStorage.setItem('user_data', 'fake-user-data');
     const spyParseJwt = vi
@@ -70,7 +68,6 @@ describe('/+page.svelte', () => {
     // Given
     const { page } = await import('$app/state');
     const mockSearchParams = new URLSearchParams();
-    mockSearchParams.set('is_logged_in', 'true');
     window.localStorage.setItem('user_data', 'fake-user-data');
     const spyParseJwt = vi
       .spyOn(franceConnectHelpers, 'parseJwt')
