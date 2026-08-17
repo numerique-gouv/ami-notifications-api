@@ -19,6 +19,7 @@ export default defineConfig({
       '/schema': { target: 'http://localhost:8000', xfwd: true },
       '/sector_identifier_url ': { target: 'http://localhost:8000', xfwd: true },
       '/silent-login-ami-fi': { target: 'http://localhost:8000', xfwd: true },
+      '/.well-known': { target: 'http://localhost:8000', xfwd: true },
     },
   },
   test: {
