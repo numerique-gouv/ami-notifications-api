@@ -184,7 +184,6 @@ async def login_callback(request):
 
             # build user_data from previous calls
             user_data = {
-                "is_logged_in": "true",
                 "id_token": id_token,
             }
             user_id, userinfo_result = None, {}

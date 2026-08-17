@@ -87,11 +87,6 @@ def test_login_callback(
         "fake id token",
         redirected_url,
     )
-    assert url_contains_param(
-        "is_logged_in",
-        "true",
-        redirected_url,
-    )
     assert "address" not in redirected_url
 
     token = decode_jwt_token(
@@ -206,11 +201,6 @@ def test_login_callback_user_already_seen(
         "fake id token",
         redirected_url,
     )
-    assert url_contains_param(
-        "is_logged_in",
-        "true",
-        redirected_url,
-    )
     assert Nonce.objects.count() == 0
 
     assert User.objects.count() == 1
@@ -299,11 +289,6 @@ def test_login_callback_user_never_seen(
     assert url_contains_param(
         "id_token",
         "fake id token",
-        redirected_url,
-    )
-    assert url_contains_param(
-        "is_logged_in",
-        "true",
         redirected_url,
     )
     assert Nonce.objects.count() == 0

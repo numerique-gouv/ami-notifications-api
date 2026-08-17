@@ -67,12 +67,12 @@ export class UserStore {
     if (!userinfo) {
       throw new Error('No userinfo provided');
     }
-    this.connected = await this.buildUser(userinfo);
+    this.connected = await this.buildConnectedAttribute(userinfo);
     emit('user_logged_in', userinfo);
     return this.connected;
   }
 
-  private async buildUser(userinfo: UserInfo): Promise<User> {
+  private async buildConnectedAttribute(userinfo: UserInfo): Promise<User> {
     this.connected = new User(userinfo);
     await this.connected.updateIdentity();
     return this.connected;
@@ -104,7 +104,7 @@ export class UserStore {
     emit('user_logged_out');
   }
 
-  async checkLoggedIn() {
+  async buildUser() {
     const userData = localStorage.getItem('user_data') || '';
     console.log('Checking if user is logged in', userData);
     if (userData !== '') {

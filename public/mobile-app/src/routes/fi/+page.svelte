@@ -21,24 +21,22 @@
       selected = Object.keys(data_providers)[0];
     } catch {}
     const searchParams = page.url.searchParams;
-    if (searchParams.has('is_logged_in')) {
-      if (
-        localStorage.getItem('id_token') === null &&
-        searchParams.get('id_token') !== ''
-      ) {
-        localStorage.setItem('id_token', searchParams.get('id_token') || '');
-      }
-      Object.keys(data_providers).forEach((key) => {
-        const encoded_data = searchParams.get(key) || '';
-        if (encoded_data) {
-          try {
-            datas[key] = JSON.parse(atob(encoded_data));
-          } catch (error) {
-            console.error(error);
-          }
-        }
-      });
+    if (
+      localStorage.getItem('id_token') === null &&
+      searchParams.get('id_token') !== ''
+    ) {
+      localStorage.setItem('id_token', searchParams.get('id_token') || '');
     }
+    Object.keys(data_providers).forEach((key) => {
+      const encoded_data = searchParams.get(key) || '';
+      if (encoded_data) {
+        try {
+          datas[key] = JSON.parse(atob(encoded_data));
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    });
   });
 
   const AMIFILogin = async () => {

@@ -26,27 +26,21 @@ describe('+layout.ts', () => {
     localStorage.clear();
   });
 
-  test('should call initializeData when user is logged in', async () => {
+  test('should call buildUser', async () => {
     // Given
-    window.localStorage.setItem('is_logged_in', 'true');
 
-    const spy = vi
-      .spyOn(initializeDataFromAPIMethods, 'initializeData')
-      .mockResolvedValue();
-
-    const { page } = await import('$app/state');
+    const spy = vi.spyOn(userStore, 'buildUser').mockResolvedValue();
 
     // When
     // @ts-expect-error
     await load();
 
     // Then
-    expect(spy).toHaveBeenCalledWith(userStore);
+    expect(spy).toHaveBeenCalled();
   });
 
   test('should not call initializeData when user is not logged in', async () => {
     // Given
-    window.localStorage.removeItem('is_logged_in');
 
     const spy = vi
       .spyOn(initializeDataFromAPIMethods, 'initializeData')

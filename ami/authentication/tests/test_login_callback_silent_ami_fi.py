@@ -57,11 +57,6 @@ def test_login_callback_silent_ami_fi(
     assert redirected_url.startswith("https://localhost:5173/")
     assert redirected_url.endswith("#/silent-login")
     assert url_contains_param(
-        "is_logged_in",
-        "true",
-        redirected_url,
-    )
-    assert url_contains_param(
         "id_token",
         "fake id token",
         redirected_url,
@@ -130,11 +125,6 @@ def test_login_callback_silent_ami_fi_with_redirect_url(
     redirected_url = response.headers["location"]
     assert redirected_url.startswith("https://localhost:5173/")
     assert redirected_url.endswith("#/silent-login")
-    assert url_contains_param(
-        "is_logged_in",
-        "true",
-        redirected_url,
-    )
     assert url_contains_param(
         "id_token",
         "fake id token",

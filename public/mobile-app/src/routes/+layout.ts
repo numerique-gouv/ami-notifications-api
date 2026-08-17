@@ -1,5 +1,4 @@
 import { PUBLIC_PROMPT_FOR_ACCESS_KEY } from '$env/static/public';
-import { initializeData } from '$lib/initializeDataFromAPI';
 import { userStore } from '$lib/state/User.svelte';
 import type { LayoutLoad } from './$types';
 
@@ -28,7 +27,5 @@ export const load: LayoutLoad = async () => {
     }
   }
   // Initialize user state from localStorage before anything else
-  if (localStorage.getItem('is_logged_in')) {
-    await initializeData(userStore);
-  }
+  await userStore.buildUser();
 };
