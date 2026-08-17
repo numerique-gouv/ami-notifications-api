@@ -34,14 +34,21 @@ async def get_fc_userinfo(
     decoded_userinfo = jwt.decode(
         userinfo_jws, key=signing_key, options={"verify_aud": False}, algorithms=["ES256"]
     )
+
+    decoded_user_data = {
+        k: v
+        for k, v in decoded_userinfo.items()
+        if k not in ["sub", "given_name_array", "aud", "exp", "iat", "iss"]
+    }
     fc_hash = build_fc_hash(
-        given_name=decoded_userinfo["given_name"],
-        family_name=decoded_userinfo["family_name"],
-        birthdate=decoded_userinfo["birthdate"],
-        gender=decoded_userinfo["gender"],
-        birthplace=decoded_userinfo["birthplace"],
-        birthcountry=decoded_userinfo["birthcountry"],
+        given_name=decoded_user_data["given_name"],
+        family_name=decoded_user_data["family_name"],
+        birthdate=decoded_user_data["birthdate"],
+        gender=decoded_user_data["gender"],
+        birthplace=decoded_user_data["birthplace"],
+        birthcountry=decoded_user_data["birthcountry"],
     )
+    decoded_user_data["sub"] = fc_hash
 
     user, created = await User.objects.aget_or_create(
         fc_hash=fc_hash, defaults={"last_logged_in": now()}
@@ -57,6 +64,7 @@ async def get_fc_userinfo(
 
     result: dict[str, Any] = {
         "user_data": userinfo_jws,
+        "decoded_user_data": decoded_user_data,
         "user_first_login": "true" if create_welcome else "false",
         "user_fc_hash": fc_hash,
     }

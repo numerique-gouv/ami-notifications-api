@@ -4,6 +4,7 @@ import uuid
 from urllib.parse import urlencode
 
 from django.conf import settings
+from django.core import signing
 from django.http import Http404, JsonResponse
 from django.shortcuts import redirect
 from django.views.decorators.http import require_GET
@@ -164,10 +165,11 @@ async def login_callback(request):
             user_data = {
                 "id_token": id_token,
             }
-            user_id, userinfo_result = None, {}
+            user_id, userinfo_result, decoded_user_data = None, {}, {}
             if "userinfo" in tasks:
                 task_userinfo = tasks.pop("userinfo")
                 userinfo_result, user_id = task_userinfo.result()
+                decoded_user_data = userinfo_result.pop("decoded_user_data")
                 user_data.update(userinfo_result)
                 for key, task in tasks.items():
                     result = task.result()
@@ -194,8 +196,8 @@ async def login_callback(request):
                 samesite="None",
             )
             response.set_cookie(
-                key=settings.USERINFO_COOKIE_JWT_NAME,
-                value=userinfo_result["user_data"],
+                key=settings.USERINFO_COOKIE_NAME,
+                value=signing.dumps(decoded_user_data),
                 max_age=365 * 10 * 24 * 3600,
                 secure=True,
                 httponly=True,

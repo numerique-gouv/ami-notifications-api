@@ -1,4 +1,5 @@
 import datetime
+from typing import Any
 from unittest import mock
 
 import pytest
@@ -13,14 +14,14 @@ from ami.fi.models import FISession
 def test_token(
     settings,
     app,
+    decoded_user_data: dict[str, Any],
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     settings.PUBLIC_FC_PROXY_BASE_URL = "https://fake-fc-proxy"
-    user_data = {"sub": "fake-sub"}
     nonce = "fake-nonce"
     code = "fake-code"
     code_hash = make_password(code, settings.FI_HASH_SALT)
-    fi_session = FISession.objects.create(user_data=user_data, nonce=nonce, code=code_hash)
+    fi_session = FISession.objects.create(user_data=decoded_user_data, nonce=nonce, code=code_hash)
     token_data = {
         "code": code,
         "grant_type": "authorization_code",
@@ -48,7 +49,7 @@ def test_token(
             "exp": 1775582760,
             "iat": 1775582460,
             "iss": f"{settings.PUBLIC_FC_PROXY_BASE_URL}/api/v1/fi/",
-            "sub": "fake-sub",
+            "sub": decoded_user_data["sub"],
             "nonce": "fake-nonce",
             "acr": "eidas1",
         },
