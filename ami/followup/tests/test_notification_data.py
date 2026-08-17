@@ -10,6 +10,7 @@ from ami.followup.schemas import (
     FollowupItemEvent,
     FollowupSource,
     FollowupSourceStatus,
+    FollowupSubItem,
     ItemGenericStatus,
 )
 from ami.notification.models import Notification
@@ -163,6 +164,20 @@ def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> 
         item_id="42",
         partner_id="psl",
     )
+    sub_notification31 = Notification.objects.create(
+        user_id=user.id,
+        content_body="Sub notification body",
+        content_title="Sub notification title",
+        content_subheading="Autre service",
+        item_generic_status="wip",
+        item_status_label="En cours",
+        item_type="SousDémarche",
+        item_id="35",
+        partner_id="dinum-ami",
+        item_parent_partner_id="psl",
+        item_parent_type="OperationTranquilliteVacances",
+        item_parent_id="42",
+    )
 
     notification4 = Notification.objects.create(
         user_id=user.id,
@@ -254,6 +269,7 @@ def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> 
             is_archived=False,
             created_at=notification8.event_date,
             updated_at=notification8.event_date,
+            sub_items=[],
         ),
         FollowupItem(
             partner_id="dinum-ami",
@@ -278,6 +294,7 @@ def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> 
             is_archived=False,
             created_at=notification7.event_date,
             updated_at=notification7.event_date,
+            sub_items=[],
         ),
         FollowupItem(
             partner_id="psl",
@@ -307,6 +324,7 @@ def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> 
             is_archived=False,
             created_at=notification5.event_date,
             updated_at=notification6.event_date,
+            sub_items=[],
         ),
         FollowupItem(
             partner_id="psl",
@@ -331,6 +349,7 @@ def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> 
             is_archived=False,
             created_at=notification4.event_date,
             updated_at=notification4.event_date,
+            sub_items=[],
         ),
         FollowupItem(
             partner_id="psl",
@@ -365,6 +384,172 @@ def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> 
             is_archived=True,
             created_at=notification1.event_date,
             updated_at=notification3.event_date,
+            sub_items=[
+                FollowupSubItem(
+                    partner_id="dinum-ami",
+                    item_type="SousDémarche",
+                    item_external_id="35",
+                    status_id=ItemGenericStatus.WIP,
+                    status_label="En cours",
+                    milestone_start_date=None,
+                    milestone_end_date=None,
+                    events=[
+                        FollowupItemEvent(
+                            sub_notification31.id,
+                            sub_notification31.created_at,
+                            "Sub notification body",
+                        ),
+                    ],
+                    title="Sub notification title",
+                    subheading="Autre service",
+                    description="Sub notification body",
+                    icon="fr-icon-eye-fill",
+                    external_url=None,
+                    is_archived=False,
+                    created_at=sub_notification31.event_date,
+                    updated_at=sub_notification31.event_date,
+                ),
+            ],
+        ),
+    ]
+
+
+@pytest.mark.django_db
+def test_get_notifications_data_parent_and_sub_items(
+    user: User, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    notification = Notification.objects.create(
+        user_id=user.id,
+        content_body="notification",
+        content_title="Notification title",
+        item_generic_status="wip",
+        item_status_label="En cours",
+        item_type="OperationTranquilliteVacances",
+        item_id="42",
+        partner_id="psl",
+    )
+    sub_notification1 = Notification.objects.create(
+        user_id=user.id,
+        content_body="Sub notification body 1",
+        content_title="Sub notification title 1",
+        item_generic_status="new",
+        item_status_label="Nouveau",
+        item_type="SousDémarche",
+        item_id="35",
+        partner_id="dinum-ami",
+        item_parent_partner_id="psl",
+        item_parent_type="OperationTranquilliteVacances",
+        item_parent_id="42",
+    )
+    sub_notification2 = Notification.objects.create(
+        user_id=user.id,
+        content_body="Sub notification body 2",
+        content_title="Sub notification title 2",
+        item_generic_status="wip",
+        item_status_label="En cours",
+        item_type="SousDémarche",
+        item_id="35",
+        partner_id="dinum-ami",
+        item_parent_partner_id="psl",
+        item_parent_type="OperationTranquilliteVacances",
+        item_parent_id="42",
+    )
+    sub_notification3 = Notification.objects.create(
+        user_id=user.id,
+        content_body="Sub notification body 3",
+        content_title="Sub notification title 3",
+        content_subheading="Autre service",
+        item_generic_status="new",
+        item_status_label="Nouveau",
+        item_type="SousDémarcheBis",
+        item_id="104",
+        partner_id="dinum-ami",
+        item_parent_partner_id="psl",
+        item_parent_type="OperationTranquilliteVacances",
+        item_parent_id="42",
+    )
+
+    result = get_notifications_data(current_user=user)
+
+    assert result == [
+        FollowupItem(
+            partner_id="psl",
+            item_type="OperationTranquilliteVacances",
+            item_external_id="42",
+            status_id=ItemGenericStatus.WIP,
+            status_label="En cours",
+            milestone_start_date=None,
+            milestone_end_date=None,
+            events=[
+                FollowupItemEvent(
+                    id=notification.id,
+                    created_at=notification.created_at,
+                    description="notification",
+                )
+            ],
+            title="Notification title",
+            subheading="PSL",
+            description="notification",
+            icon="fr-icon-eye-fill",
+            external_url=None,
+            is_archived=False,
+            created_at=notification.event_date,
+            updated_at=notification.event_date,
+            sub_items=[
+                FollowupSubItem(
+                    partner_id="dinum-ami",
+                    item_type="SousDémarcheBis",
+                    item_external_id="104",
+                    status_id=ItemGenericStatus.NEW,
+                    status_label="Nouveau",
+                    milestone_start_date=None,
+                    milestone_end_date=None,
+                    events=[
+                        FollowupItemEvent(
+                            id=sub_notification3.id,
+                            created_at=sub_notification3.created_at,
+                            description="Sub notification body 3",
+                        )
+                    ],
+                    title="Sub notification title 3",
+                    subheading="Autre service",
+                    description="Sub notification body 3",
+                    icon="fr-icon-mail-fill",
+                    external_url=None,
+                    is_archived=False,
+                    created_at=sub_notification3.event_date,
+                    updated_at=sub_notification3.event_date,
+                ),
+                FollowupSubItem(
+                    partner_id="dinum-ami",
+                    item_type="SousDémarche",
+                    item_external_id="35",
+                    status_id=ItemGenericStatus.WIP,
+                    status_label="En cours",
+                    milestone_start_date=None,
+                    milestone_end_date=None,
+                    events=[
+                        FollowupItemEvent(
+                            id=sub_notification1.id,
+                            created_at=sub_notification1.created_at,
+                            description="Sub notification body 1",
+                        ),
+                        FollowupItemEvent(
+                            id=sub_notification2.id,
+                            created_at=sub_notification2.created_at,
+                            description="Sub notification body 2",
+                        ),
+                    ],
+                    title="Sub notification title 2",
+                    subheading="AMI",
+                    description="Sub notification body 2",
+                    icon="fr-icon-eye-fill",
+                    external_url=None,
+                    is_archived=False,
+                    created_at=sub_notification1.event_date,
+                    updated_at=sub_notification2.event_date,
+                ),
+            ],
         ),
     ]
 
@@ -389,6 +574,7 @@ def test_get_notifications_source(user: User, monkeypatch: pytest.MonkeyPatch) -
             is_archived=False,
             created_at=datetime.datetime.now(datetime.timezone.utc),
             updated_at=datetime.datetime.now(datetime.timezone.utc),
+            sub_items=[],
         ),
         FollowupItem(
             partner_id="psl",
@@ -407,6 +593,7 @@ def test_get_notifications_source(user: User, monkeypatch: pytest.MonkeyPatch) -
             is_archived=False,
             created_at=datetime.datetime.now(datetime.timezone.utc),
             updated_at=datetime.datetime.now(datetime.timezone.utc),
+            sub_items=[],
         ),
     ]
     data_mock = mock.Mock(return_value=items)
