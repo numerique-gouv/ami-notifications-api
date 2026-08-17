@@ -2,6 +2,7 @@ from typing import Any
 
 import jwt
 import pytest
+from django.core import signing
 from django.utils.timezone import now
 from pytest_httpx import HTTPXMock
 
@@ -97,10 +98,17 @@ def test_login_callback(
     assert token
     assert token["jti"] is not None
 
-    assert (
-        response.client.cookies[settings.USERINFO_COOKIE_JWT_NAME].value
-        == '"fake userinfo jwt token"'
-    )
+    user_data = signing.loads(response.client.cookies[settings.USERINFO_COOKIE_NAME].value)
+    assert user_data == {
+        "birthcountry": "99100",
+        "birthdate": "1962-08-24",
+        "birthplace": "75107",
+        "email": "angela@dubois.fr",
+        "family_name": "DUBOIS",
+        "gender": "female",
+        "given_name": "Angela Claire Louise",
+        "sub": "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060",
+    }
 
     assert Nonce.objects.count() == 0
 

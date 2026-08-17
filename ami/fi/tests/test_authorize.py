@@ -15,7 +15,7 @@ def test_authorize_get(
 ) -> None:
     settings.PUBLIC_FC_PROXY_BASE_URL = ""
 
-    app.set_cookie(settings.USERINFO_COOKIE_JWT_NAME, "fake userinfo jwt token")
+    app.set_cookie(settings.USERINFO_COOKIE_NAME, "fake userinfo jwt token")
 
     authorize_data = {
         "state": "fake-state",

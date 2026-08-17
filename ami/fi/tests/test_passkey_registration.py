@@ -40,7 +40,7 @@ def test_passkey_registration(
     monkeypatch.setattr("jwt.decode", fake_jwt_decode)
 
     encoded_user_data = "fake userinfo jwt token"
-    app.set_cookie(settings.USERINFO_COOKIE_JWT_NAME, encoded_user_data)
+    app.set_cookie(settings.USERINFO_COOKIE_NAME, encoded_user_data)
     response = app.post_json(
         "/api/v1/fi/passkey/generate-registration-options",
         {"displayName": "Angela Claire Louise DUBOIS"},
@@ -103,7 +103,7 @@ def test_passkey_registration_verify_registration_response_exception(
     monkeypatch.setattr("jwt.decode", fake_jwt_decode)
 
     encoded_user_data = "fake userinfo jwt token"
-    app.set_cookie(settings.USERINFO_COOKIE_JWT_NAME, encoded_user_data)
+    app.set_cookie(settings.USERINFO_COOKIE_NAME, encoded_user_data)
     response = app.post_json(
         "/api/v1/fi/passkey/generate-registration-options",
         {"displayName": "Angela Claire Louise DUBOIS"},

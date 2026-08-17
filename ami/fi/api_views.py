@@ -10,6 +10,7 @@ from urllib.parse import urlencode, urlparse
 import jwt
 from django.conf import settings
 from django.contrib.auth.hashers import make_password
+from django.core import signing
 from django.http import Http404, HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import redirect
 from rest_framework import serializers
@@ -238,13 +239,10 @@ def passkey_verify_authentication(request):
     except FISession.DoesNotExist:
         logger.error("Unknown FI Session")
         return Response({"error": "unknown-fi-session"}, status=400)
-    if settings.USERINFO_COOKIE_JWT_NAME not in request.COOKIES:
+    if settings.USERINFO_COOKIE_NAME not in request.COOKIES:
         logger.error("Missing cookie")
         return Response({"error": "missing-cookie"}, status=403)
-    encoded_user_data = request.COOKIES[settings.USERINFO_COOKIE_JWT_NAME]
-    decoded_user_data = jwt.decode(
-        encoded_user_data, options={"verify_signature": False}, algorithms=["ES256"]
-    )
+    decoded_user_data = signing.loads(request.COOKIES[settings.USERINFO_COOKIE_NAME])
     # check that user associated with passkey matches with données pivot
     fc_hash = build_fc_hash(
         given_name=decoded_user_data.get("given_name") or "",

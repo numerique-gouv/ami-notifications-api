@@ -6,6 +6,7 @@ from unittest import mock
 
 import pytest
 from django.contrib.auth.hashers import make_password
+from django.core import signing
 from webauthn.helpers.exceptions import InvalidAuthenticationResponse
 
 from ami.fi.models import FISession, UserPasskey
@@ -19,6 +20,7 @@ def test_passkey_authentication(
     app,
     monkeypatch: pytest.MonkeyPatch,
     userinfo: dict[str, Any],
+    decoded_user_data: dict[str, Any],
     user: User,
 ) -> None:
     def fake_jwt_decode(*args: Any, **params: Any):
@@ -31,8 +33,7 @@ def test_passkey_authentication(
     monkeypatch.setattr("ami.fi.api_views.token_urlsafe", lambda a: "fake-code")
     expected_code = make_password("fake-code", settings.FI_HASH_SALT)
 
-    encoded_user_data = "fake userinfo jwt token"
-    app.set_cookie(settings.USERINFO_COOKIE_JWT_NAME, encoded_user_data)
+    app.set_cookie(settings.USERINFO_COOKIE_NAME, signing.dumps(decoded_user_data))
 
     UserPasskey.objects.create(
         user=user,
@@ -75,7 +76,7 @@ def test_passkey_authentication(
     )
 
     fi_session = FISession.objects.get()
-    assert fi_session.user_data == userinfo
+    assert fi_session.user_data == decoded_user_data
     assert fi_session.state == "fake-state"
     assert fi_session.nonce == "fake-nonce"
     assert fi_session.code == expected_code
@@ -103,6 +104,7 @@ def test_passkey_authentication_with_proxy(
     app,
     monkeypatch: pytest.MonkeyPatch,
     userinfo: dict[str, Any],
+    decoded_user_data: dict[str, Any],
     user: User,
 ) -> None:
     def fake_jwt_decode(*args: Any, **params: Any):
@@ -115,8 +117,7 @@ def test_passkey_authentication_with_proxy(
     monkeypatch.setattr("ami.fi.api_views.token_urlsafe", lambda a: "fake-code")
     expected_code = make_password("fake-code", settings.FI_HASH_SALT)
 
-    encoded_user_data = "fake userinfo jwt token"
-    app.set_cookie(settings.USERINFO_COOKIE_JWT_NAME, encoded_user_data)
+    app.set_cookie(settings.USERINFO_COOKIE_NAME, signing.dumps(decoded_user_data))
 
     UserPasskey.objects.create(
         user=user,
@@ -159,7 +160,7 @@ def test_passkey_authentication_with_proxy(
     )
 
     fi_session = FISession.objects.get()
-    assert fi_session.user_data == userinfo
+    assert fi_session.user_data == decoded_user_data
     assert fi_session.state == "fake-state"
     assert fi_session.nonce == "fake-nonce"
     assert fi_session.code == expected_code
@@ -489,6 +490,7 @@ def test_passkey_authentication_fc_hash_mismatch(
     app,
     monkeypatch: pytest.MonkeyPatch,
     userinfo: dict[str, Any],
+    decoded_user_data: dict[str, Any],
     two_users: list[User],
 ) -> None:
     def fake_jwt_decode(*args: Any, **params: Any):
@@ -502,8 +504,7 @@ def test_passkey_authentication_fc_hash_mismatch(
 
     monkeypatch.setattr("ami.fi.api_views.token_urlsafe", lambda a: "fake-code")
 
-    encoded_user_data = "fake userinfo jwt token"
-    app.set_cookie(settings.USERINFO_COOKIE_JWT_NAME, encoded_user_data)
+    app.set_cookie(settings.USERINFO_COOKIE_NAME, signing.dumps(decoded_user_data))
 
     UserPasskey.objects.create(
         user=second_user,
@@ -556,6 +557,7 @@ def test_passkey_authentication_ami_user_mismatch(
     app,
     monkeypatch: pytest.MonkeyPatch,
     userinfo: dict[str, Any],
+    decoded_user_data: dict[str, Any],
     two_users: list[User],
 ) -> None:
     user, second_user = two_users
@@ -571,8 +573,7 @@ def test_passkey_authentication_ami_user_mismatch(
 
     monkeypatch.setattr("ami.fi.api_views.token_urlsafe", lambda a: "fake-code")
 
-    encoded_user_data = "fake userinfo jwt token"
-    app.set_cookie(settings.USERINFO_COOKIE_JWT_NAME, encoded_user_data)
+    app.set_cookie(settings.USERINFO_COOKIE_NAME, signing.dumps(decoded_user_data))
 
     UserPasskey.objects.create(
         user=second_user,
