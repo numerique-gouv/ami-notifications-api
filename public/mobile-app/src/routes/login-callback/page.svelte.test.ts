@@ -25,10 +25,18 @@ describe('/+page.svelte', () => {
     // Given
     const { page } = await import('$app/state');
     const mockSearchParams = new URLSearchParams();
+    window.localStorage.setItem('user_data', 'fake-user-data');
+    const spyParseJwt = vi
+      .spyOn(franceConnectHelpers, 'parseJwt')
+      .mockReturnValue(mockUserInfo);
     vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
     const spy = vi
       .spyOn(initializeDataFromAPIMethods, 'initializeLocalStorage')
       .mockResolvedValue();
+    const initializeDataSpy = vi
+      .spyOn(initializeDataFromAPIMethods, 'initializeData')
+      .mockResolvedValue();
+
     vi.spyOn(navigationMethods, 'goto').mockImplementation(() => Promise.resolve());
 
     // When
@@ -37,6 +45,7 @@ describe('/+page.svelte', () => {
     // Then
     await waitFor(async () => {
       expect(spy).toHaveBeenCalled();
+      expect(initializeDataSpy).toHaveBeenCalled();
     });
   });
 

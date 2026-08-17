@@ -1,6 +1,5 @@
 import { retrieveAgenda } from '$lib/api-agenda';
 import { retrieveNotifications } from '$lib/notifications';
-import type { UserStore } from '$lib/state/User.svelte';
 
 export const initializeLocalStorage = (searchParams: URLSearchParams) => {
   if (
@@ -32,6 +31,6 @@ export const initializeLocalStorage = (searchParams: URLSearchParams) => {
   }
 };
 
-export const initializeData = async (userStore: UserStore) => {
+export const initializeData = async () => {
   await Promise.all([retrieveAgenda(), retrieveNotifications()]);
 };
