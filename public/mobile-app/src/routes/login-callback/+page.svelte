@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import { page } from '$app/state';
-  import { initializeLocalStorage } from '$lib/initializeDataFromAPI';
+  import { initializeData, initializeLocalStorage } from '$lib/initializeDataFromAPI';
   import { userStore } from '$lib/state/User.svelte';
 
   onMount(async () => {
@@ -11,7 +11,10 @@
       await userStore.buildUser();
       if (!userStore.connected) {
         goto('/#/login');
-      } else if (page.url.searchParams.get('user_first_login') === 'true') {
+        return;
+      }
+      await initializeData();
+      if (page.url.searchParams.get('user_first_login') === 'true') {
         goto('/#/welcome/zones');
       } else {
         goto('/');

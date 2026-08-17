@@ -87,7 +87,7 @@ describe('/initializeDataFromAPI.ts', () => {
         .mockResolvedValue(notifications);
 
       // When
-      await initializeData(userStore);
+      await initializeData();
 
       // Then
       expect(retrieveAgendaSpy).toHaveBeenCalledTimes(1);
