@@ -1,25 +1,35 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
-import { describe, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import * as navigationMethods from '$app/navigation';
-import { FollowupItem, FollowupItemEvent } from '$lib/followup';
-import Page from '$routes/followup/item/[partner_id]/[item_type]/[item_external_id]/+page.svelte';
+import { FollowupItem, FollowupSubItem } from '$lib/followup';
+import Page from './+page.svelte';
+
+vi.mock('$lib/components/FollowupItemDetail.svelte', () => ({
+  default: vi.fn(() => ({})),
+}));
+vi.mock('$lib/components/FollowupParentItemDetail.svelte', () => ({
+  default: vi.fn(() => ({})),
+}));
+
+import FollowupItemDetail from '$lib/components/FollowupItemDetail.svelte';
+import FollowupParentItemDetail from '$lib/components/FollowupParentItemDetail.svelte';
 
 describe('/+page.svelte', () => {
+  beforeEach(() => {
+    vi.mocked(FollowupItemDetail).mockClear();
+    vi.mocked(FollowupParentItemDetail).mockClear();
+  });
+
   test('user has to be connected', async () => {
     // Given
     const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue();
-    const event = new FollowupItemEvent(
-      'event-id',
-      new Date('2026-02-03T08:05:42Z'),
-      'lorem ipsum'
-    );
     const item = new FollowupItem(
       'partner',
       'type',
       'id',
       'ref',
       'notifications',
-      [event],
+      [],
       'title',
       'subheading',
       'description',
@@ -47,11 +57,12 @@ describe('/+page.svelte', () => {
     });
   });
   test('should navigate to /followup on click on back button when item is not archived', async () => {
+    // Given
     const item = new FollowupItem(
       'partner',
       'type',
-      'id1',
-      'ref1',
+      'id',
+      'ref',
       'notifications',
       [],
       'title',
@@ -70,7 +81,6 @@ describe('/+page.svelte', () => {
       item_type: 'type',
       item_external_id: 'id',
     };
-    vi.stubGlobal('location', { href: 'fake-link' });
     const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue();
 
     // When
@@ -84,11 +94,12 @@ describe('/+page.svelte', () => {
     });
   });
   test('should navigate to /followup/archived on click on back button when item is archived', async () => {
+    // Given
     const item = new FollowupItem(
       'partner',
       'type',
-      'id1',
-      'ref1',
+      'id',
+      'ref',
       'notifications',
       [],
       'title',
@@ -107,7 +118,6 @@ describe('/+page.svelte', () => {
       item_type: 'type',
       item_external_id: 'id',
     };
-    vi.stubGlobal('location', { href: 'fake-link' });
     const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue();
 
     // When
@@ -120,20 +130,15 @@ describe('/+page.svelte', () => {
       expect(spy).toHaveBeenCalledWith('/#/followup/archived');
     });
   });
-  test('Should display "Accéder à ma démarche" button', async () => {
+  test('should use FollowupItemDetail component as item is not parent', async () => {
     // Given
-    const event = new FollowupItemEvent(
-      'event-id',
-      new Date('2026-02-03T08:05:42Z'),
-      'lorem ipsum'
-    );
     const item = new FollowupItem(
       'partner',
       'type',
-      'id1',
-      'ref1',
+      'id',
+      'ref',
       'notifications',
-      [event],
+      [],
       'title',
       'subheading',
       'description',
@@ -141,7 +146,7 @@ describe('/+page.svelte', () => {
       new Date('2026-01-03T08:05:42Z'),
       'new',
       'New',
-      false,
+      true,
       'link1',
       []
     );
@@ -150,25 +155,67 @@ describe('/+page.svelte', () => {
       item_type: 'type',
       item_external_id: 'id',
     };
-    vi.stubGlobal('location', { href: 'fake-link' });
 
     // When
     render(Page, { props: { data: { item }, params: params } });
 
     // Then
-    await waitFor(async () => {
-      expect(
-        screen.queryByTestId('external-item-button-partner:type:id1')
-      ).not.toBeNull();
-    });
+    expect(FollowupItemDetail).toHaveBeenCalled();
+    expect(FollowupItemDetail).toHaveBeenCalledWith(expect.anything(), { item: item });
+    expect(FollowupParentItemDetail).not.toHaveBeenCalled();
+  });
+  test('should use FollowupParentItemDetail component as item is parent', async () => {
+    // Given
+    const item = new FollowupItem(
+      'partner',
+      'type',
+      'id',
+      'ref',
+      'notifications',
+      [],
+      'title',
+      'subheading',
+      'description',
+      'icon',
+      new Date('2026-01-03T08:05:42Z'),
+      'new',
+      'New',
+      true,
+      'link1',
+      [
+        new FollowupSubItem(
+          'partner',
+          'type',
+          'id2',
+          'ref2',
+          'notifications',
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est en cours de traitement 1.',
+          'icon',
+          new Date('2026-02-22T15:55:00.000Z'),
+          'new',
+          'Nouveau',
+          true,
+          'link2'
+        ),
+      ]
+    );
+    const params = {
+      partner_id: 'partner',
+      item_type: 'type',
+      item_external_id: 'id',
+    };
 
     // When
-    const button = screen.getByTestId('external-item-button-partner:type:id1');
-    await fireEvent.click(button);
+    render(Page, { props: { data: { item }, params: params } });
 
     // Then
-    await waitFor(() => {
-      expect(window.location.href).toBe('link1');
+    expect(FollowupItemDetail).not.toHaveBeenCalled();
+    expect(FollowupParentItemDetail).toHaveBeenCalled();
+    expect(FollowupParentItemDetail).toHaveBeenCalledWith(expect.anything(), {
+      item: item,
     });
   });
 });
