@@ -59,6 +59,7 @@
     label.fr-toggle__label {
       display: flex;
       position: relative;
+      padding-right: 2rem;
       &:before {
         display: flex;
         position: absolute;
