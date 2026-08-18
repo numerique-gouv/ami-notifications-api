@@ -4,9 +4,9 @@ import * as apiFollowupMethods from '$lib/api-followup';
 import {
   buildFollowup,
   Followup,
-  FollowupItem,
   FollowupItemEvent,
   FollowupItem as Item,
+  FollowupSubItem as SubItem,
 } from '$lib/followup';
 
 describe('/followup.ts', () => {
@@ -34,7 +34,7 @@ describe('/followup.ts', () => {
       test('should return an id from partner_id, item_type and item_external_id', async () => {
         // Given
         vi.stubEnv('TZ', 'Europe/Paris');
-        const item = new FollowupItem(
+        const item = new Item(
           'partner',
           'type',
           'id',
@@ -64,7 +64,7 @@ describe('/followup.ts', () => {
       test('should return localized date and hour, without year', async () => {
         // Given
         vi.stubEnv('TZ', 'Europe/Paris');
-        const item = new FollowupItem(
+        const item = new Item(
           'partner',
           'type',
           'id',
@@ -120,10 +120,131 @@ describe('/followup.ts', () => {
         expect(link).equal('/#/followup/item/partner/type/id');
       });
     });
+    describe('findSubItem', () => {
+      test('should return sub item is exists', async () => {
+        // Given
+        const followupSubItem1 = {
+          partner_id: 'dinum-dn',
+          item_type: 'JeDéménage',
+          item_external_id: '44',
+          reference: '44',
+          status_id: 'new',
+          status_label: 'Brouillon',
+          milestone_start_date: new Date('2026-01-23T15:50:00Z'),
+          milestone_end_date: null,
+          events: [],
+          title: 'Je déménage',
+          subheading: 'subheading',
+          description: 'Votre demande est en brouillon.',
+          icon: 'icon',
+          is_archived: false,
+          external_url: null,
+          created_at: new Date('2026-02-23T15:50:00Z'),
+          updated_at: new Date('2026-02-23T15:55:00Z'),
+        };
+        const followupSubItem2 = {
+          partner_id: 'psl',
+          item_type: 'JeDéménage',
+          item_external_id: '45',
+          reference: '45',
+          status_id: 'new',
+          status_label: 'Brouillon',
+          milestone_start_date: new Date('2026-01-23T15:50:00Z'),
+          milestone_end_date: null,
+          events: [],
+          title: 'Je déménage',
+          subheading: 'subheading',
+          description: 'Votre demande est en brouillon.',
+          icon: 'icon',
+          is_archived: false,
+          external_url: null,
+          created_at: new Date('2026-02-23T15:50:00Z'),
+          updated_at: new Date('2026-02-23T15:55:00Z'),
+        };
+        const followupItem = {
+          partner_id: 'dinum-ami',
+          item_type: 'JeDéménage',
+          item_external_id: '43',
+          reference: '43',
+          status_id: 'new',
+          status_label: 'Brouillon',
+          milestone_start_date: new Date('2026-01-23T15:50:00Z'),
+          milestone_end_date: null,
+          events: [],
+          title: 'Je déménage',
+          subheading: 'subheading',
+          description: 'Votre demande est en brouillon.',
+          icon: 'icon',
+          is_archived: false,
+          external_url: null,
+          created_at: new Date('2026-02-23T15:50:00Z'),
+          updated_at: new Date('2026-02-23T15:55:00Z'),
+          sub_items: [followupSubItem1, followupSubItem2],
+        };
+        const followup = new Followup({
+          notifications: [followupItem],
+        });
+        const item = followup.items[0];
+
+        // When
+        const result1 = item.findSubItem('dinum-dn', 'JeDéménage', '44');
+        const result2 = item.findSubItem('other', 'JeDéménage', '44');
+        const result3 = item.findSubItem('dinum-dn', 'other', '44');
+        const result4 = item.findSubItem('dinum-dn', 'JeDéménage', 'other');
+        const result5 = item.findSubItem('psl', 'JeDéménage', '45');
+
+        // Then
+        expect(
+          result1?.equals(
+            new SubItem(
+              'dinum-dn',
+              'JeDéménage',
+              '44',
+              '44',
+              'notifications',
+              [],
+              'Je déménage',
+              'subheading',
+              'Votre demande est en brouillon.',
+              'icon',
+              new Date('2026-02-23T15:55:00Z'),
+              'new',
+              'Brouillon',
+              false,
+              null
+            )
+          )
+        ).toBe(true);
+        expect(result2).toBeNull();
+        expect(result3).toBeNull();
+        expect(result4).toBeNull();
+        expect(
+          result5?.equals(
+            new SubItem(
+              'psl',
+              'JeDéménage',
+              '45',
+              '45',
+              'notifications',
+              [],
+              'Je déménage',
+              'subheading',
+              'Votre demande est en brouillon.',
+              'icon',
+              new Date('2026-02-23T15:55:00.000Z'),
+              'new',
+              'Brouillon',
+              false,
+              null
+            )
+          )
+        ).toBe(true);
+      });
+    });
     describe('archive', () => {
       test('should call archiveFollowupItem', async () => {
         // Given
-        const item = new FollowupItem(
+        const item = new Item(
           'partner',
           'type',
           'id',
@@ -248,7 +369,7 @@ describe('/followup.ts', () => {
       expect(followup.items.length).equal(2);
       expect(
         followup.items[0].equals(
-          new FollowupItem(
+          new Item(
             'psl',
             'OperationTranquilliteVacances',
             '42',
@@ -270,7 +391,7 @@ describe('/followup.ts', () => {
       ).toBe(true);
       expect(
         followup.items[1].equals(
-          new FollowupItem(
+          new Item(
             'psl',
             'OperationTranquilliteVacances',
             '43',
@@ -293,7 +414,7 @@ describe('/followup.ts', () => {
       expect(followup.archived_items.length).equal(2);
       expect(
         followup.archived_items[0].equals(
-          new FollowupItem(
+          new Item(
             'psl',
             'OperationTranquilliteVacances',
             '44',
@@ -315,7 +436,7 @@ describe('/followup.ts', () => {
       ).toBe(true);
       expect(
         followup.archived_items[1].equals(
-          new FollowupItem(
+          new Item(
             'psl',
             'OperationTranquilliteVacances',
             '45',
@@ -564,6 +685,164 @@ describe('/followup.ts', () => {
         expect(result).toEqual(false);
       });
     });
+    describe('findItem', () => {
+      test('should return item from items of archived_items if exists', async () => {
+        // Given
+        const followupItem1 = {
+          partner_id: 'psl',
+          item_type: 'OperationTranquilliteVacances',
+          item_external_id: '42',
+          reference: '42',
+          status_id: 'new',
+          status_label: 'Brouillon',
+          milestone_start_date: new Date('2026-01-23T15:50:00Z'),
+          milestone_end_date: null,
+          events: [],
+          title: 'Opération Tranquillité Vacances',
+          subheading: 'subheading',
+          description: 'Votre demande est en brouillon.',
+          icon: 'icon',
+          is_archived: false,
+          external_url: null,
+          created_at: new Date('2026-02-23T15:50:00Z'),
+          updated_at: new Date('2026-02-23T15:55:00Z'),
+          sub_items: [],
+        };
+        const followupItem2 = {
+          partner_id: 'dinum-ami',
+          item_type: 'JeDéménage',
+          item_external_id: '43',
+          reference: '43',
+          status_id: 'new',
+          status_label: 'Brouillon',
+          milestone_start_date: new Date('2026-01-23T15:50:00Z'),
+          milestone_end_date: null,
+          events: [],
+          title: 'Je déménage',
+          subheading: 'subheading',
+          description: 'Votre demande est en brouillon.',
+          icon: 'icon',
+          is_archived: true,
+          external_url: null,
+          created_at: new Date('2026-02-23T15:50:00Z'),
+          updated_at: new Date('2026-02-23T15:55:00Z'),
+          sub_items: [
+            {
+              partner_id: 'dinum-dn',
+              item_type: 'JeDéménage',
+              item_external_id: '44',
+              reference: '44',
+              status_id: 'new',
+              status_label: 'Brouillon',
+              milestone_start_date: new Date('2026-01-23T15:50:00Z'),
+              milestone_end_date: null,
+              events: [],
+              title: 'Je déménage',
+              subheading: 'subheading',
+              description: 'Votre demande est en brouillon.',
+              icon: 'icon',
+              is_archived: false,
+              external_url: null,
+              created_at: new Date('2026-02-23T15:50:00Z'),
+              updated_at: new Date('2026-02-23T15:55:00Z'),
+            },
+          ],
+        };
+        const followup = new Followup({
+          notifications: [followupItem1, followupItem2],
+        });
+
+        // When
+        const result1 = followup.findItem('psl', 'OperationTranquilliteVacances', '42');
+        const result2 = followup.findItem(
+          'other',
+          'OperationTranquilliteVacances',
+          '42'
+        );
+        const result3 = followup.findItem('psl', 'other', '42');
+        const result4 = followup.findItem(
+          'psl',
+          'OperationTranquilliteVacances',
+          'other'
+        );
+        const result5 = followup.findItem('dinum-ami', 'JeDéménage', '43');
+        const result6 = followup.findItem('other', 'JeDéménage', '43');
+        const result7 = followup.findItem('dinum-ami', 'other', '43');
+        const result8 = followup.findItem('dinum-ami', 'JeDéménage', 'other');
+        const result9 = followup.findItem('dinum-dn', 'JeDéménage', '44'); // sub item
+
+        // Then
+        expect(
+          result1?.equals(
+            new Item(
+              'psl',
+              'OperationTranquilliteVacances',
+              '42',
+              '42',
+              'notifications',
+              [],
+              'Opération Tranquillité Vacances',
+              'subheading',
+              'Votre demande est en brouillon.',
+              'icon',
+              new Date('2026-02-23T15:55:00.000Z'),
+              'new',
+              'Brouillon',
+              false,
+              null,
+              []
+            )
+          )
+        ).toBe(true);
+        expect(result2).toBeNull();
+        expect(result3).toBeNull();
+        expect(result4).toBeNull();
+        expect(
+          result5?.equals(
+            new Item(
+              'dinum-ami',
+              'JeDéménage',
+              '43',
+              '43',
+              'notifications',
+              [],
+              'Je déménage',
+              'subheading',
+              'Votre demande est en brouillon.',
+              'icon',
+              new Date('2026-02-23T15:55:00.000Z'),
+              'new',
+              'Brouillon',
+              true,
+              null,
+              [
+                new SubItem(
+                  'dinum-dn',
+                  'JeDéménage',
+                  '44',
+                  '44',
+                  'notifications',
+                  [],
+                  'Je déménage',
+                  'subheading',
+                  'Votre demande est en brouillon.',
+                  'icon',
+                  new Date('2026-02-23T15:55:00Z'),
+                  'new',
+                  'Brouillon',
+                  false,
+                  null
+                ),
+              ]
+            )
+          )
+        ).toBe(true);
+        expect(result6).toBeNull();
+        expect(result7).toBeNull();
+        expect(result8).toBeNull();
+        expect(result9).toBeNull();
+      });
+    });
   });
   describe('buildFollowup', () => {
     test('should retrieve inventories and init followup with them', async () => {
@@ -622,7 +901,7 @@ describe('/followup.ts', () => {
       expect(followup.items.length).equal(1);
       expect(
         followup.items[0].equals(
-          new FollowupItem(
+          new Item(
             'psl',
             'OperationTranquilliteVacances',
             '42',
@@ -645,7 +924,7 @@ describe('/followup.ts', () => {
       expect(followup.archived_items.length).equal(1);
       expect(
         followup.archived_items[0].equals(
-          new FollowupItem(
+          new Item(
             'psl',
             'OperationTranquilliteVacances',
             '43',
