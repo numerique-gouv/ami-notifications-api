@@ -1,43 +1,19 @@
 import { describe, expect, test, vi } from 'vitest';
 import * as followupMethods from '$lib/followup';
-import { Followup, FollowupItem, FollowupItemEvent } from '$lib/followup';
+import { Followup, FollowupItem } from '$lib/followup';
 import { load } from './+page';
 
 describe('/+page.ts', () => {
-  test('load should return non archived item when item is not archived', async () => {
+  test("load should call followup's findItem method", async () => {
     // Given
-    window.location.hash = '#/followup';
 
-    const event = new FollowupItemEvent(
-      'event-id',
-      new Date('2026-02-03T08:05:42Z'),
-      'lorem ipsum'
-    );
-    const nonArchivedItem = new FollowupItem(
+    const item = new FollowupItem(
       'partner',
       'type',
-      'id1',
-      'ref1',
+      'id',
+      'ref',
       'notifications',
-      [event],
-      'Opération Tranquillité Vacances',
-      'subheading',
-      'Votre demande est en cours de traitement.',
-      'icon',
-      new Date('2026-02-22T15:55:00.000Z'),
-      'wip',
-      'En cours',
-      false,
-      null,
-      []
-    );
-    const archivedItem = new FollowupItem(
-      'partner',
-      'type',
-      'id2',
-      'ref2',
-      'notifications',
-      [event],
+      [],
       'Opération Tranquillité Vacances',
       'subheading',
       'Votre demande est terminée.',
@@ -45,19 +21,18 @@ describe('/+page.ts', () => {
       new Date('2026-02-20T15:55:00.000Z'),
       'closed',
       'Terminée',
-      true,
+      false,
       null,
       []
     );
     const followup = new Followup();
-    vi.spyOn(followup, 'items', 'get').mockReturnValue([nonArchivedItem]);
-    vi.spyOn(followup, 'archived_items', 'get').mockReturnValue([archivedItem]);
+    const spy = vi.spyOn(followup, 'findItem').mockReturnValue(item);
     vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
 
     const params = {
       partner_id: 'partner',
       item_type: 'type',
-      item_external_id: 'id1',
+      item_external_id: 'id',
     };
 
     // When
@@ -68,72 +43,8 @@ describe('/+page.ts', () => {
 
     // Then
     // @ts-expect-error
-    expect(result.item).toEqual(nonArchivedItem);
-  });
-  test('load should return archived item when item is archived', async () => {
-    // Given
-    window.location.hash = '#/followup/archived';
-
-    const event = new FollowupItemEvent(
-      'event-id',
-      new Date('2026-02-03T08:05:42Z'),
-      'lorem ipsum'
-    );
-    const nonArchivedItem = new FollowupItem(
-      'partner',
-      'type',
-      'id1',
-      'ref1',
-      'notifications',
-      [event],
-      'Opération Tranquillité Vacances',
-      'subheading',
-      'Votre demande est en cours de traitement.',
-      'icon',
-      new Date('2026-02-22T15:55:00.000Z'),
-      'wip',
-      'En cours',
-      false,
-      null,
-      []
-    );
-    const archivedItem = new FollowupItem(
-      'partner',
-      'type',
-      'id2',
-      'ref2',
-      'notifications',
-      [event],
-      'Opération Tranquillité Vacances',
-      'subheading',
-      'Votre demande est terminée.',
-      'icon',
-      new Date('2026-02-20T15:55:00.000Z'),
-      'closed',
-      'Terminée',
-      true,
-      null,
-      []
-    );
-    const followup = new Followup();
-    vi.spyOn(followup, 'items', 'get').mockReturnValue([nonArchivedItem]);
-    vi.spyOn(followup, 'archived_items', 'get').mockReturnValue([archivedItem]);
-    vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
-
-    const params = {
-      partner_id: 'partner',
-      item_type: 'type',
-      item_external_id: 'id2',
-    };
-
-    // When
-    // @ts-expect-error
-    const result = await load({
-      params: params,
-    });
-
-    // Then
-    // @ts-expect-error
-    expect(result.item).toEqual(archivedItem);
+    expect(result.item).toEqual(item);
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledWith('partner', 'type', 'id');
   });
 });

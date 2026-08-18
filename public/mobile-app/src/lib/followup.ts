@@ -59,6 +59,13 @@ export class FollowupSubItem {
     private _link: string | null
   ) {}
 
+  equals(other: FollowupSubItem): boolean {
+    if (!(other instanceof FollowupSubItem)) {
+      return false;
+    }
+    return JSON.stringify(this) === JSON.stringify(other);
+  }
+
   get id(): string {
     return `${this.partner_id}:${this.item_type}:${this.item_external_id}`;
   }
@@ -198,6 +205,21 @@ export class FollowupItem extends FollowupSubItem {
   get closedSubItems(): FollowupSubItem[] {
     return this.sub_items.filter((sub_item) => sub_item.status_id === 'closed');
   }
+
+  findSubItem(
+    subpartner_id: string,
+    subitem_type: string,
+    subitem_external_id: string
+  ): FollowupSubItem | null {
+    return (
+      this.sub_items.find(
+        (sub_item) =>
+          sub_item.partner_id === subpartner_id &&
+          sub_item.item_type === subitem_type &&
+          sub_item.item_external_id === subitem_external_id
+      ) || null
+    );
+  }
 }
 
 export class Followup {
@@ -290,6 +312,36 @@ export class Followup {
     return this.items.some(
       (item) => item.partner_id === partner_id && item.item_type === item_type
     );
+  }
+
+  private _findItem(
+    source: FollowupItem[],
+    partner_id: string,
+    item_type: string,
+    item_external_id: string
+  ): FollowupItem | null {
+    return (
+      source.find(
+        (item) =>
+          item.partner_id === partner_id &&
+          item.item_type === item_type &&
+          item.item_external_id === item_external_id
+      ) || null
+    );
+  }
+
+  findItem(
+    partner_id: string,
+    item_type: string,
+    item_external_id: string
+  ): FollowupItem | null {
+    const item = this._findItem(this.items, partner_id, item_type, item_external_id);
+
+    if (item) {
+      return item;
+    }
+
+    return this._findItem(this.archived_items, partner_id, item_type, item_external_id);
   }
 }
 
