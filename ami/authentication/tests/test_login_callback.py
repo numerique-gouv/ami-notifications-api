@@ -27,8 +27,10 @@ def test_login_callback(
     def fake_jwt_decode(*args: Any, **params: Any):
         encoded = args[0]
         if encoded == "fake id token":
+            assert params["key"], "a key was given to check signature"
             return decoded_id_token
         if encoded == "fake userinfo jwt token":
+            assert params["key"], "a key was given to check signature"
             return userinfo
         return original_jwt_decode(*args, **params)
 

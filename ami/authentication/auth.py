@@ -1,4 +1,5 @@
 import datetime
+import logging
 import uuid
 from base64 import urlsafe_b64encode
 from typing import Any
@@ -12,6 +13,9 @@ from ami.authentication.exception import FCError
 from ami.authentication.models import Nonce
 from ami.authentication.schemas import data_providers
 from ami.utils.httpx import AsyncClient
+from ami.utils.jwks_client import get_jwks_client
+
+logger = logging.getLogger(__name__)
 
 
 def generate_nonce() -> str:
@@ -93,9 +97,15 @@ async def get_fc_token(
     id_token: str = response_token_data.get("id_token", "")
     if not id_token:
         raise FCError("missing_id_token")
-    decoded_token: dict[str, str] = jwt.decode(
-        id_token, options={"verify_signature": False}, algorithms=["ES256"]
-    )
+
+    try:
+        signing_key = get_jwks_client().get_signing_key_from_jwt(id_token)
+        decoded_token: dict[str, str] = jwt.decode(
+            id_token, key=signing_key, options={"verify_aud": False}, algorithms=["ES256"]
+        )
+    except Exception as e:
+        logger.exception("failed to decode/verify id_token")
+        raise FCError("failed to decode/verify id_token (%s)" % e)
 
     # Validate that the NONCE is coherent with the one we sent to FC
     if "nonce" not in decoded_token:

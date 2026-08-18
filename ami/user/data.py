@@ -14,6 +14,7 @@ from ami.notification.models import ScheduledNotification
 from ami.user.models import User
 from ami.user.utils import build_fc_hash
 from ami.utils.httpx import AsyncClient, Response
+from ami.utils.jwks_client import get_jwks_client
 
 logger = logging.getLogger(__name__)
 
@@ -29,8 +30,9 @@ async def get_fc_userinfo(
         raise FCError(code=None)
 
     userinfo_jws = response.text
+    signing_key = get_jwks_client().get_signing_key_from_jwt(userinfo_jws)
     decoded_userinfo = jwt.decode(
-        userinfo_jws, options={"verify_signature": False}, algorithms=["ES256"]
+        userinfo_jws, key=signing_key, options={"verify_aud": False}, algorithms=["ES256"]
     )
     fc_hash = build_fc_hash(
         given_name=decoded_userinfo["given_name"],

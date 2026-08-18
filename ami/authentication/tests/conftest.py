@@ -15,3 +15,15 @@ def decoded_id_token() -> dict[str, Any]:
         "iat": 1763455959,
         "iss": "https://fcp-low.sbx.dev-franceconnect.fr/api/v2",
     }
+
+
+@pytest.fixture(autouse=True)
+def mock_jwk_client(monkeypatch):
+    class FakeJwkClient:
+        def __init__(self, url):
+            pass
+
+        def get_signing_key_from_jwt(self, token):
+            return "stub-signing-key"
+
+    monkeypatch.setattr("jwt.PyJWKClient", FakeJwkClient)
