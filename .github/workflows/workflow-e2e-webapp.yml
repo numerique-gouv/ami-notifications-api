@@ -38,7 +38,7 @@ jobs:
       run_ios: false
       run_old_device: true
       source_repo: ${{ github.repository }}
-      pr_number: ${{ inputs.pr_number }}
+      pr_number: ${{ fromJSON(inputs.pr_number) }}
     secrets: inherit
 
   e2e-report:
