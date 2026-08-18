@@ -27,12 +27,17 @@ describe('/FollowupItem.svelte', () => {
       []
     );
     const onOpen = vi.fn();
+    const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue();
 
     // When
     render(FollowupItem, { props: { item: item, onOpen: onOpen } });
 
     // Then
-    expect(screen.queryByTestId('followup-item-link')).toBeInTheDocument();
+    const button = screen.getByTestId('followup-item-link');
+    await fireEvent.click(button);
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledWith('/#/followup/item/partner/type/id');
+    });
   });
   describe('Description', () => {
     test('Should display item description if item has no sub items', async () => {

@@ -33,7 +33,7 @@
                 <button
                   type="button"
                   class="fr-text--sm"
-                  onclick={(e) => goto(sub_item.itemDetailPageUrl)}
+                  onclick={(e) => goto(sub_item.getItemDetailPageUrl(item))}
                   data-testid="followup-subitem-link-{sub_item.id}"
                 >
                   {sub_item.title}
