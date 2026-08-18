@@ -27,3 +27,24 @@ def apple_app_site_association(request):
             },
         }
     )
+
+
+def assetlinks(request):
+    if not settings.ANDROID_PACKAGE_NAME:
+        raise Http404
+    return JsonResponse(
+        [
+            {
+                "relation": [
+                    "delegate_permission/common.handle_all_urls",
+                    "delegate_permission/common.get_login_creds",
+                ],
+                "target": {
+                    "namespace": "android_app",
+                    "package_name": settings.ANDROID_PACKAGE_NAME,
+                    "sha256_cert_fingerprints": settings.ANDROID_CERT_FINGERPRINTS,
+                },
+            }
+        ],
+        safe=False,
+    )
