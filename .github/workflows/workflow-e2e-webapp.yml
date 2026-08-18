@@ -30,7 +30,7 @@ jobs:
   # des stores beta (Google Play / TestFlight), pas d'un artefact buildé par ce workflow.
   e2e-launch:
     name: trigger an e2e run in ami-system-tests
-    uses: numerique-gouv/ami-system-tests/.github/workflows/workflow-e2e-main.yml@${{ vars.AMI_SYSTEM_TESTS_REF }}
+    uses: numerique-gouv/ami-system-tests/.github/workflows/workflow-e2e-main.yml@10-ci-api-ios-android-wip
     with:
       ref_name: staging
       run_webapp: true
@@ -39,7 +39,7 @@ jobs:
       run_old_device: true
       source_repo: ${{ github.repository }}
       pr_number: ${{ fromJSON(inputs.pr_number) }}
-      checkout_ref: ${{ vars.AMI_SYSTEM_TESTS_REF }}
+      checkout_ref: 10-ci-api-ios-android-wip # la même branche/ref que uses de préférence
     secrets: inherit
 
   e2e-report:
