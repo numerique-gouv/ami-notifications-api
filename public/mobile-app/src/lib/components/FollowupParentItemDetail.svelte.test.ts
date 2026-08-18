@@ -1,5 +1,6 @@
-import { render, screen, waitFor } from '@testing-library/svelte';
+import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
+import * as navigationMethods from '$app/navigation';
 import FollowupParentItemDetail from '$lib/components/FollowupParentItemDetail.svelte';
 import { FollowupItem, FollowupItemEvent, FollowupSubItem } from '$lib/followup';
 
@@ -148,6 +149,81 @@ describe('/FollowupParentItemDetail.svelte', () => {
       expect(screen.queryByTestId('followup-subitems')).not.toBeNull();
       expect(screen.getByTestId('followup-subitems')).toHaveTextContent(
         'Opération Tranquillité Vacances Votre demande est en cours de traitement 1. Nouveau 22 février 2026 - 16:55Opération Tranquillité Vacances Votre demande est en cours de traitement 1. Nouveau 22 février 2026 - 16:55'
+      );
+    });
+  });
+  test('should display links to subitems', async () => {
+    // Given
+    const item = new FollowupItem(
+      'partner',
+      'type',
+      'id1',
+      'ref1',
+      'notifications',
+      [],
+      'title',
+      'subheading',
+      'description',
+      'icon',
+      new Date('2026-01-03T08:05:42Z'),
+      'new',
+      'New',
+      false,
+      'link1',
+      [
+        new FollowupSubItem(
+          'partner',
+          'type',
+          'id3',
+          'ref3',
+          'notifications',
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est en cours de traitement 1.',
+          'icon',
+          new Date('2026-02-22T15:55:00.000Z'),
+          'new',
+          'Nouveau',
+          true,
+          'link3'
+        ),
+        new FollowupSubItem(
+          'partner',
+          'type',
+          'id2',
+          'ref2',
+          'notifications',
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est en cours de traitement 1.',
+          'icon',
+          new Date('2026-02-22T15:55:00.000Z'),
+          'new',
+          'Nouveau',
+          true,
+          'link2'
+        ),
+      ]
+    );
+    const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue();
+
+    // When
+    render(FollowupParentItemDetail, { props: { item: item } });
+
+    // Then
+    expect(
+      screen.queryByTestId('followup-subitem-link-partner:type:id3')
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByTestId('followup-subitem-link-partner:type:id2')
+    ).toBeInTheDocument();
+    const button = screen.getByTestId('followup-subitem-link-partner:type:id3');
+    await fireEvent.click(button);
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledWith(
+        '/#/followup/item/partner/type/id1/subitem/partner/type/id3'
       );
     });
   });

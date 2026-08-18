@@ -31,7 +31,7 @@
         <h3 class="fr-tile__title">
           <button
             type="button"
-            onclick={(e) => goto(item.itemDetailPageUrl)}
+            onclick={(e) => goto(item.getItemDetailPageUrl())}
             data-testid="followup-item-link"
           >
             {item.title}
@@ -70,7 +70,7 @@
             <button
               type="button"
               class="fr-btn fr-mb-0"
-              onclick={(e) => goto(item.itemDetailPageUrl)}
+              onclick={(e) => goto(item.getItemDetailPageUrl())}
               data-testid="external-item-button-{item.id}"
             >
               Reprendre ma démarche
