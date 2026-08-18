@@ -29,6 +29,57 @@ describe('/followup.ts', () => {
       });
     });
   });
+  describe('FollowupSubItem', () => {
+    describe('getItemDetailPageUrl', () => {
+      test('should return detail page url from partner_id, item_type and item_external_id', async () => {
+        // Given
+        vi.stubEnv('TZ', 'Europe/Paris');
+        const item = new Item(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'closed',
+          'Terminée',
+          false,
+          'url',
+          []
+        );
+        const sub_item = new SubItem(
+          'partner2',
+          'type2',
+          'id2',
+          'ref2',
+          'notifications',
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'closed',
+          'Terminée',
+          false,
+          'url'
+        );
+
+        // When
+        const link = sub_item.getItemDetailPageUrl(item);
+
+        // Then
+        expect(link).equal(
+          '/#/followup/item/partner/type/id/subitem/partner2/type2/id2'
+        );
+      });
+    });
+  });
   describe('FollowupItem', () => {
     describe('id', () => {
       test('should return an id from partner_id, item_type and item_external_id', async () => {
@@ -90,7 +141,7 @@ describe('/followup.ts', () => {
         expect(date).equal('03 janvier 2026 - 09:05');
       });
     });
-    describe('itemDetailPageUrl', () => {
+    describe('getItemDetailPageUrl', () => {
       test('should return detail page url from partner_id, item_type and item_external_id', async () => {
         // Given
         vi.stubEnv('TZ', 'Europe/Paris');
@@ -114,7 +165,7 @@ describe('/followup.ts', () => {
         );
 
         // When
-        const link = item.itemDetailPageUrl;
+        const link = item.getItemDetailPageUrl();
 
         // Then
         expect(link).equal('/#/followup/item/partner/type/id');

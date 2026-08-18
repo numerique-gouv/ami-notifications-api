@@ -134,8 +134,8 @@ export class FollowupSubItem {
     return formatDate(this.date);
   }
 
-  get itemDetailPageUrl(): string {
-    return `/#/followup/item/${this.partner_id}/${this.item_type}/${this.item_external_id}`;
+  getItemDetailPageUrl(item: FollowupItem): string {
+    return `/#/followup/item/${item.partner_id}/${item.item_type}/${item.item_external_id}/subitem/${this.partner_id}/${this.item_type}/${this.item_external_id}`;
   }
 
   async archive(): Promise<boolean> {
@@ -204,6 +204,10 @@ export class FollowupItem extends FollowupSubItem {
 
   get closedSubItems(): FollowupSubItem[] {
     return this.sub_items.filter((sub_item) => sub_item.status_id === 'closed');
+  }
+
+  getItemDetailPageUrl(): string {
+    return `/#/followup/item/${this.partner_id}/${this.item_type}/${this.item_external_id}`;
   }
 
   findSubItem(
