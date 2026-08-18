@@ -195,6 +195,9 @@
             display: block;
           }
         }
+        .fr-tile__detail {
+          display: block;
+        }
       }
     }
   }
