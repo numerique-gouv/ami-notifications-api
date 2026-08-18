@@ -30,7 +30,7 @@ jobs:
   # des stores beta (Google Play / TestFlight), pas d'un artefact buildé par ce workflow.
   e2e-launch:
     name: trigger an e2e run in ami-system-tests
-    uses: numerique-gouv/ami-system-tests/.github/workflows/workflow-e2e-main.yml@10-ci-api-ios-android
+    uses: numerique-gouv/ami-system-tests/.github/workflows/workflow-e2e-main.yml@10-ci-api-ios-android-wip
     with:
       ref_name: staging
       run_webapp: true
