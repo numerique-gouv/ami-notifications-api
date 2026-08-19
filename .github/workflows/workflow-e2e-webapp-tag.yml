@@ -9,7 +9,7 @@ on:
 jobs:
   e2e:
     name: run e2e (version tag)
-    uses: workflow-e2e-webapp-shared.yml
+    uses: ./.github/workflows/workflow-e2e-webapp-shared.yml
     with:
       run_webapp: true
       run_android: true

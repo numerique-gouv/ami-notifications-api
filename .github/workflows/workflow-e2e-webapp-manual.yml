@@ -30,7 +30,7 @@ on:
 jobs:
   e2e:
     name: run e2e (manual)
-    uses: workflow-e2e-webapp-shared.yml
+    uses: ./.github/workflows/workflow-e2e-webapp-shared.yml
     with:
       run_webapp: ${{ inputs.run_webapp }}
       run_android: ${{ inputs.run_android }}

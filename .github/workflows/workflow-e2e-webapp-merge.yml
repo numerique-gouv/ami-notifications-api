@@ -9,7 +9,7 @@ jobs:
   e2e:
     name: run e2e (PR merged)
     if: ${{ github.event.pull_request.merged == true }}
-    uses: workflow-e2e-webapp-shared.yml
+    uses: ./.github/workflows/workflow-e2e-webapp-shared.yml
     with:
       run_webapp: true
       run_android: true
