@@ -33,10 +33,10 @@ jobs:
     uses: numerique-gouv/ami-system-tests/.github/workflows/workflow-e2e-main.yml@10-ci-api-ios-android-wip
     with:
       ref_name: staging
-      run_webapp: true
-      run_android: false
-      run_ios: false
-      run_old_device: true
+      run_webapp: ${{ fromJSON(inputs.run_webapp) }}
+      run_android: ${{ fromJSON(inputs.run_android) }}
+      run_ios: ${{ fromJSON(inputs.run_ios) }}
+      run_old_device: ${{ fromJSON(inputs.run_old_device) }}
       source_repo: ${{ github.repository }}
       pr_number: ${{ fromJSON(inputs.pr_number) }}
       checkout_ref: 10-ci-api-ios-android-wip # la même branche/ref que uses de préférence
@@ -67,4 +67,4 @@ jobs:
 
       - name: logguer l'url du rapport de tests
         if: ${{ always() }}
-        run: echo -e "Le rapport de tests est téléchargeable à l'adresse:\n\t${{ needs.e2e-launch.outputs.allure_report }}"
+        run: echo -e "Le rapport de tests est téléchargeable à l'adresse:\n\thttps://github.com/numerique-gouv/ami-notifications-api/actions/runs/${{ github.run_id }}#artifacts"
