@@ -1,0 +1,72 @@
+name: workflow-e2e-webapp-shared.yml
+# Logique commune, appelée par les workflows fins par déclencheur (workflow-e2e-webapp-*.yml) :
+# lance l'e2e sur ami-system-tests puis, si pr_number != 0, commente la PR d'origine avec le
+# rapport Allure. Chaque appelant fixe une config simple, sans condition ni shell.
+on:
+  workflow_call:
+    inputs:
+      run_webapp:
+        type: boolean
+        default: true
+      run_android:
+        type: boolean
+        default: false
+      run_ios:
+        type: boolean
+        default: false
+      run_old_device:
+        type: boolean
+        default: true
+      pr_number:
+        description: "0 = pas de PR associée (push/tag) → pas de commentaire"
+        type: number
+        default: 0
+      ref_name:
+        type: string
+        default: staging
+      checkout_ref:
+        description: "ref (branche/tag/sha) d'ami-system-tests à checkout — doit correspondre au ref utilisé dans le uses: qui pointe vers ce workflow"
+        type: string
+        default: main
+
+jobs:
+  # Pas de job `build` ici, contrairement à l'exemple ami-app-android : l'app webapp testée vient
+  # des stores beta (Google Play / TestFlight), pas d'un artefact buildé par ce workflow.
+  e2e-launch:
+    name: trigger an e2e run in ami-system-tests
+    uses: numerique-gouv/ami-system-tests/.github/workflows/workflow-e2e-main.yml@10-ci-api-ios-android-wip
+    with:
+      ref_name: ${{ inputs.ref_name }}
+      run_webapp: ${{ inputs.run_webapp }}
+      run_android: ${{ inputs.run_android }}
+      run_ios: ${{ inputs.run_ios }}
+      run_old_device: ${{ inputs.run_old_device }}
+      source_repo: ${{ github.repository }}
+      pr_number: ${{ inputs.pr_number }}
+      checkout_ref: ${{ inputs.checkout_ref }} # la même branche/ref que uses de préférence
+    secrets: inherit
+
+  e2e-report:
+    name: uses output of e2e run in ami-system-tests to report in pr
+    needs: e2e-launch
+    runs-on: ubuntu-latest
+    if: ${{ always() && inputs.pr_number != 0 }}
+    permissions:
+      pull-requests: write
+      checks: write
+    steps:
+      - name: Charger le rapport de test pour le mettre dans la PR
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.e2e-launch.outputs.allure_report }}
+          path: ami-system-tests/allure-report
+
+      - name: Commenter la PR d'origine
+        uses: allure-framework/allure-action@v0
+        with:
+          report-directory: ami-system-tests/allure-report
+          github-token: ${{ github.token }}
+
+      - name: logguer l'url du rapport de tests
+        if: ${{ always() }}
+        run: echo -e "Le rapport de tests est téléchargeable à l'adresse:\n\thttps://github.com/numerique-gouv/ami-notifications-api/actions/runs/${{ github.run_id }}#artifacts"

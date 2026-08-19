@@ -1,0 +1,16 @@
+name: workflow-e2e-webapp-pr.yml
+# À chaque ouverture ou push sur une PR (brouillon ou non — pull_request se déclenche aussi sur
+# les PR en draft, pas de filtre à ajouter) : webapp seule, pour un retour rapide, avec
+# commentaire Allure sur la PR.
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  e2e:
+    name: run e2e (PR update)
+    uses: workflow-e2e-webapp-shared.yml
+    with:
+      run_webapp: true
+      pr_number: ${{ github.event.pull_request.number }}
+    secrets: inherit

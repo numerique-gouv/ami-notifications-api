@@ -1,0 +1,40 @@
+name: workflow-e2e-webapp-manual.yml
+# Déclenchement manuel, config libre.
+#
+# Se lance en local avec :
+# act workflow_dispatch -W .github/workflows/workflow-e2e-webapp-manual.yml --container-architecture linux/amd64 --artifact-server-path /tmp/act-artifacts --input pr_number=123456789
+on:
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "Simule github.event.pull_request.number — 0 pour simuler un push/tag sans PR"
+        type: number
+        default: 0
+      run_webapp:
+        description: "demande à lancer une suite de test sur la Webapp Scalingo"
+        type: boolean
+        default: true
+      run_android:
+        description: "demande à lancer une suite de test sur l'apk Android'"
+        type: boolean
+        default: false
+      run_ios:
+        description: "demande à lancer une suite de test sur l'app iOS'"
+        type: boolean
+        default: false
+      run_old_device:
+        description: "demande à lancer une suite de test mobile avec la configuration la plus ancienne disponible"
+        type: boolean
+        default: true
+
+jobs:
+  e2e:
+    name: run e2e (manual)
+    uses: workflow-e2e-webapp-shared.yml
+    with:
+      run_webapp: ${{ inputs.run_webapp }}
+      run_android: ${{ inputs.run_android }}
+      run_ios: ${{ inputs.run_ios }}
+      run_old_device: ${{ inputs.run_old_device }}
+      pr_number: ${{ inputs.pr_number }}
+    secrets: inherit
