@@ -25,13 +25,11 @@ on:
         type: string
         default: staging
       checkout_ref:
-        description: "ref (branche/tag/sha) d'ami-system-tests à checkout — doit correspondre au ref utilisé dans le uses: qui pointe vers ce workflow"
+        description: "ref (branche/tag/sha) d'ami-system-tests à checkout — doit être égal à la ref de jobs.e2e-launch.uses: [...]@ref"
         type: string
-        default: main
+        default: 10-ci-api-ios-android-wip
 
 jobs:
-  # Pas de job `build` ici, contrairement à l'exemple ami-app-android : l'app webapp testée vient
-  # des stores beta (Google Play / TestFlight), pas d'un artefact buildé par ce workflow.
   e2e-launch:
     name: trigger an e2e run in ami-system-tests
     uses: numerique-gouv/ami-system-tests/.github/workflows/workflow-e2e-main.yml@10-ci-api-ios-android-wip
