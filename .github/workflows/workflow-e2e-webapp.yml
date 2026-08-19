@@ -25,41 +25,92 @@ on:
         type: boolean
         default: true
 
+  # opened/synchronize/reopened couvrent l'ouverture et chaque push sur la PR, brouillon ou non
+  # (pull_request se déclenche aussi sur les PR en draft — pas de filtre à ajouter).
+  # closed sert uniquement à détecter le merge (cf. condition merged == true ci-dessous) ;
+  # une PR fermée sans merge ne doit déclencher aucun job.
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+
+  # Pose d'un tag de version (ex: 26.7.1) : même suite complète que le merge, même env staging —
+  # seul le déclencheur change, pas la config testée.
+  push:
+    tags:
+      - "*.*.*"
+
 jobs:
-  # Pas de job `build` ici, contrairement à l'exemple ami-app-android : l'app webapp testée vient
-  # des stores beta (Google Play / TestFlight), pas d'un artefact buildé par ce workflow.
+  # Résout la configuration selon le déclencheur : workflow_dispatch (inputs manuels), push sur
+  # une PR (webapp seule, retour rapide), merge d'une PR ou pose d'un tag de version (suite
+  # complète dans les deux cas). Un seul point de calcul évite de dupliquer cette logique dans
+  # e2e-launch et e2e-report.
+  context:
+    name: resolve trigger context
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.action != 'closed' || github.event.pull_request.merged == true }}
+    outputs:
+      pr_number: ${{ steps.set.outputs.pr_number }}
+      run_webapp: ${{ steps.set.outputs.run_webapp }}
+      run_android: ${{ steps.set.outputs.run_android }}
+      run_ios: ${{ steps.set.outputs.run_ios }}
+      run_old_device: ${{ steps.set.outputs.run_old_device }}
+    steps:
+      - id: set
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "pr_number=${{ inputs.pr_number }}" >> "$GITHUB_OUTPUT"
+            echo "run_webapp=${{ inputs.run_webapp }}" >> "$GITHUB_OUTPUT"
+            echo "run_android=${{ inputs.run_android }}" >> "$GITHUB_OUTPUT"
+            echo "run_ios=${{ inputs.run_ios }}" >> "$GITHUB_OUTPUT"
+            echo "run_old_device=${{ inputs.run_old_device }}" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event_name }}" = "push" ] || [ "${{ github.event.pull_request.merged }}" = "true" ]; then
+            # push = pose d'un tag de version ; pull_request+merged = merge d'une PR — même config
+            echo "pr_number=${{ github.event.pull_request.number || 0 }}" >> "$GITHUB_OUTPUT"
+            echo "run_webapp=true" >> "$GITHUB_OUTPUT"
+            echo "run_android=true" >> "$GITHUB_OUTPUT"
+            echo "run_ios=true" >> "$GITHUB_OUTPUT"
+            echo "run_old_device=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "pr_number=${{ github.event.pull_request.number }}" >> "$GITHUB_OUTPUT"
+            echo "run_webapp=true" >> "$GITHUB_OUTPUT"
+            echo "run_android=false" >> "$GITHUB_OUTPUT"
+            echo "run_ios=false" >> "$GITHUB_OUTPUT"
+            echo "run_old_device=false" >> "$GITHUB_OUTPUT"
+          fi
+
   e2e-launch:
     name: trigger an e2e run in ami-system-tests
+    needs: context
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.action != 'closed' || github.event.pull_request.merged == true }}
     uses: numerique-gouv/ami-system-tests/.github/workflows/workflow-e2e-main.yml@10-ci-api-ios-android-wip
     with:
       ref_name: staging
-      run_webapp: ${{ fromJSON(inputs.run_webapp) }}
-      run_android: ${{ fromJSON(inputs.run_android) }}
-      run_ios: ${{ fromJSON(inputs.run_ios) }}
-      run_old_device: ${{ fromJSON(inputs.run_old_device) }}
+      run_webapp: ${{ fromJSON(needs.context.outputs.run_webapp) }}
+      run_android: ${{ fromJSON(needs.context.outputs.run_android) }}
+      run_ios: ${{ fromJSON(needs.context.outputs.run_ios) }}
+      run_old_device: ${{ fromJSON(needs.context.outputs.run_old_device) }}
       source_repo: ${{ github.repository }}
-      pr_number: ${{ fromJSON(inputs.pr_number) }}
+      pr_number: ${{ fromJSON(needs.context.outputs.pr_number || '0') }}
       checkout_ref: 10-ci-api-ios-android-wip # la même branche/ref que uses de préférence
     secrets: inherit
 
   e2e-report:
     name: uses output of e2e run in ami-system-tests to report in pr
-    needs: e2e-launch
+    needs: [context, e2e-launch]
     runs-on: ubuntu-latest
-    if: ${{ always() }}
+    if: ${{ always() && (github.event_name == 'workflow_dispatch' || github.event.action != 'closed' || github.event.pull_request.merged == true) }}
     permissions:
       pull-requests: write
       checks: write
     steps:
       - name: Charger le rapport de test pour le mettre dans la PR
-        if: ${{ fromJSON(inputs.pr_number) != 0 }}
+        if: ${{ needs.context.outputs.pr_number != '0' }}
         uses: actions/download-artifact@v4
         with:
           name: ${{ needs.e2e-launch.outputs.allure_report }}
           path: ami-system-tests/allure-report
 
       - name: Commenter la PR d'origine
-        if: ${{ fromJSON(inputs.pr_number) != 0 }}
+        if: ${{ needs.context.outputs.pr_number != '0' }}
         uses: allure-framework/allure-action@v0
         with:
           report-directory: ami-system-tests/allure-report
