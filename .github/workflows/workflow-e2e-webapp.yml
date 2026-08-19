@@ -43,9 +43,28 @@ jobs:
     secrets: inherit
 
   e2e-report:
-    name: uses output of e2e run in ami-system-tests to report in current repo
+    name: uses output of e2e run in ami-system-tests to report in pr
     needs: e2e-launch
     runs-on: ubuntu-latest
+    if: ${{ always() }}
+    permissions:
+      pull-requests: write
+      checks: write
     steps:
-      - run: |
-          echo -e "received out_ref_name=${{ needs.e2e-launch.outputs.out_ref_name }}\n and out_webapp=${{ needs.e2e-launch.outputs.out_webapp }}"
+      - name: Charger le rapport de test pour le mettre dans la PR
+        if: ${{ fromJSON(inputs.pr_number) != 0 }}
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.e2e-launch.outputs.allure_report }}
+          path: ami-system-tests/allure-report
+
+      - name: Commenter la PR d'origine
+        if: ${{ fromJSON(inputs.pr_number) != 0 }}
+        uses: allure-framework/allure-action@v0
+        with:
+          report-directory: ami-system-tests/allure-report
+          github-token: ${{ github.token }}
+
+      - name: logguer l'url du rapport de tests
+        if: ${{ always() }}
+        run: echo -e "Le rapport de tests est téléchargeable à l'adresse:\n\t${{ needs.e2e-launch.outputs.allure_report }}"
