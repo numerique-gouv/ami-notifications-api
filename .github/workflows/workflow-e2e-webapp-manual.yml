@@ -11,17 +11,17 @@ on:
         type: number
         default: 0
       run_webapp:
-        description: "demande à lancer une suite de test sur la Webapp Scalingo"
-        type: boolean
-        default: true
+        description: "suite de test (test-suites.ts) à lancer sur la Webapp Scalingo — vide = ne pas lancer"
+        type: string
+        default: short
       run_android:
-        description: "demande à lancer une suite de test sur l'apk Android'"
-        type: boolean
-        default: false
+        description: "suite de test (test-suites.ts) à lancer sur l'apk Android — vide = ne pas lancer"
+        type: string
+        default: ''
       run_ios:
-        description: "demande à lancer une suite de test sur l'app iOS'"
-        type: boolean
-        default: false
+        description: "suite de test (test-suites.ts) à lancer sur l'app iOS — vide = ne pas lancer"
+        type: string
+        default: ''
       run_old_device:
         description: "demande à lancer une suite de test mobile avec la configuration la plus ancienne disponible"
         type: boolean

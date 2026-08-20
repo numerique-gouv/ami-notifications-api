@@ -6,14 +6,17 @@ on:
   workflow_call:
     inputs:
       run_webapp:
-        type: boolean
-        default: true
+        description: "nom de la suite webapp à lancer (test-suites.ts, ex: short, CI, all) — vide = ne pas lancer"
+        type: string
+        default: ''
       run_android:
-        type: boolean
-        default: false
+        description: "nom de la suite android à lancer (test-suites.ts) — vide = ne pas lancer"
+        type: string
+        default: ''
       run_ios:
-        type: boolean
-        default: false
+        description: "nom de la suite ios à lancer (test-suites.ts) — vide = ne pas lancer"
+        type: string
+        default: ''
       run_old_device:
         type: boolean
         default: true

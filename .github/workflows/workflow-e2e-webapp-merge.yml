@@ -1,6 +1,7 @@
 name: workflow-e2e-webapp-merge.yml
-# Au merge d'une PR : suite complète (webapp + android + ios), avec commentaire Allure sur la
-# PR fermée. Une PR fermée sans merge ne déclenche rien (if: merged == true).
+# Au merge d'une PR : webapp uniquement pour le moment (android/ios pas encore câblés côté CI),
+# avec commentaire Allure sur la PR fermée. Une PR fermée sans merge ne déclenche rien
+# (if: merged == true).
 on:
   pull_request:
     types: [closed]
@@ -11,9 +12,6 @@ jobs:
     if: ${{ github.event.pull_request.merged == true }}
     uses: ./.github/workflows/workflow-e2e-webapp-shared.yml
     with:
-      run_webapp: true
-      run_android: true
-      run_ios: true
-      run_old_device: true
+      run_webapp: short
       pr_number: ${{ github.event.pull_request.number }}
     secrets: inherit
