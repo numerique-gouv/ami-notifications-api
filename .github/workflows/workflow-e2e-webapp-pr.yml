@@ -11,7 +11,7 @@ jobs:
     name: run e2e (PR update)
     uses: ./.github/workflows/workflow-e2e-webapp-shared.yml
     with:
-      run_webapp: short
+      run_webapp: CI
       pr_number: ${{ github.event.pull_request.number }}
       checkout_ref: ${{ github.head_ref }}
     secrets: inherit
