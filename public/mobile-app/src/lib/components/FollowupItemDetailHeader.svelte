@@ -1,10 +1,10 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { getDSFRIcon } from '$lib/dsfr-icon';
-  import { FollowupItem } from '$lib/followup';
+  import { FollowupSubItem } from '$lib/followup';
 
   interface Props {
-    item: FollowupItem;
+    item: FollowupSubItem;
   }
   let { item }: Props = $props();
 
