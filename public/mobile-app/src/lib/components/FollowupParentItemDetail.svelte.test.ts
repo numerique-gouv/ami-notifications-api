@@ -148,7 +148,7 @@ describe('/FollowupParentItemDetail.svelte', () => {
     await waitFor(() => {
       expect(screen.queryByTestId('followup-subitems')).not.toBeNull();
       expect(screen.getByTestId('followup-subitems')).toHaveTextContent(
-        'Opération Tranquillité Vacances Votre demande est en cours de traitement 1. Nouveau 22 février 2026 - 16:55Opération Tranquillité Vacances Votre demande est en cours de traitement 1. Nouveau 22 février 2026 - 16:55'
+        'Nouveau 22 février 2026 - 16:55 Opération Tranquillité Vacances Votre demande est en cours de traitement 1.Nouveau 22 février 2026 - 16:55 Opération Tranquillité Vacances Votre demande est en cours de traitement 1.'
       );
     });
   });

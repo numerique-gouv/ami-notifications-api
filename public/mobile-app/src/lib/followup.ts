@@ -134,6 +134,19 @@ export class FollowupSubItem {
     return formatDate(this.date);
   }
 
+  get badgeClassName(): string {
+    switch (this._status_id) {
+      case 'new':
+        return 'fr-background-contrast--yellow-moutarde fr-text-label--yellow-moutarde';
+      case 'wip':
+        return 'fr-text-default--info fr-background-contrast--info';
+      case 'closed':
+        return 'fr-badge--purple-glycine';
+      default:
+        return '';
+    }
+  }
+
   getItemDetailPageUrl(item: FollowupItem): string {
     return `/#/followup/item/${item.partner_id}/${item.item_type}/${item.item_external_id}/subitem/${this.partner_id}/${this.item_type}/${this.item_external_id}`;
   }
