@@ -61,14 +61,18 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: ${{ needs.e2e-launch.outputs.allure_report }}
-          path: ami-system-tests/allure-report
+          path: allure-report
 
+      - name: show allure content for debug
+        run: |
+          echo root folder:
+          ls .
+          echo allure folder
+          ls allure-report/
+          
       - name: Commenter la PR d'origine
         uses: allure-framework/allure-action@v0
         with:
-          report-directory: ami-system-tests/allure-report
+          report-directory: allure-report
           github-token: ${{ github.token }}
-
-      - name: logguer l'url du rapport de tests
-        if: ${{ always() }}
-        run: echo -e "Le rapport de tests est téléchargeable à l'adresse:\n\thttps://github.com/numerique-gouv/ami-notifications-api/actions/runs/${{ github.run_id }}#artifacts"
+          debug: true
