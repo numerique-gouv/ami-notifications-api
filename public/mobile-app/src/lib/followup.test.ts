@@ -79,6 +79,94 @@ describe('/followup.ts', () => {
         );
       });
     });
+    describe('badgeClassName', () => {
+      test('should return class name depending on status_if', async () => {
+        // Given
+        const item1 = new SubItem(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'new',
+          'Terminée',
+          false,
+          'url'
+        );
+        const item2 = new SubItem(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'wip',
+          'Terminée',
+          false,
+          'url'
+        );
+        const item3 = new SubItem(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'closed',
+          'Terminée',
+          false,
+          'url'
+        );
+        const item4 = new SubItem(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          // @ts-expect-error: `'incorrect'` isn't a proper Status, so typescript will complain
+          'incorrect',
+          'Terminée',
+          false,
+          'url'
+        );
+
+        // When
+        const className1 = item1.badgeClassName;
+        const className2 = item2.badgeClassName;
+        const className3 = item3.badgeClassName;
+        const className4 = item4.badgeClassName;
+
+        // Then
+        expect(className1).equal(
+          'fr-background-contrast--yellow-moutarde fr-text-label--yellow-moutarde'
+        );
+        expect(className2).equal('fr-text-default--info fr-background-contrast--info');
+        expect(className3).equal('fr-badge--purple-glycine');
+        expect(className4).equal('');
+      });
+    });
   });
   describe('FollowupItem', () => {
     describe('id', () => {

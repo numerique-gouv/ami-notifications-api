@@ -71,7 +71,7 @@
           {:else}
             <div class="fr-tile__start fr-mb-3v">
               <p
-                class="fr-badge fr-badge--sm fr-badge--icon-left fr-mb-1w {item.icon} {badgeKinds[(item.kind)]} fr-mb-0"
+                class="fr-badge fr-badge--sm fr-badge--icon-left {item.icon} {badgeKinds[(item.kind)]} fr-mb-0"
               >
                 {item.label}
               </p>
@@ -131,9 +131,9 @@
       button.am-btn-modal {
         z-index: 2;
         position: absolute;
-        top: 1px;
-        right: 1px;
-        min-height: 3rem;
+        top: 0;
+        right: 0;
+        min-height: 2.75rem;
         outline-width: 2px;
 
         &:before {
@@ -194,6 +194,9 @@
           .fr-tag {
             display: block;
           }
+        }
+        .fr-tile__start {
+          line-height: 1;
         }
         .fr-tile__detail {
           display: block;

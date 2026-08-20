@@ -53,13 +53,15 @@
             {/if}
           </span>
         </p>
-        <div class="fr-tile__start">
+        <div class="fr-tile__start fr-mb-3v">
           <p
-            class="fr-badge fr-badge--icon-left fr-mb-1w {checkedIcon} {item.status_id} am-badge-blue"
+            class="fr-badge fr-badge--icon-left {checkedIcon} {item.status_id} {item.badgeClassName}"
           >
             {item.status_label}
           </p>
-          <p class="fr-pr-2w fr-text--xs followup--item--detail--date">
+          <p
+            class="fr-pr-2w fr-text--xs am-text-mention-grey followup--item--detail--date"
+          >
             {item.formattedDate}
           </p>
         </div>
@@ -96,9 +98,9 @@
       button.am-btn-modal {
         z-index: 2;
         position: absolute;
-        top: 1px;
-        right: 1px;
-        min-height: 3rem;
+        top: 0;
+        right: 0;
+        min-height: 2.75rem;
         outline-width: 2px;
         &:before {
           position: relative;
@@ -122,7 +124,8 @@
           width: 100%;
           display: flex;
           justify-content: space-between;
-          align-items: baseline;
+          align-items: center;
+          line-height: 1;
         }
       }
     }
