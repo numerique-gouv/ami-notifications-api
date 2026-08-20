@@ -52,10 +52,7 @@ export const retrieveAgenda = async (date: Date | null = null): Promise<APIAgend
   if (filter_items.length) {
     const items = (filter_items || []).map((e) => `filter-items=${e}`).join('&');
     const response = await apiFetch(
-      `/api/v1/users/data/agenda?current_date=${current_date}&${items}`,
-      {
-        credentials: 'include',
-      }
+      `/api/v1/users/data/agenda?current_date=${current_date}&${items}`
     );
     if (response.ok) {
       const apiAgenda = await response.json();

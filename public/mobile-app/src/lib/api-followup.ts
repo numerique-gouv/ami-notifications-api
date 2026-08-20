@@ -61,9 +61,7 @@ export const retrieveFollowup = async (
   }
   if (filter_items.length) {
     const items = (filter_items || []).map((e) => `filter-items=${e}`).join('&');
-    const response = await apiFetch(`/api/v1/users/data/followup?${items}`, {
-      credentials: 'include',
-    });
+    const response = await apiFetch(`/api/v1/users/data/followup?${items}`);
     if (response.ok) {
       const apiFollowup = await response.json();
       for (const key of Object.keys(apiFollowupData) as APIFollowupKey[]) {
@@ -116,7 +114,6 @@ export const archiveFollowupItem = async (
         method: 'POST',
         headers,
         body: JSON.stringify(payload),
-        credentials: 'include',
       }
     );
     if (response.status === 200) {

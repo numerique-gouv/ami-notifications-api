@@ -9,10 +9,7 @@ export const retrieveProcedureUrl = async (
 ): Promise<string> => {
   try {
     const response = await apiFetch(
-      `/api/v1/partner/otv/url?preferred_username=${preferredUsername}&email=${email}&address_city=${addressCity}&address_postcode=${addressPostcode}&address_name=${addressName}`,
-      {
-        credentials: 'include',
-      }
+      `/api/v1/partner/otv/url?preferred_username=${preferredUsername}&email=${email}&address_city=${addressCity}&address_postcode=${addressPostcode}&address_name=${addressName}`
     );
     if (response.status === 200) {
       const responseJson = await response.json();

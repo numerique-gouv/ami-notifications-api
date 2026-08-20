@@ -4,7 +4,6 @@ export const logout = async (): Promise<boolean> => {
   // delete auth cookie
   const response = await fetch('/logout', {
     method: 'POST',
-    credentials: 'include',
   });
   if (response.status >= 400) {
     console.log(
@@ -19,7 +18,12 @@ export const apiFetch = async (
   input: string,
   init?: RequestInit
 ): Promise<Response> => {
-  const response = await fetch(input, init);
+  let response: Response;
+  if (typeof init !== 'undefined') {
+    response = await fetch(input, init);
+  } else {
+    response = await fetch(input);
+  }
 
   if (response.status === 401) {
     console.log(

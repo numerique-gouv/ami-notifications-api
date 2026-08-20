@@ -99,8 +99,7 @@ describe('/api-agenda', () => {
 
       // Then
       expect(spy).toHaveBeenCalledExactlyOnceWith(
-        '/api/v1/users/data/agenda?current_date=2025-11-01&filter-items=school_holidays&filter-items=public_holidays&filter-items=elections',
-        { credentials: 'include' }
+        '/api/v1/users/data/agenda?current_date=2025-11-01&filter-items=school_holidays&filter-items=public_holidays&filter-items=elections'
       );
       expect(result).toEqual({
         school_holidays: apiAgendaData.school_holidays.items,
@@ -129,8 +128,7 @@ describe('/api-agenda', () => {
 
       // Then
       expect(spy).toHaveBeenCalledExactlyOnceWith(
-        '/api/v1/users/data/agenda?current_date=2025-11-01&filter-items=school_holidays&filter-items=public_holidays&filter-items=elections',
-        { credentials: 'include' }
+        '/api/v1/users/data/agenda?current_date=2025-11-01&filter-items=school_holidays&filter-items=public_holidays&filter-items=elections'
       );
       expect(result).toEqual({
         school_holidays: [],
@@ -197,8 +195,7 @@ describe('/api-agenda', () => {
 
       // Then
       expect(spy).toHaveBeenCalledExactlyOnceWith(
-        `/api/v1/users/data/agenda?current_date=${dateToISO(new Date())}&filter-items=school_holidays&filter-items=public_holidays&filter-items=elections`,
-        { credentials: 'include' }
+        `/api/v1/users/data/agenda?current_date=${dateToISO(new Date())}&filter-items=school_holidays&filter-items=public_holidays&filter-items=elections`
       );
       expect(result).toEqual({
         school_holidays: apiAgendaData.school_holidays.items,
@@ -247,8 +244,7 @@ describe('/api-agenda', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `/api/v1/users/data/agenda?current_date=2025-11-01&filter-items=${key}`,
-          { credentials: 'include' }
+          `/api/v1/users/data/agenda?current_date=2025-11-01&filter-items=${key}`
         );
         expect(result).toEqual({
           school_holidays: apiAgendaData.school_holidays.items,
@@ -293,8 +289,7 @@ describe('/api-agenda', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `/api/v1/users/data/agenda?current_date=2025-11-01&filter-items=${key}`,
-          { credentials: 'include' }
+          `/api/v1/users/data/agenda?current_date=2025-11-01&filter-items=${key}`
         );
         expect(result).toEqual({
           school_holidays: apiAgendaData.school_holidays.items,
@@ -342,8 +337,7 @@ describe('/api-agenda', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `/api/v1/users/data/agenda?current_date=2025-11-01&filter-items=${key}`,
-          { credentials: 'include' }
+          `/api/v1/users/data/agenda?current_date=2025-11-01&filter-items=${key}`
         );
         expect(result).toEqual({
           school_holidays: apiAgendaData.school_holidays.items,
@@ -389,8 +383,7 @@ describe('/api-agenda', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `/api/v1/users/data/agenda?current_date=2025-11-01&filter-items=${key}`,
-          { credentials: 'include' }
+          `/api/v1/users/data/agenda?current_date=2025-11-01&filter-items=${key}`
         );
         expect(result).toEqual({
           school_holidays: apiAgendaData.school_holidays.items,
@@ -448,8 +441,7 @@ describe('/api-agenda', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `/api/v1/users/data/agenda?current_date=2025-11-01&filter-items=${key}`,
-          { credentials: 'include' }
+          `/api/v1/users/data/agenda?current_date=2025-11-01&filter-items=${key}`
         );
         expect(result).toEqual({
           school_holidays: apiAgendaData2.school_holidays?.items,
@@ -496,8 +488,7 @@ describe('/api-agenda', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `/api/v1/users/data/agenda?current_date=2025-11-01&filter-items=${key}`,
-          { credentials: 'include' }
+          `/api/v1/users/data/agenda?current_date=2025-11-01&filter-items=${key}`
         );
         expect(result).toEqual({
           school_holidays: apiAgendaData.school_holidays.items,

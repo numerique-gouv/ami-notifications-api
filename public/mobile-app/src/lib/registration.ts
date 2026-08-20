@@ -32,7 +32,6 @@ export const registerDevice = async (
     method: 'POST',
     headers: headers,
     body: JSON.stringify(payload),
-    credentials: 'include',
   });
   console.log('response:', response);
   if (response.status < 400) {
@@ -52,7 +51,6 @@ export const unregisterDevice = async (registrationId: string) => {
   const response = await apiFetch(`/api/v1/users/registrations/${registrationId}`, {
     method: 'DELETE',
     headers: headers,
-    credentials: 'include',
   });
   console.log('response:', response);
   if (response.status === 204) {

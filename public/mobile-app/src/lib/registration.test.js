@@ -25,7 +25,6 @@ describe('/registration.js', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: '{"subscription":{"endpoint":"","keys":{"auth":"fake-auth","p256dh":"fake-p256dh"}}}',
-        credentials: 'include',
       });
     });
   });
