@@ -1,4 +1,4 @@
-name: workflow-e2e-webapp-merge.yml
+name: e2e merge
 # Au merge d'une PR : webapp uniquement pour le moment (android/ios pas encore câblés côté CI),
 # avec commentaire Allure sur la PR fermée. Une PR fermée sans merge ne déclenche rien
 # (if: merged == true).

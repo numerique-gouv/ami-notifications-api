@@ -1,4 +1,4 @@
-name: workflow-e2e-webapp-pr.yml
+name: e2e pr
 # À chaque ouverture ou push sur une PR (brouillon ou non — pull_request se déclenche aussi sur
 # les PR en draft, pas de filtre à ajouter) : webapp seule, pour un retour rapide, avec
 # commentaire Allure sur la PR.

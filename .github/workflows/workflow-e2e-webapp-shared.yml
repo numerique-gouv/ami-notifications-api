@@ -1,4 +1,4 @@
-name: workflow-e2e-webapp-shared.yml
+name: e2e shared
 # Logique commune, appelée par les workflows fins par déclencheur (workflow-e2e-webapp-*.yml) :
 # lance l'e2e sur ami-system-tests puis, si pr_number != 0, commente la PR d'origine avec le
 # rapport Allure. Chaque appelant fixe une config simple, sans condition ni shell.

@@ -1,4 +1,4 @@
-name: workflow-e2e-webapp-tag.yml
+name: e2e tag
 # Pose d'un tag de version (ex: 26.7.1) : même config que le merge (webapp uniquement pour le
 # moment), même env staging. Pas de PR associée → pr_number reste à 0 (défaut), pas de commentaire.
 on:

@@ -1,4 +1,4 @@
-name: workflow-e2e-webapp-manual.yml
+name: e2e manual trigger
 # Déclenchement manuel, config libre.
 #
 # Se lance en local avec :
