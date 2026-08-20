@@ -18,10 +18,11 @@ on:
         type: string
         default: ''
       run_old_device:
+        description: "les applications mobile si utilisées doivent être d'anciens appareils (android, ios) avec un ancien os (android)"
         type: boolean
         default: true
       pr_number:
-        description: "0 = pas de PR associée (push/tag) → pas de commentaire"
+        description: "0 = pas de PR associée (push/tag) → pas de commentaire de PR"
         type: number
         default: 0
       ref_name:
@@ -30,12 +31,12 @@ on:
       checkout_ref:
         description: "ref (branche/tag/sha) d'ami-system-tests à checkout — doit être égal à la ref de jobs.e2e-launch.uses: [...]@ref"
         type: string
-        default: 10-ci-api-ios-android-wip
+        default: main
 
 jobs:
   e2e-launch:
     name: trigger an e2e run in ami-system-tests
-    uses: numerique-gouv/ami-system-tests/.github/workflows/workflow-e2e-main.yml@10-ci-api-ios-android-wip
+    uses: numerique-gouv/ami-system-tests/.github/workflows/workflow-e2e-main.yml@main
     with:
       ref_name: ${{ inputs.ref_name }}
       run_webapp: ${{ inputs.run_webapp }}

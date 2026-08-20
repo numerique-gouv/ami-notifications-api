@@ -26,7 +26,10 @@ on:
         description: "demande à lancer une suite de test mobile avec la configuration la plus ancienne disponible"
         type: boolean
         default: true
-
+      checkout_ref:
+        description: "ref (branche/tag/sha) d'ami-system-tests à checkout — doit être égal à la ref de jobs.e2e-launch.uses: [...]@ref"
+        type: string
+        default: main
 jobs:
   e2e:
     name: run e2e (manual)
@@ -37,4 +40,5 @@ jobs:
       run_ios: ${{ inputs.run_ios }}
       run_old_device: ${{ inputs.run_old_device }}
       pr_number: ${{ inputs.pr_number }}
+      checkout_ref: ${{ inputs.checkout_ref }}
     secrets: inherit
