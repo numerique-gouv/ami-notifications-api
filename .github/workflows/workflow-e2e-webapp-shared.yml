@@ -47,7 +47,7 @@ jobs:
       pr_number: ${{ inputs.pr_number }}
       checkout_ref: ${{ inputs.checkout_ref }} # la même branche/ref que uses de préférence
     secrets: inherit
-
+    
   e2e-report:
     name: uses output of e2e run in ami-system-tests to report in pr
     needs: e2e-launch
