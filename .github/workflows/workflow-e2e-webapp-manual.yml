@@ -30,6 +30,7 @@ on:
         description: "ref (branche/tag/sha) d'ami-system-tests à checkout — doit être égal à la ref de jobs.e2e-launch.uses: [...]@ref"
         type: string
         default: main
+
 jobs:
   e2e:
     name: run e2e (manual)
