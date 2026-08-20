@@ -21,85 +21,96 @@
 <div class="demarche-content-container">
   <FollowupItemDetailHeader item={item} />
 
-  <div class="followup--subitems" data-testid="followup-subitems">
-    {#each item.sub_items as sub_item}
-      <div class="followup--subitem">
-        <div
-          class="followup--subitem--detail fr-tile fr-tile--sm fr-tile--horizontal fr-tile--no-border fr-enlarge-button"
-        >
-          <div class="fr-tile__body">
-            <div class="fr-tile__content fr-pb-0">
-              <h3 class="fr-tile__title fr-mb-0">
-                <button
-                  type="button"
-                  class="fr-text--sm"
-                  onclick={(e) => goto(sub_item.getItemDetailPageUrl(item))}
-                  data-testid="followup-subitem-link-{sub_item.id}"
-                >
-                  {sub_item.title}
-                </button>
-              </h3>
+  <nav class="fr-sidemenu fr-m-0 followup--subitems" data-testid="followup-subitems">
+    <div class="fr-sidemenu__inner">
+      <ul class="fr-sidemenu__list">
+        {#each item.sub_items as sub_item}
+          <li class="fr-sidemenu__item followup--subitem fr-py-1w fr-pr-7v">
+            <div class="followup--subitem__header fr-mb-1v">
               <p
-                class="fr-tile__detail fr-text--xs fr-m-0 fr-pr-0"
-                data-testid="followup-subitem-detail-{sub_item.id}"
+                class="fr-badge fr-badge--sm fr-badge--icon-left {checkedIcon} {sub_item.status_id} {sub_item.badgeClassName} fr-mr-3v"
               >
-                <span> {sub_item.description} </span>
+                {sub_item.status_label}
               </p>
-              <div class="fr-tile__start fr-mb-1v">
-                <p
-                  class="fr-badge fr-badge--icon-left {checkedIcon} {sub_item.status_id} am-badge-blue"
-                >
-                  {sub_item.status_label}
-                </p>
-                <p class="fr-text--xs followup--subitem--detail--date">
-                  {sub_item.formattedDate}
-                </p>
-              </div>
+              <p
+                class="fr-text--regular fr-text--xs am-text-mention-grey followup--subitem__date"
+              >
+                {sub_item.formattedDate}
+              </p>
             </div>
-          </div>
-        </div>
-      </div>
-    {/each}
-  </div>
+            <button
+              type="button"
+              class="fr-sidemenu__btn fr-text--sm fr-p-0"
+              onclick={(e) => goto(sub_item.getItemDetailPageUrl(item))}
+              data-testid="followup-subitem-link-{sub_item.id}"
+            >
+              {sub_item.title}
+            </button>
+            <p
+              class="fr-text--regular fr-text--xs fr-m-0"
+              data-testid="followup-subitem-detail-{sub_item.id}"
+            >
+              {sub_item.description}
+            </p>
+          </li>
+        {/each}
+      </ul>
+    </div>
+  </nav>
 </div>
 
 <style>
   div.demarche-content-container {
     padding: 4rem 1rem 1rem;
-    .followup--subitem {
+    .followup--subitem__header {
       display: flex;
-      flex-direction: column;
-      width: 100%;
-      border-bottom: solid 1px var(--border-default-grey);
-      .followup--subitem--detail {
-        padding: 1rem 1.5rem 1.25rem 0;
+      justify-content: space-between;
+      .fr-badge {
+        display: inline-block;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+      }
+      .followup--subitem__date {
+        flex-shrink: 0;
+      }
+    }
+    .fr-sidemenu {
+      box-shadow: none;
+    }
+    .fr-sidemenu__btn {
+      display: block;
+      position: initial;
+      &:before {
+        position: absolute;
+        content: "";
+        display: block;
+        bottom: 0;
+        height: 100%;
+        left: 0;
+        outline-color: inherit;
+        outline-offset: 2px;
+        outline-style: inherit;
+        outline-width: 2px;
+        right: 0;
+        top: 0;
         width: 100%;
-        .fr-tile__content {
-          .fr-tile__title {
-            &::before {
-              background: none;
-            }
-            button {
-              color: #000;
-              &::before {
-                background: none;
-              }
-              &::after {
-                top: 50%;
-                right: 0;
-                --icon-size: 1.25rem;
-                -webkit-mask-image: url("@gouvfr/dsfr/dist/icons/arrows/arrow-right-s-line.svg");
-                mask-image: url("@gouvfr/dsfr/dist/icons/arrows/arrow-right-s-line.svg");
-              }
-            }
-          }
-          .fr-tile__start {
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-          }
-        }
+        z-index: 1;
+      }
+      &:after {
+        position: absolute;
+        content: "";
+        display: block;
+        height: 1.25rem;
+        width: 1.25rem;
+        -webkit-mask-size: 100% 100%;
+        mask-size: 100% 100%;
+        -webkit-mask-image: url("@gouvfr/dsfr/dist/icons/arrows/arrow-right-s-line.svg");
+        mask-image: url("@gouvfr/dsfr/dist/icons/arrows/arrow-right-s-line.svg");
+        top: 50%;
+        right: 0;
+        transform: translateY(-50%);
+        background-color: var(--text-active-blue-france);
       }
     }
   }

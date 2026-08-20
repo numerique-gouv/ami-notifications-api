@@ -19,25 +19,28 @@
 
 <div class="demarche-content-header">
   <p
-    class="fr-badge am-badge--blue-dsfr fr-mb-1w fr-badge--icon-left {checkedIcon} {item.status_id}"
+    class="fr-badge fr-mb-1w fr-badge--icon-left {checkedIcon} {item.status_id} {item.badgeClassName}"
   >
     {item.status_label}
   </p>
 
   <div class="fr-mb-1w">
-    <h1 class="fr-h2 fr-mb-2v">{item.title}</h1>
+    <h1 class="fr-h3 fr-mb-3v">{item.title}</h1>
   </div>
 
   {#if item.subheading}
     <p
-      class="fr-text--sm am-text-mention-grey demarche--subheading fr-mb-1w"
+      class="fr-text--sm am-text-mention-grey am-text--smbold demarche--subheading fr-mb-1w"
       data-testid="item-subheading"
     >
       {item.subheading}
     </p>
   {/if}
   {#if item.reference}
-    <p class="fr-text--sm demarche--item-external-id" data-testid="item-reference">
+    <p
+      class="fr-text--sm am-text--smbold demarche--item-external-id"
+      data-testid="item-reference"
+    >
       <span class="am-text-mention-grey">référence dossier :</span>
       {item.reference}
     </p>
