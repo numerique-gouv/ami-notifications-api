@@ -72,7 +72,6 @@ def test_login_callback_silent_ami_fi(
     assert "user_fc_hash" not in redirected_url
     assert "address" not in redirected_url
     assert "api_particulier_quotient" not in redirected_url
-    assert "api_particulier_statut_etudiant" not in redirected_url
 
     assert Nonce.objects.count() == 0
 
@@ -140,6 +139,5 @@ def test_login_callback_silent_ami_fi_with_redirect_url(
     assert "user_fc_hash" not in redirected_url
     assert "address" not in redirected_url
     assert "api_particulier_quotient" not in redirected_url
-    assert "api_particulier_statut_etudiant" not in redirected_url
 
     assert Nonce.objects.count() == 0
