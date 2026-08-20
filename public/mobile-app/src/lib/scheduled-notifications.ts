@@ -20,7 +20,6 @@ export const createScheduledNotification = async (
       method: 'POST',
       headers: headers,
       body: JSON.stringify(scheduledNotification),
-      credentials: 'include',
     });
     if (response.status === 200) {
       return true;

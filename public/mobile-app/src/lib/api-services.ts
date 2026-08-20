@@ -44,9 +44,7 @@ export const retrieveServices = async (
   }
   if (filter_items.length) {
     const items = (filter_items || []).map((e) => `filter-items=${e}`).join('&');
-    const response = await apiFetch(`/api/v1/users/data/services?${items}`, {
-      credentials: 'include',
-    });
+    const response = await apiFetch(`/api/v1/users/data/services?${items}`);
     if (response.ok) {
       const apiServices = await response.json();
       for (const key of Object.keys(apiServicesData) as APIServicesKey[]) {
@@ -109,7 +107,6 @@ export const getServicesItemParameters = async (
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ parameters: parameters }),
-      credentials: 'include',
     });
     if (response.status === 200) {
       const result = (await response.json()) as ServicesItemsParametersResponse;

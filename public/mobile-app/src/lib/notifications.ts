@@ -25,9 +25,7 @@ export const fetchAndStoreNotifications = async () => {
   let notifications = [] as AppNotification[];
 
   try {
-    const response = await apiFetch('/api/v1/users/notifications', {
-      credentials: 'include',
-    });
+    const response = await apiFetch('/api/v1/users/notifications');
     if (response.status === 200) {
       notifications = await response.json();
       localStorage.setItem('notifications', JSON.stringify(notifications));
@@ -75,7 +73,6 @@ export const readNotification = async (
         method: 'PATCH',
         headers,
         body: JSON.stringify(payload),
-        credentials: 'include',
       }
     );
     if (response.status === 200) {

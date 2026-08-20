@@ -66,8 +66,7 @@ describe('/api-services', () => {
 
       // Then
       expect(spy).toHaveBeenCalledExactlyOnceWith(
-        '/api/v1/users/data/services?filter-items=internal',
-        { credentials: 'include' }
+        '/api/v1/users/data/services?filter-items=internal'
       );
       expect(result).toEqual({
         internal: apiServicesData.internal.items,
@@ -88,8 +87,7 @@ describe('/api-services', () => {
 
       // Then
       expect(spy).toHaveBeenCalledExactlyOnceWith(
-        '/api/v1/users/data/services?filter-items=internal',
-        { credentials: 'include' }
+        '/api/v1/users/data/services?filter-items=internal'
       );
       expect(result).toEqual({
         internal: [],
@@ -130,8 +128,7 @@ describe('/api-services', () => {
 
       // Then
       expect(spy).toHaveBeenCalledExactlyOnceWith(
-        '/api/v1/users/data/services?filter-items=internal',
-        { credentials: 'include' }
+        '/api/v1/users/data/services?filter-items=internal'
       );
       expect(result).toEqual({
         internal: apiServicesData.internal.items,
@@ -170,8 +167,7 @@ describe('/api-services', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `/api/v1/users/data/services?filter-items=${key}`,
-          { credentials: 'include' }
+          `/api/v1/users/data/services?filter-items=${key}`
         );
         expect(result).toEqual({
           internal: apiServicesData.internal.items,
@@ -212,8 +208,7 @@ describe('/api-services', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `/api/v1/users/data/services?filter-items=${key}`,
-          { credentials: 'include' }
+          `/api/v1/users/data/services?filter-items=${key}`
         );
         expect(result).toEqual({
           internal: apiServicesData.internal.items,
@@ -257,8 +252,7 @@ describe('/api-services', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `/api/v1/users/data/services?filter-items=${key}`,
-          { credentials: 'include' }
+          `/api/v1/users/data/services?filter-items=${key}`
         );
         expect(result).toEqual({
           internal: apiServicesData.internal.items,
@@ -303,8 +297,7 @@ describe('/api-services', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `/api/v1/users/data/services?filter-items=${key}`,
-          { credentials: 'include' }
+          `/api/v1/users/data/services?filter-items=${key}`
         );
         expect(result).toEqual({
           internal: apiServicesData.internal.items,
@@ -356,8 +349,7 @@ describe('/api-services', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `/api/v1/users/data/services?filter-items=${key}`,
-          { credentials: 'include' }
+          `/api/v1/users/data/services?filter-items=${key}`
         );
         expect(result).toEqual({
           internal: apiServicesData2.internal?.items,
@@ -403,8 +395,7 @@ describe('/api-services', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `/api/v1/users/data/services?filter-items=${key}`,
-          { credentials: 'include' }
+          `/api/v1/users/data/services?filter-items=${key}`
         );
         expect(result).toEqual({
           internal: apiServicesData.internal.items,

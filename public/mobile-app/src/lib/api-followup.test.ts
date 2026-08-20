@@ -62,8 +62,7 @@ describe('/api-followup', () => {
 
       // Then
       expect(spy).toHaveBeenCalledExactlyOnceWith(
-        '/api/v1/users/data/followup?filter-items=notifications',
-        { credentials: 'include' }
+        '/api/v1/users/data/followup?filter-items=notifications'
       );
       expect(result).toEqual({
         notifications: followupItemsData.notifications.items,
@@ -84,8 +83,7 @@ describe('/api-followup', () => {
 
       // Then
       expect(spy).toHaveBeenCalledExactlyOnceWith(
-        '/api/v1/users/data/followup?filter-items=notifications',
-        { credentials: 'include' }
+        '/api/v1/users/data/followup?filter-items=notifications'
       );
       expect(result).toEqual({
         notifications: [],
@@ -128,8 +126,7 @@ describe('/api-followup', () => {
 
       // Then
       expect(spy).toHaveBeenCalledExactlyOnceWith(
-        '/api/v1/users/data/followup?filter-items=notifications',
-        { credentials: 'include' }
+        '/api/v1/users/data/followup?filter-items=notifications'
       );
       expect(result).toEqual({
         notifications: followupItemsData.notifications.items,
@@ -168,8 +165,7 @@ describe('/api-followup', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `/api/v1/users/data/followup?filter-items=${key}`,
-          { credentials: 'include' }
+          `/api/v1/users/data/followup?filter-items=${key}`
         );
         expect(result).toEqual({
           notifications: followupItemsData.notifications.items,
@@ -210,8 +206,7 @@ describe('/api-followup', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `/api/v1/users/data/followup?filter-items=${key}`,
-          { credentials: 'include' }
+          `/api/v1/users/data/followup?filter-items=${key}`
         );
         expect(result).toEqual({
           notifications: followupItemsData.notifications.items,
@@ -255,8 +250,7 @@ describe('/api-followup', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `/api/v1/users/data/followup?filter-items=${key}`,
-          { credentials: 'include' }
+          `/api/v1/users/data/followup?filter-items=${key}`
         );
         expect(result).toEqual({
           notifications: followupItemsData.notifications.items,
@@ -301,8 +295,7 @@ describe('/api-followup', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `/api/v1/users/data/followup?filter-items=${key}`,
-          { credentials: 'include' }
+          `/api/v1/users/data/followup?filter-items=${key}`
         );
         expect(result).toEqual({
           notifications: followupItemsData.notifications.items,
@@ -354,8 +347,7 @@ describe('/api-followup', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `/api/v1/users/data/followup?filter-items=${key}`,
-          { credentials: 'include' }
+          `/api/v1/users/data/followup?filter-items=${key}`
         );
         expect(result).toEqual({
           notifications: followupItemsData2.notifications?.items,
@@ -401,8 +393,7 @@ describe('/api-followup', () => {
 
         // Then
         expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `/api/v1/users/data/followup?filter-items=${key}`,
-          { credentials: 'include' }
+          `/api/v1/users/data/followup?filter-items=${key}`
         );
         expect(result).toEqual({
           notifications: followupItemsData.notifications.items,
@@ -460,7 +451,6 @@ describe('/api-followup', () => {
         '/api/v1/users/data/followup/item/notifications/id/archive',
         {
           body: '{"is_archived":true}',
-          credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
           method: 'POST',
         }
@@ -481,7 +471,6 @@ describe('/api-followup', () => {
         '/api/v1/users/data/followup/item/notifications/id/archive',
         {
           body: '{"is_archived":true}',
-          credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
           method: 'POST',
         }
@@ -502,7 +491,6 @@ describe('/api-followup', () => {
         '/api/v1/users/data/followup/item/notifications/id/archive',
         {
           body: '{"is_archived":true}',
-          credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
           method: 'POST',
         }
