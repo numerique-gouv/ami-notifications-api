@@ -77,3 +77,4 @@ jobs:
           github-token: ${{ github.token }}
           debug: true
           remote-href: 'https://github.com/numerique-gouv/ami-notifications-api/actions/runs/${{ github.run_id }}#artifacts'
+
