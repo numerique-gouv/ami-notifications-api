@@ -1,6 +1,11 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
+  import {
+    PUBLIC_SP_ANNUAIRE_URL,
+    PUBLIC_SP_ORIENTEUR_URL,
+    PUBLIC_SP_SEARCH_URL,
+  } from '$env/static/public';
   import { AMIGoto } from '$lib/ami-goto';
   import ServicesItemModal from '$lib/components/modal/ServicesItemModal.svelte';
   import Navigation from '$lib/components/Navigation.svelte';
@@ -172,15 +177,17 @@
           {/if}
         {/each}
       {/if}
-      <p class="fr-mb-4w">
-        <button
-          type="button"
-          class="fr-link fr-icon-arrow-right-line fr-link--icon-right am-link-bordered"
-          onclick={()=> goto("/#/")}
-        >
-          J’ai besoin d’aide sur un autre sujet
-        </button>
-      </p>
+      {#if PUBLIC_SP_ORIENTEUR_URL}
+        <p class="fr-mb-4w">
+          <button
+            type="button"
+            class="fr-link fr-icon-arrow-right-line fr-link--icon-right am-link-bordered"
+            onclick={()=> window.location.href = PUBLIC_SP_ORIENTEUR_URL}
+          >
+            J’ai besoin d’aide sur un autre sujet
+          </button>
+        </p>
+      {/if}
 
       <h2 class="fr-h5 fr-mb-1w">Comment faire si ... ?</h2>
 
@@ -208,15 +215,17 @@
         </div>
       </nav>
 
-      <h2 class="fr-h5">Je recherche un service public, une administration </h2>
+      {#if PUBLIC_SP_ANNUAIRE_URL}
+        <h2 class="fr-h5">Je recherche un service public, une administration </h2>
 
-      <button
-        type="button"
-        class="fr-btn fr-btn--secondary am-btn-target am-btn-w100"
-        onclick={()=> window.location.href = "https://lannuaire.service-public.gouv.fr/"}
-      >
-        Accéder à l’annuaire
-      </button>
+        <button
+          type="button"
+          class="fr-btn fr-btn--secondary am-btn-target am-btn-w100"
+          onclick={()=> window.location.href = PUBLIC_SP_ANNUAIRE_URL}
+        >
+          Accéder à l’annuaire
+        </button>
+      {/if}
     </div>
     <div
       id="tab-6497-panel"
@@ -261,13 +270,15 @@
               </div>
             </div>
           </nav>
-          <button
-            type="button"
-            class="fr-btn fr-btn--secondary am-btn-target am-btn-w100"
-            onclick={()=> window.location.href = "https://www.service-public.gouv.fr/particuliers/recherche?rubricFilter=serviceEnLigne"}
-          >
-            Voir toutes les démarches
-          </button>
+          {#if PUBLIC_SP_SEARCH_URL}
+            <button
+              type="button"
+              class="fr-btn fr-btn--secondary am-btn-target am-btn-w100"
+              onclick={()=> window.location.href = PUBLIC_SP_SEARCH_URL}
+            >
+              Voir toutes les démarches
+            </button>
+          {/if}
         </div>
       </div>
     </div>
