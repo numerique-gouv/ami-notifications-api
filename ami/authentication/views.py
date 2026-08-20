@@ -14,19 +14,12 @@ from ami.authentication.models import Nonce
 from ami.authentication.schemas import data_providers
 from ami.user.data import (
     get_address_from_api_particulier_quotient,
-    get_api_particulier_quotient_raw_data,
-    get_api_particulier_statut_etudiant_raw_data,
     get_fc_userinfo,
 )
 from ami.utils.httpx import httpxAsyncClient
 
 logger = logging.getLogger(__name__)
 
-
-data_provider_functions = {
-    "api_particulier_quotient": get_api_particulier_quotient_raw_data,
-    "api_particulier_statut_etudiant": get_api_particulier_statut_etudiant_raw_data,
-}
 
 FC_ERROR_TRANSLATIONS = {
     "temporarily_unavailable": "Erreur lors de la FranceConnexion, veuillez réessayer plus tard.",
@@ -50,21 +43,11 @@ def retry_fc_later(error_dict: dict | None = None):
 def login(request, login_type):
     try:
         context = None
-        if login_type == "ami-fi":
-            provider_ids = []
-            if request.GET.get("provider_id") and request.GET["provider_id"] in data_providers:
-                provider_ids.append(request.GET["provider_id"])
-            context = {
-                "idp": login_type,
-                "provider_ids": provider_ids,
-            }
-            scope = get_fc_scope(provider_ids)
-        elif login_type == "silent-ami-fi":
+        if login_type == "silent-ami-fi":
             scope = get_fc_scope([])
-            redirect_url = request.GET.get("redirect_url")
             context = {
                 "idp": login_type,
-                "redirect_url": redirect_url or "",
+                "redirect_url": request.GET.get("redirect_url") or "",
             }
         else:
             scope = get_fc_scope(["api_particulier_quotient"])
@@ -115,11 +98,6 @@ def login(request, login_type):
 @require_GET
 def login_france_connect(request):
     return login(request, "fc")
-
-
-@require_GET
-def login_ami_fi(request):
-    return login(request, "ami-fi")
 
 
 @require_GET
@@ -196,17 +174,15 @@ async def login_callback(request):
                     if result:
                         user_data[key] = result
 
-            # build redirect_url, depending on kind of login (fc, ami-fi, silent-ami-fi)
+            # build redirect_url, depending on kind of login (fc, silent-ami-fi)
             redirect_url = f"{settings.PUBLIC_APP_URL}/?{urlencode(user_data)}#/login-callback"
-            if nonce_context.get("idp") == "ami-fi":
-                redirect_url = f"{settings.PUBLIC_APP_URL}/?{urlencode(user_data)}#/fi"
             if nonce_context.get("idp") == "silent-ami-fi":
                 user_data["redirect_url"] = nonce_context.get("redirect_url") or ""
                 redirect_url = f"{settings.PUBLIC_APP_URL}/?{urlencode(user_data)}#/silent-login"
 
             # set cookies only for fc
             response = redirect(redirect_url)
-            if nonce_context.get("idp") in ["ami-fi", "silent-ami-fi"]:
+            if nonce_context.get("idp") == "silent-ami-fi":
                 return response
             jwt_token = create_jwt_token(user_id=str(user_id), jti=uuid.uuid4().hex)
             response.set_cookie(
@@ -240,7 +216,7 @@ async def get_user_data(*, token_type, access_token, nonce_context, httpx_async_
     tasks = {}
 
     if nonce_context.get("idp") == "silent-ami-fi":
-        # don't call data providers
+        # don't call fc userinfo or data providers
         return tasks
 
     async with asyncio.TaskGroup() as task_group:
@@ -251,20 +227,8 @@ async def get_user_data(*, token_type, access_token, nonce_context, httpx_async_
                 httpx_async_client=httpx_async_client,
             )
         )
-        if nonce_context.get("idp") == "ami-fi":
-            # providers are in nonce context, set on login view
-            for key in nonce_context.get("provider_ids") or []:
-                provider = data_providers.get(key)
-                if provider is not None and provider.is_enabled():
-                    tasks[key] = task_group.create_task(
-                        data_provider_functions[key](
-                            token_type=token_type,
-                            access_token=access_token,
-                            httpx_async_client=httpx_async_client,
-                        )
-                    )
-        elif data_providers["api_particulier_quotient"].is_enabled():
-            # fc, only call api_particulier_quotient, if enabled
+        if data_providers["api_particulier_quotient"].is_enabled():
+            # call api_particulier_quotient if enabled
             tasks["address"] = task_group.create_task(
                 get_address_from_api_particulier_quotient(
                     token_type=token_type,
