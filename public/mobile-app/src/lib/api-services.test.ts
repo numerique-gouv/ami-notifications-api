@@ -14,12 +14,14 @@ const apiServicesData = {
       {
         partner_id: 'psl',
         item_type: 'OperationTranquilliteVacances',
+        kind: 'catalog',
         title: 'Opération Tranquillité Vacances',
         short_description:
           'Inscrivez-vous pour protéger votre domicile pendant votre absence',
         description:
           'Pendant toute absence prolongée de votre domicile, vous pouvez vous inscrire à l’**opération tranquillité vacances**.',
         url: 'https://localhost:5173/mademarche/demarcheGenerique/?codeDemarche=OperationTranquilliteVacances&caller={back_param_token_jwt}',
+        icon: '',
         with_silent_login: true,
         created_at: '2026-02-23T17:24:00Z',
         updated_at: '2026-02-24T17:24:00Z',
@@ -27,11 +29,13 @@ const apiServicesData = {
       {
         partner_id: 'dinum-dn',
         item_type: 'ContacterAMI',
+        kind: 'sos',
         title: 'Contacter l’équipe AMI',
         short_description: 'Faites-nous votre retour',
         description:
           'Pour tout retour sur l’application AMI, vous pouvez nous contacter par le biais de ce formulaire',
         url: 'https://localhost:5173/commencer/todo?id_hash_fc={fc_hash}&id_version={app_version_id}',
+        icon: 'fr-icon-earth-line',
         with_silent_login: false,
         created_at: '2026-01-26T17:24:00Z',
         updated_at: '2026-01-27T17:24:00Z',

@@ -19,10 +19,12 @@ describe('/services.ts', () => {
         const item = new ServicesItem(
           'partner',
           'type',
+          'catalog',
           'title',
           'short description',
           'description',
           'external-url',
+          'icon',
           false
         );
 
@@ -39,19 +41,23 @@ describe('/services.ts', () => {
         const item1 = new ServicesItem(
           'partner',
           'type',
+          'catalog',
           'title',
           'short description',
           'description',
           'external-url',
+          'icon',
           false
         );
         const item2 = new ServicesItem(
           'partner',
           'type',
+          'catalog',
           'title',
           'short description',
           'description {date}',
           'external-url',
+          'icon',
           false
         );
 
@@ -71,10 +77,12 @@ describe('/services.ts', () => {
         const item = new ServicesItem(
           'partner',
           'type',
+          'catalog',
           'title',
           'short description',
           'description',
           'external-url?id_hash_fc={fc_hash}',
+          'icon',
           false
         );
 
@@ -89,10 +97,12 @@ describe('/services.ts', () => {
         const item = new ServicesItem(
           'partner',
           'type',
+          'catalog',
           'title',
           'short description',
           'description',
           'external-url?id_hash_fc={fc_hash}',
+          'icon',
           false
         );
 
@@ -110,10 +120,12 @@ describe('/services.ts', () => {
         const item = new ServicesItem(
           'partner',
           'type',
+          'catalog',
           'title',
           'short description',
           'description',
           'external-url?id_version={app_version_id}',
+          'icon',
           false
         );
 
@@ -129,10 +141,12 @@ describe('/services.ts', () => {
         const item = new ServicesItem(
           'partner',
           'type',
+          'catalog',
           'title',
           'short description',
           'description',
           'external-url?id_version={app_version_id}',
+          'icon',
           false
         );
 
@@ -155,10 +169,12 @@ describe('/services.ts', () => {
         const item = new ServicesItem(
           'partner',
           'type',
+          'catalog',
           'title',
           'short description',
           'description',
           'external-url?caller={back_param_otv_jwt_token}',
+          'icon',
           false
         );
 
@@ -192,10 +208,12 @@ describe('/services.ts', () => {
         const item = new ServicesItem(
           'partner',
           'type',
+          'catalog',
           'title',
           'short description',
           'description',
           'external-url?caller={back_param_otv_jwt_token}',
+          'icon',
           false
         );
 
@@ -227,10 +245,12 @@ describe('/services.ts', () => {
         const item = new ServicesItem(
           'partner',
           'type',
+          'catalog',
           'title',
           'short description',
           'description',
           'external-url?caller={back_param_otv_jwt_token}',
+          'icon',
           false
         );
 
@@ -261,10 +281,12 @@ describe('/services.ts', () => {
         const item = new ServicesItem(
           'partner',
           'type',
+          'catalog',
           'title',
           'short description',
           'description',
           'external-url?caller={back_param_otv_jwt_token}',
+          'icon',
           false
         );
 
@@ -283,25 +305,80 @@ describe('/services.ts', () => {
       const servicesItem1 = {
         partner_id: 'psl',
         item_type: 'OperationTranquilliteVacances',
+        kind: 'catalog',
         title: 'Opération Tranquillité Vacances',
         short_description: 'Sécurisez votre logement',
         description: 'Vous partez en vacances ? **Securisez votre logement.**',
         url: 'http://external-url',
+        icon: 'icon',
         with_silent_login: true,
       };
       const servicesItem2 = {
         partner_id: 'dinum-dn',
         item_type: 'JeDéménage',
+        kind: 'catalog',
         title: 'Je déménage',
         short_description: 'Indiquez votre nouvelle adresse',
         description: 'Vous déménagez ? **Indiquez votre nouvelle adresse.**',
         url: 'http://external-url',
+        icon: 'icon',
+        with_silent_login: false,
+      };
+      const servicesItem3 = {
+        partner_id: 'psl',
+        item_type: 'OperationTranquilliteVacances',
+        kind: 'sos',
+        title: 'Opération Tranquillité Vacances',
+        short_description: 'Sécurisez votre logement',
+        description: 'Vous partez en vacances ? **Securisez votre logement.**',
+        url: 'http://external-url',
+        icon: 'icon',
+        with_silent_login: true,
+      };
+      const servicesItem4 = {
+        partner_id: 'dinum-dn',
+        item_type: 'JeDéménage',
+        kind: 'sos',
+        title: 'Je déménage',
+        short_description: 'Indiquez votre nouvelle adresse',
+        description: 'Vous déménagez ? **Indiquez votre nouvelle adresse.**',
+        url: 'http://external-url',
+        icon: 'icon',
+        with_silent_login: false,
+      };
+      const servicesItem5 = {
+        partner_id: 'psl',
+        item_type: 'OperationTranquilliteVacances',
+        kind: 'steps',
+        title: 'Opération Tranquillité Vacances',
+        short_description: 'Sécurisez votre logement',
+        description: 'Vous partez en vacances ? **Securisez votre logement.**',
+        url: 'http://external-url',
+        icon: 'icon',
+        with_silent_login: true,
+      };
+      const servicesItem6 = {
+        partner_id: 'dinum-dn',
+        item_type: 'JeDéménage',
+        kind: 'steps',
+        title: 'Je déménage',
+        short_description: 'Indiquez votre nouvelle adresse',
+        description: 'Vous déménagez ? **Indiquez votre nouvelle adresse.**',
+        url: 'http://external-url',
+        icon: 'icon',
         with_silent_login: false,
       };
 
       // When
       const services = new Services({
-        internal: [servicesItem1, servicesItem2],
+        internal: [
+          servicesItem1,
+          servicesItem2,
+          servicesItem3,
+          servicesItem4,
+          servicesItem5,
+          servicesItem6,
+        ],
       });
 
       // Then
@@ -311,10 +388,12 @@ describe('/services.ts', () => {
           new ServicesItem(
             'dinum-dn',
             'JeDéménage',
+            'catalog',
             'Je déménage',
             'Indiquez votre nouvelle adresse',
             'Vous déménagez ? **Indiquez votre nouvelle adresse.**',
             'http://external-url',
+            'icon',
             false
           )
         )
@@ -324,10 +403,74 @@ describe('/services.ts', () => {
           new ServicesItem(
             'psl',
             'OperationTranquilliteVacances',
+            'catalog',
             'Opération Tranquillité Vacances',
             'Sécurisez votre logement',
             'Vous partez en vacances ? **Securisez votre logement.**',
             'http://external-url',
+            'icon',
+            true
+          )
+        )
+      ).toBe(true);
+      expect(services.sos.length).equal(2);
+      expect(
+        services.sos[0].equals(
+          new ServicesItem(
+            'dinum-dn',
+            'JeDéménage',
+            'sos',
+            'Je déménage',
+            'Indiquez votre nouvelle adresse',
+            'Vous déménagez ? **Indiquez votre nouvelle adresse.**',
+            'http://external-url',
+            'icon',
+            false
+          )
+        )
+      ).toBe(true);
+      expect(
+        services.sos[1].equals(
+          new ServicesItem(
+            'psl',
+            'OperationTranquilliteVacances',
+            'sos',
+            'Opération Tranquillité Vacances',
+            'Sécurisez votre logement',
+            'Vous partez en vacances ? **Securisez votre logement.**',
+            'http://external-url',
+            'icon',
+            true
+          )
+        )
+      ).toBe(true);
+      expect(services.steps.length).equal(2);
+      expect(
+        services.steps[0].equals(
+          new ServicesItem(
+            'dinum-dn',
+            'JeDéménage',
+            'steps',
+            'Je déménage',
+            'Indiquez votre nouvelle adresse',
+            'Vous déménagez ? **Indiquez votre nouvelle adresse.**',
+            'http://external-url',
+            'icon',
+            false
+          )
+        )
+      ).toBe(true);
+      expect(
+        services.steps[1].equals(
+          new ServicesItem(
+            'psl',
+            'OperationTranquilliteVacances',
+            'steps',
+            'Opération Tranquillité Vacances',
+            'Sécurisez votre logement',
+            'Vous partez en vacances ? **Securisez votre logement.**',
+            'http://external-url',
+            'icon',
             true
           )
         )
@@ -339,32 +482,66 @@ describe('/services.ts', () => {
         const servicesItem1 = {
           partner_id: 'psl',
           item_type: 'OperationTranquilliteVacances',
+          kind: 'catalog',
           title: 'Opération Tranquillité Vacances',
           short_description: 'Sécurisez votre logement',
           description: 'Vous partez en vacances ? **Securisez votre logement.**',
           url: 'http://external-url',
+          icon: 'icon',
           with_silent_login: true,
         };
         const servicesItem2 = {
           partner_id: 'dinum-dn',
           item_type: 'JeDéménage',
+          kind: 'catalog',
           title: 'Je déménage',
           short_description: 'Indiquez votre nouvelle adresse',
           description: 'Vous déménagez ? **Indiquez votre nouvelle adresse.**',
           url: 'http://external-url',
+          icon: 'icon',
           with_silent_login: false,
         };
         const servicesItem3 = {
           partner_id: 'dinum-dn',
           item_type: 'JeDéménage',
+          kind: 'catalog',
           title: 'Je déménage',
           short_description: 'Indiquez votre nouvelle adresse',
           description: 'Vous déménagez ? **Indiquez votre nouvelle adresse.**',
           url: 'http://external-url',
+          icon: 'icon',
           with_silent_login: false,
         };
+        const servicesItem4 = {
+          partner_id: 'psl',
+          item_type: 'OperationTranquilliteVacances',
+          kind: 'sos',
+          title: 'Opération Tranquillité Vacances',
+          short_description: 'Sécurisez votre logement',
+          description: 'Vous partez en vacances ? **Securisez votre logement.**',
+          url: 'http://external-url',
+          icon: 'icon',
+          with_silent_login: true,
+        };
+        const servicesItem5 = {
+          partner_id: 'psl',
+          item_type: 'OperationTranquilliteVacances',
+          kind: 'sos',
+          title: 'Opération Tranquillité Vacances',
+          short_description: 'Sécurisez votre logement',
+          description: 'Vous partez en vacances ? **Securisez votre logement.**',
+          url: 'http://external-url',
+          icon: 'icon',
+          with_silent_login: true,
+        };
         const services = new Services({
-          internal: [servicesItem1, servicesItem2, servicesItem3],
+          internal: [
+            servicesItem1,
+            servicesItem2,
+            servicesItem3,
+            servicesItem4,
+            servicesItem5,
+          ],
         });
 
         // When
@@ -379,10 +556,12 @@ describe('/services.ts', () => {
             new ServicesItem(
               'psl',
               'OperationTranquilliteVacances',
+              'catalog',
               'Opération Tranquillité Vacances',
               'Sécurisez votre logement',
               'Vous partez en vacances ? **Securisez votre logement.**',
               'http://external-url',
+              'icon',
               true
             )
           )
@@ -395,17 +574,41 @@ describe('/services.ts', () => {
   describe('buildServices', () => {
     test('should retrieve sources and init services with them', async () => {
       // Given
-      const servicesItem = {
+      const servicesItem1 = {
         partner_id: 'psl',
         item_type: 'OperationTranquilliteVacances',
+        kind: 'catalog',
         title: 'Opération Tranquillité Vacances',
         short_description: 'Sécurisez votre logement',
         description: 'Vous partez en vacances ? **Securisez votre logement.**',
         url: 'http://external-url',
+        icon: 'icon',
+        with_silent_login: true,
+      };
+      const servicesItem2 = {
+        partner_id: 'psl',
+        item_type: 'OperationTranquilliteVacances',
+        kind: 'sos',
+        title: 'Opération Tranquillité Vacances',
+        short_description: 'Sécurisez votre logement',
+        description: 'Vous partez en vacances ? **Securisez votre logement.**',
+        url: 'http://external-url',
+        icon: 'icon',
+        with_silent_login: true,
+      };
+      const servicesItem3 = {
+        partner_id: 'psl',
+        item_type: 'OperationTranquilliteVacances',
+        kind: 'steps',
+        title: 'Opération Tranquillité Vacances',
+        short_description: 'Sécurisez votre logement',
+        description: 'Vous partez en vacances ? **Securisez votre logement.**',
+        url: 'http://external-url',
+        icon: 'icon',
         with_silent_login: true,
       };
       const spy = vi.spyOn(apiServicesMethods, 'retrieveServices').mockResolvedValue({
-        internal: [servicesItem],
+        internal: [servicesItem1, servicesItem2, servicesItem3],
       });
 
       // When
@@ -420,10 +623,44 @@ describe('/services.ts', () => {
           new ServicesItem(
             'psl',
             'OperationTranquilliteVacances',
+            'catalog',
             'Opération Tranquillité Vacances',
             'Sécurisez votre logement',
             'Vous partez en vacances ? **Securisez votre logement.**',
             'http://external-url',
+            'icon',
+            true
+          )
+        )
+      ).toBe(true);
+      expect(services.sos.length).equal(1);
+      expect(
+        services.sos[0].equals(
+          new ServicesItem(
+            'psl',
+            'OperationTranquilliteVacances',
+            'sos',
+            'Opération Tranquillité Vacances',
+            'Sécurisez votre logement',
+            'Vous partez en vacances ? **Securisez votre logement.**',
+            'http://external-url',
+            'icon',
+            true
+          )
+        )
+      ).toBe(true);
+      expect(services.steps.length).equal(1);
+      expect(
+        services.steps[0].equals(
+          new ServicesItem(
+            'psl',
+            'OperationTranquilliteVacances',
+            'steps',
+            'Opération Tranquillité Vacances',
+            'Sécurisez votre logement',
+            'Vous partez en vacances ? **Securisez votre logement.**',
+            'http://external-url',
+            'icon',
             true
           )
         )
