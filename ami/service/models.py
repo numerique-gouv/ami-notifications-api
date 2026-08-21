@@ -25,6 +25,8 @@ class Service(models.Model):
     description = models.TextField()
     url = models.CharField()
 
+    icon = models.CharField(blank=True)
+
     with_silent_login = models.BooleanField(default=False)
 
     restricted_to = models.CharField(
