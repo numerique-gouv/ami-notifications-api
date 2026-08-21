@@ -66,7 +66,7 @@ def test_audit(app, agent: Agent, admin_agent: Agent, user: User, services: list
         "services:service-removed",
         admin_agent,
         {
-            "service": services[0],
+            "service": services[2],
         },
     )
 
@@ -164,6 +164,7 @@ def test_audit(app, agent: Agent, admin_agent: Agent, user: User, services: list
     assert ae6.action_type == "services"
     assert ae6.action_code == "service-added"
     assert ae6.extra_data == {
+        "service_kind": "catalog",
         "service_item_type": "ContacterAMI",
         "service_partner_id": "dinum-dn",
     }
@@ -176,8 +177,10 @@ def test_audit(app, agent: Agent, admin_agent: Agent, user: User, services: list
     assert ae7.action_type == "services"
     assert ae7.action_code == "service-updated"
     assert ae7.extra_data == {
+        "service_kind": "catalog",
         "service_item_type": "ContacterAMI",
         "service_partner_id": "dinum-dn",
+        "old_service_values_kind": "catalog",
         "old_service_values_item_type": "OperationTranquilliteVacances",
         "old_service_values_partner_id": "psl",
     }
@@ -190,6 +193,7 @@ def test_audit(app, agent: Agent, admin_agent: Agent, user: User, services: list
     assert ae8.action_type == "services"
     assert ae8.action_code == "service-removed"
     assert ae8.extra_data == {
-        "service_item_type": "ContacterAMI",
+        "service_kind": "sos",
+        "service_item_type": "Démarche3",
         "service_partner_id": "dinum-dn",
     }
