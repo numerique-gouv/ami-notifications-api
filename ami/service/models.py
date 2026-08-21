@@ -8,15 +8,24 @@ from ami.user.models import User
 
 
 class Service(models.Model):
+    class Kind(models.TextChoices):
+        CATALOG = "catalog", "Catalogue"
+        SOS = "sos", "SOS"
+        STEPS = "steps", "Liste d’étapes"
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     partner_id = models.CharField(choices=[(p.id, p.name) for p in partners.values()])
     item_type = models.CharField()
 
+    kind = models.CharField(max_length=10, choices=Kind, default=Kind.CATALOG)
+
     title = models.CharField()
     short_description = models.CharField("Service")
     description = models.TextField()
     url = models.CharField()
+
+    icon = models.CharField(blank=True)
 
     with_silent_login = models.BooleanField(default=False)
 
@@ -31,16 +40,18 @@ class Service(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = [("partner_id", "item_type")]
+        unique_together = [("kind", "partner_id", "item_type")]
 
     def to_services_item(self):
         return ServicesItem(
             partner_id=self.partner_id,
             item_type=self.item_type,
+            kind=self.kind,
             title=self.title,
             short_description=self.short_description,
             description=self.description,
             url=self.url,
+            icon=self.icon,
             with_silent_login=self.with_silent_login,
             created_at=self.created_at,
             updated_at=self.updated_at,

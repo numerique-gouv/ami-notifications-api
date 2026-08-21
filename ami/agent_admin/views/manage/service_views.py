@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.db import transaction
+from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
@@ -18,13 +19,35 @@ from ami.service.models import Service
 @role_admin_required
 def list_services(request):
     context = {
-        "object_list": Service.objects.all().order_by("title"),
-        "btn_group": {
+        "catalog_object_list": Service.objects.filter(kind=Service.Kind.CATALOG).order_by("title"),
+        "sos_object_list": Service.objects.filter(kind=Service.Kind.SOS).order_by("title"),
+        "steps_object_list": Service.objects.filter(kind=Service.Kind.STEPS).order_by("title"),
+        "catalog_btn_group": {
             "items": [
                 {
-                    "label": "Ajouter une démarche",
+                    "label": "Ajouter une démarche dans le catalogue",
                     "type": "button",
-                    "onclick": f"window.location.href = '{reverse('agent-admin:manage:add-service')}';",
+                    "onclick": f"window.location.href = '{reverse('agent-admin:manage:add-service', args=[Service.Kind.CATALOG])}';",
+                },
+            ],
+            "extra_classes": "fr-btns-group--inline fr-btns-group--form-actions",
+        },
+        "sos_btn_group": {
+            "items": [
+                {
+                    "label": "Ajouter une démarche dans la section « SOS »",
+                    "type": "button",
+                    "onclick": f"window.location.href = '{reverse('agent-admin:manage:add-service', args=[Service.Kind.SOS])}';",
+                },
+            ],
+            "extra_classes": "fr-btns-group--inline fr-btns-group--form-actions",
+        },
+        "steps_btn_group": {
+            "items": [
+                {
+                    "label": "Ajouter une démarche dans la section « Comment faire »",
+                    "type": "button",
+                    "onclick": f"window.location.href = '{reverse('agent-admin:manage:add-service', args=[Service.Kind.STEPS])}';",
                 },
             ],
             "extra_classes": "fr-btns-group--inline fr-btns-group--form-actions",
@@ -33,13 +56,13 @@ def list_services(request):
     return render(request, "agent_admin/manage/list_services.html", context)
 
 
-def add_edit_service(service: Service | None, request):
+def add_edit_service(service: Service | None, request, for_update=True):
     if request.method == "POST":
         form = ServiceForm(data=request.POST, instance=service, author=request.user.agent)
         if form.is_valid():
             with transaction.atomic():
                 form.save()
-            if service is not None:
+            if for_update:
                 messages.success(request, "La démarche a bien été modifiée.")
             else:
                 messages.success(request, "La démarche a bien été ajoutée.")
@@ -54,7 +77,7 @@ def add_edit_service(service: Service | None, request):
             "onclick": f"window.location.href = '{reverse('agent-admin:manage:list-services')}';",
         },
     ]
-    if service is not None:
+    if for_update:
         buttons.append(
             {
                 "label": "Supprimer",
@@ -70,6 +93,7 @@ def add_edit_service(service: Service | None, request):
         }
     )
     context = {
+        "for_update": for_update,
         "instance": service,
         "form": form,
         "btn_group": {
@@ -82,8 +106,11 @@ def add_edit_service(service: Service | None, request):
 
 @agent_login_required
 @role_admin_required
-def add_service(request):
-    return add_edit_service(None, request)
+def add_service(request, kind):
+    if kind not in Service.Kind:
+        raise Http404
+    service = Service(kind=kind)
+    return add_edit_service(service, request, for_update=False)
 
 
 @agent_login_required

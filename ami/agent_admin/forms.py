@@ -192,7 +192,7 @@ class ServiceForm(forms.ModelForm, AMIDsfrBaseForm):
 
     class Meta:
         model = Service
-        exclude = []
+        exclude = ["kind"]
         widgets = {
             "with_silent_login": ToggleInput,
             "restricted_to": forms.Textarea(),
@@ -206,6 +206,8 @@ class ServiceForm(forms.ModelForm, AMIDsfrBaseForm):
             attrs={"data-append-to": "restricted_to"},
         )
         self.old_instance = copy.deepcopy(self.instance)
+        if self.instance.kind == Service.Kind.CATALOG:
+            self.fields.pop("icon")
 
     def clean_restricted_to(self):
         value = self.cleaned_data["restricted_to"] or ""

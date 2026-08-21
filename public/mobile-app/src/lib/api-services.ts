@@ -3,10 +3,12 @@ import { apiFetch } from '$lib/auth';
 export type APIServicesItem = {
   partner_id: string;
   item_type: string;
+  kind: string;
   title: string;
   short_description: string;
   description: string;
   url: string;
+  icon: string;
   with_silent_login: boolean;
 };
 

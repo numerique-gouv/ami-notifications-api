@@ -18,11 +18,13 @@ export class ServicesItem {
   constructor(
     private _partner_id: string,
     private _item_type: string,
+    private _kind: string,
 
     private _title: string,
     private _short_description: string,
     private _description: string,
     private _link: string,
+    private _icon: string,
 
     private _with_silent_login: boolean
   ) {}
@@ -46,6 +48,10 @@ export class ServicesItem {
     return this._item_type;
   }
 
+  get kind(): string {
+    return this._kind;
+  }
+
   get title(): string {
     return this._title;
   }
@@ -60,6 +66,10 @@ export class ServicesItem {
 
   get link(): string | null {
     return this._link;
+  }
+
+  get icon(): string | null {
+    return this._icon;
   }
 
   get with_silent_login(): boolean {
@@ -140,6 +150,8 @@ export class ServicesItem {
 
 export class Services {
   private _items: ServicesItem[] = [];
+  private _sos: ServicesItem[] = [];
+  private _steps: ServicesItem[] = [];
 
   constructor(apiServices: APIServices | null = null) {
     const servicesItems: ServicesItem[] = [];
@@ -157,7 +169,23 @@ export class Services {
 
     // organize items in _items or
     servicesItems.forEach((servicesItem) => {
-      this._items.push(servicesItem);
+      switch (servicesItem.kind) {
+        case 'catalog': {
+          this._items.push(servicesItem);
+          break;
+        }
+        case 'sos': {
+          this._sos.push(servicesItem);
+          break;
+        }
+        case 'steps': {
+          this._steps.push(servicesItem);
+          break;
+        }
+        default: {
+          console.log(`unknown kind ${servicesItem.kind}`);
+        }
+      }
     });
   }
 
@@ -165,16 +193,26 @@ export class Services {
     return new ServicesItem(
       item.partner_id,
       item.item_type,
+      item.kind,
       item.title,
       item.short_description,
       item.description,
       item.url,
+      item.icon,
       item.with_silent_login
     );
   }
 
   get items(): ServicesItem[] {
     return this._items;
+  }
+
+  get sos(): ServicesItem[] {
+    return this._sos;
+  }
+
+  get steps(): ServicesItem[] {
+    return this._steps;
   }
 
   find(partner_id: string, item_type: string): ServicesItem | null {

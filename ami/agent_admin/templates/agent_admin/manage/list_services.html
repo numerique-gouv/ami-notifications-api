@@ -4,29 +4,98 @@
 {% block content %}
   <h1>Gestion du catalogue de démarches</h1>
 
-  <div class="fr-table fr-table--multiline">
-    <div class="fr-table__wrapper">
-      <div class="fr-table__container">
-        <div class="fr-table__content">
-          <table>
-            <tbody>
-              {% for service in object_list %}
-                <tr>
-                  <td>
-                    {{ service.title }}
-                    <br />
-                    <span class="fr-text--xs">{{ service.short_description }}</span>
-                  </td>
-                  <td>
-                    <a href="{% url 'agent-admin:manage:edit-service' service.id %}" class="fr-link"><span class="fr-text--xs">modifier</span></a>
-                  </td>
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+  <div class="fr-tabs">
+    <ul class="fr-tabs__list" role="tablist" aria-label="Onglets des listes d’agents">
+      <li role="presentation">
+        <button type="button" id="tab-1" class="fr-tabs__tab" tabindex="0" role="tab" aria-selected="true" aria-controls="tab-1-panel">Catalogue</button>
+      </li>
+      <li role="presentation">
+        <button type="button" id="tab-2" class="fr-tabs__tab" tabindex="-1" role="tab" aria-selected="false" aria-controls="tab-2-panel">SOS</button>
+      </li>
+      <li role="presentation">
+        <button type="button" id="tab-3" class="fr-tabs__tab" tabindex="-1" role="tab" aria-selected="false" aria-controls="tab-3-panel">Comment faire</button>
+      </li>
+    </ul>
+    <div id="tab-1-panel" class="fr-tabs__panel fr-tabs__panel--selected" role="tabpanel" aria-labelledby="tab-1" tabindex="0">
+      <div class="fr-table fr-table--multiline">
+        <div class="fr-table__wrapper">
+          <div class="fr-table__container">
+            <div class="fr-table__content">
+              <table id="catalog">
+                <tbody>
+                  {% for service in catalog_object_list %}
+                    <tr>
+                      <td>
+                        {{ service.title }}
+                        <br />
+                        <span class="fr-text--xs">{{ service.short_description }}</span>
+                      </td>
+                      <td>
+                        <a href="{% url 'agent-admin:manage:edit-service' service.id %}" class="fr-link"><span class="fr-text--xs">modifier</span></a>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
+      {% dsfr_button_group catalog_btn_group %}
+    </div>
+    <div id="tab-2-panel" class="fr-tabs__panel fr-tabs__panel--selected" role="tabpanel" aria-labelledby="tab-2" tabindex="0">
+      <div class="fr-table fr-table--multiline">
+        <div class="fr-table__wrapper">
+          <div class="fr-table__container">
+            <div class="fr-table__content">
+              <table id="sos">
+                <tbody>
+                  {% for service in sos_object_list %}
+                    <tr>
+                      <td>
+                        <span class="{{ service.icon }}"></span> {{ service.title }}
+                        <br />
+                        <span class="fr-text--xs">{{ service.short_description }}</span>
+                      </td>
+                      <td>
+                        <a href="{% url 'agent-admin:manage:edit-service' service.id %}" class="fr-link"><span class="fr-text--xs">modifier</span></a>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% dsfr_button_group sos_btn_group %}
+    </div>
+    <div id="tab-3-panel" class="fr-tabs__panel fr-tabs__panel--selected" role="tabpanel" aria-labelledby="tab-3" tabindex="0">
+      <div class="fr-table fr-table--multiline">
+        <div class="fr-table__wrapper">
+          <div class="fr-table__container">
+            <div class="fr-table__content">
+              <table id="steps">
+                <tbody>
+                  {% for service in steps_object_list %}
+                    <tr>
+                      <td>
+                        <span class="{{ service.icon }}"></span> {{ service.title }}
+                        <br />
+                        <span class="fr-text--xs">{{ service.short_description }}</span>
+                      </td>
+                      <td>
+                        <a href="{% url 'agent-admin:manage:edit-service' service.id %}" class="fr-link"><span class="fr-text--xs">modifier</span></a>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% dsfr_button_group steps_btn_group %}
     </div>
   </div>
-  {% dsfr_button_group btn_group %}
 {% endblock %}
