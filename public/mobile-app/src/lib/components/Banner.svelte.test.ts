@@ -59,4 +59,17 @@ describe('/Banner.svelte', () => {
     // Then
     expect(spy).toHaveBeenCalledWith('id1');
   });
+  test('should not have a close button when option is false', async () => {
+    // Given
+    render(Banner, {
+      id: 'id1',
+      title: 'Modification non transmise',
+      description: 'La modification ne sera pas transmise',
+      bannerType: 'info',
+      closeButton: 'false',
+    });
+
+    // Then
+    expect(screen.queryByTestId('close-button')).toBeNull();
+  });
 });
