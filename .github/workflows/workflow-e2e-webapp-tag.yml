@@ -1,0 +1,17 @@
+name: e2e tag
+# Pose d'un tag de version (ex: 26.7.1) : même config que le merge (webapp uniquement pour le
+# moment), même env staging. Pas de PR associée → pr_number reste à 0 (défaut), pas de commentaire.
+on:
+  push:
+    tags:
+      - "*.*.*"
+
+jobs:
+  e2e:
+    name: run e2e (version tag)
+    uses: ./.github/workflows/workflow-e2e-webapp-shared.yml
+    with:
+      run_webapp: short
+      run_old_device: 'false'
+      source_sha: ${{ github.sha }}
+    secrets: inherit

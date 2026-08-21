@@ -1,0 +1,19 @@
+name: e2e merge
+# Au merge d'une PR : webapp uniquement pour le moment (android/ios pas encore câblés côté CI),
+# avec commentaire Allure sur la PR fermée. Une PR fermée sans merge ne déclenche rien
+# (if: merged == true).
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  e2e:
+    name: run e2e (PR merged)
+    if: ${{ github.event.pull_request.merged == true }}
+    uses: ./.github/workflows/workflow-e2e-webapp-shared.yml
+    with:
+      run_webapp: short
+      pr_number: ${{ github.event.pull_request.number }}
+      source_sha: ${{ github.event.pull_request.merge_commit_sha }}
+      # checkout_ref:  ${{ github.head_ref }} => shall be 'main', the default
+    secrets: inherit
