@@ -5,8 +5,9 @@
   interface Props {
     id: string;
     title: string;
-    description: string;
+    description?: string;
     bannerType: 'success' | 'info' | 'warning' | 'error';
+    closeButton?: 'true' | 'false';
   }
 
   const tabTypeIcon = {
@@ -16,7 +17,7 @@
     error: 'fr-icon-close-circle-fill',
   };
 
-  let { id, title, description, bannerType }: Props = $props();
+  let { id, title, description, bannerType, closeButton = 'true' }: Props = $props();
 
   let isHidden: boolean = $state(true);
 
@@ -45,16 +46,20 @@
             ></span>
             <span>{title}</span>
           </span>
-          <span class="fr-notice__desc"> {description} </span>
+          {#if description}
+            <span class="fr-notice__desc"> {description} </span>
+          {/if}
         </p>
-        <button
-          onclick={() => closeBanner(id)}
-          type="button"
-          class="fr-btn--close fr-btn"
-          data-testid="close-button"
-        >
-          Masquer le message
-        </button>
+        {#if closeButton === "true"}
+          <button
+            onclick={() => closeBanner(id)}
+            type="button"
+            class="fr-btn--close fr-btn"
+            data-testid="close-button"
+          >
+            Masquer le message
+          </button>
+        {/if}
       </div>
     </div>
   </div>
