@@ -46,10 +46,8 @@ def login(request, login_type):
         context = None
         if login_type == "silent-ami-fi":
             scope = get_fc_scope([])
-            context = {
-                "idp": login_type,
-                "redirect_url": request.GET.get("redirect_url") or "",
-            }
+            context = {"idp": login_type}
+            request.session["login_redirect_url"] = request.GET.get("redirect_url") or ""
         else:
             scope = get_fc_scope(["api_particulier_quotient"])
         NONCE = generate_nonce()
@@ -179,7 +177,7 @@ async def login_callback(request):
             # build redirect_url, depending on kind of login (fc, silent-ami-fi)
             redirect_url = f"{settings.PUBLIC_APP_URL}/?{urlencode(user_data)}#/login-callback"
             if nonce_context.get("idp") == "silent-ami-fi":
-                user_data["redirect_url"] = nonce_context.get("redirect_url") or ""
+                user_data["redirect_url"] = request.session.get("login_redirect_url") or ""
                 redirect_url = f"{settings.PUBLIC_APP_URL}/?{urlencode(user_data)}#/silent-login"
 
             # set cookies only for fc

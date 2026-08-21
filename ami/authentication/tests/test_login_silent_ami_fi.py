@@ -19,10 +19,7 @@ def test_silent_login_ami_fi(
     assert Nonce.objects.count() == 1
     nonce = Nonce.objects.get()
     assert nonce.nonce == FAKE_NONCE
-    assert nonce.context == {
-        "idp": "silent-ami-fi",
-        "redirect_url": "",
-    }
+    assert nonce.context == {"idp": "silent-ami-fi"}
     assert response.status_code == 302
     redirected_url = response.headers["location"]
     assert redirected_url.startswith(
@@ -74,7 +71,6 @@ def test_silent_login_ami_fi_with_redirect_url(
     assert nonce.nonce == FAKE_NONCE
     assert nonce.context == {
         "idp": "silent-ami-fi",
-        "redirect_url": "http://foo?bar",
     }
     assert response.status_code == 302
     redirected_url = response.headers["location"]
@@ -112,6 +108,7 @@ def test_silent_login_ami_fi_with_redirect_url(
     state = state.replace(f"{settings.FC_AMI_REDIRECT_URL}?state=", "")
 
 
+@pytest.mark.django_db
 def test_silent_login_ami_fi_error(
     app,
     monkeypatch: pytest.MonkeyPatch,
