@@ -195,7 +195,7 @@ class ServiceForm(forms.ModelForm, AMIDsfrBaseForm):
 
     class Meta:
         model = Service
-        exclude = []
+        exclude = ["kind"]
         widgets = {
             "with_silent_login": ToggleInput,
             "restricted_to": forms.Textarea(),

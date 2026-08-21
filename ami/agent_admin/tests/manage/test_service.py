@@ -12,9 +12,15 @@ from ami.service.models import Service
 def test_list_services(app, admin_agent: Agent, services: list[Service]) -> None:
     app.set_user(admin_agent.user)
     response = app.get("/agent-admin/manage/service/")
-    assert response.pyquery("table").text() == (
+    assert response.pyquery("table#catalog").text().strip() == (
         "Contacter l'équipe AMI\nFaites-nous votre retour\nmodifier\n"
         "Opération Tranquillité Vacances\nInscrivez-vous pour protéger votre domicile pendant votre absence\nmodifier"
+    )
+    assert response.pyquery("table#sos").text().strip() == (
+        "Démarche 3\nShort description 3\nmodifier"
+    )
+    assert response.pyquery("table#steps").text().strip() == (
+        "Démarche 4\nShort description 4\nmodifier"
     )
 
 
@@ -23,7 +29,7 @@ def test_list_services_empty(app, admin_agent: Agent) -> None:
     app.set_user(admin_agent.user)
     response = app.get("/agent-admin/manage/service/")
     assert "Gestion du catalogue de démarches" in response.pyquery("main").text()
-    assert response.pyquery("table").text() == ""
+    assert response.pyquery("table").text().strip() == ""
 
 
 @pytest.mark.django_db
@@ -34,9 +40,10 @@ def test_list_services_without_agent_admin_auth(app) -> None:
 @pytest.mark.django_db
 def test_add_service(app, admin_agent: Agent) -> None:
     app.set_user(admin_agent.user)
-    response = app.get("/agent-admin/manage/service/add/")
+    response = app.get("/agent-admin/manage/service/add/catalog/")
     assert "Ajouter une démarche" in response.pyquery("main").text()
 
+    assert "kind" not in response.context["form"].fields
     assert response.forms["service-form"]["partner_id"].value == ""
     assert response.forms["service-form"]["item_type"].value == ""
     assert response.forms["service-form"]["title"].value == ""
@@ -50,7 +57,7 @@ def test_add_service(app, admin_agent: Agent) -> None:
 @pytest.mark.django_db
 def test_add_service_submit_validation_errors(app, admin_agent: Agent) -> None:
     app.set_user(admin_agent.user)
-    response = app.get("/agent-admin/manage/service/add/")
+    response = app.get("/agent-admin/manage/service/add/catalog/")
     response = response.forms["service-form"].submit()
     assert response.context["form"].errors == {
         "partner_id": ["Ce champ est obligatoire."],
@@ -65,7 +72,7 @@ def test_add_service_submit_validation_errors(app, admin_agent: Agent) -> None:
 @pytest.mark.django_db
 def test_add_service_submit_success(app, admin_agent: Agent) -> None:
     app.set_user(admin_agent.user)
-    response = app.get("/agent-admin/manage/service/add/")
+    response = app.get("/agent-admin/manage/service/add/catalog/")
     assert Service.objects.count() == 0
 
     response.forms["service-form"]["partner_id"] = "dinum-ami"
@@ -81,6 +88,7 @@ def test_add_service_submit_success(app, admin_agent: Agent) -> None:
     assert response.headers["location"] == "/agent-admin/manage/service/"
     assert Service.objects.count() == 1
     service = Service.objects.get()
+    assert service.kind == Service.Kind.CATALOG
     assert service.partner_id == "dinum-ami"
     assert service.item_type == "JeDéménage"
     assert service.title == "Je déménage"
@@ -104,6 +112,7 @@ def test_add_service_submit_success(app, admin_agent: Agent) -> None:
     assert ae1.action_type == "services"
     assert ae1.action_code == "service-added"
     assert ae1.extra_data == {
+        "service_kind": "catalog",
         "service_item_type": "JeDéménage",
         "service_partner_id": "dinum-ami",
     }
@@ -112,7 +121,7 @@ def test_add_service_submit_success(app, admin_agent: Agent) -> None:
 @pytest.mark.django_db
 def test_add_service_submit_success_duplicated_restricted_to(app, admin_agent: Agent) -> None:
     app.set_user(admin_agent.user)
-    response = app.get("/agent-admin/manage/service/add/")
+    response = app.get("/agent-admin/manage/service/add/catalog/")
     assert Service.objects.count() == 0
 
     response.forms["service-form"]["partner_id"] = "dinum-ami"
@@ -132,8 +141,24 @@ def test_add_service_submit_success_duplicated_restricted_to(app, admin_agent: A
 
 
 @pytest.mark.django_db
-def test_add_service_without_agent_admin_auth(app) -> None:
-    assert_query_fails_without_agent_admin_auth(app, "/agent-admin/manage/service/add/")
+def test_add_service_unknown_kind(app, admin_agent: Agent) -> None:
+    app.set_user(admin_agent.user)
+    app.get("/agent-admin/manage/service/add/unknown/", status=404)
+
+
+@pytest.mark.django_db
+def test_add_service_catalog_without_agent_admin_auth(app) -> None:
+    assert_query_fails_without_agent_admin_auth(app, "/agent-admin/manage/service/add/catalog/")
+
+
+@pytest.mark.django_db
+def test_add_service_sos_without_agent_admin_auth(app) -> None:
+    assert_query_fails_without_agent_admin_auth(app, "/agent-admin/manage/service/add/sos/")
+
+
+@pytest.mark.django_db
+def test_add_service_steps_without_agent_admin_auth(app) -> None:
+    assert_query_fails_without_agent_admin_auth(app, "/agent-admin/manage/service/add/steps/")
 
 
 @pytest.mark.django_db
@@ -142,6 +167,7 @@ def test_edit_service(app, admin_agent: Agent, service: Service) -> None:
     response = app.get(f"/agent-admin/manage/service/{service.id}/")
     assert "Modifier une démarche" in response.pyquery("main").text()
 
+    assert "kind" not in response.context["form"].fields
     assert response.forms["service-form"]["partner_id"].value == "dinum-dn"
     assert response.forms["service-form"]["item_type"].value == "ContacterAMI"
     assert response.forms["service-form"]["title"].value == "Contacter l'équipe AMI"
@@ -204,6 +230,7 @@ def test_edit_service_submit_success(app, admin_agent: Agent, service: Service) 
     assert response.headers["location"] == "/agent-admin/manage/service/"
     assert Service.objects.count() == 1
     service.refresh_from_db()
+    assert service.kind == Service.Kind.CATALOG
     assert service.partner_id == "dinum-ami"
     assert service.item_type == "JeDéménage"
     assert service.title == "Je déménage"
@@ -227,8 +254,10 @@ def test_edit_service_submit_success(app, admin_agent: Agent, service: Service) 
     assert ae1.action_type == "services"
     assert ae1.action_code == "service-updated"
     assert ae1.extra_data == {
+        "service_kind": "catalog",
         "service_item_type": "JeDéménage",
         "service_partner_id": "dinum-ami",
+        "old_service_values_kind": "catalog",
         "old_service_values_item_type": "ContacterAMI",
         "old_service_values_partner_id": "dinum-dn",
     }
@@ -261,7 +290,7 @@ def test_delete_service(app, admin_agent: Agent, services: list[Service]):
     app.set_user(admin_agent.user)
     response = app.post(f"/agent-admin/manage/service/{service.id}/delete/")
     assert response.headers["location"] == "/agent-admin/manage/service/"
-    assert Service.objects.count() == 1
+    assert Service.objects.count() == 3
     assert Service.objects.filter(id=service.id).exists() is False
 
     response = response.follow()
@@ -278,6 +307,7 @@ def test_delete_service(app, admin_agent: Agent, services: list[Service]):
     assert ae1.action_type == "services"
     assert ae1.action_code == "service-removed"
     assert ae1.extra_data == {
+        "service_kind": "catalog",
         "service_item_type": "ContacterAMI",
         "service_partner_id": "dinum-dn",
     }
