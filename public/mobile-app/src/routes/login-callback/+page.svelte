@@ -124,7 +124,6 @@
               Ajouter une clé d’accès
             </button>
           </li>
-          <!--
           <li>
             <button
               type="button"
@@ -134,7 +133,6 @@
               Peut-être plus tard
             </button>
           </li>
-          -->
         </ul>
       </div>
     </div>
