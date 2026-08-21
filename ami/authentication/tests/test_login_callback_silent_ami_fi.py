@@ -55,7 +55,7 @@ def test_login_callback_silent_ami_fi(
     assert response.status_code == 302
     redirected_url = response.headers["location"]
     assert redirected_url.startswith("https://localhost:5173/")
-    assert redirected_url.endswith("#/silent-login")
+    assert redirected_url.endswith("#/login-callback")
     assert url_contains_param(
         "id_token",
         "fake id token",
@@ -66,7 +66,7 @@ def test_login_callback_silent_ami_fi(
         "",
         redirected_url,
     )
-    assert "&redirect_url=#/silent-login" in redirected_url
+    assert "?login_redirect_url=&id_token=fake+id+token#/login-callback" in redirected_url
     assert "user_data" not in redirected_url
     assert "user_first_login" not in redirected_url
     assert "user_fc_hash" not in redirected_url
@@ -105,6 +105,12 @@ def test_login_callback_silent_ami_fi_with_redirect_url(
         },
     )
 
+    app.set_cookie("sessionid", "initial")
+    session = app.session
+    session["login_redirect_url"] = "http://foo?bar"
+    session.save()
+    app.set_cookie("sessionid", session.session_key)
+
     fake_token_json_response = {
         "access_token": "fake access token",
         "expires_in": 60,
@@ -123,7 +129,7 @@ def test_login_callback_silent_ami_fi_with_redirect_url(
     assert response.status_code == 302
     redirected_url = response.headers["location"]
     assert redirected_url.startswith("https://localhost:5173/")
-    assert redirected_url.endswith("#/silent-login")
+    assert redirected_url.endswith("#/login-callback")
     assert url_contains_param(
         "id_token",
         "fake id token",

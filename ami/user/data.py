@@ -20,8 +20,8 @@ logger = logging.getLogger(__name__)
 
 
 async def get_fc_userinfo(
-    *, token_type: str, access_token: str, httpx_async_client: AsyncClient
-) -> tuple[dict[str, str], uuid.UUID]:
+    *, token_type: str, access_token: str, httpx_async_client: AsyncClient, create_user: bool = True
+) -> tuple[dict[str, str], uuid.UUID | None]:
     response = await httpx_async_client.get(
         f"{settings.PUBLIC_FC_BASE_URL}{settings.FC_USERINFO_ENDPOINT}",
         headers={"authorization": f"{token_type} {access_token}"},
@@ -50,17 +50,20 @@ async def get_fc_userinfo(
     )
     decoded_user_data["sub"] = fc_hash
 
-    user, created = await User.objects.aget_or_create(
-        fc_hash=fc_hash, defaults={"last_logged_in": now()}
-    )
-    if created:
-        create_welcome = True
-    else:
-        create_welcome = user.last_logged_in is None
-        await User.objects.filter(pk=user.pk).aupdate(last_logged_in=now())
+    create_welcome = False
+    user = None
+    if create_user:
+        user, created = await User.objects.aget_or_create(
+            fc_hash=fc_hash, defaults={"last_logged_in": now()}
+        )
+        if created:
+            create_welcome = True
+        else:
+            create_welcome = user.last_logged_in is None
+            await User.objects.filter(pk=user.pk).aupdate(last_logged_in=now())
 
-    if create_welcome:
-        await ScheduledNotification.acreate_welcome_scheduled_notification(user)
+        if create_welcome:
+            await ScheduledNotification.acreate_welcome_scheduled_notification(user)
 
     result: dict[str, Any] = {
         "user_data": userinfo_jws,
@@ -69,7 +72,7 @@ async def get_fc_userinfo(
         "user_fc_hash": fc_hash,
     }
 
-    return result, user.id
+    return result, (user.id if user else None)
 
 
 async def call_data_provider(
