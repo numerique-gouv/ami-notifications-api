@@ -15,11 +15,13 @@ class ServicesSourceStatus(Enum):
 class ServicesItem:
     partner_id: str
     item_type: str
+    kind: str
 
     title: str
     short_description: str
     description: str
-    url: str | None
+    url: str
+    icon: str
 
     with_silent_login: bool
 
