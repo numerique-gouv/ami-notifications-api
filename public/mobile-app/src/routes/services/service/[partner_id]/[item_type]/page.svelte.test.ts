@@ -57,10 +57,12 @@ describe('/+page.svelte', () => {
       new ServicesItem(
         'psl',
         'OperationTranquilliteVacances',
+        'catalog',
         'Opération Tranquillité Vacances',
         'Sécurisez votre logement !',
         'Vous partez en vacances ? **Securisez votre logement.**',
         'fake-link',
+        'icon',
         true
       )
     );
@@ -87,10 +89,12 @@ describe('/+page.svelte', () => {
       new ServicesItem(
         'psl',
         'OperationTranquilliteVacances',
+        'catalog',
         'Opération Tranquillité Vacances',
         'Sécurisez votre logement !',
         'Vous partez en vacances ? **Securisez votre logement.**',
         'fake-link',
+        'icon',
         true
       )
     );
@@ -115,10 +119,12 @@ describe('/+page.svelte', () => {
         new ServicesItem(
           'psl',
           'OperationTranquilliteVacances',
+          'catalog',
           'Opération Tranquillité Vacances',
           'Sécurisez votre logement !',
           'Vous partez en vacances ? **Securisez votre logement.** À partir du {date}',
           'fake-link',
+          'icon',
           true
         )
       );
@@ -151,10 +157,12 @@ describe('/+page.svelte', () => {
         new ServicesItem(
           'psl',
           'OperationTranquilliteVacances',
+          'catalog',
           'Opération Tranquillité Vacances',
           'Sécurisez votre logement !',
           'Vous partez en vacances ? **Securisez votre logement.** À partir du {date}',
           'fake-link',
+          'icon',
           true
         )
       );
@@ -183,10 +191,12 @@ describe('/+page.svelte', () => {
         new ServicesItem(
           'psl',
           'OperationTranquilliteVacances',
+          'catalog',
           'Opération Tranquillité Vacances',
           'Sécurisez votre logement !',
           'Vous partez en vacances ? **Securisez votre logement.** À partir du {date}',
           'fake-link',
+          'icon',
           true
         )
       );
@@ -218,10 +228,12 @@ describe('/+page.svelte', () => {
         new ServicesItem(
           'psl',
           'OperationTranquilliteVacances',
+          'catalog',
           'Opération Tranquillité Vacances',
           'Sécurisez votre logement !',
           'Vous partez en vacances ? **Securisez votre logement.** À partir du {date}',
           'fake-link',
+          'icon',
           true
         )
       );
@@ -256,10 +268,12 @@ describe('/+page.svelte', () => {
           new ServicesItem(
             'partner',
             'OperationTranquilliteVacances',
+            'catalog',
             'Opération Tranquillité Vacances',
             'Sécurisez votre logement !',
             'Vous partez en vacances ? **Securisez votre logement.**',
             'fake-link',
+            'icon',
             true
           )
         );
@@ -293,10 +307,12 @@ describe('/+page.svelte', () => {
           new ServicesItem(
             'psl',
             'MonService',
+            'catalog',
             'Opération Tranquillité Vacances',
             'Sécurisez votre logement !',
             'Vous partez en vacances ? **Securisez votre logement.**',
             'fake-link',
+            'icon',
             true
           )
         );
@@ -329,10 +345,12 @@ describe('/+page.svelte', () => {
             new ServicesItem(
               'psl',
               'MonService',
+              'catalog',
               'Opération Tranquillité Vacances',
               'Sécurisez votre logement !',
               'Vous partez en vacances ? **Securisez votre logement.**',
               'fake-link',
+              'icon',
               true
             )
           );
@@ -367,10 +385,12 @@ describe('/+page.svelte', () => {
               new ServicesItem(
                 'psl',
                 'MonService',
+                'catalog',
                 'Opération Tranquillité Vacances',
                 'Sécurisez votre logement !',
                 'Vous partez en vacances ? **Securisez votre logement.**',
                 'fake-link',
+                'icon',
                 false
               )
             );
@@ -408,10 +428,12 @@ describe('/+page.svelte', () => {
               new ServicesItem(
                 'psl',
                 'MonService',
+                'catalog',
                 'Opération Tranquillité Vacances',
                 'Sécurisez votre logement !',
                 'Vous partez en vacances ? **Securisez votre logement.**',
                 'fake-link',
+                'icon',
                 false
               )
             );
@@ -451,10 +473,12 @@ describe('/+page.svelte', () => {
               new ServicesItem(
                 'psl',
                 'MonService',
+                'catalog',
                 'Opération Tranquillité Vacances',
                 'Sécurisez votre logement !',
                 'Vous partez en vacances ? **Securisez votre logement.**',
                 'fake-link',
+                'icon',
                 true
               )
             );
@@ -492,10 +516,12 @@ describe('/+page.svelte', () => {
               new ServicesItem(
                 'psl',
                 'MonService',
+                'catalog',
                 'Opération Tranquillité Vacances',
                 'Sécurisez votre logement !',
                 'Vous partez en vacances ? **Securisez votre logement.**',
                 'fake-link',
+                'icon',
                 true
               )
             );
