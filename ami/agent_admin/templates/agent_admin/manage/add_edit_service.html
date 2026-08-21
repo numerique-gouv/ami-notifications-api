@@ -2,7 +2,7 @@
 {% load dsfr_tags %}
 
 {% block content %}
-  {% if instance.id %}
+  {% if for_update %}
     <h1>Modifier une démarche</h1>
   {% else %}
     <h1>Ajouter une démarche</h1>
@@ -13,7 +13,7 @@
     {% dsfr_button_group btn_group %}
   </form>
 
-  {% if instance.id %}
+  {% if for_update %}
     <dialog id="modal-delete-service" class="fr-modal" aria-labelledby="modal-delete-service-title">
       <div class="fr-container fr-container--fluid fr-container-md">
         <div class="fr-grid-row fr-grid-row--center">

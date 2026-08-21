@@ -27,4 +27,22 @@ def services(service) -> list[Service]:
         url="https://localhost:8000/mademarche/demarcheGenerique/?codeDemarche=OperationTranquilliteVacances&caller={back_param_token_jwt}",
         with_silent_login=True,
     )
-    return [service, service2]
+    service3 = Service.objects.create(
+        kind="sos",
+        partner_id="dinum-dn",
+        item_type="Démarche3",
+        title="Démarche 3",
+        short_description="Short description 3",
+        description="Description 3",
+        url="https://localhost:8000/service3",
+    )
+    service4 = Service.objects.create(
+        kind="steps",
+        partner_id="dinum-dn",
+        item_type="Démarche4",
+        title="Démarche 4",
+        short_description="Short description 4",
+        description="Description 4",
+        url="https://localhost:8000/service4",
+    )
+    return [service, service2, service3, service4]
