@@ -2,10 +2,7 @@ import { retrieveAgenda } from '$lib/api-agenda';
 import { retrieveNotifications } from '$lib/notifications';
 
 export const initializeLocalStorage = (searchParams: URLSearchParams) => {
-  if (
-    localStorage.getItem('id_token') === null &&
-    searchParams.get('id_token') !== ''
-  ) {
+  if (searchParams.get('id_token') !== '') {
     localStorage.setItem('id_token', searchParams.get('id_token') || '');
   }
   if (

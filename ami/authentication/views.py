@@ -46,10 +46,11 @@ def login(request, login_type):
         context = None
         if login_type == "silent-ami-fi":
             scope = get_fc_scope([])
-            context = {
-                "idp": login_type,
-                "redirect_url": request.GET.get("redirect_url") or "",
-            }
+            context = {"idp": login_type}
+            request.session["login_redirect_url"] = request.GET.get("redirect_url") or ""
+        elif login_type == "relogin":
+            scope = get_fc_scope([])
+            context = {"idp": login_type}
         else:
             scope = get_fc_scope(["api_particulier_quotient"])
         NONCE = generate_nonce()
@@ -59,7 +60,7 @@ def login(request, login_type):
         )
 
         use_proxy = bool(settings.PUBLIC_FC_PROXY_BASE_URL)
-        fi_login = login_type != "fc"
+        fi_login = bool(login_type == "silent-ami-fi")
 
         redirect_uri: str = settings.FC_AMI_REDIRECT_URL
         state: str = str(nonce.id)
@@ -99,6 +100,11 @@ def login(request, login_type):
 @require_GET
 def login_france_connect(request):
     return login(request, "fc")
+
+
+@require_GET
+def relogin_france_connect(request):
+    return login(request, "relogin")
 
 
 @require_GET
@@ -149,14 +155,17 @@ async def login_callback(request):
             access_token = response_token_data.get("access_token", "")
             if not access_token:
                 raise FCError("missing_access_token")
+            login_type = nonce_context.get("idp") or "fc"
 
             # get user data: userinfo, data from providers, ...
             try:
                 tasks = await get_user_data(
                     token_type=token_type,
                     access_token=access_token,
-                    nonce_context=nonce_context,
                     httpx_async_client=httpx_async_client,
+                    create_user=bool(login_type == "fc"),
+                    userinfo=bool(login_type in ("fc", "relogin")),
+                    api_particulier=bool(login_type == "fc"),
                 )
             except* FCError as e:
                 raise e.exceptions[0]
@@ -176,16 +185,38 @@ async def login_callback(request):
                     if result:
                         user_data[key] = result
 
-            # build redirect_url, depending on kind of login (fc, silent-ami-fi)
-            redirect_url = f"{settings.PUBLIC_APP_URL}/?{urlencode(user_data)}#/login-callback"
-            if nonce_context.get("idp") == "silent-ami-fi":
-                user_data["redirect_url"] = nonce_context.get("redirect_url") or ""
-                redirect_url = f"{settings.PUBLIC_APP_URL}/?{urlencode(user_data)}#/silent-login"
+            # build redirect_url, depending on kind of login (fc, silent-ami-fi, relogin)
+            if login_type in ("silent-ami-fi", "relogin"):
+                params = {
+                    "login_redirect_url": request.session.get("login_redirect_url") or "",
+                    "id_token": id_token,
+                }
+                redirect_url = f"{settings.PUBLIC_APP_URL}/?{urlencode(params)}#/login-callback"
 
-            # set cookies only for fc
+                if (
+                    login_type == "relogin"
+                    and request.ami_user.fc_hash != user_data["user_fc_hash"]
+                ):
+                    # initiate FC logout and redirect to home ?user_does_not_match
+                    redirect_uri = f"{settings.PUBLIC_APP_URL}/?user_does_not_match"
+                    post_logout_redirect_uri = redirect_uri
+                    if settings.PUBLIC_FC_PROXY_BASE_URL:
+                        post_logout_redirect_uri = f"{settings.PUBLIC_FC_PROXY_BASE_URL}/"
+                    params = {
+                        "id_token_hint": id_token,
+                        "state": redirect_uri,
+                        "post_logout_redirect_uri": post_logout_redirect_uri,
+                    }
+                    fc_logout_url = f"{settings.PUBLIC_FC_BASE_URL}{settings.FC_LOGOUT_ENDPOINT}?{urlencode(params)}"
+                    return redirect(fc_logout_url)
+
+                return redirect(redirect_url)
+
+            # redirect with cookies for fc
+            assert login_type == "fc"
+            redirect_url = f"{settings.PUBLIC_APP_URL}/?{urlencode(user_data)}#/login-callback"
             response = redirect(redirect_url)
-            if nonce_context.get("idp") == "silent-ami-fi":
-                return response
+
             jwt_token = create_jwt_token(user_id=str(user_id), jti=uuid.uuid4().hex)
             response.set_cookie(
                 key=settings.AUTH_COOKIE_JWT_NAME,
@@ -214,22 +245,28 @@ async def login_callback(request):
         return redirect(f"{settings.PUBLIC_APP_URL}/#/technical-error")
 
 
-async def get_user_data(*, token_type, access_token, nonce_context, httpx_async_client):
+async def get_user_data(
+    *,
+    token_type,
+    access_token,
+    httpx_async_client,
+    create_user=True,
+    userinfo=True,
+    api_particulier=True,
+):
     tasks = {}
 
-    if nonce_context.get("idp") == "silent-ami-fi":
-        # don't call fc userinfo or data providers
-        return tasks
-
     async with asyncio.TaskGroup() as task_group:
-        tasks["userinfo"] = task_group.create_task(
-            get_fc_userinfo(
-                token_type=token_type,
-                access_token=access_token,
-                httpx_async_client=httpx_async_client,
+        if userinfo:
+            tasks["userinfo"] = task_group.create_task(
+                get_fc_userinfo(
+                    token_type=token_type,
+                    access_token=access_token,
+                    httpx_async_client=httpx_async_client,
+                    create_user=create_user,
+                )
             )
-        )
-        if data_providers["api_particulier_quotient"].is_enabled():
+        if api_particulier and data_providers["api_particulier_quotient"].is_enabled():
             # call api_particulier_quotient if enabled
             tasks["address"] = task_group.create_task(
                 get_address_from_api_particulier_quotient(

@@ -74,6 +74,10 @@ describe('/initializeDataFromAPI.ts', () => {
     });
   });
 
+  test('should always set id_token', async () => {
+    // TODO
+  });
+
   describe('initializeData', () => {
     test('should call dedicated methods to initialize data', async () => {
       // Given

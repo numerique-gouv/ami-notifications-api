@@ -29,8 +29,7 @@ def authorize(request):
     )
     request.session["fi_session_id"] = str(fi_session.id)
 
-    if request.ami_user and request.ami_user.userpasskey_set.exists():
-        # TODO
-        pass
+    if request.ami_user and not request.ami_user.userpasskey_set.exists():
+        return redirect("/#/relogin")
 
     return redirect("/#/passkey-authentication")

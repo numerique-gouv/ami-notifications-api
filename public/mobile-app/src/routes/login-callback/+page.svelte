@@ -4,6 +4,7 @@
   import { goto } from '$app/navigation';
   import { page } from '$app/state';
   import { PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED } from '$env/static/public';
+  import { AMIGoto } from '$lib/ami-goto';
   import { apiFetch } from '$lib/auth';
   import { initializeData, initializeLocalStorage } from '$lib/initializeDataFromAPI';
   import type { UserIdentity } from '$lib/state/User.svelte';
@@ -14,7 +15,10 @@
   const redirectLoggedInUser = (createdPasskey: boolean) => {
     initializeData();
     const passKeyParam = createdPasskey ? '?passkey_toast=true' : '';
-    if (page.url.searchParams.get('user_first_login') === 'true') {
+    const redirect_url = page.url.searchParams.get('login_redirect_url');
+    if (redirect_url) {
+      AMIGoto(redirect_url);
+    } else if (page.url.searchParams.get('user_first_login') === 'true') {
       goto(`/${passKeyParam}#/welcome/zones`);
     } else {
       goto(`/${passKeyParam}`);
@@ -124,7 +128,6 @@
               Ajouter une clé d’accès
             </button>
           </li>
-          <!--
           <li>
             <button
               type="button"
@@ -134,7 +137,6 @@
               Peut-être plus tard
             </button>
           </li>
-          -->
         </ul>
       </div>
     </div>
