@@ -1,14 +1,6 @@
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { renderMarkdown } from './markdown';
-
-vi.mock('dompurify', () => ({
-  default: {
-    sanitize: (html: string) =>
-      // strip unauthorized tags
-      html.replace(/<\/?(?!(?:p|strong|em)(?:\s|>|\/))[\w]+[^>]*>/gi, ''),
-  },
-}));
 
 describe('/markdown.ts', () => {
   describe('renderMarkdown', () => {
@@ -22,6 +14,12 @@ describe('/markdown.ts', () => {
 
     test('should render paragraph', () => {
       expect(renderMarkdown('hello')).toMatch(/^<p>hello<\/p>/);
+    });
+
+    test('should render sub and sup', () => {
+      expect(
+        renderMarkdown('Le 1<sup>er</sup> producteur de CO<sub>2</sub> au monde')
+      ).toContain('Le 1<sup>er</sup> producteur de CO<sub>2</sub> au monde');
     });
 
     test('should strip unauthorized tags (ex: h1)', () => {
