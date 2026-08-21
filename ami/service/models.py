@@ -46,10 +46,12 @@ class Service(models.Model):
         return ServicesItem(
             partner_id=self.partner_id,
             item_type=self.item_type,
+            kind=self.kind,
             title=self.title,
             short_description=self.short_description,
             description=self.description,
             url=self.url,
+            icon=self.icon,
             with_silent_login=self.with_silent_login,
             created_at=self.created_at,
             updated_at=self.updated_at,
