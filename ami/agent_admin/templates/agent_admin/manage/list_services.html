@@ -53,7 +53,7 @@
                   {% for service in sos_object_list %}
                     <tr>
                       <td>
-                        {{ service.title }}
+                        <span class="{{ service.icon }}"></span> {{ service.title }}
                         <br />
                         <span class="fr-text--xs">{{ service.short_description }}</span>
                       </td>
@@ -80,7 +80,7 @@
                   {% for service in steps_object_list %}
                     <tr>
                       <td>
-                        {{ service.title }}
+                        <span class="{{ service.icon }}"></span> {{ service.title }}
                         <br />
                         <span class="fr-text--xs">{{ service.short_description }}</span>
                       </td>
