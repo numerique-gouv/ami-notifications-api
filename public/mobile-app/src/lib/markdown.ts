@@ -1,7 +1,7 @@
 import DOMPurify from 'dompurify';
 import { marked } from 'marked';
 
-const ALLOWED_TAGS = ['p', 'strong', 'em'];
+const ALLOWED_TAGS = ['p', 'strong', 'em', 'sup'];
 const ALLOWED_ATTR: string[] = [];
 
 export function renderMarkdown(md: string): string {
