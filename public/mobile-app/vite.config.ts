@@ -14,6 +14,7 @@ export default defineConfig({
       '/login-ami-fi': { target: 'http://localhost:8000', xfwd: true },
       '/login-callback': { target: 'http://localhost:8000', xfwd: true },
       '/login-france-connect': { target: 'http://localhost:8000', xfwd: true },
+      '/relogin-france-connect': { target: 'http://localhost:8000', xfwd: true },
       '/logout': { target: 'http://localhost:8000', xfwd: true },
       '/ping': { target: 'http://localhost:8000', xfwd: true },
       '/schema': { target: 'http://localhost:8000', xfwd: true },

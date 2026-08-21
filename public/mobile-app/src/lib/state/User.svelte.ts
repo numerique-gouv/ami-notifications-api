@@ -116,6 +116,18 @@ export class UserStore {
       this.connected = null;
     }
   }
+
+  getHasWorkingPasskey(): boolean {
+    return localStorage.getItem('user_has_working_passkey') === 'true';
+  }
+
+  setHasWorkingPasskey() {
+    localStorage.setItem('user_has_working_passkey', 'true');
+  }
+
+  unsetHasWorkingPasskey() {
+    localStorage.removeItem('user_has_working_passkey');
+  }
 }
 
 export class User {

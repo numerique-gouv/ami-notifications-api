@@ -4,6 +4,7 @@
   import { goto } from '$app/navigation';
   import { page } from '$app/state';
   import { PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED } from '$env/static/public';
+  import { AMIGoto } from '$lib/ami-goto';
   import { apiFetch } from '$lib/auth';
   import { initializeData, initializeLocalStorage } from '$lib/initializeDataFromAPI';
   import { trackPasskey } from '$lib/matomo';
@@ -15,7 +16,10 @@
   const redirectLoggedInUser = (createdPasskey: boolean) => {
     initializeData();
     const passKeyParam = createdPasskey ? '?passkey_toast=true' : '';
-    if (page.url.searchParams.get('user_first_login') === 'true') {
+    const redirect_url = page.url.searchParams.get('login_redirect_url');
+    if (redirect_url) {
+      AMIGoto(redirect_url);
+    } else if (page.url.searchParams.get('user_first_login') === 'true') {
       goto(`/${passKeyParam}#/welcome/zones`);
     } else {
       goto(`/${passKeyParam}`);
@@ -32,7 +36,7 @@
         goto('/#/login');
         return;
       }
-      if (!silent_fc_enabled) {
+      if (!silent_fc_enabled || userStore.getHasWorkingPasskey()) {
         // if silent fc is not enabled, we directly redirect to homepage
         redirectLoggedInUser(false);
       }
@@ -92,6 +96,7 @@
     if (verificationJSON?.verified) {
       trackPasskey('generatePasskey', 'success');
       console.log('Authenticator registered!');
+      userStore.setHasWorkingPasskey();
       redirectLoggedInUser(true);
     } else {
       trackPasskey('generatePasskey', 'error');

@@ -2,7 +2,6 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { render, screen, waitFor } from '@testing-library/svelte';
 import * as navigationMethods from '$app/navigation';
-import { toastStore } from '$lib/state/toast.svelte';
 import { userStore } from '$lib/state/User.svelte';
 import { mockUserInfo } from '$tests/utils';
 import Page from './+page.svelte';
@@ -20,19 +19,36 @@ describe('/+page.svelte', () => {
     vi.resetAllMocks();
   });
 
-  test('should navigate to homepage when user has already logged in', async () => {
-    await userStore.login(mockUserInfo);
-
+  test('should navigate to login page when user is not already logged in', async () => {
     const spy = vi
       .spyOn(navigationMethods, 'goto')
       .mockImplementation(() => Promise.resolve());
-
     render(Page);
-    expect(spy).toHaveBeenCalledWith('/');
+    expect(spy).toHaveBeenCalledWith('/#/login');
+  });
+
+  test('should render a notice with current identity', async () => {
+    // Given
+    await userStore.login(mockUserInfo);
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify(mockUserInfo), { status: 200 })
+    );
+
+    // When
+    render(Page);
+
+    // Then
+    await waitFor(() => {
+      expect(screen.queryByTestId('banner-relogin')).toBeInTheDocument();
+      expect(
+        screen.queryByText(/Vous devez vous connecter en tant que Angela/)
+      ).toBeInTheDocument();
+    });
   });
 
   test('should render FranceConnect button', async () => {
     // Given
+    await userStore.login(mockUserInfo);
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(
       new Response(JSON.stringify(mockUserInfo), { status: 200 })
     );
@@ -51,6 +67,7 @@ describe('/+page.svelte', () => {
 
   test('should display network-error page on FranceConnect login button when back is down', async () => {
     // Given
+    await userStore.login(mockUserInfo);
     vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error());
     const spy = vi
       .spyOn(navigationMethods, 'goto')
@@ -72,6 +89,7 @@ describe('/+page.svelte', () => {
 
   test('should call authorize endpoint when click on FranceConnect login button', async () => {
     // Given
+    await userStore.login(mockUserInfo);
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('', { status: 200 }));
     vi.stubGlobal('location', { href: 'fake-link' });
 
@@ -85,29 +103,13 @@ describe('/+page.svelte', () => {
       franceConnectLoginButton.click();
 
       // Then
-      expect(globalThis.window.location.href).toContain('/login-france-connect');
+      expect(globalThis.window.location.href).toContain('/relogin-france-connect');
     });
-  });
-
-  test('should display an error message if login failed', async () => {
-    // Given
-    const { page } = await import('$app/state');
-    const mockSearchParams = new URLSearchParams(
-      'error=some error message&error_description=some error description'
-    );
-    vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
-
-    render(Page);
-
-    // Then
-    const errorMessage = await screen.findByText('some error message');
-    expect(errorMessage).toBeInTheDocument();
-    const errorDescription = await screen.findByText('some error description');
-    expect(errorDescription).toBeInTheDocument();
   });
 
   test('should not display any error message if the user aborted the connection', async () => {
     // Given
+    await userStore.login(mockUserInfo);
     const { page } = await import('$app/state');
     const mockSearchParams = new URLSearchParams(
       'error=access_denied&error_description=User auth aborted'
@@ -123,45 +125,10 @@ describe('/+page.svelte', () => {
     expect(errorDescription).toBeNull();
   });
 
-  test('should logout the app if an error is about FranceConnect', async () => {
-    // Given
-    const { page } = await import('$app/state');
-    const mockSearchParams = new URLSearchParams(
-      'error=some error message&error_type=FranceConnect'
-    );
-    vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
-
-    render(Page);
-
-    // Then
-    const errorMessage = await screen.findByText('some error message');
-    expect(errorMessage).toBeInTheDocument();
-    expect(window.localStorage.getItem('access_token')).toEqual(null);
-  });
-
-  test('should add toast when user is logged out', async () => {
-    // Given
-    const { page } = await import('$app/state');
-    const mockSearchParams = new URLSearchParams('is_logged_out');
-    vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
-
-    const spy = vi.spyOn(toastStore, 'addToast');
-
-    // When
-    render(Page);
-
-    // Then
-    await waitFor(async () => {
-      expect(spy).toHaveBeenCalledWith(
-        'Vous avez bien été déconnecté(e)',
-        'success',
-        3000,
-        false
-      );
-    });
-  });
-
   test('should display connection help links', async () => {
+    // Given
+    await userStore.login(mockUserInfo);
+
     HTMLDialogElement.prototype.showModal = vi.fn();
     HTMLDialogElement.prototype.close = vi.fn();
     HTMLDialogElement.prototype.show = vi.fn();

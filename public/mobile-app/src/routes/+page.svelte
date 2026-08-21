@@ -14,6 +14,14 @@
   if (page.url.searchParams.has('passkey_toast')) {
     toastStore.addToast('La clé a bien été ajoutée', 'success', 3000, false);
   }
+  if (page.url.searchParams.has('user_does_not_match')) {
+    toastStore.addToast(
+      'Vous ne pouvez pas continuer la démarche sous le compte d’un autre usager',
+      'warning',
+      null,
+      true
+    );
+  }
 </script>
 
 {#if userStore.connected}

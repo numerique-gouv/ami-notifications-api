@@ -20,6 +20,9 @@ def authorize(request):
         logger.error("Wrong parameters", extra=form.errors)
         return HttpResponseBadRequest("wrong-parameters")
 
+    if request.ami_user and not request.ami_user.userpasskey_set.exists():
+        return redirect("/#/relogin")
+
     data: dict = cast(dict, form.cleaned_data)
 
     fi_session = FISession.objects.create(
@@ -28,9 +31,5 @@ def authorize(request):
         nonce=data["nonce"],
     )
     request.session["fi_session_id"] = str(fi_session.id)
-
-    if request.ami_user and request.ami_user.userpasskey_set.exists():
-        # TODO
-        pass
 
     return redirect("/#/passkey-authentication")

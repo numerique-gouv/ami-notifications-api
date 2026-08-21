@@ -3,6 +3,7 @@
   import { apiFetch } from '$lib/auth';
   import BottomModal from '$lib/components/modal/BottomModal.svelte';
   import { trackPasskey } from '$lib/matomo';
+  import { userStore } from '$lib/state/User.svelte';
 
   const authenticate = async () => {
     const resp = await fetch('/api/v1/fi/passkey/generate-authentication-options');
@@ -38,6 +39,7 @@
     if (verificationJSON?.verified) {
       console.log('User authenticated!');
       trackPasskey('userAuthentication', 'success');
+      userStore.setHasWorkingPasskey();
       window.location = verificationJSON?.redirect_uri;
     } else {
       trackPasskey('userAuthentication', 'error');
@@ -48,7 +50,7 @@
   };
 
   const closeModal = () => {
-    // TODO: (maybe the modal shouldn't have a close button)
+    // TODO (go to previous page)
   };
 </script>
 
