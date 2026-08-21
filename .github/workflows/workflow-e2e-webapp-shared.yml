@@ -25,6 +25,10 @@ on:
         description: "0 = pas de PR associée (push/tag) → pas de commentaire de PR"
         type: number
         default: 0
+      source_sha:
+        description: "SHA du commit d'ami-notifications-api dont on attend le déploiement Scalingo avant de lancer les tests"
+        type: string
+        required: true
       ref_name:
         type: string
         default: staging
@@ -44,6 +48,7 @@ jobs:
       run_ios: ${{ inputs.run_ios }}
       run_old_device: ${{ inputs.run_old_device }}
       source_repo: ${{ github.repository }}
+      source_sha: ${{ inputs.source_sha }}
       pr_number: ${{ inputs.pr_number }}
       checkout_ref: ${{ inputs.checkout_ref }} # la même branche/ref que uses de préférence
     secrets: inherit

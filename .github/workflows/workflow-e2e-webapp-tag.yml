@@ -13,4 +13,5 @@ jobs:
     with:
       run_webapp: short
       run_old_device: 'false'
+      source_sha: ${{ github.sha }}
     secrets: inherit

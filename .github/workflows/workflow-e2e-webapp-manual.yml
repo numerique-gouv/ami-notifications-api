@@ -41,5 +41,6 @@ jobs:
       run_ios: ${{ inputs.run_ios }}
       run_old_device: ${{ inputs.run_old_device }}
       pr_number: ${{ inputs.pr_number }}
+      source_sha: ${{ github.sha }}
       checkout_ref: ${{ inputs.checkout_ref }}
     secrets: inherit
