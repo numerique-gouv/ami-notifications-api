@@ -48,72 +48,6 @@
       gotoService(service);
     }
   };
-
-  // SOS
-
-  const sosTags = [
-    {
-      isEnabled: true,
-      url: '/#/',
-      label: 'Dialoguer avec une policière ou un policier',
-      iconClassName: 'fr-icon-question-answer-line fr-tag--icon-left',
-    },
-    {
-      isEnabled: true,
-      url: '/#/procedure-17cyber',
-      label: 'Je suis victime de cybermalveillance',
-    },
-    {
-      isEnabled: true,
-      url: '/#/',
-      label: 'On m’a volé mon vélo',
-    },
-  ];
-
-  const cfsiTabs = [
-    {
-      isEnabled: true,
-      url: '/#/',
-      label: 'Je pars vivre à l’étranger',
-      iconClassName: 'fr-icon-earth-line fr-tag--icon-left',
-    },
-    {
-      isEnabled: true,
-      url: '/#/',
-      label: 'Je crée une association',
-      iconClassName: 'fr-icon-team-line fr-tag--icon-left',
-    },
-    {
-      isEnabled: true,
-      url: '/#/',
-      label: 'Je rentre en France après avoir vécu à l’étranger',
-      iconClassName: 'fr-icon-flight-land-line fr-tag--icon-left',
-    },
-    {
-      isEnabled: true,
-      url: '/#/',
-      label: 'Je déménage en France',
-      iconClassName: 'fr-icon-france-line fr-tag--icon-left',
-    },
-    {
-      isEnabled: true,
-      url: '/#/',
-      label: 'Je pars de chez mes parents',
-      iconClassName: 'fr-icon-suitcase-2-line fr-tag--icon-left',
-    },
-    {
-      isEnabled: true,
-      url: '/#/',
-      label: 'Je deviens parent',
-      iconClassName: 'fr-icon-parent-line fr-tag--icon-left',
-    },
-    {
-      isEnabled: true,
-      url: '/#/',
-      label: 'Je suis muté à l’étranger',
-      iconClassName: 'fr-icon-global-line fr-tag--icon-left',
-    },
-  ];
 </script>
 
 <Navigation currentItem="services" />
@@ -162,19 +96,19 @@
       role="tabpanel"
       aria-labelledby="tab-6496"
       tabindex="0"
+      data-testid="sos"
     >
       <h2 class="fr-h5 fr-mb-2w fr-pt-1w">SOS, j’ai un problème !</h2>
-      {#if sosTags.length}
-        {#each sosTags as sosTag}
-          {#if sosTag.isEnabled}
-            <button
-              type="button"
-              class="fr-tag fr-mb-2w fr-mr-1w {sosTag.iconClassName}"
-              onclick={()=> goto(sosTag.url)}
-            >
-              {sosTag.label}
-            </button>
-          {/if}
+      {#if services && services.sos.length}
+        {#each services.sos as sos}
+          <button
+            type="button"
+            class="fr-tag fr-mb-2w fr-mr-1w {sos.icon} {sos.icon ? 'fr-tag--icon-left': ''}"
+            data-testid="service-sos-{sos.id}"
+            onclick={()=> gotoService(sos)}
+          >
+            {sos.title}
+          </button>
         {/each}
       {/if}
       {#if PUBLIC_SP_ORIENTEUR_URL}
@@ -193,24 +127,25 @@
 
       <nav class="fr-sidemenu cfsi-sidemenu fr-mb-3w fr-mx-0">
         <div class="fr-sidemenu__inner">
-          <ul class="fr-sidemenu__list">
-            {#each cfsiTabs as cfsi}
-              {#if cfsi.isEnabled}
+          <ul class="fr-sidemenu__list" data-testid="steps">
+            {#if services && services.steps.length}
+              {#each services.steps as steps}
                 <li class="fr-sidemenu__item">
                   <button
-                    class="fr-sidemenu__btn fr-pr-4w am-text--smbold {cfsi.iconClassName}"
+                    class="fr-sidemenu__btn fr-pr-4w am-text--smbold  {steps.icon} {steps.icon ? 'fr-tag--icon-left': ''}"
                     type="button"
-                    onclick={() => goto(cfsi.url)}
+                    data-testid="service-steps-{steps.id}"
+                    onclick={()=> gotoService(steps)}
                   >
-                    {cfsi.label}
+                    {steps.title}
                     <span
                       aria-hidden="true"
                       class="icon fr-icon-arrow-right-s-line am-color-blue    "
                     ></span>
                   </button>
                 </li>
-              {/if}
-            {/each}
+              {/each}
+            {/if}
           </ul>
         </div>
       </nav>
@@ -250,7 +185,7 @@
                           type="button"
                           class="fr-sidemenu__link"
                           onclick={() => clickOnService(item)}
-                          data-testid="service-{item.id}"
+                          data-testid="service-catalog-{item.id}"
                         >
                           <span class="services--item-details">
                             <span class="services--item-label">{item.title}</span>
