@@ -6,7 +6,6 @@ import * as apiAgendaMethods from '$lib/api-agenda';
 import { initializeData, initializeLocalStorage } from '$lib/initializeDataFromAPI';
 import type { AppNotification } from '$lib/notifications';
 import * as notificationsMethods from '$lib/notifications';
-import { UserStore } from '$lib/state/User.svelte';
 
 const apiAgendaData = {
   school_holidays: [],
@@ -77,7 +76,6 @@ describe('/initializeDataFromAPI.ts', () => {
   describe('initializeData', () => {
     test('should call dedicated methods to initialize data', async () => {
       // Given
-      const userStore = new UserStore();
       const retrieveAgendaSpy = vi
         .spyOn(apiAgendaMethods, 'retrieveAgenda')
         .mockResolvedValue(apiAgendaData);

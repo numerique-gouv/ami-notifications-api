@@ -5,12 +5,13 @@
   import FollowupParentItemDetail from '$lib/components/FollowupParentItemDetail.svelte';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import { getDSFRIcon } from '$lib/dsfr-icon';
-  import { FollowupItem } from '$lib/followup';
+  import { FollowupItem, FollowupSubItem } from '$lib/followup';
   import { userStore } from '$lib/state/User.svelte';
   import type { PageProps } from './$types';
 
   let { data, params }: PageProps = $props();
   let item: FollowupItem | null = $state(null);
+  let sub_item: FollowupSubItem | null = $state(null);
 
   let backUrl: string = $state('/#/followup');
   let checkedIcon: string = $state('');
@@ -19,19 +20,16 @@
     if (!userStore.connected) {
       goto('/#/login');
     }
-    if (data.item) {
+    if (data.item && data.sub_item) {
       item = data.item as FollowupItem;
-      backUrl = item.is_archived ? '/#/followup/archived' : '/#/followup';
+      sub_item = data.sub_item as FollowupSubItem;
+      backUrl = item.getItemDetailPageUrl();
     }
   });
 </script>
 
 <NavWithBackButton {backUrl} />
 
-{#if item}
-  {#if item.sub_items.length}
-    <FollowupParentItemDetail item={item} />
-  {:else}
-    <FollowupItemDetail item={item} />
-  {/if}
+{#if sub_item}
+  <FollowupItemDetail item={sub_item} />
 {/if}

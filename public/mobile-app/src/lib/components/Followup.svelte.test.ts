@@ -16,6 +16,7 @@ describe('/Followup.svelte', () => {
           'partner',
           'type',
           'id1',
+          'ref1',
           'notifications',
           [],
           'Opération Tranquillité Vacances',
@@ -26,12 +27,14 @@ describe('/Followup.svelte', () => {
           'wip',
           'En cours',
           false,
-          null
+          null,
+          []
         ),
         new FollowupItem(
           'partner',
           'type',
           'id2',
+          'ref2',
           'notifications',
           [],
           'Opération Tranquillité Vacances',
@@ -42,7 +45,8 @@ describe('/Followup.svelte', () => {
           'closed',
           'Terminée',
           false,
-          null
+          null,
+          []
         ),
       ]);
       vi.spyOn(followup, 'archived_items', 'get').mockReturnValue([
@@ -50,6 +54,7 @@ describe('/Followup.svelte', () => {
           'partner',
           'type',
           'id3',
+          'ref3',
           'notifications',
           [],
           'Opération Tranquillité Vacances',
@@ -60,12 +65,14 @@ describe('/Followup.svelte', () => {
           'wip',
           'En cours',
           true,
-          null
+          null,
+          []
         ),
         new FollowupItem(
           'partner',
           'type',
           'id4',
+          'ref4',
           'notifications',
           [],
           'Opération Tranquillité Vacances',
@@ -76,7 +83,8 @@ describe('/Followup.svelte', () => {
           'closed',
           'Terminée',
           true,
-          null
+          null,
+          []
         ),
       ]);
       const spy = vi
@@ -115,6 +123,7 @@ describe('/Followup.svelte', () => {
           'partner',
           'type',
           'id3',
+          'ref3',
           'notifications',
           [],
           'Opération Tranquillité Vacances',
@@ -125,7 +134,8 @@ describe('/Followup.svelte', () => {
           'wip',
           'En cours',
           true,
-          null
+          null,
+          []
         ),
       ]);
       const spy = vi
@@ -153,6 +163,7 @@ describe('/Followup.svelte', () => {
           'partner',
           'type',
           'id1',
+          'ref1',
           'notifications',
           [],
           'Opération Tranquillité Vacances',
@@ -163,12 +174,14 @@ describe('/Followup.svelte', () => {
           'wip',
           'En cours',
           false,
-          null
+          null,
+          []
         ),
         new FollowupItem(
           'partner',
           'type',
           'id2',
+          'ref2',
           'notifications',
           [],
           'Opération Tranquillité Vacances',
@@ -179,7 +192,8 @@ describe('/Followup.svelte', () => {
           'closed',
           'Terminée',
           false,
-          null
+          null,
+          []
         ),
       ]);
       vi.spyOn(followup, 'archived_items', 'get').mockReturnValue([
@@ -187,6 +201,7 @@ describe('/Followup.svelte', () => {
           'partner',
           'type',
           'id3',
+          'ref3',
           'notifications',
           [],
           'Opération Tranquillité Vacances',
@@ -197,12 +212,14 @@ describe('/Followup.svelte', () => {
           'wip',
           'En cours',
           true,
-          null
+          null,
+          []
         ),
         new FollowupItem(
           'partner',
           'type',
           'id4',
+          'ref4',
           'notifications',
           [],
           'Opération Tranquillité Vacances',
@@ -213,7 +230,8 @@ describe('/Followup.svelte', () => {
           'closed',
           'Terminée',
           true,
-          null
+          null,
+          []
         ),
       ]);
       const spy = vi
@@ -251,6 +269,7 @@ describe('/Followup.svelte', () => {
           'partner',
           'type',
           'id1',
+          'ref1',
           'notifications',
           [],
           'Opération Tranquillité Vacances',
@@ -261,7 +280,8 @@ describe('/Followup.svelte', () => {
           'wip',
           'En cours',
           false,
-          null
+          null,
+          []
         ),
       ]);
       vi.spyOn(followup, 'archived_items', 'get').mockReturnValue([]);
@@ -347,6 +367,7 @@ describe('/Followup.svelte', () => {
           'partner',
           'type',
           'id1',
+          'ref1',
           'notifications',
           [],
           'Opération Tranquillité Vacances 1',
@@ -357,12 +378,14 @@ describe('/Followup.svelte', () => {
           'wip',
           'En cours',
           true,
-          null
+          null,
+          []
         ),
         new FollowupItem(
           'partner',
           'type',
           'id2',
+          'ref2',
           'notifications',
           [],
           'Opération Tranquillité Vacances 2',
@@ -373,7 +396,8 @@ describe('/Followup.svelte', () => {
           'wip',
           'En cours',
           true,
-          null
+          null,
+          []
         ),
       ]);
       vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
@@ -396,6 +420,7 @@ describe('/Followup.svelte', () => {
           'partner',
           'type',
           'id1',
+          'ref1',
           'notifications',
           [],
           'Opération Tranquillité Vacances 1',
@@ -406,12 +431,14 @@ describe('/Followup.svelte', () => {
           'wip',
           'En cours',
           false,
-          null
+          null,
+          []
         ),
         new FollowupItem(
           'partner',
           'type',
           'id2',
+          'ref2',
           'notifications',
           [],
           'Opération Tranquillité Vacances 2',
@@ -422,7 +449,8 @@ describe('/Followup.svelte', () => {
           'wip',
           'En cours',
           false,
-          null
+          null,
+          []
         ),
       ]);
       vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
@@ -448,6 +476,7 @@ describe('/Followup.svelte', () => {
           'partner',
           'type',
           'id1',
+          'ref1',
           'notifications',
           [],
           'Opération Tranquillité Vacances 1',
@@ -458,12 +487,14 @@ describe('/Followup.svelte', () => {
           'wip',
           'En cours',
           false,
-          null
+          null,
+          []
         ),
         new FollowupItem(
           'partner',
           'type',
           'id2',
+          'ref2',
           'notifications',
           [],
           'Opération Tranquillité Vacances 2',
@@ -474,7 +505,8 @@ describe('/Followup.svelte', () => {
           'wip',
           'En cours',
           false,
-          null
+          null,
+          []
         ),
       ]);
       vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
@@ -504,6 +536,7 @@ describe('/Followup.svelte', () => {
           'partner',
           'type',
           'id1',
+          'ref1',
           'notifications',
           [],
           'Opération Tranquillité Vacances 1',
@@ -514,12 +547,14 @@ describe('/Followup.svelte', () => {
           'wip',
           'En cours',
           false,
-          null
+          null,
+          []
         ),
         new FollowupItem(
           'partner',
           'type',
           'id2',
+          'ref2',
           'notifications',
           [],
           'Opération Tranquillité Vacances 2',
@@ -530,7 +565,8 @@ describe('/Followup.svelte', () => {
           'wip',
           'En cours',
           false,
-          null
+          null,
+          []
         ),
       ]);
       vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
@@ -567,6 +603,7 @@ describe('/Followup.svelte', () => {
           'partner',
           'type',
           'id1',
+          'ref1',
           'notifications',
           [],
           'Opération Tranquillité Vacances 1',
@@ -577,12 +614,14 @@ describe('/Followup.svelte', () => {
           'wip',
           'En cours',
           false,
-          null
+          null,
+          []
         ),
         new FollowupItem(
           'partner',
           'type',
           'id2',
+          'ref2',
           'notifications',
           [],
           'Opération Tranquillité Vacances 2',
@@ -593,7 +632,8 @@ describe('/Followup.svelte', () => {
           'wip',
           'En cours',
           false,
-          null
+          null,
+          []
         ),
       ]);
       vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);

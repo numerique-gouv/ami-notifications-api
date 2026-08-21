@@ -8,6 +8,7 @@ from ami.followup.schemas import (
     FollowupItemEvent,
     FollowupSource,
     FollowupSourceStatus,
+    FollowupSubItem,
     ItemGenericStatus,
 )
 from ami.tests.utils import assert_query_fails_without_auth, login
@@ -29,6 +30,7 @@ def test_get_followup(
                 partner_id="psl",
                 item_type="OperationTranquilliteVacances",
                 item_external_id="44",
+                reference="44",
                 status_id=ItemGenericStatus.CLOSED,
                 status_label="Validé",
                 milestone_start_date=datetime.datetime(
@@ -54,11 +56,49 @@ def test_get_followup(
                 is_archived=False,
                 created_at=datetime.datetime(2026, 2, 23, 17, 24, tzinfo=datetime.timezone.utc),
                 updated_at=datetime.datetime(2026, 2, 24, 17, 24, tzinfo=datetime.timezone.utc),
+                sub_items=[
+                    FollowupSubItem(
+                        partner_id="dinum-ami",
+                        item_type="SousDémarche",
+                        item_external_id="45",
+                        reference="",
+                        status_id=ItemGenericStatus.CLOSED,
+                        status_label="Validé",
+                        milestone_start_date=datetime.datetime(
+                            2026, 2, 26, 17, 24, tzinfo=datetime.timezone.utc
+                        ),
+                        milestone_end_date=datetime.datetime(
+                            2026, 3, 26, 17, 24, tzinfo=datetime.timezone.utc
+                        ),
+                        events=[
+                            FollowupItemEvent(
+                                id="fake-followup-id",
+                                created_at=datetime.datetime(
+                                    2026, 2, 23, 17, 24, tzinfo=datetime.timezone.utc
+                                ),
+                                description="Evénement lié au sub-item",
+                            ),
+                        ],
+                        title="Notification title 6",
+                        subheading="Notification subheading 6",
+                        description="notification 6",
+                        icon="icon 6",
+                        external_url="http://bar.com",
+                        is_archived=False,
+                        created_at=datetime.datetime(
+                            2026, 2, 23, 17, 24, tzinfo=datetime.timezone.utc
+                        ),
+                        updated_at=datetime.datetime(
+                            2026, 2, 24, 17, 24, tzinfo=datetime.timezone.utc
+                        ),
+                    ),
+                ],
             ),
             FollowupItem(
                 partner_id="psl",
                 item_type="OperationTranquilliteVacances",
                 item_external_id="43",
+                reference="43",
                 status_id=ItemGenericStatus.NEW,
                 status_label="Nouveau",
                 milestone_start_date=None,
@@ -72,6 +112,7 @@ def test_get_followup(
                 is_archived=True,
                 created_at=datetime.datetime(2026, 1, 26, 17, 24, tzinfo=datetime.timezone.utc),
                 updated_at=datetime.datetime(2026, 1, 27, 17, 24, tzinfo=datetime.timezone.utc),
+                sub_items=[],
             ),
         ],
     )
@@ -87,6 +128,7 @@ def test_get_followup(
                     "partner_id": "psl",
                     "item_type": "OperationTranquilliteVacances",
                     "item_external_id": "44",
+                    "reference": "44",
                     "status_id": "closed",
                     "status_label": "Validé",
                     "milestone_start_date": "2026-02-26T17:24:00Z",
@@ -106,11 +148,39 @@ def test_get_followup(
                     "is_archived": False,
                     "created_at": "2026-02-23T17:24:00Z",
                     "updated_at": "2026-02-24T17:24:00Z",
+                    "sub_items": [
+                        {
+                            "partner_id": "dinum-ami",
+                            "item_type": "SousDémarche",
+                            "item_external_id": "45",
+                            "reference": "",
+                            "status_id": "closed",
+                            "status_label": "Validé",
+                            "milestone_start_date": "2026-02-26T17:24:00Z",
+                            "milestone_end_date": "2026-03-26T17:24:00Z",
+                            "events": [
+                                {
+                                    "id": "fake-followup-id",
+                                    "created_at": "2026-02-23T17:24:00Z",
+                                    "description": "Evénement lié au sub-item",
+                                }
+                            ],
+                            "title": "Notification title 6",
+                            "subheading": "Notification subheading 6",
+                            "description": "notification 6",
+                            "icon": "icon 6",
+                            "external_url": "http://bar.com",
+                            "is_archived": False,
+                            "created_at": "2026-02-23T17:24:00Z",
+                            "updated_at": "2026-02-24T17:24:00Z",
+                        }
+                    ],
                 },
                 {
                     "partner_id": "psl",
                     "item_type": "OperationTranquilliteVacances",
                     "item_external_id": "43",
+                    "reference": "43",
                     "status_id": "new",
                     "status_label": "Nouveau",
                     "milestone_start_date": None,
@@ -124,6 +194,7 @@ def test_get_followup(
                     "is_archived": True,
                     "created_at": "2026-01-26T17:24:00Z",
                     "updated_at": "2026-01-27T17:24:00Z",
+                    "sub_items": [],
                 },
             ],
         }

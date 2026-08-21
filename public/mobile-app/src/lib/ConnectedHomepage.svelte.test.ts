@@ -347,6 +347,7 @@ describe('/ConnectedHomepage.svelte', () => {
           'partner',
           'type',
           'id1',
+          'ref1',
           'notifications',
           [],
           'Opération Tranquillité Vacances 1',
@@ -357,12 +358,14 @@ describe('/ConnectedHomepage.svelte', () => {
           'wip',
           'En cours',
           false,
-          null
+          null,
+          []
         ),
         new FollowupItem(
           'partner',
           'type',
           'id2',
+          'ref2',
           'notifications',
           [],
           'Opération Tranquillité Vacances 2',
@@ -373,12 +376,14 @@ describe('/ConnectedHomepage.svelte', () => {
           'wip',
           'En cours',
           false,
-          null
+          null,
+          []
         ),
         new FollowupItem(
           'partner',
           'type',
           'id3',
+          'ref3',
           'notifications',
           [],
           'Opération Tranquillité Vacances 3',
@@ -389,12 +394,14 @@ describe('/ConnectedHomepage.svelte', () => {
           'closed',
           'Terminée',
           false,
-          null
+          null,
+          []
         ),
         new FollowupItem(
           'partner',
           'type',
           'id4',
+          'ref4',
           'notifications',
           [],
           'Opération Tranquillité Vacances 4',
@@ -405,7 +412,8 @@ describe('/ConnectedHomepage.svelte', () => {
           'closed',
           'Terminée',
           false,
-          null
+          null,
+          []
         ),
       ]);
       const spy = vi
@@ -463,6 +471,7 @@ describe('/ConnectedHomepage.svelte', () => {
             'partner',
             'type',
             'id1',
+            'ref1',
             'notifications',
             [],
             'Opération Tranquillité Vacances 1',
@@ -473,12 +482,14 @@ describe('/ConnectedHomepage.svelte', () => {
             'wip',
             'En cours',
             false,
-            null
+            null,
+            []
           ),
           new FollowupItem(
             'partner',
             'type',
             'id2',
+            'ref2',
             'notifications',
             [],
             'Opération Tranquillité Vacances 2',
@@ -489,7 +500,8 @@ describe('/ConnectedHomepage.svelte', () => {
             'wip',
             'En cours',
             false,
-            null
+            null,
+            []
           ),
         ]);
         vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
@@ -515,6 +527,7 @@ describe('/ConnectedHomepage.svelte', () => {
             'partner',
             'type',
             'id1',
+            'ref1',
             'notifications',
             [],
             'Opération Tranquillité Vacances 1',
@@ -525,12 +538,14 @@ describe('/ConnectedHomepage.svelte', () => {
             'wip',
             'En cours',
             false,
-            null
+            null,
+            []
           ),
           new FollowupItem(
             'partner',
             'type',
             'id2',
+            'ref2',
             'notifications',
             [],
             'Opération Tranquillité Vacances 2',
@@ -541,7 +556,8 @@ describe('/ConnectedHomepage.svelte', () => {
             'wip',
             'En cours',
             false,
-            null
+            null,
+            []
           ),
         ]);
         vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
@@ -571,6 +587,7 @@ describe('/ConnectedHomepage.svelte', () => {
             'partner',
             'type',
             'id1',
+            'ref1',
             'notifications',
             [],
             'Opération Tranquillité Vacances 1',
@@ -581,12 +598,14 @@ describe('/ConnectedHomepage.svelte', () => {
             'wip',
             'En cours',
             false,
-            null
+            null,
+            []
           ),
           new FollowupItem(
             'partner',
             'type',
             'id2',
+            'ref2',
             'notifications',
             [],
             'Opération Tranquillité Vacances 2',
@@ -597,7 +616,8 @@ describe('/ConnectedHomepage.svelte', () => {
             'wip',
             'En cours',
             false,
-            null
+            null,
+            []
           ),
         ]);
         vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
@@ -634,6 +654,7 @@ describe('/ConnectedHomepage.svelte', () => {
             'partner',
             'type',
             'id1',
+            'ref1',
             'notifications',
             [],
             'Opération Tranquillité Vacances 1',
@@ -644,12 +665,14 @@ describe('/ConnectedHomepage.svelte', () => {
             'wip',
             'En cours',
             false,
-            null
+            null,
+            []
           ),
           new FollowupItem(
             'partner',
             'type',
             'id2',
+            'ref2',
             'notifications',
             [],
             'Opération Tranquillité Vacances 2',
@@ -660,7 +683,8 @@ describe('/ConnectedHomepage.svelte', () => {
             'wip',
             'En cours',
             false,
-            null
+            null,
+            []
           ),
         ]);
         vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);

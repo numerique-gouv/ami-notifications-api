@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 document.addEventListener('DOMContentLoaded', () => {
   const element = document.querySelector('#id_add_fc_hash');
-  if (element && element.dataset.appendTo) {
+  if (element?.dataset.appendTo) {
     const target = document.querySelector(`#id_${element.dataset.appendTo}`);
     if (target) {
       element.addEventListener('autocomplete', () => {

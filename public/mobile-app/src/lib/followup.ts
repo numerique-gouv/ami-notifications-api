@@ -3,6 +3,15 @@ import { archiveFollowupItem, retrieveFollowup } from '$lib/api-followup';
 
 export type Status = 'new' | 'wip' | 'closed';
 
+const formatDate = (date: Date): string => {
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = date.toLocaleString('fr-FR', { month: 'long' });
+  const year = date.getFullYear();
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  return `${day} ${month} ${year} - ${hours}:${minutes}`;
+};
+
 export class FollowupItemEvent {
   constructor(
     private _id: string,
@@ -23,20 +32,16 @@ export class FollowupItemEvent {
   }
 
   get formattedDate(): string {
-    const day = String(this.created_at.getDate()).padStart(2, '0');
-    const month = this.created_at.toLocaleString('fr-FR', { month: 'long' });
-    const year = this.created_at.getFullYear();
-    const hours = String(this.created_at.getHours()).padStart(2, '0');
-    const minutes = String(this.created_at.getMinutes()).padStart(2, '0');
-    return `${day} ${month} ${year} - ${hours}:${minutes}`;
+    return formatDate(this.created_at);
   }
 }
 
-export class FollowupItem {
+export class FollowupSubItem {
   constructor(
     private _partner_id: string,
     private _item_type: string,
     private _item_external_id: string,
+    private _reference: string,
     private _source: string,
     private _events: FollowupItemEvent[],
 
@@ -54,8 +59,8 @@ export class FollowupItem {
     private _link: string | null
   ) {}
 
-  equals(other: FollowupItem): boolean {
-    if (!(other instanceof FollowupItem)) {
+  equals(other: FollowupSubItem): boolean {
+    if (!(other instanceof FollowupSubItem)) {
       return false;
     }
     return JSON.stringify(this) === JSON.stringify(other);
@@ -75,6 +80,10 @@ export class FollowupItem {
 
   get item_external_id(): string {
     return this._item_external_id;
+  }
+
+  get reference(): string {
+    return this._reference;
   }
 
   get source(): string {
@@ -122,20 +131,111 @@ export class FollowupItem {
   }
 
   get formattedDate(): string {
-    const day = this.date.getDate();
-    const month = this.date.toLocaleString('fr-FR', { month: 'long' });
-    const hours = String(this.date.getHours()).padStart(2, '0');
-    const minutes = String(this.date.getMinutes()).padStart(2, '0');
-    return `le ${day} ${month} à ${hours}H${minutes}`;
+    return formatDate(this.date);
   }
 
-  get itemDetailPageUrl(): string {
-    return `/#/followup/item/${this.partner_id}/${this.item_type}/${this.item_external_id}`;
+  get badgeClassName(): string {
+    switch (this._status_id) {
+      case 'new':
+        return 'fr-background-contrast--yellow-moutarde fr-text-label--yellow-moutarde';
+      case 'wip':
+        return 'fr-text-default--info fr-background-contrast--info';
+      case 'closed':
+        return 'fr-badge--purple-glycine';
+      default:
+        return '';
+    }
+  }
+
+  getItemDetailPageUrl(item: FollowupItem): string {
+    return `/#/followup/item/${item.partner_id}/${item.item_type}/${item.item_external_id}/subitem/${this.partner_id}/${this.item_type}/${this.item_external_id}`;
   }
 
   async archive(): Promise<boolean> {
     const result = await archiveFollowupItem(this.source, this.id);
     return result;
+  }
+}
+
+export class FollowupItem extends FollowupSubItem {
+  constructor(
+    _partner_id: string,
+    _item_type: string,
+    _item_external_id: string,
+    _reference: string,
+    _source: string,
+    _events: FollowupItemEvent[],
+
+    _title: string,
+    _subheading: string,
+    _description: string,
+    _icon: string,
+
+    _date: Date,
+
+    _status_id: Status,
+    _status_label: string,
+    _is_archived: boolean,
+
+    _link: string | null,
+
+    private _sub_items: FollowupSubItem[]
+  ) {
+    super(
+      _partner_id,
+      _item_type,
+      _item_external_id,
+      _reference,
+      _source,
+      _events,
+      _title,
+      _subheading,
+      _description,
+      _icon,
+      _date,
+      _status_id,
+      _status_label,
+      _is_archived,
+      _link
+    );
+  }
+
+  equals(other: FollowupItem): boolean {
+    if (!(other instanceof FollowupItem)) {
+      return false;
+    }
+    return JSON.stringify(this) === JSON.stringify(other);
+  }
+
+  get sub_items(): FollowupSubItem[] {
+    return this._sub_items;
+  }
+
+  get wipSubItems(): FollowupSubItem[] {
+    return this.sub_items.filter((sub_item) => sub_item.status_id !== 'closed');
+  }
+
+  get closedSubItems(): FollowupSubItem[] {
+    return this.sub_items.filter((sub_item) => sub_item.status_id === 'closed');
+  }
+
+  getItemDetailPageUrl(): string {
+    return `/#/followup/item/${this.partner_id}/${this.item_type}/${this.item_external_id}`;
+  }
+
+  findSubItem(
+    subpartner_id: string,
+    subitem_type: string,
+    subitem_external_id: string
+  ): FollowupSubItem | null {
+    return (
+      this.sub_items.find(
+        (sub_item) =>
+          sub_item.partner_id === subpartner_id &&
+          sub_item.item_type === subitem_type &&
+          sub_item.item_external_id === subitem_external_id
+      ) || null
+    );
   }
 }
 
@@ -168,17 +268,40 @@ export class Followup {
   }
 
   private createFollowupItem(item: APIFollowupItem): FollowupItem {
-    const events: FollowupItemEvent[] = item.events
-      .map(
+    const events: FollowupItemEvent[] = item.events.map(
+      (event) =>
+        new FollowupItemEvent(event.id, new Date(event.created_at), event.description)
+    );
+
+    const sub_items: FollowupSubItem[] = item.sub_items.map((sub_item) => {
+      const sub_item_events: FollowupItemEvent[] = sub_item.events.map(
         (event) =>
           new FollowupItemEvent(event.id, new Date(event.created_at), event.description)
-      )
-      .sort((a, b) => b.created_at.getTime() - a.created_at.getTime());
+      );
+      return new FollowupSubItem(
+        sub_item.partner_id,
+        sub_item.item_type,
+        sub_item.item_external_id,
+        sub_item.reference,
+        'notifications',
+        sub_item_events,
+        sub_item.title,
+        sub_item.subheading,
+        sub_item.description,
+        sub_item.icon,
+        sub_item.updated_at,
+        sub_item.status_id as Status,
+        sub_item.status_label,
+        sub_item.is_archived,
+        sub_item.external_url
+      );
+    });
 
     return new FollowupItem(
       item.partner_id,
       item.item_type,
       item.item_external_id,
+      item.reference,
       'notifications',
       events,
       item.title,
@@ -189,7 +312,8 @@ export class Followup {
       item.status_id as Status,
       item.status_label,
       item.is_archived,
-      item.external_url
+      item.external_url,
+      sub_items
     );
   }
 
@@ -205,6 +329,36 @@ export class Followup {
     return this.items.some(
       (item) => item.partner_id === partner_id && item.item_type === item_type
     );
+  }
+
+  private _findItem(
+    source: FollowupItem[],
+    partner_id: string,
+    item_type: string,
+    item_external_id: string
+  ): FollowupItem | null {
+    return (
+      source.find(
+        (item) =>
+          item.partner_id === partner_id &&
+          item.item_type === item_type &&
+          item.item_external_id === item_external_id
+      ) || null
+    );
+  }
+
+  findItem(
+    partner_id: string,
+    item_type: string,
+    item_external_id: string
+  ): FollowupItem | null {
+    const item = this._findItem(this.items, partner_id, item_type, item_external_id);
+
+    if (item) {
+      return item;
+    }
+
+    return this._findItem(this.archived_items, partner_id, item_type, item_external_id);
   }
 }
 

@@ -28,6 +28,7 @@ describe('/+page.svelte', () => {
         'partner',
         'type',
         'id1',
+        'ref1',
         'notifications',
         [],
         'Opération Tranquillité Vacances',
@@ -38,7 +39,8 @@ describe('/+page.svelte', () => {
         'wip',
         'En cours',
         false,
-        null
+        null,
+        []
       ),
     ]);
     vi.spyOn(followup, 'archived_items', 'get').mockReturnValue([
@@ -46,6 +48,7 @@ describe('/+page.svelte', () => {
         'partner',
         'type',
         'id2',
+        'ref2',
         'notifications',
         [],
         'Opération Tranquillité Vacances',
@@ -56,7 +59,8 @@ describe('/+page.svelte', () => {
         'closed',
         'Terminée',
         true,
-        null
+        null,
+        []
       ),
     ]);
     const spy = vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);

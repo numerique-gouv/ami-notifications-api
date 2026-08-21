@@ -31,33 +31,48 @@
         <h3 class="fr-tile__title">
           <button
             type="button"
-            onclick={(e) => goto(item.itemDetailPageUrl)}
+            onclick={(e) => goto(item.getItemDetailPageUrl())}
             data-testid="followup-item-link"
           >
             {item.title}
           </button>
         </h3>
-        <p class="fr-tile__detail fr-text--sm fr-m-0 fr-pr-0">
-          <span>{item.description}</span>
+        <p
+          class="fr-tile__detail fr-text--sm fr-m-0 fr-pr-0"
+          data-testid="followup-item-detail-{item.id}"
+        >
+          <span>
+            {#if item.sub_items.length}
+              <strong>En cours</strong> par {item.wipSubItems.length}
+              {item.wipSubItems.length === 1 ? 'service': 'services'}
+              <br>
+              <strong>Terminé</strong> par {item.closedSubItems.length}
+              {item.closedSubItems.length === 1 ? 'service': 'services'}
+            {:else}
+              {item.description}
+            {/if}
+          </span>
         </p>
-        <div class="fr-tile__start">
+        <div class="fr-tile__start fr-mb-3v">
           <p
-            class="fr-badge fr-badge--icon-left fr-mb-1w {checkedIcon} {item.status_id} am-badge-blue"
+            class="fr-badge fr-badge--icon-left {checkedIcon} {item.status_id} {item.badgeClassName}"
           >
             {item.status_label}
           </p>
-          <p class="fr-pr-2w fr-text--xs followup--item--detail--date">
+          <p
+            class="fr-pr-2w fr-text--xs am-text-mention-grey followup--item--detail--date"
+          >
             {item.formattedDate}
           </p>
         </div>
       </div>
-      {#if !item.is_archived && item.status_id == 'new' && item.link}
+      {#if !item.sub_items.length && !item.is_archived && item.status_id == 'new' && item.link}
         <div class="am-tile__footer fr-pt-1w">
           <div class="fr-btns-group">
             <button
               type="button"
               class="fr-btn fr-mb-0"
-              onclick={(e) => goto(item.itemDetailPageUrl)}
+              onclick={(e) => goto(item.getItemDetailPageUrl())}
               data-testid="external-item-button-{item.id}"
             >
               Reprendre ma démarche
@@ -83,9 +98,9 @@
       button.am-btn-modal {
         z-index: 2;
         position: absolute;
-        top: 1px;
-        right: 1px;
-        min-height: 3rem;
+        top: 0;
+        right: 0;
+        min-height: 2.75rem;
         outline-width: 2px;
         &:before {
           position: relative;
@@ -109,7 +124,8 @@
           width: 100%;
           display: flex;
           justify-content: space-between;
-          align-items: baseline;
+          align-items: center;
+          line-height: 1;
         }
       }
     }
