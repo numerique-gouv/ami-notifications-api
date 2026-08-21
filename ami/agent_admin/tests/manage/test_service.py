@@ -44,6 +44,7 @@ def test_add_service(app, admin_agent: Agent) -> None:
     assert "Ajouter une démarche" in response.pyquery("main").text()
 
     assert "kind" not in response.context["form"].fields
+    assert "icon" not in response.context["form"].fields
     assert response.forms["service-form"]["partner_id"].value == ""
     assert response.forms["service-form"]["item_type"].value == ""
     assert response.forms["service-form"]["title"].value == ""
@@ -53,11 +54,41 @@ def test_add_service(app, admin_agent: Agent) -> None:
     assert response.forms["service-form"]["with_silent_login"].value is None
     assert response.forms["service-form"]["restricted_to"].value == ""
 
+    response = app.get("/agent-admin/manage/service/add/sos/")
+    assert "kind" not in response.context["form"].fields
+    assert response.forms["service-form"]["icon"].value == ""
+
+    response = app.get("/agent-admin/manage/service/add/steps/")
+    assert "kind" not in response.context["form"].fields
+    assert response.forms["service-form"]["icon"].value == ""
+
 
 @pytest.mark.django_db
 def test_add_service_submit_validation_errors(app, admin_agent: Agent) -> None:
     app.set_user(admin_agent.user)
     response = app.get("/agent-admin/manage/service/add/catalog/")
+    response = response.forms["service-form"].submit()
+    assert response.context["form"].errors == {
+        "partner_id": ["Ce champ est obligatoire."],
+        "item_type": ["Ce champ est obligatoire."],
+        "title": ["Ce champ est obligatoire."],
+        "short_description": ["Ce champ est obligatoire."],
+        "description": ["Ce champ est obligatoire."],
+        "url": ["Ce champ est obligatoire."],
+    }
+
+    response = app.get("/agent-admin/manage/service/add/sos/")
+    response = response.forms["service-form"].submit()
+    assert response.context["form"].errors == {
+        "partner_id": ["Ce champ est obligatoire."],
+        "item_type": ["Ce champ est obligatoire."],
+        "title": ["Ce champ est obligatoire."],
+        "short_description": ["Ce champ est obligatoire."],
+        "description": ["Ce champ est obligatoire."],
+        "url": ["Ce champ est obligatoire."],
+    }
+
+    response = app.get("/agent-admin/manage/service/add/steps/")
     response = response.forms["service-form"].submit()
     assert response.context["form"].errors == {
         "partner_id": ["Ce champ est obligatoire."],
@@ -95,6 +126,7 @@ def test_add_service_submit_success(app, admin_agent: Agent) -> None:
     assert service.short_description == "Démarche de changement d'adresse"
     assert service.description == "**Démarche de changement d'adresse**"
     assert service.url == "http://demarche-demenagement"
+    assert service.icon == ""
     assert service.with_silent_login is True
     assert service.restricted_to == "another-fake-fc-hash fake-fc-hash"
 
@@ -116,6 +148,60 @@ def test_add_service_submit_success(app, admin_agent: Agent) -> None:
         "service_item_type": "JeDéménage",
         "service_partner_id": "dinum-ami",
     }
+
+    response = app.get("/agent-admin/manage/service/add/sos/")
+
+    response.forms["service-form"]["partner_id"] = "dinum-ami"
+    response.forms["service-form"]["item_type"] = "JeDéménage"
+    response.forms["service-form"]["title"] = "Je déménage"
+    response.forms["service-form"]["short_description"] = "Démarche de changement d'adresse"
+    response.forms["service-form"]["description"] = "**Démarche de changement d'adresse**"
+    response.forms["service-form"]["url"] = "http://demarche-demenagement"
+    response.forms["service-form"]["icon"] = "fr-icon-earth-line"
+    response.forms["service-form"]["with_silent_login"] = True
+    response.forms["service-form"]["restricted_to"] = "fake-fc-hash another-fake-fc-hash"
+
+    response = response.forms["service-form"].submit()
+    assert response.headers["location"] == "/agent-admin/manage/service/"
+    assert Service.objects.count() == 2
+    service = Service.objects.latest("created_at")
+    assert service.kind == Service.Kind.SOS
+    assert service.partner_id == "dinum-ami"
+    assert service.item_type == "JeDéménage"
+    assert service.title == "Je déménage"
+    assert service.short_description == "Démarche de changement d'adresse"
+    assert service.description == "**Démarche de changement d'adresse**"
+    assert service.url == "http://demarche-demenagement"
+    assert service.icon == "fr-icon-earth-line"
+    assert service.with_silent_login is True
+    assert service.restricted_to == "another-fake-fc-hash fake-fc-hash"
+
+    response = app.get("/agent-admin/manage/service/add/steps/")
+
+    response.forms["service-form"]["partner_id"] = "dinum-ami"
+    response.forms["service-form"]["item_type"] = "JeDéménage"
+    response.forms["service-form"]["title"] = "Je déménage"
+    response.forms["service-form"]["short_description"] = "Démarche de changement d'adresse"
+    response.forms["service-form"]["description"] = "**Démarche de changement d'adresse**"
+    response.forms["service-form"]["url"] = "http://demarche-demenagement"
+    response.forms["service-form"]["icon"] = "fr-icon-earth-line"
+    response.forms["service-form"]["with_silent_login"] = True
+    response.forms["service-form"]["restricted_to"] = "fake-fc-hash another-fake-fc-hash"
+
+    response = response.forms["service-form"].submit()
+    assert response.headers["location"] == "/agent-admin/manage/service/"
+    assert Service.objects.count() == 3
+    service = Service.objects.latest("created_at")
+    assert service.kind == Service.Kind.STEPS
+    assert service.partner_id == "dinum-ami"
+    assert service.item_type == "JeDéménage"
+    assert service.title == "Je déménage"
+    assert service.short_description == "Démarche de changement d'adresse"
+    assert service.description == "**Démarche de changement d'adresse**"
+    assert service.url == "http://demarche-demenagement"
+    assert service.icon == "fr-icon-earth-line"
+    assert service.with_silent_login is True
+    assert service.restricted_to == "another-fake-fc-hash fake-fc-hash"
 
 
 @pytest.mark.django_db
@@ -162,12 +248,13 @@ def test_add_service_steps_without_agent_admin_auth(app) -> None:
 
 
 @pytest.mark.django_db
-def test_edit_service(app, admin_agent: Agent, service: Service) -> None:
+def test_edit_service(app, admin_agent: Agent, services: list[Service]) -> None:
     app.set_user(admin_agent.user)
-    response = app.get(f"/agent-admin/manage/service/{service.id}/")
+    response = app.get(f"/agent-admin/manage/service/{services[0].id}/")
     assert "Modifier une démarche" in response.pyquery("main").text()
 
     assert "kind" not in response.context["form"].fields
+    assert "icon" not in response.context["form"].fields
     assert response.forms["service-form"]["partner_id"].value == "dinum-dn"
     assert response.forms["service-form"]["item_type"].value == "ContacterAMI"
     assert response.forms["service-form"]["title"].value == "Contacter l'équipe AMI"
@@ -183,6 +270,14 @@ def test_edit_service(app, admin_agent: Agent, service: Service) -> None:
     assert response.forms["service-form"]["with_silent_login"].value is None
     assert response.forms["service-form"]["restricted_to"].value == "fake-fc-hash"
 
+    response = app.get(f"/agent-admin/manage/service/{services[2].id}/")
+    assert "kind" not in response.context["form"].fields
+    assert response.forms["service-form"]["icon"].value == ""
+
+    response = app.get(f"/agent-admin/manage/service/{services[3].id}/")
+    assert "kind" not in response.context["form"].fields
+    assert response.forms["service-form"]["icon"].value == ""
+
 
 @pytest.mark.django_db
 def test_edit_service_unknown_id(app, admin_agent: Agent) -> None:
@@ -191,9 +286,11 @@ def test_edit_service_unknown_id(app, admin_agent: Agent) -> None:
 
 
 @pytest.mark.django_db
-def test_edit_service_submit_validation_errors(app, admin_agent: Agent, service: Service) -> None:
+def test_edit_service_submit_validation_errors(
+    app, admin_agent: Agent, services: list[Service]
+) -> None:
     app.set_user(admin_agent.user)
-    response = app.get(f"/agent-admin/manage/service/{service.id}/")
+    response = app.get(f"/agent-admin/manage/service/{services[0].id}/")
     response.forms["service-form"]["partner_id"].value = ""
     response.forms["service-form"]["item_type"].value = ""
     response.forms["service-form"]["title"].value = ""
@@ -211,10 +308,49 @@ def test_edit_service_submit_validation_errors(app, admin_agent: Agent, service:
         "url": ["Ce champ est obligatoire."],
     }
 
+    response = app.get(f"/agent-admin/manage/service/{services[2].id}/")
+    response.forms["service-form"]["partner_id"].value = ""
+    response.forms["service-form"]["item_type"].value = ""
+    response.forms["service-form"]["title"].value = ""
+    response.forms["service-form"]["short_description"].value = ""
+    response.forms["service-form"]["description"].value = ""
+    response.forms["service-form"]["url"].value = ""
+    response.forms["service-form"]["icon"].value = ""
+    response.forms["service-form"]["restricted_to"].value = ""
+    response = response.forms["service-form"].submit()
+    assert response.context["form"].errors == {
+        "partner_id": ["Ce champ est obligatoire."],
+        "item_type": ["Ce champ est obligatoire."],
+        "title": ["Ce champ est obligatoire."],
+        "short_description": ["Ce champ est obligatoire."],
+        "description": ["Ce champ est obligatoire."],
+        "url": ["Ce champ est obligatoire."],
+    }
+
+    response = app.get(f"/agent-admin/manage/service/{services[3].id}/")
+    response.forms["service-form"]["partner_id"].value = ""
+    response.forms["service-form"]["item_type"].value = ""
+    response.forms["service-form"]["title"].value = ""
+    response.forms["service-form"]["short_description"].value = ""
+    response.forms["service-form"]["description"].value = ""
+    response.forms["service-form"]["url"].value = ""
+    response.forms["service-form"]["icon"].value = ""
+    response.forms["service-form"]["restricted_to"].value = ""
+    response = response.forms["service-form"].submit()
+    assert response.context["form"].errors == {
+        "partner_id": ["Ce champ est obligatoire."],
+        "item_type": ["Ce champ est obligatoire."],
+        "title": ["Ce champ est obligatoire."],
+        "short_description": ["Ce champ est obligatoire."],
+        "description": ["Ce champ est obligatoire."],
+        "url": ["Ce champ est obligatoire."],
+    }
+
 
 @pytest.mark.django_db
-def test_edit_service_submit_success(app, admin_agent: Agent, service: Service) -> None:
+def test_edit_service_submit_success(app, admin_agent: Agent, services: list[Service]) -> None:
     app.set_user(admin_agent.user)
+    service = services[0]
     response = app.get(f"/agent-admin/manage/service/{service.id}/")
 
     response.forms["service-form"]["partner_id"] = "dinum-ami"
@@ -228,7 +364,7 @@ def test_edit_service_submit_success(app, admin_agent: Agent, service: Service) 
 
     response = response.forms["service-form"].submit()
     assert response.headers["location"] == "/agent-admin/manage/service/"
-    assert Service.objects.count() == 1
+    assert Service.objects.count() == 4
     service.refresh_from_db()
     assert service.kind == Service.Kind.CATALOG
     assert service.partner_id == "dinum-ami"
@@ -237,6 +373,7 @@ def test_edit_service_submit_success(app, admin_agent: Agent, service: Service) 
     assert service.short_description == "Démarche de changement d'adresse"
     assert service.description == "**Démarche de changement d'adresse**"
     assert service.url == "http://demarche-demenagement"
+    assert service.icon == ""
     assert service.with_silent_login is True
     assert service.restricted_to == "another-fake-fc-hash fake-fc-hash"
 
@@ -261,6 +398,22 @@ def test_edit_service_submit_success(app, admin_agent: Agent, service: Service) 
         "old_service_values_item_type": "ContacterAMI",
         "old_service_values_partner_id": "dinum-dn",
     }
+
+    service = services[2]
+    response = app.get(f"/agent-admin/manage/service/{service.id}/")
+    response.forms["service-form"]["icon"] = "fr-icon-earth-line"
+    response = response.forms["service-form"].submit()
+    assert Service.objects.count() == 4
+    service.refresh_from_db()
+    assert service.icon == "fr-icon-earth-line"
+
+    service = services[3]
+    response = app.get(f"/agent-admin/manage/service/{service.id}/")
+    response.forms["service-form"]["icon"] = "fr-icon-earth-line"
+    response = response.forms["service-form"].submit()
+    assert Service.objects.count() == 4
+    service.refresh_from_db()
+    assert service.icon == "fr-icon-earth-line"
 
 
 @pytest.mark.django_db
