@@ -71,6 +71,31 @@ describe('/initializeDataFromAPI.ts', () => {
         ).toEqual('fake-address');
       });
     });
+
+    test('should always set id_token', async () => {
+      // Given
+      window.localStorage.setItem('id_token', 'fake-id-token');
+      window.localStorage.setItem('user_data', 'fake-user-data');
+      window.localStorage.setItem('user_fc_hash', 'fake-user-fc-hash');
+
+      const searchParams = new URLSearchParams({
+        id_token: 'new-fake-id-token',
+        user_data: 'other-fake-user-data',
+        user_fc_hash: 'other-fake-user-fc-hash',
+      });
+
+      // When
+      await initializeLocalStorage(searchParams);
+
+      // Then
+      await waitFor(async () => {
+        expect(window.localStorage.getItem('id_token')).toEqual('new-fake-id-token');
+        expect(window.localStorage.getItem('user_data')).toEqual('fake-user-data');
+        expect(window.localStorage.getItem('user_fc_hash')).toEqual(
+          'fake-user-fc-hash'
+        );
+      });
+    });
   });
 
   describe('initializeData', () => {

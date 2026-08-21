@@ -3,6 +3,7 @@ import '@testing-library/jest-dom/vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import * as navigationMethods from '$app/navigation';
 import * as envModule from '$env/static/public';
+import * as AMIGotoMethods from '$lib/ami-goto';
 import * as franceConnectHelpers from '$lib/france-connect';
 import * as initializeDataFromAPIMethods from '$lib/initializeDataFromAPI';
 import { userStore } from '$lib/state/User.svelte';
@@ -106,10 +107,32 @@ describe('/+page.svelte', () => {
       expect(spy).toHaveBeenCalledWith('/#/login');
     });
   });
+
+  test('should navigate to URL in login_redirect_url parameter if given', async () => {
+    // Given
+    const { page } = await import('$app/state');
+    const mockSearchParams = new URLSearchParams();
+    mockSearchParams.set('login_redirect_url', 'https://www.example.org');
+    window.localStorage.setItem('user_data', 'fake-user-data');
+    vi.spyOn(franceConnectHelpers, 'parseJwt').mockReturnValue(mockUserInfo);
+    vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
+    vi.spyOn(initializeDataFromAPIMethods, 'initializeData').mockResolvedValue();
+    const spy = vi
+      .spyOn(AMIGotoMethods, 'AMIGoto')
+      .mockImplementation(() => Promise.resolve());
+
+    // When
+    render(Page);
+
+    // Then
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledWith('https://www.example.org');
+    });
+  });
 });
 
 // tests with passkeys enabled
-describe('/+page.svelte - with passkey', () => {
+describe('/+page.svelte - with passkey feature flag', () => {
   beforeEach(() => {
     vi.mock('$env/static/public', async (importOriginal) => {
       const original = (await importOriginal()) as Record<string, unknown>;
@@ -201,8 +224,32 @@ describe('/+page.svelte - with passkey', () => {
         headers: { 'Content-Type': 'application/json' },
         method: 'POST',
       });
+      // check user store registered that the user has a passkey
+      expect(userStore.getHasWorkingPasskey()).toBe(true);
 
       expect(spy).toHaveBeenCalledWith('/?passkey_toast=true');
+    });
+  });
+
+  test('should skip passkey creation if user already has one', async () => {
+    // Given
+    const { page } = await import('$app/state');
+    const mockSearchParams = new URLSearchParams();
+    window.localStorage.setItem('user_data', 'fake-user-data');
+    vi.spyOn(franceConnectHelpers, 'parseJwt').mockReturnValue(mockUserInfo);
+    vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
+    userStore.setHasWorkingPasskey();
+
+    const spy = vi
+      .spyOn(navigationMethods, 'goto')
+      .mockImplementation(() => Promise.resolve());
+
+    // When
+    render(Page);
+
+    // Then
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledWith('/');
     });
   });
 });

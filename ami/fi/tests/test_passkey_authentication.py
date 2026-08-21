@@ -68,8 +68,9 @@ def test_passkey_authentication(
         "prompt": "fake-prompt",
     }
 
-    app.get("/api/v1/fi/authorize/", params=authorize_data)
+    response = app.get("/api/v1/fi/authorize/", params=authorize_data)
     assert app.session["fi_session_id"]
+    assert response.location == "/#/passkey-authentication"
 
     response = app.post_json(
         "/api/v1/fi/passkey/verify-authentication", {"id": "fake-credential-id"}
@@ -576,9 +577,14 @@ def test_passkey_authentication_ami_user_mismatch(
     app.set_cookie(settings.USERINFO_COOKIE_NAME, signing.dumps(decoded_user_data))
 
     UserPasskey.objects.create(
-        user=second_user,
+        user=user,
         credential_id="fake-credential-id",
         credential_public_key=base64.encodebytes(b"fake-credential-public-key").decode(),
+    )
+    UserPasskey.objects.create(
+        user=second_user,
+        credential_id="second-fake-credential-id",
+        credential_public_key=base64.encodebytes(b"second-fake-credential-public-key").decode(),
     )
 
     app.get(
@@ -613,10 +619,38 @@ def test_passkey_authentication_ami_user_mismatch(
 
     response = app.post_json(
         "/api/v1/fi/passkey/verify-authentication",
-        {"id": "fake-credential-id"},
+        {"id": "second-fake-credential-id"},
         status=403,
     )
     assert response.json == {"error": "user-is-not-ami-user"}
 
     assert app.session.get("fi_session_id") is None
     assert app.session.get("passkey_authentication_challenge") is None
+
+
+@pytest.mark.django_db
+def test_authorize_relogin(
+    settings,
+    app,
+    user: User,
+) -> None:
+    login(app, user)
+
+    authorize_data = {
+        "state": "fake-state",
+        "nonce": "fake-nonce",
+        "response_type": "code",
+        "client_id": settings.FI_CLIENT_ID,
+        "redirect_uri": settings.FI_REDIRECT_URI,
+        "scope": "fake-scope",
+        "acr_values": "eidas1",
+        "claims": json.dumps(
+            {
+                "id_token": "fake-id-token",
+            }
+        ),
+        "prompt": "fake-prompt",
+    }
+
+    response = app.get("/api/v1/fi/authorize/", params=authorize_data)
+    assert response.location == "/#/relogin"
