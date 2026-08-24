@@ -6,6 +6,7 @@
   import { PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED } from '$env/static/public';
   import { apiFetch } from '$lib/auth';
   import { initializeData, initializeLocalStorage } from '$lib/initializeDataFromAPI';
+  import { trackPasskey } from '$lib/matomo';
   import type { UserIdentity } from '$lib/state/User.svelte';
   import { userStore } from '$lib/state/User.svelte';
 
@@ -47,6 +48,7 @@
   });
 
   const bypassPasskey = async () => {
+    trackPasskey('generatePasskey', 'skip');
     redirectLoggedInUser(false);
   };
 
@@ -71,6 +73,7 @@
       attResp = await startRegistration({ optionsJSON: opts });
       console.log('Registration Response', JSON.stringify(attResp, null, 2));
     } catch (error) {
+      trackPasskey('generatePasskey', 'error');
       console.log('ERROR', `${error}`);
       throw error;
     }
@@ -87,9 +90,11 @@
     console.log('Server Response', JSON.stringify(verificationJSON, null, 2));
 
     if (verificationJSON?.verified) {
+      trackPasskey('generatePasskey', 'success');
       console.log('Authenticator registered!');
       redirectLoggedInUser(true);
     } else {
+      trackPasskey('generatePasskey', 'error');
       console.log(
         `Oh no, something went wrong! Response: ${JSON.stringify(verificationJSON)}`
       );
