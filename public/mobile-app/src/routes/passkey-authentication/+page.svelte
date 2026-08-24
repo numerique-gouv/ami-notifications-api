@@ -1,16 +1,41 @@
 <script lang="ts">
+  import type { AuthenticationResponseJSON } from '@simplewebauthn/browser';
   import { startAuthentication } from '@simplewebauthn/browser';
+  import { goto } from '$app/navigation';
   import { apiFetch } from '$lib/auth';
   import BottomModal from '$lib/components/modal/BottomModal.svelte';
+  import Toast from '$lib/components/Toast.svelte';
   import { trackPasskey } from '$lib/matomo';
   import { userStore } from '$lib/state/User.svelte';
 
-  const authenticate = async () => {
-    const resp = await fetch('/api/v1/fi/passkey/generate-authentication-options');
+  let hasPasskeyError: boolean = $state(false);
+  let hasNetworkError: boolean = $state(false);
 
-    let attResp: unknown;
+  const passkeyError = () => {
+    hasPasskeyError = true;
+    hasNetworkError = false;
+  };
+
+  const networkError = () => {
+    hasPasskeyError = true;
+    hasNetworkError = true;
+  };
+
+  const authenticate = async () => {
+    let optionsResp: Response;
     try {
-      const opts = await resp.json();
+      optionsResp = await fetch('/api/v1/fi/passkey/generate-authentication-options');
+      if (!optionsResp.ok) {
+        return networkError();
+      }
+    } catch (error) {
+      console.log('ERROR', `${error}`);
+      return passkeyError();
+    }
+
+    let attResp: AuthenticationResponseJSON;
+    try {
+      const opts = await optionsResp.json();
 
       console.log('Authentication Options', JSON.stringify(opts, null, 2));
       attResp = await startAuthentication({ optionsJSON: opts });
@@ -19,19 +44,25 @@
     } catch (error) {
       trackPasskey('startAuthentication', 'error');
       console.log('ERROR', `${error}`);
-      throw error;
+      return passkeyError();
     }
 
-    const verificationResp = await apiFetch(
-      '/api/v1/fi/passkey/verify-authentication',
-      {
+    let verificationResp: Response;
+    try {
+      verificationResp = await apiFetch('/api/v1/fi/passkey/verify-authentication', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(attResp),
+      });
+      if (!verificationResp.ok) {
+        return networkError();
       }
-    );
+    } catch (error) {
+      console.log('ERROR', `${error}`);
+      return passkeyError();
+    }
 
     const verificationJSON = await verificationResp.json();
     console.log('Server Response', JSON.stringify(verificationJSON, null, 2));
@@ -40,17 +71,22 @@
       console.log('User authenticated!');
       trackPasskey('userAuthentication', 'success');
       userStore.setHasWorkingPasskey();
-      window.location = verificationJSON?.redirect_uri;
+      window.location.href = verificationJSON?.redirect_uri;
     } else {
       trackPasskey('userAuthentication', 'error');
       console.log(
         `Oh no, something went wrong! Response: ${JSON.stringify(verificationJSON)}`
       );
+      return passkeyError();
     }
   };
 
   const closeModal = () => {
     // TODO (go to previous page)
+  };
+
+  const bypassPasskey = async () => {
+    goto('/#/relogin');
   };
 </script>
 
@@ -80,10 +116,32 @@
           title="Utiliser ma clé d’accès"
           type="button"
           class="fr-btn"
+          data-testid="use-passkey"
         >
           Utiliser ma clé d’accès
         </button>
       </li>
+      {#if hasPasskeyError}
+        <li>
+          <button
+            type="button"
+            class="fr-btn fr-btn--tertiary-no-outline"
+            onclick="{bypassPasskey}"
+            data-testid="bypass-passkey"
+          >
+            Ma clé n’est plus reconnue
+          </button>
+        </li>
+      {/if}
     </ul>
+    {#if hasPasskeyError}
+      <Toast
+        id="error"
+        title={hasNetworkError ? 'Problème de connexion Internet, veuillez réessayer': 'Erreur lors de l’utilisation de votre clé d’accès'}
+        toastType="error"
+        duration={null}
+        hasCloseLink={false}
+      />
+    {/if}
   {/snippet}
 </BottomModal>
