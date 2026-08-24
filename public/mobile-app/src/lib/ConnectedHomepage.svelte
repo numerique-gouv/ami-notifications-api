@@ -79,7 +79,7 @@
 </script>
 
 <div class="fr-container fr-py-3w fr-mb-17v homepage-connected">
-  <div class="header fr-mb-3w">
+  <div class="header fr-mb-2w">
     <div class="header-left fr-ellipsis">
       <p class="fr-ellipsis fr-h5 fr-mb-1w">Bonjour {firstName}</p>
       <p class="fr-text--sm fr-mb-0">{today ? formatDate(today): ''}</p>
