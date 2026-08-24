@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { RegistrationResponseJSON } from '@simplewebauthn/browser';
   import { startRegistration } from '@simplewebauthn/browser';
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
@@ -8,6 +9,7 @@
   import { apiFetch } from '$lib/auth';
   import { initializeData, initializeLocalStorage } from '$lib/initializeDataFromAPI';
   import { trackPasskey } from '$lib/matomo';
+  import { toastStore } from '$lib/state/toast.svelte';
   import type { UserIdentity } from '$lib/state/User.svelte';
   import { userStore } from '$lib/state/User.svelte';
 
@@ -51,6 +53,24 @@
     }
   });
 
+  const passkeyError = () => {
+    return toastStore.addToast(
+      'Erreur lors de l’ajout de votre clé d’accès',
+      'error',
+      3000,
+      false
+    );
+  };
+
+  const networkError = () => {
+    return toastStore.addToast(
+      'Problème de connexion Internet, veuillez réessayer',
+      'error',
+      3000,
+      false
+    );
+  };
+
   const bypassPasskey = async () => {
     trackPasskey('generatePasskey', 'skip');
     redirectLoggedInUser(false);
@@ -62,15 +82,24 @@
     }
     let identity: UserIdentity = userStore.connected.identity;
     let display_name = `${identity.given_name} ${identity.preferred_username || identity.family_name}`;
-    const resp = await apiFetch('/api/v1/fi/passkey/generate-registration-options', {
-      method: 'POST',
-      body: JSON.stringify({ displayName: display_name }),
-      headers: { 'Content-Type': 'application/json' },
-    });
-
-    let attResp: unknown;
+    let optionsResp: Response;
     try {
-      const opts = await resp.json();
+      optionsResp = await apiFetch('/api/v1/fi/passkey/generate-registration-options', {
+        method: 'POST',
+        body: JSON.stringify({ displayName: display_name }),
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (!optionsResp.ok) {
+        return networkError();
+      }
+    } catch (error) {
+      console.log('ERROR', `${error}`);
+      return passkeyError();
+    }
+
+    let attResp: RegistrationResponseJSON;
+    try {
+      const opts = await optionsResp.json();
 
       console.log('Registration Options', JSON.stringify(opts, null, 2));
 
@@ -79,16 +108,25 @@
     } catch (error) {
       trackPasskey('generatePasskey', 'error');
       console.log('ERROR', `${error}`);
-      throw error;
+      return passkeyError();
     }
 
-    const verificationResp = await fetch('/api/v1/fi/passkey/verify-registration', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(attResp),
-    });
+    let verificationResp: Response;
+    try {
+      verificationResp = await fetch('/api/v1/fi/passkey/verify-registration', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(attResp),
+      });
+      if (!verificationResp.ok) {
+        return networkError();
+      }
+    } catch (error) {
+      console.log('ERROR', `${error}`);
+      return passkeyError();
+    }
 
     const verificationJSON = await verificationResp.json();
     console.log('Server Response', JSON.stringify(verificationJSON, null, 2));
@@ -103,6 +141,7 @@
       console.log(
         `Oh no, something went wrong! Response: ${JSON.stringify(verificationJSON)}`
       );
+      return passkeyError();
     }
   };
 </script>
