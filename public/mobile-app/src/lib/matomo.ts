@@ -58,3 +58,16 @@ export function trackZoneCount(count: number) {
   window._paq = window._paq || [];
   window._paq.push(['trackEvent', 'Holidays zones', 'number_of_zones', '', count]);
 }
+
+export function trackPasskey(
+  eventAction: string,
+  eventName: string,
+  eventValue?: string
+) {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  window._paq = window._paq || [];
+  window._paq.push(['trackEvent', 'Passkey', eventAction, eventName, eventValue || '']);
+}
