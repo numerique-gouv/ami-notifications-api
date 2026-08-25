@@ -15,7 +15,7 @@
   const badgeKinds = {
     otv: 'fr-badge--green-archipel',
     election: 'fr-badge--green-tilleul-verveine',
-    holiday: 'am-badge-blue',
+    holiday: 'fr-badge--blue-cumulus',
   };
 </script>
 
