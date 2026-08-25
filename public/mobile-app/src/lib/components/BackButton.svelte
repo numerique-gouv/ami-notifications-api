@@ -7,7 +7,11 @@
   let { backUrl }: Props = $props();
 
   const navigateToPreviousPage = async () => {
-    goto(backUrl);
+    if (history.length > 1) {
+      history.back();
+    } else {
+      goto(backUrl);
+    }
   };
 </script>
 
