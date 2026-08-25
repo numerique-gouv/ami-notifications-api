@@ -47,12 +47,12 @@ describe('/ami-goto', () => {
   });
 
   describe('with silent-login', () => {
-    test('should redirect to silent login page with url in param', async () => {
+    test('should redirect to silent login page with url and hash in param', async () => {
       // Given
       const url = 'http://external-url';
       vi.stubGlobal('location', {
         href: 'fake-link',
-        hash: '',
+        hash: '#/page',
         origin: 'http://localhost',
       });
 
@@ -61,7 +61,7 @@ describe('/ami-goto', () => {
 
       // Then
       expect(window.location.href).toBe(
-        '/silent-login-ami-fi?redirect_url=http%3A%2F%2Fexternal-url'
+        '/silent-login-ami-fi?redirect_url=http%3A%2F%2Fexternal-url&from_hash=/page'
       );
     });
   });

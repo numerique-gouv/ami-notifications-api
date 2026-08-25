@@ -21,6 +21,10 @@
       null,
       true
     );
+    const hash = page.url.searchParams.get('redirect_to_hash') || '';
+    if (hash !== '') {
+      goto(`/#${hash}`);
+    }
   }
 </script>
 

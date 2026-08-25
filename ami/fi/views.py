@@ -1,5 +1,6 @@
 import logging
 from typing import cast
+from urllib.parse import urlencode
 
 from django.conf import settings
 from django.http import Http404, HttpResponseBadRequest
@@ -32,4 +33,8 @@ def authorize(request):
     )
     request.session["fi_session_id"] = str(fi_session.id)
 
-    return redirect("/#/passkey-authentication")
+    from_hash = request.session.get("login_from_hash") or ""
+    params = {
+        "redirect_to_hash": from_hash,
+    }
+    return redirect(f"/?{urlencode(params)}#/passkey-authentication")

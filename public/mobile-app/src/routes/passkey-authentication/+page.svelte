@@ -2,6 +2,7 @@
   import type { AuthenticationResponseJSON } from '@simplewebauthn/browser';
   import { startAuthentication } from '@simplewebauthn/browser';
   import { goto } from '$app/navigation';
+  import { page } from '$app/state';
   import { apiFetch } from '$lib/auth';
   import BottomModal from '$lib/components/modal/BottomModal.svelte';
   import Toast from '$lib/components/Toast.svelte';
@@ -82,7 +83,12 @@
   };
 
   const closeModal = () => {
-    // TODO (go to previous page)
+    const hash = page.url.searchParams.get('redirect_to_hash') || '';
+    if (hash !== '') {
+      goto(`/#${hash}`);
+      return;
+    }
+    goto('/');
   };
 
   const bypassPasskey = async () => {
