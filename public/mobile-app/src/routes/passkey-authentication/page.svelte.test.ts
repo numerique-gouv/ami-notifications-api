@@ -4,6 +4,7 @@ import type { AuthenticationResponseJSON } from '@simplewebauthn/browser';
 import * as simplewebauthnMethods from '@simplewebauthn/browser';
 import { render, screen, waitFor } from '@testing-library/svelte';
 import * as navigationMethods from '$app/navigation';
+import { userStore } from '$lib/state/User.svelte';
 import Page from './+page.svelte';
 
 vi.mock('@simplewebauthn/browser', () => ({
@@ -32,6 +33,9 @@ describe('/+page.svelte', () => {
     const spy = vi
       .spyOn(navigationMethods, 'goto')
       .mockImplementation(() => Promise.resolve());
+    const unsetHasWorkingPasskeySpy = vi
+      .spyOn(userStore, 'unsetHasWorkingPasskey')
+      .mockResolvedValue();
     render(Page);
 
     // When
@@ -55,6 +59,7 @@ describe('/+page.svelte', () => {
       bypass.click();
     });
     expect(spy).toHaveBeenCalledWith('/#/relogin');
+    expect(unsetHasWorkingPasskeySpy).toHaveBeenCalled();
   });
   test('should display passkey error message and bypass button on options error', async () => {
     // Given
@@ -62,6 +67,9 @@ describe('/+page.svelte', () => {
     const spy = vi
       .spyOn(navigationMethods, 'goto')
       .mockImplementation(() => Promise.resolve());
+    const unsetHasWorkingPasskeySpy = vi
+      .spyOn(userStore, 'unsetHasWorkingPasskey')
+      .mockResolvedValue();
     render(Page);
 
     // When
@@ -85,6 +93,7 @@ describe('/+page.svelte', () => {
       bypass.click();
     });
     expect(spy).toHaveBeenCalledWith('/#/relogin');
+    expect(unsetHasWorkingPasskeySpy).toHaveBeenCalled();
   });
   test('should display passkey error message and bypass button on startAuthentication error', async () => {
     // Given
@@ -95,6 +104,9 @@ describe('/+page.svelte', () => {
     const spy = vi
       .spyOn(navigationMethods, 'goto')
       .mockImplementation(() => Promise.resolve());
+    const unsetHasWorkingPasskeySpy = vi
+      .spyOn(userStore, 'unsetHasWorkingPasskey')
+      .mockResolvedValue();
     render(Page);
 
     // When
@@ -120,6 +132,7 @@ describe('/+page.svelte', () => {
       bypass.click();
     });
     expect(spy).toHaveBeenCalledWith('/#/relogin');
+    expect(unsetHasWorkingPasskeySpy).toHaveBeenCalled();
   });
   test('should display network error message and bypass button on verify network error', async () => {
     // Given
@@ -132,6 +145,9 @@ describe('/+page.svelte', () => {
     const spy = vi
       .spyOn(navigationMethods, 'goto')
       .mockImplementation(() => Promise.resolve());
+    const unsetHasWorkingPasskeySpy = vi
+      .spyOn(userStore, 'unsetHasWorkingPasskey')
+      .mockResolvedValue();
     render(Page);
 
     // When
@@ -157,6 +173,7 @@ describe('/+page.svelte', () => {
       bypass.click();
     });
     expect(spy).toHaveBeenCalledWith('/#/relogin');
+    expect(unsetHasWorkingPasskeySpy).toHaveBeenCalled();
   });
   test('should display passkey error message and bypass button on verify error', async () => {
     // Given
@@ -169,6 +186,9 @@ describe('/+page.svelte', () => {
     const spy = vi
       .spyOn(navigationMethods, 'goto')
       .mockImplementation(() => Promise.resolve());
+    const unsetHasWorkingPasskeySpy = vi
+      .spyOn(userStore, 'unsetHasWorkingPasskey')
+      .mockResolvedValue();
     render(Page);
 
     // When
@@ -194,6 +214,7 @@ describe('/+page.svelte', () => {
       bypass.click();
     });
     expect(spy).toHaveBeenCalledWith('/#/relogin');
+    expect(unsetHasWorkingPasskeySpy).toHaveBeenCalled();
   });
   test('should display passkey error message and bypass button when user is not authenticated', async () => {
     // Given
@@ -208,6 +229,9 @@ describe('/+page.svelte', () => {
     const spy = vi
       .spyOn(navigationMethods, 'goto')
       .mockImplementation(() => Promise.resolve());
+    const unsetHasWorkingPasskeySpy = vi
+      .spyOn(userStore, 'unsetHasWorkingPasskey')
+      .mockResolvedValue();
     render(Page);
 
     // When
@@ -233,6 +257,7 @@ describe('/+page.svelte', () => {
       bypass.click();
     });
     expect(spy).toHaveBeenCalledWith('/#/relogin');
+    expect(unsetHasWorkingPasskeySpy).toHaveBeenCalled();
   });
   test('should redirect when user is authenticated', async () => {
     // Given

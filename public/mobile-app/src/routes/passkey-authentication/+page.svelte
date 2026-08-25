@@ -86,6 +86,7 @@
   };
 
   const bypassPasskey = async () => {
+    userStore.unsetHasWorkingPasskey();
     goto('/#/relogin');
   };
 </script>
