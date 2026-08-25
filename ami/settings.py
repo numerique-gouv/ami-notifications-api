@@ -378,12 +378,15 @@ VAPID_PRIVATE_KEY = CONFIG["VAPID_PRIVATE_KEY"]
 # AppIDs for iOS
 IOS_APP_IDS = CONFIG["IOS_APP_IDS"].split(",") if CONFIG.get("IOS_APP_IDS") else []
 
-# Android package name and certificat fingerprint
+# Android package name, certificat fingerprints and key-hash values for passkeys
 ANDROID_PACKAGE_NAME = CONFIG.get("ANDROID_PACKAGE_NAME")
 ANDROID_CERT_FINGERPRINTS = (
     CONFIG["ANDROID_CERT_FINGERPRINTS"].split(",")
     if CONFIG.get("ANDROID_CERT_FINGERPRINTS")
     else []
+)
+ANDROID_APK_KEY_HASHES = (
+    CONFIG["ANDROID_APK_KEY_HASHES"].split(",") if CONFIG.get("ANDROID_APK_KEY_HASHES") else []
 )
 
 # Credentials for firebase
