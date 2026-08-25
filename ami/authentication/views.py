@@ -47,6 +47,7 @@ def login(request, login_type):
         if login_type == "silent-ami-fi":
             scope = get_fc_scope([])
             context = {"idp": login_type}
+            request.session["login_from_hash"] = request.GET.get("from_hash") or ""
             request.session["login_redirect_url"] = request.GET.get("redirect_url") or ""
         elif login_type == "relogin":
             scope = get_fc_scope([])
@@ -201,7 +202,12 @@ async def login_callback(request):
                     and request.ami_user.fc_hash != user_data["user_fc_hash"]
                 ):
                     # initiate FC logout and redirect to home ?user_does_not_match
-                    redirect_uri = f"{settings.PUBLIC_APP_URL}/?user_does_not_match"
+                    from_hash = request.session.get("login_from_hash") or ""
+                    params = {
+                        "user_does_not_match": "",
+                        "redirect_to_hash": from_hash,
+                    }
+                    redirect_uri = f"{settings.PUBLIC_APP_URL}/?{urlencode(params)}"
                     post_logout_redirect_uri = redirect_uri
                     if settings.PUBLIC_FC_PROXY_BASE_URL:
                         post_logout_redirect_uri = f"{settings.PUBLIC_FC_PROXY_BASE_URL}/"

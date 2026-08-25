@@ -70,7 +70,7 @@ def test_passkey_authentication(
 
     response = app.get("/api/v1/fi/authorize/", params=authorize_data)
     assert app.session["fi_session_id"]
-    assert response.location == "/#/passkey-authentication"
+    assert response.location == "/?redirect_to_hash=#/passkey-authentication"
 
     response = app.post_json(
         "/api/v1/fi/passkey/verify-authentication", {"id": "fake-credential-id"}

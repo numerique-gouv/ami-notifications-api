@@ -1,4 +1,4 @@
-from urllib.parse import parse_qs, quote, urlparse
+from urllib.parse import parse_qs, urlparse
 
 import pytest
 
@@ -15,12 +15,13 @@ def test_silent_login_ami_fi(
     settings.PUBLIC_FC_PROXY_BASE_URL = "https://fake-fc-proxy"
     FAKE_NONCE = "some-random-nonce"
     monkeypatch.setattr("ami.authentication.views.generate_nonce", lambda: FAKE_NONCE)
-    response = app.get("/silent-login-ami-fi?redirect_url=%s" % quote("https://www.example.org"))
+    response = app.get("/silent-login-ami-fi")
     assert Nonce.objects.count() == 1
     nonce = Nonce.objects.get()
     assert nonce.nonce == FAKE_NONCE
     assert nonce.context == {"idp": "silent-ami-fi"}
-    assert app.session.get("login_redirect_url") == "https://www.example.org"
+    assert app.session["login_redirect_url"] == ""
+    assert app.session["login_from_hash"] == ""
     assert response.status_code == 302
     redirected_url = response.headers["location"]
     assert redirected_url.startswith(
@@ -58,7 +59,7 @@ def test_silent_login_ami_fi(
 
 
 @pytest.mark.django_db
-def test_silent_login_ami_fi_with_redirect_url(
+def test_silent_login_ami_fi_with_redirect_url_and_from_hash(
     settings,
     app,
     monkeypatch: pytest.MonkeyPatch,
@@ -66,14 +67,15 @@ def test_silent_login_ami_fi_with_redirect_url(
     settings.PUBLIC_FC_PROXY_BASE_URL = "https://fake-fc-proxy"
     FAKE_NONCE = "some-random-nonce"
     monkeypatch.setattr("ami.authentication.views.generate_nonce", lambda: FAKE_NONCE)
-    response = app.get("/silent-login-ami-fi", {"redirect_url": "http://foo?bar"})
+    response = app.get(
+        "/silent-login-ami-fi", {"redirect_url": "http://foo?bar", "from_hash": "page"}
+    )
     assert Nonce.objects.count() == 1
     nonce = Nonce.objects.get()
     assert nonce.nonce == FAKE_NONCE
-    assert nonce.context == {
-        "idp": "silent-ami-fi",
-    }
-    assert app.session.get("login_redirect_url") == "http://foo?bar"
+    assert nonce.context == {"idp": "silent-ami-fi"}
+    assert app.session["login_redirect_url"] == "http://foo?bar"
+    assert app.session["login_from_hash"] == "page"
     assert response.status_code == 302
     redirected_url = response.headers["location"]
     assert redirected_url.startswith(

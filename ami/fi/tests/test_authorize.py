@@ -43,7 +43,53 @@ def test_authorize_get(
     assert fi_session.access_token == ""
 
     redirected_url = response.headers["location"]
-    assert redirected_url == "/#/passkey-authentication"
+    assert redirected_url == "/?redirect_to_hash=#/passkey-authentication"
+
+
+@pytest.mark.django_db
+def test_authorize_get_with_from_hash(
+    settings,
+    app,
+    monkeypatch: pytest.MonkeyPatch,
+    userinfo: dict[str, Any],
+) -> None:
+    settings.PUBLIC_FC_PROXY_BASE_URL = ""
+
+    app.set_cookie("sessionid", "initial")
+    session = app.session
+    session["login_from_hash"] = "/page"
+    session.save()
+    app.set_cookie("sessionid", session.session_key)
+
+    app.set_cookie(settings.USERINFO_COOKIE_NAME, "fake userinfo jwt token")
+
+    authorize_data = {
+        "state": "fake-state",
+        "nonce": "fake-nonce",
+        "response_type": "code",
+        "client_id": settings.FI_CLIENT_ID,
+        "redirect_uri": settings.FI_REDIRECT_URI,
+        "scope": "fake-scope",
+        "acr_values": "eidas1",
+        "claims": json.dumps(
+            {
+                "id_token": "fake-id-token",
+            }
+        ),
+        "prompt": "fake-prompt",
+    }
+
+    response = app.get("/api/v1/fi/authorize/", params=authorize_data)
+
+    fi_session = FISession.objects.get()
+    assert fi_session.user_data == {}
+    assert fi_session.state == "fake-state"
+    assert fi_session.nonce == "fake-nonce"
+    assert fi_session.code == ""
+    assert fi_session.access_token == ""
+
+    redirected_url = response.headers["location"]
+    assert redirected_url == "/?redirect_to_hash=%2Fpage#/passkey-authentication"
 
 
 def test_authorize_get_invalid_data_state(
