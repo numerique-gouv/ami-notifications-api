@@ -84,7 +84,7 @@
       <Banner
         id="edit-email-change-not-submitted-info"
         title="Modification non transmise"
-        description="La modification de la donnée ne sera pas transmise aux differentes administrations."
+        description="La modification de la donnée ne sera pas transmise aux différentes administrations."
         bannerType="info"
       />
     </div>
