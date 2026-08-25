@@ -96,7 +96,7 @@ async def test_create_webpush_event(
         2025, 11, 27, 10, 55, tzinfo=datetime.timezone.utc
     )
     assert notification2.valid_until == valid_until
-    assert notification2.partner_id == "psl"
+    assert notification2.partner_id == "dinum-ami"
     assert notification2.try_push is True
     assert notification2.send_status is True
     assert notification2.read is False
@@ -176,7 +176,7 @@ def test_create_mobile_event(
         2025, 11, 27, 10, 55, tzinfo=datetime.timezone.utc
     )
     assert notification2.valid_until is None
-    assert notification2.partner_id == "psl"
+    assert notification2.partner_id == "dinum-ami"
     assert notification2.try_push is True
     assert notification2.send_status is True
     assert notification2.read is False
@@ -359,7 +359,7 @@ def test_create_event_user_does_not_exist(
         2025, 11, 27, 10, 55, tzinfo=datetime.timezone.utc
     )
     assert notification.valid_until is None
-    assert notification.partner_id == "psl"
+    assert notification.partner_id == "dinum-ami"
     assert notification.try_push is True
     assert notification.send_status is False
     assert notification.read is False
@@ -429,7 +429,7 @@ def test_create_event_user_never_seen(
     assert notification.event_date == datetime.datetime(
         2025, 11, 27, 10, 55, tzinfo=datetime.timezone.utc
     )
-    assert notification.partner_id == "psl"
+    assert notification.partner_id == "dinum-ami"
     assert notification.read is False
     assert response.json == {
         "notification_id": str(notification.id),
@@ -898,7 +898,7 @@ def test_create_event_when_optional_fields_are_empty(
         2025, 11, 27, 10, 55, tzinfo=datetime.timezone.utc
     )
     assert notification.valid_until is None
-    assert notification.partner_id == "psl"
+    assert notification.partner_id == "dinum-ami"
     assert notification.read is False
     assert response.json == {
         "notification_id": str(notification.id),
@@ -916,8 +916,10 @@ def test_create_event_without_auth(app, settings) -> None:
 
     app.put("/api/v2/event", headers={"authorization": "Basic bar"}, status=401)
 
-    b64 = base64.b64encode(f"foo:{settings.PARTNERS_PSL_SECRET}".encode("utf8")).decode("utf8")
+    b64 = base64.b64encode(f"foo:{settings.PARTNERS_DINUM_AMI_SECRET}".encode("utf8")).decode(
+        "utf8"
+    )
     app.put("/api/v2/event", headers={"authorization": f"Basic {b64}"}, status=401)
 
-    b64 = base64.b64encode("psl:foo".encode("utf8")).decode("utf8")
+    b64 = base64.b64encode("dinum-ami:foo".encode("utf8")).decode("utf8")
     app.put("/api/v2/event", headers={"authorization": f"Basic {b64}"}, status=401)
