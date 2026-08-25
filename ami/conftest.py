@@ -18,7 +18,7 @@ from webpush.vapid import VAPID
 from ami.agent.models import Agent
 from ami.asgi import application
 from ami.notification.models import Notification
-from ami.user.models import Registration, User
+from ami.user.models import Consent, Registration, User
 from ami.user.utils import build_fc_hash
 
 
@@ -254,6 +254,11 @@ def mobile_notification(mobile_registration: Registration) -> Notification:
 @pytest.fixture
 def mobile_registration(user: User, mobileAppSubscription: dict[str, Any]) -> Registration:
     return Registration.objects.create(user_id=user.id, subscription=mobileAppSubscription)
+
+
+@pytest.fixture
+def consent(user: User) -> Consent:
+    return Consent.objects.create(user=user, partner_id="dinum-ami", consent_datetime=now())
 
 
 @pytest.fixture
