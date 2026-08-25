@@ -1,4 +1,5 @@
 import base64
+import copy
 import datetime
 from unittest.mock import Mock
 
@@ -12,8 +13,9 @@ from pytest_httpx import HTTPXMock
 from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED
 
 from ami.notification.models import Notification
+from ami.partner.models import partners
 from ami.tests.utils import get_from_stream
-from ami.user.models import Registration, User
+from ami.user.models import Consent, Registration, User
 
 
 @pytest.mark.django_db(transaction=True)
@@ -21,6 +23,7 @@ async def test_create_webpush_notification(
     app,
     webpush_notification: Notification,
     webpush_registration: Registration,
+    consent: Consent,
     partner_auth: dict[str, str],
     httpx_mock: HTTPXMock,
     websocket: WebsocketCommunicator,
@@ -120,6 +123,7 @@ def test_create_mobile_notification(
     settings,
     mobile_notification: Notification,
     mobile_registration: Registration,
+    consent: Consent,
     partner_auth: dict[str, str],
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -190,9 +194,50 @@ def test_create_mobile_notification(
 
 
 @pytest.mark.django_db
+def test_create_notification_no_consent(
+    app,
+    webpush_registration: Registration,
+    partner_auth: dict[str, str],
+    httpx_mock: HTTPXMock,
+) -> None:
+    notification_data = {
+        "recipient_fc_hash": webpush_registration.user.fc_hash,
+        "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
+        "content_body": "Merci d'avoir initié votre demande",
+        "content_icon": "foo",
+        "item_type": "OTV",
+        "item_id": "A-5-JGBJ5VMOY",
+        "item_status_label": "Brouillon",
+        "item_generic_status": "new",
+        "item_milestone_start_date": "2025-12-26T23:00:00.000Z",
+        "item_milestone_end_date": "2026-01-02T23:00:00.000Z",
+        "item_external_url": "http://otv/a-5-jgbj5vmoy",
+        "item_canal": "ami",
+        "send_date": "2025-11-27T10:55:00.000Z",
+        "try_push": False,
+    }
+    response = app.post(
+        "/api/v1/notifications", notification_data, headers=partner_auth, status=404
+    )
+    assert response.json == {"error": "Consent not found"}
+    assert Notification.objects.count() == 0
+
+    Consent.objects.create(user=webpush_registration.user, partner_id="dinum-ami")
+    Consent.objects.create(
+        user=webpush_registration.user, partner_id="dinum-dn", consent_datetime=now()
+    )
+    response = app.post(
+        "/api/v1/notifications", notification_data, headers=partner_auth, status=404
+    )
+    assert response.json == {"error": "Consent not given"}
+    assert Notification.objects.count() == 0
+
+
+@pytest.mark.django_db
 def test_create_notification_dont_try_push(
     app,
     webpush_registration: Registration,
+    consent: Consent,
     partner_auth: dict[str, str],
     httpx_mock: HTTPXMock,
 ) -> None:
@@ -226,6 +271,7 @@ async def test_create_webpush_notification_no_valid_until(
     app,
     webpush_notification: Notification,
     webpush_registration: Registration,
+    consent: Consent,
     partner_auth: dict[str, str],
     httpx_mock: HTTPXMock,
     websocket: WebsocketCommunicator,
@@ -271,6 +317,7 @@ async def test_create_webpush_notification_no_valid_until(
 def test_create_notification_outdated_valid_until(
     app,
     webpush_registration: Registration,
+    consent: Consent,
     partner_auth: dict[str, str],
     httpx_mock: HTTPXMock,
 ) -> None:
@@ -301,12 +348,16 @@ def test_create_notification_outdated_valid_until(
 
 
 @pytest.mark.django_db
-def test_create_notification_user_does_not_exist(
+def test_create_notification_user_does_not_exist_consent_disabled(
     app,
     partner_auth: dict[str, str],
     httpx_mock: HTTPXMock,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    partner = copy.deepcopy(partners["dinum-ami"])
+    partner.consent_is_enabled = False
+    monkeypatch.setattr("ami.partner.auth.partners", {"dinum-ami": partner})
+
     notification_data = {
         "recipient_fc_hash": "unknown_hash",
         "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
@@ -370,7 +421,36 @@ def test_create_notification_user_does_not_exist(
 
 
 @pytest.mark.django_db
-def test_create_notification_user_never_seen(
+def test_create_notification_user_does_not_exist(
+    app,
+    partner_auth: dict[str, str],
+    httpx_mock: HTTPXMock,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    notification_data = {
+        "recipient_fc_hash": "unknown_hash",
+        "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
+        "content_body": "Merci d'avoir initié votre demande",
+        "content_icon": "foo",
+        "item_type": "OTV",
+        "item_id": "A-5-JGBJ5VMOY",
+        "item_status_label": "Brouillon",
+        "item_generic_status": "new",
+        "send_date": "2025-11-27T10:55:00.000Z",
+    }
+
+    monkeypatch.setenv("IGNORE_NOTIFICATION_REQUESTS_FOR_UNREGISTERED_USER", "true")  # ignored
+    response = app.post(
+        "/api/v1/notifications", notification_data, headers=partner_auth, status=404
+    )
+    assert response.json == {"error": "User not found"}
+    assert Notification.objects.count() == 0
+    user_count = User.objects.count()
+    assert user_count == 0
+
+
+@pytest.mark.django_db
+def test_create_notification_user_never_seen_consent_disabled(
     app,
     never_seen_user: User,
     webpush_registration: Registration,
@@ -378,6 +458,10 @@ def test_create_notification_user_never_seen(
     httpx_mock: HTTPXMock,
     monkeypatch,
 ) -> None:
+    partner = copy.deepcopy(partners["dinum-ami"])
+    partner.consent_is_enabled = False
+    monkeypatch.setattr("ami.partner.auth.partners", {"dinum-ami": partner})
+
     notification_data = {
         "recipient_fc_hash": never_seen_user.fc_hash,
         "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
@@ -440,9 +524,93 @@ def test_create_notification_user_never_seen(
 
 
 @pytest.mark.django_db
+def test_create_notification_user_never_seen(
+    app,
+    never_seen_user: User,
+    webpush_registration: Registration,
+    partner_auth: dict[str, str],
+    httpx_mock: HTTPXMock,
+    monkeypatch,
+) -> None:
+    notification_data = {
+        "recipient_fc_hash": never_seen_user.fc_hash,
+        "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
+        "content_body": "Merci d'avoir initié votre demande",
+        "content_icon": "foo",
+        "item_type": "OTV",
+        "item_id": "A-5-JGBJ5VMOY",
+        "item_status_label": "Brouillon",
+        "item_generic_status": "new",
+        "send_date": "2025-11-27T10:55:00.000Z",
+    }
+
+    monkeypatch.setenv("IGNORE_NOTIFICATION_REQUESTS_FOR_UNREGISTERED_USER", "true")  # ignored
+    response = app.post(
+        "/api/v1/notifications", notification_data, headers=partner_auth, status=404
+    )
+    assert response.json == {"error": "Consent not found"}
+    assert Notification.objects.count() == 0
+    assert User.objects.count() == 1
+    user = User.objects.get()
+    assert user.fc_hash == never_seen_user.fc_hash
+    assert user.last_logged_in is None
+
+    consent = Consent.objects.create(user=never_seen_user, partner_id="dinum-ami")
+    Consent.objects.create(user=never_seen_user, partner_id="dinum-dn", consent_datetime=now())
+    response = app.post(
+        "/api/v1/notifications", notification_data, headers=partner_auth, status=404
+    )
+    assert response.json == {"error": "Consent not given"}
+    assert Notification.objects.count() == 0
+    assert User.objects.count() == 1
+    user = User.objects.get()
+    assert user.fc_hash == never_seen_user.fc_hash
+    assert user.last_logged_in is None
+
+    consent.consent_datetime = now()
+    consent.save()
+    response = app.post("/api/v1/notifications", notification_data, headers=partner_auth)
+    assert response.status_code == HTTP_201_CREATED
+    assert User.objects.count() == 1
+    user = User.objects.get()
+    assert user.fc_hash == never_seen_user.fc_hash
+    assert user.last_logged_in is None
+    assert Notification.objects.count() == 1
+    notification = Notification.objects.get()
+    assert notification.user.id == user.id
+    assert notification.content_body == "Merci d'avoir initié votre demande"
+    assert notification.content_title == "Brouillon de nouvelle demande de démarche d'OTV"
+    assert notification.content_subheading is None
+    assert notification.content_icon == "foo"
+    assert notification.content_link is None
+    assert notification.item_type == "OTV"
+    assert notification.item_id == "A-5-JGBJ5VMOY"
+    assert notification.item_parent_partner_id is None
+    assert notification.item_parent_type is None
+    assert notification.item_parent_id is None
+    assert notification.item_status_label == "Brouillon"
+    assert notification.item_generic_status == "new"
+    assert notification.item_milestone_start_date is None
+    assert notification.item_milestone_end_date is None
+    assert notification.item_canal is None
+    assert notification.item_is_archived is None
+    assert notification.event_date == datetime.datetime(
+        2025, 11, 27, 10, 55, tzinfo=datetime.timezone.utc
+    )
+    assert notification.partner_id == "dinum-ami"
+    assert notification.read is False
+    assert response.json == {
+        "notification_id": str(notification.id),
+        "notification_send_status": False,
+    }
+    assert not httpx_mock.get_request()
+
+
+@pytest.mark.django_db
 def test_create_notification_when_registration_gone(
     app,
     webpush_registration: Registration,
+    consent: Consent,
     partner_auth: dict[str, str],
     httpx_mock: HTTPXMock,
 ) -> None:
@@ -474,6 +642,7 @@ def test_create_notification_when_registration_gone(
 def test_create_notification_no_registration(
     app,
     user: User,
+    consent: Consent,
     partner_auth: dict[str, str],
     httpx_mock: HTTPXMock,
 ) -> None:
@@ -497,6 +666,7 @@ def test_create_notification_no_registration(
 def test_create_notification_duplicated_payload(
     app,
     user: User,
+    consent: Consent,
     partner_auth: dict[str, str],
 ) -> None:
     year = now().year + 1
@@ -549,6 +719,8 @@ def test_create_notification_duplicated_payload(
 
     # change a random value
     notification_count = Notification.objects.count()
+    user2 = User.objects.create(fc_hash=user.fc_hash[:-2] + "1" + user.fc_hash[-1])
+    Consent.objects.create(user=user2, partner_id="dinum-ami", consent_datetime=now())
     for key, value in notification_data.items():
         if key == "try_push":
             continue
@@ -593,6 +765,7 @@ def test_create_notification_duplicated_payload(
 def test_create_notification_duplicated_payload_with_push(
     app,
     mobile_registration: Registration,
+    consent: Consent,
     partner_auth: dict[str, str],
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -687,6 +860,7 @@ def test_create_notification_send_ko_with_400_when_required_fields_are_empty(
 def test_create_notification_send_ko_with_400_when_required_item_fields_are_missing(
     app,
     user: User,
+    consent: Consent,
     partner_auth: dict[str, str],
 ) -> None:
     item_fields = ["item_type", "item_id", "item_status_label", "item_generic_status"]
@@ -734,6 +908,7 @@ def test_create_notification_send_ko_with_400_when_required_item_fields_are_miss
 def test_create_notification_check_item_milestone_dates(
     app,
     user: User,
+    consent: Consent,
     partner_auth: dict[str, str],
 ) -> None:
     notification_data = {
@@ -816,6 +991,7 @@ def test_create_notification_check_item_milestone_dates(
 def test_create_notification_when_optional_fields_are_empty(
     app,
     user: User,
+    consent: Consent,
     partner_auth: dict[str, str],
 ) -> None:
     notification_data = {

@@ -12,7 +12,7 @@ from rest_framework.response import Response
 
 from ami.notification.tasks import push_notification
 from ami.partner.auth import IsPartnerAuthenticated, PartnerBasicAuthentication
-from ami.user.models import User
+from ami.user.models import Consent, User
 from ami.utils import sentry
 
 from .models import Notification
@@ -28,27 +28,40 @@ def _partner_create_event(request: Request, data: dict):
     current_partner = request.ami_partner
     ignore_unknown_user = os.getenv(
         "IGNORE_NOTIFICATION_REQUESTS_FOR_UNREGISTERED_USER", "False"
-    ).lower() in ("true", "1", "t")
+    ).lower() in ("true", "1", "t")  # legacy, ignored when consent is enabled
 
     try:
         user = User.objects.get(fc_hash=data["recipient_fc_hash"])
     except User.DoesNotExist:
         user = None
 
-    if user is None:
-        if ignore_unknown_user:
-            logger.info("User not found")
+    if current_partner.consent_is_enabled:
+        if user is None:
+            logger.info(f"User not found (partner {current_partner.id})")
             return Response({"error": "User not found"}, status=404)
-        user = User.objects.create(fc_hash=data["recipient_fc_hash"])
-        notification_send_status = False
+        try:
+            consent = Consent.objects.get(user=user, partner_id=current_partner.id)
+        except Consent.DoesNotExist:
+            logger.info(f"Consent not found (partner {current_partner.id})")
+            return Response({"error": "Consent not found"}, status=404)
+        if consent.consent_datetime is None:
+            logger.info(f"Consent not given (partner {current_partner.id})")
+            return Response({"error": "Consent not given"}, status=404)
     else:
-        if ignore_unknown_user and user.last_logged_in is None:
-            logger.info("User never seen")
-            return Response({"error": "User never seen"}, status=404)
-        notification_send_status = user.last_logged_in is not None
+        # legacy, will be removed when all partners are consent-ready
+        if user is None:
+            if ignore_unknown_user:
+                logger.info("User not found")
+                return Response({"error": "User not found"}, status=404)
+            user = User.objects.create(fc_hash=data["recipient_fc_hash"])
+        else:
+            if ignore_unknown_user and user.last_logged_in is None:
+                logger.info("User never seen")
+                return Response({"error": "User never seen"}, status=404)
 
+    notification_send_status = user.last_logged_in is not None
     try_push = True
-    if not data["try_push"] or user.last_logged_in is None:
+    if not data["try_push"] or not notification_send_status:
         # don't push notification if not required or if user has never logged in on AMI
         try_push = False
 
