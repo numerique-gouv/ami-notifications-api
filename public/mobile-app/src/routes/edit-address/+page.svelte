@@ -250,7 +250,7 @@
       <Banner
         id="edit-address-change-not-submitted-info"
         title="Modification non transmise"
-        description="La modification de la donnée ne sera pas transmise aux differentes administrations. Vous pouvez néanmoins déclarer un changement d’adresse en ligne."
+        description="La modification de la donnée ne sera pas transmise aux différentes administrations. Vous pouvez néanmoins déclarer un changement d’adresse en ligne."
         bannerType="info"
       />
     </div>
