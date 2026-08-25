@@ -36,3 +36,15 @@ class RegistrationCreateSerializer(serializers.Serializer):
             s = WebPushSubscriptionSerializer(data=value)
         s.is_valid(raise_exception=True)
         return s.validated_data
+
+
+class ConsentResponseSerializer(serializers.Serializer):
+    consent_datetime = serializers.DateTimeField(allow_null=True)
+
+
+class ConsentPostSerializer(serializers.Serializer):
+    consent = serializers.BooleanField()
+
+
+class ConsentPostResponseSerializer(serializers.Serializer):
+    message = serializers.ChoiceField(choices=["Consent given", "Consent withdrawn"])

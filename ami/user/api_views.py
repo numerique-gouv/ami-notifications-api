@@ -1,10 +1,13 @@
+import logging
 import uuid
 from typing import cast
 
 from django.db import transaction
 from django.db.models import QuerySet
 from django.shortcuts import get_object_or_404
+from django.utils.timezone import now
 from drf_spectacular.utils import PolymorphicProxySerializer, extend_schema, inline_serializer
+from rest_framework import serializers
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -13,13 +16,18 @@ from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED
 from ami.authentication.decorators import ami_login_required
 
 from ..partner.auth import IsPartnerAuthenticated, PartnerBasicAuthentication
-from .models import Consent, Registration
+from .models import Consent, Registration, User
 from .serializers import (
+    ConsentPostResponseSerializer,
+    ConsentPostSerializer,
+    ConsentResponseSerializer,
     MobileAppSubscriptionSerializer,
     RegistrationCreateSerializer,
     RegistrationSerializer,
     WebPushSubscriptionSerializer,
 )
+
+logger = logging.getLogger(__name__)
 
 
 @extend_schema(methods=["GET"], responses=RegistrationSerializer(many=True))
@@ -95,15 +103,56 @@ def unregister(
     return Response(status=204)
 
 
-@extend_schema(tags=["API partenaires"])
-@api_view(["GET"])
+@extend_schema(
+    tags=["API partenaires"],
+    description="""Returns the date the consent was given (consent_datetime).
+
+If the fc_hash does not exist, or if consent has not been given, returns a null consent_datetime and a 404.""",
+    summary="GET /api/v1/consent/{fc_hash}",
+    methods=["GET"],
+    responses={
+        200: ConsentResponseSerializer,
+    },
+)
+@extend_schema(
+    tags=["API partenaires"],
+    methods=["POST"],
+    request=ConsentPostSerializer,
+    responses={
+        200: ConsentPostResponseSerializer,
+    },
+)
+@api_view(["GET", "POST"])
 @authentication_classes([PartnerBasicAuthentication])
 @permission_classes([IsPartnerAuthenticated])
-def get_consent(request: Request, fc_hash: str) -> Response:
+def consent(request: Request, fc_hash: str) -> Response:
     partner_id = request.ami_partner.id
-    consent = Consent.objects.filter(user__fc_hash=fc_hash, partner_id=partner_id).first()
 
-    if consent is None or consent.consent_datetime is None:
-        return Response({"consent_datetime": "null"}, status=404)
+    if request.method == "GET":
+        consent = Consent.objects.filter(user__fc_hash=fc_hash, partner_id=partner_id).first()
+        consent_datetime = consent.consent_datetime if consent else None
 
-    return Response({"consent_datetime": consent.consent_datetime})
+        response_serializer = ConsentResponseSerializer({"consent_datetime": consent_datetime})
+        return Response(response_serializer.data, status=200 if consent_datetime else 404)
+
+    serializer = ConsentPostSerializer(data=request.data)
+    try:
+        serializer.is_valid(raise_exception=True)
+    except serializers.ValidationError:
+        logger.exception("Partner post consent serialization error")
+        raise
+    data: dict = cast(dict, serializer.validated_data)
+
+    user, _ = User.objects.get_or_create(fc_hash=fc_hash)
+    consent_datetime = now() if data["consent"] else None
+    Consent.objects.update_or_create(
+        user=user,
+        partner_id=partner_id,
+        defaults={"consent_datetime": consent_datetime},
+        create_defaults={"consent_datetime": consent_datetime},
+    )
+
+    response_serializer = ConsentPostResponseSerializer(
+        {"message": "Consent given" if data["consent"] else "Consent withdrawn"}
+    )
+    return Response(response_serializer.data)
