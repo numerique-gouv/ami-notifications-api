@@ -61,9 +61,11 @@
         </div>
       </div>
 
-      <div class="fr-grid-row">
+      <div class="fr-grid-row fr-grid-row--center">
         <h1 class="fr-h4 fr-mb-1w">La connexion est nécessaire</h1>
+      </div>
 
+      <div class="fr-grid-row fr-grid-row--center">
         <p>Utiliser votre clé d’accès pour vous connecter</p>
       </div>
     </div>
