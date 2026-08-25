@@ -10,11 +10,14 @@
   let { item, onOpen }: Props = $props();
 
   let checkedIcon = $derived(getDSFRIcon(item.icon, 'fr-icon-information-fill'));
+  let withDetailButton = $derived(
+    !item.sub_items.length && !item.is_archived && item.status_id === 'new' && item.link
+  );
 </script>
 
 <div class="followup--item">
   <div
-    class="followup--item--detail fr-tile fr-tile--sm fr-tile--horizontal fr-enlarge-button"
+    class="followup--item--detail fr-tile fr-tile--sm fr-tile--horizontal fr-enlarge-button { withDetailButton  && 'fr-tile--no-icon' }"
   >
     {#if !item.is_archived}
       <button
@@ -66,8 +69,8 @@
           </p>
         </div>
       </div>
-      {#if !item.sub_items.length && !item.is_archived && item.status_id == 'new' && item.link}
-        <div class="am-tile__footer fr-pt-1w">
+      {#if withDetailButton}
+        <div class="am-tile__footer fr-pt-1w fr-mr-n2w">
           <div class="fr-btns-group">
             <button
               type="button"
@@ -112,7 +115,7 @@
         .fr-tile__title {
           button {
             &::after {
-              bottom: 0.5rem;
+              bottom: 1rem;
               right: 0.5rem;
               --icon-size: 1.25rem;
               -webkit-mask-image: url("@gouvfr/dsfr/dist/icons/arrows/arrow-right-s-line.svg");
