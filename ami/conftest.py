@@ -238,7 +238,7 @@ def notification(user: User) -> Notification:
 
 @pytest.fixture
 def partner_auth(settings) -> dict[str, str]:
-    b64 = base64.b64encode(f"psl:{settings.PARTNERS_PSL_SECRET}".encode("utf8")).decode("utf8")
+    b64 = base64.b64encode(f"dinum-ami:{settings.PARTNERS_DINUM_AMI_SECRET}".encode()).decode()
     return {"authorization": f"Basic {b64}"}
 
 
