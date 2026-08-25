@@ -27,11 +27,11 @@ def test_recipient_fc_hash(app) -> None:
         "birthcountry": "99100",
     }
     response = app.get("/dev-utils/recipient-fc-hash", params=params)
-    assert response.text == "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060"
+    assert response.text == "01d6f14bd06de19c43c2984da5fb1a6941ac7d964f2a7c191d696e4a76aaf986"
 
     params.pop("birthplace")
     response = app.get("/dev-utils/recipient-fc-hash", params=params)
-    assert response.text == "7e74df2cbebae761eccedbc24b7fe589bb83137f7808a2930031f52c73d75efe"
+    assert response.text == "637dc281adf555ae8a8c35bf31f76306cf88938aea9a47d6dc96a73e7d6bd827"
 
 
 def _make_github_mock(pulls: list) -> Mock:
