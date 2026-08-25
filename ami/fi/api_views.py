@@ -46,6 +46,13 @@ from ami.user.utils import build_fc_hash
 logger = logging.getLogger(__name__)
 
 
+def get_passkey_expected_origins():
+    expected_origins = [settings.PUBLIC_APP_URL]
+    if settings.ANDROID_APK_KEY_HASHES:
+        expected_origins.extend(settings.ANDROID_APK_KEY_HASHES)
+    return expected_origins
+
+
 @api_view(["POST"])
 def token(request: Request) -> Response:
     if not settings.FI_SILENT_LOGIN_ENABLED:
@@ -161,7 +168,7 @@ def passkey_verify_registration(request):
         registration_verification = verify_registration_response(
             credential=request.data,
             expected_challenge=base64.urlsafe_b64decode(challenge.encode()),
-            expected_origin=settings.PUBLIC_APP_URL,
+            expected_origin=get_passkey_expected_origins(),
             expected_rp_id=urlparse(settings.PUBLIC_APP_URL).hostname,
             require_user_verification=True,
         )
@@ -239,7 +246,7 @@ def passkey_verify_authentication(request):
         authentication_verification = verify_authentication_response(
             credential=request.data,
             expected_challenge=base64.urlsafe_b64decode(challenge.encode()),
-            expected_origin=settings.PUBLIC_APP_URL,
+            expected_origin=get_passkey_expected_origins(),
             expected_rp_id=urlparse(settings.PUBLIC_APP_URL).hostname,
             credential_public_key=base64.urlsafe_b64decode(
                 user_passkey.credential_public_key.encode()
