@@ -14,6 +14,29 @@ from ami.tests.utils import login, url_contains_param
 from ami.user.models import User
 
 
+@pytest.fixture
+def fi_session_id(settings, app, monkeypatch, user, decoded_user_data):
+    settings.PUBLIC_FC_PROXY_BASE_URL = ""
+    app.set_cookie(settings.USERINFO_COOKIE_NAME, signing.dumps(decoded_user_data))
+    authorize_data = {
+        "state": "fake-state",
+        "nonce": "fake-nonce",
+        "response_type": "code",
+        "client_id": settings.FI_CLIENT_ID,
+        "redirect_uri": settings.FI_REDIRECT_URI,
+        "scope": "fake-scope",
+        "acr_values": "eidas1",
+        "claims": json.dumps(
+            {
+                "id_token": "fake-id-token",
+            }
+        ),
+        "prompt": "fake-prompt",
+    }
+    app.get("/api/v1/fi/authorize/", params=authorize_data)
+    assert app.session["fi_session_id"]
+
+
 @pytest.mark.django_db
 def test_passkey_authentication(
     settings,
@@ -185,12 +208,12 @@ def test_passkey_authentication_with_proxy(
 def test_passkey_authentication_missing_challenge(
     settings,
     app,
-    monkeypatch: pytest.MonkeyPatch,
+    fi_session_id,
 ) -> None:
     response = app.post_json("/api/v1/fi/passkey/verify-authentication", status=400)
-    assert response.json == {"error": "missing-challenge"}
+    assert response.json == {"error": "missing-challenge", "retry": True}
 
-    assert app.session.get("fi_session_id") is None
+    assert app.session.get("fi_session_id") is not None
     assert app.session.get("passkey_authentication_challenge") is None
 
 
@@ -199,6 +222,7 @@ def test_passkey_authentication_missing_credential_id(
     settings,
     app,
     monkeypatch: pytest.MonkeyPatch,
+    fi_session_id,
 ) -> None:
     app.get(
         "/api/v1/fi/passkey/generate-authentication-options",
@@ -206,9 +230,9 @@ def test_passkey_authentication_missing_credential_id(
     assert app.session.get("passkey_authentication_challenge") is not None
 
     response = app.post_json("/api/v1/fi/passkey/verify-authentication", {}, status=400)
-    assert response.json == {"error": "missing-credential-id"}
+    assert response.json == {"error": "missing-credential-id", "retry": True}
 
-    assert app.session.get("fi_session_id") is None
+    assert app.session.get("fi_session_id") is not None
     assert app.session.get("passkey_authentication_challenge") is None
 
 
@@ -217,6 +241,7 @@ def test_passkey_authentication_user_passkey_not_found(
     settings,
     app,
     monkeypatch: pytest.MonkeyPatch,
+    fi_session_id,
 ) -> None:
     app.get(
         "/api/v1/fi/passkey/generate-authentication-options",
@@ -226,9 +251,9 @@ def test_passkey_authentication_user_passkey_not_found(
     response = app.post_json(
         "/api/v1/fi/passkey/verify-authentication", {"id": "missing-credential-id"}, status=400
     )
-    assert response.json == {"error": "unknown-credential-id"}
+    assert response.json == {"error": "unknown-credential-id", "retry": True}
 
-    assert app.session.get("fi_session_id") is None
+    assert app.session.get("fi_session_id") is not None
     assert app.session.get("passkey_authentication_challenge") is None
 
 
@@ -238,6 +263,7 @@ def test_passkey_authentication_verify_failed(
     app,
     monkeypatch: pytest.MonkeyPatch,
     user: User,
+    fi_session_id,
 ) -> None:
     UserPasskey.objects.create(
         user=user,
@@ -263,9 +289,10 @@ def test_passkey_authentication_verify_failed(
     assert response.json == {
         "error": "invalid-authentication-response",
         "error-details": "mocked verify_authentication_response error",
+        "retry": True,
     }
 
-    assert app.session.get("fi_session_id") is None
+    assert app.session.get("fi_session_id") is not None
     assert app.session.get("passkey_authentication_challenge") is None
 
 
@@ -546,9 +573,9 @@ def test_passkey_authentication_fc_hash_mismatch(
     response = app.post_json(
         "/api/v1/fi/passkey/verify-authentication", {"id": "fake-credential-id"}, status=403
     )
-    assert response.json == {"error": "difference-in-fc-hash"}
+    assert response.json == {"error": "difference-in-fc-hash", "retry": True}
 
-    assert app.session.get("fi_session_id") is None
+    assert app.session.get("fi_session_id") is not None
     assert app.session.get("passkey_authentication_challenge") is None
 
 
@@ -622,9 +649,9 @@ def test_passkey_authentication_ami_user_mismatch(
         {"id": "second-fake-credential-id"},
         status=403,
     )
-    assert response.json == {"error": "user-is-not-ami-user"}
+    assert response.json == {"error": "user-is-not-ami-user", "retry": True}
 
-    assert app.session.get("fi_session_id") is None
+    assert app.session.get("fi_session_id") is not None
     assert app.session.get("passkey_authentication_challenge") is None
 
 
