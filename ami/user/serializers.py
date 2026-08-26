@@ -54,3 +54,8 @@ class ConsentSerializer(serializers.Serializer):
     id = serializers.UUIDField()
     partner_id = serializers.CharField()
     consent_datetime = serializers.DateTimeField()
+
+
+class ConsentUpdateSerializer(serializers.Serializer):
+    partner_id = serializers.CharField()
+    consent = serializers.BooleanField()
