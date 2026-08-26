@@ -169,7 +169,7 @@ def test_post_consent_without_auth(app, settings) -> None:
 
 
 @pytest.mark.django_db
-def test_consents(app, user: User) -> None:
+def test_get_consents(app, user: User) -> None:
     login(app, user)
 
     consent_datetime = datetime.datetime(2020, 12, 25, 17, 5, 55, tzinfo=datetime.timezone.utc)
@@ -185,5 +185,73 @@ def test_consents(app, user: User) -> None:
 
 
 @pytest.mark.django_db
-def test_consents_without_auth(app) -> None:
+def test_get_consents_without_auth(app) -> None:
     assert_query_fails_without_auth(app, "/api/v1/users/consents")
+
+
+@pytest.mark.django_db
+def test_post_consents(
+    app,
+    two_users: list[User],
+) -> None:
+    login(app, two_users[0])
+
+    Consent.objects.create(user=two_users[0], partner_id="psl", consent_datetime=now())
+    Consent.objects.create(user=two_users[1], partner_id="dinum-ami", consent_datetime=now())
+
+    data = {"partner_id": "dinum-ami", "consent": True}
+    response = app.post_json("/api/v1/users/consents", data)
+    assert response.json == {"message": "Consent given"}
+    assert Consent.objects.count() == 3
+    consent = Consent.objects.latest("created_at")
+    assert consent.user == two_users[0]
+    assert consent.partner_id == "dinum-ami"
+    assert consent.consent_datetime is not None
+
+    data = {"partner_id": "dinum-ami", "consent": False}
+    response = app.post_json("/api/v1/users/consents", data)
+    assert response.json == {"message": "Consent withdrawn"}
+    assert Consent.objects.count() == 3
+    consent.refresh_from_db()
+    assert consent.user == two_users[0]
+    assert consent.partner_id == "dinum-ami"
+    assert consent.consent_datetime is None
+
+
+@pytest.mark.django_db
+def test_post_consents_user_consent_invalid(
+    app,
+    user: User,
+) -> None:
+    login(app, user)
+
+    data = {"partner_id": "dinum-ami"}
+    response = app.post_json("/api/v1/users/consents", data, status=400)
+    assert response.json == {"consent": ["Ce champ est obligatoire."]}
+    assert Consent.objects.count() == 0
+    assert User.objects.count() == 1
+
+    data = {"partner_id": "dinum-ami", "consent": "invalid"}
+    response = app.post_json("/api/v1/users/consents", data, status=400)
+    assert response.json == {"consent": ["Must be a valid boolean."]}
+    assert Consent.objects.count() == 0
+    assert User.objects.count() == 1
+
+
+@pytest.mark.django_db
+def test_post_consents_without_auth(app, settings) -> None:
+    app.post("/api/v1/users/consents", status=401)
+
+    app.post("/api/v1/users/consents", headers={"authorization": "foo"}, status=401)
+
+    app.post("/api/v1/users/consents", headers={"authorization": "Foo bar"}, status=401)
+
+    app.post("/api/v1/users/consents", headers={"authorization": "Basic bar"}, status=401)
+
+    b64 = base64.b64encode(f"foo:{settings.PARTNERS_DINUM_AMI_SECRET}".encode("utf8")).decode(
+        "utf8"
+    )
+    app.post("/api/v1/users/consents", headers={"authorization": f"Basic {b64}"}, status=401)
+
+    b64 = base64.b64encode("dinum-ami:foo".encode("utf8")).decode("utf8")
+    app.post("/api/v1/users/consents", headers={"authorization": f"Basic {b64}"}, status=401)

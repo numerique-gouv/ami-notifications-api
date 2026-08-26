@@ -22,6 +22,7 @@ from .serializers import (
     ConsentPostSerializer,
     ConsentResponseSerializer,
     ConsentSerializer,
+    ConsentUpdateSerializer,
     MobileAppSubscriptionSerializer,
     RegistrationCreateSerializer,
     RegistrationSerializer,
@@ -159,8 +160,34 @@ def consent(request: Request, fc_hash: str) -> Response:
     return Response(response_serializer.data)
 
 
-@api_view(["GET"])
+@extend_schema(
+    methods=["POST"],
+    request=ConsentUpdateSerializer,
+)
+@api_view(["GET", "POST"])
 @ami_login_required
 def consents(request: Request) -> Response:
-    consents_qs: QuerySet[Consent] = request.ami_user.consent_set.all()
-    return Response(ConsentSerializer(consents_qs, many=True).data)
+    if request.method == "GET":
+        consents_qs: QuerySet[Consent] = request.ami_user.consent_set.all()
+        return Response(ConsentSerializer(consents_qs, many=True).data)
+
+    serializer = ConsentUpdateSerializer(data=request.data)
+    try:
+        serializer.is_valid(raise_exception=True)
+    except serializers.ValidationError:
+        logger.exception("Internal post consent serialization error")
+        raise
+    data: dict = cast(dict, serializer.validated_data)
+
+    consent_datetime = now() if data["consent"] else None
+    Consent.objects.update_or_create(
+        user=request.ami_user,
+        partner_id=data["partner_id"],
+        defaults={"consent_datetime": consent_datetime},
+        create_defaults={"consent_datetime": consent_datetime},
+    )
+
+    response_serializer = ConsentPostResponseSerializer(
+        {"message": "Consent given" if data["consent"] else "Consent withdrawn"}
+    )
+    return Response(response_serializer.data)
