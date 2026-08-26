@@ -195,37 +195,6 @@ def passkey_generate_authentication_options(request):
 def passkey_verify_authentication(request):
     fi_session_id = request.session.pop("fi_session_id", "")
     challenge = request.session.pop("passkey_authentication_challenge", "")
-    if not challenge:
-        logger.error("Missing challenge")
-        return Response({"error": "missing-challenge"}, status=400)
-    try:
-        credential_id = request.data["id"]
-    except KeyError:
-        logger.error("Missing credential ID")
-        return Response({"error": "missing-credential-id"}, status=400)
-    try:
-        user_passkey = UserPasskey.objects.get(credential_id=credential_id)
-    except UserPasskey.DoesNotExist:
-        logger.error("Unknown credential ID")
-        return Response({"error": "unknown-credential-id"}, status=400)
-    try:
-        authentication_verification = verify_authentication_response(
-            credential=request.data,
-            expected_challenge=base64.urlsafe_b64decode(challenge.encode()),
-            expected_origin=settings.PUBLIC_APP_URL,
-            expected_rp_id=urlparse(settings.PUBLIC_APP_URL).hostname,
-            credential_public_key=base64.urlsafe_b64decode(
-                user_passkey.credential_public_key.encode()
-            ),
-            credential_current_sign_count=0,
-            require_user_verification=True,
-        )
-    except InvalidAuthenticationResponse as e:
-        logger.exception("Invalid authentication response")
-        return Response(
-            {"error": "invalid-authentication-response", "error-details": str(e)}, status=400
-        )
-    code = token_urlsafe(64)
     if not fi_session_id:
         logger.error("Missing FI Session")
         return Response({"error": "missing-fi-session"}, status=400)
@@ -242,7 +211,49 @@ def passkey_verify_authentication(request):
     if settings.USERINFO_COOKIE_NAME not in request.COOKIES:
         logger.error("Missing cookie")
         return Response({"error": "missing-cookie"}, status=403)
-    decoded_user_data = signing.loads(request.COOKIES[settings.USERINFO_COOKIE_NAME])
+
+    try:
+        decoded_user_data = signing.loads(request.COOKIES[settings.USERINFO_COOKIE_NAME])
+    except signing.BadSignature:
+        return Response({"error": "invalid-signature"}, status=403)
+
+    # put fi_session_id back into session as further errors will be recoverable by user
+    # (selecting another passkey for example)
+    request.session["fi_session_id"] = str(fi_session_id)
+
+    if not challenge:
+        logger.error("Missing challenge")
+        return Response({"error": "missing-challenge", "retry": True}, status=400)
+
+    try:
+        credential_id = request.data["id"]
+    except KeyError:
+        logger.error("Missing credential ID")
+        return Response({"error": "missing-credential-id", "retry": True}, status=400)
+    try:
+        user_passkey = UserPasskey.objects.get(credential_id=credential_id)
+    except UserPasskey.DoesNotExist:
+        logger.error("Unknown credential ID")
+        return Response({"error": "unknown-credential-id", "retry": True}, status=400)
+    try:
+        authentication_verification = verify_authentication_response(
+            credential=request.data,
+            expected_challenge=base64.urlsafe_b64decode(challenge.encode()),
+            expected_origin=settings.PUBLIC_APP_URL,
+            expected_rp_id=urlparse(settings.PUBLIC_APP_URL).hostname,
+            credential_public_key=base64.urlsafe_b64decode(
+                user_passkey.credential_public_key.encode()
+            ),
+            credential_current_sign_count=0,
+            require_user_verification=True,
+        )
+    except InvalidAuthenticationResponse as e:
+        logger.exception("Invalid authentication response")
+        return Response(
+            {"error": "invalid-authentication-response", "error-details": str(e), "retry": True},
+            status=400,
+        )
+    code = token_urlsafe(64)
     # check that user associated with passkey matches with données pivot
     fc_hash = build_fc_hash(
         given_name=decoded_user_data.get("given_name") or "",
@@ -254,11 +265,11 @@ def passkey_verify_authentication(request):
     )
     if fc_hash != user_passkey.user.fc_hash:
         logger.error("Difference in FC hash")
-        return Response({"error": "difference-in-fc-hash"}, status=403)
+        return Response({"error": "difference-in-fc-hash", "retry": True}, status=403)
     if request.ami_user and request.ami_user != user_passkey.user:
         # check if user associated with passkey is request.ami_user if not None
         logger.error("User is not AMI user'")
-        return Response({"error": "user-is-not-ami-user"}, status=403)
+        return Response({"error": "user-is-not-ami-user", "retry": True}, status=403)
     fi_session.user_data = decoded_user_data
     fi_session.code = make_password(code, settings.FI_HASH_SALT)
     fi_session.save()
@@ -270,6 +281,7 @@ def passkey_verify_authentication(request):
         redirect_uri = (
             f"{settings.PUBLIC_FC_PROXY_BASE_URL}/ami-fi-authorize-callback/?{urlencode(params)}"
         )
+    request.session.pop("fi_session_id")
     return Response(
         {"verified": authentication_verification.user_verified, "redirect_uri": redirect_uri}
     )
