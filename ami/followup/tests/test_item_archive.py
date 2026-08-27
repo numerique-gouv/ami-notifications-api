@@ -2,6 +2,7 @@ import pytest
 from django.utils.timezone import now
 
 from ami.notification.models import Notification
+from ami.partner.models import Partner
 from ami.tests.utils import assert_query_fails_without_auth, login
 from ami.user.models import User
 
@@ -9,6 +10,7 @@ from ami.user.models import User
 @pytest.mark.django_db
 def test_archive_notification_item(
     user: User,
+    partner_psl: Partner,
     app,
 ) -> None:
     login(app, user)
@@ -21,7 +23,7 @@ def test_archive_notification_item(
         item_status_label="Nouveau",
         item_type="OperationTranquilliteVacances",
         item_id="42",
-        partner_slug="psl",
+        partner=partner_psl,
     )
     notification2 = Notification.objects.create(
         user_id=user.id,
@@ -31,7 +33,7 @@ def test_archive_notification_item(
         item_status_label="Nouveau",
         item_type="OperationTranquilliteVacances",
         item_id="42",
-        partner_slug="psl",
+        partner=partner_psl,
     )
 
     payload = {
@@ -74,6 +76,7 @@ def test_archive_notification_item(
 @pytest.mark.django_db
 def test_archive_notification_item_empty_payload(
     user: User,
+    partner_psl: Partner,
     app,
 ) -> None:
     login(app, user)
@@ -90,6 +93,7 @@ def test_archive_notification_item_empty_payload(
 @pytest.mark.django_db
 def test_archive_notification_item_wrong_id(
     user: User,
+    partner_psl: Partner,
     app,
 ) -> None:
     login(app, user)
@@ -109,6 +113,7 @@ def test_archive_notification_item_wrong_id(
 @pytest.mark.django_db
 def test_archive_notification_item_wrong_source(
     user: User,
+    partner_psl: Partner,
     app,
 ) -> None:
     login(app, user)
@@ -124,8 +129,26 @@ def test_archive_notification_item_wrong_source(
 
 
 @pytest.mark.django_db
+def test_archive_notification_item_unknown_partner_id(
+    user: User,
+    app,
+) -> None:
+    login(app, user)
+
+    payload = {
+        "is_archived": True,
+    }
+    app.post(
+        "/api/v1/users/data/followup/item/notifications/unknown:OperationTranquilliteVacances:42/archive",
+        payload,
+        status=404,
+    )
+
+
+@pytest.mark.django_db
 def test_archive_notification_item_notification_not_found(
     user: User,
+    partner_psl: Partner,
     app,
 ) -> None:
     login(app, user)
@@ -138,7 +161,7 @@ def test_archive_notification_item_notification_not_found(
         item_status_label="Nouveau",
         item_type="OperationTranquilliteVacances",
         item_id="42",
-        partner_slug="psl",
+        partner=partner_psl,
     )
     # no item_status_label
     Notification.objects.create(
@@ -148,7 +171,7 @@ def test_archive_notification_item_notification_not_found(
         item_generic_status="new",
         item_type="OperationTranquilliteVacances",
         item_id="42",
-        partner_slug="psl",
+        partner=partner_psl,
     )
     # no item_type
     Notification.objects.create(
@@ -158,7 +181,7 @@ def test_archive_notification_item_notification_not_found(
         item_generic_status="new",
         item_status_label="Nouveau",
         item_id="42",
-        partner_slug="psl",
+        partner=partner_psl,
     )
     # no item_id
     Notification.objects.create(
@@ -168,7 +191,7 @@ def test_archive_notification_item_notification_not_found(
         item_generic_status="new",
         item_status_label="Nouveau",
         item_type="OperationTranquilliteVacances",
-        partner_slug="psl",
+        partner=partner_psl,
     )
     # other user
     other_user = User.objects.create(fc_hash="fc-hash")
@@ -180,9 +203,10 @@ def test_archive_notification_item_notification_not_found(
         item_status_label="Nouveau",
         item_type="OperationTranquilliteVacances",
         item_id="42",
-        partner_slug="psl",
+        partner=partner_psl,
     )
     # other partner_id
+    other_partner = Partner.objects.create(slug="other", name="Other", consent_is_enabled=True)
     Notification.objects.create(
         user_id=user.id,
         content_body="notification 1",
@@ -191,7 +215,7 @@ def test_archive_notification_item_notification_not_found(
         item_status_label="Nouveau",
         item_type="OperationTranquilliteVacances",
         item_id="42",
-        partner_slug="other",
+        partner=other_partner,
     )
     # other item_type
     Notification.objects.create(
@@ -202,7 +226,7 @@ def test_archive_notification_item_notification_not_found(
         item_status_label="Nouveau",
         item_type="Other",
         item_id="42",
-        partner_slug="psl",
+        partner=partner_psl,
     )
     # other item_id
     Notification.objects.create(
@@ -213,7 +237,7 @@ def test_archive_notification_item_notification_not_found(
         item_status_label="Nouveau",
         item_type="OperationTranquilliteVacances",
         item_id="44",
-        partner_slug="psl",
+        partner=partner_psl,
     )
 
     payload = {
@@ -232,6 +256,7 @@ def test_archive_notification_item_notification_not_found(
 @pytest.mark.django_db
 def test_archive_notification_item_notification_not_found_has_sub_items(
     user: User,
+    partner: Partner,
     app,
 ) -> None:
     login(app, user)
@@ -241,14 +266,14 @@ def test_archive_notification_item_notification_not_found_has_sub_items(
         user_id=user.id,
         content_body="sub notification 1",
         content_title="Sub Notification title 1",
-        item_parent_partner_slug="dinum-ami",
+        item_parent_partner=partner,
         item_parent_type="JeDemenage",
         item_parent_id="40",
         item_generic_status="new",
         item_status_label="Nouveau",
         item_type="JeDemenageCAF",
         item_id="44",
-        partner_slug="dinum-ami",
+        partner=partner,
     )
     payload = {
         "is_archived": True,
@@ -267,14 +292,14 @@ def test_archive_notification_item_notification_not_found_has_sub_items(
         user_id=user.id,
         content_body="sub notification 2",
         content_title="Sub Notification title 2",
-        item_parent_partner_slug="dinum-ami",
+        item_parent_partner=partner,
         item_parent_type="JeDemenage",
         item_parent_id="40",
         item_generic_status="new",
         item_status_label="Nouveau",
         item_type="JeDemenageCAF",
         item_id="44",
-        partner_slug="dinum-ami",
+        partner=partner,
     )
     app.post(
         "/api/v1/users/data/followup/item/notifications/dinum-ami:JeDemenage:40/archive",
@@ -292,14 +317,14 @@ def test_archive_notification_item_notification_not_found_has_sub_items(
         user_id=user.id,
         content_body="sub notification 3",
         content_title="Sub Notification title 3",
-        item_parent_partner_slug="dinum-ami",
+        item_parent_partner=partner,
         item_parent_type="JeDemenage",
         item_parent_id="40",
         item_generic_status="new",
         item_status_label="Nouveau",
         item_type="JeDemenageOther",
         item_id="45",
-        partner_slug="dinum-ami",
+        partner=partner,
     )
     response = app.post(
         "/api/v1/users/data/followup/item/notifications/dinum-ami:JeDemenage:40/archive",
@@ -329,7 +354,7 @@ def test_archive_notification_item_notification_not_found_has_sub_items(
     assert parent_notification.content_link is None
     assert parent_notification.item_type == "JeDemenage"
     assert parent_notification.item_id == "40"
-    assert parent_notification.item_parent_partner_slug is None
+    assert parent_notification.item_parent_partner is None
     assert parent_notification.item_parent_type is None
     assert parent_notification.item_parent_id is None
     assert parent_notification.item_status_label == "Nouveau"
@@ -340,7 +365,7 @@ def test_archive_notification_item_notification_not_found_has_sub_items(
     assert parent_notification.item_is_archived is True
     assert parent_notification.event_date < now()
     assert parent_notification.valid_until < now()
-    assert parent_notification.partner_slug == "dinum-ami"
+    assert parent_notification.partner == partner
     assert parent_notification.try_push is False
     assert parent_notification.send_status is False
     assert parent_notification.read is False

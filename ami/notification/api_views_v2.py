@@ -40,7 +40,7 @@ def _partner_create_event(request: Request, data: dict):
             logger.info(f"User not found (partner {current_partner.id})")
             return Response({"error": "User not found"}, status=404)
         try:
-            consent = Consent.objects.get(user=user, partner_slug=current_partner.id)
+            consent = Consent.objects.get(user=user, partner=current_partner)
         except Consent.DoesNotExist:
             logger.info(f"Consent not found (partner {current_partner.id})")
             return Response({"error": "Consent not found"}, status=404)
@@ -66,12 +66,10 @@ def _partner_create_event(request: Request, data: dict):
         try_push = False
 
     data.pop("recipient_fc_hash")
-    item_parent_partner_slug = data.pop("item_parent_partner_id", None)
     with transaction.atomic():
         notification, created = Notification.objects.get_or_create(
             user_id=user.id,
-            partner_slug=current_partner.id,
-            item_parent_partner_slug=item_parent_partner_slug,
+            partner=current_partner,
             defaults={"send_status": notification_send_status},
             **data,
         )

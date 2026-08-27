@@ -21,7 +21,7 @@ def audit(action, author, extra_data):
     for key in ["service", "old_service_values"]:
         if key in extra_data:
             extra_data[f"{key}_kind"] = extra_data[key].kind
-            extra_data[f"{key}_partner_id"] = extra_data[key].partner_slug
+            extra_data[f"{key}_partner_id"] = extra_data[key].partner.slug
             extra_data[f"{key}_item_type"] = extra_data[key].item_type
             del extra_data[key]
 

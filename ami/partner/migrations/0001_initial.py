@@ -2,8 +2,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-    dependencies = [
-        ("notification", "0013_item_is_archived"),
-    ]
+    dependencies = []
 
     operations = []

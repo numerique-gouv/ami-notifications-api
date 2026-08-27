@@ -5,7 +5,7 @@ from asgiref.sync import async_to_sync
 from django.db import models
 from django.utils import timezone
 
-from ami.partner.models import partners
+from ami.partner.models import Partner
 from ami.user.models import User
 
 
@@ -30,8 +30,13 @@ class Notification(models.Model):
 
     item_type = models.CharField(blank=True, null=True)
     item_id = models.CharField(blank=True, null=True)
-    item_parent_partner_slug = models.CharField(
-        blank=True, null=True, db_column="item_parent_partner_id"
+    item_parent_partner_id: uuid.UUID  # For typing purposes: this is only a type annotation
+    item_parent_partner = models.ForeignKey(
+        Partner,
+        models.PROTECT,
+        db_column="item_parent_partner_uuid",
+        related_name="parent_notifications",
+        null=True,
     )
     item_parent_type = models.CharField(blank=True, null=True)
     item_parent_id = models.CharField(blank=True, null=True)
@@ -43,7 +48,10 @@ class Notification(models.Model):
     item_is_archived = models.BooleanField(null=True)  # the user archived the item in followup
 
     send_status = models.BooleanField(blank=True, null=True)
-    partner_slug = models.CharField(db_column="partner_id")
+    partner_id: uuid.UUID  # For typing purposes: this is only a type annotation
+    partner = models.ForeignKey(
+        Partner, models.PROTECT, db_column="partner_uuid", related_name="notifications"
+    )
     internal_url = models.CharField(
         blank=True, null=True
     )  # to link notification to a front url; used by scheduled notifications
@@ -55,6 +63,10 @@ class Notification(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    # to delete from DB in a future release
+    # partner_slug = models.CharField(db_column="partner_id", null=True)
+    # item_parent_partner_slug = models.CharField(blank=True, null=True, db_column="item_parent_partner_id")
 
     class Meta:
         db_table = "notification"
@@ -71,8 +83,6 @@ class Notification(models.Model):
             and self.item_status_label is not None
             and self.item_type is not None
             and self.item_id is not None
-            and self.partner_slug
-            in [p.id for p in partners.values() if p.followup_from_notifications]
         )
 
     @property
@@ -86,17 +96,13 @@ class Notification(models.Model):
 
     @property
     def icon(self):
-        partner = partners.get(self.partner_slug)
-        if not partner:
-            return
-
         if self.content_icon:
             return self.content_icon
 
         if self.has_item():
             return self.item_status_icon
 
-        return partner.icon or "fr-icon-mail-star-line"
+        return self.partner.icon or "fr-icon-mail-star-line"
 
     @property
     def content_body_full(self):
@@ -133,7 +139,7 @@ class ScheduledNotification(models.Model):
             content_body=self.content_body,
             content_icon=self.content_icon,
             internal_url=self.internal_url,
-            partner_slug="dinum-ami",
+            partner=Partner.objects.get(slug="dinum-ami"),
             send_status=self.user.last_logged_in is not None,
         )
 

@@ -4,6 +4,8 @@ from django.db import models
 from pydantic import BaseModel
 from webpush import WebPushSubscription
 
+from ami.partner.models import Partner
+
 
 class User(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -22,15 +24,20 @@ class Consent(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     user = models.ForeignKey(User, on_delete=models.PROTECT)
-    partner_slug = models.CharField(max_length=100, db_column="partner_id")
+    partner = models.ForeignKey(
+        Partner, models.PROTECT, db_column="partner_uuid", related_name="consents"
+    )
     consent_datetime = models.DateTimeField(blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    # to delete from DB in a future release
+    # partner_slug = models.CharField(max_length=100, db_column="partner_id", null=True)
+
     class Meta:
         db_table = "consent"
-        unique_together = (("user", "partner_slug"),)
+        unique_together = [("user", "partner")]
 
 
 class MobileAppSubscription(BaseModel):

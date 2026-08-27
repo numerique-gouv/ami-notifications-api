@@ -11,7 +11,7 @@ from ami.agent.models import Agent
 from ami.agent_admin.utils import audit
 from ami.amidsfr.forms import AMIDsfrBaseForm
 from ami.amidsfr.widgets import AutocompleteInput, ToggleInput
-from ami.partner.models import partners
+from ami.partner.models import Partner
 from ami.service.models import Service
 from ami.user.models import User
 from ami.utils.httpx import BasicAuth, httpxLaxClient
@@ -77,7 +77,6 @@ class NotificationForm(AMIDsfrBaseForm):
     )
     item_parent_partner_id = forms.ChoiceField(
         required=False,
-        choices=[("", "--------")] + [(p.id, p.name) for p in partners.values()],
     )
     item_parent_type = forms.CharField(
         required=False,
@@ -127,6 +126,9 @@ class NotificationForm(AMIDsfrBaseForm):
         self.fields["recipient_fc_hash"].widget = AutocompleteInput(
             autocomplete_url=reverse("agent-admin:api-users")
         )
+        self.fields["item_parent_partner_id"].choices = [("", "--------")] + [  # type: ignore
+            (p.slug, p.name) for p in Partner.objects.all().order_by("name")
+        ]
 
     def submit(self):
         payload = json.loads(JSONRenderer().render(self.cleaned_data))
@@ -134,9 +136,9 @@ class NotificationForm(AMIDsfrBaseForm):
         payload = {k: v for k, v in payload.items() if v not in ["", None]}
 
         # send notification as AMI partner
-        partner = partners["dinum-ami"]
+        partner = Partner.objects.get(slug="dinum-ami")
 
-        auth = BasicAuth(username=partner.id, password=partner.secret)
+        auth = BasicAuth(username=partner.slug, password=partner.secret)
         with httpxLaxClient() as httpx_client:
             response = httpx_client.put(
                 f"{settings.PUBLIC_APP_URL}/api/v2/event",
@@ -209,6 +211,7 @@ class ServiceForm(forms.ModelForm, AMIDsfrBaseForm):
             autocomplete_url=reverse("agent-admin:api-users"),
             attrs={"data-append-to": "restricted_to"},
         )
+        self.fields["partner"].queryset = Partner.objects.all().order_by("name")  # type: ignore
         self.old_instance = copy.deepcopy(self.instance)
         if self.instance.kind == Service.Kind.CATALOG:
             self.fields.pop("icon")

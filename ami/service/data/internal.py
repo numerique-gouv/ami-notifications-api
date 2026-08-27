@@ -4,7 +4,7 @@ from ami.user.models import User
 
 
 def get_internal_data(*, current_user: User) -> list[ServicesItem]:
-    services = Service.objects.all().order_by("title")
+    services = Service.objects.all().select_related("partner").order_by("title")
 
     return [
         service.to_services_item() for service in services if service.accessible_to(current_user)

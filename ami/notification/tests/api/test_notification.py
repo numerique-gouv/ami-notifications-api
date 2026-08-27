@@ -8,6 +8,7 @@ from django.utils.timezone import now
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 
 from ami.notification.models import Notification
+from ami.partner.models import Partner
 from ami.tests.utils import assert_query_fails_without_auth, get_from_stream, login
 from ami.user.models import User
 
@@ -29,14 +30,16 @@ def test_get_notifications(
     app,
     settings,
     notification: Notification,
+    partner: Partner,
 ) -> None:
     login(app, notification.user)
+    partner.icon = ""
+    partner.save()
 
     notification.item_generic_status = "new"
     notification.item_status_label = "Nouveau"
     notification.item_type = "OperationTranquilliteVacances"
     notification.item_id = "42"
-    notification.partner_slug = "psl"
     notification.content_link = "http://external-url"
     notification.internal_url = "internal-url"
     notification.save()
@@ -46,6 +49,7 @@ def test_get_notifications(
         content_body="Other notification",
         content_private_body="some private body content",
         content_title="Notification title",
+        partner=partner,
         valid_until=now() + datetime.timedelta(seconds=1),
     )
 
@@ -55,6 +59,7 @@ def test_get_notifications(
         user_id=other_user.id,
         content_body="Other notification",
         content_title="Notification title",
+        partner=partner,
     )
 
     # notification with outdated valid_until
@@ -62,6 +67,7 @@ def test_get_notifications(
         user=notification.user,
         content_body="Other notification",
         content_title="Notification title",
+        partner=partner,
         valid_until=now(),
     )
 
@@ -74,7 +80,7 @@ def test_get_notifications(
         "user_id": str(other_notification.user.id),
         "content_title": "Notification title",
         "content_body": "Other notification some private body content",
-        "content_icon": None,
+        "content_icon": "fr-icon-mail-star-line",
         "item_type": None,
         "item_id": None,
         "item_status_label": None,
@@ -110,22 +116,26 @@ def test_get_notifications_icon(
     app,
     settings,
     notification: Notification,
+    partner: Partner,
+    partner_psl: Partner,
 ) -> None:
     login(app, notification.user)
 
-    # PSL has no default icon
+    # partner with no default icon
+    partner.icon = ""
+    partner.save()
     Notification.objects.create(
         user=notification.user,
         content_body="Notification",
         content_title="Notification title",
         content_icon="icon-psl",
-        partner_slug="psl",
+        partner=partner_psl,
     )
     Notification.objects.create(
         user=notification.user,
         content_body="Notification",
         content_title="Notification title",
-        partner_slug="psl",
+        partner=partner_psl,
     )
     Notification.objects.create(
         user=notification.user,
@@ -136,7 +146,7 @@ def test_get_notifications_icon(
         item_status_label="Nouveau",
         item_type="OperationTranquilliteVacances",
         item_id="42",
-        partner_slug="psl",
+        partner=partner_psl,
     )
     for status in ["new", "wip", "closed"]:
         Notification.objects.create(
@@ -147,7 +157,7 @@ def test_get_notifications_icon(
             item_status_label="Label",
             item_type="OperationTranquilliteVacances",
             item_id="42",
-            partner_slug="psl",
+            partner=partner_psl,
         )
     # missing content item field
     for field in ["item_generic_status", "item_status_label", "item_type", "item_id"]:
@@ -159,24 +169,26 @@ def test_get_notifications_icon(
             "item_status_label": "Nouveau",
             "item_type": "OperationTranquilliteVacances",
             "item_id": "42",
-            "partner_slug": "psl",
+            "partner": partner_psl,
         }
         data.pop(field)
         Notification.objects.create(**data)
 
-    # DINUM AMI as default icon
+    # partner with as default icon
+    partner.icon = "fr-icon-smartphone-line"
+    partner.save()
     Notification.objects.create(
         user=notification.user,
         content_body="Notification",
         content_title="Notification title",
         content_icon="icon-dinum-ami",
-        partner_slug="dinum-ami",
+        partner=partner,
     )
     Notification.objects.create(
         user=notification.user,
         content_body="Notification",
         content_title="Notification title",
-        partner_slug="dinum-ami",
+        partner=partner,
     )
     Notification.objects.create(
         user=notification.user,
@@ -187,7 +199,7 @@ def test_get_notifications_icon(
         item_status_label="Nouveau",
         item_type="JeDéménage",
         item_id="42",
-        partner_slug="dinum-ami",
+        partner=partner,
     )
     for status in ["new", "wip", "closed"]:
         Notification.objects.create(
@@ -198,7 +210,7 @@ def test_get_notifications_icon(
             item_status_label="Label",
             item_type="JeDéménage",
             item_id="42",
-            partner_slug="dinum-ami",
+            partner=partner,
         )
     # missing content item field
     for field in ["item_generic_status", "item_status_label", "item_type", "item_id"]:
@@ -210,7 +222,7 @@ def test_get_notifications_icon(
             "item_status_label": "Nouveau",
             "item_type": "JeDéménage",
             "item_id": "42",
-            "partner_slug": "dinum-ami",
+            "partner": partner,
         }
         data.pop(field)
         Notification.objects.create(**data)
@@ -237,7 +249,7 @@ def test_get_notifications_icon(
         "icon-psl-event",
         "fr-icon-mail-star-line",
         "icon-psl",
-        None,
+        "fr-icon-smartphone-line",
     ]
 
 
@@ -250,9 +262,12 @@ def test_get_notifications_without_auth(app) -> None:
 def test_read_notification(
     app,
     notification: Notification,
+    partner: Partner,
     websocket: WebsocketCommunicator,
 ) -> None:
     login(app, notification.user)
+    partner.icon = ""
+    partner.save()
 
     # notification for another user, can not be patched by test user
     other_user = User.objects.create(fc_hash="fc-hash")
@@ -260,6 +275,7 @@ def test_read_notification(
         user_id=str(other_user.id),
         content_body="Other notification",
         content_title="Notification title",
+        partner=partner,
     )
 
     # invalid, no payload
@@ -295,7 +311,7 @@ def test_read_notification(
         "user_id": str(notification.user.id),
         "content_title": "Notification title",
         "content_body": "Hello notification",
-        "content_icon": None,
+        "content_icon": "fr-icon-mail-star-line",
         "item_type": None,
         "item_id": None,
         "item_status_label": None,

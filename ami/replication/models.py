@@ -49,9 +49,7 @@ class AnonymizedNotification(AnonymizedModel):
 
     item_type = models.CharField(blank=True, null=True)
     item_id = models.CharField(blank=True, null=True)
-    item_parent_partner_slug = models.CharField(
-        blank=True, null=True, db_column="item_parent_partner_id"
-    )
+    item_parent_partner_id = models.UUIDField(blank=True, null=True)
     item_parent_type = models.CharField(blank=True, null=True)
     item_parent_id = models.CharField(blank=True, null=True)
     item_status_label = models.CharField(blank=True, null=True)
@@ -61,7 +59,7 @@ class AnonymizedNotification(AnonymizedModel):
     item_milestone_end_date = models.DateTimeField(blank=True, null=True)
 
     send_status = models.BooleanField(blank=True, null=True)
-    partner_slug = models.CharField(db_column="partner_id")
+    partner_id = models.UUIDField(null=True)
     internal_url = models.CharField(blank=True, null=True)
 
     read = models.BooleanField(default=False)

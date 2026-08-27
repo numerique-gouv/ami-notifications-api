@@ -8,6 +8,7 @@ from django.utils.timezone import now
 from pytest_httpx import HTTPXMock
 
 from ami.notification.models import Notification, ScheduledNotification
+from ami.partner.models import Partner
 from ami.tests.utils import get_from_stream
 from ami.user.models import Registration, User
 
@@ -16,6 +17,7 @@ from ami.user.models import Registration, User
 async def test_command_publish_scheduled_notifications(
     websocket: WebsocketCommunicator,
     webpush_registration: Registration,
+    partner: Partner,
     httpx_mock: HTTPXMock,
 ) -> None:
     user = webpush_registration.user
@@ -77,7 +79,7 @@ async def test_command_publish_scheduled_notifications(
     assert notification.content_link is None
     assert notification.item_type is None
     assert notification.item_id is None
-    assert notification.item_parent_partner_slug is None
+    assert notification.item_parent_partner is None
     assert notification.item_parent_type is None
     assert notification.item_parent_id is None
     assert notification.item_status_label is None
@@ -89,7 +91,7 @@ async def test_command_publish_scheduled_notifications(
     assert notification.internal_url == "internal-url-3"
     assert notification.event_date is not None
     assert notification.valid_until is None
-    assert notification.partner_slug == "dinum-ami"
+    assert notification.partner_id == partner.id
     assert notification.read is False
     assert notification.try_push is None
     assert notification.send_status is True
@@ -105,6 +107,7 @@ async def test_command_publish_scheduled_notifications(
 @pytest.mark.django_db
 def test_command_publish_scheduled_notification_when_registration_gone(
     webpush_registration: Registration,
+    partner: Partner,
     httpx_mock: HTTPXMock,
 ) -> None:
     user = webpush_registration.user
@@ -130,6 +133,7 @@ def test_command_publish_scheduled_notification_when_registration_gone(
 @pytest.mark.django_db
 def test_command_publish_scheduled_notification_no_registration(
     user: User,
+    partner: Partner,
     httpx_mock: HTTPXMock,
 ) -> None:
     ScheduledNotification.objects.create(
@@ -151,6 +155,7 @@ def test_command_publish_scheduled_notification_no_registration(
 @pytest.mark.django_db
 def test_command_publish_scheduled_notification_never_seen_user(
     never_seen_user: User,
+    partner: Partner,
     httpx_mock: HTTPXMock,
 ) -> None:
     ScheduledNotification.objects.create(

@@ -128,10 +128,10 @@ If the fc_hash does not exist, or if consent has not been given, returns a null 
 @authentication_classes([PartnerBasicAuthentication])
 @permission_classes([IsPartnerAuthenticated])
 def consent(request: Request, fc_hash: str) -> Response:
-    partner_id = request.ami_partner.id
+    partner = request.ami_partner
 
     if request.method == "GET":
-        consent = Consent.objects.filter(user__fc_hash=fc_hash, partner_slug=partner_id).first()
+        consent = Consent.objects.filter(user__fc_hash=fc_hash, partner=partner).first()
         consent_datetime = consent.consent_datetime if consent else None
 
         response_serializer = ConsentResponseSerializer({"consent_datetime": consent_datetime})
@@ -149,7 +149,7 @@ def consent(request: Request, fc_hash: str) -> Response:
     consent_datetime = now() if data["consent"] else None
     Consent.objects.update_or_create(
         user=user,
-        partner_slug=partner_id,
+        partner=partner,
         defaults={"consent_datetime": consent_datetime},
         create_defaults={"consent_datetime": consent_datetime},
     )
@@ -168,7 +168,9 @@ def consent(request: Request, fc_hash: str) -> Response:
 @ami_login_required
 def consents(request: Request) -> Response:
     if request.method == "GET":
-        consents_qs: QuerySet[Consent] = request.ami_user.consent_set.all()
+        consents_qs: QuerySet[Consent] = request.ami_user.consent_set.all().select_related(
+            "partner"
+        )
         return Response(ConsentSerializer(consents_qs, many=True).data)
 
     serializer = ConsentUpdateSerializer(data=request.data)
@@ -182,7 +184,7 @@ def consents(request: Request) -> Response:
     consent_datetime = now() if data["consent"] else None
     Consent.objects.update_or_create(
         user=request.ami_user,
-        partner_slug=data["partner_slug"],
+        partner_id=data["partner_id"],
         defaults={"consent_datetime": consent_datetime},
         create_defaults={"consent_datetime": consent_datetime},
     )
