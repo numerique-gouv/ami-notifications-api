@@ -1,5 +1,5 @@
 name: e2e pr
-# Reusable, invoqué uniquement par e2e-after-deploy.yml une fois Scalingo déployé (jamais
+# Reusable, invoqué uniquement par workflow-e2e-trigger-after-deploy.yml une fois Scalingo déployé (jamais
 # directement sur pull_request : ça recréerait le deadlock où Scalingo attend un check e2e qui
 # attend lui-même Scalingo, cf. ADR CI GitHub Actions). Les jobs requis (lint-and-format/python/
 # mobile-app) sont couverts indépendamment par pytest.yml (on: push — un push sur une branche de
@@ -29,5 +29,5 @@ jobs:
       pr_number: ${{ inputs.pr_number }}
       source_sha: ${{ inputs.source_sha }}
       checkout_ref: ${{ inputs.checkout_ref }}
-      wait_for_scalingo_step: false # l'appelant (e2e-after-deploy.yml) a déjà vérifié le succès
+      wait_for_scalingo_step: false # l'appelant (workflow-e2e-trigger-after-deploy.yml) a déjà vérifié le succès
     secrets: inherit
