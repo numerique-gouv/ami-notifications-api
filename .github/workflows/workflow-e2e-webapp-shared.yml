@@ -76,7 +76,7 @@ jobs:
       # allure-action lit son contexte (eventName, payload, sha) via @actions/github, qui relit
       # process.env.GITHUB_EVENT_NAME / GITHUB_EVENT_PATH / GITHUB_SHA à chaque instanciation (pas
       # de cache) : `isPullRequest = eventName === "pull_request" && Boolean(payload.pull_request)`,
-      # sinon aucun commentaire n'est posté. Ce job est appelé (via e2e-after-deploy.yml) depuis un
+      # sinon aucun commentaire n'est posté. Ce job est appelé (via workflow-e2e-trigger-after-deploy.yml) depuis un
       # événement `status`, jamais `pull_request` — et sur `status`, GITHUB_SHA vaut le HEAD de la
       # branche par défaut, pas le commit concerné. On fabrique donc un événement pull_request
       # minimal (numéro + head.sha connus via inputs) et on ne surcharge GITHUB_EVENT_NAME/
