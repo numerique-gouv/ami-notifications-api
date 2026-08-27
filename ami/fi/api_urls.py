@@ -6,6 +6,7 @@ urlpatterns = [
     path("authorize/", views.authorize, name="ami-fi-authorize"),
     path("token/", api_views.token),
     path("userinfo/", api_views.userinfo),
+    path("jwks", api_views.jwks),
     path("logout/", api_views.logout),
     path("passkey/generate-registration-options", api_views.passkey_generate_registration_options),
     path("passkey/verify-registration", api_views.passkey_verify_registration),

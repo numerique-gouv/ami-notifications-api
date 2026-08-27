@@ -11,7 +11,7 @@ import jwt
 from django.conf import settings
 from django.contrib.auth.hashers import make_password
 from django.core import signing
-from django.http import Http404, HttpResponseBadRequest, HttpResponseRedirect
+from django.http import Http404, HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect
 from rest_framework import serializers
 from rest_framework.decorators import api_view
@@ -40,7 +40,7 @@ from ami.fi.api_exceptions import (
 )
 from ami.fi.models import FISession, UserPasskey
 from ami.fi.serializers import TokenSerializer
-from ami.fi.utils import generate_id_token
+from ami.fi.utils import generate_id_token, generate_jwk
 from ami.user.utils import build_fc_hash
 
 logger = logging.getLogger(__name__)
@@ -77,8 +77,8 @@ def token(request: Request) -> Response:
 
     encoded_id_token = jwt.encode(
         generate_id_token(fi_session),
-        data["client_secret"],
-        algorithm="HS256",
+        key=settings.FI_PRIVATE_KEY_PEM,
+        algorithm="ES256",
     )
 
     access_token = token_urlsafe(64)
@@ -292,3 +292,8 @@ def passkey_verify_authentication(request):
     return Response(
         {"verified": authentication_verification.user_verified, "redirect_uri": redirect_uri}
     )
+
+
+def jwks(request):
+    pem_public_key = settings.FI_PUBLIC_KEY_PEM.encode()
+    return JsonResponse({"keys": [generate_jwk(pem_public_key, kid=settings.FI_KEY_ID)]})

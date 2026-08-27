@@ -18,6 +18,9 @@ def test_token(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     settings.PUBLIC_FC_PROXY_BASE_URL = "https://fake-fc-proxy"
+    settings.FI_PRIVATE_KEY_PEM = (
+        """-----BEGIN EC PRIVATE KEY----- XXX -----END EC PRIVATE KEY-----"""
+    )
     nonce = "fake-nonce"
     code = "fake-code"
     code_hash = make_password(code, settings.FI_HASH_SALT)
@@ -53,8 +56,8 @@ def test_token(
             "nonce": "fake-nonce",
             "acr": "eidas1",
         },
-        settings.FI_CLIENT_SECRET,
-        algorithm="HS256",
+        key=settings.FI_PRIVATE_KEY_PEM,
+        algorithm="ES256",
     )
     fi_session.refresh_from_db()
     assert fi_session.access_token == expected_access_token
