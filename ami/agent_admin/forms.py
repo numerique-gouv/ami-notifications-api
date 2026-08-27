@@ -75,8 +75,9 @@ class NotificationForm(AMIDsfrBaseForm):
     item_id = forms.CharField(
         required=False,
     )
-    item_parent_partner_id = forms.CharField(
+    item_parent_partner_id = forms.ChoiceField(
         required=False,
+        choices=[("", "--------")] + [(p.id, p.name) for p in partners.values()],
     )
     item_parent_type = forms.CharField(
         required=False,
