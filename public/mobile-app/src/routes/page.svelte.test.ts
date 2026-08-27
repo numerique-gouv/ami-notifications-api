@@ -19,6 +19,24 @@ describe('/+page.svelte', () => {
     vi.resetAllMocks();
   });
 
+  test('should go to login page if ?is_logged_out is present', async () => {
+    // Given
+    const { page } = await import('$app/state');
+    const mockSearchParams = new URLSearchParams('is_logged_out');
+    vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
+    const spy = vi
+      .spyOn(navigationMethods, 'goto')
+      .mockImplementation(() => Promise.resolve());
+
+    // When
+    render(Page);
+
+    // Then
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledWith('/?is_logged_out#/login');
+    });
+  });
+
   test('should get out if user is not connected', async () => {
     // Given
     const spy = vi

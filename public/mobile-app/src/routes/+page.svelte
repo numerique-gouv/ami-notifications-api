@@ -7,6 +7,10 @@
   import { toastStore } from '$lib/state/toast.svelte';
   import { userStore } from '$lib/state/User.svelte';
 
+  if (page.url.searchParams.has('is_logged_out')) {
+    goto('/?is_logged_out#/login');
+  }
+
   if (!userStore.connected) {
     goto('/#/login');
   }
