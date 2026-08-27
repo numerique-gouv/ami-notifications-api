@@ -1,5 +1,6 @@
 import datetime
 
+import jwt
 import pytest
 from django.conf import settings
 from django.contrib.auth.hashers import make_password
@@ -10,13 +11,26 @@ from ami.fi.models import FISession
 @pytest.mark.django_db
 def test_userinfo(
     app,
+    settings,
 ) -> None:
+    settings.FI_PUBLIC_KEY_PEM = """-----BEGIN PUBLIC KEY-----
+MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEiE6BySwCPar5xw4ftKWA53oRScxM
+dYTur2ZBpo87ixjtKgixY0IZPPBysY8ji0hqLexMzyPn0awzUcUpzAuV3Q==
+-----END PUBLIC KEY-----"""
+    settings.FI_PRIVATE_KEY_PEM = """-----BEGIN EC PRIVATE KEY-----
+MHcCAQEEIDhlh6aexVQQGXn4ZneIQQ3SjuLyAMD9lUJC96Xdwu/+oAoGCCqGSM49
+AwEHoUQDQgAEiE6BySwCPar5xw4ftKWA53oRScxMdYTur2ZBpo87ixjtKgixY0IZ
+PPBysY8ji0hqLexMzyPn0awzUcUpzAuV3Q==
+-----END EC PRIVATE KEY-----"""
     auth_token = "fake-access-token"
     auth_token_hash = make_password(auth_token, settings.FI_HASH_SALT)
     user_data = {"fake-key": "fake-user-data"}
     FISession.objects.create(user_data=user_data, access_token=auth_token_hash)
     response = app.get("/api/v1/fi/userinfo/", headers={"AUTHORIZATION": f"Bearer {auth_token}"})
-    assert response.json == user_data
+    assert (
+        jwt.decode(response.content, key=settings.FI_PUBLIC_KEY_PEM, algorithms=["ES256"])
+        == user_data
+    )
 
 
 @pytest.mark.django_db

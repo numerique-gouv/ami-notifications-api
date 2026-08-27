@@ -11,7 +11,13 @@ import jwt
 from django.conf import settings
 from django.contrib.auth.hashers import make_password
 from django.core import signing
-from django.http import Http404, HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
+from django.http import (
+    Http404,
+    HttpResponse,
+    HttpResponseBadRequest,
+    HttpResponseRedirect,
+    JsonResponse,
+)
 from django.shortcuts import redirect
 from rest_framework import serializers
 from rest_framework.decorators import api_view
@@ -96,7 +102,7 @@ def token(request: Request) -> Response:
 
 
 @api_view(["GET"])
-def userinfo(request: Request) -> Response:
+def userinfo(request: Request) -> HttpResponse:
     if not settings.FI_SILENT_LOGIN_ENABLED:
         raise Http404
     auth_header = request.META.get("HTTP_AUTHORIZATION")
@@ -120,7 +126,12 @@ def userinfo(request: Request) -> Response:
         logger.error("Session de connexion à AMI-FI non trouvée")
         raise FISessionNotFound
 
-    return Response(fi_session.user_data)
+    encoded_user_info = jwt.encode(
+        fi_session.user_data,
+        key=settings.FI_PRIVATE_KEY_PEM,
+        algorithm="ES256",
+    )
+    return HttpResponse(encoded_user_info, content_type="application/jwt")
 
 
 @api_view(["GET"])
