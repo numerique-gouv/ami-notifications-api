@@ -4,7 +4,7 @@ from django.conf import settings
 
 
 @dataclass
-class Partner:
+class OldPartner:
     id: str
     name: str
     secret: str
@@ -13,29 +13,29 @@ class Partner:
     followup_from_notifications: bool = True
 
 
-partners: dict[str, Partner] = {
-    "psl": Partner(
+partners: dict[str, OldPartner] = {
+    "psl": OldPartner(
         "psl",
         "PSL",
         settings.PARTNERS_PSL_SECRET,
         "",
         settings.CONSENT_PSL_ENABLED,
     ),
-    "dinum-dn": Partner(
+    "dinum-dn": OldPartner(
         "dinum-dn",
         "demarche.numerique.gouv.fr",
         settings.PARTNERS_DINUM_DN_SECRET,
         "fr-icon-infinity-line",
         settings.CONSENT_DINUM_DN_ENABLED,
     ),
-    "dinum-ami": Partner(
+    "dinum-ami": OldPartner(
         "dinum-ami",
         "AMI",
         settings.PARTNERS_DINUM_AMI_SECRET,
         "fr-icon-smartphone-line",
         settings.CONSENT_DINUM_AMI_ENABLED,
     ),
-    "dinum-rdvsp": Partner(
+    "dinum-rdvsp": OldPartner(
         "dinum-rdvsp",
         "RDV SP",
         settings.PARTNERS_DINUM_RDVSP_SECRET,

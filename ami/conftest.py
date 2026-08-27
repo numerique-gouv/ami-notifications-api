@@ -258,7 +258,7 @@ def mobile_registration(user: User, mobileAppSubscription: dict[str, Any]) -> Re
 
 @pytest.fixture
 def consent(user: User) -> Consent:
-    return Consent.objects.create(user=user, partner_id="dinum-ami", consent_datetime=now())
+    return Consent.objects.create(user=user, partner_slug="dinum-ami", consent_datetime=now())
 
 
 @pytest.fixture

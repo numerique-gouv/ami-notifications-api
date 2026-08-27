@@ -63,7 +63,7 @@ def archive_followup_item(
             item_type__isnull=False,
             item_id__isnull=False,
             user=request.ami_user,
-            partner_id=partner_id,
+            partner_slug=partner_id,
             item_type=item_type,
             item_id=item_id,
         )
@@ -78,11 +78,11 @@ def archive_followup_item(
                 item_type__isnull=False,
                 item_id__isnull=False,
                 user=request.ami_user,
-                item_parent_partner_id=partner_id,
+                item_parent_partner_slug=partner_id,
                 item_parent_type=item_type,
                 item_parent_id=item_id,
             )
-            .values_list("partner_id", "item_type", "item_id")
+            .values_list("partner_slug", "item_type", "item_id")
             .distinct()
         )
         if len(sub_notifications_qs) < 2:
@@ -91,7 +91,7 @@ def archive_followup_item(
         # create empty notification for parent item
         notification = Notification.objects.create(
             user=request.ami_user,
-            partner_id=partner_id,
+            partner_slug=partner_id,
             item_type=item_type,
             item_id=item_id,
             item_generic_status="new",

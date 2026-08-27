@@ -36,7 +36,7 @@ def test_get_notifications(
     notification.item_status_label = "Nouveau"
     notification.item_type = "OperationTranquilliteVacances"
     notification.item_id = "42"
-    notification.partner_id = "psl"
+    notification.partner_slug = "psl"
     notification.content_link = "http://external-url"
     notification.internal_url = "internal-url"
     notification.save()
@@ -119,13 +119,13 @@ def test_get_notifications_icon(
         content_body="Notification",
         content_title="Notification title",
         content_icon="icon-psl",
-        partner_id="psl",
+        partner_slug="psl",
     )
     Notification.objects.create(
         user=notification.user,
         content_body="Notification",
         content_title="Notification title",
-        partner_id="psl",
+        partner_slug="psl",
     )
     Notification.objects.create(
         user=notification.user,
@@ -136,7 +136,7 @@ def test_get_notifications_icon(
         item_status_label="Nouveau",
         item_type="OperationTranquilliteVacances",
         item_id="42",
-        partner_id="psl",
+        partner_slug="psl",
     )
     for status in ["new", "wip", "closed"]:
         Notification.objects.create(
@@ -147,7 +147,7 @@ def test_get_notifications_icon(
             item_status_label="Label",
             item_type="OperationTranquilliteVacances",
             item_id="42",
-            partner_id="psl",
+            partner_slug="psl",
         )
     # missing content item field
     for field in ["item_generic_status", "item_status_label", "item_type", "item_id"]:
@@ -159,7 +159,7 @@ def test_get_notifications_icon(
             "item_status_label": "Nouveau",
             "item_type": "OperationTranquilliteVacances",
             "item_id": "42",
-            "partner_id": "psl",
+            "partner_slug": "psl",
         }
         data.pop(field)
         Notification.objects.create(**data)
@@ -170,13 +170,13 @@ def test_get_notifications_icon(
         content_body="Notification",
         content_title="Notification title",
         content_icon="icon-dinum-ami",
-        partner_id="dinum-ami",
+        partner_slug="dinum-ami",
     )
     Notification.objects.create(
         user=notification.user,
         content_body="Notification",
         content_title="Notification title",
-        partner_id="dinum-ami",
+        partner_slug="dinum-ami",
     )
     Notification.objects.create(
         user=notification.user,
@@ -187,7 +187,7 @@ def test_get_notifications_icon(
         item_status_label="Nouveau",
         item_type="JeDéménage",
         item_id="42",
-        partner_id="dinum-ami",
+        partner_slug="dinum-ami",
     )
     for status in ["new", "wip", "closed"]:
         Notification.objects.create(
@@ -198,7 +198,7 @@ def test_get_notifications_icon(
             item_status_label="Label",
             item_type="JeDéménage",
             item_id="42",
-            partner_id="dinum-ami",
+            partner_slug="dinum-ami",
         )
     # missing content item field
     for field in ["item_generic_status", "item_status_label", "item_type", "item_id"]:
@@ -210,7 +210,7 @@ def test_get_notifications_icon(
             "item_status_label": "Nouveau",
             "item_type": "JeDéménage",
             "item_id": "42",
-            "partner_id": "dinum-ami",
+            "partner_slug": "dinum-ami",
         }
         data.pop(field)
         Notification.objects.create(**data)

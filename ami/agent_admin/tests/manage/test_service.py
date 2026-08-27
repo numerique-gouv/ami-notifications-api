@@ -45,7 +45,7 @@ def test_add_service(app, admin_agent: Agent) -> None:
 
     assert "kind" not in response.context["form"].fields
     assert "icon" not in response.context["form"].fields
-    assert response.forms["service-form"]["partner_id"].value == ""
+    assert response.forms["service-form"]["partner_slug"].value == ""
     assert response.forms["service-form"]["item_type"].value == ""
     assert response.forms["service-form"]["title"].value == ""
     assert response.forms["service-form"]["short_description"].value == ""
@@ -69,7 +69,7 @@ def test_add_service_submit_validation_errors(app, admin_agent: Agent) -> None:
     response = app.get("/agent-admin/manage/service/add/catalog/")
     response = response.forms["service-form"].submit()
     assert response.context["form"].errors == {
-        "partner_id": ["Ce champ est obligatoire."],
+        "partner_slug": ["Ce champ est obligatoire."],
         "item_type": ["Ce champ est obligatoire."],
         "title": ["Ce champ est obligatoire."],
         "short_description": ["Ce champ est obligatoire."],
@@ -80,7 +80,7 @@ def test_add_service_submit_validation_errors(app, admin_agent: Agent) -> None:
     response = app.get("/agent-admin/manage/service/add/sos/")
     response = response.forms["service-form"].submit()
     assert response.context["form"].errors == {
-        "partner_id": ["Ce champ est obligatoire."],
+        "partner_slug": ["Ce champ est obligatoire."],
         "item_type": ["Ce champ est obligatoire."],
         "title": ["Ce champ est obligatoire."],
         "short_description": ["Ce champ est obligatoire."],
@@ -91,7 +91,7 @@ def test_add_service_submit_validation_errors(app, admin_agent: Agent) -> None:
     response = app.get("/agent-admin/manage/service/add/steps/")
     response = response.forms["service-form"].submit()
     assert response.context["form"].errors == {
-        "partner_id": ["Ce champ est obligatoire."],
+        "partner_slug": ["Ce champ est obligatoire."],
         "item_type": ["Ce champ est obligatoire."],
         "title": ["Ce champ est obligatoire."],
         "short_description": ["Ce champ est obligatoire."],
@@ -106,7 +106,7 @@ def test_add_service_submit_success(app, admin_agent: Agent) -> None:
     response = app.get("/agent-admin/manage/service/add/catalog/")
     assert Service.objects.count() == 0
 
-    response.forms["service-form"]["partner_id"] = "dinum-ami"
+    response.forms["service-form"]["partner_slug"] = "dinum-ami"
     response.forms["service-form"]["item_type"] = "JeDéménage"
     response.forms["service-form"]["title"] = "Je déménage"
     response.forms["service-form"]["short_description"] = "Démarche de changement d'adresse"
@@ -120,7 +120,7 @@ def test_add_service_submit_success(app, admin_agent: Agent) -> None:
     assert Service.objects.count() == 1
     service = Service.objects.get()
     assert service.kind == Service.Kind.CATALOG
-    assert service.partner_id == "dinum-ami"
+    assert service.partner_slug == "dinum-ami"
     assert service.item_type == "JeDéménage"
     assert service.title == "Je déménage"
     assert service.short_description == "Démarche de changement d'adresse"
@@ -151,7 +151,7 @@ def test_add_service_submit_success(app, admin_agent: Agent) -> None:
 
     response = app.get("/agent-admin/manage/service/add/sos/")
 
-    response.forms["service-form"]["partner_id"] = "dinum-ami"
+    response.forms["service-form"]["partner_slug"] = "dinum-ami"
     response.forms["service-form"]["item_type"] = "JeDéménage"
     response.forms["service-form"]["title"] = "Je déménage"
     response.forms["service-form"]["short_description"] = "Démarche de changement d'adresse"
@@ -166,7 +166,7 @@ def test_add_service_submit_success(app, admin_agent: Agent) -> None:
     assert Service.objects.count() == 2
     service = Service.objects.latest("created_at")
     assert service.kind == Service.Kind.SOS
-    assert service.partner_id == "dinum-ami"
+    assert service.partner_slug == "dinum-ami"
     assert service.item_type == "JeDéménage"
     assert service.title == "Je déménage"
     assert service.short_description == "Démarche de changement d'adresse"
@@ -178,7 +178,7 @@ def test_add_service_submit_success(app, admin_agent: Agent) -> None:
 
     response = app.get("/agent-admin/manage/service/add/steps/")
 
-    response.forms["service-form"]["partner_id"] = "dinum-ami"
+    response.forms["service-form"]["partner_slug"] = "dinum-ami"
     response.forms["service-form"]["item_type"] = "JeDéménage"
     response.forms["service-form"]["title"] = "Je déménage"
     response.forms["service-form"]["short_description"] = "Démarche de changement d'adresse"
@@ -193,7 +193,7 @@ def test_add_service_submit_success(app, admin_agent: Agent) -> None:
     assert Service.objects.count() == 3
     service = Service.objects.latest("created_at")
     assert service.kind == Service.Kind.STEPS
-    assert service.partner_id == "dinum-ami"
+    assert service.partner_slug == "dinum-ami"
     assert service.item_type == "JeDéménage"
     assert service.title == "Je déménage"
     assert service.short_description == "Démarche de changement d'adresse"
@@ -210,7 +210,7 @@ def test_add_service_submit_success_duplicated_restricted_to(app, admin_agent: A
     response = app.get("/agent-admin/manage/service/add/catalog/")
     assert Service.objects.count() == 0
 
-    response.forms["service-form"]["partner_id"] = "dinum-ami"
+    response.forms["service-form"]["partner_slug"] = "dinum-ami"
     response.forms["service-form"]["item_type"] = "JeDéménage"
     response.forms["service-form"]["title"] = "Je déménage"
     response.forms["service-form"]["short_description"] = "Démarche de changement d'adresse"
@@ -255,7 +255,7 @@ def test_edit_service(app, admin_agent: Agent, services: list[Service]) -> None:
 
     assert "kind" not in response.context["form"].fields
     assert "icon" not in response.context["form"].fields
-    assert response.forms["service-form"]["partner_id"].value == "dinum-dn"
+    assert response.forms["service-form"]["partner_slug"].value == "dinum-dn"
     assert response.forms["service-form"]["item_type"].value == "ContacterAMI"
     assert response.forms["service-form"]["title"].value == "Contacter l'équipe AMI"
     assert response.forms["service-form"]["short_description"].value == "Faites-nous votre retour"
@@ -291,7 +291,7 @@ def test_edit_service_submit_validation_errors(
 ) -> None:
     app.set_user(admin_agent.user)
     response = app.get(f"/agent-admin/manage/service/{services[0].id}/")
-    response.forms["service-form"]["partner_id"].value = ""
+    response.forms["service-form"]["partner_slug"].value = ""
     response.forms["service-form"]["item_type"].value = ""
     response.forms["service-form"]["title"].value = ""
     response.forms["service-form"]["short_description"].value = ""
@@ -300,7 +300,7 @@ def test_edit_service_submit_validation_errors(
     response.forms["service-form"]["restricted_to"].value = ""
     response = response.forms["service-form"].submit()
     assert response.context["form"].errors == {
-        "partner_id": ["Ce champ est obligatoire."],
+        "partner_slug": ["Ce champ est obligatoire."],
         "item_type": ["Ce champ est obligatoire."],
         "title": ["Ce champ est obligatoire."],
         "short_description": ["Ce champ est obligatoire."],
@@ -309,7 +309,7 @@ def test_edit_service_submit_validation_errors(
     }
 
     response = app.get(f"/agent-admin/manage/service/{services[2].id}/")
-    response.forms["service-form"]["partner_id"].value = ""
+    response.forms["service-form"]["partner_slug"].value = ""
     response.forms["service-form"]["item_type"].value = ""
     response.forms["service-form"]["title"].value = ""
     response.forms["service-form"]["short_description"].value = ""
@@ -319,7 +319,7 @@ def test_edit_service_submit_validation_errors(
     response.forms["service-form"]["restricted_to"].value = ""
     response = response.forms["service-form"].submit()
     assert response.context["form"].errors == {
-        "partner_id": ["Ce champ est obligatoire."],
+        "partner_slug": ["Ce champ est obligatoire."],
         "item_type": ["Ce champ est obligatoire."],
         "title": ["Ce champ est obligatoire."],
         "short_description": ["Ce champ est obligatoire."],
@@ -328,7 +328,7 @@ def test_edit_service_submit_validation_errors(
     }
 
     response = app.get(f"/agent-admin/manage/service/{services[3].id}/")
-    response.forms["service-form"]["partner_id"].value = ""
+    response.forms["service-form"]["partner_slug"].value = ""
     response.forms["service-form"]["item_type"].value = ""
     response.forms["service-form"]["title"].value = ""
     response.forms["service-form"]["short_description"].value = ""
@@ -338,7 +338,7 @@ def test_edit_service_submit_validation_errors(
     response.forms["service-form"]["restricted_to"].value = ""
     response = response.forms["service-form"].submit()
     assert response.context["form"].errors == {
-        "partner_id": ["Ce champ est obligatoire."],
+        "partner_slug": ["Ce champ est obligatoire."],
         "item_type": ["Ce champ est obligatoire."],
         "title": ["Ce champ est obligatoire."],
         "short_description": ["Ce champ est obligatoire."],
@@ -353,7 +353,7 @@ def test_edit_service_submit_success(app, admin_agent: Agent, services: list[Ser
     service = services[0]
     response = app.get(f"/agent-admin/manage/service/{service.id}/")
 
-    response.forms["service-form"]["partner_id"] = "dinum-ami"
+    response.forms["service-form"]["partner_slug"] = "dinum-ami"
     response.forms["service-form"]["item_type"] = "JeDéménage"
     response.forms["service-form"]["title"] = "Je déménage"
     response.forms["service-form"]["short_description"] = "Démarche de changement d'adresse"
@@ -367,7 +367,7 @@ def test_edit_service_submit_success(app, admin_agent: Agent, services: list[Ser
     assert Service.objects.count() == 4
     service.refresh_from_db()
     assert service.kind == Service.Kind.CATALOG
-    assert service.partner_id == "dinum-ami"
+    assert service.partner_slug == "dinum-ami"
     assert service.item_type == "JeDéménage"
     assert service.title == "Je déménage"
     assert service.short_description == "Démarche de changement d'adresse"
