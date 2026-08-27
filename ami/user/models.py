@@ -22,7 +22,7 @@ class Consent(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     user = models.ForeignKey(User, on_delete=models.PROTECT)
-    partner_id = models.CharField(max_length=100)
+    partner_slug = models.CharField(max_length=100, db_column="partner_id")
     consent_datetime = models.DateTimeField(blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -30,7 +30,7 @@ class Consent(models.Model):
 
     class Meta:
         db_table = "consent"
-        unique_together = (("user", "partner_id"),)
+        unique_together = (("user", "partner_slug"),)
 
 
 class MobileAppSubscription(BaseModel):

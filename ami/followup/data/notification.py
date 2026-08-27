@@ -19,24 +19,24 @@ def get_notifications_data(*, current_user: User) -> list[FollowupItem]:
         item_type__isnull=False,
         item_id__isnull=False,
         user=current_user,
-        partner_id__in=[p.id for p in partners.values() if p.followup_from_notifications],
+        partner_slug__in=[p.id for p in partners.values() if p.followup_from_notifications],
     )
 
     services_by_id: collections.defaultdict[str, Service] = collections.defaultdict()
     for service in Service.objects.all():
-        external_id = f"{service.partner_id}:{service.item_type}"
+        external_id = f"{service.partner_slug}:{service.item_type}"
         services_by_id[external_id] = service
 
     notifications_followup = NotificationsFollowup()
     notifications_followup.services_by_id = services_by_id
     for notification in notifications:
-        external_id = f"{notification.partner_id}:{notification.item_type}:{notification.item_id}"
+        external_id = f"{notification.partner_slug}:{notification.item_type}:{notification.item_id}"
         if (
-            notification.item_parent_partner_id
+            notification.item_parent_partner_slug
             and notification.item_parent_type
             and notification.item_parent_id
         ):
-            external_parent_id = f"{notification.item_parent_partner_id}:{notification.item_parent_type}:{notification.item_parent_id}"
+            external_parent_id = f"{notification.item_parent_partner_slug}:{notification.item_parent_type}:{notification.item_parent_id}"
             notifications_followup.add_sub_notification(
                 external_parent_id, external_id, notification
             )

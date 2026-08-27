@@ -26,7 +26,7 @@ def test_get_notifications_data_no_notifications_for_user(user: User) -> None:
         user_id=other_user.id,
         content_body="Other notification",
         content_title="Notification title",
-        partner_id="psl",
+        partner_slug="psl",
     )
 
     result = get_notifications_data(current_user=user)
@@ -45,7 +45,7 @@ def test_get_notifications_data_partner_without_notifications(
         user_id=user.id,
         content_body="Other notification",
         content_title="Notification title",
-        partner_id="psl",
+        partner_slug="psl",
     )
 
     result = get_notifications_data(current_user=user)
@@ -63,7 +63,7 @@ def test_get_notifications_data_incomplete_notifications(user: User) -> None:
         item_status_label="Nouveau",
         item_type="OperationTranquilliteVacances",
         item_id="42",
-        partner_id="psl",
+        partner_slug="psl",
     )
     # no item_status_label
     Notification.objects.create(
@@ -73,7 +73,7 @@ def test_get_notifications_data_incomplete_notifications(user: User) -> None:
         item_generic_status="new",
         item_type="OperationTranquilliteVacances",
         item_id="42",
-        partner_id="psl",
+        partner_slug="psl",
     )
     # no item_type
     Notification.objects.create(
@@ -83,7 +83,7 @@ def test_get_notifications_data_incomplete_notifications(user: User) -> None:
         item_generic_status="new",
         item_status_label="Nouveau",
         item_id="42",
-        partner_id="psl",
+        partner_slug="psl",
     )
     # no item_id
     Notification.objects.create(
@@ -93,7 +93,7 @@ def test_get_notifications_data_incomplete_notifications(user: User) -> None:
         item_generic_status="new",
         item_status_label="Nouveau",
         item_type="OperationTranquilliteVacances",
-        partner_id="psl",
+        partner_slug="psl",
     )
 
     result = get_notifications_data(current_user=user)
@@ -112,7 +112,7 @@ def test_get_notifications_data_invalid_notifications(user: User) -> None:
         item_status_label="Nouveau",
         item_type="OperationTranquilliteVacances",
         item_id="42",
-        partner_id="psl",
+        partner_slug="psl",
     )
 
     result = get_notifications_data(current_user=user)
@@ -123,7 +123,7 @@ def test_get_notifications_data_invalid_notifications(user: User) -> None:
 @pytest.mark.django_db
 def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> None:
     Service.objects.create(
-        partner_id="psl",
+        partner_slug="psl",
         item_type="OperationTranquilliteVacances",
         title="Opération Tranquillité Vacances",
         short_description="Inscrivez-vous pour protéger votre domicile pendant votre absence",
@@ -141,7 +141,7 @@ def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> 
         item_status_label="Nouveau",
         item_type="OperationTranquilliteVacances",
         item_id="42",
-        partner_id="psl",
+        partner_slug="psl",
     )
     notification2 = Notification.objects.create(
         user_id=user.id,
@@ -152,7 +152,7 @@ def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> 
         item_type="OperationTranquilliteVacances",
         item_id="42",
         item_is_archived=True,
-        partner_id="psl",
+        partner_slug="psl",
     )
     notification3 = Notification.objects.create(
         user_id=user.id,
@@ -162,7 +162,7 @@ def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> 
         item_status_label="En cours",
         item_type="OperationTranquilliteVacances",
         item_id="42",
-        partner_id="psl",
+        partner_slug="psl",
     )
     sub_notification31 = Notification.objects.create(
         user_id=user.id,
@@ -173,8 +173,8 @@ def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> 
         item_status_label="En cours",
         item_type="SousDémarche",
         item_id="35",
-        partner_id="dinum-ami",
-        item_parent_partner_id="psl",
+        partner_slug="dinum-ami",
+        item_parent_partner_slug="psl",
         item_parent_type="OperationTranquilliteVacances",
         item_parent_id="42",
     )
@@ -189,7 +189,7 @@ def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> 
         item_id="43",
         content_link="http://foo.com",
         item_is_archived=False,
-        partner_id="psl",
+        partner_slug="psl",
     )
 
     notification5 = Notification.objects.create(
@@ -202,7 +202,7 @@ def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> 
         item_id="44",
         content_link="http://bar.com",
         item_is_archived=True,
-        partner_id="psl",
+        partner_slug="psl",
     )
     notification6 = Notification.objects.create(
         user_id=user.id,
@@ -215,7 +215,7 @@ def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> 
         item_milestone_start_date=datetime.datetime.now(datetime.timezone.utc),
         item_milestone_end_date=datetime.datetime.now(datetime.timezone.utc),
         item_is_archived=False,
-        partner_id="psl",
+        partner_slug="psl",
     )
 
     notification7 = Notification.objects.create(
@@ -226,7 +226,7 @@ def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> 
         item_status_label="Validé",
         item_type="Other",
         item_id="42",
-        partner_id="dinum-ami",
+        partner_slug="dinum-ami",
     )
 
     notification8 = Notification.objects.create(
@@ -240,7 +240,7 @@ def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> 
         item_status_label="Validé",
         item_type="Other",
         item_id="52",
-        partner_id="dinum-ami",
+        partner_slug="dinum-ami",
     )
 
     result = get_notifications_data(current_user=user)
@@ -432,7 +432,7 @@ def test_get_notifications_data_parent_and_sub_items(
         item_status_label="En cours",
         item_type="OperationTranquilliteVacances",
         item_id="42",
-        partner_id="psl",
+        partner_slug="psl",
     )
     sub_notification1 = Notification.objects.create(
         user_id=user.id,
@@ -442,8 +442,8 @@ def test_get_notifications_data_parent_and_sub_items(
         item_status_label="Nouveau",
         item_type="SousDémarche",
         item_id="35",
-        partner_id="dinum-ami",
-        item_parent_partner_id="psl",
+        partner_slug="dinum-ami",
+        item_parent_partner_slug="psl",
         item_parent_type="OperationTranquilliteVacances",
         item_parent_id="42",
     )
@@ -455,8 +455,8 @@ def test_get_notifications_data_parent_and_sub_items(
         item_status_label="En cours",
         item_type="SousDémarche",
         item_id="35",
-        partner_id="dinum-ami",
-        item_parent_partner_id="psl",
+        partner_slug="dinum-ami",
+        item_parent_partner_slug="psl",
         item_parent_type="OperationTranquilliteVacances",
         item_parent_id="42",
     )
@@ -470,8 +470,8 @@ def test_get_notifications_data_parent_and_sub_items(
         item_status_label="Nouveau",
         item_type="SousDémarcheBis",
         item_id="104",
-        partner_id="dinum-ami",
-        item_parent_partner_id="psl",
+        partner_slug="dinum-ami",
+        item_parent_partner_slug="psl",
         item_parent_type="OperationTranquilliteVacances",
         item_parent_id="42",
     )
@@ -576,7 +576,7 @@ def test_get_notifications_data_archived_parent_with_sub_item(
         item_status_label="Nouveau",
         item_type="OperationTranquilliteVacances",
         item_id="42",
-        partner_id="psl",
+        partner_slug="psl",
     )
     sub_notification1 = Notification.objects.create(
         user_id=user.id,
@@ -586,8 +586,8 @@ def test_get_notifications_data_archived_parent_with_sub_item(
         item_status_label="Nouveau",
         item_type="SousDémarche",
         item_id="35",
-        partner_id="dinum-ami",
-        item_parent_partner_id="psl",
+        partner_slug="dinum-ami",
+        item_parent_partner_slug="psl",
         item_parent_type="OperationTranquilliteVacances",
         item_parent_id="42",
     )
@@ -662,7 +662,7 @@ def test_get_notifications_data_parent_fields_do_not_match(
         item_status_label="En cours",
         item_type="OperationTranquilliteVacances",
         item_id="42",
-        partner_id="psl",
+        partner_slug="psl",
     )
     Notification.objects.create(
         user_id=user.id,
@@ -672,8 +672,8 @@ def test_get_notifications_data_parent_fields_do_not_match(
         item_status_label="Nouveau",
         item_type="SousDémarche",
         item_id="35",
-        partner_id="dinum-ami",
-        item_parent_partner_id="wrong",  # wrong partner_id
+        partner_slug="dinum-ami",
+        item_parent_partner_slug="wrong",  # wrong partner_id
         item_parent_type="OperationTranquilliteVacances",
         item_parent_id="42",
     )
@@ -685,8 +685,8 @@ def test_get_notifications_data_parent_fields_do_not_match(
         item_status_label="En cours",
         item_type="SousDémarche",
         item_id="35",
-        partner_id="dinum-ami",
-        item_parent_partner_id="psl",
+        partner_slug="dinum-ami",
+        item_parent_partner_slug="psl",
         item_parent_type="Wrong",  # wrong item_type
         item_parent_id="42",
     )
@@ -699,8 +699,8 @@ def test_get_notifications_data_parent_fields_do_not_match(
         item_status_label="Nouveau",
         item_type="SousDémarcheBis",
         item_id="104",
-        partner_id="dinum-ami",
-        item_parent_partner_id="psl",
+        partner_slug="dinum-ami",
+        item_parent_partner_slug="psl",
         item_parent_type="OperationTranquilliteVacances",
         item_parent_id="wrong",  # wrong id
     )
@@ -722,8 +722,8 @@ def test_get_notifications_data_unknown_parent(user: User, monkeypatch: pytest.M
         item_status_label="Nouveau",
         item_type="SousDémarche",
         item_id="35",
-        partner_id="dinum-ami",
-        item_parent_partner_id="psl",
+        partner_slug="dinum-ami",
+        item_parent_partner_slug="psl",
         item_parent_type="OperationTranquilliteVacances",
         item_parent_id="42",
     )
@@ -736,8 +736,8 @@ def test_get_notifications_data_unknown_parent(user: User, monkeypatch: pytest.M
         item_status_label="En cours",
         item_type="AutreSousDémarche",
         item_id="36",
-        partner_id="dinum-dn",
-        item_parent_partner_id="psl",
+        partner_slug="dinum-dn",
+        item_parent_partner_slug="psl",
         item_parent_type="OperationTranquilliteVacances",
         item_parent_id="42",
     )
@@ -820,7 +820,7 @@ def test_get_notifications_data_unknown_parent(user: User, monkeypatch: pytest.M
 
     # same but a service exists for parent item
     Service.objects.create(
-        partner_id="psl",
+        partner_slug="psl",
         item_type="OperationTranquilliteVacances",
         title="Opération Tranquillité Vacances",
         short_description="Inscrivez-vous pour protéger votre domicile pendant votre absence",
@@ -919,8 +919,8 @@ def test_get_notifications_data_unknown_parent_but_only_one_sub_item(
         item_status_label="Nouveau",
         item_type="SousDémarche",
         item_id="35",
-        partner_id="dinum-ami",
-        item_parent_partner_id="psl",
+        partner_slug="dinum-ami",
+        item_parent_partner_slug="psl",
         item_parent_type="OperationTranquilliteVacances",
         item_parent_id="42",
     )
@@ -958,7 +958,7 @@ def test_get_notifications_data_unknown_parent_but_only_one_sub_item(
 
     # same but a service exists for parent item
     Service.objects.create(
-        partner_id="dinum-ami",
+        partner_slug="dinum-ami",
         item_type="SousDémarche",
         title="Sous-démarche",
         short_description="Sous-démarche d'une autre démarche",
@@ -1010,7 +1010,7 @@ def test_get_notifications_data_parent_status(user: User, monkeypatch: pytest.Mo
         item_status_label="En cours",
         item_type="OperationTranquilliteVacances",
         item_id="42",
-        partner_id="psl",
+        partner_slug="psl",
     )
     Notification.objects.create(
         user_id=user.id,
@@ -1020,8 +1020,8 @@ def test_get_notifications_data_parent_status(user: User, monkeypatch: pytest.Mo
         item_status_label="Nouveau",
         item_type="SousDémarche",
         item_id="35",
-        partner_id="dinum-ami",
-        item_parent_partner_id="psl",
+        partner_slug="dinum-ami",
+        item_parent_partner_slug="psl",
         item_parent_type="OperationTranquilliteVacances",
         item_parent_id="42",
     )
@@ -1035,8 +1035,8 @@ def test_get_notifications_data_parent_status(user: User, monkeypatch: pytest.Mo
         item_status_label="Brouillon",
         item_type="SousDémarcheBis",
         item_id="104",
-        partner_id="dinum-ami",
-        item_parent_partner_id="psl",
+        partner_slug="dinum-ami",
+        item_parent_partner_slug="psl",
         item_parent_type="OperationTranquilliteVacances",
         item_parent_id="42",
     )
@@ -1064,8 +1064,8 @@ def test_get_notifications_data_parent_status(user: User, monkeypatch: pytest.Mo
         item_status_label="En cours",
         item_type="SousDémarcheBis",
         item_id="104",
-        partner_id="dinum-ami",
-        item_parent_partner_id="psl",
+        partner_slug="dinum-ami",
+        item_parent_partner_slug="psl",
         item_parent_type="OperationTranquilliteVacances",
         item_parent_id="42",
     )
@@ -1093,8 +1093,8 @@ def test_get_notifications_data_parent_status(user: User, monkeypatch: pytest.Mo
         item_status_label="Brouillon",
         item_type="SousDémarcheBis",
         item_id="105",
-        partner_id="dinum-ami",
-        item_parent_partner_id="psl",
+        partner_slug="dinum-ami",
+        item_parent_partner_slug="psl",
         item_parent_type="OperationTranquilliteVacances",
         item_parent_id="42",
     )
@@ -1123,7 +1123,7 @@ def test_get_notifications_data_parent_status(user: User, monkeypatch: pytest.Mo
         item_status_label="Terminé",
         item_type="OperationTranquilliteVacances",
         item_id="42",
-        partner_id="psl",
+        partner_slug="psl",
     )
 
     result = get_notifications_data(current_user=user)
@@ -1154,7 +1154,7 @@ def test_get_notifications_data_parent_and_sub_sub_items(
         item_status_label="En cours",
         item_type="OperationTranquilliteVacances",
         item_id="42",
-        partner_id="psl",
+        partner_slug="psl",
     )
     sub_notification = Notification.objects.create(
         user_id=user.id,
@@ -1164,8 +1164,8 @@ def test_get_notifications_data_parent_and_sub_sub_items(
         item_status_label="Nouveau",
         item_type="SousDémarche",
         item_id="35",
-        partner_id="dinum-ami",
-        item_parent_partner_id="psl",
+        partner_slug="dinum-ami",
+        item_parent_partner_slug="psl",
         item_parent_type="OperationTranquilliteVacances",
         item_parent_id="42",
     )
@@ -1177,8 +1177,8 @@ def test_get_notifications_data_parent_and_sub_sub_items(
         item_status_label="Nouveau",
         item_type="SousSousDémarche",
         item_id="350",
-        partner_id="dinum-dn",
-        item_parent_partner_id="dinum-ami",
+        partner_slug="dinum-dn",
+        item_parent_partner_slug="dinum-ami",
         item_parent_type="SousDémarche",
         item_parent_id="35",
     )

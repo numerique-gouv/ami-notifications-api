@@ -21,7 +21,7 @@ def test_archive_notification_item(
         item_status_label="Nouveau",
         item_type="OperationTranquilliteVacances",
         item_id="42",
-        partner_id="psl",
+        partner_slug="psl",
     )
     notification2 = Notification.objects.create(
         user_id=user.id,
@@ -31,7 +31,7 @@ def test_archive_notification_item(
         item_status_label="Nouveau",
         item_type="OperationTranquilliteVacances",
         item_id="42",
-        partner_id="psl",
+        partner_slug="psl",
     )
 
     payload = {
@@ -138,7 +138,7 @@ def test_archive_notification_item_notification_not_found(
         item_status_label="Nouveau",
         item_type="OperationTranquilliteVacances",
         item_id="42",
-        partner_id="psl",
+        partner_slug="psl",
     )
     # no item_status_label
     Notification.objects.create(
@@ -148,7 +148,7 @@ def test_archive_notification_item_notification_not_found(
         item_generic_status="new",
         item_type="OperationTranquilliteVacances",
         item_id="42",
-        partner_id="psl",
+        partner_slug="psl",
     )
     # no item_type
     Notification.objects.create(
@@ -158,7 +158,7 @@ def test_archive_notification_item_notification_not_found(
         item_generic_status="new",
         item_status_label="Nouveau",
         item_id="42",
-        partner_id="psl",
+        partner_slug="psl",
     )
     # no item_id
     Notification.objects.create(
@@ -168,7 +168,7 @@ def test_archive_notification_item_notification_not_found(
         item_generic_status="new",
         item_status_label="Nouveau",
         item_type="OperationTranquilliteVacances",
-        partner_id="psl",
+        partner_slug="psl",
     )
     # other user
     other_user = User.objects.create(fc_hash="fc-hash")
@@ -180,7 +180,7 @@ def test_archive_notification_item_notification_not_found(
         item_status_label="Nouveau",
         item_type="OperationTranquilliteVacances",
         item_id="42",
-        partner_id="psl",
+        partner_slug="psl",
     )
     # other partner_id
     Notification.objects.create(
@@ -191,7 +191,7 @@ def test_archive_notification_item_notification_not_found(
         item_status_label="Nouveau",
         item_type="OperationTranquilliteVacances",
         item_id="42",
-        partner_id="other",
+        partner_slug="other",
     )
     # other item_type
     Notification.objects.create(
@@ -202,7 +202,7 @@ def test_archive_notification_item_notification_not_found(
         item_status_label="Nouveau",
         item_type="Other",
         item_id="42",
-        partner_id="psl",
+        partner_slug="psl",
     )
     # other item_id
     Notification.objects.create(
@@ -213,7 +213,7 @@ def test_archive_notification_item_notification_not_found(
         item_status_label="Nouveau",
         item_type="OperationTranquilliteVacances",
         item_id="44",
-        partner_id="psl",
+        partner_slug="psl",
     )
 
     payload = {
@@ -241,14 +241,14 @@ def test_archive_notification_item_notification_not_found_has_sub_items(
         user_id=user.id,
         content_body="sub notification 1",
         content_title="Sub Notification title 1",
-        item_parent_partner_id="dinum-ami",
+        item_parent_partner_slug="dinum-ami",
         item_parent_type="JeDemenage",
         item_parent_id="40",
         item_generic_status="new",
         item_status_label="Nouveau",
         item_type="JeDemenageCAF",
         item_id="44",
-        partner_id="dinum-ami",
+        partner_slug="dinum-ami",
     )
     payload = {
         "is_archived": True,
@@ -267,14 +267,14 @@ def test_archive_notification_item_notification_not_found_has_sub_items(
         user_id=user.id,
         content_body="sub notification 2",
         content_title="Sub Notification title 2",
-        item_parent_partner_id="dinum-ami",
+        item_parent_partner_slug="dinum-ami",
         item_parent_type="JeDemenage",
         item_parent_id="40",
         item_generic_status="new",
         item_status_label="Nouveau",
         item_type="JeDemenageCAF",
         item_id="44",
-        partner_id="dinum-ami",
+        partner_slug="dinum-ami",
     )
     app.post(
         "/api/v1/users/data/followup/item/notifications/dinum-ami:JeDemenage:40/archive",
@@ -292,14 +292,14 @@ def test_archive_notification_item_notification_not_found_has_sub_items(
         user_id=user.id,
         content_body="sub notification 3",
         content_title="Sub Notification title 3",
-        item_parent_partner_id="dinum-ami",
+        item_parent_partner_slug="dinum-ami",
         item_parent_type="JeDemenage",
         item_parent_id="40",
         item_generic_status="new",
         item_status_label="Nouveau",
         item_type="JeDemenageOther",
         item_id="45",
-        partner_id="dinum-ami",
+        partner_slug="dinum-ami",
     )
     response = app.post(
         "/api/v1/users/data/followup/item/notifications/dinum-ami:JeDemenage:40/archive",
@@ -329,7 +329,7 @@ def test_archive_notification_item_notification_not_found_has_sub_items(
     assert parent_notification.content_link is None
     assert parent_notification.item_type == "JeDemenage"
     assert parent_notification.item_id == "40"
-    assert parent_notification.item_parent_partner_id is None
+    assert parent_notification.item_parent_partner_slug is None
     assert parent_notification.item_parent_type is None
     assert parent_notification.item_parent_id is None
     assert parent_notification.item_status_label == "Nouveau"
@@ -340,7 +340,7 @@ def test_archive_notification_item_notification_not_found_has_sub_items(
     assert parent_notification.item_is_archived is True
     assert parent_notification.event_date < now()
     assert parent_notification.valid_until < now()
-    assert parent_notification.partner_id == "dinum-ami"
+    assert parent_notification.partner_slug == "dinum-ami"
     assert parent_notification.try_push is False
     assert parent_notification.send_status is False
     assert parent_notification.read is False

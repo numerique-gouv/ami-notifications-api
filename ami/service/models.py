@@ -15,7 +15,9 @@ class Service(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
-    partner_id = models.CharField(choices=[(p.id, p.name) for p in partners.values()])
+    partner_slug = models.CharField(
+        choices=[(p.id, p.name) for p in partners.values()], db_column="partner_id"
+    )
     item_type = models.CharField()
 
     kind = models.CharField(max_length=10, choices=Kind, default=Kind.CATALOG)
@@ -40,11 +42,11 @@ class Service(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = [("kind", "partner_id", "item_type")]
+        unique_together = [("kind", "partner_slug", "item_type")]
 
     def to_services_item(self):
         return ServicesItem(
-            partner_id=self.partner_id,
+            partner_id=self.partner_slug,
             item_type=self.item_type,
             kind=self.kind,
             title=self.title,

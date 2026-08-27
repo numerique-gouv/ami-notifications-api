@@ -89,7 +89,7 @@ class NotificationsSubItem:
 
     @property
     def partner_id(self):
-        return self.last_notification.partner_id
+        return self.last_notification.partner_slug
 
     @property
     def partner(self):
@@ -274,8 +274,8 @@ class NotificationsItem(NotificationsSubItem):
     def partner_id(self):
         if not self.notifications and self.sub_items:
             # take sub_item parent value
-            return self.last_notification.item_parent_partner_id
-        return self.last_notification.partner_id
+            return self.last_notification.item_parent_partner_slug
+        return self.last_notification.partner_slug
 
     @property
     def item_type(self):
@@ -299,7 +299,7 @@ class NotificationsItem(NotificationsSubItem):
     def notification_for_status(self):
         def is_last_notification_about_item():
             # return True if parent fields are empty
-            if self.all_notifications[-1].item_parent_partner_id:
+            if self.all_notifications[-1].item_parent_partner_slug:
                 return False
             if self.all_notifications[-1].item_parent_type:
                 return False

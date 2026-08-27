@@ -30,7 +30,9 @@ class Notification(models.Model):
 
     item_type = models.CharField(blank=True, null=True)
     item_id = models.CharField(blank=True, null=True)
-    item_parent_partner_id = models.CharField(blank=True, null=True)
+    item_parent_partner_slug = models.CharField(
+        blank=True, null=True, db_column="item_parent_partner_id"
+    )
     item_parent_type = models.CharField(blank=True, null=True)
     item_parent_id = models.CharField(blank=True, null=True)
     item_status_label = models.CharField(blank=True, null=True)
@@ -41,7 +43,7 @@ class Notification(models.Model):
     item_is_archived = models.BooleanField(null=True)  # the user archived the item in followup
 
     send_status = models.BooleanField(blank=True, null=True)
-    partner_id = models.CharField()
+    partner_slug = models.CharField(db_column="partner_id")
     internal_url = models.CharField(
         blank=True, null=True
     )  # to link notification to a front url; used by scheduled notifications
@@ -69,7 +71,7 @@ class Notification(models.Model):
             and self.item_status_label is not None
             and self.item_type is not None
             and self.item_id is not None
-            and self.partner_id
+            and self.partner_slug
             in [p.id for p in partners.values() if p.followup_from_notifications]
         )
 
@@ -84,7 +86,7 @@ class Notification(models.Model):
 
     @property
     def icon(self):
-        partner = partners.get(self.partner_id)
+        partner = partners.get(self.partner_slug)
         if not partner:
             return
 
@@ -131,7 +133,7 @@ class ScheduledNotification(models.Model):
             content_body=self.content_body,
             content_icon=self.content_icon,
             internal_url=self.internal_url,
-            partner_id="dinum-ami",
+            partner_slug="dinum-ami",
             send_status=self.user.last_logged_in is not None,
         )
 

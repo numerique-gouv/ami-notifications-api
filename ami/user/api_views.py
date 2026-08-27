@@ -131,7 +131,7 @@ def consent(request: Request, fc_hash: str) -> Response:
     partner_id = request.ami_partner.id
 
     if request.method == "GET":
-        consent = Consent.objects.filter(user__fc_hash=fc_hash, partner_id=partner_id).first()
+        consent = Consent.objects.filter(user__fc_hash=fc_hash, partner_slug=partner_id).first()
         consent_datetime = consent.consent_datetime if consent else None
 
         response_serializer = ConsentResponseSerializer({"consent_datetime": consent_datetime})
@@ -149,7 +149,7 @@ def consent(request: Request, fc_hash: str) -> Response:
     consent_datetime = now() if data["consent"] else None
     Consent.objects.update_or_create(
         user=user,
-        partner_id=partner_id,
+        partner_slug=partner_id,
         defaults={"consent_datetime": consent_datetime},
         create_defaults={"consent_datetime": consent_datetime},
     )
@@ -182,7 +182,7 @@ def consents(request: Request) -> Response:
     consent_datetime = now() if data["consent"] else None
     Consent.objects.update_or_create(
         user=request.ami_user,
-        partner_id=data["partner_id"],
+        partner_slug=data["partner_slug"],
         defaults={"consent_datetime": consent_datetime},
         create_defaults={"consent_datetime": consent_datetime},
     )

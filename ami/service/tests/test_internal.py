@@ -20,7 +20,7 @@ def test_get_internal_data(
     httpx_mock: HTTPXMock,
 ) -> None:
     service1 = Service.objects.create(
-        partner_id="psl",
+        partner_slug="psl",
         item_type="OperationTranquilliteVacances",
         title="Opération Tranquillité Vacances",
         short_description="Inscrivez-vous pour protéger votre domicile pendant votre absence",
@@ -29,7 +29,7 @@ def test_get_internal_data(
         with_silent_login=True,
     )
     service2 = Service.objects.create(
-        partner_id="dinum-dn",
+        partner_slug="dinum-dn",
         item_type="ContacterAMI",
         title="Contacter l'équipe AMI",
         short_description="Faites-nous votre retour",
@@ -38,7 +38,7 @@ def test_get_internal_data(
         restricted_to=f"{user.fc_hash} another-fake-fc-hash",
     )
     Service.objects.create(
-        partner_id="dinum-dn",
+        partner_slug="dinum-dn",
         item_type="Restricted",
         title="Démarche restreinte",
         short_description="Non publiée",
@@ -47,7 +47,7 @@ def test_get_internal_data(
         restricted_to="another-fake-fc-hash",
     )
     Service.objects.create(
-        partner_id="dinum-dn",
+        partner_slug="dinum-dn",
         item_type="Restricted",
         kind=Service.Kind.SOS,
         title="Démarche restreinte",
@@ -57,7 +57,7 @@ def test_get_internal_data(
         restricted_to="another-fake-fc-hash",
     )
     Service.objects.create(
-        partner_id="dinum-dn",
+        partner_slug="dinum-dn",
         item_type="Restricted",
         kind=Service.Kind.STEPS,
         title="Démarche restreinte",

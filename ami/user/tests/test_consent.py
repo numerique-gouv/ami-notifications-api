@@ -16,10 +16,10 @@ def test_get_consent(
 ) -> None:
     consent_datetime = datetime.datetime(2020, 12, 25, 17, 5, 55, tzinfo=datetime.timezone.utc)
     Consent.objects.create(
-        user=two_users[0], partner_id="dinum-ami", consent_datetime=consent_datetime
+        user=two_users[0], partner_slug="dinum-ami", consent_datetime=consent_datetime
     )
-    Consent.objects.create(user=two_users[0], partner_id="psl", consent_datetime=now())
-    Consent.objects.create(user=two_users[1], partner_id="dinum-ami", consent_datetime=now())
+    Consent.objects.create(user=two_users[0], partner_slug="psl", consent_datetime=now())
+    Consent.objects.create(user=two_users[1], partner_slug="dinum-ami", consent_datetime=now())
 
     response = app.get(f"/api/v1/consent/{two_users[0].fc_hash}", headers=partner_auth)
     assert response.status_code == 200
@@ -32,7 +32,7 @@ def test_get_consent_with_date_null(
     user: User,
     partner_auth: dict[str, str],
 ) -> None:
-    Consent.objects.create(user=user, partner_id="dinum-ami", consent_datetime=None)
+    Consent.objects.create(user=user, partner_slug="dinum-ami", consent_datetime=None)
 
     response = app.get(f"/api/v1/consent/{user.fc_hash}", headers=partner_auth, status=404)
     assert response.json == {"consent_datetime": None}
@@ -84,8 +84,8 @@ def test_post_consent(
     two_users: list[User],
     partner_auth: dict[str, str],
 ) -> None:
-    Consent.objects.create(user=two_users[0], partner_id="psl", consent_datetime=now())
-    Consent.objects.create(user=two_users[1], partner_id="dinum-ami", consent_datetime=now())
+    Consent.objects.create(user=two_users[0], partner_slug="psl", consent_datetime=now())
+    Consent.objects.create(user=two_users[1], partner_slug="dinum-ami", consent_datetime=now())
 
     data = {"consent": True}
     response = app.post_json(f"/api/v1/consent/{two_users[0].fc_hash}", data, headers=partner_auth)
@@ -93,7 +93,7 @@ def test_post_consent(
     assert Consent.objects.count() == 3
     consent = Consent.objects.latest("created_at")
     assert consent.user == two_users[0]
-    assert consent.partner_id == "dinum-ami"
+    assert consent.partner_slug == "dinum-ami"
     assert consent.consent_datetime is not None
 
     data = {"consent": False}
@@ -102,7 +102,7 @@ def test_post_consent(
     assert Consent.objects.count() == 3
     consent.refresh_from_db()
     assert consent.user == two_users[0]
-    assert consent.partner_id == "dinum-ami"
+    assert consent.partner_slug == "dinum-ami"
     assert consent.consent_datetime is None
 
 
@@ -173,14 +173,16 @@ def test_get_consents(app, user: User) -> None:
     login(app, user)
 
     consent_datetime = datetime.datetime(2020, 12, 25, 17, 5, 55, tzinfo=datetime.timezone.utc)
-    consent = Consent.objects.create(user=user, partner_id="psl", consent_datetime=consent_datetime)
+    consent = Consent.objects.create(
+        user=user, partner_slug="psl", consent_datetime=consent_datetime
+    )
 
     response = app.get("/api/v1/users/consents", status=200)
     consents = response.json
     assert len(consents) == 1
     assert set(response.json[0].keys()) == {"consent_datetime", "id", "partner_id"}
     assert response.json[0]["id"] == str(consent.id)
-    assert response.json[0]["partner_id"] == consent.partner_id
+    assert response.json[0]["partner_id"] == consent.partner_slug
     assert response.json[0]["consent_datetime"] == "2020-12-25T17:05:55Z"
 
 
@@ -196,8 +198,8 @@ def test_post_consents(
 ) -> None:
     login(app, two_users[0])
 
-    Consent.objects.create(user=two_users[0], partner_id="psl", consent_datetime=now())
-    Consent.objects.create(user=two_users[1], partner_id="dinum-ami", consent_datetime=now())
+    Consent.objects.create(user=two_users[0], partner_slug="psl", consent_datetime=now())
+    Consent.objects.create(user=two_users[1], partner_slug="dinum-ami", consent_datetime=now())
 
     data = {"partner_id": "dinum-ami", "consent": True}
     response = app.post_json("/api/v1/users/consents", data)
@@ -205,7 +207,7 @@ def test_post_consents(
     assert Consent.objects.count() == 3
     consent = Consent.objects.latest("created_at")
     assert consent.user == two_users[0]
-    assert consent.partner_id == "dinum-ami"
+    assert consent.partner_slug == "dinum-ami"
     assert consent.consent_datetime is not None
 
     data = {"partner_id": "dinum-ami", "consent": False}
@@ -214,7 +216,7 @@ def test_post_consents(
     assert Consent.objects.count() == 3
     consent.refresh_from_db()
     assert consent.user == two_users[0]
-    assert consent.partner_id == "dinum-ami"
+    assert consent.partner_slug == "dinum-ami"
     assert consent.consent_datetime is None
 
 
