@@ -1,0 +1,25 @@
+name: e2e tag
+# Reusable, invoqué uniquement par e2e-after-deploy.yml une fois Scalingo déployé — voir le
+# commentaire équivalent dans workflow-e2e-webapp-pr.yml. Les jobs requis sont couverts par
+# pytest.yml (on: push — la pose d'un tag déclenche déjà ce workflow, `on: push` sans filtre
+# réagit à tout push, y compris de tag). Scalingo poste bien un status deploy/sclng: ami-back-prod
+# sur les tags (vérifié via `gh api repos/.../commits/<sha-du-tag>/status`).
+on:
+  workflow_call:
+    inputs:
+      source_sha:
+        description: "SHA du commit taggé d'ami-notifications-api dont Scalingo vient de confirmer le déploiement"
+        type: string
+        required: true
+
+jobs:
+  e2e:
+    name: run e2e (version tag)
+    uses: ./.github/workflows/workflow-e2e-webapp-shared.yml
+    with:
+      run_webapp: short
+      run_old_device: false
+      source_sha: ${{ inputs.source_sha }}
+      # pr_number: laissé au défaut 0 — pas de PR associée à un tag
+      wait_for_scalingo_step: false
+    secrets: inherit

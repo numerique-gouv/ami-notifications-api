@@ -1,0 +1,28 @@
+name: e2e merge
+# Reusable, invoqué uniquement par e2e-after-deploy.yml une fois Scalingo déployé — voir le
+# commentaire équivalent dans workflow-e2e-webapp-pr.yml. Les jobs requis sont couverts par
+# pytest.yml (on: push — le merge d'une PR pousse un commit de merge sur main, qui déclenche déjà
+# ce workflow).
+on:
+  workflow_call:
+    inputs:
+      pr_number:
+        description: "Numéro de la PR dont ce SHA est le merge_commit_sha"
+        type: number
+        required: true
+      source_sha:
+        description: "SHA du commit de merge d'ami-notifications-api dont Scalingo vient de confirmer le déploiement"
+        type: string
+        required: true
+
+jobs:
+  e2e:
+    name: run e2e (PR merged)
+    uses: ./.github/workflows/workflow-e2e-webapp-shared.yml
+    with:
+      run_webapp: short
+      pr_number: ${{ inputs.pr_number }}
+      source_sha: ${{ inputs.source_sha }}
+      # checkout_ref: laissé au défaut 'main' de workflow-e2e-webapp-shared.yml
+      wait_for_scalingo_step: false
+    secrets: inherit
