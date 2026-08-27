@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from ami.notification.models import Notification
+from ami.partner.models import partners
 
 
 class NotificationReadSerializer(serializers.Serializer):
@@ -249,6 +250,14 @@ class PartnerEventCreateSerializerV2(PartnerEventCreateMixin, serializers.Serial
         default=True,
         help_text="Indique si le système doit essayer de déclencher une Notification Push sur les terminaux de l'usager",
     )
+
+    def validate_item_parent_partner_id(self, value):
+        if value and value not in partners:
+            raise serializers.ValidationError(
+                "'item_parent_partner_id' inconnu.",
+                "invalid",
+            )
+        return value
 
     def validate(self, attrs):
         attrs = super().validate(attrs)

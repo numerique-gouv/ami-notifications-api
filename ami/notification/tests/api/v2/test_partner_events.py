@@ -932,6 +932,29 @@ def test_create_event_send_ko_with_400_when_required_item_parent_fields_are_miss
 
 
 @pytest.mark.django_db
+def test_create_notification_check_item_parent_partner_id(
+    app,
+    user: User,
+    consent: Consent,
+    partner_auth: dict[str, str],
+) -> None:
+    event_data = {
+        "recipient_fc_hash": user.fc_hash,
+        "event_date": "2025-11-27T10:55:00.000Z",
+        "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
+        "content_body": "Merci d'avoir initié votre demande",
+        "item_parent_partner_id": "unknown",
+        "item_type": "OTV",
+        "item_id": "A-5-JGBJ5VMOY",
+        "item_status_label": "Brouillon",
+        "item_generic_status": "new",
+        "item_milestone_start_date": "2025-12-26T23:00:00.000Z",
+    }
+    response = app.put("/api/v2/event", event_data, headers=partner_auth, status=400)
+    assert response.json == {"item_parent_partner_id": ["'item_parent_partner_id' inconnu."]}
+
+
+@pytest.mark.django_db
 def test_create_event_check_item_milestone_dates(
     app,
     user: User,
