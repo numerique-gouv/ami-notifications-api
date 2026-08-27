@@ -5,6 +5,7 @@ from pytest_httpx import HTTPXMock
 
 from ami.agent.models import Agent
 from ami.agent_admin.tests.utils import assert_query_fails_without_agent_notifications_auth
+from ami.partner.models import Partner
 
 
 @pytest.mark.django_db
@@ -53,6 +54,7 @@ def test_send_notification_submit_validation_errors(app, notifications_agent: Ag
 def test_send_notification_submit_with_400(
     app,
     notifications_agent: Agent,
+    partner: Partner,
     httpx_mock: HTTPXMock,
 ) -> None:
     app.set_user(notifications_agent.user)
@@ -95,6 +97,7 @@ def test_send_notification_submit_with_400(
 def test_send_notification_submit_with_404(
     app,
     notifications_agent: Agent,
+    partner: Partner,
     httpx_mock: HTTPXMock,
 ) -> None:
     app.set_user(notifications_agent.user)
@@ -118,6 +121,7 @@ def test_send_notification_submit_with_404(
 def test_send_notification_submit_with_404_and_message(
     app,
     notifications_agent: Agent,
+    partner: Partner,
     httpx_mock: HTTPXMock,
 ) -> None:
     app.set_user(notifications_agent.user)
@@ -151,6 +155,7 @@ def test_send_notification_submit_with_404_and_message(
 def test_send_notification_submit_success(
     app,
     notifications_agent: Agent,
+    partner: Partner,
     httpx_mock: HTTPXMock,
 ) -> None:
     app.set_user(notifications_agent.user)

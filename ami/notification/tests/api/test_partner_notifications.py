@@ -1,5 +1,4 @@
 import base64
-import copy
 import datetime
 from unittest.mock import Mock
 
@@ -13,7 +12,7 @@ from pytest_httpx import HTTPXMock
 from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED
 
 from ami.notification.models import Notification
-from ami.partner.models import partners
+from ami.partner.models import Partner
 from ami.tests.utils import get_from_stream
 from ami.user.models import Consent, Registration, User
 
@@ -24,6 +23,7 @@ async def test_create_webpush_notification(
     webpush_notification: Notification,
     webpush_registration: Registration,
     consent: Consent,
+    partner: Partner,
     partner_auth: dict[str, str],
     httpx_mock: HTTPXMock,
     websocket: WebsocketCommunicator,
@@ -80,7 +80,7 @@ async def test_create_webpush_notification(
     assert notification2.content_link == "http://otv/a-5-jgbj5vmoy"
     assert notification2.item_type == "OTV"
     assert notification2.item_id == "A-5-JGBJ5VMOY"
-    assert notification2.item_parent_partner_slug is None
+    assert notification2.item_parent_partner is None
     assert notification2.item_parent_type is None
     assert notification2.item_parent_id is None
     assert notification2.item_status_label == "Brouillon"
@@ -97,7 +97,7 @@ async def test_create_webpush_notification(
         2025, 11, 27, 10, 55, tzinfo=datetime.timezone.utc
     )
     assert notification2.valid_until == valid_until
-    assert notification2.partner_slug == "dinum-ami"
+    assert notification2.partner_id == partner.id
     assert notification2.try_push is True
     assert notification2.send_status is True
     assert notification2.read is False
@@ -124,6 +124,7 @@ def test_create_mobile_notification(
     mobile_notification: Notification,
     mobile_registration: Registration,
     consent: Consent,
+    partner: Partner,
     partner_auth: dict[str, str],
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -158,7 +159,7 @@ def test_create_mobile_notification(
     assert notification2.content_link == "http://otv/a-5-jgbj5vmoy"
     assert notification2.item_type == "OTV"
     assert notification2.item_id == "A-5-JGBJ5VMOY"
-    assert notification2.item_parent_partner_slug is None
+    assert notification2.item_parent_partner is None
     assert notification2.item_parent_type is None
     assert notification2.item_parent_id is None
     assert notification2.item_status_label == "Brouillon"
@@ -175,7 +176,7 @@ def test_create_mobile_notification(
         2025, 11, 27, 10, 55, tzinfo=datetime.timezone.utc
     )
     assert notification2.valid_until is None
-    assert notification2.partner_slug == "dinum-ami"
+    assert notification2.partner == partner
     assert notification2.try_push is True
     assert notification2.send_status is True
     assert notification2.read is False
@@ -197,6 +198,8 @@ def test_create_mobile_notification(
 def test_create_notification_no_consent(
     app,
     webpush_registration: Registration,
+    partner: Partner,
+    partner_dn: Partner,
     partner_auth: dict[str, str],
     httpx_mock: HTTPXMock,
 ) -> None:
@@ -222,9 +225,9 @@ def test_create_notification_no_consent(
     assert response.json == {"error": "Consent not found"}
     assert Notification.objects.count() == 0
 
-    Consent.objects.create(user=webpush_registration.user, partner_slug="dinum-ami")
+    Consent.objects.create(user=webpush_registration.user, partner=partner)
     Consent.objects.create(
-        user=webpush_registration.user, partner_slug="dinum-dn", consent_datetime=now()
+        user=webpush_registration.user, partner=partner_dn, consent_datetime=now()
     )
     response = app.post(
         "/api/v1/notifications", notification_data, headers=partner_auth, status=404
@@ -350,13 +353,13 @@ def test_create_notification_outdated_valid_until(
 @pytest.mark.django_db
 def test_create_notification_user_does_not_exist_consent_disabled(
     app,
+    partner: Partner,
     partner_auth: dict[str, str],
     httpx_mock: HTTPXMock,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    partner = copy.deepcopy(partners["dinum-ami"])
     partner.consent_is_enabled = False
-    monkeypatch.setattr("ami.partner.auth.partners", {"dinum-ami": partner})
+    partner.save()
 
     notification_data = {
         "recipient_fc_hash": "unknown_hash",
@@ -396,7 +399,7 @@ def test_create_notification_user_does_not_exist_consent_disabled(
     assert notification.content_link is None
     assert notification.item_type == "OTV"
     assert notification.item_id == "A-5-JGBJ5VMOY"
-    assert notification.item_parent_partner_slug is None
+    assert notification.item_parent_partner is None
     assert notification.item_parent_type is None
     assert notification.item_parent_id is None
     assert notification.item_status_label == "Brouillon"
@@ -409,7 +412,7 @@ def test_create_notification_user_does_not_exist_consent_disabled(
         2025, 11, 27, 10, 55, tzinfo=datetime.timezone.utc
     )
     assert notification.valid_until is None
-    assert notification.partner_slug == "dinum-ami"
+    assert notification.partner == partner
     assert notification.try_push is True
     assert notification.send_status is False
     assert notification.read is False
@@ -454,13 +457,13 @@ def test_create_notification_user_never_seen_consent_disabled(
     app,
     never_seen_user: User,
     webpush_registration: Registration,
+    partner: Partner,
     partner_auth: dict[str, str],
     httpx_mock: HTTPXMock,
     monkeypatch,
 ) -> None:
-    partner = copy.deepcopy(partners["dinum-ami"])
     partner.consent_is_enabled = False
-    monkeypatch.setattr("ami.partner.auth.partners", {"dinum-ami": partner})
+    partner.save()
 
     notification_data = {
         "recipient_fc_hash": never_seen_user.fc_hash,
@@ -502,7 +505,7 @@ def test_create_notification_user_never_seen_consent_disabled(
     assert notification.content_link is None
     assert notification.item_type == "OTV"
     assert notification.item_id == "A-5-JGBJ5VMOY"
-    assert notification.item_parent_partner_slug is None
+    assert notification.item_parent_partner is None
     assert notification.item_parent_type is None
     assert notification.item_parent_id is None
     assert notification.item_status_label == "Brouillon"
@@ -514,7 +517,7 @@ def test_create_notification_user_never_seen_consent_disabled(
     assert notification.event_date == datetime.datetime(
         2025, 11, 27, 10, 55, tzinfo=datetime.timezone.utc
     )
-    assert notification.partner_slug == "dinum-ami"
+    assert notification.partner == partner
     assert notification.read is False
     assert response.json == {
         "notification_id": str(notification.id),
@@ -528,6 +531,8 @@ def test_create_notification_user_never_seen(
     app,
     never_seen_user: User,
     webpush_registration: Registration,
+    partner: Partner,
+    partner_dn: Partner,
     partner_auth: dict[str, str],
     httpx_mock: HTTPXMock,
     monkeypatch,
@@ -555,8 +560,8 @@ def test_create_notification_user_never_seen(
     assert user.fc_hash == never_seen_user.fc_hash
     assert user.last_logged_in is None
 
-    consent = Consent.objects.create(user=never_seen_user, partner_slug="dinum-ami")
-    Consent.objects.create(user=never_seen_user, partner_slug="dinum-dn", consent_datetime=now())
+    consent = Consent.objects.create(user=never_seen_user, partner=partner)
+    Consent.objects.create(user=never_seen_user, partner=partner_dn, consent_datetime=now())
     response = app.post(
         "/api/v1/notifications", notification_data, headers=partner_auth, status=404
     )
@@ -585,7 +590,7 @@ def test_create_notification_user_never_seen(
     assert notification.content_link is None
     assert notification.item_type == "OTV"
     assert notification.item_id == "A-5-JGBJ5VMOY"
-    assert notification.item_parent_partner_slug is None
+    assert notification.item_parent_partner is None
     assert notification.item_parent_type is None
     assert notification.item_parent_id is None
     assert notification.item_status_label == "Brouillon"
@@ -597,7 +602,7 @@ def test_create_notification_user_never_seen(
     assert notification.event_date == datetime.datetime(
         2025, 11, 27, 10, 55, tzinfo=datetime.timezone.utc
     )
-    assert notification.partner_slug == "dinum-ami"
+    assert notification.partner == partner
     assert notification.read is False
     assert response.json == {
         "notification_id": str(notification.id),
@@ -667,6 +672,8 @@ def test_create_notification_duplicated_payload(
     app,
     user: User,
     consent: Consent,
+    partner: Partner,
+    partner_dn: Partner,
     partner_auth: dict[str, str],
 ) -> None:
     year = now().year + 1
@@ -707,7 +714,7 @@ def test_create_notification_duplicated_payload(
     }
 
     # same payload but notification payload exists for another partner
-    Notification.objects.all().update(partner_slug="foo")
+    Notification.objects.all().update(partner=partner_dn)
     response = app.post("/api/v1/notifications", notification_data, headers=partner_auth)
     assert response.status_code == HTTP_201_CREATED
     assert Notification.objects.count() == 2
@@ -720,7 +727,7 @@ def test_create_notification_duplicated_payload(
     # change a random value
     notification_count = Notification.objects.count()
     user2 = User.objects.create(fc_hash=user.fc_hash[:-2] + "1" + user.fc_hash[-1])
-    Consent.objects.create(user=user2, partner_slug="dinum-ami", consent_datetime=now())
+    Consent.objects.create(user=user2, partner=partner, consent_datetime=now())
     for key, value in notification_data.items():
         if key == "try_push":
             continue
@@ -992,6 +999,7 @@ def test_create_notification_when_optional_fields_are_empty(
     app,
     user: User,
     consent: Consent,
+    partner: Partner,
     partner_auth: dict[str, str],
 ) -> None:
     notification_data = {
@@ -1023,7 +1031,7 @@ def test_create_notification_when_optional_fields_are_empty(
     assert notification.content_link is None
     assert notification.item_type is None
     assert notification.item_id is None
-    assert notification.item_parent_partner_slug is None
+    assert notification.item_parent_partner is None
     assert notification.item_parent_type is None
     assert notification.item_parent_id is None
     assert notification.item_status_label is None
@@ -1036,7 +1044,7 @@ def test_create_notification_when_optional_fields_are_empty(
         2025, 11, 27, 10, 55, tzinfo=datetime.timezone.utc
     )
     assert notification.valid_until is None
-    assert notification.partner_slug == "dinum-ami"
+    assert notification.partner == partner
     assert notification.read is False
     assert response.json == {
         "notification_id": str(notification.id),
@@ -1045,19 +1053,31 @@ def test_create_notification_when_optional_fields_are_empty(
 
 
 @pytest.mark.django_db
-def test_create_notification_without_auth(app, settings) -> None:
-    app.post("/api/v1/notifications", status=401)
+def test_create_notification_without_auth(app, settings, partner: Partner) -> None:
+    response = app.post("/api/v1/notifications", status=401)
+    assert response.json == {"detail": "Informations d'authentification non fournies."}
 
-    app.post("/api/v1/notifications", headers={"authorization": "foo"}, status=401)
+    response = app.post("/api/v1/notifications", headers={"authorization": "foo"}, status=401)
+    assert response.json == {"detail": "Informations d'authentification non fournies."}
 
-    app.post("/api/v1/notifications", headers={"authorization": "Foo bar"}, status=401)
+    response = app.post("/api/v1/notifications", headers={"authorization": "Foo bar"}, status=401)
+    assert response.json == {"detail": "Informations d'authentification non fournies."}
 
-    app.post("/api/v1/notifications", headers={"authorization": "Basic bar"}, status=401)
+    response = app.post("/api/v1/notifications", headers={"authorization": "Basic bar"}, status=401)
+    assert response.json == {
+        "detail": "En-tête « basic » non valide. Encodage base64 des informations d'identification incorrect."
+    }
 
     b64 = base64.b64encode(f"foo:{settings.PARTNERS_DINUM_AMI_SECRET}".encode("utf8")).decode(
         "utf8"
     )
-    app.post("/api/v1/notifications", headers={"authorization": f"Basic {b64}"}, status=401)
+    response = app.post(
+        "/api/v1/notifications", headers={"authorization": f"Basic {b64}"}, status=401
+    )
+    assert response.json == {"detail": "Invalid username."}
 
     b64 = base64.b64encode("dinum-ami:foo".encode("utf8")).decode("utf8")
-    app.post("/api/v1/notifications", headers={"authorization": f"Basic {b64}"}, status=401)
+    response = app.post(
+        "/api/v1/notifications", headers={"authorization": f"Basic {b64}"}, status=401
+    )
+    assert response.json == {"detail": "Invalid username/password."}

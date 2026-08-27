@@ -1,6 +1,7 @@
 from typing import cast
 
 from django.http import Http404
+from django.shortcuts import get_object_or_404
 from django.utils.timezone import now
 from drf_spectacular.utils import extend_schema
 from rest_framework.decorators import api_view
@@ -9,6 +10,7 @@ from rest_framework.response import Response
 
 from ami.authentication.decorators import ami_login_required
 from ami.notification.models import Notification
+from ami.partner.models import Partner
 
 from .data.notification import get_notifications_source
 from .schemas import Followup
@@ -47,7 +49,9 @@ def archive_followup_item(
         raise Http404
     if not all(parts):
         raise Http404
-    partner_id, item_type, item_id = parts
+    partner_slug, item_type, item_id = parts
+
+    partner = get_object_or_404(Partner, slug=partner_slug)
 
     if source != "notifications":
         raise Http404
@@ -63,7 +67,7 @@ def archive_followup_item(
             item_type__isnull=False,
             item_id__isnull=False,
             user=request.ami_user,
-            partner_slug=partner_id,
+            partner=partner,
             item_type=item_type,
             item_id=item_id,
         )
@@ -78,11 +82,11 @@ def archive_followup_item(
                 item_type__isnull=False,
                 item_id__isnull=False,
                 user=request.ami_user,
-                item_parent_partner_slug=partner_id,
+                item_parent_partner=partner,
                 item_parent_type=item_type,
                 item_parent_id=item_id,
             )
-            .values_list("partner_slug", "item_type", "item_id")
+            .values_list("partner", "item_type", "item_id")
             .distinct()
         )
         if len(sub_notifications_qs) < 2:
@@ -91,7 +95,7 @@ def archive_followup_item(
         # create empty notification for parent item
         notification = Notification.objects.create(
             user=request.ami_user,
-            partner_slug=partner_id,
+            partner=partner,
             item_type=item_type,
             item_id=item_id,
             item_generic_status="new",

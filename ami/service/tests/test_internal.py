@@ -4,6 +4,7 @@ from unittest import mock
 import pytest
 from pytest_httpx import HTTPXMock
 
+from ami.partner.models import Partner
 from ami.service.data.internal import get_internal_data, get_internal_source
 from ami.service.models import Service
 from ami.service.schemas import (
@@ -17,10 +18,12 @@ from ami.user.models import User
 @pytest.mark.django_db
 def test_get_internal_data(
     user: User,
+    partner_dn: Partner,
+    partner_psl: Partner,
     httpx_mock: HTTPXMock,
 ) -> None:
     service1 = Service.objects.create(
-        partner_slug="psl",
+        partner=partner_psl,
         item_type="OperationTranquilliteVacances",
         title="Opération Tranquillité Vacances",
         short_description="Inscrivez-vous pour protéger votre domicile pendant votre absence",
@@ -29,7 +32,7 @@ def test_get_internal_data(
         with_silent_login=True,
     )
     service2 = Service.objects.create(
-        partner_slug="dinum-dn",
+        partner=partner_dn,
         item_type="ContacterAMI",
         title="Contacter l'équipe AMI",
         short_description="Faites-nous votre retour",
@@ -38,7 +41,7 @@ def test_get_internal_data(
         restricted_to=f"{user.fc_hash} another-fake-fc-hash",
     )
     Service.objects.create(
-        partner_slug="dinum-dn",
+        partner=partner_dn,
         item_type="Restricted",
         title="Démarche restreinte",
         short_description="Non publiée",
@@ -47,7 +50,7 @@ def test_get_internal_data(
         restricted_to="another-fake-fc-hash",
     )
     Service.objects.create(
-        partner_slug="dinum-dn",
+        partner=partner_dn,
         item_type="Restricted",
         kind=Service.Kind.SOS,
         title="Démarche restreinte",
@@ -57,7 +60,7 @@ def test_get_internal_data(
         restricted_to="another-fake-fc-hash",
     )
     Service.objects.create(
-        partner_slug="dinum-dn",
+        partner=partner_dn,
         item_type="Restricted",
         kind=Service.Kind.STEPS,
         title="Démarche restreinte",

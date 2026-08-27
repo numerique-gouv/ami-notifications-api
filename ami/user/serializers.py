@@ -1,5 +1,7 @@
 from rest_framework import serializers
 
+from ami.partner.models import Partner
+
 
 class MobileAppSubscriptionSerializer(serializers.Serializer):
     app_version = serializers.CharField()
@@ -52,10 +54,21 @@ class ConsentPostResponseSerializer(serializers.Serializer):
 
 class ConsentSerializer(serializers.Serializer):
     id = serializers.UUIDField()
-    partner_id = serializers.CharField(source="partner_slug")
+    partner_id = serializers.CharField(source="partner.slug")
     consent_datetime = serializers.DateTimeField()
 
 
 class ConsentUpdateSerializer(serializers.Serializer):
-    partner_id = serializers.CharField(source="partner_slug")
+    partner_id = serializers.CharField()
     consent = serializers.BooleanField()
+
+    def validate_partner_id(self, value):
+        if value:
+            try:
+                return Partner.objects.get(slug=value).id
+            except Partner.DoesNotExist:
+                raise serializers.ValidationError(
+                    "'partner_id' inconnu.",
+                    "invalid",
+                )
+        return None

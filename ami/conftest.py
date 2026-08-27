@@ -18,6 +18,7 @@ from webpush.vapid import VAPID
 from ami.agent.models import Agent
 from ami.asgi import application
 from ami.notification.models import Notification
+from ami.partner.models import Partner
 from ami.user.models import Consent, Registration, User
 from ami.user.utils import build_fc_hash
 
@@ -172,6 +173,37 @@ def never_seen_user(user: User) -> User:
     return user
 
 
+@pytest.fixture
+def partner():
+    return Partner.objects.get_or_create(
+        slug="dinum-ami",
+        defaults={
+            "name": "AMI",
+            "consent_is_enabled": True,
+        },
+    )[0]
+
+
+@pytest.fixture
+def partner_dn():
+    return Partner.objects.get_or_create(
+        slug="dinum-dn", defaults={"name": "Démarche Numérique", "consent_is_enabled": True}
+    )[0]
+
+
+@pytest.fixture
+def partner_psl():
+    return Partner.objects.get_or_create(
+        slug="psl", defaults={"name": "Service Public", "consent_is_enabled": False}
+    )[0]
+
+
+@pytest.fixture
+def partner_auth(partner, settings) -> dict[str, str]:
+    b64 = base64.b64encode(f"{partner.slug}:{partner.secret}".encode()).decode()
+    return {"authorization": f"Basic {b64}"}
+
+
 @pytest.fixture(autouse=True)
 def patch_webpush(settings) -> None:
     private_key, public_key, _ = VAPID.generate_keys()
@@ -180,11 +212,12 @@ def patch_webpush(settings) -> None:
 
 
 @pytest.fixture
-def webpush_notification(webpush_registration: Registration) -> Notification:
+def webpush_notification(webpush_registration: Registration, partner: Partner) -> Notification:
     return Notification.objects.create(
         user_id=webpush_registration.user.id,
         content_body="Hello notification",
         content_title="Notification title",
+        partner=partner,
     )
 
 
@@ -228,26 +261,22 @@ def use_in_memory_channel_layer(settings) -> None:
 
 
 @pytest.fixture
-def notification(user: User) -> Notification:
+def notification(user: User, partner: Partner) -> Notification:
     return Notification.objects.create(
         user_id=user.id,
         content_body="Hello notification",
         content_title="Notification title",
+        partner=partner,
     )
 
 
 @pytest.fixture
-def partner_auth(settings) -> dict[str, str]:
-    b64 = base64.b64encode(f"dinum-ami:{settings.PARTNERS_DINUM_AMI_SECRET}".encode()).decode()
-    return {"authorization": f"Basic {b64}"}
-
-
-@pytest.fixture
-def mobile_notification(mobile_registration: Registration) -> Notification:
+def mobile_notification(mobile_registration: Registration, partner: Partner) -> Notification:
     return Notification.objects.create(
         user_id=mobile_registration.user.id,
         content_body="Hello notification",
         content_title="Notification title",
+        partner=partner,
     )
 
 
@@ -257,8 +286,8 @@ def mobile_registration(user: User, mobileAppSubscription: dict[str, Any]) -> Re
 
 
 @pytest.fixture
-def consent(user: User) -> Consent:
-    return Consent.objects.create(user=user, partner_slug="dinum-ami", consent_datetime=now())
+def consent(user: User, partner: Partner) -> Consent:
+    return Consent.objects.create(user=user, partner=partner, consent_datetime=now())
 
 
 @pytest.fixture

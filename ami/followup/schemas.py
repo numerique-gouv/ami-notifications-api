@@ -5,7 +5,7 @@ from functools import cached_property
 from itertools import chain
 
 from ami.notification.models import Notification
-from ami.partner.models import partners
+from ami.partner.models import Partner
 from ami.service.models import Service
 
 
@@ -72,6 +72,7 @@ class Followup:
 class NotificationsSubItem:
     notifications: list[Notification] = field(default_factory=list[Notification])
     services_by_id: dict[str, Service] = field(default_factory=dict[str, Service])
+    partners_by_slug: dict[str, Partner] = field(default_factory=dict[str, Partner])
 
     followup_item_klass = FollowupSubItem
 
@@ -89,11 +90,11 @@ class NotificationsSubItem:
 
     @property
     def partner_id(self):
-        return self.last_notification.partner_slug
+        return self.last_notification.partner.slug
 
     @property
     def partner(self):
-        return partners.get(self.partner_id)
+        return self.partners_by_slug.get(self.partner_id)
 
     @property
     def item_type(self):
@@ -274,8 +275,8 @@ class NotificationsItem(NotificationsSubItem):
     def partner_id(self):
         if not self.notifications and self.sub_items:
             # take sub_item parent value
-            return self.last_notification.item_parent_partner_slug
-        return self.last_notification.partner_slug
+            return self.last_notification.item_parent_partner.slug
+        return self.last_notification.partner.slug
 
     @property
     def item_type(self):
@@ -299,7 +300,7 @@ class NotificationsItem(NotificationsSubItem):
     def notification_for_status(self):
         def is_last_notification_about_item():
             # return True if parent fields are empty
-            if self.all_notifications[-1].item_parent_partner_slug:
+            if self.all_notifications[-1].item_parent_partner:
                 return False
             if self.all_notifications[-1].item_parent_type:
                 return False
@@ -377,15 +378,20 @@ class NotificationsItem(NotificationsSubItem):
 class NotificationsFollowup:
     items: dict[str, NotificationsItem] = field(default_factory=dict[str, NotificationsItem])
     services_by_id: dict[str, Service] = field(default_factory=dict[str, Service])
+    partners_by_slug: dict[str, Partner] = field(default_factory=dict[str, Partner])
 
     def add_notification(self, item_id, notification):
         if item_id not in self.items:
-            self.items[item_id] = NotificationsItem(services_by_id=self.services_by_id)
+            self.items[item_id] = NotificationsItem(
+                services_by_id=self.services_by_id, partners_by_slug=self.partners_by_slug
+            )
         self.items[item_id].notifications.append(notification)
 
     def add_sub_notification(self, item_parent_id, item_id, notification):
         if item_parent_id not in self.items:
-            self.items[item_parent_id] = NotificationsItem(services_by_id=self.services_by_id)
+            self.items[item_parent_id] = NotificationsItem(
+                services_by_id=self.services_by_id, partners_by_slug=self.partners_by_slug
+            )
         if item_id not in self.items[item_parent_id].sub_items:
             self.items[item_parent_id].sub_items[item_id] = NotificationsSubItem()
         self.items[item_parent_id].sub_items[item_id].notifications.append(notification)

@@ -2,7 +2,7 @@ import uuid
 
 from django.db import models
 
-from ami.partner.models import partners
+from ami.partner.models import Partner
 from ami.service.schemas import ServicesItem
 from ami.user.models import User
 
@@ -15,8 +15,9 @@ class Service(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
-    partner_slug = models.CharField(
-        choices=[(p.id, p.name) for p in partners.values()], db_column="partner_id"
+    partner_id: uuid.UUID  # For typing purposes: this is only a type annotation
+    partner = models.ForeignKey(
+        Partner, models.PROTECT, db_column="partner_uuid", related_name="services"
     )
     item_type = models.CharField()
 
@@ -41,12 +42,17 @@ class Service(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    # to delete from DB in a future release
+    # partner_slug = models.CharField(
+    #     choices=[(p.id, p.name) for p in partners.values()], db_column="partner_id", null=True
+    # )
+
     class Meta:
-        unique_together = [("kind", "partner_slug", "item_type")]
+        unique_together = [("kind", "partner", "item_type")]
 
     def to_services_item(self):
         return ServicesItem(
-            partner_id=self.partner_slug,
+            partner_id=self.partner.slug,
             item_type=self.item_type,
             kind=self.kind,
             title=self.title,

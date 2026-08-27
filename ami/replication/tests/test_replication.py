@@ -63,6 +63,7 @@ def test_replicate_anonymized_notifications_processes_by_batch(notification: Not
         user_id=notification.user_id,
         content_body="Second notification",
         content_title="Second title",
+        partner=notification.partner,
     )
     replicate_anonymized_notifications(chunk_size=1)
 

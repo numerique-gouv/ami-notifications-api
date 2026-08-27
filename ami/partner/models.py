@@ -1,45 +1,24 @@
-from dataclasses import dataclass
+import uuid
 
 from django.conf import settings
+from django.db import models
 
 
-@dataclass
-class OldPartner:
-    id: str
-    name: str
-    secret: str
-    icon: str
-    consent_is_enabled: bool
-    followup_from_notifications: bool = True
+class Partner(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
+    slug = models.SlugField(unique=True)
+    name = models.CharField()
+    icon = models.CharField(blank=True)
+    consent_is_enabled = models.BooleanField()
 
-partners: dict[str, OldPartner] = {
-    "psl": OldPartner(
-        "psl",
-        "PSL",
-        settings.PARTNERS_PSL_SECRET,
-        "",
-        settings.CONSENT_PSL_ENABLED,
-    ),
-    "dinum-dn": OldPartner(
-        "dinum-dn",
-        "demarche.numerique.gouv.fr",
-        settings.PARTNERS_DINUM_DN_SECRET,
-        "fr-icon-infinity-line",
-        settings.CONSENT_DINUM_DN_ENABLED,
-    ),
-    "dinum-ami": OldPartner(
-        "dinum-ami",
-        "AMI",
-        settings.PARTNERS_DINUM_AMI_SECRET,
-        "fr-icon-smartphone-line",
-        settings.CONSENT_DINUM_AMI_ENABLED,
-    ),
-    "dinum-rdvsp": OldPartner(
-        "dinum-rdvsp",
-        "RDV SP",
-        settings.PARTNERS_DINUM_RDVSP_SECRET,
-        "",
-        settings.CONSENT_DINUM_RDVSP_ENABLED,
-    ),
-}
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+    @property
+    def secret(self):
+        key = self.slug.replace("-", "_").upper()
+        return getattr(settings, f"PARTNERS_{key}_SECRET")

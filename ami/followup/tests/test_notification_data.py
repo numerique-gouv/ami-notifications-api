@@ -1,4 +1,3 @@
-import copy
 import datetime
 from unittest import mock
 
@@ -14,19 +13,19 @@ from ami.followup.schemas import (
     ItemGenericStatus,
 )
 from ami.notification.models import Notification
-from ami.partner.models import partners
+from ami.partner.models import Partner
 from ami.service.models import Service
 from ami.user.models import User
 
 
 @pytest.mark.django_db
-def test_get_notifications_data_no_notifications_for_user(user: User) -> None:
+def test_get_notifications_data_no_notifications_for_user(user: User, partner_psl: Partner) -> None:
     other_user = User.objects.create(fc_hash="fc-hash")
     Notification.objects.create(  # Other notification
         user_id=other_user.id,
         content_body="Other notification",
         content_title="Notification title",
-        partner_slug="psl",
+        partner=partner_psl,
     )
 
     result = get_notifications_data(current_user=user)
@@ -35,26 +34,7 @@ def test_get_notifications_data_no_notifications_for_user(user: User) -> None:
 
 
 @pytest.mark.django_db
-def test_get_notifications_data_partner_without_notifications(
-    user: User, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    partner = copy.deepcopy(partners["psl"])
-    partner.followup_from_notifications = False
-    monkeypatch.setattr("ami.followup.data.notification.partners", {"psl": partner})
-    Notification.objects.create(  # Other notification
-        user_id=user.id,
-        content_body="Other notification",
-        content_title="Notification title",
-        partner_slug="psl",
-    )
-
-    result = get_notifications_data(current_user=user)
-
-    assert result == []
-
-
-@pytest.mark.django_db
-def test_get_notifications_data_incomplete_notifications(user: User) -> None:
+def test_get_notifications_data_incomplete_notifications(user: User, partner_psl: Partner) -> None:
     # no item_generic_status
     Notification.objects.create(
         user_id=user.id,
@@ -63,7 +43,7 @@ def test_get_notifications_data_incomplete_notifications(user: User) -> None:
         item_status_label="Nouveau",
         item_type="OperationTranquilliteVacances",
         item_id="42",
-        partner_slug="psl",
+        partner=partner_psl,
     )
     # no item_status_label
     Notification.objects.create(
@@ -73,7 +53,7 @@ def test_get_notifications_data_incomplete_notifications(user: User) -> None:
         item_generic_status="new",
         item_type="OperationTranquilliteVacances",
         item_id="42",
-        partner_slug="psl",
+        partner=partner_psl,
     )
     # no item_type
     Notification.objects.create(
@@ -83,7 +63,7 @@ def test_get_notifications_data_incomplete_notifications(user: User) -> None:
         item_generic_status="new",
         item_status_label="Nouveau",
         item_id="42",
-        partner_slug="psl",
+        partner=partner_psl,
     )
     # no item_id
     Notification.objects.create(
@@ -93,7 +73,7 @@ def test_get_notifications_data_incomplete_notifications(user: User) -> None:
         item_generic_status="new",
         item_status_label="Nouveau",
         item_type="OperationTranquilliteVacances",
-        partner_slug="psl",
+        partner=partner_psl,
     )
 
     result = get_notifications_data(current_user=user)
@@ -102,7 +82,7 @@ def test_get_notifications_data_incomplete_notifications(user: User) -> None:
 
 
 @pytest.mark.django_db
-def test_get_notifications_data_invalid_notifications(user: User) -> None:
+def test_get_notifications_data_invalid_notifications(user: User, partner_psl: Partner) -> None:
     # invalid item_generic_status
     Notification.objects.create(
         user_id=user.id,
@@ -112,7 +92,7 @@ def test_get_notifications_data_invalid_notifications(user: User) -> None:
         item_status_label="Nouveau",
         item_type="OperationTranquilliteVacances",
         item_id="42",
-        partner_slug="psl",
+        partner=partner_psl,
     )
 
     result = get_notifications_data(current_user=user)
@@ -121,9 +101,11 @@ def test_get_notifications_data_invalid_notifications(user: User) -> None:
 
 
 @pytest.mark.django_db
-def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_get_notifications_data(
+    user: User, partner: Partner, partner_psl: Partner, monkeypatch: pytest.MonkeyPatch
+) -> None:
     Service.objects.create(
-        partner_slug="psl",
+        partner=partner_psl,
         item_type="OperationTranquilliteVacances",
         title="Opération Tranquillité Vacances",
         short_description="Inscrivez-vous pour protéger votre domicile pendant votre absence",
@@ -141,7 +123,7 @@ def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> 
         item_status_label="Nouveau",
         item_type="OperationTranquilliteVacances",
         item_id="42",
-        partner_slug="psl",
+        partner=partner_psl,
     )
     notification2 = Notification.objects.create(
         user_id=user.id,
@@ -152,7 +134,7 @@ def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> 
         item_type="OperationTranquilliteVacances",
         item_id="42",
         item_is_archived=True,
-        partner_slug="psl",
+        partner=partner_psl,
     )
     notification3 = Notification.objects.create(
         user_id=user.id,
@@ -162,7 +144,7 @@ def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> 
         item_status_label="En cours",
         item_type="OperationTranquilliteVacances",
         item_id="42",
-        partner_slug="psl",
+        partner=partner_psl,
     )
     sub_notification31 = Notification.objects.create(
         user_id=user.id,
@@ -173,8 +155,8 @@ def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> 
         item_status_label="En cours",
         item_type="SousDémarche",
         item_id="35",
-        partner_slug="dinum-ami",
-        item_parent_partner_slug="psl",
+        partner=partner,
+        item_parent_partner=partner_psl,
         item_parent_type="OperationTranquilliteVacances",
         item_parent_id="42",
     )
@@ -189,7 +171,7 @@ def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> 
         item_id="43",
         content_link="http://foo.com",
         item_is_archived=False,
-        partner_slug="psl",
+        partner=partner_psl,
     )
 
     notification5 = Notification.objects.create(
@@ -202,7 +184,7 @@ def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> 
         item_id="44",
         content_link="http://bar.com",
         item_is_archived=True,
-        partner_slug="psl",
+        partner=partner_psl,
     )
     notification6 = Notification.objects.create(
         user_id=user.id,
@@ -215,7 +197,7 @@ def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> 
         item_milestone_start_date=datetime.datetime.now(datetime.timezone.utc),
         item_milestone_end_date=datetime.datetime.now(datetime.timezone.utc),
         item_is_archived=False,
-        partner_slug="psl",
+        partner=partner_psl,
     )
 
     notification7 = Notification.objects.create(
@@ -226,7 +208,7 @@ def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> 
         item_status_label="Validé",
         item_type="Other",
         item_id="42",
-        partner_slug="dinum-ami",
+        partner=partner,
     )
 
     notification8 = Notification.objects.create(
@@ -240,7 +222,7 @@ def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> 
         item_status_label="Validé",
         item_type="Other",
         item_id="52",
-        partner_slug="dinum-ami",
+        partner=partner,
     )
 
     result = get_notifications_data(current_user=user)
@@ -320,7 +302,7 @@ def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> 
                 ),
             ],
             title="Opération Tranquillité Vacances",
-            subheading="PSL",
+            subheading="Service Public",
             description="notification 6",
             icon="fr-icon-flag-fill",
             external_url="http://bar.com",
@@ -346,7 +328,7 @@ def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> 
                 ),
             ],
             title="Notification title 4",
-            subheading="PSL",
+            subheading="Service Public",
             description="notification 4",
             icon="fr-icon-mail-fill",
             external_url="http://foo.com",
@@ -382,7 +364,7 @@ def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> 
                 ),
             ],
             title="Opération Tranquillité Vacances",
-            subheading="PSL",
+            subheading="Service Public",
             description="notification 3",
             icon="fr-icon-eye-fill",
             external_url=None,
@@ -422,7 +404,7 @@ def test_get_notifications_data(user: User, monkeypatch: pytest.MonkeyPatch) -> 
 
 @pytest.mark.django_db
 def test_get_notifications_data_parent_and_sub_items(
-    user: User, monkeypatch: pytest.MonkeyPatch
+    user: User, partner: Partner, partner_psl: Partner, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     notification = Notification.objects.create(
         user_id=user.id,
@@ -432,7 +414,7 @@ def test_get_notifications_data_parent_and_sub_items(
         item_status_label="En cours",
         item_type="OperationTranquilliteVacances",
         item_id="42",
-        partner_slug="psl",
+        partner=partner_psl,
     )
     sub_notification1 = Notification.objects.create(
         user_id=user.id,
@@ -442,8 +424,8 @@ def test_get_notifications_data_parent_and_sub_items(
         item_status_label="Nouveau",
         item_type="SousDémarche",
         item_id="35",
-        partner_slug="dinum-ami",
-        item_parent_partner_slug="psl",
+        partner=partner,
+        item_parent_partner=partner_psl,
         item_parent_type="OperationTranquilliteVacances",
         item_parent_id="42",
     )
@@ -455,8 +437,8 @@ def test_get_notifications_data_parent_and_sub_items(
         item_status_label="En cours",
         item_type="SousDémarche",
         item_id="35",
-        partner_slug="dinum-ami",
-        item_parent_partner_slug="psl",
+        partner=partner,
+        item_parent_partner=partner_psl,
         item_parent_type="OperationTranquilliteVacances",
         item_parent_id="42",
     )
@@ -470,8 +452,8 @@ def test_get_notifications_data_parent_and_sub_items(
         item_status_label="Nouveau",
         item_type="SousDémarcheBis",
         item_id="104",
-        partner_slug="dinum-ami",
-        item_parent_partner_slug="psl",
+        partner=partner,
+        item_parent_partner=partner_psl,
         item_parent_type="OperationTranquilliteVacances",
         item_parent_id="42",
     )
@@ -496,7 +478,7 @@ def test_get_notifications_data_parent_and_sub_items(
                 )
             ],
             title="Notification title",
-            subheading="PSL",
+            subheading="Service Public",
             description="notification",
             icon="fr-icon-mail-fill",
             external_url="http://bar.com",
@@ -566,7 +548,7 @@ def test_get_notifications_data_parent_and_sub_items(
 
 @pytest.mark.django_db
 def test_get_notifications_data_archived_parent_with_sub_item(
-    user: User, monkeypatch: pytest.MonkeyPatch
+    user: User, partner: Partner, partner_psl: Partner, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     notification = Notification.objects.create(
         user_id=user.id,
@@ -576,7 +558,7 @@ def test_get_notifications_data_archived_parent_with_sub_item(
         item_status_label="Nouveau",
         item_type="OperationTranquilliteVacances",
         item_id="42",
-        partner_slug="psl",
+        partner=partner_psl,
     )
     sub_notification1 = Notification.objects.create(
         user_id=user.id,
@@ -586,8 +568,8 @@ def test_get_notifications_data_archived_parent_with_sub_item(
         item_status_label="Nouveau",
         item_type="SousDémarche",
         item_id="35",
-        partner_slug="dinum-ami",
-        item_parent_partner_slug="psl",
+        partner=partner,
+        item_parent_partner=partner_psl,
         item_parent_type="OperationTranquilliteVacances",
         item_parent_id="42",
     )
@@ -612,7 +594,7 @@ def test_get_notifications_data_archived_parent_with_sub_item(
                 )
             ],
             title="Sub notification title 1",
-            subheading="PSL",
+            subheading="Service Public",
             description="",
             icon="fr-icon-mail-fill",
             external_url=None,
@@ -652,7 +634,7 @@ def test_get_notifications_data_archived_parent_with_sub_item(
 
 @pytest.mark.django_db
 def test_get_notifications_data_parent_fields_do_not_match(
-    user: User, monkeypatch: pytest.MonkeyPatch
+    user: User, partner: Partner, partner_psl: Partner, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     Notification.objects.create(
         user_id=user.id,
@@ -662,7 +644,12 @@ def test_get_notifications_data_parent_fields_do_not_match(
         item_status_label="En cours",
         item_type="OperationTranquilliteVacances",
         item_id="42",
-        partner_slug="psl",
+        partner=partner_psl,
+    )
+    wrong_partner = Partner.objects.create(
+        slug="wrong",
+        name="Wrong",
+        consent_is_enabled=True,
     )
     Notification.objects.create(
         user_id=user.id,
@@ -672,8 +659,8 @@ def test_get_notifications_data_parent_fields_do_not_match(
         item_status_label="Nouveau",
         item_type="SousDémarche",
         item_id="35",
-        partner_slug="dinum-ami",
-        item_parent_partner_slug="wrong",  # wrong partner_id
+        partner=partner,
+        item_parent_partner=wrong_partner,  # wrong partner_id
         item_parent_type="OperationTranquilliteVacances",
         item_parent_id="42",
     )
@@ -685,8 +672,8 @@ def test_get_notifications_data_parent_fields_do_not_match(
         item_status_label="En cours",
         item_type="SousDémarche",
         item_id="35",
-        partner_slug="dinum-ami",
-        item_parent_partner_slug="psl",
+        partner=partner,
+        item_parent_partner=partner_psl,
         item_parent_type="Wrong",  # wrong item_type
         item_parent_id="42",
     )
@@ -699,8 +686,8 @@ def test_get_notifications_data_parent_fields_do_not_match(
         item_status_label="Nouveau",
         item_type="SousDémarcheBis",
         item_id="104",
-        partner_slug="dinum-ami",
-        item_parent_partner_slug="psl",
+        partner=partner,
+        item_parent_partner=partner_psl,
         item_parent_type="OperationTranquilliteVacances",
         item_parent_id="wrong",  # wrong id
     )
@@ -713,7 +700,13 @@ def test_get_notifications_data_parent_fields_do_not_match(
 
 
 @pytest.mark.django_db
-def test_get_notifications_data_unknown_parent(user: User, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_get_notifications_data_unknown_parent(
+    user: User,
+    partner: Partner,
+    partner_psl: Partner,
+    partner_dn: Partner,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     sub_notification1 = Notification.objects.create(
         user_id=user.id,
         content_body="Sub notification body 1",
@@ -722,8 +715,8 @@ def test_get_notifications_data_unknown_parent(user: User, monkeypatch: pytest.M
         item_status_label="Nouveau",
         item_type="SousDémarche",
         item_id="35",
-        partner_slug="dinum-ami",
-        item_parent_partner_slug="psl",
+        partner=partner,
+        item_parent_partner=partner_psl,
         item_parent_type="OperationTranquilliteVacances",
         item_parent_id="42",
     )
@@ -736,8 +729,8 @@ def test_get_notifications_data_unknown_parent(user: User, monkeypatch: pytest.M
         item_status_label="En cours",
         item_type="AutreSousDémarche",
         item_id="36",
-        partner_slug="dinum-dn",
-        item_parent_partner_slug="psl",
+        partner=partner_dn,
+        item_parent_partner=partner_psl,
         item_parent_type="OperationTranquilliteVacances",
         item_parent_id="42",
     )
@@ -756,7 +749,7 @@ def test_get_notifications_data_unknown_parent(user: User, monkeypatch: pytest.M
             milestone_end_date=None,
             events=[],
             title="Sub notification title 2",
-            subheading="PSL",
+            subheading="Service Public",
             description="Sub notification body 2",
             icon="fr-icon-eye-fill",
             external_url="http://bar.com",
@@ -820,7 +813,7 @@ def test_get_notifications_data_unknown_parent(user: User, monkeypatch: pytest.M
 
     # same but a service exists for parent item
     Service.objects.create(
-        partner_slug="psl",
+        partner=partner_psl,
         item_type="OperationTranquilliteVacances",
         title="Opération Tranquillité Vacances",
         short_description="Inscrivez-vous pour protéger votre domicile pendant votre absence",
@@ -843,7 +836,7 @@ def test_get_notifications_data_unknown_parent(user: User, monkeypatch: pytest.M
             milestone_end_date=None,
             events=[],
             title="Opération Tranquillité Vacances",
-            subheading="PSL",
+            subheading="Service Public",
             description="Sub notification body 2",
             icon="fr-icon-eye-fill",
             external_url="http://bar.com",
@@ -908,7 +901,7 @@ def test_get_notifications_data_unknown_parent(user: User, monkeypatch: pytest.M
 
 @pytest.mark.django_db
 def test_get_notifications_data_unknown_parent_but_only_one_sub_item(
-    user: User, monkeypatch: pytest.MonkeyPatch
+    user: User, partner: Partner, partner_psl: Partner, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     sub_notification = Notification.objects.create(
         user_id=user.id,
@@ -919,8 +912,8 @@ def test_get_notifications_data_unknown_parent_but_only_one_sub_item(
         item_status_label="Nouveau",
         item_type="SousDémarche",
         item_id="35",
-        partner_slug="dinum-ami",
-        item_parent_partner_slug="psl",
+        partner=partner,
+        item_parent_partner=partner_psl,
         item_parent_type="OperationTranquilliteVacances",
         item_parent_id="42",
     )
@@ -958,7 +951,7 @@ def test_get_notifications_data_unknown_parent_but_only_one_sub_item(
 
     # same but a service exists for parent item
     Service.objects.create(
-        partner_slug="dinum-ami",
+        partner=partner,
         item_type="SousDémarche",
         title="Sous-démarche",
         short_description="Sous-démarche d'une autre démarche",
@@ -1000,7 +993,9 @@ def test_get_notifications_data_unknown_parent_but_only_one_sub_item(
 
 
 @pytest.mark.django_db
-def test_get_notifications_data_parent_status(user: User, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_get_notifications_data_parent_status(
+    user: User, partner: Partner, partner_psl: Partner, monkeypatch: pytest.MonkeyPatch
+) -> None:
     # all sub items has same status, take the last status label
     Notification.objects.create(
         user_id=user.id,
@@ -1010,7 +1005,7 @@ def test_get_notifications_data_parent_status(user: User, monkeypatch: pytest.Mo
         item_status_label="En cours",
         item_type="OperationTranquilliteVacances",
         item_id="42",
-        partner_slug="psl",
+        partner=partner_psl,
     )
     Notification.objects.create(
         user_id=user.id,
@@ -1020,8 +1015,8 @@ def test_get_notifications_data_parent_status(user: User, monkeypatch: pytest.Mo
         item_status_label="Nouveau",
         item_type="SousDémarche",
         item_id="35",
-        partner_slug="dinum-ami",
-        item_parent_partner_slug="psl",
+        partner=partner,
+        item_parent_partner=partner_psl,
         item_parent_type="OperationTranquilliteVacances",
         item_parent_id="42",
     )
@@ -1035,8 +1030,8 @@ def test_get_notifications_data_parent_status(user: User, monkeypatch: pytest.Mo
         item_status_label="Brouillon",
         item_type="SousDémarcheBis",
         item_id="104",
-        partner_slug="dinum-ami",
-        item_parent_partner_slug="psl",
+        partner=partner,
+        item_parent_partner=partner_psl,
         item_parent_type="OperationTranquilliteVacances",
         item_parent_id="42",
     )
@@ -1064,8 +1059,8 @@ def test_get_notifications_data_parent_status(user: User, monkeypatch: pytest.Mo
         item_status_label="En cours",
         item_type="SousDémarcheBis",
         item_id="104",
-        partner_slug="dinum-ami",
-        item_parent_partner_slug="psl",
+        partner=partner,
+        item_parent_partner=partner_psl,
         item_parent_type="OperationTranquilliteVacances",
         item_parent_id="42",
     )
@@ -1093,8 +1088,8 @@ def test_get_notifications_data_parent_status(user: User, monkeypatch: pytest.Mo
         item_status_label="Brouillon",
         item_type="SousDémarcheBis",
         item_id="105",
-        partner_slug="dinum-ami",
-        item_parent_partner_slug="psl",
+        partner=partner,
+        item_parent_partner=partner_psl,
         item_parent_type="OperationTranquilliteVacances",
         item_parent_id="42",
     )
@@ -1123,7 +1118,7 @@ def test_get_notifications_data_parent_status(user: User, monkeypatch: pytest.Mo
         item_status_label="Terminé",
         item_type="OperationTranquilliteVacances",
         item_id="42",
-        partner_slug="psl",
+        partner=partner_psl,
     )
 
     result = get_notifications_data(current_user=user)
@@ -1144,7 +1139,11 @@ def test_get_notifications_data_parent_status(user: User, monkeypatch: pytest.Mo
 
 @pytest.mark.django_db
 def test_get_notifications_data_parent_and_sub_sub_items(
-    user: User, monkeypatch: pytest.MonkeyPatch
+    user: User,
+    partner: Partner,
+    partner_psl: Partner,
+    partner_dn: Partner,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     notification = Notification.objects.create(
         user_id=user.id,
@@ -1154,7 +1153,7 @@ def test_get_notifications_data_parent_and_sub_sub_items(
         item_status_label="En cours",
         item_type="OperationTranquilliteVacances",
         item_id="42",
-        partner_slug="psl",
+        partner=partner_psl,
     )
     sub_notification = Notification.objects.create(
         user_id=user.id,
@@ -1164,8 +1163,8 @@ def test_get_notifications_data_parent_and_sub_sub_items(
         item_status_label="Nouveau",
         item_type="SousDémarche",
         item_id="35",
-        partner_slug="dinum-ami",
-        item_parent_partner_slug="psl",
+        partner=partner,
+        item_parent_partner=partner_psl,
         item_parent_type="OperationTranquilliteVacances",
         item_parent_id="42",
     )
@@ -1177,8 +1176,8 @@ def test_get_notifications_data_parent_and_sub_sub_items(
         item_status_label="Nouveau",
         item_type="SousSousDémarche",
         item_id="350",
-        partner_slug="dinum-dn",
-        item_parent_partner_slug="dinum-ami",
+        partner=partner_dn,
+        item_parent_partner=partner,
         item_parent_type="SousDémarche",
         item_parent_id="35",
     )
@@ -1256,7 +1255,7 @@ def test_get_notifications_data_parent_and_sub_sub_items(
                 )
             ],
             title="Notification title",
-            subheading="PSL",
+            subheading="Service Public",
             description="notification",
             icon="fr-icon-mail-fill",
             external_url=None,
@@ -1308,7 +1307,7 @@ def test_get_notifications_source(user: User, monkeypatch: pytest.MonkeyPatch) -
             milestone_end_date=datetime.datetime.now(datetime.timezone.utc),
             events=[],
             title="Notification title 6",
-            subheading="PSL",
+            subheading="Service Public",
             description="notification 6",
             icon="",
             external_url="http://bar.com",
@@ -1328,7 +1327,7 @@ def test_get_notifications_source(user: User, monkeypatch: pytest.MonkeyPatch) -
             milestone_end_date=None,
             events=[],
             title="Notification title 4",
-            subheading="PSL",
+            subheading="Service Public",
             description="notification 4",
             icon="",
             external_url="http://foo.com",

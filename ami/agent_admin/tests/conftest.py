@@ -1,12 +1,13 @@
 import pytest
 
+from ami.partner.models import Partner
 from ami.service.models import Service
 
 
 @pytest.fixture
-def service() -> Service:
+def service(partner_dn: Partner) -> Service:
     return Service.objects.create(
-        partner_slug="dinum-dn",
+        partner=partner_dn,
         item_type="ContacterAMI",
         title="Contacter l'équipe AMI",
         short_description="Faites-nous votre retour",
@@ -17,9 +18,9 @@ def service() -> Service:
 
 
 @pytest.fixture
-def services(service) -> list[Service]:
+def services(service: Service, partner_dn: Partner, partner_psl: Partner) -> list[Service]:
     service2 = Service.objects.create(
-        partner_slug="psl",
+        partner=partner_psl,
         item_type="OperationTranquilliteVacances",
         title="Opération Tranquillité Vacances",
         short_description="Inscrivez-vous pour protéger votre domicile pendant votre absence",
@@ -29,7 +30,7 @@ def services(service) -> list[Service]:
     )
     service3 = Service.objects.create(
         kind="sos",
-        partner_slug="dinum-dn",
+        partner=partner_dn,
         item_type="Démarche3",
         title="Démarche 3",
         short_description="Short description 3",
@@ -38,7 +39,7 @@ def services(service) -> list[Service]:
     )
     service4 = Service.objects.create(
         kind="steps",
-        partner_slug="dinum-dn",
+        partner=partner_dn,
         item_type="Démarche4",
         title="Démarche 4",
         short_description="Short description 4",
