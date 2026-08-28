@@ -7,9 +7,10 @@
   import AutoPromoCarousel from '$lib/components/AutoPromo.svelte';
   import AutoPromoItem from '$lib/components/AutoPromoItem.svelte';
   import FollowupItem from '$lib/components/FollowupItem.svelte';
+  import FollowupNoConsent from '$lib/components/FollowupNoConsent.svelte';
   import AgendaItemModal from '$lib/components/modal/AgendaItemModal.svelte';
-  import CenteredModal from '$lib/components/modal/CenteredModal.svelte';
   import FollowupItemModal from '$lib/components/modal/FollowupItemModal.svelte';
+  import { buildConsents, hasAnyConsents as hasAnyConsentsFunc } from '$lib/consents';
   import type { Followup, FollowupItem as FollowupItemType } from '$lib/followup';
   import { buildFollowup } from '$lib/followup';
   import {
@@ -29,6 +30,7 @@
   let selectedAgendaItem: AgendaItemType | null = $state(null);
   let selectedFollowupItem: FollowupItemType | null = $state(null);
   let autoPromo: AutoPromo | null = $state(null);
+  let hasAnyConsents: boolean = $state(false);
 
   onMount(async () => {
     console.log('User is connected:', userStore.connected);
@@ -65,6 +67,8 @@
       followup = await buildFollowup();
       console.log($state.snapshot(followup));
       isFollowupEmpty = !followup.items.length;
+      await buildConsents();
+      hasAnyConsents = await hasAnyConsentsFunc();
     } catch (error) {
       console.error(error);
     }
@@ -156,20 +160,43 @@
     {/if}
   </div>
 
-  <div class="rubrique-container followup-container">
-    {#if isFollowupEmpty}
-      <div class="header-container fr-mb-1w">
-        <h2 class="fr-h6 fr-mb-0 am-text--smbold title">Mes démarches</h2>
-      </div>
-      <div class="rubrique-content-container">
-        <div class="no-followup rubrique-content-container--empty">
-          <div class="no-followup--icon">
-            <img src="/remixicons/tracking.svg" alt="">
-          </div>
-          <div class="no-followup--title">Retrouvez et suivez vos démarches ici.</div>
+  {#if hasAnyConsents}
+    <div class="rubrique-container followup-container">
+      {#if isFollowupEmpty}
+        <div class="header-container fr-mb-1w">
+          <h2 class="fr-h6 fr-mb-0 am-text--smbold title">Mes démarches</h2>
         </div>
-      </div>
-    {:else}
+        <div class="rubrique-content-container">
+          <div class="no-followup rubrique-content-container--empty">
+            <div class="no-followup--icon">
+              <img src="/remixicons/tracking.svg" alt="">
+            </div>
+            <div class="no-followup--title">Suivez vos démarches ici.</div>
+          </div>
+        </div>
+      {:else}
+        <div class="header-container fr-mb-1w">
+          <h2 class="fr-h6 fr-mb-0 am-text--smbold title">Mes démarches</h2>
+          <button
+            type="button"
+            class="fr-link fr-icon-arrow-right-line fr-link--icon-right am-link-icon-xl"
+            aria-label="Voir toutes mes démarches"
+            onclick={() => goto("/#/followup")}
+          ></button>
+        </div>
+        <div class="rubrique-content-container">
+          {#if followup && followup.items.length}
+            {@const firstItem = followup.items[0]}
+            <FollowupItem
+              item={firstItem}
+              onOpen={() => openFollowupItemModal(firstItem)}
+            />
+          {/if}
+        </div>
+      {/if}
+    </div>
+  {:else}
+    <div class="rubrique-container followup-container">
       <div class="header-container fr-mb-1w">
         <h2 class="fr-h6 fr-mb-0 am-text--smbold title">Mes démarches</h2>
         <button
@@ -180,16 +207,10 @@
         ></button>
       </div>
       <div class="rubrique-content-container">
-        {#if followup && followup.items.length}
-          {@const firstItem = followup.items[0]}
-          <FollowupItem
-            item={firstItem}
-            onOpen={() => openFollowupItemModal(firstItem)}
-          />
-        {/if}
+        <FollowupNoConsent />
       </div>
-    {/if}
-  </div>
+    </div>
+  {/if}
 </div>
 
 {#if selectedAgendaItem}

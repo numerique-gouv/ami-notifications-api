@@ -1,13 +1,18 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
-import { describe, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import * as navigationMethods from '$app/navigation';
 import FollowupComponent from '$lib/components/Followup.svelte';
+import * as consentsMethods from '$lib/consents';
 import * as followupMethods from '$lib/followup';
 import { Followup, FollowupItem } from '$lib/followup';
 import { toastStore } from '$lib/state/toast.svelte';
 
 describe('/Followup.svelte', () => {
   describe('Current items', () => {
+    beforeEach(async () => {
+      vi.spyOn(consentsMethods, 'hasAnyConsents').mockResolvedValue(true);
+    });
+
     test('Should display followup from API', async () => {
       // Given
       const followup = new Followup();
@@ -112,6 +117,9 @@ describe('/Followup.svelte', () => {
         expect(screen.getByTestId('followup')).not.toHaveTextContent(
           'Après avoir effectué vos démarches, vous pouvez les suivre en temps réel depuis l’application.'
         );
+        const accordionButton: HTMLButtonElement =
+          screen.getByTestId('accordion-button');
+        expect(accordionButton).toHaveAttribute('aria-expanded', 'false');
       });
     });
     test('Should display empty followup', async () => {
@@ -149,12 +157,19 @@ describe('/Followup.svelte', () => {
       await waitFor(() => {
         expect(spy).toHaveBeenCalledTimes(1);
         expect(screen.getByTestId('followup')).toHaveTextContent(
-          'Après avoir effectué vos démarches, vous pouvez les suivre en temps réel depuis l’application.'
+          'Votre démarche n’apparaît pas ? Consultez votre compte Service Public CNMSS Démarche numérique Dossier facile Vérifiez que vous suivez bien toutes vos démarches'
         );
+        const accordionButton: HTMLButtonElement =
+          screen.getByTestId('accordion-button');
+        expect(accordionButton).toHaveAttribute('aria-expanded', 'true');
       });
     });
   });
   describe('Archived items', () => {
+    beforeEach(async () => {
+      vi.spyOn(consentsMethods, 'hasAnyConsents').mockResolvedValue(true);
+    });
+
     test('Should display followup from API', async () => {
       // Given
       const followup = new Followup();
@@ -259,6 +274,9 @@ describe('/Followup.svelte', () => {
         expect(screen.getByTestId('followup')).not.toHaveTextContent(
           'Après avoir effectué vos démarches, vous pouvez les suivre en temps réel depuis l’application.'
         );
+        const accordionButton: HTMLButtonElement =
+          screen.getByTestId('accordion-button');
+        expect(accordionButton).toHaveAttribute('aria-expanded', 'false');
       });
     });
     test('Should display empty followup', async () => {
@@ -296,12 +314,19 @@ describe('/Followup.svelte', () => {
       await waitFor(() => {
         expect(spy).toHaveBeenCalledTimes(1);
         expect(screen.getByTestId('followup')).toHaveTextContent(
-          'Après avoir effectué vos démarches, vous pouvez les suivre en temps réel depuis l’application.'
+          'Votre démarche n’apparaît pas ? Consultez votre compte Service Public CNMSS Démarche numérique Dossier facile Vérifiez que vous suivez bien toutes vos démarches'
         );
+        const accordionButton: HTMLButtonElement =
+          screen.getByTestId('accordion-button');
+        expect(accordionButton).toHaveAttribute('aria-expanded', 'false');
       });
     });
   });
   describe('More menu', () => {
+    beforeEach(async () => {
+      vi.spyOn(consentsMethods, 'hasAnyConsents').mockResolvedValue(true);
+    });
+
     test('No "more" button for archived followup items', async () => {
       // Given
       const followup = new Followup();
@@ -358,8 +383,30 @@ describe('/Followup.svelte', () => {
         expect(spy).toHaveBeenCalledWith('/#/followup/archived');
       });
     });
+
+    test('No "more" button when user has not consented', async () => {
+      // Given
+      vi.spyOn(consentsMethods, 'hasAnyConsents').mockResolvedValue(false);
+
+      const followup = new Followup();
+      vi.spyOn(followup, 'items', 'get').mockReturnValue([]);
+      vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
+
+      // When
+      render(FollowupComponent, { archived: true });
+
+      // Then
+      await waitFor(async () => {
+        const button = screen.queryByTestId('more-button');
+        expect(button).toBeNull();
+      });
+    });
   });
   describe('Followup item modal', () => {
+    beforeEach(async () => {
+      vi.spyOn(consentsMethods, 'hasAnyConsents').mockResolvedValue(true);
+    });
+
     test('No more icon for archived followup item', async () => {
       const followup = new Followup();
       vi.spyOn(followup, 'archived_items', 'get').mockReturnValue([
@@ -659,6 +706,34 @@ describe('/Followup.svelte', () => {
           'error',
           3000,
           true
+        );
+      });
+    });
+  });
+
+  describe('No consent block', () => {
+    beforeEach(async () => {
+      vi.spyOn(consentsMethods, 'hasAnyConsents').mockResolvedValue(true);
+    });
+
+    test('No more icon for archived followup item', async () => {
+      // Given
+      vi.spyOn(consentsMethods, 'hasAnyConsents').mockResolvedValue(false);
+
+      const followup = new Followup();
+      vi.spyOn(followup, 'items', 'get').mockReturnValue([]);
+      vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
+
+      // When
+      const { container } = render(FollowupComponent);
+
+      // Then
+      await waitFor(() => {
+        const followupNoConsentBlock = container.querySelector(
+          '.followup-no-consent-container'
+        );
+        expect(followupNoConsentBlock).toHaveTextContent(
+          'Suivez vos démarches administratives au même endroit !'
         );
       });
     });

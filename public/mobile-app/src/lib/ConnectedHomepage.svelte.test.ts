@@ -5,8 +5,11 @@ import type { WS as WSType } from 'vitest-websocket-mock';
 import WS from 'vitest-websocket-mock';
 import * as agendaMethods from '$lib/agenda';
 import { Agenda, Item } from '$lib/agenda';
+import type { APIConsents, APIConsentsItem } from '$lib/api-consents';
 import * as autoPromoMethods from '$lib/auto-promo';
 import { AutoPromo, AutoPromoItem } from '$lib/auto-promo';
+import * as consentsMethods from '$lib/consents';
+import { Consents } from '$lib/consents';
 import * as followupMethods from '$lib/followup';
 import { Followup, FollowupItem } from '$lib/followup';
 import * as notificationsMethods from '$lib/notifications';
@@ -46,6 +49,7 @@ describe('/ConnectedHomepage.svelte', () => {
       new AutoPromo(new Agenda())
     );
     vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(new Followup());
+    vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(new Consents());
 
     window.localStorage.setItem('notifications_enabled', 'false');
     window.localStorage.setItem('user_data', 'fake-user-data');
@@ -345,7 +349,20 @@ describe('/ConnectedHomepage.svelte', () => {
     });
   });
 
-  describe('Followup block', () => {
+  describe('Followup block - when user has consented', () => {
+    beforeEach(async () => {
+      const apiConsentsItem: APIConsentsItem = {
+        partner_id: 'fake-partner-id',
+        consent_datetime: new Date('2026-02-22T15:55:00.000Z'),
+      };
+      const apiConsents: APIConsents = {
+        consents: [apiConsentsItem],
+      };
+      const consents: Consents = new Consents(apiConsents);
+      vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
+      vi.spyOn(consentsMethods, 'hasAnyConsents').mockResolvedValue(true);
+    });
+
     test('Should display first followup found from API', async () => {
       // Given
       const followup = new Followup();
@@ -464,9 +481,7 @@ describe('/ConnectedHomepage.svelte', () => {
       await waitFor(() => {
         const followupBlock = container.querySelector('.followup-container');
         expect(spy).toHaveBeenCalledTimes(1);
-        expect(followupBlock).toHaveTextContent(
-          'Retrouvez et suivez vos démarches ici.'
-        );
+        expect(followupBlock).toHaveTextContent('Suivez vos démarches ici.');
       });
     });
 
@@ -721,6 +736,32 @@ describe('/ConnectedHomepage.svelte', () => {
             true
           );
         });
+      });
+    });
+  });
+
+  describe('Followup block - when user has not consented', () => {
+    beforeEach(async () => {
+      const apiConsents: APIConsents = {
+        consents: [],
+      };
+      const consents: Consents = new Consents(apiConsents);
+      vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
+      vi.spyOn(consentsMethods, 'hasAnyConsents').mockResolvedValue(false);
+    });
+
+    test('should display followup no consent block', async () => {
+      // When
+      const { container } = render(ConnectedHomepage);
+
+      // Then
+      await waitFor(() => {
+        const followupNoConsentBlock = container.querySelector(
+          '.followup-no-consent-container'
+        );
+        expect(followupNoConsentBlock).toHaveTextContent(
+          'Suivez vos démarches administratives au même endroit !'
+        );
       });
     });
   });

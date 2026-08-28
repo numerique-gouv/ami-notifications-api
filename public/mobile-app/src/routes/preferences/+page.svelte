@@ -25,10 +25,6 @@
     }
   });
 
-  const navigateToPreviousPage = async () => {
-    goto(backUrl);
-  };
-
   const openZonePreferencesModal = () => {
     zonePreferencesModal.open();
   };
@@ -42,6 +38,16 @@
       <div class="fr-sidemenu__inner">
         <div id="fr-sidemenu-wrapper">
           <ul class="fr-sidemenu__list">
+            <li class="fr-sidemenu__item">
+              <button
+                type="button"
+                class="fr-sidemenu__link"
+                onclick={()=>goto("/#/preferences/consents")}
+              >
+                <span class="label">Suivi des démarches</span>
+                <span aria-hidden="true" class="icon fr-icon-arrow-right-s-line"></span>
+              </button>
+            </li>
             <li class="fr-sidemenu__item">
               <button
                 type="button"
