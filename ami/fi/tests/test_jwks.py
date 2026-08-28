@@ -11,5 +11,5 @@ MHcCAQEEIDhlh6aexVQQGXn4ZneIQQ3SjuLyAMD9lUJC96Xdwu/+oAoGCCqGSM49
 AwEHoUQDQgAEiE6BySwCPar5xw4ftKWA53oRScxMdYTur2ZBpo87ixjtKgixY0IZ
 PPBysY8ji0hqLexMzyPn0awzUcUpzAuV3Q==
 -----END EC PRIVATE KEY-----"""
-    response = app.get("/api/v1/fi/jwks")
+    response = app.get("/api/v1/fi/jwks/")
     assert response.json["keys"][0]["alg"] == "ES256"
