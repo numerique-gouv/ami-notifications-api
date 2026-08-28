@@ -101,19 +101,18 @@ def token(request: Request) -> Response:
     )
 
 
-@api_view(["GET"])
 def userinfo(request: Request) -> HttpResponse:
     if not settings.FI_SILENT_LOGIN_ENABLED:
         raise Http404
     auth_header = request.META.get("HTTP_AUTHORIZATION")
     if not auth_header:
         logger.error("Header d'authentification manquant")
-        raise MissingAuthHeader
+        return JsonResponse({"detail": MissingAuthHeader.default_detail}, status=403)
 
     pattern = re.compile(r"^Bearer\s([A-Z-a-z-0-9-_/-]+)$")
     if not pattern.match(auth_header):
         logger.error("Header d'authentification mal formé")
-        raise WrongFormatAuthHeader
+        return JsonResponse({"detail": WrongFormatAuthHeader.default_detail}, status=403)
 
     auth_token = auth_header[7:]
     auth_token_hash = make_password(auth_token, settings.FI_HASH_SALT)
@@ -121,10 +120,10 @@ def userinfo(request: Request) -> HttpResponse:
         fi_session = FISession.objects.get(access_token=auth_token_hash)
         if fi_session.is_expired:
             logger.error("Session de connexion à AMI-FI expirée")
-            raise FISessionExpired
+            return JsonResponse({"detail": FISessionExpired.default_detail}, status=403)
     except FISession.DoesNotExist:
         logger.error("Session de connexion à AMI-FI non trouvée")
-        raise FISessionNotFound
+        return JsonResponse({"detail": FISessionNotFound.default_detail}, status=403)
 
     encoded_user_info = jwt.encode(
         fi_session.user_data,
