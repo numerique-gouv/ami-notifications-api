@@ -20,5 +20,4 @@ class Partner(models.Model):
 
     @property
     def secret(self):
-        key = self.slug.replace("-", "_").upper()
-        return getattr(settings, f"PARTNERS_{key}_SECRET")
+        return settings.PARTNERS_SECRETS[self.slug.replace("_", "-")]

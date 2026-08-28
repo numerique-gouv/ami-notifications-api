@@ -338,10 +338,16 @@ API_DATA_EDUCATION_HOLIDAYS_ENDPOINT = (
 
 
 # Partners
-PARTNERS_PSL_SECRET = CONFIG.get("PARTNERS_PSL_SECRET", "")
-PARTNERS_DINUM_DN_SECRET = CONFIG.get("PARTNERS_DINUM_DN_SECRET", "")
-PARTNERS_DINUM_AMI_SECRET = CONFIG.get("PARTNERS_DINUM_AMI_SECRET", "")
-PARTNERS_DINUM_RDVSP_SECRET = CONFIG.get("PARTNERS_DINUM_RDVSP_SECRET", "")
+PARTNERS_SECRETS = {}
+for k, v in CONFIG.items():
+    if not k.startswith("PARTNERS_") or not k.endswith("_SECRET"):
+        continue
+    slug = k
+    slug = slug.replace("PARTNERS_", "")
+    slug = slug.replace("_SECRET", "")
+    slug = slug.replace("_", "-")
+    slug = slug.lower()
+    PARTNERS_SECRETS[slug] = v
 # Consent
 CONSENT_PSL_ENABLED = CONFIG.get("FEATURE_FLAG_CONSENT_PSL_ENABLED") == "true"
 CONSENT_DINUM_DN_ENABLED = CONFIG.get("FEATURE_FLAG_CONSENT_DINUM_DN_ENABLED") == "true"
