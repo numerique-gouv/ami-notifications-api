@@ -26,7 +26,10 @@ PPBysY8ji0hqLexMzyPn0awzUcUpzAuV3Q==
     auth_token_hash = make_password(auth_token, settings.FI_HASH_SALT)
     user_data = {"fake-key": "fake-user-data"}
     FISession.objects.create(user_data=user_data, access_token=auth_token_hash)
-    response = app.get("/api/v1/fi/userinfo/", headers={"AUTHORIZATION": f"Bearer {auth_token}"})
+    response = app.get(
+        "/api/v1/fi/userinfo/",
+        headers={"AUTHORIZATION": f"Bearer {auth_token}", "Accept": "application/jwt"},
+    )
     assert (
         jwt.decode(response.content, key=settings.FI_PUBLIC_KEY_PEM, algorithms=["ES256"])
         == user_data
