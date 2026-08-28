@@ -1,4 +1,5 @@
 <script lang="ts">
+  import DOMPurify from 'dompurify';
   import { type ToggleTag } from '$lib/types/components/toggletag';
 
   interface Props {
@@ -29,7 +30,7 @@
     onchange={(e) => onChangeAction((e.target as HTMLInputElement).id, (e.target as HTMLInputElement).checked)}
     data-testid="{id}"
   >
-  <label class="fr-toggle__label" for={id}>{label}</label>
+  <label class="fr-toggle__label" for={id}>{@html DOMPurify.sanitize(label)}</label>
   <div class="tags-container">
     {#each tags as tag (tag.id)}
       {#if tag.removable}
@@ -53,12 +54,14 @@
 <style>
   .fr-toggle {
     padding: 1rem 0;
+    display: block;
     &:has(.fr-tag) {
       padding-bottom: 0;
     }
     label.fr-toggle__label {
-      display: flex;
+      display: block;
       position: relative;
+      padding-right: 2rem;
       &:before {
         display: flex;
         position: absolute;

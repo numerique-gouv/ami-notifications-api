@@ -2,8 +2,10 @@
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import FollowupItem from '$lib/components/FollowupItem.svelte';
+  import FollowupNoConsent from '$lib/components/FollowupNoConsent.svelte';
   import FollowupItemModal from '$lib/components/modal/FollowupItemModal.svelte';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
+  import { hasAnyConsents as hasAnyConsentsFunc } from '$lib/consents';
   import type { Followup, FollowupItem as FollowupItemType } from '$lib/followup';
   import { buildFollowup } from '$lib/followup';
 
@@ -17,11 +19,22 @@
   let followup: Followup | null = $state(null);
   let selectedFollowupItem: FollowupItemType | null = $state(null);
   let menuOpened: boolean = $state(false);
+  let hasAnyConsents: boolean = $state(false);
+  let isExpanded: boolean = $state(true);
 
   onMount(async () => {
     followup = await buildFollowup();
     console.log($state.snapshot(followup));
+    hasAnyConsents = await hasAnyConsentsFunc();
+    isExpanded = expandAccordion();
   });
+
+  const expandAccordion = (): boolean => {
+    if (followup) {
+      return !archived && followup.items?.length === 0;
+    }
+    return false;
+  };
 
   const openFollowupItemModal = (item: FollowupItemType) => {
     selectedFollowupItem = item;
@@ -34,6 +47,10 @@
   const gotoArchivedFollowup = () => {
     goto('/#/followup/archived');
   };
+
+  const gotoConsents = () => {
+    goto('/#/preferences/consents');
+  };
 </script>
 
 {#if archived}
@@ -44,19 +61,21 @@
   {#if !archived}
     <div class="followup--title">
       <h1 class="fr-h2">Mes démarches</h1>
-      <div class="followup--title--icon">
-        <button
-          class="more"
-          type="button"
-          data-testid="more-button"
-          onclick={toggleMoreMenu}
-        >
-          <span class="fr-icon-more-2-fill" aria-hidden="true"></span><span
-            class="fr-sr-only"
-            >Sous-menu</span
+      {#if hasAnyConsents}
+        <div class="followup--title--icon">
+          <button
+            class="more"
+            type="button"
+            data-testid="more-button"
+            onclick={toggleMoreMenu}
           >
-        </button>
-      </div>
+            <span class="fr-icon-more-2-fill" aria-hidden="true"></span><span
+              class="fr-sr-only"
+              >Sous-menu</span
+            >
+          </button>
+        </div>
+      {/if}
       {#if menuOpened}
         <ul id="more-menu" data-testid="more-menu">
           <li>
@@ -75,24 +94,90 @@
   {/if}
 
   <div class="followup--container" data-testid="followup">
-    {#if archived && followup && followup.archived_items.length}
-      {#each followup.archived_items as item}
-        <FollowupItem item={item} onOpen={() => openFollowupItemModal(item)} />
-      {/each}
-    {:else if !archived && followup && followup.items.length}
-      {#each followup.items as item}
-        <FollowupItem item={item} onOpen={() => openFollowupItemModal(item)} />
-      {/each}
-    {:else}
+    {#if hasAnyConsents}
+      {#if archived && followup && followup.archived_items.length}
+        {#each followup.archived_items as item}
+          <FollowupItem item={item} onOpen={() => openFollowupItemModal(item)} />
+        {/each}
+      {:else if !archived && followup && followup.items.length}
+        {#each followup.items as item}
+          <FollowupItem item={item} onOpen={() => openFollowupItemModal(item)} />
+        {/each}
+      {/if}
       <div class="no-followup">
-        <div class="no-followup--icon">
-          <img class="followup-icon" src="/remixicons/tracking.svg" alt="">
-        </div>
-        <div class="no-followup--title">
-          Après avoir effectué vos démarches, vous pouvez les suivre en temps réel
-          depuis l’application.
-        </div>
+        <section class="fr-accordion fr-mt-4v">
+          <h3 class="fr-accordion__title">
+            <button
+              type="button"
+              class="fr-accordion__btn"
+              aria-expanded="{isExpanded}"
+              aria-controls="accordion-1"
+              data-testid="accordion-button"
+            >
+              <span class="fr-pr-2v">
+                <span class="fr-icon-information-line" aria-hidden="true"> </span>
+              </span>
+              Votre démarche n’apparaît pas&nbsp;?
+            </button>
+          </h3>
+          <div id="accordion-1" class="fr-collapse fr-p-0">
+            <div class="fr-m-4v">
+              <p>Consultez votre compte</p>
+              <ul class="fr-p-0">
+                <li class="account fr-pb-4v">
+                  <button
+                    type="button"
+                    class="fr-btn fr-btn--secondary am-btn-target am-btn-w100"
+                    onclick={()=> window.location.href = "https://www.service-public.gouv.fr/"}
+                  >
+                    Service Public
+                  </button>
+                </li>
+                <li class="account fr-pb-4v">
+                  <button
+                    type="button"
+                    class="fr-btn fr-btn--secondary am-btn-target am-btn-w100"
+                    onclick={()=> window.location.href = "https://www.cnmss.fr/"}
+                  >
+                    CNMSS
+                  </button>
+                </li>
+                <li class="account fr-pb-4v">
+                  <button
+                    type="button"
+                    class="fr-btn fr-btn--secondary am-btn-target am-btn-w100"
+                    onclick={()=> window.location.href = "https://demarche.numerique.gouv.fr/"}
+                  >
+                    Démarche numérique
+                  </button>
+                </li>
+                <li class="account">
+                  <button
+                    type="button"
+                    class="fr-btn fr-btn--secondary am-btn-target am-btn-w100"
+                    onclick={()=> window.location.href = "https://www.dossierfacile.logement.gouv.fr/"}
+                  >
+                    Dossier facile
+                  </button>
+                </li>
+              </ul>
+              <p>Vérifiez que vous suivez bien toutes vos démarches</p>
+              <div class="consent-action-button">
+                <button
+                  class="fr-btn fr-btn--lg"
+                  type="button"
+                  onclick={gotoConsents}
+                  data-testid="consent-button"
+                >
+                  Je veux suivre mes démarches
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
+    {:else}
+      <FollowupNoConsent />
     {/if}
   </div>
 </div>
@@ -152,26 +237,29 @@
     .followup--container {
       display: flex;
       flex-direction: column;
-      &:has(div.no-followup) {
-        align-items: center;
-        justify-content: center;
-        height: calc(100vh - 15rem);
-        min-height: 10rem;
-      }
       .no-followup {
-        flex-direction: column;
-        text-align: center;
-        padding: 1rem;
-        display: flex;
-        font-size: 16px;
-        line-height: 24px;
-        color: var(--grey-0-1000);
-        img {
-          height: 5rem;
-          width: 5rem;
-        }
-        .no-followup--title {
-          text-align: left;
+        .fr-accordion {
+          .fr-accordion__btn {
+            font-size: 14px;
+            font-weight: 700;
+          }
+          .account {
+            list-style: none;
+          }
+          &:before {
+            border: solid 1px var(--border-default-blue-france);
+            box-shadow: none;
+          }
+          .consent-action-button {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            button {
+              display: flex;
+              justify-content: center;
+              width: 100%;
+            }
+          }
         }
       }
     }

@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/svelte';
 import { describe, expect, test, vi } from 'vitest';
 import * as navigationMethods from '$app/navigation';
+import * as consentsMethods from '$lib/consents';
 import * as followupMethods from '$lib/followup';
 import { Followup, FollowupItem } from '$lib/followup';
 import Page from './+page.svelte';
@@ -22,6 +23,7 @@ describe('/+page.svelte', () => {
   });
   test('Should display archived followup', async () => {
     // Given
+    vi.spyOn(consentsMethods, 'hasAnyConsents').mockResolvedValue(true);
     const followup = new Followup();
     vi.spyOn(followup, 'items', 'get').mockReturnValue([
       new FollowupItem(
