@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
+import { waitFor } from '@testing-library/svelte';
 import { retrieveConsents, updateApiConsent } from '$lib/api-consents';
 
 const apiConsents = {
@@ -45,9 +46,35 @@ describe('/api-consents', () => {
         apiConsents.consents[1].consent_datetime
       );
     });
-
-    test('should get consents items from API - with error', async () => {
+    test('should store consents to localStorage', async () => {
       // Given
+      localStorage.clear();
+
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        new Response(JSON.stringify(apiConsents.consents), { status: 200 })
+      );
+
+      // When
+      await retrieveConsents();
+
+      // Then
+      const result = JSON.parse(localStorage.getItem('consents') || '[]');
+      expect(result.consents.length).toEqual(2);
+      expect(result.consents[0].partner_id).toEqual(apiConsents.consents[0].partner_id);
+      expect(result.consents[0].consent_datetime).toEqual(
+        apiConsents.consents[0].consent_datetime
+      );
+      expect(result.consents[1].partner_id).toEqual(apiConsents.consents[1].partner_id);
+      expect(result.consents[1].consent_datetime).toEqual(
+        apiConsents.consents[1].consent_datetime
+      );
+    });
+
+    test('should get consents items from localStorage - when status code is not 200', async () => {
+      // Given
+      localStorage.clear();
+      localStorage.setItem('consents', JSON.stringify(apiConsents));
+
       const spy = vi
         .spyOn(globalThis, 'fetch')
         .mockResolvedValue(new Response('error', { status: 400 }));
@@ -57,7 +84,66 @@ describe('/api-consents', () => {
 
       // Then
       expect(spy).toHaveBeenCalledExactlyOnceWith('/api/v1/users/consents');
-      expect(result).toEqual({ consents: [] });
+      expect(result.consents.length).toEqual(2);
+      expect(result.consents[0].partner_id).toEqual(apiConsents.consents[0].partner_id);
+      expect(result.consents[0].consent_datetime).toEqual(
+        apiConsents.consents[0].consent_datetime
+      );
+      expect(result.consents[1].partner_id).toEqual(apiConsents.consents[1].partner_id);
+      expect(result.consents[1].consent_datetime).toEqual(
+        apiConsents.consents[1].consent_datetime
+      );
+    });
+    test('should get consents with no item when localStorage has no key - when status code is not 200', async () => {
+      // Given
+      localStorage.clear();
+
+      const spy = vi
+        .spyOn(globalThis, 'fetch')
+        .mockResolvedValue(new Response('error', { status: 400 }));
+
+      // When
+      const result = await retrieveConsents();
+
+      // Then
+      expect(spy).toHaveBeenCalledExactlyOnceWith('/api/v1/users/consents');
+      expect(result.consents.length).toEqual(0);
+    });
+    test('should get consents items from localStorage - when fetch fails', async () => {
+      // Given
+      localStorage.clear();
+      localStorage.setItem('consents', JSON.stringify(apiConsents));
+
+      vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('Fetch failed'));
+
+      // When
+      const result = await retrieveConsents();
+
+      // Then
+      console.log(result);
+      expect(result.consents.length).toEqual(2);
+      expect(result.consents[0].partner_id).toEqual(apiConsents.consents[0].partner_id);
+      expect(result.consents[0].consent_datetime).toEqual(
+        apiConsents.consents[0].consent_datetime
+      );
+      expect(result.consents[1].partner_id).toEqual(apiConsents.consents[1].partner_id);
+      expect(result.consents[1].consent_datetime).toEqual(
+        apiConsents.consents[1].consent_datetime
+      );
+    });
+    test('should get consents with no item when localStorage has no key - when fetch fails', async () => {
+      // Given
+      localStorage.clear();
+
+      vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('Fetch failed'));
+
+      // When
+      const result = await retrieveConsents();
+
+      // Then
+      await waitFor(() => {
+        expect(result.consents.length).toEqual(0);
+      });
     });
   });
 

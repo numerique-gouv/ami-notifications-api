@@ -3,6 +3,7 @@ import '@testing-library/jest-dom/vitest';
 import { waitFor } from '@testing-library/svelte';
 import type { APIAgenda } from '$lib/api-agenda';
 import * as apiAgendaMethods from '$lib/api-agenda';
+import * as apiConsentsMethods from '$lib/api-consents';
 import { initializeData, initializeLocalStorage } from '$lib/initializeDataFromAPI';
 import type { AppNotification } from '$lib/notifications';
 import * as notificationsMethods from '$lib/notifications';
@@ -105,6 +106,9 @@ describe('/initializeDataFromAPI.ts', () => {
         .spyOn(apiAgendaMethods, 'retrieveAgenda')
         .mockResolvedValue(apiAgendaData);
       const notifications: AppNotification[] = buildNotifications();
+      const retrieveConsentsSpy = vi
+        .spyOn(apiConsentsMethods, 'retrieveConsents')
+        .mockResolvedValue({ consents: [] });
       const retrieveNotificationsSpy = vi
         .spyOn(notificationsMethods, 'retrieveNotifications')
         .mockResolvedValue(notifications);
@@ -114,6 +118,7 @@ describe('/initializeDataFromAPI.ts', () => {
 
       // Then
       expect(retrieveAgendaSpy).toHaveBeenCalledTimes(1);
+      expect(retrieveConsentsSpy).toHaveBeenCalledTimes(1);
       expect(retrieveNotificationsSpy).toHaveBeenCalledTimes(1);
     });
   });
