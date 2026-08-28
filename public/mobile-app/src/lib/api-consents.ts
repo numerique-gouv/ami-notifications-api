@@ -10,7 +10,7 @@ export type APIConsents = {
 };
 
 export const retrieveConsents = async (): Promise<APIConsents> => {
-  const apiConsents = {
+  let apiConsents = {
     consents: [] as APIConsentsItem[],
   } as APIConsents;
 
@@ -18,10 +18,12 @@ export const retrieveConsents = async (): Promise<APIConsents> => {
     const response = await apiFetch('/api/v1/users/consents');
     if (response.status === 200) {
       apiConsents.consents = await response.json();
+      localStorage.setItem('consents', JSON.stringify(apiConsents));
     }
   } catch (error) {
     console.error(error);
   }
+  apiConsents = JSON.parse(localStorage.getItem('consents') || '{"consents":[]}');
 
   return apiConsents;
 };
