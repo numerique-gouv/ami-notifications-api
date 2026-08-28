@@ -1124,9 +1124,7 @@ def test_create_event_without_auth(app, settings, partner: Partner) -> None:
         "detail": "En-tête « basic » non valide. Encodage base64 des informations d'identification incorrect."
     }
 
-    b64 = base64.b64encode(f"foo:{settings.PARTNERS_DINUM_AMI_SECRET}".encode("utf8")).decode(
-        "utf8"
-    )
+    b64 = base64.b64encode(f"foo:{partner.secret}".encode("utf8")).decode("utf8")
     response = app.put("/api/v2/event", headers={"authorization": f"Basic {b64}"}, status=401)
     assert response.json == {"detail": "Invalid username."}
 

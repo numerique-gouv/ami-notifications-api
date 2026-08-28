@@ -1068,9 +1068,7 @@ def test_create_notification_without_auth(app, settings, partner: Partner) -> No
         "detail": "En-tête « basic » non valide. Encodage base64 des informations d'identification incorrect."
     }
 
-    b64 = base64.b64encode(f"foo:{settings.PARTNERS_DINUM_AMI_SECRET}".encode("utf8")).decode(
-        "utf8"
-    )
+    b64 = base64.b64encode(f"foo:{partner.secret}".encode("utf8")).decode("utf8")
     response = app.post(
         "/api/v1/notifications", headers={"authorization": f"Basic {b64}"}, status=401
     )
