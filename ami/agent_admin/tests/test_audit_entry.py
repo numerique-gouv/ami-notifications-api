@@ -2,12 +2,21 @@ import pytest
 
 from ami.agent.models import Agent
 from ami.agent_admin.utils import audit
+from ami.partner.models import Partner
 from ami.service.models import Service
 from ami.user.models import User
 
 
 @pytest.mark.django_db
-def test_audit(app, agent: Agent, admin_agent: Agent, user: User, services: list[Service]):
+def test_audit(
+    app,
+    agent: Agent,
+    admin_agent: Agent,
+    user: User,
+    services: list[Service],
+    partner: Partner,
+    partner_psl: Partner,
+):
     ae1 = audit(
         "access:role-added",
         admin_agent,
@@ -69,6 +78,21 @@ def test_audit(app, agent: Agent, admin_agent: Agent, user: User, services: list
             "service": services[2],
         },
     )
+    ae9 = audit(
+        "partners:partner-added",
+        admin_agent,
+        {
+            "partner": partner,
+        },
+    )
+    ae10 = audit(
+        "partners:partner-updated",
+        admin_agent,
+        {
+            "partner": partner_psl,
+            "old_partner_values": partner,
+        },
+    )
 
     ae1.refresh_from_db()
     ae2.refresh_from_db()
@@ -78,6 +102,8 @@ def test_audit(app, agent: Agent, admin_agent: Agent, user: User, services: list
     ae6.refresh_from_db()
     ae7.refresh_from_db()
     ae8.refresh_from_db()
+    ae9.refresh_from_db()
+    ae10.refresh_from_db()
 
     assert ae1.author == admin_agent
     assert ae1.author_first_name == "Admin"
@@ -196,4 +222,33 @@ def test_audit(app, agent: Agent, admin_agent: Agent, user: User, services: list
         "service_kind": "sos",
         "service_item_type": "Démarche3",
         "service_partner_id": "dinum-dn",
+    }
+
+    assert ae9.author == admin_agent
+    assert ae9.author_first_name == "Admin"
+    assert ae9.author_last_name == "AGENT"
+    assert ae9.author_email == "admin@agent.com"
+    assert ae9.author_proconnect_sub == "admin"
+    assert ae9.action_type == "partners"
+    assert ae9.action_code == "partner-added"
+    assert ae9.extra_data == {
+        "partner_name": "AMI",
+        "partner_slug": "dinum-ami",
+        "partner_consent_is_enabled": True,
+    }
+
+    assert ae10.author == admin_agent
+    assert ae10.author_first_name == "Admin"
+    assert ae10.author_last_name == "AGENT"
+    assert ae10.author_email == "admin@agent.com"
+    assert ae10.author_proconnect_sub == "admin"
+    assert ae10.action_type == "partners"
+    assert ae10.action_code == "partner-updated"
+    assert ae10.extra_data == {
+        "partner_name": "Service Public",
+        "partner_slug": "psl",
+        "partner_consent_is_enabled": False,
+        "old_partner_values_name": "AMI",
+        "old_partner_values_slug": "dinum-ami",
+        "old_partner_values_consent_is_enabled": True,
     }
