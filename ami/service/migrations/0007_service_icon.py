@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="service",
             name="icon",
-            field=models.CharField(default=""),
+            field=models.CharField(blank=True),
             preserve_default=False,
         ),
     ]
