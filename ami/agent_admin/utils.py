@@ -25,6 +25,13 @@ def audit(action, author, extra_data):
             extra_data[f"{key}_item_type"] = extra_data[key].item_type
             del extra_data[key]
 
+    for key in ["partner", "old_partner_values"]:
+        if key in extra_data:
+            extra_data[f"{key}_slug"] = extra_data[key].slug
+            extra_data[f"{key}_name"] = extra_data[key].name
+            extra_data[f"{key}_consent_is_enabled"] = extra_data[key].consent_is_enabled
+            del extra_data[key]
+
     if "user" in extra_data:
         user = extra_data["user"]
         extra_data["user_id"] = str(user.id)

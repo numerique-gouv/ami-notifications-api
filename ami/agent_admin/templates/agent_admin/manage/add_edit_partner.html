@@ -1,0 +1,15 @@
+{% extends "agent_admin/base.html" %}
+{% load dsfr_tags %}
+
+{% block content %}
+  {% if for_update %}
+    <h1>Modifier un partenaire</h1>
+  {% else %}
+    <h1>Ajouter un partenaire</h1>
+  {% endif %}
+  <form method="post" id="partner-form" class="form-disable-on-submit" novalidate>
+    {% csrf_token %}
+    {{ form }}
+    {% dsfr_button_group btn_group %}
+  </form>
+{% endblock %}

@@ -233,3 +233,33 @@ class ServiceForm(forms.ModelForm, AMIDsfrBaseForm):
         audit(action, self.author, extra_data)
 
         return self.instance
+
+
+class PartnerForm(forms.ModelForm, AMIDsfrBaseForm):
+    class Meta:
+        model = Partner
+        exclude = []
+        widgets = {
+            "consent_is_enabled": ToggleInput,
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.author = kwargs.pop("author")
+        super().__init__(*args, **kwargs)
+        if not self.instance._state.adding:
+            self.fields.pop("slug")
+        self.old_instance = copy.deepcopy(self.instance)
+
+    def save(self, commit=True):
+        created = self.instance._state.adding
+        super().save(commit=commit)
+
+        if created:
+            action = "partners:partner-added"
+            extra_data = {"partner": self.instance}
+        else:
+            action = "partners:partner-updated"
+            extra_data = {"partner": self.instance, "old_partner_values": self.old_instance}
+        audit(action, self.author, extra_data)
+
+        return self.instance
