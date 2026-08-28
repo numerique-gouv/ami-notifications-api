@@ -335,7 +335,11 @@ class NotificationsItem(NotificationsSubItem):
         if self.service is not None:
             # take service name if exists
             return self.service.title
-        return self.last_notification.content_title
+        if self.last_notification.content_title:
+            return self.last_notification.content_title
+        # last title seen
+        titles = [n.content_title for n in self.all_notifications if n.content_title]
+        return titles[-1] if titles else ""
 
     @property
     def subheading(self):

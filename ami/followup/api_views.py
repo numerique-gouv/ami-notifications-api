@@ -1,6 +1,7 @@
 from typing import cast
 
 from django.http import Http404
+from django.utils.timezone import now
 from drf_spectacular.utils import extend_schema
 from rest_framework.decorators import api_view
 from rest_framework.request import Request
@@ -70,7 +71,35 @@ def archive_followup_item(
         .last()
     )
     if notification is None:
-        raise Http404
+        sub_notifications_qs = (
+            Notification.objects.filter(
+                item_generic_status__isnull=False,
+                item_status_label__isnull=False,
+                item_type__isnull=False,
+                item_id__isnull=False,
+                user=request.ami_user,
+                item_parent_partner_id=partner_id,
+                item_parent_type=item_type,
+                item_parent_id=item_id,
+            )
+            .values_list("partner_id", "item_type", "item_id")
+            .distinct()
+        )
+        if len(sub_notifications_qs) < 2:
+            # archive unknown parent item only if it has more than one sub item
+            raise Http404
+        # create empty notification for parent item
+        notification = Notification.objects.create(
+            user=request.ami_user,
+            partner_id=partner_id,
+            item_type=item_type,
+            item_id=item_id,
+            item_generic_status="new",
+            item_status_label="Nouveau",
+            valid_until=now(),
+            try_push=False,
+            send_status=False,
+        )
 
     notification.item_is_archived = data["is_archived"]
     notification.save()

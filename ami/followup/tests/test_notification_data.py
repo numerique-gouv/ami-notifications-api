@@ -565,6 +565,92 @@ def test_get_notifications_data_parent_and_sub_items(
 
 
 @pytest.mark.django_db
+def test_get_notifications_data_archived_parent_with_sub_item(
+    user: User, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    notification = Notification.objects.create(
+        user_id=user.id,
+        content_body="",
+        content_title="",
+        item_generic_status="new",
+        item_status_label="Nouveau",
+        item_type="OperationTranquilliteVacances",
+        item_id="42",
+        partner_id="psl",
+    )
+    sub_notification1 = Notification.objects.create(
+        user_id=user.id,
+        content_body="Sub notification body 1",
+        content_title="Sub notification title 1",
+        item_generic_status="new",
+        item_status_label="Nouveau",
+        item_type="SousDémarche",
+        item_id="35",
+        partner_id="dinum-ami",
+        item_parent_partner_id="psl",
+        item_parent_type="OperationTranquilliteVacances",
+        item_parent_id="42",
+    )
+
+    result = get_notifications_data(current_user=user)
+
+    assert result == [
+        FollowupItem(
+            partner_id="psl",
+            item_type="OperationTranquilliteVacances",
+            item_external_id="42",
+            reference="42",
+            status_id=ItemGenericStatus.NEW,
+            status_label="Nouveau",
+            milestone_start_date=None,
+            milestone_end_date=None,
+            events=[
+                FollowupItemEvent(
+                    id=notification.id,
+                    created_at=notification.created_at,
+                    description="",
+                )
+            ],
+            title="Sub notification title 1",
+            subheading="PSL",
+            description="",
+            icon="fr-icon-mail-fill",
+            external_url=None,
+            is_archived=False,
+            created_at=notification.event_date,
+            updated_at=sub_notification1.event_date,
+            sub_items=[
+                FollowupSubItem(
+                    partner_id="dinum-ami",
+                    item_type="SousDémarche",
+                    item_external_id="35",
+                    reference="",
+                    status_id=ItemGenericStatus.NEW,
+                    status_label="Nouveau",
+                    milestone_start_date=None,
+                    milestone_end_date=None,
+                    events=[
+                        FollowupItemEvent(
+                            id=sub_notification1.id,
+                            created_at=sub_notification1.created_at,
+                            description="Sub notification body 1",
+                        ),
+                    ],
+                    title="35",
+                    subheading="",
+                    description="Sub notification body 1",
+                    icon="fr-icon-mail-fill",
+                    external_url=None,
+                    is_archived=False,
+                    created_at=sub_notification1.event_date,
+                    updated_at=sub_notification1.event_date,
+                ),
+            ],
+        ),
+    ]
+
+
+@pytest.mark.django_db
 def test_get_notifications_data_parent_fields_do_not_match(
     user: User, monkeypatch: pytest.MonkeyPatch
 ) -> None:
