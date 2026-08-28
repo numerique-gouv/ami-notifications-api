@@ -196,9 +196,9 @@ describe('/+page.svelte - with passkey feature flag', () => {
     render(Page);
 
     // Then
-    const createPasskeyButton = screen.getByTestId('create-passkey-button');
-    await fireEvent.click(createPasskeyButton);
     await waitFor(async () => {
+      const createPasskeyButton = screen.getByTestId('create-passkey-button');
+      await fireEvent.click(createPasskeyButton);
       expect(spy).not.toHaveBeenCalled();
       expect(spyToast).toHaveBeenCalledWith(
         'Problème de connexion Internet, veuillez réessayer',
@@ -244,9 +244,9 @@ describe('/+page.svelte - with passkey feature flag', () => {
     render(Page);
 
     // Then
-    const createPasskeyButton = screen.getByTestId('create-passkey-button');
-    await fireEvent.click(createPasskeyButton);
     await waitFor(async () => {
+      const createPasskeyButton = screen.getByTestId('create-passkey-button');
+      await fireEvent.click(createPasskeyButton);
       expect(spy).not.toHaveBeenCalled();
       expect(spyToast).toHaveBeenCalledWith(
         'Erreur lors de l’ajout de votre clé d’accès',
@@ -299,9 +299,9 @@ describe('/+page.svelte - with passkey feature flag', () => {
     render(Page);
 
     // Then
-    const createPasskeyButton = screen.getByTestId('create-passkey-button');
-    await fireEvent.click(createPasskeyButton);
     await waitFor(async () => {
+      const createPasskeyButton = screen.getByTestId('create-passkey-button');
+      await fireEvent.click(createPasskeyButton);
       expect(spy).not.toHaveBeenCalled();
       expect(spyToast).toHaveBeenCalledWith(
         'Erreur lors de l’ajout de votre clé d’accès',
@@ -364,9 +364,9 @@ describe('/+page.svelte - with passkey feature flag', () => {
     render(Page);
 
     // Then
-    const createPasskeyButton = screen.getByTestId('create-passkey-button');
-    await fireEvent.click(createPasskeyButton);
     await waitFor(async () => {
+      const createPasskeyButton = screen.getByTestId('create-passkey-button');
+      await fireEvent.click(createPasskeyButton);
       expect(spy).not.toHaveBeenCalled();
       expect(spyToast).toHaveBeenCalledWith(
         'Problème de connexion Internet, veuillez réessayer',
@@ -424,9 +424,9 @@ describe('/+page.svelte - with passkey feature flag', () => {
     render(Page);
 
     // Then
-    const createPasskeyButton = screen.getByTestId('create-passkey-button');
-    await fireEvent.click(createPasskeyButton);
     await waitFor(async () => {
+      const createPasskeyButton = screen.getByTestId('create-passkey-button');
+      await fireEvent.click(createPasskeyButton);
       expect(spy).not.toHaveBeenCalled();
       expect(spyToast).toHaveBeenCalledWith(
         'Erreur lors de l’ajout de votre clé d’accès',
@@ -489,9 +489,9 @@ describe('/+page.svelte - with passkey feature flag', () => {
     render(Page);
 
     // Then
-    const createPasskeyButton = screen.getByTestId('create-passkey-button');
-    await fireEvent.click(createPasskeyButton);
     await waitFor(async () => {
+      const createPasskeyButton = screen.getByTestId('create-passkey-button');
+      await fireEvent.click(createPasskeyButton);
       expect(spy).not.toHaveBeenCalled();
       expect(spyToast).toHaveBeenCalledWith(
         'Erreur lors de l’ajout de votre clé d’accès',
@@ -554,9 +554,9 @@ describe('/+page.svelte - with passkey feature flag', () => {
     render(Page);
 
     // Then
-    const createPasskeyButton = screen.getByTestId('create-passkey-button');
-    await fireEvent.click(createPasskeyButton);
     await waitFor(async () => {
+      const createPasskeyButton = screen.getByTestId('create-passkey-button');
+      await fireEvent.click(createPasskeyButton);
       // check call is made with connected user name
       expect(fetchSpy).toHaveBeenCalledWith(
         '/api/v1/fi/passkey/generate-registration-options',
@@ -598,6 +598,7 @@ describe('/+page.svelte - with passkey feature flag', () => {
     // Then
     await waitFor(() => {
       expect(spy).toHaveBeenCalledWith('/');
+      expect(screen.queryByTestId('create-passkey-button')).toBeNull();
     });
   });
 });

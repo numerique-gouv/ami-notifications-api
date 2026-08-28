@@ -29,6 +29,7 @@
   };
 
   const silent_fc_enabled = PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED === 'true';
+  let hasWorkingPassKey: boolean = $state(true);
 
   onMount(async () => {
     try {
@@ -38,7 +39,8 @@
         goto('/#/login');
         return;
       }
-      if (!silent_fc_enabled || userStore.getHasWorkingPasskey()) {
+      hasWorkingPassKey = userStore.getHasWorkingPasskey();
+      if (!silent_fc_enabled || hasWorkingPassKey) {
         // if silent fc is not enabled, we directly redirect to homepage
         redirectLoggedInUser(false);
       }
@@ -146,7 +148,7 @@
   };
 </script>
 
-{#if silent_fc_enabled}
+{#if silent_fc_enabled && !hasWorkingPassKey}
   <div class="fr-container passkeys-full-page" bind:this={wrapperEl}>
     <div class="fr-grid-row fr-grid-row--middle fr-grid-row--center">
       <div class="image-wrapper">
