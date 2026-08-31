@@ -9,7 +9,8 @@ export class AutoPromoItem {
     private _kind: 'address' | 'otv',
     private _title: string,
     private _description: string,
-    private _link: string
+    private _link: string,
+    private _image: string
   ) {}
 
   equals(other: AutoPromoItem): boolean {
@@ -30,6 +31,10 @@ export class AutoPromoItem {
 
   get link(): string {
     return this._link;
+  }
+
+  get image(): string {
+    return this._image;
   }
 }
 
@@ -63,7 +68,8 @@ export class AutoPromo {
       'address',
       'Renseignez votre adresse',
       'Gagnez du temps en la renseignant une seule fois',
-      '/#/edit-address'
+      '/#/edit-address',
+      'house.svg'
     );
   }
 
@@ -81,7 +87,8 @@ export class AutoPromo {
       'otv',
       'Opération Tranquillité Vacances',
       'Protégez votre domicile pendant votre absence',
-      `/#/procedure?date=${dateToISO(startDate)}`
+      `/#/procedure?date=${dateToISO(startDate)}`,
+      'house.svg'
     );
   }
 
