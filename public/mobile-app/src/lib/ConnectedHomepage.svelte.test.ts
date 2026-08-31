@@ -147,7 +147,7 @@ describe('/ConnectedHomepage.svelte', () => {
         expect(block).toEqual(null);
       });
     });
-    test('should display first item as AutoPromo is not empty', async () => {
+    test('should display item as AutoPromo is not empty', async () => {
       // Given
       const autoPromo = new AutoPromo(new Agenda());
       vi.spyOn(autoPromo, 'items', 'get').mockReturnValue([
@@ -155,9 +155,16 @@ describe('/ConnectedHomepage.svelte', () => {
           'address',
           'Blabla title Address',
           'Description Address',
-          'url-to-address'
+          'url-to-address',
+          'image.svg'
         ),
-        new AutoPromoItem('otv', 'Blabla title OTV', 'Description OTV', 'url-to-otv'),
+        new AutoPromoItem(
+          'otv',
+          'Blabla title OTV',
+          'Description OTV',
+          'url-to-otv',
+          'image.svg'
+        ),
       ]);
       vi.spyOn(autoPromoMethods, 'buildAutoPromo').mockReturnValue(autoPromo);
 
