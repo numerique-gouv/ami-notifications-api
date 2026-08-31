@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
+import * as agendaMethods from '$lib/agenda';
 import { Agenda, Item } from '$lib/agenda';
 import { toastStore } from '$lib/state/toast.svelte';
 import AgendaItemModal from './AgendaItemModal.svelte';
@@ -38,6 +39,7 @@ describe('/AgendaItemModal.svelte', () => {
       new Item('fake-id-holiday-2', 'holiday', 'Holiday 2', null, in32days),
     ]);
     const spy = vi.spyOn(toastStore, 'addToast');
+    const spy2 = vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(new Agenda());
     render(AgendaItemModal, { props: { item, agenda } });
 
     // When
@@ -54,6 +56,7 @@ describe('/AgendaItemModal.svelte', () => {
         3000,
         true
       );
+      expect(spy2).toHaveBeenCalled();
     });
   });
 });
