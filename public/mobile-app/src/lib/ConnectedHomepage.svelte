@@ -4,6 +4,7 @@
   import { type Agenda, Item as AgendaItemType, buildAgenda } from '$lib/agenda';
   import { AutoPromo, buildAutoPromo } from '$lib/auto-promo';
   import AgendaItem from '$lib/components/AgendaItem.svelte';
+  import AutoPromoCarousel from '$lib/components/AutoPromo.svelte';
   import AutoPromoItem from '$lib/components/AutoPromoItem.svelte';
   import FollowupItem from '$lib/components/FollowupItem.svelte';
   import AgendaItemModal from '$lib/components/modal/AgendaItemModal.svelte';
@@ -105,9 +106,8 @@
   </div>
 
   {#if autoPromo && autoPromo.items.length}
-    {@const firstItem = autoPromo.items[0]}
     <div class="rubrique-container">
-      <AutoPromoItem item={firstItem} />
+      <AutoPromoCarousel items={autoPromo.items} />
     </div>
   {/if}
 

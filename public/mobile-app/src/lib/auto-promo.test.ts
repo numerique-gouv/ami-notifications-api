@@ -30,7 +30,8 @@ describe('/auto-promo.ts', () => {
             'address',
             'Renseignez votre adresse',
             'Gagnez du temps en la renseignant une seule fois',
-            '/#/edit-address'
+            '/#/edit-address',
+            'house.svg'
           )
         )
       ).toBe(true);
@@ -62,7 +63,8 @@ describe('/auto-promo.ts', () => {
             'address',
             'Renseignez votre adresse',
             'Gagnez du temps en la renseignant une seule fois',
-            '/#/edit-address'
+            '/#/edit-address',
+            'house.svg'
           )
         )
       ).toBe(true);
@@ -72,7 +74,8 @@ describe('/auto-promo.ts', () => {
             'otv',
             'Opération Tranquillité Vacances',
             'Protégez votre domicile pendant votre absence',
-            '/#/procedure?date=2026-01-17'
+            '/#/procedure?date=2026-01-17',
+            'house.svg'
           )
         )
       ).toBe(true);
@@ -119,7 +122,8 @@ describe('/auto-promo.ts', () => {
             'otv',
             'Opération Tranquillité Vacances',
             'Protégez votre domicile pendant votre absence',
-            '/#/procedure?date=2026-01-17'
+            '/#/procedure?date=2026-01-17',
+            'house.svg'
           )
         )
       ).toBe(true);
