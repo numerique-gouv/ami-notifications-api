@@ -78,6 +78,11 @@ export class UserStore {
     return this.connected;
   }
 
+  private resetConnected() {
+    localStorage.clear();
+    this.connected = null;
+  }
+
   async logout() {
     const id_token_hint = localStorage.getItem('id_token') || '';
 
@@ -92,8 +97,7 @@ export class UserStore {
     }
 
     // Logout from AMI first: https://github.com/numerique-gouv/ami-notifications-api/issues/132
-    localStorage.clear();
-    this.connected = null;
+    this.resetConnected();
     await auth.logout();
 
     // And now logout from FC
@@ -113,7 +117,7 @@ export class UserStore {
       await this.login(userinfo);
       console.log('User is logged in bis', userinfo);
     } else {
-      this.connected = null;
+      this.resetConnected();
     }
   }
 
