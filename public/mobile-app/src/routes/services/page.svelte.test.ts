@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
-import { describe, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import * as navigationMethods from '$app/navigation';
 import * as AMIGotoMethods from '$lib/ami-goto';
 import * as followupMethods from '$lib/followup';
@@ -11,6 +11,9 @@ import { mockUserInfo } from '$tests/utils';
 import Page from './+page.svelte';
 
 describe('/+page.svelte', () => {
+  beforeEach(async () => {
+    vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(new Followup());
+  });
   test('user has to be connected', async () => {
     // Given
     vi.spyOn(servicesMethods, 'buildServices').mockResolvedValue(new Services());
@@ -116,7 +119,6 @@ describe('/+page.svelte', () => {
         const spyUrl = vi
           .spyOn(ServicesItem.prototype, 'getServiceUrl')
           .mockResolvedValue('http://external-url');
-        vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(new Followup());
         vi.spyOn(Followup.prototype, 'hasNonArchivedItems').mockReturnValue(false);
         const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
 
@@ -158,7 +160,6 @@ describe('/+page.svelte', () => {
         const spyUrl = vi
           .spyOn(ServicesItem.prototype, 'getServiceUrl')
           .mockResolvedValue('http://external-url');
-        vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(new Followup());
         vi.spyOn(Followup.prototype, 'hasNonArchivedItems').mockReturnValue(false);
         const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
 
@@ -199,7 +200,6 @@ describe('/+page.svelte', () => {
           ),
         ]);
         vi.spyOn(servicesMethods, 'buildServices').mockResolvedValue(services);
-        vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(new Followup());
         vi.spyOn(Followup.prototype, 'hasNonArchivedItems').mockReturnValue(true);
 
         render(Page);
@@ -235,9 +235,6 @@ describe('/+page.svelte', () => {
               ),
             ]);
             vi.spyOn(servicesMethods, 'buildServices').mockResolvedValue(services);
-            vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(
-              new Followup()
-            );
             vi.spyOn(Followup.prototype, 'hasNonArchivedItems').mockReturnValue(true);
             const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue();
 
@@ -283,9 +280,6 @@ describe('/+page.svelte', () => {
             const spyUrl = vi
               .spyOn(ServicesItem.prototype, 'getServiceUrl')
               .mockResolvedValue('http://external-url');
-            vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(
-              new Followup()
-            );
             vi.spyOn(Followup.prototype, 'hasNonArchivedItems').mockReturnValue(true);
             const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
 
@@ -330,9 +324,6 @@ describe('/+page.svelte', () => {
             const spyUrl = vi
               .spyOn(ServicesItem.prototype, 'getServiceUrl')
               .mockResolvedValue('http://external-url');
-            vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(
-              new Followup()
-            );
             vi.spyOn(Followup.prototype, 'hasNonArchivedItems').mockReturnValue(true);
             const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
 
@@ -382,7 +373,6 @@ describe('/+page.svelte', () => {
       const spyUrl = vi
         .spyOn(ServicesItem.prototype, 'getServiceUrl')
         .mockResolvedValue('http://external-url');
-      vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(new Followup());
       vi.spyOn(Followup.prototype, 'hasNonArchivedItems').mockReturnValue(false);
       const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
 
@@ -424,7 +414,6 @@ describe('/+page.svelte', () => {
       const spyUrl = vi
         .spyOn(ServicesItem.prototype, 'getServiceUrl')
         .mockResolvedValue('http://external-url');
-      vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(new Followup());
       vi.spyOn(Followup.prototype, 'hasNonArchivedItems').mockReturnValue(false);
       const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
 
@@ -468,7 +457,6 @@ describe('/+page.svelte', () => {
       const spyUrl = vi
         .spyOn(ServicesItem.prototype, 'getServiceUrl')
         .mockResolvedValue('http://external-url');
-      vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(new Followup());
       vi.spyOn(Followup.prototype, 'hasNonArchivedItems').mockReturnValue(false);
       const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
 
@@ -510,7 +498,6 @@ describe('/+page.svelte', () => {
       const spyUrl = vi
         .spyOn(ServicesItem.prototype, 'getServiceUrl')
         .mockResolvedValue('http://external-url');
-      vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(new Followup());
       vi.spyOn(Followup.prototype, 'hasNonArchivedItems').mockReturnValue(false);
       const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
 

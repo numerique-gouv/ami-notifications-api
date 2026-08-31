@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import * as navigationMethods from '$app/navigation';
 import * as envModule from '$env/static/public';
 import * as AMIGotoMethods from '$lib/ami-goto';
+import * as followupMethods from '$lib/followup';
 import { Followup } from '$lib/followup';
 import * as procedureMethods from '$lib/procedure';
 import { userStore } from '$lib/state/User.svelte';
@@ -22,6 +23,8 @@ describe('/+page.svelte', () => {
 
     await userStore.login(mockUserInfo);
     vi.useFakeTimers({ shouldAdvanceTime: true });
+
+    vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(new Followup());
   });
 
   afterEach(() => {

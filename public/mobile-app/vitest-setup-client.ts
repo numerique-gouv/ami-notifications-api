@@ -36,13 +36,7 @@ const fetchSpy = (): Mock => {
         );
       }
 
-      // Default fallback
-      return Promise.resolve(
-        new Response(JSON.stringify({}), {
-          status: 404,
-          headers: { 'Content-Type': 'application/json' },
-        })
-      );
+      throw new Error(`Unmocked fetch call detected: ${input}`);
     });
 };
 
