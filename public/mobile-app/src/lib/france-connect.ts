@@ -2,6 +2,7 @@ import {
   PUBLIC_APP_URL,
   PUBLIC_FC_BASE_URL,
   PUBLIC_FC_LOGOUT_ENDPOINT,
+  PUBLIC_FC_POST_LOGOUT_REDIRECT_URI,
   PUBLIC_FC_PROXY_BASE_URL,
 } from '$env/static/public';
 import type { UserInfo } from '$lib/state/User.svelte';
@@ -20,12 +21,9 @@ export function parseJwt(token: string): UserInfo {
   return JSON.parse(jsonPayload);
 }
 
-export const franceConnectLogout = async (
-  id_token_hint: string,
-  redirect_url: string | null = null
-) => {
+export const franceConnectLogout = async (id_token_hint: string) => {
   const redirect_uri = encodeURIComponent(
-    redirect_url || `${PUBLIC_APP_URL}/?is_logged_out#/login`
+    `${PUBLIC_APP_URL}${PUBLIC_FC_POST_LOGOUT_REDIRECT_URI}`
   );
   let post_logout_redirect_uri = redirect_uri;
   if (PUBLIC_FC_PROXY_BASE_URL) {
