@@ -1,5 +1,5 @@
 name: e2e tag
-# Reusable, invoqué uniquement par workflow-e2e-trigger-after-deploy.yml une fois Scalingo déployé — voir le
+# Reusable, invoqué uniquement par e2e-after-deploy.yml une fois Scalingo déployé — voir le
 # commentaire équivalent dans workflow-e2e-webapp-pr.yml. Les jobs requis sont couverts par
 # pytest.yml (on: push — la pose d'un tag déclenche déjà ce workflow, `on: push` sans filtre
 # réagit à tout push, y compris de tag). Scalingo poste bien un status deploy/sclng: ami-back-prod
