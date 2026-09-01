@@ -73,6 +73,7 @@ jobs:
           name: ${{ needs.e2e-launch.outputs.allure_report }}
           path: allure-report
 
+
       # allure-action lit son contexte (eventName, payload, sha) via @actions/github, qui relit
       # process.env.GITHUB_EVENT_NAME / GITHUB_EVENT_PATH / GITHUB_SHA à chaque instanciation (pas
       # de cache) : `isPullRequest = eventName === "pull_request" && Boolean(payload.pull_request)`,
