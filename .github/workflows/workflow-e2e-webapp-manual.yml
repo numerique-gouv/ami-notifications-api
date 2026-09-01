@@ -1,0 +1,52 @@
+name: e2e manual trigger
+# Déclenchement manuel, config libre.
+#
+# Se lance en local avec :
+# act workflow_dispatch -W .github/workflows/workflow-e2e-webapp-manual.yml --container-architecture linux/amd64 --artifact-server-path /tmp/act-artifacts --input pr_number=123456789
+on:
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "Simule github.event.pull_request.number — 0 pour simuler un push/tag sans PR"
+        type: number
+        default: 0
+      run_webapp:
+        description: "suite de test (test-suites.ts) à lancer sur la Webapp Scalingo — vide = ne pas lancer"
+        type: string
+        default: short
+      run_android:
+        description: "suite de test (test-suites.ts) à lancer sur l'apk Android — vide = ne pas lancer"
+        type: string
+        default: ''
+      run_ios:
+        description: "suite de test (test-suites.ts) à lancer sur l'app iOS — vide = ne pas lancer"
+        type: string
+        default: ''
+      run_old_device:
+        description: "demande à lancer une suite de test mobile avec la configuration la plus ancienne disponible"
+        type: boolean
+        default: true
+      checkout_ref:
+        description: "ref (branche/tag/sha) d'ami-system-tests à checkout — doit être égal à la ref de jobs.e2e-launch.uses: [...]@ref"
+        type: string
+        default: main
+      wait_for_scalingo_step:
+        description: "scalingo redeploys when pushing code, so we can skip on manual trigger"
+        type: boolean
+        default: false
+
+
+jobs:
+  e2e:
+    name: run e2e (manual)
+    uses: ./.github/workflows/workflow-e2e-webapp-shared.yml
+    with:
+      run_webapp: ${{ inputs.run_webapp }}
+      run_android: ${{ inputs.run_android }}
+      run_ios: ${{ inputs.run_ios }}
+      run_old_device: ${{ inputs.run_old_device }}
+      pr_number: ${{ inputs.pr_number }}
+      source_sha: ${{ github.sha }}
+      checkout_ref: ${{ inputs.checkout_ref }}
+      wait_for_scalingo_step: ${{ inputs.wait_for_scalingo_step }}
+    secrets: inherit

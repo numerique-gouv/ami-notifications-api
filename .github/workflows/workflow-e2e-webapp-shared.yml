@@ -1,0 +1,104 @@
+name: e2e shared
+# Logique commune, appelée par les workflows fins par déclencheur (workflow-e2e-webapp-*.yml) :
+# lance l'e2e sur ami-system-tests puis, si pr_number != 0, commente la PR d'origine avec le
+# rapport Allure. Chaque appelant fixe une config simple, sans condition ni shell.
+on:
+  workflow_call:
+    inputs:
+      run_webapp:
+        description: "nom de la suite webapp à lancer (test-suites.ts, ex: short, CI, all) — vide = ne pas lancer"
+        type: string
+        default: ''
+      run_android:
+        description: "nom de la suite android à lancer (test-suites.ts) — vide = ne pas lancer"
+        type: string
+        default: ''
+      run_ios:
+        description: "nom de la suite ios à lancer (test-suites.ts) — vide = ne pas lancer"
+        type: string
+        default: ''
+      run_old_device:
+        description: "les applications mobile si utilisées doivent être d'anciens appareils (android, ios) avec un ancien os (android)"
+        type: boolean
+        default: true
+      pr_number:
+        description: "0 = pas de PR associée (push/tag) → pas de commentaire de PR"
+        type: number
+        default: 0
+      source_sha:
+        description: "SHA du commit d'ami-notifications-api dont on attend le déploiement Scalingo avant de lancer les tests"
+        type: string
+        required: true
+      ref_name:
+        type: string
+        default: staging
+      checkout_ref:
+        description: "ref (branche/tag/sha) d'ami-system-tests à checkout — doit être égal à la ref de jobs.e2e-launch.uses: [...]@ref"
+        type: string
+        default: main
+      wait_for_scalingo_step:
+        description: "scalingo redeploys when pushing code, so we can skip on manual trigger"
+        type: boolean
+        default: true
+
+jobs:
+  e2e-launch:
+    name: trigger an e2e run in ami-system-tests
+    uses: numerique-gouv/ami-system-tests/.github/workflows/workflow-e2e-main.yml@10-ci-api-ios-android-wip
+    with:
+      ref_name: ${{ inputs.ref_name }}
+      run_webapp: ${{ inputs.run_webapp }}
+      run_android: ${{ inputs.run_android }}
+      run_ios: ${{ inputs.run_ios }}
+      run_old_device: ${{ inputs.run_old_device }}
+      source_repo: ${{ github.repository }}
+      source_sha: ${{ inputs.source_sha }}
+      pr_number: ${{ inputs.pr_number }}
+      checkout_ref: ${{ inputs.checkout_ref }} # la même branche/ref que uses de préférence
+      wait_for_scalingo_step: ${{ inputs.wait_for_scalingo_step }} # la même branche/ref que uses de préférence
+    secrets: inherit
+    
+  e2e-report:
+    name: uses output of e2e run in ami-system-tests to report in pr
+    needs: e2e-launch
+    runs-on: ubuntu-latest
+    if: ${{ always() && inputs.pr_number != 0 }}
+    permissions:
+      pull-requests: write
+      checks: write
+    steps:
+      - name: Charger le rapport de test pour le mettre dans la PR
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.e2e-launch.outputs.allure_report }}
+          path: allure-report
+
+      # allure-action lit son contexte (eventName, payload, sha) via @actions/github, qui relit
+      # process.env.GITHUB_EVENT_NAME / GITHUB_EVENT_PATH / GITHUB_SHA à chaque instanciation (pas
+      # de cache) : `isPullRequest = eventName === "pull_request" && Boolean(payload.pull_request)`,
+      # sinon aucun commentaire n'est posté. Ce job est appelé (via workflow-e2e-trigger-after-deploy.yml) depuis un
+      # événement `status`, jamais `pull_request` — et sur `status`, GITHUB_SHA vaut le HEAD de la
+      # branche par défaut, pas le commit concerné. On fabrique donc un événement pull_request
+      # minimal (numéro + head.sha connus via inputs) et on ne surcharge GITHUB_EVENT_NAME/
+      # GITHUB_EVENT_PATH qu'au niveau du step allure-action ci-dessous — sans effet sur les
+      # autres steps du job ni sur le run réel.
+      - name: Fabriquer un événement pull_request pour allure-action
+        id: fake-event
+        run: |
+          path="${RUNNER_TEMP}/fake-pull-request-event.json"
+          cat > "$path" <<EOF
+          {"pull_request": {"number": ${{ inputs.pr_number }}, "head": {"sha": "${{ inputs.source_sha }}"}}}
+          EOF
+          echo "path=$path" >> "$GITHUB_OUTPUT"
+
+      - name: Commenter la PR d'origine
+        uses: allure-framework/allure-action@v0
+        env:
+          GITHUB_EVENT_NAME: pull_request
+          GITHUB_EVENT_PATH: ${{ steps.fake-event.outputs.path }}
+        with:
+          report-directory: allure-report
+          github-token: ${{ github.token }}
+          debug: true
+          remote-href: 'https://github.com/numerique-gouv/ami-notifications-api/actions/runs/${{ github.run_id }}#artifacts'
+

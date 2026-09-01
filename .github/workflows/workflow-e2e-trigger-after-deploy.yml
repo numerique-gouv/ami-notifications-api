@@ -1,0 +1,119 @@
+name: e2e after scalingo deploy
+# Se déclenche sur CHAQUE changement de commit status du dépôt (API Status, pas API Checks — les
+# check-runs produits par les jobs Actions ne redéclenchent pas cet event, pas de bouclage).
+# Objectif : ne créer le check-run e2e qu'APRÈS que Scalingo ait déjà déployé, jamais avant —
+# Scalingo attend que TOUS les checks du commit soient verts avant de déployer (doc Scalingo
+# "GitHub Actions compatibility"), donc si le job e2e existe dès le push/la PR, son check-run
+# reste in_progress pendant que wait-for-scalingo-status attend Scalingo → deadlock.
+#
+# Résout ensuite lui-même le "cas" (pr/merge/tag) et délègue au workflow réutilisable
+# correspondant (workflow-e2e-webapp-{pr,merge,tag}.yml), qui porte la config e2e propre à son cas
+# (suite CI vs short, run_old_device, etc.) — ce fichier ne fait que router + résoudre les
+# variables nécessaires (pr_number, checkout_ref), pas dupliquer la config e2e elle-même.
+#
+# Contrainte GitHub : `on: status` ne se déclenche que si ce fichier existe sur la branche par
+# défaut, et GITHUB_SHA/GITHUB_REF valent alors le HEAD de la branche par défaut — PAS le commit
+# concerné par le status. Tout doit donc passer explicitement par github.event.sha.
+on: status
+
+permissions:
+  contents: read
+  pull-requests: read
+
+# Scalingo poste plusieurs statuses par SHA (pending, puis success/failure) : un seul run e2e par
+# commit à la fois (la restauration d'historique Allure côté ami-system-tests n'est pas
+# concurrent-safe, cf. son ADR CI).
+concurrency:
+  group: e2e-status-${{ github.event.sha }}
+  cancel-in-progress: false
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    outputs:
+      case: ${{ steps.check.outputs.case }} # pr | merge | tag | none
+      pr_number: ${{ steps.check.outputs.pr_number }}
+      checkout_ref: ${{ steps.check.outputs.checkout_ref }}
+    steps:
+      - id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.event.sha }}
+        run: |
+          set -euo pipefail
+          echo "case=none" >> "$GITHUB_OUTPUT"
+
+          # Règle : si un status deploy/sclng existe sur ce SHA, il doit être en succès ; s'il
+          # n'en existe aucun, on continue quand même (cas où Scalingo n'est pas concerné par ce
+          # commit).
+          states=$(gh api "repos/$REPO/commits/$SHA/status" \
+            --jq '.statuses[] | select(.context | startswith("deploy/sclng")) | .state')
+          if [ -n "$states" ] && printf '%s\n' "$states" | grep -qv '^success$'; then
+            echo "Scalingo pas (encore) en succès sur $SHA : $states — on ne lance pas."
+            exit 0
+          fi
+
+          # 1) PR ouverte dont ce SHA est le head → cas "pr" (même déclencheur que l'ancien
+          # workflow-e2e-webapp-pr.yml sur pull_request: synchronize).
+          pr_json=$(gh api "repos/$REPO/commits/$SHA/pulls" \
+            --jq "[.[] | select(.head.sha == \"$SHA\" and .state == \"open\")] | first")
+          if [ "$pr_json" != "null" ] && [ -n "$pr_json" ]; then
+            pr=$(echo "$pr_json" | jq -r .number)
+            ref=$(echo "$pr_json" | jq -r .head.ref)
+            {
+              echo "case=pr"
+              echo "pr_number=$pr"
+              echo "checkout_ref=$ref"
+            } >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # 2) PR dont ce SHA est le merge_commit_sha → cas "merge".
+          pr=$(gh api "repos/$REPO/commits/$SHA/pulls" \
+            --jq "[.[] | select(.merge_commit_sha == \"$SHA\")] | first | .number // empty")
+          if [ -n "$pr" ]; then
+            {
+              echo "case=merge"
+              echo "pr_number=$pr"
+            } >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # 3) Tag *.*.* pointant sur ce SHA → cas "tag" (même glob que l'ancien déclencheur
+          # `on: push: tags: "*.*.*"`).
+          tag=$(gh api "repos/$REPO/tags" --paginate \
+            --jq "[.[] | select(.commit.sha == \"$SHA\")] | .[].name" | head -n1)
+          if [ -n "$tag" ]; then
+            case "$tag" in
+              *.*.*) echo "case=tag" >> "$GITHUB_OUTPUT" ;;
+              *) echo "Tag '$tag' ne matche pas *.*.* — ignoré." ;;
+            esac
+          fi
+
+  call-pr:
+    needs: guard
+    if: ${{ needs.guard.outputs.case == 'pr' }}
+    uses: ./.github/workflows/workflow-e2e-webapp-pr.yml
+    with:
+      pr_number: ${{ fromJSON(needs.guard.outputs.pr_number) }}
+      source_sha: ${{ github.event.sha }}
+      checkout_ref: ${{ needs.guard.outputs.checkout_ref }}
+    secrets: inherit
+
+  call-merge:
+    needs: guard
+    if: ${{ needs.guard.outputs.case == 'merge' }}
+    uses: ./.github/workflows/workflow-e2e-webapp-merge.yml
+    with:
+      pr_number: ${{ fromJSON(needs.guard.outputs.pr_number) }}
+      source_sha: ${{ github.event.sha }}
+    secrets: inherit
+
+  call-tag:
+    needs: guard
+    if: ${{ needs.guard.outputs.case == 'tag' }}
+    uses: ./.github/workflows/workflow-e2e-webapp-tag.yml
+    with:
+      source_sha: ${{ github.event.sha }}
+    secrets: inherit
