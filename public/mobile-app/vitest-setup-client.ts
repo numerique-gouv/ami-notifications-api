@@ -42,6 +42,7 @@ const fetchSpy = (): Mock => {
 
 beforeEach(() => {
   window.localStorage?.clear();
+  vi.clearAllMocks();
 
   globalThis.fetchSpy = fetchSpy();
 
