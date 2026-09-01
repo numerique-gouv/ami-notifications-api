@@ -8,6 +8,7 @@ import * as envModule from '$env/static/public';
 import * as AMIGotoMethods from '$lib/ami-goto';
 import * as franceConnectHelpers from '$lib/france-connect';
 import * as initializeDataFromAPIMethods from '$lib/initializeDataFromAPI';
+import * as notificationsMethods from '$lib/notifications';
 import { toastStore } from '$lib/state/toast.svelte';
 import { userStore } from '$lib/state/User.svelte';
 import { mockUserInfo } from '$tests/utils';
@@ -155,7 +156,7 @@ describe('/+page.svelte - with passkey feature flag', () => {
     vi.resetAllMocks();
   });
 
-  test('should display network error toast on options network error', async () => {
+  test('should display passkey error toast on options response error', async () => {
     // Given
     const { page } = await import('$app/state');
     const mockSearchParams = new URLSearchParams();
@@ -180,6 +181,54 @@ describe('/+page.svelte - with passkey feature flag', () => {
             headers: { 'Content-Type': 'application/json' },
           })
         );
+      }
+      // Default fallback
+      return Promise.resolve(
+        new Response(JSON.stringify({}), {
+          status: 404,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      );
+    });
+
+    const spyToast = vi.spyOn(toastStore, 'addToast');
+
+    // When
+    render(Page);
+
+    // Then
+    await waitFor(async () => {
+      const createPasskeyButton = screen.getByTestId('create-passkey-button');
+      await fireEvent.click(createPasskeyButton);
+      expect(spy).not.toHaveBeenCalled();
+      expect(spyToast).toHaveBeenCalledWith(
+        'Erreur lors de l’ajout de votre clé d’accès',
+        'error',
+        3000,
+        false
+      );
+    });
+  });
+  test('should display network error toast on options TypeError', async () => {
+    // Given
+    const { page } = await import('$app/state');
+    const mockSearchParams = new URLSearchParams();
+    window.localStorage.setItem('user_data', 'fake-user-data');
+    vi.spyOn(franceConnectHelpers, 'parseJwt').mockReturnValue(mockUserInfo);
+    vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
+
+    const spy = vi
+      .spyOn(navigationMethods, 'goto')
+      .mockImplementation(() => Promise.resolve());
+    vi.spyOn(globalThis, 'fetch').mockImplementation((input: RequestInfo | URL) => {
+      const url =
+        typeof input === 'string'
+          ? input
+          : input instanceof URL
+            ? input.href
+            : input.url;
+      if (url.includes('generate-registration-options')) {
+        return Promise.reject(new TypeError());
       }
       // Default fallback
       return Promise.resolve(
@@ -311,7 +360,7 @@ describe('/+page.svelte - with passkey feature flag', () => {
       );
     });
   });
-  test('should display network error toast on verify network error', async () => {
+  test('should display passkey error toast on verify response error', async () => {
     // Given
     const { page } = await import('$app/state');
     const mockSearchParams = new URLSearchParams();
@@ -344,6 +393,66 @@ describe('/+page.svelte - with passkey feature flag', () => {
             headers: { 'Content-Type': 'application/json' },
           })
         );
+      }
+      // Default fallback
+      return Promise.resolve(
+        new Response(JSON.stringify({}), {
+          status: 404,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      );
+    });
+
+    vi.mocked(simplewebauthnMethods.startRegistration).mockResolvedValue({
+      id: 'fake-id',
+    } as RegistrationResponseJSON);
+
+    const spyToast = vi.spyOn(toastStore, 'addToast');
+
+    // When
+    render(Page);
+
+    // Then
+    await waitFor(async () => {
+      const createPasskeyButton = screen.getByTestId('create-passkey-button');
+      await fireEvent.click(createPasskeyButton);
+      expect(spy).not.toHaveBeenCalled();
+      expect(spyToast).toHaveBeenCalledWith(
+        'Erreur lors de l’ajout de votre clé d’accès',
+        'error',
+        3000,
+        false
+      );
+    });
+  });
+  test('should display network error toast on verify TypeError', async () => {
+    // Given
+    const { page } = await import('$app/state');
+    const mockSearchParams = new URLSearchParams();
+    window.localStorage.setItem('user_data', 'fake-user-data');
+    vi.spyOn(franceConnectHelpers, 'parseJwt').mockReturnValue(mockUserInfo);
+    vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
+
+    const spy = vi
+      .spyOn(navigationMethods, 'goto')
+      .mockImplementation(() => Promise.resolve());
+    vi.spyOn(globalThis, 'fetch').mockImplementation((input: RequestInfo | URL) => {
+      const url =
+        typeof input === 'string'
+          ? input
+          : input instanceof URL
+            ? input.href
+            : input.url;
+      if (url.includes('generate-registration-options')) {
+        return Promise.resolve(
+          new Response(JSON.stringify({ fake: 'option' }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+          })
+        );
+      }
+      if (url.includes('verify-registration')) {
+        return Promise.reject(new TypeError());
       }
       // Default fallback
       return Promise.resolve(
@@ -581,6 +690,7 @@ describe('/+page.svelte - with passkey feature flag', () => {
 
   test('should skip passkey creation if user already has one', async () => {
     // Given
+    vi.spyOn(notificationsMethods, 'retrieveNotifications').mockResolvedValue([]);
     const { page } = await import('$app/state');
     const mockSearchParams = new URLSearchParams();
     window.localStorage.setItem('user_data', 'fake-user-data');

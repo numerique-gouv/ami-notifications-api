@@ -92,11 +92,15 @@
         headers: { 'Content-Type': 'application/json' },
       });
       if (!optionsResp.ok) {
-        return networkError();
+        return passkeyError();
       }
     } catch (error) {
       console.log('ERROR', `${error}`);
-      return passkeyError();
+      if (error instanceof TypeError) {
+        return networkError();
+      } else {
+        return passkeyError();
+      }
     }
 
     let attResp: RegistrationResponseJSON;
@@ -115,7 +119,7 @@
 
     let verificationResp: Response;
     try {
-      verificationResp = await fetch('/api/v1/fi/passkey/verify-registration', {
+      verificationResp = await apiFetch('/api/v1/fi/passkey/verify-registration', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -123,11 +127,15 @@
         body: JSON.stringify(attResp),
       });
       if (!verificationResp.ok) {
-        return networkError();
+        return passkeyError();
       }
     } catch (error) {
       console.log('ERROR', `${error}`);
-      return passkeyError();
+      if (error instanceof TypeError) {
+        return networkError();
+      } else {
+        return passkeyError();
+      }
     }
 
     const verificationJSON = await verificationResp.json();
