@@ -66,6 +66,7 @@ jobs:
           path: allure-report
 
 
+      
       # On se déclenche sur un status et pas sur un event de PR, 
       # ca plante allure-action qui commente une PR.
       # on recrée les données minimal d'un event de PR pour que allure-action fonctionne
