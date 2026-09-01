@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
-  import FollowupInformation from '$lib/components/FollowupInformation.svelte';
+  import FollowupInformation from '$lib/components/followup/FollowupInformation.svelte';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import Toggle from '$lib/components/Toggle.svelte';
   import {

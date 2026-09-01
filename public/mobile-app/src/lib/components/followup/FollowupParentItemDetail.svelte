@@ -1,6 +1,6 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import FollowupItemDetailHeader from '$lib/components/FollowupItemDetailHeader.svelte';
+  import FollowupItemDetailHeader from '$lib/components/followup/FollowupItemDetailHeader.svelte';
   import { getDSFRIcon } from '$lib/dsfr-icon';
   import { FollowupItem } from '$lib/followup';
 
@@ -105,8 +105,8 @@
         width: 1.25rem;
         -webkit-mask-size: 100% 100%;
         mask-size: 100% 100%;
-        -webkit-mask-image: url("@gouvfr/dsfr/dist/icons/arrows/arrow-right-s-line.svg");
-        mask-image: url("@gouvfr/dsfr/dist/icons/arrows/arrow-right-s-line.svg");
+        -webkit-mask-image: url("../../../../node_modules/@gouvfr/dsfr/dist/icons/arrows/arrow-right-s-line.svg");
+        mask-image: url("../../../../node_modules/@gouvfr/dsfr/dist/icons/arrows/arrow-right-s-line.svg");
         top: 50%;
         right: 0;
         transform: translateY(-50%);

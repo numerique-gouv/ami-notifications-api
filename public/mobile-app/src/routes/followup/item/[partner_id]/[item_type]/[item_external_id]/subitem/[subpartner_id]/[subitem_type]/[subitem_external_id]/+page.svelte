@@ -1,8 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
-  import FollowupItemDetail from '$lib/components/FollowupItemDetail.svelte';
-  import FollowupParentItemDetail from '$lib/components/FollowupParentItemDetail.svelte';
+  import FollowupItemDetail from '$lib/components/followup/FollowupItemDetail.svelte';
+  import FollowupParentItemDetail from '$lib/components/followup/FollowupParentItemDetail.svelte';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import { getDSFRIcon } from '$lib/dsfr-icon';
   import { FollowupItem, FollowupSubItem } from '$lib/followup';

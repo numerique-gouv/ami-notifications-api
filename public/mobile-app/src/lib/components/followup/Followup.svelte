@@ -1,8 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
-  import FollowupItem from '$lib/components/FollowupItem.svelte';
-  import FollowupNoConsent from '$lib/components/FollowupNoConsent.svelte';
+  import FollowupItem from '$lib/components/followup/FollowupItem.svelte';
+  import FollowupNoConsent from '$lib/components/followup/FollowupNoConsent.svelte';
   import FollowupItemModal from '$lib/components/modal/FollowupItemModal.svelte';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import { hasAnyConsents as hasAnyConsentsFunc } from '$lib/consents';

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import FollowupItemDetailHeader from '$lib/components/FollowupItemDetailHeader.svelte';
+  import FollowupItemDetailHeader from '$lib/components/followup/FollowupItemDetailHeader.svelte';
   import { getDSFRIcon } from '$lib/dsfr-icon';
   import { FollowupSubItem } from '$lib/followup';
 
