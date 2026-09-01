@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { describe, expect, test, vi } from 'vitest';
-import FollowupItemDetailHeader from '$lib/components/FollowupItemDetailHeader.svelte';
+import FollowupItemDetailHeader from '$lib/components/followup/FollowupItemDetailHeader.svelte';
 import { FollowupItem } from '$lib/followup';
 
 describe('/FollowupItemDetailHeader.svelte', () => {

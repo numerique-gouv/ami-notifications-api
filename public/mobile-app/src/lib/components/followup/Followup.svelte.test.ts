@@ -1,11 +1,11 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import * as navigationMethods from '$app/navigation';
-import FollowupComponent from '$lib/components/Followup.svelte';
+import FollowupComponent from '$lib/components/followup/Followup.svelte';
 import * as consentsMethods from '$lib/consents';
 import * as followupMethods from '$lib/followup';
 import { Followup, FollowupItem } from '$lib/followup';
-import { toastStore } from '$lib/state/toast.svelte';
+import { toastStore } from '$lib/state/toast.svelte.js';
 
 describe('/Followup.svelte', () => {
   describe('Current items', () => {

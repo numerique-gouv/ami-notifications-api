@@ -4,15 +4,15 @@ import * as navigationMethods from '$app/navigation';
 import { FollowupItem, FollowupSubItem } from '$lib/followup';
 import Page from './+page.svelte';
 
-vi.mock('$lib/components/FollowupItemDetail.svelte', () => ({
+vi.mock('$lib/components/followup/FollowupItemDetail.svelte', () => ({
   default: vi.fn(() => ({})),
 }));
-vi.mock('$lib/components/FollowupParentItemDetail.svelte', () => ({
+vi.mock('$lib/components/followup/FollowupParentItemDetail.svelte', () => ({
   default: vi.fn(() => ({})),
 }));
 
-import FollowupItemDetail from '$lib/components/FollowupItemDetail.svelte';
-import FollowupParentItemDetail from '$lib/components/FollowupParentItemDetail.svelte';
+import FollowupItemDetail from '$lib/components/followup/FollowupItemDetail.svelte';
+import FollowupParentItemDetail from '$lib/components/followup/FollowupParentItemDetail.svelte';
 
 describe('/+page.svelte', () => {
   beforeEach(() => {

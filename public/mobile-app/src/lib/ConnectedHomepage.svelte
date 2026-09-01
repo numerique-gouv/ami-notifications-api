@@ -6,8 +6,8 @@
   import AgendaItem from '$lib/components/AgendaItem.svelte';
   import AutoPromoCarousel from '$lib/components/AutoPromo.svelte';
   import AutoPromoItem from '$lib/components/AutoPromoItem.svelte';
-  import FollowupItem from '$lib/components/FollowupItem.svelte';
-  import FollowupNoConsent from '$lib/components/FollowupNoConsent.svelte';
+  import FollowupItem from '$lib/components/followup/FollowupItem.svelte';
+  import FollowupNoConsent from '$lib/components/followup/FollowupNoConsent.svelte';
   import AgendaItemModal from '$lib/components/modal/AgendaItemModal.svelte';
   import FollowupItemModal from '$lib/components/modal/FollowupItemModal.svelte';
   import { buildConsents, hasAnyConsents as hasAnyConsentsFunc } from '$lib/consents';

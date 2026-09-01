@@ -1,6 +1,6 @@
 <script>
   import { goto } from '$app/navigation';
-  import FollowupInformation from '$lib/components/FollowupInformation.svelte';
+  import FollowupInformation from '$lib/components/followup/FollowupInformation.svelte';
 
   const gotoConsents = () => {
     goto('/#/preferences/consents');

@@ -1,14 +1,14 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import * as navigationMethods from '$app/navigation';
-import FollowupParentItemDetail from '$lib/components/FollowupParentItemDetail.svelte';
+import FollowupParentItemDetail from '$lib/components/followup/FollowupParentItemDetail.svelte';
 import { FollowupItem, FollowupItemEvent, FollowupSubItem } from '$lib/followup';
 
-vi.mock('$lib/components/FollowupItemDetailHeader.svelte', () => ({
+vi.mock('$lib/components/followup/FollowupItemDetailHeader.svelte', () => ({
   default: vi.fn(() => ({})),
 }));
 
-import FollowupItemDetailHeader from '$lib/components/FollowupItemDetailHeader.svelte';
+import FollowupItemDetailHeader from '$lib/components/followup/FollowupItemDetailHeader.svelte';
 
 describe('/FollowupParentItemDetail.svelte', () => {
   beforeEach(() => {
