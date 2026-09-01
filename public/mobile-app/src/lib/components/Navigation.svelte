@@ -94,6 +94,10 @@
   const closeLogoutModal = () => {
     logoutModal = false;
   };
+
+  const logoutUser = async () => {
+    await userStore.logout();
+  };
 </script>
 
 <nav id="menu-footer" class="menu-footer" aria-label="Menu principal">
@@ -182,6 +186,7 @@
                   type="button"
                   class="fr-sidemenu__btn fr-text--regular fr-connect-logout"
                   onclick={openLogoutModal}
+                  data-testid="logout-button"
                 >
                   <Icon
                     className="fr-icon-shut-down-line am-color-blue am-icon-20 fr-mr-1w"
@@ -223,7 +228,7 @@
           <button
             type="button"
             class="fr-btn submit-button"
-            onclick={userStore.logout}
+            onclick={logoutUser}
             data-testid="logout-submit-button"
           >
             Confirmer
