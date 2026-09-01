@@ -18,7 +18,8 @@ on: status
 
 permissions:
   contents: read
-  pull-requests: read
+  checks: write
+  pull-requests: write
 
 # Scalingo poste plusieurs statuses par SHA (pending, puis success/failure) : un seul run e2e par
 # commit à la fois (la restauration d'historique Allure côté ami-system-tests n'est pas
