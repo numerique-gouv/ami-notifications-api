@@ -7,10 +7,6 @@ on:
         description: "Simule github.event.pull_request.number — 0 pour simuler un push/tag sans PR"
         type: number
         default: 0
-      ref_name:
-        description: "Nom de la review app Scalingo à cibler : 'staging' sans PR, ou le numéro de la PR sinon"
-        type: string
-        default: staging
       run_webapp:
         description: "suite de test (test-suites.ts) à lancer sur la Webapp Scalingo — vide = ne pas lancer"
         type: string
