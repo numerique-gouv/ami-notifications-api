@@ -43,6 +43,8 @@ permissions:
   contents: read
   checks: write
   pull-requests: write
+  actions: read
+  
 
 jobs:
   e2e:
