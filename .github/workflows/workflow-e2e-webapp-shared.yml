@@ -38,7 +38,7 @@ on:
 jobs:
   e2e-launch:
     name: trigger an e2e run in ami-system-tests
-    uses: numerique-gouv/ami-system-tests/.github/workflows/workflow-e2e-main.yml
+    uses: numerique-gouv/ami-system-tests/.github/workflows/workflow-e2e-main.yml@main
     with:
       run_webapp: ${{ inputs.run_webapp }}
       run_android: ${{ inputs.run_android }}
