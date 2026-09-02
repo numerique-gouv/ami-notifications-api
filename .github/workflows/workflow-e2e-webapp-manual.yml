@@ -10,6 +10,10 @@ on:
         description: "Simule github.event.pull_request.number — 0 pour simuler un push/tag sans PR"
         type: number
         default: 0
+      ref_name:
+        description: "Nom de la review app Scalingo à cibler : 'staging' sans PR, ou le numéro de la PR sinon"
+        type: string
+        default: staging
       run_webapp:
         description: "suite de test (test-suites.ts) à lancer sur la Webapp Scalingo — vide = ne pas lancer"
         type: string
@@ -29,18 +33,23 @@ on:
       checkout_ref:
         description: "ref (branche/tag/sha) d'ami-system-tests à checkout — doit être égal à la ref de jobs.e2e-launch.uses: [...]@ref"
         type: string
-        default: main
+        default: 10-ci-api-ios-android-wip
       wait_for_scalingo_step:
         description: "scalingo redeploys when pushing code, so we can skip on manual trigger"
         type: boolean
         default: false
 
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
 
 jobs:
   e2e:
     name: run e2e (manual)
     uses: ./.github/workflows/workflow-e2e-webapp-shared.yml
     with:
+      ref_name: ${{ inputs.ref_name }}
       run_webapp: ${{ inputs.run_webapp }}
       run_android: ${{ inputs.run_android }}
       run_ios: ${{ inputs.run_ios }}
