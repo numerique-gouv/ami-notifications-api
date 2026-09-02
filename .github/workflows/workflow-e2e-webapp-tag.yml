@@ -21,5 +21,4 @@ jobs:
       run_old_device: false
       source_sha: ${{ inputs.source_sha }}
       # pr_number: laissé au défaut 0 — pas de PR associée à un tag
-      wait_for_scalingo_step: false
     secrets: inherit

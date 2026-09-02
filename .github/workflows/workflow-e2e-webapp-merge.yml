@@ -24,5 +24,4 @@ jobs:
       pr_number: ${{ inputs.pr_number }}
       source_sha: ${{ inputs.source_sha }}
       # checkout_ref: laissé au défaut 'main' de workflow-e2e-webapp-shared.yml
-      wait_for_scalingo_step: false
     secrets: inherit

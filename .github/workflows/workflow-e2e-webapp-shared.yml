@@ -29,24 +29,16 @@ on:
         description: "SHA du commit d'ami-notifications-api dont on attend le déploiement Scalingo avant de lancer les tests"
         type: string
         required: true
-      ref_name:
-        type: string
-        default: staging
       checkout_ref:
         description: "ref (branche/tag/sha) d'ami-system-tests à checkout — doit être égal à la ref de jobs.e2e-launch.uses: [...]@ref"
         type: string
         default: main
-      wait_for_scalingo_step:
-        description: "scalingo redeploys when pushing code, so we can skip on manual trigger"
-        type: boolean
-        default: true
 
 jobs:
   e2e-launch:
     name: trigger an e2e run in ami-system-tests
     uses: numerique-gouv/ami-system-tests/.github/workflows/workflow-e2e-main.yml@10-ci-api-ios-android-wip
     with:
-      ref_name: ${{ inputs.ref_name }}
       run_webapp: ${{ inputs.run_webapp }}
       run_android: ${{ inputs.run_android }}
       run_ios: ${{ inputs.run_ios }}
@@ -55,7 +47,6 @@ jobs:
       source_sha: ${{ inputs.source_sha }}
       pr_number: ${{ inputs.pr_number }}
       checkout_ref: ${{ inputs.checkout_ref }} # la même branche/ref que uses de préférence
-      wait_for_scalingo_step: ${{ inputs.wait_for_scalingo_step }} # la même branche/ref que uses de préférence
     secrets: inherit
     
   e2e-report:

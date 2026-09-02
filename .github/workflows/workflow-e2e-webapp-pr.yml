@@ -29,5 +29,4 @@ jobs:
       pr_number: ${{ inputs.pr_number }}
       source_sha: ${{ inputs.source_sha }}
       checkout_ref: ${{ inputs.checkout_ref }}
-      wait_for_scalingo_step: false # l'appelant (workflow-e2e-trigger-after-deploy.yml) a déjà vérifié le succès
     secrets: inherit
