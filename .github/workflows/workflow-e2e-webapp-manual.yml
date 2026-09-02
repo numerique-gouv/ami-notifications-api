@@ -7,6 +7,10 @@ on:
         description: "Simule github.event.pull_request.number — 0 pour simuler un push/tag sans PR"
         type: number
         default: 0
+      ref_name:
+        description: "Nom de la review app Scalingo à cibler : 'staging' sans PR, ou le numéro de la PR sinon"
+        type: string
+        default: staging
       run_webapp:
         description: "suite de test (test-suites.ts) à lancer sur la Webapp Scalingo — vide = ne pas lancer"
         type: string
@@ -40,6 +44,7 @@ jobs:
     name: run e2e (manual)
     uses: ./.github/workflows/workflow-e2e-webapp-shared.yml
     with:
+      ref_name: ${{ inputs.ref_name }}
       run_webapp: ${{ inputs.run_webapp }}
       run_android: ${{ inputs.run_android }}
       run_ios: ${{ inputs.run_ios }}
