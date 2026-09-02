@@ -44,7 +44,6 @@ jobs:
     name: run e2e (manual)
     uses: ./.github/workflows/workflow-e2e-webapp-shared.yml
     with:
-      ref_name: ${{ inputs.ref_name }}
       run_webapp: ${{ inputs.run_webapp }}
       run_android: ${{ inputs.run_android }}
       run_ios: ${{ inputs.run_ios }}
