@@ -1,6 +1,4 @@
 name: e2e after scalingo deploy
-# Se déclenche sur CHAQUE changement de commit status du dépôt (API Status, pas API Checks — les
-# check-runs produits par les jobs Actions ne redéclenchent pas cet event, pas de bouclage).
 # Objectif : ne créer le check-run e2e qu'APRÈS que Scalingo ait déjà déployé, jamais avant —
 # Scalingo attend que TOUS les checks du commit soient verts avant de déployer (doc Scalingo
 # "GitHub Actions compatibility"), donc si le job e2e existe dès le push/la PR, son check-run
@@ -9,7 +7,7 @@ name: e2e after scalingo deploy
 # Résout ensuite lui-même le "cas" (pr/merge/tag) et délègue au workflow réutilisable
 # correspondant (workflow-e2e-webapp-{pr,merge,tag}.yml), qui porte la config e2e propre à son cas
 # (suite CI vs short, run_old_device, etc.) — ce fichier ne fait que router + résoudre les
-# variables nécessaires (pr_number, checkout_ref), pas dupliquer la config e2e elle-même.
+# variables nécessaires (pr_number, checkout_ref).
 #
 # Contrainte GitHub : `on: status` ne se déclenche que si ce fichier existe sur la branche par
 # défaut, et GITHUB_SHA/GITHUB_REF valent alors le HEAD de la branche par défaut — PAS le commit
@@ -18,7 +16,9 @@ on: status
 
 permissions:
   contents: read
-  pull-requests: read
+  checks: write
+  pull-requests: write
+  actions: read
 
 # Scalingo poste plusieurs statuses par SHA (pending, puis success/failure) : un seul run e2e par
 # commit à la fois (la restauration d'historique Allure côté ami-system-tests n'est pas
@@ -54,8 +54,7 @@ jobs:
             exit 0
           fi
 
-          # 1) PR ouverte dont ce SHA est le head → cas "pr" (même déclencheur que l'ancien
-          # workflow-e2e-webapp-pr.yml sur pull_request: synchronize).
+          # 1) PR ouverte dont ce SHA est le head → cas "pr".
           pr_json=$(gh api "repos/$REPO/commits/$SHA/pulls" \
             --jq "[.[] | select(.head.sha == \"$SHA\" and .state == \"open\")] | first")
           if [ "$pr_json" != "null" ] && [ -n "$pr_json" ]; then
@@ -94,8 +93,9 @@ jobs:
   call-pr:
     needs: guard
     if: ${{ needs.guard.outputs.case == 'pr' }}
-    uses: ./.github/workflows/workflow-e2e-webapp-pr.yml
+    uses: ./.github/workflows/workflow-e2e-webapp-shared.yml
     with:
+      run_webapp: CI
       pr_number: ${{ fromJSON(needs.guard.outputs.pr_number) }}
       source_sha: ${{ github.event.sha }}
       checkout_ref: ${{ needs.guard.outputs.checkout_ref }}
@@ -104,16 +104,22 @@ jobs:
   call-merge:
     needs: guard
     if: ${{ needs.guard.outputs.case == 'merge' }}
-    uses: ./.github/workflows/workflow-e2e-webapp-merge.yml
+    name: run e2e (PR merged)
+    uses: ./.github/workflows/workflow-e2e-webapp-shared.yml
     with:
+      run_webapp: short
       pr_number: ${{ fromJSON(needs.guard.outputs.pr_number) }}
       source_sha: ${{ github.event.sha }}
+      # checkout_ref: laissé au défaut 'main' de workflow-e2e-webapp-shared.yml
     secrets: inherit
 
   call-tag:
     needs: guard
     if: ${{ needs.guard.outputs.case == 'tag' }}
-    uses: ./.github/workflows/workflow-e2e-webapp-tag.yml
+    uses: ./.github/workflows/workflow-e2e-webapp-shared.yml
     with:
+      run_webapp: short
+      run_old_device: false
       source_sha: ${{ github.event.sha }}
+      # pr_number: laissé au défaut 0 — pas de PR associée à un tag
     secrets: inherit

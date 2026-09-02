@@ -1,8 +1,5 @@
 name: e2e manual trigger
 # Déclenchement manuel, config libre.
-#
-# Se lance en local avec :
-# act workflow_dispatch -W .github/workflows/workflow-e2e-webapp-manual.yml --container-architecture linux/amd64 --artifact-server-path /tmp/act-artifacts --input pr_number=123456789
 on:
   workflow_dispatch:
     inputs:
@@ -29,12 +26,14 @@ on:
       checkout_ref:
         description: "ref (branche/tag/sha) d'ami-system-tests à checkout — doit être égal à la ref de jobs.e2e-launch.uses: [...]@ref"
         type: string
-        default: main
-      wait_for_scalingo_step:
-        description: "scalingo redeploys when pushing code, so we can skip on manual trigger"
-        type: boolean
-        default: false
+        default: 10-ci-api-ios-android-wip
 
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+  actions: read
+  
 
 jobs:
   e2e:
@@ -45,8 +44,7 @@ jobs:
       run_android: ${{ inputs.run_android }}
       run_ios: ${{ inputs.run_ios }}
       run_old_device: ${{ inputs.run_old_device }}
-      pr_number: ${{ inputs.pr_number }}
+      pr_number: ${{ fromJSON(inputs.pr_number) }}
       source_sha: ${{ github.sha }}
       checkout_ref: ${{ inputs.checkout_ref }}
-      wait_for_scalingo_step: ${{ inputs.wait_for_scalingo_step }}
     secrets: inherit
