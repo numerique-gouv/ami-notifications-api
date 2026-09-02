@@ -1,7 +1,8 @@
 name: e2e shared
-# Logique commune, appelée par les workflows fins par déclencheur (workflow-e2e-webapp-*.yml) :
+# Logique commune, appelée par les workflows trigger after deploy (automatique) et le manuel :
 # lance l'e2e sur ami-system-tests puis, si pr_number != 0, commente la PR d'origine avec le
-# rapport Allure. Chaque appelant fixe une config simple, sans condition ni shell.
+# rapport Allure. le rapport étant toujours conservé dans les artefacts du run de la CI.
+# https://github.com/numerique-gouv/ami-notifications-api/actions/runs
 on:
   workflow_call:
     inputs:
@@ -37,7 +38,7 @@ on:
 jobs:
   e2e-launch:
     name: trigger an e2e run in ami-system-tests
-    uses: numerique-gouv/ami-system-tests/.github/workflows/workflow-e2e-main.yml@10-ci-api-ios-android-wip
+    uses: numerique-gouv/ami-system-tests/.github/workflows/workflow-e2e-main.yml
     with:
       run_webapp: ${{ inputs.run_webapp }}
       run_android: ${{ inputs.run_android }}
@@ -65,15 +66,9 @@ jobs:
           path: allure-report
 
 
-      # allure-action lit son contexte (eventName, payload, sha) via @actions/github, qui relit
-      # process.env.GITHUB_EVENT_NAME / GITHUB_EVENT_PATH / GITHUB_SHA à chaque instanciation (pas
-      # de cache) : `isPullRequest = eventName === "pull_request" && Boolean(payload.pull_request)`,
-      # sinon aucun commentaire n'est posté. Ce job est appelé (via workflow-e2e-trigger-after-deploy.yml) depuis un
-      # événement `status`, jamais `pull_request` — et sur `status`, GITHUB_SHA vaut le HEAD de la
-      # branche par défaut, pas le commit concerné. On fabrique donc un événement pull_request
-      # minimal (numéro + head.sha connus via inputs) et on ne surcharge GITHUB_EVENT_NAME/
-      # GITHUB_EVENT_PATH qu'au niveau du step allure-action ci-dessous — sans effet sur les
-      # autres steps du job ni sur le run réel.
+      # On se déclenche sur un status et pas sur un event de PR, 
+      # ca plante allure-action qui commente une PR.
+      # on recrée les données minimal d'un event de PR pour que allure-action fonctionne
       - name: Fabriquer un événement pull_request pour allure-action
         id: fake-event
         run: |

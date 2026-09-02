@@ -1,8 +1,5 @@
 name: e2e manual trigger
 # Déclenchement manuel, config libre.
-#
-# Se lance en local avec :
-# act workflow_dispatch -W .github/workflows/workflow-e2e-webapp-manual.yml --container-architecture linux/amd64 --artifact-server-path /tmp/act-artifacts --input pr_number=123456789
 on:
   workflow_dispatch:
     inputs:
