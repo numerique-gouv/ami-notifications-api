@@ -525,7 +525,6 @@ describe('/agenda.ts', () => {
       });
       test('should organize items in now and next', async () => {
         // Given
-        vi.stubEnv('TZ', 'Europe/Paris');
         localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
         const holiday1 = {
           kind: 'holiday',
@@ -739,7 +738,6 @@ describe('/agenda.ts', () => {
     describe('Zones', () => {
       test('should ignore some zones', async () => {
         // Given
-        vi.stubEnv('TZ', 'Europe/Paris');
         localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
         const holiday1 = {
           kind: 'holiday',
@@ -814,7 +812,6 @@ describe('/agenda.ts', () => {
     describe('Multitiles', () => {
       test('should stack holidays with the same title - but only for the same year', async () => {
         // Given
-        vi.stubEnv('TZ', 'Europe/Paris');
         localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
         const holiday1 = {
           kind: 'holiday',
@@ -901,7 +898,6 @@ describe('/agenda.ts', () => {
     describe('School holiday', () => {
       test('should organize items in now and next', async () => {
         // Given
-        vi.stubEnv('TZ', 'Europe/Paris');
         localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
         const holiday1 = {
           kind: 'holiday',
@@ -967,7 +963,6 @@ describe('/agenda.ts', () => {
       });
       test('should not display school holiday if is listed in hidden items', async () => {
         // Given
-        vi.stubEnv('TZ', 'Europe/Paris');
         localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
         const holiday1 = {
           kind: 'holiday',
@@ -1029,7 +1024,6 @@ describe('/agenda.ts', () => {
     describe('Public holiday', () => {
       test('should organize items in now and next', async () => {
         // Given
-        vi.stubEnv('TZ', 'Europe/Paris');
         localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
         const holiday6 = {
           kind: 'holiday',
@@ -1080,7 +1074,6 @@ describe('/agenda.ts', () => {
       });
       test('should not display public holiday if is listed in hidden items', async () => {
         // Given
-        vi.stubEnv('TZ', 'Europe/Paris');
         localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
         const holiday6 = {
           kind: 'holiday',
@@ -1149,7 +1142,6 @@ describe('/agenda.ts', () => {
     describe('Scheduled notifications', () => {
       test('should create scheduled notifications for otv - user has no address', async () => {
         // Given
-        vi.stubEnv('TZ', 'Europe/Paris');
         const spy = vi
           .spyOn(scheduledNotificationsMethods, 'createScheduledNotification')
           .mockResolvedValue(true);
@@ -1230,7 +1222,6 @@ describe('/agenda.ts', () => {
       });
       test('should create scheduled notifications for otv - holidays are displayed', async () => {
         // Given
-        vi.stubEnv('TZ', 'Europe/Paris');
         const spy = vi
           .spyOn(scheduledNotificationsMethods, 'createScheduledNotification')
           .mockResolvedValue(true);
@@ -1312,7 +1303,6 @@ describe('/agenda.ts', () => {
       });
       test('should create scheduled notifications for otv - holidays are not displayed but otv have to be sent', async () => {
         // Given
-        vi.stubEnv('TZ', 'Europe/Paris');
         const spy = vi
           .spyOn(scheduledNotificationsMethods, 'createScheduledNotification')
           .mockResolvedValue(true);
@@ -1397,7 +1387,6 @@ describe('/agenda.ts', () => {
       });
       test('should create scheduled notifications for otv - scheduled notifications already sent', async () => {
         // Given
-        vi.stubEnv('TZ', 'Europe/Paris');
         const spy = vi
           .spyOn(scheduledNotificationsMethods, 'createScheduledNotification')
           .mockResolvedValue(true);
@@ -1464,7 +1453,6 @@ describe('/agenda.ts', () => {
       });
       test('should be defined to first school holiday as user has no address', async () => {
         // Given
-        vi.stubEnv('TZ', 'Europe/Paris');
         const holiday1 = {
           kind: 'holiday',
           title: 'Holiday',
@@ -1522,7 +1510,6 @@ describe('/agenda.ts', () => {
       });
       test('should be defined to first school holiday matching user zone', async () => {
         // Given
-        vi.stubEnv('TZ', 'Europe/Paris');
         localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
         const holiday1 = {
           kind: 'holiday',
@@ -1581,7 +1568,6 @@ describe('/agenda.ts', () => {
       });
       test('should be null as first school holiday is in more than 3 weeks - user has no address', async () => {
         // Given
-        vi.stubEnv('TZ', 'Europe/Paris');
         const holiday1 = {
           kind: 'holiday',
           title: 'Holiday',
@@ -1639,7 +1625,6 @@ describe('/agenda.ts', () => {
       });
       test('should be null as first school holiday is in more than 3 weeks - matching user zone', async () => {
         // Given
-        vi.stubEnv('TZ', 'Europe/Paris');
         localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
         const holiday1 = {
           kind: 'holiday',
@@ -1700,7 +1685,6 @@ describe('/agenda.ts', () => {
     describe('Election', () => {
       test('should organize items in now and next', async () => {
         // Given
-        vi.stubEnv('TZ', 'Europe/Paris');
         localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
         const election1 = {
           kind: 'election',
@@ -1767,7 +1751,6 @@ describe('/agenda.ts', () => {
       });
       test('should not display election if is listed in hidden items', async () => {
         // Given
-        vi.stubEnv('TZ', 'Europe/Paris');
         localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
         const election1 = {
           kind: 'election',
@@ -1844,7 +1827,6 @@ describe('/agenda.ts', () => {
     });
     test('should retrieve agenda items and init agenda with them', async () => {
       // Given
-      vi.stubEnv('TZ', 'Europe/Paris');
       localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
       const holiday1 = {
         kind: 'holiday',

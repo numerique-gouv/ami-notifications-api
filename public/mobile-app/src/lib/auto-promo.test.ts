@@ -14,7 +14,6 @@ describe('/auto-promo.ts', () => {
   describe('AutoPromo', () => {
     test('user has no address (null) and no school holiday eligible for an otv', async () => {
       // Given
-      vi.stubEnv('TZ', 'Europe/Paris');
       delete userStore.connected?.identity?.address;
       const agenda = new Agenda();
       vi.spyOn(agenda, 'holidayForOTV', 'get').mockReturnValue(null);
@@ -39,7 +38,6 @@ describe('/auto-promo.ts', () => {
 
     test('user has no address (empty) and a school holiday eligible for an otv', async () => {
       // Given
-      vi.stubEnv('TZ', 'Europe/Paris');
       const agenda = new Agenda();
       vi.spyOn(agenda, 'holidayForOTV', 'get').mockReturnValue({
         kind: 'holiday',
@@ -83,7 +81,6 @@ describe('/auto-promo.ts', () => {
 
     test('user has address and no school holiday eligible for an otv', async () => {
       // Given
-      vi.stubEnv('TZ', 'Europe/Paris');
       userStore.connected?.setAddress(mockAddress);
       const agenda = new Agenda();
       vi.spyOn(agenda, 'holidayForOTV', 'get').mockReturnValue(null);
@@ -97,7 +94,6 @@ describe('/auto-promo.ts', () => {
 
     test('user has address and a school holiday eligible for an otv', async () => {
       // Given
-      vi.stubEnv('TZ', 'Europe/Paris');
       userStore.connected?.setAddress(mockAddress);
       const agenda = new Agenda();
       vi.spyOn(agenda, 'holidayForOTV', 'get').mockReturnValue({
