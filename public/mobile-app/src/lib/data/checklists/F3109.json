@@ -1,0 +1,230 @@
+{
+  "title": "Je crée une association",
+  "description": "J'organise des activités ou je porte des projets qui m'incitent à former une association avec d'autres personnes. Que dois-je faire pour la créer ?",
+  "sections": [
+    {
+      "title": "Cas général",
+      "id": "e4e9"
+    },
+    {
+      "title": "Alsace-Moselle",
+      "id": "b433"
+    }
+  ],
+  "items": [
+    {
+      "text": "**Choisir le nom** de l'association : vérifier que le nom est disponible, éventuellement protéger le nom",
+      "id": "dca85cae1ddb",
+      "section": "e4e9",
+      "links": [
+        {
+          "url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F31494",
+          "text": "Peut-on choisir librement le nom d'une association ?",
+          "type": "Fiche Question-réponse conditionnée"
+        },
+        {
+          "url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F31493",
+          "text": "Faut-il protéger le nom d'une association ?",
+          "type": "Fiche Question-réponse conditionnée"
+        }
+      ]
+    },
+    {
+      "text": "**Rédiger les statuts** : définir l'objet et les règles de fonctionnement de l'association, prévoir les principales règles de gouvernance (dirigeants, assemblées, cotisations, modification des statuts, dissolution...).",
+      "id": "d28f8aa279ad",
+      "section": "e4e9",
+      "links": [
+        {
+          "url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F1120",
+          "text": "Rédaction des statuts d'une association",
+          "type": "Fiche d'information conditionnée"
+        }
+      ]
+    },
+    {
+      "text": "**Choisir le siège social**",
+      "id": "aae77684b374",
+      "section": "e4e9",
+      "links": [
+        {
+          "url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F1119",
+          "text": "Déclaration initiale d'une association",
+          "type": "Fiche d'information conditionnée"
+        }
+      ]
+    },
+    {
+      "text": "**Inscrire l'association** au registre des associations",
+      "id": "9b1d992b0df8",
+      "section": "e4e9",
+      "links": [
+        {
+          "url": "https://www.service-public.gouv.fr/particuliers/vosdroits/R1757",
+          "text": "Création d'une association (e-création)",
+          "type": "Téléservice"
+        }
+      ]
+    },
+    {
+      "text": "**Vérifier que l'association est bien créée** et conserver le document attestant de l'inscription au registre des associations",
+      "id": "e5b8bcf22ee0",
+      "section": "e4e9",
+      "links": [
+        {
+          "url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F34722",
+          "text": "Comment vérifier la publication au JO d'une création d'association ?",
+          "type": "Fiche Question-réponse conditionnée"
+        }
+      ]
+    },
+    {
+      "text": "**Organiser le fonctionnement** de l'association : ouvrir un compte bancaire (si nécessaire), mettre en place un règlement intérieur (facultatif), souscrire une assurance si les activités de l'association le nécessitent",
+      "id": "b1edb3b0f8ac",
+      "section": "e4e9"
+    },
+    {
+      "text": "**Faire vivre** l'association : selon les activités, demander des subventions, recevoir des dons ou organiser des actions de financement, employer des salariés ou accueillir des volontaires, déclarer les manifestations organisées sur la voie publique lorsque cela est obligatoire, déclarer les modifications de l'association (statuts, dirigeants, siège social...)",
+      "id": "0996f55ff662",
+      "section": "e4e9",
+      "links": [
+        {
+          "url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F3180",
+          "text": "Subventions versées aux associations",
+          "type": "Fiche d'information conditionnée"
+        },
+        {
+          "url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F2722",
+          "text": "Dons, donations et legs au bénéfice d'une association",
+          "type": "Fiche d'information conditionnée"
+        },
+        {
+          "url": "https://www.service-public.gouv.fr/particuliers/vosdroits/N22150",
+          "text": "Bénévoles, volontaires et salariés d'une association",
+          "type": "Dossier"
+        },
+        {
+          "url": "https://www.service-public.gouv.fr/particuliers/vosdroits/N31332",
+          "text": "Organisation d'événements par une association",
+          "type": "Dossier"
+        },
+        {
+          "url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F1123",
+          "text": "Modification des statuts d'une association",
+          "type": "Fiche d'information conditionnée"
+        },
+        {
+          "url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F34797",
+          "text": "Changements dans l'administration d'une association",
+          "type": "Fiche d'information conditionnée"
+        }
+      ]
+    },
+    {
+      "text": "**Choisir le nom** de l'association : vérifier que le nom est disponible, éventuellement protéger le nom",
+      "id": "dca85cae1ddb",
+      "section": "b433",
+      "links": [
+        {
+          "url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F31494",
+          "text": "Peut-on choisir librement le nom d'une association ?",
+          "type": "Fiche Question-réponse conditionnée"
+        },
+        {
+          "url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F31493",
+          "text": "Faut-il protéger le nom d'une association ?",
+          "type": "Fiche Question-réponse conditionnée"
+        }
+      ]
+    },
+    {
+      "text": "**Rédiger les statuts** : définir l'objet et les règles de fonctionnement de l'association, prévoir les principales règles de gouvernance (dirigeants, assemblées, cotisations, modification des statuts, dissolution...).",
+      "id": "d28f8aa279ad",
+      "section": "b433",
+      "links": [
+        {
+          "url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F1120",
+          "text": "Rédaction des statuts d'une association",
+          "type": "Fiche d'information conditionnée"
+        }
+      ]
+    },
+    {
+      "text": "**Choisir le siège social**",
+      "id": "aae77684b374",
+      "section": "b433",
+      "links": [
+        {
+          "url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F1119",
+          "text": "Déclaration initiale d'une association",
+          "type": "Fiche d'information conditionnée"
+        }
+      ]
+    },
+    {
+      "text": "**Inscrire l'association** au registre des associations",
+      "id": "304410846f5c",
+      "section": "b433",
+      "links": [
+        {
+          "url": "https://www.service-public.gouv.fr/particuliers/vosdroits/R64069",
+          "text": "Création, modification ou dissolution d'une association en Alsace-Moselle",
+          "type": "Téléservice"
+        }
+      ]
+    },
+    {
+      "text": "**Vérifier que l'association est bien créée** et conserver le document attestant de l'inscription au registre des associations",
+      "id": "e5b8bcf22ee0",
+      "section": "b433",
+      "links": [
+        {
+          "url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F34722",
+          "text": "Comment vérifier la publication au JO d'une création d'association ?",
+          "type": "Fiche Question-réponse conditionnée"
+        }
+      ]
+    },
+    {
+      "text": "**Organiser le fonctionnement** de l'association : ouvrir un compte bancaire (si nécessaire), mettre en place un règlement intérieur (facultatif), souscrire une assurance si les activités de l'association le nécessitent",
+      "id": "b1edb3b0f8ac",
+      "section": "b433"
+    },
+    {
+      "text": "**Faire vivre** l'association : selon les activités, demander des subventions, recevoir des dons ou organiser des actions de financement, employer des salariés ou accueillir des volontaires, déclarer les manifestations organisées sur la voie publique lorsque cela est obligatoire, déclarer les modifications de l'association (statuts, dirigeants, siège social...)",
+      "id": "0996f55ff662",
+      "section": "b433",
+      "links": [
+        {
+          "url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F3180",
+          "text": "Subventions versées aux associations",
+          "type": "Fiche d'information conditionnée"
+        },
+        {
+          "url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F2722",
+          "text": "Dons, donations et legs au bénéfice d'une association",
+          "type": "Fiche d'information conditionnée"
+        },
+        {
+          "url": "https://www.service-public.gouv.fr/particuliers/vosdroits/N22150",
+          "text": "Bénévoles, volontaires et salariés d'une association",
+          "type": "Dossier"
+        },
+        {
+          "url": "https://www.service-public.gouv.fr/particuliers/vosdroits/N31332",
+          "text": "Organisation d'événements par une association",
+          "type": "Dossier"
+        },
+        {
+          "url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F1123",
+          "text": "Modification des statuts d'une association",
+          "type": "Fiche d'information conditionnée"
+        },
+        {
+          "url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F34797",
+          "text": "Changements dans l'administration d'une association",
+          "type": "Fiche d'information conditionnée"
+        }
+      ]
+    }
+  ]
+}
