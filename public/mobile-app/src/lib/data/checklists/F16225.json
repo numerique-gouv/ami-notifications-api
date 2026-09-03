@@ -1,0 +1,198 @@
+{
+  "title": "Je deviens parent",
+  "description": "Nous vous présentons par ordre chronologique les démarches à effectuer pendant la grossesse, puis de la naissance jusqu’aux 3 ans de l’enfant.",
+  "sections": [
+    {
+      "title": "Pendant la grossesse",
+      "id": "pendant-la-grossesse"
+    },
+    {
+      "title": "Après la naissance",
+      "id": "apres-la-naissance"
+    }
+  ],
+  "items": [
+    {
+      "text": "**Avant la fin du 3e mois** de grossesse : passer le **1<sup>er</sup> examen prénatal**, qui permet de faire la **déclaration de grossesse**",
+      "id": "e59ab105e3f3",
+      "section": "pendant-la-grossesse"
+    },
+    {
+      "text": "Mettre à jour votre **carte Vitale**",
+      "id": "f666f5f61c68",
+      "section": "pendant-la-grossesse"
+    },
+    {
+      "text": "Signaler la grossesse à votre **complémentaire santé ou mutuelle**",
+      "id": "fbc0a9e4e030",
+      "section": "pendant-la-grossesse"
+    },
+    {
+      "text": "Si vous n’en avez pas, choisir votre **médecin traitant**",
+      "id": "a8d3a2db7a1f",
+      "section": "pendant-la-grossesse"
+    },
+    {
+      "text": "Choisir le **lieu** de votre **accouchement** et vous inscrire",
+      "id": "f53e7bc2e166",
+      "section": "pendant-la-grossesse"
+    },
+    {
+      "text": "Prendre connaissance des dates des **examens prénataux** et de l’**entretien prénatal précoce**",
+      "id": "6b36c5dab93b",
+      "section": "pendant-la-grossesse"
+    },
+    {
+      "text": "Connaître la **prise en charge** par l'Assurance maladie des **examens médicaux** et des **frais d’accouchement**",
+      "id": "89a14ce74fbf",
+      "section": "pendant-la-grossesse"
+    },
+    {
+      "text": "Si vous **travaillez**, Informer votre **employeur** et connaître vos droits",
+      "id": "da3b69f23e31",
+      "section": "pendant-la-grossesse"
+    },
+    {
+      "text": "Si vous êtes **scolarisée** ou faites des **études universitaires**, connaître vos **droits**",
+      "id": "6f28aebdf57a",
+      "section": "pendant-la-grossesse"
+    },
+    {
+      "text": "Vous renseigner sur les **modes de garde** de l'enfant et sur les **aides financières** existantes",
+      "id": "6afe8bc9f86f",
+      "section": "pendant-la-grossesse"
+    },
+    {
+      "text": "Vous renseigner sur vos droits concernant le **congé maternité**, le **congé de naissance**, le **congé de paternité et d'accueil** de l'enfant, le **congé supplémentaire de naissance** et sur les démarches à faire",
+      "id": "2be0a46271e6",
+      "section": "pendant-la-grossesse"
+    },
+    {
+      "text": "**Avant la fin du 5e mois** de grossesse : si vous le souhaitez, déclarer à l’Assurance Maladie votre **sage-femme référente**",
+      "id": "f2ac56b6529a",
+      "section": "pendant-la-grossesse"
+    },
+    {
+      "text": "**Avant le 7e mois** de grossesse, programmer les **séances de préparation à l’accouchement**",
+      "id": "578c34c5be18",
+      "section": "pendant-la-grossesse"
+    },
+    {
+      "text": "Au **7e mois** de grossesse : vérifier si vous avez perçu la **prime à la naissance**",
+      "id": "848633696734",
+      "section": "pendant-la-grossesse"
+    },
+    {
+      "text": "Au **8e mois** de grossesse : contacter la **sage-femme** qui viendra au domicile **après la sortie de la maternité**",
+      "id": "c30ccfb40b1b",
+      "section": "pendant-la-grossesse"
+    },
+    {
+      "text": "Si vous n’êtes pas mariés, faire la démarche de **reconnaissance** de l’enfant",
+      "id": "cedd87b54655",
+      "section": "pendant-la-grossesse",
+      "conditions": [
+        {
+          "type": "estVrai",
+          "var": "T19468"
+        }
+      ]
+    },
+    {
+      "text": "Vous renseigner sur le **nom de famille** qu’aura l’enfant et choisir son **prénom**",
+      "id": "16eef64ca0c1",
+      "section": "pendant-la-grossesse"
+    },
+    {
+      "text": "**Dans les 5 jours** qui suivent l’accouchement, faire la **déclaration de naissance** à la mairie",
+      "id": "fbfd5f75a2c5",
+      "section": "apres-la-naissance"
+    },
+    {
+      "text": "**Avant la sortie de la maternité** (ou juste après), renseigner le **1<sup>er</sup> certificat de santé** et recevoir le **carnet de santé**",
+      "id": "3642c2111128",
+      "section": "apres-la-naissance"
+    },
+    {
+      "text": "**Déclarer la naissance** à la **Sécurité sociale** et à la **mutuelle**",
+      "id": "8a96eab0f318",
+      "section": "apres-la-naissance"
+    },
+    {
+      "text": "**Rattacher** l'enfant sur les **cartes Vitale des 2 parents**",
+      "id": "22baf7acbefa",
+      "section": "apres-la-naissance"
+    },
+    {
+      "text": "En cas de **dépassements d'honoraires** et/ou de **frais pour confort** personnel à la **maternité**, envoyer les **justificatifs** à votre **complémentaire santé**",
+      "id": "0ee43cde70e7",
+      "section": "apres-la-naissance"
+    },
+    {
+      "text": "**Dans les 7 jours** après l'accouchement, recevoir à domicile la **sage-femme**",
+      "id": "06f6ab435493",
+      "section": "apres-la-naissance"
+    },
+    {
+      "text": "**Déclarer** la naissance à la **Caf**",
+      "id": "abf3b826a347",
+      "section": "apres-la-naissance",
+      "conditions": [
+        {
+          "type": "estVrai",
+          "var": "T11332"
+        }
+      ]
+    },
+    {
+      "text": "Prendre connaissance du **suivi médical** de la mère",
+      "id": "d8db8c2e341e",
+      "section": "apres-la-naissance"
+    },
+    {
+      "text": "Respecter les dates des **examens médicaux** et des **vaccinations** de l'enfant",
+      "id": "665f3e8d502b",
+      "section": "apres-la-naissance"
+    },
+    {
+      "text": "Connaître les **droits** et vos **obligations** pendant le **congé de maternité** après la naissance, le **congé de naissance**, le **congé de paternité et d'accueil** de l’enfant, le **congé supplémentaire de naissance**",
+      "id": "d7d8942d2aa2",
+      "section": "apres-la-naissance"
+    },
+    {
+      "text": "Vous renseigner sur le **congé parental**, qui permet de cesser votre travail ou de réduire votre temps de travail pour vous occuper de l'enfant",
+      "id": "75680ec0c8df",
+      "section": "apres-la-naissance"
+    },
+    {
+      "text": "Connaître vos **droits** quand vous **reprenez le travail**",
+      "id": "fef9d27516cd",
+      "section": "apres-la-naissance"
+    },
+    {
+      "text": "Demander les **prestations familiales**, notamment l'allocation de base de la Paje",
+      "id": "55aa933d7c15",
+      "section": "apres-la-naissance"
+    },
+    {
+      "text": "Si vous êtes **imposable sur le revenu**, signaler la naissance au **service des impôts** pour la **modification** de votre **taux de prélèvement à la source**",
+      "id": "7438e7d5a243",
+      "section": "apres-la-naissance"
+    },
+    {
+      "text": "Si vous le souhaitez, faire établir la **carte d'identité** et/ou le **passeport** de l'enfant",
+      "id": "0d88bf615e7e",
+      "section": "apres-la-naissance"
+    },
+    {
+      "text": "En cas de **changement de situation** (familiale, professionnelle, déménagement), **informer** l’**Assurance maladie** et la **caisse qui vous verse les prestations familiales**",
+      "id": "04a690c94dc0",
+      "section": "apres-la-naissance"
+    },
+    {
+      "text": "**L’année** où votre enfant atteint l’âge de **3 ans**, **l’inscrire à l'école** en vous y prenant **suffisamment tôt**",
+      "id": "26aeb9d45e8b",
+      "section": "apres-la-naissance"
+    }
+  ]
+}

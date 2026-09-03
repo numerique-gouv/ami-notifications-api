@@ -1,0 +1,248 @@
+{
+  "title": "Je suis affecté à l'étranger",
+  "description": "",
+  "sections": [
+    {
+      "title": "Avant mon départ - Pour tous les militaires",
+      "id": "avant-mon-depart-pour-tous-les-militaires"
+    },
+    {
+      "title": "Avant mon départ - Si le conjoint m'accompagne",
+      "id": "avant-mon-depart-si-le-conjoint-maccompagne"
+    },
+    {
+      "title": "Avant mon départ - si mes enfants m'accopagnent",
+      "id": "avant-mon-depart-si-mes-enfants-maccopagnent"
+    },
+    {
+      "title": "Avant mon départ - Pour les membres de ma famille",
+      "id": "avant-mon-depart-pour-les-membres-de-ma-famille"
+    },
+    {
+      "title": "Pendant mon affectation - Pour tous les militaires",
+      "id": "pendant-mon-affectation-pour-tous-les-militaires"
+    },
+    {
+      "title": "Pendant mon affectation - Pour les enfants",
+      "id": "pendant-mon-affectation-pour-les-enfants"
+    },
+    {
+      "title": "Après mon retour - Pour tous les militaires",
+      "id": "apres-mon-retour-pour-tous-les-militaires"
+    },
+    {
+      "title": "Après mon retour - Pour le conjoint",
+      "id": "apres-mon-retour-pour-le-conjoint"
+    }
+  ],
+  "items": [
+    {
+      "text": "**Déclarer mon affectation auprès de la CNMSS** (Echéance « Dès que je connais ma date d’emménagement sur le territoire ») : Compléter le formulaire d'affectation. Envoyer le formulaire à la CNMSS",
+      "id": "89578dce0ad6",
+      "section": "avant-mon-depart-pour-tous-les-militaires",
+      "links": [
+        {
+          "url": "https://www.cnmss.fr/document/questionnaire-avant-votre-affectation-hors-de-france-dans-une-com-ou-mayotte ",
+          "text": "formulaire d'affectation",
+          "external": true
+        },
+        {
+          "url": "https://www.cnmss.fr/vos-demarches/contactez-la-cnmss/contact-beneficiaire?tid=149",
+          "text": "formulaire à la CNMSS",
+          "external": true
+        }
+      ]
+    },
+    {
+      "text": "Vérifier ma couverture santé selon mon lieu d'affectation (Échéance « Dès que je connais ma date d’emménagement sur le territoire »).\n\nConsulter le Guide du départ en outre-mer ou à l’étranger pour vérifier la marche à suivre selon mon lieu d’affectation.",
+      "id": "013b672268ed",
+      "section": "avant-mon-depart-pour-tous-les-militaires",
+      "links": [
+        {
+          "url": "https://guide-depart.cnmss.fr/guide-du-depart-132.html",
+          "text": "Guide du départ",
+          "external": true
+        }
+      ]
+    },
+    {
+      "text": "**Créer mon compte CNMSS** pour effectuer mes remboursements pendant l'affectation.",
+      "id": "12aa1ef04e60",
+      "section": "avant-mon-depart-pour-tous-les-militaires"
+    },
+    {
+      "text": "**Créer mon compte Ameli** pour accéder à mes démarches courantes et mettre à jour mes informations.",
+      "id": "6321ae4fd871",
+      "section": "avant-mon-depart-pour-tous-les-militaires"
+    },
+    {
+      "text": "Préparer mes vaccins et traitements antipaludiques (Échéance « 1 mois avant le départ »)\nPrendre rendez-vous avant le départ avec mon médecin militaire, un HIA ou le SSA.",
+      "id": "74cc92989d83",
+      "section": "avant-mon-depart-pour-tous-les-militaires"
+    },
+    {
+      "text": "Prévoir les produits répulsifs anti-moustiques (Échéance « 1 mois avant le départ »).\nLa CNMSS peut prendre en charge jusqu'à trois produits par mois et par bénéficiaire.",
+      "id": "c2ffca6939ba",
+      "section": "avant-mon-depart-pour-tous-les-militaires"
+    },
+    {
+      "text": "**Vérifier les droits de mon conjoint** (Échéance « Dès que je connais ma date d’emménagement sur le territoire »). Compléter le formulaire d’étude des droits du conjoint hors de France. Envoyer le [formulaire à la CNMSS]\n(https://www.cnmss.fr/vos-demarches/contactez-la-cnmss/contact-beneficiaire?tid=149). Effectuer les démarches d’affiliation auprès du régime de protection sociale local.",
+      "id": "198437fdd77d",
+      "section": "avant-mon-depart-si-le-conjoint-maccompagne",
+      "links": [
+        {
+          "url": "https://www.cnmss.fr/document/cerfa-15529-etude-de-droits-aux-prestations-hors-de-france ",
+          "text": "formulaire d’étude des droits du conjoint hors de France",
+          "external": true
+        }
+      ]
+    },
+    {
+      "text": "Demander le rattachement des enfants à la CNMSS (Échéance « Dès que possible »)",
+      "id": "e9256adaf193",
+      "section": "avant-mon-depart-si-mes-enfants-maccopagnent",
+      "links": [
+        {
+          "url": "https://demarche.numerique.gouv.fr/commencer/demande-de-rattachement-des-enfants-mineurs",
+          "text": "rattachement des enfants à la CNMSS ",
+          "external": true
+        }
+      ]
+    },
+    {
+      "text": "Préparer les vaccins avant le départ (Échéance « 1 mois avant le départ »). Membres de la famille rattachés à la → La CNMSS prend en charge les vaccins et traitements antipaludiques.  Membres de la famille non rattachés à la CNMSS → Demander le remboursement des vaccins et traitements antipaludiques par le CIMOB (Comité Interarmées des Mobilités).",
+      "id": "fc33cd5a919e",
+      "section": "avant-mon-depart-pour-les-membres-de-ma-famille"
+    },
+    {
+      "text": "Demander le remboursement de mes soins et de l’ensemble de ma famille. Si je suis resté affilé à la CNMSS ou à la CPS, utiliser le service en ligne sur Mon Compte CNMSS. Dans les autres cas, je dois me rapprocher de mon organisme local.",
+      "id": "1d954a04227b",
+      "section": "pendant-mon-affectation-pour-tous-les-militaires",
+      "conditions": [
+        {
+          "type": "estIndefini",
+          "var": "affectation"
+        }
+      ],
+      "links": [
+        {
+          "url": "https://portailassures.cnmss.fr/teleservice-eshf/refund-care-abroad",
+          "text": "Mon Compte CNMSS",
+          "external": true
+        }
+      ]
+    },
+    {
+      "text": "Utiliser ma carte Vitale lors de mes séjours en France. \nSi mon lieu d’affectation est la Nouvelle-Calédonie, Mayotte, Saint-Pierre-et-Miquelon ou la Polynésie française : consulter le Guide du départ en outre-mer ou à l’étranger pour vérifier la marche à suivre selon mon lieu d’affectation.\nPour tous les autres cas : conserver et utiliser ma carte Vitale. Aucune action supplémentaire n’est nécessaire.",
+      "id": "02adc847287a",
+      "section": "pendant-mon-affectation-pour-tous-les-militaires",
+      "conditions": [
+        {
+          "type": "estIndefini",
+          "var": "affectation"
+        }
+      ],
+      "links": [
+        {
+          "url": "https://guide-depart.cnmss.fr/guide-du-depart-132.html",
+          "text": "Guide du départ en outre-mer ou à l’étranger",
+          "external": true
+        }
+      ]
+    },
+    {
+      "text": "Demander une aide financière :  Si certains frais de santé restent à ma charge (optique, dentaire...).",
+      "id": "6ebaf6bee7b8",
+      "section": "pendant-mon-affectation-pour-tous-les-militaires",
+      "conditions": [
+        {
+          "type": "estIndefini",
+          "var": "affectation"
+        }
+      ],
+      "links": [
+        {
+          "url": "https://portailassures.cnmss.fr/teleservice-ass/refund-care-ass",
+          "text": "aide financière",
+          "external": true
+        }
+      ]
+    },
+    {
+      "text": "Consulter le Guide du départ en outre-mer ou à l’étranger",
+      "id": "e29ddb42c70f",
+      "section": "pendant-mon-affectation-pour-tous-les-militaires",
+      "conditions": [
+        {
+          "type": "estIndefini",
+          "var": "affectation"
+        }
+      ],
+      "links": [
+        {
+          "url": "(https://guide-depart.cnmss.fr/guide-du-depart-132.html",
+          "text": "Guide du départ en outre-mer ou à l’étranger",
+          "external": true
+        }
+      ]
+    },
+    {
+      "text": "Bénéficier, si nécessaire, de la téléorthophonie",
+      "id": "1496ac53ca4f",
+      "section": "pendant-mon-affectation-pour-les-enfants",
+      "links": [
+        {
+          "url": "https://rdv.dismed.fr/affiliation-cnmss/",
+          "text": "téléorthophonie",
+          "external": true
+        }
+      ]
+    },
+    {
+      "text": "Bénéficier, si nécessaire, de la télépsychothérapie",
+      "id": "89b936702e51",
+      "section": "pendant-mon-affectation-pour-les-enfants",
+      "links": [
+        {
+          "url": "https://rdv.dismed.fr/affiliation-cnmss/",
+          "text": "télépsychothérapie",
+          "external": true
+        }
+      ]
+    },
+    {
+      "text": "**Déclarer mon retour à la CNMSS :** Compléter le formulaire de retour (Échéance « Dès que je connais ma date de retour »). Envoyer le formulaire à la CNMSS)",
+      "id": "02d14082ac0e",
+      "section": "apres-mon-retour-pour-tous-les-militaires",
+      "links": [
+        {
+          "url": "(https://www.cnmss.fr/document/avant-votre-retour-en-metropole-ou-dans-un-dom-hors-mayotte-suite-votre-affectation-hors",
+          "text": "formulaire de retour",
+          "external": true
+        },
+        {
+          "url": "(https://www.cnmss.fr/vos-demarches/contactez-la-cnmss/contact-beneficiaire?tid=148",
+          "text": "Envoyer le formulaire à la CNMSS",
+          "external": true
+        }
+      ]
+    },
+    {
+      "text": "**Signaler** tout changement de situation familiale survenu pendant le séjour (mariage, divorce, naissance, etc.) (Échéance « Dès que je connais ma date de retour »)",
+      "id": "fed6b3d62190",
+      "section": "apres-mon-retour-pour-tous-les-militaires",
+      "links": [
+        {
+          "url": "https://demarche.numerique.gouv.fr/commencer/changement-de-situation-familiale-cnmss",
+          "text": "changement de situation familiale",
+          "external": true
+        }
+      ]
+    },
+    {
+      "text": "Demander son rattachement au régime de sécurité sociale correspondant à sa nouvelle activité.",
+      "id": "56adc917d9ce",
+      "section": "apres-mon-retour-pour-le-conjoint"
+    }
+  ]
+}
