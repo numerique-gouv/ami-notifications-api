@@ -29,6 +29,17 @@ describe('/ami-goto', () => {
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).toHaveBeenCalledWith('/');
     });
+    test('should redirect to url - external url without protocol', async () => {
+      // Given
+      const url = '//';
+      const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue();
+
+      // When
+      AMIGoto(url);
+
+      // Then
+      expect(spy).not.toHaveBeenCalled();
+    });
     test('should redirect to url - external url', async () => {
       // Given
       const url = 'http://external-url';
@@ -42,7 +53,22 @@ describe('/ami-goto', () => {
       AMIGoto(url);
 
       // Then
-      expect(window.location.href).toBe('http://external-url');
+      expect(window.location.href).toBe('http://external-url/');
+    });
+    test('should redirect to url - not external url', async () => {
+      // Given
+      const url = 'javascript:alert("foobar")';
+      vi.stubGlobal('location', {
+        href: 'fake-link',
+        hash: '',
+        origin: 'http://localhost',
+      });
+
+      // When
+      AMIGoto(url);
+
+      // Then
+      expect(window.location.href).toBe('fake-link');
     });
   });
 
@@ -80,6 +106,18 @@ describe('/ami-goto', () => {
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).toHaveBeenCalledWith('/');
     });
+    test('should redirect to url - internal url without protocol', async () => {
+      // Given
+      vi.mocked(envModule).PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED = 'false';
+      const url = '//';
+      const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue();
+
+      // When
+      AMIGoto(url, true);
+
+      // Then
+      expect(spy).not.toHaveBeenCalled();
+    });
     test('should redirect to url - external url', async () => {
       // Given
       vi.mocked(envModule).PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED = 'false';
@@ -94,7 +132,23 @@ describe('/ami-goto', () => {
       AMIGoto(url, true);
 
       // Then
-      expect(window.location.href).toBe('http://external-url');
+      expect(window.location.href).toBe('http://external-url/');
+    });
+    test('should redirect to url - not external url', async () => {
+      // Given
+      vi.mocked(envModule).PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED = 'false';
+      const url = 'javascript:alert("foobar")';
+      vi.stubGlobal('location', {
+        href: 'fake-link',
+        hash: '',
+        origin: 'http://localhost',
+      });
+
+      // When
+      AMIGoto(url, true);
+
+      // Then
+      expect(window.location.href).toBe('fake-link');
     });
   });
 });

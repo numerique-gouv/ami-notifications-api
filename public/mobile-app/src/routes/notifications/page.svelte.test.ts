@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import type { WS as WSType } from 'vitest-websocket-mock';
 import WS from 'vitest-websocket-mock';
 import * as navigationMethods from '$app/navigation';
+import * as AMIGotoMethods from '$lib/ami-goto';
 import * as notificationsMethods from '$lib/notifications';
 import { type AppNotification, PUBLIC_APP_WS_URL } from '$lib/notifications';
 import { userStore } from '$lib/state/User.svelte';
@@ -229,7 +230,7 @@ describe('/+page.svelte', () => {
         },
       ]
     );
-    vi.stubGlobal('location', { href: 'fake-link' });
+    const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
 
     render(Page);
     const notificationLink = await waitFor(() =>
@@ -240,7 +241,7 @@ describe('/+page.svelte', () => {
     await notificationLink.click();
 
     // Then
-    expect(globalThis.window.location.href).toBe('https://www.service-public.gouv.fr');
+    expect(spy).toHaveBeenCalledWith('https://www.service-public.gouv.fr');
   });
 
   test('should not redirect when url is not set and user clicks on notification', async () => {
@@ -259,7 +260,7 @@ describe('/+page.svelte', () => {
         },
       ]
     );
-    vi.stubGlobal('location', { href: 'fake-link' });
+    const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
 
     render(Page);
     const notificationLink = await waitFor(() =>
@@ -270,6 +271,6 @@ describe('/+page.svelte', () => {
     await notificationLink.click();
 
     // Then
-    expect(globalThis.window.location.href).toBe('fake-link');
+    expect(spy).not.toHaveBeenCalled();
   });
 });

@@ -1,5 +1,6 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { describe, expect, test, vi } from 'vitest';
+import * as AMIGotoMethods from '$lib/ami-goto';
 import FollowupItemDetailHeader from '$lib/components/followup/FollowupItemDetailHeader.svelte';
 import { FollowupItem } from '$lib/followup';
 
@@ -142,7 +143,7 @@ describe('/FollowupItemDetailHeader.svelte', () => {
       'link1',
       []
     );
-    vi.stubGlobal('location', { href: 'fake-link' });
+    const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
 
     // When
     render(FollowupItemDetailHeader, { props: { item: item } });
@@ -154,7 +155,7 @@ describe('/FollowupItemDetailHeader.svelte', () => {
 
     // Then
     await waitFor(() => {
-      expect(window.location.href).toBe('link1');
+      expect(spy).toHaveBeenCalledWith('link1');
     });
   });
   test('Should not display "Accéder à ma démarche" button as link is not defined', async () => {

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
+  import { AMIGoto } from '$lib/ami-goto';
   import { getDSFRIcon } from '$lib/dsfr-icon';
   import { FollowupSubItem } from '$lib/followup';
 
@@ -12,7 +13,7 @@
 
   const gotoExternalItem = () => {
     if (item?.link) {
-      window.location.href = item.link;
+      AMIGoto(item.link);
     }
   };
 </script>
