@@ -4,6 +4,7 @@ import { Address } from '$lib/address';
 import type { APIAgendaItem } from '$lib/api-agenda';
 import * as matomoMethods from '$lib/matomo';
 import { Preferences } from '$lib/state/preferences';
+import { parseISODate } from '$lib/utils';
 
 describe('/preferences.ts', () => {
   afterEach(() => {
@@ -120,8 +121,8 @@ describe('/preferences.ts', () => {
           title: 'Holiday',
           description: '',
           date: null,
-          start_date: new Date('2026-02-06T23:00:00Z'),
-          end_date: new Date('2026-02-22T23:00:00Z'),
+          start_date: parseISODate('2026-02-07'),
+          end_date: parseISODate('2026-02-23'),
           zones: ['Zone A', 'Zone B', 'Martinique'],
           emoji: 'foo',
         } as APIAgendaItem;
@@ -140,8 +141,8 @@ describe('/preferences.ts', () => {
           title: 'Holiday',
           description: '',
           date: null,
-          start_date: new Date('2026-02-06T23:00:00Z'),
-          end_date: new Date('2026-02-22T23:00:00Z'),
+          start_date: parseISODate('2026-02-07'),
+          end_date: parseISODate('2026-02-23'),
           zones: ['Zone A', 'Zone B', 'Martinique'],
           emoji: 'foo',
         } as APIAgendaItem;
@@ -160,8 +161,8 @@ describe('/preferences.ts', () => {
           title: 'Holiday',
           description: '',
           date: null,
-          start_date: new Date('2026-02-06T23:00:00Z'),
-          end_date: new Date('2026-02-22T23:00:00Z'),
+          start_date: parseISODate('2026-02-07'),
+          end_date: parseISODate('2026-02-23'),
           zones: ['Zone A', 'Zone B', 'Martinique'],
           emoji: 'foo',
         } as APIAgendaItem;
@@ -180,8 +181,8 @@ describe('/preferences.ts', () => {
           title: 'Holiday',
           description: '',
           date: null,
-          start_date: new Date('2026-02-06T23:00:00Z'),
-          end_date: new Date('2026-02-22T23:00:00Z'),
+          start_date: parseISODate('2026-02-07'),
+          end_date: parseISODate('2026-02-23'),
           zones: [],
           emoji: 'foo',
         } as APIAgendaItem;
@@ -203,8 +204,8 @@ describe('/preferences.ts', () => {
           title: 'Holiday',
           description: '',
           date: null,
-          start_date: new Date('2026-02-06T23:00:00Z'),
-          end_date: new Date('2026-02-22T23:00:00Z'),
+          start_date: parseISODate('2026-02-07'),
+          end_date: parseISODate('2026-02-23'),
           zones: ['Zone A', 'Zone B', 'Martinique'],
           emoji: 'foo',
         } as APIAgendaItem;
@@ -223,8 +224,8 @@ describe('/preferences.ts', () => {
           title: 'Holiday',
           description: '',
           date: null,
-          start_date: new Date('2026-02-06T23:00:00Z'),
-          end_date: new Date('2026-02-22T23:00:00Z'),
+          start_date: parseISODate('2026-02-07'),
+          end_date: parseISODate('2026-02-23'),
           zones: ['Zone A', 'Zone B', 'Zone C'],
           emoji: 'foo',
         } as APIAgendaItem;
@@ -243,8 +244,8 @@ describe('/preferences.ts', () => {
           title: 'Holiday',
           description: '',
           date: null,
-          start_date: new Date('2026-02-06T23:00:00Z'),
-          end_date: new Date('2026-02-22T23:00:00Z'),
+          start_date: parseISODate('2026-02-07'),
+          end_date: parseISODate('2026-02-23'),
           zones: ['Zone A', 'Zone B', 'Zone C'],
           emoji: 'foo',
         } as APIAgendaItem;
@@ -264,8 +265,8 @@ describe('/preferences.ts', () => {
           title: 'Holiday',
           description: '',
           date: null,
-          start_date: new Date('2026-02-06T23:00:00Z'),
-          end_date: new Date('2026-02-22T23:00:00Z'),
+          start_date: parseISODate('2026-02-07'),
+          end_date: parseISODate('2026-02-23'),
           zones: ['Zone A', 'Zone B', 'Martinique'],
           emoji: 'foo',
         } as APIAgendaItem;
@@ -300,8 +301,8 @@ describe('/preferences.ts', () => {
           title: 'Holiday',
           description: '',
           date: null,
-          start_date: new Date('2026-02-06T23:00:00Z'),
-          end_date: new Date('2026-02-22T23:00:00Z'),
+          start_date: parseISODate('2026-02-07'),
+          end_date: parseISODate('2026-02-23'),
           zones: ['Zone A', 'Zone B', 'Zone C', 'Corse', 'Martinique'],
           emoji: 'foo',
         } as APIAgendaItem;
@@ -344,8 +345,8 @@ describe('/preferences.ts', () => {
           title: 'Holiday',
           description: '',
           date: null,
-          start_date: new Date('2026-02-06T23:00:00Z'),
-          end_date: new Date('2026-02-22T23:00:00Z'),
+          start_date: parseISODate('2026-02-07'),
+          end_date: parseISODate('2026-02-23'),
           zones: ['Zone A', 'Zone B', 'Zone C', 'Corse', 'Martinique'],
           emoji: 'foo',
         } as APIAgendaItem;
@@ -386,8 +387,8 @@ describe('/preferences.ts', () => {
           title: 'Holiday',
           description: '',
           date: null,
-          start_date: new Date('2026-02-06T23:00:00Z'),
-          end_date: new Date('2026-02-22T23:00:00Z'),
+          start_date: parseISODate('2026-02-07'),
+          end_date: parseISODate('2026-02-23'),
           zones: ['Zone A', 'Zone B', 'Martinique'],
           emoji: 'foo',
         } as APIAgendaItem;
@@ -406,8 +407,8 @@ describe('/preferences.ts', () => {
           title: 'Holiday',
           description: '',
           date: null,
-          start_date: new Date('2026-02-06T23:00:00Z'),
-          end_date: new Date('2026-02-22T23:00:00Z'),
+          start_date: parseISODate('2026-02-07'),
+          end_date: parseISODate('2026-02-23'),
           zones: ['Zone A', 'Zone B', 'Martinique'],
           emoji: 'foo',
         } as APIAgendaItem;
@@ -426,8 +427,8 @@ describe('/preferences.ts', () => {
           title: 'Holiday',
           description: '',
           date: null,
-          start_date: new Date('2026-02-06T23:00:00Z'),
-          end_date: new Date('2026-02-22T23:00:00Z'),
+          start_date: parseISODate('2026-02-07'),
+          end_date: parseISODate('2026-02-23'),
           zones: [],
           emoji: 'foo',
         } as APIAgendaItem;

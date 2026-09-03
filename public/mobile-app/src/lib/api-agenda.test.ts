@@ -1,7 +1,7 @@
-import { afterEach, describe, expect, test, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { retrieveAgenda } from '$lib/api-agenda';
-import { dateToISO } from '$lib/utils';
+import { dateToISO, parseISODate } from '$lib/utils';
 
 const apiAgendaData = {
   school_holidays: {
@@ -12,8 +12,8 @@ const apiAgendaData = {
         title: 'Holiday 1',
         description: '',
         date: null as Date | null,
-        start_date: new Date('2025-09-20T23:00:00Z') as Date | null,
-        end_date: new Date('2025-12-15T23:00:00Z') as Date | null,
+        start_date: parseISODate('2025-09-21') as Date | null,
+        end_date: parseISODate('2025-12-16') as Date | null,
         zones: [] as string[] | string,
         emoji: '',
       },
@@ -22,8 +22,8 @@ const apiAgendaData = {
         title: 'Holiday 2',
         description: '',
         date: null as Date | null,
-        start_date: new Date('2025-10-20T23:00:00Z') as Date | null,
-        end_date: new Date('2025-11-15T23:00:00Z') as Date | null,
+        start_date: parseISODate('2025-10-21') as Date | null,
+        end_date: parseISODate('2025-11-16') as Date | null,
         zones: [] as string[] | string,
         emoji: '',
       },
@@ -37,7 +37,7 @@ const apiAgendaData = {
         kind: 'holiday',
         title: 'Holiday 3',
         description: '',
-        date: new Date('2025-09-20T23:00:00Z') as Date | null,
+        date: parseISODate('2025-09-21') as Date | null,
         start_date: null as Date | null,
         end_date: null as Date | null,
         zones: [] as string[] | string,
@@ -47,7 +47,7 @@ const apiAgendaData = {
         kind: 'holiday',
         title: 'Holiday 4',
         description: '',
-        date: new Date('2025-10-20T23:00:00Z') as Date | null,
+        date: parseISODate('2025-10-21') as Date | null,
         start_date: null as Date | null,
         end_date: null as Date | null,
         zones: [] as string[] | string,
@@ -63,7 +63,7 @@ const apiAgendaData = {
         kind: 'election',
         title: 'Election 1',
         description: '',
-        date: new Date('2025-09-20T23:00:00Z') as Date | null,
+        date: parseISODate('2025-09-21') as Date | null,
         start_date: null as Date | null,
         end_date: null as Date | null,
         zones: [] as string[] | string,
@@ -80,11 +80,6 @@ type NullableAgendaSource = {
 };
 
 describe('/api-agenda', () => {
-  afterEach(() => {
-    window.localStorage.clear();
-    vi.clearAllMocks();
-  });
-
   describe('retrieveAgenda', () => {
     test('should get agenda items from API', async () => {
       // Given

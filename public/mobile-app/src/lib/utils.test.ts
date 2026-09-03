@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import '@testing-library/jest-dom/vitest';
-import { dateToISO, formatDate, formatShortDate } from '$lib/utils';
+import { dateToISO, formatDate, formatShortDate, parseISODate } from '$lib/utils';
 
 describe('/lib/utils.ts', () => {
   describe('formatShortDate', () => {
@@ -68,6 +68,46 @@ describe('/lib/utils.ts', () => {
 
       // Then
       expect(result).toEqual('');
+    });
+  });
+
+  describe('parseISODate', () => {
+    test('should be able to parse null', async () => {
+      // When
+      const result = parseISODate(null);
+
+      // Then
+      expect(result).toBeNull();
+    });
+    test('should be able to parse Date', async () => {
+      // Given
+      const value = new Date(2026, 8, 3);
+
+      // When
+      const result = parseISODate(value);
+
+      // Then
+      expect(result).toEqual(new Date(2026, 8, 3));
+    });
+    test('should be able to parse string with time', async () => {
+      // Given
+      const value = '2026-09-03';
+
+      // When
+      const result = parseISODate(value);
+
+      // Then
+      expect(result).toEqual(new Date(2026, 8, 3));
+    });
+    test('should be able to parse string without time', async () => {
+      // Given
+      const value = '2026-09-03T12:00:00Z';
+
+      // When
+      const result = parseISODate(value);
+
+      // Then
+      expect(result).toEqual(new Date(2026, 8, 3, 14, 0));
     });
   });
 });

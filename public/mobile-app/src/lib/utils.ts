@@ -46,6 +46,20 @@ export const dateToISO = (date: Date | null) => {
   return `${year}-${month}-${day}`;
 };
 
+export const parseISODate = (value: string | Date | null): Date | null => {
+  if (value === null) {
+    return null;
+  }
+  if (value instanceof Date) {
+    return value;
+  }
+  if (value.includes('T')) {
+    return new Date(value);
+  }
+  const [year, month, day] = value.split('-').map(Number);
+  return new Date(year, month - 1, day);
+};
+
 export const getTimestamp = (date: Date | null) => {
   if (date) {
     return Math.floor(date.getTime() / 1000);
