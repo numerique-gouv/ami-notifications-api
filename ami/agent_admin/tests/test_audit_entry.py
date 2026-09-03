@@ -167,7 +167,7 @@ def test_audit(
     assert ae4.action_code == "deleted"
     assert ae4.extra_data == {
         "user_id": str(user.id),
-        "user_fc_hash": "651d806d65788bc260faa89a555fdf89bd573a5c9a4d8bb897967e14951ab65d",
+        "user_fc_hash": "c3cdbc4c175f4ebdb1b6d00175ae8732d41e76bb0a27aca8ffdc0006e25fda0d",
     }
 
     assert ae5.author == admin_agent
@@ -179,7 +179,7 @@ def test_audit(
     assert ae5.action_code == "seen"
     assert ae5.extra_data == {
         "user_id": str(user.id),
-        "user_fc_hash": "651d806d65788bc260faa89a555fdf89bd573a5c9a4d8bb897967e14951ab65d",
+        "user_fc_hash": "c3cdbc4c175f4ebdb1b6d00175ae8732d41e76bb0a27aca8ffdc0006e25fda0d",
     }
 
     assert ae6.author == admin_agent

@@ -155,7 +155,7 @@ def test_login_callback_address_query_failure_500(
     )
     assert url_contains_param(
         "user_fc_hash",
-        "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060",
+        "01d6f14bd06de19c43c2984da5fb1a6941ac7d964f2a7c191d696e4a76aaf986",
         redirected_url,
     )
     assert "address" not in redirected_url
@@ -230,7 +230,7 @@ def test_login_callback_address_query_failure_400(
     )
     assert url_contains_param(
         "user_fc_hash",
-        "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060",
+        "01d6f14bd06de19c43c2984da5fb1a6941ac7d964f2a7c191d696e4a76aaf986",
         redirected_url,
     )
     assert "address" not in redirected_url

@@ -19,7 +19,7 @@ def test_cli_generate_identity_tokens(
 ) -> None:
     csv_content = (
         "id,fc_hash,preferred_username,email,address_city,address_postcode,address_name\n"
-        "1,4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060,,"
+        "1,01d6f14bd06de19c43c2984da5fb1a6941ac7d964f2a7c191d696e4a76aaf986,,"
         "wossewodda-3728@yopmail.com,Paris,75007,20 Avenue de Ségur\n"
     )
     input_csv_file_path = tmp_path / "input_file_test_cli.csv"
@@ -90,7 +90,7 @@ def test_generate_identity_token(
     address_city: str = "Paris"
     address_postcode: str = "75007"
     address_name: str = "20 Avenue de Ségur"
-    fc_hash: str = "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060"
+    fc_hash: str = "01d6f14bd06de19c43c2984da5fb1a6941ac7d964f2a7c191d696e4a76aaf986"
 
     mock_uuid_str = "550e8400-e29b-41d4-a716-446655440000"
 
@@ -151,7 +151,7 @@ def test_generate_identity_token_with_decode(
     address_city: str = "Paris"
     address_postcode: str = "75007"
     address_name: str = "20 Avenue de Ségur"
-    fc_hash: str = "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060"
+    fc_hash: str = "01d6f14bd06de19c43c2984da5fb1a6941ac7d964f2a7c191d696e4a76aaf986"
 
     mock_uuid_str = "550e8400-e29b-41d4-a716-446655440000"
 
@@ -184,7 +184,7 @@ def test_generate_identity_token_with_decode(
     assert decoded_result["nonce"] == "550e8400-e29b-41d4-a716-446655440000"
     assert (
         decoded_result["hash_fc"]
-        == "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060"
+        == "01d6f14bd06de19c43c2984da5fb1a6941ac7d964f2a7c191d696e4a76aaf986"
     )
     data_encrypted = decoded_result["data"]
     data_result = decrypt_data(data_encrypted, fake_private_key_for_encryption)

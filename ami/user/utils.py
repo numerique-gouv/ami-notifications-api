@@ -10,8 +10,7 @@ def build_fc_hash(
     birthplace: str,
     birthcountry: str,
 ) -> str:
-    recipient_fc_hash = hashlib.sha256()
-    recipient_fc_hash.update(
-        f"{given_name}{family_name}{birthdate}{gender}{birthplace}{birthcountry}".encode("utf-8")
+    recipient_fc_hash = hashlib.sha256(
+        f"{given_name};{family_name};{birthdate};{gender};{birthplace};{birthcountry}".encode()
     )
     return recipient_fc_hash.hexdigest()
