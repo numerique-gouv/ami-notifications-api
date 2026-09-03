@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { dateToISO, formatDate, formatShortDate } from '$lib/utils';
 
@@ -51,7 +51,6 @@ describe('/lib/utils.ts', () => {
   describe('dateToISO', () => {
     test('should format date object to YYYY-MM-DD format', async () => {
       // Given
-      vi.stubEnv('TZ', 'Europe/Paris');
       const date1 = new Date(1962, 7, 24);
       const date2 = new Date('1962-08-23T23:07:40.162Z');
 
