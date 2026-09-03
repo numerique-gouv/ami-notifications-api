@@ -1,5 +1,10 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
+  import type { SideMenuItem as Item } from '$lib/side-menu';
+
+  interface Props {
+    items: Item[];
+  }
 
   let { sideMenus } = $props();
 </script>
