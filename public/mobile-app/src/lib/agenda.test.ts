@@ -517,6 +517,12 @@ describe('/agenda.ts', () => {
       vi.resetAllMocks();
     });
     describe('Now/Next', () => {
+      beforeEach(() => {
+        vi.spyOn(
+          scheduledNotificationsMethods,
+          'createScheduledNotification'
+        ).mockResolvedValue(true);
+      });
       test('should organize items in now and next', async () => {
         // Given
         vi.stubEnv('TZ', 'Europe/Paris');
@@ -1450,6 +1456,12 @@ describe('/agenda.ts', () => {
       });
     });
     describe('School holiday for otv', () => {
+      beforeEach(() => {
+        vi.spyOn(
+          scheduledNotificationsMethods,
+          'createScheduledNotification'
+        ).mockResolvedValue(true);
+      });
       test('should be defined to first school holiday as user has no address', async () => {
         // Given
         vi.stubEnv('TZ', 'Europe/Paris');
