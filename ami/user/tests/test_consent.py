@@ -162,7 +162,7 @@ def test_post_consent_user_consent_invalid(
 
     data = {"consent": "invalid"}
     response = app.post_json("/api/v1/consent/unknown_hash", data, headers=partner_auth, status=400)
-    assert response.json == {"consent": ["Must be a valid boolean."]}
+    assert response.json == {"consent": ["Doit être un booléen valide."]}
     assert Consent.objects.count() == 0
     assert User.objects.count() == 0
 
@@ -272,7 +272,7 @@ def test_post_consents_user_consent_invalid(
 
     data = {"partner_id": "dinum-ami", "consent": "invalid"}
     response = app.post_json("/api/v1/users/consents", data, status=400)
-    assert response.json == {"consent": ["Must be a valid boolean."]}
+    assert response.json == {"consent": ["Doit être un booléen valide."]}
     assert Consent.objects.count() == 0
     assert User.objects.count() == 1
 
