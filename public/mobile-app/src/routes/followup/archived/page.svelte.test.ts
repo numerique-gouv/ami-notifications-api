@@ -9,11 +9,17 @@ import Page from './+page.svelte';
 describe('/+page.svelte', () => {
   test('user has to be connected', async () => {
     // Given
-    vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(new Followup());
+    const followup = new Followup();
+    vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
     const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue();
 
     // When
-    render(Page);
+    render(Page, {
+      props: {
+        data: { followup, isFollowupEmpty: true, hasAnyConsents: true },
+        params: {},
+      },
+    });
 
     // Then
     await waitFor(() => {
@@ -68,7 +74,12 @@ describe('/+page.svelte', () => {
     const spy = vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
 
     // When
-    render(Page);
+    render(Page, {
+      props: {
+        data: { followup, isFollowupEmpty: false, hasAnyConsents: true },
+        params: {},
+      },
+    });
 
     // Then
     await waitFor(() => {
