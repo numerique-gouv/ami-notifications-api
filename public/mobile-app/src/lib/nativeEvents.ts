@@ -11,8 +11,6 @@ export const emit = (eventName: string, data?: unknown) => {
     data: JSON.stringify(data || {}),
   };
 
-  console.log('Trying to emit native event', eventName, data);
-
   if (isNative()) {
     // This is an interface that would have been injected in the WebView from the mobile app native code.
     window.NativeBridge?.onEvent(eventName, payload.data);
