@@ -1,5 +1,6 @@
 import { goto } from '$app/navigation';
 import { PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED } from '$env/static/public';
+import * as self from './ami-navigation';
 
 const AMIFILogin = (url: string) => {
   window.location.href = `/silent-login-ami-fi?redirect_url=${encodeURIComponent(url)}&from_hash=${window.location.hash.substring(1)}`;
@@ -22,5 +23,13 @@ export const AMIGoto = (link: string, silentLogin: boolean = false) => {
     } catch (e) {
       console.warn('Invalid URL', link);
     }
+  }
+};
+
+export const AMIBack = (backUrl: string) => {
+  if (history.length > 1) {
+    history.back();
+  } else {
+    self.AMIGoto(backUrl);
   }
 };
