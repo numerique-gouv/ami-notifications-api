@@ -11,6 +11,7 @@ class Partner(models.Model):
     slug = models.SlugField(unique=True)
     name = models.CharField()
     icon = models.CharField(blank=True)
+    link = models.CharField(blank=True, null=True)
     consent_is_enabled = models.BooleanField()
     ip_allow_list = models.TextField(blank=True, null=True)
 
