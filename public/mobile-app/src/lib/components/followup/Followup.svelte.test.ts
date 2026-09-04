@@ -254,7 +254,12 @@ describe('/Followup.svelte', () => {
         .mockResolvedValue(followup);
 
       // When
-      render(FollowupComponent, { archived: true });
+      render(FollowupComponent, {
+        archived: true,
+        followupProp: followup,
+        isFollowupEmptyProp: false,
+        hasAnyConsentsProp: true,
+      });
 
       // Then
       await waitFor(() => {
@@ -308,7 +313,12 @@ describe('/Followup.svelte', () => {
         .mockResolvedValue(followup);
 
       // When
-      render(FollowupComponent, { archived: true });
+      render(FollowupComponent, {
+        archived: true,
+        followupProp: followup,
+        isFollowupEmptyProp: false,
+        hasAnyConsentsProp: true,
+      });
 
       // Then
       await waitFor(() => {
@@ -334,7 +344,12 @@ describe('/Followup.svelte', () => {
       vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
 
       // When
-      render(FollowupComponent, { archived: true });
+      render(FollowupComponent, {
+        archived: true,
+        followupProp: followup,
+        isFollowupEmptyProp: false,
+        hasAnyConsentsProp: true,
+      });
 
       // Then
       await waitFor(async () => {
@@ -393,7 +408,12 @@ describe('/Followup.svelte', () => {
       vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
 
       // When
-      render(FollowupComponent, { archived: true });
+      render(FollowupComponent, {
+        archived: true,
+        followupProp: followup,
+        isFollowupEmptyProp: false,
+        hasAnyConsentsProp: true,
+      });
 
       // Then
       await waitFor(async () => {
@@ -450,7 +470,12 @@ describe('/Followup.svelte', () => {
       vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
 
       // When
-      render(FollowupComponent, { archived: true });
+      render(FollowupComponent, {
+        archived: true,
+        followupProp: followup,
+        isFollowupEmptyProp: false,
+        hasAnyConsentsProp: true,
+      });
 
       // Then
       await waitFor(async () => {
