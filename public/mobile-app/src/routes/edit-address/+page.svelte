@@ -4,6 +4,7 @@
   import { Address } from '$lib/address';
   import { type AddressFromBAN, callBAN } from '$lib/addressesFromBAN';
   import { buildAgenda } from '$lib/agenda';
+  import { AMIBack } from '$lib/ami-navigation';
   import Banner from '$lib/components/Banner.svelte';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import PageWrapper from '$lib/components/PageWrapper.svelte';
@@ -53,10 +54,6 @@
       address_last_update = identity.dataDetails.address.lastUpdate;
     }
   });
-
-  const navigateToPreviousPage = async () => {
-    goto(backUrl);
-  };
 
   const addressInputHandler = (event: Event) => {
     if (!event.target) {
@@ -110,8 +107,8 @@
     disabledButton = false;
   };
 
-  const cancelAddress = async () => {
-    await navigateToPreviousPage();
+  const cancelAddress = () => {
+    AMIBack(backUrl);
   };
 
   const submitAddress = async () => {
@@ -124,7 +121,7 @@
       toastStore.addToast('Information bien enregistrée !', 'success', 3000, false);
     }
     console.log(submittedAddress);
-    await navigateToPreviousPage();
+    AMIBack(backUrl);
   };
 
   const removeAddress = async () => {
