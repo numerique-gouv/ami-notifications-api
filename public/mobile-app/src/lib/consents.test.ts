@@ -1,7 +1,13 @@
 import { describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import * as apiConsentsMethods from '$lib/api-consents';
-import { buildConsents, Consents, ConsentsItem, updateConsent } from '$lib/consents';
+import {
+  buildConsents,
+  Consents,
+  ConsentsItem,
+  updateAllConsents,
+  updateConsent,
+} from '$lib/consents';
 
 describe('/consents.ts', () => {
   describe('Consents', () => {
@@ -133,6 +139,18 @@ describe('/consents.ts', () => {
 
       // Then
       expect(spy).toHaveBeenCalledWith('dinum-ami', true);
+    });
+  });
+  describe('updateAllConsents', () => {
+    test('should call update all consents from api', async () => {
+      // Given
+      const spy = vi.spyOn(apiConsentsMethods, 'updateAllApiConsents');
+
+      // When
+      await updateAllConsents(true);
+
+      // Then
+      expect(spy).toHaveBeenCalledWith(true);
     });
   });
 });

@@ -1,5 +1,9 @@
 import type { APIConsents, APIConsentsItem } from '$lib/api-consents';
-import { retrieveConsents, updateApiConsent } from '$lib/api-consents';
+import {
+  retrieveConsents,
+  updateAllApiConsents,
+  updateApiConsent,
+} from '$lib/api-consents';
 
 export class ConsentsItem {
   constructor(
@@ -66,4 +70,8 @@ export const buildConsents = async (): Promise<Consents> => {
 
 export const updateConsent = async (partnerId: string, checked: boolean) => {
   await updateApiConsent(partnerId, checked);
+};
+
+export const updateAllConsents = async (checked: boolean) => {
+  await updateAllApiConsents(checked);
 };
