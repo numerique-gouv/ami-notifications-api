@@ -6,7 +6,7 @@
     PUBLIC_SP_ORIENTEUR_URL,
     PUBLIC_SP_SEARCH_URL,
   } from '$env/static/public';
-  import { AMIGoto } from '$lib/ami-goto';
+  import { AMIGoto } from '$lib/ami-navigation';
   import ServicesItemModal from '$lib/components/modal/ServicesItemModal.svelte';
   import Navigation from '$lib/components/Navigation.svelte';
   import SideMenu from '$lib/components/SideMenu.svelte';

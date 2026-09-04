@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { describe, expect, test, vi } from 'vitest';
-import * as AMIGotoMethods from '$lib/ami-goto';
+import * as AMINavigationMethods from '$lib/ami-navigation';
 import FollowupItemDetailHeader from '$lib/components/followup/FollowupItemDetailHeader.svelte';
 import { FollowupItem } from '$lib/followup';
 
@@ -143,7 +143,7 @@ describe('/FollowupItemDetailHeader.svelte', () => {
       'link1',
       []
     );
-    const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
+    const spy = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
 
     // When
     render(FollowupItemDetailHeader, { props: { item: item } });

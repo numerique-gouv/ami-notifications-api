@@ -1,6 +1,6 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import { AMIGoto } from '$lib/ami-goto';
+  import { AMIGoto } from '$lib/ami-navigation';
   import CenteredModal from '$lib/components/modal/CenteredModal.svelte';
   import { type ServicesItem as ServicesItemType } from '$lib/services';
 

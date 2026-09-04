@@ -5,7 +5,7 @@ import * as simplewebauthnMethods from '@simplewebauthn/browser';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import * as navigationMethods from '$app/navigation';
 import * as envModule from '$env/static/public';
-import * as AMIGotoMethods from '$lib/ami-goto';
+import * as AMINavigationMethods from '$lib/ami-navigation';
 import * as franceConnectHelpers from '$lib/france-connect';
 import * as initializeDataFromAPIMethods from '$lib/initializeDataFromAPI';
 import * as notificationsMethods from '$lib/notifications';
@@ -126,7 +126,7 @@ describe('/+page.svelte', () => {
     vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
     vi.spyOn(initializeDataFromAPIMethods, 'initializeData').mockResolvedValue();
     const spy = vi
-      .spyOn(AMIGotoMethods, 'AMIGoto')
+      .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
 
     // When
