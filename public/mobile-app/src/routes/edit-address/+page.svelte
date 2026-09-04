@@ -1,10 +1,9 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
   import { Address } from '$lib/address';
   import { type AddressFromBAN, callBAN } from '$lib/addressesFromBAN';
   import { buildAgenda } from '$lib/agenda';
-  import { AMIBack } from '$lib/ami-navigation';
+  import { AMIBack, AMIGoto } from '$lib/ami-navigation';
   import Banner from '$lib/components/Banner.svelte';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import PageWrapper from '$lib/components/PageWrapper.svelte';
@@ -40,7 +39,7 @@
 
   onMount(() => {
     if (!userStore.connected) {
-      goto('/#/login');
+      AMIGoto('/#/login');
       return;
     } else {
       const identity = userStore.connected.identity;

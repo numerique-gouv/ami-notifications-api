@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { render, screen, waitFor } from '@testing-library/svelte';
-import * as navigationMethods from '$app/navigation';
+import * as AMINavigationMethods from '$lib/ami-navigation';
 import { userStore } from '$lib/state/User.svelte';
 import { mockUserInfo } from '$tests/utils';
 import Page from './+page.svelte';
@@ -21,7 +21,7 @@ describe('/+page.svelte', () => {
 
   test('should navigate to login page when user is not already logged in', async () => {
     const spy = vi
-      .spyOn(navigationMethods, 'goto')
+      .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
     render(Page);
     expect(spy).toHaveBeenCalledWith('/#/login');
@@ -70,7 +70,7 @@ describe('/+page.svelte', () => {
     await userStore.login(mockUserInfo);
     vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error());
     const spy = vi
-      .spyOn(navigationMethods, 'goto')
+      .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
 
     render(Page);

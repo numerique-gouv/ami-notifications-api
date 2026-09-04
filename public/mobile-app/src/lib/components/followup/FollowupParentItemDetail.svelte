@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
+  import { AMIGoto } from '$lib/ami-navigation';
   import FollowupItemDetailHeader from '$lib/components/followup/FollowupItemDetailHeader.svelte';
   import { getDSFRIcon } from '$lib/dsfr-icon';
   import { FollowupItem } from '$lib/followup';
@@ -35,7 +35,7 @@
             <button
               type="button"
               class="fr-sidemenu__btn fr-text--sm fr-p-0"
-              onclick={(e) => goto(sub_item.getItemDetailPageUrl(item))}
+              onclick={(e) => AMIGoto(sub_item.getItemDetailPageUrl(item))}
               data-testid="followup-subitem-link-{sub_item.id}"
             >
               {sub_item.title}

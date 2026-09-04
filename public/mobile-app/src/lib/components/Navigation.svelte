@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
   import { PUBLIC_FEATURE_FLAG_SERVICES_ENABLED } from '$env/static/public';
+  import { AMIGoto } from '$lib/ami-navigation';
   import Icon from '$lib/components/Icon.svelte';
   import CenteredModal from '$lib/components/modal/CenteredModal.svelte';
   import { userStore } from '$lib/state/User.svelte';
@@ -123,7 +123,7 @@
           {:else}
             <button
               type="button"
-              onclick={()=>goto(menuItem.url)}
+              onclick={()=>AMIGoto(menuItem.url)}
               class="menu__link {menuItem.isSelected ? 'highlight fr-text--bold' : ''}"
               aria-current={menuItem.isSelected ? 'page' : null}
             >
@@ -170,7 +170,7 @@
                     <button
                       type="button"
                       class="fr-sidemenu__btn fr-text--regular"
-                      onclick={() => goto(menuPlusItem.url)}
+                      onclick={() => AMIGoto(menuPlusItem.url)}
                       data-testid="{menuPlusItem.id}-button"
                     >
                       <Icon

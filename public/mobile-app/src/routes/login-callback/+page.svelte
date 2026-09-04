@@ -2,7 +2,6 @@
   import type { RegistrationResponseJSON } from '@simplewebauthn/browser';
   import { startRegistration } from '@simplewebauthn/browser';
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
   import { page } from '$app/state';
   import { PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED } from '$env/static/public';
   import { AMIGoto } from '$lib/ami-navigation';
@@ -22,9 +21,9 @@
     if (redirect_url) {
       AMIGoto(redirect_url);
     } else if (page.url.searchParams.get('user_first_login') === 'true') {
-      goto(`/${passKeyParam}#/welcome/zones`);
+      AMIGoto(`/${passKeyParam}#/welcome/zones`);
     } else {
-      goto(`/${passKeyParam}`);
+      AMIGoto(`/${passKeyParam}`);
     }
   };
 
@@ -36,7 +35,7 @@
       initializeLocalStorage(page.url.searchParams);
       await userStore.buildUser();
       if (!userStore.connected) {
-        goto('/#/login');
+        AMIGoto('/#/login');
         return;
       }
       hasWorkingPassKey = userStore.getHasWorkingPasskey();
@@ -46,7 +45,7 @@
       }
     } catch (error) {
       console.error(error);
-      goto('/#/login');
+      AMIGoto('/#/login');
     }
 
     if (wrapperEl) {

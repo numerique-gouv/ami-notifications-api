@@ -1,9 +1,9 @@
 <script lang="ts">
   import applicationSvg from '@gouvfr/dsfr/dist/artwork/pictograms/digital/application.svg';
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
   import { page } from '$app/state';
   import { PUBLIC_CONTACT_EMAIL, PUBLIC_CONTACT_URL } from '$env/static/public';
+  import { AMIGoto } from '$lib/ami-navigation';
   import BottomModal from '$lib/components/modal/BottomModal.svelte';
   import { toastStore } from '$lib/state/toast.svelte';
   import { userStore } from '$lib/state/User.svelte';
@@ -52,14 +52,14 @@
       });
       window.location.href = '/login-france-connect';
     } catch {
-      goto('/#/network-error');
+      AMIGoto('/#/network-error');
     }
   };
 
   function dismissError() {
     error = '';
     error_description = '';
-    goto('/#/login');
+    AMIGoto('/#/login');
   }
 
   let connectionHelpModal = $state(false);
@@ -71,7 +71,7 @@
   };
 
   if (userStore.connected) {
-    goto('/');
+    AMIGoto('/');
   }
 </script>
 
@@ -155,7 +155,7 @@
                 <button
                   type="button"
                   class="fr-sidemenu__link fr-text--regular fr-icon-edit-fill"
-                  onclick={()=> goto(contactUrl)}
+                  onclick={()=> AMIGoto(contactUrl)}
                   data-testid="connection-help-link-url"
                 >
                   Faire une demande en ligne

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
+  import { AMIGoto } from '$lib/ami-navigation';
   import { getDSFRIcon } from '$lib/dsfr-icon';
   import { FollowupItem } from '$lib/followup';
 
@@ -34,7 +34,7 @@
         <h3 class="fr-tile__title">
           <button
             type="button"
-            onclick={(e) => goto(item.getItemDetailPageUrl())}
+            onclick={(e) => AMIGoto(item.getItemDetailPageUrl())}
             data-testid="followup-item-link"
           >
             {item.title}
@@ -81,7 +81,7 @@
             <button
               type="button"
               class="fr-btn fr-mb-0"
-              onclick={(e) => goto(item.getItemDetailPageUrl())}
+              onclick={(e) => AMIGoto(item.getItemDetailPageUrl())}
               data-testid="external-item-button-{item.id}"
             >
               Reprendre ma démarche

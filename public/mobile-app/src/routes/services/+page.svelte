@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
   import {
     PUBLIC_SP_ANNUAIRE_URL,
     PUBLIC_SP_ORIENTEUR_URL,
@@ -22,7 +21,7 @@
 
   onMount(async () => {
     if (!userStore.connected) {
-      goto('/#/login');
+      AMIGoto('/#/login');
       return;
     }
 
@@ -35,7 +34,7 @@
     return await service.getServiceUrl();
   };
 
-  const gotoService = async (service: ServicesItem) => {
+  const goToService = async (service: ServicesItem) => {
     const url = await service.getServiceUrl();
     AMIGoto(url, service.with_silent_login);
   };
@@ -46,7 +45,7 @@
     if (hasNonArchivedItems) {
       selectedServicesItem = service;
     } else {
-      gotoService(service);
+      goToService(service);
     }
   };
 </script>
@@ -106,7 +105,7 @@
             type="button"
             class="fr-tag fr-mb-2w fr-mr-1w {sos.icon} {sos.icon ? 'fr-tag--icon-left': ''}"
             data-testid="service-sos-{sos.id}"
-            onclick={()=> gotoService(sos)}
+            onclick={()=> goToService(sos)}
           >
             {sos.title}
           </button>
@@ -142,7 +141,7 @@
                     class="fr-sidemenu__btn fr-pl-0 fr-pr-4w am-text--smbold  {steps.icon} {steps.icon ? 'fr-tag--icon-left': ''}"
                     type="button"
                     data-testid="service-steps-{steps.id}"
-                    onclick={()=> gotoService(steps)}
+                    onclick={()=> goToService(steps)}
                   >
                     {steps.title}
                     <span
