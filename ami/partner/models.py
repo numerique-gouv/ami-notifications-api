@@ -3,6 +3,8 @@ import uuid
 from django.conf import settings
 from django.db import models
 
+from ami.partner.schemas import PartnersItem
+
 
 class Partner(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -22,3 +24,11 @@ class Partner(models.Model):
     @property
     def secret(self):
         return settings.PARTNERS_SECRETS.get(self.slug.replace("_", "-")) or ""
+
+    def to_partners_item(self):
+        return PartnersItem(
+            slug=self.slug,
+            name=self.name,
+            link=self.link,
+            consent_is_enabled=self.consent_is_enabled,
+        )
