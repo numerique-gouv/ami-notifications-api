@@ -4,10 +4,12 @@ import * as followupMethods from '$lib/followup';
 import '@testing-library/jest-dom/vitest';
 import { Consents } from '$lib/consents';
 import { Followup } from '$lib/followup';
+import * as partnersMethods from '$lib/partners';
+import { Partners } from '$lib/partners';
 import { load } from './+page';
 
 describe('/+page.ts', () => {
-  test('load should call build consents and followup', async () => {
+  test('load should call build consents, followup and partners', async () => {
     // Given
     const followup = new Followup();
     vi.spyOn(followup, 'items', 'get').mockReturnValue([]);
@@ -16,6 +18,8 @@ describe('/+page.ts', () => {
     const consents = new Consents();
     vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
     vi.spyOn(consents, 'hasAnyConsents').mockReturnValue(true);
+    const partners = new Partners();
+    vi.spyOn(partnersMethods, 'buildPartners').mockResolvedValue(partners);
 
     // When
     // @ts-expect-error
@@ -28,5 +32,7 @@ describe('/+page.ts', () => {
     expect(result.isFollowupEmpty).toEqual(false);
     // @ts-expect-error
     expect(result.hasAnyConsents).toEqual(true);
+    // @ts-expect-error
+    expect(result.partners).toEqual(partners);
   });
 });

@@ -2,6 +2,7 @@ import type { Consents } from '$lib/consents';
 import { buildConsents } from '$lib/consents';
 import type { Followup } from '$lib/followup';
 import { buildFollowup } from '$lib/followup';
+import { buildPartners, type Partners } from '$lib/partners';
 import type { PageLoad } from './$types';
 
 export const load: PageLoad = async () => {
@@ -9,6 +10,7 @@ export const load: PageLoad = async () => {
   const isFollowupEmpty: boolean = followup.isEmpty();
   const consents: Consents = await buildConsents();
   const hasAnyConsents: boolean = consents.hasAnyConsents();
+  const partners: Partners | null = await buildPartners();
 
-  return { followup, isFollowupEmpty, hasAnyConsents };
+  return { followup, isFollowupEmpty, hasAnyConsents, partners };
 };
