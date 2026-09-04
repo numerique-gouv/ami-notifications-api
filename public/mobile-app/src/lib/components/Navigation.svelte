@@ -262,6 +262,7 @@
         padding: 0.75rem 0 0.375rem;
         height: 4.25rem;
         width: 100%;
+        outline-offset: -2px;
         .fr-icon {
           height: 1.5rem;
           width: 1.5rem;
