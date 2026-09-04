@@ -15,12 +15,14 @@ export const AMIGoto = (
 ) => {
   if (PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED === 'true' && silentLogin) {
     AMIFILogin(link);
-  } else if (link.startsWith('/') && !link.startsWith('//')) {
+  } else if (link === '/' || link.startsWith('/#/')) {
     if (opts !== undefined) {
       goto(link, opts);
     } else {
       goto(link);
     }
+  } else if (link.startsWith('/') && !link.startsWith('//')) {
+    window.location.href = link;
   } else {
     try {
       const url = new URL(link, window.location.origin);
@@ -30,7 +32,7 @@ export const AMIGoto = (
         return;
       }
       window.location.href = url.href;
-    } catch (e) {
+    } catch {
       console.warn('Invalid URL', link);
     }
   }
