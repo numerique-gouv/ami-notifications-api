@@ -7,7 +7,7 @@
 <div>
   <nav class="fr-sidemenu am-sidemenu fr-mb-3w fr-mx-0">
     <div class="fr-sidemenu__inner">
-      <ul class="fr-sidemenu__list" data-testid="steps">
+      <ul class="fr-sidemenu__list" data-testid="sidemenu">
         {#if sideMenus}
           {#each sideMenus as item}
             <li class="fr-sidemenu__item">
@@ -18,7 +18,7 @@
                   {item.iconClass && 'fr-tag--icon-left'}
                   {item.tag ? 'fr-pr-9w': 'fr-pr-4w'} "
                 type="button"
-                data-testid="service-steps-{item.id}"
+                data-testid="sidemenu-button-{item.id}"
                 onclick={()=> goto(item.url)}
               >
                 <span class="am-sidemenu-details">
