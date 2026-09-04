@@ -6,11 +6,21 @@ const AMIFILogin = (url: string) => {
   window.location.href = `/silent-login-ami-fi?redirect_url=${encodeURIComponent(url)}&from_hash=${window.location.hash.substring(1)}`;
 };
 
-export const AMIGoto = (link: string, silentLogin: boolean = false) => {
+export const AMIGoto = (
+  link: string,
+  silentLogin: boolean = false,
+  opts?: {
+    replaceState?: boolean | undefined;
+  }
+) => {
   if (PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED === 'true' && silentLogin) {
     AMIFILogin(link);
   } else if (link.startsWith('/') && !link.startsWith('//')) {
-    goto(link);
+    if (opts !== undefined) {
+      goto(link, opts);
+    } else {
+      goto(link);
+    }
   } else {
     try {
       const url = new URL(link, window.location.origin);
