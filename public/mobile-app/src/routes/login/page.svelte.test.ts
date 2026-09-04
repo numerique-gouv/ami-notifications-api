@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { render, screen, waitFor } from '@testing-library/svelte';
 import * as AMINavigationMethods from '$lib/ami-navigation';
@@ -8,18 +8,6 @@ import { mockUserInfo } from '$tests/utils';
 import Page from './+page.svelte';
 
 describe('/+page.svelte', () => {
-  let originalWindow: typeof globalThis.window;
-
-  beforeEach(() => {
-    originalWindow = globalThis.window;
-    userStore.connected = null;
-  });
-
-  afterEach(() => {
-    globalThis.window = originalWindow;
-    vi.resetAllMocks();
-  });
-
   test('should navigate to homepage when user has already logged in', async () => {
     await userStore.login(mockUserInfo);
 
@@ -73,7 +61,9 @@ describe('/+page.svelte', () => {
   test('should call authorize endpoint when click on FranceConnect login button', async () => {
     // Given
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('', { status: 200 }));
-    vi.stubGlobal('location', { href: 'fake-link' });
+    const spy = vi
+      .spyOn(AMINavigationMethods, 'AMIGoto')
+      .mockImplementation(() => Promise.resolve());
 
     render(Page);
     await waitFor(() => {
@@ -85,7 +75,7 @@ describe('/+page.svelte', () => {
       franceConnectLoginButton.click();
 
       // Then
-      expect(globalThis.window.location.href).toContain('/login-france-connect');
+      expect(spy).toHaveBeenCalledWith('/login-france-connect');
     });
   });
 

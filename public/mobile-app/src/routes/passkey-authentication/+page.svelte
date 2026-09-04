@@ -97,7 +97,7 @@
       console.log('User authenticated!');
       trackPasskey('userAuthentication', 'success');
       userStore.setHasWorkingPasskey();
-      window.location.href = verificationJSON?.redirect_uri;
+      AMIGoto(verificationJSON?.redirect_uri);
     } else {
       trackPasskey('userAuthentication', 'error');
       console.log(

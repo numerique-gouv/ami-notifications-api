@@ -5,6 +5,7 @@ import {
   PUBLIC_FC_POST_LOGOUT_REDIRECT_URI,
   PUBLIC_FC_PROXY_BASE_URL,
 } from '$env/static/public';
+import { AMIGoto } from '$lib/ami-navigation';
 import type { UserInfo } from '$lib/state/User.svelte';
 
 export function parseJwt(token: string): UserInfo {
@@ -36,5 +37,5 @@ export const franceConnectLogout = async (id_token_hint: string) => {
   url.search = params.toString();
 
   // Now logout from FC.
-  window.location.href = url.toString();
+  AMIGoto(url.toString());
 };

@@ -116,7 +116,7 @@
           <button
             type="button"
             class="fr-link fr-icon-arrow-right-line fr-link--icon-right am-link-bordered"
-            onclick={()=> window.location.href = PUBLIC_SP_ORIENTEUR_URL}
+            onclick={()=> AMIGoto(PUBLIC_SP_ORIENTEUR_URL)}
           >
             J’ai besoin d’aide sur un autre sujet
           </button>
@@ -162,7 +162,7 @@
         <button
           type="button"
           class="fr-btn fr-btn--secondary am-btn-target am-btn-w100"
-          onclick={()=> window.location.href = PUBLIC_SP_ANNUAIRE_URL}
+          onclick={()=> AMIGoto(PUBLIC_SP_ANNUAIRE_URL)}
         >
           Accéder à l’annuaire
         </button>
@@ -215,7 +215,7 @@
             <button
               type="button"
               class="fr-btn fr-btn--secondary am-btn-target am-btn-w100"
-              onclick={()=> window.location.href = PUBLIC_SP_SEARCH_URL}
+              onclick={()=> AMIGoto(PUBLIC_SP_SEARCH_URL)}
             >
               Voir toutes les démarches
             </button>
