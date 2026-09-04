@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
+  import { AMIBack } from '$lib/ami-navigation';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import Toggle from '$lib/components/Toggle.svelte';
   import { runOrNativeEvent } from '$lib/nativeEvents';
@@ -22,10 +23,6 @@
 
     isChecked = localStorage.getItem('notifications_enabled') === 'true';
   });
-
-  const navigateToPreviousPage = async () => {
-    goto(backUrl);
-  };
 
   const enableNotificationsFunc = async () => {
     registration = await enableNotificationsAndUpdateLocalStorage();
@@ -71,7 +68,7 @@
   <button
     class="fr-btn fr-btn--secondary fr-btn--lg save-preferences-button"
     type="button"
-    onclick={navigateToPreviousPage}
+    onclick={() => AMIBack(backUrl)}
     title="Retour à la page précédente"
     aria-label="Retour à la page précédente"
     data-testid="close-button"
