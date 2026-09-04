@@ -147,9 +147,20 @@ class ScheduledNotification(models.Model):
         from ami.notification.push import push
 
         notification = self.build_notification()
-        notification.save()
-        self.sent_at = notification.created_at
+        today = timezone.now()
+        notification_qs = Notification.objects.filter(
+            user=notification.user,
+            content_title=notification.content_title,
+            partner=notification.partner,
+            created_at__year=today.year,
+            created_at__month=today.month,
+            created_at__day=today.day,
+        )
+        self.sent_at = notification.created_at or today
         self.save()
+        if notification_qs.exists():
+            return
+        notification.save()
         async_to_sync(push)(notification, True)
 
     @classmethod
