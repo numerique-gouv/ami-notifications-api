@@ -72,3 +72,11 @@ class ConsentUpdateSerializer(serializers.Serializer):
                     "invalid",
                 )
         return None
+
+
+class RegistrationPutActionSerializer(serializers.Serializer):
+    action = serializers.ChoiceField(choices=["removeFromDeviceId"])
+
+
+class RegistrationRemoveFromDeviceIdSerializer(serializers.Serializer):
+    device_id = serializers.CharField()
