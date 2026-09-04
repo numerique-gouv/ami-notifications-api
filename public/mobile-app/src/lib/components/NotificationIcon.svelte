@@ -10,14 +10,13 @@
   let checkedIcon = $derived(getDSFRIcon(icon, defaultIcon));
 </script>
 
-<span class="notification__icon {checkedIcon}" aria-hidden="true"></span>
+<span
+  class="notification__icon fr-text-label--blue-france am-icon-20 {checkedIcon}"
+  aria-hidden="true"
+></span>
 
 <style>
   .notification__icon {
     line-height: 2rem;
-    color: var(--blue-france-sun-113-625);
-    &::before {
-      --icon-size: 1.25rem;
-    }
   }
 </style>
