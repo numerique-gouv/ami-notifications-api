@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     "sass_processor",
     "django_tasks_db",
     "ami.authentication",
+    "ami.checklist",
     "ami.fi",
     "ami.user",
     "ami.notification",
