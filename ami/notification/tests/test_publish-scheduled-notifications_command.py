@@ -29,7 +29,7 @@ async def test_command_publish_scheduled_notifications(
 
     # create some scheduled notifications
     scheduled_notification1 = await ScheduledNotification.objects.acreate(
-        user_id=user.id,
+        user=user,
         content_title="title 1",
         content_body="body 1",
         content_icon="icon 1",
@@ -39,7 +39,7 @@ async def test_command_publish_scheduled_notifications(
         sent_at=now(),  # already sent
     )
     scheduled_notification2 = await ScheduledNotification.objects.acreate(
-        user_id=user.id,
+        user=user,
         content_title="title 2",
         content_body="body 2",
         content_icon="icon 2",
@@ -48,7 +48,7 @@ async def test_command_publish_scheduled_notifications(
         scheduled_at=now() + datetime.timedelta(minutes=2),  # too soon
     )
     scheduled_notification3 = await ScheduledNotification.objects.acreate(
-        user_id=user.id,
+        user=user,
         content_title="title 3",
         content_body="body 3",
         content_icon="icon 3",
@@ -71,7 +71,7 @@ async def test_command_publish_scheduled_notifications(
 
     notification = await Notification.objects.afirst()
     assert notification is not None
-    assert notification.user_id == user.id  # type: ignore[attr-defined]
+    assert notification.user_id == user.id
     assert notification.content_title == "title 3"
     assert notification.content_body == "body 3"
     assert notification.content_subheading is None
@@ -115,7 +115,7 @@ def test_command_publish_scheduled_notification_when_registration_gone(
     httpx_mock.add_response(url=webpush_registration.subscription["endpoint"], status_code=410)
 
     ScheduledNotification.objects.create(
-        user_id=user.id,
+        user=user,
         content_title="title",
         content_body="body",
         content_icon="icon",
@@ -125,8 +125,7 @@ def test_command_publish_scheduled_notification_when_registration_gone(
 
     call_command("publish-scheduled-notifications")
 
-    notification_count = Notification.objects.count()
-    assert notification_count == 1
+    assert Notification.objects.count() == 1
     assert httpx_mock.get_request()
 
 
@@ -137,7 +136,7 @@ def test_command_publish_scheduled_notification_no_registration(
     httpx_mock: HTTPXMock,
 ) -> None:
     ScheduledNotification.objects.create(
-        user_id=user.id,
+        user=user,
         content_title="title",
         content_body="body",
         content_icon="icon",
@@ -147,8 +146,7 @@ def test_command_publish_scheduled_notification_no_registration(
 
     call_command("publish-scheduled-notifications")
 
-    notification_count = Notification.objects.count()
-    assert notification_count == 1
+    assert Notification.objects.count() == 1
     assert not httpx_mock.get_request()
 
 
@@ -159,7 +157,7 @@ def test_command_publish_scheduled_notification_never_seen_user(
     httpx_mock: HTTPXMock,
 ) -> None:
     ScheduledNotification.objects.create(
-        user_id=never_seen_user.id,
+        user=never_seen_user,
         content_title="title",
         content_body="body",
         content_icon="icon",
@@ -169,9 +167,83 @@ def test_command_publish_scheduled_notification_never_seen_user(
 
     call_command("publish-scheduled-notifications")
 
-    all_notifications = Notification.objects.all()
-    assert len(all_notifications) == 1
-    notification = all_notifications[0]
+    assert Notification.objects.count() == 1
+    notification = Notification.objects.get()
     assert notification.try_push is None
     assert notification.send_status is False
+    assert not httpx_mock.get_request()
+
+
+@pytest.mark.django_db
+def test_command_publish_scheduled_notification_duplicated_notification(
+    user: User,
+    partner: Partner,
+    partner_psl: Partner,
+    httpx_mock: HTTPXMock,
+) -> None:
+    # same title, same user, same partner, but for another day
+    Notification.objects.create(
+        user=user,
+        content_title="title",
+        partner=partner,
+    )
+    Notification.objects.all().update(created_at=now() - datetime.timedelta(days=1))
+    # other title, same user, same partner
+    Notification.objects.create(
+        user=user,
+        content_title="other title",
+        partner=partner,
+    )
+    # same title, other user, same partner
+    other_user = User.objects.create(fc_hash="fc-hash")
+    Notification.objects.create(
+        user=other_user,
+        content_title="title",
+        partner=partner,
+    )
+    # same title, same user, other partner
+    Notification.objects.create(
+        user=user,
+        content_title="title",
+        partner=partner_psl,
+    )
+    ScheduledNotification.objects.create(
+        user=user,
+        content_title="title",
+        content_body="body",
+        content_icon="icon",
+        reference="reference1",
+        scheduled_at=now(),
+    )
+    ScheduledNotification.objects.create(
+        user=user,
+        content_title="title",
+        content_body="body",
+        content_icon="icon",
+        reference="reference2",
+        scheduled_at=now(),
+    )
+    old_notification_count = Notification.objects.count()
+
+    call_command("publish-scheduled-notifications")
+
+    # notification created
+    assert Notification.objects.count() == old_notification_count + 1
+    assert ScheduledNotification.objects.filter(sent_at__isnull=True).exists() is False
+    assert not httpx_mock.get_request()
+
+    ScheduledNotification.objects.create(
+        user=user,
+        content_title="title",
+        content_body="body",
+        content_icon="icon",
+        reference="reference3",
+        scheduled_at=now(),
+    )
+
+    call_command("publish-scheduled-notifications")
+
+    # notification not created, a notification for this day, title, user, partner, already exists
+    assert Notification.objects.count() == old_notification_count + 1
+    assert ScheduledNotification.objects.filter(sent_at__isnull=True).exists() is False
     assert not httpx_mock.get_request()
