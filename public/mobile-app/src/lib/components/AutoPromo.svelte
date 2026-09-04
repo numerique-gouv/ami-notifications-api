@@ -20,7 +20,8 @@
         type: 'loop',
         perPage: 1,
         arrows: true,
-        drag: 'free',
+        drag: true,
+        flickMaxPages: 1,
         snap: true,
         gap: '1rem',
         i18n: {
