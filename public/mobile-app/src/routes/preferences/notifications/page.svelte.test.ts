@@ -13,9 +13,7 @@ describe('/+page.svelte', () => {
       const registration = { id: 'fake-registration-id' };
       return {
         ...original,
-        enableNotificationsAndUpdateLocalStorage: vi.fn(() =>
-          Promise.resolve(registration)
-        ),
+        enableNotifications: vi.fn(() => Promise.resolve(registration)),
         disableNotifications: vi.fn(() => Promise.resolve()),
       };
     });
@@ -37,10 +35,7 @@ describe('/+page.svelte', () => {
 
   test('should enable notifications when user toggles on', async () => {
     // Given
-    const spy = vi.spyOn(
-      notificationsMethods,
-      'enableNotificationsAndUpdateLocalStorage'
-    );
+    const spy = vi.spyOn(notificationsMethods, 'enableNotifications');
     render(Page);
 
     // When
@@ -55,7 +50,7 @@ describe('/+page.svelte', () => {
 
   test('should disable notifications when user toggles off', async () => {
     // Given
-    const spy = vi.spyOn(notificationsMethods, 'disableNotifications');
+    const spy = vi.spyOn(notificationsMethods, 'disableNotificationsForDesktop');
     window.localStorage.setItem('registration_id', 'fake-registration-id');
     window.localStorage.setItem('notifications_enabled', 'true');
     render(Page);
