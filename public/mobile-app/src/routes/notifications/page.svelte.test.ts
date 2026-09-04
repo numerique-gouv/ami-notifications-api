@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import type { WS as WSType } from 'vitest-websocket-mock';
 import WS from 'vitest-websocket-mock';
 import * as navigationMethods from '$app/navigation';
-import * as AMIGotoMethods from '$lib/ami-goto';
+import * as AMINavigationMethods from '$lib/ami-navigation';
 import * as notificationsMethods from '$lib/notifications';
 import { type AppNotification, PUBLIC_APP_WS_URL } from '$lib/notifications';
 import { userStore } from '$lib/state/User.svelte';
@@ -230,7 +230,7 @@ describe('/+page.svelte', () => {
         },
       ]
     );
-    const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
+    const spy = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
 
     render(Page);
     const notificationLink = await waitFor(() =>
@@ -260,7 +260,7 @@ describe('/+page.svelte', () => {
         },
       ]
     );
-    const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
+    const spy = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
 
     render(Page);
     const notificationLink = await waitFor(() =>
