@@ -11,16 +11,24 @@
 
   interface Props {
     archived?: boolean;
+    followupProp: Followup;
+    isFollowupEmptyProp: boolean;
+    hasAnyConsentsProp: boolean;
   }
-  let { archived = false }: Props = $props();
+  let {
+    archived = false,
+    followupProp,
+    isFollowupEmptyProp,
+    hasAnyConsentsProp,
+  }: Props = $props();
 
   const backUrl = '/#/followup';
-  let isFollowupEmpty: boolean = $state(true);
-  let followup: Followup | null = $state(null);
+  let isFollowupEmpty: boolean = $state(isFollowupEmptyProp);
+  let followup: Followup | null = $state(followupProp);
   let selectedFollowupItem: FollowupItemType | null = $state(null);
   let menuOpened: boolean = $state(false);
-  let hasAnyConsents: boolean = $state(false);
-  let isExpanded: boolean = $state(true);
+  let hasAnyConsents: boolean = $state(hasAnyConsentsProp);
+  let isExpanded: boolean = $state(isFollowupEmptyProp);
 
   onMount(async () => {
     followup = await buildFollowup();
@@ -30,8 +38,10 @@
   });
 
   const expandAccordion = (): boolean => {
-    if (followup) {
-      return !archived && followup.items?.length === 0;
+    if (followup && !archived) {
+      return followup.items?.length === 0;
+    } else if (followup && archived) {
+      return followup.archived_items?.length === 0;
     }
     return false;
   };

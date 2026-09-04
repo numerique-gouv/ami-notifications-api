@@ -20,17 +20,24 @@
   import { userStore } from '$lib/state/User.svelte';
   import { formatDate } from '$lib/utils';
 
+  interface Props {
+    followupProp: Followup;
+    isFollowupEmptyProp: boolean;
+    hasAnyConsentsProp: boolean;
+  }
+  let { followupProp, isFollowupEmptyProp, hasAnyConsentsProp }: Props = $props();
+
   let unreadNotificationsCount: number = $state(0);
   let firstName: string = $state('');
   let today: Date | null = $state(null);
   let isAgendaEmpty: boolean = $state(true);
   let agenda: Agenda | null = $state(null);
-  let isFollowupEmpty: boolean = $state(true);
-  let followup: Followup | null = $state(null);
+  let isFollowupEmpty: boolean = $state(isFollowupEmptyProp);
+  let followup: Followup | null = $state(followupProp);
   let selectedAgendaItem: AgendaItemType | null = $state(null);
   let selectedFollowupItem: FollowupItemType | null = $state(null);
   let autoPromo: AutoPromo | null = $state(null);
-  let hasAnyConsents: boolean = $state(false);
+  let hasAnyConsents: boolean = $state(hasAnyConsentsProp);
 
   onMount(async () => {
     console.log('User is connected:', userStore.connected);
