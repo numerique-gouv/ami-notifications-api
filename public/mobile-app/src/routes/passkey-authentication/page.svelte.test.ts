@@ -3,7 +3,7 @@ import '@testing-library/jest-dom/vitest';
 import type { AuthenticationResponseJSON } from '@simplewebauthn/browser';
 import * as simplewebauthnMethods from '@simplewebauthn/browser';
 import { render, screen, waitFor } from '@testing-library/svelte';
-import * as navigationMethods from '$app/navigation';
+import * as AMINavigationMethods from '$lib/ami-navigation';
 import { userStore } from '$lib/state/User.svelte';
 import Page from './+page.svelte';
 
@@ -31,7 +31,7 @@ describe('/+page.svelte', () => {
       new Response('{}', { status: 400 })
     );
     const spy = vi
-      .spyOn(navigationMethods, 'goto')
+      .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
     const unsetHasWorkingPasskeySpy = vi
       .spyOn(userStore, 'unsetHasWorkingPasskey')
@@ -65,7 +65,7 @@ describe('/+page.svelte', () => {
     // Given
     vi.spyOn(globalThis, 'fetch').mockRejectedValue(new TypeError());
     const spy = vi
-      .spyOn(navigationMethods, 'goto')
+      .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
     const unsetHasWorkingPasskeySpy = vi
       .spyOn(userStore, 'unsetHasWorkingPasskey')
@@ -99,7 +99,7 @@ describe('/+page.svelte', () => {
     // Given
     vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error());
     const spy = vi
-      .spyOn(navigationMethods, 'goto')
+      .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
     const unsetHasWorkingPasskeySpy = vi
       .spyOn(userStore, 'unsetHasWorkingPasskey')
@@ -136,7 +136,7 @@ describe('/+page.svelte', () => {
     );
     vi.mocked(simplewebauthnMethods.startAuthentication).mockRejectedValue(new Error());
     const spy = vi
-      .spyOn(navigationMethods, 'goto')
+      .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
     const unsetHasWorkingPasskeySpy = vi
       .spyOn(userStore, 'unsetHasWorkingPasskey')
@@ -179,7 +179,7 @@ describe('/+page.svelte', () => {
       {} as AuthenticationResponseJSON
     );
     const spy = vi
-      .spyOn(navigationMethods, 'goto')
+      .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
     const unsetHasWorkingPasskeySpy = vi
       .spyOn(userStore, 'unsetHasWorkingPasskey')
@@ -220,7 +220,7 @@ describe('/+page.svelte', () => {
       {} as AuthenticationResponseJSON
     );
     const spy = vi
-      .spyOn(navigationMethods, 'goto')
+      .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
     const unsetHasWorkingPasskeySpy = vi
       .spyOn(userStore, 'unsetHasWorkingPasskey')
@@ -265,7 +265,7 @@ describe('/+page.svelte', () => {
       {} as AuthenticationResponseJSON
     );
     const spy = vi
-      .spyOn(navigationMethods, 'goto')
+      .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
     const unsetHasWorkingPasskeySpy = vi
       .spyOn(userStore, 'unsetHasWorkingPasskey')
@@ -306,7 +306,7 @@ describe('/+page.svelte', () => {
       {} as AuthenticationResponseJSON
     );
     const spy = vi
-      .spyOn(navigationMethods, 'goto')
+      .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
     const unsetHasWorkingPasskeySpy = vi
       .spyOn(userStore, 'unsetHasWorkingPasskey')
@@ -347,7 +347,7 @@ describe('/+page.svelte', () => {
       {} as AuthenticationResponseJSON
     );
     const spy = vi
-      .spyOn(navigationMethods, 'goto')
+      .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
     const unsetHasWorkingPasskeySpy = vi
       .spyOn(userStore, 'unsetHasWorkingPasskey')
@@ -390,7 +390,7 @@ describe('/+page.svelte', () => {
       {} as AuthenticationResponseJSON
     );
     const spy = vi
-      .spyOn(navigationMethods, 'goto')
+      .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
     const unsetHasWorkingPasskeySpy = vi
       .spyOn(userStore, 'unsetHasWorkingPasskey')

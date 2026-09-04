@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
+  import { AMIGoto } from '$lib/ami-navigation';
   import Modal from '$lib/components/modal/Modal.svelte';
   import ZonePreferences from '$lib/components/modal/ZonePreferences.svelte';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
@@ -21,7 +21,7 @@
 
   onMount(async () => {
     if (!userStore.connected) {
-      goto('/#/login');
+      AMIGoto('/#/login');
     }
   });
 
@@ -42,7 +42,7 @@
               <button
                 type="button"
                 class="fr-sidemenu__link"
-                onclick={()=>goto("/#/preferences/consents")}
+                onclick={()=>AMIGoto("/#/preferences/consents")}
               >
                 <span class="label">Suivi des démarches</span>
                 <span aria-hidden="true" class="icon fr-icon-arrow-right-s-line"></span>
@@ -52,7 +52,7 @@
               <button
                 type="button"
                 class="fr-sidemenu__link"
-                onclick={()=>goto("/#/preferences/notifications")}
+                onclick={()=>AMIGoto("/#/preferences/notifications")}
               >
                 <span class="label">Notifications</span>
                 <span aria-hidden="true" class="icon fr-icon-arrow-right-s-line"></span>

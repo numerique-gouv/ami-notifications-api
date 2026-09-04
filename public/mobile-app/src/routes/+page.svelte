@@ -1,18 +1,18 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
   import { page } from '$app/state';
+  import { AMIGoto } from '$lib/ami-navigation';
   import ConnectedHomepage from '$lib/ConnectedHomepage.svelte';
   import Navigation from '$lib/components/Navigation.svelte';
   import { toastStore } from '$lib/state/toast.svelte';
   import { userStore } from '$lib/state/User.svelte';
 
   if (page.url.searchParams.has('is_logged_out')) {
-    goto('/?is_logged_out#/login');
+    AMIGoto('/?is_logged_out#/login');
   }
 
   if (!userStore.connected) {
-    goto('/#/login');
+    AMIGoto('/#/login');
   }
 
   if (page.url.searchParams.has('passkey_toast')) {
@@ -27,7 +27,7 @@
     );
     const hash = page.url.searchParams.get('redirect_to_hash') || '';
     if (hash !== '') {
-      goto(`/#${hash}`);
+      AMIGoto(`/#${hash}`);
     }
   }
 </script>

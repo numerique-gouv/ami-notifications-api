@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
+  import { AMIGoto } from '$lib/ami-navigation';
   import FollowupItem from '$lib/components/followup/FollowupItem.svelte';
   import FollowupNoConsent from '$lib/components/followup/FollowupNoConsent.svelte';
   import FollowupItemModal from '$lib/components/modal/FollowupItemModal.svelte';
@@ -44,12 +44,12 @@
     menuOpened = !menuOpened;
   };
 
-  const gotoArchivedFollowup = () => {
-    goto('/#/followup/archived');
+  const goToArchivedFollowup = () => {
+    AMIGoto('/#/followup/archived');
   };
 
-  const gotoConsents = () => {
-    goto('/#/preferences/consents');
+  const goToConsents = () => {
+    AMIGoto('/#/preferences/consents');
   };
 </script>
 
@@ -82,7 +82,7 @@
             <span class="fr-icon-inbox-archive-line" aria-hidden="true"></span>
             <button
               type="button"
-              onclick={gotoArchivedFollowup}
+              onclick={goToArchivedFollowup}
               data-testid="archived-followup-button"
             >
               Démarches archivées
@@ -166,7 +166,7 @@
                 <button
                   class="fr-btn fr-btn--lg"
                   type="button"
-                  onclick={gotoConsents}
+                  onclick={goToConsents}
                   data-testid="consent-button"
                 >
                   Je veux suivre mes démarches

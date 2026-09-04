@@ -1,8 +1,8 @@
 <script lang="ts">
   import type { AuthenticationResponseJSON } from '@simplewebauthn/browser';
   import { startAuthentication } from '@simplewebauthn/browser';
-  import { goto } from '$app/navigation';
   import { page } from '$app/state';
+  import { AMIGoto } from '$lib/ami-navigation';
   import { apiFetch } from '$lib/auth';
   import BottomModal from '$lib/components/modal/BottomModal.svelte';
   import Toast from '$lib/components/Toast.svelte';
@@ -110,10 +110,10 @@
   const back = () => {
     const hash = page.url.searchParams.get('redirect_to_hash') || '';
     if (hash !== '') {
-      goto(`/#${hash}`);
+      AMIGoto(`/#${hash}`);
       return;
     }
-    goto('/');
+    AMIGoto('/');
   };
 
   const closeModal = () => {
@@ -122,7 +122,7 @@
 
   const bypassPasskey = async () => {
     userStore.unsetHasWorkingPasskey();
-    goto('/#/relogin');
+    AMIGoto('/#/relogin');
   };
 </script>
 

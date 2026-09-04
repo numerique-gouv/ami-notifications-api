@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
+  import { AMIGoto } from '$lib/ami-navigation';
   import { AutoPromoItem as Item } from '$lib/auto-promo';
 
   interface Props {
@@ -20,7 +20,7 @@
       <button
         class="fr-text--bold fr-p-0 am-blue__btn"
         type="button"
-        onclick={()=>goto(item.link)}
+        onclick={()=>AMIGoto(item.link)}
       >
         {item.title}
       </button>
