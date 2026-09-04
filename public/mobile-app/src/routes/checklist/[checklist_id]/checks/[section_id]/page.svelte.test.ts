@@ -73,7 +73,7 @@ describe('/+page.svelte', () => {
     expect(item.checked).toBe(false);
   });
 
-  test('checklist section item page link', async () => {
+  test('checklist section item page link because multiple links', async () => {
     // Given
     await userStore.login(mockUserInfo);
     const checklist = new CheckList('F3109', {
@@ -109,6 +109,34 @@ describe('/+page.svelte', () => {
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).toHaveBeenCalledWith(item.url);
+    });
+  });
+
+  test('checklist section item page link because truncated text', async () => {
+    // Given
+    await userStore.login(mockUserInfo);
+    const checklist = new CheckList('F3109', {
+      title: 'title',
+      sections: [{ id: 'a', title: 'section title' }],
+      items: [{ id: 'b', text: 'long test '.repeat(50), section: 'a' }],
+    });
+    vi.spyOn(CheckListMethods, 'buildCheckList').mockResolvedValue(checklist);
+    const params = { checklist_id: 'F3109', section_id: 'a' };
+    const spy = vi.spyOn(AMIGotoMethods, 'AMIGoto').mockResolvedValue();
+
+    // When
+    render(Page, { props: { params: params } });
+    await waitFor(() => {
+      expect(document.querySelector('.title')).toHaveTextContent('section title');
+    });
+
+    const linkButton = screen.getByTestId(`item-button-page-link-b`);
+    await fireEvent.click(linkButton);
+
+    // Then
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith('/#/checklist/F3109/checks/a/item/b/');
     });
   });
 

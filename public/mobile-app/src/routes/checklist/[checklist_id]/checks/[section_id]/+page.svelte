@@ -9,12 +9,13 @@
     CheckListSection,
   } from '$lib/checklist';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
-  import { renderMarkdown } from '$lib/markdown';
+  import { renderTruncatedMarkdown, willTruncateMarkdown } from '$lib/markdown';
   import { userStore } from '$lib/state/User.svelte';
   import type { PageProps } from './$types';
 
   let { params } = $props();
 
+  const itemTruncationAt = 250;
   let backUrl = $state('');
   let checklist: CheckList | null = $state(null);
   let section: CheckListSection | null = $state(null);
@@ -45,6 +46,7 @@
         ></legend>
         <ul class="fr-raw-list fr-px-1w">
           {#each checklist.getItemsForSection(section.id) as item}
+            {@const truncated = willTruncateMarkdown(item.text, itemTruncationAt)}
             <li>
               <div
                 class="fr-tile fr-tile--sm fr-tile--horizontal fr-enlarge-button fr-p-0 fr-mb-2w"
@@ -69,11 +71,13 @@
                               class="fr-label fr-text--regular fr-m-0 fr-pt-2w fr-pb-5v fr-pr-3w fr-pl-7w "
                               for="checkboxes-small-{item.id}-indeterminate"
                             >
-                              <span>{@html renderMarkdown(item.text)}</span>
+                              <span
+                                >{@html renderTruncatedMarkdown(item.text, itemTruncationAt)}</span
+                              >
                             </label>
                           </div>
-                          {#if item.hasLinks()}
-                            {#if item.links.length == 1}
+                          {#if item.hasLinks() || truncated}
+                            {#if (!truncated && (item.hasLinks() && item.links.length == 1))}
                               <button
                                 type="button"
                                 class="am-after-icon-arrow"
