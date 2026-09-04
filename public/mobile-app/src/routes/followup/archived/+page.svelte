@@ -19,4 +19,5 @@
   followupProp="{data.followup}"
   isFollowupEmptyProp="{data.isFollowupEmpty}"
   hasAnyConsentsProp="{data.hasAnyConsents}"
+  partnersProp="{data.partners}"
 />

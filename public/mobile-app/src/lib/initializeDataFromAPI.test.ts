@@ -4,6 +4,7 @@ import { waitFor } from '@testing-library/svelte';
 import type { APIAgenda } from '$lib/api-agenda';
 import * as apiAgendaMethods from '$lib/api-agenda';
 import * as apiConsentsMethods from '$lib/api-consents';
+import * as apiPartnersMethods from '$lib/api-partners';
 import { initializeData, initializeLocalStorage } from '$lib/initializeDataFromAPI';
 import type { AppNotification } from '$lib/notifications';
 import * as notificationsMethods from '$lib/notifications';
@@ -112,6 +113,9 @@ describe('/initializeDataFromAPI.ts', () => {
       const retrieveNotificationsSpy = vi
         .spyOn(notificationsMethods, 'retrieveNotifications')
         .mockResolvedValue(notifications);
+      const retrievePartnersSpy = vi
+        .spyOn(apiPartnersMethods, 'retrievePartners')
+        .mockResolvedValue([]);
 
       // When
       await initializeData();
@@ -120,6 +124,7 @@ describe('/initializeDataFromAPI.ts', () => {
       expect(retrieveAgendaSpy).toHaveBeenCalledTimes(1);
       expect(retrieveConsentsSpy).toHaveBeenCalledTimes(1);
       expect(retrieveNotificationsSpy).toHaveBeenCalledTimes(1);
+      expect(retrievePartnersSpy).toHaveBeenCalledTimes(1);
     });
   });
 });
