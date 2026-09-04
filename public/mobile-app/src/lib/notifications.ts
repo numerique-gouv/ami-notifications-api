@@ -1,7 +1,12 @@
 import { PUBLIC_APP_URL } from '$env/static/public';
 import { apiFetch } from '$lib/auth';
+import { getDeviceId } from '$lib/nativeInfos';
 import type { Registration } from '$lib/registration';
-import { registerDevice, unregisterDevice } from '$lib/registration';
+import {
+  registerDevice,
+  unregisterDesktopRegistration,
+  unregisterDevice,
+} from '$lib/registration';
 import * as self from './notifications';
 
 export const PUBLIC_APP_WS_URL = PUBLIC_APP_URL.replace('https://', 'wss://').replace(
@@ -159,7 +164,31 @@ export const unsubscribePush = async (pushSubscription: PushSubscription) => {
   }
 };
 
-export const disableNotifications = async (registrationId: string) => {
+export const disableNotificationsAtLogout = async () => {
+  const deviceId = getDeviceId();
+  if (deviceId !== '') {
+    console.log(
+      'Disabling notifications on mobile app and unregistering device. deviceId when logging out:',
+      deviceId
+    );
+    await disableNotificationsForNative(deviceId);
+  } else {
+    const registrationId = localStorage.getItem('registration_id');
+    if (registrationId) {
+      console.log(
+        'Disabling notifications on desktop and unregistering device. registration_id when logging out:',
+        registrationId
+      );
+      await disableNotificationsForDesktop(registrationId);
+    }
+  }
+};
+
+const disableNotificationsForNative = async (deviceId: string) => {
+  await unregisterDevice(deviceId);
+};
+
+export const disableNotificationsForDesktop = async (registrationId: string) => {
   if (typeof Notification === 'undefined') {
     console.error('Notification API is not available in this browser');
     return false;
@@ -174,11 +203,9 @@ export const disableNotifications = async (registrationId: string) => {
   } else {
     const pushSubscription = await registration.pushManager.getSubscription();
     if (pushSubscription) {
-      console.log('unregisterDevice');
-      await unregisterDevice(registrationId);
+      await unregisterDesktopRegistration(registrationId);
       await unsubscribePush(pushSubscription);
     }
-    return pushSubscription;
   }
 };
 
