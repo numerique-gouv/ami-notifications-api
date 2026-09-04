@@ -8,10 +8,11 @@
     buildConsents,
     Consents,
     type ConsentsItem,
+    updateAllConsents,
     updateConsent,
   } from '$lib/consents';
   import { buildPartners, type Partners } from '$lib/partners';
-  import { userStore } from '$lib/state/User.svelte.js';
+  import { userStore } from '$lib/state/User.svelte';
   import type { PageProps } from './$types';
 
   let { data }: PageProps = $props();
@@ -29,6 +30,11 @@
       partners = await buildPartners();
     }
   });
+
+  const selectAll = async () => {
+    await updateAllConsents(true);
+    await buildConsents();
+  };
 
   const hasConsentedFor = (id: string): boolean => {
     if (consentItems) {
@@ -51,6 +57,16 @@
 <NavWithBackButton title="Suivi des démarches" {backUrl} />
 
 <div class="fr-container consents-content-container fr-pt-14w">
+  <button
+    id="select-all-button"
+    class="fr-btn fr-btn--secondary fr-mb-2v"
+    type="button"
+    onclick={selectAll}
+    data-testid="select-all-button"
+  >
+    Tout suivre
+  </button>
+
   {#if partners && partners.items.length}
     {#each partners.items as item}
       <Toggle

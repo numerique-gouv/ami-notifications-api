@@ -47,3 +47,22 @@ export const updateApiConsent = async (partnerId: string, checked: boolean) => {
   }
   return false;
 };
+
+export const updateAllApiConsents = async (checked: boolean) => {
+  const payload = {
+    consent: checked,
+  };
+  try {
+    const response = await apiFetch(`/api/v1/users/consents/all`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (response.status === 200) {
+      return true;
+    }
+  } catch (error) {
+    console.error(error);
+  }
+  return false;
+};
