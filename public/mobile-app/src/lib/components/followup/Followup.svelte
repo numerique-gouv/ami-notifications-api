@@ -138,7 +138,7 @@
                   <button
                     type="button"
                     class="fr-btn fr-btn--secondary am-btn-target am-btn-w100"
-                    onclick={()=> window.location.href = "https://www.service-public.gouv.fr/"}
+                    onclick={()=> AMIGoto("https://www.service-public.gouv.fr/")}
                   >
                     Service Public
                   </button>
@@ -147,7 +147,7 @@
                   <button
                     type="button"
                     class="fr-btn fr-btn--secondary am-btn-target am-btn-w100"
-                    onclick={()=> window.location.href = "https://www.cnmss.fr/"}
+                    onclick={()=> AMIGoto("https://www.cnmss.fr/")}
                   >
                     CNMSS
                   </button>
@@ -156,7 +156,7 @@
                   <button
                     type="button"
                     class="fr-btn fr-btn--secondary am-btn-target am-btn-w100"
-                    onclick={()=> window.location.href = "https://demarche.numerique.gouv.fr/"}
+                    onclick={()=> AMIGoto("https://demarche.numerique.gouv.fr/")}
                   >
                     Démarche numérique
                   </button>
@@ -165,7 +165,7 @@
                   <button
                     type="button"
                     class="fr-btn fr-btn--secondary am-btn-target am-btn-w100"
-                    onclick={()=> window.location.href = "https://www.dossierfacile.logement.gouv.fr/"}
+                    onclick={()=> AMIGoto("https://www.dossierfacile.logement.gouv.fr/")}
                   >
                     Dossier facile
                   </button>

@@ -22,7 +22,7 @@
         mode: 'no-cors',
         cache: 'no-store',
       });
-      window.location.href = '/relogin-france-connect';
+      AMIGoto('/relogin-france-connect');
     } catch {
       AMIGoto('/#/network-error');
     }
@@ -81,7 +81,7 @@
           </button>
           <p>
             <button
-              onclick={()=> window.open("https://franceconnect.gouv.fr/", "_blank")}
+              onclick={() => window.open("https://franceconnect.gouv.fr/", "_blank")}
               aria-label="Qu’est-ce que FranceConnect ? - nouvelle fenêtre"
               class="fr-link fr-text--sm am-link-bordered"
             >
@@ -121,7 +121,7 @@
                   <button
                     type="button"
                     class="fr-sidemenu__link fr-text--regular fr-icon-mail-fill"
-                    onclick={()=> window.location.href="mailto:"+contactEmail}
+                    onclick={() => window.location.href = "mailto:" + contactEmail}
                     data-testid="connection-help-link-email"
                   >
                     Envoyer un mail

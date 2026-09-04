@@ -66,7 +66,7 @@
       <li>
         <button
           type="button"
-          onclick={()=>window.location.href = contactUrl}
+          onclick={() => AMIGoto(contactUrl)}
           aria-label="Contacter notre équipe par tchap"
           class="fr-btn"
         >
@@ -76,7 +76,7 @@
       <li>
         <button
           type="button"
-          onclick={()=> window.location.href = `mailto:${contactEmail}?body=Mon code d’identification : ${userFcHash}`}
+          onclick={() => window.location.href = `mailto:${contactEmail}?body=Mon code d’identification : ${userFcHash}`}
           aria-label="Contacter notre équipe par e-mail"
           class="fr-btn"
         >
