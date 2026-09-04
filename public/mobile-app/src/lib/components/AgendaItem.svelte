@@ -1,8 +1,8 @@
 <script lang="ts">
   import DOMPurify from 'dompurify';
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
   import { Item } from '$lib/agenda';
+  import { AMIGoto } from '$lib/ami-navigation';
 
   interface Props {
     item: Item;
@@ -47,7 +47,7 @@
           <h4 class="fr-tile__title">
             <button
               type="button"
-              onclick={(e) => {if (item.link) { goto(item.link) } else {e.preventDefault();} }}
+              onclick={(e) => {if (item.link) { AMIGoto(item.link) } else {e.preventDefault();} }}
               data-testid="agenda-item-link"
               class="{item.link ? '': 'no-link'}"
             >

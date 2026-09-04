@@ -1,9 +1,9 @@
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import type { AuthenticationResponseJSON } from '@simplewebauthn/browser';
 import * as simplewebauthnMethods from '@simplewebauthn/browser';
 import { render, screen, waitFor } from '@testing-library/svelte';
-import * as navigationMethods from '$app/navigation';
+import * as AMINavigationMethods from '$lib/ami-navigation';
 import { userStore } from '$lib/state/User.svelte';
 import Page from './+page.svelte';
 
@@ -12,17 +12,10 @@ vi.mock('@simplewebauthn/browser', () => ({
 }));
 
 describe('/+page.svelte', () => {
-  let originalWindow: typeof globalThis.window;
-
   beforeEach(() => {
-    originalWindow = globalThis.window;
     HTMLDialogElement.prototype.showModal = vi.fn();
     HTMLDialogElement.prototype.close = vi.fn();
     HTMLDialogElement.prototype.show = vi.fn();
-  });
-
-  afterEach(() => {
-    globalThis.window = originalWindow;
   });
 
   test('should display passkey error message and bypass button on options response error', async () => {
@@ -31,7 +24,7 @@ describe('/+page.svelte', () => {
       new Response('{}', { status: 400 })
     );
     const spy = vi
-      .spyOn(navigationMethods, 'goto')
+      .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
     const unsetHasWorkingPasskeySpy = vi
       .spyOn(userStore, 'unsetHasWorkingPasskey')
@@ -65,7 +58,7 @@ describe('/+page.svelte', () => {
     // Given
     vi.spyOn(globalThis, 'fetch').mockRejectedValue(new TypeError());
     const spy = vi
-      .spyOn(navigationMethods, 'goto')
+      .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
     const unsetHasWorkingPasskeySpy = vi
       .spyOn(userStore, 'unsetHasWorkingPasskey')
@@ -99,7 +92,7 @@ describe('/+page.svelte', () => {
     // Given
     vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error());
     const spy = vi
-      .spyOn(navigationMethods, 'goto')
+      .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
     const unsetHasWorkingPasskeySpy = vi
       .spyOn(userStore, 'unsetHasWorkingPasskey')
@@ -136,7 +129,7 @@ describe('/+page.svelte', () => {
     );
     vi.mocked(simplewebauthnMethods.startAuthentication).mockRejectedValue(new Error());
     const spy = vi
-      .spyOn(navigationMethods, 'goto')
+      .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
     const unsetHasWorkingPasskeySpy = vi
       .spyOn(userStore, 'unsetHasWorkingPasskey')
@@ -179,7 +172,7 @@ describe('/+page.svelte', () => {
       {} as AuthenticationResponseJSON
     );
     const spy = vi
-      .spyOn(navigationMethods, 'goto')
+      .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
     const unsetHasWorkingPasskeySpy = vi
       .spyOn(userStore, 'unsetHasWorkingPasskey')
@@ -220,7 +213,7 @@ describe('/+page.svelte', () => {
       {} as AuthenticationResponseJSON
     );
     const spy = vi
-      .spyOn(navigationMethods, 'goto')
+      .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
     const unsetHasWorkingPasskeySpy = vi
       .spyOn(userStore, 'unsetHasWorkingPasskey')
@@ -265,7 +258,7 @@ describe('/+page.svelte', () => {
       {} as AuthenticationResponseJSON
     );
     const spy = vi
-      .spyOn(navigationMethods, 'goto')
+      .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
     const unsetHasWorkingPasskeySpy = vi
       .spyOn(userStore, 'unsetHasWorkingPasskey')
@@ -306,7 +299,7 @@ describe('/+page.svelte', () => {
       {} as AuthenticationResponseJSON
     );
     const spy = vi
-      .spyOn(navigationMethods, 'goto')
+      .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
     const unsetHasWorkingPasskeySpy = vi
       .spyOn(userStore, 'unsetHasWorkingPasskey')
@@ -347,7 +340,7 @@ describe('/+page.svelte', () => {
       {} as AuthenticationResponseJSON
     );
     const spy = vi
-      .spyOn(navigationMethods, 'goto')
+      .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
     const unsetHasWorkingPasskeySpy = vi
       .spyOn(userStore, 'unsetHasWorkingPasskey')
@@ -390,7 +383,7 @@ describe('/+page.svelte', () => {
       {} as AuthenticationResponseJSON
     );
     const spy = vi
-      .spyOn(navigationMethods, 'goto')
+      .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
     const unsetHasWorkingPasskeySpy = vi
       .spyOn(userStore, 'unsetHasWorkingPasskey')
@@ -435,7 +428,9 @@ describe('/+page.svelte', () => {
     vi.mocked(simplewebauthnMethods.startAuthentication).mockResolvedValue(
       {} as AuthenticationResponseJSON
     );
-    vi.stubGlobal('location', { href: 'fake-link' });
+    const spy = vi
+      .spyOn(AMINavigationMethods, 'AMIGoto')
+      .mockImplementation(() => Promise.resolve());
     render(Page);
 
     // When
@@ -455,7 +450,7 @@ describe('/+page.svelte', () => {
       );
       expect(passkeyErrorMessage).toBeNull();
 
-      expect(globalThis.window.location.href).toEqual('fake-redirect-uri');
+      expect(spy).toHaveBeenCalledWith('fake-redirect-uri');
     });
   });
 });

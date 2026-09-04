@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
   import { PUBLIC_CONTACT_EMAIL, PUBLIC_CONTACT_URL } from '$env/static/public';
+  import { AMIGoto } from '$lib/ami-navigation';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import { toastStore } from '$lib/state/toast.svelte';
   import { userStore } from '$lib/state/User.svelte';
@@ -13,7 +13,7 @@
 
   onMount(async () => {
     if (!userStore.connected) {
-      goto('/#/login');
+      AMIGoto('/#/login');
     }
     userFcHash = localStorage.getItem('user_fc_hash');
   });
@@ -66,7 +66,7 @@
       <li>
         <button
           type="button"
-          onclick={()=>window.location.href = contactUrl}
+          onclick={() => AMIGoto(contactUrl)}
           aria-label="Contacter notre équipe par tchap"
           class="fr-btn"
         >
@@ -76,7 +76,7 @@
       <li>
         <button
           type="button"
-          onclick={()=> window.location.href = `mailto:${contactEmail}?body=Mon code d’identification : ${userFcHash}`}
+          onclick={() => window.location.href = `mailto:${contactEmail}?body=Mon code d’identification : ${userFcHash}`}
           aria-label="Contacter notre équipe par e-mail"
           class="fr-btn"
         >

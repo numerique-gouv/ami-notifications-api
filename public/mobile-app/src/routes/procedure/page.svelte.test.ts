@@ -1,6 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-import * as navigationMethods from '$app/navigation';
 import * as envModule from '$env/static/public';
 import * as AMINavigationMethods from '$lib/ami-navigation';
 import * as followupMethods from '$lib/followup';
@@ -35,7 +34,7 @@ describe('/+page.svelte', () => {
   test('services feature flag is enabled', async () => {
     // Given
     vi.mocked(envModule).PUBLIC_FEATURE_FLAG_SERVICES_ENABLED = 'true';
-    const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue();
+    const spy = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
 
     // When
     render(Page);
@@ -45,6 +44,7 @@ describe('/+page.svelte', () => {
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).toHaveBeenCalledWith(
         '/#/services/service/psl/OperationTranquilliteVacances',
+        false,
         { replaceState: true }
       );
     });
@@ -53,7 +53,7 @@ describe('/+page.svelte', () => {
   test('user has to be connected', async () => {
     // Given
     userStore.connected = null;
-    const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue();
+    const spy = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
 
     // When
     render(Page);
@@ -170,8 +170,7 @@ describe('/+page.svelte', () => {
       .spyOn(procedureMethods, 'retrieveProcedureUrl')
       .mockResolvedValue(expectedProcedureUrl);
     vi.spyOn(Followup.prototype, 'hasNonArchivedItems').mockReturnValue(true);
-    const spy2 = vi.spyOn(navigationMethods, 'goto').mockResolvedValue();
-    const spy3 = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
+    const spy2 = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
 
     // When
     render(Page);
@@ -195,8 +194,8 @@ describe('/+page.svelte', () => {
 
     // Then
     await waitFor(() => {
-      expect(spy3).toHaveBeenCalledTimes(1);
-      expect(spy3).toHaveBeenCalledWith(expectedProcedureUrl, true);
+      expect(spy2).toHaveBeenCalledTimes(1);
+      expect(spy2).toHaveBeenNthCalledWith(1, expectedProcedureUrl, true);
     });
 
     // When
@@ -205,8 +204,8 @@ describe('/+page.svelte', () => {
 
     // Then
     await waitFor(() => {
-      expect(spy2).toHaveBeenCalledTimes(1);
-      expect(spy2).toHaveBeenCalledWith('/#/followup');
+      expect(spy2).toHaveBeenCalledTimes(2);
+      expect(spy2).toHaveBeenNthCalledWith(2, '/#/followup');
     });
   });
 

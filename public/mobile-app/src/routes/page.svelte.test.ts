@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { render, waitFor } from '@testing-library/svelte';
-import * as navigationMethods from '$app/navigation';
+import * as AMINavigationMethods from '$lib/ami-navigation';
 import { toastStore } from '$lib/state/toast.svelte';
 import { userStore } from '$lib/state/User.svelte';
 import { mockUserInfo } from '$tests/utils';
@@ -25,7 +25,7 @@ describe('/+page.svelte', () => {
     const mockSearchParams = new URLSearchParams('is_logged_out');
     vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
     const spy = vi
-      .spyOn(navigationMethods, 'goto')
+      .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
 
     // When
@@ -40,7 +40,7 @@ describe('/+page.svelte', () => {
   test('should get out if user is not connected', async () => {
     // Given
     const spy = vi
-      .spyOn(navigationMethods, 'goto')
+      .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
 
     // When
@@ -61,7 +61,7 @@ describe('/+page.svelte', () => {
 
     const spy = vi.spyOn(toastStore, 'addToast');
     const spy2 = vi
-      .spyOn(navigationMethods, 'goto')
+      .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
 
     // When
@@ -89,7 +89,7 @@ describe('/+page.svelte', () => {
 
     const spy = vi.spyOn(toastStore, 'addToast');
     const spy2 = vi
-      .spyOn(navigationMethods, 'goto')
+      .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
 
     // When

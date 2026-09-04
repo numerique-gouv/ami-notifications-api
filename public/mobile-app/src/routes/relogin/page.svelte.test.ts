@@ -1,27 +1,15 @@
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { render, screen, waitFor } from '@testing-library/svelte';
-import * as navigationMethods from '$app/navigation';
+import * as AMINavigationMethods from '$lib/ami-navigation';
 import { userStore } from '$lib/state/User.svelte';
 import { mockUserInfo } from '$tests/utils';
 import Page from './+page.svelte';
 
 describe('/+page.svelte', () => {
-  let originalWindow: typeof globalThis.window;
-
-  beforeEach(() => {
-    originalWindow = globalThis.window;
-    userStore.connected = null;
-  });
-
-  afterEach(() => {
-    globalThis.window = originalWindow;
-    vi.resetAllMocks();
-  });
-
   test('should navigate to login page when user is not already logged in', async () => {
     const spy = vi
-      .spyOn(navigationMethods, 'goto')
+      .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
     render(Page);
     expect(spy).toHaveBeenCalledWith('/#/login');
@@ -70,7 +58,7 @@ describe('/+page.svelte', () => {
     await userStore.login(mockUserInfo);
     vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error());
     const spy = vi
-      .spyOn(navigationMethods, 'goto')
+      .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
 
     render(Page);
@@ -91,7 +79,9 @@ describe('/+page.svelte', () => {
     // Given
     await userStore.login(mockUserInfo);
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('', { status: 200 }));
-    vi.stubGlobal('location', { href: 'fake-link' });
+    const spy = vi
+      .spyOn(AMINavigationMethods, 'AMIGoto')
+      .mockImplementation(() => Promise.resolve());
 
     render(Page);
     await waitFor(() => {
@@ -103,7 +93,7 @@ describe('/+page.svelte', () => {
       franceConnectLoginButton.click();
 
       // Then
-      expect(globalThis.window.location.href).toContain('/relogin-france-connect');
+      expect(spy).toHaveBeenCalledWith('/relogin-france-connect');
     });
   });
 

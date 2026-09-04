@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
   import { type Agenda, Item as AgendaItemType, buildAgenda } from '$lib/agenda';
+  import { AMIGoto } from '$lib/ami-navigation';
   import { AutoPromo, buildAutoPromo } from '$lib/auto-promo';
   import AgendaItem from '$lib/components/AgendaItem.svelte';
   import AutoPromoCarousel from '$lib/components/AutoPromo.svelte';
@@ -95,7 +95,7 @@
         <button
           type="button"
           class="fr-btn fr-icon-notification-3-line fr-btn--tertiary-no-outline"
-          onclick={() => goto("/#/notifications")}
+          onclick={() => AMIGoto("/#/notifications")}
         >
           Voir les notifications({unreadNotificationsCount})
           <div
@@ -137,7 +137,7 @@
           type="button"
           class="fr-link fr-icon-arrow-right-line fr-link--icon-right am-link-icon-xl"
           aria-label="Voir tous mes évènements"
-          onclick={() => goto("/#/agenda")}
+          onclick={() => AMIGoto("/#/agenda")}
         ></button>
       </div>
       <div class="rubrique-content-container">
@@ -181,7 +181,7 @@
             type="button"
             class="fr-link fr-icon-arrow-right-line fr-link--icon-right am-link-icon-xl"
             aria-label="Voir toutes mes démarches"
-            onclick={() => goto("/#/followup")}
+            onclick={() => AMIGoto("/#/followup")}
           ></button>
         </div>
         <div class="rubrique-content-container">
@@ -203,7 +203,7 @@
           type="button"
           class="fr-link fr-icon-arrow-right-line fr-link--icon-right am-link-icon-xl"
           aria-label="Voir toutes mes démarches"
-          onclick={() => goto("/#/followup")}
+          onclick={() => AMIGoto("/#/followup")}
         ></button>
       </div>
       <div class="rubrique-content-container">

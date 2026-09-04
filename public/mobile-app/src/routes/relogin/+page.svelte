@@ -1,9 +1,9 @@
 <script lang="ts">
   import applicationSvg from '@gouvfr/dsfr/dist/artwork/pictograms/digital/application.svg';
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
   import { page } from '$app/state';
   import { PUBLIC_CONTACT_EMAIL, PUBLIC_CONTACT_URL } from '$env/static/public';
+  import { AMIGoto } from '$lib/ami-navigation';
   import Banner from '$lib/components/Banner.svelte';
   import BottomModal from '$lib/components/modal/BottomModal.svelte';
   import type { UserIdentity } from '$lib/state/User.svelte';
@@ -22,9 +22,9 @@
         mode: 'no-cors',
         cache: 'no-store',
       });
-      window.location.href = '/relogin-france-connect';
+      AMIGoto('/relogin-france-connect');
     } catch {
-      goto('/#/network-error');
+      AMIGoto('/#/network-error');
     }
   };
 
@@ -37,7 +37,7 @@
   };
 
   if (!userStore.connected) {
-    goto('/#/login');
+    AMIGoto('/#/login');
   } else {
     identity = userStore.connected.identity;
   }
@@ -81,7 +81,7 @@
           </button>
           <p>
             <button
-              onclick={()=> window.open("https://franceconnect.gouv.fr/", "_blank")}
+              onclick={() => window.open("https://franceconnect.gouv.fr/", "_blank")}
               aria-label="Qu’est-ce que FranceConnect ? - nouvelle fenêtre"
               class="fr-link fr-text--sm am-link-bordered"
             >
@@ -111,7 +111,7 @@
                   <button
                     type="button"
                     class="fr-sidemenu__link fr-text--regular fr-icon-edit-fill"
-                    onclick={()=> goto(contactUrl)}
+                    onclick={()=> AMIGoto(contactUrl)}
                     data-testid="connection-help-link-url"
                   >
                     Faire une demande en ligne
@@ -121,7 +121,7 @@
                   <button
                     type="button"
                     class="fr-sidemenu__link fr-text--regular fr-icon-mail-fill"
-                    onclick={()=> window.location.href="mailto:"+contactEmail}
+                    onclick={() => window.location.href = "mailto:" + contactEmail}
                     data-testid="connection-help-link-email"
                   >
                     Envoyer un mail

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
+  import { AMIGoto } from '$lib/ami-navigation';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
 
   let backUrl: string = '/#/step';
@@ -65,7 +65,7 @@
                       <button
                         type="button"
                         class="am-after-icon-arrow"
-                        onclick={()=>goto("/")}
+                        onclick={()=>AMIGoto("/")}
                         aria-label="Avant la fin du 3e mois de grossesse : passer le 1er examen prénatal, qui permet de faire la déclaration de grossesse"
                       ></button>
                     </div>
@@ -111,7 +111,7 @@
                       <button
                         type="button"
                         class="am-after-icon-arrow"
-                        onclick={()=>goto("/")}
+                        onclick={()=>AMIGoto("/")}
                         aria-label="Mettre à jour la carte Vitale"
                       ></button>
                     </div>
@@ -158,7 +158,7 @@
                       <button
                         type="button"
                         class="am-after-icon-arrow"
-                        onclick={()=>goto("/")}
+                        onclick={()=>AMIGoto("/")}
                         aria-label="Vérifier ma couverture santé selon mon territoire d'affectation - Polynésie française → Choisir l'organisme qui remboursera mes soins (la CNMSS ou la CPS) et obtenir les formulaires nécessaires auprès de la CNMSS et de mon unité (formulaires SE 980-04 et SE 980-02)"
                       ></button>
                     </div>

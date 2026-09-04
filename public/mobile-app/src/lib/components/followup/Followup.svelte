@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
+  import { AMIGoto } from '$lib/ami-navigation';
   import FollowupItem from '$lib/components/followup/FollowupItem.svelte';
   import FollowupNoConsent from '$lib/components/followup/FollowupNoConsent.svelte';
   import FollowupItemModal from '$lib/components/modal/FollowupItemModal.svelte';
@@ -44,12 +44,12 @@
     menuOpened = !menuOpened;
   };
 
-  const gotoArchivedFollowup = () => {
-    goto('/#/followup/archived');
+  const goToArchivedFollowup = () => {
+    AMIGoto('/#/followup/archived');
   };
 
-  const gotoConsents = () => {
-    goto('/#/preferences/consents');
+  const goToConsents = () => {
+    AMIGoto('/#/preferences/consents');
   };
 </script>
 
@@ -82,7 +82,7 @@
             <span class="fr-icon-inbox-archive-line" aria-hidden="true"></span>
             <button
               type="button"
-              onclick={gotoArchivedFollowup}
+              onclick={goToArchivedFollowup}
               data-testid="archived-followup-button"
             >
               Démarches archivées
@@ -128,7 +128,7 @@
                   <button
                     type="button"
                     class="fr-btn fr-btn--secondary am-btn-target am-btn-w100"
-                    onclick={()=> window.location.href = "https://www.service-public.gouv.fr/"}
+                    onclick={()=> AMIGoto("https://www.service-public.gouv.fr/")}
                   >
                     Service Public
                   </button>
@@ -137,7 +137,7 @@
                   <button
                     type="button"
                     class="fr-btn fr-btn--secondary am-btn-target am-btn-w100"
-                    onclick={()=> window.location.href = "https://www.cnmss.fr/"}
+                    onclick={()=> AMIGoto("https://www.cnmss.fr/")}
                   >
                     CNMSS
                   </button>
@@ -146,7 +146,7 @@
                   <button
                     type="button"
                     class="fr-btn fr-btn--secondary am-btn-target am-btn-w100"
-                    onclick={()=> window.location.href = "https://demarche.numerique.gouv.fr/"}
+                    onclick={()=> AMIGoto("https://demarche.numerique.gouv.fr/")}
                   >
                     Démarche numérique
                   </button>
@@ -155,7 +155,7 @@
                   <button
                     type="button"
                     class="fr-btn fr-btn--secondary am-btn-target am-btn-w100"
-                    onclick={()=> window.location.href = "https://www.dossierfacile.logement.gouv.fr/"}
+                    onclick={()=> AMIGoto("https://www.dossierfacile.logement.gouv.fr/")}
                   >
                     Dossier facile
                   </button>
@@ -166,7 +166,7 @@
                 <button
                   class="fr-btn fr-btn--lg"
                   type="button"
-                  onclick={gotoConsents}
+                  onclick={goToConsents}
                   data-testid="consent-button"
                 >
                   Je veux suivre mes démarches
