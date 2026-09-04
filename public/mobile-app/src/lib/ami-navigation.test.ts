@@ -25,10 +25,12 @@ describe('/ami-navigation', () => {
 
         // When
         AMIGoto(url);
+        AMIGoto(url, false, { replaceState: true });
 
         // Then
-        expect(spy).toHaveBeenCalledTimes(1);
-        expect(spy).toHaveBeenCalledWith('/');
+        expect(spy).toHaveBeenCalledTimes(2);
+        expect(spy).toHaveBeenNthCalledWith(1, '/');
+        expect(spy).toHaveBeenNthCalledWith(2, '/', { replaceState: true });
       });
       test('should redirect to url - external url without protocol', async () => {
         // Given
@@ -102,10 +104,12 @@ describe('/ami-navigation', () => {
 
         // When
         AMIGoto(url, true);
+        AMIGoto(url, true, { replaceState: true });
 
         // Then
-        expect(spy).toHaveBeenCalledTimes(1);
-        expect(spy).toHaveBeenCalledWith('/');
+        expect(spy).toHaveBeenCalledTimes(2);
+        expect(spy).toHaveBeenNthCalledWith(1, '/');
+        expect(spy).toHaveBeenNthCalledWith(2, '/', { replaceState: true });
       });
       test('should redirect to url - internal url without protocol', async () => {
         // Given
