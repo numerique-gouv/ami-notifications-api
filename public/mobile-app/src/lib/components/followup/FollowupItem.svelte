@@ -124,8 +124,8 @@
               bottom: 1rem;
               right: 0.5rem;
               --icon-size: 1.25rem;
-              -webkit-mask-image: url("../../../../node_modules/@gouvfr/dsfr/dist/icons/arrows/arrow-right-s-line.svg");
-              mask-image: url("../../../../node_modules/@gouvfr/dsfr/dist/icons/arrows/arrow-right-s-line.svg");
+              -webkit-mask-image: url("@gouvfr/dsfr/dist/icons/arrows/arrow-right-s-line.svg");
+              mask-image: url("@gouvfr/dsfr/dist/icons/arrows/arrow-right-s-line.svg");
             }
           }
         }
