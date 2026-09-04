@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
-import * as navigationMethods from '$app/navigation';
 import * as envModule from '$env/static/public';
+import * as AMINavigationMethods from '$lib/ami-navigation';
 import Navigation from './Navigation.svelte';
 
 describe('/Navigation.svelte', () => {
@@ -89,7 +89,7 @@ describe('/Navigation.svelte', () => {
   test('should navigate to User profile page when user clicks on Mon profil button', async () => {
     // Given
     const spy = vi
-      .spyOn(navigationMethods, 'goto')
+      .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
     const { getByTestId } = render(Navigation);
 
@@ -107,7 +107,7 @@ describe('/Navigation.svelte', () => {
   test('should navigate to Préférences page when user clicks on Préférences button', async () => {
     // Given
     const spy = vi
-      .spyOn(navigationMethods, 'goto')
+      .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
     const { getByTestId } = render(Navigation);
 
@@ -125,7 +125,7 @@ describe('/Navigation.svelte', () => {
   test('should navigate to Contact page when user clicks on Nous contacter button', async () => {
     // Given
     const spy = vi
-      .spyOn(navigationMethods, 'goto')
+      .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
     const { getByTestId } = render(Navigation);
 
@@ -150,7 +150,9 @@ describe('/Navigation.svelte', () => {
     const fetchSpy = vi
       .spyOn(globalThis, 'fetch')
       .mockResolvedValue(new Response('', { status: 200 }));
-    vi.spyOn(navigationMethods, 'goto').mockImplementation(() => Promise.resolve());
+    vi.spyOn(AMINavigationMethods, 'AMIGoto').mockImplementation(() =>
+      Promise.resolve()
+    );
     render(Navigation);
 
     const logoutButton = screen.getByTestId('logout-button');

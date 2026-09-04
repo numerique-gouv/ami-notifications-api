@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { render, screen, waitFor } from '@testing-library/svelte';
-import * as navigationMethods from '$app/navigation';
+import * as AMINavigationMethods from '$lib/ami-navigation';
 import { toastStore } from '$lib/state/toast.svelte';
 import { userStore } from '$lib/state/User.svelte';
 import { mockUserInfo } from '$tests/utils';
@@ -24,7 +24,7 @@ describe('/+page.svelte', () => {
     await userStore.login(mockUserInfo);
 
     const spy = vi
-      .spyOn(navigationMethods, 'goto')
+      .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
 
     render(Page);
@@ -53,7 +53,7 @@ describe('/+page.svelte', () => {
     // Given
     vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error());
     const spy = vi
-      .spyOn(navigationMethods, 'goto')
+      .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
 
     render(Page);

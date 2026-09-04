@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
   import { AMIGoto } from '$lib/ami-navigation';
   import { getDSFRIcon } from '$lib/dsfr-icon';
   import { FollowupSubItem } from '$lib/followup';
@@ -11,7 +10,7 @@
 
   let checkedIcon = $derived(getDSFRIcon(item.icon, 'fr-icon-information-fill'));
 
-  const gotoExternalItem = () => {
+  const goToExternalItem = () => {
     if (item?.link) {
       AMIGoto(item.link);
     }
@@ -52,7 +51,7 @@
       id="external-item-button"
       class="fr-btn fr-btn--secondary fr-btn--lg fr-mb-6v"
       type="button"
-      onclick={gotoExternalItem}
+      onclick={goToExternalItem}
       data-testid="external-item-button"
     >
       Accéder à ma démarche

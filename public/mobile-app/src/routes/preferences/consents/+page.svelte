@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
+  import { AMIGoto } from '$lib/ami-navigation';
   import FollowupInformation from '$lib/components/followup/FollowupInformation.svelte';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import Toggle from '$lib/components/Toggle.svelte';
@@ -17,7 +17,7 @@
 
   onMount(async () => {
     if (!userStore.connected) {
-      goto('/#/login');
+      AMIGoto('/#/login');
     } else {
       const consents: Consents = await buildConsents();
       consentItems = consents.items;

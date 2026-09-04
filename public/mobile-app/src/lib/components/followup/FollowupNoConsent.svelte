@@ -1,9 +1,9 @@
 <script>
-  import { goto } from '$app/navigation';
+  import { AMIGoto } from '$lib/ami-navigation';
   import FollowupInformation from '$lib/components/followup/FollowupInformation.svelte';
 
-  const gotoConsents = () => {
-    goto('/#/preferences/consents');
+  const goToConsents = () => {
+    AMIGoto('/#/preferences/consents');
   };
 </script>
 
@@ -13,7 +13,7 @@
     <button
       class="fr-btn fr-btn--lg"
       type="button"
-      onclick={gotoConsents}
+      onclick={goToConsents}
       data-testid="consent-button"
     >
       Je veux suivre mes démarches

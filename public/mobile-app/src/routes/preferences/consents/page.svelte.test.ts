@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { describe, expect, test, vi } from 'vitest';
-import * as navigationMethods from '$app/navigation';
+import * as AMINavigationMethods from '$lib/ami-navigation';
 import type { APIConsents } from '$lib/api-consents';
 import * as consentsMethods from '$lib/consents';
 import { Consents } from '$lib/consents';
@@ -11,7 +11,7 @@ import Page from './+page.svelte';
 describe('/+page.svelte', () => {
   test('user has to be connected', async () => {
     // Given
-    const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue();
+    const spy = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
 
     // When
     render(Page);

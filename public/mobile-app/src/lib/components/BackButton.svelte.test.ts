@@ -1,13 +1,13 @@
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import { describe, expect, test, vi } from 'vitest';
-import * as navigationMethods from '$app/navigation';
+import * as AMINavigationMethods from '$lib/ami-navigation';
 import Page from './BackButton.svelte';
 
 describe('/BackButton.svelte', () => {
   test('should navigate to previous page when user clicks on Back button', async () => {
     // Given
     const backSpy = vi
-      .spyOn(navigationMethods, 'goto')
+      .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
 
     // When

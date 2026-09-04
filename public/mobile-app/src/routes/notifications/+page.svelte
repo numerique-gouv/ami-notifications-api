@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
   import { AMIGoto } from '$lib/ami-navigation';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import NotificationIcon from '$lib/components/NotificationIcon.svelte';
@@ -18,7 +17,7 @@
 
   onMount(async () => {
     if (!userStore.connected) {
-      goto('/#/login');
+      AMIGoto('/#/login');
       return;
     }
 
@@ -46,7 +45,7 @@
   };
 
   const goToSettings = () => {
-    goto('/#/preferences/notifications');
+    AMIGoto('/#/preferences/notifications');
   };
 </script>
 

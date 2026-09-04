@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import * as navigationMethods from '$app/navigation';
+import * as AMINavigationMethods from '$lib/ami-navigation';
 import { FollowupItem, FollowupSubItem } from '$lib/followup';
 import Page from './+page.svelte';
 
@@ -22,7 +22,7 @@ describe('/+page.svelte', () => {
 
   test('user has to be connected', async () => {
     // Given
-    const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue();
+    const spy = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
     const sub_item = new FollowupSubItem(
       'subpartner',
       'subtype',
@@ -121,7 +121,7 @@ describe('/+page.svelte', () => {
       subitem_type: 'subtype',
       subitem_external_id: 'subid',
     };
-    const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue();
+    const spy = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
 
     // When
     render(Page, { props: { data: { item, sub_item }, params: params } });

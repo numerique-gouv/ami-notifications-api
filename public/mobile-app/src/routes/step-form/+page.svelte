@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
+  import { AMIGoto } from '$lib/ami-navigation';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
 
   let backUrl: string = '/#/step';

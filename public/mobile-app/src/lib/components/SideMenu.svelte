@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
+  import { AMIGoto } from '$lib/ami-navigation';
 
   let { sideMenus } = $props();
 </script>
@@ -19,7 +19,7 @@
                   {item.tag ? 'fr-pr-9w': 'fr-pr-4w'} "
                 type="button"
                 data-testid="service-steps-{item.id}"
-                onclick={()=> goto(item.url)}
+                onclick={()=> AMIGoto(item.url)}
               >
                 <span class="am-sidemenu-details">
                   {#if item.date}

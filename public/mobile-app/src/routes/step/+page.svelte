@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
+  import { AMIGoto } from '$lib/ami-navigation';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import SideMenu from '$lib/components/SideMenu.svelte';
 
@@ -85,7 +85,7 @@
       <button
         type="button"
         class="fr-btn fr-btn--lg fr-icon-arrow-right-s-line fr-btn--icon-right am-btn-w100"
-        onclick={()=> goto('/#/step-form')}
+        onclick={()=> AMIGoto('/#/step-form')}
       >
         Compléter ma situation
       </button>

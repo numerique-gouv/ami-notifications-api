@@ -3,7 +3,6 @@ import '@testing-library/jest-dom/vitest';
 import type { RegistrationResponseJSON } from '@simplewebauthn/browser';
 import * as simplewebauthnMethods from '@simplewebauthn/browser';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
-import * as navigationMethods from '$app/navigation';
 import * as envModule from '$env/static/public';
 import * as AMINavigationMethods from '$lib/ami-navigation';
 import * as franceConnectHelpers from '$lib/france-connect';
@@ -53,7 +52,9 @@ describe('/+page.svelte', () => {
       .spyOn(initializeDataFromAPIMethods, 'initializeData')
       .mockResolvedValue();
 
-    vi.spyOn(navigationMethods, 'goto').mockImplementation(() => Promise.resolve());
+    vi.spyOn(AMINavigationMethods, 'AMIGoto').mockImplementation(() =>
+      Promise.resolve()
+    );
 
     // When
     render(Page);
@@ -75,7 +76,7 @@ describe('/+page.svelte', () => {
     vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
     vi.spyOn(initializeDataFromAPIMethods, 'initializeData').mockResolvedValue();
     const spy = vi
-      .spyOn(navigationMethods, 'goto')
+      .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
 
     // When
@@ -96,7 +97,7 @@ describe('/+page.svelte', () => {
     vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
     vi.spyOn(initializeDataFromAPIMethods, 'initializeData').mockResolvedValue();
     const spy = vi
-      .spyOn(navigationMethods, 'goto')
+      .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
 
     render(Page);
@@ -107,7 +108,7 @@ describe('/+page.svelte', () => {
 
   test('should navigate to login screen when user is not logged in', async () => {
     const spy = vi
-      .spyOn(navigationMethods, 'goto')
+      .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
 
     render(Page);
@@ -165,7 +166,7 @@ describe('/+page.svelte - with passkey feature flag', () => {
     vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
 
     const spy = vi
-      .spyOn(navigationMethods, 'goto')
+      .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
     vi.spyOn(globalThis, 'fetch').mockImplementation((input: RequestInfo | URL) => {
       const url =
@@ -218,7 +219,7 @@ describe('/+page.svelte - with passkey feature flag', () => {
     vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
 
     const spy = vi
-      .spyOn(navigationMethods, 'goto')
+      .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
     vi.spyOn(globalThis, 'fetch').mockImplementation((input: RequestInfo | URL) => {
       const url =
@@ -266,7 +267,7 @@ describe('/+page.svelte - with passkey feature flag', () => {
     vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
 
     const spy = vi
-      .spyOn(navigationMethods, 'goto')
+      .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
     vi.spyOn(globalThis, 'fetch').mockImplementation((input: RequestInfo | URL) => {
       const url =
@@ -314,7 +315,7 @@ describe('/+page.svelte - with passkey feature flag', () => {
     vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
 
     const spy = vi
-      .spyOn(navigationMethods, 'goto')
+      .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
     vi.spyOn(globalThis, 'fetch').mockImplementation((input: RequestInfo | URL) => {
       const url =
@@ -369,7 +370,7 @@ describe('/+page.svelte - with passkey feature flag', () => {
     vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
 
     const spy = vi
-      .spyOn(navigationMethods, 'goto')
+      .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
     vi.spyOn(globalThis, 'fetch').mockImplementation((input: RequestInfo | URL) => {
       const url =
@@ -434,7 +435,7 @@ describe('/+page.svelte - with passkey feature flag', () => {
     vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
 
     const spy = vi
-      .spyOn(navigationMethods, 'goto')
+      .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
     vi.spyOn(globalThis, 'fetch').mockImplementation((input: RequestInfo | URL) => {
       const url =
@@ -494,7 +495,7 @@ describe('/+page.svelte - with passkey feature flag', () => {
     vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
 
     const spy = vi
-      .spyOn(navigationMethods, 'goto')
+      .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
     vi.spyOn(globalThis, 'fetch').mockImplementation((input: RequestInfo | URL) => {
       const url =
@@ -554,7 +555,7 @@ describe('/+page.svelte - with passkey feature flag', () => {
     vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
 
     const spy = vi
-      .spyOn(navigationMethods, 'goto')
+      .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
     vi.spyOn(globalThis, 'fetch').mockImplementation((input: RequestInfo | URL) => {
       const url =
@@ -619,7 +620,7 @@ describe('/+page.svelte - with passkey feature flag', () => {
     vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
 
     const spy = vi
-      .spyOn(navigationMethods, 'goto')
+      .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
     const fetchSpy = vi
       .spyOn(globalThis, 'fetch')
@@ -699,7 +700,7 @@ describe('/+page.svelte - with passkey feature flag', () => {
     userStore.setHasWorkingPasskey();
 
     const spy = vi
-      .spyOn(navigationMethods, 'goto')
+      .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
 
     // When
