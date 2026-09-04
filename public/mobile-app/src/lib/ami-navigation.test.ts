@@ -43,6 +43,35 @@ describe('/ami-navigation', () => {
         // Then
         expect(spy).not.toHaveBeenCalled();
       });
+      test('should redirect to url - internal url with hash', async () => {
+        // Given
+        const url = '/#/page';
+        const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue();
+
+        // When
+        AMIGoto(url);
+        AMIGoto(url, false, { replaceState: true });
+
+        // Then
+        expect(spy).toHaveBeenCalledTimes(2);
+        expect(spy).toHaveBeenNthCalledWith(1, '/#/page');
+        expect(spy).toHaveBeenNthCalledWith(2, '/#/page', { replaceState: true });
+      });
+      test('should redirect to url - internal url without hash (api urls)', async () => {
+        // Given
+        const url = '/page';
+        vi.stubGlobal('location', {
+          href: 'fake-link',
+          hash: '',
+          origin: 'http://localhost',
+        });
+
+        // When
+        AMIGoto(url);
+
+        // Then
+        expect(window.location.href).toBe('/page');
+      });
       test('should redirect to url - external url', async () => {
         // Given
         const url = 'http://external-url';
@@ -111,7 +140,7 @@ describe('/ami-navigation', () => {
         expect(spy).toHaveBeenNthCalledWith(1, '/');
         expect(spy).toHaveBeenNthCalledWith(2, '/', { replaceState: true });
       });
-      test('should redirect to url - internal url without protocol', async () => {
+      test('should redirect to url - external url without protocol', async () => {
         // Given
         vi.mocked(envModule).PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED = 'false';
         const url = '//';
@@ -122,6 +151,37 @@ describe('/ami-navigation', () => {
 
         // Then
         expect(spy).not.toHaveBeenCalled();
+      });
+      test('should redirect to url - internal url with hash', async () => {
+        // Given
+        vi.mocked(envModule).PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED = 'false';
+        const url = '/#/page';
+        const spy = vi.spyOn(navigationMethods, 'goto').mockResolvedValue();
+
+        // When
+        AMIGoto(url, true);
+        AMIGoto(url, true, { replaceState: true });
+
+        // Then
+        expect(spy).toHaveBeenCalledTimes(2);
+        expect(spy).toHaveBeenNthCalledWith(1, '/#/page');
+        expect(spy).toHaveBeenNthCalledWith(2, '/#/page', { replaceState: true });
+      });
+      test('should redirect to url - internal url without hash (api urls)', async () => {
+        // Given
+        vi.mocked(envModule).PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED = 'false';
+        const url = '/page';
+        vi.stubGlobal('location', {
+          href: 'fake-link',
+          hash: '',
+          origin: 'http://localhost',
+        });
+
+        // When
+        AMIGoto(url, true);
+
+        // Then
+        expect(window.location.href).toBe('/page');
       });
       test('should redirect to url - external url', async () => {
         // Given
