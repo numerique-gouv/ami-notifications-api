@@ -10,10 +10,15 @@
     type ConsentsItem,
     updateConsent,
   } from '$lib/consents';
+  import { buildPartners, type Partners } from '$lib/partners';
   import { userStore } from '$lib/state/User.svelte.js';
+  import type { PageProps } from './$types';
+
+  let { data }: PageProps = $props();
 
   let backUrl: string = '/';
   let consentItems: ConsentsItem[] | undefined = $state([]);
+  let partners: Partners | null = $state(data.partners);
 
   onMount(async () => {
     if (!userStore.connected) {
@@ -21,6 +26,7 @@
     } else {
       const consents: Consents = await buildConsents();
       consentItems = consents.items;
+      partners = await buildPartners();
     }
   });
 
@@ -45,29 +51,15 @@
 <NavWithBackButton title="Suivi des démarches" {backUrl} />
 
 <div class="fr-container consents-content-container fr-pt-14w">
-  <Toggle
-    id="psl"
-    label="Suivre mes démarches <strong>Service Public</strong> sur mon appareil mobile"
-    isChecked={hasConsentedFor('psl')}
-    onChangeAction={saveConsents}
-  />
-  <Toggle
-    id="dinum-dn"
-    label="Suivre mes démarches <strong>Démarches Numériques</strong> sur mon appareil mobile"
-    isChecked={hasConsentedFor('dinum-dn')}
-    onChangeAction={saveConsents}
-  />
-  <Toggle
-    id="dinum-ami"
-    label="Suivre mes démarches <strong>AMI</strong> sur mon appareil mobile"
-    isChecked={hasConsentedFor('dinum-ami')}
-    onChangeAction={saveConsents}
-  />
-  <Toggle
-    id="dinum-rdvsp"
-    label="Suivre mes démarches <strong>Rendez-vous SP</strong> sur mon appareil mobile"
-    isChecked={hasConsentedFor('dinum-rdvsp')}
-    onChangeAction={saveConsents}
-  />
+  {#if partners && partners.items.length}
+    {#each partners.items as item}
+      <Toggle
+        id="{item.slug}"
+        label="Suivre mes démarches <strong>{item.name}</strong> sur mon appareil mobile"
+        isChecked={hasConsentedFor(item.slug)}
+        onChangeAction={saveConsents}
+      />
+    {/each}
+  {/if}
   <FollowupInformation />
 </div>

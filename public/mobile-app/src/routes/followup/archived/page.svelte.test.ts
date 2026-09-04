@@ -5,6 +5,7 @@ import * as consentsMethods from '$lib/consents';
 import { Consents } from '$lib/consents';
 import * as followupMethods from '$lib/followup';
 import { Followup, FollowupItem } from '$lib/followup';
+import { Partners } from '$lib/partners';
 import Page from './+page.svelte';
 
 describe('/+page.svelte', () => {
@@ -17,7 +18,12 @@ describe('/+page.svelte', () => {
     // When
     render(Page, {
       props: {
-        data: { followup, isFollowupEmpty: true, hasAnyConsents: true },
+        data: {
+          followup,
+          isFollowupEmpty: true,
+          hasAnyConsents: true,
+          partners: new Partners(),
+        },
         params: {},
       },
     });
@@ -77,7 +83,12 @@ describe('/+page.svelte', () => {
     // When
     render(Page, {
       props: {
-        data: { followup, isFollowupEmpty: false, hasAnyConsents: true },
+        data: {
+          followup,
+          isFollowupEmpty: false,
+          hasAnyConsents: true,
+          partners: new Partners(),
+        },
         params: {},
       },
     });
