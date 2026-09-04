@@ -4,6 +4,8 @@ import uuid
 from django.conf import settings
 from django.db import models
 
+from ami.partner.schemas import PartnersItem
+
 
 class Partner(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -39,3 +41,10 @@ class Partner(models.Model):
             if ip_address in allowed_ip_network:
                 return True
         return False
+
+    def to_partners_item(self):
+        return PartnersItem(
+            slug=self.slug,
+            name=self.name,
+            link=self.link,
+        )
