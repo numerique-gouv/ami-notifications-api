@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import type { AuthenticationResponseJSON } from '@simplewebauthn/browser';
 import * as simplewebauthnMethods from '@simplewebauthn/browser';
@@ -12,17 +12,10 @@ vi.mock('@simplewebauthn/browser', () => ({
 }));
 
 describe('/+page.svelte', () => {
-  let originalWindow: typeof globalThis.window;
-
   beforeEach(() => {
-    originalWindow = globalThis.window;
     HTMLDialogElement.prototype.showModal = vi.fn();
     HTMLDialogElement.prototype.close = vi.fn();
     HTMLDialogElement.prototype.show = vi.fn();
-  });
-
-  afterEach(() => {
-    globalThis.window = originalWindow;
   });
 
   test('should display passkey error message and bypass button on options response error', async () => {
@@ -435,7 +428,9 @@ describe('/+page.svelte', () => {
     vi.mocked(simplewebauthnMethods.startAuthentication).mockResolvedValue(
       {} as AuthenticationResponseJSON
     );
-    vi.stubGlobal('location', { href: 'fake-link' });
+    const spy = vi
+      .spyOn(AMINavigationMethods, 'AMIGoto')
+      .mockImplementation(() => Promise.resolve());
     render(Page);
 
     // When
@@ -455,7 +450,7 @@ describe('/+page.svelte', () => {
       );
       expect(passkeyErrorMessage).toBeNull();
 
-      expect(globalThis.window.location.href).toEqual('fake-redirect-uri');
+      expect(spy).toHaveBeenCalledWith('fake-redirect-uri');
     });
   });
 });
