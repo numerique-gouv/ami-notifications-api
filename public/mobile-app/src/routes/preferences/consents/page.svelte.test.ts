@@ -17,7 +17,9 @@ describe('/+page.svelte', () => {
     const spy = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
 
     // When
-    render(Page, { props: { data: { partners: partners }, params: {} } });
+    render(Page, {
+      props: { data: { consentItems: [], partners: partners }, params: {} },
+    });
 
     // Then
     await waitFor(() => {
@@ -41,7 +43,9 @@ describe('/+page.svelte', () => {
     };
     const partners = new Partners([apiPartnersItem]);
     vi.spyOn(partnersMethods, 'buildPartners').mockResolvedValue(partners);
-    render(Page, { props: { data: { partners: partners }, params: {} } });
+    render(Page, {
+      props: { data: { consentItems: [], partners: partners }, params: {} },
+    });
 
     // When
     const toggleInput: HTMLInputElement = screen.getByTestId('dinum-ami');
@@ -67,7 +71,9 @@ describe('/+page.svelte', () => {
     };
     const partners = new Partners([apiPartnersItem]);
     vi.spyOn(partnersMethods, 'buildPartners').mockResolvedValue(partners);
-    render(Page, { props: { data: { partners: partners }, params: {} } });
+    render(Page, {
+      props: { data: { consentItems: [], partners: partners }, params: {} },
+    });
 
     // When
     let toggleInput: HTMLInputElement = screen.getByTestId('dinum-ami');
@@ -84,12 +90,66 @@ describe('/+page.svelte', () => {
     });
   });
 
+  test('should enable all consents when user clicks on "Tout suivre" button', async () => {
+    // Given
+    await userStore.login(mockUserInfo);
+
+    const spy = vi.spyOn(consentsMethods, 'updateAllConsents');
+
+    const consentsItem1 = {
+      partner_id: 'dinum-ami',
+      consent_datetime: null,
+    };
+    const consentsItem2 = {
+      partner_id: 'dinum-dn',
+      consent_datetime: null,
+    };
+    const consents = new Consents({ consents: [consentsItem1, consentsItem2] });
+    vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
+
+    const apiPartnersItem1: APIPartnersItem = {
+      slug: 'dinum-ami',
+      name: 'AMI',
+      link: 'http://fake-link-1',
+    };
+    const apiPartnersItem2: APIPartnersItem = {
+      slug: 'dinum-dn',
+      name: 'Démarche Numérique',
+      link: 'http://fake-link-2',
+    };
+    const partners = new Partners([apiPartnersItem1, apiPartnersItem2]);
+    vi.spyOn(partnersMethods, 'buildPartners').mockResolvedValue(partners);
+    render(Page, {
+      props: { data: { consentItems: [], partners: partners }, params: {} },
+    });
+
+    // When
+    let toggleInput1: HTMLInputElement = screen.getByTestId('dinum-ami');
+    let toggleInput2: HTMLInputElement = screen.getByTestId('dinum-dn');
+    expect(toggleInput1.checked).toBeFalsy();
+    expect(toggleInput2.checked).toBeFalsy();
+
+    const selectAllButton = screen.getByTestId('select-all-button');
+    await fireEvent.click(selectAllButton);
+
+    // Then
+    await waitFor(async () => {
+      expect(spy).toHaveBeenCalledWith(true);
+      toggleInput1 = screen.getByTestId('dinum-ami');
+      toggleInput2 = screen.getByTestId('dinum-dn');
+      expect(toggleInput1.checked).toBeTruthy();
+      expect(toggleInput2.checked).toBeTruthy();
+    });
+  });
+
   test('should import NavWithBackButton component', async () => {
     // Given
     const partners = new Partners();
 
     // When
-    render(Page, { props: { data: { partners: partners }, params: {} } });
+    render(Page, {
+      props: { data: { consentItems: [], partners: partners }, params: {} },
+    });
     const backButton = screen.getByTestId('back-button');
 
     // Then
@@ -102,7 +162,9 @@ describe('/+page.svelte', () => {
     const partners = new Partners();
 
     // When
-    render(Page, { props: { data: { partners: partners }, params: {} } });
+    render(Page, {
+      props: { data: { consentItems: [], partners: partners }, params: {} },
+    });
 
     // Then
     expectBackButtonPresent(screen);

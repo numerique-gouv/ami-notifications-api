@@ -1,7 +1,11 @@
 import { describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { waitFor } from '@testing-library/svelte';
-import { retrieveConsents, updateApiConsent } from '$lib/api-consents';
+import {
+  retrieveConsents,
+  updateAllApiConsents,
+  updateApiConsent,
+} from '$lib/api-consents';
 
 const apiConsents = {
   consents: [
@@ -182,6 +186,60 @@ describe('/api-consents', () => {
       expect(result).toEqual(false);
       expect(spy).toHaveBeenCalledExactlyOnceWith('/api/v1/users/consents', {
         body: '{"partner_id":"dinum-ami","consent":true}',
+        headers: { 'Content-Type': 'application/json' },
+        method: 'POST',
+      });
+    });
+  });
+
+  describe('updateAllApiConsents', () => {
+    test('should return true', async () => {
+      // Given
+      const spy = vi
+        .spyOn(globalThis, 'fetch')
+        .mockResolvedValue(new Response(JSON.stringify({}), { status: 200 }));
+
+      // When
+      const result = await updateAllApiConsents(true);
+
+      // Then
+      expect(result).toEqual(true);
+      expect(spy).toHaveBeenCalledExactlyOnceWith('/api/v1/users/consents/all', {
+        body: '{"consent":true}',
+        headers: { 'Content-Type': 'application/json' },
+        method: 'POST',
+      });
+    });
+    test('should return false: 400 error', async () => {
+      // Given
+      const spy = vi
+        .spyOn(globalThis, 'fetch')
+        .mockResolvedValue(new Response(JSON.stringify({}), { status: 400 }));
+
+      // When
+      const result = await updateAllApiConsents(true);
+
+      // Then
+      expect(result).toEqual(false);
+      expect(spy).toHaveBeenCalledExactlyOnceWith('/api/v1/users/consents/all', {
+        body: '{"consent":true}',
+        headers: { 'Content-Type': 'application/json' },
+        method: 'POST',
+      });
+    });
+    test('should return false: 500 error', async () => {
+      // Given
+      const spy = vi
+        .spyOn(globalThis, 'fetch')
+        .mockResolvedValue(new Response(JSON.stringify({}), { status: 500 }));
+
+      // When
+      const result = await updateAllApiConsents(true);
+
+      // Then
+      expect(result).toEqual(false);
+      expect(spy).toHaveBeenCalledExactlyOnceWith('/api/v1/users/consents/all', {
+        body: '{"consent":true}',
         headers: { 'Content-Type': 'application/json' },
         method: 'POST',
       });
