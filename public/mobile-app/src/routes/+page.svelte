@@ -6,6 +6,9 @@
   import Navigation from '$lib/components/Navigation.svelte';
   import { toastStore } from '$lib/state/toast.svelte';
   import { userStore } from '$lib/state/User.svelte';
+  import type { PageProps } from './$types';
+
+  let { data }: PageProps = $props();
 
   if (page.url.searchParams.has('is_logged_out')) {
     goto('/?is_logged_out#/login');
@@ -34,5 +37,9 @@
 
 {#if userStore.connected}
   <Navigation currentItem="home" />
-  <ConnectedHomepage />
+  <ConnectedHomepage
+    followupProp="{data.followup}"
+    isFollowupEmptyProp="{data.isFollowupEmpty}"
+    hasAnyConsentsProp="{data.hasAnyConsents}"
+  />
 {/if}

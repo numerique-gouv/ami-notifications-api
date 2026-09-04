@@ -10,6 +10,7 @@ class Partner(models.Model):
     slug = models.SlugField(unique=True)
     name = models.CharField()
     icon = models.CharField(blank=True)
+    link = models.CharField(blank=True)
     consent_is_enabled = models.BooleanField()
 
     created_at = models.DateTimeField(auto_now_add=True)

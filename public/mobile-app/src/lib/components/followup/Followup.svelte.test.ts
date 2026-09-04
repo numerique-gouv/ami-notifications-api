@@ -5,6 +5,7 @@ import FollowupComponent from '$lib/components/followup/Followup.svelte';
 import * as consentsMethods from '$lib/consents';
 import * as followupMethods from '$lib/followup';
 import { Followup, FollowupItem } from '$lib/followup';
+import { Partners } from '$lib/partners';
 import { toastStore } from '$lib/state/toast.svelte.js';
 
 describe('/Followup.svelte', () => {
@@ -254,7 +255,13 @@ describe('/Followup.svelte', () => {
         .mockResolvedValue(followup);
 
       // When
-      render(FollowupComponent, { archived: true });
+      render(FollowupComponent, {
+        archived: true,
+        followupProp: followup,
+        isFollowupEmptyProp: false,
+        hasAnyConsentsProp: true,
+        partnersProp: new Partners(),
+      });
 
       // Then
       await waitFor(() => {
@@ -308,7 +315,13 @@ describe('/Followup.svelte', () => {
         .mockResolvedValue(followup);
 
       // When
-      render(FollowupComponent, { archived: true });
+      render(FollowupComponent, {
+        archived: true,
+        followupProp: followup,
+        isFollowupEmptyProp: false,
+        hasAnyConsentsProp: true,
+        partnersProp: new Partners(),
+      });
 
       // Then
       await waitFor(() => {
@@ -334,7 +347,13 @@ describe('/Followup.svelte', () => {
       vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
 
       // When
-      render(FollowupComponent, { archived: true });
+      render(FollowupComponent, {
+        archived: true,
+        followupProp: followup,
+        isFollowupEmptyProp: false,
+        hasAnyConsentsProp: true,
+        partnersProp: new Partners(),
+      });
 
       // Then
       await waitFor(async () => {
@@ -393,7 +412,13 @@ describe('/Followup.svelte', () => {
       vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
 
       // When
-      render(FollowupComponent, { archived: true });
+      render(FollowupComponent, {
+        archived: true,
+        followupProp: followup,
+        isFollowupEmptyProp: false,
+        hasAnyConsentsProp: true,
+        partnersProp: new Partners(),
+      });
 
       // Then
       await waitFor(async () => {
@@ -450,7 +475,13 @@ describe('/Followup.svelte', () => {
       vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
 
       // When
-      render(FollowupComponent, { archived: true });
+      render(FollowupComponent, {
+        archived: true,
+        followupProp: followup,
+        isFollowupEmptyProp: false,
+        hasAnyConsentsProp: true,
+        partnersProp: new Partners(),
+      });
 
       // Then
       await waitFor(async () => {

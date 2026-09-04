@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { render, waitFor } from '@testing-library/svelte';
 import * as navigationMethods from '$app/navigation';
+import { Followup } from '$lib/followup';
 import { toastStore } from '$lib/state/toast.svelte';
 import { userStore } from '$lib/state/User.svelte';
 import { mockUserInfo } from '$tests/utils';
@@ -65,7 +66,12 @@ describe('/+page.svelte', () => {
       .mockImplementation(() => Promise.resolve());
 
     // When
-    render(Page);
+    render(Page, {
+      props: {
+        data: { followup: new Followup(), isFollowupEmpty: true, hasAnyConsents: true },
+        params: {},
+      },
+    });
 
     // Then
     await waitFor(async () => {
@@ -93,7 +99,12 @@ describe('/+page.svelte', () => {
       .mockImplementation(() => Promise.resolve());
 
     // When
-    render(Page);
+    render(Page, {
+      props: {
+        data: { followup: new Followup(), isFollowupEmpty: true, hasAnyConsents: true },
+        params: {},
+      },
+    });
 
     // Then
     await waitFor(async () => {

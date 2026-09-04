@@ -4,11 +4,13 @@ from django.conf import settings
 from drf_spectacular.utils import extend_schema, inline_serializer
 from rest_framework import serializers
 from rest_framework.decorators import api_view
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK
 
 from ami.authentication.decorators import ami_login_required
-from ami.partner.serializers import PartnerGenerateUrlSerializer
+from ami.partner.models import Partner
+from ami.partner.serializers import PartnerGenerateUrlSerializer, PartnersResponse
 from ami.utils import generate_identity_token
 
 
@@ -68,3 +70,10 @@ def get_partner_public_key(request) -> Response[dict[str, str]]:
         data={"public_key": public_key},
         status=HTTP_200_OK,
     )
+
+
+@api_view(["GET"])
+@ami_login_required
+def get_partners(request: Request) -> Response:
+    partners_set = Partner.objects.filter(consent_is_enabled=True).order_by("name")
+    return Response(PartnersResponse(partners_set, many=True).data)
