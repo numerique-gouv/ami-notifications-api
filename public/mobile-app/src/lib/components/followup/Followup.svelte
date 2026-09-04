@@ -8,18 +8,21 @@
   import { hasAnyConsents as hasAnyConsentsFunc } from '$lib/consents';
   import type { Followup, FollowupItem as FollowupItemType } from '$lib/followup';
   import { buildFollowup } from '$lib/followup';
+  import { buildPartners, type Partners } from '$lib/partners';
 
   interface Props {
     archived?: boolean;
     followupProp: Followup;
     isFollowupEmptyProp: boolean;
     hasAnyConsentsProp: boolean;
+    partnersProp: Partners;
   }
   let {
     archived = false,
     followupProp,
     isFollowupEmptyProp,
     hasAnyConsentsProp,
+    partnersProp,
   }: Props = $props();
 
   const backUrl = '/#/followup';
@@ -29,12 +32,14 @@
   let menuOpened: boolean = $state(false);
   let hasAnyConsents: boolean = $state(hasAnyConsentsProp);
   let isExpanded: boolean = $state(isFollowupEmptyProp);
+  let partners: Partners | null = $state(partnersProp);
 
   onMount(async () => {
     followup = await buildFollowup();
     console.log($state.snapshot(followup));
     hasAnyConsents = await hasAnyConsentsFunc();
     isExpanded = expandAccordion();
+    partners = await buildPartners();
   });
 
   const expandAccordion = (): boolean => {
@@ -134,42 +139,19 @@
             <div class="fr-m-4v">
               <p>Consultez votre compte</p>
               <ul class="fr-p-0">
-                <li class="account fr-pb-4v">
-                  <button
-                    type="button"
-                    class="fr-btn fr-btn--secondary am-btn-target am-btn-w100"
-                    onclick={()=> window.location.href = "https://www.service-public.gouv.fr/"}
-                  >
-                    Service Public
-                  </button>
-                </li>
-                <li class="account fr-pb-4v">
-                  <button
-                    type="button"
-                    class="fr-btn fr-btn--secondary am-btn-target am-btn-w100"
-                    onclick={()=> window.location.href = "https://www.cnmss.fr/"}
-                  >
-                    CNMSS
-                  </button>
-                </li>
-                <li class="account fr-pb-4v">
-                  <button
-                    type="button"
-                    class="fr-btn fr-btn--secondary am-btn-target am-btn-w100"
-                    onclick={()=> window.location.href = "https://demarche.numerique.gouv.fr/"}
-                  >
-                    Démarche numérique
-                  </button>
-                </li>
-                <li class="account">
-                  <button
-                    type="button"
-                    class="fr-btn fr-btn--secondary am-btn-target am-btn-w100"
-                    onclick={()=> window.location.href = "https://www.dossierfacile.logement.gouv.fr/"}
-                  >
-                    Dossier facile
-                  </button>
-                </li>
+                {#if partners && partners.items.length}
+                  {#each partners.items as item}
+                    <li class="account fr-pb-4v">
+                      <button
+                        type="button"
+                        class="fr-btn fr-btn--secondary am-btn-target am-btn-w100"
+                        onclick={()=> window.location.href = item.link}
+                      >
+                        {item.name}
+                      </button>
+                    </li>
+                  {/each}
+                {/if}
               </ul>
               <p>Vérifiez que vous suivez bien toutes vos démarches</p>
               <div class="consent-action-button">

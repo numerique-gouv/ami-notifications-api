@@ -5,6 +5,7 @@ import FollowupComponent from '$lib/components/followup/Followup.svelte';
 import * as consentsMethods from '$lib/consents';
 import * as followupMethods from '$lib/followup';
 import { Followup, FollowupItem } from '$lib/followup';
+import { Partners } from '$lib/partners';
 import { toastStore } from '$lib/state/toast.svelte.js';
 
 describe('/Followup.svelte', () => {
@@ -259,6 +260,7 @@ describe('/Followup.svelte', () => {
         followupProp: followup,
         isFollowupEmptyProp: false,
         hasAnyConsentsProp: true,
+        partnersProp: new Partners(),
       });
 
       // Then
@@ -318,6 +320,7 @@ describe('/Followup.svelte', () => {
         followupProp: followup,
         isFollowupEmptyProp: false,
         hasAnyConsentsProp: true,
+        partnersProp: new Partners(),
       });
 
       // Then
@@ -349,6 +352,7 @@ describe('/Followup.svelte', () => {
         followupProp: followup,
         isFollowupEmptyProp: false,
         hasAnyConsentsProp: true,
+        partnersProp: new Partners(),
       });
 
       // Then
@@ -413,6 +417,7 @@ describe('/Followup.svelte', () => {
         followupProp: followup,
         isFollowupEmptyProp: false,
         hasAnyConsentsProp: true,
+        partnersProp: new Partners(),
       });
 
       // Then
@@ -475,6 +480,7 @@ describe('/Followup.svelte', () => {
         followupProp: followup,
         isFollowupEmptyProp: false,
         hasAnyConsentsProp: true,
+        partnersProp: new Partners(),
       });
 
       // Then

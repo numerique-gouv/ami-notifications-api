@@ -1,5 +1,6 @@
 import { retrieveAgenda } from '$lib/api-agenda';
 import { retrieveConsents } from '$lib/api-consents';
+import { retrievePartners } from '$lib/api-partners';
 import { retrieveNotifications } from '$lib/notifications';
 
 export const initializeLocalStorage = (searchParams: URLSearchParams) => {
@@ -30,5 +31,10 @@ export const initializeLocalStorage = (searchParams: URLSearchParams) => {
 };
 
 export const initializeData = async () => {
-  await Promise.all([retrieveAgenda(), retrieveConsents(), retrieveNotifications()]);
+  await Promise.all([
+    retrieveAgenda(),
+    retrieveConsents(),
+    retrieveNotifications(),
+    retrievePartners(),
+  ]);
 };
