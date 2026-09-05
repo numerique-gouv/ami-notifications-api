@@ -18,6 +18,16 @@
   let backUrl = $state('');
   let checklist: CheckList | null = $state(null);
   let section: CheckListSection | null = $state(null);
+  let previousIntertitle = '';
+
+  const changedIntertitle = (item: CheckListItem): boolean => {
+    let displayIntertitle = false;
+    if (item.intertitle) {
+      displayIntertitle = (item.intertitle || '') !== previousIntertitle;
+      previousIntertitle = item.intertitle;
+    }
+    return displayIntertitle;
+  };
 
   onMount(async () => {
     if (!userStore.connected) {
@@ -44,8 +54,21 @@
           id="checkboxes-small-legend"
         ></legend>
         <ul class="fr-raw-list fr-px-1w">
-          {#each checklist.getItemsForSection(section.id) as item}
+          {#each checklist.getItemsForSection(section.id) as item, index}
             {@const truncated = willTruncateMarkdown(item.text, itemTruncationAt)}
+            {#if changedIntertitle(item)}
+              {#if index == 0}
+                <li>
+                  <h2 class="fr-h6 am-text--smbold title">{item.intertitle}</h2>
+                </li>
+              {:else}
+                <li>
+                  <h2 class="fr-h6 fr-mt-8v am-text--smbold title">
+                    {item.intertitle}
+                  </h2>
+                </li>
+              {/if}
+            {/if}
             <li>
               <div
                 class="fr-tile fr-tile--sm fr-tile--horizontal fr-enlarge-button fr-p-0 fr-mb-2w"

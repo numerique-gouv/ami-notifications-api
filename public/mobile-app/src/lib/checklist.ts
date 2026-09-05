@@ -1,4 +1,5 @@
 import type { APICheckList, APICheckListLink } from '$lib/api-checklist';
+import CNMSS001 from '$lib/data/checklists/CNMSS001.json';
 import F3109 from '$lib/data/checklists/F3109.json';
 import F16225 from '$lib/data/checklists/F16225.json';
 
@@ -35,6 +36,7 @@ export class CheckListItem {
     private _id: string,
     private _text: string,
     private _section_id: string,
+    private _intertitle: string,
     links?: APICheckListLink[]
   ) {
     if (links) {
@@ -55,6 +57,10 @@ export class CheckListItem {
 
   get text(): string {
     return this._text;
+  }
+
+  get intertitle(): string {
+    return this._intertitle;
   }
 
   get section_id(): string {
@@ -138,7 +144,14 @@ export class CheckList {
     );
     this._items = apiCheckList.items.map(
       (item) =>
-        new CheckListItem(this, item.id, item.text, item.section || '', item.links)
+        new CheckListItem(
+          this,
+          item.id,
+          item.text,
+          item.section || '',
+          item.intertitle || '',
+          item.links
+        )
     );
   }
 
@@ -189,6 +202,8 @@ export const buildCheckList = async (id: string): Promise<CheckList> => {
     apiCheckList = F3109;
   } else if (id === 'F16225') {
     apiCheckList = F16225;
+  } else if (id === 'CNMSS001') {
+    apiCheckList = CNMSS001;
   } else {
     throw new Error('invalid checklist id');
   }

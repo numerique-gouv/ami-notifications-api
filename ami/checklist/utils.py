@@ -67,7 +67,7 @@ class CheckList:
     def __init__(self):
         self.items = []
 
-    def add_item(self, node, section=None, condition=None):
+    def add_item(self, node, section=None, intertitle=None, condition=None):
         for item in node.findall("Item"):
             condition_elements = item.findall("Condition")
             conditions = []
@@ -102,12 +102,21 @@ class CheckList:
                             "external": True,
                         }
                     )
-            self.add_item_real(text, id=id, section=section, conditions=conditions, links=links)
+            self.add_item_real(
+                text,
+                id=id,
+                section=section,
+                intertitle=intertitle,
+                conditions=conditions,
+                links=links,
+            )
 
-    def add_item_real(self, text, id, section=None, conditions=None, links=None):
+    def add_item_real(self, text, id, section=None, intertitle=None, conditions=None, links=None):
         item = {"text": text, "id": id}
         if section:
             item["section"] = section
+        if intertitle:
+            item["intertitle"] = intertitle
         if conditions:
             item["conditions"] = conditions
         if links:
@@ -159,7 +168,9 @@ class Document:
 
         assert section_title
         section_id = slugify(section_title)
-        self.sections.append({"title": section_title, "id": section_id})
+        section = {"title": section_title, "id": section_id}
+        if section not in self.sections:
+            self.sections.append({"title": section_title, "id": section_id})
         self.current_section_id = section_id
 
     def end_section(self):
@@ -171,7 +182,22 @@ class Document:
             if child.tag == "Liste" and child.attrib.get("type") == "caseACocher":
                 if not self.current_section_id:
                     self.start_section(parents, child)
-                self.checklist.add_item(child, section=self.current_section_id, condition=condition)
+
+                intertitle = None
+                try:
+                    chapitre_element = [x for x in parents if x.tag == "Chapitre"][-1]
+                    if chapitre_element is not None:
+                        chapitre_title_element = chapitre_element.find("Titre")
+                        if chapitre_title_element is not None:
+                            intertitle = self.get_clean_title(chapitre_title_element)
+                except IndexError:
+                    pass
+                self.checklist.add_item(
+                    child,
+                    section=self.current_section_id,
+                    intertitle=intertitle,
+                    condition=condition,
+                )
                 continue
             elif child.tag == "FragmentConditionne" and child.findall("Liste"):
                 self.build_checklist(parents + [child], condition=child.find("Condition"))

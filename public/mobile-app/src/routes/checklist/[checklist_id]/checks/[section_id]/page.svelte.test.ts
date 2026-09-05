@@ -176,4 +176,39 @@ describe('/+page.svelte', () => {
       expect(spy).toHaveBeenCalledWith(item.links[0].url);
     });
   });
+
+  test('load checklist section with intertitles', async () => {
+    // Given
+    await userStore.login(mockUserInfo);
+    const checklist = new CheckList('F3109', {
+      title: 'title',
+      sections: [
+        { id: 'a', title: 'section title' },
+        { id: 'b', title: 'other title' },
+      ],
+      items: [
+        { id: 'b', text: 'test', section: 'a', intertitle: 'subtitle1' },
+        { id: 'c', text: 'test2', section: 'a', intertitle: 'subtitle1' },
+        { id: 'd', text: 'test3', section: 'a', intertitle: 'subtitle2' },
+        { id: 'e', text: 'test4', section: 'b' },
+      ],
+    });
+    vi.spyOn(CheckListMethods, 'buildCheckList').mockResolvedValue(checklist);
+    const params = { checklist_id: 'F3109', section_id: checklist.sections[0].id };
+
+    // When
+    render(Page, { props: { params: params } });
+
+    // Then
+    await waitFor(() => {
+      expect(document.querySelector('.title')).toHaveTextContent('section title');
+    });
+
+    expect(document.querySelectorAll('li').length).toEqual(5);
+    expect(document.querySelector('li:nth-child(1)')).toHaveTextContent('subtitle1');
+    expect(document.querySelector('li:nth-child(2)')).toHaveTextContent('test');
+    expect(document.querySelector('li:nth-child(3)')).toHaveTextContent('test2');
+    expect(document.querySelector('li:nth-child(4)')).toHaveTextContent('subtitle2');
+    expect(document.querySelector('li:nth-child(5)')).toHaveTextContent('test3');
+  });
 });
