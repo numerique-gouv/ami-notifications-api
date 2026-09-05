@@ -15,6 +15,7 @@ export type APICheckListItem = {
   id: string;
   text: string;
   section: string;
+  intertitle?: string;
   links?: APICheckListLink[];
   conditions?: APICheckListCondition[];
 };

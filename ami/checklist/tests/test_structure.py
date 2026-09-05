@@ -74,6 +74,67 @@ def test_checklist_with_title_in_previous_paragraph():
     assert doc.checklist.items[-1]["text"] == "Déclarer la naissance"
 
 
+def test_checklist_with_situation_and_chapitre():
+    doc = Document(
+        ET.fromstring("""<?xml version="1.0" encoding="UTF-8"?>
+<Publication xmlns:dc="http://purl.org/dc/elements/1.1/"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             ID="CNMSS001">
+  <ListeSituations affichage="onglet">
+    <Situation>
+      <Titre>Avant mon départ</Titre>
+      <Texte>
+        <Chapitre>
+          <Titre>Pour tous les militaires</Titre>
+          <Liste type="caseACocher">
+            <Item>
+              <Paragraphe>Déclarer mon affectation</Paragraphe>
+            </Item>
+          </Liste>
+         </Chapitre>
+        <Chapitre>
+          <Titre>Si le conjoint m'accompagne</Titre>
+          <Liste type="caseACocher">
+            <Item>
+              <Paragraphe>Vérifier les droits de mon conjoint</Paragraphe>
+            </Item>
+          </Liste>
+         </Chapitre>
+       </Texte>
+    </Situation>
+    <Situation>
+      <Titre>Pendant mon affectation</Titre>
+      <Texte>
+        <Chapitre>
+          <Titre>Pour tous les militaires</Titre>
+          <Liste type="caseACocher">
+            <Item>
+              <Paragraphe>Demander le remboursement de mes soins</Paragraphe>
+            </Item>
+          </Liste>
+         </Chapitre>
+        <Chapitre>
+          <Titre>Pour les enfants</Titre>
+          <Liste type="caseACocher">
+            <Item>
+              <Paragraphe>Bénéficier, si nécessaire, de la téléorthophonie</Paragraphe>
+            </Item>
+          </Liste>
+         </Chapitre>
+       </Texte>
+    </Situation>
+  </ListeSituations>
+</Publication>""")
+    )
+    assert len(doc.sections) == 2
+    assert [x["title"] for x in doc.sections] == [
+        "Avant mon départ",
+        "Pendant mon affectation",
+    ]
+    assert doc.checklist.items[0]["intertitle"] == "Pour tous les militaires"
+    assert doc.checklist.items[1]["intertitle"] == "Si le conjoint m'accompagne"
+
+
 def test_checklist_with_conditional_fragment():
     doc = Document(
         ET.fromstring("""<?xml version="1.0" encoding="UTF-8"?>
