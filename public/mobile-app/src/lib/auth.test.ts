@@ -37,7 +37,7 @@ describe('/auth', () => {
       vi.spyOn(globalThis, 'fetch').mockResolvedValue(
         new Response(JSON.stringify({}), { status: 401 })
       );
-      const spyLogout = vi.spyOn(userStore, 'logout').mockResolvedValue();
+      const spyLogout = vi.spyOn(userStore, 'cleanUser').mockResolvedValue();
 
       // When
       await apiFetch('some url on the API');

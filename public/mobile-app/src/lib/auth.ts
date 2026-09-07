@@ -29,7 +29,7 @@ export const apiFetch = async (
     console.log(
       `apiFetch error ${response.status} for ${input} (init: ${init}): ${response.statusText}, ${response.body}`
     );
-    await userStore.logout();
+    await userStore.cleanUser();
   }
 
   return response;
