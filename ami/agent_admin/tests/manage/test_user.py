@@ -8,7 +8,7 @@ from ami.agent.models import Agent
 from ami.agent_admin.models import AuditEntry
 from ami.agent_admin.tests.utils import assert_query_fails_without_agent_admin_auth
 from ami.notification.models import Notification, ScheduledNotification
-from ami.user.models import Registration, User
+from ami.user.models import Consent, Registration, User
 
 
 @pytest.mark.django_db
@@ -93,18 +93,26 @@ def test_detail_user_without_agent_admin_auth(app) -> None:
 
 @pytest.mark.django_db
 def test_delete_user(
-    app, admin_agent: Agent, webpush_notification: Notification, webpush_registration: Registration
+    app,
+    admin_agent: Agent,
+    webpush_notification: Notification,
+    webpush_registration: Registration,
 ):
     app.set_user(admin_agent.user)
     user = webpush_notification.user
     scheduled_notification = ScheduledNotification.objects.create(
-        user_id=user.id,
+        user=user,
         content_title="title",
         content_body="body",
         content_icon="icon",
         reference="reference",
         internal_url="internal-url",
         scheduled_at=now(),
+    )
+    consent = Consent.objects.create(
+        user=user,
+        partner=webpush_notification.partner,
+        consent_datetime=None,
     )
     response = app.post(f"/agent-admin/manage/user/{user.id}/delete/")
     assert "/agent-admin/manage/user/" in response.headers["location"]
@@ -116,6 +124,8 @@ def test_delete_user(
     assert Notification.objects.filter(id=webpush_notification.id).exists() is False
     assert ScheduledNotification.objects.filter(user_id=user.id).exists() is False
     assert ScheduledNotification.objects.filter(id=scheduled_notification.id).exists() is False
+    assert Consent.objects.filter(user_id=user.id).exists() is False
+    assert Consent.objects.filter(id=consent.id).exists() is False
 
     assert AuditEntry.objects.count() == 1
     (ae1,) = AuditEntry.objects.all().order_by("created_at")

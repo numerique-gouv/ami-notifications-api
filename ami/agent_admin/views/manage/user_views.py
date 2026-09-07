@@ -12,7 +12,7 @@ from ami.agent.decorators import (
 from ami.agent_admin.forms import UserSearchForm
 from ami.agent_admin.utils import audit
 from ami.notification.models import Notification, ScheduledNotification
-from ami.user.models import Registration, User
+from ami.user.models import Consent, Registration, User
 
 
 @agent_login_required
@@ -72,6 +72,7 @@ def delete_user(request, user_id):
         Registration.objects.filter(user=user).delete()
         Notification.objects.filter(user=user).delete()
         ScheduledNotification.objects.filter(user=user).delete()
+        Consent.objects.filter(user=user).delete()
         user.delete()
 
     messages.success(request, "Les données ont bien été supprimées.")
