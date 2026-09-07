@@ -12,7 +12,7 @@
   import type { UserIdentity } from '$lib/state/User.svelte';
   import { userStore } from '$lib/state/User.svelte';
 
-  let wrapperEl: HTMLDivElement | undefined = $state();
+  let wrapperEl: HTMLDivElement;
 
   const redirectLoggedInUser = (createdPasskey: boolean) => {
     initializeData();
@@ -48,10 +48,8 @@
       AMIGoto('/#/login');
     }
 
-    if (wrapperEl) {
-      wrapperEl.style.height = `${window.innerHeight}px`;
-      console.log('innerHeight:', window.innerHeight);
-    }
+    wrapperEl.style.height = `${window.innerHeight}px`;
+    console.log('innerHeight:', window.innerHeight);
   });
 
   const passkeyError = () => {
@@ -155,8 +153,8 @@
   };
 </script>
 
-{#if silent_fc_enabled && !hasWorkingPassKey}
-  <div class="fr-container passkeys-full-page" bind:this={wrapperEl}>
+<div class="fr-container passkeys-full-page" bind:this={wrapperEl}>
+  {#if silent_fc_enabled && !hasWorkingPassKey}
     <div class="fr-grid-row fr-grid-row--middle fr-grid-row--center">
       <div class="image-wrapper">
         <img src="/icons/passkeys.svg" alt="">
@@ -194,8 +192,8 @@
         </ul>
       </div>
     </div>
-  </div>
-{/if}
+  {/if}
+</div>
 <style>
   .passkeys-full-page {
     height: 100vh;
