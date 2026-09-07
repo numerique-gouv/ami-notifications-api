@@ -28,6 +28,11 @@ export default defineConfig({
         secure: false,
       },
       '/logout': { target: 'https://localhost:8000', xfwd: true, secure: false },
+      '/notification-key': {
+        target: 'https://localhost:8000',
+        xfwd: true,
+        secure: false,
+      },
       '/ping': { target: 'https://localhost:8000', xfwd: true, secure: false },
       '/schema': { target: 'https://localhost:8000', xfwd: true, secure: false },
       '/sector_identifier_url ': {
