@@ -20,4 +20,4 @@ class Partner(models.Model):
 
     @property
     def secret(self):
-        return settings.PARTNERS_SECRETS[self.slug.replace("_", "-")]
+        return settings.PARTNERS_SECRETS.get(self.slug.replace("_", "-")) or ""
