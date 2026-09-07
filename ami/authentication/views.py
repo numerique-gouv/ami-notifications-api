@@ -5,8 +5,10 @@ from urllib.parse import urlencode
 
 from django.conf import settings
 from django.core import signing
+from django.core.exceptions import ValidationError
 from django.http import Http404, JsonResponse
 from django.shortcuts import redirect
+from django.urls import reverse
 from django.views.decorators.http import require_GET
 
 from ami.authentication.auth import create_jwt_token, generate_nonce, get_fc_scope, get_fc_token
@@ -201,21 +203,25 @@ async def login_callback(request):
                     login_type == "relogin"
                     and request.ami_user.fc_hash != user_data["user_fc_hash"]
                 ):
-                    # initiate FC logout and redirect to home ?user_does_not_match
-                    from_hash = request.session.get("login_from_hash") or ""
-                    params = {
-                        "user_does_not_match": "",
-                        "redirect_to_hash": from_hash,
-                    }
-                    redirect_uri = f"{settings.PUBLIC_APP_URL}/?{urlencode(params)}"
-                    post_logout_redirect_uri = redirect_uri
-                    if settings.PUBLIC_FC_PROXY_BASE_URL:
-                        post_logout_redirect_uri = f"{settings.PUBLIC_FC_PROXY_BASE_URL}/"
+                    # initiate FC logout and redirect to logout callback
+                    nonce = await Nonce.objects.acreate(
+                        nonce=generate_nonce,
+                        context={
+                            "user_does_not_match": True,
+                            "redirect_to_hash": request.session.get("login_from_hash"),
+                        },
+                    )
+                    redirect_uri = f"{settings.PUBLIC_APP_URL}{reverse('logout-callback')}"
                     params = {
                         "id_token_hint": id_token,
-                        "state": redirect_uri,
-                        "post_logout_redirect_uri": post_logout_redirect_uri,
+                        "post_logout_redirect_uri": redirect_uri,
+                        "state": str(nonce.id),
                     }
+                    if settings.PUBLIC_FC_PROXY_BASE_URL:
+                        # overwrite parameters when using proxy
+                        params["state"] = f"{redirect_uri}?state={params['state']}"
+                        params["post_logout_redirect_uri"] = f"{settings.PUBLIC_FC_PROXY_BASE_URL}/"
+
                     fc_logout_url = f"{settings.PUBLIC_FC_BASE_URL}{settings.FC_LOGOUT_ENDPOINT}?{urlencode(params)}"
                     return redirect(fc_logout_url)
 
@@ -252,6 +258,28 @@ async def login_callback(request):
     except Exception as e:
         logging.exception(e)
         return redirect(f"{settings.PUBLIC_APP_URL}/#/technical-error")
+
+
+@require_GET
+def logout_callback(request):
+    try:
+        nonce = Nonce.objects.get(id=request.GET["state"])
+    except (KeyError, Nonce.DoesNotExist, ValidationError):
+        # silent redirection to login page
+        return redirect(f"{settings.PUBLIC_APP_URL}/#/login")
+
+    context = nonce.context or {}
+    nonce.delete()
+
+    if context.get("user_does_not_match"):
+        from_hash = context.get("login_from_hash") or ""
+        params = {
+            "user_does_not_match": "",
+            "redirect_to_hash": from_hash,
+        }
+        return redirect(f"{settings.PUBLIC_APP_URL}/?{urlencode(params)}")
+
+    return redirect(f"{settings.PUBLIC_APP_URL}/#/login")
 
 
 async def get_user_data(
