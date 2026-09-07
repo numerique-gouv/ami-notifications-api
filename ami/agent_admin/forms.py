@@ -220,6 +220,22 @@ class ServiceForm(forms.ModelForm, AMIDsfrBaseForm):
         value = self.cleaned_data["restricted_to"] or ""
         return " ".join(sorted(set(value.split(" "))))
 
+    def clean(self):
+        cleaned_data = super().clean()
+
+        partner = cleaned_data.get("partner")  # type: ignore
+        item_type = cleaned_data.get("item_type")  # type: ignore
+        if partner and item_type:
+            service_qs = Service.objects.filter(
+                kind=self.instance.kind,
+                partner=partner,
+                item_type=item_type,
+            ).exclude(id=self.instance.id)
+            if service_qs.exists():
+                self.add_error(None, "Ce service existe déjà.")
+
+        return cleaned_data
+
     def save(self, commit=True):
         created = self.instance._state.adding
         super().save(commit=commit)

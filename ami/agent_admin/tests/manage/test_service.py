@@ -1,3 +1,4 @@
+import copy
 import uuid
 
 import pytest
@@ -230,6 +231,52 @@ def test_add_service_submit_success_duplicated_restricted_to(
 
 
 @pytest.mark.django_db
+def test_add_service_submit_success_duplicated_service(
+    app, admin_agent: Agent, partner: Partner, services: list[Service]
+) -> None:
+    app.set_user(admin_agent.user)
+
+    response = app.get("/agent-admin/manage/service/add/catalog/")
+    service = services[0]
+    response.forms["service-form"]["partner"] = service.partner.id
+    response.forms["service-form"]["item_type"] = service.item_type
+    response.forms["service-form"]["title"] = "Je déménage"
+    response.forms["service-form"]["short_description"] = "Démarche de changement d'adresse"
+    response.forms["service-form"]["description"] = "**Démarche de changement d'adresse**"
+    response.forms["service-form"]["url"] = "http://demarche-demenagement"
+    response = response.forms["service-form"].submit()
+    assert response.context["form"].errors == {
+        "__all__": ["Ce service existe déjà."],
+    }
+
+    response = app.get("/agent-admin/manage/service/add/sos/")
+    service = services[2]
+    response.forms["service-form"]["partner"] = service.partner.id
+    response.forms["service-form"]["item_type"] = service.item_type
+    response.forms["service-form"]["title"] = "Je déménage"
+    response.forms["service-form"]["short_description"] = "Démarche de changement d'adresse"
+    response.forms["service-form"]["description"] = "**Démarche de changement d'adresse**"
+    response.forms["service-form"]["url"] = "http://demarche-demenagement"
+    response = response.forms["service-form"].submit()
+    assert response.context["form"].errors == {
+        "__all__": ["Ce service existe déjà."],
+    }
+
+    response = app.get("/agent-admin/manage/service/add/steps/")
+    service = services[3]
+    response.forms["service-form"]["partner"] = service.partner.id
+    response.forms["service-form"]["item_type"] = service.item_type
+    response.forms["service-form"]["title"] = "Je déménage"
+    response.forms["service-form"]["short_description"] = "Démarche de changement d'adresse"
+    response.forms["service-form"]["description"] = "**Démarche de changement d'adresse**"
+    response.forms["service-form"]["url"] = "http://demarche-demenagement"
+    response = response.forms["service-form"].submit()
+    assert response.context["form"].errors == {
+        "__all__": ["Ce service existe déjà."],
+    }
+
+
+@pytest.mark.django_db
 def test_add_service_unknown_kind(app, admin_agent: Agent) -> None:
     app.set_user(admin_agent.user)
     app.get("/agent-admin/manage/service/add/unknown/", status=404)
@@ -437,6 +484,52 @@ def test_edit_service_submit_success_duplicated_value(
     assert Service.objects.count() == 1
     service.refresh_from_db()
     assert service.restricted_to == "duplicated-value"
+
+
+@pytest.mark.django_db
+def test_edit_service_submit_success_duplicated_service(
+    app, admin_agent: Agent, partner: Partner, services: list[Service]
+) -> None:
+    app.set_user(admin_agent.user)
+
+    service = services[0]
+    new_service = copy.deepcopy(service)
+    new_service.id = None
+    new_service.item_type = "new-item-type"
+    new_service.save()
+    response = app.get(f"/agent-admin/manage/service/{new_service.id}/")
+    response.forms["service-form"]["partner"] = service.partner.id
+    response.forms["service-form"]["item_type"] = service.item_type
+    response = response.forms["service-form"].submit()
+    assert response.context["form"].errors == {
+        "__all__": ["Ce service existe déjà."],
+    }
+
+    service = services[2]
+    new_service = copy.deepcopy(service)
+    new_service.id = None
+    new_service.item_type = "new-item-type"
+    new_service.save()
+    response = app.get(f"/agent-admin/manage/service/{new_service.id}/")
+    response.forms["service-form"]["partner"] = service.partner.id
+    response.forms["service-form"]["item_type"] = service.item_type
+    response = response.forms["service-form"].submit()
+    assert response.context["form"].errors == {
+        "__all__": ["Ce service existe déjà."],
+    }
+
+    service = services[3]
+    new_service = copy.deepcopy(service)
+    new_service.id = None
+    new_service.item_type = "new-item-type"
+    new_service.save()
+    response = app.get(f"/agent-admin/manage/service/{new_service.id}/")
+    response.forms["service-form"]["partner"] = service.partner.id
+    response.forms["service-form"]["item_type"] = service.item_type
+    response = response.forms["service-form"].submit()
+    assert response.context["form"].errors == {
+        "__all__": ["Ce service existe déjà."],
+    }
 
 
 @pytest.mark.django_db
