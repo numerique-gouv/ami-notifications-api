@@ -46,7 +46,6 @@ describe('/FollowupItemDetail.svelte', () => {
   });
   test('Should list notifications', async () => {
     // Given
-    vi.stubEnv('TZ', 'Europe/Paris');
     const event1 = new FollowupItemEvent(
       'event-id1',
       new Date('2026-02-03T08:05:42Z'),

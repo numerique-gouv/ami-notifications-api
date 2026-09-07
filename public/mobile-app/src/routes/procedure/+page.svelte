@@ -3,7 +3,7 @@
   import { goto } from '$app/navigation';
   import { PUBLIC_FEATURE_FLAG_SERVICES_ENABLED } from '$env/static/public';
   import { Address } from '$lib/address';
-  import { AMIGoto } from '$lib/ami-goto';
+  import { AMIGoto } from '$lib/ami-navigation';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import PageWrapper from '$lib/components/PageWrapper.svelte';
   import { buildFollowup } from '$lib/followup';

@@ -86,7 +86,6 @@ describe('/FollowupParentItemDetail.svelte', () => {
   });
   test('Should list sub items', async () => {
     // Given
-    vi.stubEnv('TZ', 'Europe/Paris');
     const item = new FollowupItem(
       'partner',
       'type',

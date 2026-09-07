@@ -1,3 +1,19 @@
 .am-text--smbold {
 	font-weight: 500 !important;
 }
+
+.am-truncate-5lines {
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 5;
+	line-clamp: 5;
+	overflow: hidden;
+}
+
+.am-truncate-3lines {
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 3;
+	line-clamp: 3;
+	overflow: hidden;
+}

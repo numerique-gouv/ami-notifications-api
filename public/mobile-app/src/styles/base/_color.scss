@@ -10,3 +10,11 @@
 .am-color-blue {
 	color: var(--text-active-blue-france);
 }
+
+:root {
+	--am-blue--1: #6565eb;
+}
+
+:root[data-fr-theme='dark'] {
+	--am-blue--1: #6f6ff3;
+}

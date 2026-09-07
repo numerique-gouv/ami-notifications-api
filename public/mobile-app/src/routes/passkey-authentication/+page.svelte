@@ -10,15 +10,24 @@
   import { userStore } from '$lib/state/User.svelte';
 
   let hasPasskeyError: boolean = $state(false);
+  let hasBreakingPasskeyError: boolean = $state(false);
   let hasNetworkError: boolean = $state(false);
 
   const passkeyError = () => {
     hasPasskeyError = true;
+    hasBreakingPasskeyError = false;
+    hasNetworkError = false;
+  };
+
+  const breakingPasskeyError = () => {
+    hasPasskeyError = true;
+    hasBreakingPasskeyError = true;
     hasNetworkError = false;
   };
 
   const networkError = () => {
     hasPasskeyError = true;
+    hasBreakingPasskeyError = false;
     hasNetworkError = true;
   };
 
@@ -27,11 +36,15 @@
     try {
       optionsResp = await fetch('/api/v1/fi/passkey/generate-authentication-options');
       if (!optionsResp.ok) {
-        return networkError();
+        return passkeyError();
       }
     } catch (error) {
       console.log('ERROR', `${error}`);
-      return passkeyError();
+      if (error instanceof TypeError) {
+        return networkError();
+      } else {
+        return passkeyError();
+      }
     }
 
     let attResp: AuthenticationResponseJSON;
@@ -58,11 +71,23 @@
         body: JSON.stringify(attResp),
       });
       if (!verificationResp.ok) {
-        return networkError();
+        if (verificationResp.status === 400) {
+          const verificationJSON = await verificationResp.json();
+          if (verificationJSON.retry === true) {
+            // 400 errors without retry are FISession errors
+            return passkeyError();
+          }
+          return breakingPasskeyError();
+        }
+        return passkeyError();
       }
     } catch (error) {
       console.log('ERROR', `${error}`);
-      return passkeyError();
+      if (error instanceof TypeError) {
+        return networkError();
+      } else {
+        return passkeyError();
+      }
     }
 
     const verificationJSON = await verificationResp.json();
@@ -82,13 +107,17 @@
     }
   };
 
-  const closeModal = () => {
+  const back = () => {
     const hash = page.url.searchParams.get('redirect_to_hash') || '';
     if (hash !== '') {
       goto(`/#${hash}`);
       return;
     }
     goto('/');
+  };
+
+  const closeModal = () => {
+    back();
   };
 
   const bypassPasskey = async () => {
@@ -128,7 +157,18 @@
           Utiliser ma clé d’accès
         </button>
       </li>
-      {#if hasPasskeyError}
+      {#if hasBreakingPasskeyError}
+        <li>
+          <button
+            type="button"
+            class="fr-btn fr-btn--tertiary-no-outline"
+            onclick="{back}"
+            data-testid="back"
+          >
+            Revenir à la page précédente
+          </button>
+        </li>
+      {:else if hasPasskeyError}
         <li>
           <button
             type="button"
@@ -141,10 +181,26 @@
         </li>
       {/if}
     </ul>
-    {#if hasPasskeyError}
+    {#if hasNetworkError}
       <Toast
         id="error"
-        title={hasNetworkError ? 'Problème de connexion Internet, veuillez réessayer': 'Erreur lors de l’utilisation de votre clé d’accès'}
+        title="Problème de connexion Internet, veuillez réessayer"
+        toastType="error"
+        duration={null}
+        hasCloseLink={false}
+      />
+    {:else if hasBreakingPasskeyError}
+      <Toast
+        id="error"
+        title="Erreur lors de l’utilisation de votre clé d’accès"
+        toastType="error"
+        duration={null}
+        hasCloseLink={false}
+      />
+    {:else if hasPasskeyError}
+      <Toast
+        id="error"
+        title="Erreur lors de l’utilisation de votre clé d’accès"
         toastType="error"
         duration={null}
         hasCloseLink={false}

@@ -46,11 +46,17 @@
         >
           <span>
             {#if item.sub_items.length}
-              <strong>En cours</strong> par {item.wipSubItems.length}
-              {item.wipSubItems.length === 1 ? 'service': 'services'}
-              <br>
-              <strong>Terminé</strong> par {item.closedSubItems.length}
-              {item.closedSubItems.length === 1 ? 'service': 'services'}
+              {#if item.wipSubItems.length}
+                <strong>En cours</strong> par {item.wipSubItems.length}
+                {item.wipSubItems.length === 1 ? 'service': 'services'}
+                {#if item.closedSubItems.length}
+                  <br>
+                {/if}
+              {/if}
+              {#if item.closedSubItems.length}
+                <strong>Terminé</strong> par {item.closedSubItems.length}
+                {item.closedSubItems.length === 1 ? 'service': 'services'}
+              {/if}
             {:else}
               {item.description}
             {/if}

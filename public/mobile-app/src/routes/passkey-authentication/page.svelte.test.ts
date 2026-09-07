@@ -25,11 +25,45 @@ describe('/+page.svelte', () => {
     globalThis.window = originalWindow;
   });
 
-  test('should display network error message and bypass button on options network error', async () => {
+  test('should display passkey error message and bypass button on options response error', async () => {
     // Given
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(
       new Response('{}', { status: 400 })
     );
+    const spy = vi
+      .spyOn(navigationMethods, 'goto')
+      .mockImplementation(() => Promise.resolve());
+    const unsetHasWorkingPasskeySpy = vi
+      .spyOn(userStore, 'unsetHasWorkingPasskey')
+      .mockResolvedValue();
+    render(Page);
+
+    // When
+    await waitFor(() => {
+      const button = screen.getByTestId('use-passkey');
+      button.click();
+    });
+
+    // Then
+    const networkErrorMessage = await screen.queryByText(
+      'Problème de connexion Internet, veuillez réessayer'
+    );
+    expect(networkErrorMessage).toBeNull();
+    const passkeyErrorMessage = await screen.queryByText(
+      'Erreur lors de l’utilisation de votre clé d’accès'
+    );
+    expect(passkeyErrorMessage).not.toBeNull();
+
+    await waitFor(() => {
+      const bypass = screen.getByTestId('bypass-passkey');
+      bypass.click();
+    });
+    expect(spy).toHaveBeenCalledWith('/#/relogin');
+    expect(unsetHasWorkingPasskeySpy).toHaveBeenCalled();
+  });
+  test('should display network error message and bypass button on options TypeError', async () => {
+    // Given
+    vi.spyOn(globalThis, 'fetch').mockRejectedValue(new TypeError());
     const spy = vi
       .spyOn(navigationMethods, 'goto')
       .mockImplementation(() => Promise.resolve());
@@ -134,11 +168,140 @@ describe('/+page.svelte', () => {
     expect(spy).toHaveBeenCalledWith('/#/relogin');
     expect(unsetHasWorkingPasskeySpy).toHaveBeenCalled();
   });
-  test('should display network error message and bypass button on verify network error', async () => {
+  test('should display passkey error message and bypass button on verify response error with retry', async () => {
+    // Given
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(new Response('{}', { status: 200 }))
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ retry: true }), { status: 400 })
+      );
+    vi.mocked(simplewebauthnMethods.startAuthentication).mockResolvedValue(
+      {} as AuthenticationResponseJSON
+    );
+    const spy = vi
+      .spyOn(navigationMethods, 'goto')
+      .mockImplementation(() => Promise.resolve());
+    const unsetHasWorkingPasskeySpy = vi
+      .spyOn(userStore, 'unsetHasWorkingPasskey')
+      .mockResolvedValue();
+    render(Page);
+
+    // When
+    await waitFor(() => {
+      const button = screen.getByTestId('use-passkey');
+      button.click();
+    });
+
+    // Then
+    await waitFor(async () => {
+      const networkErrorMessage = await screen.queryByText(
+        'Problème de connexion Internet, veuillez réessayer'
+      );
+      expect(networkErrorMessage).toBeNull();
+      const passkeyErrorMessage = await screen.queryByText(
+        'Erreur lors de l’utilisation de votre clé d’accès'
+      );
+      expect(passkeyErrorMessage).not.toBeNull();
+    });
+
+    await waitFor(() => {
+      const bypass = screen.getByTestId('bypass-passkey');
+      bypass.click();
+    });
+    expect(spy).toHaveBeenCalledWith('/#/relogin');
+    expect(unsetHasWorkingPasskeySpy).toHaveBeenCalled();
+  });
+  test('should display passkey error message and bypass button on verify response error', async () => {
     // Given
     vi.spyOn(globalThis, 'fetch')
       .mockResolvedValueOnce(new Response('{}', { status: 200 }))
       .mockResolvedValueOnce(new Response('{}', { status: 400 }));
+    vi.mocked(simplewebauthnMethods.startAuthentication).mockResolvedValue(
+      {} as AuthenticationResponseJSON
+    );
+    const spy = vi
+      .spyOn(navigationMethods, 'goto')
+      .mockImplementation(() => Promise.resolve());
+    const unsetHasWorkingPasskeySpy = vi
+      .spyOn(userStore, 'unsetHasWorkingPasskey')
+      .mockResolvedValue();
+    render(Page);
+
+    // When
+    await waitFor(() => {
+      const button = screen.getByTestId('use-passkey');
+      button.click();
+    });
+
+    // Then
+    await waitFor(async () => {
+      const networkErrorMessage = await screen.queryByText(
+        'Problème de connexion Internet, veuillez réessayer'
+      );
+      expect(networkErrorMessage).toBeNull();
+      const passkeyErrorMessage = await screen.queryByText(
+        'Erreur lors de l’utilisation de votre clé d’accès'
+      );
+      expect(passkeyErrorMessage).not.toBeNull();
+    });
+
+    await waitFor(() => {
+      const bypass = screen.getByTestId('back');
+      bypass.click();
+    });
+    expect(spy).toHaveBeenCalledWith('/');
+    expect(unsetHasWorkingPasskeySpy).not.toHaveBeenCalled();
+  });
+  test('should display passkey error message and bypass button on verify response error - with redirect_to_hash param', async () => {
+    // Given
+    const { page } = await import('$app/state');
+    const mockSearchParams = new URLSearchParams('user_does_not_match');
+    mockSearchParams.set('redirect_to_hash', '/page');
+    vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(new Response('{}', { status: 200 }))
+      .mockResolvedValueOnce(new Response('{}', { status: 400 }));
+    vi.mocked(simplewebauthnMethods.startAuthentication).mockResolvedValue(
+      {} as AuthenticationResponseJSON
+    );
+    const spy = vi
+      .spyOn(navigationMethods, 'goto')
+      .mockImplementation(() => Promise.resolve());
+    const unsetHasWorkingPasskeySpy = vi
+      .spyOn(userStore, 'unsetHasWorkingPasskey')
+      .mockResolvedValue();
+    render(Page);
+
+    // When
+    await waitFor(() => {
+      const button = screen.getByTestId('use-passkey');
+      button.click();
+    });
+
+    // Then
+    await waitFor(async () => {
+      const networkErrorMessage = await screen.queryByText(
+        'Problème de connexion Internet, veuillez réessayer'
+      );
+      expect(networkErrorMessage).toBeNull();
+      const passkeyErrorMessage = await screen.queryByText(
+        'Erreur lors de l’utilisation de votre clé d’accès'
+      );
+      expect(passkeyErrorMessage).not.toBeNull();
+    });
+
+    await waitFor(() => {
+      const bypass = screen.getByTestId('back');
+      bypass.click();
+    });
+    expect(spy).toHaveBeenCalledWith('/#/page');
+    expect(unsetHasWorkingPasskeySpy).not.toHaveBeenCalled();
+  });
+  test('should display network error message and bypass button on verify Type', async () => {
+    // Given
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(new Response('{}', { status: 200 }))
+      .mockRejectedValueOnce(new TypeError());
     vi.mocked(simplewebauthnMethods.startAuthentication).mockResolvedValue(
       {} as AuthenticationResponseJSON
     );

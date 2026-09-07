@@ -52,7 +52,7 @@ Start the server using:
 make dev # With live reloading
 ```
 
-It will start a server on http://localhost:8000, it is accessible but actual
+It will start a server on https://localhost:8000, it is accessible but actual
 accesses will go through the Svelte/Mobile app local server. (see below)
 
 For any specific env variables, create (or edit) a `.env.local` file. Anything in here

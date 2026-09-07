@@ -748,14 +748,14 @@ wheels = [
 
 [[package]]
 name = "djangorestframework"
-version = "3.16.1"
+version = "3.17.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "django" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/8a/95/5376fe618646fde6899b3cdc85fd959716bb67542e273a76a80d9f326f27/djangorestframework-3.16.1.tar.gz", hash = "sha256:166809528b1aced0a17dc66c24492af18049f2c9420dbd0be29422029cfc3ff7", size = 1089735, upload-time = "2025-08-06T17:50:53.251Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/3b/35/c96055e700fdff25da3a7b7756cfd1d4dc54f38b9bc6d6c5e19e3a0fdc20/djangorestframework-3.17.2.tar.gz", hash = "sha256:89ed713b6dc83e1539f214b7d10808ae19bb8511004beba886225da6d5c9dafa", size = 906683, upload-time = "2026-08-05T07:47:22.5Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b0/ce/bf8b9d3f415be4ac5588545b5fcdbbb841977db1c1d923f7568eeabe1689/djangorestframework-3.16.1-py3-none-any.whl", hash = "sha256:33a59f47fb9c85ede792cbf88bde71893bcda0667bc573f784649521f1102cec", size = 1080442, upload-time = "2025-08-06T17:50:50.667Z" },
+    { url = "https://files.pythonhosted.org/packages/a2/46/c14108e400b208c394325eb63fbae06c81341b6447fa1a6f9da718b17fe7/djangorestframework-3.17.2-py3-none-any.whl", hash = "sha256:cb0546a7415d5b46c04e0f4fe0a54b2109f4fdd5e83ca773c8c6183a6493d042", size = 899109, upload-time = "2026-08-05T07:47:20.853Z" },
 ]
 
 [[package]]
@@ -2684,14 +2684,14 @@ wheels = [
 
 [[package]]
 name = "webob"
-version = "1.8.10"
+version = "1.8.11"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "legacy-cgi" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/58/f9/974eafebfd0bd442b8848899fe7d30675c93f750c313e1a6fe61acbde1e3/webob-1.8.10.tar.gz", hash = "sha256:1c963a11f307bc3f624fbab9dde737701eae255f32981b7a5486a88db1767c2b", size = 280796, upload-time = "2026-06-02T19:56:47.268Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/e6/92/9329872e36be90e25ba616ac6e9ee8c1be4326a1ea3fdffcdabd0eb48efb/webob-1.8.11.tar.gz", hash = "sha256:aa8c27231070b135c025e567a9cd7eda03f4df71352ffaac740cb6a75f0f81a5", size = 286047, upload-time = "2026-08-02T06:26:26.063Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/83/21/fce134877fb6fc6ad3c464e4a07ede0ee9219f705d26a981ae58ea36ca13/webob-1.8.10-py2.py3-none-any.whl", hash = "sha256:e68ad87fda378191081965ab02a185391c26e4e926adec855c3b0286a8369d49", size = 115825, upload-time = "2026-06-02T19:56:44.765Z" },
+    { url = "https://files.pythonhosted.org/packages/c1/71/370a65bc7726a1cbf478445c898c7affe907aa42e2e9e5bb38319db74115/webob-1.8.11-py2.py3-none-any.whl", hash = "sha256:4addd1d38d6a7fbe0eda22d45f25a40d74c8b290f3a99c0ac3d4023cf21f2da2", size = 118319, upload-time = "2026-08-02T06:26:24.765Z" },
 ]
 
 [[package]]

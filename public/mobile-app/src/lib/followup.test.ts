@@ -14,7 +14,6 @@ describe('/followup.ts', () => {
     describe('formattedDate', () => {
       test('should return localized date and hour', async () => {
         // Given
-        vi.stubEnv('TZ', 'Europe/Paris');
         const item = new FollowupItemEvent(
           'fake-id',
           new Date('2026-01-03T08:05:42Z'),
@@ -33,7 +32,6 @@ describe('/followup.ts', () => {
     describe('getItemDetailPageUrl', () => {
       test('should return detail page url from partner_id, item_type and item_external_id', async () => {
         // Given
-        vi.stubEnv('TZ', 'Europe/Paris');
         const item = new Item(
           'partner',
           'type',
@@ -172,7 +170,6 @@ describe('/followup.ts', () => {
     describe('id', () => {
       test('should return an id from partner_id, item_type and item_external_id', async () => {
         // Given
-        vi.stubEnv('TZ', 'Europe/Paris');
         const item = new Item(
           'partner',
           'type',
@@ -202,7 +199,6 @@ describe('/followup.ts', () => {
     describe('formattedDate', () => {
       test('should return localized date and hour, without year', async () => {
         // Given
-        vi.stubEnv('TZ', 'Europe/Paris');
         const item = new Item(
           'partner',
           'type',
@@ -232,7 +228,6 @@ describe('/followup.ts', () => {
     describe('getItemDetailPageUrl', () => {
       test('should return detail page url from partner_id, item_type and item_external_id', async () => {
         // Given
-        vi.stubEnv('TZ', 'Europe/Paris');
         const item = new Item(
           'partner',
           'type',
@@ -417,7 +412,6 @@ describe('/followup.ts', () => {
   describe('Followup', () => {
     test('should organize items in items and archived_items', async () => {
       // Given
-      vi.stubEnv('TZ', 'Europe/Paris');
       const followupItem1 = {
         partner_id: 'psl',
         item_type: 'OperationTranquilliteVacances',
@@ -986,7 +980,6 @@ describe('/followup.ts', () => {
   describe('buildFollowup', () => {
     test('should retrieve inventories and init followup with them', async () => {
       // Given
-      vi.stubEnv('TZ', 'Europe/Paris');
       const followupItem1 = {
         partner_id: 'psl',
         item_type: 'OperationTranquilliteVacances',

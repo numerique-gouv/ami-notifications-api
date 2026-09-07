@@ -8,8 +8,9 @@
     logoAlt?: string;
     title?: string;
     children?: Snippet;
+    className?: string;
   }
-  let { backUrl, logo, logoAlt, children, title }: Props = $props();
+  let { backUrl, logo, logoAlt, children, title, className }: Props = $props();
   let scrolled = $state(false);
 
   window.onscroll = () => {
@@ -17,7 +18,7 @@
   };
 </script>
 
-<nav class={["fr-p-2w", {scrolled}]}>
+<nav class={["fr-p-2w", {scrolled}, className]}>
   <div class="backbutton-wrapper">
     <BackButton {backUrl} />
   </div>
@@ -80,7 +81,7 @@
         text-align: center;
       }
     }
-
+    &.small-header,
     &.scrolled {
       padding-bottom: 0.5rem;
       .logo {

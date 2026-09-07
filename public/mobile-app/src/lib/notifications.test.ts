@@ -1,13 +1,14 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { waitFor } from '@testing-library/svelte';
+import * as nativeInfosMethods from '$lib/nativeInfos';
 import type { AppNotification } from '$lib/notifications';
 import * as notificationMethods from '$lib/notifications';
 import {
   countUnreadNotifications,
-  disableNotifications,
+  disableNotificationsAtLogout,
+  disableNotificationsForDesktop,
   enableNotifications,
-  enableNotificationsAndUpdateLocalStorage,
   fetchAndStoreNotifications,
   getNotificationsFromStore,
   readNotification,
@@ -21,12 +22,17 @@ import { mockPushSubscription } from '$tests/utils';
 
 describe('/notifications', () => {
   beforeEach(() => {
-    vi.resetAllMocks();
-    window.localStorage.clear();
-    vi.mock('$lib/registration', () => ({
-      registerDevice: vi.fn().mockReturnValue({ id: 'fake-registration-id' }),
-      unregisterDevice: vi.fn(() => true),
-    }));
+    vi.mock('$lib/registration', async (importOriginal) => {
+      const original = (await importOriginal()) as Record<string, unknown>;
+      return {
+        ...original,
+        registerDevice: vi
+          .fn()
+          .mockReturnValue({ id: 'fake-registration-id', device_id: 'fake-device-id' }),
+        unregisterRegistrationsForNative: vi.fn(() => true),
+        unregisterRegistrationsForDesktop: vi.fn(() => true),
+      };
+    });
 
     vi.mock('$env/static/public', async (importOriginal) => {
       const original = (await importOriginal()) as Record<string, unknown>;
@@ -240,9 +246,11 @@ describe('/notifications', () => {
     });
   });
 
-  describe('enableNotificationsAndUpdateLocalStorage', () => {
-    test('should perform enableNotifications and update localStorage', async () => {
+  describe('enableNotifications', () => {
+    test('should perform enableNotificationsForDesktop and update localStorage', async () => {
       // Given
+      vi.spyOn(nativeInfosMethods, 'getDeviceId').mockReturnValue('');
+
       vi.stubGlobal('Notification', {
         requestPermission: () => Promise.resolve(true),
       });
@@ -265,13 +273,14 @@ describe('/notifications', () => {
       const registration: Registration = {
         id: 'fake-registration-id',
         user_id: 'fake-user-id',
+        device_id: null,
         subscription: mockSubscription,
         created_at: new Date(),
       };
       vi.spyOn(registrationMethods, 'registerDevice').mockResolvedValue(registration);
 
       // When
-      await enableNotificationsAndUpdateLocalStorage();
+      await enableNotifications();
 
       // Then
       await waitFor(() => {
@@ -321,37 +330,6 @@ describe('/notifications', () => {
     });
   });
 
-  describe('enableNotifications', () => {
-    test('should call registerDevice when permission is granted and is registered to service worker', async () => {
-      // Given
-      vi.stubGlobal('Notification', {
-        requestPermission: () => Promise.resolve(true),
-      });
-      const pushSubscription = {};
-      const registration = {
-        pushManager: {
-          subscribe: vi.fn(() => pushSubscription),
-        },
-      };
-      vi.stubGlobal('navigator', {
-        ...navigator,
-        serviceWorker: {
-          ready: Promise.resolve(registration),
-        },
-      });
-      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-        new Response('fake applicationKeyResponse', { status: 200 })
-      );
-      const spy = vi.spyOn(registrationMethods, 'registerDevice');
-
-      // When
-      await enableNotifications();
-
-      // Then
-      expect(spy).toHaveBeenCalledWith(pushSubscription);
-    });
-  });
-
   describe('unsubscribePush', () => {
     test('should call unsubscribe and return true when success', async () => {
       // Given
@@ -382,8 +360,128 @@ describe('/notifications', () => {
     });
   });
 
-  describe('disableNotifications', () => {
-    test('should call unregisterDevice and unsubscribePush when permission is granted and is registered to service worker', async () => {
+  describe('disableNotificationsAtLogout', () => {
+    test('should call unregisterRegistrationsForNative when user has deviceId', async () => {
+      // Given
+      vi.spyOn(nativeInfosMethods, 'getDeviceId').mockReturnValue('fake-device-id');
+      const spyUnregisterRegistrationsForNative = vi.spyOn(
+        registrationMethods,
+        'unregisterRegistrationsForNative'
+      );
+
+      // When
+      await disableNotificationsAtLogout();
+
+      // Then
+      expect(spyUnregisterRegistrationsForNative).toHaveBeenCalledWith(
+        'fake-device-id'
+      );
+    });
+
+    test('should call unregisterRegistrationsForDesktop when user is using a desktop app, permission is granted and is registered to service worker', async () => {
+      // Given
+      vi.spyOn(nativeInfosMethods, 'getDeviceId').mockReturnValue('');
+      localStorage.setItem('registration_id', 'fake-registration-id');
+
+      vi.stubGlobal('Notification', {
+        requestPermission: () => Promise.resolve(true),
+      });
+      const pushSubscription = {
+        ...mockPushSubscription,
+        unsubscribe: () => Promise.resolve(true),
+      };
+      const registration = {
+        pushManager: {
+          getSubscription: vi.fn(() => Promise.resolve(pushSubscription)),
+        },
+      };
+      vi.stubGlobal('navigator', {
+        ...navigator,
+        serviceWorker: {
+          ready: Promise.resolve(registration),
+        },
+      });
+
+      const spyUnregisterRegistrationsForNative = vi.spyOn(
+        registrationMethods,
+        'unregisterRegistrationsForNative'
+      );
+      const spyUnregisterRegistrationsForDesktop = vi.spyOn(
+        registrationMethods,
+        'unregisterRegistrationsForDesktop'
+      );
+
+      // When
+      await disableNotificationsAtLogout();
+
+      // Then
+      expect(spyUnregisterRegistrationsForNative).not.toHaveBeenCalled();
+      expect(spyUnregisterRegistrationsForDesktop).toHaveBeenCalledWith(
+        'fake-registration-id'
+      );
+    });
+
+    test('should not call unregisterRegistrationsForDesktop when user is using a desktop app but permission is not granted', async () => {
+      // Given
+      vi.spyOn(nativeInfosMethods, 'getDeviceId').mockReturnValue('');
+      localStorage.setItem('registration_id', 'fake-registration-id');
+
+      vi.stubGlobal('Notification', {
+        requestPermission: () => Promise.resolve(false),
+      });
+
+      const spyUnregisterRegistrationsForNative = vi.spyOn(
+        registrationMethods,
+        'unregisterRegistrationsForNative'
+      );
+      const spyUnregisterRegistrationsForDesktop = vi.spyOn(
+        registrationMethods,
+        'unregisterRegistrationsForDesktop'
+      );
+
+      // When
+      await disableNotificationsAtLogout();
+
+      // Then
+      expect(spyUnregisterRegistrationsForNative).not.toHaveBeenCalled();
+      expect(spyUnregisterRegistrationsForDesktop).not.toHaveBeenCalled();
+    });
+
+    test('should not call unregisterRegistrationsForDesktop when user is using a desktop app, permission is granted but is not registered to service worker', async () => {
+      // Given
+      vi.spyOn(nativeInfosMethods, 'getDeviceId').mockReturnValue('');
+      localStorage.setItem('registration_id', 'fake-registration-id');
+
+      vi.stubGlobal('Notification', {
+        requestPermission: () => Promise.resolve(true),
+      });
+      vi.stubGlobal('navigator', {
+        ...navigator,
+        serviceWorker: {
+          ready: false,
+        },
+      });
+
+      const spyUnregisterRegistrationsForNative = vi.spyOn(
+        registrationMethods,
+        'unregisterRegistrationsForNative'
+      );
+      const spyUnregisterRegistrationsForDesktop = vi.spyOn(
+        registrationMethods,
+        'unregisterRegistrationsForDesktop'
+      );
+
+      // When
+      await disableNotificationsAtLogout();
+
+      // Then
+      expect(spyUnregisterRegistrationsForNative).not.toHaveBeenCalled();
+      expect(spyUnregisterRegistrationsForDesktop).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('disableNotificationsForDesktop', () => {
+    test('should call unregisterRegistrationsForDesktop when user is using a desktop app, permission is granted and is registered to service worker', async () => {
       // Given
       vi.stubGlobal('Notification', {
         requestPermission: () => Promise.resolve(true),
@@ -403,27 +501,61 @@ describe('/notifications', () => {
           ready: Promise.resolve(registration),
         },
       });
-      const spyUnregisterDevice = vi.spyOn(registrationMethods, 'unregisterDevice');
+
+      const spyUnregisterRegistrationsForDesktop = vi.spyOn(
+        registrationMethods,
+        'unregisterRegistrationsForDesktop'
+      );
 
       // When
-      const result = await disableNotifications('11');
+      await disableNotificationsForDesktop('fake-registration-id');
 
       // Then
-      expect(spyUnregisterDevice).toHaveBeenCalledWith('11');
-      expect(result).toEqual(pushSubscription);
+      expect(spyUnregisterRegistrationsForDesktop).toHaveBeenCalledWith(
+        'fake-registration-id'
+      );
     });
 
-    test('should return false when Notification permission is not granted', async () => {
+    test('should not call unregisterRegistrationsForDesktop when user is using a desktop app but permission is not granted', async () => {
       // Given
       vi.stubGlobal('Notification', {
         requestPermission: () => Promise.resolve(false),
       });
 
+      const spyUnregisterRegistrationsForDesktop = vi.spyOn(
+        registrationMethods,
+        'unregisterRegistrationsForDesktop'
+      );
+
       // When
-      const result = await disableNotifications('11');
+      await disableNotificationsForDesktop('fake-registration-id');
 
       // Then
-      expect(result).toEqual(false);
+      expect(spyUnregisterRegistrationsForDesktop).not.toHaveBeenCalled();
+    });
+
+    test('should not call unregisterRegistrationsForDesktop when user is using a desktop app, permission is granted but is not registered to service worker', async () => {
+      // Given
+      vi.stubGlobal('Notification', {
+        requestPermission: () => Promise.resolve(true),
+      });
+      vi.stubGlobal('navigator', {
+        ...navigator,
+        serviceWorker: {
+          ready: false,
+        },
+      });
+
+      const spyUnregisterRegistrationsForDesktop = vi.spyOn(
+        registrationMethods,
+        'unregisterRegistrationsForDesktop'
+      );
+
+      // When
+      await disableNotificationsForDesktop('fake-registration-id');
+
+      // Then
+      expect(spyUnregisterRegistrationsForDesktop).not.toHaveBeenCalled();
     });
   });
 });

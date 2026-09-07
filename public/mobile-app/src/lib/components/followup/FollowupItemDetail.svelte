@@ -10,12 +10,6 @@
   let { item }: Props = $props();
 
   let checkedIcon = $derived(getDSFRIcon(item.icon, 'fr-icon-information-fill'));
-
-  const gotoExternalItem = () => {
-    if (item?.link) {
-      window.location.href = item.link;
-    }
-  };
 </script>
 
 <div class="demarche-content-container">

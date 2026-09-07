@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
+  import { AMIBack } from '$lib/ami-navigation';
   import Banner from '$lib/components/Banner.svelte';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import PageWrapper from '$lib/components/PageWrapper.svelte';
@@ -27,21 +28,17 @@
     }
   });
 
-  const navigateToPreviousPage = async () => {
-    goto(backUrl);
+  const cancel = () => {
+    AMIBack(backUrl);
   };
 
-  const cancel = async () => {
-    await navigateToPreviousPage();
-  };
-
-  const submit = async () => {
+  const submit = () => {
     if (userStore.connected && inputValue) {
       userStore.connected.setEmail(inputValue);
       console.log('Updated the email to', inputValue);
       toastStore.addToast('Information bien enregistrée !', 'success', 3000, false);
     }
-    await navigateToPreviousPage();
+    AMIBack(backUrl);
   };
 </script>
 

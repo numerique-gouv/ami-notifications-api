@@ -71,7 +71,7 @@ describe('/FollowupItem.svelte', () => {
         ).toHaveTextContent('Votre demande est terminée.');
       });
     });
-    test('Should display sub items progression if item has sub items', async () => {
+    test('Should display sub items progression if item has sub items - wip items', async () => {
       // Given
       const item = new Item(
         'partner',
@@ -118,7 +118,124 @@ describe('/FollowupItem.svelte', () => {
       await waitFor(async () => {
         expect(
           screen.queryByTestId('followup-item-detail-partner:type:id1')
-        ).toHaveTextContent('En cours par 1 service Terminé par 0 services');
+        ).toHaveTextContent('En cours par 1 service');
+      });
+    });
+    test('Should display sub items progression if item has sub items - closed items', async () => {
+      // Given
+      const item = new Item(
+        'partner',
+        'type',
+        'id1',
+        'ref1',
+        'notifications',
+        [],
+        'Opération Tranquillité Vacances',
+        'subheading',
+        'Votre demande est en cours de traitement 1.',
+        'icon',
+        new Date('2026-02-22T15:55:00.000Z'),
+        'closed',
+        'Terminé',
+        true,
+        'link1',
+        [
+          new SubItem(
+            'partner',
+            'type',
+            'id1',
+            'ref1',
+            'notifications',
+            [],
+            'Opération Tranquillité Vacances',
+            'subheading',
+            'Votre demande est en cours de traitement 1.',
+            'icon',
+            new Date('2026-02-22T15:55:00.000Z'),
+            'closed',
+            'Terminé',
+            true,
+            'link1'
+          ),
+        ]
+      );
+      const onOpen = vi.fn();
+
+      // When
+      render(FollowupItem, { props: { item: item, onOpen: onOpen } });
+
+      // Then
+      await waitFor(async () => {
+        expect(
+          screen.queryByTestId('followup-item-detail-partner:type:id1')
+        ).toHaveTextContent('Terminé par 1 service');
+      });
+    });
+    test('Should display sub items progression if item has sub items - wip & closed items', async () => {
+      // Given
+      const item = new Item(
+        'partner',
+        'type',
+        'id1',
+        'ref1',
+        'notifications',
+        [],
+        'Opération Tranquillité Vacances',
+        'subheading',
+        'Votre demande est en cours de traitement 1.',
+        'icon',
+        new Date('2026-02-22T15:55:00.000Z'),
+        'wip',
+        'En cours',
+        true,
+        'link1',
+        [
+          new SubItem(
+            'partner',
+            'type',
+            'id1',
+            'ref1',
+            'notifications',
+            [],
+            'Opération Tranquillité Vacances',
+            'subheading',
+            'Votre demande est en cours de traitement 1.',
+            'icon',
+            new Date('2026-02-22T15:55:00.000Z'),
+            'closed',
+            'Terminé',
+            true,
+            'link1'
+          ),
+          new SubItem(
+            'partner',
+            'type',
+            'id2',
+            'ref2',
+            'notifications',
+            [],
+            'Opération Tranquillité Vacances',
+            'subheading',
+            'Votre demande est en cours de traitement 2.',
+            'icon',
+            new Date('2026-02-22T15:55:00.000Z'),
+            'wip',
+            'En cours',
+            true,
+            'link1'
+          ),
+        ]
+      );
+      const onOpen = vi.fn();
+
+      // When
+      render(FollowupItem, { props: { item: item, onOpen: onOpen } });
+
+      // Then
+      await waitFor(async () => {
+        expect(
+          screen.queryByTestId('followup-item-detail-partner:type:id1')
+        ).toHaveTextContent('En cours par 1 service Terminé par 1 service');
       });
     });
   });

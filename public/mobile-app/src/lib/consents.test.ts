@@ -13,7 +13,6 @@ describe('/consents.ts', () => {
   describe('Consents', () => {
     test('should create items from api', async () => {
       // Given
-      vi.stubEnv('TZ', 'Europe/Paris');
       const consentsItem1 = {
         partner_id: 'dinum-ami',
         consent_datetime: new Date('2026-01-23T15:50:00Z'),
@@ -55,7 +54,6 @@ describe('/consents.ts', () => {
   describe('buildConsents', () => {
     test('should retrieve inventory and init consents with them', async () => {
       // Given
-      vi.stubEnv('TZ', 'Europe/Paris');
       const consentsItem1 = {
         partner_id: 'dinum-ami',
         consent_datetime: new Date('2026-01-23T15:50:00Z'),
@@ -98,7 +96,6 @@ describe('/consents.ts', () => {
   describe('hasAnyConsents', () => {
     test('should return false when no consent', async () => {
       // Given
-      vi.stubEnv('TZ', 'Europe/Paris');
       vi.spyOn(apiConsentsMethods, 'retrieveConsents').mockResolvedValue({
         consents: [],
       });
@@ -111,7 +108,6 @@ describe('/consents.ts', () => {
     });
     test('should return false when consent has no consent_datetime', async () => {
       // Given
-      vi.stubEnv('TZ', 'Europe/Paris');
       const consentsItem = {
         partner_id: 'psl',
         consent_datetime: null,
@@ -128,7 +124,6 @@ describe('/consents.ts', () => {
     });
     test('should return true when at least one consent has a consent_datetime', async () => {
       // Given
-      vi.stubEnv('TZ', 'Europe/Paris');
       const consentsItem1 = {
         partner_id: 'dinum-ami',
         consent_datetime: null,

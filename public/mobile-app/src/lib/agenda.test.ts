@@ -6,7 +6,7 @@ import * as scheduledNotificationsMethods from '$lib/scheduled-notifications';
 import { Preferences } from '$lib/state/preferences';
 import { userStore } from '$lib/state/User.svelte';
 import * as utilsMethods from '$lib/utils';
-import { getTimestamp } from '$lib/utils';
+import { getTimestamp, parseISODate } from '$lib/utils';
 import { mockUserIdentity, mockUserInfo } from '$tests/utils';
 
 describe('/agenda.ts', () => {
@@ -517,17 +517,22 @@ describe('/agenda.ts', () => {
       vi.resetAllMocks();
     });
     describe('Now/Next', () => {
+      beforeEach(() => {
+        vi.spyOn(
+          scheduledNotificationsMethods,
+          'createScheduledNotification'
+        ).mockResolvedValue(true);
+      });
       test('should organize items in now and next', async () => {
         // Given
-        vi.stubEnv('TZ', 'Europe/Paris');
         localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
         const holiday1 = {
           kind: 'holiday',
           title: 'Holiday 1',
           description: '',
           date: null,
-          start_date: new Date('2025-09-20T23:00:00Z'),
-          end_date: new Date('2025-12-15T23:00:00Z'),
+          start_date: parseISODate('2025-09-21'),
+          end_date: parseISODate('2025-12-16'),
           zones: ['Zone A'],
           emoji: 'foo',
         };
@@ -536,8 +541,8 @@ describe('/agenda.ts', () => {
           title: 'Holiday 2',
           description: '',
           date: null,
-          start_date: new Date('2025-10-20T23:00:00Z'),
-          end_date: new Date('2025-11-15T23:00:00Z'),
+          start_date: parseISODate('2025-10-21'),
+          end_date: parseISODate('2025-11-16'),
           zones: ['Zone B'],
           emoji: '',
         };
@@ -546,8 +551,8 @@ describe('/agenda.ts', () => {
           title: 'Holiday 3',
           description: '',
           date: null,
-          start_date: new Date('2025-11-20T23:00:00Z'),
-          end_date: new Date('2025-12-15T23:00:00Z'),
+          start_date: parseISODate('2025-11-21'),
+          end_date: parseISODate('2025-12-16'),
           zones: ['Corse'],
           emoji: 'foo',
         };
@@ -556,8 +561,8 @@ describe('/agenda.ts', () => {
           title: 'Holiday 4',
           description: '',
           date: null,
-          start_date: new Date('2025-11-30T23:00:00Z'),
-          end_date: new Date('2025-12-16T23:00:00Z'),
+          start_date: parseISODate('2025-12-01'),
+          end_date: parseISODate('2025-12-17'),
           zones: ['Zone A'],
           emoji: '',
         };
@@ -566,8 +571,8 @@ describe('/agenda.ts', () => {
           title: 'Holiday 5',
           description: '',
           date: null,
-          start_date: new Date('2025-12-20T23:00:00Z'),
-          end_date: new Date('2025-12-24T23:00:00Z'),
+          start_date: parseISODate('2025-12-21'),
+          end_date: parseISODate('2025-12-25'),
           zones: ['Zone C'],
           emoji: '',
         };
@@ -575,7 +580,7 @@ describe('/agenda.ts', () => {
           kind: 'holiday',
           title: 'Day 6',
           description: '',
-          date: new Date('2025-11-11T23:00:00Z'),
+          date: parseISODate('2025-11-12'),
           start_date: null,
           end_date: null,
           zones: [],
@@ -585,7 +590,7 @@ describe('/agenda.ts', () => {
           kind: 'holiday',
           title: 'Day 7',
           description: '',
-          date: new Date('2025-12-10T23:00:00Z'),
+          date: parseISODate('2025-12-11'),
           start_date: null,
           end_date: null,
           zones: [],
@@ -595,7 +600,7 @@ describe('/agenda.ts', () => {
           kind: 'election',
           title: 'Election1',
           description: 'description',
-          date: new Date('2025-11-11T24:00:00Z'),
+          date: parseISODate('2025-11-12'),
           start_date: null,
           end_date: null,
           zones: [],
@@ -605,7 +610,7 @@ describe('/agenda.ts', () => {
           kind: 'election',
           title: 'Election2',
           description: 'description',
-          date: new Date('2025-12-10T24:00:00Z'),
+          date: parseISODate('2025-12-11'),
           start_date: null,
           end_date: null,
           zones: [],
@@ -733,15 +738,14 @@ describe('/agenda.ts', () => {
     describe('Zones', () => {
       test('should ignore some zones', async () => {
         // Given
-        vi.stubEnv('TZ', 'Europe/Paris');
         localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
         const holiday1 = {
           kind: 'holiday',
           title: 'Holiday',
           description: '',
           date: null,
-          start_date: new Date('2026-02-06T23:00:00Z'),
-          end_date: new Date('2026-02-22T23:00:00Z'),
+          start_date: parseISODate('2026-02-07'),
+          end_date: parseISODate('2026-02-23'),
           zones: ['Zone A', 'Zone foo'],
           emoji: 'foo',
         };
@@ -750,8 +754,8 @@ describe('/agenda.ts', () => {
           title: 'Holiday',
           description: '',
           date: null,
-          start_date: new Date('2026-02-13T23:00:00Z'),
-          end_date: new Date('2026-03-01T23:00:00Z'),
+          start_date: parseISODate('2026-02-14'),
+          end_date: parseISODate('2026-03-02'),
           zones: ['Zone foo'],
           emoji: 'foo',
         };
@@ -808,15 +812,14 @@ describe('/agenda.ts', () => {
     describe('Multitiles', () => {
       test('should stack holidays with the same title - but only for the same year', async () => {
         // Given
-        vi.stubEnv('TZ', 'Europe/Paris');
         localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
         const holiday1 = {
           kind: 'holiday',
           title: 'Holiday',
           description: '',
           date: null,
-          start_date: new Date('2026-02-06T23:00:00Z'),
-          end_date: new Date('2026-02-22T23:00:00Z'),
+          start_date: parseISODate('2026-02-07'),
+          end_date: parseISODate('2026-02-23'),
           zones: ['Zone A'],
           emoji: 'foo',
         };
@@ -825,8 +828,8 @@ describe('/agenda.ts', () => {
           title: 'Holiday',
           description: '',
           date: null,
-          start_date: new Date('2026-02-13T23:00:00Z'),
-          end_date: new Date('2026-03-01T23:00:00Z'),
+          start_date: parseISODate('2026-02-14'),
+          end_date: parseISODate('2026-03-02'),
           zones: ['Zone B'],
           emoji: 'foo',
         };
@@ -835,8 +838,8 @@ describe('/agenda.ts', () => {
           title: 'Holiday',
           description: '',
           date: null,
-          start_date: new Date('2027-02-06T23:00:00Z'),
-          end_date: new Date('2027-02-22T23:00:00Z'),
+          start_date: parseISODate('2027-02-07'),
+          end_date: parseISODate('2027-02-23'),
           zones: ['Zone A'],
           emoji: 'foo',
         };
@@ -845,8 +848,8 @@ describe('/agenda.ts', () => {
           title: 'Holiday',
           description: '',
           date: null,
-          start_date: new Date('2027-02-06T23:00:00Z'),
-          end_date: new Date('2027-02-21T23:00:00Z'),
+          start_date: parseISODate('2027-02-07'),
+          end_date: parseISODate('2027-02-22'),
           zones: ['Zone B'],
           emoji: 'foo',
         };
@@ -895,15 +898,14 @@ describe('/agenda.ts', () => {
     describe('School holiday', () => {
       test('should organize items in now and next', async () => {
         // Given
-        vi.stubEnv('TZ', 'Europe/Paris');
         localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
         const holiday1 = {
           kind: 'holiday',
           title: 'Holiday 1',
           description: '',
           date: null,
-          start_date: new Date('2025-09-20T23:00:00Z'),
-          end_date: new Date('2025-12-15T23:00:00Z'),
+          start_date: parseISODate('2025-09-21'),
+          end_date: parseISODate('2025-12-16'),
           zones: ['Zone A'],
           emoji: 'foo',
         };
@@ -912,8 +914,8 @@ describe('/agenda.ts', () => {
           title: 'Holiday 2',
           description: '',
           date: null,
-          start_date: new Date('2025-10-20T23:00:00Z'),
-          end_date: new Date('2025-11-15T23:00:00Z'),
+          start_date: parseISODate('2025-10-21'),
+          end_date: parseISODate('2025-11-16'),
           zones: ['Zone B'],
           emoji: '',
         };
@@ -961,15 +963,14 @@ describe('/agenda.ts', () => {
       });
       test('should not display school holiday if is listed in hidden items', async () => {
         // Given
-        vi.stubEnv('TZ', 'Europe/Paris');
         localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
         const holiday1 = {
           kind: 'holiday',
           title: 'Holiday 1',
           description: '',
           date: null,
-          start_date: new Date('2025-09-20T23:00:00Z'),
-          end_date: new Date('2025-12-15T23:00:00Z'),
+          start_date: parseISODate('2025-09-21'),
+          end_date: parseISODate('2025-12-16'),
           zones: ['Zone A'],
           emoji: 'foo',
         };
@@ -978,8 +979,8 @@ describe('/agenda.ts', () => {
           title: 'Holiday 2',
           description: '',
           date: null,
-          start_date: new Date('2025-10-20T23:00:00Z'),
-          end_date: new Date('2025-11-15T23:00:00Z'),
+          start_date: parseISODate('2025-10-21'),
+          end_date: parseISODate('2025-11-16'),
           zones: ['Zone B'],
           emoji: '',
         };
@@ -1023,13 +1024,12 @@ describe('/agenda.ts', () => {
     describe('Public holiday', () => {
       test('should organize items in now and next', async () => {
         // Given
-        vi.stubEnv('TZ', 'Europe/Paris');
         localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
         const holiday6 = {
           kind: 'holiday',
           title: 'Day 6',
           description: '',
-          date: new Date('2025-11-11T23:00:00Z'),
+          date: parseISODate('2025-11-12'),
           start_date: null,
           end_date: null,
           zones: [],
@@ -1039,7 +1039,7 @@ describe('/agenda.ts', () => {
           kind: 'holiday',
           title: 'Day 7',
           description: '',
-          date: new Date('2025-12-10T23:00:00Z'),
+          date: parseISODate('2025-12-11'),
           start_date: null,
           end_date: null,
           zones: [],
@@ -1074,13 +1074,12 @@ describe('/agenda.ts', () => {
       });
       test('should not display public holiday if is listed in hidden items', async () => {
         // Given
-        vi.stubEnv('TZ', 'Europe/Paris');
         localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
         const holiday6 = {
           kind: 'holiday',
           title: 'Day 6',
           description: '',
-          date: new Date('2025-11-11T23:00:00Z'),
+          date: parseISODate('2025-11-12'),
           start_date: null,
           end_date: null,
           zones: [],
@@ -1090,7 +1089,7 @@ describe('/agenda.ts', () => {
           kind: 'holiday',
           title: 'Day 7',
           description: '',
-          date: new Date('2025-12-10T23:00:00Z'),
+          date: parseISODate('2025-12-11'),
           start_date: null,
           end_date: null,
           zones: [],
@@ -1143,7 +1142,6 @@ describe('/agenda.ts', () => {
     describe('Scheduled notifications', () => {
       test('should create scheduled notifications for otv - user has no address', async () => {
         // Given
-        vi.stubEnv('TZ', 'Europe/Paris');
         const spy = vi
           .spyOn(scheduledNotificationsMethods, 'createScheduledNotification')
           .mockResolvedValue(true);
@@ -1152,8 +1150,8 @@ describe('/agenda.ts', () => {
           title: 'Holiday',
           description: '',
           date: null,
-          start_date: new Date('2026-02-06T23:00:00Z'),
-          end_date: new Date('2026-02-22T23:00:00Z'),
+          start_date: parseISODate('2026-02-07'),
+          end_date: parseISODate('2026-02-23'),
           zones: ['Zone A'], // user has no address, take first date
           emoji: 'foo',
         };
@@ -1162,8 +1160,8 @@ describe('/agenda.ts', () => {
           title: 'Holiday',
           description: '',
           date: null,
-          start_date: new Date('2026-02-13T23:00:00Z'),
-          end_date: new Date('2026-03-01T23:00:00Z'),
+          start_date: parseISODate('2026-02-14'),
+          end_date: parseISODate('2026-03-02'),
           zones: ['Zone C'],
           emoji: 'foo',
         };
@@ -1172,8 +1170,8 @@ describe('/agenda.ts', () => {
           title: 'Summer Holiday',
           description: '',
           date: null,
-          start_date: new Date('2026-07-01T23:00:00Z'),
-          end_date: new Date('2026-08-31T23:00:00Z'),
+          start_date: parseISODate('2026-07-02'),
+          end_date: parseISODate('2026-09-01'),
           zones: ['Zone A', 'Zone B', 'Zone C'],
           emoji: 'bar',
         };
@@ -1182,8 +1180,8 @@ describe('/agenda.ts', () => {
           title: 'Past Holiday',
           description: '',
           date: null,
-          start_date: new Date('2025-07-01T23:00:00Z'),
-          end_date: new Date('2025-08-31T23:00:00Z'), // past holiday
+          start_date: parseISODate('2025-07-02'),
+          end_date: parseISODate('2025-09-01'), // past holiday
           zones: ['Zone A', 'Zone B', 'Zone C'],
           emoji: 'bar',
         };
@@ -1219,12 +1217,11 @@ describe('/agenda.ts', () => {
           content_title: 'Et si on veillait sur votre logement ? 👮',
           reference: 'ami-otv:d-3w:2026:summer-holiday',
           internal_url: '/#/procedure?date=2026-06-11',
-          scheduled_at: new Date('2026-06-10T23:00:00Z'),
+          scheduled_at: new Date('2026-06-10T22:00:00Z'),
         });
       });
       test('should create scheduled notifications for otv - holidays are displayed', async () => {
         // Given
-        vi.stubEnv('TZ', 'Europe/Paris');
         const spy = vi
           .spyOn(scheduledNotificationsMethods, 'createScheduledNotification')
           .mockResolvedValue(true);
@@ -1234,8 +1231,8 @@ describe('/agenda.ts', () => {
           title: 'Holiday',
           description: '',
           date: null,
-          start_date: new Date('2026-02-06T23:00:00Z'),
-          end_date: new Date('2026-02-22T23:00:00Z'),
+          start_date: parseISODate('2026-02-07'),
+          end_date: parseISODate('2026-02-23'),
           zones: ['Zone A'],
           emoji: 'foo',
         };
@@ -1244,8 +1241,8 @@ describe('/agenda.ts', () => {
           title: 'Holiday',
           description: '',
           date: null,
-          start_date: new Date('2026-02-13T23:00:00Z'),
-          end_date: new Date('2026-03-01T23:00:00Z'),
+          start_date: parseISODate('2026-02-14'),
+          end_date: parseISODate('2026-03-02'),
           zones: ['Zone C'], // matches user's zone
           emoji: 'foo',
         };
@@ -1254,8 +1251,8 @@ describe('/agenda.ts', () => {
           title: 'Summer Holiday',
           description: '',
           date: null,
-          start_date: new Date('2026-07-01T23:00:00Z'),
-          end_date: new Date('2026-08-31T23:00:00Z'),
+          start_date: parseISODate('2026-07-02'),
+          end_date: parseISODate('2026-09-01'),
           zones: ['Zone A', 'Zone B', 'Zone C'],
           emoji: 'bar',
         };
@@ -1264,8 +1261,8 @@ describe('/agenda.ts', () => {
           title: 'Past Holiday',
           description: '',
           date: null,
-          start_date: new Date('2025-07-01T23:00:00Z'),
-          end_date: new Date('2025-08-31T23:00:00Z'), // past holiday
+          start_date: parseISODate('2025-07-02'),
+          end_date: parseISODate('2025-09-01'), // past holiday
           zones: ['Zone A', 'Zone B', 'Zone C'],
           emoji: 'bar',
         };
@@ -1301,12 +1298,11 @@ describe('/agenda.ts', () => {
           content_title: 'Et si on veillait sur votre logement ? 👮',
           reference: 'ami-otv:d-3w:2026:summer-holiday',
           internal_url: '/#/procedure?date=2026-06-11',
-          scheduled_at: new Date('2026-06-10T23:00:00Z'),
+          scheduled_at: new Date('2026-06-10T22:00:00Z'),
         });
       });
       test('should create scheduled notifications for otv - holidays are not displayed but otv have to be sent', async () => {
         // Given
-        vi.stubEnv('TZ', 'Europe/Paris');
         const spy = vi
           .spyOn(scheduledNotificationsMethods, 'createScheduledNotification')
           .mockResolvedValue(true);
@@ -1319,8 +1315,8 @@ describe('/agenda.ts', () => {
           title: 'Holiday',
           description: '',
           date: null,
-          start_date: new Date('2026-02-06T23:00:00Z'),
-          end_date: new Date('2026-02-22T23:00:00Z'),
+          start_date: parseISODate('2026-02-07'),
+          end_date: parseISODate('2026-02-23'),
           zones: ['Zone A'],
           emoji: 'foo',
         };
@@ -1329,8 +1325,8 @@ describe('/agenda.ts', () => {
           title: 'Holiday',
           description: '',
           date: null,
-          start_date: new Date('2026-02-13T23:00:00Z'),
-          end_date: new Date('2026-03-01T23:00:00Z'),
+          start_date: parseISODate('2026-02-14'),
+          end_date: parseISODate('2026-03-02'),
           zones: ['Zone C'], // matches user's zone
           emoji: 'foo',
         };
@@ -1339,8 +1335,8 @@ describe('/agenda.ts', () => {
           title: 'Summer Holiday',
           description: '',
           date: null,
-          start_date: new Date('2026-07-01T23:00:00Z'),
-          end_date: new Date('2026-08-31T23:00:00Z'),
+          start_date: parseISODate('2026-07-02'),
+          end_date: parseISODate('2026-09-01'),
           zones: ['Zone A', 'Zone B', 'Zone C'],
           emoji: 'bar',
         };
@@ -1349,8 +1345,8 @@ describe('/agenda.ts', () => {
           title: 'Past Holiday',
           description: '',
           date: null,
-          start_date: new Date('2025-07-01T23:00:00Z'),
-          end_date: new Date('2025-08-31T23:00:00Z'), // past holiday
+          start_date: parseISODate('2025-07-02'),
+          end_date: parseISODate('2025-09-01'), // past holiday
           zones: ['Zone A', 'Zone B', 'Zone C'],
           emoji: 'bar',
         };
@@ -1386,12 +1382,11 @@ describe('/agenda.ts', () => {
           content_title: 'Et si on veillait sur votre logement ? 👮',
           reference: 'ami-otv:d-3w:2026:summer-holiday',
           internal_url: '/#/procedure?date=2026-06-11',
-          scheduled_at: new Date('2026-06-10T23:00:00Z'),
+          scheduled_at: new Date('2026-06-10T22:00:00Z'),
         });
       });
       test('should create scheduled notifications for otv - scheduled notifications already sent', async () => {
         // Given
-        vi.stubEnv('TZ', 'Europe/Paris');
         const spy = vi
           .spyOn(scheduledNotificationsMethods, 'createScheduledNotification')
           .mockResolvedValue(true);
@@ -1400,8 +1395,8 @@ describe('/agenda.ts', () => {
           title: 'Holiday',
           description: '',
           date: null,
-          start_date: new Date('2026-02-06T23:00:00Z'),
-          end_date: new Date('2026-02-22T23:00:00Z'),
+          start_date: parseISODate('2026-02-07'),
+          end_date: parseISODate('2026-02-23'),
           zones: ['Zone A'],
           emoji: 'foo',
         };
@@ -1410,8 +1405,8 @@ describe('/agenda.ts', () => {
           title: 'Holiday',
           description: '',
           date: null,
-          start_date: new Date('2026-02-13T23:00:00Z'),
-          end_date: new Date('2026-03-01T23:00:00Z'),
+          start_date: parseISODate('2026-02-14'),
+          end_date: parseISODate('2026-03-02'),
           zones: ['Zone C'], // matches user's zone
           emoji: 'foo',
         };
@@ -1420,8 +1415,8 @@ describe('/agenda.ts', () => {
           title: 'Summer Holiday',
           description: '',
           date: null,
-          start_date: new Date('2026-07-01T23:00:00Z'),
-          end_date: new Date('2026-08-31T23:00:00Z'),
+          start_date: parseISODate('2026-07-02'),
+          end_date: parseISODate('2026-09-01'),
           zones: [],
           emoji: 'bar',
         };
@@ -1450,16 +1445,21 @@ describe('/agenda.ts', () => {
       });
     });
     describe('School holiday for otv', () => {
+      beforeEach(() => {
+        vi.spyOn(
+          scheduledNotificationsMethods,
+          'createScheduledNotification'
+        ).mockResolvedValue(true);
+      });
       test('should be defined to first school holiday as user has no address', async () => {
         // Given
-        vi.stubEnv('TZ', 'Europe/Paris');
         const holiday1 = {
           kind: 'holiday',
           title: 'Holiday',
           description: '',
           date: null,
-          start_date: new Date('2026-02-06T23:00:00Z'),
-          end_date: new Date('2026-02-22T23:00:00Z'),
+          start_date: parseISODate('2026-02-07'),
+          end_date: parseISODate('2026-02-23'),
           zones: ['Zone A'], // user has no address, take first date
           emoji: 'foo',
         };
@@ -1468,8 +1468,8 @@ describe('/agenda.ts', () => {
           title: 'Holiday',
           description: '',
           date: null,
-          start_date: new Date('2026-02-13T23:00:00Z'),
-          end_date: new Date('2026-03-01T23:00:00Z'),
+          start_date: parseISODate('2026-02-14'),
+          end_date: parseISODate('2026-03-02'),
           zones: ['Zone C'],
           emoji: 'foo',
         };
@@ -1478,8 +1478,8 @@ describe('/agenda.ts', () => {
           title: 'Summer Holiday',
           description: '',
           date: null,
-          start_date: new Date('2026-07-01T23:00:00Z'),
-          end_date: new Date('2026-08-31T23:00:00Z'),
+          start_date: parseISODate('2026-07-02'),
+          end_date: parseISODate('2026-09-01'),
           zones: ['Zone A', 'Zone B', 'Zone C'],
           emoji: 'bar',
         };
@@ -1488,8 +1488,8 @@ describe('/agenda.ts', () => {
           title: 'Past Holiday',
           description: '',
           date: null,
-          start_date: new Date('2025-07-01T23:00:00Z'),
-          end_date: new Date('2025-08-31T23:00:00Z'), // past holiday
+          start_date: parseISODate('2025-07-02'),
+          end_date: parseISODate('2025-09-01'), // past holiday
           zones: ['Zone A', 'Zone B', 'Zone C'],
           emoji: 'bar',
         };
@@ -1510,15 +1510,14 @@ describe('/agenda.ts', () => {
       });
       test('should be defined to first school holiday matching user zone', async () => {
         // Given
-        vi.stubEnv('TZ', 'Europe/Paris');
         localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
         const holiday1 = {
           kind: 'holiday',
           title: 'Holiday',
           description: '',
           date: null,
-          start_date: new Date('2026-02-06T23:00:00Z'),
-          end_date: new Date('2026-02-22T23:00:00Z'),
+          start_date: parseISODate('2026-02-07'),
+          end_date: parseISODate('2026-02-23'),
           zones: ['Zone A'],
           emoji: 'foo',
         };
@@ -1527,8 +1526,8 @@ describe('/agenda.ts', () => {
           title: 'Holiday',
           description: '',
           date: null,
-          start_date: new Date('2026-02-13T23:00:00Z'),
-          end_date: new Date('2026-03-01T23:00:00Z'),
+          start_date: parseISODate('2026-02-14'),
+          end_date: parseISODate('2026-03-02'),
           zones: ['Zone C'], // matches user's zone
           emoji: 'foo',
         };
@@ -1537,8 +1536,8 @@ describe('/agenda.ts', () => {
           title: 'Summer Holiday',
           description: '',
           date: null,
-          start_date: new Date('2026-07-01T23:00:00Z'),
-          end_date: new Date('2026-08-31T23:00:00Z'),
+          start_date: parseISODate('2026-07-02'),
+          end_date: parseISODate('2026-09-01'),
           zones: ['Zone A', 'Zone B', 'Zone C'],
           emoji: 'bar',
         };
@@ -1547,8 +1546,8 @@ describe('/agenda.ts', () => {
           title: 'Past Holiday',
           description: '',
           date: null,
-          start_date: new Date('2025-07-01T23:00:00Z'),
-          end_date: new Date('2025-08-31T23:00:00Z'), // past holiday
+          start_date: parseISODate('2025-07-02'),
+          end_date: parseISODate('2025-09-01'), // past holiday
           zones: ['Zone A', 'Zone B', 'Zone C'],
           emoji: 'bar',
         };
@@ -1569,14 +1568,13 @@ describe('/agenda.ts', () => {
       });
       test('should be null as first school holiday is in more than 3 weeks - user has no address', async () => {
         // Given
-        vi.stubEnv('TZ', 'Europe/Paris');
         const holiday1 = {
           kind: 'holiday',
           title: 'Holiday',
           description: '',
           date: null,
-          start_date: new Date('2026-02-06T23:00:00Z'),
-          end_date: new Date('2026-02-22T23:00:00Z'),
+          start_date: parseISODate('2026-02-07'),
+          end_date: parseISODate('2026-02-23'),
           zones: ['Zone A'], // user has no address, take first date
           emoji: 'foo',
         };
@@ -1585,8 +1583,8 @@ describe('/agenda.ts', () => {
           title: 'Holiday',
           description: '',
           date: null,
-          start_date: new Date('2026-02-13T23:00:00Z'),
-          end_date: new Date('2026-03-01T23:00:00Z'),
+          start_date: parseISODate('2026-02-14'),
+          end_date: parseISODate('2026-03-02'),
           zones: ['Zone C'],
           emoji: 'foo',
         };
@@ -1595,8 +1593,8 @@ describe('/agenda.ts', () => {
           title: 'Summer Holiday',
           description: '',
           date: null,
-          start_date: new Date('2026-07-01T23:00:00Z'),
-          end_date: new Date('2026-08-31T23:00:00Z'),
+          start_date: parseISODate('2026-07-02'),
+          end_date: parseISODate('2026-09-01'),
           zones: ['Zone A', 'Zone B', 'Zone C'],
           emoji: 'bar',
         };
@@ -1605,8 +1603,8 @@ describe('/agenda.ts', () => {
           title: 'Past Holiday',
           description: '',
           date: null,
-          start_date: new Date('2025-07-01T23:00:00Z'),
-          end_date: new Date('2025-08-31T23:00:00Z'), // past holiday
+          start_date: parseISODate('2025-07-02'),
+          end_date: parseISODate('2025-09-01'), // past holiday
           zones: ['Zone A', 'Zone B', 'Zone C'],
           emoji: 'bar',
         };
@@ -1627,15 +1625,14 @@ describe('/agenda.ts', () => {
       });
       test('should be null as first school holiday is in more than 3 weeks - matching user zone', async () => {
         // Given
-        vi.stubEnv('TZ', 'Europe/Paris');
         localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
         const holiday1 = {
           kind: 'holiday',
           title: 'Holiday',
           description: '',
           date: null,
-          start_date: new Date('2026-02-06T23:00:00Z'),
-          end_date: new Date('2026-02-22T23:00:00Z'),
+          start_date: parseISODate('2026-02-07'),
+          end_date: parseISODate('2026-02-23'),
           zones: ['Zone A'],
           emoji: 'foo',
         };
@@ -1644,8 +1641,8 @@ describe('/agenda.ts', () => {
           title: 'Holiday',
           description: '',
           date: null,
-          start_date: new Date('2026-02-13T23:00:00Z'),
-          end_date: new Date('2026-03-01T23:00:00Z'),
+          start_date: parseISODate('2026-02-14'),
+          end_date: parseISODate('2026-03-02'),
           zones: ['Zone C'], // matches user's zone
           emoji: 'foo',
         };
@@ -1654,8 +1651,8 @@ describe('/agenda.ts', () => {
           title: 'Summer Holiday',
           description: '',
           date: null,
-          start_date: new Date('2026-07-01T23:00:00Z'),
-          end_date: new Date('2026-08-31T23:00:00Z'),
+          start_date: parseISODate('2026-07-02'),
+          end_date: parseISODate('2026-09-01'),
           zones: ['Zone A', 'Zone B', 'Zone C'],
           emoji: 'bar',
         };
@@ -1664,8 +1661,8 @@ describe('/agenda.ts', () => {
           title: 'Past Holiday',
           description: '',
           date: null,
-          start_date: new Date('2025-07-01T23:00:00Z'),
-          end_date: new Date('2025-08-31T23:00:00Z'), // past holiday
+          start_date: parseISODate('2025-07-02'),
+          end_date: parseISODate('2025-09-01'), // past holiday
           zones: ['Zone A', 'Zone B', 'Zone C'],
           emoji: 'bar',
         };
@@ -1688,13 +1685,12 @@ describe('/agenda.ts', () => {
     describe('Election', () => {
       test('should organize items in now and next', async () => {
         // Given
-        vi.stubEnv('TZ', 'Europe/Paris');
         localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
         const election1 = {
           kind: 'election',
           title: 'Election1',
           description: 'description',
-          date: new Date('2025-11-11T24:00:00Z'),
+          date: parseISODate('2025-11-12'),
           start_date: null,
           end_date: null,
           zones: [],
@@ -1704,7 +1700,7 @@ describe('/agenda.ts', () => {
           kind: 'election',
           title: 'Election2',
           description: 'description',
-          date: new Date('2025-12-10T24:00:00Z'),
+          date: parseISODate('2025-12-11'),
           start_date: null,
           end_date: null,
           zones: [],
@@ -1755,13 +1751,12 @@ describe('/agenda.ts', () => {
       });
       test('should not display election if is listed in hidden items', async () => {
         // Given
-        vi.stubEnv('TZ', 'Europe/Paris');
         localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
         const election1 = {
           kind: 'election',
           title: 'Election1',
           description: 'description',
-          date: new Date('2025-11-11T24:00:00Z'),
+          date: parseISODate('2025-11-12'),
           start_date: null,
           end_date: null,
           zones: [],
@@ -1771,7 +1766,7 @@ describe('/agenda.ts', () => {
           kind: 'election',
           title: 'Election2',
           description: 'description',
-          date: new Date('2025-12-10T24:00:00Z'),
+          date: parseISODate('2025-12-11'),
           start_date: null,
           end_date: null,
           zones: [],
@@ -1782,7 +1777,7 @@ describe('/agenda.ts', () => {
           'election',
           'Election1 bar',
           'description',
-          new Date('2025-11-11T24:00:00Z'),
+          parseISODate('2025-11-12'),
           null,
           null
         );
@@ -1791,7 +1786,7 @@ describe('/agenda.ts', () => {
           'election',
           'Election2',
           'description',
-          new Date('2025-12-10T24:00:00Z'),
+          parseISODate('2025-12-11'),
           null,
           null
         );
@@ -1832,15 +1827,14 @@ describe('/agenda.ts', () => {
     });
     test('should retrieve agenda items and init agenda with them', async () => {
       // Given
-      vi.stubEnv('TZ', 'Europe/Paris');
       localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
       const holiday1 = {
         kind: 'holiday',
         title: 'Holiday 1',
         description: '',
         date: null,
-        start_date: new Date('2025-09-20T23:00:00Z'),
-        end_date: new Date('2025-12-15T23:00:00Z'),
+        start_date: parseISODate('2025-09-21'),
+        end_date: parseISODate('2025-12-16'),
         zones: ['Zone A'],
         emoji: '',
       };
@@ -1849,8 +1843,8 @@ describe('/agenda.ts', () => {
         title: 'Holiday 2',
         description: '',
         date: null,
-        start_date: new Date('2025-11-30T23:00:00Z'),
-        end_date: new Date('2025-12-16T23:00:00Z'),
+        start_date: parseISODate('2025-11-31'),
+        end_date: parseISODate('2025-12-17'),
         zones: ['Corse'],
         emoji: '',
       };
@@ -1858,7 +1852,7 @@ describe('/agenda.ts', () => {
         kind: 'holiday',
         title: 'Day 3',
         description: '',
-        date: new Date('2025-11-15T23:00:00Z'),
+        date: parseISODate('2025-11-16'),
         start_date: null,
         end_date: null,
         zones: [],
@@ -1868,7 +1862,7 @@ describe('/agenda.ts', () => {
         kind: 'holiday',
         title: 'Day 4',
         description: '',
-        date: new Date('2025-12-30T23:00:00Z'),
+        date: parseISODate('2025-12-31'),
         start_date: null,
         end_date: null,
         zones: [],

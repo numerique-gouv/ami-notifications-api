@@ -1,18 +1,17 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
+  import { AMIBack } from '$lib/ami-navigation';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import Toggle from '$lib/components/Toggle.svelte';
   import { runOrNativeEvent } from '$lib/nativeEvents';
   import {
-    disableNotifications,
-    enableNotificationsAndUpdateLocalStorage,
+    disableNotificationsForDesktop,
+    enableNotifications,
   } from '$lib/notifications';
-  import type { Registration } from '$lib/registration';
   import { userStore } from '$lib/state/User.svelte';
 
   let backUrl: string = '/#/preferences';
-  let registration: Registration | null = $state(null);
   let isChecked = $state(false);
 
   onMount(async () => {
@@ -23,26 +22,20 @@
     isChecked = localStorage.getItem('notifications_enabled') === 'true';
   });
 
-  const navigateToPreviousPage = async () => {
-    goto(backUrl);
-  };
-
   const enableNotificationsFunc = async () => {
-    registration = await enableNotificationsAndUpdateLocalStorage();
+    await enableNotifications();
   };
 
   const disableNotificationsFunc = async () => {
     let registrationId: string | null = null;
-    if (registration) {
-      registrationId = registration.id;
-    } else if (localStorage.getItem('registration_id')) {
+    if (localStorage.getItem('registration_id')) {
       registrationId = localStorage.getItem('registration_id');
     } else {
       console.log('no registration');
     }
 
     if (registrationId) {
-      await disableNotifications(registrationId);
+      await disableNotificationsForDesktop(registrationId);
       localStorage.setItem('registration_id', '');
       localStorage.setItem('notifications_enabled', 'false');
     }
@@ -71,7 +64,7 @@
   <button
     class="fr-btn fr-btn--secondary fr-btn--lg save-preferences-button"
     type="button"
-    onclick={navigateToPreviousPage}
+    onclick={() => AMIBack(backUrl)}
     title="Retour à la page précédente"
     aria-label="Retour à la page précédente"
     data-testid="close-button"

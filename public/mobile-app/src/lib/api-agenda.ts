@@ -1,5 +1,5 @@
 import { apiFetch } from '$lib/auth';
-import { dateToISO } from '$lib/utils';
+import { dateToISO, parseISODate } from '$lib/utils';
 
 export type APIAgendaItem = {
   kind: string;
@@ -79,9 +79,9 @@ export const retrieveAgenda = async (date: Date | null = null): Promise<APIAgend
   for (const items of Object.values(apiAgenda)) {
     items.forEach((item) => {
       // convert dates
-      item.date = item.date ? new Date(item.date) : null;
-      item.start_date = item.start_date ? new Date(item.start_date) : null;
-      item.end_date = item.end_date ? new Date(item.end_date) : null;
+      item.date = parseISODate(item.date);
+      item.start_date = parseISODate(item.start_date);
+      item.end_date = parseISODate(item.end_date);
     });
   }
   return apiAgenda;

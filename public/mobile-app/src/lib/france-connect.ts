@@ -22,9 +22,7 @@ export function parseJwt(token: string): UserInfo {
 }
 
 export const franceConnectLogout = async (id_token_hint: string) => {
-  const redirect_uri = encodeURIComponent(
-    `${PUBLIC_APP_URL}${PUBLIC_FC_POST_LOGOUT_REDIRECT_URI}`
-  );
+  const redirect_uri = `${PUBLIC_APP_URL}${PUBLIC_FC_POST_LOGOUT_REDIRECT_URI}`;
   let post_logout_redirect_uri = redirect_uri;
   if (PUBLIC_FC_PROXY_BASE_URL) {
     post_logout_redirect_uri = `${PUBLIC_FC_PROXY_BASE_URL}/`;
