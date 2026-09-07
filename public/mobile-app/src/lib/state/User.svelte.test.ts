@@ -252,6 +252,34 @@ describe('/lib/state/User.svelte.ts', () => {
       });
     });
 
+    describe('cleanUser', () => {
+      test('should clear localStorage and reset connected', async () => {
+        // Given
+        await userStore.login(mockUserInfo);
+        vi.spyOn(authHelpers, 'logout').mockResolvedValue(true);
+
+        globalThis.localStorage.setItem('id_token', 'fake-id-token');
+        expect(localStorage.getItem('user_identity')).not.toBeNull();
+
+        // When
+        await userStore.cleanUser();
+
+        // Then
+        expect(localStorage.getItem('id_token')).toBeNull();
+        expect(localStorage.getItem('user_identity')).toBeNull();
+      });
+      test('should call logout from auth', async () => {
+        // Given
+        const spyAuthLogout = vi.spyOn(authHelpers, 'logout').mockResolvedValue(true);
+
+        // When
+        await userStore.cleanUser();
+
+        // Then
+        expect(spyAuthLogout).toHaveBeenCalled();
+      });
+    });
+
     describe('logout', () => {
       test('should call disableNotificationsAtLogout', async () => {
         // Given
