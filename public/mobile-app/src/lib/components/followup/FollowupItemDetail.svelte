@@ -1,15 +1,11 @@
 <script lang="ts">
-  import { AMIGoto } from '$lib/ami-navigation';
   import FollowupItemDetailHeader from '$lib/components/followup/FollowupItemDetailHeader.svelte';
-  import { getDSFRIcon } from '$lib/dsfr-icon';
   import { FollowupSubItem } from '$lib/followup';
 
   interface Props {
     item: FollowupSubItem;
   }
   let { item }: Props = $props();
-
-  let checkedIcon = $derived(getDSFRIcon(item.icon, 'fr-icon-information-fill'));
 </script>
 
 <div class="demarche-content-container">
