@@ -2,9 +2,7 @@
   import { onMount } from 'svelte';
   import { AMIGoto } from '$lib/ami-navigation';
   import FollowupItemDetail from '$lib/components/followup/FollowupItemDetail.svelte';
-  import FollowupParentItemDetail from '$lib/components/followup/FollowupParentItemDetail.svelte';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
-  import { getDSFRIcon } from '$lib/dsfr-icon';
   import { FollowupItem, FollowupSubItem } from '$lib/followup';
   import { userStore } from '$lib/state/User.svelte';
   import type { PageProps } from './$types';
@@ -14,7 +12,6 @@
   let sub_item: FollowupSubItem | null = $state(null);
 
   let backUrl: string = $state('/#/followup');
-  let checkedIcon: string = $state('');
 
   onMount(async () => {
     if (!userStore.connected) {
