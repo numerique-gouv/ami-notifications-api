@@ -19,7 +19,7 @@ lint-and-format: install
 
 .PHONY: test
 test:
-	DJANGO_SECRET_KEY=test-secret-key DJANGO_SETTINGS_MODULE=ami.settings $(RUN) pytest -vvv -ll --ff -x --reuse-db ami
+	DJANGO_SECRET_KEY=test-secret-key DJANGO_SETTINGS_MODULE=ami.settings FORCE_DATA_WAREHOUSE_ROUTER=true $(RUN) pytest -vvv -ll --ff -x --reuse-db ami
 
 .PHONY: test-create-db
 test-create-db:
@@ -27,7 +27,7 @@ test-create-db:
 
 .PHONY: test-ci
 test-ci:
-	DJANGO_SETTINGS_MODULE=ami.settings $(RUN) pytest ami
+	DJANGO_SETTINGS_MODULE=ami.settings FORCE_DATA_WAREHOUSE_ROUTER=true $(RUN) pytest ami
 
 .PHONY: statics
 statics:

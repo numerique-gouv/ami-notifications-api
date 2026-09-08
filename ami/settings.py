@@ -165,7 +165,7 @@ DATABASES = {
 }
 
 if (
-    "staging-pr" not in CONFIG.get("PUBLIC_APP_URL", "")
+    not ("staging-pr" in CONFIG.get("PUBLIC_APP_URL", "") or postgres_database == data_ware_house)
     or CONFIG.get("FORCE_DATA_WAREHOUSE_ROUTER") == "true"
 ):
     DATABASE_ROUTERS = ["ami.replication.router.DataWarehouseRouter"]
