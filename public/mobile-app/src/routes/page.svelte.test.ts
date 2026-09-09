@@ -5,7 +5,6 @@ import type { WS as WSType } from 'vitest-websocket-mock';
 import WS from 'vitest-websocket-mock';
 import * as agendaMethods from '$lib/agenda';
 import { Agenda, Item } from '$lib/agenda';
-import * as AMINavigationMethods from '$lib/ami-navigation';
 import type { APIConsents, APIConsentsItem } from '$lib/api-consents';
 import * as autoPromoMethods from '$lib/auto-promo';
 import { AutoPromo, AutoPromoItem } from '$lib/auto-promo';
@@ -23,184 +22,160 @@ import Page from './+page.svelte';
 let wss: WSType;
 
 describe('/+page.svelte', () => {
-  test('should go to login page if ?is_logged_out is present', async () => {
-    // Given
-    const { page } = await import('$app/state');
-    const mockSearchParams = new URLSearchParams('is_logged_out');
-    vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
-    const spy = vi
-      .spyOn(AMINavigationMethods, 'AMIGoto')
-      .mockImplementation(() => Promise.resolve());
+  beforeEach(async () => {
+    await userStore.login(mockUserInfo);
 
+    vi.mock('$lib/notifications', async (importOriginal) => {
+      const original = (await importOriginal()) as Record<string, unknown>;
+      const registration = { id: 'fake-registration-id' };
+      return {
+        ...original,
+        enableNotifications: vi.fn(() => Promise.resolve(registration)),
+        disableNotifications: vi.fn(() => Promise.resolve()),
+        countUnreadNotifications: vi.fn(() => 3),
+      };
+    });
+
+    vi.mock('$env/static/public', async (importOriginal) => {
+      const original = (await importOriginal()) as Record<string, unknown>;
+      return Promise.resolve({
+        ...original,
+        PUBLIC_MATOMO_ENABLED: 'false',
+      });
+    });
+
+    vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(new Agenda());
+    vi.spyOn(autoPromoMethods, 'buildAutoPromo').mockReturnValue(
+      new AutoPromo(new Agenda())
+    );
+    vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(new Followup());
+    vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(new Consents());
+
+    window.localStorage.setItem('notifications_enabled', 'false');
+    window.localStorage.setItem('user_data', 'fake-user-data');
+    window.localStorage.setItem('emailLocalStorage', 'test@email.fr');
+    window.localStorage.setItem('pushSubscriptionLocalStorage', '{}');
+
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+
+    wss = new WS(`${PUBLIC_APP_WS_URL}/api/v1/users/notification/events/stream`);
+  });
+
+  afterEach(() => {
+    wss.close();
+    vi.useRealTimers();
+  });
+
+  test("should display user's first name on top of the page", async () => {
     // When
-    render(Page, {
+    const { container } = render(Page, {
       props: {
-        data: { followup: new Followup(), isFollowupEmpty: true, hasAnyConsents: true },
+        data: {
+          followup: new Followup(),
+          isFollowupEmpty: true,
+          hasAnyConsents: true,
+        },
         params: {},
       },
     });
 
     // Then
     await waitFor(() => {
-      expect(spy).toHaveBeenCalledWith('/?is_logged_out#/login');
+      const initials = container.querySelector('.header');
+      expect(initials).toHaveTextContent('Bonjour Angela');
+      expect(initials).not.toHaveTextContent('Bonjour Angela Claire Louise');
     });
   });
 
-  test('should get out if user is not connected', async () => {
+  test('should display current date on top of the page', async () => {
     // Given
-    const spy = vi
-      .spyOn(AMINavigationMethods, 'AMIGoto')
-      .mockImplementation(() => Promise.resolve());
+    const date = new Date(2026, 7, 4, 12, 22);
+    vi.setSystemTime(date);
 
     // When
-    render(Page, {
+    const { container } = render(Page, {
       props: {
-        data: { followup: new Followup(), isFollowupEmpty: true, hasAnyConsents: true },
+        data: {
+          followup: new Followup(),
+          isFollowupEmpty: true,
+          hasAnyConsents: true,
+        },
         params: {},
       },
     });
 
     // Then
     await waitFor(() => {
-      expect(spy).toHaveBeenCalledWith('/#/login');
+      const initials = container.querySelector('.header');
+      expect(initials).toHaveTextContent('mardi 4 août 2026');
     });
   });
 
-  test('should add toast when user does not match after relogin - without redirect', async () => {
+  test("should display user's notification count", async () => {
     // Given
-    await userStore.login(mockUserInfo);
-    const { page } = await import('$app/state');
-    const mockSearchParams = new URLSearchParams('user_does_not_match');
-    vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
-    const followup = new Followup();
-
-    const spy = vi.spyOn(toastStore, 'addToast');
-    const spy2 = vi
-      .spyOn(AMINavigationMethods, 'AMIGoto')
-      .mockImplementation(() => Promise.resolve());
+    const spy = vi
+      .spyOn(notificationsMethods, 'countUnreadNotifications')
+      .mockResolvedValue(3);
 
     // When
-    render(Page, {
+    const { container } = render(Page, {
       props: {
-        data: { followup: new Followup(), isFollowupEmpty: true, hasAnyConsents: true },
+        data: {
+          followup: new Followup(),
+          isFollowupEmpty: true,
+          hasAnyConsents: true,
+        },
         params: {},
       },
     });
 
     // Then
-    await waitFor(async () => {
-      expect(spy).toHaveBeenCalledWith(
-        'Vous ne pouvez pas continuer la démarche sous le compte d’un autre usager',
-        'warning',
-        null,
-        true
-      );
-      expect(spy2).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledTimes(1);
+      const icon = container.querySelector('#notification-icon');
+      expect(icon).toHaveTextContent('3');
     });
   });
 
-  test('should add toast when user does not match after relogin - with redirect', async () => {
+  test("should refresh user's notification count", async () => {
     // Given
-    await userStore.login(mockUserInfo);
-    const { page } = await import('$app/state');
-    const mockSearchParams = new URLSearchParams('user_does_not_match');
-    mockSearchParams.set('redirect_to_hash', '/page');
-    vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
+    const spy = vi
+      .spyOn(notificationsMethods, 'countUnreadNotifications')
+      .mockResolvedValueOnce(3)
+      .mockResolvedValueOnce(4);
 
-    const spy = vi.spyOn(toastStore, 'addToast');
-    const spy2 = vi
-      .spyOn(AMINavigationMethods, 'AMIGoto')
-      .mockImplementation(() => Promise.resolve());
-
-    // When
-    render(Page, {
+    const { container } = render(Page, {
       props: {
-        data: { followup: new Followup(), isFollowupEmpty: true, hasAnyConsents: true },
+        data: {
+          followup: new Followup(),
+          isFollowupEmpty: true,
+          hasAnyConsents: true,
+        },
         params: {},
       },
     });
+    await waitFor(() => {
+      const icon = container.querySelector('#notification-icon');
+      expect(icon).toHaveTextContent('3');
+    });
+
+    // When
+    wss.send('ping');
 
     // Then
-    await waitFor(async () => {
-      expect(spy).toHaveBeenCalledWith(
-        'Vous ne pouvez pas continuer la démarche sous le compte d’un autre usager',
-        'warning',
-        null,
-        true
-      );
-      expect(spy2).toHaveBeenCalledWith('/#/page');
+    expect(spy).toHaveBeenCalledTimes(2);
+    await waitFor(() => {
+      const icon = container.querySelector('#notification-icon');
+      expect(icon).toHaveTextContent('4');
     });
   });
-  describe('user is connected', async () => {
-    beforeEach(async () => {
-      await userStore.login(mockUserInfo);
 
-      vi.mock('$lib/notifications', async (importOriginal) => {
-        const original = (await importOriginal()) as Record<string, unknown>;
-        const registration = { id: 'fake-registration-id' };
-        return {
-          ...original,
-          enableNotifications: vi.fn(() => Promise.resolve(registration)),
-          disableNotifications: vi.fn(() => Promise.resolve()),
-          countUnreadNotifications: vi.fn(() => 3),
-        };
-      });
-
-      vi.mock('$env/static/public', async (importOriginal) => {
-        const original = (await importOriginal()) as Record<string, unknown>;
-        return Promise.resolve({
-          ...original,
-          PUBLIC_MATOMO_ENABLED: 'false',
-        });
-      });
-
-      vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(new Agenda());
-      vi.spyOn(autoPromoMethods, 'buildAutoPromo').mockReturnValue(
-        new AutoPromo(new Agenda())
-      );
-      vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(new Followup());
-      vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(new Consents());
-
-      window.localStorage.setItem('notifications_enabled', 'false');
-      window.localStorage.setItem('user_data', 'fake-user-data');
-      window.localStorage.setItem('emailLocalStorage', 'test@email.fr');
-      window.localStorage.setItem('pushSubscriptionLocalStorage', '{}');
-
-      vi.useFakeTimers({ shouldAdvanceTime: true });
-
-      wss = new WS(`${PUBLIC_APP_WS_URL}/api/v1/users/notification/events/stream`);
-    });
-
-    afterEach(() => {
-      wss.close();
-      vi.useRealTimers();
-    });
-
-    test("should display user's first name on top of the page", async () => {
-      // When
-      const { container } = render(Page, {
-        props: {
-          data: {
-            followup: new Followup(),
-            isFollowupEmpty: true,
-            hasAnyConsents: true,
-          },
-          params: {},
-        },
-      });
-
-      // Then
-      await waitFor(() => {
-        const initials = container.querySelector('.header');
-        expect(initials).toHaveTextContent('Bonjour Angela');
-        expect(initials).not.toHaveTextContent('Bonjour Angela Claire Louise');
-      });
-    });
-
-    test('should display current date on top of the page', async () => {
+  describe('Auto-promo block', () => {
+    test('should display nothing as AutoPromo is empty', async () => {
       // Given
-      const date = new Date(2026, 7, 4, 12, 22);
-      vi.setSystemTime(date);
+      const autoPromo = new AutoPromo(new Agenda());
+      vi.spyOn(autoPromo, 'items', 'get').mockReturnValue([]);
+      vi.spyOn(autoPromoMethods, 'buildAutoPromo').mockReturnValue(autoPromo);
 
       // When
       const { container } = render(Page, {
@@ -216,16 +191,30 @@ describe('/+page.svelte', () => {
 
       // Then
       await waitFor(() => {
-        const initials = container.querySelector('.header');
-        expect(initials).toHaveTextContent('mardi 4 août 2026');
+        const block = container.querySelector('.auto-promo-container');
+        expect(block).toEqual(null);
       });
     });
-
-    test("should display user's notification count", async () => {
+    test('should display item as AutoPromo is not empty', async () => {
       // Given
-      const spy = vi
-        .spyOn(notificationsMethods, 'countUnreadNotifications')
-        .mockResolvedValue(3);
+      const autoPromo = new AutoPromo(new Agenda());
+      vi.spyOn(autoPromo, 'items', 'get').mockReturnValue([
+        new AutoPromoItem(
+          'address',
+          'Blabla title Address',
+          'Description Address',
+          'url-to-address',
+          'image.svg'
+        ),
+        new AutoPromoItem(
+          'otv',
+          'Blabla title OTV',
+          'Description OTV',
+          'url-to-otv',
+          'image.svg'
+        ),
+      ]);
+      vi.spyOn(autoPromoMethods, 'buildAutoPromo').mockReturnValue(autoPromo);
 
       // When
       const { container } = render(Page, {
@@ -241,19 +230,63 @@ describe('/+page.svelte', () => {
 
       // Then
       await waitFor(() => {
+        const block = container.querySelector('.auto-promo-container');
+        expect(block).toHaveTextContent('Blabla title Address Description Address');
+      });
+    });
+  });
+
+  describe('Agenda block', () => {
+    test('Should display first holiday found from API', async () => {
+      // Given
+      const agenda = new Agenda();
+      vi.spyOn(agenda, 'now', 'get').mockReturnValue([
+        new Item('fake-id-1', 'holiday', 'Holiday 1', null, new Date()),
+        new Item('fake-id-2', 'holiday', 'Holiday 2', null, new Date()),
+      ]);
+      vi.spyOn(agenda, 'next', 'get').mockReturnValue([
+        new Item('fake-id-3', 'holiday', 'Holiday 3', null, new Date()),
+        new Item('fake-id-4', 'holiday', 'Holiday 4', null, new Date()),
+      ]);
+      const spy = vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(agenda);
+
+      // When
+      const { container } = render(Page, {
+        props: {
+          data: {
+            followup: new Followup(),
+            isFollowupEmpty: true,
+            hasAnyConsents: true,
+          },
+          params: {},
+        },
+      });
+
+      // Then
+      await waitFor(() => {
+        const agendaBlock = container.querySelector('.agenda-container');
         expect(spy).toHaveBeenCalledTimes(1);
-        const icon = container.querySelector('#notification-icon');
-        expect(icon).toHaveTextContent('3');
+        expect(agendaBlock).toHaveTextContent('Holiday 1');
+        expect(agendaBlock).not.toHaveTextContent('Holiday 2');
+        expect(agendaBlock).not.toHaveTextContent('Holiday 3');
+        expect(agendaBlock).not.toHaveTextContent('Holiday 4');
+        expect(agendaBlock).not.toHaveTextContent(
+          'Retrouvez les temps importants de votre vie administrative ici'
+        );
       });
     });
 
-    test("should refresh user's notification count", async () => {
+    test('Should display first holiday found from API - now is empty', async () => {
       // Given
-      const spy = vi
-        .spyOn(notificationsMethods, 'countUnreadNotifications')
-        .mockResolvedValueOnce(3)
-        .mockResolvedValueOnce(4);
+      const agenda = new Agenda();
+      vi.spyOn(agenda, 'now', 'get').mockReturnValue([]);
+      vi.spyOn(agenda, 'next', 'get').mockReturnValue([
+        new Item('fake-id-1', 'holiday', 'Holiday 1', null, new Date()),
+        new Item('fake-id-2', 'holiday', 'Holiday 2', null, new Date()),
+      ]);
+      const spy = vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(agenda);
 
+      // When
       const { container } = render(Page, {
         props: {
           data: {
@@ -264,104 +297,57 @@ describe('/+page.svelte', () => {
           params: {},
         },
       });
-      await waitFor(() => {
-        const icon = container.querySelector('#notification-icon');
-        expect(icon).toHaveTextContent('3');
-      });
-
-      // When
-      wss.send('ping');
 
       // Then
-      expect(spy).toHaveBeenCalledTimes(2);
       await waitFor(() => {
-        const icon = container.querySelector('#notification-icon');
-        expect(icon).toHaveTextContent('4');
+        const agendaBlock = container.querySelector('.agenda-container');
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(agendaBlock).toHaveTextContent('Holiday 1');
+        expect(agendaBlock).not.toHaveTextContent('Holiday 2');
+        expect(agendaBlock).not.toHaveTextContent(
+          'Retrouvez les temps importants de votre vie administrative ici'
+        );
       });
     });
 
-    describe('Auto-promo block', () => {
-      test('should display nothing as AutoPromo is empty', async () => {
-        // Given
-        const autoPromo = new AutoPromo(new Agenda());
-        vi.spyOn(autoPromo, 'items', 'get').mockReturnValue([]);
-        vi.spyOn(autoPromoMethods, 'buildAutoPromo').mockReturnValue(autoPromo);
-
-        // When
-        const { container } = render(Page, {
-          props: {
-            data: {
-              followup: new Followup(),
-              isFollowupEmpty: true,
-              hasAnyConsents: true,
-            },
-            params: {},
+    test('should display calendar block if agenda is empty', async () => {
+      // When
+      const { container } = render(Page, {
+        props: {
+          data: {
+            followup: new Followup(),
+            isFollowupEmpty: true,
+            hasAnyConsents: true,
           },
-        });
-
-        // Then
-        await waitFor(() => {
-          const block = container.querySelector('.auto-promo-container');
-          expect(block).toEqual(null);
-        });
+          params: {},
+        },
       });
-      test('should display item as AutoPromo is not empty', async () => {
-        // Given
-        const autoPromo = new AutoPromo(new Agenda());
-        vi.spyOn(autoPromo, 'items', 'get').mockReturnValue([
-          new AutoPromoItem(
-            'address',
-            'Blabla title Address',
-            'Description Address',
-            'url-to-address',
-            'image.svg'
-          ),
-          new AutoPromoItem(
-            'otv',
-            'Blabla title OTV',
-            'Description OTV',
-            'url-to-otv',
-            'image.svg'
-          ),
-        ]);
-        vi.spyOn(autoPromoMethods, 'buildAutoPromo').mockReturnValue(autoPromo);
 
-        // When
-        const { container } = render(Page, {
-          props: {
-            data: {
-              followup: new Followup(),
-              isFollowupEmpty: true,
-              hasAnyConsents: true,
-            },
-            params: {},
-          },
-        });
-
-        // Then
-        await waitFor(() => {
-          const block = container.querySelector('.auto-promo-container');
-          expect(block).toHaveTextContent('Blabla title Address Description Address');
-        });
+      // Then
+      await waitFor(() => {
+        const agendaBlock = container.querySelector('.agenda-container');
+        expect(agendaBlock).toHaveTextContent(
+          'Retrouvez les temps importants de votre vie administrative ici'
+        );
       });
     });
 
-    describe('Agenda block', () => {
-      test('Should display first holiday found from API', async () => {
+    describe('Agenda item modal', () => {
+      const oneday_in_ms = 24 * 60 * 60 * 1000;
+      const today = new Date();
+      const in32days = new Date(today.getTime() + 32 * oneday_in_ms); // 32 days, so we are sure that month is different than today's
+
+      test('Should open agenda item modal when clicks on more icon', async () => {
         // Given
         const agenda = new Agenda();
         vi.spyOn(agenda, 'now', 'get').mockReturnValue([
-          new Item('fake-id-1', 'holiday', 'Holiday 1', null, new Date()),
-          new Item('fake-id-2', 'holiday', 'Holiday 2', null, new Date()),
+          new Item('fake-id-holiday-1', 'holiday', 'Holiday 1', null, today),
         ]);
         vi.spyOn(agenda, 'next', 'get').mockReturnValue([
-          new Item('fake-id-3', 'holiday', 'Holiday 3', null, new Date()),
-          new Item('fake-id-4', 'holiday', 'Holiday 4', null, new Date()),
+          new Item('fake-id-holiday-2', 'holiday', 'Holiday 2', null, in32days),
         ]);
-        const spy = vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(agenda);
-
-        // When
-        const { container } = render(Page, {
+        vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(agenda);
+        render(Page, {
           props: {
             data: {
               followup: new Followup(),
@@ -372,32 +358,30 @@ describe('/+page.svelte', () => {
           },
         });
 
-        // Then
-        await waitFor(() => {
-          const agendaBlock = container.querySelector('.agenda-container');
-          expect(spy).toHaveBeenCalledTimes(1);
-          expect(agendaBlock).toHaveTextContent('Holiday 1');
-          expect(agendaBlock).not.toHaveTextContent('Holiday 2');
-          expect(agendaBlock).not.toHaveTextContent('Holiday 3');
-          expect(agendaBlock).not.toHaveTextContent('Holiday 4');
-          expect(agendaBlock).not.toHaveTextContent(
-            'Retrouvez les temps importants de votre vie administrative ici'
+        // When
+        await waitFor(async () => {
+          const moreIcon = screen.getByTestId(
+            'open-agenda-item-modal-fake-id-holiday-1'
           );
+          await fireEvent.click(moreIcon);
         });
+
+        // Then
+        const agendaItemModal = screen.getByTestId('item-modal');
+        expect(agendaItemModal).toBeInTheDocument();
       });
 
-      test('Should display first holiday found from API - now is empty', async () => {
+      test('Should close agenda item modal when clicks on "Supprimer" button', async () => {
         // Given
         const agenda = new Agenda();
-        vi.spyOn(agenda, 'now', 'get').mockReturnValue([]);
-        vi.spyOn(agenda, 'next', 'get').mockReturnValue([
-          new Item('fake-id-1', 'holiday', 'Holiday 1', null, new Date()),
-          new Item('fake-id-2', 'holiday', 'Holiday 2', null, new Date()),
+        vi.spyOn(agenda, 'now', 'get').mockReturnValue([
+          new Item('fake-id-holiday-1', 'holiday', 'Holiday 1', null, today),
         ]);
-        const spy = vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(agenda);
-
-        // When
-        const { container } = render(Page, {
+        vi.spyOn(agenda, 'next', 'get').mockReturnValue([
+          new Item('fake-id-holiday-2', 'holiday', 'Holiday 2', null, in32days),
+        ]);
+        vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(agenda);
+        render(Page, {
           props: {
             data: {
               followup: new Followup(),
@@ -408,179 +392,290 @@ describe('/+page.svelte', () => {
           },
         });
 
-        // Then
-        await waitFor(() => {
-          const agendaBlock = container.querySelector('.agenda-container');
-          expect(spy).toHaveBeenCalledTimes(1);
-          expect(agendaBlock).toHaveTextContent('Holiday 1');
-          expect(agendaBlock).not.toHaveTextContent('Holiday 2');
-          expect(agendaBlock).not.toHaveTextContent(
-            'Retrouvez les temps importants de votre vie administrative ici'
-          );
-        });
-      });
-
-      test('should display calendar block if agenda is empty', async () => {
         // When
-        const { container } = render(Page, {
-          props: {
-            data: {
-              followup: new Followup(),
-              isFollowupEmpty: true,
-              hasAnyConsents: true,
-            },
-            params: {},
-          },
-        });
-
-        // Then
-        await waitFor(() => {
-          const agendaBlock = container.querySelector('.agenda-container');
-          expect(agendaBlock).toHaveTextContent(
-            'Retrouvez les temps importants de votre vie administrative ici'
+        await waitFor(async () => {
+          const moreIcon = screen.getByTestId(
+            'open-agenda-item-modal-fake-id-holiday-1'
           );
-        });
-      });
+          await fireEvent.click(moreIcon);
 
-      describe('Agenda item modal', () => {
-        const oneday_in_ms = 24 * 60 * 60 * 1000;
-        const today = new Date();
-        const in32days = new Date(today.getTime() + 32 * oneday_in_ms); // 32 days, so we are sure that month is different than today's
-
-        test('Should open agenda item modal when clicks on more icon', async () => {
-          // Given
-          const agenda = new Agenda();
-          vi.spyOn(agenda, 'now', 'get').mockReturnValue([
-            new Item('fake-id-holiday-1', 'holiday', 'Holiday 1', null, today),
-          ]);
-          vi.spyOn(agenda, 'next', 'get').mockReturnValue([
-            new Item('fake-id-holiday-2', 'holiday', 'Holiday 2', null, in32days),
-          ]);
-          vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(agenda);
-          render(Page, {
-            props: {
-              data: {
-                followup: new Followup(),
-                isFollowupEmpty: true,
-                hasAnyConsents: true,
-              },
-              params: {},
-            },
-          });
-
-          // When
-          await waitFor(async () => {
-            const moreIcon = screen.getByTestId(
-              'open-agenda-item-modal-fake-id-holiday-1'
-            );
-            await fireEvent.click(moreIcon);
-          });
-
-          // Then
           const agendaItemModal = screen.getByTestId('item-modal');
           expect(agendaItemModal).toBeInTheDocument();
+
+          const deleteButton = screen.getByTestId('hide-agenda-item-button');
+          await fireEvent.click(deleteButton);
         });
 
-        test('Should close agenda item modal when clicks on "Supprimer" button', async () => {
-          // Given
-          const agenda = new Agenda();
-          vi.spyOn(agenda, 'now', 'get').mockReturnValue([
-            new Item('fake-id-holiday-1', 'holiday', 'Holiday 1', null, today),
-          ]);
-          vi.spyOn(agenda, 'next', 'get').mockReturnValue([
-            new Item('fake-id-holiday-2', 'holiday', 'Holiday 2', null, in32days),
-          ]);
-          vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(agenda);
-          render(Page, {
-            props: {
-              data: {
-                followup: new Followup(),
-                isFollowupEmpty: true,
-                hasAnyConsents: true,
-              },
-              params: {},
+        // Then
+        expect(screen.queryByTestId('agenda-item-modal')).not.toBeInTheDocument();
+      });
+
+      test('should add toast when user clicks on "Supprimer" button', async () => {
+        // Given
+        const agenda = new Agenda();
+        vi.spyOn(agenda, 'now', 'get').mockReturnValue([
+          new Item('fake-id-holiday-1', 'holiday', 'Holiday 1', null, today),
+        ]);
+        vi.spyOn(agenda, 'next', 'get').mockReturnValue([
+          new Item('fake-id-holiday-2', 'holiday', 'Holiday 2', null, in32days),
+        ]);
+        vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(agenda);
+        const spy = vi.spyOn(toastStore, 'addToast');
+        render(Page, {
+          props: {
+            data: {
+              followup: new Followup(),
+              isFollowupEmpty: true,
+              hasAnyConsents: true,
             },
-          });
-
-          // When
-          await waitFor(async () => {
-            const moreIcon = screen.getByTestId(
-              'open-agenda-item-modal-fake-id-holiday-1'
-            );
-            await fireEvent.click(moreIcon);
-
-            const agendaItemModal = screen.getByTestId('item-modal');
-            expect(agendaItemModal).toBeInTheDocument();
-
-            const deleteButton = screen.getByTestId('hide-agenda-item-button');
-            await fireEvent.click(deleteButton);
-          });
-
-          // Then
-          expect(screen.queryByTestId('agenda-item-modal')).not.toBeInTheDocument();
+            params: {},
+          },
         });
 
-        test('should add toast when user clicks on "Supprimer" button', async () => {
-          // Given
-          const agenda = new Agenda();
-          vi.spyOn(agenda, 'now', 'get').mockReturnValue([
-            new Item('fake-id-holiday-1', 'holiday', 'Holiday 1', null, today),
-          ]);
-          vi.spyOn(agenda, 'next', 'get').mockReturnValue([
-            new Item('fake-id-holiday-2', 'holiday', 'Holiday 2', null, in32days),
-          ]);
-          vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(agenda);
-          const spy = vi.spyOn(toastStore, 'addToast');
-          render(Page, {
-            props: {
-              data: {
-                followup: new Followup(),
-                isFollowupEmpty: true,
-                hasAnyConsents: true,
-              },
-              params: {},
-            },
-          });
+        // When
+        await waitFor(async () => {
+          const moreIcon = screen.getByTestId(
+            'open-agenda-item-modal-fake-id-holiday-1'
+          );
+          await fireEvent.click(moreIcon);
 
-          // When
-          await waitFor(async () => {
-            const moreIcon = screen.getByTestId(
-              'open-agenda-item-modal-fake-id-holiday-1'
-            );
-            await fireEvent.click(moreIcon);
+          const deleteButton = screen.getByTestId('hide-agenda-item-button');
+          await fireEvent.click(deleteButton);
+        });
 
-            const deleteButton = screen.getByTestId('hide-agenda-item-button');
-            await fireEvent.click(deleteButton);
-          });
-
-          // Then
-          await waitFor(async () => {
-            expect(spy).toHaveBeenCalledWith(
-              'L’élément a bien été supprimé',
-              'success',
-              3000,
-              true
-            );
-          });
+        // Then
+        await waitFor(async () => {
+          expect(spy).toHaveBeenCalledWith(
+            'L’élément a bien été supprimé',
+            'success',
+            3000,
+            true
+          );
         });
       });
     });
+  });
 
-    describe('Followup block - when user has consented', () => {
-      beforeEach(async () => {
-        const apiConsentsItem: APIConsentsItem = {
-          partner_id: 'fake-partner-id',
-          consent_datetime: new Date('2026-02-22T15:55:00.000Z'),
-        };
-        const apiConsents: APIConsents = {
-          consents: [apiConsentsItem],
-        };
-        const consents: Consents = new Consents(apiConsents);
-        vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
-        vi.spyOn(consentsMethods, 'hasAnyConsents').mockResolvedValue(true);
+  describe('Followup block - when user has consented', () => {
+    beforeEach(async () => {
+      const apiConsentsItem: APIConsentsItem = {
+        partner_id: 'fake-partner-id',
+        consent_datetime: new Date('2026-02-22T15:55:00.000Z'),
+      };
+      const apiConsents: APIConsents = {
+        consents: [apiConsentsItem],
+      };
+      const consents: Consents = new Consents(apiConsents);
+      vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
+      vi.spyOn(consentsMethods, 'hasAnyConsents').mockResolvedValue(true);
+    });
+
+    test('Should display first followup found from API', async () => {
+      // Given
+      const followup = new Followup();
+      vi.spyOn(followup, 'items', 'get').mockReturnValue([
+        new FollowupItem(
+          'partner',
+          'type',
+          'id1',
+          'ref1',
+          'notifications',
+          [],
+          'Opération Tranquillité Vacances 1',
+          'subheading',
+          'Votre demande est en cours de traitement.',
+          'icon',
+          new Date('2026-02-22T15:55:00.000Z'),
+          'wip',
+          'En cours',
+          false,
+          null,
+          []
+        ),
+        new FollowupItem(
+          'partner',
+          'type',
+          'id2',
+          'ref2',
+          'notifications',
+          [],
+          'Opération Tranquillité Vacances 2',
+          'subheading',
+          'Votre demande est en cours de traitement.',
+          'icon',
+          new Date('2026-02-22T15:55:00.000Z'),
+          'wip',
+          'En cours',
+          false,
+          null,
+          []
+        ),
+        new FollowupItem(
+          'partner',
+          'type',
+          'id3',
+          'ref3',
+          'notifications',
+          [],
+          'Opération Tranquillité Vacances 3',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'closed',
+          'Terminée',
+          false,
+          null,
+          []
+        ),
+        new FollowupItem(
+          'partner',
+          'type',
+          'id4',
+          'ref4',
+          'notifications',
+          [],
+          'Opération Tranquillité Vacances 4',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'closed',
+          'Terminée',
+          false,
+          null,
+          []
+        ),
+      ]);
+      const spy = vi
+        .spyOn(followupMethods, 'buildFollowup')
+        .mockResolvedValue(followup);
+      // When
+      const { container } = render(Page, {
+        props: {
+          data: {
+            followup: followup,
+            isFollowupEmpty: false,
+            hasAnyConsents: true,
+          },
+          params: {},
+        },
       });
 
-      test('Should display first followup found from API', async () => {
+      // Then
+      await waitFor(() => {
+        const followupBlock = container.querySelector('.followup-container');
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(followupBlock).toHaveTextContent('Opération Tranquillité Vacances 1');
+        expect(followupBlock).not.toHaveTextContent(
+          'Opération Tranquillité Vacances 2'
+        );
+        expect(followupBlock).not.toHaveTextContent(
+          'Opération Tranquillité Vacances 3'
+        );
+        expect(followupBlock).not.toHaveTextContent(
+          'Opération Tranquillité Vacances 4'
+        );
+        expect(followupBlock).not.toHaveTextContent(
+          'Retrouvez et suivez vos démarches ici.'
+        );
+      });
+    });
+
+    test('should display followup block if followup is empty', async () => {
+      // Given
+      const followup = new Followup();
+      vi.spyOn(followup, 'items', 'get').mockReturnValue([]);
+      const spy = vi
+        .spyOn(followupMethods, 'buildFollowup')
+        .mockResolvedValue(followup);
+
+      // When
+      const { container } = render(Page, {
+        props: {
+          data: {
+            followup: followup,
+            isFollowupEmpty: true,
+            hasAnyConsents: true,
+          },
+          params: {},
+        },
+      });
+
+      // Then
+      await waitFor(() => {
+        const followupBlock = container.querySelector('.followup-container');
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(followupBlock).toHaveTextContent('Suivez vos démarches ici.');
+      });
+    });
+
+    describe('Followup item modal', () => {
+      test('Should open followup item modal when clicks on more icon', async () => {
+        const followup = new Followup();
+        vi.spyOn(followup, 'items', 'get').mockReturnValue([
+          new FollowupItem(
+            'partner',
+            'type',
+            'id1',
+            'ref1',
+            'notifications',
+            [],
+            'Opération Tranquillité Vacances 1',
+            'subheading',
+            'Votre demande est en cours de traitement.',
+            'icon',
+            new Date('2026-02-22T15:55:00.000Z'),
+            'wip',
+            'En cours',
+            false,
+            null,
+            []
+          ),
+          new FollowupItem(
+            'partner',
+            'type',
+            'id2',
+            'ref2',
+            'notifications',
+            [],
+            'Opération Tranquillité Vacances 2',
+            'subheading',
+            'Votre demande est en cours de traitement.',
+            'icon',
+            new Date('2026-02-22T15:55:00.000Z'),
+            'wip',
+            'En cours',
+            false,
+            null,
+            []
+          ),
+        ]);
+        vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
+        render(Page, {
+          props: {
+            data: {
+              followup: followup,
+              isFollowupEmpty: false,
+              hasAnyConsents: true,
+            },
+            params: {},
+          },
+        });
+
+        // When
+        await waitFor(async () => {
+          const moreIcon = screen.getByTestId(
+            'open-followup-item-modal-partner:type:id1'
+          );
+          await fireEvent.click(moreIcon);
+        });
+
+        // Then
+        const followupItemModal = screen.getByTestId('item-modal');
+        expect(followupItemModal).toBeInTheDocument();
+      });
+      test('Should close followup item modal when clicks on "Archiver" button', async () => {
         // Given
         const followup = new Followup();
         vi.spyOn(followup, 'items', 'get').mockReturnValue([
@@ -620,48 +715,10 @@ describe('/+page.svelte', () => {
             null,
             []
           ),
-          new FollowupItem(
-            'partner',
-            'type',
-            'id3',
-            'ref3',
-            'notifications',
-            [],
-            'Opération Tranquillité Vacances 3',
-            'subheading',
-            'Votre demande est terminée.',
-            'icon',
-            new Date('2026-02-20T15:55:00.000Z'),
-            'closed',
-            'Terminée',
-            false,
-            null,
-            []
-          ),
-          new FollowupItem(
-            'partner',
-            'type',
-            'id4',
-            'ref4',
-            'notifications',
-            [],
-            'Opération Tranquillité Vacances 4',
-            'subheading',
-            'Votre demande est terminée.',
-            'icon',
-            new Date('2026-02-20T15:55:00.000Z'),
-            'closed',
-            'Terminée',
-            false,
-            null,
-            []
-          ),
         ]);
-        const spy = vi
-          .spyOn(followupMethods, 'buildFollowup')
-          .mockResolvedValue(followup);
-        // When
-        const { container } = render(Page, {
+        vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
+        vi.spyOn(FollowupItem.prototype, 'archive').mockResolvedValue(true);
+        render(Page, {
           props: {
             data: {
               followup: followup,
@@ -672,379 +729,209 @@ describe('/+page.svelte', () => {
           },
         });
 
-        // Then
-        await waitFor(() => {
-          const followupBlock = container.querySelector('.followup-container');
-          expect(spy).toHaveBeenCalledTimes(1);
-          expect(followupBlock).toHaveTextContent('Opération Tranquillité Vacances 1');
-          expect(followupBlock).not.toHaveTextContent(
-            'Opération Tranquillité Vacances 2'
+        // When
+        await waitFor(async () => {
+          const moreIcon = screen.getByTestId(
+            'open-followup-item-modal-partner:type:id1'
           );
-          expect(followupBlock).not.toHaveTextContent(
-            'Opération Tranquillité Vacances 3'
-          );
-          expect(followupBlock).not.toHaveTextContent(
-            'Opération Tranquillité Vacances 4'
-          );
-          expect(followupBlock).not.toHaveTextContent(
-            'Retrouvez et suivez vos démarches ici.'
-          );
+          await fireEvent.click(moreIcon);
+          const followupItemModal = screen.getByTestId('item-modal');
+          expect(followupItemModal).toBeInTheDocument();
+          const archiveButton = screen.getByTestId('archive-followup-item-button');
+          await fireEvent.click(archiveButton);
         });
-      });
 
-      test('should display followup block if followup is empty', async () => {
+        // Then
+        expect(screen.queryByTestId('item-modal')).not.toBeInTheDocument();
+      });
+      test('should add toast when user clicks on "Archiver" button - archive success', async () => {
         // Given
         const followup = new Followup();
-        vi.spyOn(followup, 'items', 'get').mockReturnValue([]);
-        const spy = vi
-          .spyOn(followupMethods, 'buildFollowup')
-          .mockResolvedValue(followup);
-
-        // When
-        const { container } = render(Page, {
+        vi.spyOn(followup, 'items', 'get').mockReturnValue([
+          new FollowupItem(
+            'partner',
+            'type',
+            'id1',
+            'ref1',
+            'notifications',
+            [],
+            'Opération Tranquillité Vacances 1',
+            'subheading',
+            'Votre demande est en cours de traitement.',
+            'icon',
+            new Date('2026-02-22T15:55:00.000Z'),
+            'wip',
+            'En cours',
+            false,
+            null,
+            []
+          ),
+          new FollowupItem(
+            'partner',
+            'type',
+            'id2',
+            'ref2',
+            'notifications',
+            [],
+            'Opération Tranquillité Vacances 2',
+            'subheading',
+            'Votre demande est en cours de traitement.',
+            'icon',
+            new Date('2026-02-22T15:55:00.000Z'),
+            'wip',
+            'En cours',
+            false,
+            null,
+            []
+          ),
+        ]);
+        vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
+        const spy = vi.spyOn(FollowupItem.prototype, 'archive').mockResolvedValue(true);
+        const spy2 = vi.spyOn(toastStore, 'addToast');
+        render(Page, {
           props: {
             data: {
               followup: followup,
-              isFollowupEmpty: true,
+              isFollowupEmpty: false,
               hasAnyConsents: true,
             },
             params: {},
           },
         });
 
-        // Then
-        await waitFor(() => {
-          const followupBlock = container.querySelector('.followup-container');
-          expect(spy).toHaveBeenCalledTimes(1);
-          expect(followupBlock).toHaveTextContent('Suivez vos démarches ici.');
-        });
-      });
-
-      describe('Followup item modal', () => {
-        test('Should open followup item modal when clicks on more icon', async () => {
-          const followup = new Followup();
-          vi.spyOn(followup, 'items', 'get').mockReturnValue([
-            new FollowupItem(
-              'partner',
-              'type',
-              'id1',
-              'ref1',
-              'notifications',
-              [],
-              'Opération Tranquillité Vacances 1',
-              'subheading',
-              'Votre demande est en cours de traitement.',
-              'icon',
-              new Date('2026-02-22T15:55:00.000Z'),
-              'wip',
-              'En cours',
-              false,
-              null,
-              []
-            ),
-            new FollowupItem(
-              'partner',
-              'type',
-              'id2',
-              'ref2',
-              'notifications',
-              [],
-              'Opération Tranquillité Vacances 2',
-              'subheading',
-              'Votre demande est en cours de traitement.',
-              'icon',
-              new Date('2026-02-22T15:55:00.000Z'),
-              'wip',
-              'En cours',
-              false,
-              null,
-              []
-            ),
-          ]);
-          vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
-          render(Page, {
-            props: {
-              data: {
-                followup: followup,
-                isFollowupEmpty: false,
-                hasAnyConsents: true,
-              },
-              params: {},
-            },
-          });
-
-          // When
-          await waitFor(async () => {
-            const moreIcon = screen.getByTestId(
-              'open-followup-item-modal-partner:type:id1'
-            );
-            await fireEvent.click(moreIcon);
-          });
-
-          // Then
-          const followupItemModal = screen.getByTestId('item-modal');
-          expect(followupItemModal).toBeInTheDocument();
-        });
-        test('Should close followup item modal when clicks on "Archiver" button', async () => {
-          // Given
-          const followup = new Followup();
-          vi.spyOn(followup, 'items', 'get').mockReturnValue([
-            new FollowupItem(
-              'partner',
-              'type',
-              'id1',
-              'ref1',
-              'notifications',
-              [],
-              'Opération Tranquillité Vacances 1',
-              'subheading',
-              'Votre demande est en cours de traitement.',
-              'icon',
-              new Date('2026-02-22T15:55:00.000Z'),
-              'wip',
-              'En cours',
-              false,
-              null,
-              []
-            ),
-            new FollowupItem(
-              'partner',
-              'type',
-              'id2',
-              'ref2',
-              'notifications',
-              [],
-              'Opération Tranquillité Vacances 2',
-              'subheading',
-              'Votre demande est en cours de traitement.',
-              'icon',
-              new Date('2026-02-22T15:55:00.000Z'),
-              'wip',
-              'En cours',
-              false,
-              null,
-              []
-            ),
-          ]);
-          vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
-          vi.spyOn(FollowupItem.prototype, 'archive').mockResolvedValue(true);
-          render(Page, {
-            props: {
-              data: {
-                followup: followup,
-                isFollowupEmpty: false,
-                hasAnyConsents: true,
-              },
-              params: {},
-            },
-          });
-
-          // When
-          await waitFor(async () => {
-            const moreIcon = screen.getByTestId(
-              'open-followup-item-modal-partner:type:id1'
-            );
-            await fireEvent.click(moreIcon);
-            const followupItemModal = screen.getByTestId('item-modal');
-            expect(followupItemModal).toBeInTheDocument();
-            const archiveButton = screen.getByTestId('archive-followup-item-button');
-            await fireEvent.click(archiveButton);
-          });
-
-          // Then
-          expect(screen.queryByTestId('item-modal')).not.toBeInTheDocument();
-        });
-        test('should add toast when user clicks on "Archiver" button - archive success', async () => {
-          // Given
-          const followup = new Followup();
-          vi.spyOn(followup, 'items', 'get').mockReturnValue([
-            new FollowupItem(
-              'partner',
-              'type',
-              'id1',
-              'ref1',
-              'notifications',
-              [],
-              'Opération Tranquillité Vacances 1',
-              'subheading',
-              'Votre demande est en cours de traitement.',
-              'icon',
-              new Date('2026-02-22T15:55:00.000Z'),
-              'wip',
-              'En cours',
-              false,
-              null,
-              []
-            ),
-            new FollowupItem(
-              'partner',
-              'type',
-              'id2',
-              'ref2',
-              'notifications',
-              [],
-              'Opération Tranquillité Vacances 2',
-              'subheading',
-              'Votre demande est en cours de traitement.',
-              'icon',
-              new Date('2026-02-22T15:55:00.000Z'),
-              'wip',
-              'En cours',
-              false,
-              null,
-              []
-            ),
-          ]);
-          vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
-          const spy = vi
-            .spyOn(FollowupItem.prototype, 'archive')
-            .mockResolvedValue(true);
-          const spy2 = vi.spyOn(toastStore, 'addToast');
-          render(Page, {
-            props: {
-              data: {
-                followup: followup,
-                isFollowupEmpty: false,
-                hasAnyConsents: true,
-              },
-              params: {},
-            },
-          });
-
-          // When
-          await waitFor(async () => {
-            const moreIcon = screen.getByTestId(
-              'open-followup-item-modal-partner:type:id1'
-            );
-            await fireEvent.click(moreIcon);
-            const archiveButton = screen.getByTestId('archive-followup-item-button');
-            await fireEvent.click(archiveButton);
-          });
-
-          // Then
-          await waitFor(async () => {
-            expect(spy).toHaveBeenCalledWith();
-            expect(spy2).toHaveBeenCalledWith(
-              'L’élément a bien été archivé',
-              'success',
-              3000,
-              true
-            );
-          });
-        });
-        test('should add toast when user clicks on "Archiver" button - archive error', async () => {
-          // Given
-          const followup = new Followup();
-          vi.spyOn(followup, 'items', 'get').mockReturnValue([
-            new FollowupItem(
-              'partner',
-              'type',
-              'id1',
-              'ref1',
-              'notifications',
-              [],
-              'Opération Tranquillité Vacances 1',
-              'subheading',
-              'Votre demande est en cours de traitement.',
-              'icon',
-              new Date('2026-02-22T15:55:00.000Z'),
-              'wip',
-              'En cours',
-              false,
-              null,
-              []
-            ),
-            new FollowupItem(
-              'partner',
-              'type',
-              'id2',
-              'ref2',
-              'notifications',
-              [],
-              'Opération Tranquillité Vacances 2',
-              'subheading',
-              'Votre demande est en cours de traitement.',
-              'icon',
-              new Date('2026-02-22T15:55:00.000Z'),
-              'wip',
-              'En cours',
-              false,
-              null,
-              []
-            ),
-          ]);
-          vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
-          const spy = vi
-            .spyOn(FollowupItem.prototype, 'archive')
-            .mockResolvedValue(false);
-          const spy2 = vi.spyOn(toastStore, 'addToast');
-          render(Page, {
-            props: {
-              data: {
-                followup: followup,
-                isFollowupEmpty: false,
-                hasAnyConsents: true,
-              },
-              params: {},
-            },
-          });
-
-          // When
-          await waitFor(async () => {
-            const moreIcon = screen.getByTestId(
-              'open-followup-item-modal-partner:type:id1'
-            );
-            await fireEvent.click(moreIcon);
-            const archiveButton = screen.getByTestId('archive-followup-item-button');
-            await fireEvent.click(archiveButton);
-          });
-
-          // Then
-          await waitFor(async () => {
-            expect(spy).toHaveBeenCalledWith();
-            expect(spy2).toHaveBeenCalledWith(
-              "L’élément n'a pas pu être archivé",
-              'error',
-              3000,
-              true
-            );
-          });
-        });
-      });
-    });
-
-    describe('Followup block - when user has not consented', () => {
-      beforeEach(async () => {
-        const apiConsents: APIConsents = {
-          consents: [],
-        };
-        const consents: Consents = new Consents(apiConsents);
-        vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
-        vi.spyOn(consentsMethods, 'hasAnyConsents').mockResolvedValue(false);
-      });
-
-      test('should display followup no consent block', async () => {
         // When
-        const { container } = render(Page, {
+        await waitFor(async () => {
+          const moreIcon = screen.getByTestId(
+            'open-followup-item-modal-partner:type:id1'
+          );
+          await fireEvent.click(moreIcon);
+          const archiveButton = screen.getByTestId('archive-followup-item-button');
+          await fireEvent.click(archiveButton);
+        });
+
+        // Then
+        await waitFor(async () => {
+          expect(spy).toHaveBeenCalledWith();
+          expect(spy2).toHaveBeenCalledWith(
+            'L’élément a bien été archivé',
+            'success',
+            3000,
+            true
+          );
+        });
+      });
+      test('should add toast when user clicks on "Archiver" button - archive error', async () => {
+        // Given
+        const followup = new Followup();
+        vi.spyOn(followup, 'items', 'get').mockReturnValue([
+          new FollowupItem(
+            'partner',
+            'type',
+            'id1',
+            'ref1',
+            'notifications',
+            [],
+            'Opération Tranquillité Vacances 1',
+            'subheading',
+            'Votre demande est en cours de traitement.',
+            'icon',
+            new Date('2026-02-22T15:55:00.000Z'),
+            'wip',
+            'En cours',
+            false,
+            null,
+            []
+          ),
+          new FollowupItem(
+            'partner',
+            'type',
+            'id2',
+            'ref2',
+            'notifications',
+            [],
+            'Opération Tranquillité Vacances 2',
+            'subheading',
+            'Votre demande est en cours de traitement.',
+            'icon',
+            new Date('2026-02-22T15:55:00.000Z'),
+            'wip',
+            'En cours',
+            false,
+            null,
+            []
+          ),
+        ]);
+        vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
+        const spy = vi
+          .spyOn(FollowupItem.prototype, 'archive')
+          .mockResolvedValue(false);
+        const spy2 = vi.spyOn(toastStore, 'addToast');
+        render(Page, {
           props: {
             data: {
-              followup: new Followup(),
-              isFollowupEmpty: true,
-              hasAnyConsents: false,
+              followup: followup,
+              isFollowupEmpty: false,
+              hasAnyConsents: true,
             },
             params: {},
           },
         });
 
-        // Then
-        await waitFor(() => {
-          const followupNoConsentBlock = container.querySelector(
-            '.followup-no-consent-container'
+        // When
+        await waitFor(async () => {
+          const moreIcon = screen.getByTestId(
+            'open-followup-item-modal-partner:type:id1'
           );
-          expect(followupNoConsentBlock).toHaveTextContent(
-            'Suivez vos démarches administratives au même endroit !'
+          await fireEvent.click(moreIcon);
+          const archiveButton = screen.getByTestId('archive-followup-item-button');
+          await fireEvent.click(archiveButton);
+        });
+
+        // Then
+        await waitFor(async () => {
+          expect(spy).toHaveBeenCalledWith();
+          expect(spy2).toHaveBeenCalledWith(
+            "L’élément n'a pas pu être archivé",
+            'error',
+            3000,
+            true
           );
         });
+      });
+    });
+  });
+
+  describe('Followup block - when user has not consented', () => {
+    beforeEach(async () => {
+      const apiConsents: APIConsents = {
+        consents: [],
+      };
+      const consents: Consents = new Consents(apiConsents);
+      vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
+      vi.spyOn(consentsMethods, 'hasAnyConsents').mockResolvedValue(false);
+    });
+
+    test('should display followup no consent block', async () => {
+      // When
+      const { container } = render(Page, {
+        props: {
+          data: {
+            followup: new Followup(),
+            isFollowupEmpty: true,
+            hasAnyConsents: false,
+          },
+          params: {},
+        },
+      });
+
+      // Then
+      await waitFor(() => {
+        const followupNoConsentBlock = container.querySelector(
+          '.followup-no-consent-container'
+        );
+        expect(followupNoConsentBlock).toHaveTextContent(
+          'Suivez vos démarches administratives au même endroit !'
+        );
       });
     });
   });
