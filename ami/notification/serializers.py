@@ -251,6 +251,10 @@ class PartnerEventCreateSerializerV2(PartnerEventCreateMixin, serializers.Serial
         help_text="Indique si le système doit essayer de déclencher une Notification Push sur les terminaux de l'usager",
     )
 
+    def __init__(self, *args, **kwargs):
+        self.partner = kwargs.pop("partner", None)
+        super().__init__(*args, **kwargs)
+
     def validate_item_parent_partner_id(self, value):
         if value:
             try:
@@ -269,7 +273,7 @@ class PartnerEventCreateSerializerV2(PartnerEventCreateMixin, serializers.Serial
         has_item_parent_fields = any(
             bool(v) for k, v in attrs.items() if k.startswith("item_parent_")
         )
-        item_parent_fields = ["item_parent_partner_id", "item_parent_type", "item_parent_id"]
+        item_parent_fields = ["item_parent_type", "item_parent_id"]
         validation_errors = {}
         if has_item_parent_fields:
             validation_errors = {
@@ -279,5 +283,9 @@ class PartnerEventCreateSerializerV2(PartnerEventCreateMixin, serializers.Serial
             }
         if validation_errors:
             raise serializers.ValidationError(validation_errors)
+
+        if not attrs.get("item_parent_partner_id") and has_item_parent_fields:
+            # default partner for parent item is current partner
+            attrs["item_parent_partner_id"] = self.partner.id
 
         return attrs

@@ -102,7 +102,7 @@ def _partner_create_event(request: Request, data: dict):
 @authentication_classes([PartnerBasicAuthentication])
 @permission_classes([IsPartnerAuthenticated])
 def partner_create_event(request: Request) -> Response[NotificationResponseSerializer]:
-    serializer = PartnerEventCreateSerializerV2(data=request.data)
+    serializer = PartnerEventCreateSerializerV2(data=request.data, partner=request.ami_partner)
     try:
         serializer.is_valid(raise_exception=True)
     except serializers.ValidationError:
