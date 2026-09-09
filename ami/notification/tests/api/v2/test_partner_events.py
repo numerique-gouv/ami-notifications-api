@@ -905,10 +905,12 @@ def test_create_event_send_ko_with_400_when_required_item_parent_fields_are_miss
     app,
     user: User,
     consent: Consent,
+    partner: Partner,
     partner_dn: Partner,
     partner_auth: dict[str, str],
 ) -> None:
-    item_parent_fields = ["item_parent_partner_id", "item_parent_type", "item_parent_id"]
+    item_parent_fields = ["item_parent_type", "item_parent_id"]
+    item_optional_parent_fields = ["item_parent_partner_id"]
     item_parent_field_values = {
         "item_parent_partner_id": "dinum-dn",
         "item_parent_type": "JeDéménage",
@@ -927,7 +929,7 @@ def test_create_event_send_ko_with_400_when_required_item_parent_fields_are_miss
         "item_milestone_end_date": "2026-01-02T23:00:00.000Z",
         "item_canal": "ami",
     }
-    for field in item_parent_fields:
+    for field in item_parent_fields + item_optional_parent_fields:
         data = {k: v for k, v in event_data.items()}
         data.update(
             {
@@ -940,6 +942,18 @@ def test_create_event_send_ko_with_400_when_required_item_parent_fields_are_miss
             for f in item_parent_fields
             if f != field
         }
+
+    event_data.update(
+        {
+            "item_parent_type": "JeDéménage",
+            "item_parent_id": "B-7-CGFD6SVYT",
+        }
+    )
+    response = app.put("/api/v2/event", event_data, headers=partner_auth)
+    assert response.status_code == HTTP_201_CREATED
+    assert Notification.objects.count() == 1
+    notification = Notification.objects.get()
+    assert notification.item_parent_partner == partner
 
 
 @pytest.mark.django_db
