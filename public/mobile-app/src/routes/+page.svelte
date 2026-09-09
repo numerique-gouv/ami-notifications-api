@@ -1,45 +1,317 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { page } from '$app/state';
+  import { type Agenda, Item as AgendaItemType, buildAgenda } from '$lib/agenda';
   import { AMIGoto } from '$lib/ami-navigation';
-  import ConnectedHomepage from '$lib/ConnectedHomepage.svelte';
+  import { AutoPromo, buildAutoPromo } from '$lib/auto-promo';
+  import AgendaItem from '$lib/components/AgendaItem.svelte';
+  import AutoPromoCarousel from '$lib/components/AutoPromo.svelte';
+  import AutoPromoItem from '$lib/components/AutoPromoItem.svelte';
+  import FollowupItem from '$lib/components/followup/FollowupItem.svelte';
+  import FollowupNoConsent from '$lib/components/followup/FollowupNoConsent.svelte';
+  import AgendaItemModal from '$lib/components/modal/AgendaItemModal.svelte';
+  import FollowupItemModal from '$lib/components/modal/FollowupItemModal.svelte';
   import Navigation from '$lib/components/Navigation.svelte';
+  import { buildConsents, hasAnyConsents as hasAnyConsentsFunc } from '$lib/consents';
+  import type { Followup, FollowupItem as FollowupItemType } from '$lib/followup';
+  import { buildFollowup } from '$lib/followup';
+  import {
+    countUnreadNotifications,
+    notificationEventsSocket,
+  } from '$lib/notifications';
   import { toastStore } from '$lib/state/toast.svelte';
   import { userStore } from '$lib/state/User.svelte';
+  import { formatDate } from '$lib/utils';
   import type { PageProps } from './$types';
 
   let { data }: PageProps = $props();
 
-  if (page.url.searchParams.has('is_logged_out')) {
-    AMIGoto('/?is_logged_out#/login');
-  }
+  let unreadNotificationsCount: number = $state(0);
+  let firstName: string = $state('');
+  let today: Date | null = $state(null);
+  let isAgendaEmpty: boolean = $state(true);
+  let agenda: Agenda | null = $state(null);
+  let isFollowupEmpty: boolean = $state(data.isFollowupEmpty);
+  let followup: Followup | null = $state(data.followup);
+  let selectedAgendaItem: AgendaItemType | null = $state(null);
+  let selectedFollowupItem: FollowupItemType | null = $state(null);
+  let autoPromo: AutoPromo | null = $state(null);
+  let hasAnyConsents: boolean = $state(data.hasAnyConsents);
 
-  if (!userStore.connected) {
-    AMIGoto('/#/login');
-  }
-
-  if (page.url.searchParams.has('passkey_toast')) {
-    toastStore.addToast('La clé a bien été ajoutée', 'success', 3000, false);
-  }
-  if (page.url.searchParams.has('user_does_not_match')) {
-    toastStore.addToast(
-      'Vous ne pouvez pas continuer la démarche sous le compte d’un autre usager',
-      'warning',
-      null,
-      true
-    );
-    const hash = page.url.searchParams.get('redirect_to_hash') || '';
-    if (hash !== '') {
-      AMIGoto(`/#${hash}`);
+  onMount(async () => {
+    if (page.url.searchParams.has('is_logged_out')) {
+      AMIGoto('/?is_logged_out#/login');
     }
-  }
+
+    if (!userStore.connected) {
+      AMIGoto('/#/login');
+    }
+
+    if (page.url.searchParams.has('passkey_toast')) {
+      toastStore.addToast('La clé a bien été ajoutée', 'success', 3000, false);
+    }
+    if (page.url.searchParams.has('user_does_not_match')) {
+      toastStore.addToast(
+        'Vous ne pouvez pas continuer la démarche sous le compte d’un autre usager',
+        'warning',
+        null,
+        true
+      );
+      const hash = page.url.searchParams.get('redirect_to_hash') || '';
+      if (hash !== '') {
+        AMIGoto(`/#${hash}`);
+      }
+    }
+
+    try {
+      firstName = userStore.connected?.getFirstName() || '';
+      today = new Date();
+
+      unreadNotificationsCount = await countUnreadNotifications();
+
+      const onMessage = async () => {
+        console.log(
+          'New message received from the websocket, counting unread notifications'
+        );
+        unreadNotificationsCount = await countUnreadNotifications();
+      };
+      let ws = notificationEventsSocket(onMessage);
+
+      const handleVisibility = async () => {
+        if (
+          document.visibilityState === 'visible' &&
+          ws.readyState !== WebSocket.OPEN
+        ) {
+          console.log('Reconnecting the websocket');
+          ws = notificationEventsSocket(onMessage);
+          unreadNotificationsCount = await countUnreadNotifications();
+        }
+      };
+      document.addEventListener('visibilitychange', handleVisibility);
+
+      agenda = await buildAgenda();
+      console.log($state.snapshot(agenda));
+      isAgendaEmpty = !(agenda.now.length || agenda.next.length);
+      autoPromo = buildAutoPromo(agenda);
+      followup = await buildFollowup();
+      console.log($state.snapshot(followup));
+      isFollowupEmpty = !followup.items.length;
+      await buildConsents();
+      hasAnyConsents = await hasAnyConsentsFunc();
+    } catch (error) {
+      console.error(error);
+    }
+  });
+
+  const openAgendaItemModal = (item: AgendaItemType) => {
+    selectedAgendaItem = item;
+  };
+
+  const openFollowupItemModal = (item: FollowupItemType) => {
+    selectedFollowupItem = item;
+  };
 </script>
 
 {#if userStore.connected}
   <Navigation currentItem="home" />
-  <ConnectedHomepage
-    followupProp="{data.followup}"
-    isFollowupEmptyProp="{data.isFollowupEmpty}"
-    hasAnyConsentsProp="{data.hasAnyConsents}"
-  />
+  <div class="fr-container fr-py-3w fr-mb-17v homepage-connected">
+    <div class="header fr-mb-2w">
+      <div class="header-left fr-ellipsis">
+        <p class="fr-ellipsis fr-h5 fr-mb-1w">Bonjour {firstName}</p>
+        <p class="fr-text--sm fr-mb-0">{today ? formatDate(today): ''}</p>
+      </div>
+
+      <div class="header-right">
+        <div class="notification-svg-icon" id="notification-icon">
+          <button
+            type="button"
+            class="fr-btn fr-icon-notification-3-line fr-btn--tertiary-no-outline"
+            onclick={() => AMIGoto("/#/notifications")}
+          >
+            Voir les notifications({unreadNotificationsCount})
+            <div
+              class="fr-text--bold count-number-wrapper"
+              data-content="{unreadNotificationsCount}"
+            >
+              {unreadNotificationsCount}
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    {#if autoPromo && autoPromo.items.length}
+      <div class="rubrique-container">
+        <AutoPromoCarousel items={autoPromo.items} />
+      </div>
+    {/if}
+
+    <div class="rubrique-container agenda-container">
+      {#if isAgendaEmpty}
+        <div class="header-container fr-mb-1w">
+          <h2 class="fr-h6 fr-mb-0 am-text--smbold title">Mon agenda</h2>
+        </div>
+        <div class="rubrique-content-container">
+          <div class="no-agenda rubrique-content-container--empty">
+            <div class="no-agenda--icon">
+              <img src="/remixicons/calendar.svg" alt="">
+            </div>
+            <div class="no-agenda--title">
+              Retrouvez les temps importants de votre vie administrative ici
+            </div>
+          </div>
+        </div>
+      {:else}
+        <div class="header-container fr-mb-1w">
+          <h2 class="fr-h6 fr-mb-0 am-text--smbold title">Mon agenda</h2>
+          <button
+            type="button"
+            class="fr-link fr-icon-arrow-right-line fr-link--icon-right am-link-icon-xl"
+            aria-label="Voir tous mes évènements"
+            onclick={() => AMIGoto("/#/agenda")}
+          ></button>
+        </div>
+        <div class="rubrique-content-container">
+          {#if agenda && agenda.now.length}
+            {@const firstItem = agenda.now[0]}
+            <AgendaItem
+              item={firstItem}
+              onOpen={() => openAgendaItemModal(firstItem)}
+              displayDate={false}
+            />
+          {:else if agenda && agenda.next.length}
+            {@const firstItem = agenda.next[0]}
+            <AgendaItem
+              item={firstItem}
+              onOpen={() => openAgendaItemModal(firstItem)}
+              displayDate={false}
+            />
+          {/if}
+        </div>
+      {/if}
+    </div>
+
+    {#if hasAnyConsents}
+      <div class="rubrique-container followup-container">
+        {#if isFollowupEmpty}
+          <div class="header-container fr-mb-1w">
+            <h2 class="fr-h6 fr-mb-0 am-text--smbold title">Mes démarches</h2>
+          </div>
+          <div class="rubrique-content-container">
+            <div class="no-followup rubrique-content-container--empty">
+              <div class="no-followup--icon">
+                <img src="/remixicons/tracking.svg" alt="">
+              </div>
+              <div class="no-followup--title">Suivez vos démarches ici.</div>
+            </div>
+          </div>
+        {:else}
+          <div class="header-container fr-mb-1w">
+            <h2 class="fr-h6 fr-mb-0 am-text--smbold title">Mes démarches</h2>
+            <button
+              type="button"
+              class="fr-link fr-icon-arrow-right-line fr-link--icon-right am-link-icon-xl"
+              aria-label="Voir toutes mes démarches"
+              onclick={() => AMIGoto("/#/followup")}
+            ></button>
+          </div>
+          <div class="rubrique-content-container">
+            {#if followup && followup.items.length}
+              {@const firstItem = followup.items[0]}
+              <FollowupItem
+                item={firstItem}
+                onOpen={() => openFollowupItemModal(firstItem)}
+              />
+            {/if}
+          </div>
+        {/if}
+      </div>
+    {:else}
+      <div class="rubrique-container followup-container">
+        <div class="header-container fr-mb-1w">
+          <h2 class="fr-h6 fr-mb-0 am-text--smbold title">Mes démarches</h2>
+          <button
+            type="button"
+            class="fr-link fr-icon-arrow-right-line fr-link--icon-right am-link-icon-xl"
+            aria-label="Voir toutes mes démarches"
+            onclick={() => AMIGoto("/#/followup")}
+          ></button>
+        </div>
+        <div class="rubrique-content-container">
+          <FollowupNoConsent />
+        </div>
+      </div>
+    {/if}
+  </div>
+
+  {#if selectedAgendaItem}
+    <AgendaItemModal bind:item={selectedAgendaItem} bind:agenda={agenda} />
+  {/if}
+
+  {#if selectedFollowupItem}
+    <FollowupItemModal
+      bind:item={selectedFollowupItem}
+      bind:followup={followup}
+      bind:isFollowupEmpty={isFollowupEmpty}
+    />
+  {/if}
 {/if}
+
+<style lang="scss">
+  .homepage-connected {
+    .header {
+      display: flex;
+      justify-content: space-between;
+      &-left {
+        max-width: calc(100% - 3.5rem);
+      }
+      &-right {
+        display: flex;
+        .notification-svg-icon {
+          position: relative;
+          .count-number-wrapper {
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            top: .125rem;
+            right: .125rem;
+            width: 1.125rem;
+            height: 1.125rem;
+            border-radius: 1.125rem;
+            background-color: var(--red-marianne-main-472);
+            color: var(--grey-1000-50);
+            font-size: 10px;
+            &[data-content="0"] {
+              display: none;
+            }
+          }
+        }
+      }
+    }
+
+    .rubrique-container {
+      &:not(:last-child) {
+        margin-bottom: 1.5rem;
+      }
+      .header-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .rubrique-content-container--empty {
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        text-align: center;
+        font-size: 16px;
+        line-height: 24px;
+        color: var(--grey-0-1000);
+        img {
+          height: 5rem;
+          width: 5rem;
+        }
+      }
+    }
+  }
+</style>
