@@ -70,7 +70,7 @@
       autoPromo = buildAutoPromo(agenda);
       followup = await buildFollowup();
       console.log($state.snapshot(followup));
-      isFollowupEmpty = !followup.items.length;
+      isFollowupEmpty = followup.isEmpty();
       const consents = await buildConsents();
       hasAnyConsents = consents.hasAnyConsents();
     } catch (error) {

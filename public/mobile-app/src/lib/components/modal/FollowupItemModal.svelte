@@ -25,7 +25,7 @@
   const refreshFollowup = () => {
     buildFollowup().then((result) => {
       followup = result;
-      isFollowupEmpty = !followup.items.length;
+      isFollowupEmpty = followup.isEmpty();
     });
   };
 
