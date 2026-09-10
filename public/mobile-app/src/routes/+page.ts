@@ -1,6 +1,7 @@
 import { page } from '$app/state';
 import { AMIGoto } from '$lib/ami-navigation';
-import { hasAnyConsents as hasAnyConsentsFunc } from '$lib/consents';
+import type { Consents } from '$lib/consents';
+import { buildConsents } from '$lib/consents';
 import { buildFollowup, type Followup } from '$lib/followup';
 import { toastStore } from '$lib/state/toast.svelte';
 import { userStore } from '$lib/state/User.svelte';
@@ -34,9 +35,10 @@ export const load: PageLoad = async () => {
     }
   }
 
-  const followup: Followup | null = await buildFollowup();
+  const followup: Followup = await buildFollowup();
   const isFollowupEmpty: boolean = !followup.items.length;
-  const hasAnyConsents: boolean = await hasAnyConsentsFunc();
+  const consents: Consents = await buildConsents();
+  const hasAnyConsents: boolean = consents.hasAnyConsents();
 
   return { followup, isFollowupEmpty, hasAnyConsents };
 };

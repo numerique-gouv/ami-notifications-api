@@ -5,7 +5,6 @@ import type { WS as WSType } from 'vitest-websocket-mock';
 import WS from 'vitest-websocket-mock';
 import * as agendaMethods from '$lib/agenda';
 import { Agenda, Item } from '$lib/agenda';
-import type { APIConsents, APIConsentsItem } from '$lib/api-consents';
 import * as autoPromoMethods from '$lib/auto-promo';
 import { AutoPromo, AutoPromoItem } from '$lib/auto-promo';
 import * as consentsMethods from '$lib/consents';
@@ -458,16 +457,9 @@ describe('/+page.svelte', () => {
 
   describe('Followup block - when user has consented', () => {
     beforeEach(async () => {
-      const apiConsentsItem: APIConsentsItem = {
-        partner_id: 'fake-partner-id',
-        consent_datetime: new Date('2026-02-22T15:55:00.000Z'),
-      };
-      const apiConsents: APIConsents = {
-        consents: [apiConsentsItem],
-      };
-      const consents: Consents = new Consents(apiConsents);
+      const consents: Consents = new Consents();
       vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
-      vi.spyOn(consentsMethods, 'hasAnyConsents').mockResolvedValue(true);
+      vi.spyOn(consents, 'hasAnyConsents').mockResolvedValue(true);
     });
 
     test('Should display first followup found from API', async () => {
@@ -903,12 +895,9 @@ describe('/+page.svelte', () => {
 
   describe('Followup block - when user has not consented', () => {
     beforeEach(async () => {
-      const apiConsents: APIConsents = {
-        consents: [],
-      };
-      const consents: Consents = new Consents(apiConsents);
+      const consents: Consents = new Consents();
       vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
-      vi.spyOn(consentsMethods, 'hasAnyConsents').mockResolvedValue(false);
+      vi.spyOn(consents, 'hasAnyConsents').mockResolvedValue(false);
     });
 
     test('should display followup no consent block', async () => {
