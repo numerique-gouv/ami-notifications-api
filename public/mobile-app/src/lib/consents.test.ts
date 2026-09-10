@@ -1,13 +1,7 @@
 import { describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import * as apiConsentsMethods from '$lib/api-consents';
-import {
-  buildConsents,
-  Consents,
-  ConsentsItem,
-  hasAnyConsents,
-  updateConsent,
-} from '$lib/consents';
+import { buildConsents, Consents, ConsentsItem, updateConsent } from '$lib/consents';
 
 describe('/consents.ts', () => {
   describe('Consents', () => {
@@ -50,6 +44,54 @@ describe('/consents.ts', () => {
         new ConsentsItem('psl', new Date('2026-02-21T15:50:00Z'))
       );
     });
+    describe('hasAnyConsents', () => {
+      test('should return false when no consent', async () => {
+        // Given
+        const consents = new Consents();
+
+        // When
+        const result = consents.hasAnyConsents();
+
+        // Then
+        expect(result).toBeFalsy();
+      });
+      test('should return false when consent has no consent_datetime', async () => {
+        // Given
+        const consentsItem1 = {
+          partner_id: 'psl',
+          consent_datetime: null,
+        };
+        const consents = new Consents({
+          consents: [consentsItem1],
+        });
+
+        // When
+        const result = consents.hasAnyConsents();
+
+        // Then
+        expect(result).toBeFalsy();
+      });
+      test('should return true when at least one consent has a consent_datetime', async () => {
+        // Given
+        const consentsItem1 = {
+          partner_id: 'dinum-ami',
+          consent_datetime: null,
+        };
+        const consentsItem2 = {
+          partner_id: 'psl',
+          consent_datetime: new Date('2026-02-22T15:50:00Z'),
+        };
+        const consents = new Consents({
+          consents: [consentsItem1, consentsItem2],
+        });
+
+        // When
+        const result = consents.hasAnyConsents();
+
+        // Then
+        expect(result).toBeTruthy();
+      });
+    });
   });
   describe('buildConsents', () => {
     test('should retrieve inventory and init consents with them', async () => {
@@ -91,56 +133,6 @@ describe('/consents.ts', () => {
 
       // Then
       expect(spy).toHaveBeenCalledWith('dinum-ami', true);
-    });
-  });
-  describe('hasAnyConsents', () => {
-    test('should return false when no consent', async () => {
-      // Given
-      vi.spyOn(apiConsentsMethods, 'retrieveConsents').mockResolvedValue({
-        consents: [],
-      });
-
-      // When
-      const result = await hasAnyConsents();
-
-      // Then
-      expect(result).toBeFalsy();
-    });
-    test('should return false when consent has no consent_datetime', async () => {
-      // Given
-      const consentsItem = {
-        partner_id: 'psl',
-        consent_datetime: null,
-      };
-      vi.spyOn(apiConsentsMethods, 'retrieveConsents').mockResolvedValue({
-        consents: [consentsItem],
-      });
-
-      // When
-      const result = await hasAnyConsents();
-
-      // Then
-      expect(result).toBeFalsy();
-    });
-    test('should return true when at least one consent has a consent_datetime', async () => {
-      // Given
-      const consentsItem1 = {
-        partner_id: 'dinum-ami',
-        consent_datetime: null,
-      };
-      const consentsItem2 = {
-        partner_id: 'psl',
-        consent_datetime: new Date('2026-02-22T15:50:00Z'),
-      };
-      vi.spyOn(apiConsentsMethods, 'retrieveConsents').mockResolvedValue({
-        consents: [consentsItem1, consentsItem2],
-      });
-
-      // When
-      const result = await hasAnyConsents();
-
-      // Then
-      expect(result).toBeTruthy();
     });
   });
 });

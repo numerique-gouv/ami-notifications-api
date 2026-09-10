@@ -12,7 +12,7 @@
   import AgendaItemModal from '$lib/components/modal/AgendaItemModal.svelte';
   import FollowupItemModal from '$lib/components/modal/FollowupItemModal.svelte';
   import Navigation from '$lib/components/Navigation.svelte';
-  import { buildConsents, hasAnyConsents as hasAnyConsentsFunc } from '$lib/consents';
+  import { buildConsents } from '$lib/consents';
   import type { Followup, FollowupItem as FollowupItemType } from '$lib/followup';
   import { buildFollowup } from '$lib/followup';
   import {
@@ -71,8 +71,8 @@
       followup = await buildFollowup();
       console.log($state.snapshot(followup));
       isFollowupEmpty = !followup.items.length;
-      await buildConsents();
-      hasAnyConsents = await hasAnyConsentsFunc();
+      const consents = await buildConsents();
+      hasAnyConsents = consents.hasAnyConsents();
     } catch (error) {
       console.error(error);
     }
