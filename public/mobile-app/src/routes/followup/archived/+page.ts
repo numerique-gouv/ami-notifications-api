@@ -6,7 +6,7 @@ import type { PageLoad } from './$types';
 
 export const load: PageLoad = async () => {
   const followup: Followup = await buildFollowup();
-  const isFollowupEmpty: boolean = !followup.items.length;
+  const isFollowupEmpty: boolean = followup.isEmpty();
   const consents: Consents = await buildConsents();
   const hasAnyConsents: boolean = consents.hasAnyConsents();
 
