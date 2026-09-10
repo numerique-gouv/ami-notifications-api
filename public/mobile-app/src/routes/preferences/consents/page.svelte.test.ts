@@ -1,7 +1,6 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { describe, expect, test, vi } from 'vitest';
 import * as AMINavigationMethods from '$lib/ami-navigation';
-import type { APIConsents } from '$lib/api-consents';
 import * as consentsMethods from '$lib/consents';
 import { Consents } from '$lib/consents';
 import { userStore } from '$lib/state/User.svelte';
@@ -27,9 +26,7 @@ describe('/+page.svelte', () => {
     // Given
     await userStore.login(mockUserInfo);
 
-    const apiConsents: APIConsents = { consents: [] };
-    const consents: Consents = new Consents(apiConsents);
-    vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
+    vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(new Consents());
 
     const spy = vi.spyOn(consentsMethods, 'updateConsent');
     render(Page);

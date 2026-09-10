@@ -50,6 +50,13 @@ export class Consents {
   private createConsentsItem(item: APIConsentsItem): ConsentsItem {
     return new ConsentsItem(item.partner_id, item.consent_datetime);
   }
+
+  hasAnyConsents() {
+    if (this.items) {
+      return this.items.some((item) => item.consent_datetime !== null);
+    }
+    return false;
+  }
 }
 
 export const buildConsents = async (): Promise<Consents> => {
@@ -59,18 +66,4 @@ export const buildConsents = async (): Promise<Consents> => {
 
 export const updateConsent = async (partnerId: string, checked: boolean) => {
   await updateApiConsent(partnerId, checked);
-};
-
-export const hasAnyConsents = async (): Promise<boolean> => {
-  const consents: Consents = await buildConsents();
-
-  if (consents.items) {
-    return (
-      consents.items.filter(
-        (consent): consent is ConsentsItem => consent.consent_datetime != null
-      ).length > 0
-    );
-  } else {
-    return false;
-  }
 };

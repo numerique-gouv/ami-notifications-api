@@ -1,12 +1,18 @@
 import { render, screen, waitFor } from '@testing-library/svelte';
-import { describe, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import * as AMINavigationMethods from '$lib/ami-navigation';
 import * as consentsMethods from '$lib/consents';
+import { Consents } from '$lib/consents';
 import * as followupMethods from '$lib/followup';
 import { Followup, FollowupItem } from '$lib/followup';
 import Page from './+page.svelte';
 
 describe('/+page.svelte', () => {
+  beforeEach(async () => {
+    const consents = new Consents();
+    vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
+    vi.spyOn(consents, 'hasAnyConsents').mockResolvedValue(true);
+  });
   test('user has to be connected', async () => {
     // Given
     const followup = new Followup();
@@ -29,7 +35,6 @@ describe('/+page.svelte', () => {
   });
   test('Should display current followup', async () => {
     // Given
-    vi.spyOn(consentsMethods, 'hasAnyConsents').mockResolvedValue(true);
     const followup = new Followup();
     vi.spyOn(followup, 'items', 'get').mockReturnValue([
       new FollowupItem(
