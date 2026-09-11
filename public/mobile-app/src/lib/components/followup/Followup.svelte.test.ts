@@ -5,397 +5,535 @@ import FollowupComponent from '$lib/components/followup/Followup.svelte';
 import * as consentsMethods from '$lib/consents';
 import * as followupMethods from '$lib/followup';
 import { Followup, FollowupItem } from '$lib/followup';
+import * as partnersMethods from '$lib/partners';
+import { Partners, PartnersItem } from '$lib/partners';
 import { toastStore } from '$lib/state/toast.svelte.js';
 
 describe('/Followup.svelte', () => {
-  describe('Current items', () => {
+  describe('When user has any consents', () => {
     beforeEach(async () => {
       vi.spyOn(consentsMethods, 'hasAnyConsents').mockResolvedValue(true);
     });
 
-    test('Should display followup from API', async () => {
-      // Given
-      const followup = new Followup();
-      vi.spyOn(followup, 'items', 'get').mockReturnValue([
-        new FollowupItem(
-          'partner',
-          'type',
-          'id1',
-          'ref1',
-          'notifications',
-          [],
-          'Opération Tranquillité Vacances',
-          'subheading',
-          'Votre demande est en cours de traitement 1.',
-          'icon',
-          new Date('2026-02-22T15:55:00.000Z'),
-          'wip',
-          'En cours',
-          false,
-          null,
-          []
-        ),
-        new FollowupItem(
-          'partner',
-          'type',
-          'id2',
-          'ref2',
-          'notifications',
-          [],
-          'Opération Tranquillité Vacances',
-          'subheading',
-          'Votre demande est terminée 2.',
-          'icon',
-          new Date('2026-02-20T15:55:00.000Z'),
-          'closed',
-          'Terminée',
-          false,
-          null,
-          []
-        ),
-      ]);
-      vi.spyOn(followup, 'archived_items', 'get').mockReturnValue([
-        new FollowupItem(
-          'partner',
-          'type',
-          'id3',
-          'ref3',
-          'notifications',
-          [],
-          'Opération Tranquillité Vacances',
-          'subheading',
-          'Votre demande est en cours de traitement 3.',
-          'icon',
-          new Date('2026-02-22T15:55:00.000Z'),
-          'wip',
-          'En cours',
-          true,
-          null,
-          []
-        ),
-        new FollowupItem(
-          'partner',
-          'type',
-          'id4',
-          'ref4',
-          'notifications',
-          [],
-          'Opération Tranquillité Vacances',
-          'subheading',
-          'Votre demande est terminée 4.',
-          'icon',
-          new Date('2026-02-20T15:55:00.000Z'),
-          'closed',
-          'Terminée',
-          true,
-          null,
-          []
-        ),
-      ]);
-      const spy = vi
-        .spyOn(followupMethods, 'buildFollowup')
-        .mockResolvedValue(followup);
+    describe('Current items', () => {
+      describe('When followup has items', () => {
+        test('Should display followup from API', async () => {
+          // Given
+          const followup = new Followup();
+          vi.spyOn(followup, 'items', 'get').mockReturnValue([
+            new FollowupItem(
+              'partner',
+              'type',
+              'id1',
+              'ref1',
+              'notifications',
+              [],
+              'Opération Tranquillité Vacances',
+              'subheading',
+              'Votre demande est en cours de traitement 1.',
+              'icon',
+              new Date('2026-02-22T15:55:00.000Z'),
+              'wip',
+              'En cours',
+              false,
+              null,
+              []
+            ),
+            new FollowupItem(
+              'partner',
+              'type',
+              'id2',
+              'ref2',
+              'notifications',
+              [],
+              'Opération Tranquillité Vacances',
+              'subheading',
+              'Votre demande est terminée 2.',
+              'icon',
+              new Date('2026-02-20T15:55:00.000Z'),
+              'closed',
+              'Terminée',
+              false,
+              null,
+              []
+            ),
+          ]);
+          vi.spyOn(followup, 'archived_items', 'get').mockReturnValue([
+            new FollowupItem(
+              'partner',
+              'type',
+              'id3',
+              'ref3',
+              'notifications',
+              [],
+              'Opération Tranquillité Vacances',
+              'subheading',
+              'Votre demande est en cours de traitement 3.',
+              'icon',
+              new Date('2026-02-22T15:55:00.000Z'),
+              'wip',
+              'En cours',
+              true,
+              null,
+              []
+            ),
+            new FollowupItem(
+              'partner',
+              'type',
+              'id4',
+              'ref4',
+              'notifications',
+              [],
+              'Opération Tranquillité Vacances',
+              'subheading',
+              'Votre demande est terminée 4.',
+              'icon',
+              new Date('2026-02-20T15:55:00.000Z'),
+              'closed',
+              'Terminée',
+              true,
+              null,
+              []
+            ),
+          ]);
+          const spyFollowup = vi
+            .spyOn(followupMethods, 'buildFollowup')
+            .mockResolvedValue(followup);
 
-      // When
-      render(FollowupComponent);
+          // When
+          render(FollowupComponent);
 
-      // Then
-      await waitFor(() => {
-        expect(spy).toHaveBeenCalledTimes(1);
-        expect(screen.getByTestId('followup')).toHaveTextContent(
-          'Votre demande est en cours de traitement 1.'
-        );
-        expect(screen.getByTestId('followup')).toHaveTextContent(
-          'Votre demande est terminée 2.'
-        );
-        expect(screen.getByTestId('followup')).not.toHaveTextContent(
-          'Votre demande est en cours de traitement 3.'
-        );
-        expect(screen.getByTestId('followup')).not.toHaveTextContent(
-          'Votre demande est terminée 4.'
-        );
-        expect(screen.getByTestId('followup')).not.toHaveTextContent(
-          'Après avoir effectué vos démarches, vous pouvez les suivre en temps réel depuis l’application.'
-        );
-        const accordionButton: HTMLButtonElement =
-          screen.getByTestId('accordion-button');
-        expect(accordionButton).toHaveAttribute('aria-expanded', 'false');
+          // Then
+          await waitFor(() => {
+            expect(spyFollowup).toHaveBeenCalledTimes(1);
+            expect(screen.getByTestId('followup')).toHaveTextContent(
+              'Votre demande est en cours de traitement 1.'
+            );
+            expect(screen.getByTestId('followup')).toHaveTextContent(
+              'Votre demande est terminée 2.'
+            );
+            expect(screen.getByTestId('followup')).not.toHaveTextContent(
+              'Votre demande est en cours de traitement 3.'
+            );
+            expect(screen.getByTestId('followup')).not.toHaveTextContent(
+              'Votre demande est terminée 4.'
+            );
+          });
+        });
+
+        test('Should display consent block with accordion not expanded', async () => {
+          // Given
+          const followup = new Followup();
+          vi.spyOn(followup, 'items', 'get').mockReturnValue([
+            new FollowupItem(
+              'partner',
+              'type',
+              'id1',
+              'ref1',
+              'notifications',
+              [],
+              'Opération Tranquillité Vacances',
+              'subheading',
+              'Votre demande est en cours de traitement 1.',
+              'icon',
+              new Date('2026-02-22T15:55:00.000Z'),
+              'wip',
+              'En cours',
+              false,
+              null,
+              []
+            ),
+          ]);
+          vi.spyOn(followup, 'archived_items', 'get').mockReturnValue([]);
+          const spyFollowup = vi
+            .spyOn(followupMethods, 'buildFollowup')
+            .mockResolvedValue(followup);
+
+          const partners = new Partners();
+          vi.spyOn(partners, 'items', 'get').mockReturnValue([
+            new PartnersItem('dinum-ami', 'AMI', 'https://fake-link-1'),
+            new PartnersItem('dinum-dn', 'Démarche Numérique', 'https://fake-link-1'),
+          ]);
+          const spyPartners = vi
+            .spyOn(partnersMethods, 'buildPartners')
+            .mockResolvedValue(partners);
+
+          // When
+          render(FollowupComponent, {
+            archived: false,
+            followupProp: followup,
+            isFollowupEmptyProp: false,
+            hasAnyConsentsProp: true,
+            partnersProp: partners,
+          });
+
+          // Then
+          await waitFor(() => {
+            expect(spyFollowup).toHaveBeenCalledTimes(1);
+            expect(spyPartners).toHaveBeenCalledTimes(1);
+            expect(screen.getByTestId('followup')).toHaveTextContent(
+              'Votre démarche n’apparaît pas ?'
+            );
+            const accordionButton: HTMLButtonElement =
+              screen.getByTestId('accordion-button');
+            expect(accordionButton).toHaveAttribute('aria-expanded', 'false');
+          });
+        });
+      });
+
+      describe('When followup has no item', () => {
+        test('Should display consent block with accordion expanded', async () => {
+          // Given
+          const followup = new Followup();
+          vi.spyOn(followup, 'items', 'get').mockReturnValue([]);
+          vi.spyOn(followup, 'archived_items', 'get').mockReturnValue([]);
+          const spyFollowup = vi
+            .spyOn(followupMethods, 'buildFollowup')
+            .mockResolvedValue(followup);
+
+          const partners = new Partners();
+          vi.spyOn(partners, 'items', 'get').mockReturnValue([
+            new PartnersItem('dinum-ami', 'AMI', 'https://fake-link-1'),
+            new PartnersItem('dinum-dn', 'Démarche Numérique', 'https://fake-link-1'),
+          ]);
+          const spyPartners = vi
+            .spyOn(partnersMethods, 'buildPartners')
+            .mockResolvedValue(partners);
+
+          // When
+          render(FollowupComponent, {
+            archived: false,
+            followupProp: followup,
+            isFollowupEmptyProp: true,
+            hasAnyConsentsProp: true,
+            partnersProp: partners,
+          });
+
+          // Then
+          await waitFor(() => {
+            expect(spyFollowup).toHaveBeenCalledTimes(1);
+            expect(spyPartners).toHaveBeenCalledTimes(1);
+            expect(screen.getByTestId('followup')).toHaveTextContent(
+              'Votre démarche n’apparaît pas ?'
+            );
+            const accordionButton: HTMLButtonElement =
+              screen.getByTestId('accordion-button');
+            expect(accordionButton).toHaveAttribute('aria-expanded', 'true');
+          });
+        });
+      });
+
+      describe('More menu', () => {
+        test('Should open more menu when user clicks on "more" button', async () => {
+          // Given
+          const followup = new Followup();
+          vi.spyOn(followup, 'items', 'get').mockReturnValue([]);
+          vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
+          render(FollowupComponent);
+
+          // When
+          await waitFor(async () => {
+            const button = screen.getByTestId('more-button');
+            await fireEvent.click(button);
+          });
+
+          // Then
+          const moreMenu = screen.getByTestId('more-menu');
+          expect(moreMenu).toBeInTheDocument();
+        });
+        test('Should redirect to archived followup page when user clicks on "Démarches archivées" button', async () => {
+          // Given
+          const followup = new Followup();
+          vi.spyOn(followup, 'items', 'get').mockReturnValue([]);
+          vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
+          render(FollowupComponent);
+          const spy = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
+          await waitFor(async () => {
+            const button = screen.getByTestId('more-button');
+            await fireEvent.click(button);
+          });
+
+          // When
+          await waitFor(async () => {
+            const button = screen.getByTestId('archived-followup-button');
+            await fireEvent.click(button);
+          });
+
+          // Then
+          await waitFor(() => {
+            expect(spy).toHaveBeenCalledTimes(1);
+            expect(spy).toHaveBeenCalledWith('/#/followup/archived');
+          });
+        });
       });
     });
-    test('Should display empty followup', async () => {
-      // Given
-      const followup = new Followup();
-      vi.spyOn(followup, 'items', 'get').mockReturnValue([]);
-      vi.spyOn(followup, 'archived_items', 'get').mockReturnValue([
-        new FollowupItem(
-          'partner',
-          'type',
-          'id3',
-          'ref3',
-          'notifications',
-          [],
-          'Opération Tranquillité Vacances',
-          'subheading',
-          'Votre demande est en cours de traitement 3.',
-          'icon',
-          new Date('2026-02-22T15:55:00.000Z'),
-          'wip',
-          'En cours',
-          true,
-          null,
-          []
-        ),
-      ]);
-      const spy = vi
-        .spyOn(followupMethods, 'buildFollowup')
-        .mockResolvedValue(followup);
 
-      // When
-      render(FollowupComponent);
+    describe('Archived items', () => {
+      describe('When followup has archived items', () => {
+        test('Should display followup from API', async () => {
+          // Given
+          const followup = new Followup();
+          vi.spyOn(followup, 'items', 'get').mockReturnValue([
+            new FollowupItem(
+              'partner',
+              'type',
+              'id1',
+              'ref1',
+              'notifications',
+              [],
+              'Opération Tranquillité Vacances',
+              'subheading',
+              'Votre demande est en cours de traitement 1.',
+              'icon',
+              new Date('2026-02-22T15:55:00.000Z'),
+              'wip',
+              'En cours',
+              false,
+              null,
+              []
+            ),
+            new FollowupItem(
+              'partner',
+              'type',
+              'id2',
+              'ref2',
+              'notifications',
+              [],
+              'Opération Tranquillité Vacances',
+              'subheading',
+              'Votre demande est terminée 2.',
+              'icon',
+              new Date('2026-02-20T15:55:00.000Z'),
+              'closed',
+              'Terminée',
+              false,
+              null,
+              []
+            ),
+          ]);
+          vi.spyOn(followup, 'archived_items', 'get').mockReturnValue([
+            new FollowupItem(
+              'partner',
+              'type',
+              'id3',
+              'ref3',
+              'notifications',
+              [],
+              'Opération Tranquillité Vacances',
+              'subheading',
+              'Votre demande est en cours de traitement 3.',
+              'icon',
+              new Date('2026-02-22T15:55:00.000Z'),
+              'wip',
+              'En cours',
+              true,
+              null,
+              []
+            ),
+            new FollowupItem(
+              'partner',
+              'type',
+              'id4',
+              'ref4',
+              'notifications',
+              [],
+              'Opération Tranquillité Vacances',
+              'subheading',
+              'Votre demande est terminée 4.',
+              'icon',
+              new Date('2026-02-20T15:55:00.000Z'),
+              'closed',
+              'Terminée',
+              true,
+              null,
+              []
+            ),
+          ]);
+          const spy = vi
+            .spyOn(followupMethods, 'buildFollowup')
+            .mockResolvedValue(followup);
 
-      // Then
-      await waitFor(() => {
-        expect(spy).toHaveBeenCalledTimes(1);
-        expect(screen.getByTestId('followup')).toHaveTextContent(
-          'Votre démarche n’apparaît pas ? Consultez votre compte Service Public CNMSS Démarche numérique Dossier facile Vérifiez que vous suivez bien toutes vos démarches'
-        );
-        const accordionButton: HTMLButtonElement =
-          screen.getByTestId('accordion-button');
-        expect(accordionButton).toHaveAttribute('aria-expanded', 'true');
+          // When
+          render(FollowupComponent, {
+            archived: true,
+            followupProp: followup,
+            isFollowupEmptyProp: false,
+            hasAnyConsentsProp: true,
+            partnersProp: new Partners(),
+          });
+
+          // Then
+          await waitFor(() => {
+            expect(spy).toHaveBeenCalledTimes(1);
+            expect(screen.getByTestId('followup')).not.toHaveTextContent(
+              'Votre demande est en cours de traitement 1.'
+            );
+            expect(screen.getByTestId('followup')).not.toHaveTextContent(
+              'Votre demande est terminée 2.'
+            );
+            expect(screen.getByTestId('followup')).toHaveTextContent(
+              'Votre demande est en cours de traitement 3.'
+            );
+            expect(screen.getByTestId('followup')).toHaveTextContent(
+              'Votre demande est terminée 4.'
+            );
+          });
+        });
+        test('Should display consent block with accordion not expanded', async () => {
+          // Given
+          const followup = new Followup();
+          vi.spyOn(followup, 'items', 'get').mockReturnValue([]);
+          vi.spyOn(followup, 'archived_items', 'get').mockReturnValue([
+            new FollowupItem(
+              'partner',
+              'type',
+              'id3',
+              'ref3',
+              'notifications',
+              [],
+              'Opération Tranquillité Vacances',
+              'subheading',
+              'Votre demande est en cours de traitement 3.',
+              'icon',
+              new Date('2026-02-22T15:55:00.000Z'),
+              'wip',
+              'En cours',
+              true,
+              null,
+              []
+            ),
+          ]);
+          const spyFollowup = vi
+            .spyOn(followupMethods, 'buildFollowup')
+            .mockResolvedValue(followup);
+
+          const partners = new Partners();
+          vi.spyOn(partners, 'items', 'get').mockReturnValue([
+            new PartnersItem('dinum-ami', 'AMI', 'https://fake-link-1'),
+            new PartnersItem('dinum-dn', 'Démarche Numérique', 'https://fake-link-1'),
+          ]);
+          const spyPartners = vi
+            .spyOn(partnersMethods, 'buildPartners')
+            .mockResolvedValue(partners);
+
+          // When
+          render(FollowupComponent, {
+            archived: true,
+            followupProp: followup,
+            isFollowupEmptyProp: false,
+            hasAnyConsentsProp: true,
+            partnersProp: partners,
+          });
+
+          // Then
+          await waitFor(() => {
+            expect(spyFollowup).toHaveBeenCalledTimes(1);
+            expect(spyPartners).toHaveBeenCalledTimes(1);
+            expect(screen.getByTestId('followup')).toHaveTextContent(
+              'Votre démarche n’apparaît pas ?'
+            );
+            const accordionButton: HTMLButtonElement =
+              screen.getByTestId('accordion-button');
+            expect(accordionButton).toHaveAttribute('aria-expanded', 'false');
+          });
+        });
+      });
+
+      describe('When followup has no item', () => {
+        test('Should display consent block with accordion expanded', async () => {
+          // Given
+          const followup = new Followup();
+          vi.spyOn(followup, 'items', 'get').mockReturnValue([]);
+          vi.spyOn(followup, 'archived_items', 'get').mockReturnValue([]);
+          const spyFollowup = vi
+            .spyOn(followupMethods, 'buildFollowup')
+            .mockResolvedValue(followup);
+
+          const partners = new Partners();
+          vi.spyOn(partners, 'items', 'get').mockReturnValue([
+            new PartnersItem('dinum-ami', 'AMI', 'https://fake-link-1'),
+            new PartnersItem('dinum-dn', 'Démarche Numérique', 'https://fake-link-1'),
+          ]);
+          const spyPartners = vi
+            .spyOn(partnersMethods, 'buildPartners')
+            .mockResolvedValue(partners);
+
+          // When
+          render(FollowupComponent, {
+            archived: true,
+            followupProp: followup,
+            isFollowupEmptyProp: true,
+            hasAnyConsentsProp: true,
+            partnersProp: partners,
+          });
+
+          // Then
+          await waitFor(() => {
+            expect(spyFollowup).toHaveBeenCalledTimes(1);
+            expect(spyPartners).toHaveBeenCalledTimes(1);
+            expect(screen.getByTestId('followup')).toHaveTextContent(
+              'Votre démarche n’apparaît pas ?'
+            );
+            const accordionButton: HTMLButtonElement =
+              screen.getByTestId('accordion-button');
+            expect(accordionButton).toHaveAttribute('aria-expanded', 'true');
+          });
+        });
+      });
+
+      describe('More menu', () => {
+        test('No "more" button for archived followup items', async () => {
+          // Given
+          const followup = new Followup();
+          vi.spyOn(followup, 'items', 'get').mockReturnValue([]);
+          vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
+
+          // When
+          render(FollowupComponent, {
+            archived: true,
+            followupProp: followup,
+            isFollowupEmptyProp: false,
+            hasAnyConsentsProp: true,
+            partnersProp: new Partners(),
+          });
+
+          // Then
+          await waitFor(async () => {
+            const button = screen.queryByTestId('more-button');
+            expect(button).toBeNull();
+          });
+        });
       });
     });
   });
-  describe('Archived items', () => {
+  describe('When user has no consent', () => {
     beforeEach(async () => {
-      vi.spyOn(consentsMethods, 'hasAnyConsents').mockResolvedValue(true);
+      vi.spyOn(consentsMethods, 'hasAnyConsents').mockResolvedValue(false);
     });
 
-    test('Should display followup from API', async () => {
-      // Given
-      const followup = new Followup();
-      vi.spyOn(followup, 'items', 'get').mockReturnValue([
-        new FollowupItem(
-          'partner',
-          'type',
-          'id1',
-          'ref1',
-          'notifications',
-          [],
-          'Opération Tranquillité Vacances',
-          'subheading',
-          'Votre demande est en cours de traitement 1.',
-          'icon',
-          new Date('2026-02-22T15:55:00.000Z'),
-          'wip',
-          'En cours',
-          false,
-          null,
-          []
-        ),
-        new FollowupItem(
-          'partner',
-          'type',
-          'id2',
-          'ref2',
-          'notifications',
-          [],
-          'Opération Tranquillité Vacances',
-          'subheading',
-          'Votre demande est terminée 2.',
-          'icon',
-          new Date('2026-02-20T15:55:00.000Z'),
-          'closed',
-          'Terminée',
-          false,
-          null,
-          []
-        ),
-      ]);
-      vi.spyOn(followup, 'archived_items', 'get').mockReturnValue([
-        new FollowupItem(
-          'partner',
-          'type',
-          'id3',
-          'ref3',
-          'notifications',
-          [],
-          'Opération Tranquillité Vacances',
-          'subheading',
-          'Votre demande est en cours de traitement 3.',
-          'icon',
-          new Date('2026-02-22T15:55:00.000Z'),
-          'wip',
-          'En cours',
-          true,
-          null,
-          []
-        ),
-        new FollowupItem(
-          'partner',
-          'type',
-          'id4',
-          'ref4',
-          'notifications',
-          [],
-          'Opération Tranquillité Vacances',
-          'subheading',
-          'Votre demande est terminée 4.',
-          'icon',
-          new Date('2026-02-20T15:55:00.000Z'),
-          'closed',
-          'Terminée',
-          true,
-          null,
-          []
-        ),
-      ]);
-      const spy = vi
-        .spyOn(followupMethods, 'buildFollowup')
-        .mockResolvedValue(followup);
-
-      // When
-      render(FollowupComponent, {
-        archived: true,
-        followupProp: followup,
-        isFollowupEmptyProp: false,
-        hasAnyConsentsProp: true,
-      });
-
-      // Then
-      await waitFor(() => {
-        expect(spy).toHaveBeenCalledTimes(1);
-        expect(screen.getByTestId('followup')).not.toHaveTextContent(
-          'Votre demande est en cours de traitement 1.'
-        );
-        expect(screen.getByTestId('followup')).not.toHaveTextContent(
-          'Votre demande est terminée 2.'
-        );
-        expect(screen.getByTestId('followup')).toHaveTextContent(
-          'Votre demande est en cours de traitement 3.'
-        );
-        expect(screen.getByTestId('followup')).toHaveTextContent(
-          'Votre demande est terminée 4.'
-        );
-        expect(screen.getByTestId('followup')).not.toHaveTextContent(
-          'Après avoir effectué vos démarches, vous pouvez les suivre en temps réel depuis l’application.'
-        );
-        const accordionButton: HTMLButtonElement =
-          screen.getByTestId('accordion-button');
-        expect(accordionButton).toHaveAttribute('aria-expanded', 'false');
-      });
-    });
-    test('Should display empty followup', async () => {
-      // Given
-      const followup = new Followup();
-      vi.spyOn(followup, 'items', 'get').mockReturnValue([
-        new FollowupItem(
-          'partner',
-          'type',
-          'id1',
-          'ref1',
-          'notifications',
-          [],
-          'Opération Tranquillité Vacances',
-          'subheading',
-          'Votre demande est en cours de traitement 1.',
-          'icon',
-          new Date('2026-02-22T15:55:00.000Z'),
-          'wip',
-          'En cours',
-          false,
-          null,
-          []
-        ),
-      ]);
-      vi.spyOn(followup, 'archived_items', 'get').mockReturnValue([]);
-      const spy = vi
-        .spyOn(followupMethods, 'buildFollowup')
-        .mockResolvedValue(followup);
-
-      // When
-      render(FollowupComponent, {
-        archived: true,
-        followupProp: followup,
-        isFollowupEmptyProp: false,
-        hasAnyConsentsProp: true,
-      });
-
-      // Then
-      await waitFor(() => {
-        expect(spy).toHaveBeenCalledTimes(1);
-        expect(screen.getByTestId('followup')).toHaveTextContent(
-          'Votre démarche n’apparaît pas ? Consultez votre compte Service Public CNMSS Démarche numérique Dossier facile Vérifiez que vous suivez bien toutes vos démarches'
-        );
-        const accordionButton: HTMLButtonElement =
-          screen.getByTestId('accordion-button');
-        expect(accordionButton).toHaveAttribute('aria-expanded', 'false');
-      });
-    });
-  });
-  describe('More menu', () => {
-    beforeEach(async () => {
-      vi.spyOn(consentsMethods, 'hasAnyConsents').mockResolvedValue(true);
-    });
-
-    test('No "more" button for archived followup items', async () => {
+    test('No consent block when user has not consented', async () => {
       // Given
       const followup = new Followup();
       vi.spyOn(followup, 'items', 'get').mockReturnValue([]);
       vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
 
       // When
-      render(FollowupComponent, {
-        archived: true,
+      const { container } = render(FollowupComponent, {
+        archived: false,
         followupProp: followup,
         isFollowupEmptyProp: false,
-        hasAnyConsentsProp: true,
-      });
-
-      // Then
-      await waitFor(async () => {
-        const button = screen.queryByTestId('more-button');
-        expect(button).toBeNull();
-      });
-    });
-    test('Should open more menu when user clicks on "more" button', async () => {
-      // Given
-      const followup = new Followup();
-      vi.spyOn(followup, 'items', 'get').mockReturnValue([]);
-      vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
-      render(FollowupComponent);
-
-      // When
-      await waitFor(async () => {
-        const button = screen.getByTestId('more-button');
-        await fireEvent.click(button);
-      });
-
-      // Then
-      const moreMenu = screen.getByTestId('more-menu');
-      expect(moreMenu).toBeInTheDocument();
-    });
-    test('Should redirect to archived followup page when user clicks on "Démarches archivées" button', async () => {
-      // Given
-      const followup = new Followup();
-      vi.spyOn(followup, 'items', 'get').mockReturnValue([]);
-      vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
-      render(FollowupComponent);
-      const spy = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
-      await waitFor(async () => {
-        const button = screen.getByTestId('more-button');
-        await fireEvent.click(button);
-      });
-
-      // When
-      await waitFor(async () => {
-        const button = screen.getByTestId('archived-followup-button');
-        await fireEvent.click(button);
+        hasAnyConsentsProp: false,
+        partnersProp: new Partners(),
       });
 
       // Then
       await waitFor(() => {
-        expect(spy).toHaveBeenCalledTimes(1);
-        expect(spy).toHaveBeenCalledWith('/#/followup/archived');
+        const followupNoConsentBlock = container.querySelector(
+          '.followup-no-consent-container'
+        );
+        expect(followupNoConsentBlock).toHaveTextContent(
+          'Suivez vos démarches administratives au même endroit !'
+        );
       });
     });
 
@@ -409,10 +547,11 @@ describe('/Followup.svelte', () => {
 
       // When
       render(FollowupComponent, {
-        archived: true,
+        archived: false,
         followupProp: followup,
         isFollowupEmptyProp: false,
-        hasAnyConsentsProp: true,
+        hasAnyConsentsProp: false,
+        partnersProp: new Partners(),
       });
 
       // Then
@@ -475,6 +614,7 @@ describe('/Followup.svelte', () => {
         followupProp: followup,
         isFollowupEmptyProp: false,
         hasAnyConsentsProp: true,
+        partnersProp: new Partners(),
       });
 
       // Then
@@ -731,34 +871,6 @@ describe('/Followup.svelte', () => {
           'error',
           3000,
           true
-        );
-      });
-    });
-  });
-
-  describe('No consent block', () => {
-    beforeEach(async () => {
-      vi.spyOn(consentsMethods, 'hasAnyConsents').mockResolvedValue(true);
-    });
-
-    test('No more icon for archived followup item', async () => {
-      // Given
-      vi.spyOn(consentsMethods, 'hasAnyConsents').mockResolvedValue(false);
-
-      const followup = new Followup();
-      vi.spyOn(followup, 'items', 'get').mockReturnValue([]);
-      vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
-
-      // When
-      const { container } = render(FollowupComponent);
-
-      // Then
-      await waitFor(() => {
-        const followupNoConsentBlock = container.querySelector(
-          '.followup-no-consent-container'
-        );
-        expect(followupNoConsentBlock).toHaveTextContent(
-          'Suivez vos démarches administratives au même endroit !'
         );
       });
     });

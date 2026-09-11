@@ -4,12 +4,19 @@ from django.conf import settings
 from drf_spectacular.utils import extend_schema, inline_serializer
 from rest_framework import serializers
 from rest_framework.decorators import api_view
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK
 
 from ami.authentication.decorators import ami_login_required
-from ami.partner.serializers import PartnerGenerateUrlSerializer
+from ami.partner.models import Partner
+from ami.partner.schemas import PartnersItem, PartnersSource, PartnersSourceStatus
+from ami.partner.serializers import (
+    PartnerGenerateUrlSerializer,
+    PartnersSerializer,
+)
 from ami.utils import generate_identity_token
+from ami.utils.schemas import DurationExpiration, TimeUnit
 
 
 @extend_schema(
@@ -68,3 +75,18 @@ def get_partner_public_key(request) -> Response[dict[str, str]]:
         data={"public_key": public_key},
         status=HTTP_200_OK,
     )
+
+
+@api_view(["GET"])
+@ami_login_required
+def get_partners(request: Request) -> Response:
+    partners_source = PartnersSource()
+
+    partners_qs = Partner.objects.filter(consent_is_enabled=True).order_by("name")
+    result_items: list[PartnersItem] = [partner.to_partners_item() for partner in partners_qs]
+
+    partners_source.items = result_items
+    partners_source.status = PartnersSourceStatus.SUCCESS
+    partners_source.set_expires_at(DurationExpiration(amount=5, unit=TimeUnit.MINUTES))
+
+    return Response(PartnersSerializer(partners_source).data)
