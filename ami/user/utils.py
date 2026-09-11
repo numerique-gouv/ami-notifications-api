@@ -1,5 +1,7 @@
 import hashlib
 
+from django.conf import settings
+
 
 def build_fc_hash(
     *,
@@ -10,8 +12,12 @@ def build_fc_hash(
     birthplace: str,
     birthcountry: str,
 ) -> str:
-    recipient_fc_hash = hashlib.sha256()
-    recipient_fc_hash.update(
-        f"{given_name}{family_name}{birthdate}{gender}{birthplace}{birthcountry}".encode("utf-8")
-    )
+    if settings.FEATURE_FLAG_USE_FC_HASH_V2:
+        recipient_fc_hash = hashlib.sha256(
+            f"{given_name};{family_name};{birthdate};{gender};{birthplace};{birthcountry}".encode()
+        )
+    else:
+        recipient_fc_hash = hashlib.sha256(
+            f"{given_name}{family_name}{birthdate}{gender}{birthplace}{birthcountry}".encode()
+        )
     return recipient_fc_hash.hexdigest()
