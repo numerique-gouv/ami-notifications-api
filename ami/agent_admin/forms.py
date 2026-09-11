@@ -1,4 +1,5 @@
 import copy
+import ipaddress
 import json
 
 from django import forms
@@ -249,6 +250,20 @@ class PartnerForm(forms.ModelForm, AMIDsfrBaseForm):
         if not self.instance._state.adding:
             self.fields.pop("slug")
         self.old_instance = copy.deepcopy(self.instance)
+
+    def clean_ip_allow_list(self):
+        value = self.cleaned_data["ip_allow_list"]
+        errors = []
+        for i, line_value in enumerate(value.splitlines()):
+            if not line_value.strip() or line_value.startswith("#"):
+                continue
+            try:
+                ipaddress.ip_network(line_value)
+            except ValueError as e:
+                errors.append(f"Valeur invalide ligne {i + 1} ({e})")
+        if errors:
+            raise forms.ValidationError(", ".join(errors))
+        return value
 
     def save(self, commit=True):
         created = self.instance._state.adding

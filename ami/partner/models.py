@@ -11,6 +11,7 @@ class Partner(models.Model):
     name = models.CharField()
     icon = models.CharField(blank=True)
     consent_is_enabled = models.BooleanField()
+    ip_allow_list = models.TextField(blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
