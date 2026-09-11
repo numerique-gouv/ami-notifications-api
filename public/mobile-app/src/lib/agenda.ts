@@ -459,6 +459,11 @@ export class Agenda {
       // should not happen for school holiday
       return;
     }
+    const userZone = this._connectedUser?.identity.address?.zone;
+    if (userZone === undefined) {
+      // don't push OTV's if user has no address
+      return;
+    }
     const startDate = new Date(holiday.start_date.getTime() - 3 * 7 * oneday_in_ms);
     const scheduledNotificationKey = `ami-otv:d-3w:${holiday.start_date.getFullYear()}:${slugify(holiday.title)}`;
     const scheduledNotification = {
