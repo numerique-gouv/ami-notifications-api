@@ -33,6 +33,27 @@ describe('/dsfr-ison.ts', () => {
   });
   test('icon is known (custom), should display icon', async () => {
     // When
+    const result = getDSFRIcon('fr-icon-folder-check-line', 'default-icon');
+
+    // Then
+    expect(result).toEqual('fr-icon-folder-check-line');
+  });
+  test('icon is known (custom), should display icon', async () => {
+    // When
+    const result = getDSFRIcon('fr-icon-folder-open-line', 'default-icon');
+
+    // Then
+    expect(result).toEqual('fr-icon-folder-open-line');
+  });
+  test('icon is known (custom), should display icon', async () => {
+    // When
+    const result = getDSFRIcon('fr-icon-indeterminate-circle-line', 'default-icon');
+
+    // Then
+    expect(result).toEqual('fr-icon-indeterminate-circle-line');
+  });
+  test('icon is known (custom), should display icon', async () => {
+    // When
     const result = getDSFRIcon('fr-icon-infinity-line', 'default-icon');
 
     // Then
