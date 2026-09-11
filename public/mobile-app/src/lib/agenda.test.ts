@@ -4,7 +4,7 @@ import { Agenda, buildAgenda, Item, slugify } from '$lib/agenda';
 import * as apiAgendaMethods from '$lib/api-agenda';
 import * as scheduledNotificationsMethods from '$lib/scheduled-notifications';
 import { Preferences } from '$lib/state/preferences';
-import { userStore } from '$lib/state/User.svelte';
+import { User, userStore } from '$lib/state/User.svelte';
 import * as utilsMethods from '$lib/utils';
 import { getTimestamp, parseISODate } from '$lib/utils';
 import { mockUserIdentity, mockUserInfo } from '$tests/utils';
@@ -1143,8 +1143,8 @@ describe('/agenda.ts', () => {
       test('should create scheduled notifications for otv - user has no address', async () => {
         // Given
         const spy = vi
-          .spyOn(scheduledNotificationsMethods, 'createScheduledNotification')
-          .mockResolvedValue(true);
+          .spyOn(User.prototype, 'createScheduledNotification')
+          .mockResolvedValue();
         const holiday1 = {
           kind: 'holiday',
           title: 'Holiday',
@@ -1201,7 +1201,7 @@ describe('/agenda.ts', () => {
         expect(agenda.now.length).equal(1);
         expect(agenda.next.length).equal(1);
         expect(spy).toHaveBeenCalledTimes(2);
-        expect(spy).toHaveBeenCalledWith({
+        expect(spy).toHaveBeenNthCalledWith(1, {
           content_body:
             'Demandez l’Opération Tranquillité Vacances afin de partir en vacances l’esprit (plus) tranquille.',
           content_icon: 'fr-icon-megaphone-line',
@@ -1210,7 +1210,7 @@ describe('/agenda.ts', () => {
           internal_url: '/#/procedure?date=2026-01-17',
           scheduled_at: new Date('2026-01-16T23:00:00Z'),
         });
-        expect(spy).toHaveBeenCalledWith({
+        expect(spy).toHaveBeenNthCalledWith(2, {
           content_body:
             'Demandez l’Opération Tranquillité Vacances afin de partir en vacances l’esprit (plus) tranquille.',
           content_icon: 'fr-icon-megaphone-line',
@@ -1223,8 +1223,8 @@ describe('/agenda.ts', () => {
       test('should create scheduled notifications for otv - holidays are displayed', async () => {
         // Given
         const spy = vi
-          .spyOn(scheduledNotificationsMethods, 'createScheduledNotification')
-          .mockResolvedValue(true);
+          .spyOn(User.prototype, 'createScheduledNotification')
+          .mockResolvedValue();
         localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
         const holiday1 = {
           kind: 'holiday',
@@ -1282,7 +1282,7 @@ describe('/agenda.ts', () => {
         expect(agenda.now.length).equal(1);
         expect(agenda.next.length).equal(1);
         expect(spy).toHaveBeenCalledTimes(2);
-        expect(spy).toHaveBeenCalledWith({
+        expect(spy).toHaveBeenNthCalledWith(1, {
           content_body:
             'Demandez l’Opération Tranquillité Vacances afin de partir en vacances l’esprit (plus) tranquille.',
           content_icon: 'fr-icon-megaphone-line',
@@ -1291,7 +1291,7 @@ describe('/agenda.ts', () => {
           internal_url: '/#/procedure?date=2026-01-24',
           scheduled_at: new Date('2026-01-23T23:00:00Z'),
         });
-        expect(spy).toHaveBeenCalledWith({
+        expect(spy).toHaveBeenNthCalledWith(2, {
           content_body:
             'Demandez l’Opération Tranquillité Vacances afin de partir en vacances l’esprit (plus) tranquille.',
           content_icon: 'fr-icon-megaphone-line',
@@ -1304,8 +1304,8 @@ describe('/agenda.ts', () => {
       test('should create scheduled notifications for otv - holidays are not displayed but otv have to be sent', async () => {
         // Given
         const spy = vi
-          .spyOn(scheduledNotificationsMethods, 'createScheduledNotification')
-          .mockResolvedValue(true);
+          .spyOn(User.prototype, 'createScheduledNotification')
+          .mockResolvedValue();
         const preferences = new Preferences(['Réunion'], []); // preferences are not matching holidays
         const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
         newMockUserIdentity.preferences = preferences;
@@ -1366,7 +1366,7 @@ describe('/agenda.ts', () => {
         expect(agenda.now.length).equal(0);
         expect(agenda.next.length).equal(0);
         expect(spy).toHaveBeenCalledTimes(2);
-        expect(spy).toHaveBeenCalledWith({
+        expect(spy).toHaveBeenNthCalledWith(1, {
           content_body:
             'Demandez l’Opération Tranquillité Vacances afin de partir en vacances l’esprit (plus) tranquille.',
           content_icon: 'fr-icon-megaphone-line',
@@ -1375,7 +1375,7 @@ describe('/agenda.ts', () => {
           internal_url: '/#/procedure?date=2026-01-24',
           scheduled_at: new Date('2026-01-23T23:00:00Z'),
         });
-        expect(spy).toHaveBeenCalledWith({
+        expect(spy).toHaveBeenNthCalledWith(2, {
           content_body:
             'Demandez l’Opération Tranquillité Vacances afin de partir en vacances l’esprit (plus) tranquille.',
           content_icon: 'fr-icon-megaphone-line',
@@ -1384,64 +1384,6 @@ describe('/agenda.ts', () => {
           internal_url: '/#/procedure?date=2026-06-11',
           scheduled_at: new Date('2026-06-10T22:00:00Z'),
         });
-      });
-      test('should create scheduled notifications for otv - scheduled notifications already sent', async () => {
-        // Given
-        const spy = vi
-          .spyOn(scheduledNotificationsMethods, 'createScheduledNotification')
-          .mockResolvedValue(true);
-        const holiday1 = {
-          kind: 'holiday',
-          title: 'Holiday',
-          description: '',
-          date: null,
-          start_date: parseISODate('2026-02-07'),
-          end_date: parseISODate('2026-02-23'),
-          zones: ['Zone A'],
-          emoji: 'foo',
-        };
-        const holiday2 = {
-          kind: 'holiday',
-          title: 'Holiday',
-          description: '',
-          date: null,
-          start_date: parseISODate('2026-02-14'),
-          end_date: parseISODate('2026-03-02'),
-          zones: ['Zone C'], // matches user's zone
-          emoji: 'foo',
-        };
-        const holiday3 = {
-          kind: 'holiday',
-          title: 'Summer Holiday',
-          description: '',
-          date: null,
-          start_date: parseISODate('2026-07-02'),
-          end_date: parseISODate('2026-09-01'),
-          zones: [],
-          emoji: 'bar',
-        };
-        await userStore.login(mockUserInfo);
-        userStore.connected?.addScheduledNotificationCreatedKey(
-          'ami-otv:d-3w:2026:holiday'
-        );
-        userStore.connected?.addScheduledNotificationCreatedKey(
-          'ami-otv:d-3w:2026:summer-holiday'
-        );
-
-        // When
-        const agenda = new Agenda(
-          {
-            school_holidays: [holiday1, holiday2, holiday3],
-            public_holidays: [],
-            elections: [],
-          },
-          new Date('2026-02-01T12:00:00Z')
-        );
-
-        // Then
-        expect(agenda.now.length).equal(1);
-        expect(agenda.now[0].title).toEqual('Holiday foo');
-        expect(spy).toHaveBeenCalledTimes(0);
       });
     });
     describe('School holiday for otv', () => {

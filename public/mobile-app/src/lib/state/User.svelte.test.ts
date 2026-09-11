@@ -1,11 +1,13 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
+import { waitFor } from '@testing-library/svelte';
 import { Address } from '$lib/address';
 import * as addressesFromBANMethods from '$lib/addressesFromBAN';
 import { AddressFromBAN } from '$lib/addressesFromBAN';
 import * as authHelpers from '$lib/auth';
 import * as franceConnectHelpers from '$lib/france-connect';
 import * as notificationsMethods from '$lib/notifications';
+import * as scheduledNotificationsMethods from '$lib/scheduled-notifications';
 import { Preferences } from '$lib/state/preferences';
 import { User, userStore } from '$lib/state/User.svelte';
 import { mockUser, mockUserIdentity, mockUserInfo } from '$tests/utils';
@@ -705,6 +707,126 @@ describe('/lib/state/User.svelte.ts', () => {
 
         // Then
         expect(formattedBirthdate).toEqual('24/08/1962');
+      });
+    });
+
+    describe('addScheduledNotificationCreatedKey', () => {
+      test('should add key in localstorage', async () => {
+        // Given
+        await userStore.login(mockUserInfo);
+        expect(userStore.connected).not.toBeNull();
+        expect(
+          userStore.connected?.identity?.scheduledNotificationsCreatedKeys
+        ).toEqual([]);
+
+        // When
+        userStore.connected?.addScheduledNotificationCreatedKey('ref1');
+
+        // Then
+        expect(
+          userStore.connected?.identity?.scheduledNotificationsCreatedKeys
+        ).toEqual(['ref1']);
+
+        // When
+        userStore.connected?.addScheduledNotificationCreatedKey('ref1');
+
+        // Then
+        expect(
+          userStore.connected?.identity?.scheduledNotificationsCreatedKeys
+        ).toEqual(['ref1']);
+
+        // When
+        userStore.connected?.addScheduledNotificationCreatedKey('ref2');
+
+        // Then
+        expect(
+          userStore.connected?.identity?.scheduledNotificationsCreatedKeys
+        ).toEqual(['ref1', 'ref2']);
+      });
+    });
+
+    describe('clearScheduledNotificationCreatedKey', () => {
+      test('should delete key in localstorage', async () => {
+        // Given
+        await userStore.login(mockUserInfo);
+        expect(userStore.connected).not.toBeNull();
+        userStore.connected?.addScheduledNotificationCreatedKey('ref1');
+        userStore.connected?.addScheduledNotificationCreatedKey('ref2');
+        expect(
+          userStore.connected?.identity?.scheduledNotificationsCreatedKeys
+        ).toEqual(['ref1', 'ref2']);
+
+        // When
+        userStore.connected?.clearScheduledNotificationCreatedKey();
+
+        // Then
+        expect(
+          userStore.connected?.identity?.scheduledNotificationsCreatedKeys
+        ).toEqual([]);
+
+        // When
+        userStore.connected?.clearScheduledNotificationCreatedKey();
+
+        // Then
+        expect(
+          userStore.connected?.identity?.scheduledNotificationsCreatedKeys
+        ).toEqual([]);
+      });
+    });
+
+    describe('createScheduledNotification', () => {
+      test('should call createScheduledNotification endpoint and addScheduledNotificationCreatedKey', async () => {
+        // Given
+        await userStore.login(mockUserInfo);
+        expect(userStore.connected).not.toBeNull();
+        const spy1 = vi
+          .spyOn(User.prototype, 'addScheduledNotificationCreatedKey')
+          .mockReturnValue();
+        const spy2 = vi
+          .spyOn(scheduledNotificationsMethods, 'createScheduledNotification')
+          .mockResolvedValue(true);
+        const scheduledNotification = {
+          content_title: 'Title',
+          content_body: 'Body',
+          content_icon: 'icon',
+          reference: 'ref',
+          internal_url: 'url',
+          scheduled_at: new Date(),
+        };
+
+        // When
+        await userStore.connected?.createScheduledNotification(scheduledNotification);
+
+        // Then
+        await waitFor(() => {
+          expect(spy1).toHaveBeenCalledTimes(1);
+          expect(spy1).toHaveBeenCalledWith('ref');
+          expect(spy2).toHaveBeenCalledTimes(1);
+          expect(spy2).toHaveBeenCalledWith(scheduledNotification);
+        });
+      });
+    });
+
+    describe('deleteScheduledNotifications', () => {
+      test('should call deleteScheduledNotifications endpoint and clearScheduledNotificationCreatedKey', async () => {
+        // Given
+        await userStore.login(mockUserInfo);
+        expect(userStore.connected).not.toBeNull();
+        const spy1 = vi
+          .spyOn(User.prototype, 'clearScheduledNotificationCreatedKey')
+          .mockReturnValue();
+        const spy2 = vi
+          .spyOn(scheduledNotificationsMethods, 'deleteScheduledNotifications')
+          .mockResolvedValue(true);
+
+        // When
+        await userStore.connected?.deleteScheduledNotifications();
+
+        // Then
+        await waitFor(() => {
+          expect(spy1).toHaveBeenCalledTimes(1);
+          expect(spy2).toHaveBeenCalledTimes(1);
+        });
       });
     });
 

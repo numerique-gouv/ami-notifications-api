@@ -8,7 +8,7 @@ import * as agendaMethods from '$lib/agenda';
 import { Agenda } from '$lib/agenda';
 import * as AMINavigationMethods from '$lib/ami-navigation';
 import { toastStore } from '$lib/state/toast.svelte';
-import { userStore } from '$lib/state/User.svelte';
+import { User, userStore } from '$lib/state/User.svelte';
 import { expectBackButtonPresent, mockUserIdentity, mockUserInfo } from '$tests/utils';
 import Page from './+page.svelte';
 
@@ -175,7 +175,9 @@ describe('/+page.svelte', () => {
     // Given
     expect(userStore.connected).not.toBeNull();
     delete userStore.connected?.identity?.address;
-    userStore.connected?.addScheduledNotificationCreatedKey('foo');
+    const spyDeleteScheduled = vi
+      .spyOn(User.prototype, 'deleteScheduledNotifications')
+      .mockResolvedValue();
     const connectedUser = userStore.connected;
     if (!connectedUser) {
       throw new Error('User should be connected');
@@ -240,9 +242,7 @@ describe('/+page.svelte', () => {
       expect(
         userStore.connected?.identity?.dataDetails.address.lastUpdate
       ).not.toBeUndefined();
-      expect(userStore.connected?.identity?.scheduledNotificationsCreatedKeys).toEqual(
-        []
-      );
+      expect(spyDeleteScheduled).toHaveBeenCalledTimes(1);
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy2).toHaveBeenCalledWith(
         'Information bien enregistrée !',
@@ -251,9 +251,6 @@ describe('/+page.svelte', () => {
         false
       );
     });
-
-    // Given
-    userStore.connected?.addScheduledNotificationCreatedKey('foo');
 
     // When - user clicks the remove button
     const removeButton = screen.getByRole('button', { name: /retirer l’adresse/i });
@@ -271,9 +268,7 @@ describe('/+page.svelte', () => {
       expect(
         userStore.connected?.identity?.dataDetails.address.lastUpdate
       ).not.toBeUndefined();
-      expect(userStore.connected?.identity?.scheduledNotificationsCreatedKeys).toEqual(
-        []
-      );
+      expect(spyDeleteScheduled).toHaveBeenCalledTimes(2);
       expect(spy).toHaveBeenCalledTimes(2);
     });
   });

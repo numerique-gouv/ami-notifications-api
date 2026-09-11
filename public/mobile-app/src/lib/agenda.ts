@@ -1,6 +1,5 @@
 import type { APIAgenda, APIAgendaItem } from '$lib/api-agenda';
 import { retrieveAgenda } from '$lib/api-agenda';
-import { createScheduledNotification } from '$lib/scheduled-notifications';
 import { type User, userStore } from '$lib/state/User.svelte';
 import { dateToISO, getTimestamp, uniqueId } from '$lib/utils';
 
@@ -460,23 +459,18 @@ export class Agenda {
       // should not happen for school holiday
       return;
     }
-    const scheduledNotificationsCreatedKeys = new Set(
-      this._connectedUser?.identity.scheduledNotificationsCreatedKeys
-    );
     const startDate = new Date(holiday.start_date.getTime() - 3 * 7 * oneday_in_ms);
     const scheduledNotificationKey = `ami-otv:d-3w:${holiday.start_date.getFullYear()}:${slugify(holiday.title)}`;
-    if (!scheduledNotificationsCreatedKeys.has(scheduledNotificationKey)) {
-      createScheduledNotification({
-        content_title: 'Et si on veillait sur votre logement ? 👮',
-        content_body:
-          'Demandez l’Opération Tranquillité Vacances afin de partir en vacances l’esprit (plus) tranquille.',
-        content_icon: 'fr-icon-megaphone-line',
-        reference: scheduledNotificationKey,
-        internal_url: `/#/procedure?date=${dateToISO(startDate)}`,
-        scheduled_at: startDate,
-      });
-      this._connectedUser?.addScheduledNotificationCreatedKey(scheduledNotificationKey);
-    }
+    const scheduledNotification = {
+      content_title: 'Et si on veillait sur votre logement ? 👮',
+      content_body:
+        'Demandez l’Opération Tranquillité Vacances afin de partir en vacances l’esprit (plus) tranquille.',
+      content_icon: 'fr-icon-megaphone-line',
+      reference: scheduledNotificationKey,
+      internal_url: `/#/procedure?date=${dateToISO(startDate)}`,
+      scheduled_at: startDate,
+    };
+    this._connectedUser?.createScheduledNotification(scheduledNotification);
   }
 
   private createElectionItems(items: Item[], elections: APIAgendaItem[]) {

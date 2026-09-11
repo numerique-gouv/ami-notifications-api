@@ -12,6 +12,11 @@ import * as auth from '$lib/auth';
 import { franceConnectLogout, parseJwt } from '$lib/france-connect';
 import { emit } from '$lib/nativeEvents';
 import { disableNotificationsAtLogout } from '$lib/notifications';
+import {
+  createScheduledNotification as createScheduledNotificationFunc,
+  deleteScheduledNotifications as deleteScheduledNotificationsFunc,
+  type ScheduledNotification,
+} from '$lib/scheduled-notifications';
 import { Preferences, type ZoneInfo } from '$lib/state/preferences';
 import { formatShortDate } from '$lib/utils';
 
@@ -287,6 +292,22 @@ export class User {
   clearScheduledNotificationCreatedKey() {
     this._identity.scheduledNotificationsCreatedKeys = [];
     localStorage.setItem('user_identity', JSON.stringify(this.identity));
+  }
+
+  async createScheduledNotification(scheduledNotification: ScheduledNotification) {
+    const scheduledNotificationKey = scheduledNotification.reference;
+    const scheduledNotificationsCreatedKeys = new Set(
+      this._identity.scheduledNotificationsCreatedKeys
+    );
+    if (!scheduledNotificationsCreatedKeys.has(scheduledNotificationKey)) {
+      await createScheduledNotificationFunc(scheduledNotification);
+      this.addScheduledNotificationCreatedKey(scheduledNotificationKey);
+    }
+  }
+
+  async deleteScheduledNotifications() {
+    await deleteScheduledNotificationsFunc();
+    this.clearScheduledNotificationCreatedKey();
   }
 
   async updateIdentity() {
