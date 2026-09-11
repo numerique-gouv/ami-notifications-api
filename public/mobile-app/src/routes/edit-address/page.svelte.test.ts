@@ -4,11 +4,9 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import type { MockInstance } from 'vitest';
 import { Address } from '$lib/address';
 import * as addressesFromBANMethods from '$lib/addressesFromBAN';
-import * as agendaMethods from '$lib/agenda';
-import { Agenda } from '$lib/agenda';
 import * as AMINavigationMethods from '$lib/ami-navigation';
 import { toastStore } from '$lib/state/toast.svelte';
-import { userStore } from '$lib/state/User.svelte';
+import { User, userStore } from '$lib/state/User.svelte';
 import { expectBackButtonPresent, mockUserIdentity, mockUserInfo } from '$tests/utils';
 import Page from './+page.svelte';
 
@@ -57,11 +55,11 @@ describe('/+page.svelte', () => {
         callBAN: vi.fn(() => response),
       };
     });
-    vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(new Agenda());
+    vi.useFakeTimers();
   });
 
   afterEach(() => {
-    vi.resetAllMocks();
+    vi.useRealTimers();
   });
 
   test('should display the last update date', async () => {
@@ -123,8 +121,9 @@ describe('/+page.svelte', () => {
       target: { value: '23 rue des aubépines orl' },
     });
 
+    // Then
+    vi.advanceTimersByTime(750);
     await waitFor(() => {
-      // Then
       const autocompleteListItem0 = screen.getByTestId('autocomplete-item-0');
       expect(autocompleteListItem0).toHaveTextContent(
         '23 Rue des Aubépines Orléans (45, Loiret, Centre-Val de Loire)'
@@ -148,6 +147,7 @@ describe('/+page.svelte', () => {
       target: { value: '23 rue des aubépines orl' },
     });
 
+    vi.advanceTimersByTime(750);
     await waitFor(() => {
       const autocompleteListItem1 = screen.getByTestId('autocomplete-item-1');
       expect(autocompleteListItem1).toHaveTextContent(
@@ -175,14 +175,15 @@ describe('/+page.svelte', () => {
     // Given
     expect(userStore.connected).not.toBeNull();
     delete userStore.connected?.identity?.address;
-    userStore.connected?.addScheduledNotificationCreatedKey('foo');
+    const spyDeleteScheduled = vi
+      .spyOn(User.prototype, 'deleteScheduledNotifications')
+      .mockResolvedValue();
     const connectedUser = userStore.connected;
     if (!connectedUser) {
       throw new Error('User should be connected');
     }
     const setAddressSpy = vi.spyOn(connectedUser, 'setAddress');
-    const spy = vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(new Agenda());
-    const spy2 = vi.spyOn(toastStore, 'addToast');
+    const spy = vi.spyOn(toastStore, 'addToast');
 
     // When
     render(Page);
@@ -191,6 +192,7 @@ describe('/+page.svelte', () => {
       target: { value: '23 rue des aubépines orl' },
     });
 
+    vi.advanceTimersByTime(750);
     await waitFor(() => {
       const autocompleteListItem1 = screen.getByTestId('autocomplete-item-1');
       expect(autocompleteListItem1).toHaveTextContent(
@@ -240,20 +242,14 @@ describe('/+page.svelte', () => {
       expect(
         userStore.connected?.identity?.dataDetails.address.lastUpdate
       ).not.toBeUndefined();
-      expect(userStore.connected?.identity?.scheduledNotificationsCreatedKeys).toEqual(
-        []
-      );
-      expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy2).toHaveBeenCalledWith(
+      expect(spyDeleteScheduled).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(
         'Information bien enregistrée !',
         'success',
         3000,
         false
       );
     });
-
-    // Given
-    userStore.connected?.addScheduledNotificationCreatedKey('foo');
 
     // When - user clicks the remove button
     const removeButton = screen.getByRole('button', { name: /retirer l’adresse/i });
@@ -271,10 +267,7 @@ describe('/+page.svelte', () => {
       expect(
         userStore.connected?.identity?.dataDetails.address.lastUpdate
       ).not.toBeUndefined();
-      expect(userStore.connected?.identity?.scheduledNotificationsCreatedKeys).toEqual(
-        []
-      );
-      expect(spy).toHaveBeenCalledTimes(2);
+      expect(spyDeleteScheduled).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -310,6 +303,7 @@ describe('/+page.svelte', () => {
     });
 
     // Then
+    vi.advanceTimersByTime(750);
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
       const addressError = screen.getByTestId('address-error');
@@ -334,6 +328,7 @@ describe('/+page.svelte', () => {
     });
 
     // Then
+    vi.advanceTimersByTime(750);
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
       const addressWarning = screen.getByTestId('address-warning');

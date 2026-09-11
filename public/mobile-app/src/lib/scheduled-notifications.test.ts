@@ -1,6 +1,9 @@
 import { describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
-import { createScheduledNotification } from '$lib/scheduled-notifications';
+import {
+  createScheduledNotification,
+  deleteScheduledNotifications,
+} from '$lib/scheduled-notifications';
 
 describe('/scheduled-notifications', () => {
   describe('createScheduledNotification', () => {
@@ -25,7 +28,7 @@ describe('/scheduled-notifications', () => {
       // Then
       expect(result).toEqual(true);
     });
-    test('should create scheduled notification failure', async () => {
+    test('create scheduled notification failure', async () => {
       // Given
       const scheduledNotification = {
         content_title: 'title',
@@ -42,6 +45,33 @@ describe('/scheduled-notifications', () => {
 
       // When
       const result = await createScheduledNotification(scheduledNotification);
+
+      // Then
+      expect(result).toEqual(false);
+    });
+  });
+
+  describe('deleteScheduledNotifications', () => {
+    test('should delete scheduled notifications', async () => {
+      // Given
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        new Response(null, { status: 204 })
+      );
+
+      // When
+      const result = await deleteScheduledNotifications();
+
+      // Then
+      expect(result).toEqual(true);
+    });
+    test('delete scheduled notification failure', async () => {
+      // Given
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        new Response('', { status: 400 })
+      );
+
+      // When
+      const result = await deleteScheduledNotifications();
 
       // Then
       expect(result).toEqual(false);

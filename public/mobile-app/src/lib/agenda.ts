@@ -1,6 +1,5 @@
 import type { APIAgenda, APIAgendaItem } from '$lib/api-agenda';
 import { retrieveAgenda } from '$lib/api-agenda';
-import { createScheduledNotification } from '$lib/scheduled-notifications';
 import { type User, userStore } from '$lib/state/User.svelte';
 import { dateToISO, getTimestamp, uniqueId } from '$lib/utils';
 
@@ -311,6 +310,10 @@ export class Agenda {
   private createSchoolHolidayItems(items: Item[], school_holidays: APIAgendaItem[]) {
     const result: Item[] = [];
     school_holidays.forEach((holiday) => {
+      if (!holiday.start_date || !holiday.end_date) {
+        // should not happen for school holiday
+        return;
+      }
       const item = this.createSchoolHolidayItem(holiday);
       if (item !== null && !item.isHidden()) {
         // check if an item whith this description already exists
@@ -337,6 +340,21 @@ export class Agenda {
         if (!seen) {
           result.push(item);
         }
+        // set holiday for OTV auto-promo
+        if (this._holidayForOTV !== null) {
+          return;
+        }
+        if (holiday.end_date < this._today) {
+          // exclude past school holiday
+          return;
+        }
+        // set first holiday
+        const startDate = new Date(holiday.start_date.getTime() - 3 * 7 * oneday_in_ms);
+        if (startDate > this._today) {
+          // but only when it is close enough to it associated holiday
+          return;
+        }
+        this._holidayForOTV = holiday;
       }
     });
     result.forEach((item) => {
@@ -402,32 +420,7 @@ export class Agenda {
   }
 
   private processOTVs(school_holidays: APIAgendaItem[]) {
-    const relevantSchoolHolidays =
-      this.getRelevantSchoolHolidaysForOTV(school_holidays);
-    relevantSchoolHolidays.forEach((holiday) => {
-      this.pushOTVNotification(holiday);
-      if (!holiday.start_date) {
-        // should not happen for school holiday
-        return;
-      }
-      if (this._holidayForOTV !== null) {
-        return;
-      }
-      // set first holiday
-      const startDate = new Date(holiday.start_date.getTime() - 3 * 7 * oneday_in_ms);
-      if (startDate > this._today) {
-        // but only when it is close enough to it associated holiday
-        return;
-      }
-      this._holidayForOTV = holiday;
-    });
-  }
-
-  private getRelevantSchoolHolidaysForOTV(
-    school_holidays: APIAgendaItem[]
-  ): APIAgendaItem[] {
     const seenSchoolHolidays: Set<string> = new Set();
-    const relevantSchoolHolidays: APIAgendaItem[] = [];
     school_holidays.forEach((holiday) => {
       if (!holiday.start_date || !holiday.end_date) {
         // should not happen for school holiday
@@ -441,6 +434,10 @@ export class Agenda {
       if (seenSchoolHolidays.has(key)) {
         return;
       }
+      if (userZone === undefined) {
+        // don't push OTV's if user has no address
+        return;
+      }
       if (userZone !== undefined && !holiday.zones.includes(userZone)) {
         // Only push OTV notification for the user's zone, if present
         return;
@@ -450,9 +447,8 @@ export class Agenda {
         // exclude past school holiday
         return;
       }
-      relevantSchoolHolidays.push(holiday);
+      this.pushOTVNotification(holiday);
     });
-    return relevantSchoolHolidays;
   }
 
   private pushOTVNotification(holiday: APIAgendaItem) {
@@ -460,23 +456,18 @@ export class Agenda {
       // should not happen for school holiday
       return;
     }
-    const scheduledNotificationsCreatedKeys = new Set(
-      this._connectedUser?.identity.scheduledNotificationsCreatedKeys
-    );
     const startDate = new Date(holiday.start_date.getTime() - 3 * 7 * oneday_in_ms);
     const scheduledNotificationKey = `ami-otv:d-3w:${holiday.start_date.getFullYear()}:${slugify(holiday.title)}`;
-    if (!scheduledNotificationsCreatedKeys.has(scheduledNotificationKey)) {
-      createScheduledNotification({
-        content_title: 'Et si on veillait sur votre logement ? 👮',
-        content_body:
-          'Demandez l’Opération Tranquillité Vacances afin de partir en vacances l’esprit (plus) tranquille.',
-        content_icon: 'fr-icon-megaphone-line',
-        reference: scheduledNotificationKey,
-        internal_url: `/#/procedure?date=${dateToISO(startDate)}`,
-        scheduled_at: startDate,
-      });
-      this._connectedUser?.addScheduledNotificationCreatedKey(scheduledNotificationKey);
-    }
+    const scheduledNotification = {
+      content_title: 'Et si on veillait sur votre logement ? 👮',
+      content_body:
+        'Demandez l’Opération Tranquillité Vacances afin de partir en vacances l’esprit (plus) tranquille.',
+      content_icon: 'fr-icon-megaphone-line',
+      reference: scheduledNotificationKey,
+      internal_url: `/#/procedure?date=${dateToISO(startDate)}`,
+      scheduled_at: startDate,
+    };
+    this._connectedUser?.createScheduledNotification(scheduledNotification);
   }
 
   private createElectionItems(items: Item[], elections: APIAgendaItem[]) {
