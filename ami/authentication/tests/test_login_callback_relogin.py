@@ -164,8 +164,10 @@ def test_relogin_france_connect_login_callback_not_logged_in(
     assert redirected_url.endswith("#/technical-error")
 
 
+@pytest.mark.parametrize("fc_mode", ["noproxy", "proxy"])
 @pytest.mark.django_db
 def test_relogin_france_connect_login_callback_different_user(
+    fc_mode,
     settings,
     app,
     httpx_mock: HTTPXMock,
@@ -175,6 +177,11 @@ def test_relogin_france_connect_login_callback_different_user(
     user: User,
 ) -> None:
     login(app, user)
+
+    if fc_mode == "noproxy":
+        settings.PUBLIC_FC_PROXY_BASE_URL = ""
+    else:
+        settings.PUBLIC_FC_PROXY_BASE_URL = "https://fake-fc-proxy"
 
     original_jwt_decode = jwt.decode
 
@@ -222,21 +229,37 @@ def test_relogin_france_connect_login_callback_different_user(
 
     response = app.get(f"/login-callback?code=fake-code&state={nonce.id}")
     assert response.status_code == 302
+    # check no new user were created
+    assert User.objects.count() == 1
     # check redirection is a logout from FranceConnect
     redirected_url = response.headers["location"]
-    assert urllib.parse.urlparse(redirected_url).path == "/api/v2/session/end"
+    parsed = urllib.parse.urlparse(redirected_url)
+    assert parsed.path == "/api/v2/session/end"
+    redirected_url_query = urllib.parse.parse_qs(parsed.query)
+    if fc_mode == "noproxy":
+        # with logout-callback as return uri, and a state
+        assert url_contains_param(
+            "post_logout_redirect_uri", "https://localhost:5173/logout-callback", redirected_url
+        )
+        nonce = Nonce.objects.get(id=redirected_url_query["state"][0])
+    else:
+        assert url_contains_param(
+            "post_logout_redirect_uri", settings.PUBLIC_FC_PROXY_BASE_URL, redirected_url
+        )
+        proxy_state_url = redirected_url_query["state"][0]
+        assert proxy_state_url.startswith("https://localhost:5173/logout-callback?")
+        parsed_proxy_state_url_query = urllib.parse.parse_qs(
+            urllib.parse.urlparse(proxy_state_url).query
+        )
+        nonce = Nonce.objects.get(id=parsed_proxy_state_url_query["state"][0])
 
-    # with a state sending the user back to the homepage with a "does not match" banner
-    assert url_contains_param(
-        "state",
-        "https://localhost:5173/?user_does_not_match=&redirect_to_hash=",
-        redirected_url,
-    )
-    assert User.objects.count() == 1  # no user created at login
+    assert nonce.context == {"redirect_to_hash": None, "user_does_not_match": True}
 
 
+@pytest.mark.parametrize("fc_mode", ["noproxy", "proxy"])
 @pytest.mark.django_db
 def test_relogin_france_connect_login_callback_different_user_with_from_hash(
+    fc_mode,
     settings,
     app,
     httpx_mock: HTTPXMock,
@@ -246,6 +269,11 @@ def test_relogin_france_connect_login_callback_different_user_with_from_hash(
     user: User,
 ) -> None:
     login(app, user)
+
+    if fc_mode == "noproxy":
+        settings.PUBLIC_FC_PROXY_BASE_URL = ""
+    else:
+        settings.PUBLIC_FC_PROXY_BASE_URL = "https://fake-fc-proxy"
 
     app.set_cookie("sessionid", "initial")
     session = app.session
@@ -299,14 +327,28 @@ def test_relogin_france_connect_login_callback_different_user_with_from_hash(
 
     response = app.get(f"/login-callback?code=fake-code&state={nonce.id}")
     assert response.status_code == 302
+    # check no new user were created
+    assert User.objects.count() == 1
     # check redirection is a logout from FranceConnect
     redirected_url = response.headers["location"]
-    assert urllib.parse.urlparse(redirected_url).path == "/api/v2/session/end"
+    parsed = urllib.parse.urlparse(redirected_url)
+    assert parsed.path == "/api/v2/session/end"
+    redirected_url_query = urllib.parse.parse_qs(parsed.query)
+    if fc_mode == "noproxy":
+        # with logout-callback as return uri, and a state
+        assert url_contains_param(
+            "post_logout_redirect_uri", "https://localhost:5173/logout-callback", redirected_url
+        )
+        nonce = Nonce.objects.get(id=redirected_url_query["state"][0])
+    else:
+        assert url_contains_param(
+            "post_logout_redirect_uri", settings.PUBLIC_FC_PROXY_BASE_URL, redirected_url
+        )
+        proxy_state_url = redirected_url_query["state"][0]
+        assert proxy_state_url.startswith("https://localhost:5173/logout-callback?")
+        parsed_proxy_state_url_query = urllib.parse.parse_qs(
+            urllib.parse.urlparse(proxy_state_url).query
+        )
+        nonce = Nonce.objects.get(id=parsed_proxy_state_url_query["state"][0])
 
-    # with a state sending the user back to the homepage with a "does not match" banner
-    assert url_contains_param(
-        "state",
-        "https://localhost:5173/?user_does_not_match=&redirect_to_hash=%2Fpage",
-        redirected_url,
-    )
-    assert User.objects.count() == 1  # no user created at login
+    assert nonce.context == {"redirect_to_hash": "/page", "user_does_not_match": True}
