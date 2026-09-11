@@ -29,3 +29,17 @@ export const createScheduledNotification = async (
   }
   return false;
 };
+
+export const deleteScheduledNotifications = async (): Promise<boolean> => {
+  try {
+    const response = await apiFetch(`/api/v1/users/scheduled-notifications`, {
+      method: 'DELETE',
+    });
+    if (response.status === 204) {
+      return true;
+    }
+  } catch (error) {
+    console.error(error);
+  }
+  return false;
+};
