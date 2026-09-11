@@ -115,7 +115,7 @@
     if (userStore.connected) {
       userStore.connected.setAddress(selectedAddress);
       // rebuild agenda to create new scheduled notifications
-      userStore.connected.clearScheduledNotificationCreatedKey();
+      userStore.connected.deleteScheduledNotifications();
       await buildAgenda();
       toastStore.addToast('Information bien enregistrée !', 'success', 3000, false);
     }
@@ -128,7 +128,7 @@
     if (userStore.connected) {
       userStore.connected.setAddress(undefined);
       // rebuild agenda to create new scheduled notifications
-      userStore.connected.clearScheduledNotificationCreatedKey();
+      userStore.connected.deleteScheduledNotifications();
       await buildAgenda();
     }
     disabledButton = false;
