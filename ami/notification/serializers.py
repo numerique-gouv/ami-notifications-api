@@ -53,10 +53,6 @@ class ScheduledNotificationResponseSerializer(serializers.Serializer):
     scheduled_notification_id = serializers.UUIDField()
 
 
-class ScheduledNotificationDeleteSerializer(serializers.Serializer):
-    reference = serializers.CharField(allow_blank=False)
-
-
 class PartnerEventCreateMixin:
     def validate(self, attrs):
         # check that if at least one item field is provided, all required item fields are set
