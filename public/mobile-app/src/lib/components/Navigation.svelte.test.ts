@@ -122,7 +122,7 @@ describe('/Navigation.svelte', () => {
     });
   });
 
-  test('should navigate to Contact page when user clicks on Nous contacter button', async () => {
+  test('should navigate to helpcenter page when user clicks on Aide et contact button', async () => {
     // Given
     const spy = vi
       .spyOn(AMINavigationMethods, 'AMIGoto')
@@ -130,12 +130,12 @@ describe('/Navigation.svelte', () => {
     const { getByTestId } = render(Navigation);
 
     // When
-    const button = getByTestId('contact-button');
+    const button = getByTestId('help-center-button');
     await fireEvent.click(button);
 
     // Then
     await waitFor(() => {
-      expect(spy).toHaveBeenCalledWith('/#/contact');
+      expect(spy).toHaveBeenCalledWith('/#/help-center');
     });
   });
 

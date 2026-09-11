@@ -6,7 +6,7 @@
   import { toastStore } from '$lib/state/toast.svelte';
   import { userStore } from '$lib/state/User.svelte';
 
-  let backUrl: string = '/';
+  let backUrl: string = '/#/help';
   let userFcHash: string | null = null;
   const contactUrl = PUBLIC_CONTACT_URL;
   const contactEmail = PUBLIC_CONTACT_EMAIL;
