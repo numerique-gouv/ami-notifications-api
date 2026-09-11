@@ -10,6 +10,30 @@
 	}
 }
 
+.fr-icon-flight-land-line::before,
+.fr-icon-flight-land-line::after {
+	-webkit-mask-image: url('/icons/custom/flight-land-line.svg');
+	mask-image: url('/icons/custom/flight-land-line.svg');
+}
+
+.fr-icon-folder-check-line::before,
+.fr-icon-folder-check-line::after {
+	-webkit-mask-image: url('/icons/custom/folder-check-line.svg');
+	mask-image: url('/icons/custom/folder-check-line.svg');
+}
+
+.fr-icon-folder-open-line::before,
+.fr-icon-folder-open-line::after {
+	-webkit-mask-image: url('/icons/custom/folder-open-line.svg');
+	mask-image: url('/icons/custom/folder-open-line.svg');
+}
+
+.fr-icon-indeterminate-circle-line::before,
+.fr-icon-indeterminate-circle-line::after {
+	-webkit-mask-image: url('/icons/custom/indeterminate-circle-line.svg');
+	mask-image: url('/icons/custom/indeterminate-circle-line.svg');
+}
+
 .fr-icon-infinity-line::before,
 .fr-icon-infinity-line::after {
 	-webkit-mask-image: url('/icons/custom/infinity-line.svg');
@@ -38,10 +62,4 @@
 .fr-icon-settings-3-line::after {
 	-webkit-mask-image: url('/icons/custom/settings-3-line.svg');
 	mask-image: url('/icons/custom/settings-3-line.svg');
-}
-
-.fr-icon-flight-land-line::before,
-.fr-icon-flight-land-line::after {
-	-webkit-mask-image: url('/icons/custom/flight-land-line.svg');
-	mask-image: url('/icons/custom/flight-land-line.svg');
 }
