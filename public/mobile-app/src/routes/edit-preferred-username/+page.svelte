@@ -13,6 +13,7 @@
   let inputValue: string = $state('');
   let preferred_username_origin: DataOrigin | undefined = $state();
   let preferred_username_last_update: Date | undefined = $state();
+  let usernameInputHasError: boolean = $state(false);
 
   onMount(() => {
     if (!userStore.connected) {
@@ -32,11 +33,22 @@
     AMIBack(backUrl);
   };
 
+  const isValidName = (value: string) => {
+    // https://docs.partenaires.franceconnect.gouv.fr/fs/fs-technique/fs-technique-scope-fc/#liste-des-claims
+    // + space
+    return value === '' || value.match(/^[A-ZÀÂÄÇÉÈÊËÎÏÔÖÙÛÜŸÆŒ' -]+$/i);
+  };
+
   const submit = () => {
     if (userStore.connected) {
-      userStore.connected.setPreferredUsername(inputValue);
-      console.log('Updated the preferred username to', inputValue);
-      toastStore.addToast('Information bien enregistrée !', 'success', 3000, false);
+      if (isValidName(inputValue)) {
+        userStore.connected.setPreferredUsername(inputValue);
+        console.log('Updated the preferred username to', inputValue);
+        toastStore.addToast('Information bien enregistrée !', 'success', 3000, false);
+      } else {
+        usernameInputHasError = true;
+        return;
+      }
     }
     AMIBack(backUrl);
   };
@@ -51,10 +63,12 @@
     <div class="content-container" data-testid="container">
       <p>Vous pouvez modifier uniquement les champs ci-dessous.</p>
 
-      <form autocomplete="on">
+      <form autocomplete="on" onsubmit={submit}>
         <fieldset class="fr-fieldset fr-mb-3w">
           <div class="fr-fieldset__element fr-mb-0">
-            <div class="fr-input-group autocomplete">
+            <div
+              class="fr-input-group autocomplete {usernameInputHasError ? 'fr-input-group--error' : ''}"
+            >
               <label class="fr-label" for="input">Nom d’usage</label>
               <span class="fr-hint-text">Par exemple&nbsp;: Dupont</span>
               <input
@@ -66,6 +80,17 @@
                 autocomplete="username"
                 onfocus={scrollToInput}
               >
+              {#if usernameInputHasError}
+                <div class="fr-messages-group" aria-live="polite">
+                  <p
+                    id="preferred-username-error"
+                    class="fr-message fr-message--error"
+                    data-testid="preferred-username-error"
+                  >
+                    Le nom d’usage saisi n’est pas accepté.
+                  </p>
+                </div>
+              {/if}
             </div>
           </div>
         </fieldset>
