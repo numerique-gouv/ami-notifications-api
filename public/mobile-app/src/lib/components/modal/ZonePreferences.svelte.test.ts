@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { Address } from '$lib/address';
@@ -19,10 +19,14 @@ vi.mock('svelte/transition', () => ({
 
 describe('/ZonePreferences.svelte', () => {
   beforeEach(async () => {
-    vi.resetAllMocks();
     HTMLDialogElement.prototype.showModal = vi.fn();
     HTMLDialogElement.prototype.close = vi.fn();
     HTMLDialogElement.prototype.show = vi.fn();
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   test('user has to be connected', async () => {
@@ -323,6 +327,7 @@ describe('/ZonePreferences.svelte', () => {
       });
 
       // Then
+      vi.advanceTimersByTime(750);
       await waitFor(() => {
         expect(spy).toHaveBeenCalledTimes(1);
         expect(spy).toHaveBeenCalledWith('Arpa');
@@ -387,6 +392,7 @@ describe('/ZonePreferences.svelte', () => {
       await fireEvent.input(cityInput, {
         target: { value: 'Arpa' },
       });
+      vi.advanceTimersByTime(750);
       await waitFor(async () => {
         const firstCity = screen.getByTestId('autocomplete-item-button-0');
         await fireEvent.click(firstCity);
@@ -442,6 +448,7 @@ describe('/ZonePreferences.svelte', () => {
       });
 
       // Then
+      vi.advanceTimersByTime(750);
       await waitFor(() => {
         expect(spy).toHaveBeenCalledTimes(1);
         const cityWarning = screen.getByTestId('city-warning');
@@ -490,6 +497,7 @@ describe('/ZonePreferences.svelte', () => {
       await fireEvent.input(cityInput, {
         target: { value: 'Arpa' },
       });
+      vi.advanceTimersByTime(750);
       await waitFor(async () => {
         const firstCity = screen.getByTestId('autocomplete-item-button-0');
         await fireEvent.click(firstCity);

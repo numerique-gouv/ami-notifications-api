@@ -58,10 +58,11 @@ describe('/+page.svelte', () => {
       };
     });
     vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(new Agenda());
+    vi.useFakeTimers();
   });
 
   afterEach(() => {
-    vi.resetAllMocks();
+    vi.useRealTimers();
   });
 
   test('should display the last update date', async () => {
@@ -123,8 +124,9 @@ describe('/+page.svelte', () => {
       target: { value: '23 rue des aubépines orl' },
     });
 
+    // Then
+    vi.advanceTimersByTime(750);
     await waitFor(() => {
-      // Then
       const autocompleteListItem0 = screen.getByTestId('autocomplete-item-0');
       expect(autocompleteListItem0).toHaveTextContent(
         '23 Rue des Aubépines Orléans (45, Loiret, Centre-Val de Loire)'
@@ -148,6 +150,7 @@ describe('/+page.svelte', () => {
       target: { value: '23 rue des aubépines orl' },
     });
 
+    vi.advanceTimersByTime(750);
     await waitFor(() => {
       const autocompleteListItem1 = screen.getByTestId('autocomplete-item-1');
       expect(autocompleteListItem1).toHaveTextContent(
@@ -193,6 +196,7 @@ describe('/+page.svelte', () => {
       target: { value: '23 rue des aubépines orl' },
     });
 
+    vi.advanceTimersByTime(750);
     await waitFor(() => {
       const autocompleteListItem1 = screen.getByTestId('autocomplete-item-1');
       expect(autocompleteListItem1).toHaveTextContent(
@@ -305,6 +309,7 @@ describe('/+page.svelte', () => {
     });
 
     // Then
+    vi.advanceTimersByTime(750);
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
       const addressError = screen.getByTestId('address-error');
@@ -329,6 +334,7 @@ describe('/+page.svelte', () => {
     });
 
     // Then
+    vi.advanceTimersByTime(750);
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
       const addressWarning = screen.getByTestId('address-warning');
