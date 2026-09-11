@@ -1,5 +1,6 @@
 import secrets
 
+from django.conf import settings
 from drf_spectacular.authentication import BasicScheme
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.exceptions import AuthenticationFailed
@@ -17,6 +18,9 @@ class PartnerBasicAuthentication(BasicAuthentication):
             raise AuthenticationFailed("Invalid username.")
         if not secrets.compare_digest(partner.secret, password):
             raise AuthenticationFailed("Invalid username/password.")
+
+        if not partner.is_ip_allowed(request.environ.get(settings.ORIGINATING_IP_ADDRESS_ENV)):
+            raise AuthenticationFailed("Invalid source IP")
 
         request.ami_partner = partner
 

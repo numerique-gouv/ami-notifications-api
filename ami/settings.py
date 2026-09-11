@@ -239,6 +239,9 @@ SPECTACULAR_SETTINGS = {
 # Cors
 CORS_ALLOW_CREDENTIALS = True
 
+# Reverse-proxy
+ORIGINATING_IP_ADDRESS_ENV = CONFIG.get("ORIGINATING_IP_ADDRESS_ENV", "REMOTE_ADDR")
+
 
 # Sentry
 def before_send(event, hint):
