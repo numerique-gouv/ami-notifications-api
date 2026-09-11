@@ -147,6 +147,32 @@ describe('/+page.svelte', () => {
     });
   });
 
+  test('should display an error if name is not accepted', async () => {
+    // Given
+    await userStore.login(mockUserInfo);
+    render(Page);
+    const input = screen.getByTestId('preferred-username-input');
+
+    // When
+    await fireEvent.input(input, { target: { value: '🤪' } });
+    const submit = screen.getByTestId('submit-button');
+    expect(submit).toBeEnabled();
+    await fireEvent.click(submit);
+
+    // Then
+    await waitFor(() => {
+      const updatedInput: HTMLInputElement = screen.getByTestId(
+        'preferred-username-input'
+      );
+      expect(updatedInput.value).equal('🤪'); // not changed
+      expect(screen.getByTestId('preferred-username-error')).toBeInTheDocument();
+      expect(userStore.connected?.identity?.preferred_username).toBeUndefined();
+      expect(
+        userStore.connected?.identity?.dataDetails.preferred_username.origin
+      ).toEqual('france-connect');
+    });
+  });
+
   test('should navigate to previous page when user clicks on Cancel button', async () => {
     // When
     render(Page);
