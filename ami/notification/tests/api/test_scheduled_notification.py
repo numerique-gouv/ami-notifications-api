@@ -209,7 +209,7 @@ def test_create_scheduled_notification_without_auth(app) -> None:
 
 
 @pytest.mark.django_db
-def test_delete_scheduled_notification(app, user: User) -> None:
+def test_delete_scheduled_notifications(app, user: User) -> None:
     login(app, user)
 
     ScheduledNotification.objects.create(
@@ -220,46 +220,22 @@ def test_delete_scheduled_notification(app, user: User) -> None:
         reference="reference",
         scheduled_at=now(),
     )
-
-    app.delete("/api/v1/users/scheduled-notifications", {"reference": "reference"}, status=204)
-    assert ScheduledNotification.objects.count() == 0
-
-
-@pytest.mark.django_db
-def test_delete_scheduled_notification_reference_does_not_exist(app, user: User) -> None:
-    login(app, user)
-
-    app.delete("/api/v1/users/scheduled-notifications", {"reference": ""}, status=400)
-
-    app.delete("/api/v1/users/scheduled-notifications", {"reference": "reference"}, status=404)
-
-
-@pytest.mark.django_db
-def test_delete_scheduled_notification_params(app, user: User) -> None:
-    login(app, user)
-
-    response = app.delete("/api/v1/users/scheduled-notifications", status=400)
-    assert response.json == {"reference": ["Ce champ est obligatoire."]}
-
-
-@pytest.mark.django_db
-def test_delete_scheduled_notification_alread_sent(app, user: User) -> None:
-    login(app, user)
-
-    ScheduledNotification.objects.create(
+    scheduled_notification = ScheduledNotification.objects.create(
         user_id=user.id,
         content_title="title",
         content_body="body",
         content_icon="icon",
-        reference="reference",
+        reference="reference2",
         scheduled_at=now(),
-        sent_at=now(),
+        sent_at=now(),  # already sent
     )
 
-    app.delete("/api/v1/users/scheduled-notifications", {"reference": "reference"}, status=204)
+    app.delete("/api/v1/users/scheduled-notifications", status=204)
     assert ScheduledNotification.objects.count() == 1
 
+    assert ScheduledNotification.objects.filter(id=scheduled_notification.id).exists() is True
+
 
 @pytest.mark.django_db
-def test_delete_scheduled_notification_without_auth(app) -> None:
+def test_delete_scheduled_notifications_without_auth(app) -> None:
     assert_query_fails_without_auth(app, "/api/v1/users/scheduled-notifications", method="delete")

@@ -27,7 +27,6 @@ from .serializers import (
     NotificationSerializer,
     PartnerNotificationCreateSerializer,
     ScheduledNotificationCreateSerializer,
-    ScheduledNotificationDeleteSerializer,
     ScheduledNotificationResponseSerializer,
 )
 
@@ -88,7 +87,6 @@ def get_notification_key(request: Request) -> HttpResponse:
 
 @extend_schema(
     methods=["DELETE"],
-    parameters=[ScheduledNotificationDeleteSerializer],
 )
 @extend_schema(
     methods=["POST"],
@@ -99,7 +97,7 @@ def get_notification_key(request: Request) -> HttpResponse:
 @ami_login_required
 def scheduled_notifications(request: Request) -> Response:
     if request.method == "DELETE":
-        return delete_scheduled_notification(request)
+        return delete_scheduled_notifications(request)
     return create_scheduled_notification(request)
 
 
@@ -138,20 +136,8 @@ def create_scheduled_notification(
     return Response(response_serializer.data, status=status_code)
 
 
-def delete_scheduled_notification(request: Request) -> Response:
-    serializer = ScheduledNotificationDeleteSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    data: dict = cast(dict, serializer.validated_data)
-
-    scheduled_notification = ScheduledNotification.objects.filter(
-        **data, user=request.ami_user
-    ).first()
-
-    if scheduled_notification is None:
-        return Response(status=404)
-
-    if scheduled_notification.sent_at is None:
-        scheduled_notification.delete()
+def delete_scheduled_notifications(request: Request) -> Response:
+    ScheduledNotification.objects.filter(user=request.ami_user, sent_at__isnull=True).delete()
 
     return Response(status=204)
 
