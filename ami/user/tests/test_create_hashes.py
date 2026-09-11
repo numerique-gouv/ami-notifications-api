@@ -4,7 +4,7 @@ from pathlib import Path
 from ami.user.utils import build_fc_hash
 
 
-async def test_hash_from_csv() -> None:
+async def test_hash_from_csv(settings) -> None:
     results = []
 
     BASE_DIR = Path(__file__).parent
@@ -20,7 +20,17 @@ async def test_hash_from_csv() -> None:
             gender = row["genre"]
             birthplace = row["codePostalLieuDeNaissance"]
             birthcountry = row["codePaysDeNaissance"]
-            response = build_fc_hash(
+            settings.FEATURE_FLAG_USE_FC_HASH_V2 = False
+            fc_hash = build_fc_hash(
+                given_name=given_name,
+                family_name=family_name,
+                birthdate=birthdate,
+                gender=gender,
+                birthplace=birthplace,
+                birthcountry=birthcountry,
+            )
+            settings.FEATURE_FLAG_USE_FC_HASH_V2 = True
+            fc_hash_v2 = build_fc_hash(
                 given_name=given_name,
                 family_name=family_name,
                 birthdate=birthdate,
@@ -39,7 +49,8 @@ async def test_hash_from_csv() -> None:
                     "genre": row["genre"],
                     "codePostalLieuDeNaissance": row["codePostalLieuDeNaissance"],
                     "codePaysDeNaissance": row["codePaysDeNaissance"],
-                    "hash": response,
+                    "hash": fc_hash,
+                    "hashV2": fc_hash_v2,
                 }
             )
 
@@ -56,6 +67,7 @@ async def test_hash_from_csv() -> None:
             "codePostalLieuDeNaissance",
             "codePaysDeNaissance",
             "hash",
+            "hashV2",
         ]
         writer = csv.DictWriter(csv_file, delimiter=",", fieldnames=fieldnames)
         writer.writeheader()
@@ -72,5 +84,6 @@ async def test_hash_from_csv() -> None:
                     "codePostalLieuDeNaissance": row["codePostalLieuDeNaissance"],
                     "codePaysDeNaissance": row["codePaysDeNaissance"],
                     "hash": row["hash"],
+                    "hashV2": row["hashV2"],
                 }
             )
