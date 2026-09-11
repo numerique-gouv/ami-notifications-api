@@ -102,6 +102,29 @@ describe('/+page.svelte', () => {
     });
   });
 
+  test('should display an error if email format is invalid', async () => {
+    // Given
+    await userStore.login(mockUserInfo);
+    render(Page);
+    const input = screen.getByTestId('email-input');
+
+    // When
+    await fireEvent.input(input, { target: { value: 'foobar' } });
+    const submit = screen.getByTestId('submit-button');
+    expect(submit).toBeEnabled();
+    await fireEvent.click(submit);
+
+    // Then
+    await waitFor(() => {
+      const updatedInput: HTMLInputElement = screen.getByTestId('email-input');
+      expect(updatedInput.value).equal('foobar');
+      expect(screen.getByTestId('email-error')).toBeInTheDocument();
+      expect(
+        userStore.connected?.identity?.dataDetails.email.lastUpdate
+      ).toBeUndefined();
+    });
+  });
+
   test('should not be allowed to submit an empty email', async () => {
     // Given
     await userStore.login(mockUserInfo);

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { isEmail } from 'validator';
   import { AMIBack, AMIGoto } from '$lib/ami-navigation';
   import Banner from '$lib/components/Banner.svelte';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
@@ -13,6 +14,7 @@
   let inputValue: string = $state('');
   let email_origin: DataOrigin | undefined = $state();
   let email_last_update: Date | undefined = $state();
+  let emailInputHasError: boolean = $state(false);
 
   onMount(() => {
     if (!userStore.connected) {
@@ -33,9 +35,14 @@
 
   const submit = () => {
     if (userStore.connected && inputValue) {
-      userStore.connected.setEmail(inputValue);
-      console.log('Updated the email to', inputValue);
-      toastStore.addToast('Information bien enregistrée !', 'success', 3000, false);
+      if (isEmail(inputValue)) {
+        userStore.connected.setEmail(inputValue);
+        console.log('Updated the email to', inputValue);
+        toastStore.addToast('Information bien enregistrée !', 'success', 3000, false);
+      } else {
+        emailInputHasError = true;
+        return;
+      }
     }
     AMIBack(backUrl);
   };
@@ -50,10 +57,12 @@
     <div class="content-container" data-testid="container">
       <p>Vous pouvez modifier uniquement les champs ci-dessous.</p>
 
-      <form autocomplete="on">
+      <form autocomplete="on" novalidate onsubmit={submit}>
         <fieldset class="fr-fieldset fr-mb-3w">
           <div class="fr-fieldset__element fr-mb-0">
-            <div class="fr-input-group autocomplete">
+            <div
+              class="fr-input-group autocomplete {emailInputHasError ? 'fr-input-group--error' : ''}"
+            >
               <label class="fr-label" for="input">E-mail</label>
               <span class="fr-hint-text">Par exemple&nbsp;: michel@dupont.com</span>
               <input
@@ -65,6 +74,18 @@
                 autocomplete="email"
                 onfocus={scrollToInput}
               >
+              {#if emailInputHasError}
+                <div class="fr-messages-group" aria-live="polite">
+                  <p
+                    id="email-error"
+                    class="fr-message fr-message--error"
+                    data-testid="email-error"
+                  >
+                    Le format de l’adresse electronique saisie n’est pas valide. Le
+                    format attendu est : nom@example.com
+                  </p>
+                </div>
+              {/if}
             </div>
           </div>
         </fieldset>
