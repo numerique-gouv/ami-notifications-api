@@ -325,6 +325,10 @@ export class Followup {
     return this._archived_items;
   }
 
+  isEmpty(): boolean {
+    return !this.items.length;
+  }
+
   hasNonArchivedItems(partner_id: string, item_type: string): boolean {
     return this.items.some(
       (item) => item.partner_id === partner_id && item.item_type === item_type

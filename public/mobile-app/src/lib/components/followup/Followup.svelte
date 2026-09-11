@@ -5,7 +5,7 @@
   import FollowupNoConsent from '$lib/components/followup/FollowupNoConsent.svelte';
   import FollowupItemModal from '$lib/components/modal/FollowupItemModal.svelte';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
-  import { hasAnyConsents as hasAnyConsentsFunc } from '$lib/consents';
+  import { buildConsents, Consents } from '$lib/consents';
   import type { Followup, FollowupItem as FollowupItemType } from '$lib/followup';
   import { buildFollowup } from '$lib/followup';
 
@@ -33,7 +33,8 @@
   onMount(async () => {
     followup = await buildFollowup();
     console.log($state.snapshot(followup));
-    hasAnyConsents = await hasAnyConsentsFunc();
+    const consents = await buildConsents();
+    hasAnyConsents = consents.hasAnyConsents();
     isExpanded = expandAccordion();
   });
 

@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 import * as AMINavigationMethods from '$lib/ami-navigation';
 import FollowupComponent from '$lib/components/followup/Followup.svelte';
 import * as consentsMethods from '$lib/consents';
+import { Consents } from '$lib/consents';
 import * as followupMethods from '$lib/followup';
 import { Followup, FollowupItem } from '$lib/followup';
 import { toastStore } from '$lib/state/toast.svelte.js';
@@ -10,7 +11,9 @@ import { toastStore } from '$lib/state/toast.svelte.js';
 describe('/Followup.svelte', () => {
   describe('Current items', () => {
     beforeEach(async () => {
-      vi.spyOn(consentsMethods, 'hasAnyConsents').mockResolvedValue(true);
+      const consents = new Consents();
+      vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
+      vi.spyOn(consents, 'hasAnyConsents').mockResolvedValue(true);
     });
 
     test('Should display followup from API', async () => {
@@ -166,10 +169,6 @@ describe('/Followup.svelte', () => {
     });
   });
   describe('Archived items', () => {
-    beforeEach(async () => {
-      vi.spyOn(consentsMethods, 'hasAnyConsents').mockResolvedValue(true);
-    });
-
     test('Should display followup from API', async () => {
       // Given
       const followup = new Followup();
@@ -333,10 +332,6 @@ describe('/Followup.svelte', () => {
     });
   });
   describe('More menu', () => {
-    beforeEach(async () => {
-      vi.spyOn(consentsMethods, 'hasAnyConsents').mockResolvedValue(true);
-    });
-
     test('No "more" button for archived followup items', async () => {
       // Given
       const followup = new Followup();
@@ -401,7 +396,9 @@ describe('/Followup.svelte', () => {
 
     test('No "more" button when user has not consented', async () => {
       // Given
-      vi.spyOn(consentsMethods, 'hasAnyConsents').mockResolvedValue(false);
+      const consents = new Consents();
+      vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
+      vi.spyOn(consents, 'hasAnyConsents').mockResolvedValue(false);
 
       const followup = new Followup();
       vi.spyOn(followup, 'items', 'get').mockReturnValue([]);
@@ -423,10 +420,6 @@ describe('/Followup.svelte', () => {
     });
   });
   describe('Followup item modal', () => {
-    beforeEach(async () => {
-      vi.spyOn(consentsMethods, 'hasAnyConsents').mockResolvedValue(true);
-    });
-
     test('No more icon for archived followup item', async () => {
       const followup = new Followup();
       vi.spyOn(followup, 'archived_items', 'get').mockReturnValue([
@@ -737,13 +730,11 @@ describe('/Followup.svelte', () => {
   });
 
   describe('No consent block', () => {
-    beforeEach(async () => {
-      vi.spyOn(consentsMethods, 'hasAnyConsents').mockResolvedValue(true);
-    });
-
     test('No more icon for archived followup item', async () => {
       // Given
-      vi.spyOn(consentsMethods, 'hasAnyConsents').mockResolvedValue(false);
+      const consents = new Consents();
+      vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
+      vi.spyOn(consents, 'hasAnyConsents').mockResolvedValue(false);
 
       const followup = new Followup();
       vi.spyOn(followup, 'items', 'get').mockReturnValue([]);

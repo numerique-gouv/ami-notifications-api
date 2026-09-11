@@ -590,6 +590,50 @@ describe('/followup.ts', () => {
         )
       ).toBe(true);
     });
+    describe('isEmpty', () => {
+      test('should return true as followup has no items', async () => {
+        // Given
+        const followup = new Followup();
+
+        // When
+        const result = followup.isEmpty();
+
+        // Then
+        expect(result).toEqual(true);
+      });
+      test('should return false as followup has items', async () => {
+        // Given
+        const followupItem = {
+          partner_id: 'psl',
+          item_type: 'OperationTranquilliteVacances',
+          item_external_id: '42',
+          reference: '42',
+          status_id: 'new',
+          status_label: 'Brouillon',
+          milestone_start_date: new Date('2026-01-23T15:50:00Z'),
+          milestone_end_date: null,
+          events: [],
+          title: 'Opération Tranquillité Vacances',
+          subheading: 'subheading',
+          description: 'Votre demande est en brouillon.',
+          icon: 'icon',
+          is_archived: false,
+          external_url: null,
+          created_at: new Date('2026-02-23T15:50:00Z'),
+          updated_at: new Date('2026-02-23T15:55:00Z'),
+          sub_items: [],
+        };
+        const followup = new Followup({
+          notifications: [followupItem],
+        });
+
+        // When
+        const result = followup.isEmpty();
+
+        // Then
+        expect(result).toEqual(false);
+      });
+    });
     describe('hasNonArchivedItems', () => {
       test('should return true as "new" item exists for the item_type', async () => {
         // Given
