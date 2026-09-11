@@ -4,8 +4,6 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import type { MockInstance } from 'vitest';
 import { Address } from '$lib/address';
 import * as addressesFromBANMethods from '$lib/addressesFromBAN';
-import * as agendaMethods from '$lib/agenda';
-import { Agenda } from '$lib/agenda';
 import * as AMINavigationMethods from '$lib/ami-navigation';
 import { toastStore } from '$lib/state/toast.svelte';
 import { User, userStore } from '$lib/state/User.svelte';
@@ -57,7 +55,6 @@ describe('/+page.svelte', () => {
         callBAN: vi.fn(() => response),
       };
     });
-    vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(new Agenda());
     vi.useFakeTimers();
   });
 
@@ -186,8 +183,7 @@ describe('/+page.svelte', () => {
       throw new Error('User should be connected');
     }
     const setAddressSpy = vi.spyOn(connectedUser, 'setAddress');
-    const spy = vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(new Agenda());
-    const spy2 = vi.spyOn(toastStore, 'addToast');
+    const spy = vi.spyOn(toastStore, 'addToast');
 
     // When
     render(Page);
@@ -247,8 +243,7 @@ describe('/+page.svelte', () => {
         userStore.connected?.identity?.dataDetails.address.lastUpdate
       ).not.toBeUndefined();
       expect(spyDeleteScheduled).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy2).toHaveBeenCalledWith(
+      expect(spy).toHaveBeenCalledWith(
         'Information bien enregistrée !',
         'success',
         3000,
@@ -273,7 +268,6 @@ describe('/+page.svelte', () => {
         userStore.connected?.identity?.dataDetails.address.lastUpdate
       ).not.toBeUndefined();
       expect(spyDeleteScheduled).toHaveBeenCalledTimes(2);
-      expect(spy).toHaveBeenCalledTimes(2);
     });
   });
 

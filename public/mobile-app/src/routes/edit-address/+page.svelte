@@ -2,7 +2,6 @@
   import { onMount } from 'svelte';
   import { Address } from '$lib/address';
   import { type AddressFromBAN, callBAN } from '$lib/addressesFromBAN';
-  import { buildAgenda } from '$lib/agenda';
   import { AMIBack, AMIGoto } from '$lib/ami-navigation';
   import Banner from '$lib/components/Banner.svelte';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
@@ -114,9 +113,8 @@
     submittedAddress = selectedAddress;
     if (userStore.connected) {
       userStore.connected.setAddress(selectedAddress);
-      // rebuild agenda to create new scheduled notifications
+      // delete old scheduled notifications
       userStore.connected.deleteScheduledNotifications();
-      await buildAgenda();
       toastStore.addToast('Information bien enregistrée !', 'success', 3000, false);
     }
     console.log(submittedAddress);
@@ -127,9 +125,8 @@
     hasSelectedAddress = false;
     if (userStore.connected) {
       userStore.connected.setAddress(undefined);
-      // rebuild agenda to create new scheduled notifications
+      // delete old scheduled notifications
       userStore.connected.deleteScheduledNotifications();
-      await buildAgenda();
     }
     disabledButton = false;
     selectedAddress = undefined;
