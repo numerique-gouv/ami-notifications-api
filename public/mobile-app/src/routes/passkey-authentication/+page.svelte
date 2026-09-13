@@ -6,8 +6,8 @@
   import { apiFetch } from '$lib/auth';
   import BottomModal from '$lib/components/modal/BottomModal.svelte';
   import Toast from '$lib/components/Toast.svelte';
-  import { trackPasskey } from '$lib/matomo';
   import { userStore } from '$lib/state/User.svelte';
+  import * as telemetry from '$lib/telemetry';
 
   let hasPasskeyError: boolean = $state(false);
   let hasClickedOnPasskeyBtn: boolean = $state(false);
@@ -35,6 +35,7 @@
   const authenticate = async () => {
     hasClickedOnPasskeyBtn = true;
     let optionsResp: Response;
+    telemetry.info('Authenticating with passkey');
     try {
       optionsResp = await fetch('/api/v1/fi/passkey/generate-authentication-options');
       if (!optionsResp.ok) {
@@ -56,9 +57,10 @@
       console.log('Authentication Options', JSON.stringify(opts, null, 2));
       attResp = await startAuthentication({ optionsJSON: opts });
       console.log('Authentication Response', JSON.stringify(attResp, null, 2));
-      trackPasskey('startAuthentication', 'success');
     } catch (error) {
-      trackPasskey('startAuthentication', 'error');
+      telemetry.error('Error using passkey authentication', {
+        error: `${error}`,
+      });
       console.log('ERROR', `${error}`);
       return passkeyError();
     }
@@ -77,17 +79,30 @@
           const verificationJSON = await verificationResp.json();
           if (verificationJSON.retry === true) {
             // 400 errors without retry are FISession errors
+            telemetry.warn('Non-fatal error verifiying passkey authentication');
             return passkeyError();
           }
+          telemetry.error('Error using passkey authentication', {
+            error: 'breakingPasskeyError',
+          });
           return breakingPasskeyError();
         }
+        telemetry.error('Error using passkey authentication', {
+          error: 'passkeyError',
+        });
         return passkeyError();
       }
     } catch (error) {
       console.log('ERROR', `${error}`);
       if (error instanceof TypeError) {
+        telemetry.error('Error using passkey authentication', {
+          error: 'network error',
+        });
         return networkError();
       } else {
+        telemetry.error('Error using passkey authentication', {
+          error: `${error}`,
+        });
         return passkeyError();
       }
     }
@@ -97,11 +112,13 @@
 
     if (verificationJSON?.verified) {
       console.log('User authenticated!');
-      trackPasskey('userAuthentication', 'success');
       userStore.setHasWorkingPasskey();
+      telemetry.info('User used a passkey successfully');
       AMIGoto(verificationJSON?.redirect_uri);
     } else {
-      trackPasskey('userAuthentication', 'error');
+      telemetry.error('Error using passkey authentication', {
+        error: '!verified',
+      });
       console.log(
         `Oh no, something went wrong! Response: ${JSON.stringify(verificationJSON)}`
       );

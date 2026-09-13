@@ -18,6 +18,7 @@ import {
   type ScheduledNotification,
 } from '$lib/scheduled-notifications';
 import { Preferences, type ZoneInfo } from '$lib/state/preferences';
+import * as telemetry from '$lib/telemetry';
 import { formatShortDate } from '$lib/utils';
 
 export type DataOrigin = 'user' | 'france-connect' | 'api-particulier' | 'cleared';
@@ -73,6 +74,7 @@ export class UserStore {
       throw new Error('No userinfo provided');
     }
     this.connected = await this.buildConnectedAttribute(userinfo);
+    await telemetry.setGlobalScope();
     emit('user_logged_in', userinfo);
     return this.connected;
   }
