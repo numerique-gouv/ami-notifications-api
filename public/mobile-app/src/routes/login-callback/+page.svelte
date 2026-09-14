@@ -20,10 +20,8 @@
     const redirect_url = page.url.searchParams.get('login_redirect_url');
     if (redirect_url) {
       AMIGoto(redirect_url);
-    } else if (page.url.searchParams.get('user_first_login') === 'true') {
-      AMIGoto(`/${passKeyParam}#/welcome/zones`);
     } else {
-      AMIGoto(`/${passKeyParam}`);
+      AMIGoto(`/${passKeyParam}#/welcome/zones`);
     }
   };
 

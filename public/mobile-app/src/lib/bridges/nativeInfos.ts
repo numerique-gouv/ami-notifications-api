@@ -1,4 +1,4 @@
-const isNative = (): boolean => {
+export const isNative = (): boolean => {
   return !!window.NativeInfos;
 };
 
@@ -18,4 +18,9 @@ export const getDeviceId = () => {
 export const getVersion = () => {
   const infos = getNativeInfos();
   return infos?.version || '';
+};
+
+export const getPromotedUrlAliases = () => {
+  const infos = getNativeInfos();
+  return JSON.parse(infos?.promoted_url_aliases || '[]');
 };

@@ -3,6 +3,7 @@ import * as navigationMethods from '$app/navigation';
 import * as envModule from '$env/static/public';
 import * as AMINavigationMethods from '$lib/ami-navigation';
 import { AMIBack, AMIGoto } from '$lib/ami-navigation';
+import * as urlAliasesMethods from '$lib/urlAliases';
 
 describe('/ami-navigation', () => {
   beforeEach(async () => {
@@ -14,6 +15,7 @@ describe('/ami-navigation', () => {
       });
     });
     vi.mocked(envModule).PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED = 'true';
+    vi.spyOn(urlAliasesMethods, 'isPromotedUrl').mockReturnValue(false);
   });
 
   describe('AMIGoto', () => {
@@ -31,6 +33,22 @@ describe('/ami-navigation', () => {
         expect(spy).toHaveBeenCalledTimes(2);
         expect(spy).toHaveBeenNthCalledWith(1, '/');
         expect(spy).toHaveBeenNthCalledWith(2, '/', { replaceState: true });
+      });
+      test('should redirect to url - promoted internal url', async () => {
+        // Given
+        vi.spyOn(urlAliasesMethods, 'isPromotedUrl').mockReturnValue(true);
+        const url = '/';
+        vi.stubGlobal('location', {
+          href: 'fake-link',
+          hash: '',
+          origin: 'http://localhost',
+        });
+
+        // When
+        AMIGoto(url);
+
+        // Then
+        expect(window.location.href).toBe(url);
       });
       test('should redirect to url - external url without protocol', async () => {
         // Given
@@ -56,6 +74,22 @@ describe('/ami-navigation', () => {
         expect(spy).toHaveBeenCalledTimes(2);
         expect(spy).toHaveBeenNthCalledWith(1, '/#/page');
         expect(spy).toHaveBeenNthCalledWith(2, '/#/page', { replaceState: true });
+      });
+      test('should redirect to url - promoted internal url with hash', async () => {
+        // Given
+        vi.spyOn(urlAliasesMethods, 'isPromotedUrl').mockReturnValue(true);
+        const url = '/#/page';
+        vi.stubGlobal('location', {
+          href: 'fake-link',
+          hash: '',
+          origin: 'http://localhost',
+        });
+
+        // When
+        AMIGoto(url);
+
+        // Then
+        expect(window.location.href).toBe('/#/page');
       });
       test('should redirect to url - internal url without hash (api urls)', async () => {
         // Given
@@ -140,6 +174,23 @@ describe('/ami-navigation', () => {
         expect(spy).toHaveBeenNthCalledWith(1, '/');
         expect(spy).toHaveBeenNthCalledWith(2, '/', { replaceState: true });
       });
+      test('should redirect to url - promoted internal url', async () => {
+        // Given
+        vi.mocked(envModule).PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED = 'false';
+        vi.spyOn(urlAliasesMethods, 'isPromotedUrl').mockReturnValue(true);
+        const url = '/';
+        vi.stubGlobal('location', {
+          href: 'fake-link',
+          hash: '',
+          origin: 'http://localhost',
+        });
+
+        // When
+        AMIGoto(url, true);
+
+        // Then
+        expect(window.location.href).toBe('/');
+      });
       test('should redirect to url - external url without protocol', async () => {
         // Given
         vi.mocked(envModule).PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED = 'false';
@@ -166,6 +217,23 @@ describe('/ami-navigation', () => {
         expect(spy).toHaveBeenCalledTimes(2);
         expect(spy).toHaveBeenNthCalledWith(1, '/#/page');
         expect(spy).toHaveBeenNthCalledWith(2, '/#/page', { replaceState: true });
+      });
+      test('should redirect to url - promoted internal url with hash', async () => {
+        // Given
+        vi.mocked(envModule).PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED = 'false';
+        vi.spyOn(urlAliasesMethods, 'isPromotedUrl').mockReturnValue(true);
+        const url = '/#/page';
+        vi.stubGlobal('location', {
+          href: 'fake-link',
+          hash: '',
+          origin: 'http://localhost',
+        });
+
+        // When
+        AMIGoto(url, true);
+
+        // Then
+        expect(window.location.href).toBe('/#/page');
       });
       test('should redirect to url - internal url without hash (api urls)', async () => {
         // Given

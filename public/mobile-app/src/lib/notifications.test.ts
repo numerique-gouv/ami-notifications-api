@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { waitFor } from '@testing-library/svelte';
-import * as nativeInfosMethods from '$lib/nativeInfos';
+import * as nativeInfosMethods from '$lib/bridges/nativeInfos';
 import type { AppNotification } from '$lib/notifications';
 import * as notificationMethods from '$lib/notifications';
 import {

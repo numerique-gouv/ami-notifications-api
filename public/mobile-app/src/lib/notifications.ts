@@ -1,6 +1,6 @@
 import { PUBLIC_APP_URL } from '$env/static/public';
 import { apiFetch } from '$lib/auth';
-import { getDeviceId } from '$lib/nativeInfos';
+import { getDeviceId } from '$lib/bridges/nativeInfos';
 import type { Registration } from '$lib/registration';
 import {
   registerDevice,

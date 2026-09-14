@@ -1,9 +1,9 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { AMIBack, AMIGoto } from '$lib/ami-navigation';
+  import { runOrNativeEvent } from '$lib/bridges/nativeBridge';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import Toggle from '$lib/components/Toggle.svelte';
-  import { runOrNativeEvent } from '$lib/nativeEvents';
   import {
     disableNotificationsForDesktop,
     enableNotifications,
