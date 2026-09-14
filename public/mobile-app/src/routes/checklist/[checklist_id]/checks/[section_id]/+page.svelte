@@ -90,7 +90,7 @@
                               aria-describedby="checkboxes-small-{item.id}-indeterminate-messages"
                             >
                             <label
-                              class="fr-label fr-text--regular fr-m-0 fr-pt-2w fr-pb-5v fr-pr-3w fr-pl-7w "
+                              class="fr-label fr-text--regular fr-m-0 fr-pt-2w fr-pb-5v fr-pr-4w fr-pl-7w "
                               for="checkboxes-small-{item.id}-indeterminate"
                             >
                               <span
@@ -148,7 +148,22 @@
           top: 50%;
           transform: translateY(-50%);
         }
+
+        &:before {
+          z-index: 10;
+        }
       }
+    }
+
+    .fr-checkbox-group:after {
+      content: "";
+      display: block;
+      position: absolute;
+      width: calc(100% - 3.5rem);
+      height: 100%;
+      top: 0;
+      left: 3.5rem;
+      z-index: 5;
     }
 
     .fr-checkbox-group input[type="checkbox"] + label {
@@ -166,6 +181,7 @@
         position: absolute;
         height: 100%;
         width: 3.5rem;
+        top: 0;
         left: 0;
         z-index: 20;
       }
