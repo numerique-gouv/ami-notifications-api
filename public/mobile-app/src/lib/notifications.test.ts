@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { waitFor } from '@testing-library/svelte';
 import * as nativeInfosMethods from '$lib/nativeInfos';
@@ -41,10 +41,6 @@ describe('/notifications', () => {
         PUBLIC_MATOMO_ENABLED: 'true',
       });
     });
-  });
-
-  afterEach(() => {
-    vi.resetAllMocks();
   });
 
   describe('fetchAndStoreNotifications', () => {

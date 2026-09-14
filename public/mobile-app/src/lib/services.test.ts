@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import * as apiServicesMethods from '$lib/api-services';
 import * as nativeInfosMethods from '$lib/nativeInfos';
@@ -7,11 +7,6 @@ import { userStore } from '$lib/state/User.svelte';
 import { mockAddress, mockUserInfo } from '$tests/utils';
 
 describe('/services.ts', () => {
-  beforeEach(() => {
-    localStorage.clear();
-    vi.clearAllMocks();
-    userStore.connected = null;
-  });
   describe('ServicesItem', () => {
     describe('id', () => {
       test('should return an id from partner_id and item_type', async () => {
@@ -275,6 +270,7 @@ describe('/services.ts', () => {
       });
       test('should replace {back_param_otv_jwt_token} - user is not connected', async () => {
         // Given
+        userStore.connected = null;
         const spy = vi
           .spyOn(apiServicesMethods, 'getServicesItemParameters')
           .mockResolvedValue({});

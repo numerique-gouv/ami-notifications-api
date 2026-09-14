@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, test, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { archiveFollowupItem, retrieveFollowup } from '$lib/api-followup';
 
@@ -89,11 +89,6 @@ type NullableAPIFollowupItems = {
 };
 
 describe('/api-followup', () => {
-  afterEach(() => {
-    window.localStorage.clear();
-    vi.clearAllMocks();
-  });
-
   describe('retrieveFollowup', () => {
     test('should get followup items from API', async () => {
       // Given
@@ -185,8 +180,6 @@ describe('/api-followup', () => {
     test('should get followup items from API - followup items entry is missing in localstorage', async () => {
       for (const key of Object.keys(followupItemsData) as APIFollowupItemsKey[]) {
         // Given
-        window.localStorage.clear();
-        vi.clearAllMocks();
         for (const key2 of Object.keys(followupItemsData) as APIFollowupItemsKey[]) {
           if (key2 === key) {
             continue;
@@ -225,8 +218,6 @@ describe('/api-followup', () => {
     test('should get followup items from API - followup items entry is wrong in localstorage', async () => {
       for (const key of Object.keys(followupItemsData) as APIFollowupItemsKey[]) {
         // Given
-        window.localStorage.clear();
-        vi.clearAllMocks();
         for (const key2 of Object.keys(followupItemsData) as APIFollowupItemsKey[]) {
           if (key2 === key) {
             window.localStorage.setItem(`${key2}_followup_source`, 'wrong');
@@ -266,8 +257,6 @@ describe('/api-followup', () => {
     test('should get followup items from API - followup items entry is in failed status in localstorage', async () => {
       for (const key of Object.keys(followupItemsData) as APIFollowupItemsKey[]) {
         // Given
-        window.localStorage.clear();
-        vi.clearAllMocks();
         for (const key2 of Object.keys(followupItemsData) as APIFollowupItemsKey[]) {
           if (key2 === key) {
             window.localStorage.setItem(
@@ -310,8 +299,6 @@ describe('/api-followup', () => {
     test('should get followup items from API - followup items entry has no expiration in localstorage', async () => {
       for (const key of Object.keys(followupItemsData) as APIFollowupItemsKey[]) {
         // Given
-        window.localStorage.clear();
-        vi.clearAllMocks();
         for (const key2 of Object.keys(followupItemsData) as APIFollowupItemsKey[]) {
           if (key2 === key) {
             const { expires_at, ...entry } = { ...followupItemsData[key2] }; // old entry, no expiration date
@@ -355,8 +342,6 @@ describe('/api-followup', () => {
     test('should get followup items from API - followup items entry has no expiration in localstorage - with error', async () => {
       for (const key of Object.keys(followupItemsData) as APIFollowupItemsKey[]) {
         // Given
-        window.localStorage.clear();
-        vi.clearAllMocks();
         const followupItemsData2: NullableAPIFollowupItems = {
           notifications: null,
         };
@@ -407,8 +392,6 @@ describe('/api-followup', () => {
     test('should get followup items from API - followup items entry is expired in localstorage', async () => {
       for (const key of Object.keys(followupItemsData) as APIFollowupItemsKey[]) {
         // Given
-        window.localStorage.clear();
-        vi.clearAllMocks();
         for (const key2 of Object.keys(followupItemsData) as APIFollowupItemsKey[]) {
           if (key2 === key) {
             const entry = { ...followupItemsData[key2] };
@@ -453,7 +436,6 @@ describe('/api-followup', () => {
     test('should get followup items from API - followup items entry is not expired in localstorage', async () => {
       for (const key of Object.keys(followupItemsData) as APIFollowupItemsKey[]) {
         // Given
-        window.localStorage.clear();
         for (const key2 of Object.keys(followupItemsData) as APIFollowupItemsKey[]) {
           if (key2 === key) {
             const entry = { ...followupItemsData[key2] };

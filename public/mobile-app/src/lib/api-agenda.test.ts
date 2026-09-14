@@ -208,321 +208,296 @@ describe('/api-agenda', () => {
       );
     });
 
-    test('should get agenda items from API - agenda items entry is missing in localstorage', async () => {
-      for (const key of Object.keys(apiAgendaData) as AgendaSourceKey[]) {
-        // Given
-        window.localStorage.clear();
-        vi.clearAllMocks();
-        for (const key2 of Object.keys(apiAgendaData) as AgendaSourceKey[]) {
-          if (key2 === key) {
-            continue;
-          }
-          window.localStorage.setItem(
-            `${key2}_agenda_source`,
-            JSON.stringify(apiAgendaData[key2])
-          );
+    test.each(
+      Object.keys(apiAgendaData) as AgendaSourceKey[]
+    )('should get agenda items from API - agenda items entry is missing in localstorage ($0)', async (key: AgendaSourceKey) => {
+      // Given
+      for (const key2 of Object.keys(apiAgendaData) as AgendaSourceKey[]) {
+        if (key2 === key) {
+          continue;
         }
-        const responseData: NullableAgendaSource = {
-          school_holidays: null,
-          public_holidays: null,
-          elections: null,
-        };
-        responseData[key] = apiAgendaData[key];
-        const spy = vi
-          .spyOn(globalThis, 'fetch')
-          .mockResolvedValue(
-            new Response(JSON.stringify(responseData), { status: 200 })
-          );
-
-        // When
-        const result = await retrieveAgenda(new Date('2025-11-01T12:00:00Z'));
-
-        // Then
-        expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `/api/v1/users/data/agenda?current_date=2025-11-01&filter-items=${key}`
-        );
-        expect(result).toEqual({
-          school_holidays: apiAgendaData.school_holidays.items,
-          public_holidays: apiAgendaData.public_holidays.items,
-          elections: apiAgendaData.elections.items,
-        });
-        expect(window.localStorage.getItem(`${key}_agenda_source`)).toEqual(
-          JSON.stringify(apiAgendaData[key])
+        window.localStorage.setItem(
+          `${key2}_agenda_source`,
+          JSON.stringify(apiAgendaData[key2])
         );
       }
+      const responseData: NullableAgendaSource = {
+        school_holidays: null,
+        public_holidays: null,
+        elections: null,
+      };
+      responseData[key] = apiAgendaData[key];
+      const spy = vi
+        .spyOn(globalThis, 'fetch')
+        .mockResolvedValue(new Response(JSON.stringify(responseData), { status: 200 }));
+
+      // When
+      const result = await retrieveAgenda(new Date('2025-11-01T12:00:00Z'));
+
+      // Then
+      expect(spy).toHaveBeenCalledExactlyOnceWith(
+        `/api/v1/users/data/agenda?current_date=2025-11-01&filter-items=${key}`
+      );
+      expect(result).toEqual({
+        school_holidays: apiAgendaData.school_holidays.items,
+        public_holidays: apiAgendaData.public_holidays.items,
+        elections: apiAgendaData.elections.items,
+      });
+      expect(window.localStorage.getItem(`${key}_agenda_source`)).toEqual(
+        JSON.stringify(apiAgendaData[key])
+      );
     });
 
-    test('should get agenda items from API - agenda items entry is wrong in localstorage', async () => {
-      for (const key of Object.keys(apiAgendaData) as AgendaSourceKey[]) {
-        // Given
-        window.localStorage.clear();
-        vi.clearAllMocks();
-        for (const key2 of Object.keys(apiAgendaData) as AgendaSourceKey[]) {
-          if (key2 === key) {
-            window.localStorage.setItem(`${key2}_agenda_source`, 'wrong');
-            continue;
-          }
-          window.localStorage.setItem(
-            `${key2}_agenda_source`,
-            JSON.stringify(apiAgendaData[key2])
-          );
+    test.each(
+      Object.keys(apiAgendaData) as AgendaSourceKey[]
+    )('should get agenda items from API - agenda items entry is wrong in localstorage ($0)', async (key: AgendaSourceKey) => {
+      // Given
+      for (const key2 of Object.keys(apiAgendaData) as AgendaSourceKey[]) {
+        if (key2 === key) {
+          window.localStorage.setItem(`${key2}_agenda_source`, 'wrong');
+          continue;
         }
-        const responseData: NullableAgendaSource = {
-          school_holidays: null,
-          public_holidays: null,
-          elections: null,
-        };
-        responseData[key] = apiAgendaData[key];
-        const spy = vi
-          .spyOn(globalThis, 'fetch')
-          .mockResolvedValue(
-            new Response(JSON.stringify(responseData), { status: 200 })
-          );
-
-        // When
-        const result = await retrieveAgenda(new Date('2025-11-01T12:00:00Z'));
-
-        // Then
-        expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `/api/v1/users/data/agenda?current_date=2025-11-01&filter-items=${key}`
-        );
-        expect(result).toEqual({
-          school_holidays: apiAgendaData.school_holidays.items,
-          public_holidays: apiAgendaData.public_holidays.items,
-          elections: apiAgendaData.elections.items,
-        });
-        expect(window.localStorage.getItem(`${key}_agenda_source`)).toEqual(
-          JSON.stringify(apiAgendaData[key])
+        window.localStorage.setItem(
+          `${key2}_agenda_source`,
+          JSON.stringify(apiAgendaData[key2])
         );
       }
+      const responseData: NullableAgendaSource = {
+        school_holidays: null,
+        public_holidays: null,
+        elections: null,
+      };
+      responseData[key] = apiAgendaData[key];
+      const spy = vi
+        .spyOn(globalThis, 'fetch')
+        .mockResolvedValue(new Response(JSON.stringify(responseData), { status: 200 }));
+
+      // When
+      const result = await retrieveAgenda(new Date('2025-11-01T12:00:00Z'));
+
+      // Then
+      expect(spy).toHaveBeenCalledExactlyOnceWith(
+        `/api/v1/users/data/agenda?current_date=2025-11-01&filter-items=${key}`
+      );
+      expect(result).toEqual({
+        school_holidays: apiAgendaData.school_holidays.items,
+        public_holidays: apiAgendaData.public_holidays.items,
+        elections: apiAgendaData.elections.items,
+      });
+      expect(window.localStorage.getItem(`${key}_agenda_source`)).toEqual(
+        JSON.stringify(apiAgendaData[key])
+      );
     });
 
-    test('should get agenda items from API - agenda items entry is in failed status in localstorage', async () => {
-      for (const key of Object.keys(apiAgendaData) as AgendaSourceKey[]) {
-        // Given
-        window.localStorage.clear();
-        vi.clearAllMocks();
-        for (const key2 of Object.keys(apiAgendaData) as AgendaSourceKey[]) {
-          if (key2 === key) {
-            window.localStorage.setItem(
-              `${key2}_agenda_source`,
-              JSON.stringify({ status: 'failed' })
-            );
-            continue;
-          }
+    test.each(
+      Object.keys(apiAgendaData) as AgendaSourceKey[]
+    )('should get agenda items from API - agenda items entry is in failed status in localstorage ($0)', async (key: AgendaSourceKey) => {
+      // Given
+      for (const key2 of Object.keys(apiAgendaData) as AgendaSourceKey[]) {
+        if (key2 === key) {
           window.localStorage.setItem(
             `${key2}_agenda_source`,
-            JSON.stringify(apiAgendaData[key2])
+            JSON.stringify({ status: 'failed' })
           );
+          continue;
         }
-        const responseData: NullableAgendaSource = {
-          school_holidays: null,
-          public_holidays: null,
-          elections: null,
-        };
-        responseData[key] = apiAgendaData[key];
-        const spy = vi
-          .spyOn(globalThis, 'fetch')
-          .mockResolvedValue(
-            new Response(JSON.stringify(responseData), { status: 200 })
-          );
-
-        // When
-        const result = await retrieveAgenda(new Date('2025-11-01T12:00:00Z'));
-
-        // Then
-        expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `/api/v1/users/data/agenda?current_date=2025-11-01&filter-items=${key}`
-        );
-        expect(result).toEqual({
-          school_holidays: apiAgendaData.school_holidays.items,
-          public_holidays: apiAgendaData.public_holidays.items,
-          elections: apiAgendaData.elections.items,
-        });
-        expect(window.localStorage.getItem(`${key}_agenda_source`)).toEqual(
-          JSON.stringify(apiAgendaData[key])
+        window.localStorage.setItem(
+          `${key2}_agenda_source`,
+          JSON.stringify(apiAgendaData[key2])
         );
       }
+      const responseData: NullableAgendaSource = {
+        school_holidays: null,
+        public_holidays: null,
+        elections: null,
+      };
+      responseData[key] = apiAgendaData[key];
+      const spy = vi
+        .spyOn(globalThis, 'fetch')
+        .mockResolvedValue(new Response(JSON.stringify(responseData), { status: 200 }));
+
+      // When
+      const result = await retrieveAgenda(new Date('2025-11-01T12:00:00Z'));
+
+      // Then
+      expect(spy).toHaveBeenCalledExactlyOnceWith(
+        `/api/v1/users/data/agenda?current_date=2025-11-01&filter-items=${key}`
+      );
+      expect(result).toEqual({
+        school_holidays: apiAgendaData.school_holidays.items,
+        public_holidays: apiAgendaData.public_holidays.items,
+        elections: apiAgendaData.elections.items,
+      });
+      expect(window.localStorage.getItem(`${key}_agenda_source`)).toEqual(
+        JSON.stringify(apiAgendaData[key])
+      );
     });
 
-    test('should get agenda items from API - agenda items entry has no expiration in localstorage', async () => {
-      for (const key of Object.keys(apiAgendaData) as AgendaSourceKey[]) {
-        // Given
-        window.localStorage.clear();
-        vi.clearAllMocks();
-        for (const key2 of Object.keys(apiAgendaData) as AgendaSourceKey[]) {
-          if (key2 === key) {
-            const { expires_at, ...entry } = { ...apiAgendaData[key2] }; // old entry, no expiration date
-            window.localStorage.setItem(`${key2}_agenda_source`, JSON.stringify(entry));
-            continue;
-          }
-          window.localStorage.setItem(
-            `${key2}_agenda_source`,
-            JSON.stringify(apiAgendaData[key2])
-          );
+    test.each(
+      Object.keys(apiAgendaData) as AgendaSourceKey[]
+    )('should get agenda items from API - agenda items entry has no expiration in localstorage ($0)', async (key: AgendaSourceKey) => {
+      // Given
+      for (const key2 of Object.keys(apiAgendaData) as AgendaSourceKey[]) {
+        if (key2 === key) {
+          const { expires_at, ...entry } = { ...apiAgendaData[key2] }; // old entry, no expiration date
+          window.localStorage.setItem(`${key2}_agenda_source`, JSON.stringify(entry));
+          continue;
         }
-        const responseData: NullableAgendaSource = {
-          school_holidays: null,
-          public_holidays: null,
-          elections: null,
-        };
-        responseData[key] = apiAgendaData[key];
-        const spy = vi
-          .spyOn(globalThis, 'fetch')
-          .mockResolvedValue(
-            new Response(JSON.stringify(responseData), { status: 200 })
-          );
-
-        // When
-        const result = await retrieveAgenda(new Date('2025-11-01T12:00:00Z'));
-
-        // Then
-        expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `/api/v1/users/data/agenda?current_date=2025-11-01&filter-items=${key}`
-        );
-        expect(result).toEqual({
-          school_holidays: apiAgendaData.school_holidays.items,
-          public_holidays: apiAgendaData.public_holidays.items,
-          elections: apiAgendaData.elections.items,
-        });
-        expect(window.localStorage.getItem(`${key}_agenda_source`)).toEqual(
-          JSON.stringify(apiAgendaData[key])
+        window.localStorage.setItem(
+          `${key2}_agenda_source`,
+          JSON.stringify(apiAgendaData[key2])
         );
       }
+      const responseData: NullableAgendaSource = {
+        school_holidays: null,
+        public_holidays: null,
+        elections: null,
+      };
+      responseData[key] = apiAgendaData[key];
+      const spy = vi
+        .spyOn(globalThis, 'fetch')
+        .mockResolvedValue(new Response(JSON.stringify(responseData), { status: 200 }));
+
+      // When
+      const result = await retrieveAgenda(new Date('2025-11-01T12:00:00Z'));
+
+      // Then
+      expect(spy).toHaveBeenCalledExactlyOnceWith(
+        `/api/v1/users/data/agenda?current_date=2025-11-01&filter-items=${key}`
+      );
+      expect(result).toEqual({
+        school_holidays: apiAgendaData.school_holidays.items,
+        public_holidays: apiAgendaData.public_holidays.items,
+        elections: apiAgendaData.elections.items,
+      });
+      expect(window.localStorage.getItem(`${key}_agenda_source`)).toEqual(
+        JSON.stringify(apiAgendaData[key])
+      );
     });
 
-    test('should get agenda items from API - agenda items entry has no expiration in localstorage - with error', async () => {
-      for (const key of Object.keys(apiAgendaData) as AgendaSourceKey[]) {
-        // Given
-        window.localStorage.clear();
-        vi.clearAllMocks();
-        const apiAgendaData2: NullableAgendaSource = {
-          school_holidays: null,
-          public_holidays: null,
-          elections: null,
-        };
-        for (const key2 of Object.keys(apiAgendaData) as AgendaSourceKey[]) {
-          if (key2 === key) {
-            const { expires_at, ...entry } = { ...apiAgendaData[key2] }; // old entry, no expiration date
-            apiAgendaData2[key2] = entry as (typeof apiAgendaData)[typeof key2];
-            window.localStorage.setItem(
-              `${key2}_agenda_source`,
-              JSON.stringify(apiAgendaData2[key2])
-            );
-            continue;
-          }
-          apiAgendaData2[key2] = apiAgendaData[key2];
+    test.each(
+      Object.keys(apiAgendaData) as AgendaSourceKey[]
+    )('should get agenda items from API - agenda items entry has no expiration in localstorage - with error ($0)', async (key: AgendaSourceKey) => {
+      // Given
+      const apiAgendaData2: NullableAgendaSource = {
+        school_holidays: null,
+        public_holidays: null,
+        elections: null,
+      };
+      for (const key2 of Object.keys(apiAgendaData) as AgendaSourceKey[]) {
+        if (key2 === key) {
+          const { expires_at, ...entry } = { ...apiAgendaData[key2] }; // old entry, no expiration date
+          apiAgendaData2[key2] = entry as (typeof apiAgendaData)[typeof key2];
           window.localStorage.setItem(
             `${key2}_agenda_source`,
             JSON.stringify(apiAgendaData2[key2])
           );
+          continue;
         }
-        const responseData: NullableAgendaSource = {
-          school_holidays: null,
-          public_holidays: null,
-          elections: null,
-        };
-        const { ...entry } = apiAgendaData[key];
-        entry.status = 'failed';
-        responseData[key] = entry;
-        const spy = vi
-          .spyOn(globalThis, 'fetch')
-          .mockResolvedValue(
-            new Response(JSON.stringify(responseData), { status: 200 })
-          );
-
-        // When
-        const result = await retrieveAgenda(new Date('2025-11-01T12:00:00Z'));
-
-        // Then
-        expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `/api/v1/users/data/agenda?current_date=2025-11-01&filter-items=${key}`
-        );
-        expect(result).toEqual({
-          school_holidays: apiAgendaData2.school_holidays?.items,
-          public_holidays: apiAgendaData2.public_holidays?.items,
-          elections: apiAgendaData2.elections?.items,
-        });
-        expect(window.localStorage.getItem(`${key}_agenda_source`)).toEqual(
-          JSON.stringify(apiAgendaData2[key])
+        apiAgendaData2[key2] = apiAgendaData[key2];
+        window.localStorage.setItem(
+          `${key2}_agenda_source`,
+          JSON.stringify(apiAgendaData2[key2])
         );
       }
+      const responseData: NullableAgendaSource = {
+        school_holidays: null,
+        public_holidays: null,
+        elections: null,
+      };
+      const { ...entry } = apiAgendaData[key];
+      entry.status = 'failed';
+      responseData[key] = entry;
+      const spy = vi
+        .spyOn(globalThis, 'fetch')
+        .mockResolvedValue(new Response(JSON.stringify(responseData), { status: 200 }));
+
+      // When
+      const result = await retrieveAgenda(new Date('2025-11-01T12:00:00Z'));
+
+      // Then
+      expect(spy).toHaveBeenCalledExactlyOnceWith(
+        `/api/v1/users/data/agenda?current_date=2025-11-01&filter-items=${key}`
+      );
+      expect(result).toEqual({
+        school_holidays: apiAgendaData2.school_holidays?.items,
+        public_holidays: apiAgendaData2.public_holidays?.items,
+        elections: apiAgendaData2.elections?.items,
+      });
+      expect(window.localStorage.getItem(`${key}_agenda_source`)).toEqual(
+        JSON.stringify(apiAgendaData2[key])
+      );
     });
 
-    test('should get agenda items from API - agenda items entry is expired in localstorage', async () => {
-      for (const key of Object.keys(apiAgendaData) as AgendaSourceKey[]) {
-        // Given
-        window.localStorage.clear();
-        vi.clearAllMocks();
-        for (const key2 of Object.keys(apiAgendaData) as AgendaSourceKey[]) {
-          if (key2 === key) {
-            const entry = { ...apiAgendaData[key2] };
-            entry.expires_at = new Date('2025-11-01T11:59:59Z'); // expired
-            window.localStorage.setItem(`${key2}_agenda_source`, JSON.stringify(entry));
-            continue;
-          }
-          window.localStorage.setItem(
-            `${key2}_agenda_source`,
-            JSON.stringify(apiAgendaData[key2])
-          );
+    test.each(
+      Object.keys(apiAgendaData) as AgendaSourceKey[]
+    )('should get agenda items from API - agenda items entry is expired in localstorage ($0)', async (key: AgendaSourceKey) => {
+      // Given
+      for (const key2 of Object.keys(apiAgendaData) as AgendaSourceKey[]) {
+        if (key2 === key) {
+          const entry = { ...apiAgendaData[key2] };
+          entry.expires_at = new Date('2025-11-01T11:59:59Z'); // expired
+          window.localStorage.setItem(`${key2}_agenda_source`, JSON.stringify(entry));
+          continue;
         }
-        const responseData: NullableAgendaSource = {
-          school_holidays: null,
-          public_holidays: null,
-          elections: null,
-        };
-        responseData[key] = apiAgendaData[key];
-        const spy = vi
-          .spyOn(globalThis, 'fetch')
-          .mockResolvedValue(
-            new Response(JSON.stringify(responseData), { status: 200 })
-          );
-
-        // When
-        const result = await retrieveAgenda(new Date('2025-11-01T12:00:00Z'));
-
-        // Then
-        expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `/api/v1/users/data/agenda?current_date=2025-11-01&filter-items=${key}`
-        );
-        expect(result).toEqual({
-          school_holidays: apiAgendaData.school_holidays.items,
-          public_holidays: apiAgendaData.public_holidays.items,
-          elections: apiAgendaData.elections.items,
-        });
-        expect(window.localStorage.getItem(`${key}_agenda_source`)).toEqual(
-          JSON.stringify(apiAgendaData[key])
+        window.localStorage.setItem(
+          `${key2}_agenda_source`,
+          JSON.stringify(apiAgendaData[key2])
         );
       }
+      const responseData: NullableAgendaSource = {
+        school_holidays: null,
+        public_holidays: null,
+        elections: null,
+      };
+      responseData[key] = apiAgendaData[key];
+      const spy = vi
+        .spyOn(globalThis, 'fetch')
+        .mockResolvedValue(new Response(JSON.stringify(responseData), { status: 200 }));
+
+      // When
+      const result = await retrieveAgenda(new Date('2025-11-01T12:00:00Z'));
+
+      // Then
+      expect(spy).toHaveBeenCalledExactlyOnceWith(
+        `/api/v1/users/data/agenda?current_date=2025-11-01&filter-items=${key}`
+      );
+      expect(result).toEqual({
+        school_holidays: apiAgendaData.school_holidays.items,
+        public_holidays: apiAgendaData.public_holidays.items,
+        elections: apiAgendaData.elections.items,
+      });
+      expect(window.localStorage.getItem(`${key}_agenda_source`)).toEqual(
+        JSON.stringify(apiAgendaData[key])
+      );
     });
 
-    test('should get agenda items from API - agenda items entry is not expired in localstorage', async () => {
-      for (const key of Object.keys(apiAgendaData) as AgendaSourceKey[]) {
-        // Given
-        window.localStorage.clear();
-        for (const key2 of Object.keys(apiAgendaData) as AgendaSourceKey[]) {
-          if (key2 === key) {
-            const entry = { ...apiAgendaData[key2] };
-            entry.expires_at = new Date('2025-11-01T12:00:00Z'); // not yet expired
-            window.localStorage.setItem(`${key2}_agenda_source`, JSON.stringify(entry));
-            continue;
-          }
-          window.localStorage.setItem(
-            `${key2}_agenda_source`,
-            JSON.stringify(apiAgendaData[key2])
-          );
+    test.each(
+      Object.keys(apiAgendaData) as AgendaSourceKey[]
+    )('should get agenda items from API - agenda items entry is not expired in localstorage ($0)', async (key: AgendaSourceKey) => {
+      // Given
+      for (const key2 of Object.keys(apiAgendaData) as AgendaSourceKey[]) {
+        if (key2 === key) {
+          const entry = { ...apiAgendaData[key2] };
+          entry.expires_at = new Date('2025-11-01T12:00:00Z'); // not yet expired
+          window.localStorage.setItem(`${key2}_agenda_source`, JSON.stringify(entry));
+          continue;
         }
-
-        // When
-        const result = await retrieveAgenda(new Date('2025-11-01T12:00:00Z'));
-
-        // Then
-        expect(result).toEqual({
-          school_holidays: apiAgendaData.school_holidays.items,
-          public_holidays: apiAgendaData.public_holidays.items,
-          elections: apiAgendaData.elections.items,
-        });
+        window.localStorage.setItem(
+          `${key2}_agenda_source`,
+          JSON.stringify(apiAgendaData[key2])
+        );
       }
+
+      // When
+      const result = await retrieveAgenda(new Date('2025-11-01T12:00:00Z'));
+
+      // Then
+      expect(result).toEqual({
+        school_holidays: apiAgendaData.school_holidays.items,
+        public_holidays: apiAgendaData.public_holidays.items,
+        elections: apiAgendaData.elections.items,
+      });
     });
   });
 });

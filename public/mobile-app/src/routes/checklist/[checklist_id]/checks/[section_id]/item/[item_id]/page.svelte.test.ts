@@ -1,5 +1,5 @@
 import { render, waitFor } from '@testing-library/svelte';
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import * as CheckListMethods from '$lib/checklist';
 import { CheckList } from '$lib/checklist';
 import { userStore } from '$lib/state/User.svelte';
@@ -7,10 +7,6 @@ import { mockUserInfo } from '$tests/utils';
 import Page from './+page.svelte';
 
 describe('/+page.svelte', () => {
-  beforeEach(() => {
-    vi.resetAllMocks();
-  });
-
   test('load checklist item', async () => {
     // Given
     await userStore.login(mockUserInfo);

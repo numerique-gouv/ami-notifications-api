@@ -1,6 +1,5 @@
-import { afterEach, describe, expect, test, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
-import * as authMethods from '$lib/auth';
 import {
   registerDevice,
   unregisterRegistrationsForDesktop,
@@ -9,10 +8,6 @@ import {
 import { mockPushSubscription } from '$tests/utils';
 
 describe('/registration.ts', () => {
-  afterEach(() => {
-    vi.resetAllMocks();
-  });
-
   describe('registerDevice', () => {
     test('should call registrations endpoint from API', async () => {
       // Given
@@ -41,11 +36,8 @@ describe('/registration.ts', () => {
   describe('unregisterRegistrationsForNative', () => {
     test('should call delete registrations endpoint from API', async () => {
       // Given
-      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-        new Response(null, { status: 204 })
-      );
       const spy = vi
-        .spyOn(authMethods, 'apiFetch')
+        .spyOn(globalThis, 'fetch')
         .mockResolvedValue(new Response(null, { status: 204 }));
 
       // When
@@ -81,11 +73,8 @@ describe('/registration.ts', () => {
   describe('unregisterRegistrationsForDesktop', () => {
     test('should call delete registrations endpoint from API', async () => {
       // Given
-      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-        new Response(null, { status: 204 })
-      );
       const spy = vi
-        .spyOn(authMethods, 'apiFetch')
+        .spyOn(globalThis, 'fetch')
         .mockResolvedValue(new Response(null, { status: 204 }));
 
       // When

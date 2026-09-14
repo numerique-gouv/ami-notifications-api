@@ -1,20 +1,17 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
-import { afterEach, describe, expect, test, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import * as AMINavigationMethods from '$lib/ami-navigation';
 import { userStore } from '$lib/state/User.svelte';
 import {
   expectBackButtonPresent,
   mockUserIdentity,
+  mockUserIdentityWithPreferredUsername,
   mockUserInfo,
-  mockUserWithPreferredUsername,
+  mockUserInfoWithPreferredUsername,
 } from '$tests/utils';
 import Page from './+page.svelte';
 
 describe('/+page.svelte', () => {
-  afterEach(() => {
-    vi.resetAllMocks();
-  });
-
   test('user has to be connected', async () => {
     // Given
     const spy = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
@@ -58,16 +55,18 @@ describe('/+page.svelte', () => {
 
   test('profile page displays the proper user info - with preferred username and email', async () => {
     // Given
-    const spy = vi
-      .spyOn(userStore, 'connected', 'get')
-      .mockReturnValue(mockUserWithPreferredUsername);
+    localStorage.setItem(
+      'user_identity',
+      JSON.stringify(mockUserIdentityWithPreferredUsername)
+    );
+    await userStore.login(mockUserInfoWithPreferredUsername);
+    expect(userStore.connected).not.toBeNull();
 
     // When
     render(Page);
 
     // Then
     await waitFor(() => {
-      expect(spy).toHaveBeenCalled();
       const profile = screen.getByTestId('profile');
       const profileIdentity = profile.querySelector('#profile-identity');
       expect(profileIdentity).toHaveTextContent('Pierre DUBOIS,');

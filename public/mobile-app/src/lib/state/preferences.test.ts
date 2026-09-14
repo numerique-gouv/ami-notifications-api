@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, test, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { Address } from '$lib/address';
 import type { APIAgendaItem } from '$lib/api-agenda';
@@ -7,10 +7,6 @@ import { Preferences } from '$lib/state/preferences';
 import { parseISODate } from '$lib/utils';
 
 describe('/preferences.ts', () => {
-  afterEach(() => {
-    vi.resetAllMocks();
-  });
-
   describe('Preferences', () => {
     describe('fromJSON', () => {
       test('should init with values - empty values', async () => {

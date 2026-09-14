@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import type { RegistrationResponseJSON } from '@simplewebauthn/browser';
 import * as simplewebauthnMethods from '@simplewebauthn/browser';
@@ -18,10 +18,7 @@ vi.mock('@simplewebauthn/browser', () => ({
 }));
 
 describe('/+page.svelte', () => {
-  let originalWindow: typeof globalThis.window;
-
   beforeEach(() => {
-    originalWindow = globalThis.window;
     vi.mock('$env/static/public', async (importOriginal) => {
       const original = (await importOriginal()) as Record<string, unknown>;
       return Promise.resolve({
@@ -31,11 +28,6 @@ describe('/+page.svelte', () => {
     });
     vi.mocked(envModule).PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED = 'false';
     userStore.connected = null;
-  });
-
-  afterEach(() => {
-    globalThis.window = originalWindow;
-    vi.resetAllMocks();
   });
 
   test('should initialize data in localStorage when user is logged in', async () => {
@@ -151,10 +143,6 @@ describe('/+page.svelte - with passkey feature flag', () => {
       });
     });
     vi.mocked(envModule).PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED = 'true';
-  });
-
-  afterEach(() => {
-    vi.resetAllMocks();
   });
 
   test('should display passkey error toast on options response error', async () => {

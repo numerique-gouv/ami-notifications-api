@@ -27,7 +27,6 @@ describe('/+page.svelte', () => {
   });
 
   afterEach(() => {
-    vi.resetAllMocks();
     vi.useRealTimers();
   });
 

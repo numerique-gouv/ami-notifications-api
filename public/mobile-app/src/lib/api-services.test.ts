@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, test, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { waitFor } from '@testing-library/svelte';
 import {
@@ -51,11 +51,6 @@ type NullableAPIServicesItems = {
 };
 
 describe('/api-services', () => {
-  afterEach(() => {
-    window.localStorage.clear();
-    vi.clearAllMocks();
-  });
-
   describe('retrieveServices', () => {
     test('should get services items from API', async () => {
       // Given
@@ -145,8 +140,6 @@ describe('/api-services', () => {
     test('should get services items from API - services items entry is missing in localstorage', async () => {
       for (const key of Object.keys(apiServicesData) as APIServicesItemsKey[]) {
         // Given
-        window.localStorage.clear();
-        vi.clearAllMocks();
         for (const key2 of Object.keys(apiServicesData) as APIServicesItemsKey[]) {
           if (key2 === key) {
             continue;
@@ -185,8 +178,6 @@ describe('/api-services', () => {
     test('should get services items from API - services items entry is wrong in localstorage', async () => {
       for (const key of Object.keys(apiServicesData) as APIServicesItemsKey[]) {
         // Given
-        window.localStorage.clear();
-        vi.clearAllMocks();
         for (const key2 of Object.keys(apiServicesData) as APIServicesItemsKey[]) {
           if (key2 === key) {
             window.localStorage.setItem(`${key2}_services_source`, 'wrong');
@@ -226,8 +217,6 @@ describe('/api-services', () => {
     test('should get services items from API - services items entry is in failed status in localstorage', async () => {
       for (const key of Object.keys(apiServicesData) as APIServicesItemsKey[]) {
         // Given
-        window.localStorage.clear();
-        vi.clearAllMocks();
         for (const key2 of Object.keys(apiServicesData) as APIServicesItemsKey[]) {
           if (key2 === key) {
             window.localStorage.setItem(
@@ -270,8 +259,6 @@ describe('/api-services', () => {
     test('should get services items from API - services items entry has no expiration in localstorage', async () => {
       for (const key of Object.keys(apiServicesData) as APIServicesItemsKey[]) {
         // Given
-        window.localStorage.clear();
-        vi.clearAllMocks();
         for (const key2 of Object.keys(apiServicesData) as APIServicesItemsKey[]) {
           if (key2 === key) {
             const { expires_at, ...entry } = { ...apiServicesData[key2] }; // old entry, no expiration date
@@ -315,8 +302,6 @@ describe('/api-services', () => {
     test('should get services items from API - services items entry has no expiration in localstorage - with error', async () => {
       for (const key of Object.keys(apiServicesData) as APIServicesItemsKey[]) {
         // Given
-        window.localStorage.clear();
-        vi.clearAllMocks();
         const apiServicesData2: NullableAPIServicesItems = {
           internal: null,
         };
@@ -367,8 +352,6 @@ describe('/api-services', () => {
     test('should get services items from API - services items entry is expired in localstorage', async () => {
       for (const key of Object.keys(apiServicesData) as APIServicesItemsKey[]) {
         // Given
-        window.localStorage.clear();
-        vi.clearAllMocks();
         for (const key2 of Object.keys(apiServicesData) as APIServicesItemsKey[]) {
           if (key2 === key) {
             const entry = { ...apiServicesData[key2] };
@@ -413,7 +396,6 @@ describe('/api-services', () => {
     test('should get services items from API - services items entry is not expired in localstorage', async () => {
       for (const key of Object.keys(apiServicesData) as APIServicesItemsKey[]) {
         // Given
-        window.localStorage.clear();
         for (const key2 of Object.keys(apiServicesData) as APIServicesItemsKey[]) {
           if (key2 === key) {
             const entry = { ...apiServicesData[key2] };

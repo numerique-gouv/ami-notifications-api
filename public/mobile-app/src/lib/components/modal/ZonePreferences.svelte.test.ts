@@ -19,7 +19,6 @@ vi.mock('svelte/transition', () => ({
 
 describe('/ZonePreferences.svelte', () => {
   beforeEach(async () => {
-    vi.resetAllMocks();
     HTMLDialogElement.prototype.showModal = vi.fn();
     HTMLDialogElement.prototype.close = vi.fn();
     HTMLDialogElement.prototype.show = vi.fn();

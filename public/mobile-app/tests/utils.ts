@@ -73,10 +73,23 @@ export const mockUserIdentity = {
   },
 };
 
+export const mockUserIdentityWithPreferredUsername = {
+  gender: 'male',
+  birthdate: '1969-03-17',
+  given_name: 'Pierre',
+  family_name: 'MERCIER',
+  preferred_username: 'DUBOIS',
+  email: 'some-other@email.com',
+  address: mockAddress,
+  birthplace: 'Gonesse (95)',
+  dataDetails: {
+    address: { origin: 'user' },
+    preferred_username: { origin: 'user' },
+    email: { origin: 'user' },
+  },
+};
+
 export const mockUser = new User(mockUserInfo);
-export const mockUserWithPreferredUsername = new User(
-  mockUserInfoWithPreferredUsername
-);
 
 export const expectBackButtonPresent = (screen: Screen) => {
   // When
