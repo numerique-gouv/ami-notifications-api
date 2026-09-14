@@ -1,6 +1,7 @@
 <script lang="ts">
   import { AMIGoto } from '$lib/ami-navigation';
   import FollowupItemDetailHeader from '$lib/components/followup/FollowupItemDetailHeader.svelte';
+  import FollowupItemMessages from '$lib/components/followup/FollowupItemMessages.svelte';
   import { getDSFRIcon } from '$lib/dsfr-icon';
   import { FollowupItem } from '$lib/followup';
 
@@ -15,9 +16,12 @@
 <div class="demarche-content-container">
   <FollowupItemDetailHeader item={item} />
 
+  <FollowupItemMessages item={item} displayTitle={true} />
+
   <nav class="fr-sidemenu fr-m-0 followup--subitems" data-testid="followup-subitems">
     <div class="fr-sidemenu__inner">
-      <ul class="fr-sidemenu__list">
+      <h2 class="fr-h6 fr-mb-0">Sous-démarches associées :</h2>
+      <ul class="fr-sidemenu__list fr-mb-3w">
         {#each item.sub_items as sub_item}
           <li class="fr-sidemenu__item followup--subitem fr-py-1w fr-pr-7v">
             <div class="followup--subitem__header fr-mb-1v">

@@ -2,13 +2,17 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import * as AMINavigationMethods from '$lib/ami-navigation';
 import FollowupParentItemDetail from '$lib/components/followup/FollowupParentItemDetail.svelte';
-import { FollowupItem, FollowupItemEvent, FollowupSubItem } from '$lib/followup';
+import { FollowupItem, FollowupSubItem } from '$lib/followup';
 
 vi.mock('$lib/components/followup/FollowupItemDetailHeader.svelte', () => ({
   default: vi.fn(() => ({})),
 }));
+vi.mock('$lib/components/followup/FollowupItemMessages.svelte', () => ({
+  default: vi.fn(() => ({})),
+}));
 
 import FollowupItemDetailHeader from '$lib/components/followup/FollowupItemDetailHeader.svelte';
+import FollowupItemMessages from '$lib/components/followup/FollowupItemMessages.svelte';
 
 describe('/FollowupParentItemDetail.svelte', () => {
   beforeEach(() => {
@@ -45,25 +49,15 @@ describe('/FollowupParentItemDetail.svelte', () => {
       item: item,
     });
   });
-  test('Should not list events', async () => {
+  test('Should use FollowupItemMessages component', async () => {
     // Given
-    const event1 = new FollowupItemEvent(
-      'event-id1',
-      new Date('2026-02-03T08:05:42Z'),
-      'lorem ipsum 1'
-    );
-    const event2 = new FollowupItemEvent(
-      'event-id2',
-      new Date('2026-02-03T09:05:42Z'),
-      'lorem ipsum 2'
-    );
     const item = new FollowupItem(
       'partner',
       'type',
       'id1',
       'ref1',
       'notifications',
-      [event2, event1],
+      [],
       'title',
       'subheading',
       'description',
@@ -80,8 +74,10 @@ describe('/FollowupParentItemDetail.svelte', () => {
     render(FollowupParentItemDetail, { props: { item: item } });
 
     // Then
-    await waitFor(() => {
-      expect(screen.queryByTestId('item-events-list')).toBeNull();
+    expect(FollowupItemMessages).toHaveBeenCalled();
+    expect(FollowupItemMessages).toHaveBeenCalledWith(expect.anything(), {
+      displayTitle: true,
+      item: item,
     });
   });
   test('Should list sub items', async () => {
