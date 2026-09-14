@@ -5,7 +5,6 @@ import { emit, isNative, runOrNativeEvent } from '$lib/nativeEvents';
 describe('/nativeEvents.ts', () => {
   afterEach(() => {
     delete globalThis.window.NativeBridge;
-    vi.resetAllMocks();
   });
 
   describe('isNative', () => {

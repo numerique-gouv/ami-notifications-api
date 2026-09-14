@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import * as envModule from '$env/static/public';
@@ -13,9 +13,6 @@ describe('/Navigation.svelte', () => {
         ...original,
       });
     });
-  });
-  afterEach(() => {
-    vi.resetAllMocks();
   });
 
   test('should highlight nothing', async () => {

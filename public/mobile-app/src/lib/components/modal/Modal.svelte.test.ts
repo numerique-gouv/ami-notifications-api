@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/svelte';
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import Modal from './Modal.svelte';
 
 const { mockMount, mockUnmount, mockDisclose, mockConceal, mockDsfr } = vi.hoisted(
@@ -34,12 +34,7 @@ const FakeComponent = vi.fn();
 
 describe('Modal', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
     window.dsfr = mockDsfr;
-  });
-
-  afterEach(() => {
-    vi.restoreAllMocks();
   });
 
   test('should render modal with correct id and title', () => {

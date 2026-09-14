@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import * as envModule from '$env/static/public';
 import { userStore } from '$lib/state/User.svelte';
 import { load } from './+layout';
@@ -20,11 +20,6 @@ vi.mock('$env/static/public', async (importOriginal) => {
 });
 
 describe('+layout.ts', () => {
-  beforeEach(() => {
-    vi.resetAllMocks();
-    localStorage.clear();
-  });
-
   test('should call buildUser', async () => {
     // Given
 

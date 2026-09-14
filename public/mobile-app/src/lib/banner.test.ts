@@ -1,12 +1,8 @@
-import { beforeEach, describe, expect, test } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { hideBanner, isBannerHidden } from '$lib/banner';
 
 describe('/lib/banner.ts', () => {
-  beforeEach(() => {
-    localStorage.clear();
-  });
-
   describe('hideBanner', () => {
     test('should store banner id in localstorage', () => {
       // When

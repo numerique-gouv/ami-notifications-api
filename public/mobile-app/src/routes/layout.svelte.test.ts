@@ -23,7 +23,6 @@ describe('+layout.svelte', () => {
   });
 
   afterEach(() => {
-    vi.resetAllMocks();
     delete window.NativeBridge;
   });
 

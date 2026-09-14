@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, test, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { waitFor } from '@testing-library/svelte';
 import { retrieveConsents, updateApiConsent } from '$lib/api-consents';
@@ -17,11 +17,6 @@ const apiConsents = {
 };
 
 describe('/api-consents', () => {
-  afterEach(() => {
-    window.localStorage.clear();
-    vi.clearAllMocks();
-  });
-
   describe('retrieveConsents', () => {
     test('should get consents from API', async () => {
       // Given
@@ -48,8 +43,6 @@ describe('/api-consents', () => {
     });
     test('should store consents to localStorage', async () => {
       // Given
-      localStorage.clear();
-
       vi.spyOn(globalThis, 'fetch').mockResolvedValue(
         new Response(JSON.stringify(apiConsents.consents), { status: 200 })
       );
@@ -72,7 +65,6 @@ describe('/api-consents', () => {
 
     test('should get consents items from localStorage - when status code is not 200', async () => {
       // Given
-      localStorage.clear();
       localStorage.setItem('consents', JSON.stringify(apiConsents));
 
       const spy = vi
@@ -96,8 +88,6 @@ describe('/api-consents', () => {
     });
     test('should get consents with no item when localStorage has no key - when status code is not 200', async () => {
       // Given
-      localStorage.clear();
-
       const spy = vi
         .spyOn(globalThis, 'fetch')
         .mockResolvedValue(new Response('error', { status: 400 }));
@@ -111,7 +101,6 @@ describe('/api-consents', () => {
     });
     test('should get consents items from localStorage - when fetch fails', async () => {
       // Given
-      localStorage.clear();
       localStorage.setItem('consents', JSON.stringify(apiConsents));
 
       vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('Fetch failed'));
@@ -133,8 +122,6 @@ describe('/api-consents', () => {
     });
     test('should get consents with no item when localStorage has no key - when fetch fails', async () => {
       // Given
-      localStorage.clear();
-
       vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('Fetch failed'));
 
       // When

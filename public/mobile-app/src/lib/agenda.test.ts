@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { Agenda, buildAgenda, Item, slugify } from '$lib/agenda';
 import * as apiAgendaMethods from '$lib/api-agenda';
@@ -14,7 +14,6 @@ describe('/agenda.ts', () => {
     describe('hide', () => {
       test('should hide item by adding it to localstorage', () => {
         // Given
-        localStorage.clear();
         const item = new Item(
           'fake-id',
           'holiday',
@@ -510,11 +509,6 @@ describe('/agenda.ts', () => {
     beforeEach(() => {
       localStorage.setItem('hidden_agenda_items_holiday', '[]');
       localStorage.setItem('hidden_agenda_items_election', '[]');
-    });
-    afterEach(() => {
-      localStorage.clear();
-      userStore.connected = null;
-      vi.resetAllMocks();
     });
     describe('Now/Next', () => {
       beforeEach(() => {
@@ -1821,9 +1815,6 @@ describe('/agenda.ts', () => {
     beforeEach(() => {
       localStorage.setItem('hidden_agenda_items_holiday', '[]');
       localStorage.setItem('hidden_agenda_items_election', '[]');
-    });
-    afterEach(() => {
-      localStorage.clear();
     });
     test('should retrieve agenda items and init agenda with them', async () => {
       // Given

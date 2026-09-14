@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import type { MockInstance } from 'vitest';
@@ -20,9 +20,6 @@ describe('/+page.svelte', () => {
     backSpy = vi
       .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
-  });
-  afterEach(() => {
-    vi.resetAllMocks();
   });
 
   test('should display the last update date', async () => {
