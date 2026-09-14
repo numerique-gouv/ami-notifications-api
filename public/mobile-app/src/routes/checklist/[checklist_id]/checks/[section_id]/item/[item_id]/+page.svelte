@@ -9,7 +9,7 @@
   } from '$lib/checklist';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import SideMenu from '$lib/components/SideMenu.svelte';
-  import { renderMarkdown } from '$lib/markdown';
+  import { renderInlineMarkdown } from '$lib/markdown';
   import type { SideMenuItem } from '$lib/side-menu';
   import { userStore } from '$lib/state/User.svelte';
   import type { PageProps } from './$types';
@@ -43,8 +43,9 @@
   {#if item}
     <NavWithBackButton title="" {backUrl} />
 
-    <div class="fr-pt-14w item-content">
-      <p>{@html renderMarkdown(item.text)}</p>
+    <div class="fr-pt-8w item-content">
+      <h1 class="fr-h2 am-truncate-3lines">{@html renderInlineMarkdown(item.text)}</h1>
+
       <SideMenu sideMenus={tabLinks} />
     </div>
   {/if}

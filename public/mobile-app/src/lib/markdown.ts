@@ -22,3 +22,11 @@ export function renderTruncatedMarkdown(md: string, limit: number): string {
   const truncated = truncateMarkdown(md, { limit: limit, ellipsis: true });
   return renderMarkdown(truncated);
 }
+
+export function renderInlineMarkdown(md: string): string {
+  if (typeof window === 'undefined') {
+    return marked.parseInline(md) as string;
+  }
+  const raw = marked.parseInline(md) as string;
+  return DOMPurify.sanitize(raw, { ALLOWED_TAGS, ALLOWED_ATTR });
+}
