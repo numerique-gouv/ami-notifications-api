@@ -12,6 +12,7 @@ from ami.agent.models import Agent
 from ami.agent_admin.utils import audit
 from ami.amidsfr.forms import AMIDsfrBaseForm
 from ami.amidsfr.widgets import AutocompleteInput, ToggleInput
+from ami.page.models import Page, Section
 from ami.partner.models import Partner
 from ami.service.models import Service
 from ami.user.models import User
@@ -291,6 +292,60 @@ class PartnerForm(forms.ModelForm, AMIDsfrBaseForm):
         else:
             action = "partners:partner-updated"
             extra_data = {"partner": self.instance, "old_partner_values": self.old_instance}
+        audit(action, self.author, extra_data)
+
+        return self.instance
+
+
+class PageForm(forms.ModelForm, AMIDsfrBaseForm):
+    class Meta:
+        model = Page
+        exclude = []
+
+    def __init__(self, *args, **kwargs):
+        self.author = kwargs.pop("author")
+        super().__init__(*args, **kwargs)
+        if not self.instance._state.adding:
+            self.fields.pop("slug")
+        self.old_instance = copy.deepcopy(self.instance)
+
+    def save(self, commit=True):
+        created = self.instance._state.adding
+        super().save(commit=commit)
+
+        if created:
+            action = "pages:page-added"
+            extra_data = {"page": self.instance}
+        else:
+            action = "pages:page-updated"
+            extra_data = {"page": self.instance, "old_page_values": self.old_instance}
+        audit(action, self.author, extra_data)
+
+        return self.instance
+
+
+class SectionForm(forms.ModelForm, AMIDsfrBaseForm):
+    class Meta:
+        model = Section
+        exclude = ["page"]
+
+    def __init__(self, *args, **kwargs):
+        self.author = kwargs.pop("author")
+        super().__init__(*args, **kwargs)
+        if not self.instance._state.adding:
+            self.fields.pop("slug")
+        self.old_instance = copy.deepcopy(self.instance)
+
+    def save(self, commit=True):
+        created = self.instance._state.adding
+        super().save(commit=commit)
+
+        if created:
+            action = "pages:section-added"
+            extra_data = {"section": self.instance}
+        else:
+            action = "pages:section-updated"
+            extra_data = {"section": self.instance, "old_section_values": self.old_instance}
         audit(action, self.author, extra_data)
 
         return self.instance

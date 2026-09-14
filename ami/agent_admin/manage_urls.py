@@ -3,6 +3,7 @@ from django.urls import path
 from ami.agent_admin.views.manage import (
     access_views,
     notification_views,
+    page_views,
     partner_views,
     service_views,
     user_views,
@@ -22,4 +23,15 @@ urlpatterns = [
     path("partner/", partner_views.list_partners, name="list-partners"),
     path("partner/add/", partner_views.add_partner, name="add-partner"),
     path("partner/<uuid:partner_id>/", partner_views.edit_partner, name="edit-partner"),
+    path("page/", page_views.list_pages, name="list-pages"),
+    path("page/add/", page_views.add_page, name="add-page"),
+    path("page/<uuid:page_id>/", page_views.edit_page, name="edit-page"),
+    path("page/<uuid:page_id>/delete/", page_views.delete_page, name="delete-page"),
+    path("page/<uuid:page_id>/add-section/", page_views.add_section, name="add-section"),
+    path("page/<uuid:page_id>/<uuid:section_id>/", page_views.edit_section, name="edit-section"),
+    path(
+        "page/<uuid:page_id>/<uuid:section_id>/delete/",
+        page_views.delete_section,
+        name="delete-section",
+    ),
 ]

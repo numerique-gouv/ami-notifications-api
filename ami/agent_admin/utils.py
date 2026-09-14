@@ -33,6 +33,22 @@ def audit(action, author, extra_data):
             extra_data[f"{key}_ip_allow_list"] = extra_data[key].ip_allow_list
             del extra_data[key]
 
+    for key in ["page", "old_page_values"]:
+        if key in extra_data:
+            extra_data[f"{key}_slug"] = extra_data[key].slug
+            extra_data[f"{key}_title"] = extra_data[key].title
+            del extra_data[key]
+
+    for key in ["section", "old_section_values"]:
+        if key in extra_data:
+            extra_data[f"{key}_slug"] = extra_data[key].slug
+            extra_data[f"{key}_title"] = extra_data[key].title
+            extra_data[f"{key}_order"] = extra_data[key].order
+            extra_data[f"{key}_text"] = extra_data[key].text
+            extra_data[f"{key}_page_id"] = str(extra_data[key].page_id)
+            extra_data[f"{key}_page_slug"] = extra_data[key].page.slug
+            del extra_data[key]
+
     if "user" in extra_data:
         user = extra_data["user"]
         extra_data["user_id"] = str(user.id)
