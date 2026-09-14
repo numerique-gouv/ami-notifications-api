@@ -1,0 +1,67 @@
+{% extends "agent_admin/base.html" %}
+{% load dsfr_tags %}
+
+{% block content %}
+  {% if for_update %}
+    <h1>Modifier une section</h1>
+  {% else %}
+    <h1>Ajouter une section</h1>
+  {% endif %}
+  <form method="post" id="section-form" class="form-disable-on-submit" novalidate>
+    {% csrf_token %}
+    <input type="hidden" id="save-and-continue" name="save-and-continue" value="">
+    {{ form }}
+    {% dsfr_button_group btn_group %}
+  </form>
+  <script>
+    const save_and_continue_input = document.getElementById('save-and-continue');
+    save_and_continue_input.value = "";
+    function save_and_continue() {
+      const form = document.getElementById('section-form');
+      save_and_continue_input.value = "save-and-continue";
+      form.submit();
+    }
+  </script>
+  {% if for_update %}
+    <fieldset id="section-preview">
+      <legend>Rendu</legend>
+      <div>
+        {{ preview|safe }}
+      </div>
+    </fieldset>
+  {% endif %}
+
+  {% if for_update %}
+    <dialog id="modal-delete-section" class="fr-modal" aria-labelledby="modal-delete-section-title">
+      <div class="fr-container fr-container--fluid fr-container-md">
+        <div class="fr-grid-row fr-grid-row--center">
+          <div class="fr-col-12 fr-col-md-8 fr-col-lg-6">
+            <div class="fr-modal__body">
+              <form method="post" id="delete-section" action="{% url "agent-admin:manage:delete-section" page_id=instance.page.id section_id=instance.id %}">
+                <div class="fr-modal__header">
+                </div>
+                <div class="fr-modal__content">
+                  <h2 id="modal-delete-section-title" class="fr-modal__title">
+                    Suppression
+                  </h2>
+                  <p>Êtes-vous sûr de vouloir supprimer cette section&nbsp;?</p>
+                </div>
+                <div class="fr-modal__footer">
+                  <ul class="fr-btns-group fr-btns-group--right fr-btns-group--inline-reverse fr-btns-group--inline-lg fr-btns-group--icon-left">
+                    <li>
+                      <button type="submit" class="fr-btn">Confirmer</button>
+                    </li>
+                    <li>
+                      <button type="button" aria-controls="modal-delete-section" class="fr-btn fr-btn--secondary">Annuler</button>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </dialog>
+  {% endif %}
+
+{% endblock %}

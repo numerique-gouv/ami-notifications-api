@@ -71,6 +71,7 @@ INSTALLED_APPS = [
     "ami.agenda",
     "ami.followup",
     "ami.service",
+    "ami.page",
     "ami.partner",
     "ami.api",
     "ami.utils",
