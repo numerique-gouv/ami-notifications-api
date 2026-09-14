@@ -37,9 +37,9 @@ describe('/+page.svelte', () => {
 
     // Then
     await waitFor(() => {
-      expect(document.querySelector('.item-content')).toHaveTextContent(
-        'test item content'
-      );
+      expect(
+        document.querySelector('.item-content h1.am-truncate-3lines')
+      ).toHaveTextContent('test item content');
     });
 
     expect(document.querySelectorAll('li').length).toEqual(2);
