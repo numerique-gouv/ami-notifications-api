@@ -23,7 +23,7 @@ test:
 
 .PHONY: test-create-db
 test-create-db:
-	DJANGO_SETTINGS_MODULE=ami.settings $(RUN) pytest -vvv -ll --ff -x --reuse-db ami --create-db
+	DJANGO_SETTINGS_MODULE=ami.settings FORCE_DATA_WAREHOUSE_ROUTER=true $(RUN) pytest -vvv -ll --ff -x --reuse-db ami --create-db
 
 .PHONY: test-ci
 test-ci:
