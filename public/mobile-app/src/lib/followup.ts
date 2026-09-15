@@ -102,6 +102,46 @@ export class FollowupSubItem {
     return this._milestone_end_date;
   }
 
+  get duration(): string | undefined {
+    if (this.milestone_start_date === null || this.milestone_end_date === null) {
+      return undefined;
+    }
+
+    if (
+      this.milestone_start_date.toLocaleDateString() !==
+      this.milestone_end_date.toLocaleDateString()
+    ) {
+      // not the same days
+      return undefined;
+    }
+
+    let diff = Math.abs(
+      this.milestone_end_date.getTime() - this.milestone_start_date.getTime()
+    );
+    if (!diff) {
+      // exactly same times
+      return undefined;
+    }
+
+    const units: [string, number][] = [
+      ['heure', 1000 * 60 * 60],
+      ['minute', 1000 * 60],
+      ['seconde', 1000],
+    ];
+
+    const parts: string[] = [];
+
+    for (const [label, ms] of units) {
+      const value = Math.floor(diff / ms);
+      if (value > 0) {
+        parts.push(`${value} ${label}${value > 1 ? 's' : ''}`);
+        diff -= value * ms;
+      }
+    }
+
+    return parts.slice(0, 2).join(' et ');
+  }
+
   get events(): FollowupItemEvent[] {
     return this._events;
   }
