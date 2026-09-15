@@ -81,6 +81,36 @@ describe('/followup.ts', () => {
         );
       });
     });
+    describe('formattedDate', () => {
+      test('should return localized date and hour', async () => {
+        // Given
+        const item = new SubItem(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          null,
+          null,
+          [],
+          'title',
+          'subheading',
+          'description',
+          'icon',
+          new Date('2026-01-03T08:05:42Z'),
+          'new',
+          'New',
+          false,
+          null
+        );
+
+        // When
+        const date = item.formattedDate;
+
+        // Then
+        expect(date).equal('03 janvier 2026 - 09:05');
+      });
+    });
     describe('badgeClassName', () => {
       test('should return class name depending on status_id', async () => {
         // Given
@@ -301,37 +331,6 @@ describe('/followup.ts', () => {
 
         // Then
         expect(id).equal('partner:type:id');
-      });
-    });
-    describe('formattedDate', () => {
-      test('should return localized date and hour, without year', async () => {
-        // Given
-        const item = new Item(
-          'partner',
-          'type',
-          'id',
-          'ref',
-          'notifications',
-          null,
-          null,
-          [],
-          'title',
-          'subheading',
-          'description',
-          'icon',
-          new Date('2026-01-03T08:05:42Z'),
-          'new',
-          'New',
-          false,
-          null,
-          []
-        );
-
-        // When
-        const date = item.formattedDate;
-
-        // Then
-        expect(date).equal('03 janvier 2026 - 09:05');
       });
     });
     describe('getItemDetailPageUrl', () => {
