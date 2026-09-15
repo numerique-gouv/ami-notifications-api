@@ -78,10 +78,10 @@
     },
     {
       isEnabled: true,
-      url: '/#/contact',
-      label: 'Contact',
-      iconClassName: 'fr-icon-question-answer-line',
-      id: 'contact',
+      url: '/#/help-center',
+      label: 'Aide et contact',
+      iconClassName: 'fr-icon-customer-service-line',
+      id: 'help-center',
     },
   ];
 
