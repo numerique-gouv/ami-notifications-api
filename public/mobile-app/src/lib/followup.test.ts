@@ -332,6 +332,210 @@ describe('/followup.ts', () => {
         expect(result14).toEqual('3 heures et 5 minutes');
       });
     });
+    describe('period', () => {
+      test('should return undefined', async () => {
+        // Given
+        const item = new SubItem(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          null,
+          null,
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'new',
+          'Terminée',
+          false,
+          'url'
+        );
+
+        // When
+        const result = item.period;
+
+        // Then
+        expect(result).toEqual(undefined);
+      });
+      test('should mention date and hour', async () => {
+        // Given
+        const item1 = new SubItem(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          new Date('2025-09-20T15:05:00Z'),
+          new Date('2025-09-20T15:05:00Z'),
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'new',
+          'Terminée',
+          false,
+          'url'
+        );
+        const item2 = new SubItem(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          new Date('2025-09-20T15:05:00Z'),
+          new Date('2025-09-20T16:05:00Z'),
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'new',
+          'Terminée',
+          false,
+          'url'
+        );
+
+        // When
+        const result1 = item1.period;
+        const result2 = item2.period;
+
+        // Then
+        expect(result1).toEqual('Samedi 20 septembre à 17h05');
+        expect(result2).toEqual('Samedi 20 septembre à 17h05');
+      });
+      test('should mention start date', async () => {
+        const item = new SubItem(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          new Date('2025-09-20T15:05:00Z'),
+          null,
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'new',
+          'Terminée',
+          false,
+          'url'
+        );
+
+        // When
+        const result = item.period;
+
+        // Then
+        expect(result).toEqual('À partir du samedi 20 septembre');
+      });
+      test('should mention end date', async () => {
+        // Given
+        const item = new SubItem(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          null,
+          new Date('2025-09-20T15:05:00Z'),
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'new',
+          'Terminée',
+          false,
+          'url'
+        );
+
+        // When
+        const result = item.period;
+
+        // Then
+        expect(result).toEqual('Avant le samedi 20 septembre');
+      });
+      test('should mention a period', async () => {
+        // Given
+        const item1 = new SubItem(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          new Date('2025-09-20T15:05:00Z'),
+          new Date('2025-09-21T15:05:00Z'),
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'new',
+          'Terminée',
+          false,
+          'url'
+        );
+        const item2 = new SubItem(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          new Date('2025-09-20T15:05:00Z'),
+          new Date('2025-10-20T16:05:00Z'),
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'new',
+          'Terminée',
+          false,
+          'url'
+        );
+        const item3 = new SubItem(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          new Date('2025-09-20T15:05:00Z'),
+          new Date('2026-01-20T16:05:00Z'),
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'new',
+          'Terminée',
+          false,
+          'url'
+        );
+
+        // When
+        const result1 = item1.period;
+        const result2 = item2.period;
+        const result3 = item3.period;
+
+        // Then
+        expect(result1).toEqual('Du samedi 20 au dimanche 21 septembre 2025');
+        expect(result2).toEqual('Du samedi 20 septembre au lundi 20 octobre 2025');
+        expect(result3).toEqual('Du samedi 20 septembre 2025 au mardi 20 janvier 2026');
+      });
+    });
     describe('getItemDetailPageUrl', () => {
       test('should return detail page url from partner_id, item_type and item_external_id', async () => {
         // Given

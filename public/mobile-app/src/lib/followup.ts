@@ -12,6 +12,10 @@ const formatDate = (date: Date): string => {
   return `${day} ${month} ${year} - ${hours}:${minutes}`;
 };
 
+const capitalizeFirstLetter = (val: string) => {
+  return String(val).charAt(0).toUpperCase() + String(val).slice(1);
+};
+
 export class FollowupItemEvent {
   constructor(
     private _id: string,
@@ -140,6 +144,60 @@ export class FollowupSubItem {
     }
 
     return parts.slice(0, 2).join(' et ');
+  }
+
+  get period(): string | undefined {
+    if (this.milestone_start_date === null && this.milestone_end_date === null) {
+      return undefined;
+    }
+
+    const locale = 'fr-FR';
+    let startFormat: Intl.DateTimeFormatOptions = {
+      month: 'long',
+      day: 'numeric',
+      weekday: 'long',
+    };
+    const dateFormat: Intl.DateTimeFormatOptions = startFormat;
+
+    if (this.milestone_end_date === null) {
+      const start = this.milestone_start_date?.toLocaleDateString(locale, startFormat);
+      return `À partir du ${start}`;
+    }
+
+    if (this.milestone_start_date == null) {
+      const end = this.milestone_end_date.toLocaleDateString(locale, dateFormat);
+      return `Avant le ${end}`;
+    }
+
+    if (
+      this.milestone_end_date.getTime() === this.milestone_start_date.getTime() ||
+      this.milestone_start_date.toLocaleDateString() ===
+        this.milestone_end_date.toLocaleDateString()
+    ) {
+      startFormat = {
+        month: 'long',
+        day: 'numeric',
+        weekday: 'long',
+        hour: '2-digit',
+        minute: '2-digit',
+      };
+      const start = this.milestone_start_date.toLocaleDateString(locale, startFormat);
+      return capitalizeFirstLetter(start.replace(':', 'h'));
+    }
+
+    startFormat = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+    const endFormat = startFormat;
+    if (
+      this.milestone_start_date.getFullYear() === this.milestone_end_date.getFullYear()
+    ) {
+      startFormat = { month: 'long', day: 'numeric', weekday: 'long' };
+      if (this.milestone_start_date.getMonth() === this.milestone_end_date.getMonth()) {
+        startFormat = { day: 'numeric', weekday: 'long' };
+      }
+    }
+    const start = this.milestone_start_date.toLocaleDateString(locale, startFormat);
+    const end = this.milestone_end_date.toLocaleDateString(locale, endFormat);
+    return `Du ${start} au ${end}`;
   }
 
   get events(): FollowupItemEvent[] {
