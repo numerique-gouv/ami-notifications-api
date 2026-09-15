@@ -586,13 +586,7 @@ def test_get_notifications_data_archived_parent_with_sub_item(
             status_label="Nouveau",
             milestone_start_date=None,
             milestone_end_date=None,
-            events=[
-                FollowupItemEvent(
-                    id=notification.id,
-                    created_at=notification.created_at,
-                    description="",
-                )
-            ],
+            events=[],
             title="Sub notification title 1",
             subheading="Service Public",
             description="",

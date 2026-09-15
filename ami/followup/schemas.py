@@ -135,6 +135,8 @@ class NotificationsSubItem:
     def events(self):
         events = []
         for notification in self.notifications:
+            if not notification.content_title and not notification.content_body:
+                continue
             event_description = notification.content_body
             if notification.content_private_body:
                 event_description += f"\n\n{notification.content_private_body}"
