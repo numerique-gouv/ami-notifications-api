@@ -588,6 +588,108 @@ describe('/followup.ts', () => {
         );
       });
     });
+    describe('status_label', () => {
+      test('should return custom label for item with milestone', async () => {
+        // Given
+        const item1 = new SubItem(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          null,
+          null,
+          [],
+          'title',
+          'subheading',
+          'description',
+          'icon',
+          new Date('2026-01-03T08:05:42Z'),
+          'new',
+          'New',
+          false,
+          null
+        );
+        const item2 = new SubItem(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          new Date(),
+          null,
+          [],
+          'title',
+          'subheading',
+          'description',
+          'icon',
+          new Date('2026-01-03T08:05:42Z'),
+          'new',
+          'New',
+          false,
+          null
+        );
+
+        // When
+        const status_label1 = item1.status_label;
+        const status_label2 = item2.status_label;
+
+        // Then
+        expect(status_label1).equal('New');
+        expect(status_label2).equal('Personnel');
+      });
+    });
+    describe('icon', () => {
+      test('should return custom icon for item with milestone', async () => {
+        // Given
+        const item1 = new SubItem(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          null,
+          null,
+          [],
+          'title',
+          'subheading',
+          'description',
+          'icon',
+          new Date('2026-01-03T08:05:42Z'),
+          'new',
+          'New',
+          false,
+          null
+        );
+        const item2 = new SubItem(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          new Date(),
+          null,
+          [],
+          'title',
+          'subheading',
+          'description',
+          'icon',
+          new Date('2026-01-03T08:05:42Z'),
+          'new',
+          'New',
+          false,
+          null
+        );
+
+        // When
+        const icon1 = item1.icon;
+        const icon2 = item2.icon;
+
+        // Then
+        expect(icon1).equal('icon');
+        expect(icon2).equal('fr-icon-user-fill');
+      });
+    });
     describe('formattedDate', () => {
       test('should return localized date and hour', async () => {
         // Given
@@ -712,6 +814,98 @@ describe('/followup.ts', () => {
         expect(className2).equal('fr-text-default--info fr-background-contrast--info');
         expect(className3).equal('fr-badge--purple-glycine');
         expect(className4).equal('');
+      });
+      test('should return custom class name for item with milestone', async () => {
+        // Given
+        const item1 = new SubItem(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          new Date(),
+          null,
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'new',
+          'Terminée',
+          false,
+          'url'
+        );
+        const item2 = new SubItem(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          new Date(),
+          null,
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'wip',
+          'Terminée',
+          false,
+          'url'
+        );
+        const item3 = new SubItem(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          new Date(),
+          null,
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'closed',
+          'Terminée',
+          false,
+          'url'
+        );
+        const item4 = new SubItem(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          new Date(),
+          null,
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          // @ts-expect-error: `'incorrect'` isn't a proper Status, so typescript will complain
+          'incorrect',
+          'Terminée',
+          false,
+          'url'
+        );
+
+        // When
+        const className1 = item1.badgeClassName;
+        const className2 = item2.badgeClassName;
+        const className3 = item3.badgeClassName;
+        const className4 = item4.badgeClassName;
+
+        // Then
+        expect(className1).equal('am-badge--user');
+        expect(className2).equal('am-badge--user');
+        expect(className3).equal('am-badge--user');
+        expect(className4).equal('am-badge--user');
       });
     });
     describe('hasMilestone', () => {
