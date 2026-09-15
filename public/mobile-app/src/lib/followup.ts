@@ -43,6 +43,10 @@ export class FollowupSubItem {
     private _item_external_id: string,
     private _reference: string,
     private _source: string,
+
+    private _milestone_start_date: Date | null,
+    private _milestone_end_date: Date | null,
+
     private _events: FollowupItemEvent[],
 
     private _title: string,
@@ -88,6 +92,14 @@ export class FollowupSubItem {
 
   get source(): string {
     return this._source;
+  }
+
+  get milestone_start_date(): Date | null {
+    return this._milestone_start_date;
+  }
+
+  get milestone_end_date(): Date | null {
+    return this._milestone_end_date;
   }
 
   get events(): FollowupItemEvent[] {
@@ -164,6 +176,10 @@ export class FollowupItem extends FollowupSubItem {
     _item_external_id: string,
     _reference: string,
     _source: string,
+
+    _milestone_start_date: Date | null,
+    _milestone_end_date: Date | null,
+
     _events: FollowupItemEvent[],
 
     _title: string,
@@ -187,6 +203,8 @@ export class FollowupItem extends FollowupSubItem {
       _item_external_id,
       _reference,
       _source,
+      _milestone_start_date,
+      _milestone_end_date,
       _events,
       _title,
       _subheading,
@@ -284,6 +302,8 @@ export class Followup {
         sub_item.item_external_id,
         sub_item.reference,
         'notifications',
+        sub_item.milestone_start_date,
+        sub_item.milestone_end_date,
         sub_item_events,
         sub_item.title,
         sub_item.subheading,
@@ -303,6 +323,8 @@ export class Followup {
       item.item_external_id,
       item.reference,
       'notifications',
+      item.milestone_start_date,
+      item.milestone_end_date,
       events,
       item.title,
       item.subheading,
