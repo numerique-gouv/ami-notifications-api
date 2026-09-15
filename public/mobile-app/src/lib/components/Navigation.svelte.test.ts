@@ -136,6 +136,40 @@ describe('/Navigation.svelte', () => {
     });
   });
 
+  test('should navigate to Données personnelles page when user clicks on Données personnelles button', async () => {
+    // Given
+    const spy = vi
+      .spyOn(AMINavigationMethods, 'AMIGoto')
+      .mockImplementation(() => Promise.resolve());
+    const { getByTestId } = render(Navigation);
+
+    // When
+    const button = getByTestId('privacy-button');
+    await fireEvent.click(button);
+
+    // Then
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledWith('/#/page/donnees-personnelles');
+    });
+  });
+
+  test('should navigate to Accessibilité page when user clicks on Accessibilité button', async () => {
+    // Given
+    const spy = vi
+      .spyOn(AMINavigationMethods, 'AMIGoto')
+      .mockImplementation(() => Promise.resolve());
+    const { getByTestId } = render(Navigation);
+
+    // When
+    const button = getByTestId('a11y-button');
+    await fireEvent.click(button);
+
+    // Then
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledWith('/#/page/accessibilite');
+    });
+  });
+
   test('should empty localStorage when user clicks on Se déconnecter button', async () => {
     // Given
     HTMLDialogElement.prototype.showModal = vi.fn();
