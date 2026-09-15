@@ -163,6 +163,10 @@ export class FollowupSubItem {
     return `/#/followup/item/${item.partner_id}/${item.item_type}/${item.item_external_id}/subitem/${this.partner_id}/${this.item_type}/${this.item_external_id}`;
   }
 
+  hasMilestone(): boolean {
+    return this.milestone_start_date !== null || this.milestone_end_date !== null;
+  }
+
   async archive(): Promise<boolean> {
     const result = await archiveFollowupItem(this.source, this.id);
     return result;

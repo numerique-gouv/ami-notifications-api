@@ -82,7 +82,7 @@ describe('/followup.ts', () => {
       });
     });
     describe('badgeClassName', () => {
-      test('should return class name depending on status_if', async () => {
+      test('should return class name depending on status_id', async () => {
         // Given
         const item1 = new SubItem(
           'partner',
@@ -175,6 +175,99 @@ describe('/followup.ts', () => {
         expect(className2).equal('fr-text-default--info fr-background-contrast--info');
         expect(className3).equal('fr-badge--purple-glycine');
         expect(className4).equal('');
+      });
+    });
+    describe('hasMilestone', () => {
+      test('should return true if has milesone start or end date', async () => {
+        // Given
+        const item1 = new SubItem(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          null,
+          null,
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'new',
+          'Terminée',
+          false,
+          'url'
+        );
+        const item2 = new SubItem(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          new Date(),
+          null,
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'new',
+          'Terminée',
+          false,
+          'url'
+        );
+        const item3 = new SubItem(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          null,
+          new Date(),
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'new',
+          'Terminée',
+          false,
+          'url'
+        );
+        const item4 = new SubItem(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          new Date(),
+          new Date(),
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'new',
+          'Terminée',
+          false,
+          'url'
+        );
+
+        // When
+        const result1 = item1.hasMilestone();
+        const result2 = item2.hasMilestone();
+        const result3 = item3.hasMilestone();
+        const result4 = item4.hasMilestone();
+
+        // Then
+        expect(result1).toEqual(false);
+        expect(result2).toEqual(true);
+        expect(result3).toEqual(true);
+        expect(result4).toEqual(true);
       });
     });
   });
