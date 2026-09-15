@@ -1,5 +1,6 @@
 import type { APIFollowup, APIFollowupItem } from '$lib/api-followup';
 import { archiveFollowupItem, retrieveFollowup } from '$lib/api-followup';
+import * as self from './followup';
 
 export type Status = 'new' | 'wip' | 'closed';
 
@@ -10,6 +11,64 @@ const formatDate = (date: Date): string => {
   const hours = String(date.getHours()).padStart(2, '0');
   const minutes = String(date.getMinutes()).padStart(2, '0');
   return `${day} ${month} ${year} - ${hours}:${minutes}`;
+};
+
+const capitalizeFirstLetter = (val: string) => {
+  return String(val).charAt(0).toUpperCase() + String(val).slice(1);
+};
+
+export const getPeriod = (
+  start_date: Date | null,
+  end_date: Date | null
+): string | undefined => {
+  if (start_date === null && end_date === null) {
+    return undefined;
+  }
+
+  const locale = 'fr-FR';
+  let startFormat: Intl.DateTimeFormatOptions = {
+    month: 'long',
+    day: 'numeric',
+    weekday: 'long',
+  };
+  const dateFormat: Intl.DateTimeFormatOptions = startFormat;
+
+  if (end_date === null) {
+    const start = start_date?.toLocaleDateString(locale, startFormat);
+    return `À partir du ${start}`;
+  }
+
+  if (start_date == null) {
+    const end = end_date.toLocaleDateString(locale, dateFormat);
+    return `Avant le ${end}`;
+  }
+
+  if (
+    end_date.getTime() === start_date.getTime() ||
+    start_date.toLocaleDateString() === end_date.toLocaleDateString()
+  ) {
+    startFormat = {
+      month: 'long',
+      day: 'numeric',
+      weekday: 'long',
+      hour: '2-digit',
+      minute: '2-digit',
+    };
+    const start = start_date.toLocaleDateString(locale, startFormat);
+    return capitalizeFirstLetter(start.replace(':', 'h'));
+  }
+
+  startFormat = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+  const endFormat = startFormat;
+  if (start_date.getFullYear() === end_date.getFullYear()) {
+    startFormat = { month: 'long', day: 'numeric', weekday: 'long' };
+    if (start_date.getMonth() === end_date.getMonth()) {
+      startFormat = { day: 'numeric', weekday: 'long' };
+    }
+  }
+  const start = start_date.toLocaleDateString(locale, startFormat);
+  const end = end_date.toLocaleDateString(locale, endFormat);
+  return `Du ${start} au ${end}`;
 };
 
 export class FollowupItemEvent {
@@ -140,6 +199,10 @@ export class FollowupSubItem {
     }
 
     return parts.slice(0, 2).join(' et ');
+  }
+
+  get period(): string | undefined {
+    return self.getPeriod(this.milestone_start_date, this.milestone_end_date);
   }
 
   get events(): FollowupItemEvent[] {

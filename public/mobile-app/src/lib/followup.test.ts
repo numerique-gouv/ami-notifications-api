@@ -1,15 +1,75 @@
 import { describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import * as apiFollowupMethods from '$lib/api-followup';
+import * as followupMethods from '$lib/followup';
 import {
   buildFollowup,
   Followup,
   FollowupItemEvent,
+  getPeriod,
   FollowupItem as Item,
   FollowupSubItem as SubItem,
 } from '$lib/followup';
 
 describe('/followup.ts', () => {
+  describe('getPeriod', () => {
+    test('should return undefined', async () => {
+      // When
+      const result = getPeriod(null, null);
+
+      // Then
+      expect(result).toEqual(undefined);
+    });
+    test('should mention date and hour', async () => {
+      // When
+      const result1 = getPeriod(
+        new Date('2025-09-20T15:05:00Z'),
+        new Date('2025-09-20T15:05:00Z')
+      );
+      const result2 = getPeriod(
+        new Date('2025-09-20T15:05:00Z'),
+        new Date('2025-09-20T16:05:00Z')
+      );
+
+      // Then
+      expect(result1).toEqual('Samedi 20 septembre à 17h05');
+      expect(result2).toEqual('Samedi 20 septembre à 17h05');
+    });
+    test('should mention start date', async () => {
+      // When
+      const result = getPeriod(new Date('2025-09-20T15:05:00Z'), null);
+
+      // Then
+      expect(result).toEqual('À partir du samedi 20 septembre');
+    });
+    test('should mention end date', async () => {
+      // When
+      const result = getPeriod(null, new Date('2025-09-20T15:05:00Z'));
+
+      // Then
+      expect(result).toEqual('Avant le samedi 20 septembre');
+    });
+    test('should mention a period', async () => {
+      // When
+      const result1 = getPeriod(
+        new Date('2025-09-20T15:05:00Z'),
+        new Date('2025-09-21T15:05:00Z')
+      );
+      const result2 = getPeriod(
+        new Date('2025-09-20T15:05:00Z'),
+        new Date('2025-10-20T16:05:00Z')
+      );
+      const result3 = getPeriod(
+        new Date('2025-09-20T15:05:00Z'),
+        new Date('2026-01-20T16:05:00Z')
+      );
+
+      // Then
+      expect(result1).toEqual('Du samedi 20 au dimanche 21 septembre 2025');
+      expect(result2).toEqual('Du samedi 20 septembre au lundi 20 octobre 2025');
+      expect(result3).toEqual('Du samedi 20 septembre 2025 au mardi 20 janvier 2026');
+    });
+  });
   describe('FollowupItemEvent', () => {
     describe('formattedDate', () => {
       test('should return localized date and hour', async () => {
@@ -330,6 +390,41 @@ describe('/followup.ts', () => {
         expect(result12).toEqual('9 heures et 59 minutes');
         expect(result13).toEqual('4 minutes et 3 secondes');
         expect(result14).toEqual('3 heures et 5 minutes');
+      });
+    });
+    describe('period', () => {
+      test('should call getPeriod', async () => {
+        // Given
+        const spy = vi.spyOn(followupMethods, 'getPeriod').mockReturnValue('A Period');
+        const item = new SubItem(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          new Date(),
+          new Date(),
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'new',
+          'Terminée',
+          false,
+          'url'
+        );
+
+        // When
+        const result = item.period;
+
+        // Then
+        expect(result).toEqual('A Period');
+        expect(spy).toHaveBeenCalledWith(
+          item.milestone_start_date,
+          item.milestone_end_date
+        );
       });
     });
     describe('getItemDetailPageUrl', () => {
