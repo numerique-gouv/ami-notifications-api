@@ -80,3 +80,7 @@ class RegistrationPutActionSerializer(serializers.Serializer):
 
 class RegistrationRemoveFromDeviceIdSerializer(serializers.Serializer):
     device_id = serializers.CharField()
+
+
+class ConsentsUpdateSerializer(serializers.Serializer):
+    consent = serializers.BooleanField()

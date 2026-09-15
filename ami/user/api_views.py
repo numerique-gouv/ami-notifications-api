@@ -22,6 +22,7 @@ from .serializers import (
     ConsentPostSerializer,
     ConsentResponseSerializer,
     ConsentSerializer,
+    ConsentsUpdateSerializer,
     ConsentUpdateSerializer,
     MobileAppSubscriptionSerializer,
     RegistrationCreateSerializer,
@@ -203,6 +204,35 @@ def consents(request: Request) -> Response:
         serializer.is_valid(raise_exception=True)
     except serializers.ValidationError:
         logger.exception("Internal post consent serialization error")
+        raise
+    data: dict = cast(dict, serializer.validated_data)
+
+    consent_datetime = now() if data["consent"] else None
+    Consent.objects.update_or_create(
+        user=request.ami_user,
+        partner_id=data["partner_id"],
+        defaults={"consent_datetime": consent_datetime},
+        create_defaults={"consent_datetime": consent_datetime},
+    )
+
+    response_serializer = ConsentPostResponseSerializer(
+        {"message": "Consent given" if data["consent"] else "Consent withdrawn"}
+    )
+    return Response(response_serializer.data)
+
+
+@extend_schema(
+    methods=["POST"],
+    request=ConsentsUpdateSerializer,
+)
+@api_view(["POST"])
+@ami_login_required
+def consents_all(request: Request) -> Response:
+    serializer = ConsentsUpdateSerializer(data=request.data)
+    try:
+        serializer.is_valid(raise_exception=True)
+    except serializers.ValidationError:
+        logger.exception("Internal post consents serialization error")
         raise
     data: dict = cast(dict, serializer.validated_data)
 
