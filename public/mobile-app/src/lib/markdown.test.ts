@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import '@testing-library/jest-dom/vitest';
-import { renderInlineMarkdown, renderMarkdown } from './markdown';
+import { renderInlineMarkdown, renderMarkdown, renderPageMarkdown } from './markdown';
 
 describe('/markdown.ts', () => {
   describe('renderMarkdown', () => {
@@ -31,6 +31,14 @@ describe('/markdown.ts', () => {
     test('should not render paragraphs when rendering inline', () => {
       expect(renderInlineMarkdown('*hello*\n\nworld')).toEqual(
         '<em>hello</em>\n\nworld'
+      );
+    });
+
+    test('should render titles/listes/etc. when rendering pages', () => {
+      expect(
+        renderPageMarkdown('# hello\n\n* world\n* test\n<script>alert</script>')
+      ).toEqual(
+        '<h2 class="fr-h4">hello</h2><ul>\n<li>world</li>\n<li>test</li>\n</ul>\n'
       );
     });
   });
