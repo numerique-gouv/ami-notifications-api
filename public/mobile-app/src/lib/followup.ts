@@ -12,6 +12,10 @@ const formatDate = (date: Date): string => {
   return `${day} ${month} ${year} - ${hours}:${minutes}`;
 };
 
+const capitalizeFirstLetter = (val: string) => {
+  return String(val).charAt(0).toUpperCase() + String(val).slice(1);
+};
+
 export class FollowupItemEvent {
   constructor(
     private _id: string,
@@ -43,6 +47,10 @@ export class FollowupSubItem {
     private _item_external_id: string,
     private _reference: string,
     private _source: string,
+
+    private _milestone_start_date: Date | null,
+    private _milestone_end_date: Date | null,
+
     private _events: FollowupItemEvent[],
 
     private _title: string,
@@ -90,6 +98,108 @@ export class FollowupSubItem {
     return this._source;
   }
 
+  get milestone_start_date(): Date | null {
+    return this._milestone_start_date;
+  }
+
+  get milestone_end_date(): Date | null {
+    return this._milestone_end_date;
+  }
+
+  get duration(): string | undefined {
+    if (this.milestone_start_date === null || this.milestone_end_date === null) {
+      return undefined;
+    }
+
+    if (
+      this.milestone_start_date.toLocaleDateString() !==
+      this.milestone_end_date.toLocaleDateString()
+    ) {
+      // not the same days
+      return undefined;
+    }
+
+    let diff = Math.abs(
+      this.milestone_end_date.getTime() - this.milestone_start_date.getTime()
+    );
+    if (!diff) {
+      // exactly same times
+      return undefined;
+    }
+
+    const units: [string, number][] = [
+      ['heure', 1000 * 60 * 60],
+      ['minute', 1000 * 60],
+      ['seconde', 1000],
+    ];
+
+    const parts: string[] = [];
+
+    for (const [label, ms] of units) {
+      const value = Math.floor(diff / ms);
+      if (value > 0) {
+        parts.push(`${value} ${label}${value > 1 ? 's' : ''}`);
+        diff -= value * ms;
+      }
+    }
+
+    return parts.slice(0, 2).join(' et ');
+  }
+
+  get period(): string | undefined {
+    if (this.milestone_start_date === null && this.milestone_end_date === null) {
+      return undefined;
+    }
+
+    const locale = 'fr-FR';
+    let startFormat: Intl.DateTimeFormatOptions = {
+      month: 'long',
+      day: 'numeric',
+      weekday: 'long',
+    };
+    const dateFormat: Intl.DateTimeFormatOptions = startFormat;
+
+    if (this.milestone_end_date === null) {
+      const start = this.milestone_start_date?.toLocaleDateString(locale, startFormat);
+      return `À partir du ${start}`;
+    }
+
+    if (this.milestone_start_date == null) {
+      const end = this.milestone_end_date.toLocaleDateString(locale, dateFormat);
+      return `Avant le ${end}`;
+    }
+
+    if (
+      this.milestone_end_date.getTime() === this.milestone_start_date.getTime() ||
+      this.milestone_start_date.toLocaleDateString() ===
+        this.milestone_end_date.toLocaleDateString()
+    ) {
+      startFormat = {
+        month: 'long',
+        day: 'numeric',
+        weekday: 'long',
+        hour: '2-digit',
+        minute: '2-digit',
+      };
+      const start = this.milestone_start_date.toLocaleDateString(locale, startFormat);
+      return capitalizeFirstLetter(start.replace(':', 'h'));
+    }
+
+    startFormat = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+    const endFormat = startFormat;
+    if (
+      this.milestone_start_date.getFullYear() === this.milestone_end_date.getFullYear()
+    ) {
+      startFormat = { month: 'long', day: 'numeric', weekday: 'long' };
+      if (this.milestone_start_date.getMonth() === this.milestone_end_date.getMonth()) {
+        startFormat = { day: 'numeric', weekday: 'long' };
+      }
+    }
+    const start = this.milestone_start_date.toLocaleDateString(locale, startFormat);
+    const end = this.milestone_end_date.toLocaleDateString(locale, endFormat);
+    return `Du ${start} au ${end}`;
+  }
+
   get events(): FollowupItemEvent[] {
     return this._events;
   }
@@ -115,6 +225,9 @@ export class FollowupSubItem {
   }
 
   get status_label(): string {
+    if (this.hasMilestone()) {
+      return 'Personnel';
+    }
     return this._status_label;
   }
 
@@ -127,6 +240,9 @@ export class FollowupSubItem {
   }
 
   get icon(): string {
+    if (this.hasMilestone()) {
+      return 'fr-icon-user-fill';
+    }
     return this._icon;
   }
 
@@ -135,6 +251,9 @@ export class FollowupSubItem {
   }
 
   get badgeClassName(): string {
+    if (this.hasMilestone()) {
+      return 'am-badge--user';
+    }
     switch (this._status_id) {
       case 'new':
         return 'fr-background-contrast--yellow-moutarde fr-text-label--yellow-moutarde';
@@ -151,6 +270,10 @@ export class FollowupSubItem {
     return `/#/followup/item/${item.partner_id}/${item.item_type}/${item.item_external_id}/subitem/${this.partner_id}/${this.item_type}/${this.item_external_id}`;
   }
 
+  hasMilestone(): boolean {
+    return this.milestone_start_date !== null || this.milestone_end_date !== null;
+  }
+
   async archive(): Promise<boolean> {
     const result = await archiveFollowupItem(this.source, this.id);
     return result;
@@ -164,6 +287,10 @@ export class FollowupItem extends FollowupSubItem {
     _item_external_id: string,
     _reference: string,
     _source: string,
+
+    _milestone_start_date: Date | null,
+    _milestone_end_date: Date | null,
+
     _events: FollowupItemEvent[],
 
     _title: string,
@@ -187,6 +314,8 @@ export class FollowupItem extends FollowupSubItem {
       _item_external_id,
       _reference,
       _source,
+      _milestone_start_date,
+      _milestone_end_date,
       _events,
       _title,
       _subheading,
@@ -284,6 +413,8 @@ export class Followup {
         sub_item.item_external_id,
         sub_item.reference,
         'notifications',
+        sub_item.milestone_start_date,
+        sub_item.milestone_end_date,
         sub_item_events,
         sub_item.title,
         sub_item.subheading,
@@ -303,6 +434,8 @@ export class Followup {
       item.item_external_id,
       item.reference,
       'notifications',
+      item.milestone_start_date,
+      item.milestone_end_date,
       events,
       item.title,
       item.subheading,
