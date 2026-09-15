@@ -16,12 +16,14 @@ from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED
 from ami.authentication.decorators import ami_login_required
 
 from ..partner.auth import IsPartnerAuthenticated, PartnerBasicAuthentication
+from ..partner.models import Partner
 from .models import Consent, Registration, User
 from .serializers import (
     ConsentPostResponseSerializer,
     ConsentPostSerializer,
     ConsentResponseSerializer,
     ConsentSerializer,
+    ConsentsUpdateSerializer,
     ConsentUpdateSerializer,
     MobileAppSubscriptionSerializer,
     RegistrationCreateSerializer,
@@ -213,6 +215,37 @@ def consents(request: Request) -> Response:
         defaults={"consent_datetime": consent_datetime},
         create_defaults={"consent_datetime": consent_datetime},
     )
+
+    response_serializer = ConsentPostResponseSerializer(
+        {"message": "Consent given" if data["consent"] else "Consent withdrawn"}
+    )
+    return Response(response_serializer.data)
+
+
+@extend_schema(
+    methods=["POST"],
+    request=ConsentsUpdateSerializer,
+)
+@api_view(["POST"])
+@ami_login_required
+def consents_all(request: Request) -> Response:
+    serializer = ConsentsUpdateSerializer(data=request.data)
+    try:
+        serializer.is_valid(raise_exception=True)
+    except serializers.ValidationError:
+        logger.exception("Internal post consents serialization error")
+        raise
+    data: dict = cast(dict, serializer.validated_data)
+
+    consent_datetime = now() if data["consent"] else None
+    partner_ids = Partner.objects.filter(consent_is_enabled=True).values_list("id", flat=True)
+    for partner_id in partner_ids:
+        Consent.objects.update_or_create(
+            user=request.ami_user,
+            partner_id=partner_id,
+            defaults={"consent_datetime": consent_datetime},
+            create_defaults={"consent_datetime": consent_datetime},
+        )
 
     response_serializer = ConsentPostResponseSerializer(
         {"message": "Consent given" if data["consent"] else "Consent withdrawn"}

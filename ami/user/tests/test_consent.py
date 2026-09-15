@@ -294,3 +294,51 @@ def test_post_consents_user_partner_id_unknown(
 @pytest.mark.django_db
 def test_post_consents_without_auth(app, settings) -> None:
     assert_query_fails_without_auth(app, "/api/v1/users/consents", method="post")
+
+
+@pytest.mark.django_db
+def test_post_consents_all(
+    app,
+    two_users: list[User],
+    partner: Partner,
+    partner_psl: Partner,
+) -> None:
+    login(app, two_users[0])
+
+    Consent.objects.all().delete()
+    Consent.objects.create(user=two_users[0], partner=partner_psl, consent_datetime=now())
+    Consent.objects.create(user=two_users[1], partner=partner, consent_datetime=None)
+
+    data = {"consent": True}
+    response = app.post_json("/api/v1/users/consents/all", data)
+    assert response.json == {"message": "Consent given"}
+    consents_qs = Consent.objects.filter(user=two_users[0])
+    assert consents_qs.count() == 2
+    for consent in consents_qs:
+        assert consent.consent_datetime is not None
+
+
+@pytest.mark.django_db
+def test_post_consents_all_user_consent_invalid(
+    app,
+    user: User,
+    partner: Partner,
+) -> None:
+    login(app, user)
+
+    data = {}
+    response = app.post_json("/api/v1/users/consents/all", data, status=400)
+    assert response.json == {"consent": ["Ce champ est obligatoire."]}
+    assert Consent.objects.count() == 0
+    assert User.objects.count() == 1
+
+    data = {"consent": "invalid"}
+    response = app.post_json("/api/v1/users/consents/all", data, status=400)
+    assert response.json == {"consent": ["Doit être un booléen valide."]}
+    assert Consent.objects.count() == 0
+    assert User.objects.count() == 1
+
+
+@pytest.mark.django_db
+def test_post_consents_all_without_auth(app, settings) -> None:
+    assert_query_fails_without_auth(app, "/api/v1/users/consents/all", method="post")
