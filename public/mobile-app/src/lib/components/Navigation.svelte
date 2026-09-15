@@ -83,6 +83,20 @@
       iconClassName: 'fr-icon-question-answer-line',
       id: 'contact',
     },
+    {
+      isEnabled: true,
+      url: '/#/page/donnees-personnelles',
+      label: 'Données personnelles et sécurité',
+      iconClassName: 'fr-icon-lock-line',
+      id: 'privacy',
+    },
+    {
+      isEnabled: true,
+      url: '/#/page/accessibilite',
+      label: 'Accessibilité',
+      iconClassName: 'fr-icon-accessibility-line',
+      id: 'a11y',
+    },
   ];
 
   let logoutModal = $state(false);
