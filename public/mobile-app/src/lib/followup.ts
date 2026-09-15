@@ -230,6 +230,9 @@ export class FollowupSubItem {
   }
 
   get status_label(): string {
+    if (this.hasMilestone()) {
+      return 'Personnel';
+    }
     return this._status_label;
   }
 
@@ -242,6 +245,9 @@ export class FollowupSubItem {
   }
 
   get icon(): string {
+    if (this.hasMilestone()) {
+      return 'fr-icon-user-fill';
+    }
     return this._icon;
   }
 
@@ -250,6 +256,9 @@ export class FollowupSubItem {
   }
 
   get badgeClassName(): string {
+    if (this.hasMilestone()) {
+      return 'am-badge--user';
+    }
     switch (this._status_id) {
       case 'new':
         return 'fr-background-contrast--yellow-moutarde fr-text-label--yellow-moutarde';
