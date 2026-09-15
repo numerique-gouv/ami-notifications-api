@@ -13,6 +13,8 @@ describe('/+page.ts', () => {
       'id',
       'ref',
       'notifications',
+      null,
+      null,
       [],
       'Opération Tranquillité Vacances',
       'subheading',
