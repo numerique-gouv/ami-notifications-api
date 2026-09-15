@@ -9,9 +9,10 @@
   let { item }: Props = $props();
 
   let checkedIcon = $derived(getDSFRIcon(item.icon, 'fr-icon-information-fill'));
+  const duration = $derived(item.duration);
 
   const goToExternalItem = () => {
-    if (item?.link) {
+    if (item.link) {
       AMIGoto(item.link);
     }
   };
@@ -46,6 +47,22 @@
     </p>
   {/if}
 
+  {#if item.hasMilestone()}
+    <div class="fr-mb-3w">
+      <p
+        class="fr-text--sm fr-badge demarche--item-period fr-mb-1w"
+        data-testid="item-period"
+      >
+        {item.period}
+      </p>
+      {#if duration}
+        <p class="fr-text--sm demarche--item-duration" data-testid="item-duration">
+          Durée&nbsp;: {duration}
+        </p>
+      {/if}
+    </div>
+  {/if}
+
   {#if item.link}
     <button
       id="external-item-button"
@@ -54,13 +71,20 @@
       onclick={goToExternalItem}
       data-testid="external-item-button"
     >
-      Accéder à ma démarche
+      {#if item.hasMilestone()}
+        Accéder au détail du rendez-vous
+      {:else}
+        Accéder à ma démarche
+      {/if}
     </button>
   {/if}
 </div>
 
 <style>
   div.demarche-content-header {
+    .demarche--item-period {
+      text-transform: none;
+    }
     button#external-item-button {
       width: 100%;
       display: flex;
