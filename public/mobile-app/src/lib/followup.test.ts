@@ -29,6 +29,309 @@ describe('/followup.ts', () => {
     });
   });
   describe('FollowupSubItem', () => {
+    describe('duration', () => {
+      test('should return human readable duration, if start and end miletone dates are defined in the same day', async () => {
+        // Given
+        const item1 = new SubItem(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          null,
+          null,
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'new',
+          'Terminée',
+          false,
+          'url'
+        );
+        const item2 = new SubItem(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          new Date(),
+          null,
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'new',
+          'Terminée',
+          false,
+          'url'
+        );
+        const item3 = new SubItem(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          null,
+          new Date(),
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'new',
+          'Terminée',
+          false,
+          'url'
+        );
+        const item4 = new SubItem(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          new Date('2025-09-20T23:00:00Z'),
+          new Date('2025-09-20T23:00:00Z'),
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'new',
+          'Terminée',
+          false,
+          'url'
+        );
+        const item5 = new SubItem(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          new Date('2025-09-20T20:00:00Z'),
+          new Date('2025-09-20T22:00:00Z'), // not the same day for Europe/Paris timezone
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'new',
+          'Terminée',
+          false,
+          'url'
+        );
+        const item6 = new SubItem(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          new Date('2025-09-20T12:00:00Z'),
+          new Date('2025-09-20T12:00:01Z'),
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'new',
+          'Terminée',
+          false,
+          'url'
+        );
+        const item7 = new SubItem(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          new Date('2025-09-20T12:00:00Z'),
+          new Date('2025-09-20T12:01:00Z'),
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'new',
+          'Terminée',
+          false,
+          'url'
+        );
+        const item8 = new SubItem(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          new Date('2025-09-20T12:00:00Z'),
+          new Date('2025-09-20T12:01:01Z'),
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'new',
+          'Terminée',
+          false,
+          'url'
+        );
+        const item9 = new SubItem(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          new Date('2025-09-20T12:00:00Z'),
+          new Date('2025-09-20T13:00:00Z'),
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'new',
+          'Terminée',
+          false,
+          'url'
+        );
+        const item10 = new SubItem(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          new Date('2025-09-20T12:00:00Z'),
+          new Date('2025-09-20T13:01:00Z'),
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'new',
+          'Terminée',
+          false,
+          'url'
+        );
+        const item11 = new SubItem(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          new Date('2025-09-20T12:00:00Z'),
+          new Date('2025-09-20T13:01:01Z'),
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'new',
+          'Terminée',
+          false,
+          'url'
+        );
+        const item12 = new SubItem(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          new Date('2025-09-20T12:00:00Z'),
+          new Date('2025-09-20T21:59:59Z'),
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'new',
+          'Terminée',
+          false,
+          'url'
+        );
+        const item13 = new SubItem(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          new Date('2025-09-20T12:00:00Z'),
+          new Date('2025-09-20T12:04:03Z'),
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'new',
+          'Terminée',
+          false,
+          'url'
+        );
+        const item14 = new SubItem(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          new Date('2025-09-20T12:00:00Z'),
+          new Date('2025-09-20T15:05:00Z'),
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'new',
+          'Terminée',
+          false,
+          'url'
+        );
+
+        // When
+        const result1 = item1.duration;
+        const result2 = item2.duration;
+        const result3 = item3.duration;
+        const result4 = item4.duration;
+        const result5 = item5.duration;
+        const result6 = item6.duration;
+        const result7 = item7.duration;
+        const result8 = item8.duration;
+        const result9 = item9.duration;
+        const result10 = item10.duration;
+        const result11 = item11.duration;
+        const result12 = item12.duration;
+        const result13 = item13.duration;
+        const result14 = item14.duration;
+
+        // Then
+        expect(result1).toEqual(undefined);
+        expect(result2).toEqual(undefined);
+        expect(result3).toEqual(undefined);
+        expect(result4).toEqual(undefined);
+        expect(result5).toEqual(undefined);
+        expect(result6).toEqual('1 seconde');
+        expect(result7).toEqual('1 minute');
+        expect(result8).toEqual('1 minute et 1 seconde');
+        expect(result9).toEqual('1 heure');
+        expect(result10).toEqual('1 heure et 1 minute');
+        expect(result11).toEqual('1 heure et 1 minute');
+        expect(result12).toEqual('9 heures et 59 minutes');
+        expect(result13).toEqual('4 minutes et 3 secondes');
+        expect(result14).toEqual('3 heures et 5 minutes');
+      });
+    });
     describe('getItemDetailPageUrl', () => {
       test('should return detail page url from partner_id, item_type and item_external_id', async () => {
         // Given
