@@ -132,6 +132,21 @@ export class UserStore {
   unsetHasWorkingPasskey() {
     localStorage.removeItem('user_has_working_passkey');
   }
+
+  getHasSuggestPasskeyCreationToday(): boolean {
+    const date = localStorage.getItem('user_last_passkey_suggestion') || null;
+    if (date === null) {
+      return false;
+    }
+    if (new Date().toLocaleDateString() === new Date(date).toLocaleDateString()) {
+      return true;
+    }
+    return false;
+  }
+
+  setLastPasskeyCreationSuggestion() {
+    localStorage.setItem('user_last_passkey_suggestion', new Date().toString());
+  }
 }
 
 export class User {
