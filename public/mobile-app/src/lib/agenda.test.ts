@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { Agenda, buildAgenda, Item, slugify } from '$lib/agenda';
 import * as apiAgendaMethods from '$lib/api-agenda';
+import * as followupMethods from '$lib/followup';
 import * as scheduledNotificationsMethods from '$lib/scheduled-notifications';
 import { Preferences } from '$lib/state/preferences';
 import { User, userStore } from '$lib/state/User.svelte';
@@ -263,117 +264,170 @@ describe('/agenda.ts', () => {
       });
     });
     describe('period', () => {
-      test('should not mention start date year', async () => {
-        // Given
-        const item = new Item(
-          'fake-id-holiday',
-          'holiday',
-          'title',
-          '',
-          'description',
-          null,
-          new Date('2025-10-15'),
-          new Date('2025-11-15')
-        );
+      describe('personnal item', () => {
+        test('should call getPeriod', async () => {
+          // Given
+          const spy = vi
+            .spyOn(followupMethods, 'getPeriod')
+            .mockReturnValue('A Period');
+          const item = new Item(
+            'fake-id-personnal',
+            'personnal',
+            'title',
+            '',
+            'description',
+            null,
+            new Date(),
+            new Date()
+          );
 
-        // When
-        const period = item.period;
+          // When
+          const result = item.period;
 
-        // Then
-        expect(period).equal('Du 15 octobre au 15 novembre 2025');
+          // Then
+          expect(result).toEqual('A Period');
+          expect(spy).toHaveBeenCalledWith(item.startDate, item.endDate);
+        });
       });
-      test('should not mention start date year and month', async () => {
-        // Given
-        const item = new Item(
-          'fake-id-holiday',
-          'holiday',
-          'title',
-          '',
-          'description',
-          null,
-          new Date('2025-10-15'),
-          new Date('2025-10-20')
-        );
+      describe('non personnal item', () => {
+        test('should not mention start date year', async () => {
+          // Given
+          const spy = vi
+            .spyOn(followupMethods, 'getPeriod')
+            .mockReturnValue('A Period');
+          const item = new Item(
+            'fake-id-holiday',
+            'holiday',
+            'title',
+            '',
+            'description',
+            null,
+            new Date('2025-10-15'),
+            new Date('2025-11-15')
+          );
 
-        // When
-        const period = item.period;
+          // When
+          const period = item.period;
 
-        // Then
-        expect(period).equal('Du 15 au 20 octobre 2025');
-      });
-      test('should mention start date year and month', async () => {
-        // Given
-        const item = new Item(
-          'fake-id-holiday',
-          'holiday',
-          'title',
-          '',
-          'description',
-          null,
-          new Date('2025-12-20'),
-          new Date('2026-01-02')
-        );
+          // Then
+          expect(period).equal('Du 15 octobre au 15 novembre 2025');
+          expect(spy).not.toHaveBeenCalled();
+        });
+        test('should not mention start date year and month', async () => {
+          // Given
+          const spy = vi
+            .spyOn(followupMethods, 'getPeriod')
+            .mockReturnValue('A Period');
+          const item = new Item(
+            'fake-id-holiday',
+            'holiday',
+            'title',
+            '',
+            'description',
+            null,
+            new Date('2025-10-15'),
+            new Date('2025-10-20')
+          );
 
-        // When
-        const period = item.period;
+          // When
+          const period = item.period;
 
-        // Then
-        expect(period).equal('Du 20 décembre 2025 au 2 janvier 2026');
-      });
-      test('should mention only start date and not "Du .. au .."', async () => {
-        // Given
-        const item = new Item(
-          'fake-id-holiday',
-          'holiday',
-          'title',
-          '',
-          'description',
-          null,
-          new Date('2027-05-07'),
-          new Date('2027-05-07')
-        );
+          // Then
+          expect(period).equal('Du 15 au 20 octobre 2025');
+          expect(spy).not.toHaveBeenCalled();
+        });
+        test('should mention start date year and month', async () => {
+          // Given
+          const spy = vi
+            .spyOn(followupMethods, 'getPeriod')
+            .mockReturnValue('A Period');
+          const item = new Item(
+            'fake-id-holiday',
+            'holiday',
+            'title',
+            '',
+            'description',
+            null,
+            new Date('2025-12-20'),
+            new Date('2026-01-02')
+          );
 
-        // When
-        const period = item.period;
+          // When
+          const period = item.period;
 
-        // Then
-        expect(period).equal('7 mai 2027');
-      });
-      test('should mention "À partir de"', async () => {
-        const item = new Item(
-          'fake-id-holiday',
-          'holiday',
-          'title',
-          '',
-          'description',
-          null,
-          new Date('2025-12-20'),
-          null
-        );
+          // Then
+          expect(period).equal('Du 20 décembre 2025 au 2 janvier 2026');
+          expect(spy).not.toHaveBeenCalled();
+        });
+        test('should mention only start date and not "Du .. au .."', async () => {
+          // Given
+          const spy = vi
+            .spyOn(followupMethods, 'getPeriod')
+            .mockReturnValue('A Period');
+          const item = new Item(
+            'fake-id-holiday',
+            'holiday',
+            'title',
+            '',
+            'description',
+            null,
+            new Date('2027-05-07'),
+            new Date('2027-05-07')
+          );
 
-        // When
-        const period = item.period;
+          // When
+          const period = item.period;
 
-        // Then
-        expect(period).equal('À partir du 20 décembre 2025');
-      });
-      test('should mention only the date', async () => {
-        const item = new Item(
-          'fake-id-holiday',
-          'holiday',
-          'title',
-          '',
-          'description',
-          new Date('2025-12-20'),
-          null,
-          null
-        );
+          // Then
+          expect(period).equal('7 mai 2027');
+          expect(spy).not.toHaveBeenCalled();
+        });
+        test('should mention "À partir de"', async () => {
+          // Given
+          const spy = vi
+            .spyOn(followupMethods, 'getPeriod')
+            .mockReturnValue('A Period');
+          const item = new Item(
+            'fake-id-holiday',
+            'holiday',
+            'title',
+            '',
+            'description',
+            null,
+            new Date('2025-12-20'),
+            null
+          );
 
-        // When
-        const period = item.period;
+          // When
+          const period = item.period;
 
-        // Then
-        expect(period).equal('20 décembre 2025');
+          // Then
+          expect(period).equal('À partir du 20 décembre 2025');
+          expect(spy).not.toHaveBeenCalled();
+        });
+        test('should mention only the date', async () => {
+          // Given
+          const spy = vi
+            .spyOn(followupMethods, 'getPeriod')
+            .mockReturnValue('A Period');
+          const item = new Item(
+            'fake-id-holiday',
+            'holiday',
+            'title',
+            '',
+            'description',
+            new Date('2025-12-20'),
+            null,
+            null
+          );
+
+          // When
+          const period = item.period;
+
+          // Then
+          expect(period).equal('20 décembre 2025');
+          expect(spy).not.toHaveBeenCalled();
+        });
       });
     });
     describe('label', () => {

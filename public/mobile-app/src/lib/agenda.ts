@@ -1,5 +1,6 @@
 import type { APIAgenda, APIAgendaItem } from '$lib/api-agenda';
 import { retrieveAgenda } from '$lib/api-agenda';
+import { getPeriod } from '$lib/followup';
 import { type User, userStore } from '$lib/state/User.svelte';
 import { dateToISO, getTimestamp, uniqueId } from '$lib/utils';
 
@@ -47,6 +48,10 @@ export class SubItem {
 
   get date(): Date | null {
     return this._start_date || this._date || this._end_date;
+  }
+
+  get startDate(): Date | null {
+    return this._start_date;
   }
 
   get endDate(): Date | null {
@@ -168,6 +173,10 @@ export class Item {
     return this._subitems[0].date;
   }
 
+  get startDate(): Date | null {
+    return this._subitems[0].startDate;
+  }
+
   get endDate(): Date | null {
     const endDates = this._subitems
       .map((subitem) => subitem.endDate)
@@ -205,6 +214,9 @@ export class Item {
   }
 
   get period(): string | undefined {
+    if (this.kind === 'personnal') {
+      return getPeriod(this.startDate, this.endDate);
+    }
     return this._subitems[0].period;
   }
 
