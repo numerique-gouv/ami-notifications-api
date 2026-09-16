@@ -1,5 +1,6 @@
 import { describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
+import { Item as AgendaItem } from '$lib/agenda';
 import * as apiFollowupMethods from '$lib/api-followup';
 import * as followupMethods from '$lib/followup';
 import {
@@ -10,6 +11,7 @@ import {
   FollowupItem as Item,
   FollowupSubItem as SubItem,
 } from '$lib/followup';
+import * as utilsMethods from '$lib/utils';
 
 describe('/followup.ts', () => {
   describe('getPeriod', () => {
@@ -1076,6 +1078,82 @@ describe('/followup.ts', () => {
               'Brouillon',
               false,
               null
+            )
+          )
+        ).toBe(true);
+      });
+    });
+    describe('buildAgendaItem', () => {
+      test('should return null as item has no milestone', async () => {
+        // Given
+        const item = new Item(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          new Date(),
+          new Date(),
+          [],
+          'title',
+          'subheading',
+          'description',
+          'icon',
+          new Date('2026-01-03T08:05:42Z'),
+          'new',
+          'New',
+          false,
+          null,
+          []
+        );
+        vi.spyOn(item, 'hasMilestone').mockReturnValue(false);
+
+        // When
+        const result = item.buildAgendaItem();
+
+        // Then
+        expect(result).toEqual(null);
+      });
+      test('should return an agenda item as item has milestone', async () => {
+        // Given
+        const item = new Item(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          new Date(),
+          new Date(),
+          [],
+          'title',
+          'subheading',
+          'description',
+          'icon',
+          new Date('2026-01-03T08:05:42Z'),
+          'new',
+          'New',
+          false,
+          null,
+          []
+        );
+        vi.spyOn(item, 'hasMilestone').mockReturnValue(true);
+        vi.spyOn(utilsMethods, 'uniqueId').mockReturnValue('fake-id');
+
+        // When
+        const result = item.buildAgendaItem();
+
+        // Then
+        expect(
+          result?.equals(
+            new AgendaItem(
+              'fake-id',
+              'personnal',
+              'title',
+              '/#/followup/item/partner/type/id',
+              null,
+              null,
+              item.milestone_start_date,
+              item.milestone_end_date
             )
           )
         ).toBe(true);
