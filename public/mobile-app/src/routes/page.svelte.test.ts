@@ -240,12 +240,12 @@ describe('/+page.svelte', () => {
       // Given
       const agenda = new Agenda();
       vi.spyOn(agenda, 'now', 'get').mockReturnValue([
-        new Item('fake-id-1', 'holiday', 'Holiday 1', null, new Date()),
-        new Item('fake-id-2', 'holiday', 'Holiday 2', null, new Date()),
+        new Item('fake-id-1', 'holiday', 'Holiday 1', '', null, new Date()),
+        new Item('fake-id-2', 'holiday', 'Holiday 2', '', null, new Date()),
       ]);
       vi.spyOn(agenda, 'next', 'get').mockReturnValue([
-        new Item('fake-id-3', 'holiday', 'Holiday 3', null, new Date()),
-        new Item('fake-id-4', 'holiday', 'Holiday 4', null, new Date()),
+        new Item('fake-id-3', 'holiday', 'Holiday 3', '', null, new Date()),
+        new Item('fake-id-4', 'holiday', 'Holiday 4', '', null, new Date()),
       ]);
       const spy = vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(agenda);
 
@@ -280,8 +280,8 @@ describe('/+page.svelte', () => {
       const agenda = new Agenda();
       vi.spyOn(agenda, 'now', 'get').mockReturnValue([]);
       vi.spyOn(agenda, 'next', 'get').mockReturnValue([
-        new Item('fake-id-1', 'holiday', 'Holiday 1', null, new Date()),
-        new Item('fake-id-2', 'holiday', 'Holiday 2', null, new Date()),
+        new Item('fake-id-1', 'holiday', 'Holiday 1', '', null, new Date()),
+        new Item('fake-id-2', 'holiday', 'Holiday 2', '', null, new Date()),
       ]);
       const spy = vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(agenda);
 
@@ -340,10 +340,10 @@ describe('/+page.svelte', () => {
         // Given
         const agenda = new Agenda();
         vi.spyOn(agenda, 'now', 'get').mockReturnValue([
-          new Item('fake-id-holiday-1', 'holiday', 'Holiday 1', null, today),
+          new Item('fake-id-holiday-1', 'holiday', 'Holiday 1', '', null, today),
         ]);
         vi.spyOn(agenda, 'next', 'get').mockReturnValue([
-          new Item('fake-id-holiday-2', 'holiday', 'Holiday 2', null, in32days),
+          new Item('fake-id-holiday-2', 'holiday', 'Holiday 2', '', null, in32days),
         ]);
         vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(agenda);
         render(Page, {
@@ -374,10 +374,10 @@ describe('/+page.svelte', () => {
         // Given
         const agenda = new Agenda();
         vi.spyOn(agenda, 'now', 'get').mockReturnValue([
-          new Item('fake-id-holiday-1', 'holiday', 'Holiday 1', null, today),
+          new Item('fake-id-holiday-1', 'holiday', 'Holiday 1', '', null, today),
         ]);
         vi.spyOn(agenda, 'next', 'get').mockReturnValue([
-          new Item('fake-id-holiday-2', 'holiday', 'Holiday 2', null, in32days),
+          new Item('fake-id-holiday-2', 'holiday', 'Holiday 2', '', null, in32days),
         ]);
         vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(agenda);
         render(Page, {
@@ -413,10 +413,10 @@ describe('/+page.svelte', () => {
         // Given
         const agenda = new Agenda();
         vi.spyOn(agenda, 'now', 'get').mockReturnValue([
-          new Item('fake-id-holiday-1', 'holiday', 'Holiday 1', null, today),
+          new Item('fake-id-holiday-1', 'holiday', 'Holiday 1', '', null, today),
         ]);
         vi.spyOn(agenda, 'next', 'get').mockReturnValue([
-          new Item('fake-id-holiday-2', 'holiday', 'Holiday 2', null, in32days),
+          new Item('fake-id-holiday-2', 'holiday', 'Holiday 2', '', null, in32days),
         ]);
         vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(agenda);
         const spy = vi.spyOn(toastStore, 'addToast');

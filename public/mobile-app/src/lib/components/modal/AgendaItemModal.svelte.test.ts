@@ -19,7 +19,7 @@ describe('/AgendaItemModal.svelte', () => {
 
   test('should display item title', async () => {
     // Given
-    const item = new Item('fake-id-holiday-1', 'holiday', 'Holiday 1', null, today);
+    const item = new Item('fake-id-holiday-1', 'holiday', 'Holiday 1', '', null, today);
     const agenda = new Agenda();
 
     // When
@@ -32,11 +32,11 @@ describe('/AgendaItemModal.svelte', () => {
 
   test('should add toast when user clicks on "Supprimer" button', async () => {
     // Given
-    const item = new Item('fake-id-holiday-1', 'holiday', 'Holiday 1', null, today);
+    const item = new Item('fake-id-holiday-1', 'holiday', 'Holiday 1', '', null, today);
     const agenda = new Agenda();
     vi.spyOn(agenda, 'now', 'get').mockReturnValue([item]);
     vi.spyOn(agenda, 'next', 'get').mockReturnValue([
-      new Item('fake-id-holiday-2', 'holiday', 'Holiday 2', null, in32days),
+      new Item('fake-id-holiday-2', 'holiday', 'Holiday 2', '', null, in32days),
     ]);
     const spy = vi.spyOn(toastStore, 'addToast');
     const spy2 = vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(new Agenda());

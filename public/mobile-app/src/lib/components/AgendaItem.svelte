@@ -13,9 +13,9 @@
   let { item, displayDate = true, onOpen }: Props = $props();
 
   const badgeKinds = {
-    otv: 'fr-badge--green-archipel',
     election: 'fr-badge--green-tilleul-verveine',
     holiday: 'fr-badge--blue-cumulus',
+    personnal: 'am-badge--user',
   };
 </script>
 

@@ -3,7 +3,7 @@ import { retrieveAgenda } from '$lib/api-agenda';
 import { type User, userStore } from '$lib/state/User.svelte';
 import { dateToISO, getTimestamp, uniqueId } from '$lib/utils';
 
-export type Kind = 'holiday' | 'election';
+export type Kind = 'holiday' | 'election' | 'personnal';
 
 const capitalizeFirstLetter = (val: string) => {
   return String(val).charAt(0).toUpperCase() + String(val).slice(1);
@@ -46,7 +46,7 @@ export class SubItem {
   }
 
   get date(): Date | null {
-    return this._start_date || this._date;
+    return this._start_date || this._date || this._end_date;
   }
 
   get endDate(): Date | null {
@@ -92,6 +92,7 @@ export class Item {
     private _id: string,
     private _kind: Kind,
     private _title: string,
+    private _link: string,
     _description: string | null,
     _date: Date | null = null,
     _start_date: Date | null = null,
@@ -151,6 +152,10 @@ export class Item {
     return this._title;
   }
 
+  get link(): string {
+    return this._link;
+  }
+
   get description(): string | null {
     return this._subitems[0].description;
   }
@@ -203,19 +208,18 @@ export class Item {
     return this._subitems[0].period;
   }
 
-  private static readonly KindInfo: Record<
-    Kind,
-    { label: string; icon: string; link: string }
-  > = {
+  private static readonly KindInfo: Record<Kind, { label: string; icon: string }> = {
     holiday: {
       label: 'Vacances et jours fériés',
       icon: 'fr-icon-calendar-event-fill',
-      link: '',
     },
     election: {
       label: 'Élections',
       icon: 'fr-icon-chat-check-fill',
-      link: '',
+    },
+    personnal: {
+      label: 'Personnel',
+      icon: 'fr-icon-user-fill',
     },
   };
 
@@ -241,14 +245,6 @@ export class Item {
       return '';
     }
     return info.icon;
-  }
-
-  get link(): string {
-    const info = Item.KindInfo[this._kind];
-    if (info === undefined) {
-      return '';
-    }
-    return info.link;
   }
 
   get key(): string {
@@ -387,6 +383,7 @@ export class Agenda {
       uniqueId(),
       'holiday',
       title,
+      '',
       this.getSchoolHolidayItemDescription(holiday),
       null,
       holiday.start_date,
@@ -416,7 +413,7 @@ export class Agenda {
     if (holiday.emoji) {
       title += ` ${holiday.emoji}`;
     }
-    return new Item(uniqueId(), 'holiday', title, null, holiday.date, null, null);
+    return new Item(uniqueId(), 'holiday', title, '', null, holiday.date, null, null);
   }
 
   private processOTVs(school_holidays: APIAgendaItem[]) {
@@ -496,6 +493,7 @@ export class Agenda {
       uniqueId(),
       'election',
       title,
+      '',
       election.description,
       election.date,
       null,

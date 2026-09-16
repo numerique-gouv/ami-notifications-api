@@ -18,6 +18,7 @@ describe('/agenda.ts', () => {
           'fake-id',
           'holiday',
           'Holiday 1',
+          '',
           'Zone A',
           null,
           new Date('2025-09-20T23:00:00Z'),
@@ -44,6 +45,7 @@ describe('/agenda.ts', () => {
           'fake-id-holyday-1',
           'holiday',
           'Holiday 1',
+          '',
           'Zone A',
           null,
           new Date('2025-09-20T23:00:00Z'),
@@ -68,6 +70,7 @@ describe('/agenda.ts', () => {
           'fake-id-holiday-2',
           'holiday',
           'Holiday 2',
+          '',
           'Corse',
           null,
           new Date('2025-11-30T23:00:00Z'),
@@ -88,6 +91,7 @@ describe('/agenda.ts', () => {
           'fake-id-holiday-1',
           'holiday',
           'title',
+          '',
           'description',
           new Date('2025-11-11'),
           null,
@@ -97,6 +101,7 @@ describe('/agenda.ts', () => {
           'fake-id-holiday-2',
           'holiday',
           'title',
+          '',
           'description',
           null,
           new Date('2025-11-11'),
@@ -119,6 +124,7 @@ describe('/agenda.ts', () => {
           'fake-id-holiday-1',
           'holiday',
           'title',
+          '',
           'description',
           new Date('2025-11-11'),
           null,
@@ -128,6 +134,7 @@ describe('/agenda.ts', () => {
           'fake-id-holiday-2',
           'holiday',
           'title',
+          '',
           'description',
           null,
           new Date('2025-11-11'),
@@ -150,6 +157,7 @@ describe('/agenda.ts', () => {
           'fake-id-holiday-1',
           'holiday',
           'title',
+          '',
           'description',
           new Date('2025-11-11'),
           null,
@@ -159,6 +167,7 @@ describe('/agenda.ts', () => {
           'fake-id-holiday-2',
           'holiday',
           'title',
+          '',
           'description',
           null,
           new Date('2025-11-11'),
@@ -181,6 +190,7 @@ describe('/agenda.ts', () => {
           'fake-id-holiday-1',
           'holiday',
           'title',
+          '',
           'description',
           new Date('2025-11-11'),
           null,
@@ -190,6 +200,7 @@ describe('/agenda.ts', () => {
           'fake-id-holiday-2',
           'holiday',
           'title',
+          '',
           'description',
           null,
           new Date('2025-11-11'),
@@ -212,6 +223,7 @@ describe('/agenda.ts', () => {
           'fake-id-holiday-1',
           'holiday',
           'title',
+          '',
           'description',
           null,
           null,
@@ -221,6 +233,7 @@ describe('/agenda.ts', () => {
           'fake-id-holiday-2',
           'holiday',
           'title',
+          '',
           'description',
           null,
           null,
@@ -230,6 +243,7 @@ describe('/agenda.ts', () => {
           'fake-id-holiday-3',
           'holiday',
           'title',
+          '',
           'description',
           null,
           null,
@@ -255,6 +269,7 @@ describe('/agenda.ts', () => {
           'fake-id-holiday',
           'holiday',
           'title',
+          '',
           'description',
           null,
           new Date('2025-10-15'),
@@ -273,6 +288,7 @@ describe('/agenda.ts', () => {
           'fake-id-holiday',
           'holiday',
           'title',
+          '',
           'description',
           null,
           new Date('2025-10-15'),
@@ -291,6 +307,7 @@ describe('/agenda.ts', () => {
           'fake-id-holiday',
           'holiday',
           'title',
+          '',
           'description',
           null,
           new Date('2025-12-20'),
@@ -309,6 +326,7 @@ describe('/agenda.ts', () => {
           'fake-id-holiday',
           'holiday',
           'title',
+          '',
           'description',
           null,
           new Date('2027-05-07'),
@@ -326,6 +344,7 @@ describe('/agenda.ts', () => {
           'fake-id-holiday',
           'holiday',
           'title',
+          '',
           'description',
           null,
           new Date('2025-12-20'),
@@ -343,6 +362,7 @@ describe('/agenda.ts', () => {
           'fake-id-holiday',
           'holiday',
           'title',
+          '',
           'description',
           new Date('2025-12-20'),
           null,
@@ -364,6 +384,7 @@ describe('/agenda.ts', () => {
           // @ts-expect-error: `'incorrect'` isn't a proper Kind, so typescript will complain
           'incorrect',
           'title',
+          '',
           'description',
           new Date('2025-12-20')
         );
@@ -371,6 +392,7 @@ describe('/agenda.ts', () => {
           'fake-id-holiday-2',
           'holiday',
           'title',
+          '',
           'description',
           new Date('2025-12-20')
         );
@@ -378,6 +400,7 @@ describe('/agenda.ts', () => {
           'fake-id-election-3',
           'election',
           'title',
+          '',
           'description',
           new Date('2025-12-20')
         );
@@ -401,6 +424,7 @@ describe('/agenda.ts', () => {
           // @ts-expect-error: `'incorrect'` isn't a proper Kind, so typescript will complain
           'incorrect',
           'title',
+          '',
           'description',
           new Date('2025-12-20')
         );
@@ -408,6 +432,7 @@ describe('/agenda.ts', () => {
           'fake-id-holiday-2',
           'holiday',
           'title',
+          '',
           'description',
           new Date('2025-12-20')
         );
@@ -415,6 +440,7 @@ describe('/agenda.ts', () => {
           'fake-id-election-3',
           'election',
           'title',
+          '',
           'description',
           new Date('2025-12-20')
         );
@@ -430,43 +456,6 @@ describe('/agenda.ts', () => {
         expect(icon3).equal('fr-icon-chat-check-fill');
       });
     });
-    describe('link', () => {
-      test('should return a link depending on kind', async () => {
-        // Given
-        const item1 = new Item(
-          'fake-id-item-1',
-          // @ts-expect-error: `'incorrect'` isn't a proper Kind, so typescript will complain
-          'incorrect',
-          'title',
-          'description',
-          new Date('2025-12-20')
-        );
-        const item2 = new Item(
-          'fake-id-holiday-2',
-          'holiday',
-          'title',
-          'description',
-          new Date('2025-12-20')
-        );
-        const item3 = new Item(
-          'fake-id-election-3',
-          'election',
-          'title',
-          'description',
-          new Date('2025-12-20')
-        );
-
-        // When
-        const link1 = item1.link;
-        const link2 = item2.link;
-        const link3 = item3.link;
-
-        // Then
-        expect(link1).equal('');
-        expect(link2).equal('');
-        expect(link3).equal('');
-      });
-    });
     describe('key', () => {
       test('should return a key depending on kind, date and title', async () => {
         // Given
@@ -475,6 +464,7 @@ describe('/agenda.ts', () => {
           // @ts-expect-error: `'incorrect'` isn't a proper Kind, so typescript will complain
           'incorrect',
           'title 1',
+          '',
           'description',
           new Date('2025-12-20')
         );
@@ -482,6 +472,7 @@ describe('/agenda.ts', () => {
           'fake-id-holiday-2',
           'holiday',
           'title 2',
+          '',
           'description',
           new Date('2025-12-20')
         );
@@ -489,6 +480,15 @@ describe('/agenda.ts', () => {
           'fake-id-election-3',
           'election',
           'title 3',
+          '',
+          'description',
+          new Date('2025-12-20')
+        );
+        const item4 = new Item(
+          'fake-id-personnal-4',
+          'personnal',
+          'title 4',
+          '',
           'description',
           new Date('2025-12-20')
         );
@@ -497,11 +497,13 @@ describe('/agenda.ts', () => {
         const key1 = item1.key;
         const key2 = item2.key;
         const key3 = item3.key;
+        const key4 = item4.key;
 
         // Then
         expect(key1).equal('ami-incorrect:1766188800:title-1');
         expect(key2).equal('ami-holiday:1766188800:title-2');
         expect(key3).equal('ami-election:1766188800:title-3');
+        expect(key4).equal('ami-personnal:1766188800:title-4');
       });
     });
   });
@@ -631,6 +633,7 @@ describe('/agenda.ts', () => {
               'fake-id',
               'holiday',
               'Holiday 1 foo',
+              '',
               'Zone A',
               null,
               holiday1.start_date,
@@ -644,6 +647,7 @@ describe('/agenda.ts', () => {
               'fake-id',
               'holiday',
               'Holiday 2',
+              '',
               'Zone B',
               null,
               holiday2.start_date,
@@ -653,7 +657,16 @@ describe('/agenda.ts', () => {
         ).toBe(true);
         expect(
           agenda.now[2].equals(
-            new Item('fake-id', 'holiday', 'Day 6 bar', null, holiday6.date, null, null)
+            new Item(
+              'fake-id',
+              'holiday',
+              'Day 6 bar',
+              '',
+              null,
+              holiday6.date,
+              null,
+              null
+            )
           )
         ).toBe(true);
         expect(
@@ -662,6 +675,7 @@ describe('/agenda.ts', () => {
               'fake-id',
               'election',
               'Election1 bar',
+              '',
               'description',
               election1.date,
               null,
@@ -675,6 +689,7 @@ describe('/agenda.ts', () => {
               'fake-id',
               'holiday',
               'Holiday 3 foo',
+              '',
               'Corse',
               null,
               holiday3.start_date,
@@ -689,6 +704,7 @@ describe('/agenda.ts', () => {
               'fake-id',
               'holiday',
               'Holiday 4',
+              '',
               'Zone A',
               null,
               holiday4.start_date,
@@ -698,7 +714,7 @@ describe('/agenda.ts', () => {
         ).toBe(true);
         expect(
           agenda.next[1].equals(
-            new Item('fake-id', 'holiday', 'Day 7', null, holiday7.date, null, null)
+            new Item('fake-id', 'holiday', 'Day 7', '', null, holiday7.date, null, null)
           )
         ).toBe(true);
         expect(
@@ -707,6 +723,7 @@ describe('/agenda.ts', () => {
               'fake-id',
               'election',
               'Election2',
+              '',
               'description',
               election2.date,
               null,
@@ -720,6 +737,7 @@ describe('/agenda.ts', () => {
               'fake-id',
               'holiday',
               'Holiday 5',
+              '',
               'Zone C&nbsp;: <strong>Paris (75) 🏠</strong>',
               null,
               holiday5.start_date,
@@ -781,6 +799,7 @@ describe('/agenda.ts', () => {
               'fake-id',
               'holiday',
               'Holiday foo',
+              '',
               'desc 1',
               null,
               holiday1.start_date,
@@ -866,6 +885,7 @@ describe('/agenda.ts', () => {
           'fake-id',
           'holiday',
           'Holiday foo',
+          '',
           'Zone A',
           null,
           holiday1.start_date,
@@ -878,6 +898,7 @@ describe('/agenda.ts', () => {
           'fake-id',
           'holiday',
           'Holiday foo',
+          '',
           'Zone A',
           null,
           holiday3.start_date,
@@ -934,6 +955,7 @@ describe('/agenda.ts', () => {
               'fake-id',
               'holiday',
               'Holiday 1 foo',
+              '',
               'Zone A',
               null,
               holiday1.start_date,
@@ -947,6 +969,7 @@ describe('/agenda.ts', () => {
               'fake-id',
               'holiday',
               'Holiday 2',
+              '',
               'Zone B',
               null,
               holiday2.start_date,
@@ -1006,6 +1029,7 @@ describe('/agenda.ts', () => {
               'fake-id-1',
               'holiday',
               'Holiday 1 foo',
+              '',
               'Zone A',
               null,
               holiday1.start_date,
@@ -1056,13 +1080,22 @@ describe('/agenda.ts', () => {
         expect(agenda.now.length).equal(1);
         expect(
           agenda.now[0].equals(
-            new Item('fake-id', 'holiday', 'Day 6 bar', null, holiday6.date, null, null)
+            new Item(
+              'fake-id',
+              'holiday',
+              'Day 6 bar',
+              '',
+              null,
+              holiday6.date,
+              null,
+              null
+            )
           )
         ).toBe(true);
         expect(agenda.next.length).equal(1);
         expect(
           agenda.next[0].equals(
-            new Item('fake-id', 'holiday', 'Day 7', null, holiday7.date, null, null)
+            new Item('fake-id', 'holiday', 'Day 7', '', null, holiday7.date, null, null)
           )
         ).toBe(true);
       });
@@ -1093,6 +1126,7 @@ describe('/agenda.ts', () => {
           'fake-id-6',
           'holiday',
           'Day 6 bar',
+          '',
           null,
           new Date('2025-11-11T23:00:00Z'),
           null,
@@ -1102,6 +1136,7 @@ describe('/agenda.ts', () => {
           'fake-id-7',
           'holiday',
           'Day 7',
+          '',
           null,
           new Date('2025-12-10T23:00:00Z'),
           null,
@@ -1786,6 +1821,7 @@ describe('/agenda.ts', () => {
               'fake-id',
               'election',
               'Election1 bar',
+              '',
               'description',
               election1.date,
               null,
@@ -1800,6 +1836,7 @@ describe('/agenda.ts', () => {
               'fake-id',
               'election',
               'Election2',
+              '',
               'description',
               election2.date,
               null,
@@ -1835,6 +1872,7 @@ describe('/agenda.ts', () => {
           'fake-id-1',
           'election',
           'Election1 bar',
+          '',
           'description',
           parseISODate('2025-11-12'),
           null,
@@ -1844,6 +1882,7 @@ describe('/agenda.ts', () => {
           'fake-id-2',
           'election',
           'Election2',
+          '',
           'description',
           parseISODate('2025-12-11'),
           null,
@@ -1946,6 +1985,7 @@ describe('/agenda.ts', () => {
             'fake-id',
             'holiday',
             'Holiday 1',
+            '',
             'Zone A',
             null,
             holiday1.start_date,
@@ -1955,7 +1995,7 @@ describe('/agenda.ts', () => {
       ).toBe(true);
       expect(
         agenda.now[1].equals(
-          new Item('fake-id', 'holiday', 'Day 3', null, holiday3.date, null, null)
+          new Item('fake-id', 'holiday', 'Day 3', '', null, holiday3.date, null, null)
         )
       ).toBe(true);
       expect(agenda.next.length).equal(2);
@@ -1965,6 +2005,7 @@ describe('/agenda.ts', () => {
             'fake-id',
             'holiday',
             'Holiday 2',
+            '',
             'Corse',
             null,
             holiday2.start_date,
@@ -1974,7 +2015,7 @@ describe('/agenda.ts', () => {
       ).toBe(true);
       expect(
         agenda.next[1].equals(
-          new Item('fake-id', 'holiday', 'Day 4', null, holiday4.date, null, null)
+          new Item('fake-id', 'holiday', 'Day 4', '', null, holiday4.date, null, null)
         )
       ).toBe(true);
     });
