@@ -32,7 +32,7 @@
   {/if}
   <div class="agenda--item--container">
     <div
-      class="agenda--item--detail fr-tile fr-tile--sm fr-tile--horizontal fr-enlarge-button {item.link ? '': 'no-link'}"
+      class="agenda--item--detail {item.kind} fr-tile fr-tile--sm fr-tile--horizontal fr-enlarge-button {item.link ? '': 'no-link'}"
     >
       <button
         type="button"
@@ -145,6 +145,13 @@
       .agenda--item--detail {
         padding: 1rem 2rem 0.5rem 1rem;
         width: 100%;
+        &.personnal {
+          background-image:
+            linear-gradient(0deg, var(--am-blue--1), var(--am-blue--1)),
+            linear-gradient(0deg, var(--am-blue--1), var(--am-blue--1)),
+            linear-gradient(0deg, var(--am-blue--1), var(--am-blue--1)),
+            linear-gradient(0deg, var(--am-blue--1), var(--am-blue--1));
+        }
         &:not(:first-child) {
           background-image:
             linear-gradient(

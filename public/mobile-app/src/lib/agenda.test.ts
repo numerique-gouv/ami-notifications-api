@@ -3,6 +3,7 @@ import '@testing-library/jest-dom/vitest';
 import { Agenda, buildAgenda, Item, slugify } from '$lib/agenda';
 import * as apiAgendaMethods from '$lib/api-agenda';
 import * as followupMethods from '$lib/followup';
+import { Followup, FollowupItem } from '$lib/followup';
 import * as scheduledNotificationsMethods from '$lib/scheduled-notifications';
 import { Preferences } from '$lib/state/preferences';
 import { User, userStore } from '$lib/state/User.svelte';
@@ -562,10 +563,6 @@ describe('/agenda.ts', () => {
     });
   });
   describe('Agenda', () => {
-    beforeEach(() => {
-      localStorage.setItem('hidden_agenda_items_holiday', '[]');
-      localStorage.setItem('hidden_agenda_items_election', '[]');
-    });
     describe('Now/Next', () => {
       beforeEach(() => {
         vi.spyOn(
@@ -676,6 +673,7 @@ describe('/agenda.ts', () => {
             public_holidays: [holiday6, holiday7],
             elections: [election1, election2],
           },
+          null,
           new Date('2025-11-01T12:00:00Z')
         );
 
@@ -842,6 +840,7 @@ describe('/agenda.ts', () => {
             public_holidays: [],
             elections: [],
           },
+          null,
           new Date('2026-02-01T12:00:00Z')
         );
 
@@ -930,6 +929,7 @@ describe('/agenda.ts', () => {
             public_holidays: [],
             elections: [],
           },
+          null,
           new Date('2026-02-01T12:00:00Z')
         );
 
@@ -998,6 +998,7 @@ describe('/agenda.ts', () => {
             public_holidays: [],
             elections: [],
           },
+          null,
           new Date('2025-11-01T12:00:00Z')
         );
 
@@ -1072,6 +1073,7 @@ describe('/agenda.ts', () => {
             public_holidays: [],
             elections: [],
           },
+          null,
           new Date('2025-11-01T12:00:00Z')
         );
 
@@ -1127,6 +1129,7 @@ describe('/agenda.ts', () => {
             public_holidays: [holiday6, holiday7],
             elections: [],
           },
+          null,
           new Date('2025-11-01T12:00:00Z')
         );
 
@@ -1213,6 +1216,7 @@ describe('/agenda.ts', () => {
             public_holidays: [holiday6, holiday7],
             elections: [],
           },
+          null,
           new Date('2025-11-01T12:00:00Z')
         );
 
@@ -1278,6 +1282,7 @@ describe('/agenda.ts', () => {
               public_holidays: [],
               elections: [],
             },
+            null,
             new Date('2026-02-01T12:00:00Z')
           );
 
@@ -1343,6 +1348,7 @@ describe('/agenda.ts', () => {
               public_holidays: [],
               elections: [],
             },
+            null,
             new Date('2026-02-01T12:00:00Z')
           );
 
@@ -1427,6 +1433,7 @@ describe('/agenda.ts', () => {
               public_holidays: [],
               elections: [],
             },
+            null,
             new Date('2026-02-01T12:00:00Z')
           );
 
@@ -1519,6 +1526,7 @@ describe('/agenda.ts', () => {
               public_holidays: [],
               elections: [],
             },
+            null,
             new Date('2026-01-17T12:00:00Z')
           );
 
@@ -1581,6 +1589,7 @@ describe('/agenda.ts', () => {
               public_holidays: [],
               elections: [],
             },
+            null,
             new Date('2026-01-17T12:00:00Z')
           );
 
@@ -1643,6 +1652,7 @@ describe('/agenda.ts', () => {
               public_holidays: [],
               elections: [],
             },
+            null,
             new Date('2026-01-16T12:00:00Z')
           );
 
@@ -1703,6 +1713,7 @@ describe('/agenda.ts', () => {
               public_holidays: [],
               elections: [],
             },
+            null,
             new Date('2026-01-17T12:00:00Z')
           );
 
@@ -1764,6 +1775,7 @@ describe('/agenda.ts', () => {
               public_holidays: [],
               elections: [],
             },
+            null,
             new Date('2026-01-17T12:00:00Z')
           );
 
@@ -1822,6 +1834,7 @@ describe('/agenda.ts', () => {
               public_holidays: [],
               elections: [],
             },
+            null,
             new Date('2026-01-16T12:00:00Z')
           );
 
@@ -1833,7 +1846,6 @@ describe('/agenda.ts', () => {
     describe('Election', () => {
       test('should organize items in now and next', async () => {
         // Given
-        localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
         const election1 = {
           kind: 'election',
           title: 'Election1',
@@ -1864,6 +1876,7 @@ describe('/agenda.ts', () => {
             public_holidays: [],
             elections: [election1, election2],
           },
+          null,
           new Date('2025-11-01T12:00:00Z')
         );
 
@@ -1901,7 +1914,6 @@ describe('/agenda.ts', () => {
       });
       test('should not display election if is listed in hidden items', async () => {
         // Given
-        localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
         const election1 = {
           kind: 'election',
           title: 'Election1',
@@ -1959,6 +1971,7 @@ describe('/agenda.ts', () => {
             public_holidays: [],
             elections: [election1, election2],
           },
+          null,
           new Date('2025-11-01T12:00:00Z')
         );
 
@@ -1968,14 +1981,324 @@ describe('/agenda.ts', () => {
         expect(agenda.next.length).equal(0);
       });
     });
+    describe('Personnal', () => {
+      test('should organize items in now and next', async () => {
+        // Given
+        const followup = new Followup();
+        const followupItem1 = new FollowupItem(
+          'partner',
+          'type',
+          'id1',
+          'ref1',
+          'notifications',
+          null,
+          null,
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est en cours de traitement.',
+          'icon',
+          new Date('2026-02-22T15:55:00.000Z'),
+          'wip',
+          'En cours',
+          false,
+          null,
+          []
+        );
+        const followupItem2 = new FollowupItem(
+          'partner',
+          'type',
+          'id2',
+          'ref2',
+          'notifications',
+          null,
+          null,
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'closed',
+          'Terminée',
+          true,
+          null,
+          []
+        );
+        const followupItem3 = new FollowupItem(
+          'partner',
+          'type',
+          'id2',
+          'ref2',
+          'notifications',
+          null,
+          null,
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'closed',
+          'Terminée',
+          true,
+          null,
+          []
+        );
+        vi.spyOn(followup, 'items', 'get').mockReturnValue([
+          followupItem1,
+          followupItem2,
+          followupItem3,
+        ]);
+        vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
+        vi.spyOn(followupItem1, 'buildAgendaItem').mockReturnValue(null);
+        vi.spyOn(followupItem2, 'buildAgendaItem').mockReturnValue(
+          new Item(
+            'fake-id',
+            'personnal',
+            'Rendez-vous',
+            'link1',
+            null,
+            null,
+            parseISODate('2025-09-22'),
+            null
+          )
+        );
+        vi.spyOn(followupItem3, 'buildAgendaItem').mockReturnValue(
+          new Item(
+            'fake-id',
+            'personnal',
+            'Rendez-vous',
+            'link2',
+            null,
+            null,
+            null,
+            parseISODate('2025-12-23')
+          )
+        );
+        await userStore.login(mockUserInfo);
+        vi.spyOn(utilsMethods, 'uniqueId').mockReturnValue('fake-id');
+
+        // When
+        const agenda = new Agenda(null, followup, new Date('2025-11-01T12:00:00Z'));
+
+        // Then
+        expect(agenda.now.length).equal(1);
+        expect(
+          agenda.now[0].equals(
+            new Item(
+              'fake-id',
+              'personnal',
+              'Rendez-vous',
+              'link1',
+              null,
+              null,
+              parseISODate('2025-09-22'),
+              null
+            )
+          )
+        ).toBe(true);
+        expect(agenda.next.length).equal(1);
+        expect(
+          agenda.next[0].equals(
+            new Item(
+              'fake-id',
+              'personnal',
+              'Rendez-vous',
+              'link2',
+              null,
+              null,
+              null,
+              parseISODate('2025-12-23')
+            )
+          )
+        ).toBe(true);
+      });
+      test('should not display personnal item if is listed in hidden items', async () => {
+        // Given
+        const followup = new Followup();
+        const followupItem1 = new FollowupItem(
+          'partner',
+          'type',
+          'id1',
+          'ref1',
+          'notifications',
+          null,
+          null,
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est en cours de traitement.',
+          'icon',
+          new Date('2026-02-22T15:55:00.000Z'),
+          'wip',
+          'En cours',
+          false,
+          null,
+          []
+        );
+        const followupItem2 = new FollowupItem(
+          'partner',
+          'type',
+          'id2',
+          'ref2',
+          'notifications',
+          null,
+          null,
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'closed',
+          'Terminée',
+          true,
+          null,
+          []
+        );
+        vi.spyOn(followup, 'items', 'get').mockReturnValue([
+          followupItem1,
+          followupItem2,
+        ]);
+        const item1 = new Item(
+          'fake-id-1',
+          'personnal',
+          'Rendez-vous',
+          'link1',
+          null,
+          null,
+          parseISODate('2025-09-22'),
+          null
+        );
+        const item2 = new Item(
+          'fake-id-2',
+          'personnal',
+          'Rendez-vous',
+          'link2',
+          null,
+          null,
+          null,
+          parseISODate('2025-12-23')
+        );
+        vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
+        vi.spyOn(followupItem1, 'buildAgendaItem').mockReturnValue(item1);
+        vi.spyOn(followupItem2, 'buildAgendaItem').mockReturnValue(item2);
+        await userStore.login(mockUserInfo);
+        vi.spyOn(utilsMethods, 'uniqueId')
+          .mockReturnValueOnce('fake-id-1')
+          .mockReturnValueOnce('fake-id-2');
+
+        const existing = [];
+        const itemKey = `ami-personnal:${getTimestamp(item2.date)}:${slugify(item2.title)}`;
+        existing.push(itemKey);
+        localStorage.setItem('hidden_agenda_items_personnal', JSON.stringify(existing));
+
+        // When
+        const agenda = new Agenda(null, followup, new Date('2025-11-01T12:00:00Z'));
+
+        // Then
+        expect(agenda.now.length).equal(1);
+        expect(agenda.now[0].equals(item1)).toBe(true);
+        expect(agenda.next.length).equal(0);
+      });
+    });
   });
   describe('buildAgenda', () => {
-    beforeEach(() => {
-      localStorage.setItem('hidden_agenda_items_holiday', '[]');
-      localStorage.setItem('hidden_agenda_items_election', '[]');
-    });
-    test('should retrieve agenda items and init agenda with them', async () => {
+    test('should retrieve agenda items, followup items and init agenda with them', async () => {
       // Given
+      const followup = new Followup();
+      const followupItem1 = new FollowupItem(
+        'partner',
+        'type',
+        'id1',
+        'ref1',
+        'notifications',
+        null,
+        null,
+        [],
+        'Opération Tranquillité Vacances',
+        'subheading',
+        'Votre demande est en cours de traitement.',
+        'icon',
+        new Date('2026-02-22T15:55:00.000Z'),
+        'wip',
+        'En cours',
+        false,
+        null,
+        []
+      );
+      const followupItem2 = new FollowupItem(
+        'partner',
+        'type',
+        'id2',
+        'ref2',
+        'notifications',
+        null,
+        null,
+        [],
+        'Opération Tranquillité Vacances',
+        'subheading',
+        'Votre demande est terminée.',
+        'icon',
+        new Date('2026-02-20T15:55:00.000Z'),
+        'closed',
+        'Terminée',
+        true,
+        null,
+        []
+      );
+      const followupItem3 = new FollowupItem(
+        'partner',
+        'type',
+        'id2',
+        'ref2',
+        'notifications',
+        null,
+        null,
+        [],
+        'Opération Tranquillité Vacances',
+        'subheading',
+        'Votre demande est terminée.',
+        'icon',
+        new Date('2026-02-20T15:55:00.000Z'),
+        'closed',
+        'Terminée',
+        true,
+        null,
+        []
+      );
+      vi.spyOn(followup, 'items', 'get').mockReturnValue([
+        followupItem1,
+        followupItem2,
+        followupItem3,
+      ]);
+      vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
+      vi.spyOn(followupItem1, 'buildAgendaItem').mockReturnValue(null);
+      vi.spyOn(followupItem2, 'buildAgendaItem').mockReturnValue(
+        new Item(
+          'fake-id',
+          'personnal',
+          'Rendez-vous',
+          'link1',
+          null,
+          null,
+          parseISODate('2025-09-22'),
+          null
+        )
+      );
+      vi.spyOn(followupItem3, 'buildAgendaItem').mockReturnValue(
+        new Item(
+          'fake-id',
+          'personnal',
+          'Rendez-vous',
+          'link2',
+          null,
+          null,
+          null,
+          parseISODate('2025-12-23')
+        )
+      );
       localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
       const holiday1 = {
         kind: 'holiday',
@@ -2023,16 +2346,16 @@ describe('/agenda.ts', () => {
         elections: [],
       });
       await userStore.login(mockUserInfo);
-      vi.spyOn(utilsMethods, 'uniqueId').mockReturnValue('fake-id');
+      vi.spyOn(utilsMethods, 'uniqueId').mockReset().mockReturnValue('fake-id');
 
       // When
       await userStore.login(mockUserInfo);
-      const agenda = await buildAgenda(new Date('2025-11-01T12:00:00Z'));
+      const agenda = await buildAgenda(null, new Date('2025-11-01T12:00:00Z'));
 
       // Then
       expect(spy).toHaveBeenCalledTimes(1);
       expect(agenda).toBeInstanceOf(Agenda);
-      expect(agenda.now.length).equal(2);
+      expect(agenda.now.length).equal(3);
       expect(
         agenda.now[0].equals(
           new Item(
@@ -2049,10 +2372,24 @@ describe('/agenda.ts', () => {
       ).toBe(true);
       expect(
         agenda.now[1].equals(
+          new Item(
+            'fake-id',
+            'personnal',
+            'Rendez-vous',
+            'link1',
+            null,
+            null,
+            parseISODate('2025-09-22'),
+            null
+          )
+        )
+      ).toBe(true);
+      expect(
+        agenda.now[2].equals(
           new Item('fake-id', 'holiday', 'Day 3', '', null, holiday3.date, null, null)
         )
       ).toBe(true);
-      expect(agenda.next.length).equal(2);
+      expect(agenda.next.length).equal(3);
       expect(
         agenda.next[0].equals(
           new Item(
@@ -2069,6 +2406,239 @@ describe('/agenda.ts', () => {
       ).toBe(true);
       expect(
         agenda.next[1].equals(
+          new Item(
+            'fake-id',
+            'personnal',
+            'Rendez-vous',
+            'link2',
+            null,
+            null,
+            null,
+            parseISODate('2025-12-23')
+          )
+        )
+      ).toBe(true);
+      expect(
+        agenda.next[2].equals(
+          new Item('fake-id', 'holiday', 'Day 4', '', null, holiday4.date, null, null)
+        )
+      ).toBe(true);
+    });
+    test('should retrieve agenda items and init agenda with them, followup is alreay provided', async () => {
+      // Given
+      const followup = new Followup();
+      const followupItem1 = new FollowupItem(
+        'partner',
+        'type',
+        'id1',
+        'ref1',
+        'notifications',
+        null,
+        null,
+        [],
+        'Opération Tranquillité Vacances',
+        'subheading',
+        'Votre demande est en cours de traitement.',
+        'icon',
+        new Date('2026-02-22T15:55:00.000Z'),
+        'wip',
+        'En cours',
+        false,
+        null,
+        []
+      );
+      const followupItem2 = new FollowupItem(
+        'partner',
+        'type',
+        'id2',
+        'ref2',
+        'notifications',
+        null,
+        null,
+        [],
+        'Opération Tranquillité Vacances',
+        'subheading',
+        'Votre demande est terminée.',
+        'icon',
+        new Date('2026-02-20T15:55:00.000Z'),
+        'closed',
+        'Terminée',
+        true,
+        null,
+        []
+      );
+      const followupItem3 = new FollowupItem(
+        'partner',
+        'type',
+        'id2',
+        'ref2',
+        'notifications',
+        null,
+        null,
+        [],
+        'Opération Tranquillité Vacances',
+        'subheading',
+        'Votre demande est terminée.',
+        'icon',
+        new Date('2026-02-20T15:55:00.000Z'),
+        'closed',
+        'Terminée',
+        true,
+        null,
+        []
+      );
+      vi.spyOn(followup, 'items', 'get').mockReturnValue([
+        followupItem1,
+        followupItem2,
+        followupItem3,
+      ]);
+      vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
+      vi.spyOn(followupItem1, 'buildAgendaItem').mockReturnValue(null);
+      vi.spyOn(followupItem2, 'buildAgendaItem').mockReturnValue(
+        new Item(
+          'fake-id',
+          'personnal',
+          'Rendez-vous',
+          'link1',
+          null,
+          null,
+          parseISODate('2025-09-22'),
+          null
+        )
+      );
+      vi.spyOn(followupItem3, 'buildAgendaItem').mockReturnValue(
+        new Item(
+          'fake-id',
+          'personnal',
+          'Rendez-vous',
+          'link2',
+          null,
+          null,
+          null,
+          parseISODate('2025-12-23')
+        )
+      );
+      localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
+      const holiday1 = {
+        kind: 'holiday',
+        title: 'Holiday 1',
+        description: '',
+        date: null,
+        start_date: parseISODate('2025-09-21'),
+        end_date: parseISODate('2025-12-16'),
+        zones: ['Zone A'],
+        emoji: '',
+      };
+      const holiday2 = {
+        kind: 'holiday',
+        title: 'Holiday 2',
+        description: '',
+        date: null,
+        start_date: parseISODate('2025-11-31'),
+        end_date: parseISODate('2025-12-17'),
+        zones: ['Corse'],
+        emoji: '',
+      };
+      const holiday3 = {
+        kind: 'holiday',
+        title: 'Day 3',
+        description: '',
+        date: parseISODate('2025-11-16'),
+        start_date: null,
+        end_date: null,
+        zones: [],
+        emoji: '',
+      };
+      const holiday4 = {
+        kind: 'holiday',
+        title: 'Day 4',
+        description: '',
+        date: parseISODate('2025-12-31'),
+        start_date: null,
+        end_date: null,
+        zones: [],
+        emoji: '',
+      };
+      const spy = vi.spyOn(apiAgendaMethods, 'retrieveAgenda').mockResolvedValue({
+        school_holidays: [holiday1, holiday2],
+        public_holidays: [holiday3, holiday4],
+        elections: [],
+      });
+      await userStore.login(mockUserInfo);
+      vi.spyOn(utilsMethods, 'uniqueId').mockReset().mockReturnValue('fake-id');
+
+      // When
+      await userStore.login(mockUserInfo);
+      const agenda = await buildAgenda(followup, new Date('2025-11-01T12:00:00Z'));
+
+      // Then
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(agenda).toBeInstanceOf(Agenda);
+      expect(agenda.now.length).equal(3);
+      expect(
+        agenda.now[0].equals(
+          new Item(
+            'fake-id',
+            'holiday',
+            'Holiday 1',
+            '',
+            'Zone A',
+            null,
+            holiday1.start_date,
+            holiday1.end_date
+          )
+        )
+      ).toBe(true);
+      expect(
+        agenda.now[1].equals(
+          new Item(
+            'fake-id',
+            'personnal',
+            'Rendez-vous',
+            'link1',
+            null,
+            null,
+            parseISODate('2025-09-22'),
+            null
+          )
+        )
+      ).toBe(true);
+      expect(
+        agenda.now[2].equals(
+          new Item('fake-id', 'holiday', 'Day 3', '', null, holiday3.date, null, null)
+        )
+      ).toBe(true);
+      expect(agenda.next.length).equal(3);
+      expect(
+        agenda.next[0].equals(
+          new Item(
+            'fake-id',
+            'holiday',
+            'Holiday 2',
+            '',
+            'Corse',
+            null,
+            holiday2.start_date,
+            holiday2.end_date
+          )
+        )
+      ).toBe(true);
+      expect(
+        agenda.next[1].equals(
+          new Item(
+            'fake-id',
+            'personnal',
+            'Rendez-vous',
+            'link2',
+            null,
+            null,
+            null,
+            parseISODate('2025-12-23')
+          )
+        )
+      ).toBe(true);
+      expect(
+        agenda.next[2].equals(
           new Item('fake-id', 'holiday', 'Day 4', '', null, holiday4.date, null, null)
         )
       ).toBe(true);

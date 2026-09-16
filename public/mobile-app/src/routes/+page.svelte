@@ -64,15 +64,16 @@
       };
       document.addEventListener('visibilitychange', handleVisibility);
 
-      agenda = await buildAgenda();
-      console.log($state.snapshot(agenda));
-      isAgendaEmpty = !(agenda.now.length || agenda.next.length);
-      autoPromo = buildAutoPromo(agenda);
       followup = await buildFollowup();
       console.log($state.snapshot(followup));
       isFollowupEmpty = followup.isEmpty();
       const consents = await buildConsents();
       hasAnyConsents = consents.hasAnyConsents();
+
+      agenda = await buildAgenda(followup);
+      console.log($state.snapshot(agenda));
+      isAgendaEmpty = !(agenda.now.length || agenda.next.length);
+      autoPromo = buildAutoPromo(agenda);
     } catch (error) {
       console.error(error);
     }

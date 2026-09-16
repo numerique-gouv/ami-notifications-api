@@ -1,6 +1,11 @@
 import type { APIAgenda, APIAgendaItem } from '$lib/api-agenda';
 import { retrieveAgenda } from '$lib/api-agenda';
-import { getPeriod } from '$lib/followup';
+import {
+  buildFollowup,
+  type Followup,
+  type FollowupItem,
+  getPeriod,
+} from '$lib/followup';
 import { type User, userStore } from '$lib/state/User.svelte';
 import { dateToISO, getTimestamp, uniqueId } from '$lib/utils';
 
@@ -271,7 +276,11 @@ export class Agenda {
   private _today: Date = new Date();
   private _holidayForOTV: APIAgendaItem | null = null;
 
-  constructor(apiAgenda: APIAgenda | null = null, date: Date | null = null) {
+  constructor(
+    apiAgenda: APIAgenda | null = null,
+    followup: Followup | null = null,
+    date: Date | null = null
+  ) {
     this._connectedUser = userStore.connected;
     if (!this._connectedUser) {
       // user has to be connected
@@ -285,6 +294,7 @@ export class Agenda {
     const school_holidays: APIAgendaItem[] = apiAgenda?.school_holidays || [];
     const public_holidays: APIAgendaItem[] = apiAgenda?.public_holidays || [];
     const elections: APIAgendaItem[] = apiAgenda?.elections || [];
+    const followupItems: FollowupItem[] = followup?.items || [];
 
     // build items from school_holidays
     this.createSchoolHolidayItems(items, school_holidays);
@@ -294,6 +304,9 @@ export class Agenda {
 
     // build items from elections
     this.createElectionItems(items, elections);
+
+    // build items from followup
+    this.createPersonnalItems(items, followupItems);
 
     // do something with school holidays for OTVs
     this.processOTVs(school_holidays);
@@ -513,6 +526,15 @@ export class Agenda {
     );
   }
 
+  private createPersonnalItems(items: Item[], followupItems: FollowupItem[]) {
+    followupItems.forEach((followupItem) => {
+      const item = followupItem.buildAgendaItem();
+      if (item !== null && !item.isHidden()) {
+        items.push(item);
+      }
+    });
+  }
+
   get now(): Item[] {
     return this._now;
   }
@@ -538,8 +560,15 @@ const setAgendaHiddenItems = (item: Item, parsedAgendaHiddenItems: string[]) => 
   );
 };
 
-export const buildAgenda = async (date: Date | null = null): Promise<Agenda> => {
+export const buildAgenda = async (
+  followup: Followup | null = null,
+  date: Date | null = null
+): Promise<Agenda> => {
   const today = date || new Date();
   const apiAgenda: APIAgenda = await retrieveAgenda(today);
-  return new Agenda(apiAgenda, today);
+  if (followup === null) {
+    followup = await buildFollowup();
+  }
+  console.log(followup);
+  return new Agenda(apiAgenda, followup, today);
 };
