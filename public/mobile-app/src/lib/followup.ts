@@ -1,5 +1,7 @@
+import { Item as AgendaItem } from '$lib/agenda';
 import type { APIFollowup, APIFollowupItem } from '$lib/api-followup';
 import { archiveFollowupItem, retrieveFollowup } from '$lib/api-followup';
+import { uniqueId } from '$lib/utils';
 import * as self from './followup';
 
 export type Status = 'new' | 'wip' | 'closed';
@@ -369,6 +371,22 @@ export class FollowupItem extends FollowupSubItem {
           sub_item.item_type === subitem_type &&
           sub_item.item_external_id === subitem_external_id
       ) || null
+    );
+  }
+
+  buildAgendaItem(): AgendaItem | null {
+    if (!this.hasMilestone()) {
+      return null;
+    }
+    return new AgendaItem(
+      uniqueId(),
+      'personnal',
+      this.title,
+      this.getItemDetailPageUrl(),
+      null,
+      null,
+      this.milestone_start_date,
+      this.milestone_end_date
     );
   }
 }
