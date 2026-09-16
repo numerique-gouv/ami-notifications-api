@@ -677,27 +677,118 @@ describe('/+page.svelte - with passkey feature flag', () => {
     });
   });
 
-  test('should skip passkey creation if user already has one', async () => {
-    // Given
-    vi.spyOn(notificationsMethods, 'retrieveNotifications').mockResolvedValue([]);
-    const { page } = await import('$app/state');
-    const mockSearchParams = new URLSearchParams();
-    window.localStorage.setItem('user_data', 'fake-user-data');
-    vi.spyOn(franceConnectHelpers, 'parseJwt').mockReturnValue(mockUserInfo);
-    vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
-    userStore.setHasWorkingPasskey();
+  describe('skip passkey creation', async () => {
+    test('should bypass passkey creation if user clicks on bypass button', async () => {
+      // Given
+      vi.spyOn(notificationsMethods, 'retrieveNotifications').mockResolvedValue([]);
+      const { page } = await import('$app/state');
+      const mockSearchParams = new URLSearchParams();
+      window.localStorage.setItem('user_data', 'fake-user-data');
+      vi.spyOn(franceConnectHelpers, 'parseJwt').mockReturnValue(mockUserInfo);
+      vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
+      expect(userStore.getHasSuggestPasskeyCreationToday()).toBe(false);
 
-    const spy = vi
-      .spyOn(AMINavigationMethods, 'AMIGoto')
-      .mockImplementation(() => Promise.resolve());
+      const spy = vi
+        .spyOn(AMINavigationMethods, 'AMIGoto')
+        .mockImplementation(() => Promise.resolve());
 
-    // When
-    render(Page);
+      // When
+      render(Page);
 
-    // Then
-    await waitFor(() => {
-      expect(spy).toHaveBeenCalledWith('/');
-      expect(screen.queryByTestId('create-passkey-button')).toBeNull();
+      // Then
+      await waitFor(async () => {
+        const bypassPasskeyButton = screen.getByTestId('bypass-passkey-button');
+        await fireEvent.click(bypassPasskeyButton);
+        expect(spy).toHaveBeenCalledWith('/');
+        expect(userStore.getHasSuggestPasskeyCreationToday()).toBe(true);
+      });
+    });
+
+    test('should skip passkey creation if user already has one', async () => {
+      // Given
+      vi.spyOn(notificationsMethods, 'retrieveNotifications').mockResolvedValue([]);
+      const { page } = await import('$app/state');
+      const mockSearchParams = new URLSearchParams();
+      window.localStorage.setItem('user_data', 'fake-user-data');
+      vi.spyOn(franceConnectHelpers, 'parseJwt').mockReturnValue(mockUserInfo);
+      vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
+      userStore.setHasWorkingPasskey();
+
+      const spy = vi
+        .spyOn(AMINavigationMethods, 'AMIGoto')
+        .mockImplementation(() => Promise.resolve());
+
+      // When
+      render(Page);
+
+      // Then
+      await waitFor(() => {
+        expect(spy).toHaveBeenCalledWith('/');
+        expect(screen.queryByTestId('create-passkey-button')).toBeNull();
+      });
+    });
+
+    test('should skip passkey creation if we already asked it today', async () => {
+      // Given
+      vi.spyOn(notificationsMethods, 'retrieveNotifications').mockResolvedValue([]);
+      const { page } = await import('$app/state');
+      const mockSearchParams = new URLSearchParams();
+      window.localStorage.setItem('user_data', 'fake-user-data');
+      vi.spyOn(franceConnectHelpers, 'parseJwt').mockReturnValue(mockUserInfo);
+      vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
+      userStore.setLastPasskeyCreationSuggestion();
+      expect(userStore.getHasSuggestPasskeyCreationToday()).toBe(true);
+
+      const spy = vi
+        .spyOn(AMINavigationMethods, 'AMIGoto')
+        .mockImplementation(() => Promise.resolve());
+
+      // When
+      render(Page);
+
+      // Then
+      await waitFor(() => {
+        expect(spy).toHaveBeenCalledWith('/');
+        expect(screen.queryByTestId('create-passkey-button')).toBeNull();
+      });
+    });
+
+    test('should not skip passkey creation if never asked', async () => {
+      // Given
+      vi.spyOn(notificationsMethods, 'retrieveNotifications').mockResolvedValue([]);
+      const { page } = await import('$app/state');
+      const mockSearchParams = new URLSearchParams();
+      window.localStorage.setItem('user_data', 'fake-user-data');
+      vi.spyOn(franceConnectHelpers, 'parseJwt').mockReturnValue(mockUserInfo);
+      vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
+
+      // When
+      render(Page);
+
+      // Then
+      await waitFor(() => {
+        expect(screen.queryByTestId('create-passkey-button')).not.toBeNull();
+      });
+    });
+
+    test('should not skip passkey creation if not already asked today', async () => {
+      // Given
+      vi.spyOn(notificationsMethods, 'retrieveNotifications').mockResolvedValue([]);
+      const { page } = await import('$app/state');
+      const mockSearchParams = new URLSearchParams();
+      window.localStorage.setItem('user_data', 'fake-user-data');
+      vi.spyOn(franceConnectHelpers, 'parseJwt').mockReturnValue(mockUserInfo);
+      vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
+      const yesterday = new Date(Date.now() - 86400000);
+      localStorage.setItem('user_last_passkey_suggestion', yesterday.toString());
+
+      // When
+      render(Page);
+
+      // Then
+      await waitFor(() => {
+        expect(screen.queryByTestId('create-passkey-button')).not.toBeNull();
+      });
     });
   });
 });

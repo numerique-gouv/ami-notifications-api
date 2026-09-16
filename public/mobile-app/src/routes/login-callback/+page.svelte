@@ -29,6 +29,7 @@
 
   const silent_fc_enabled = PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED === 'true';
   let hasWorkingPassKey: boolean = $state(true);
+  let hasSuggestPasskeyCreationToday: boolean = $state(false);
 
   onMount(async () => {
     try {
@@ -39,8 +40,13 @@
         return;
       }
       hasWorkingPassKey = userStore.getHasWorkingPasskey();
-      if (!silent_fc_enabled || hasWorkingPassKey) {
-        // if silent fc is not enabled, we directly redirect to homepage
+      hasSuggestPasskeyCreationToday = userStore.getHasSuggestPasskeyCreationToday();
+      console.log(hasSuggestPasskeyCreationToday);
+      if (!silent_fc_enabled || hasWorkingPassKey || hasSuggestPasskeyCreationToday) {
+        // if silent fc is not enabled,
+        // if user has a working pass key,
+        // or is we already asked the user to create a passkey today,
+        // we directly redirect to homepage
         redirectLoggedInUser(false);
       }
     } catch (error) {
@@ -71,6 +77,7 @@
   };
 
   const bypassPasskey = async () => {
+    userStore.setLastPasskeyCreationSuggestion();
     trackPasskey('generatePasskey', 'skip');
     redirectLoggedInUser(false);
   };
@@ -154,7 +161,7 @@
 </script>
 
 <div class="fr-container passkeys-full-page" bind:this={wrapperEl}>
-  {#if silent_fc_enabled && !hasWorkingPassKey}
+  {#if silent_fc_enabled && !hasWorkingPassKey && !hasSuggestPasskeyCreationToday}
     <div class="fr-grid-row fr-grid-row--middle fr-grid-row--center">
       <div class="image-wrapper">
         <img src="/icons/passkeys.svg" alt="">
@@ -182,9 +189,10 @@
           </li>
           <li>
             <button
+              onclick="{bypassPasskey}"
+              data-testid="bypass-passkey-button"
               type="button"
               class="fr-btn fr-btn--tertiary"
-              onclick="{bypassPasskey}"
             >
               Peut-être plus tard
             </button>
