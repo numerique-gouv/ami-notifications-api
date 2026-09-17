@@ -2045,10 +2045,73 @@ describe('/agenda.ts', () => {
           null,
           []
         );
+        const followupItem4 = new FollowupItem(
+          'partner',
+          'type',
+          'id2',
+          'ref2',
+          'notifications',
+          null,
+          null,
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'closed',
+          'Terminée',
+          true,
+          null,
+          []
+        );
+        const followupItem5 = new FollowupItem(
+          'partner',
+          'type',
+          'id2',
+          'ref2',
+          'notifications',
+          null,
+          null,
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'closed',
+          'Terminée',
+          true,
+          null,
+          []
+        );
+        const followupItem6 = new FollowupItem(
+          'partner',
+          'type',
+          'id2',
+          'ref2',
+          'notifications',
+          null,
+          null,
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'closed',
+          'Terminée',
+          true,
+          null,
+          []
+        );
         vi.spyOn(followup, 'items', 'get').mockReturnValue([
           followupItem1,
           followupItem2,
           followupItem3,
+          followupItem4,
+          followupItem5,
+          followupItem6,
         ]);
         vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
         vi.spyOn(followupItem1, 'buildAgendaItem').mockReturnValue(null);
@@ -2060,7 +2123,7 @@ describe('/agenda.ts', () => {
             'link1',
             null,
             null,
-            parseISODate('2025-09-22'),
+            parseISODate('2025-10-31'), // start date is past but it is displayed anyway
             null
           )
         );
@@ -2076,6 +2139,43 @@ describe('/agenda.ts', () => {
             parseISODate('2025-12-23')
           )
         );
+        vi.spyOn(followupItem4, 'buildAgendaItem').mockReturnValue(
+          new Item(
+            'fake-id',
+            'personnal',
+            'Rendez-vous',
+            'link3',
+            null,
+            null,
+            null,
+            parseISODate('2025-10-31') // end date is past
+          )
+        );
+        vi.spyOn(followupItem5, 'buildAgendaItem').mockReturnValue(
+          new Item(
+            'fake-id',
+            'personnal',
+            'Rendez-vous',
+            'link4',
+            null,
+            null,
+            parseISODate('2025-11-01'),
+            null
+          )
+        );
+        vi.spyOn(followupItem6, 'buildAgendaItem').mockReturnValue(
+          new Item(
+            'fake-id',
+            'personnal',
+            'Rendez-vous',
+            'link5',
+            null,
+            null,
+            // item is past
+            parseISODate('2025-10-30'),
+            parseISODate('2025-10-31')
+          )
+        );
         await userStore.login(mockUserInfo);
         vi.spyOn(utilsMethods, 'uniqueId').mockReturnValue('fake-id');
 
@@ -2083,7 +2183,7 @@ describe('/agenda.ts', () => {
         const agenda = new Agenda(null, followup, new Date('2025-11-01T12:00:00Z'));
 
         // Then
-        expect(agenda.now.length).equal(1);
+        expect(agenda.now.length).equal(2);
         expect(
           agenda.now[0].equals(
             new Item(
@@ -2093,7 +2193,21 @@ describe('/agenda.ts', () => {
               'link1',
               null,
               null,
-              parseISODate('2025-09-22'),
+              parseISODate('2025-10-31'),
+              null
+            )
+          )
+        ).toBe(true);
+        expect(
+          agenda.now[1].equals(
+            new Item(
+              'fake-id',
+              'personnal',
+              'Rendez-vous',
+              'link4',
+              null,
+              null,
+              parseISODate('2025-11-01'),
               null
             )
           )

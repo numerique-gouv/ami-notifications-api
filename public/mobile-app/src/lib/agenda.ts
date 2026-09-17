@@ -530,6 +530,10 @@ export class Agenda {
     followupItems.forEach((followupItem) => {
       const item = followupItem.buildAgendaItem();
       if (item !== null && !item.isHidden()) {
+        // exclude past personnal items
+        if (item.endDate !== null && item.endDate < this._today) {
+          return;
+        }
         items.push(item);
       }
     });
