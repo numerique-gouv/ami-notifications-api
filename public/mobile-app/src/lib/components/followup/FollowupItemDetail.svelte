@@ -1,5 +1,6 @@
 <script lang="ts">
   import { AMIGoto } from '$lib/ami-navigation';
+  import FollowupItemComponent from '$lib/components/followup/FollowupItem.svelte';
   import FollowupItemDetailHeader from '$lib/components/followup/FollowupItemDetailHeader.svelte';
   import FollowupItemMessages from '$lib/components/followup/FollowupItemMessages.svelte';
   import { getDSFRIcon } from '$lib/dsfr-icon';
@@ -10,12 +11,20 @@
     parentItem?: FollowupItem | null;
   }
   let { item, parentItem = null }: Props = $props();
+  const displayParent: boolean = $derived(item.hasMilestone() && parentItem !== null);
 </script>
 
 <div class="demarche-content-container">
   <FollowupItemDetailHeader item={item} />
 
-  <FollowupItemMessages item={item} displayTitle={false} />
+  {#if parentItem !== null && displayParent}
+    <div class="demarche-content-parent-link fr-mb-3w" data-testid="followup-parent">
+      <h2 class="fr-h6 fr-mb-2w">Démarche attachée&nbsp;:</h2>
+      <FollowupItemComponent item={parentItem} />
+    </div>
+  {/if}
+
+  <FollowupItemMessages item={item} displayTitle={displayParent} />
 
   {#if parentItem === null && (item as FollowupItem).sub_items.length}
     <nav class="fr-sidemenu fr-m-0 followup--subitems" data-testid="followup-subitems">

@@ -11,7 +11,7 @@
 <div class="demarche-content-messages">
   {#if item.events.length}
     {#if displayTitle}
-      <h2 class="fr-h6 fr-mb-0">Messages :</h2>
+      <h2 class="fr-h6 fr-mb-0">Messages&nbsp;:</h2>
     {/if}
     <ul class="demarche--events fr-mb-3w fr-raw-list" data-testid="item-events-list">
       {#each item.events as event}
