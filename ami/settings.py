@@ -6,6 +6,7 @@ from pathlib import Path
 import dj_database_url
 import sentry_sdk
 from dotenv import dotenv_values
+from sentry_sdk.integrations.django import DjangoIntegration
 
 import vapid_keys
 
@@ -255,6 +256,8 @@ def before_send(event, hint):
 sentry_sdk.init(
     dsn=CONFIG.get("SENTRY_DSN", ""),
     environment=CONFIG.get("SENTRY_ENV", ""),
+    integrations=[DjangoIntegration()],
+    traces_sample_rate=float(CONFIG.get("SENTRY_TRACES_SAMPLE_RATE") or 1.0),
     before_send=before_send,  # Filter the exceptions being reported to Sentry.
 )
 
