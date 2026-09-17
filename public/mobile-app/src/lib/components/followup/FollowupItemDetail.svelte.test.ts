@@ -4,15 +4,20 @@ import * as AMINavigationMethods from '$lib/ami-navigation';
 import FollowupItemDetail from '$lib/components/followup/FollowupItemDetail.svelte';
 import { FollowupItem, FollowupItemEvent, FollowupSubItem } from '$lib/followup';
 
+vi.mock('$lib/components/followup/FollowupItem.svelte', () => ({
+  default: vi.fn(() => ({})),
+}));
 vi.mock('$lib/components/followup/FollowupItemDetailHeader.svelte', () => ({
   default: vi.fn(() => ({})),
 }));
 
+import FollowupItemComponent from '$lib/components/followup/FollowupItem.svelte';
 import FollowupItemDetailHeader from '$lib/components/followup/FollowupItemDetailHeader.svelte';
 
 describe('/FollowupItemDetail.svelte', () => {
   beforeEach(() => {
     vi.mocked(FollowupItemDetailHeader).mockClear();
+    vi.mocked(FollowupItemComponent).mockClear();
   });
 
   test('Should use FollowupItemDetailHeader component', async () => {
@@ -243,6 +248,75 @@ describe('/FollowupItemDetail.svelte', () => {
         );
       });
     });
+    test('Should not display link to parent as it is not a child', async () => {
+      // Given
+      const subitem1 = new FollowupSubItem(
+        'partner',
+        'type',
+        'id3',
+        'ref3',
+        'notifications',
+        null,
+        null,
+        [],
+        'Opération Tranquillité Vacances',
+        'subheading',
+        'Votre demande est en cours de traitement 1.',
+        'icon',
+        new Date('2026-02-22T15:55:00.000Z'),
+        'new',
+        'Nouveau',
+        true,
+        'link3'
+      );
+      const subitem2 = new FollowupSubItem(
+        'partner',
+        'type',
+        'id2',
+        'ref2',
+        'notifications',
+        null,
+        null,
+        [],
+        'Opération Tranquillité Vacances',
+        'subheading',
+        'Votre demande est en cours de traitement 1.',
+        'icon',
+        new Date('2026-02-22T15:55:00.000Z'),
+        'new',
+        'Nouveau',
+        true,
+        'link2'
+      );
+      const item = new FollowupItem(
+        'partner',
+        'type',
+        'id1',
+        'ref1',
+        'notifications',
+        null,
+        null,
+        [],
+        'title',
+        'subheading',
+        'description',
+        'icon',
+        new Date('2026-01-03T08:05:42Z'),
+        'new',
+        'New',
+        false,
+        'link1',
+        [subitem1, subitem2]
+      );
+
+      // When
+      render(FollowupItemDetail, { props: { item: item } });
+
+      // Then
+      await waitFor(() => {
+        expect(screen.queryByTestId('followup-parent')).toBeNull();
+      });
+    });
   });
   describe('sub item', async () => {
     test('Should not list sub items', async () => {
@@ -312,6 +386,149 @@ describe('/FollowupItemDetail.svelte', () => {
       // Then
       await waitFor(() => {
         expect(screen.queryByTestId('followup-subitems')).toBeNull();
+      });
+    });
+    test('Should not display link to parent as it is a sub item without milestone', async () => {
+      // Given
+      const subitem1 = new FollowupSubItem(
+        'partner',
+        'type',
+        'id3',
+        'ref3',
+        'notifications',
+        null,
+        null,
+        [],
+        'Opération Tranquillité Vacances',
+        'subheading',
+        'Votre demande est en cours de traitement 1.',
+        'icon',
+        new Date('2026-02-22T15:55:00.000Z'),
+        'new',
+        'Nouveau',
+        true,
+        'link3'
+      );
+      const subitem2 = new FollowupSubItem(
+        'partner',
+        'type',
+        'id2',
+        'ref2',
+        'notifications',
+        null,
+        null,
+        [],
+        'Opération Tranquillité Vacances',
+        'subheading',
+        'Votre demande est en cours de traitement 1.',
+        'icon',
+        new Date('2026-02-22T15:55:00.000Z'),
+        'new',
+        'Nouveau',
+        true,
+        'link2'
+      );
+      const item = new FollowupItem(
+        'partner',
+        'type',
+        'id1',
+        'ref1',
+        'notifications',
+        null,
+        null,
+        [],
+        'title',
+        'subheading',
+        'description',
+        'icon',
+        new Date('2026-01-03T08:05:42Z'),
+        'new',
+        'New',
+        false,
+        'link1',
+        [subitem1, subitem2]
+      );
+      vi.spyOn(subitem1, 'hasMilestone').mockReturnValue(false);
+
+      // When
+      render(FollowupItemDetail, { props: { item: subitem1, parentItem: item } });
+
+      // Then
+      await waitFor(() => {
+        expect(screen.queryByTestId('followup-parent')).toBeNull();
+      });
+    });
+    test('Should display link to parent as it is a sub item with milestone', async () => {});
+    // Given
+    const subitem1 = new FollowupSubItem(
+      'partner',
+      'type',
+      'id3',
+      'ref3',
+      'notifications',
+      null,
+      null,
+      [],
+      'Opération Tranquillité Vacances',
+      'subheading',
+      'Votre demande est en cours de traitement 1.',
+      'icon',
+      new Date('2026-02-22T15:55:00.000Z'),
+      'new',
+      'Nouveau',
+      true,
+      'link3'
+    );
+    const subitem2 = new FollowupSubItem(
+      'partner',
+      'type',
+      'id2',
+      'ref2',
+      'notifications',
+      null,
+      null,
+      [],
+      'Opération Tranquillité Vacances',
+      'subheading',
+      'Votre demande est en cours de traitement 1.',
+      'icon',
+      new Date('2026-02-22T15:55:00.000Z'),
+      'new',
+      'Nouveau',
+      true,
+      'link2'
+    );
+    const item = new FollowupItem(
+      'partner',
+      'type',
+      'id1',
+      'ref1',
+      'notifications',
+      null,
+      null,
+      [],
+      'title',
+      'subheading',
+      'description',
+      'icon',
+      new Date('2026-01-03T08:05:42Z'),
+      'new',
+      'New',
+      false,
+      'link1',
+      [subitem1, subitem2]
+    );
+    vi.spyOn(subitem1, 'hasMilestone').mockReturnValue(true);
+
+    // When
+    render(FollowupItemDetail, { props: { item: subitem1, parentItem: item } });
+
+    // Then
+    await waitFor(() => {
+      expect(screen.queryByTestId('followup-parent')).not.toBeNull();
+      expect(FollowupItemComponent).toHaveBeenCalled();
+      expect(FollowupItemComponent).toHaveBeenCalledWith(expect.anything(), {
+        item: item,
       });
     });
   });
