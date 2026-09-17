@@ -235,6 +235,7 @@ def test_audit(
         "partner_name": "AMI",
         "partner_slug": "dinum-ami",
         "partner_consent_is_enabled": True,
+        "partner_ip_allow_list": None,
     }
 
     assert ae10.author == admin_agent
@@ -248,7 +249,9 @@ def test_audit(
         "partner_name": "Service Public",
         "partner_slug": "psl",
         "partner_consent_is_enabled": False,
+        "partner_ip_allow_list": None,
         "old_partner_values_name": "AMI",
         "old_partner_values_slug": "dinum-ami",
         "old_partner_values_consent_is_enabled": True,
+        "old_partner_values_ip_allow_list": None,
     }
