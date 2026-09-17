@@ -5,9 +5,9 @@
 
   interface Props {
     item: FollowupItem;
-    onOpen: () => void;
+    onOpen?: (() => void) | null;
   }
-  let { item, onOpen }: Props = $props();
+  let { item, onOpen = null }: Props = $props();
 
   let checkedIcon = $derived(getDSFRIcon(item.icon, 'fr-icon-information-fill'));
   let withDetailButton = $derived(
@@ -19,7 +19,7 @@
   <div
     class="followup--item--detail fr-tile fr-tile--sm fr-tile--horizontal fr-enlarge-button { withDetailButton  && 'fr-tile--no-icon' }"
   >
-    {#if !item.is_archived}
+    {#if onOpen && !item.is_archived}
       <button
         type="button"
         onclick={onOpen}
