@@ -2,7 +2,6 @@
   import { onMount } from 'svelte';
   import { AMIGoto } from '$lib/ami-navigation';
   import FollowupItemDetail from '$lib/components/followup/FollowupItemDetail.svelte';
-  import FollowupParentItemDetail from '$lib/components/followup/FollowupParentItemDetail.svelte';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import { FollowupItem } from '$lib/followup';
   import { userStore } from '$lib/state/User.svelte';
@@ -27,9 +26,5 @@
 <NavWithBackButton {backUrl} />
 
 {#if item}
-  {#if item.sub_items.length}
-    <FollowupParentItemDetail item={item} />
-  {:else}
-    <FollowupItemDetail item={item} />
-  {/if}
+  <FollowupItemDetail item={item} />
 {/if}
