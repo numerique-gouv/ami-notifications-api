@@ -54,9 +54,9 @@ migrate-data-ware-house:
 publish-scheduled-notifications:
 	$(RUN) python manage.py publish-scheduled-notifications
 
-.PHONY: delete-published-scheduled-notifications
-delete-published-scheduled-notifications:
-	$(RUN) python manage.py delete-published-scheduled-notifications
+.PHONY: cleanup-db
+cleanup-db:
+	$(RUN) python manage.py cleanup-db
 
 .PHONY: replicate-anonymized-data
 replicate-anonymized-data:
