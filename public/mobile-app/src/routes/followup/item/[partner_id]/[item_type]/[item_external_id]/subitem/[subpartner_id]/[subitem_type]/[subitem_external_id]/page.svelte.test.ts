@@ -7,17 +7,12 @@ import Page from './+page.svelte';
 vi.mock('$lib/components/followup/FollowupItemDetail.svelte', () => ({
   default: vi.fn(() => ({})),
 }));
-vi.mock('$lib/components/followup/FollowupParentItemDetail.svelte', () => ({
-  default: vi.fn(() => ({})),
-}));
 
 import FollowupItemDetail from '$lib/components/followup/FollowupItemDetail.svelte';
-import FollowupParentItemDetail from '$lib/components/followup/FollowupParentItemDetail.svelte';
 
 describe('/+page.svelte', () => {
   beforeEach(() => {
     vi.mocked(FollowupItemDetail).mockClear();
-    vi.mocked(FollowupParentItemDetail).mockClear();
   });
 
   test('user has to be connected', async () => {
@@ -198,7 +193,7 @@ describe('/+page.svelte', () => {
     expect(FollowupItemDetail).toHaveBeenCalled();
     expect(FollowupItemDetail).toHaveBeenCalledWith(expect.anything(), {
       item: sub_item,
+      parentItem: item,
     });
-    expect(FollowupParentItemDetail).not.toHaveBeenCalled();
   });
 });
