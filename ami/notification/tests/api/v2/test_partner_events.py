@@ -980,6 +980,150 @@ def test_create_notification_check_item_parent_partner_id(
 
 
 @pytest.mark.django_db
+def test_create_notification_check_item_parent_consistency(
+    app,
+    user: User,
+    consent: Consent,
+    partner: Partner,
+    partner_psl: Partner,
+    partner_auth: dict[str, str],
+) -> None:
+    event_data = {
+        "recipient_fc_hash": user.fc_hash,
+        "event_date": "2025-11-27T10:55:00.000Z",
+        "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
+        "content_body": "Merci d'avoir initié votre demande",
+        "item_type": "OTV",
+        "item_id": "A-5-JGBJ5VMOY",
+        "item_status_label": "Brouillon",
+        "item_generic_status": "new",
+        "item_milestone_start_date": "2025-12-26T23:00:00.000Z",
+    }
+    app.put("/api/v2/event", event_data, headers=partner_auth)
+    assert Notification.objects.count() == 1
+    notification = Notification.objects.get()
+    assert notification.item_parent_partner is None
+    assert notification.item_parent_type is None
+    assert notification.item_parent_id is None
+
+    event_data = {
+        "recipient_fc_hash": user.fc_hash,
+        "event_date": "2025-11-27T10:55:00.000Z",
+        "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
+        "content_body": "Merci d'avoir initié votre demande",
+        # this item exists without a parent
+        "item_parent_type": "ParentType",
+        "item_parent_id": "ParentID",
+        "item_type": "OTV",
+        "item_id": "A-5-JGBJ5VMOY",
+        "item_status_label": "Brouillon",
+        "item_generic_status": "new",
+        "item_milestone_start_date": "2025-12-26T23:00:00.000Z",
+    }
+    response = app.put("/api/v2/event", event_data, headers=partner_auth, status=400)
+    assert response.json == {
+        "item_parent_partner_id": ["Cet item existe déjà avec un item parent différent."]
+    }
+
+    Notification.objects.all().delete()
+
+    event_data = {
+        "recipient_fc_hash": user.fc_hash,
+        "event_date": "2025-11-27T10:55:00.000Z",
+        "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
+        "content_body": "Merci d'avoir initié votre demande",
+        "item_parent_type": "ParentType",
+        "item_parent_id": "ParentID",
+        "item_type": "OTV",
+        "item_id": "A-5-JGBJ5VMOY",
+        "item_status_label": "Brouillon",
+        "item_generic_status": "new",
+        "item_milestone_start_date": "2025-12-26T23:00:00.000Z",
+    }
+    app.put("/api/v2/event", event_data, headers=partner_auth)
+    assert Notification.objects.count() == 1
+    notification = Notification.objects.get()
+    assert notification.item_parent_partner == partner
+    assert notification.item_parent_type == "ParentType"
+    assert notification.item_parent_id == "ParentID"
+
+    event_data = {
+        "recipient_fc_hash": user.fc_hash,
+        "event_date": "2025-11-27T10:55:00.000Z",
+        "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
+        "content_body": "Merci d'avoir initié votre demande",
+        # different parent type
+        "item_parent_type": "OtherParentType",
+        "item_parent_id": "ParentID",
+        "item_type": "OTV",
+        "item_id": "A-5-JGBJ5VMOY",
+        "item_status_label": "Brouillon",
+        "item_generic_status": "new",
+        "item_milestone_start_date": "2025-12-26T23:00:00.000Z",
+    }
+    response = app.put("/api/v2/event", event_data, headers=partner_auth, status=400)
+    assert response.json == {
+        "item_parent_type": ["Cet item existe déjà avec un item parent différent."]
+    }
+
+    event_data = {
+        "recipient_fc_hash": user.fc_hash,
+        "event_date": "2025-11-27T10:55:00.000Z",
+        "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
+        "content_body": "Merci d'avoir initié votre demande",
+        "item_parent_type": "ParentType",
+        # different parent id
+        "item_parent_id": "OtherParentID",
+        "item_type": "OTV",
+        "item_id": "A-5-JGBJ5VMOY",
+        "item_status_label": "Brouillon",
+        "item_generic_status": "new",
+        "item_milestone_start_date": "2025-12-26T23:00:00.000Z",
+    }
+    response = app.put("/api/v2/event", event_data, headers=partner_auth, status=400)
+    assert response.json == {
+        "item_parent_id": ["Cet item existe déjà avec un item parent différent."]
+    }
+
+    event_data = {
+        "recipient_fc_hash": user.fc_hash,
+        "event_date": "2025-11-27T10:55:00.000Z",
+        "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
+        "content_body": "Merci d'avoir initié votre demande",
+        # different parent partner
+        "item_parent_partner_id": partner_psl.slug,
+        "item_parent_type": "ParentType",
+        "item_parent_id": "ParentID",
+        "item_type": "OTV",
+        "item_id": "A-5-JGBJ5VMOY",
+        "item_status_label": "Brouillon",
+        "item_generic_status": "new",
+        "item_milestone_start_date": "2025-12-26T23:00:00.000Z",
+    }
+    response = app.put("/api/v2/event", event_data, headers=partner_auth, status=400)
+    assert response.json == {
+        "item_parent_partner_id": ["Cet item existe déjà avec un item parent différent."]
+    }
+
+    event_data = {
+        "recipient_fc_hash": user.fc_hash,
+        "event_date": "2025-11-27T10:55:00.000Z",
+        "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
+        "content_body": "Merci d'avoir initié votre demande",
+        # no parent
+        "item_type": "OTV",
+        "item_id": "A-5-JGBJ5VMOY",
+        "item_status_label": "Brouillon",
+        "item_generic_status": "new",
+        "item_milestone_start_date": "2025-12-26T23:00:00.000Z",
+    }
+    response = app.put("/api/v2/event", event_data, headers=partner_auth, status=400)
+    assert response.json == {
+        "item_parent_partner_id": ["Cet item existe déjà avec un item parent différent."]
+    }
+
+
+@pytest.mark.django_db
 def test_create_event_check_item_milestone_dates(
     app,
     user: User,
