@@ -70,6 +70,7 @@ def test_add_partner_submit_success(app, admin_agent: Agent) -> None:
     response.forms["partner-form"]["name"] = "New Partner !"
     response.forms["partner-form"]["icon"] = "icon"
     response.forms["partner-form"]["consent_is_enabled"] = True
+    response.forms["partner-form"]["ip_allow_list"] = "198.51.100.12"
 
     response = response.forms["partner-form"].submit()
     assert response.headers["location"] == "/agent-admin/manage/partner/"
@@ -79,6 +80,7 @@ def test_add_partner_submit_success(app, admin_agent: Agent) -> None:
     assert partner.name == "New Partner !"
     assert partner.icon == "icon"
     assert partner.consent_is_enabled is True
+    assert partner.ip_allow_list == "198.51.100.12"
 
     response = response.follow()
     assert response.pyquery(".fr-notice.success").text() == "Le partenaire a bien été ajouté."
@@ -97,6 +99,7 @@ def test_add_partner_submit_success(app, admin_agent: Agent) -> None:
         "partner_name": "New Partner !",
         "partner_slug": "new-partner",
         "partner_consent_is_enabled": True,
+        "partner_ip_allow_list": "198.51.100.12",
     }
 
 
@@ -171,7 +174,9 @@ def test_edit_service_submit_success(app, admin_agent: Agent, partner: Partner) 
         "partner_name": "New AMI",
         "partner_slug": "dinum-ami",
         "partner_consent_is_enabled": False,
+        "partner_ip_allow_list": "",
         "old_partner_values_name": "AMI",
         "old_partner_values_slug": "dinum-ami",
         "old_partner_values_consent_is_enabled": True,
+        "old_partner_values_ip_allow_list": None,
     }
