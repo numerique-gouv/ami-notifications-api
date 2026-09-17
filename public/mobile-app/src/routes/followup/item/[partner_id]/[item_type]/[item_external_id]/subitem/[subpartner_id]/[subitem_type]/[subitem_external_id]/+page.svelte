@@ -28,5 +28,5 @@
 <NavWithBackButton {backUrl} />
 
 {#if sub_item}
-  <FollowupItemDetail item={sub_item} />
+  <FollowupItemDetail item={sub_item} parentItem={item} />
 {/if}
