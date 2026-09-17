@@ -284,4 +284,26 @@ class PartnerEventCreateSerializerV2(PartnerEventCreateMixin, serializers.Serial
             # default partner for parent item is current partner
             attrs["item_parent_partner_id"] = self.partner.id
 
+        existing_parents = Notification.objects.filter(
+            partner=self.partner,
+            item_type=attrs["item_type"],
+            item_id=attrs["item_id"],
+        ).values_list("item_parent_partner_id", "item_parent_type", "item_parent_id")
+        parent_is_known = (
+            attrs.get("item_parent_partner_id"),
+            attrs.get("item_parent_type"),
+            attrs.get("item_parent_id"),
+        ) in existing_parents
+        if existing_parents and not parent_is_known:
+            first_known_parent = existing_parents[0]
+            if attrs.get("item_parent_partner_id") != first_known_parent[0]:
+                field = "item_parent_partner_id"
+            elif attrs.get("item_parent_type") != first_known_parent[1]:
+                field = "item_parent_type"
+            else:
+                field = "item_parent_id"
+            raise serializers.ValidationError(
+                {field: "Cet item existe déjà avec un item parent différent."}
+            )
+
         return attrs
