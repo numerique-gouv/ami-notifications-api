@@ -98,6 +98,74 @@ describe('/consents.ts', () => {
         expect(result).toBeTruthy();
       });
     });
+    describe('hasAllConsents', () => {
+      test('should return false when no consent', async () => {
+        // Given
+        const consents = new Consents();
+
+        // When
+        const result = consents.hasAllConsents();
+
+        // Then
+        expect(result).toBeFalsy();
+      });
+      test('should return false when consent has no consent_datetime', async () => {
+        // Given
+        const consentsItem1 = {
+          partner_id: 'psl',
+          consent_datetime: null,
+        };
+        const consents = new Consents({
+          consents: [consentsItem1],
+        });
+
+        // When
+        const result = consents.hasAllConsents();
+
+        // Then
+        expect(result).toBeFalsy();
+      });
+      test('should return false when at least one consent has a consent_datetime', async () => {
+        // Given
+        const consentsItem1 = {
+          partner_id: 'dinum-ami',
+          consent_datetime: null,
+        };
+        const consentsItem2 = {
+          partner_id: 'psl',
+          consent_datetime: new Date('2026-02-22T15:50:00Z'),
+        };
+        const consents = new Consents({
+          consents: [consentsItem1, consentsItem2],
+        });
+
+        // When
+        const result = consents.hasAllConsents();
+
+        // Then
+        expect(result).toBeFalsy();
+      });
+      test('should return true when all consents have a consent_datetime', async () => {
+        // Given
+        const consentsItem1 = {
+          partner_id: 'dinum-ami',
+          consent_datetime: new Date('2026-01-23T15:50:00Z'),
+        };
+        const consentsItem2 = {
+          partner_id: 'psl',
+          consent_datetime: new Date('2026-02-22T15:50:00Z'),
+        };
+        const consents = new Consents({
+          consents: [consentsItem1, consentsItem2],
+        });
+
+        // When
+        const result = consents.hasAllConsents();
+
+        // Then
+        expect(result).toBeTruthy();
+      });
+    });
   });
   describe('buildConsents', () => {
     test('should retrieve inventory and init consents with them', async () => {

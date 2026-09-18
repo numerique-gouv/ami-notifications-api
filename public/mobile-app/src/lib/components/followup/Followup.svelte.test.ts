@@ -11,11 +11,84 @@ import { Partners, PartnersItem } from '$lib/partners';
 import { toastStore } from '$lib/state/toast.svelte';
 
 describe('/Followup.svelte', () => {
+  describe('When user has checked all consents', () => {
+    beforeEach(async () => {
+      const consents = new Consents();
+      vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
+      vi.spyOn(consents, 'hasAnyConsents').mockReturnValue(true);
+      vi.spyOn(consents, 'hasAllConsents').mockReturnValue(true);
+    });
+
+    test('Should display consent block with accordion not expanded and no button', async () => {
+      // Given
+      const followup = new Followup();
+      vi.spyOn(followup, 'items', 'get').mockReturnValue([
+        new FollowupItem(
+          'partner',
+          'type',
+          'id1',
+          'ref1',
+          'notifications',
+          null,
+          null,
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est en cours de traitement 1.',
+          'icon',
+          new Date('2026-02-22T15:55:00.000Z'),
+          'wip',
+          'En cours',
+          false,
+          null,
+          []
+        ),
+      ]);
+      vi.spyOn(followup, 'archived_items', 'get').mockReturnValue([]);
+      const spyFollowup = vi
+        .spyOn(followupMethods, 'buildFollowup')
+        .mockResolvedValue(followup);
+
+      const partners = new Partners();
+      vi.spyOn(partners, 'items', 'get').mockReturnValue([
+        new PartnersItem('dinum-ami', 'AMI', 'https://fake-link-1'),
+        new PartnersItem('dinum-dn', 'Démarche Numérique', 'https://fake-link-1'),
+      ]);
+      const spyPartners = vi
+        .spyOn(partnersMethods, 'buildPartners')
+        .mockResolvedValue(partners);
+
+      // When
+      render(FollowupComponent, {
+        archived: false,
+        followupProp: followup,
+        isFollowupEmptyProp: false,
+        hasAnyConsentsProp: true,
+        hasAllConsentsProp: true,
+        partnersProp: partners,
+      });
+
+      // Then
+      await waitFor(() => {
+        expect(spyFollowup).toHaveBeenCalledTimes(1);
+        expect(spyPartners).toHaveBeenCalledTimes(1);
+        expect(screen.getByTestId('followup')).toHaveTextContent(
+          'Votre démarche n’apparaît pas ? Consultez votre compte'
+        );
+        expect(screen.getByTestId('followup')).not.toHaveTextContent(
+          'Vérifiez que vous suivez bien toutes vos démarches'
+        );
+        const accordionButton: HTMLButtonElement =
+          screen.getByTestId('accordion-button');
+        expect(accordionButton).toHaveAttribute('aria-expanded', 'false');
+      });
+    });
+  });
   describe('When user has any consents', () => {
     beforeEach(async () => {
       const consents = new Consents();
       vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
-      vi.spyOn(consents, 'hasAnyConsents').mockResolvedValue(true);
+      vi.spyOn(consents, 'hasAnyConsents').mockReturnValue(true);
     });
 
     describe('Current items', () => {
@@ -177,6 +250,7 @@ describe('/Followup.svelte', () => {
             followupProp: followup,
             isFollowupEmptyProp: false,
             hasAnyConsentsProp: true,
+            hasAllConsentsProp: false,
             partnersProp: partners,
           });
 
@@ -219,6 +293,7 @@ describe('/Followup.svelte', () => {
             followupProp: followup,
             isFollowupEmptyProp: true,
             hasAnyConsentsProp: true,
+            hasAllConsentsProp: false,
             partnersProp: partners,
           });
 
@@ -227,7 +302,7 @@ describe('/Followup.svelte', () => {
             expect(spyFollowup).toHaveBeenCalledTimes(1);
             expect(spyPartners).toHaveBeenCalledTimes(1);
             expect(screen.getByTestId('followup')).toHaveTextContent(
-              'Votre démarche n’apparaît pas ?'
+              'Votre démarche n’apparaît pas ? Consultez votre compte'
             );
             const accordionButton: HTMLButtonElement =
               screen.getByTestId('accordion-button');
@@ -380,6 +455,7 @@ describe('/Followup.svelte', () => {
             followupProp: followup,
             isFollowupEmptyProp: false,
             hasAnyConsentsProp: true,
+            hasAllConsentsProp: false,
             partnersProp: new Partners(),
           });
 
@@ -445,6 +521,7 @@ describe('/Followup.svelte', () => {
             followupProp: followup,
             isFollowupEmptyProp: false,
             hasAnyConsentsProp: true,
+            hasAllConsentsProp: false,
             partnersProp: partners,
           });
 
@@ -487,6 +564,7 @@ describe('/Followup.svelte', () => {
             followupProp: followup,
             isFollowupEmptyProp: true,
             hasAnyConsentsProp: true,
+            hasAllConsentsProp: false,
             partnersProp: partners,
           });
 
@@ -495,7 +573,7 @@ describe('/Followup.svelte', () => {
             expect(spyFollowup).toHaveBeenCalledTimes(1);
             expect(spyPartners).toHaveBeenCalledTimes(1);
             expect(screen.getByTestId('followup')).toHaveTextContent(
-              'Votre démarche n’apparaît pas ?'
+              'Votre démarche n’apparaît pas ? Consultez votre compte'
             );
             const accordionButton: HTMLButtonElement =
               screen.getByTestId('accordion-button');
@@ -517,6 +595,7 @@ describe('/Followup.svelte', () => {
             followupProp: followup,
             isFollowupEmptyProp: false,
             hasAnyConsentsProp: true,
+            hasAllConsentsProp: false,
             partnersProp: new Partners(),
           });
 
@@ -533,7 +612,7 @@ describe('/Followup.svelte', () => {
     beforeEach(async () => {
       const consents = new Consents();
       vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
-      vi.spyOn(consents, 'hasAnyConsents').mockResolvedValue(false);
+      vi.spyOn(consents, 'hasAnyConsents').mockReturnValue(false);
     });
 
     test('No consent block when user has not consented', async () => {
@@ -548,6 +627,7 @@ describe('/Followup.svelte', () => {
         followupProp: followup,
         isFollowupEmptyProp: false,
         hasAnyConsentsProp: false,
+        hasAllConsentsProp: false,
         partnersProp: new Partners(),
       });
 
@@ -574,6 +654,7 @@ describe('/Followup.svelte', () => {
         followupProp: followup,
         isFollowupEmptyProp: false,
         hasAnyConsentsProp: false,
+        hasAllConsentsProp: false,
         partnersProp: new Partners(),
       });
 
@@ -588,7 +669,7 @@ describe('/Followup.svelte', () => {
     beforeEach(async () => {
       const consents = new Consents();
       vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
-      vi.spyOn(consents, 'hasAnyConsents').mockResolvedValue(true);
+      vi.spyOn(consents, 'hasAnyConsents').mockReturnValue(true);
     });
 
     test('No more icon for archived followup item', async () => {
@@ -643,6 +724,7 @@ describe('/Followup.svelte', () => {
         followupProp: followup,
         isFollowupEmptyProp: false,
         hasAnyConsentsProp: true,
+        hasAllConsentsProp: false,
         partnersProp: new Partners(),
       });
 

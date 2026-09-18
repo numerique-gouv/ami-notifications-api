@@ -18,6 +18,7 @@ describe('/+page.ts', () => {
     const consents = new Consents();
     vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
     vi.spyOn(consents, 'hasAnyConsents').mockReturnValue(true);
+    vi.spyOn(consents, 'hasAllConsents').mockReturnValue(false);
     const partners = new Partners();
     vi.spyOn(partnersMethods, 'buildPartners').mockResolvedValue(partners);
 
@@ -32,6 +33,8 @@ describe('/+page.ts', () => {
     expect(result.isFollowupEmpty).toEqual(false);
     // @ts-expect-error
     expect(result.hasAnyConsents).toEqual(true);
+    // @ts-expect-error
+    expect(result.hasAllConsents).toEqual(false);
     // @ts-expect-error
     expect(result.partners).toEqual(partners);
   });
