@@ -527,15 +527,28 @@ export class Agenda {
   }
 
   private createPersonnalItems(items: Item[], followupItems: FollowupItem[]) {
+    const agendaItems: Item[] = [];
     followupItems.forEach((followupItem) => {
-      const item = followupItem.buildAgendaItem();
-      if (item !== null && !item.isHidden()) {
-        // exclude past personnal items
-        if (item.endDate !== null && item.endDate < this._today) {
-          return;
-        }
-        items.push(item);
+      const agendaItem = followupItem.buildAgendaItem();
+      if (agendaItem !== null) {
+        agendaItems.push(agendaItem);
       }
+      followupItem.futureSubItemWithMilestone.forEach((followupSubItem) => {
+        const agendaItem = followupSubItem.buildAgendaItem(followupItem);
+        if (agendaItem !== null) {
+          agendaItems.push(agendaItem);
+        }
+      });
+    });
+    agendaItems.forEach((item) => {
+      if (item.isHidden()) {
+        return;
+      }
+      if (item.endDate !== null && item.endDate < this._today) {
+        // exclude past personnal items
+        return;
+      }
+      items.push(item);
     });
   }
 
@@ -573,6 +586,5 @@ export const buildAgenda = async (
   if (followup === null) {
     followup = await buildFollowup();
   }
-  console.log(followup);
   return new Agenda(apiAgenda, followup, today);
 };

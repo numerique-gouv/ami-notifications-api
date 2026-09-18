@@ -7,17 +7,12 @@ import Page from './+page.svelte';
 vi.mock('$lib/components/followup/FollowupItemDetail.svelte', () => ({
   default: vi.fn(() => ({})),
 }));
-vi.mock('$lib/components/followup/FollowupParentItemDetail.svelte', () => ({
-  default: vi.fn(() => ({})),
-}));
 
 import FollowupItemDetail from '$lib/components/followup/FollowupItemDetail.svelte';
-import FollowupParentItemDetail from '$lib/components/followup/FollowupParentItemDetail.svelte';
 
 describe('/+page.svelte', () => {
   beforeEach(() => {
     vi.mocked(FollowupItemDetail).mockClear();
-    vi.mocked(FollowupParentItemDetail).mockClear();
   });
 
   test('user has to be connected', async () => {
@@ -136,7 +131,7 @@ describe('/+page.svelte', () => {
       expect(spy).toHaveBeenCalledWith('/#/followup/archived');
     });
   });
-  test('should use FollowupItemDetail component as item is not parent', async () => {
+  test('should use FollowupItemDetail component', async () => {
     // Given
     const item = new FollowupItem(
       'partner',
@@ -170,9 +165,8 @@ describe('/+page.svelte', () => {
     // Then
     expect(FollowupItemDetail).toHaveBeenCalled();
     expect(FollowupItemDetail).toHaveBeenCalledWith(expect.anything(), { item: item });
-    expect(FollowupParentItemDetail).not.toHaveBeenCalled();
   });
-  test('should use FollowupParentItemDetail component as item is parent', async () => {
+  test('should use FollowupItemDetail component - item with subitems', async () => {
     // Given
     const item = new FollowupItem(
       'partner',
@@ -224,9 +218,8 @@ describe('/+page.svelte', () => {
     render(Page, { props: { data: { item }, params: params } });
 
     // Then
-    expect(FollowupItemDetail).not.toHaveBeenCalled();
-    expect(FollowupParentItemDetail).toHaveBeenCalled();
-    expect(FollowupParentItemDetail).toHaveBeenCalledWith(expect.anything(), {
+    expect(FollowupItemDetail).toHaveBeenCalled();
+    expect(FollowupItemDetail).toHaveBeenCalledWith(expect.anything(), {
       item: item,
     });
   });
