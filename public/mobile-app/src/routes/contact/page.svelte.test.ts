@@ -1,12 +1,11 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
+import { render, screen, waitFor } from '@testing-library/svelte';
 import { describe, expect, test, vi } from 'vitest';
 import * as AMINavigationMethods from '$lib/ami-navigation';
-import { toastStore } from '$lib/state/toast.svelte';
 import { expectBackButtonPresent } from '$tests/utils';
 import Page from './+page.svelte';
 
 describe('/+page.svelte', () => {
-  test('user has to be connected', async () => {
+  test('user do not have to be connected', async () => {
     // Given
     const spy = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
 
@@ -15,8 +14,7 @@ describe('/+page.svelte', () => {
 
     // Then
     await waitFor(() => {
-      expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledWith('/#/login');
+      expect(spy).toHaveBeenCalledTimes(0);
     });
   });
 
@@ -30,57 +28,30 @@ describe('/+page.svelte', () => {
     expect(screen.getByText('Nous contacter')).toBeInTheDocument();
   });
 
-  test('should copy identification code when user clicks on copy button', async () => {
-    // Given
-    window.localStorage.setItem('user_fc_hash', 'fake-user-fc-hash');
-
-    const spy = vi.fn().mockResolvedValue(undefined);
-    vi.stubGlobal('navigator', {
-      ...navigator,
-      clipboard: {
-        writeText: spy,
-      },
-    });
-
-    render(Page);
-
-    // When
-    const copyButton = screen.getByTestId('copy-button');
-    await fireEvent.click(copyButton);
-
-    // Then
-    await waitFor(async () => {
-      expect(spy).toHaveBeenCalledWith('fake-user-fc-hash');
-    });
-  });
-
-  test('should add toast when user clicks on copy button', async () => {
-    // Given
-    window.localStorage.setItem('user_fc_hash', 'fake-user-fc-hash');
-    const spy = vi.spyOn(toastStore, 'addToast');
-
-    render(Page);
-
-    // When
-    const copyButton = screen.getByTestId('copy-button');
-    await fireEvent.click(copyButton);
-
-    // Then
-    await waitFor(async () => {
-      expect(spy).toHaveBeenCalledWith(
-        'Code d’identification copié !',
-        'success',
-        3000,
-        false
-      );
-    });
-  });
-
   test('should render a Back button', async () => {
     // When
     render(Page);
 
     // Then
     expectBackButtonPresent(screen);
+  });
+
+  test('should display contact links', async () => {
+    HTMLDialogElement.prototype.showModal = vi.fn();
+    HTMLDialogElement.prototype.close = vi.fn();
+    HTMLDialogElement.prototype.show = vi.fn();
+
+    // When
+    render(Page);
+
+    // Then
+    const contactUsButton = screen.getByTestId('contact-us-button');
+    expect(screen.queryByTestId('contact-us-link-url')).not.toBeInTheDocument();
+    await waitFor(() => {
+      contactUsButton.click();
+      // now the popup is open
+      expect(screen.queryByTestId('contact-us-link-url')).toBeInTheDocument();
+      expect(screen.queryByTestId('contact-us-link-email')).toBeInTheDocument();
+    });
   });
 });
