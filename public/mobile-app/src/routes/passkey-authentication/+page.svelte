@@ -127,7 +127,7 @@
 </script>
 
 <BottomModal onClose={closeModal}>
-  {#snippet header()}
+  {#snippet modalContent()}
     <div class="fr-container">
       <div class="fr-grid-row fr-grid-row--center">
         <div class="image-wrapper">
@@ -143,8 +143,6 @@
         <p>Utiliser votre clé d’accès pour vous connecter</p>
       </div>
     </div>
-  {/snippet}
-  {#snippet footer()}
     <ul class="fr-btns-group">
       <li>
         <button

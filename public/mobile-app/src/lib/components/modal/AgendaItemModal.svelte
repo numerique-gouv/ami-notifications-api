@@ -32,13 +32,10 @@
 </script>
 
 <BottomModal onClose={closeModal}>
-  {#snippet header()}
+  {#snippet modalContent()}
     <h2 class="agenda-item-modal-header" data-testid="agenda-item-modal-header">
       {item?.title}
     </h2>
-  {/snippet}
-
-  {#snippet footer()}
     <ul class="agenda-item-modal-footer">
       <li>
         <span class="fr-icon-delete-line"></span>
