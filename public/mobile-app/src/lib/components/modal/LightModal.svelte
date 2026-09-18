@@ -2,12 +2,11 @@
   import { onMount, type Snippet } from 'svelte';
 
   export interface LightModalProps {
-    header: Snippet;
-    footer: Snippet;
+    modalContent: Snippet;
     centered?: boolean;
     onClose: () => void;
   }
-  let { header, footer, centered = false, onClose }: LightModalProps = $props();
+  let { modalContent, centered = false, onClose }: LightModalProps = $props();
   let dialog: HTMLDialogElement | null = null;
   let modalClass = $derived(centered ? 'dialog--centered' : '');
   const handleClose = () => {
@@ -44,8 +43,7 @@
       class="close-button fr-icon-close-line"
     ></button>
     <div class="drag-handle"></div>
-    {@render header?.()}
-    {@render footer?.()}
+    {@render modalContent?.()}
   </div>
 </dialog>
 <style>
