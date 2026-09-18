@@ -4,6 +4,7 @@
   import { AMIGoto } from '$lib/ami-navigation';
   import BottomModal from '$lib/components/modal/BottomModal.svelte';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
+  import { getPlatform, getVersion } from '$lib/nativeInfos';
   import { toastStore } from '$lib/state/toast.svelte';
   import { userStore } from '$lib/state/User.svelte';
 
@@ -11,6 +12,8 @@
   let userFcHash: string | null = null;
   const contactUrl = PUBLIC_CONTACT_URL;
   const contactEmail = PUBLIC_CONTACT_EMAIL;
+  let platform = getPlatform();
+  let version = getVersion();
 
   onMount(async () => {
     if (!userStore.connected) {
@@ -79,6 +82,11 @@
                 </button>
               </li>
             </ul>
+            {#if platform && version}
+              <p class="fr-m-4v am-text-mention-grey" data-testid="native-infos">
+                {getPlatform()} - {getVersion()}
+              </p>
+            {/if}
           </div>
         {/snippet}
       </BottomModal>
