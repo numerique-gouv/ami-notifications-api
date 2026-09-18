@@ -4,6 +4,7 @@ import {
   updateAllApiConsents,
   updateApiConsent,
 } from '$lib/api-consents';
+import type { Followup, FollowupItem } from '$lib/followup';
 
 export class ConsentsItem {
   constructor(
@@ -25,18 +26,39 @@ export class ConsentsItem {
   get consent_datetime(): Date | null {
     return this._consent_datetime;
   }
+
+  hasFollowupItem = (followup: Followup | null) => {
+    if (!followup || !followup.items) {
+      return false;
+    }
+    const followupItems: FollowupItem[] | undefined = followup.items?.filter(
+      (item) => item.partner_id === this.partner_id
+    );
+    if (!followupItems) {
+      return false;
+    }
+    return followupItems.length > 0;
+  };
 }
 
 export class Consents {
   private _items: ConsentsItem[] = [];
 
-  constructor(apiConsents: APIConsents | null = null) {
+  constructor(apiConsents: APIConsents | null = null, partnerIds: string[]) {
     const consentsItems: ConsentsItem[] = [];
 
     const items: APIConsentsItem[] = apiConsents?.consents || [];
 
-    items.forEach((item) => {
-      const consentsItem = this.createConsentsItem(item);
+    partnerIds.forEach((partnerId) => {
+      const item: APIConsentsItem | undefined = items.find(
+        (item) => item.partner_id === partnerId
+      );
+      let consentsItem: ConsentsItem;
+      if (item) {
+        consentsItem = this.createConsentsItem(item);
+      } else {
+        consentsItem = this.createFakeConsentsItem(partnerId);
+      }
       consentsItems.push(consentsItem);
     });
 
@@ -55,6 +77,10 @@ export class Consents {
     return new ConsentsItem(item.partner_id, item.consent_datetime);
   }
 
+  private createFakeConsentsItem(partnerId: string): ConsentsItem {
+    return new ConsentsItem(partnerId, null);
+  }
+
   hasAnyConsents() {
     if (this.items) {
       return this.items.some((item) => item.consent_datetime !== null);
@@ -70,9 +96,9 @@ export class Consents {
   }
 }
 
-export const buildConsents = async (): Promise<Consents> => {
+export const buildConsents = async (partnerIds: string[]): Promise<Consents> => {
   const apiConsents: APIConsents = await retrieveConsents();
-  return new Consents(apiConsents);
+  return new Consents(apiConsents, partnerIds);
 };
 
 export const updateConsent = async (partnerId: string, checked: boolean) => {

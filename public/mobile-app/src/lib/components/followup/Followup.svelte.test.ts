@@ -13,7 +13,11 @@ import { toastStore } from '$lib/state/toast.svelte';
 describe('/Followup.svelte', () => {
   describe('When user has checked all consents', () => {
     beforeEach(async () => {
-      const consents = new Consents();
+      const consentsItem = {
+        partner_id: 'dinum-ami',
+        consent_datetime: new Date('2026-02-21T15:50:00Z'),
+      };
+      const consents = new Consents({ consents: [consentsItem] }, ['dinum-ami']);
       vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
       vi.spyOn(consents, 'hasAnyConsents').mockReturnValue(true);
       vi.spyOn(consents, 'hasAllConsents').mockReturnValue(true);
@@ -86,7 +90,11 @@ describe('/Followup.svelte', () => {
   });
   describe('When user has any consents', () => {
     beforeEach(async () => {
-      const consents = new Consents();
+      const consentsItem = {
+        partner_id: 'dinum-ami',
+        consent_datetime: new Date('2026-02-21T15:50:00Z'),
+      };
+      const consents = new Consents({ consents: [consentsItem] }, ['dinum-ami']);
       vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
       vi.spyOn(consents, 'hasAnyConsents').mockReturnValue(true);
     });
@@ -610,7 +618,11 @@ describe('/Followup.svelte', () => {
   });
   describe('When user has no consent', () => {
     beforeEach(async () => {
-      const consents = new Consents();
+      const consentsItem = {
+        partner_id: 'dinum-ami',
+        consent_datetime: new Date('2026-02-21T15:50:00Z'),
+      };
+      const consents = new Consents({ consents: [consentsItem] }, ['dinum-ami']);
       vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
       vi.spyOn(consents, 'hasAnyConsents').mockReturnValue(false);
     });
@@ -667,7 +679,11 @@ describe('/Followup.svelte', () => {
   });
   describe('Followup item modal', () => {
     beforeEach(async () => {
-      const consents = new Consents();
+      const consentsItem = {
+        partner_id: 'dinum-ami',
+        consent_datetime: new Date('2026-02-21T15:50:00Z'),
+      };
+      const consents = new Consents({ consents: [consentsItem] }, ['dinum-ami']);
       vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
       vi.spyOn(consents, 'hasAnyConsents').mockReturnValue(true);
     });
