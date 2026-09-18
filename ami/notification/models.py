@@ -73,8 +73,6 @@ class Notification(models.Model):
 
     @property
     def url(self):
-        if self.has_item():
-            return "/#/followup"
         return self.content_link or self.internal_url
 
     def has_item(self):

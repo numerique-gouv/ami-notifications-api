@@ -31,6 +31,7 @@ def test_get_notifications(
     settings,
     notification: Notification,
     partner: Partner,
+    partner_psl: Partner,
 ) -> None:
     login(app, notification.user)
     partner.icon = ""
@@ -51,6 +52,21 @@ def test_get_notifications(
         content_title="Notification title",
         partner=partner,
         valid_until=now() + datetime.timedelta(seconds=1),
+    )
+
+    other_notification2 = Notification.objects.create(
+        user=notification.user,
+        content_body="Other notification 2",
+        content_private_body="some private body content 2",
+        content_title="Notification title 2",
+        item_generic_status="new",
+        item_status_label="Nouveau",
+        item_type="OperationTranquilliteVacances",
+        item_id="42",
+        item_parent_partner=partner_psl,
+        item_parent_type="OTV",
+        item_parent_id="35",
+        partner=partner,
     )
 
     # notification for another user, not returned in notification list of current user
@@ -74,38 +90,49 @@ def test_get_notifications(
     # test user notification list
     response = app.get("/api/v1/users/notifications")
     assert response.status_code == HTTP_200_OK
-    assert len(response.json) == 2
+    assert len(response.json) == 3
     assert response.json[0] == {
+        "id": str(other_notification2.id),
+        "content_title": "Notification title 2",
+        "content_body": "Other notification 2 some private body content 2",
+        "content_icon": "fr-icon-mail-fill",
+        "partner_id": "dinum-ami",
+        "item_type": "OperationTranquilliteVacances",
+        "item_id": "42",
+        "item_parent_partner_id": "psl",
+        "item_parent_type": "OTV",
+        "item_parent_id": "35",
+        "url": None,
+        "created_at": other_notification2.created_at.isoformat().replace("+00:00", "Z"),
+        "read": False,
+    }
+    assert response.json[1] == {
         "id": str(other_notification.id),
-        "user_id": str(other_notification.user.id),
         "content_title": "Notification title",
         "content_body": "Other notification some private body content",
         "content_icon": "fr-icon-mail-star-line",
+        "partner_id": "dinum-ami",
         "item_type": None,
         "item_id": None,
-        "item_status_label": None,
-        "item_generic_status": None,
-        "item_canal": None,
-        "item_milestone_start_date": None,
-        "item_milestone_end_date": None,
+        "item_parent_partner_id": None,
+        "item_parent_type": None,
+        "item_parent_id": None,
         "url": None,
         "created_at": other_notification.created_at.isoformat().replace("+00:00", "Z"),
         "read": False,
     }
-    assert response.json[1] == {
+    assert response.json[2] == {
         "id": str(notification.id),
-        "user_id": str(notification.user.id),
         "content_title": "Notification title",
         "content_body": "Hello notification",
         "content_icon": "fr-icon-mail-fill",
+        "partner_id": "dinum-ami",
         "item_type": "OperationTranquilliteVacances",
         "item_id": "42",
-        "item_status_label": "Nouveau",
-        "item_generic_status": "new",
-        "item_canal": None,
-        "item_milestone_start_date": None,
-        "item_milestone_end_date": None,
-        "url": "/#/followup",
+        "item_parent_partner_id": None,
+        "item_parent_type": None,
+        "item_parent_id": None,
+        "url": "http://external-url",
         "created_at": notification.created_at.isoformat().replace("+00:00", "Z"),
         "read": False,
     }
@@ -308,17 +335,15 @@ def test_read_notification(
     assert response.status_code == HTTP_200_OK
     assert response.json == {
         "id": str(notification.id),
-        "user_id": str(notification.user.id),
         "content_title": "Notification title",
         "content_body": "Hello notification",
         "content_icon": "fr-icon-mail-star-line",
+        "partner_id": "dinum-ami",
         "item_type": None,
         "item_id": None,
-        "item_status_label": None,
-        "item_generic_status": None,
-        "item_canal": None,
-        "item_milestone_start_date": None,
-        "item_milestone_end_date": None,
+        "item_parent_partner_id": None,
+        "item_parent_type": None,
+        "item_parent_id": None,
         "url": None,
         "created_at": notification.created_at.isoformat().replace("+00:00", "Z"),
         "read": True,
