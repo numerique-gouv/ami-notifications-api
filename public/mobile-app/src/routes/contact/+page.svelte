@@ -1,17 +1,15 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { PUBLIC_CONTACT_EMAIL, PUBLIC_CONTACT_URL } from '$env/static/public';
   import { AMIGoto } from '$lib/ami-navigation';
   import BottomModal from '$lib/components/modal/BottomModal.svelte';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
+  import { getContactEmail, getContactUrl } from '$lib/contact';
   import { getPlatform, getVersion } from '$lib/nativeInfos';
   import { toastStore } from '$lib/state/toast.svelte';
   import { userStore } from '$lib/state/User.svelte';
 
   let backUrl: string = '/#/help-center';
-  let userFcHash: string | null = null;
-  const contactUrl = PUBLIC_CONTACT_URL;
-  const contactEmail = PUBLIC_CONTACT_EMAIL;
+  let userFcHash: string = '';
   let platform = getPlatform();
   let version = getVersion();
 
@@ -19,7 +17,7 @@
     if (!userStore.connected) {
       userFcHash = '<absent>';
     } else {
-      userFcHash = localStorage.getItem('user_fc_hash');
+      userFcHash = localStorage.getItem('user_fc_hash') || '<error>';
     }
   });
 
@@ -65,7 +63,7 @@
                 <button
                   type="button"
                   class="fr-sidemenu__link fr-text--regular fr-icon-edit-fill"
-                  onclick={() => AMIGoto(contactUrl)}
+                  onclick={() => AMIGoto(getContactUrl(userFcHash))}
                   data-testid="contact-us-link-url"
                 >
                   Faire une demande en ligne
@@ -75,7 +73,7 @@
                 <button
                   type="button"
                   class="fr-sidemenu__link fr-text--regular fr-icon-mail-fill"
-                  onclick={() => window.location.href = "mailto:" + contactEmail}
+                  onclick={() => window.location.href = "mailto:" + getContactEmail()}
                   data-testid="contact-us-link-email"
                 >
                   Envoyer un mail

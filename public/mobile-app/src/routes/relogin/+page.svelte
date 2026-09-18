@@ -2,15 +2,12 @@
   import applicationSvg from '@gouvfr/dsfr/dist/artwork/pictograms/digital/application.svg';
   import { onMount } from 'svelte';
   import { page } from '$app/state';
-  import { PUBLIC_CONTACT_EMAIL, PUBLIC_CONTACT_URL } from '$env/static/public';
   import { AMIGoto } from '$lib/ami-navigation';
   import Banner from '$lib/components/Banner.svelte';
   import BottomModal from '$lib/components/modal/BottomModal.svelte';
+  import { getContactEmail, getContactUrl } from '$lib/contact';
   import type { UserIdentity } from '$lib/state/User.svelte';
   import { userStore } from '$lib/state/User.svelte';
-
-  const contactUrl = PUBLIC_CONTACT_URL;
-  const contactEmail = PUBLIC_CONTACT_EMAIL;
 
   let identity: UserIdentity = $state() as UserIdentity;
 
@@ -111,7 +108,7 @@
                   <button
                     type="button"
                     class="fr-sidemenu__link fr-text--regular fr-icon-edit-fill"
-                    onclick={()=> AMIGoto(contactUrl)}
+                    onclick={()=> AMIGoto(getContactUrl())}
                     data-testid="connection-help-link-url"
                   >
                     Faire une demande en ligne
@@ -121,7 +118,7 @@
                   <button
                     type="button"
                     class="fr-sidemenu__link fr-text--regular fr-icon-mail-fill"
-                    onclick={() => window.location.href = "mailto:" + contactEmail}
+                    onclick={() => window.location.href = "mailto:" + getContactEmail()}
                     data-testid="connection-help-link-email"
                   >
                     Envoyer un mail
