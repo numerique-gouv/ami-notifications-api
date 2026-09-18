@@ -1,5 +1,6 @@
 <script lang="ts">
   import { AMIGoto } from '$lib/ami-navigation';
+  import AgendaItem from '$lib/components/AgendaItem.svelte';
   import FollowupItemComponent from '$lib/components/followup/FollowupItem.svelte';
   import FollowupItemDetailHeader from '$lib/components/followup/FollowupItemDetailHeader.svelte';
   import { getDSFRIcon } from '$lib/dsfr-icon';
@@ -11,6 +12,14 @@
   }
   let { item, parentItem = null }: Props = $props();
   const displayParent: boolean = $derived(item.hasMilestone() && parentItem !== null);
+  let subItemWithoutMilestone: FollowupSubItem[] = [];
+  let pastSubItemWithMilestone: FollowupSubItem[] = [];
+  let futureSubItemWithMilestone: FollowupSubItem[] = [];
+  if (parentItem === null) {
+    subItemWithoutMilestone = (item as FollowupItem).subItemWithoutMilestone;
+    pastSubItemWithMilestone = (item as FollowupItem).pastSubItemWithMilestone;
+    futureSubItemWithMilestone = (item as FollowupItem).futureSubItemWithMilestone;
+  }
 </script>
 
 <div class="demarche-content-container">
@@ -23,10 +32,49 @@
     </div>
   {/if}
 
+  {#if pastSubItemWithMilestone.length || futureSubItemWithMilestone.length}
+    <div class="demarche-content-events fr-mb-3w" data-testid="followup-events">
+      <h2 class="fr-h6 fr-mb-2w">
+        {#if pastSubItemWithMilestone.length + futureSubItemWithMilestone.length > 1}
+          Évènements attachés&nbsp;:
+        {:else}
+          Évènement attaché&nbsp;:
+        {/if}
+      </h2>
+      {#each futureSubItemWithMilestone as sub_item}
+        {@const agendaItem = sub_item.buildAgendaItem(item as FollowupItem)}
+        {#if agendaItem}
+          <AgendaItem item={agendaItem} displayDate={false} />
+        {/if}
+      {/each}
+      {#if pastSubItemWithMilestone.length}
+        <h3 class="fr-text--md am-text--smbold fr-mb-1w">
+          {#if pastSubItemWithMilestone.length > 1}
+            Passés&nbsp;:
+          {:else}
+            Passé&nbsp;:
+          {/if}
+        </h3>
+        {#each pastSubItemWithMilestone as sub_item}
+          {@const agendaItem = sub_item.buildAgendaItem(item as FollowupItem)}
+          {#if agendaItem}
+            <AgendaItem item={agendaItem} displayDate={false} isPast={true} />
+          {/if}
+        {/each}
+      {/if}
+    </div>
+  {/if}
+
   {#if item.events.length}
-    <div class="demarche-content-messages">
-      <h2 class="fr-h6 fr-mb-0">Messages&nbsp;:</h2>
-      <ul class="demarche--events fr-mb-3w fr-raw-list" data-testid="item-events-list">
+    <div class="demarche-content-messages" data-testid="followup-messages">
+      <h2 class="fr-h6 fr-mb-0">
+        {#if item.events.length > 1}
+          Messages&nbsp;:
+        {:else}
+          Message&nbsp;:
+        {/if}
+      </h2>
+      <ul class="demarche--events fr-mb-3w fr-raw-list">
         {#each item.events as event}
           <li class="fr-py-1w">
             <p
@@ -41,12 +89,18 @@
     </div>
   {/if}
 
-  {#if parentItem === null && (item as FollowupItem).sub_items.length}
+  {#if subItemWithoutMilestone.length}
     <nav class="fr-sidemenu fr-m-0 followup--subitems" data-testid="followup-subitems">
       <div class="fr-sidemenu__inner">
-        <h2 class="fr-h6 fr-mb-0">Sous-démarches associées&nbsp;:</h2>
+        <h2 class="fr-h6 fr-mb-0">
+          {#if subItemWithoutMilestone.length > 1}
+            Sous-démarches associées&nbsp;:
+          {:else}
+            Sous-démarche associée&nbsp;:
+          {/if}
+        </h2>
         <ul class="fr-sidemenu__list fr-mb-3w">
-          {#each (item as FollowupItem).sub_items as sub_item}
+          {#each subItemWithoutMilestone as sub_item}
             <li class="fr-sidemenu__item followup--subitem fr-py-1w fr-pr-7v">
               <div class="followup--subitem__header fr-mb-1v">
                 <p
