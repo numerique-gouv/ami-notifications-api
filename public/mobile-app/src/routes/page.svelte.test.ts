@@ -48,7 +48,12 @@ describe('/+page.svelte', () => {
       new AutoPromo(new Agenda())
     );
     vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(new Followup());
-    vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(new Consents());
+    const consentsItem = {
+      partner_id: 'dinum-ami',
+      consent_datetime: new Date('2026-02-21T15:50:00Z'),
+    };
+    const consents = new Consents({ consents: [consentsItem] }, ['dinum-ami']);
+    vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
 
     window.localStorage.setItem('notifications_enabled', 'false');
     window.localStorage.setItem('user_data', 'fake-user-data');
@@ -457,7 +462,11 @@ describe('/+page.svelte', () => {
 
   describe('Followup block - when user has consented', () => {
     beforeEach(async () => {
-      const consents: Consents = new Consents();
+      const consentsItem = {
+        partner_id: 'dinum-ami',
+        consent_datetime: new Date('2026-02-21T15:50:00Z'),
+      };
+      const consents = new Consents({ consents: [consentsItem] }, ['dinum-ami']);
       vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
       vi.spyOn(consents, 'hasAnyConsents').mockResolvedValue(true);
     });
@@ -919,7 +928,11 @@ describe('/+page.svelte', () => {
 
   describe('Followup block - when user has not consented', () => {
     beforeEach(async () => {
-      const consents: Consents = new Consents();
+      const consentsItem = {
+        partner_id: 'dinum-ami',
+        consent_datetime: new Date('2026-02-21T15:50:00Z'),
+      };
+      const consents = new Consents({ consents: [consentsItem] }, ['dinum-ami']);
       vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
       vi.spyOn(consents, 'hasAnyConsents').mockResolvedValue(false);
     });

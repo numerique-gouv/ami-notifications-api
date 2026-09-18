@@ -12,13 +12,14 @@
   import AgendaItemModal from '$lib/components/modal/AgendaItemModal.svelte';
   import FollowupItemModal from '$lib/components/modal/FollowupItemModal.svelte';
   import Navigation from '$lib/components/Navigation.svelte';
-  import { buildConsents } from '$lib/consents';
+  import { buildConsents, type Consents } from '$lib/consents';
   import type { Followup, FollowupItem as FollowupItemType } from '$lib/followup';
   import { buildFollowup } from '$lib/followup';
   import {
     countUnreadNotifications,
     notificationEventsSocket,
   } from '$lib/notifications';
+  import { buildPartners, type Partners, PartnersItem } from '$lib/partners';
   import { userStore } from '$lib/state/User.svelte';
   import { formatDate } from '$lib/utils';
   import type { PageProps } from './$types';
@@ -67,7 +68,11 @@
       followup = await buildFollowup();
       console.log($state.snapshot(followup));
       isFollowupEmpty = followup.isEmpty();
-      const consents = await buildConsents();
+      const partners: Partners = await buildPartners();
+      const partnerIds: string[] = partners.items.map(
+        (item: PartnersItem) => item.slug
+      );
+      const consents: Consents = await buildConsents(partnerIds);
       hasAnyConsents = consents.hasAnyConsents();
 
       agenda = await buildAgenda(followup);

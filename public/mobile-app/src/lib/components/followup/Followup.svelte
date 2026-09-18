@@ -8,7 +8,7 @@
   import { buildConsents, Consents } from '$lib/consents';
   import type { Followup, FollowupItem as FollowupItemType } from '$lib/followup';
   import { buildFollowup } from '$lib/followup';
-  import { buildPartners, type Partners } from '$lib/partners';
+  import { buildPartners, type Partners, PartnersItem } from '$lib/partners';
 
   interface Props {
     archived?: boolean;
@@ -36,15 +36,17 @@
   let hasAllConsents: boolean = $state(hasAllConsentsProp);
   let isExpanded: boolean = $state(isFollowupEmptyProp);
   let partners: Partners | null = $state(partnersProp);
+  let partnerIds: string[];
 
   onMount(async () => {
     followup = await buildFollowup();
     console.log($state.snapshot(followup));
-    const consents = await buildConsents();
+    partners = await buildPartners();
+    partnerIds = partners.items.map((item: PartnersItem) => item.slug);
+    const consents = await buildConsents(partnerIds);
     hasAnyConsents = consents.hasAnyConsents();
     hasAllConsents = consents.hasAllConsents();
     isExpanded = expandAccordion();
-    partners = await buildPartners();
   });
 
   const expandAccordion = (): boolean => {

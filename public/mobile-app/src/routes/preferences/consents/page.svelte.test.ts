@@ -4,6 +4,8 @@ import * as AMINavigationMethods from '$lib/ami-navigation';
 import type { APIPartnersItem } from '$lib/api-partners';
 import * as consentsMethods from '$lib/consents';
 import { Consents } from '$lib/consents';
+import * as followupMethods from '$lib/followup';
+import { Followup, FollowupItem } from '$lib/followup';
 import * as partnersMethods from '$lib/partners';
 import { Partners } from '$lib/partners';
 import { userStore } from '$lib/state/User.svelte';
@@ -14,11 +16,19 @@ describe('/+page.svelte', () => {
   test('user has to be connected', async () => {
     // Given
     const partners = new Partners();
+    const followup = new Followup();
     const spy = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
 
     // When
     render(Page, {
-      props: { data: { consentItems: [], partners: partners }, params: {} },
+      props: {
+        data: {
+          consentItems: [],
+          partners: partners,
+          followup: followup,
+        },
+        params: {},
+      },
     });
 
     // Then
@@ -28,65 +38,226 @@ describe('/+page.svelte', () => {
     });
   });
 
-  test('should enable consent when user toggles on', async () => {
-    // Given
-    await userStore.login(mockUserInfo);
+  describe('When user toggles on', () => {
+    test('should enable consent', async () => {
+      // Given
+      await userStore.login(mockUserInfo);
 
-    vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(new Consents());
+      const consentsItem = {
+        partner_id: 'dinum-ami',
+        consent_datetime: new Date('2026-02-21T15:50:00Z'),
+      };
+      const consents = new Consents({ consents: [consentsItem] }, ['dinum-ami']);
+      vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
+      const spy = vi.spyOn(consentsMethods, 'updateConsent').mockResolvedValue();
 
-    const spy = vi.spyOn(consentsMethods, 'updateConsent').mockResolvedValue();
+      const apiPartnersItem: APIPartnersItem = {
+        slug: 'dinum-ami',
+        name: 'AMI',
+        link: 'http://fake-link',
+      };
+      const partners = new Partners([apiPartnersItem]);
+      vi.spyOn(partnersMethods, 'buildPartners').mockResolvedValue(partners);
+      const followup = new Followup();
+      vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
 
-    const apiPartnersItem: APIPartnersItem = {
-      slug: 'dinum-ami',
-      name: 'AMI',
-      link: 'http://fake-link',
-    };
-    const partners = new Partners([apiPartnersItem]);
-    vi.spyOn(partnersMethods, 'buildPartners').mockResolvedValue(partners);
-    render(Page, {
-      props: { data: { consentItems: [], partners: partners }, params: {} },
-    });
+      render(Page, {
+        props: {
+          data: {
+            consentItems: [],
+            partners: partners,
+            followup: followup,
+          },
+          params: {},
+        },
+      });
 
-    // When
-    const toggleInput: HTMLInputElement = screen.getByTestId('dinum-ami');
-    expect(toggleInput.checked).toBeFalsy();
-    await fireEvent.click(toggleInput);
+      // When
+      const toggleInput: HTMLInputElement = screen.getByTestId('dinum-ami');
+      expect(toggleInput.checked).toBeFalsy();
+      await fireEvent.click(toggleInput);
 
-    // Then
-    await waitFor(async () => {
-      expect(spy).toHaveBeenCalledWith('dinum-ami', true);
+      // Then
+      await waitFor(async () => {
+        expect(spy).toHaveBeenCalledWith('dinum-ami', true);
+      });
     });
   });
 
-  test('should disable consent when user toggles off', async () => {
-    // Given
-    await userStore.login(mockUserInfo);
+  describe('When user toggles off', () => {
+    test('should disable consent', async () => {
+      // Given
+      await userStore.login(mockUserInfo);
 
-    const spy = vi.spyOn(consentsMethods, 'updateConsent');
+      const apiPartnersItem: APIPartnersItem = {
+        slug: 'dinum-ami',
+        name: 'AMI',
+        link: 'http://fake-link',
+      };
+      const partners = new Partners([apiPartnersItem]);
+      vi.spyOn(partnersMethods, 'buildPartners').mockResolvedValue(partners);
+      const followup = new Followup();
+      vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
 
-    const apiPartnersItem: APIPartnersItem = {
-      slug: 'dinum-ami',
-      name: 'AMI',
-      link: 'http://fake-link',
-    };
-    const partners = new Partners([apiPartnersItem]);
-    vi.spyOn(partnersMethods, 'buildPartners').mockResolvedValue(partners);
-    render(Page, {
-      props: { data: { consentItems: [], partners: partners }, params: {} },
+      const spy = vi.spyOn(consentsMethods, 'updateConsent');
+
+      render(Page, {
+        props: {
+          data: {
+            consentItems: [],
+            partners: partners,
+            followup: followup,
+          },
+          params: {},
+        },
+      });
+
+      // When
+      let toggleInput: HTMLInputElement = screen.getByTestId('dinum-ami');
+      expect(toggleInput.checked).toBeFalsy();
+      await fireEvent.click(toggleInput);
+
+      toggleInput = screen.getByTestId('dinum-ami');
+      expect(toggleInput.checked).toBeTruthy();
+      await fireEvent.click(toggleInput);
+
+      // Then
+      await waitFor(async () => {
+        expect(spy).toHaveBeenCalledWith('dinum-ami', false);
+      });
     });
 
-    // When
-    let toggleInput: HTMLInputElement = screen.getByTestId('dinum-ami');
-    expect(toggleInput.checked).toBeFalsy();
-    await fireEvent.click(toggleInput);
+    test('should display warning block when there is at least one followup item for this partner', async () => {
+      // Given
+      await userStore.login(mockUserInfo);
 
-    toggleInput = screen.getByTestId('dinum-ami');
-    expect(toggleInput.checked).toBeTruthy();
-    await fireEvent.click(toggleInput);
+      const apiPartnersItem: APIPartnersItem = {
+        slug: 'dinum-ami',
+        name: 'AMI',
+        link: 'http://fake-link',
+      };
+      const partners = new Partners([apiPartnersItem]);
+      vi.spyOn(partnersMethods, 'buildPartners').mockResolvedValue(partners);
 
-    // Then
-    await waitFor(async () => {
-      expect(spy).toHaveBeenCalledWith('dinum-ami', false);
+      const followup = new Followup();
+      vi.spyOn(followup, 'items', 'get').mockReturnValue([
+        new FollowupItem(
+          'dinum-ami',
+          'type',
+          'id1',
+          'ref1',
+          'notifications',
+          null,
+          null,
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est en cours de traitement 1.',
+          'icon',
+          new Date('2026-02-22T15:55:00.000Z'),
+          'wip',
+          'En cours',
+          false,
+          null,
+          []
+        ),
+      ]);
+      vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
+
+      const spy = vi.spyOn(consentsMethods, 'updateConsent');
+
+      render(Page, {
+        props: {
+          data: {
+            consentItems: [],
+            partners: partners,
+            followup: followup,
+          },
+          params: {},
+        },
+      });
+
+      // When
+      let toggleInput: HTMLInputElement = screen.getByTestId('dinum-ami');
+      expect(toggleInput.checked).toBeFalsy();
+      await fireEvent.click(toggleInput);
+
+      toggleInput = screen.getByTestId('dinum-ami');
+      expect(toggleInput.checked).toBeTruthy();
+      await fireEvent.click(toggleInput);
+
+      // Then
+      await waitFor(async () => {
+        expect(spy).toHaveBeenCalledWith('dinum-ami', false);
+        const warningBlock: HTMLElement = screen.getByTestId('warning-dinum-ami');
+        expect(warningBlock).toBeInTheDocument();
+      });
+    });
+
+    test('should not display warning block when there is no followup item for this partner', async () => {
+      // Given
+      await userStore.login(mockUserInfo);
+
+      const apiPartnersItem: APIPartnersItem = {
+        slug: 'dinum-ami',
+        name: 'AMI',
+        link: 'http://fake-link',
+      };
+      const partners = new Partners([apiPartnersItem]);
+      vi.spyOn(partnersMethods, 'buildPartners').mockResolvedValue(partners);
+
+      const followup = new Followup();
+      vi.spyOn(followup, 'items', 'get').mockReturnValue([
+        new FollowupItem(
+          'dinum-dn',
+          'type',
+          'id1',
+          'ref1',
+          'notifications',
+          null,
+          null,
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est en cours de traitement 1.',
+          'icon',
+          new Date('2026-02-22T15:55:00.000Z'),
+          'wip',
+          'En cours',
+          false,
+          null,
+          []
+        ),
+      ]);
+      vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
+
+      const spy = vi.spyOn(consentsMethods, 'updateConsent');
+
+      render(Page, {
+        props: {
+          data: {
+            consentItems: [],
+            partners: partners,
+            followup: followup,
+          },
+          params: {},
+        },
+      });
+
+      // When
+      let toggleInput: HTMLInputElement = screen.getByTestId('dinum-ami');
+      expect(toggleInput.checked).toBeFalsy();
+      await fireEvent.click(toggleInput);
+
+      toggleInput = screen.getByTestId('dinum-ami');
+      expect(toggleInput.checked).toBeTruthy();
+      await fireEvent.click(toggleInput);
+
+      // Then
+      await waitFor(async () => {
+        expect(spy).toHaveBeenCalledWith('dinum-ami', false);
+        expect(screen.queryByTestId('warning-dinum-ami')).not.toBeInTheDocument();
+      });
     });
   });
 
@@ -104,7 +275,9 @@ describe('/+page.svelte', () => {
       partner_id: 'dinum-dn',
       consent_datetime: null,
     };
-    const consents = new Consents({ consents: [consentsItem1, consentsItem2] });
+    const consents = new Consents({ consents: [consentsItem1, consentsItem2] }, [
+      'dinum-ami',
+    ]);
     vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
 
     const apiPartnersItem1: APIPartnersItem = {
@@ -119,8 +292,18 @@ describe('/+page.svelte', () => {
     };
     const partners = new Partners([apiPartnersItem1, apiPartnersItem2]);
     vi.spyOn(partnersMethods, 'buildPartners').mockResolvedValue(partners);
+    const followup = new Followup();
+    vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
+
     render(Page, {
-      props: { data: { consentItems: [], partners: partners }, params: {} },
+      props: {
+        data: {
+          consentItems: [],
+          partners: partners,
+          followup: followup,
+        },
+        params: {},
+      },
     });
 
     // When
@@ -145,10 +328,18 @@ describe('/+page.svelte', () => {
   test('should import NavWithBackButton component', async () => {
     // Given
     const partners = new Partners();
+    const followup = new Followup();
 
     // When
     render(Page, {
-      props: { data: { consentItems: [], partners: partners }, params: {} },
+      props: {
+        data: {
+          consentItems: [],
+          partners: partners,
+          followup: followup,
+        },
+        params: {},
+      },
     });
     const backButton = screen.getByTestId('back-button');
 
@@ -160,10 +351,18 @@ describe('/+page.svelte', () => {
   test('should render a Back button', async () => {
     // Given
     const partners = new Partners();
+    const followup = new Followup();
 
     // When
     render(Page, {
-      props: { data: { consentItems: [], partners: partners }, params: {} },
+      props: {
+        data: {
+          consentItems: [],
+          partners: partners,
+          followup: followup,
+        },
+        params: {},
+      },
     });
 
     // Then
