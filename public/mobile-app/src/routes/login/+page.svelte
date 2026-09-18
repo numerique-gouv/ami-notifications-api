@@ -148,7 +148,7 @@
 
     {#if connectionHelpModal}
       <BottomModal onClose={closeConnectionHelpModal}>
-        {#snippet header()}
+        {#snippet modalContent()}
           <div class="fr-sidemenu">
             <ul class="fr-sidemenu__list connection-help-links">
               <li>
@@ -173,8 +173,6 @@
               </li>
             </ul>
           </div>
-        {/snippet}
-        {#snippet footer()}
         {/snippet}
       </BottomModal>
     {/if}

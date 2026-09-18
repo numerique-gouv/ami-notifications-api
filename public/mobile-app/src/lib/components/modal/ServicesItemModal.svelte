@@ -25,13 +25,11 @@
 </script>
 
 <CenteredModal onClose={closeModal}>
-  {#snippet header()}
+  {#snippet modalContent()}
     <h4 class="services-item-modal-header" data-testid="services-item-modal-header">
       Que voulez-vous faire&nbsp;?
     </h4>
     <p>Vous avez commencé ou réalisé une ou plusieurs {item?.title}</p>
-  {/snippet}
-  {#snippet footer()}
     <div class="service-action-buttons">
       <button
         class="fr-btn fr-btn--lg"

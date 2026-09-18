@@ -47,12 +47,10 @@
 </script>
 
 <BottomModal onClose={closeModal}>
-  {#snippet header()}
+  {#snippet modalContent()}
     <h2 class="followup-item-modal-header" data-testid="followup-item-modal-header">
       {item?.title}
     </h2>
-  {/snippet}
-  {#snippet footer()}
     <ul class="followup-item-modal-footer">
       <li>
         <span class="fr-icon-inbox-archive-line"></span>
