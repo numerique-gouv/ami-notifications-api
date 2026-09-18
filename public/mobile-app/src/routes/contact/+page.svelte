@@ -1,28 +1,32 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { PUBLIC_CONTACT_EMAIL, PUBLIC_CONTACT_URL } from '$env/static/public';
   import { AMIGoto } from '$lib/ami-navigation';
+  import BottomModal from '$lib/components/modal/BottomModal.svelte';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
+  import { getContactEmail, getContactUrl } from '$lib/contact';
+  import { getPlatform, getVersion } from '$lib/nativeInfos';
   import { toastStore } from '$lib/state/toast.svelte';
   import { userStore } from '$lib/state/User.svelte';
 
   let backUrl: string = '/';
-  let userFcHash: string | null = null;
-  const contactUrl = PUBLIC_CONTACT_URL;
-  const contactEmail = PUBLIC_CONTACT_EMAIL;
+  let userFcHash: string = '';
+  let platform = getPlatform();
+  let version = getVersion();
 
   onMount(async () => {
     if (!userStore.connected) {
-      AMIGoto('/#/login');
+      userFcHash = '<absent>';
+    } else {
+      userFcHash = localStorage.getItem('user_fc_hash') || '<error>';
     }
-    userFcHash = localStorage.getItem('user_fc_hash');
   });
 
-  const copyIdentificationCode = () => {
-    if (userFcHash) {
-      navigator.clipboard.writeText(userFcHash);
-      toastStore.addToast('Code d’identification copié !', 'success', 3000, false);
-    }
+  let contactUsModal = $state(false);
+  const onContactUsOpen = () => {
+    contactUsModal = true;
+  };
+  const closeContactUsModal = () => {
+    contactUsModal = false;
   };
 </script>
 
@@ -38,52 +42,55 @@
       Une <b>question</b>, une <b>suggestion</b> ou un <b>problème technique</b>&nbsp;?
       Nous sommes là pour vous écouter et pour vous aider.
     </p>
-    <p>
-      <b>Copiez</b> et transmettez votre <b>code d’identification</b> ci-dessous pour
-      <b>échanger avec nous</b> sur notre canal Tchap.
-    </p>
 
-    <div class="identification-code-wrapper">
-      <p class="identification-code">{userFcHash}</p>
-
-      <div class="button-wrapper">
-        <button
-          class="copy-button"
-          type="button"
-          onclick={copyIdentificationCode}
-          aria-label="Copier le code d’identification"
-          data-testid="copy-button"
-        >
-          <img class="copy-icon" src="/remixicons/file-copy-line.svg" alt="">
-        </button>
-      </div>
+    <div class="contact-us-wrapper fr-btns-group">
+      <button
+        id="contact-us-button"
+        class="fr-btn"
+        onclick={onContactUsOpen}
+        data-testid="contact-us-button"
+      >
+        Contacter notre équipe
+      </button>
     </div>
 
-    <p>Contacter notre équipe&nbsp;:</p>
-    <ul
-      class="fr-btns-group fr-btns-group--center fr-btns-group--equisized fr-btns-group--inline contact-links-wrapper"
-    >
-      <li>
-        <button
-          type="button"
-          onclick={() => AMIGoto(contactUrl)}
-          aria-label="Contacter notre équipe par tchap"
-          class="fr-btn"
-        >
-          Par Tchap
-        </button>
-      </li>
-      <li>
-        <button
-          type="button"
-          onclick={() => window.location.href = `mailto:${contactEmail}?body=Mon code d’identification : ${userFcHash}`}
-          aria-label="Contacter notre équipe par e-mail"
-          class="fr-btn"
-        >
-          Par E-mail
-        </button>
-      </li>
-    </ul>
+    {#if contactUsModal}
+      <BottomModal onClose={closeContactUsModal}>
+        {#snippet header()}
+          <div class="fr-sidemenu">
+            <ul class="fr-sidemenu__list contact-us-links">
+              <li>
+                <button
+                  type="button"
+                  class="fr-sidemenu__link fr-text--regular fr-icon-edit-fill"
+                  onclick={() => AMIGoto(getContactUrl(userFcHash))}
+                  data-testid="contact-us-link-url"
+                >
+                  Faire une demande en ligne
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  class="fr-sidemenu__link fr-text--regular fr-icon-mail-fill"
+                  onclick={() => window.location.href = "mailto:" + getContactEmail()}
+                  data-testid="contact-us-link-email"
+                >
+                  Envoyer un mail
+                </button>
+              </li>
+            </ul>
+            {#if platform && version}
+              <p class="fr-m-4v am-text-mention-grey" data-testid="native-infos">
+                {getPlatform()} - {getVersion()}
+              </p>
+            {/if}
+          </div>
+        {/snippet}
+        {#snippet footer()}
+        {/snippet}
+      </BottomModal>
+    {/if}
   </div>
 </div>
 
@@ -96,25 +103,9 @@
         justify-content: center;
         margin-bottom: 1.5rem;
       }
-
-      .identification-code-wrapper {
-        display: flex;
-        align-items: center;
-        padding-bottom: 1.5rem;
-        .identification-code {
-          overflow: hidden;
-          padding: 12px;
-          margin: 0;
-          background-color: var(--background-contrast-blue-france);
-          font-weight: 500;
-        }
-        .button-wrapper {
-          padding-left: 12px;
-          .copy-button {
-            padding: 0;
-          }
-        }
-      }
+    }
+    .fr-sidemenu {
+      box-shadow: none;
     }
   }
 </style>
