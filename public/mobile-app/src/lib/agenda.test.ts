@@ -3,7 +3,7 @@ import '@testing-library/jest-dom/vitest';
 import { Agenda, buildAgenda, Item, slugify } from '$lib/agenda';
 import * as apiAgendaMethods from '$lib/api-agenda';
 import * as followupMethods from '$lib/followup';
-import { Followup, FollowupItem } from '$lib/followup';
+import { Followup, FollowupItem, FollowupSubItem } from '$lib/followup';
 import * as scheduledNotificationsMethods from '$lib/scheduled-notifications';
 import { Preferences } from '$lib/state/preferences';
 import { User, userStore } from '$lib/state/User.svelte';
@@ -2228,6 +2228,267 @@ describe('/agenda.ts', () => {
           )
         ).toBe(true);
       });
+      test('should organize subitems in now and next', async () => {
+        // Given
+        const followup = new Followup();
+        const followupSubItem1 = new FollowupSubItem(
+          'partner',
+          'type',
+          'id1',
+          'ref1',
+          'notifications',
+          null,
+          null,
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est en cours de traitement.',
+          'icon',
+          new Date('2026-02-22T15:55:00.000Z'),
+          'wip',
+          'En cours',
+          false,
+          null
+        );
+        const followupSubItem2 = new FollowupSubItem(
+          'partner',
+          'type',
+          'id2',
+          'ref2',
+          'notifications',
+          null,
+          null,
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'closed',
+          'Terminée',
+          true,
+          null
+        );
+        const followupSubItem3 = new FollowupSubItem(
+          'partner',
+          'type',
+          'id2',
+          'ref2',
+          'notifications',
+          null,
+          null,
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'closed',
+          'Terminée',
+          true,
+          null
+        );
+        const followupSubItem4 = new FollowupSubItem(
+          'partner',
+          'type',
+          'id2',
+          'ref2',
+          'notifications',
+          null,
+          null,
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'closed',
+          'Terminée',
+          true,
+          null
+        );
+        const followupSubItem5 = new FollowupSubItem(
+          'partner',
+          'type',
+          'id2',
+          'ref2',
+          'notifications',
+          null,
+          null,
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'closed',
+          'Terminée',
+          true,
+          null
+        );
+        const followupSubItem6 = new FollowupSubItem(
+          'partner',
+          'type',
+          'id2',
+          'ref2',
+          'notifications',
+          null,
+          null,
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'closed',
+          'Terminée',
+          true,
+          null
+        );
+        const followupItem = new FollowupItem(
+          'partner',
+          'type',
+          'id1',
+          'ref1',
+          'notifications',
+          null,
+          null,
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est en cours de traitement.',
+          'icon',
+          new Date('2026-02-22T15:55:00.000Z'),
+          'wip',
+          'En cours',
+          false,
+          null,
+          []
+        );
+        vi.spyOn(followupItem, 'futureSubItemWithMilestone', 'get').mockReturnValue([
+          followupSubItem1,
+          followupSubItem2,
+          followupSubItem3,
+          followupSubItem4,
+          followupSubItem5,
+          followupSubItem6,
+        ]);
+        vi.spyOn(followup, 'items', 'get').mockReturnValue([followupItem]);
+        vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
+        vi.spyOn(followupSubItem1, 'buildAgendaItem').mockReturnValue(null);
+        vi.spyOn(followupSubItem2, 'buildAgendaItem').mockReturnValue(
+          new Item(
+            'fake-id',
+            'personnal',
+            'Rendez-vous',
+            'link1',
+            null,
+            null,
+            parseISODate('2025-10-31'), // start date is past but it is displayed anyway
+            null
+          )
+        );
+        vi.spyOn(followupSubItem3, 'buildAgendaItem').mockReturnValue(
+          new Item(
+            'fake-id',
+            'personnal',
+            'Rendez-vous',
+            'link2',
+            null,
+            null,
+            null,
+            parseISODate('2025-12-23')
+          )
+        );
+        vi.spyOn(followupSubItem4, 'buildAgendaItem').mockReturnValue(
+          new Item(
+            'fake-id',
+            'personnal',
+            'Rendez-vous',
+            'link3',
+            null,
+            null,
+            null,
+            parseISODate('2025-10-31') // end date is past
+          )
+        );
+        vi.spyOn(followupSubItem5, 'buildAgendaItem').mockReturnValue(
+          new Item(
+            'fake-id',
+            'personnal',
+            'Rendez-vous',
+            'link4',
+            null,
+            null,
+            parseISODate('2025-11-01'),
+            null
+          )
+        );
+        vi.spyOn(followupSubItem6, 'buildAgendaItem').mockReturnValue(
+          new Item(
+            'fake-id',
+            'personnal',
+            'Rendez-vous',
+            'link5',
+            null,
+            null,
+            // item is past
+            parseISODate('2025-10-30'),
+            parseISODate('2025-10-31')
+          )
+        );
+        await userStore.login(mockUserInfo);
+        vi.spyOn(utilsMethods, 'uniqueId').mockReturnValue('fake-id');
+
+        // When
+        const agenda = new Agenda(null, followup, new Date('2025-11-01T12:00:00Z'));
+
+        // Then
+        expect(agenda.now.length).equal(2);
+        expect(
+          agenda.now[0].equals(
+            new Item(
+              'fake-id',
+              'personnal',
+              'Rendez-vous',
+              'link1',
+              null,
+              null,
+              parseISODate('2025-10-31'),
+              null
+            )
+          )
+        ).toBe(true);
+        expect(
+          agenda.now[1].equals(
+            new Item(
+              'fake-id',
+              'personnal',
+              'Rendez-vous',
+              'link4',
+              null,
+              null,
+              parseISODate('2025-11-01'),
+              null
+            )
+          )
+        ).toBe(true);
+        expect(agenda.next.length).equal(1);
+        expect(
+          agenda.next[0].equals(
+            new Item(
+              'fake-id',
+              'personnal',
+              'Rendez-vous',
+              'link2',
+              null,
+              null,
+              null,
+              parseISODate('2025-12-23')
+            )
+          )
+        ).toBe(true);
+      });
       test('should not display personnal item if is listed in hidden items', async () => {
         // Given
         const followup = new Followup();
@@ -2316,6 +2577,113 @@ describe('/agenda.ts', () => {
         expect(agenda.now[0].equals(item1)).toBe(true);
         expect(agenda.next.length).equal(0);
       });
+      test('should not display personnal sub item if is listed in hidden items', async () => {
+        // Given
+        const followup = new Followup();
+        const followupSubItem1 = new FollowupSubItem(
+          'partner',
+          'type',
+          'id1',
+          'ref1',
+          'notifications',
+          null,
+          null,
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est en cours de traitement.',
+          'icon',
+          new Date('2026-02-22T15:55:00.000Z'),
+          'wip',
+          'En cours',
+          false,
+          null
+        );
+        const followupSubItem2 = new FollowupSubItem(
+          'partner',
+          'type',
+          'id2',
+          'ref2',
+          'notifications',
+          null,
+          null,
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'closed',
+          'Terminée',
+          true,
+          null
+        );
+        const followupItem = new FollowupItem(
+          'partner',
+          'type',
+          'id1',
+          'ref1',
+          'notifications',
+          null,
+          null,
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est en cours de traitement.',
+          'icon',
+          new Date('2026-02-22T15:55:00.000Z'),
+          'wip',
+          'En cours',
+          false,
+          null,
+          []
+        );
+        vi.spyOn(followupItem, 'futureSubItemWithMilestone', 'get').mockReturnValue([
+          followupSubItem1,
+          followupSubItem2,
+        ]);
+        vi.spyOn(followup, 'items', 'get').mockReturnValue([followupItem]);
+        const item1 = new Item(
+          'fake-id-1',
+          'personnal',
+          'Rendez-vous',
+          'link1',
+          null,
+          null,
+          parseISODate('2025-09-22'),
+          null
+        );
+        const item2 = new Item(
+          'fake-id-2',
+          'personnal',
+          'Rendez-vous',
+          'link2',
+          null,
+          null,
+          null,
+          parseISODate('2025-12-23')
+        );
+        vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
+        vi.spyOn(followupSubItem1, 'buildAgendaItem').mockReturnValue(item1);
+        vi.spyOn(followupSubItem2, 'buildAgendaItem').mockReturnValue(item2);
+        await userStore.login(mockUserInfo);
+        vi.spyOn(utilsMethods, 'uniqueId')
+          .mockReturnValueOnce('fake-id-1')
+          .mockReturnValueOnce('fake-id-2');
+
+        const existing = [];
+        const itemKey = `ami-personnal:${getTimestamp(item2.date)}:${slugify(item2.title)}`;
+        existing.push(itemKey);
+        localStorage.setItem('hidden_agenda_items_personnal', JSON.stringify(existing));
+
+        // When
+        const agenda = new Agenda(null, followup, new Date('2025-11-01T12:00:00Z'));
+
+        // Then
+        expect(agenda.now.length).equal(1);
+        expect(agenda.now[0].equals(item1)).toBe(true);
+        expect(agenda.next.length).equal(0);
+      });
     });
   });
   describe('buildAgenda', () => {
@@ -2362,6 +2730,25 @@ describe('/agenda.ts', () => {
         null,
         []
       );
+      const followupSubItem3 = new FollowupSubItem(
+        'partner',
+        'type',
+        'id2',
+        'ref2',
+        'notifications',
+        null,
+        null,
+        [],
+        'Opération Tranquillité Vacances',
+        'subheading',
+        'Votre demande est terminée.',
+        'icon',
+        new Date('2026-02-20T15:55:00.000Z'),
+        'closed',
+        'Terminée',
+        true,
+        null
+      );
       const followupItem3 = new FollowupItem(
         'partner',
         'type',
@@ -2407,6 +2794,21 @@ describe('/agenda.ts', () => {
           'personnal',
           'Rendez-vous',
           'link2',
+          null,
+          null,
+          null,
+          parseISODate('2025-12-23')
+        )
+      );
+      vi.spyOn(followupItem3, 'futureSubItemWithMilestone', 'get').mockReturnValue([
+        followupSubItem3,
+      ]);
+      vi.spyOn(followupSubItem3, 'buildAgendaItem').mockReturnValue(
+        new Item(
+          'fake-id',
+          'personnal',
+          'Rendez-vous',
+          'link3',
           null,
           null,
           null,
@@ -2503,7 +2905,7 @@ describe('/agenda.ts', () => {
           new Item('fake-id', 'holiday', 'Day 3', '', null, holiday3.date, null, null)
         )
       ).toBe(true);
-      expect(agenda.next.length).equal(3);
+      expect(agenda.next.length).equal(4);
       expect(
         agenda.next[0].equals(
           new Item(
@@ -2534,6 +2936,20 @@ describe('/agenda.ts', () => {
       ).toBe(true);
       expect(
         agenda.next[2].equals(
+          new Item(
+            'fake-id',
+            'personnal',
+            'Rendez-vous',
+            'link3',
+            null,
+            null,
+            null,
+            parseISODate('2025-12-23')
+          )
+        )
+      ).toBe(true);
+      expect(
+        agenda.next[3].equals(
           new Item('fake-id', 'holiday', 'Day 4', '', null, holiday4.date, null, null)
         )
       ).toBe(true);
@@ -2581,6 +2997,25 @@ describe('/agenda.ts', () => {
         null,
         []
       );
+      const followupSubItem3 = new FollowupSubItem(
+        'partner',
+        'type',
+        'id2',
+        'ref2',
+        'notifications',
+        null,
+        null,
+        [],
+        'Opération Tranquillité Vacances',
+        'subheading',
+        'Votre demande est terminée.',
+        'icon',
+        new Date('2026-02-20T15:55:00.000Z'),
+        'closed',
+        'Terminée',
+        true,
+        null
+      );
       const followupItem3 = new FollowupItem(
         'partner',
         'type',
@@ -2626,6 +3061,21 @@ describe('/agenda.ts', () => {
           'personnal',
           'Rendez-vous',
           'link2',
+          null,
+          null,
+          null,
+          parseISODate('2025-12-23')
+        )
+      );
+      vi.spyOn(followupItem3, 'futureSubItemWithMilestone', 'get').mockReturnValue([
+        followupSubItem3,
+      ]);
+      vi.spyOn(followupSubItem3, 'buildAgendaItem').mockReturnValue(
+        new Item(
+          'fake-id',
+          'personnal',
+          'Rendez-vous',
+          'link3',
           null,
           null,
           null,
@@ -2722,7 +3172,7 @@ describe('/agenda.ts', () => {
           new Item('fake-id', 'holiday', 'Day 3', '', null, holiday3.date, null, null)
         )
       ).toBe(true);
-      expect(agenda.next.length).equal(3);
+      expect(agenda.next.length).equal(4);
       expect(
         agenda.next[0].equals(
           new Item(
@@ -2753,6 +3203,20 @@ describe('/agenda.ts', () => {
       ).toBe(true);
       expect(
         agenda.next[2].equals(
+          new Item(
+            'fake-id',
+            'personnal',
+            'Rendez-vous',
+            'link3',
+            null,
+            null,
+            null,
+            parseISODate('2025-12-23')
+          )
+        )
+      ).toBe(true);
+      expect(
+        agenda.next[3].equals(
           new Item('fake-id', 'holiday', 'Day 4', '', null, holiday4.date, null, null)
         )
       ).toBe(true);
