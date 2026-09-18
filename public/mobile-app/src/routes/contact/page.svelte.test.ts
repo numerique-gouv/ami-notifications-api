@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/svelte';
 import { describe, expect, test, vi } from 'vitest';
 import * as AMINavigationMethods from '$lib/ami-navigation';
+import * as nativeInfosMethods from '$lib/nativeInfos';
 import { expectBackButtonPresent } from '$tests/utils';
 import Page from './+page.svelte';
 
@@ -52,6 +53,26 @@ describe('/+page.svelte', () => {
       // now the popup is open
       expect(screen.queryByTestId('contact-us-link-url')).toBeInTheDocument();
       expect(screen.queryByTestId('contact-us-link-email')).toBeInTheDocument();
+    });
+  });
+
+  test('should display plateform infos', async () => {
+    vi.spyOn(nativeInfosMethods, 'getPlatform').mockReturnValue('android');
+    vi.spyOn(nativeInfosMethods, 'getVersion').mockReturnValue('0.5');
+    HTMLDialogElement.prototype.showModal = vi.fn();
+    HTMLDialogElement.prototype.close = vi.fn();
+    HTMLDialogElement.prototype.show = vi.fn();
+
+    // When
+    render(Page);
+
+    // Then
+    const contactUsButton = screen.getByTestId('contact-us-button');
+    expect(screen.queryByTestId('contact-us-link-url')).not.toBeInTheDocument();
+    await waitFor(() => {
+      contactUsButton.click();
+      // now the popup is open
+      expect(screen.queryByTestId('native-infos')).toHaveTextContent('android - 0.5');
     });
   });
 });

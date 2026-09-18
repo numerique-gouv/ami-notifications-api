@@ -15,6 +15,11 @@ export const getDeviceId = () => {
   return infos?.device_id || '';
 };
 
+export const getPlatform = () => {
+  const infos = getNativeInfos();
+  return infos?.platform || '';
+};
+
 export const getVersion = () => {
   const infos = getNativeInfos();
   return infos?.version || '';
