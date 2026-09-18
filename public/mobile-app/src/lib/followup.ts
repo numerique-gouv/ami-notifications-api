@@ -277,6 +277,22 @@ export class FollowupSubItem {
     return `/#/followup/item/${item.partner_id}/${item.item_type}/${item.item_external_id}/subitem/${this.partner_id}/${this.item_type}/${this.item_external_id}`;
   }
 
+  buildAgendaItem(item: FollowupItem): AgendaItem | null {
+    if (!this.hasMilestone()) {
+      return null;
+    }
+    return new AgendaItem(
+      uniqueId(),
+      'personnal',
+      this.title,
+      this.getItemDetailPageUrl(item),
+      null,
+      null,
+      this.milestone_start_date,
+      this.milestone_end_date
+    );
+  }
+
   hasMilestone(): boolean {
     return this.milestone_start_date !== null || this.milestone_end_date !== null;
   }
@@ -353,6 +369,28 @@ export class FollowupItem extends FollowupSubItem {
 
   get closedSubItems(): FollowupSubItem[] {
     return this.sub_items.filter((sub_item) => sub_item.status_id === 'closed');
+  }
+
+  get subItemWithoutMilestone(): FollowupSubItem[] {
+    return this.sub_items.filter((sub_item) => !sub_item.hasMilestone());
+  }
+
+  get pastSubItemWithMilestone(): FollowupSubItem[] {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return this.sub_items.filter(
+      (sub_item) =>
+        sub_item.milestone_end_date !== null && sub_item.milestone_end_date < today
+    );
+  }
+
+  get futureSubItemWithMilestone(): FollowupSubItem[] {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return this.sub_items.filter(
+      (sub_item) =>
+        sub_item.milestone_end_date !== null && sub_item.milestone_end_date >= today
+    );
   }
 
   getItemDetailPageUrl(): string {
