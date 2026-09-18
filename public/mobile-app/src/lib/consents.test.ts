@@ -13,47 +13,60 @@ describe('/consents.ts', () => {
   describe('Consents', () => {
     test('should create items from api', async () => {
       // Given
-      const consentsItem1 = {
+      const apiConsentsItem1 = {
         partner_id: 'dinum-ami',
         consent_datetime: new Date('2026-01-23T15:50:00Z'),
       };
-      const consentsItem2 = {
+      const apiConsentsItem2 = {
         partner_id: 'psl',
         consent_datetime: new Date('2026-02-22T15:50:00Z'),
       };
-      const consentsItem3 = {
-        partner_id: 'psl',
+      const apiConsentsItem3 = {
+        partner_id: 'dinum-dn',
         consent_datetime: new Date('2026-02-21T15:50:00Z'),
       };
-      const consentsItem4 = {
-        partner_id: 'dinum-ami',
+      const apiConsentsItem4 = {
+        partner_id: 'rdv-sp',
         consent_datetime: new Date('2026-02-21T15:50:00Z'),
       };
 
       // When
-      const consents = new Consents({
-        consents: [consentsItem1, consentsItem2, consentsItem3, consentsItem4],
-      });
+      const consents = new Consents(
+        {
+          consents: [
+            apiConsentsItem1,
+            apiConsentsItem2,
+            apiConsentsItem3,
+            apiConsentsItem4,
+          ],
+        },
+        ['dinum-ami', 'dinum-dn', 'psl', 'rdv-sp']
+      );
 
       // Then
       expect(consents.items.length).equal(4);
-      expect(consents.items[0]).toEqual(
-        new ConsentsItem('dinum-ami', new Date('2026-01-23T15:50:00Z'))
+      expect(consents.items[0]).toBeInstanceOf(ConsentsItem);
+      expect(consents.items[0].partner_id).toEqual('dinum-ami');
+      expect(consents.items[0].consent_datetime).toEqual(
+        new Date('2026-01-23T15:50:00Z')
       );
-      expect(consents.items[1]).toEqual(
-        new ConsentsItem('dinum-ami', new Date('2026-02-21T15:50:00Z'))
+      expect(consents.items[1].partner_id).toEqual('dinum-dn');
+      expect(consents.items[1].consent_datetime).toEqual(
+        new Date('2026-02-21T15:50:00Z')
       );
-      expect(consents.items[2]).toEqual(
-        new ConsentsItem('psl', new Date('2026-02-22T15:50:00Z'))
+      expect(consents.items[2].partner_id).toEqual('psl');
+      expect(consents.items[2].consent_datetime).toEqual(
+        new Date('2026-02-22T15:50:00Z')
       );
-      expect(consents.items[3]).toEqual(
-        new ConsentsItem('psl', new Date('2026-02-21T15:50:00Z'))
+      expect(consents.items[3].partner_id).toEqual('rdv-sp');
+      expect(consents.items[3].consent_datetime).toEqual(
+        new Date('2026-02-21T15:50:00Z')
       );
     });
     describe('hasAnyConsents', () => {
       test('should return false when no consent', async () => {
         // Given
-        const consents = new Consents();
+        const consents = new Consents({ consents: [] }, []);
 
         // When
         const result = consents.hasAnyConsents();
@@ -67,9 +80,7 @@ describe('/consents.ts', () => {
           partner_id: 'psl',
           consent_datetime: null,
         };
-        const consents = new Consents({
-          consents: [consentsItem1],
-        });
+        const consents = new Consents({ consents: [consentsItem1] }, ['psl']);
 
         // When
         const result = consents.hasAnyConsents();
@@ -87,9 +98,10 @@ describe('/consents.ts', () => {
           partner_id: 'psl',
           consent_datetime: new Date('2026-02-22T15:50:00Z'),
         };
-        const consents = new Consents({
-          consents: [consentsItem1, consentsItem2],
-        });
+        const consents = new Consents({ consents: [consentsItem1, consentsItem2] }, [
+          'dinum-ami',
+          'psl',
+        ]);
 
         // When
         const result = consents.hasAnyConsents();
@@ -101,7 +113,7 @@ describe('/consents.ts', () => {
     describe('hasAllConsents', () => {
       test('should return false when no consent', async () => {
         // Given
-        const consents = new Consents();
+        const consents = new Consents({ consents: [] }, []);
 
         // When
         const result = consents.hasAllConsents();
@@ -115,9 +127,7 @@ describe('/consents.ts', () => {
           partner_id: 'psl',
           consent_datetime: null,
         };
-        const consents = new Consents({
-          consents: [consentsItem1],
-        });
+        const consents = new Consents({ consents: [consentsItem1] }, ['psl']);
 
         // When
         const result = consents.hasAllConsents();
@@ -135,9 +145,10 @@ describe('/consents.ts', () => {
           partner_id: 'psl',
           consent_datetime: new Date('2026-02-22T15:50:00Z'),
         };
-        const consents = new Consents({
-          consents: [consentsItem1, consentsItem2],
-        });
+        const consents = new Consents({ consents: [consentsItem1, consentsItem2] }, [
+          'dinum-ami',
+          'psl',
+        ]);
 
         // When
         const result = consents.hasAllConsents();
@@ -155,9 +166,10 @@ describe('/consents.ts', () => {
           partner_id: 'psl',
           consent_datetime: new Date('2026-02-22T15:50:00Z'),
         };
-        const consents = new Consents({
-          consents: [consentsItem1, consentsItem2],
-        });
+        const consents = new Consents({ consents: [consentsItem1, consentsItem2] }, [
+          'dinum-ami',
+          'psl',
+        ]);
 
         // When
         const result = consents.hasAllConsents();
@@ -183,17 +195,20 @@ describe('/consents.ts', () => {
       });
 
       // When
-      const consents = await buildConsents();
+      const consents = await buildConsents(['dinum-ami', 'psl']);
 
       // Then
       expect(spy).toHaveBeenCalledTimes(1);
       expect(consents).toBeInstanceOf(Consents);
       expect(consents.items.length).equal(2);
-      expect(consents.items[0]).toEqual(
-        new ConsentsItem('dinum-ami', new Date('2026-01-23T15:50:00Z'))
+      expect(consents.items[0]).toBeInstanceOf(ConsentsItem);
+      expect(consents.items[0].partner_id).toEqual('dinum-ami');
+      expect(consents.items[0].consent_datetime).toEqual(
+        new Date('2026-01-23T15:50:00Z')
       );
-      expect(consents.items[1]).toEqual(
-        new ConsentsItem('psl', new Date('2026-02-22T15:50:00Z'))
+      expect(consents.items[1].partner_id).toEqual('psl');
+      expect(consents.items[1].consent_datetime).toEqual(
+        new Date('2026-02-22T15:50:00Z')
       );
     });
   });

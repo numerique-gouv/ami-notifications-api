@@ -2,6 +2,7 @@ import { describe, expect, test, vi } from 'vitest';
 import * as consentsMethods from '$lib/consents';
 import * as followupMethods from '$lib/followup';
 import '@testing-library/jest-dom/vitest';
+import type { APIPartnersItem } from '$lib/api-partners';
 import { Consents } from '$lib/consents';
 import { Followup } from '$lib/followup';
 import * as partnersMethods from '$lib/partners';
@@ -15,12 +16,24 @@ describe('/+page.ts', () => {
     vi.spyOn(followup, 'items', 'get').mockReturnValue([]);
     vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
     vi.spyOn(followup, 'isEmpty').mockReturnValue(false);
-    const consents = new Consents();
+
+    const apiPartnersItem: APIPartnersItem = {
+      slug: 'dinum-ami',
+      name: 'AMI',
+      link: 'http://fake-link-1',
+    };
+    const partners = new Partners([apiPartnersItem]);
+    vi.spyOn(partnersMethods, 'buildPartners').mockResolvedValue(partners);
+
+    const consentsItem = {
+      partner_id: 'dinum-ami',
+      consent_datetime: new Date('2026-02-21T15:50:00Z'),
+    };
+    const consents = new Consents({ consents: [consentsItem] }, ['dinum-ami']);
     vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
+
     vi.spyOn(consents, 'hasAnyConsents').mockReturnValue(true);
     vi.spyOn(consents, 'hasAllConsents').mockReturnValue(false);
-    const partners = new Partners();
-    vi.spyOn(partnersMethods, 'buildPartners').mockResolvedValue(partners);
 
     // When
     // @ts-expect-error
