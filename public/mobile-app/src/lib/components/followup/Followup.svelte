@@ -145,7 +145,7 @@
                     <li class="account fr-pb-4v">
                       <button
                         type="button"
-                        class="fr-btn fr-btn--secondary am-btn-target am-btn-w100"
+                        class="fr-btn fr-btn--secondary am-btn-w100"
                         onclick={()=> AMIGoto(item.link)}
                       >
                         {item.name}
