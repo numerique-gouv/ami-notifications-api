@@ -2,7 +2,6 @@
   import { AMIGoto } from '$lib/ami-navigation';
   import FollowupItemComponent from '$lib/components/followup/FollowupItem.svelte';
   import FollowupItemDetailHeader from '$lib/components/followup/FollowupItemDetailHeader.svelte';
-  import FollowupItemMessages from '$lib/components/followup/FollowupItemMessages.svelte';
   import { getDSFRIcon } from '$lib/dsfr-icon';
   import { FollowupItem, FollowupSubItem } from '$lib/followup';
 
@@ -24,7 +23,23 @@
     </div>
   {/if}
 
-  <FollowupItemMessages item={item} displayTitle={displayParent} />
+  {#if item.events.length}
+    <div class="demarche-content-messages">
+      <h2 class="fr-h6 fr-mb-0">Messages&nbsp;:</h2>
+      <ul class="demarche--events fr-mb-3w fr-raw-list" data-testid="item-events-list">
+        {#each item.events as event}
+          <li class="fr-py-1w">
+            <p
+              class="fr-text--sm am-text-mention-grey demarche--events--date fr-m-0 fr-p-0"
+            >
+              {event.formattedDate}
+            </p>
+            <p class="fr-text--sm fr-m-0 fr-p-0">{event.description}</p>
+          </li>
+        {/each}
+      </ul>
+    </div>
+  {/if}
 
   {#if parentItem === null && (item as FollowupItem).sub_items.length}
     <nav class="fr-sidemenu fr-m-0 followup--subitems" data-testid="followup-subitems">
@@ -70,6 +85,13 @@
 <style>
   div.demarche-content-container {
     padding: 4rem 1rem 1rem;
+    div.demarche-content-messages {
+      .demarche--events {
+        li {
+          border-bottom: 1px solid var(--background-alt-grey-active);
+        }
+      }
+    }
     .followup--subitem__header {
       display: flex;
       justify-content: space-between;
