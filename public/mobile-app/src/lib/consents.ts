@@ -61,6 +61,13 @@ export class Consents {
     }
     return false;
   }
+
+  hasAllConsents() {
+    if (this.items.length > 0) {
+      return this.items.every((item) => item.consent_datetime !== null);
+    }
+    return false;
+  }
 }
 
 export const buildConsents = async (): Promise<Consents> => {
