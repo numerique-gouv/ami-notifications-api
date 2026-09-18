@@ -1,5 +1,6 @@
 import * as Sentry from '@sentry/sveltekit';
 import { env } from '$env/dynamic/public';
+import { checkAccessKey } from '$lib/access-key';
 
 let actualHandleError = null;
 
@@ -19,3 +20,7 @@ if (env.PUBLIC_FRONT_SENTRY_DSN) {
 }
 
 export const handleError = actualHandleError;
+
+export const init = async () => {
+  await checkAccessKey();
+};
