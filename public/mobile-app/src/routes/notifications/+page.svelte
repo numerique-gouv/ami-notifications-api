@@ -3,6 +3,7 @@
   import { AMIGoto } from '$lib/ami-navigation';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import NotificationIcon from '$lib/components/NotificationIcon.svelte';
+  import { buildFollowup, Followup, FollowupItem } from '$lib/followup';
   import type { AppNotification } from '$lib/notifications';
   import {
     notificationEventsSocket,
@@ -14,34 +15,56 @@
 
   let backUrl: string = '/';
   let notifications: AppNotification[] = $state([]);
+  let followup: Followup | null = $state(null);
 
   onMount(async () => {
     if (!userStore.connected) {
       AMIGoto('/#/login');
       return;
     }
+    followup = await buildFollowup();
 
     notifications = await retrieveNotifications();
     notificationEventsSocket(async () => {
       console.log('New message received from the websocket, retrieving notifications');
       notifications = await retrieveNotifications();
+      followup = await buildFollowup();
     });
   });
 
-  const redirectToLink = (notificationItemExternalUrl: string) => {
-    if (notificationItemExternalUrl) {
-      AMIGoto(notificationItemExternalUrl);
+  const redirectToLink = (notification: AppNotification) => {
+    let item: FollowupItem | null = null;
+    if (followup && notification.item_parent_id) {
+      item = followup.findItem(
+        notification.item_parent_partner_id || '',
+        notification.item_parent_type || '',
+        notification.item_parent_id || ''
+      );
+    }
+    if (followup && !item && notification.item_id) {
+      // parent item can be unknown and item displayed as a parent
+      item = followup.findItem(
+        notification.partner_id,
+        notification.item_type || '',
+        notification.item_id || ''
+      );
+    }
+    if (item) {
+      AMIGoto(item.getItemDetailPageUrl());
+      return;
+    }
+    if (notification.url) {
+      AMIGoto(notification.url);
     }
   };
 
   const clickOnNotification = async (
     event: MouseEvent,
-    notificationId: string,
-    notificationItemExternalUrl: string
+    notification: AppNotification
   ) => {
     event.preventDefault();
-    await readNotification(notificationId);
-    redirectToLink(notificationItemExternalUrl);
+    await readNotification(notification.id);
+    redirectToLink(notification);
   };
 
   const goToSettings = () => {
@@ -85,7 +108,7 @@
               <button
                 type="button"
                 class="fr-text--sm fr-text-title--grey"
-                onclick={(event) => clickOnNotification(event, notification.id, notification.url)}
+                onclick={(event) => clickOnNotification(event, notification)}
                 data-testid="notification-link-{notification.id}"
               >
                 {notification.content_title}
