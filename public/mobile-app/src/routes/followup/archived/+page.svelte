@@ -19,5 +19,6 @@
   followupProp="{data.followup}"
   isFollowupEmptyProp="{data.isFollowupEmpty}"
   hasAnyConsentsProp="{data.hasAnyConsents}"
+  hasAllConsentsProp="{data.hasAllConsents}"
   partnersProp="{data.partners}"
 />
