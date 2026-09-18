@@ -17,11 +17,15 @@ export const PUBLIC_APP_WS_URL = PUBLIC_APP_URL.replace('https://', 'wss://').re
 export type AppNotification = {
   id: string;
   created_at: Date;
-  user_id: string;
   content_title: string;
   content_body: string;
-  content_icon?: string;
-  sender: string;
+  content_icon: string;
+  partner_id: string;
+  item_type: string | null;
+  item_id: string | null;
+  item_parent_partner_id: string | null;
+  item_parent_type: string | null;
+  item_parent_id: string | null;
   url: string;
   read: boolean;
 };
