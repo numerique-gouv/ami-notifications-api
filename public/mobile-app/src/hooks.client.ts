@@ -13,6 +13,11 @@ if (env.PUBLIC_FRONT_SENTRY_DSN) {
       userInfo: false,
       httpBodies: [],
     },
+    integrations: [
+      Sentry.browserTracingIntegration(),
+      Sentry.elementTimingIntegration(),
+    ],
+    tracesSampleRate: parseFloat(env.PUBLIC_FRONT_SENTRY_TRACES_SAMPLE_RATE),
   });
   actualHandleError = Sentry.handleErrorWithSentry();
 } else {
