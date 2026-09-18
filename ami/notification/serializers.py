@@ -14,10 +14,12 @@ class NotificationResponseSerializer(serializers.Serializer):
 
 
 class NotificationSerializer(serializers.ModelSerializer):
-    # Remap the "user" field from the model to "user_id" in the serializer
-    user_id = serializers.UUIDField(source="user.id")
     content_body = serializers.CharField(source="content_body_full")
     content_icon = serializers.CharField(source="icon")
+    partner_id = serializers.CharField(source="partner.slug")
+    item_parent_partner_id = serializers.SlugRelatedField(
+        source="item_parent_partner", slug_field="slug", read_only=True
+    )
 
     class Meta:
         fields = [
@@ -26,16 +28,14 @@ class NotificationSerializer(serializers.ModelSerializer):
             "content_icon",
             "created_at",
             "id",
-            "item_canal",
-            "item_generic_status",
-            "item_id",
-            "item_milestone_end_date",
-            "item_milestone_start_date",
-            "item_status_label",
+            "partner_id",
             "item_type",
+            "item_id",
+            "item_parent_partner_id",
+            "item_parent_type",
+            "item_parent_id",
             "url",
             "read",
-            "user_id",
         ]
         model = Notification
 
