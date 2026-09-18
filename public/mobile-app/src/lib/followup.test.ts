@@ -481,6 +481,120 @@ describe('/followup.ts', () => {
         );
       });
     });
+    describe('buildAgendaItem', () => {
+      test('should return null as item has no milestone', async () => {
+        // Given
+        const item = new Item(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          new Date(),
+          new Date(),
+          [],
+          'title',
+          'subheading',
+          'description',
+          'icon',
+          new Date('2026-01-03T08:05:42Z'),
+          'new',
+          'New',
+          false,
+          null,
+          []
+        );
+        const sub_item = new SubItem(
+          'partner2',
+          'type2',
+          'id2',
+          'ref2',
+          'notifications',
+          new Date(),
+          new Date(),
+          [],
+          'title 2',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'closed',
+          'Terminée',
+          false,
+          'url'
+        );
+        vi.spyOn(sub_item, 'hasMilestone').mockReturnValue(false);
+
+        // When
+        const result = sub_item.buildAgendaItem(item);
+
+        // Then
+        expect(result).toEqual(null);
+      });
+      test('should return an agenda item as item has milestone', async () => {
+        // Given
+        const item = new Item(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          new Date(),
+          new Date(),
+          [],
+          'title',
+          'subheading',
+          'description',
+          'icon',
+          new Date('2026-01-03T08:05:42Z'),
+          'new',
+          'New',
+          false,
+          null,
+          []
+        );
+        const sub_item = new SubItem(
+          'partner2',
+          'type2',
+          'id2',
+          'ref2',
+          'notifications',
+          new Date(),
+          new Date(),
+          [],
+          'title 2',
+          'subheading',
+          'Votre demande est terminée.',
+          'icon',
+          new Date('2026-02-20T15:55:00.000Z'),
+          'closed',
+          'Terminée',
+          false,
+          'url'
+        );
+        vi.spyOn(sub_item, 'hasMilestone').mockReturnValue(true);
+        vi.spyOn(utilsMethods, 'uniqueId').mockReturnValue('fake-id');
+
+        // When
+        const result = sub_item.buildAgendaItem(item);
+
+        // Then
+        expect(
+          result?.equals(
+            new AgendaItem(
+              'fake-id',
+              'personnal',
+              'title 2',
+              '/#/followup/item/partner/type/id/subitem/partner2/type2/id2',
+              null,
+              null,
+              sub_item.milestone_start_date,
+              sub_item.milestone_end_date
+            )
+          )
+        ).toBe(true);
+      });
+    });
     describe('status_label', () => {
       test('should return custom label for item with milestone', async () => {
         // Given
@@ -925,6 +1039,322 @@ describe('/followup.ts', () => {
 
         // Then
         expect(id).equal('partner:type:id');
+      });
+    });
+    describe('subItemWithoutMilestone', () => {
+      test('should return sub items without milestone', async () => {
+        // Given
+        const subitem1 = new SubItem(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          null,
+          null,
+          [],
+          'title',
+          'subheading',
+          'description',
+          'icon',
+          new Date('2026-01-03T08:05:42Z'),
+          'new',
+          'New',
+          false,
+          null
+        );
+        vi.spyOn(subitem1, 'hasMilestone').mockReturnValue(false);
+        const subitem2 = new SubItem(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          null,
+          null,
+          [],
+          'title',
+          'subheading',
+          'description',
+          'icon',
+          new Date('2026-01-03T08:05:42Z'),
+          'new',
+          'New',
+          false,
+          null
+        );
+        vi.spyOn(subitem2, 'hasMilestone').mockReturnValue(true);
+        const item1 = new Item(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          null,
+          null,
+          [],
+          'title',
+          'subheading',
+          'description',
+          'icon',
+          new Date('2026-01-03T08:05:42Z'),
+          'new',
+          'New',
+          false,
+          null,
+          [subitem1, subitem2]
+        );
+        const item2 = new Item(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          null,
+          null,
+          [],
+          'title',
+          'subheading',
+          'description',
+          'icon',
+          new Date('2026-01-03T08:05:42Z'),
+          'new',
+          'New',
+          false,
+          null,
+          []
+        );
+
+        // When
+        const subitems1 = item1.subItemWithoutMilestone;
+        const subitems2 = item2.subItemWithoutMilestone;
+
+        // Then
+        expect(subitems1.length).toEqual(1);
+        expect(subitems1[0].equals(subitem2)).toBe(true);
+        expect(subitems2.length).toEqual(0);
+      });
+    });
+    describe('pastSubItemWithMilestone', () => {
+      test('should return sub items with a past milestone end date', async () => {
+        // Given
+        const subitem1 = new SubItem(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          null,
+          null, // no end date
+          [],
+          'title',
+          'subheading',
+          'description',
+          'icon',
+          new Date('2026-01-03T08:05:42Z'),
+          'new',
+          'New',
+          false,
+          null
+        );
+        const subitem2 = new SubItem(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          null,
+          new Date(Date.now() - 1000 * 3600 * 24), // past end date
+          [],
+          'title',
+          'subheading',
+          'description',
+          'icon',
+          new Date('2026-01-03T08:05:42Z'),
+          'new',
+          'New',
+          false,
+          null
+        );
+        const subitem3 = new SubItem(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          null,
+          new Date(Date.now() - 1000), // today
+          [],
+          'title',
+          'subheading',
+          'description',
+          'icon',
+          new Date('2026-01-03T08:05:42Z'),
+          'new',
+          'New',
+          false,
+          null
+        );
+        const item1 = new Item(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          null,
+          null,
+          [],
+          'title',
+          'subheading',
+          'description',
+          'icon',
+          new Date('2026-01-03T08:05:42Z'),
+          'new',
+          'New',
+          false,
+          null,
+          [subitem1, subitem2, subitem3]
+        );
+        const item2 = new Item(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          null,
+          null,
+          [],
+          'title',
+          'subheading',
+          'description',
+          'icon',
+          new Date('2026-01-03T08:05:42Z'),
+          'new',
+          'New',
+          false,
+          null,
+          []
+        );
+
+        // When
+        const subitems1 = item1.pastSubItemWithMilestone;
+        const subitems2 = item2.pastSubItemWithMilestone;
+
+        // Then
+        expect(subitems1.length).toEqual(1);
+        expect(subitems1[0].equals(subitem2)).toBe(true);
+        expect(subitems2.length).toEqual(0);
+      });
+    });
+    describe('futureSubItemWithMilestone', () => {
+      test('should return sub items with a future milestone end date', async () => {
+        // Given
+        const subitem1 = new SubItem(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          null,
+          null, // no end date
+          [],
+          'title',
+          'subheading',
+          'description',
+          'icon',
+          new Date('2026-01-03T08:05:42Z'),
+          'new',
+          'New',
+          false,
+          null
+        );
+        const subitem2 = new SubItem(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          null,
+          new Date(Date.now() - 1000 * 3600 * 24), // past end date
+          [],
+          'title',
+          'subheading',
+          'description',
+          'icon',
+          new Date('2026-01-03T08:05:42Z'),
+          'new',
+          'New',
+          false,
+          null
+        );
+        const subitem3 = new SubItem(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          null,
+          new Date(Date.now() - 1000), // today
+          [],
+          'title',
+          'subheading',
+          'description',
+          'icon',
+          new Date('2026-01-03T08:05:42Z'),
+          'new',
+          'New',
+          false,
+          null
+        );
+        const item1 = new Item(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          null,
+          null,
+          [],
+          'title',
+          'subheading',
+          'description',
+          'icon',
+          new Date('2026-01-03T08:05:42Z'),
+          'new',
+          'New',
+          false,
+          null,
+          [subitem1, subitem2, subitem3]
+        );
+        const item2 = new Item(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          null,
+          null,
+          [],
+          'title',
+          'subheading',
+          'description',
+          'icon',
+          new Date('2026-01-03T08:05:42Z'),
+          'new',
+          'New',
+          false,
+          null,
+          []
+        );
+
+        // When
+        const subitems1 = item1.futureSubItemWithMilestone;
+        const subitems2 = item2.futureSubItemWithMilestone;
+
+        // Then
+        expect(subitems1.length).toEqual(1);
+        expect(subitems1[0].equals(subitem3)).toBe(true);
+        expect(subitems2.length).toEqual(0);
       });
     });
     describe('getItemDetailPageUrl', () => {

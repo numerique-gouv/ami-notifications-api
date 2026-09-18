@@ -8,9 +8,10 @@
     item: Item;
     // Only display the date on the agenda's page, not on the homepage
     displayDate?: boolean;
-    onOpen: () => void;
+    onOpen?: (() => void) | null;
+    isPast?: boolean;
   }
-  let { item, displayDate = true, onOpen }: Props = $props();
+  let { item, displayDate = true, onOpen = null, isPast = false }: Props = $props();
 
   const badgeKinds = {
     election: 'fr-badge--green-tilleul-verveine',
@@ -32,16 +33,18 @@
   {/if}
   <div class="agenda--item--container">
     <div
-      class="agenda--item--detail {item.kind} fr-tile fr-tile--sm fr-tile--horizontal fr-enlarge-button {item.link ? '': 'no-link'}"
+      class="agenda--item--detail {item.kind} {isPast ? 'past': ''} fr-tile fr-tile--sm fr-tile--horizontal fr-enlarge-button {item.link ? '': 'no-link'}"
     >
-      <button
-        type="button"
-        onclick={onOpen}
-        data-testid="open-agenda-item-modal-{item.id}"
-        class="fr-btn fr-btn--icon fr-icon-more-2-fill fr-btn--tertiary-no-outline fr-pt-2w am-icon-20 am-btn-modal open-agenda-item-modal"
-      >
-        Ouvrir la modale liée à l’élément de l’agenda
-      </button>
+      {#if onOpen}
+        <button
+          type="button"
+          onclick={onOpen}
+          data-testid="open-agenda-item-modal-{item.id}"
+          class="fr-btn fr-btn--icon fr-icon-more-2-fill fr-btn--tertiary-no-outline fr-pt-2w am-icon-20 am-btn-modal open-agenda-item-modal"
+        >
+          Ouvrir la modale liée à l’élément de l’agenda
+        </button>
+      {/if}
       <div class="fr-tile__body">
         <div class="fr-tile__content fr-pb-0 {item.link ? '': 'no-link'}">
           <h4 class="fr-tile__title">
@@ -145,7 +148,7 @@
       .agenda--item--detail {
         padding: 1rem 2rem 0.5rem 1rem;
         width: 100%;
-        &.personnal {
+        &.personnal:not(.past) {
           background-image:
             linear-gradient(0deg, var(--am-blue--1), var(--am-blue--1)),
             linear-gradient(0deg, var(--am-blue--1), var(--am-blue--1)),
