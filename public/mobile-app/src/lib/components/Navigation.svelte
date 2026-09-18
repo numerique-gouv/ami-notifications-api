@@ -204,15 +204,13 @@
 
 {#if logoutModal}
   <CenteredModal onClose={closeLogoutModal}>
-    {#snippet header()}
+    {#snippet modalContent()}
       <h2 class="fr-h4">Suppression de vos données</h2>
       <p>
         En vous déconnectant, toutes les données enregistrées localement sur cet
         appareil (informations saisies, modifications et paramètres de personnalisation)
         seront supprimées.
       </p>
-    {/snippet}
-    {#snippet footer()}
       <ul class="fr-btns-group logout-modal-action-buttons">
         <li>
           <button
