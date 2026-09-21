@@ -11,6 +11,7 @@ def test_home_with_support_agent(app, support_agent: Agent) -> None:
     assert "/agent-admin/manage/access/" not in response
     assert "/agent-admin/manage/user/" not in response
     assert "/agent-admin/manage/service/" not in response
+    assert "/agent-admin/manage/checklist/" not in response
     assert "/agent-admin/manage/partner/" not in response
     assert "/agent-admin/manage/page/" not in response
     assert "/agent-admin/manage/notification/" not in response
@@ -23,6 +24,7 @@ def test_home_with_notifications_agent(app, notifications_agent: Agent) -> None:
     assert "/agent-admin/manage/access/" not in response
     assert "/agent-admin/manage/user/" not in response
     assert "/agent-admin/manage/service/" not in response
+    assert "/agent-admin/manage/checklist/" not in response
     assert "/agent-admin/manage/partner/" not in response
     assert "/agent-admin/manage/page/" not in response
     assert "/agent-admin/manage/notification/" in response
@@ -35,6 +37,7 @@ def test_home_with_admin_agent(app, admin_agent: Agent) -> None:
     assert "/agent-admin/manage/access/" in response
     assert "/agent-admin/manage/user/" in response
     assert "/agent-admin/manage/service/" in response
+    assert "/agent-admin/manage/checklist/" in response
     assert "/agent-admin/manage/partner/" in response
     assert "/agent-admin/manage/page/" in response
     assert "/agent-admin/manage/notification/" in response

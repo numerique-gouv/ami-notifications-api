@@ -12,6 +12,7 @@ from ami.agent.models import Agent
 from ami.agent_admin.utils import audit
 from ami.amidsfr.forms import AMIDsfrBaseForm
 from ami.amidsfr.widgets import AutocompleteInput, ToggleInput
+from ami.checklist.models import CheckList
 from ami.page.models import Page, Section
 from ami.partner.models import Partner
 from ami.service.models import Service
@@ -248,6 +249,44 @@ class ServiceForm(forms.ModelForm, AMIDsfrBaseForm):
         else:
             action = "services:service-updated"
             extra_data = {"service": self.instance, "old_service_values": self.old_instance}
+        audit(action, self.author, extra_data)
+
+        return self.instance
+
+
+class CheckListForm(forms.ModelForm, AMIDsfrBaseForm):
+    class Meta:
+        model = CheckList
+        exclude = ["title"]
+
+    def __init__(self, *args, **kwargs):
+        self.author = kwargs.pop("author")
+        super().__init__(*args, **kwargs)
+        self.old_instance = copy.deepcopy(self.instance)
+
+    def clean_definition(self):
+        value = self.cleaned_data["definition"]
+        if not value.get("title"):
+            raise forms.ValidationError(
+                "Format invalide: le titre de la liste d’étapes n’a pas été trouvé dans la définition."
+            )
+        return value
+
+    def save(self, commit=True):
+        created = self.instance._state.adding
+        super().save(commit=False)
+
+        self.instance.title = self.instance.definition["title"]
+
+        if commit:
+            self.instance.save()
+
+        if created:
+            action = "checklists:checklist-added"
+            extra_data = {"checklist": self.instance}
+        else:
+            action = "checklists:checklist-updated"
+            extra_data = {"checklist": self.instance, "old_checklist_values": self.old_instance}
         audit(action, self.author, extra_data)
 
         return self.instance

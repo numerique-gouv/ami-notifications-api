@@ -25,6 +25,12 @@ def audit(action, author, extra_data):
             extra_data[f"{key}_item_type"] = extra_data[key].item_type
             del extra_data[key]
 
+    for key in ["checklist", "old_checklist_values"]:
+        if key in extra_data:
+            extra_data[f"{key}_partner_id"] = extra_data[key].partner.slug
+            extra_data[f"{key}_external_id"] = extra_data[key].external_id
+            del extra_data[key]
+
     for key in ["partner", "old_partner_values"]:
         if key in extra_data:
             extra_data[f"{key}_slug"] = extra_data[key].slug
