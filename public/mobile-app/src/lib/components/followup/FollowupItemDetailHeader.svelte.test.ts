@@ -3,6 +3,7 @@ import { describe, expect, test, vi } from 'vitest';
 import * as AMINavigationMethods from '$lib/ami-navigation';
 import FollowupItemDetailHeader from '$lib/components/followup/FollowupItemDetailHeader.svelte';
 import { FollowupItem } from '$lib/followup';
+import { Services, ServicesItem } from '$lib/services';
 
 describe('/FollowupItemDetailHeader.svelte', () => {
   test('Should display subheading', async () => {
@@ -29,7 +30,9 @@ describe('/FollowupItemDetailHeader.svelte', () => {
     );
 
     // When
-    render(FollowupItemDetailHeader, { props: { item: item } });
+    render(FollowupItemDetailHeader, {
+      props: { item: item, services: new Services() },
+    });
 
     // Then
     await waitFor(() => {
@@ -60,7 +63,9 @@ describe('/FollowupItemDetailHeader.svelte', () => {
     );
 
     // When
-    render(FollowupItemDetailHeader, { props: { item: item } });
+    render(FollowupItemDetailHeader, {
+      props: { item: item, services: new Services() },
+    });
 
     // Then
     await waitFor(() => {
@@ -91,7 +96,9 @@ describe('/FollowupItemDetailHeader.svelte', () => {
     );
 
     // When
-    render(FollowupItemDetailHeader, { props: { item: item } });
+    render(FollowupItemDetailHeader, {
+      props: { item: item, services: new Services() },
+    });
 
     // Then
     await waitFor(() => {
@@ -124,7 +131,9 @@ describe('/FollowupItemDetailHeader.svelte', () => {
     );
 
     // When
-    render(FollowupItemDetailHeader, { props: { item: item } });
+    render(FollowupItemDetailHeader, {
+      props: { item: item, services: new Services() },
+    });
 
     // Then
     await waitFor(() => {
@@ -156,7 +165,9 @@ describe('/FollowupItemDetailHeader.svelte', () => {
     vi.spyOn(item, 'hasMilestone').mockReturnValue(false);
 
     // When
-    render(FollowupItemDetailHeader, { props: { item: item } });
+    render(FollowupItemDetailHeader, {
+      props: { item: item, services: new Services() },
+    });
 
     // Then
     expect(screen.queryByTestId('item-period')).toBeNull();
@@ -187,7 +198,9 @@ describe('/FollowupItemDetailHeader.svelte', () => {
     vi.spyOn(item, 'period', 'get').mockReturnValue('A Period');
 
     // When
-    render(FollowupItemDetailHeader, { props: { item: item } });
+    render(FollowupItemDetailHeader, {
+      props: { item: item, services: new Services() },
+    });
 
     // Then
     const period = screen.getByTestId('item-period');
@@ -218,7 +231,9 @@ describe('/FollowupItemDetailHeader.svelte', () => {
     vi.spyOn(item, 'hasMilestone').mockReturnValue(false);
 
     // When
-    render(FollowupItemDetailHeader, { props: { item: item } });
+    render(FollowupItemDetailHeader, {
+      props: { item: item, services: new Services() },
+    });
 
     // Then
     expect(screen.queryByTestId('item-duration')).toBeNull();
@@ -249,7 +264,9 @@ describe('/FollowupItemDetailHeader.svelte', () => {
     vi.spyOn(item, 'duration', 'get').mockReturnValue(undefined);
 
     // When
-    render(FollowupItemDetailHeader, { props: { item: item } });
+    render(FollowupItemDetailHeader, {
+      props: { item: item, services: new Services() },
+    });
 
     // Then
     expect(screen.queryByTestId('item-duration')).toBeNull();
@@ -280,7 +297,9 @@ describe('/FollowupItemDetailHeader.svelte', () => {
     vi.spyOn(item, 'duration', 'get').mockReturnValue('A Duration');
 
     // When
-    render(FollowupItemDetailHeader, { props: { item: item } });
+    render(FollowupItemDetailHeader, {
+      props: { item: item, services: new Services() },
+    });
 
     // Then
     const duration = screen.getByTestId('item-duration');
@@ -308,22 +327,19 @@ describe('/FollowupItemDetailHeader.svelte', () => {
       'link1',
       []
     );
-    const spy = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
     vi.spyOn(item, 'hasMilestone').mockReturnValue(false);
 
     // When
-    render(FollowupItemDetailHeader, { props: { item: item } });
+    render(FollowupItemDetailHeader, {
+      props: { item: item, services: new Services() },
+    });
     await waitFor(async () => {
       expect(screen.queryByTestId('external-item-button')).not.toBeNull();
     });
     const button = screen.getByTestId('external-item-button');
-    await fireEvent.click(button);
 
     // Then
     expect(button).toHaveTextContent('Accéder à ma démarche');
-    await waitFor(() => {
-      expect(spy).toHaveBeenCalledWith('link1');
-    });
   });
   test('Should display "Accéder au détail du rendez-vous" button', async () => {
     // Given
@@ -347,11 +363,49 @@ describe('/FollowupItemDetailHeader.svelte', () => {
       'link1',
       []
     );
-    const spy = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
     vi.spyOn(item, 'hasMilestone').mockReturnValue(true);
 
     // When
-    render(FollowupItemDetailHeader, { props: { item: item } });
+    render(FollowupItemDetailHeader, {
+      props: { item: item, services: new Services() },
+    });
+    await waitFor(async () => {
+      expect(screen.queryByTestId('external-item-button')).not.toBeNull();
+    });
+    const button = screen.getByTestId('external-item-button');
+
+    // Then
+    expect(button).toHaveTextContent('Accéder au détail du rendez-vous');
+  });
+  test('Should do a silent login as service is unknown', async () => {
+    // Given
+    const item = new FollowupItem(
+      'partner',
+      'type',
+      'id1',
+      'ref1',
+      'notifications',
+      null,
+      null,
+      [],
+      'title',
+      'subheading',
+      'description',
+      'icon',
+      new Date('2026-01-03T08:05:42Z'),
+      'new',
+      'New',
+      false,
+      'link1',
+      []
+    );
+    const spy = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
+    vi.spyOn(item, 'hasMilestone').mockReturnValue(false);
+
+    // When
+    render(FollowupItemDetailHeader, {
+      props: { item: item, services: new Services() },
+    });
     await waitFor(async () => {
       expect(screen.queryByTestId('external-item-button')).not.toBeNull();
     });
@@ -359,9 +413,110 @@ describe('/FollowupItemDetailHeader.svelte', () => {
     await fireEvent.click(button);
 
     // Then
-    expect(button).toHaveTextContent('Accéder au détail du rendez-vous');
     await waitFor(() => {
-      expect(spy).toHaveBeenCalledWith('link1');
+      expect(spy).toHaveBeenCalledWith('link1', true);
+    });
+  });
+  test('Should do a silent login as service is known and configured with silent login', async () => {
+    // Given
+    const item = new FollowupItem(
+      'partner',
+      'type',
+      'id1',
+      'ref1',
+      'notifications',
+      null,
+      null,
+      [],
+      'title',
+      'subheading',
+      'description',
+      'icon',
+      new Date('2026-01-03T08:05:42Z'),
+      'new',
+      'New',
+      false,
+      'link1',
+      []
+    );
+    const spy = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
+    vi.spyOn(item, 'hasMilestone').mockReturnValue(false);
+    const serviceItem = new ServicesItem(
+      'partner',
+      'type',
+      'catalog',
+      'title',
+      'short description',
+      'description',
+      'external-url',
+      'icon',
+      true
+    );
+    const services = new Services();
+    vi.spyOn(services, 'find').mockReturnValue(serviceItem);
+
+    // When
+    render(FollowupItemDetailHeader, { props: { item: item, services: services } });
+    await waitFor(async () => {
+      expect(screen.queryByTestId('external-item-button')).not.toBeNull();
+    });
+    const button = screen.getByTestId('external-item-button');
+    await fireEvent.click(button);
+
+    // Then
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledWith('link1', true);
+    });
+  });
+  test('Should not do a silent login as service is known and configured without silent login', async () => {
+    // Given
+    const item = new FollowupItem(
+      'partner',
+      'type',
+      'id1',
+      'ref1',
+      'notifications',
+      null,
+      null,
+      [],
+      'title',
+      'subheading',
+      'description',
+      'icon',
+      new Date('2026-01-03T08:05:42Z'),
+      'new',
+      'New',
+      false,
+      'link1',
+      []
+    );
+    const spy = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
+    vi.spyOn(item, 'hasMilestone').mockReturnValue(false);
+    const serviceItem = new ServicesItem(
+      'partner',
+      'type',
+      'catalog',
+      'title',
+      'short description',
+      'description',
+      'external-url',
+      'icon',
+      false
+    );
+    const services = new Services();
+    vi.spyOn(services, 'find').mockReturnValue(serviceItem);
+
+    // When
+    render(FollowupItemDetailHeader, { props: { item: item, services: services } });
+    await waitFor(async () => {
+      expect(screen.queryByTestId('external-item-button')).not.toBeNull();
+    });
+    const button = screen.getByTestId('external-item-button');
+    await fireEvent.click(button);
+
+    // Then
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledWith('link1', false);
     });
   });
   test('Should not display "Accéder à ma démarche" button as link is not defined', async () => {
@@ -389,7 +544,9 @@ describe('/FollowupItemDetailHeader.svelte', () => {
     vi.stubGlobal('location', { href: 'fake-link' });
 
     // When
-    render(FollowupItemDetailHeader, { props: { item: item } });
+    render(FollowupItemDetailHeader, {
+      props: { item: item, services: new Services() },
+    });
     await waitFor(async () => {
       expect(screen.queryByTestId('external-item-button')).toBeNull();
     });

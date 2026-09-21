@@ -1,5 +1,7 @@
 import type { Followup, FollowupItem, FollowupSubItem } from '$lib/followup';
 import { buildFollowup } from '$lib/followup';
+import type { Services } from '$lib/services';
+import { buildServices } from '$lib/services';
 import type { PageLoad } from './$types';
 
 export const load: PageLoad = async ({ params }) => {
@@ -20,6 +22,7 @@ export const load: PageLoad = async ({ params }) => {
   if (item) {
     sub_item = item.findSubItem(subpartner_id, subitem_type, subitem_external_id);
   }
+  const services: Services = await buildServices();
 
-  return { item, sub_item };
+  return { item, sub_item, services };
 };
