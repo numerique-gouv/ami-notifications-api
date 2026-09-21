@@ -2,6 +2,7 @@ import type { APICheckList, APICheckListLink } from '$lib/api-checklist';
 import CNMSS001 from '$lib/data/checklists/CNMSS001.json';
 import F3109 from '$lib/data/checklists/F3109.json';
 import F16225 from '$lib/data/checklists/F16225.json';
+import F39617 from '$lib/data/checklists/F39617.json';
 
 export class CheckListLink {
   constructor(
@@ -202,6 +203,8 @@ export const buildCheckList = async (id: string): Promise<CheckList> => {
     apiCheckList = F3109;
   } else if (id === 'F16225') {
     apiCheckList = F16225;
+  } else if (id === 'F39617') {
+    apiCheckList = F39617;
   } else if (id === 'CNMSS001') {
     apiCheckList = CNMSS001;
   } else {
