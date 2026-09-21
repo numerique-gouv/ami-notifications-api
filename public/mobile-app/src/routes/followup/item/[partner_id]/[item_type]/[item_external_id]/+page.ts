@@ -1,5 +1,7 @@
 import type { Followup, FollowupItem } from '$lib/followup';
 import { buildFollowup } from '$lib/followup';
+import type { Services } from '$lib/services';
+import { buildServices } from '$lib/services';
 import type { PageLoad } from './$types';
 
 export const load: PageLoad = async ({ params }) => {
@@ -13,6 +15,7 @@ export const load: PageLoad = async ({ params }) => {
     item_type,
     item_external_id
   );
+  const services: Services = await buildServices();
 
-  return { item };
+  return { item, services };
 };

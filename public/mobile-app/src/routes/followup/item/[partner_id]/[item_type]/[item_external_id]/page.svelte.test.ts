@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import * as AMINavigationMethods from '$lib/ami-navigation';
 import { FollowupItem, FollowupSubItem } from '$lib/followup';
+import { Services } from '$lib/services';
 import Page from './+page.svelte';
 
 vi.mock('$lib/components/followup/FollowupItemDetail.svelte', () => ({
@@ -45,7 +46,9 @@ describe('/+page.svelte', () => {
     };
 
     // When
-    render(Page, { props: { data: { item }, params: params } });
+    render(Page, {
+      props: { data: { item, services: new Services() }, params: params },
+    });
 
     // Then
     await waitFor(() => {
@@ -83,7 +86,9 @@ describe('/+page.svelte', () => {
     const spy = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
 
     // When
-    render(Page, { props: { data: { item }, params: params } });
+    render(Page, {
+      props: { data: { item, services: new Services() }, params: params },
+    });
     const backButton = screen.getByTestId('back-button');
     await fireEvent.click(backButton);
 
@@ -122,7 +127,9 @@ describe('/+page.svelte', () => {
     const spy = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
 
     // When
-    render(Page, { props: { data: { item }, params: params } });
+    render(Page, {
+      props: { data: { item, services: new Services() }, params: params },
+    });
     const backButton = screen.getByTestId('back-button');
     await fireEvent.click(backButton);
 
@@ -153,6 +160,7 @@ describe('/+page.svelte', () => {
       'link1',
       []
     );
+    const services = new Services();
     const params = {
       partner_id: 'partner',
       item_type: 'type',
@@ -160,11 +168,14 @@ describe('/+page.svelte', () => {
     };
 
     // When
-    render(Page, { props: { data: { item }, params: params } });
+    render(Page, { props: { data: { item, services }, params: params } });
 
     // Then
     expect(FollowupItemDetail).toHaveBeenCalled();
-    expect(FollowupItemDetail).toHaveBeenCalledWith(expect.anything(), { item: item });
+    expect(FollowupItemDetail).toHaveBeenCalledWith(expect.anything(), {
+      item: item,
+      services: services,
+    });
   });
   test('should use FollowupItemDetail component - item with subitems', async () => {
     // Given
@@ -208,6 +219,7 @@ describe('/+page.svelte', () => {
         ),
       ]
     );
+    const services = new Services();
     const params = {
       partner_id: 'partner',
       item_type: 'type',
@@ -215,12 +227,13 @@ describe('/+page.svelte', () => {
     };
 
     // When
-    render(Page, { props: { data: { item }, params: params } });
+    render(Page, { props: { data: { item, services }, params: params } });
 
     // Then
     expect(FollowupItemDetail).toHaveBeenCalled();
     expect(FollowupItemDetail).toHaveBeenCalledWith(expect.anything(), {
       item: item,
+      services: services,
     });
   });
 });

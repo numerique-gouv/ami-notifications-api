@@ -1,6 +1,8 @@
 import { describe, expect, test, vi } from 'vitest';
 import * as followupMethods from '$lib/followup';
 import { Followup, FollowupItem } from '$lib/followup';
+import * as servicesMethods from '$lib/services';
+import { Services } from '$lib/services';
 import { load } from './+page';
 
 describe('/+page.ts', () => {
@@ -30,6 +32,8 @@ describe('/+page.ts', () => {
     const followup = new Followup();
     const spy = vi.spyOn(followup, 'findItem').mockReturnValue(item);
     vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
+    const services = new Services();
+    vi.spyOn(servicesMethods, 'buildServices').mockResolvedValue(services);
 
     const params = {
       partner_id: 'partner',
@@ -46,6 +50,8 @@ describe('/+page.ts', () => {
     // Then
     // @ts-expect-error
     expect(result.item).toEqual(item);
+    // @ts-expect-error
+    expect(result.services).toEqual(services);
     expect(spy).toHaveBeenCalledTimes(1);
     expect(spy).toHaveBeenCalledWith('partner', 'type', 'id');
   });

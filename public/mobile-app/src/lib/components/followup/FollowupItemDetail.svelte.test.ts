@@ -4,6 +4,7 @@ import { Item as AgendaItem } from '$lib/agenda';
 import * as AMINavigationMethods from '$lib/ami-navigation';
 import FollowupItemDetail from '$lib/components/followup/FollowupItemDetail.svelte';
 import { FollowupItem, FollowupItemEvent, FollowupSubItem } from '$lib/followup';
+import { Services } from '$lib/services';
 
 vi.mock('$lib/components/followup/FollowupItem.svelte', () => ({
   default: vi.fn(() => ({})),
@@ -43,14 +44,16 @@ describe('/FollowupItemDetail.svelte', () => {
       'link1',
       []
     );
+    const services = new Services();
 
     // When
-    render(FollowupItemDetail, { props: { item: item } });
+    render(FollowupItemDetail, { props: { item: item, services: services } });
 
     // Then
     expect(FollowupItemDetailHeader).toHaveBeenCalled();
     expect(FollowupItemDetailHeader).toHaveBeenCalledWith(expect.anything(), {
       item: item,
+      services: services,
     });
   });
   test('Should list notifications', async () => {
@@ -87,7 +90,7 @@ describe('/FollowupItemDetail.svelte', () => {
     );
 
     // When
-    render(FollowupItemDetail, { props: { item: item } });
+    render(FollowupItemDetail, { props: { item: item, services: new Services() } });
 
     // Then
     expect(screen.getByTestId('followup-messages')).toHaveTextContent(
@@ -190,7 +193,7 @@ describe('/FollowupItemDetail.svelte', () => {
       );
 
       // When
-      render(FollowupItemDetail, { props: { item: item } });
+      render(FollowupItemDetail, { props: { item: item, services: new Services() } });
 
       // Then
       expect(spySubItem).toHaveBeenCalled();
@@ -271,7 +274,7 @@ describe('/FollowupItemDetail.svelte', () => {
       const spy = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
 
       // When
-      render(FollowupItemDetail, { props: { item: item } });
+      render(FollowupItemDetail, { props: { item: item, services: new Services() } });
 
       // Then
       expect(spySubItem).toHaveBeenCalled();
@@ -351,7 +354,7 @@ describe('/FollowupItemDetail.svelte', () => {
       );
 
       // When
-      render(FollowupItemDetail, { props: { item: item } });
+      render(FollowupItemDetail, { props: { item: item, services: new Services() } });
 
       // Then
       expect(screen.queryByTestId('followup-parent')).toBeNull();
@@ -423,7 +426,9 @@ describe('/FollowupItemDetail.svelte', () => {
         .mockReturnValue([subitem1, subitem2]);
 
       // When
-      render(FollowupItemDetail, { props: { item: subitem1, parentItem: item } });
+      render(FollowupItemDetail, {
+        props: { item: subitem1, parentItem: item, services: new Services() },
+      });
 
       // Then
       expect(spySubItem).not.toHaveBeenCalled();
@@ -492,7 +497,9 @@ describe('/FollowupItemDetail.svelte', () => {
       vi.spyOn(subitem1, 'hasMilestone').mockReturnValue(false);
 
       // When
-      render(FollowupItemDetail, { props: { item: subitem1, parentItem: item } });
+      render(FollowupItemDetail, {
+        props: { item: subitem1, parentItem: item, services: new Services() },
+      });
 
       // Then
       expect(screen.queryByTestId('followup-parent')).toBeNull();
@@ -560,7 +567,9 @@ describe('/FollowupItemDetail.svelte', () => {
       vi.spyOn(subitem1, 'hasMilestone').mockReturnValue(true);
 
       // When
-      render(FollowupItemDetail, { props: { item: subitem1, parentItem: item } });
+      render(FollowupItemDetail, {
+        props: { item: subitem1, parentItem: item, services: new Services() },
+      });
 
       // Then
       expect(screen.queryByTestId('followup-parent')).not.toBeNull();
@@ -637,7 +646,9 @@ describe('/FollowupItemDetail.svelte', () => {
         .mockReturnValue([subitem2]);
 
       // When
-      render(FollowupItemDetail, { props: { item: subitem1, parentItem: item } });
+      render(FollowupItemDetail, {
+        props: { item: subitem1, parentItem: item, services: new Services() },
+      });
 
       // Then
       expect(spyPastSubItem).not.toHaveBeenCalled();

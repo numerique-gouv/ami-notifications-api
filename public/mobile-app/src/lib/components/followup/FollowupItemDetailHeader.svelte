@@ -2,18 +2,25 @@
   import { AMIGoto } from '$lib/ami-navigation';
   import { getDSFRIcon } from '$lib/dsfr-icon';
   import { FollowupSubItem } from '$lib/followup';
+  import type { Services, ServicesItem } from '$lib/services';
 
   interface Props {
     item: FollowupSubItem;
+    services: Services;
   }
-  let { item }: Props = $props();
+  let { item, services }: Props = $props();
 
   let checkedIcon = $derived(getDSFRIcon(item.icon, 'fr-icon-information-fill'));
   const duration = $derived(item.duration);
 
   const goToExternalItem = () => {
+    let silentLogin: boolean = true;
+    const service: ServicesItem | null = services.find(item.partner_id, item.item_type);
+    if (service !== null) {
+      silentLogin = service.with_silent_login;
+    }
     if (item.link) {
-      AMIGoto(item.link);
+      AMIGoto(item.link, silentLogin);
     }
   };
 </script>

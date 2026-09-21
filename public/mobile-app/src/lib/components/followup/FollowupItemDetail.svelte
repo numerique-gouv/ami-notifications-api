@@ -5,12 +5,14 @@
   import FollowupItemDetailHeader from '$lib/components/followup/FollowupItemDetailHeader.svelte';
   import { getDSFRIcon } from '$lib/dsfr-icon';
   import { FollowupItem, FollowupSubItem } from '$lib/followup';
+  import type { Services } from '$lib/services';
 
   interface Props {
     item: FollowupSubItem;
     parentItem?: FollowupItem | null;
+    services: Services;
   }
-  let { item, parentItem = null }: Props = $props();
+  let { item, parentItem = null, services }: Props = $props();
   const displayParent: boolean = $derived(item.hasMilestone() && parentItem !== null);
   let subItemWithoutMilestone: FollowupSubItem[] = [];
   let pastSubItemWithMilestone: FollowupSubItem[] = [];
@@ -23,7 +25,7 @@
 </script>
 
 <div class="demarche-content-container">
-  <FollowupItemDetailHeader item={item} />
+  <FollowupItemDetailHeader item={item} services={services} />
 
   {#if parentItem !== null && displayParent}
     <div class="demarche-content-parent-link fr-mb-3w" data-testid="followup-parent">
