@@ -184,7 +184,7 @@
     }
     const preferences = userStore.connected.identity.preferences;
     const matchingAddresses = preferences.addresses.filter(
-      (address) => address.idBAN.toString() === id
+      (address) => address.idBAN.toString() === id.replace('city-', '')
     );
     if (matchingAddresses.length) {
       preferences.removeAddress(matchingAddresses[0]);

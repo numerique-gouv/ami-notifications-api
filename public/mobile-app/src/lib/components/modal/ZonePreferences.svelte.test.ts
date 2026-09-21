@@ -70,7 +70,7 @@ describe('/ZonePreferences.svelte', () => {
           selected: true,
           tags: [
             {
-              id: 'a',
+              id: 'user-address-a',
               label: 'Paris (75) 🏠',
               removable: false,
             },
@@ -81,7 +81,7 @@ describe('/ZonePreferences.svelte', () => {
           selected: false,
           tags: [
             {
-              id: 'b',
+              id: 'city-b',
               label: 'Bastia (20)',
               removable: true,
             },
@@ -543,7 +543,7 @@ describe('/ZonePreferences.svelte', () => {
         expect(screen.getByText('Arpajon (91)')).toBeInTheDocument();
 
         // When
-        const tag = screen.getByTestId(address.idBAN);
+        const tag = screen.getByTestId(`city-${address.idBAN}`);
         await fireEvent.click(tag);
       });
 

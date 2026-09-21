@@ -163,7 +163,7 @@ export class Preferences {
     const result: ZoneInfo[] = [];
     const addresses = this._addresses.map((address) => {
       return {
-        id: address.idBAN,
+        id: `city-${address.idBAN}`,
         zone: address.zone,
         label: `${address.city} (${address.departement})`,
       };
@@ -174,7 +174,7 @@ export class Preferences {
       const tags: ToggleTag[] = [];
       if (userAddress?.zone === zone.label) {
         tags.push({
-          id: userAddress.idBAN,
+          id: `user-address-${userAddress.idBAN}`,
           label: `${userAddress.city} (${userAddress.departement}) 🏠`,
           removable: false,
         });
