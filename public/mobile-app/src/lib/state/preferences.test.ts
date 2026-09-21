@@ -899,12 +899,12 @@ describe('/preferences.ts', () => {
             selected: true,
             tags: [
               {
-                id: '91021',
+                id: 'city-91021',
                 label: 'Arpajon (91)',
                 removable: true,
               },
               {
-                id: '94054_0070_00023',
+                id: 'city-94054_0070_00023',
                 label: 'Orly (94)',
                 removable: true,
               },
@@ -915,7 +915,7 @@ describe('/preferences.ts', () => {
             selected: false,
             tags: [
               {
-                id: '2B033',
+                id: 'city-2B033',
                 label: 'Bastia (20)',
                 removable: true,
               },
@@ -956,7 +956,7 @@ describe('/preferences.ts', () => {
             selected: false,
             tags: [
               {
-                id: '97411_1060_00002',
+                id: 'user-address-97411_1060_00002',
                 label: 'Saint-Denis (974) 🏠',
                 removable: false,
               },
