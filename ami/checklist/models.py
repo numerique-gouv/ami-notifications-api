@@ -13,7 +13,7 @@ class CheckList(models.Model):
     external_id = models.CharField(unique=True)
     title = models.CharField()
     icon = models.CharField(blank=True)
-    definition = models.JSONField()
+    definition = models.JSONField(default=dict)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

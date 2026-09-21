@@ -1,5 +1,6 @@
 import pytest
 
+from ami.checklist.models import CheckList
 from ami.partner.models import Partner
 from ami.service.models import Service
 
@@ -47,3 +48,13 @@ def services(service: Service, partner_dn: Partner, partner_psl: Partner) -> lis
         url="https://localhost:8000/service4",
     )
     return [service, service2, service3, service4]
+
+
+@pytest.fixture
+def checklist(partner_dn: Partner) -> CheckList:
+    return CheckList.objects.create(
+        partner=partner_dn,
+        external_id="F16225",
+        title="Je deviens parent",
+        definition={},
+    )
