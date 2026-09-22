@@ -10,6 +10,7 @@
   import { userStore } from '$lib/state/User.svelte';
 
   let hasPasskeyError: boolean = $state(false);
+  let hasClickedOnPasskeyBtn: boolean = $state(false);
   let hasBreakingPasskeyError: boolean = $state(false);
   let hasNetworkError: boolean = $state(false);
 
@@ -32,6 +33,7 @@
   };
 
   const authenticate = async () => {
+    hasClickedOnPasskeyBtn = true;
     let optionsResp: Response;
     try {
       optionsResp = await fetch('/api/v1/fi/passkey/generate-authentication-options');
@@ -166,7 +168,7 @@
             Revenir à la page précédente
           </button>
         </li>
-      {:else if hasPasskeyError}
+      {:else if hasClickedOnPasskeyBtn}
         <li>
           <button
             type="button"
