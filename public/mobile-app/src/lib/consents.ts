@@ -49,6 +49,10 @@ export class ConsentsItem {
     }
     return followupItems.length > 0;
   };
+
+  updateConsent = async (checked: boolean): Promise<boolean> => {
+    return await updateApiConsent(this.partner_id, checked);
+  };
 }
 
 export class Consents {
@@ -110,10 +114,6 @@ export const buildConsents = async (partners: Partners | null): Promise<Consents
   const apiConsents: APIConsents = await retrieveConsents();
   const partnersItems: PartnersItem[] = partners ? partners.items : [];
   return new Consents(apiConsents, partnersItems);
-};
-
-export const updateConsent = async (partnerId: string, checked: boolean) => {
-  await updateApiConsent(partnerId, checked);
 };
 
 export const updateAllConsents = async (checked: boolean) => {

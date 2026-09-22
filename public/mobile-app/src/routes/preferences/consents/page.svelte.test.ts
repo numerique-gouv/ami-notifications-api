@@ -3,7 +3,7 @@ import { describe, expect, test, vi } from 'vitest';
 import * as AMINavigationMethods from '$lib/ami-navigation';
 import type { APIPartnersItem } from '$lib/api-partners';
 import * as consentsMethods from '$lib/consents';
-import { Consents } from '$lib/consents';
+import { Consents, ConsentsItem } from '$lib/consents';
 import * as followupMethods from '$lib/followup';
 import { Followup, FollowupItem } from '$lib/followup';
 import * as partnersMethods from '$lib/partners';
@@ -51,14 +51,10 @@ describe('/+page.svelte', () => {
       const partners = new Partners([partnersItem]);
       vi.spyOn(partnersMethods, 'buildPartners').mockResolvedValue(partners);
 
-      const consentsItem = {
-        partner_id: 'dinum-ami',
-        partner_name: 'AMI',
-        consent_datetime: new Date('2026-02-21T15:50:00Z'),
-      };
+      const consentsItem = new ConsentsItem('dinum-ami', 'AMI', null);
       const consents = new Consents({ consents: [consentsItem] }, partners.items);
       vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
-      const spy = vi.spyOn(consentsMethods, 'updateConsent').mockResolvedValue();
+      const spy = vi.spyOn(consentsItem, 'updateConsent').mockResolvedValue(true);
 
       const followup = new Followup();
       vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
@@ -66,7 +62,7 @@ describe('/+page.svelte', () => {
       render(Page, {
         props: {
           data: {
-            consentItems: [],
+            consentItems: [consentsItem],
             partners: partners,
             followup: followup,
           },
@@ -81,7 +77,7 @@ describe('/+page.svelte', () => {
 
       // Then
       await waitFor(async () => {
-        expect(spy).toHaveBeenCalledWith('dinum-ami', true);
+        expect(spy).toHaveBeenCalledWith(true);
       });
     });
   });
@@ -101,12 +97,19 @@ describe('/+page.svelte', () => {
       const followup = new Followup();
       vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
 
-      const spy = vi.spyOn(consentsMethods, 'updateConsent');
+      const consentsItem = new ConsentsItem(
+        'dinum-ami',
+        'AMI',
+        new Date('2026-02-21T15:50:00Z')
+      );
+      const consents = new Consents({ consents: [consentsItem] }, partners.items);
+      vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
+      const spy = vi.spyOn(consentsItem, 'updateConsent').mockResolvedValue(true);
 
       render(Page, {
         props: {
           data: {
-            consentItems: [],
+            consentItems: [consentsItem],
             partners: partners,
             followup: followup,
           },
@@ -115,17 +118,13 @@ describe('/+page.svelte', () => {
       });
 
       // When
-      let toggleInput: HTMLInputElement = screen.getByTestId('dinum-ami');
-      expect(toggleInput.checked).toBeFalsy();
-      await fireEvent.click(toggleInput);
-
-      toggleInput = screen.getByTestId('dinum-ami');
+      const toggleInput: HTMLInputElement = screen.getByTestId('dinum-ami');
       expect(toggleInput.checked).toBeTruthy();
       await fireEvent.click(toggleInput);
 
       // Then
       await waitFor(async () => {
-        expect(spy).toHaveBeenCalledWith('dinum-ami', false);
+        expect(spy).toHaveBeenCalledWith(false);
       });
     });
 
@@ -166,12 +165,19 @@ describe('/+page.svelte', () => {
       ]);
       vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
 
-      const spy = vi.spyOn(consentsMethods, 'updateConsent');
+      const consentsItem = new ConsentsItem(
+        'dinum-ami',
+        'AMI',
+        new Date('2026-02-21T15:50:00Z')
+      );
+      const consents = new Consents({ consents: [consentsItem] }, partners.items);
+      vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
+      const spy = vi.spyOn(consentsItem, 'updateConsent').mockResolvedValue(true);
 
       render(Page, {
         props: {
           data: {
-            consentItems: [],
+            consentItems: [consentsItem],
             partners: partners,
             followup: followup,
           },
@@ -180,17 +186,13 @@ describe('/+page.svelte', () => {
       });
 
       // When
-      let toggleInput: HTMLInputElement = screen.getByTestId('dinum-ami');
-      expect(toggleInput.checked).toBeFalsy();
-      await fireEvent.click(toggleInput);
-
-      toggleInput = screen.getByTestId('dinum-ami');
+      const toggleInput: HTMLInputElement = screen.getByTestId('dinum-ami');
       expect(toggleInput.checked).toBeTruthy();
       await fireEvent.click(toggleInput);
 
       // Then
       await waitFor(async () => {
-        expect(spy).toHaveBeenCalledWith('dinum-ami', false);
+        expect(spy).toHaveBeenCalledWith(false);
         const warningBlock: HTMLElement = screen.getByTestId('warning-dinum-ami');
         expect(warningBlock).toBeInTheDocument();
       });
@@ -233,12 +235,19 @@ describe('/+page.svelte', () => {
       ]);
       vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
 
-      const spy = vi.spyOn(consentsMethods, 'updateConsent');
+      const consentsItem = new ConsentsItem(
+        'dinum-ami',
+        'AMI',
+        new Date('2026-02-21T15:50:00Z')
+      );
+      const consents = new Consents({ consents: [consentsItem] }, partners.items);
+      vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
+      const spy = vi.spyOn(consentsItem, 'updateConsent').mockResolvedValue(true);
 
       render(Page, {
         props: {
           data: {
-            consentItems: [],
+            consentItems: [consentsItem],
             partners: partners,
             followup: followup,
           },
@@ -247,17 +256,13 @@ describe('/+page.svelte', () => {
       });
 
       // When
-      let toggleInput: HTMLInputElement = screen.getByTestId('dinum-ami');
-      expect(toggleInput.checked).toBeFalsy();
-      await fireEvent.click(toggleInput);
-
-      toggleInput = screen.getByTestId('dinum-ami');
+      const toggleInput: HTMLInputElement = screen.getByTestId('dinum-ami');
       expect(toggleInput.checked).toBeTruthy();
       await fireEvent.click(toggleInput);
 
       // Then
       await waitFor(async () => {
-        expect(spy).toHaveBeenCalledWith('dinum-ami', false);
+        expect(spy).toHaveBeenCalledWith(false);
         expect(screen.queryByTestId('warning-dinum-ami')).not.toBeInTheDocument();
       });
     });
@@ -267,7 +272,7 @@ describe('/+page.svelte', () => {
     // Given
     await userStore.login(mockUserInfo);
 
-    const spy = vi.spyOn(consentsMethods, 'updateAllConsents');
+    const spy = vi.spyOn(consentsMethods, 'updateAllConsents').mockResolvedValue();
 
     const apiPartnersItem1: APIPartnersItem = {
       slug: 'dinum-ami',

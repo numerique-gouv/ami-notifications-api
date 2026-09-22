@@ -10,7 +10,6 @@
     Consents,
     type ConsentsItem,
     updateAllConsents,
-    updateConsent,
   } from '$lib/consents';
   import { buildFollowup, type Followup } from '$lib/followup';
   import { buildPartners, type Partners } from '$lib/partners';
@@ -69,16 +68,19 @@
   };
 
   const saveConsents = async (partnerId: string, checked: boolean) => {
-    await updateConsent(partnerId, checked);
-    const consents: Consents = await buildConsents(partners);
-    consentItems = consents.items;
-
-    const consentsItem: ConsentsItem[] | undefined = consentItems?.filter(
+    const consentsItems: ConsentsItem[] | undefined = consentItems?.filter(
       (item) => item.partner_id === partnerId
     );
 
-    if (consentsItem && consentsItem[0].hasFollowupItem(followup)) {
-      displayWarningBlocks.set(consentsItem[0].partner_id, !checked);
+    if (consentsItems) {
+      const consentsItem: ConsentsItem = consentsItems[0];
+      await consentsItem.updateConsent(checked);
+      const consents: Consents = await buildConsents(partners);
+      consentItems = consents.items;
+
+      if (consentsItem.hasFollowupItem(followup)) {
+        displayWarningBlocks.set(consentsItem.partner_id, !checked);
+      }
     }
   };
 

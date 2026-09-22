@@ -6,7 +6,6 @@ import {
   Consents,
   ConsentsItem,
   updateAllConsents,
-  updateConsent,
 } from '$lib/consents';
 import { Followup, FollowupItem } from '$lib/followup';
 import { Partners } from '$lib/partners';
@@ -117,6 +116,27 @@ describe('/consents.ts', () => {
         const result = consentsItem.hasFollowupItem(followup);
 
         // Then
+        expect(result).toBeTruthy();
+      });
+    });
+    describe('updateConsent', () => {
+      test('should call update consent from api', async () => {
+        // Given
+        const consentsItem = new ConsentsItem(
+          'dinum-ami',
+          'AMI',
+          new Date('2026-01-23T15:50:00Z')
+        );
+
+        const spy = vi
+          .spyOn(apiConsentsMethods, 'updateApiConsent')
+          .mockResolvedValue(true);
+
+        // When
+        const result = await consentsItem.updateConsent(true);
+
+        // Then
+        expect(spy).toHaveBeenCalledWith('dinum-ami', true);
         expect(result).toBeTruthy();
       });
     });
@@ -432,18 +452,6 @@ describe('/consents.ts', () => {
       expect(consents.items[1].consent_datetime).toEqual(
         new Date('2026-02-22T15:50:00Z')
       );
-    });
-  });
-  describe('updateConsent', () => {
-    test('should call update consent from api', async () => {
-      // Given
-      const spy = vi.spyOn(apiConsentsMethods, 'updateApiConsent');
-
-      // When
-      await updateConsent('dinum-ami', true);
-
-      // Then
-      expect(spy).toHaveBeenCalledWith('dinum-ami', true);
     });
   });
   describe('updateAllConsents', () => {

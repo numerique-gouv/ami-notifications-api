@@ -29,7 +29,10 @@ export const retrieveConsents = async (): Promise<APIConsents> => {
   return apiConsents;
 };
 
-export const updateApiConsent = async (partnerId: string, checked: boolean) => {
+export const updateApiConsent = async (
+  partnerId: string,
+  checked: boolean
+): Promise<boolean> => {
   const payload = {
     partner_id: partnerId,
     consent: checked,
