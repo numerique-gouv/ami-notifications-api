@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
   import { page } from '$app/state';
+  import { AMIGoto } from '$lib/ami-navigation';
 
   onMount(() => {
     // https://svelte.dev/docs/kit/routing#error
@@ -15,7 +15,7 @@
   });
 
   const goToHomepage = () => {
-    goto('/');
+    AMIGoto('/');
   };
 </script>
 
