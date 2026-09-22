@@ -12,8 +12,8 @@
     updateAllConsents,
     updateConsent,
   } from '$lib/consents';
-  import { buildFollowup, type Followup, FollowupItem } from '$lib/followup';
-  import { buildPartners, type Partners, PartnersItem } from '$lib/partners';
+  import { buildFollowup, type Followup } from '$lib/followup';
+  import { buildPartners, type Partners } from '$lib/partners';
   import { userStore } from '$lib/state/User.svelte';
   import type { PageProps } from './$types';
 
@@ -22,7 +22,6 @@
   let backUrl: string = '/';
   let consentItems: ConsentsItem[] | undefined = $state(data.consentItems);
   let partners: Partners | null = $state(data.partners);
-  let partnerIds: string[];
   let followup: Followup | null = $state(data.followup);
   let displayWarningBlocks: SvelteMap<string, boolean> = new SvelteMap();
 
@@ -31,8 +30,7 @@
       AMIGoto('/#/login');
     } else {
       partners = await buildPartners();
-      partnerIds = partners.items.map((item: PartnersItem) => item.slug);
-      const consents: Consents = await buildConsents(partnerIds);
+      const consents: Consents = await buildConsents(partners);
       consentItems = consents.items;
       followup = await buildFollowup();
 
@@ -44,11 +42,13 @@
 
   const selectAll = async () => {
     await updateAllConsents(true);
-    const consents: Consents = await buildConsents(partnerIds);
+    const consents: Consents = await buildConsents(partners);
     consentItems = consents.items;
 
-    partners?.items.forEach((partner) => {
-      const toggleElement: HTMLElement | null = document.getElementById(partner.slug);
+    consentItems.forEach((consentItem) => {
+      const toggleElement: HTMLElement | null = document.getElementById(
+        consentItem.partner_id
+      );
       if (toggleElement) {
         const toggleInput: HTMLInputElement = toggleElement as HTMLInputElement;
         toggleInput.checked = true;
@@ -70,7 +70,7 @@
 
   const saveConsents = async (partnerId: string, checked: boolean) => {
     await updateConsent(partnerId, checked);
-    const consents: Consents = await buildConsents(partnerIds);
+    const consents: Consents = await buildConsents(partners);
     consentItems = consents.items;
 
     const consentsItem: ConsentsItem[] | undefined = consentItems?.filter(
@@ -100,18 +100,18 @@
     Tout suivre
   </button>
 
-  {#if partners && partners.items.length}
-    {#each partners.items as item}
+  {#if consentItems && consentItems.length}
+    {#each consentItems as item}
       <Toggle
-        id="{item.slug}"
-        label="Suivre mes démarches <strong>{item.name}</strong> sur mon appareil mobile"
-        isChecked={hasConsentedFor(item.slug)}
+        id="{item.partner_id}"
+        label="Suivre mes démarches <strong>{item.partner_name}</strong> sur mon appareil mobile"
+        isChecked={hasConsentedFor(item.partner_id)}
         onChangeAction={saveConsents}
       />
-      {#if displayWarningBlocks.get(item.slug)}
+      {#if displayWarningBlocks.get(item.partner_id)}
         <div
           class="fr-notice fr-p-2w toast-wrapper warning"
-          data-testid="warning-{item.slug}"
+          data-testid="warning-{item.partner_id}"
         >
           <div class="toast-body">
             <div class="toast-body-left-wrapper">
@@ -123,14 +123,14 @@
                 <p class="fr-text--bold">Attention</p>
               </div>
               <p class="fr-text--sm">
-                Si vous avez des démarches {item.name} en cours ou à venir, vous ne
-                pourrez plus les suivre dans l’application. L’historique de vos
+                Si vous avez des démarches {item.partner_name} en cours ou à venir, vous
+                ne pourrez plus les suivre dans l’application. L’historique de vos
                 démarches est conservé.
               </p>
             </div>
             <div class="toast-body-right-wrapper">
               <button
-                onclick={() => hideWarningBlock(item.slug)}
+                onclick={() => hideWarningBlock(item.partner_id)}
                 aria-label="Fermer le toast"
                 data-testid="close-button"
               >

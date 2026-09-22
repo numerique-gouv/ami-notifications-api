@@ -43,21 +43,23 @@ describe('/+page.svelte', () => {
       // Given
       await userStore.login(mockUserInfo);
 
+      const partnersItem = {
+        slug: 'dinum-ami',
+        name: 'AMI',
+        link: 'https://fake-link-1',
+      };
+      const partners = new Partners([partnersItem]);
+      vi.spyOn(partnersMethods, 'buildPartners').mockResolvedValue(partners);
+
       const consentsItem = {
         partner_id: 'dinum-ami',
+        partner_name: 'AMI',
         consent_datetime: new Date('2026-02-21T15:50:00Z'),
       };
-      const consents = new Consents({ consents: [consentsItem] }, ['dinum-ami']);
+      const consents = new Consents({ consents: [consentsItem] }, partners.items);
       vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
       const spy = vi.spyOn(consentsMethods, 'updateConsent').mockResolvedValue();
 
-      const apiPartnersItem: APIPartnersItem = {
-        slug: 'dinum-ami',
-        name: 'AMI',
-        link: 'http://fake-link',
-      };
-      const partners = new Partners([apiPartnersItem]);
-      vi.spyOn(partnersMethods, 'buildPartners').mockResolvedValue(partners);
       const followup = new Followup();
       vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
 
@@ -267,19 +269,6 @@ describe('/+page.svelte', () => {
 
     const spy = vi.spyOn(consentsMethods, 'updateAllConsents');
 
-    const consentsItem1 = {
-      partner_id: 'dinum-ami',
-      consent_datetime: null,
-    };
-    const consentsItem2 = {
-      partner_id: 'dinum-dn',
-      consent_datetime: null,
-    };
-    const consents = new Consents({ consents: [consentsItem1, consentsItem2] }, [
-      'dinum-ami',
-    ]);
-    vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
-
     const apiPartnersItem1: APIPartnersItem = {
       slug: 'dinum-ami',
       name: 'AMI',
@@ -292,13 +281,22 @@ describe('/+page.svelte', () => {
     };
     const partners = new Partners([apiPartnersItem1, apiPartnersItem2]);
     vi.spyOn(partnersMethods, 'buildPartners').mockResolvedValue(partners);
+
+    const consentsItem1 = new ConsentsItem('dinum-ami', 'AMI', null);
+    const consentsItem2 = new ConsentsItem('dinum-dn', 'Démarche Numérique', null);
+    const consents = new Consents(
+      { consents: [consentsItem1, consentsItem2] },
+      partners.items
+    );
+    vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
+
     const followup = new Followup();
     vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
 
     render(Page, {
       props: {
         data: {
-          consentItems: [],
+          consentItems: [consentsItem1, consentsItem2],
           partners: partners,
           followup: followup,
         },

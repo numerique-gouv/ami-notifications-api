@@ -4,7 +4,7 @@ import type { Consents } from '$lib/consents';
 import { buildConsents } from '$lib/consents';
 import { buildFollowup, type Followup } from '$lib/followup';
 import type { Partners } from '$lib/partners';
-import { buildPartners, type PartnersItem } from '$lib/partners';
+import { buildPartners } from '$lib/partners';
 import { toastStore } from '$lib/state/toast.svelte';
 import { userStore } from '$lib/state/User.svelte';
 import type { PageLoad } from './$types';
@@ -40,8 +40,7 @@ export const load: PageLoad = async () => {
   const followup: Followup = await buildFollowup();
   const isFollowupEmpty: boolean = followup.isEmpty();
   const partners: Partners = await buildPartners();
-  const partnerIds: string[] = partners.items.map((item: PartnersItem) => item.slug);
-  const consents: Consents = await buildConsents(partnerIds);
+  const consents: Consents = await buildConsents(partners);
   const hasAnyConsents: boolean = consents.hasAnyConsents();
 
   return { followup, isFollowupEmpty, hasAnyConsents };

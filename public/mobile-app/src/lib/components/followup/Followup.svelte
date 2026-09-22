@@ -5,10 +5,10 @@
   import FollowupNoConsent from '$lib/components/followup/FollowupNoConsent.svelte';
   import FollowupItemModal from '$lib/components/modal/FollowupItemModal.svelte';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
-  import { buildConsents, Consents } from '$lib/consents';
+  import { buildConsents } from '$lib/consents';
   import type { Followup, FollowupItem as FollowupItemType } from '$lib/followup';
   import { buildFollowup } from '$lib/followup';
-  import { buildPartners, type Partners, PartnersItem } from '$lib/partners';
+  import { buildPartners, type Partners } from '$lib/partners';
 
   interface Props {
     archived?: boolean;
@@ -36,14 +36,12 @@
   let hasAllConsents: boolean = $state(hasAllConsentsProp);
   let isExpanded: boolean = $state(isFollowupEmptyProp);
   let partners: Partners | null = $state(partnersProp);
-  let partnerIds: string[];
 
   onMount(async () => {
     followup = await buildFollowup();
     console.log($state.snapshot(followup));
     partners = await buildPartners();
-    partnerIds = partners.items.map((item: PartnersItem) => item.slug);
-    const consents = await buildConsents(partnerIds);
+    const consents = await buildConsents(partners);
     hasAnyConsents = consents.hasAnyConsents();
     hasAllConsents = consents.hasAllConsents();
     isExpanded = expandAccordion();

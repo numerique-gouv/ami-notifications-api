@@ -5,12 +5,18 @@ import {
   updateApiConsent,
 } from '$lib/api-consents';
 import type { Followup, FollowupItem } from '$lib/followup';
+import type { Partners, PartnersItem } from '$lib/partners';
 
 export class ConsentsItem {
-  constructor(
-    private _partner_id: string,
-    private _consent_datetime: Date | null = null
-  ) {}
+  private _partner_id: string;
+  private _partner_name: string;
+  private _consent_datetime: Date | null = null;
+
+  constructor(partner_id: string, partner_name: string, consent_datetime: Date | null) {
+    this._partner_id = partner_id;
+    this._partner_name = partner_name;
+    this._consent_datetime = consent_datetime;
+  }
 
   equals(other: ConsentsItem): boolean {
     if (!(other instanceof ConsentsItem)) {
@@ -21,6 +27,10 @@ export class ConsentsItem {
 
   get partner_id(): string {
     return this._partner_id;
+  }
+
+  get partner_name(): string {
+    return this._partner_name;
   }
 
   get consent_datetime(): Date | null {
@@ -44,20 +54,20 @@ export class ConsentsItem {
 export class Consents {
   private _items: ConsentsItem[] = [];
 
-  constructor(apiConsents: APIConsents | null = null, partnerIds: string[]) {
+  constructor(apiConsents: APIConsents | null = null, partnersItems: PartnersItem[]) {
     const consentsItems: ConsentsItem[] = [];
 
     const items: APIConsentsItem[] = apiConsents?.consents || [];
 
-    partnerIds.forEach((partnerId) => {
-      const item: APIConsentsItem | undefined = items.find(
-        (item) => item.partner_id === partnerId
+    partnersItems.forEach((partnersItem) => {
+      const apiConsentsItem: APIConsentsItem | undefined = items.find(
+        (item) => item.partner_id === partnersItem.slug
       );
       let consentsItem: ConsentsItem;
-      if (item) {
-        consentsItem = this.createConsentsItem(item);
+      if (apiConsentsItem) {
+        consentsItem = this.createConsentsItem(apiConsentsItem);
       } else {
-        consentsItem = this.createFakeConsentsItem(partnerId);
+        consentsItem = this.createFakeConsentsItem(partnersItem);
       }
       consentsItems.push(consentsItem);
     });
@@ -74,11 +84,11 @@ export class Consents {
   }
 
   private createConsentsItem(item: APIConsentsItem): ConsentsItem {
-    return new ConsentsItem(item.partner_id, item.consent_datetime);
+    return new ConsentsItem(item.partner_id, item.partner_name, item.consent_datetime);
   }
 
-  private createFakeConsentsItem(partnerId: string): ConsentsItem {
-    return new ConsentsItem(partnerId, null);
+  private createFakeConsentsItem(partnersItem: PartnersItem): ConsentsItem {
+    return new ConsentsItem(partnersItem.slug, partnersItem.name, null);
   }
 
   hasAnyConsents() {
@@ -96,9 +106,10 @@ export class Consents {
   }
 }
 
-export const buildConsents = async (partnerIds: string[]): Promise<Consents> => {
+export const buildConsents = async (partners: Partners | null): Promise<Consents> => {
   const apiConsents: APIConsents = await retrieveConsents();
-  return new Consents(apiConsents, partnerIds);
+  const partnersItems: PartnersItem[] = partners ? partners.items : [];
+  return new Consents(apiConsents, partnersItems);
 };
 
 export const updateConsent = async (partnerId: string, checked: boolean) => {
