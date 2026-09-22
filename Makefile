@@ -65,3 +65,7 @@ replicate-anonymized-data:
 .PHONY: db-worker
 db-worker:
 	$(RUN) python manage.py db_worker
+
+.PHONY: init-checklists
+init-checklists:
+	$(RUN) python manage.py init_checklists
