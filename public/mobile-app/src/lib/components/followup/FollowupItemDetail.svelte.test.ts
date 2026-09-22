@@ -170,7 +170,7 @@ describe('/FollowupItemDetail.svelte', () => {
       vi.spyOn(subitem1, 'buildAgendaItem').mockReturnValue(
         new AgendaItem(
           'fake-id-1',
-          'personnal',
+          'personal',
           'title 1',
           '/#/followup/item/partner/type/id',
           null,
@@ -182,7 +182,7 @@ describe('/FollowupItemDetail.svelte', () => {
       vi.spyOn(subitem2, 'buildAgendaItem').mockReturnValue(
         new AgendaItem(
           'fake-id-2',
-          'personnal',
+          'personal',
           'title 2',
           '/#/followup/item/partner/type/id',
           null,

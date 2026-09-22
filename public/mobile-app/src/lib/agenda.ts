@@ -9,7 +9,7 @@ import {
 import { type User, userStore } from '$lib/state/User.svelte';
 import { dateToISO, getTimestamp, uniqueId } from '$lib/utils';
 
-export type Kind = 'holiday' | 'election' | 'personnal';
+export type Kind = 'holiday' | 'election' | 'personal';
 
 const capitalizeFirstLetter = (val: string) => {
   return String(val).charAt(0).toUpperCase() + String(val).slice(1);
@@ -219,7 +219,7 @@ export class Item {
   }
 
   get period(): string | undefined {
-    if (this.kind === 'personnal') {
+    if (this.kind === 'personal') {
       return getPeriod(this.startDate, this.endDate);
     }
     return this._subitems[0].period;
@@ -234,7 +234,7 @@ export class Item {
       label: 'Élections',
       icon: 'fr-icon-chat-check-fill',
     },
-    personnal: {
+    personal: {
       label: 'Personnel',
       icon: 'fr-icon-user-fill',
     },
@@ -306,7 +306,7 @@ export class Agenda {
     this.createElectionItems(items, elections);
 
     // build items from followup
-    this.createPersonnalItems(items, followupItems);
+    this.createPersonalItems(items, followupItems);
 
     // do something with school holidays for OTVs
     this.processOTVs(school_holidays);
@@ -526,7 +526,7 @@ export class Agenda {
     );
   }
 
-  private createPersonnalItems(items: Item[], followupItems: FollowupItem[]) {
+  private createPersonalItems(items: Item[], followupItems: FollowupItem[]) {
     const agendaItems: Item[] = [];
     followupItems.forEach((followupItem) => {
       const agendaItem = followupItem.buildAgendaItem();
@@ -545,7 +545,7 @@ export class Agenda {
         return;
       }
       if (item.endDate !== null && item.endDate < this._today) {
-        // exclude past personnal items
+        // exclude past personal items
         return;
       }
       items.push(item);

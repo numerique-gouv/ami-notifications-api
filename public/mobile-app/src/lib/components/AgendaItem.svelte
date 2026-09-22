@@ -16,7 +16,7 @@
   const badgeKinds = {
     election: 'fr-badge--green-tilleul-verveine',
     holiday: 'fr-badge--blue-cumulus',
-    personnal: 'am-badge--user',
+    personal: 'am-badge--user',
   };
 </script>
 
@@ -148,7 +148,7 @@
       .agenda--item--detail {
         padding: 1rem 2rem 0.5rem 1rem;
         width: 100%;
-        &.personnal:not(.past) {
+        &.personal:not(.past) {
           background-image:
             linear-gradient(0deg, var(--am-blue--1), var(--am-blue--1)),
             linear-gradient(0deg, var(--am-blue--1), var(--am-blue--1)),

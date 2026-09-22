@@ -265,15 +265,15 @@ describe('/agenda.ts', () => {
       });
     });
     describe('period', () => {
-      describe('personnal item', () => {
+      describe('personal item', () => {
         test('should call getPeriod', async () => {
           // Given
           const spy = vi
             .spyOn(followupMethods, 'getPeriod')
             .mockReturnValue('A Period');
           const item = new Item(
-            'fake-id-personnal',
-            'personnal',
+            'fake-id-personal',
+            'personal',
             'title',
             '',
             'description',
@@ -290,7 +290,7 @@ describe('/agenda.ts', () => {
           expect(spy).toHaveBeenCalledWith(item.startDate, item.endDate);
         });
       });
-      describe('non personnal item', () => {
+      describe('non personal item', () => {
         test('should not mention start date year', async () => {
           // Given
           const spy = vi
@@ -540,8 +540,8 @@ describe('/agenda.ts', () => {
           new Date('2025-12-20')
         );
         const item4 = new Item(
-          'fake-id-personnal-4',
-          'personnal',
+          'fake-id-personal-4',
+          'personal',
           'title 4',
           '',
           'description',
@@ -558,7 +558,7 @@ describe('/agenda.ts', () => {
         expect(key1).equal('ami-incorrect:1766188800:title-1');
         expect(key2).equal('ami-holiday:1766188800:title-2');
         expect(key3).equal('ami-election:1766188800:title-3');
-        expect(key4).equal('ami-personnal:1766188800:title-4');
+        expect(key4).equal('ami-personal:1766188800:title-4');
       });
     });
   });
@@ -1981,7 +1981,7 @@ describe('/agenda.ts', () => {
         expect(agenda.next.length).equal(0);
       });
     });
-    describe('Personnal', () => {
+    describe('Personal', () => {
       test('should organize items in now and next', async () => {
         // Given
         const followup = new Followup();
@@ -2118,7 +2118,7 @@ describe('/agenda.ts', () => {
         vi.spyOn(followupItem2, 'buildAgendaItem').mockReturnValue(
           new Item(
             'fake-id',
-            'personnal',
+            'personal',
             'Rendez-vous',
             'link1',
             null,
@@ -2130,7 +2130,7 @@ describe('/agenda.ts', () => {
         vi.spyOn(followupItem3, 'buildAgendaItem').mockReturnValue(
           new Item(
             'fake-id',
-            'personnal',
+            'personal',
             'Rendez-vous',
             'link2',
             null,
@@ -2142,7 +2142,7 @@ describe('/agenda.ts', () => {
         vi.spyOn(followupItem4, 'buildAgendaItem').mockReturnValue(
           new Item(
             'fake-id',
-            'personnal',
+            'personal',
             'Rendez-vous',
             'link3',
             null,
@@ -2154,7 +2154,7 @@ describe('/agenda.ts', () => {
         vi.spyOn(followupItem5, 'buildAgendaItem').mockReturnValue(
           new Item(
             'fake-id',
-            'personnal',
+            'personal',
             'Rendez-vous',
             'link4',
             null,
@@ -2166,7 +2166,7 @@ describe('/agenda.ts', () => {
         vi.spyOn(followupItem6, 'buildAgendaItem').mockReturnValue(
           new Item(
             'fake-id',
-            'personnal',
+            'personal',
             'Rendez-vous',
             'link5',
             null,
@@ -2188,7 +2188,7 @@ describe('/agenda.ts', () => {
           agenda.now[0].equals(
             new Item(
               'fake-id',
-              'personnal',
+              'personal',
               'Rendez-vous',
               'link1',
               null,
@@ -2202,7 +2202,7 @@ describe('/agenda.ts', () => {
           agenda.now[1].equals(
             new Item(
               'fake-id',
-              'personnal',
+              'personal',
               'Rendez-vous',
               'link4',
               null,
@@ -2217,7 +2217,7 @@ describe('/agenda.ts', () => {
           agenda.next[0].equals(
             new Item(
               'fake-id',
-              'personnal',
+              'personal',
               'Rendez-vous',
               'link2',
               null,
@@ -2379,7 +2379,7 @@ describe('/agenda.ts', () => {
         vi.spyOn(followupSubItem2, 'buildAgendaItem').mockReturnValue(
           new Item(
             'fake-id',
-            'personnal',
+            'personal',
             'Rendez-vous',
             'link1',
             null,
@@ -2391,7 +2391,7 @@ describe('/agenda.ts', () => {
         vi.spyOn(followupSubItem3, 'buildAgendaItem').mockReturnValue(
           new Item(
             'fake-id',
-            'personnal',
+            'personal',
             'Rendez-vous',
             'link2',
             null,
@@ -2403,7 +2403,7 @@ describe('/agenda.ts', () => {
         vi.spyOn(followupSubItem4, 'buildAgendaItem').mockReturnValue(
           new Item(
             'fake-id',
-            'personnal',
+            'personal',
             'Rendez-vous',
             'link3',
             null,
@@ -2415,7 +2415,7 @@ describe('/agenda.ts', () => {
         vi.spyOn(followupSubItem5, 'buildAgendaItem').mockReturnValue(
           new Item(
             'fake-id',
-            'personnal',
+            'personal',
             'Rendez-vous',
             'link4',
             null,
@@ -2427,7 +2427,7 @@ describe('/agenda.ts', () => {
         vi.spyOn(followupSubItem6, 'buildAgendaItem').mockReturnValue(
           new Item(
             'fake-id',
-            'personnal',
+            'personal',
             'Rendez-vous',
             'link5',
             null,
@@ -2449,7 +2449,7 @@ describe('/agenda.ts', () => {
           agenda.now[0].equals(
             new Item(
               'fake-id',
-              'personnal',
+              'personal',
               'Rendez-vous',
               'link1',
               null,
@@ -2463,7 +2463,7 @@ describe('/agenda.ts', () => {
           agenda.now[1].equals(
             new Item(
               'fake-id',
-              'personnal',
+              'personal',
               'Rendez-vous',
               'link4',
               null,
@@ -2478,7 +2478,7 @@ describe('/agenda.ts', () => {
           agenda.next[0].equals(
             new Item(
               'fake-id',
-              'personnal',
+              'personal',
               'Rendez-vous',
               'link2',
               null,
@@ -2489,7 +2489,7 @@ describe('/agenda.ts', () => {
           )
         ).toBe(true);
       });
-      test('should not display personnal item if is listed in hidden items', async () => {
+      test('should not display personal item if is listed in hidden items', async () => {
         // Given
         const followup = new Followup();
         const followupItem1 = new FollowupItem(
@@ -2538,7 +2538,7 @@ describe('/agenda.ts', () => {
         ]);
         const item1 = new Item(
           'fake-id-1',
-          'personnal',
+          'personal',
           'Rendez-vous',
           'link1',
           null,
@@ -2548,7 +2548,7 @@ describe('/agenda.ts', () => {
         );
         const item2 = new Item(
           'fake-id-2',
-          'personnal',
+          'personal',
           'Rendez-vous',
           'link2',
           null,
@@ -2565,9 +2565,9 @@ describe('/agenda.ts', () => {
           .mockReturnValueOnce('fake-id-2');
 
         const existing = [];
-        const itemKey = `ami-personnal:${getTimestamp(item2.date)}:${slugify(item2.title)}`;
+        const itemKey = `ami-personal:${getTimestamp(item2.date)}:${slugify(item2.title)}`;
         existing.push(itemKey);
-        localStorage.setItem('hidden_agenda_items_personnal', JSON.stringify(existing));
+        localStorage.setItem('hidden_agenda_items_personal', JSON.stringify(existing));
 
         // When
         const agenda = new Agenda(null, followup, new Date('2025-11-01T12:00:00Z'));
@@ -2577,7 +2577,7 @@ describe('/agenda.ts', () => {
         expect(agenda.now[0].equals(item1)).toBe(true);
         expect(agenda.next.length).equal(0);
       });
-      test('should not display personnal sub item if is listed in hidden items', async () => {
+      test('should not display personal sub item if is listed in hidden items', async () => {
         // Given
         const followup = new Followup();
         const followupSubItem1 = new FollowupSubItem(
@@ -2645,7 +2645,7 @@ describe('/agenda.ts', () => {
         vi.spyOn(followup, 'items', 'get').mockReturnValue([followupItem]);
         const item1 = new Item(
           'fake-id-1',
-          'personnal',
+          'personal',
           'Rendez-vous',
           'link1',
           null,
@@ -2655,7 +2655,7 @@ describe('/agenda.ts', () => {
         );
         const item2 = new Item(
           'fake-id-2',
-          'personnal',
+          'personal',
           'Rendez-vous',
           'link2',
           null,
@@ -2672,9 +2672,9 @@ describe('/agenda.ts', () => {
           .mockReturnValueOnce('fake-id-2');
 
         const existing = [];
-        const itemKey = `ami-personnal:${getTimestamp(item2.date)}:${slugify(item2.title)}`;
+        const itemKey = `ami-personal:${getTimestamp(item2.date)}:${slugify(item2.title)}`;
         existing.push(itemKey);
-        localStorage.setItem('hidden_agenda_items_personnal', JSON.stringify(existing));
+        localStorage.setItem('hidden_agenda_items_personal', JSON.stringify(existing));
 
         // When
         const agenda = new Agenda(null, followup, new Date('2025-11-01T12:00:00Z'));
@@ -2779,7 +2779,7 @@ describe('/agenda.ts', () => {
       vi.spyOn(followupItem2, 'buildAgendaItem').mockReturnValue(
         new Item(
           'fake-id',
-          'personnal',
+          'personal',
           'Rendez-vous',
           'link1',
           null,
@@ -2791,7 +2791,7 @@ describe('/agenda.ts', () => {
       vi.spyOn(followupItem3, 'buildAgendaItem').mockReturnValue(
         new Item(
           'fake-id',
-          'personnal',
+          'personal',
           'Rendez-vous',
           'link2',
           null,
@@ -2806,7 +2806,7 @@ describe('/agenda.ts', () => {
       vi.spyOn(followupSubItem3, 'buildAgendaItem').mockReturnValue(
         new Item(
           'fake-id',
-          'personnal',
+          'personal',
           'Rendez-vous',
           'link3',
           null,
@@ -2890,7 +2890,7 @@ describe('/agenda.ts', () => {
         agenda.now[1].equals(
           new Item(
             'fake-id',
-            'personnal',
+            'personal',
             'Rendez-vous',
             'link1',
             null,
@@ -2924,7 +2924,7 @@ describe('/agenda.ts', () => {
         agenda.next[1].equals(
           new Item(
             'fake-id',
-            'personnal',
+            'personal',
             'Rendez-vous',
             'link2',
             null,
@@ -2938,7 +2938,7 @@ describe('/agenda.ts', () => {
         agenda.next[2].equals(
           new Item(
             'fake-id',
-            'personnal',
+            'personal',
             'Rendez-vous',
             'link3',
             null,
@@ -3046,7 +3046,7 @@ describe('/agenda.ts', () => {
       vi.spyOn(followupItem2, 'buildAgendaItem').mockReturnValue(
         new Item(
           'fake-id',
-          'personnal',
+          'personal',
           'Rendez-vous',
           'link1',
           null,
@@ -3058,7 +3058,7 @@ describe('/agenda.ts', () => {
       vi.spyOn(followupItem3, 'buildAgendaItem').mockReturnValue(
         new Item(
           'fake-id',
-          'personnal',
+          'personal',
           'Rendez-vous',
           'link2',
           null,
@@ -3073,7 +3073,7 @@ describe('/agenda.ts', () => {
       vi.spyOn(followupSubItem3, 'buildAgendaItem').mockReturnValue(
         new Item(
           'fake-id',
-          'personnal',
+          'personal',
           'Rendez-vous',
           'link3',
           null,
@@ -3157,7 +3157,7 @@ describe('/agenda.ts', () => {
         agenda.now[1].equals(
           new Item(
             'fake-id',
-            'personnal',
+            'personal',
             'Rendez-vous',
             'link1',
             null,
@@ -3191,7 +3191,7 @@ describe('/agenda.ts', () => {
         agenda.next[1].equals(
           new Item(
             'fake-id',
-            'personnal',
+            'personal',
             'Rendez-vous',
             'link2',
             null,
@@ -3205,7 +3205,7 @@ describe('/agenda.ts', () => {
         agenda.next[2].equals(
           new Item(
             'fake-id',
-            'personnal',
+            'personal',
             'Rendez-vous',
             'link3',
             null,
