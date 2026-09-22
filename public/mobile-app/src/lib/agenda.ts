@@ -102,6 +102,7 @@ export class Item {
     private _id: string,
     private _kind: Kind,
     private _title: string,
+    private _emoji: string,
     private _link: string,
     _description: string | null,
     _date: Date | null = null,
@@ -160,6 +161,10 @@ export class Item {
 
   get title(): string {
     return this._title;
+  }
+
+  get emoji(): string {
+    return this._emoji;
   }
 
   get link(): string {
@@ -397,17 +402,14 @@ export class Agenda {
       // should not happen for school holiday
       return null;
     }
-    let title = holiday.title;
-    if (holiday.emoji) {
-      title += ` ${holiday.emoji}`;
-    }
     if (!this._connectedUser?.isSchoolHolidayConcernedByPreferences(holiday)) {
       return null;
     }
     return new Item(
       uniqueId(),
       'holiday',
-      title,
+      holiday.title,
+      holiday.emoji,
       '',
       this.getSchoolHolidayItemDescription(holiday),
       null,
@@ -434,11 +436,17 @@ export class Agenda {
       // exclude past public holiday
       return null;
     }
-    let title = holiday.title;
-    if (holiday.emoji) {
-      title += ` ${holiday.emoji}`;
-    }
-    return new Item(uniqueId(), 'holiday', title, '', null, holiday.date, null, null);
+    return new Item(
+      uniqueId(),
+      'holiday',
+      holiday.title,
+      holiday.emoji,
+      '',
+      null,
+      holiday.date,
+      null,
+      null
+    );
   }
 
   private processOTVs(school_holidays: APIAgendaItem[]) {
@@ -510,14 +518,11 @@ export class Agenda {
       // exclude past election
       return null;
     }
-    let title = election.title;
-    if (election.emoji) {
-      title += ` ${election.emoji}`;
-    }
     return new Item(
       uniqueId(),
       'election',
-      title,
+      election.title,
+      election.emoji,
       '',
       election.description,
       election.date,

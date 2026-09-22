@@ -11,6 +11,8 @@ describe('/AgendaItem.svelte', () => {
       'fake-id-election',
       'election',
       'Elections locales',
+      '',
+      '',
       'Inscrivez-vous sur les listes électorales',
       null,
       new Date('2025-12-05'),

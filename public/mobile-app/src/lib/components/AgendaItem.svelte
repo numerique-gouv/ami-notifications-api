@@ -55,6 +55,9 @@
               class="{item.link ? '': 'no-link'}"
             >
               {item.title}
+              {#if item.emoji}
+                <span aria-hidden="true">{item.emoji}</span>
+              {/if}
             </button>
           </h4>
           {#if item.subitems.length == 1}
