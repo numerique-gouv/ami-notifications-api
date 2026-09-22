@@ -11,10 +11,12 @@ const apiConsents = {
   consents: [
     {
       partner_id: 'dinum-ami',
+      partner_name: 'AMI',
       consent_datetime: '2026-01-23T15:50:00Z',
     },
     {
       partner_id: 'dinum-dn',
+      partner_name: 'Démarche Numérique',
       consent_datetime: '2026-01-22T14:55:00Z',
     },
   ],
@@ -37,10 +39,16 @@ describe('/api-consents', () => {
       expect(spy).toHaveBeenCalledExactlyOnceWith('/api/v1/users/consents');
       expect(result.consents.length).toEqual(2);
       expect(result.consents[0].partner_id).toEqual(apiConsents.consents[0].partner_id);
+      expect(result.consents[0].partner_name).toEqual(
+        apiConsents.consents[0].partner_name
+      );
       expect(result.consents[0].consent_datetime).toEqual(
         apiConsents.consents[0].consent_datetime
       );
       expect(result.consents[1].partner_id).toEqual(apiConsents.consents[1].partner_id);
+      expect(result.consents[1].partner_name).toEqual(
+        apiConsents.consents[1].partner_name
+      );
       expect(result.consents[1].consent_datetime).toEqual(
         apiConsents.consents[1].consent_datetime
       );
@@ -58,10 +66,16 @@ describe('/api-consents', () => {
       const result = JSON.parse(localStorage.getItem('consents') || '[]');
       expect(result.consents.length).toEqual(2);
       expect(result.consents[0].partner_id).toEqual(apiConsents.consents[0].partner_id);
+      expect(result.consents[0].partner_name).toEqual(
+        apiConsents.consents[0].partner_name
+      );
       expect(result.consents[0].consent_datetime).toEqual(
         apiConsents.consents[0].consent_datetime
       );
       expect(result.consents[1].partner_id).toEqual(apiConsents.consents[1].partner_id);
+      expect(result.consents[1].partner_name).toEqual(
+        apiConsents.consents[1].partner_name
+      );
       expect(result.consents[1].consent_datetime).toEqual(
         apiConsents.consents[1].consent_datetime
       );
@@ -82,10 +96,16 @@ describe('/api-consents', () => {
       expect(spy).toHaveBeenCalledExactlyOnceWith('/api/v1/users/consents');
       expect(result.consents.length).toEqual(2);
       expect(result.consents[0].partner_id).toEqual(apiConsents.consents[0].partner_id);
+      expect(result.consents[0].partner_name).toEqual(
+        apiConsents.consents[0].partner_name
+      );
       expect(result.consents[0].consent_datetime).toEqual(
         apiConsents.consents[0].consent_datetime
       );
       expect(result.consents[1].partner_id).toEqual(apiConsents.consents[1].partner_id);
+      expect(result.consents[1].partner_name).toEqual(
+        apiConsents.consents[1].partner_name
+      );
       expect(result.consents[1].consent_datetime).toEqual(
         apiConsents.consents[1].consent_datetime
       );
@@ -116,10 +136,16 @@ describe('/api-consents', () => {
       console.log(result);
       expect(result.consents.length).toEqual(2);
       expect(result.consents[0].partner_id).toEqual(apiConsents.consents[0].partner_id);
+      expect(result.consents[0].partner_name).toEqual(
+        apiConsents.consents[0].partner_name
+      );
       expect(result.consents[0].consent_datetime).toEqual(
         apiConsents.consents[0].consent_datetime
       );
       expect(result.consents[1].partner_id).toEqual(apiConsents.consents[1].partner_id);
+      expect(result.consents[1].partner_name).toEqual(
+        apiConsents.consents[1].partner_name
+      );
       expect(result.consents[1].consent_datetime).toEqual(
         apiConsents.consents[1].consent_datetime
       );

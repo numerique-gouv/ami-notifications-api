@@ -15,9 +15,16 @@ describe('/Followup.svelte', () => {
     beforeEach(async () => {
       const consentsItem = {
         partner_id: 'dinum-ami',
+        partner_name: 'AMI',
         consent_datetime: new Date('2026-02-21T15:50:00Z'),
       };
-      const consents = new Consents({ consents: [consentsItem] }, ['dinum-ami']);
+      const partnersItem = {
+        slug: 'dinum-ami',
+        name: 'AMI',
+        link: 'https://fake-link-1',
+      };
+      const partners = new Partners([partnersItem]);
+      const consents = new Consents({ consents: [consentsItem] }, partners.items);
       vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
       vi.spyOn(consents, 'hasAnyConsents').mockReturnValue(true);
       vi.spyOn(consents, 'hasAllConsents').mockReturnValue(true);
@@ -92,9 +99,16 @@ describe('/Followup.svelte', () => {
     beforeEach(async () => {
       const consentsItem = {
         partner_id: 'dinum-ami',
+        partner_name: 'AMI',
         consent_datetime: new Date('2026-02-21T15:50:00Z'),
       };
-      const consents = new Consents({ consents: [consentsItem] }, ['dinum-ami']);
+      const partnersItem = {
+        slug: 'dinum-ami',
+        name: 'AMI',
+        link: 'https://fake-link-1',
+      };
+      const partners = new Partners([partnersItem]);
+      const consents = new Consents({ consents: [consentsItem] }, partners.items);
       vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
       vi.spyOn(consents, 'hasAnyConsents').mockReturnValue(true);
     });
@@ -620,9 +634,16 @@ describe('/Followup.svelte', () => {
     beforeEach(async () => {
       const consentsItem = {
         partner_id: 'dinum-ami',
+        partner_name: 'AMI',
         consent_datetime: new Date('2026-02-21T15:50:00Z'),
       };
-      const consents = new Consents({ consents: [consentsItem] }, ['dinum-ami']);
+      const partnersItem = {
+        slug: 'dinum-ami',
+        name: 'AMI',
+        link: 'https://fake-link-1',
+      };
+      const partners = new Partners([partnersItem]);
+      const consents = new Consents({ consents: [consentsItem] }, partners.items);
       vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
       vi.spyOn(consents, 'hasAnyConsents').mockReturnValue(false);
     });
@@ -681,9 +702,16 @@ describe('/Followup.svelte', () => {
     beforeEach(async () => {
       const consentsItem = {
         partner_id: 'dinum-ami',
+        partner_name: 'AMI',
         consent_datetime: new Date('2026-02-21T15:50:00Z'),
       };
-      const consents = new Consents({ consents: [consentsItem] }, ['dinum-ami']);
+      const partnersItem = {
+        slug: 'dinum-ami',
+        name: 'AMI',
+        link: 'https://fake-link-1',
+      };
+      const partners = new Partners([partnersItem]);
+      const consents = new Consents({ consents: [consentsItem] }, partners.items);
       vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
       vi.spyOn(consents, 'hasAnyConsents').mockReturnValue(true);
     });

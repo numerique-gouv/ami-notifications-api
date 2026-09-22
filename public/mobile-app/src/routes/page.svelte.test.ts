@@ -13,6 +13,7 @@ import * as followupMethods from '$lib/followup';
 import { Followup, FollowupItem } from '$lib/followup';
 import * as notificationsMethods from '$lib/notifications';
 import { PUBLIC_APP_WS_URL } from '$lib/notifications';
+import { Partners } from '$lib/partners';
 import { toastStore } from '$lib/state/toast.svelte';
 import { userStore } from '$lib/state/User.svelte';
 import { mockUserInfo } from '$tests/utils';
@@ -50,9 +51,16 @@ describe('/+page.svelte', () => {
     vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(new Followup());
     const consentsItem = {
       partner_id: 'dinum-ami',
+      partner_name: 'AMI',
       consent_datetime: new Date('2026-02-21T15:50:00Z'),
     };
-    const consents = new Consents({ consents: [consentsItem] }, ['dinum-ami']);
+    const partnersItem = {
+      slug: 'dinum-ami',
+      name: 'AMI',
+      link: 'https://fake-link-1',
+    };
+    const partners = new Partners([partnersItem]);
+    const consents = new Consents({ consents: [consentsItem] }, partners.items);
     vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
 
     window.localStorage.setItem('notifications_enabled', 'false');
@@ -464,9 +472,16 @@ describe('/+page.svelte', () => {
     beforeEach(async () => {
       const consentsItem = {
         partner_id: 'dinum-ami',
+        partner_name: 'AMI',
         consent_datetime: new Date('2026-02-21T15:50:00Z'),
       };
-      const consents = new Consents({ consents: [consentsItem] }, ['dinum-ami']);
+      const partnersItem = {
+        slug: 'dinum-ami',
+        name: 'AMI',
+        link: 'https://fake-link-1',
+      };
+      const partners = new Partners([partnersItem]);
+      const consents = new Consents({ consents: [consentsItem] }, partners.items);
       vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
       vi.spyOn(consents, 'hasAnyConsents').mockResolvedValue(true);
     });
@@ -930,9 +945,16 @@ describe('/+page.svelte', () => {
     beforeEach(async () => {
       const consentsItem = {
         partner_id: 'dinum-ami',
+        partner_name: 'AMI',
         consent_datetime: new Date('2026-02-21T15:50:00Z'),
       };
-      const consents = new Consents({ consents: [consentsItem] }, ['dinum-ami']);
+      const partnersItem = {
+        slug: 'dinum-ami',
+        name: 'AMI',
+        link: 'https://fake-link-1',
+      };
+      const partners = new Partners([partnersItem]);
+      const consents = new Consents({ consents: [consentsItem] }, partners.items);
       vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
       vi.spyOn(consents, 'hasAnyConsents').mockResolvedValue(false);
     });

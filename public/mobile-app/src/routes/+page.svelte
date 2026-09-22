@@ -19,7 +19,7 @@
     countUnreadNotifications,
     notificationEventsSocket,
   } from '$lib/notifications';
-  import { buildPartners, type Partners, PartnersItem } from '$lib/partners';
+  import { buildPartners, type Partners } from '$lib/partners';
   import { userStore } from '$lib/state/User.svelte';
   import { formatDate } from '$lib/utils';
   import type { PageProps } from './$types';
@@ -69,10 +69,7 @@
       console.log($state.snapshot(followup));
       isFollowupEmpty = followup.isEmpty();
       const partners: Partners = await buildPartners();
-      const partnerIds: string[] = partners.items.map(
-        (item: PartnersItem) => item.slug
-      );
-      const consents: Consents = await buildConsents(partnerIds);
+      const consents: Consents = await buildConsents(partners);
       hasAnyConsents = consents.hasAnyConsents();
 
       agenda = await buildAgenda(followup);

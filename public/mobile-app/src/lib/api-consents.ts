@@ -2,6 +2,7 @@ import { apiFetch } from '$lib/auth';
 
 export type APIConsentsItem = {
   partner_id: string;
+  partner_name: string;
   consent_datetime: Date | null;
 };
 
