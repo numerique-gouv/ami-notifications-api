@@ -1,18 +1,6 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
   import { page } from '$app/state';
   import { AMIGoto } from '$lib/ami-navigation';
-
-  onMount(() => {
-    // https://svelte.dev/docs/kit/routing#error
-    // If an error occurs during load, SvelteKit will render a default error page.
-    // You can customise this error page on a per-route basis by adding an +error.svelte file.
-
-    console.error('Page status: ', page.status);
-    if (page.error) {
-      console.error('Error message: ', page.error.message);
-    }
-  });
 
   const goToHomepage = () => {
     AMIGoto('/');
@@ -20,19 +8,28 @@
 </script>
 
 <div class="technical-error">
-  <h1>Nous sommes désolés, une erreur s'est produite.</h1>
+  <div class="image-wrapper">
+    <img class="error-icon" src="/remixicons/technical-error.svg" alt="">
+  </div>
+  <h1>Petit problème de notre côté...</h1>
   <div class="descriptive-text">
-    <p>Veuillez réessayer plus tard.</p>
-    <p>(Veuillez éventuellement vérifier la connexion)</p>
+    <p class="am-text-mention-grey">
+      Erreur {page.status}
+      {#if page.error}
+        - {page.error.message}
+      {/if}
+    </p>
+    <p>Nous tentons de le résoudre rapidement.</p>
+    <p>Vous pouvez éventuellement vérifier l’état de votre connexion et réessayer.</p>
   </div>
   <div class="action-buttons">
     <button
-      class="fr-btn"
+      class="fr-btn fr-icon-home-4-line fr-btn--icon-left"
       type="button"
       onclick="{goToHomepage}"
       data-testid="back-button"
     >
-      Revenir à l'accueil
+      Retour
     </button>
   </div>
 </div>
@@ -45,7 +42,9 @@
     .image-wrapper {
       display: flex;
       justify-content: center;
-      margin-bottom: 1.5rem;
+      margin: 0 auto 1.5rem auto;
+      max-width: 80%;
+      height: 6rem;
     }
     h1 {
       margin-bottom: 0.5rem;
@@ -60,10 +59,6 @@
       line-height: 24px;
       font-weight: 400;
       text-align: center;
-
-      p:first-child {
-        margin-bottom: 0.5rem;
-      }
     }
     .action-buttons {
       display: flex;
