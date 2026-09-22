@@ -214,9 +214,10 @@ def test_get_consents(app, user: User, partner_psl: Partner) -> None:
     response = app.get("/api/v1/users/consents", status=200)
     consents = response.json
     assert len(consents) == 1
-    assert set(response.json[0].keys()) == {"consent_datetime", "id", "partner_id"}
+    assert set(response.json[0].keys()) == {"consent_datetime", "id", "partner_id", "partner_name"}
     assert response.json[0]["id"] == str(consent.id)
     assert response.json[0]["partner_id"] == consent.partner.slug
+    assert response.json[0]["partner_name"] == consent.partner.name
     assert response.json[0]["consent_datetime"] == "2020-12-25T17:05:55Z"
 
 
