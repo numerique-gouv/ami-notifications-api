@@ -283,7 +283,7 @@ export class FollowupSubItem {
     }
     return new AgendaItem(
       uniqueId(),
-      'personnal',
+      'personal',
       this.title,
       this.getItemDetailPageUrl(item),
       null,
@@ -418,7 +418,7 @@ export class FollowupItem extends FollowupSubItem {
     }
     return new AgendaItem(
       uniqueId(),
-      'personnal',
+      'personal',
       this.title,
       this.getItemDetailPageUrl(),
       null,

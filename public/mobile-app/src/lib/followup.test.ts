@@ -583,7 +583,7 @@ describe('/followup.ts', () => {
           result?.equals(
             new AgendaItem(
               'fake-id',
-              'personnal',
+              'personal',
               'title 2',
               '/#/followup/item/partner/type/id/subitem/partner2/type2/id2',
               null,
@@ -1577,7 +1577,7 @@ describe('/followup.ts', () => {
           result?.equals(
             new AgendaItem(
               'fake-id',
-              'personnal',
+              'personal',
               'title',
               '/#/followup/item/partner/type/id',
               null,
