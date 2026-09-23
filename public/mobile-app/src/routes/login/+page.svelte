@@ -4,7 +4,7 @@
   import { page } from '$app/state';
   import { AMIGoto } from '$lib/ami-navigation';
   import BottomModal from '$lib/components/modal/BottomModal.svelte';
-  import { getContactEmail, getContactUrl } from '$lib/contact';
+  import { getContactMailToUri, getContactUrl } from '$lib/contact';
   import { toastStore } from '$lib/state/toast.svelte';
   import { userStore } from '$lib/state/User.svelte';
 
@@ -163,7 +163,7 @@
                 <button
                   type="button"
                   class="fr-sidemenu__link fr-text--regular fr-icon-mail-fill"
-                  onclick={() => window.location.href = "mailto:" + getContactEmail()}
+                  onclick={() => window.location.href = "mailto:" + getContactMailToUri()}
                   data-testid="connection-help-link-email"
                 >
                   Envoyer un mail

@@ -1,8 +1,22 @@
-import { PUBLIC_CONTACT_EMAIL, PUBLIC_CONTACT_URL } from '$env/static/public';
+import {
+  PUBLIC_CONTACT_EMAIL,
+  PUBLIC_CONTACT_EMAIL_BODY,
+  PUBLIC_CONTACT_URL,
+} from '$env/static/public';
 import { getPlatform, getVersion } from '$lib/nativeInfos';
 
-export const getContactEmail = (): string => {
-  return PUBLIC_CONTACT_EMAIL;
+export const getContactMailToUri = (userFcHash?: string): string => {
+  const contactEmail = PUBLIC_CONTACT_EMAIL;
+  const contactBody = (PUBLIC_CONTACT_EMAIL_BODY || '')
+    .replace('{fc_hash}', userFcHash || '<absent>')
+    .replace('{platform}', getPlatform())
+    .replace('{version}', getVersion());
+
+  let mailtoUri = `mailto:${contactEmail}`;
+  if (contactBody) {
+    mailtoUri += `?body=${encodeURIComponent(contactBody)}`;
+  }
+  return mailtoUri;
 };
 
 export const getContactUrl = (userFcHash?: string): string => {

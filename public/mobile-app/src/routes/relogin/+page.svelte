@@ -5,11 +5,12 @@
   import { AMIGoto } from '$lib/ami-navigation';
   import Banner from '$lib/components/Banner.svelte';
   import BottomModal from '$lib/components/modal/BottomModal.svelte';
-  import { getContactEmail, getContactUrl } from '$lib/contact';
+  import { getContactMailToUri, getContactUrl } from '$lib/contact';
   import type { UserIdentity } from '$lib/state/User.svelte';
   import { userStore } from '$lib/state/User.svelte';
 
   let identity: UserIdentity = $state() as UserIdentity;
+  let userFcHash = localStorage.getItem('user_fc_hash') || '<error>';
 
   // FC - Step 3
   const franceConnectLogin = async () => {
@@ -108,7 +109,7 @@
                   <button
                     type="button"
                     class="fr-sidemenu__link fr-text--regular fr-icon-edit-fill"
-                    onclick={()=> AMIGoto(getContactUrl())}
+                    onclick={()=> AMIGoto(getContactUrl(userFcHash))}
                     data-testid="connection-help-link-url"
                   >
                     Faire une demande en ligne
@@ -118,7 +119,7 @@
                   <button
                     type="button"
                     class="fr-sidemenu__link fr-text--regular fr-icon-mail-fill"
-                    onclick={() => window.location.href = "mailto:" + getContactEmail()}
+                    onclick={() => window.location.href = getContactMailToUri(userFcHash)}
                     data-testid="connection-help-link-email"
                   >
                     Envoyer un mail

@@ -1,7 +1,7 @@
 import { describe, expect, test, vi } from 'vitest';
 import * as envModule from '$env/static/public';
 import '@testing-library/jest-dom/vitest';
-import { getContactEmail, getContactUrl } from '$lib/contact';
+import { getContactMailToUri, getContactUrl } from '$lib/contact';
 import * as nativeInfosMethods from '$lib/nativeInfos';
 
 vi.mock('$env/static/public', async (importOriginal) => {
@@ -12,19 +12,6 @@ vi.mock('$env/static/public', async (importOriginal) => {
 });
 
 describe('/contact.ts', () => {
-  describe('getContactEmail', () => {
-    test('simple', async () => {
-      // Given
-      vi.mocked(envModule).PUBLIC_CONTACT_EMAIL = 'test@example.org';
-
-      // When
-      const email = getContactEmail();
-
-      // Then
-      expect(email).toEqual('test@example.org');
-    });
-  });
-
   describe('getContactUrl', () => {
     test('with no user', async () => {
       // Given
@@ -62,6 +49,39 @@ describe('/contact.ts', () => {
 
       // Then
       expect(url).toEqual('https://test@example.org/?h=fchash&p=android&v=0.5');
+    });
+  });
+
+  describe('getContactMailToUri', () => {
+    test('with body', async () => {
+      // Given
+      vi.mocked(envModule).PUBLIC_CONTACT_EMAIL = 'test@example.org';
+      vi.mocked(envModule).PUBLIC_CONTACT_EMAIL_BODY = '-- \nLigne1\n{fc_hash}';
+
+      // When
+      const mailtoUri = getContactMailToUri();
+      const mailtoUriWithHash = getContactMailToUri('fchash');
+
+      // Then
+      expect(mailtoUri).toEqual(
+        'mailto:test@example.org?body=--%20%0ALigne1%0A%3Cabsent%3E'
+      );
+      expect(mailtoUriWithHash).toEqual(
+        'mailto:test@example.org?body=--%20%0ALigne1%0Afchash'
+      );
+    });
+    test('without body', async () => {
+      // Given
+      vi.mocked(envModule).PUBLIC_CONTACT_EMAIL = 'test@example.org';
+      vi.mocked(envModule).PUBLIC_CONTACT_EMAIL_BODY = '';
+
+      // When
+      const mailtoUri = getContactMailToUri();
+      const mailtoUriWithHash = getContactMailToUri('fchash');
+
+      // Then
+      expect(mailtoUri).toEqual('mailto:test@example.org');
+      expect(mailtoUriWithHash).toEqual('mailto:test@example.org');
     });
   });
 });
