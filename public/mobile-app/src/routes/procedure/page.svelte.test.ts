@@ -66,6 +66,11 @@ describe('/+page.svelte', () => {
 
   test('should display date from url param', async () => {
     // Given
+    const expectedProcedureUrl = 'fake-public-otv-url?caller=fake.jwt.token';
+    vi.spyOn(procedureMethods, 'retrieveProcedureUrl').mockResolvedValue(
+      expectedProcedureUrl
+    );
+
     window.location.hash = '#/procedure?date=2025-12-05';
 
     // When
