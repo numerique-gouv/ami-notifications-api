@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { page } from '$app/state';
   import { AMIGoto } from '$lib/ami-navigation';
 
   const goToHomepage = () => {
@@ -6,16 +7,20 @@
   };
 </script>
 
-<div class="network-error">
+<div class="technical-error">
   <div class="image-wrapper">
-    <img class="error-icon" src="/remixicons/connection-lost.svg" alt="">
+    <img class="error-icon" src="/remixicons/technical-error.svg" alt="">
   </div>
-  <h1>Problème de connexion Internet</h1>
+  <h1>Petit problème de notre côté...</h1>
   <div class="descriptive-text">
-    <p>
-      Vérifiez votre réseau (données mobiles ou Wi-Fi) et relancez l’application pour
-      vous connecter.
+    <p class="am-text-mention-grey">
+      Erreur {page.status}
+      {#if page.error}
+        - {page.error.message}
+      {/if}
     </p>
+    <p>Nous tentons de le résoudre rapidement.</p>
+    <p>Vous pouvez éventuellement vérifier l’état de votre connexion et réessayer.</p>
   </div>
   <div class="action-buttons">
     <button
@@ -30,7 +35,7 @@
 </div>
 
 <style>
-  .network-error {
+  .technical-error {
     padding: 1.5rem 1rem;
     margin-top: 9rem;
 

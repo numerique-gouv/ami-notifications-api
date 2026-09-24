@@ -8,6 +8,7 @@
   import { getContactMailToUri, getContactUrl } from '$lib/contact';
   import type { UserIdentity } from '$lib/state/User.svelte';
   import { userStore } from '$lib/state/User.svelte';
+  import * as telemetry from '$lib/telemetry';
 
   let identity: UserIdentity = $state() as UserIdentity;
   let userFcHash = localStorage.getItem('user_fc_hash') || '<error>';
@@ -20,6 +21,7 @@
         mode: 'no-cors',
         cache: 'no-store',
       });
+      telemetry.info('User started FC relogin');
       AMIGoto('/relogin-france-connect');
     } catch {
       AMIGoto('/#/network-error');

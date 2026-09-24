@@ -7,10 +7,10 @@
   import { AMIGoto } from '$lib/ami-navigation';
   import { apiFetch } from '$lib/auth';
   import { initializeData, initializeLocalStorage } from '$lib/initializeDataFromAPI';
-  import { trackPasskey } from '$lib/matomo';
   import { toastStore } from '$lib/state/toast.svelte';
   import type { UserIdentity } from '$lib/state/User.svelte';
   import { userStore } from '$lib/state/User.svelte';
+  import * as telemetry from '$lib/telemetry';
 
   let wrapperEl: HTMLDivElement;
 
@@ -39,7 +39,11 @@
         AMIGoto('/#/login');
         return;
       }
+      telemetry.info('User logged in');
       hasWorkingPassKey = userStore.getHasWorkingPasskey();
+      if (hasWorkingPassKey) {
+        telemetry.info('User has working passkey');
+      }
       hasSuggestPasskeyCreationToday = userStore.getHasSuggestPasskeyCreationToday();
       console.log(hasSuggestPasskeyCreationToday);
       if (!silent_fc_enabled || hasWorkingPassKey || hasSuggestPasskeyCreationToday) {
@@ -78,7 +82,7 @@
 
   const bypassPasskey = async () => {
     userStore.setLastPasskeyCreationSuggestion();
-    trackPasskey('generatePasskey', 'skip');
+    telemetry.info('User skipped passkey generation');
     redirectLoggedInUser(false);
   };
 
@@ -89,6 +93,7 @@
     let identity: UserIdentity = userStore.connected.identity;
     let display_name = `${identity.given_name} ${identity.preferred_username || identity.family_name}`;
     let optionsResp: Response;
+    telemetry.info('Generating passkey');
     try {
       optionsResp = await apiFetch('/api/v1/fi/passkey/generate-registration-options', {
         method: 'POST',
@@ -96,13 +101,22 @@
         headers: { 'Content-Type': 'application/json' },
       });
       if (!optionsResp.ok) {
+        telemetry.error('Error generating passkey', {
+          error: '!options resp.ok',
+        });
         return passkeyError();
       }
     } catch (error) {
       console.log('ERROR', `${error}`);
       if (error instanceof TypeError) {
+        telemetry.error('Error generating passkey', {
+          error: 'network error',
+        });
         return networkError();
       } else {
+        telemetry.error('Error generating passkey', {
+          error: `${error}`,
+        });
         return passkeyError();
       }
     }
@@ -116,7 +130,7 @@
       attResp = await startRegistration({ optionsJSON: opts });
       console.log('Registration Response', JSON.stringify(attResp, null, 2));
     } catch (error) {
-      trackPasskey('generatePasskey', 'error');
+      telemetry.error('Error generating passkey', { error: `${error}` });
       console.log('ERROR', `${error}`);
       return passkeyError();
     }
@@ -131,13 +145,22 @@
         body: JSON.stringify(attResp),
       });
       if (!verificationResp.ok) {
+        telemetry.error('Error generating passkey', {
+          error: '!verification resp.ok',
+        });
         return passkeyError();
       }
     } catch (error) {
       console.log('ERROR', `${error}`);
       if (error instanceof TypeError) {
+        telemetry.error('Error generating passkey', {
+          error: 'network error',
+        });
         return networkError();
       } else {
+        telemetry.error('Error generating passkey', {
+          error: `${error}`,
+        });
         return passkeyError();
       }
     }
@@ -146,12 +169,14 @@
     console.log('Server Response', JSON.stringify(verificationJSON, null, 2));
 
     if (verificationJSON?.verified) {
-      trackPasskey('generatePasskey', 'success');
       console.log('Authenticator registered!');
       userStore.setHasWorkingPasskey();
+      telemetry.info('User added a passkey');
       redirectLoggedInUser(true);
     } else {
-      trackPasskey('generatePasskey', 'error');
+      telemetry.error('Error generating passkey', {
+        error: '!verified',
+      });
       console.log(
         `Oh no, something went wrong! Response: ${JSON.stringify(verificationJSON)}`
       );

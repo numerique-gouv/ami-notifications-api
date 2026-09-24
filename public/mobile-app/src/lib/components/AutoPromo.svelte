@@ -50,7 +50,7 @@
 
 {#if items.length > 1}
   <div
-    class="auto-promo-container splide"
+    class="auto-mea-container splide"
     role="group"
     aria-label="Carrousel de promotion"
     bind:this={carousel}
@@ -68,25 +68,29 @@
   </div>
 {:else if items.length == 1}
   {@const firstItem = items[0]}
-  <div class="auto-promo-container">
+  <div class="auto-mea-container">
     <AutoPromoItem item={firstItem} className="am-blue--arrow" />
   </div>
 {/if}
 
 <style lang="scss">
-  .auto-promo-container {
+  .auto-mea-container {
     /* svelte-ignore css_unused_selector */
     :global {
       .splide__pagination {
         bottom: -1.5rem;
-        .is-active {
-          background-color: var(--text-active-blue-france);
-        }
         .splide__pagination__page {
+          background-color: var(--grey-625-425);
           opacity: 1;
           transform: scale(1);
           width: .375rem;
           height: .375rem;
+          transition: .2s width linear;
+          &.is-active {
+            background-color: var(--text-active-blue-france);
+            width: .75rem;
+            border-radius: 1.25rem;
+          }
         }
       }
       .splide__arrows {

@@ -10,7 +10,18 @@ import Page from './+page.svelte';
 
 describe('/+page.svelte', () => {
   beforeEach(async () => {
-    const consents = new Consents();
+    const consentsItem = {
+      partner_id: 'dinum-ami',
+      partner_name: 'AMI',
+      consent_datetime: new Date('2026-02-21T15:50:00Z'),
+    };
+    const partnersItem = {
+      slug: 'dinum-ami',
+      name: 'AMI',
+      link: 'https://fake-link-1',
+    };
+    const partners = new Partners([partnersItem]);
+    const consents = new Consents({ consents: [consentsItem] }, partners.items);
     vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
     vi.spyOn(consents, 'hasAnyConsents').mockResolvedValue(true);
   });
@@ -27,6 +38,7 @@ describe('/+page.svelte', () => {
           followup,
           isFollowupEmpty: true,
           hasAnyConsents: true,
+          hasAllConsents: false,
           partners: new Partners(),
         },
         params: {},
@@ -95,6 +107,7 @@ describe('/+page.svelte', () => {
           followup,
           isFollowupEmpty: false,
           hasAnyConsents: true,
+          hasAllConsents: false,
           partners: new Partners(),
         },
         params: {},

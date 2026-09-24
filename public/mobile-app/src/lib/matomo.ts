@@ -59,9 +59,9 @@ export function trackZoneCount(count: number) {
   window._paq.push(['trackEvent', 'Holidays zones', 'number_of_zones', '', count]);
 }
 
-export function trackPasskey(
+export function trackTelemetryEvent(
   eventAction: string,
-  eventName: string,
+  eventName?: string,
   eventValue?: string
 ) {
   if (typeof window === 'undefined') {
@@ -69,5 +69,11 @@ export function trackPasskey(
   }
 
   window._paq = window._paq || [];
-  window._paq.push(['trackEvent', 'Passkey', eventAction, eventName, eventValue || '']);
+  window._paq.push([
+    'trackEvent',
+    'Telemetry',
+    eventAction,
+    eventName || '',
+    eventValue || '',
+  ]);
 }

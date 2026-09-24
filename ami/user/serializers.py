@@ -55,6 +55,7 @@ class ConsentPostResponseSerializer(serializers.Serializer):
 class ConsentSerializer(serializers.Serializer):
     id = serializers.UUIDField()
     partner_id = serializers.CharField(source="partner.slug")
+    partner_name = serializers.CharField(source="partner.name")
     consent_datetime = serializers.DateTimeField()
 
 
@@ -80,3 +81,7 @@ class RegistrationPutActionSerializer(serializers.Serializer):
 
 class RegistrationRemoveFromDeviceIdSerializer(serializers.Serializer):
     device_id = serializers.CharField()
+
+
+class ConsentsUpdateSerializer(serializers.Serializer):
+    consent = serializers.BooleanField()

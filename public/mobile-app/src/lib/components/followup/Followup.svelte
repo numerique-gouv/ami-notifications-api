@@ -5,7 +5,7 @@
   import FollowupNoConsent from '$lib/components/followup/FollowupNoConsent.svelte';
   import FollowupItemModal from '$lib/components/modal/FollowupItemModal.svelte';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
-  import { buildConsents, Consents } from '$lib/consents';
+  import { buildConsents } from '$lib/consents';
   import type { Followup, FollowupItem as FollowupItemType } from '$lib/followup';
   import { buildFollowup } from '$lib/followup';
   import { buildPartners, type Partners } from '$lib/partners';
@@ -15,6 +15,7 @@
     followupProp: Followup;
     isFollowupEmptyProp: boolean;
     hasAnyConsentsProp: boolean;
+    hasAllConsentsProp: boolean;
     partnersProp: Partners;
   }
   let {
@@ -22,6 +23,7 @@
     followupProp,
     isFollowupEmptyProp,
     hasAnyConsentsProp,
+    hasAllConsentsProp,
     partnersProp,
   }: Props = $props();
 
@@ -31,16 +33,18 @@
   let selectedFollowupItem: FollowupItemType | null = $state(null);
   let menuOpened: boolean = $state(false);
   let hasAnyConsents: boolean = $state(hasAnyConsentsProp);
+  let hasAllConsents: boolean = $state(hasAllConsentsProp);
   let isExpanded: boolean = $state(isFollowupEmptyProp);
   let partners: Partners | null = $state(partnersProp);
 
   onMount(async () => {
     followup = await buildFollowup();
     console.log($state.snapshot(followup));
-    const consents = await buildConsents();
-    hasAnyConsents = consents.hasAnyConsents();
-    isExpanded = expandAccordion();
     partners = await buildPartners();
+    const consents = await buildConsents(partners);
+    hasAnyConsents = consents.hasAnyConsents();
+    hasAllConsents = consents.hasAllConsents();
+    isExpanded = expandAccordion();
   });
 
   const expandAccordion = (): boolean => {
@@ -145,7 +149,7 @@
                     <li class="account fr-pb-4v">
                       <button
                         type="button"
-                        class="fr-btn fr-btn--secondary am-btn-target am-btn-w100"
+                        class="fr-btn fr-btn--secondary am-btn-w100"
                         onclick={()=> AMIGoto(item.link)}
                       >
                         {item.name}
@@ -154,17 +158,19 @@
                   {/each}
                 {/if}
               </ul>
-              <p>Vérifiez que vous suivez bien toutes vos démarches</p>
-              <div class="consent-action-button">
-                <button
-                  class="fr-btn fr-btn--lg"
-                  type="button"
-                  onclick={goToConsents}
-                  data-testid="consent-button"
-                >
-                  Je veux suivre mes démarches
-                </button>
-              </div>
+              {#if !hasAllConsents}
+                <p>Vérifiez que vous suivez bien toutes vos démarches</p>
+                <div class="consent-action-button">
+                  <button
+                    class="fr-btn fr-btn--lg"
+                    type="button"
+                    onclick={goToConsents}
+                    data-testid="consent-button"
+                  >
+                    Je veux suivre mes démarches
+                  </button>
+                </div>
+              {/if}
             </div>
           </div>
         </section>

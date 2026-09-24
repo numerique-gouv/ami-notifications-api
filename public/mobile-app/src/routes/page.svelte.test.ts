@@ -13,6 +13,7 @@ import * as followupMethods from '$lib/followup';
 import { Followup, FollowupItem } from '$lib/followup';
 import * as notificationsMethods from '$lib/notifications';
 import { PUBLIC_APP_WS_URL } from '$lib/notifications';
+import { Partners } from '$lib/partners';
 import { toastStore } from '$lib/state/toast.svelte';
 import { userStore } from '$lib/state/User.svelte';
 import { mockUserInfo } from '$tests/utils';
@@ -48,7 +49,19 @@ describe('/+page.svelte', () => {
       new AutoPromo(new Agenda())
     );
     vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(new Followup());
-    vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(new Consents());
+    const consentsItem = {
+      partner_id: 'dinum-ami',
+      partner_name: 'AMI',
+      consent_datetime: new Date('2026-02-21T15:50:00Z'),
+    };
+    const partnersItem = {
+      slug: 'dinum-ami',
+      name: 'AMI',
+      link: 'https://fake-link-1',
+    };
+    const partners = new Partners([partnersItem]);
+    const consents = new Consents({ consents: [consentsItem] }, partners.items);
+    vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
 
     window.localStorage.setItem('notifications_enabled', 'false');
     window.localStorage.setItem('user_data', 'fake-user-data');
@@ -190,7 +203,7 @@ describe('/+page.svelte', () => {
 
       // Then
       await waitFor(() => {
-        const block = container.querySelector('.auto-promo-container');
+        const block = container.querySelector('.auto-mea-container');
         expect(block).toEqual(null);
       });
     });
@@ -229,7 +242,7 @@ describe('/+page.svelte', () => {
 
       // Then
       await waitFor(() => {
-        const block = container.querySelector('.auto-promo-container');
+        const block = container.querySelector('.auto-mea-container');
         expect(block).toHaveTextContent('Blabla title Address Description Address');
       });
     });
@@ -457,7 +470,18 @@ describe('/+page.svelte', () => {
 
   describe('Followup block - when user has consented', () => {
     beforeEach(async () => {
-      const consents: Consents = new Consents();
+      const consentsItem = {
+        partner_id: 'dinum-ami',
+        partner_name: 'AMI',
+        consent_datetime: new Date('2026-02-21T15:50:00Z'),
+      };
+      const partnersItem = {
+        slug: 'dinum-ami',
+        name: 'AMI',
+        link: 'https://fake-link-1',
+      };
+      const partners = new Partners([partnersItem]);
+      const consents = new Consents({ consents: [consentsItem] }, partners.items);
       vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
       vi.spyOn(consents, 'hasAnyConsents').mockResolvedValue(true);
     });
@@ -919,7 +943,18 @@ describe('/+page.svelte', () => {
 
   describe('Followup block - when user has not consented', () => {
     beforeEach(async () => {
-      const consents: Consents = new Consents();
+      const consentsItem = {
+        partner_id: 'dinum-ami',
+        partner_name: 'AMI',
+        consent_datetime: new Date('2026-02-21T15:50:00Z'),
+      };
+      const partnersItem = {
+        slug: 'dinum-ami',
+        name: 'AMI',
+        link: 'https://fake-link-1',
+      };
+      const partners = new Partners([partnersItem]);
+      const consents = new Consents({ consents: [consentsItem] }, partners.items);
       vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
       vi.spyOn(consents, 'hasAnyConsents').mockResolvedValue(false);
     });
