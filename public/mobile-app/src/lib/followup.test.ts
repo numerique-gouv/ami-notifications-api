@@ -1247,7 +1247,7 @@ describe('/followup.ts', () => {
       });
     });
     describe('futureSubItemWithMilestone', () => {
-      test('should return sub items with a future milestone end date', async () => {
+      test('should return sub items with a future or null milestone end date', async () => {
         // Given
         const subitem1 = new SubItem(
           'partner',
@@ -1352,8 +1352,9 @@ describe('/followup.ts', () => {
         const subitems2 = item2.futureSubItemWithMilestone;
 
         // Then
-        expect(subitems1.length).toEqual(1);
-        expect(subitems1[0].equals(subitem3)).toBe(true);
+        expect(subitems1.length).toEqual(2);
+        expect(subitems1[0].equals(subitem1)).toBe(true);
+        expect(subitems1[1].equals(subitem3)).toBe(true);
         expect(subitems2.length).toEqual(0);
       });
     });
