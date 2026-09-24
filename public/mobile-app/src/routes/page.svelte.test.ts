@@ -190,7 +190,7 @@ describe('/+page.svelte', () => {
 
       // Then
       await waitFor(() => {
-        const block = container.querySelector('.auto-promo-container');
+        const block = container.querySelector('.auto-mea-container');
         expect(block).toEqual(null);
       });
     });
@@ -229,7 +229,7 @@ describe('/+page.svelte', () => {
 
       // Then
       await waitFor(() => {
-        const block = container.querySelector('.auto-promo-container');
+        const block = container.querySelector('.auto-mea-container');
         expect(block).toHaveTextContent('Blabla title Address Description Address');
       });
     });
