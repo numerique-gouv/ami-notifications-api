@@ -29,6 +29,7 @@ describe('/+page.svelte', () => {
           label: '23 Rue des Aubépines 45100 Orléans',
           name: '23 Rue des Aubépines',
           postcode: '45100',
+          citycode: '45234',
         },
         {
           city: 'Orly',
@@ -37,6 +38,7 @@ describe('/+page.svelte', () => {
           label: '23 Rue des Aubépines 94310 Orly',
           name: '23 Rue des Aubépines',
           postcode: '94310',
+          citycode: '94054',
         },
         {
           city: 'Orléat',
@@ -45,6 +47,7 @@ describe('/+page.svelte', () => {
           label: 'Allée des Aubépines 63190 Orléat',
           name: 'Allée des Aubépines',
           postcode: '63190',
+          citycode: '63265',
         },
       ];
       const response = {
@@ -226,7 +229,8 @@ describe('/+page.svelte', () => {
           '94054_0070_00023',
           '23 Rue des Aubépines 94310 Orly',
           '23 Rue des Aubépines',
-          '94310'
+          '94310',
+          '94054'
         )
       );
       const expectedAddress: Address = new Address(
@@ -235,7 +239,8 @@ describe('/+page.svelte', () => {
         '94054_0070_00023',
         '23 Rue des Aubépines 94310 Orly',
         '23 Rue des Aubépines',
-        '94310'
+        '94310',
+        '94054'
       );
       expect(userStore.connected?.identity?.address).toEqual(expectedAddress);
       expect(userStore.connected?.identity?.dataDetails.address.origin).toEqual('user');

@@ -264,7 +264,16 @@ export class User {
       const label = first_result.label;
       const name = first_result.name;
       const postcode = first_result.postcode;
-      const address = new Address(city, context, idBAN, label, name, postcode);
+      const citycode = first_result.citycode;
+      const address = new Address(
+        city,
+        context,
+        idBAN,
+        label,
+        name,
+        postcode,
+        citycode
+      );
       this.setAddress(address, 'api-particulier');
     } catch (error) {
       console.error(error);

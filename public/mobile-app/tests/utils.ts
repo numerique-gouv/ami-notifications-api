@@ -54,7 +54,8 @@ export const mockAddress: Address = new Address(
   '75107_8909',
   'Avenue de Ségur 75007 Paris',
   'Avenue de Ségur',
-  '75007'
+  '75007',
+  '75107'
 );
 
 export const mockUserIdentity = {

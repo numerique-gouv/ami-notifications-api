@@ -10,6 +10,7 @@ export type PropertiesFromBAN = {
   label: string;
   name: string;
   postcode: string;
+  citycode: string;
 };
 
 export type FeatureFromBAN = {
@@ -32,7 +33,8 @@ export class AddressFromBAN {
     private _id: string = '',
     private _label: string = '',
     private _name: string = '',
-    private _postcode: string = ''
+    private _postcode: string = '',
+    private _citycode: string = ''
   ) {}
 
   get city(): string {
@@ -57,6 +59,10 @@ export class AddressFromBAN {
 
   get postcode(): string {
     return this._postcode;
+  }
+
+  get citycode(): string {
+    return this._citycode;
   }
 }
 
@@ -112,7 +118,16 @@ const formatResults = (data: ResponseFromBAN) => {
       const label = feature.properties.label;
       const name = feature.properties.name;
       const postcode = feature.properties.postcode;
-      const address = new AddressFromBAN(city, context, id, label, name, postcode);
+      const citycode = feature.properties.citycode;
+      const address = new AddressFromBAN(
+        city,
+        context,
+        id,
+        label,
+        name,
+        postcode,
+        citycode
+      );
       results.push(address);
     });
   }
