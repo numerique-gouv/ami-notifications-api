@@ -34,7 +34,6 @@ permissions:
   pull-requests: write
   actions: read
   
-
 jobs:
   e2e:
     name: run e2e (manual)

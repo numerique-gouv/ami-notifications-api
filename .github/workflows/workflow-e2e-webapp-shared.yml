@@ -60,32 +60,91 @@ jobs:
       checks: write
     steps:
       - name: Charger le rapport de test pour le mettre dans la PR
+        continue-on-error: true
         uses: actions/download-artifact@v4
         with:
           name: ${{ needs.e2e-launch.outputs.allure_report }}
           path: allure-report
 
-
-      # On se déclenche sur un status et pas sur un event de PR, 
-      # ca plante allure-action qui commente une PR.
-      # on recrée les données minimal d'un event de PR pour que allure-action fonctionne
-      - name: Fabriquer un événement pull_request pour allure-action
-        id: fake-event
-        run: |
-          path="${RUNNER_TEMP}/fake-pull-request-event.json"
-          cat > "$path" <<EOF
-          {"pull_request": {"number": ${{ inputs.pr_number }}, "head": {"sha": "${{ inputs.source_sha }}"}}}
-          EOF
-          echo "path=$path" >> "$GITHUB_OUTPUT"
-
-      - name: Commenter la PR d'origine
-        uses: allure-framework/allure-action@v0
+      # "on status" se déclenche depuis le HEAD de main et pas depuis le commit qui les déclenche
+      # Il faut donc l'associer aux check de la branche "à la main"
+      - name: Publier un check-run explicite sur le commit de la PR
+        if: always()
         env:
-          GITHUB_EVENT_NAME: pull_request
-          GITHUB_EVENT_PATH: ${{ steps.fake-event.outputs.path }}
-        with:
-          report-directory: allure-report
-          github-token: ${{ github.token }}
-          debug: true
-          remote-href: 'https://github.com/numerique-gouv/ami-notifications-api/actions/runs/${{ github.run_id }}#artifacts'
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ inputs.source_sha }}
+          RESULT: ${{ needs.e2e-launch.result }}
+          RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          conclusion="failure"
+          case "$RESULT" in
+            success) conclusion="success" ;;
+            skipped) conclusion="neutral" ;;
+            cancelled) conclusion="cancelled" ;;
+          esac
+
+          if [ -f allure-report/summary.json ]; then
+            status=$(jq -r '.status' allure-report/summary.json)
+            total=$(jq -r '.stats.total // 0' allure-report/summary.json)
+            passed=$(jq -r '.stats.passed // 0' allure-report/summary.json)
+            broken=$(jq -r '.stats.broken // 0' allure-report/summary.json)
+            summary="Rapport Allure : **$status** — $passed passed / $broken broken / $total total."
+          else
+            summary="Pas de rapport Allure disponible (résultat du job e2e-launch : \`$RESULT\`)."
+          fi
+
+          gh api "repos/$REPO/check-runs" \
+            -f name="e2e (ami-system-tests)" \
+            -f head_sha="$SHA" \
+            -f status="completed" \
+            -f conclusion="$conclusion" \
+            -f details_url="$RUN_URL" \
+            -f "output[title]=e2e (ami-system-tests)" \
+            -f "output[summary]=$summary"
+
+      # "on status" se déclenche depuis le HEAD de main et pas depuis le commit qui les déclenche
+      # allure-framework/allure-action@v0 s'en rend compte même en forgeant un input pointant la bonne PR
+      # On commente la PR nous-même
+      - name: Commenter la PR d'origine
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR: ${{ inputs.pr_number }}
+          RESULT: ${{ needs.e2e-launch.result }}
+          RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          marker="<!-- e2e-report:pr-$PR -->"
+
+          if [ -f allure-report/summary.json ]; then
+            status=$(jq -r '.status' allure-report/summary.json)
+            total=$(jq -r '.stats.total // 0' allure-report/summary.json)
+            passed=$(jq -r '.stats.passed // 0' allure-report/summary.json)
+            broken=$(jq -r '.stats.broken // 0' allure-report/summary.json)
+            table=$(printf '| Résultat | Total | Passed | Broken |\n|---|---|---|---|\n| %s | %s | %s | %s |' "$status" "$total" "$passed" "$broken")
+          else
+            table="Pas de rapport Allure disponible (résultat du job e2e-launch : \`$RESULT\`)."
+          fi
+
+          body_file="${RUNNER_TEMP}/pr-comment-body.md"
+          {
+            echo "$marker"
+            echo "### Rapport e2e (ami-system-tests)"
+            echo
+            echo "$table"
+            echo
+            echo "[Voir le run et ses artefacts]($RUN_URL#artifacts)"
+          } > "$body_file"
+
+          existing=$(gh api "repos/$REPO/issues/$PR/comments" --paginate \
+            --jq "[.[] | select(.body | startswith(\"$marker\"))] | last | .id // empty")
+
+          if [ -n "$existing" ]; then
+            gh api "repos/$REPO/issues/comments/$existing" -X PATCH -F body=@"$body_file"
+          else
+            gh api "repos/$REPO/issues/$PR/comments" -X POST -F body=@"$body_file"
+          fi
 
