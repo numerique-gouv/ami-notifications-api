@@ -12,17 +12,20 @@ describe('/+page.svelte', () => {
     // Given
     await userStore.login(mockUserInfo);
     const checklist = new CheckList('F3109', {
-      title: 'title',
-      sections: [
-        { id: 'a', title: 'section title' },
-        { id: 'b', title: 'other title' },
-      ],
-      items: [
-        { id: 'b', text: 'test', section: 'a' },
-        { id: 'c', text: 'test2', section: 'a' },
-        { id: 'd', text: 'test3', section: 'a' },
-        { id: 'e', text: 'test4', section: 'b' },
-      ],
+      icon: 'icon',
+      definition: {
+        title: 'title',
+        sections: [
+          { id: 'a', title: 'section title' },
+          { id: 'b', title: 'other title' },
+        ],
+        items: [
+          { id: 'b', text: 'test', section: 'a' },
+          { id: 'c', text: 'test2', section: 'a' },
+          { id: 'd', text: 'test3', section: 'a' },
+          { id: 'e', text: 'test4', section: 'b' },
+        ],
+      },
     });
     vi.spyOn(CheckListMethods, 'buildCheckList').mockResolvedValue(checklist);
     const params = { checklist_id: 'F3109', section_id: checklist.sections[0].id };
@@ -42,12 +45,15 @@ describe('/+page.svelte', () => {
     // Given
     await userStore.login(mockUserInfo);
     const checklist = new CheckList('F3109', {
-      title: 'title',
-      sections: [{ id: 'a', title: 'section title' }],
-      items: [
-        { id: 'b', text: 'test', section: 'a' },
-        { id: 'c', text: 'test2', section: 'a' },
-      ],
+      icon: 'icon',
+      definition: {
+        title: 'title',
+        sections: [{ id: 'a', title: 'section title' }],
+        items: [
+          { id: 'b', text: 'test', section: 'a' },
+          { id: 'c', text: 'test2', section: 'a' },
+        ],
+      },
     });
     vi.spyOn(CheckListMethods, 'buildCheckList').mockResolvedValue(checklist);
     const params = { checklist_id: 'F3109', section_id: checklist.sections[0].id };
@@ -73,19 +79,22 @@ describe('/+page.svelte', () => {
     // Given
     await userStore.login(mockUserInfo);
     const checklist = new CheckList('F3109', {
-      title: 'title',
-      sections: [{ id: 'a', title: 'section title' }],
-      items: [
-        {
-          id: 'b',
-          text: 'test',
-          section: 'a',
-          links: [
-            { text: 'link1', url: 'url1' },
-            { text: 'link2', url: 'url2' },
-          ],
-        },
-      ],
+      icon: 'icon',
+      definition: {
+        title: 'title',
+        sections: [{ id: 'a', title: 'section title' }],
+        items: [
+          {
+            id: 'b',
+            text: 'test',
+            section: 'a',
+            links: [
+              { text: 'link1', url: 'url1' },
+              { text: 'link2', url: 'url2' },
+            ],
+          },
+        ],
+      },
     });
     vi.spyOn(CheckListMethods, 'buildCheckList').mockResolvedValue(checklist);
     const params = { checklist_id: 'F3109', section_id: checklist.sections[0].id };
@@ -112,16 +121,19 @@ describe('/+page.svelte', () => {
     // Given
     await userStore.login(mockUserInfo);
     const checklist = new CheckList('F3109', {
-      title: 'title',
-      sections: [{ id: 'a', title: 'section title' }],
-      items: [
-        {
-          id: 'b',
-          text: 'test',
-          section: 'a',
-          links: [{ text: 'link1', url: 'url1' }],
-        },
-      ],
+      icon: 'icon',
+      definition: {
+        title: 'title',
+        sections: [{ id: 'a', title: 'section title' }],
+        items: [
+          {
+            id: 'b',
+            text: 'test',
+            section: 'a',
+            links: [{ text: 'link1', url: 'url1' }],
+          },
+        ],
+      },
     });
     vi.spyOn(CheckListMethods, 'buildCheckList').mockResolvedValue(checklist);
 
@@ -149,17 +161,20 @@ describe('/+page.svelte', () => {
     // Given
     await userStore.login(mockUserInfo);
     const checklist = new CheckList('F3109', {
-      title: 'title',
-      sections: [
-        { id: 'a', title: 'section title' },
-        { id: 'b', title: 'other title' },
-      ],
-      items: [
-        { id: 'b', text: 'test', section: 'a', intertitle: 'subtitle1' },
-        { id: 'c', text: 'test2', section: 'a', intertitle: 'subtitle1' },
-        { id: 'd', text: 'test3', section: 'a', intertitle: 'subtitle2' },
-        { id: 'e', text: 'test4', section: 'b' },
-      ],
+      icon: 'icon',
+      definition: {
+        title: 'title',
+        sections: [
+          { id: 'a', title: 'section title' },
+          { id: 'b', title: 'other title' },
+        ],
+        items: [
+          { id: 'b', text: 'test', section: 'a', intertitle: 'subtitle1' },
+          { id: 'c', text: 'test2', section: 'a', intertitle: 'subtitle1' },
+          { id: 'd', text: 'test3', section: 'a', intertitle: 'subtitle2' },
+          { id: 'e', text: 'test4', section: 'b' },
+        ],
+      },
     });
     vi.spyOn(CheckListMethods, 'buildCheckList').mockResolvedValue(checklist);
     const params = { checklist_id: 'F3109', section_id: checklist.sections[0].id };

@@ -1,3 +1,5 @@
+import { apiFetch } from '$lib/auth';
+
 export type APICheckListCondition = {
   type: string;
   var?: string;
@@ -25,9 +27,23 @@ export type APICheckListSection = {
   title: string;
 };
 
-export type APICheckList = {
+export type APICheckListDefinition = {
   title: string;
   description?: string;
   sections: APICheckListSection[];
   items: APICheckListItem[];
+};
+
+export type APICheckList = {
+  icon: string;
+  definition: APICheckListDefinition;
+};
+
+export const retrieveCheckList = async (id: string): Promise<APICheckList> => {
+  const response = await apiFetch(`/api/v1/users/data/checklist/${id}`);
+  if (response.ok) {
+    return await response.json();
+  } else {
+    throw new Error('unknown checklist id');
+  }
 };

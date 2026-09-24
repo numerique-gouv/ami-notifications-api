@@ -11,19 +11,22 @@ describe('/+page.svelte', () => {
     // Given
     await userStore.login(mockUserInfo);
     const checklist = new CheckList('F3109', {
-      title: 'title',
-      sections: [{ id: 'a', title: 'section title' }],
-      items: [
-        {
-          id: 'b',
-          text: 'test item content',
-          section: 'a',
-          links: [
-            { text: 'link1', url: 'url1' },
-            { text: 'link2', url: 'url2' },
-          ],
-        },
-      ],
+      icon: 'icon',
+      definition: {
+        title: 'title',
+        sections: [{ id: 'a', title: 'section title' }],
+        items: [
+          {
+            id: 'b',
+            text: 'test item content',
+            section: 'a',
+            links: [
+              { text: 'link1', url: 'url1' },
+              { text: 'link2', url: 'url2' },
+            ],
+          },
+        ],
+      },
     });
     vi.spyOn(CheckListMethods, 'buildCheckList').mockResolvedValue(checklist);
     const params = {
