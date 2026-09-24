@@ -37,7 +37,9 @@
     .image-wrapper {
       display: flex;
       justify-content: center;
-      margin-bottom: 1.5rem;
+      margin: 0 auto 1.5rem auto;
+      max-width: 80%;
+      height: 6rem;
     }
     h1 {
       margin-bottom: 0.5rem;
