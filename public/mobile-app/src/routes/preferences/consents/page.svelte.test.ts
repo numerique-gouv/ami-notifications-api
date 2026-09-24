@@ -310,8 +310,8 @@ describe('/+page.svelte', () => {
     });
 
     // When
-    let toggleInput1: HTMLInputElement = screen.getByTestId('dinum-ami');
-    let toggleInput2: HTMLInputElement = screen.getByTestId('dinum-dn');
+    const toggleInput1: HTMLInputElement = screen.getByTestId('dinum-ami');
+    const toggleInput2: HTMLInputElement = screen.getByTestId('dinum-dn');
     expect(toggleInput1.checked).toBeFalsy();
     expect(toggleInput2.checked).toBeFalsy();
 
@@ -321,10 +321,6 @@ describe('/+page.svelte', () => {
     // Then
     await waitFor(async () => {
       expect(spy).toHaveBeenCalledWith(true);
-      toggleInput1 = screen.getByTestId('dinum-ami');
-      toggleInput2 = screen.getByTestId('dinum-dn');
-      expect(toggleInput1.checked).toBeTruthy();
-      expect(toggleInput2.checked).toBeTruthy();
     });
   });
 

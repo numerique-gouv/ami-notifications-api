@@ -43,16 +43,6 @@
     await updateAllConsents(true);
     const consents: Consents = await buildConsents(partners);
     consentItems = consents.items;
-
-    consentItems.forEach((consentItem) => {
-      const toggleElement: HTMLElement | null = document.getElementById(
-        consentItem.partner_id
-      );
-      if (toggleElement) {
-        const toggleInput: HTMLInputElement = toggleElement as HTMLInputElement;
-        toggleInput.checked = true;
-      }
-    });
   };
 
   const hasConsentedFor = (id: string): boolean => {
