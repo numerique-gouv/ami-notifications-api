@@ -79,7 +79,8 @@ export const cityToBAN = async (city: ResponseFromGeoAPI) => {
     data.id,
     data.label,
     data.name,
-    data.postcode
+    data.postcode,
+    data.citycode
   );
   return { address: address };
 };
