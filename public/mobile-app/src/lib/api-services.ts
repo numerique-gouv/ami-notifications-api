@@ -74,6 +74,7 @@ const PARAMETER_DEFINITIONS = {
     email: string;
     address_city: string;
     address_postcode: string;
+    address_citycode: string;
     address_name: string;
   },
 };

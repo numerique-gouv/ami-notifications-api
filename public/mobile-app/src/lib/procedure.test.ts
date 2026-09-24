@@ -19,6 +19,7 @@ describe('/procedure.ts', () => {
         'some@email.com',
         'Paris',
         '75007',
+        '75107',
         'Avenue de Ségur'
       );
 
@@ -41,6 +42,7 @@ describe('/procedure.ts', () => {
         'some@email.com',
         'Paris',
         '75007',
+        '75107',
         'Avenue de Ségur'
       );
 
@@ -60,6 +62,7 @@ describe('/procedure.ts', () => {
         'some@email.com',
         'Paris',
         '75007',
+        '75107',
         'Avenue de Ségur'
       );
 
