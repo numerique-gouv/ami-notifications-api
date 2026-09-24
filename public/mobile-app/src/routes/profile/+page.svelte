@@ -47,7 +47,7 @@
       iconClassName="fr-icon-account-circle-line fr-mr-1w am-icon-20"
       title="Mon identité"
     >
-      <p class="paragraph-wrapper fr-mb-0">
+      <p class="paragraph-wrapper fr-mb-2w">
         Vous êtes&nbsp;:
         <br>
         <b
@@ -76,6 +76,7 @@
         class="fr-btn fr-icon-edit-line fr-btn--icon-left fr-btn--tertiary"
         onclick={goToEditPreferredUsername}
         data-testid="preferred-username-button"
+        aria-label="Modifier mon identité"
       >
         Modifier
       </button>
@@ -86,7 +87,7 @@
       iconClassName="fr-icon-mail-line fr-mr-1w am-icon-20"
       title="Contact"
     >
-      <p class="paragraph-wrapper fr-mb-0">
+      <p class="paragraph-wrapper fr-mb-2w">
         Pour vous contacter&nbsp;:
         <br>
         <b>{identity.email}</b>
@@ -95,7 +96,6 @@
           <span class="fr-text--xs">Informations fournies par FranceConnect</span>
           <br>
         {/if}
-        <br>
       </p>
 
       <button
@@ -103,6 +103,7 @@
         class="fr-btn fr-icon-edit-line fr-btn--icon-left fr-btn--tertiary"
         onclick={goToEditEmail}
         data-testid="email-button"
+        aria-label="Modifier les informations de contact"
       >
         Modifier
       </button>
@@ -114,7 +115,7 @@
       title="Mon adresse"
     >
       {#if address}
-        <p class="paragraph-wrapper fr-mb-0">
+        <p class="paragraph-wrapper fr-mb-2w">
           Votre résidence principale
           <br>
           <b>{address.name}</b>
@@ -132,6 +133,7 @@
         class="fr-btn fr-icon-edit-line fr-btn--icon-left fr-btn--tertiary"
         onclick={goToEditAddress}
         data-testid="address-button"
+        aria-label={address ? "Modifier mon adresse" : "Définir une adresse"}
       >
         {#if !address}
           Définir une adresse
