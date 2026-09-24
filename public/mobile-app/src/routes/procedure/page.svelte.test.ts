@@ -146,6 +146,7 @@ describe('/+page.svelte', () => {
         'some@email.com',
         'Paris',
         '75007',
+        '75107',
         'Avenue de Ségur'
       );
       expect(screen.queryByTestId('procedure-button')).not.toBeNull();
@@ -186,6 +187,7 @@ describe('/+page.svelte', () => {
         'some@email.com',
         'Paris',
         '75007',
+        '75107',
         'Avenue de Ségur'
       );
       expect(screen.queryByTestId('procedure-button')).not.toBeNull();

@@ -122,6 +122,7 @@ export class ServicesItem {
               email: userIdentity.email || '',
               address_city: userIdentity.address?.city || '',
               address_postcode: userIdentity.address?.postcode || '',
+              address_citycode: userIdentity.address?.citycode || '',
               address_name: userIdentity.address?.name || '',
             },
           });

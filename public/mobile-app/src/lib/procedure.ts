@@ -5,11 +5,12 @@ export const retrieveProcedureUrl = async (
   email: string,
   addressCity: string,
   addressPostcode: string,
+  addressCitycode: string,
   addressName: string
 ): Promise<string> => {
   try {
     const response = await apiFetch(
-      `/api/v1/partner/otv/url?preferred_username=${preferredUsername}&email=${email}&address_city=${addressCity}&address_postcode=${addressPostcode}&address_name=${addressName}`
+      `/api/v1/partner/otv/url?preferred_username=${preferredUsername}&email=${email}&address_city=${addressCity}&address_postcode=${addressPostcode}&address_citycode=${addressCitycode}&address_name=${addressName}`
     );
     if (response.status === 200) {
       const responseJson = await response.json();
