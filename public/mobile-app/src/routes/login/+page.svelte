@@ -163,7 +163,7 @@
                 <button
                   type="button"
                   class="fr-sidemenu__link fr-text--regular fr-icon-mail-fill"
-                  onclick={() => window.location.href = "mailto:" + getContactMailToUri()}
+                  onclick={() => window.location.href = getContactMailToUri()}
                   data-testid="connection-help-link-email"
                 >
                   Envoyer un mail
