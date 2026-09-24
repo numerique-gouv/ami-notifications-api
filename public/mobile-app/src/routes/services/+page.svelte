@@ -161,7 +161,7 @@
 
         <button
           type="button"
-          class="fr-btn fr-btn--secondary am-btn-target am-btn-w100"
+          class="fr-btn fr-btn--secondary am-btn-w100"
           onclick={()=> AMIGoto(PUBLIC_SP_ANNUAIRE_URL)}
         >
           Accéder à l’annuaire
@@ -214,7 +214,7 @@
           {#if PUBLIC_SP_SEARCH_URL}
             <button
               type="button"
-              class="fr-btn fr-btn--secondary am-btn-target am-btn-w100"
+              class="fr-btn fr-btn--secondary am-btn-w100"
               onclick={()=> AMIGoto(PUBLIC_SP_SEARCH_URL)}
             >
               Voir toutes les démarches
