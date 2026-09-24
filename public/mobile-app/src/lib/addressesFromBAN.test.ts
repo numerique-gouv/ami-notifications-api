@@ -14,6 +14,7 @@ describe('addressesFromBAN.ts', () => {
           label: '23 Rue des Aubépines 45100 Orléans',
           name: '23 Rue des Aubépines',
           postcode: '45100',
+          citycode: '45234',
         },
         {
           city: 'Orly',
@@ -22,6 +23,7 @@ describe('addressesFromBAN.ts', () => {
           label: '23 Rue des Aubépines 94310 Orly',
           name: '23 Rue des Aubépines',
           postcode: '94310',
+          citycode: '94054',
         },
         {
           city: 'Orléat',
@@ -30,6 +32,7 @@ describe('addressesFromBAN.ts', () => {
           label: 'Allée des Aubépines 63190 Orléat',
           name: 'Allée des Aubépines',
           postcode: '63190',
+          citycode: '63265',
         },
       ];
 
@@ -43,6 +46,7 @@ describe('addressesFromBAN.ts', () => {
               name: '23 Rue des Aubépines',
               postcode: '45100',
               city: 'Orléans',
+              citycode: '45234',
               context: '45, Loiret, Centre-Val de Loire',
             },
           },
@@ -53,6 +57,7 @@ describe('addressesFromBAN.ts', () => {
               name: '23 Rue des Aubépines',
               postcode: '94310',
               city: 'Orly',
+              citycode: '94054',
               context: '94, Val-de-Marne, Île-de-France',
             },
           },
@@ -63,6 +68,7 @@ describe('addressesFromBAN.ts', () => {
               name: 'Allée des Aubépines',
               postcode: '63190',
               city: 'Orléat',
+              citycode: '63265',
               context: '63, Puy-de-Dôme, Auvergne-Rhône-Alpes',
             },
           },
@@ -86,6 +92,7 @@ describe('addressesFromBAN.ts', () => {
           expect(result.label).toEqual(expectedResult[index].label);
           expect(result.name).toEqual(expectedResult[index].name);
           expect(result.postcode).toEqual(expectedResult[index].postcode);
+          expect(result.citycode).toEqual(expectedResult[index].citycode);
         });
       }
     });

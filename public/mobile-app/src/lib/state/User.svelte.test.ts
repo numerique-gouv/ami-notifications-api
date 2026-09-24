@@ -181,7 +181,8 @@ describe('/lib/state/User.svelte.ts', () => {
           '94054_0070_00023',
           '23 Rue des Aubépines 94310 Orly',
           '23 Rue des Aubépines',
-          '94310'
+          '94310',
+          '94054'
         );
         const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
         newMockUserIdentity.address = address;
@@ -207,7 +208,8 @@ describe('/lib/state/User.svelte.ts', () => {
           '97411_1060_00002',
           '2 Rue de Paris 97400 Saint-Denis',
           '2 Rue de Paris',
-          '97400'
+          '97400',
+          '97411'
         );
         const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
         newMockUserIdentity.address = address;
@@ -233,7 +235,8 @@ describe('/lib/state/User.svelte.ts', () => {
           '94054_0070_00023',
           '23 Rue des Aubépines 94310 Orly',
           '23 Rue des Aubépines',
-          '94310'
+          '94310',
+          '94054'
         );
         const preferences = new Preferences(['Zone C', 'Réunion'], [address]);
         const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
@@ -633,7 +636,8 @@ describe('/lib/state/User.svelte.ts', () => {
               '45234_0420_00023',
               '23 Rue des Aubépines 45100 Orléans',
               '23 Rue des Aubépines',
-              '45100'
+              '45100',
+              '45234'
             ),
             new AddressFromBAN(
               'Orly',
@@ -641,7 +645,8 @@ describe('/lib/state/User.svelte.ts', () => {
               '94054_0070_00023',
               '23 Rue des Aubépines 94310 Orly',
               '23 Rue des Aubépines',
-              '94310'
+              '94310',
+              '94054'
             ),
             new AddressFromBAN(
               'Orléat',
@@ -649,7 +654,8 @@ describe('/lib/state/User.svelte.ts', () => {
               '63265_0008',
               'Allée des Aubépines 63190 Orléat',
               'Allée des Aubépines',
-              '63190'
+              '63190',
+              '63265'
             ),
           ],
         });
@@ -681,7 +687,8 @@ describe('/lib/state/User.svelte.ts', () => {
           '94054_0070_00023',
           '23 Rue des Aubépines 94310 Orly',
           '23 Rue des Aubépines',
-          '94310'
+          '94310',
+          '94054'
         );
         const preferences = new Preferences(['Zone C', 'Réunion'], [address]);
 

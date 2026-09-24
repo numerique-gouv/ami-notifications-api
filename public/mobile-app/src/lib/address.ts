@@ -5,6 +5,7 @@ type AddressJSON = {
   _label: string;
   _name: string;
   _postcode: string;
+  _citycode: string;
 };
 
 export class Address {
@@ -14,7 +15,8 @@ export class Address {
     private _idBAN: string = '',
     private _label: string = '',
     private _name: string = '',
-    private _postcode: string = ''
+    private _postcode: string = '',
+    private _citycode: string = ''
   ) {}
 
   static fromJSON(json: Address | AddressJSON): Address {
@@ -27,7 +29,8 @@ export class Address {
       json._idBAN,
       json._label,
       json._name,
-      json._postcode
+      json._postcode,
+      json._citycode
     );
   }
 
@@ -53,6 +56,10 @@ export class Address {
 
   get postcode(): string {
     return this._postcode;
+  }
+
+  get citycode(): string {
+    return this._citycode;
   }
 
   get departement(): string {
