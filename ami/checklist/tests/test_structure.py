@@ -251,7 +251,7 @@ def test_item_with_links():
     ]
 
 
-def test_item_with_condition():
+def test_items_with_condition():
     checklist = CheckList()
     checklist.add_item(
         ET.fromstring("""
@@ -265,6 +265,9 @@ def test_item_with_condition():
     </Condition>
     <Paragraphe>Créer mon compte CNMSS</Paragraphe>
   </Item>
+  <Item>
+    <Paragraphe>Ouvrir mon compte CNMSS</Paragraphe>
+  </Item>
 </Liste>""")
     )
     assert checklist.items[0]["conditions"] == [
@@ -276,6 +279,7 @@ def test_item_with_condition():
             ],
         }
     ]
+    assert not checklist.items[1].get("conditions")
 
 
 def test_item_with_sigle_link():
