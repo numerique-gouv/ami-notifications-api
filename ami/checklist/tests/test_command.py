@@ -89,3 +89,23 @@ def test_management_command_init_checklists(partner_psl: Partner):
     call_command("init_checklists")
 
     assert CheckList.objects.count() == 4
+
+
+@pytest.mark.django_db
+def test_management_command_init_checklists_update(partner_psl: Partner, partner_dn: Partner):
+    assert CheckList.objects.count() == 0
+
+    call_command("init_checklists")
+    checklist_f16225 = CheckList.objects.get(external_id="F16225")
+    CheckList.objects.filter(external_id="CNMSS001").update(
+        partner=partner_dn, definition={"foo": "bar"}
+    )
+
+    # update
+    call_command("init_checklists")
+    checklist = CheckList.objects.get(external_id="CNMSS001")
+    assert checklist.partner == partner_dn  # partner is left intact
+    assert checklist.definition != {"foo": "bar"}  # definition is updated
+
+    # check unchanged list was not updated
+    assert checklist_f16225.updated_at == CheckList.objects.get(external_id="F16225").updated_at
