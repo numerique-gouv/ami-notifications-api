@@ -16,7 +16,7 @@ const apiServicesData = {
         item_type: 'OperationTranquilliteVacances',
         kind: 'catalog',
         title: 'Opération Tranquillité Vacances',
-        short_description:
+        service_name:
           'Inscrivez-vous pour protéger votre domicile pendant votre absence',
         description:
           'Pendant toute absence prolongée de votre domicile, vous pouvez vous inscrire à l’**opération tranquillité vacances**.',
@@ -31,7 +31,7 @@ const apiServicesData = {
         item_type: 'ContacterAMI',
         kind: 'sos',
         title: 'Contacter l’équipe AMI',
-        short_description: 'Faites-nous votre retour',
+        service_name: 'Faites-nous votre retour',
         description:
           'Pour tout retour sur l’application AMI, vous pouvez nous contacter par le biais de ce formulaire',
         url: 'https://localhost:5173/commencer/todo?id_hash_fc={fc_hash}&id_version={app_version_id}',
