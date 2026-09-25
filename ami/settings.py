@@ -73,6 +73,7 @@ INSTALLED_APPS = [
     "ami.service",
     "ami.page",
     "ami.partner",
+    "ami.trusted_nav",
     "ami.api",
     "ami.utils",
     "ami.agent",
@@ -379,6 +380,9 @@ GITHUB_APP_PRIVATE_KEY = (
     else ""
 )
 STAGING_URL = CONFIG.get("STAGING_URL", "")
+
+# Trusted navigation
+TRUSTED_URLS = CONFIG.get("TRUSTED_URLS", "")
 
 # Channels
 CHANNEL_UNAUTHORIZED_CODE = 4001

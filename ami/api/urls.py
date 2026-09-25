@@ -12,6 +12,7 @@ from ami.notification import api_urls_v2 as notification_api_urls_v2
 from ami.page import api_urls as page_api_urls
 from ami.partner import api_urls as partner_api_urls
 from ami.service import api_urls as service_api_urls
+from ami.trusted_nav import api_urls as trusted_nav_api_urls
 from ami.user import api_urls as user_api_urls
 from ami.utils import api_urls as util_api_urls
 
@@ -24,6 +25,7 @@ urlpatterns = [
     path("api/v1/", include(agenda_api_urls.root_urlpatterns)),
     path("api/v1/", include(followup_api_urls.root_urlpatterns)),
     path("api/v1/", include(service_api_urls.root_urlpatterns)),
+    path("api/v1/", include(trusted_nav_api_urls.root_urlpatterns)),
     path("api/v1/", include(notification_api_urls)),
     path("api/v1/", include(page_api_urls)),
     path("api/v1/", include(partner_api_urls)),
