@@ -242,7 +242,7 @@ export class Item {
   > = {
     holiday: {
       label: 'Vacances et jours fériés',
-      icon: 'fr-icon-calendar-event-fill',
+      icon: 'fr-icon-suitcase-2-fill',
       badgeClassName: 'fr-badge--blue-cumulus',
     },
     election: {
@@ -252,7 +252,7 @@ export class Item {
     },
     personal: {
       label: 'Personnel',
-      icon: 'fr-icon-user-fill',
+      icon: 'fr-icon-calendar-event-fill',
       badgeClassName: 'am-badge--user',
     },
   };

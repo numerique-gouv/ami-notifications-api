@@ -526,9 +526,9 @@ describe('/agenda.ts', () => {
 
         // Then
         expect(icon1).equal('');
-        expect(icon2).equal('fr-icon-calendar-event-fill');
+        expect(icon2).equal('fr-icon-suitcase-2-fill');
         expect(icon3).equal('fr-icon-chat-check-fill');
-        expect(icon4).equal('fr-icon-user-fill');
+        expect(icon4).equal('fr-icon-calendar-event-fill');
       });
     });
     describe('key', () => {
