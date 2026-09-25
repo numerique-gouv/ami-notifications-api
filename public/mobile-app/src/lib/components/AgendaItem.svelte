@@ -84,6 +84,11 @@
                 >
                   {subitem.period}
                 </p>
+                {#if subitem.isPersonal}
+                  <p
+                    class="fr-badge fr-badge--sm fr-badge--icon-left fr-mb-1w fr-icon-user-fill am-badge--user"
+                  ></p>
+                {/if}
               </div>
             </div>
           </div>

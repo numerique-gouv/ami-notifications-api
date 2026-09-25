@@ -853,20 +853,18 @@ describe('/agenda.ts', () => {
             )
           )
         ).toBe(true);
-        expect(
-          agenda.next[3].equals(
-            new Item(
-              'fake-id',
-              'holiday',
-              'Holiday 5',
-              '',
-              'Zone C&nbsp;: <strong>Paris (75) 🏠</strong>',
-              null,
-              holiday5.start_date,
-              holiday5.end_date
-            )
-          )
-        ).toBe(true);
+        const item = new Item(
+          'fake-id',
+          'holiday',
+          'Holiday 5',
+          '',
+          'Zone C&nbsp;: <strong>Paris (75) 🏠</strong>',
+          null,
+          holiday5.start_date,
+          holiday5.end_date
+        );
+        item.subitems[0].isPersonal = true;
+        expect(agenda.next[3].equals(item)).toBe(true);
       });
     });
     describe('Zones', () => {
@@ -984,8 +982,8 @@ describe('/agenda.ts', () => {
           title: 'Holiday',
           description: '',
           date: null,
-          start_date: parseISODate('2027-02-07'),
-          end_date: parseISODate('2027-02-22'),
+          start_date: parseISODate('2027-02-14'),
+          end_date: parseISODate('2027-03-02'),
           zones: ['Zone B'],
           emoji: 'foo',
         };
@@ -1017,6 +1015,10 @@ describe('/agenda.ts', () => {
         );
         item1.addSubItem('Zone B', null, holiday2.start_date, holiday2.end_date);
         expect(agenda.now[0].equals(item1)).toBe(true);
+        expect(agenda.now[0].subitems[0].period).toEqual('Du 7 au 23 février 2026');
+        expect(agenda.now[0].subitems[1].period).toEqual(
+          'Du 14 février au 2 mars 2026'
+        );
         expect(agenda.next.length).equal(1);
         const item2 = new Item(
           'fake-id',
@@ -1030,8 +1032,109 @@ describe('/agenda.ts', () => {
         );
         item2.addSubItem('Zone B', null, holiday4.start_date, holiday4.end_date);
         expect(agenda.next[0].equals(item2)).toBe(true);
-        expect(agenda.next[0].subitems[0].period).toEqual('Du 7 au 22 février 2027');
-        expect(agenda.next[0].subitems[1].period).toEqual('Du 7 au 23 février 2027');
+        expect(agenda.next[0].subitems[0].period).toEqual('Du 7 au 23 février 2027');
+        expect(agenda.next[0].subitems[1].period).toEqual(
+          'Du 14 février au 2 mars 2027'
+        );
+      });
+      test('should mark user tile as personal', async () => {
+        localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
+        const holiday1 = {
+          kind: 'holiday',
+          title: 'Holiday',
+          description: '',
+          date: null,
+          start_date: parseISODate('2026-02-07'),
+          end_date: parseISODate('2026-02-23'),
+          zones: ['Zone C'],
+          emoji: 'foo',
+        };
+        const holiday2 = {
+          kind: 'holiday',
+          title: 'Holiday',
+          description: '',
+          date: null,
+          start_date: parseISODate('2026-02-14'),
+          end_date: parseISODate('2026-03-02'),
+          zones: ['Zone B'],
+          emoji: 'foo',
+        };
+        const holiday3 = {
+          kind: 'holiday',
+          title: 'Holiday',
+          description: '',
+          date: null,
+          start_date: parseISODate('2027-02-07'),
+          end_date: parseISODate('2027-02-23'),
+          zones: ['Zone A'],
+          emoji: 'foo',
+        };
+        const holiday4 = {
+          kind: 'holiday',
+          title: 'Holiday',
+          description: '',
+          date: null,
+          start_date: parseISODate('2027-02-14'),
+          end_date: parseISODate('2027-03-02'),
+          zones: ['Zone C'],
+          emoji: 'foo',
+        };
+        await userStore.login(mockUserInfo);
+        vi.spyOn(utilsMethods, 'uniqueId').mockReturnValue('fake-id');
+
+        // When
+        const agenda = new Agenda(
+          {
+            school_holidays: [holiday1, holiday2, holiday3, holiday4],
+            public_holidays: [],
+            elections: [],
+          },
+          null,
+          new Date('2026-02-01T12:00:00Z')
+        );
+
+        // Then
+        expect(agenda.now.length).equal(1);
+        const item1 = new Item(
+          'fake-id',
+          'holiday',
+          'Holiday foo',
+          '',
+          'Zone C&nbsp;: <strong>Paris (75) 🏠</strong>',
+          null,
+          holiday1.start_date,
+          holiday1.end_date
+        );
+        item1.addSubItem('Zone B', null, holiday2.start_date, holiday2.end_date);
+        item1.subitems[0].isPersonal = true;
+        expect(agenda.now[0].equals(item1)).toBe(true);
+        expect(agenda.now[0].subitems[0].period).toEqual('Du 7 au 23 février 2026');
+        expect(agenda.now[0].subitems[1].period).toEqual(
+          'Du 14 février au 2 mars 2026'
+        );
+        expect(agenda.next.length).equal(1);
+        const item2 = new Item(
+          'fake-id',
+          'holiday',
+          'Holiday foo',
+          '',
+          'Zone A',
+          null,
+          holiday3.start_date,
+          holiday3.end_date
+        );
+        item2.addSubItem(
+          'Zone C&nbsp;: <strong>Paris (75) 🏠</strong>',
+          null,
+          holiday4.start_date,
+          holiday4.end_date
+        );
+        item2.subitems[1].isPersonal = true;
+        expect(agenda.next[0].equals(item2)).toBe(true);
+        expect(agenda.next[0].subitems[0].period).toEqual('Du 7 au 23 février 2027');
+        expect(agenda.next[0].subitems[1].period).toEqual(
+          'Du 14 février au 2 mars 2027'
+        );
       });
     });
     describe('School holiday', () => {

@@ -33,6 +33,8 @@ export const slugify = (str: string): string => {
 const oneday_in_ms = 24 * 60 * 60 * 1000;
 
 export class SubItem {
+  private _is_personal: boolean = false;
+
   constructor(
     private _description: string | null,
     private _date: Date | null = null,
@@ -93,6 +95,13 @@ export class SubItem {
     const date = this._date?.toLocaleDateString(locale, dateFormat);
     return date;
   }
+
+  set isPersonal(is_personal: boolean) {
+    this._is_personal = is_personal;
+  }
+  get isPersonal(): boolean {
+    return this._is_personal;
+  }
 }
 
 export class Item {
@@ -117,8 +126,9 @@ export class Item {
     _date: Date | null = null,
     _start_date: Date | null = null,
     _end_date: Date | null = null
-  ) {
-    this._subitems.push(new SubItem(_description, _date, _start_date, _end_date));
+  ): SubItem {
+    const subitem = new SubItem(_description, _date, _start_date, _end_date);
+    this._subitems.push(subitem);
     this._subitems.sort((a, b) => {
       const dateComparison = (a.date?.getTime() || 0) - (b.date?.getTime() || 0);
       if (dateComparison !== 0) {
@@ -126,6 +136,7 @@ export class Item {
       }
       return (a.endDate?.getTime() || 0) - (b.endDate?.getTime() || 0);
     });
+    return subitem;
   }
 
   equals(other: Item): boolean {
@@ -363,12 +374,13 @@ export class Agenda {
             year: _item.date?.getFullYear(),
           });
           if (key === _key) {
-            _item.addSubItem(
+            const subitem = _item.addSubItem(
               item.description,
               null,
               holiday.start_date,
               holiday.end_date
             );
+            subitem.isPersonal = item.subitems[0].isPersonal;
             seen = true;
           }
         });
@@ -418,7 +430,7 @@ export class Agenda {
     if (!this._connectedUser?.isSchoolHolidayConcernedByPreferences(holiday)) {
       return null;
     }
-    return new Item(
+    const item = new Item(
       uniqueId(),
       'holiday',
       title,
@@ -428,6 +440,11 @@ export class Agenda {
       holiday.start_date,
       holiday.end_date
     );
+    const userZone = this._connectedUser?.identity.address?.zone;
+    if (userZone !== undefined && holiday.zones.includes(userZone)) {
+      item.subitems[0].isPersonal = true;
+    }
+    return item;
   }
 
   private createPublicHolidayItems(items: Item[], public_holidays: APIAgendaItem[]) {
