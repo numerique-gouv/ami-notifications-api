@@ -70,12 +70,15 @@ def test_management_command_init_checklists(partner_psl: Partner):
 
     call_command("init_checklists")
 
-    assert CheckList.objects.count() == 4
+    assert CheckList.objects.count() == 5
     assert CheckList.objects.filter(
         partner=partner_psl, external_id="CNMSS001", title="Je suis affecté à l'étranger"
     ).exists()
     assert CheckList.objects.filter(
         partner=partner_psl, external_id="F16225", title="Je deviens parent"
+    ).exists()
+    assert CheckList.objects.filter(
+        partner=partner_psl, external_id="F2485", title="Je pars vivre à l'étranger"
     ).exists()
     assert CheckList.objects.filter(
         partner=partner_psl, external_id="F3109", title="Je crée une association"
@@ -88,7 +91,7 @@ def test_management_command_init_checklists(partner_psl: Partner):
 
     call_command("init_checklists")
 
-    assert CheckList.objects.count() == 4
+    assert CheckList.objects.count() == 5
 
 
 @pytest.mark.django_db
