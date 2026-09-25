@@ -336,7 +336,7 @@ class NotificationsItem(NotificationsSubItem):
     @property
     def title(self):
         if self.service is not None:
-            # take service name if exists
+            # take service title if exists
             return self.service.title
         if self.last_notification.content_title:
             return self.last_notification.content_title
@@ -353,6 +353,9 @@ class NotificationsItem(NotificationsSubItem):
             return self.item_type
         if self.last_notification.content_subheading:
             return self.last_notification.content_subheading
+        if self.service is not None:
+            # take service name if exists
+            return self.service.service_name
         if self.partner:
             return self.partner.name
         return ""
