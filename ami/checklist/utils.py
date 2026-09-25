@@ -67,13 +67,15 @@ class CheckList:
     def __init__(self):
         self.items = []
 
-    def add_item(self, node, section=None, intertitle=None, condition=None):
+    def add_item(self, node, section=None, intertitle=None, fragment_condition=None):
         for item in node.findall("Item"):
             condition_elements = item.findall("Condition")
             conditions = []
             if condition_elements:
                 assert len(condition_elements) == 1
                 condition = condition_elements[0]
+            else:
+                condition = fragment_condition
             assert len([x for x in item if x.tag == "Paragraphe"]) == 1
             paragraph = item.findall("Paragraphe")[0]
             text = node_to_markdown(paragraph).strip()
@@ -178,7 +180,7 @@ class Document:
     def end_section(self):
         self.current_section_id = None
 
-    def build_checklist(self, parents, condition=None):
+    def build_checklist(self, parents, fragment_condition=None):
         parent = parents[-1]
         for child in parent:
             if child.tag == "Liste" and child.attrib.get("type") == "caseACocher":
@@ -216,11 +218,11 @@ class Document:
                     child,
                     section=self.current_section_id,
                     intertitle=intertitle,
-                    condition=condition,
+                    fragment_condition=fragment_condition,
                 )
                 continue
             elif child.tag == "FragmentConditionne" and child.findall("Liste"):
-                self.build_checklist(parents + [child], condition=child.find("Condition"))
+                self.build_checklist(parents + [child], fragment_condition=child.find("Condition"))
             elif child.tag == "Condition":
                 continue
             else:
