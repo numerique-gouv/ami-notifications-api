@@ -236,7 +236,7 @@ export class Item {
     return this._subitems[0].period;
   }
 
-  private static readonly KindInfo: Record<
+  static readonly KindInfo: Record<
     Kind,
     { label: string; icon: string; badgeClassName: string }
   > = {
