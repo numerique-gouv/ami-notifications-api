@@ -12,7 +12,7 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 class Command(BaseCommand):
     def handle(self, **kwargs):
         partner = Partner.objects.get(slug="psl")
-        for external_id in ["CNMSS001", "F16225", "F3109", "F39617"]:
+        for external_id in ["CNMSS001", "F2485", "F3109", "F16225", "F39617"]:
             with open(os.path.join(dir_path, "data", f"{external_id}.json")) as fd:
                 definition = json.loads(fd.read())
                 checklist, created = CheckList.objects.get_or_create(
