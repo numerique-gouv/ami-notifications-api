@@ -1,4 +1,5 @@
 import { userStore } from '$lib/state/User.svelte';
+import * as telemetry from '$lib/telemetry';
 
 export const logout = async (): Promise<boolean> => {
   // delete auth cookie
@@ -19,6 +20,7 @@ export const apiFetch = async (
   init?: RequestInit
 ): Promise<Response> => {
   let response: Response;
+  telemetry.trace('apiFetch', { url: input });
   if (typeof init !== 'undefined') {
     response = await fetch(input, init);
   } else {

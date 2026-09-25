@@ -7,6 +7,7 @@ import {
   unregisterRegistrationsForDesktop,
   unregisterRegistrationsForNative,
 } from '$lib/registration';
+import * as telemetry from '$lib/telemetry';
 import * as self from './notifications';
 
 export const PUBLIC_APP_WS_URL = PUBLIC_APP_URL.replace('https://', 'wss://').replace(
@@ -97,6 +98,7 @@ export const readNotification = async (
 export const notificationEventsSocket = (
   onmessage: (event: MessageEvent) => void
 ): WebSocket => {
+  telemetry.trace('notificationEventsSocket');
   const ws = new WebSocket(
     `${PUBLIC_APP_WS_URL}/api/v1/users/notification/events/stream`
   );
