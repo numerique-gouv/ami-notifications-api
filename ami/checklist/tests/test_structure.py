@@ -168,6 +168,60 @@ def test_checklist_with_conditional_fragment():
     assert doc.checklist.items[-1]["conditions"] == [{"type": "estVrai", "var": "T11332"}]
 
 
+def test_checklist_with_floating_titles():
+    doc = Document(
+        ET.fromstring("""<?xml version="1.0" encoding="UTF-8"?>
+<Publication xmlns:dc="http://purl.org/dc/elements/1.1/"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             ID="F2485">
+  <ListeSituations affichage="onglet">
+    <Situation>
+      <Titre>EEE ou Suisse</Titre>
+      <Conclusion type="important">
+        <Titre>
+          <Paragraphe>En conclusion : récapitulatif des démarches à faire</Paragraphe>
+        </Titre>
+        <TitreFlottant>
+          <Paragraphe>Dans tous les cas :</Paragraphe>
+        </TitreFlottant>
+        <Liste type="caseACocher">
+          <Item>
+            <Paragraphe>Avoir une carte d'identité ou un passeport en cours de validité</Paragraphe>
+          </Item>
+        </Liste>
+        <TitreFlottant>
+          <Paragraphe>En fonction de la situation :</Paragraphe>
+        </TitreFlottant>
+        <FragmentConditionne>
+          <Condition>
+            <estVrai var="T14260"/>
+          </Condition>
+          <Liste type="caseACocher">
+            <Item>
+              <Paragraphe>vous renseigner sur les aides dont vous pouvez bénéficier</Paragraphe>
+            </Item>
+          </Liste>
+        </FragmentConditionne>
+      </Conclusion>
+    </Situation>
+  </ListeSituations>
+</Publication>""")
+    )
+    assert len(doc.sections) == 1
+    assert doc.checklist.items[0]["section"] == "eee-ou-suisse"
+    assert doc.checklist.items[0]["intertitle"] == "Dans tous les cas :"
+    assert (
+        doc.checklist.items[0]["text"]
+        == "Avoir une carte d'identité ou un passeport en cours de validité"
+    )
+    assert doc.checklist.items[1]["section"] == "eee-ou-suisse"
+    assert doc.checklist.items[1]["intertitle"] == "En fonction de la situation :"
+    assert (
+        doc.checklist.items[1]["text"]
+        == "vous renseigner sur les aides dont vous pouvez bénéficier"
+    )
+
+
 def test_item_with_links():
     checklist = CheckList()
     checklist.add_item(
@@ -197,7 +251,7 @@ def test_item_with_links():
     ]
 
 
-def test_item_with_condition():
+def test_items_with_condition():
     checklist = CheckList()
     checklist.add_item(
         ET.fromstring("""
@@ -211,6 +265,9 @@ def test_item_with_condition():
     </Condition>
     <Paragraphe>Créer mon compte CNMSS</Paragraphe>
   </Item>
+  <Item>
+    <Paragraphe>Ouvrir mon compte CNMSS</Paragraphe>
+  </Item>
 </Liste>""")
     )
     assert checklist.items[0]["conditions"] == [
@@ -222,3 +279,20 @@ def test_item_with_condition():
             ],
         }
     ]
+    assert not checklist.items[1].get("conditions")
+
+
+def test_item_with_sigle_link():
+    checklist = CheckList()
+    checklist.add_item(
+        ET.fromstring("""\
+<Liste type="caseACocher">
+  <Item>
+    <Paragraphe>
+      signaler votre nouvelle adresse au <LienInterne LienPublication="R63347" type="Sigle">CSNJ</LienInterne>
+    </Paragraphe>
+  </Item>
+</Liste>""")
+    )
+    assert checklist.items[0]["text"] == "signaler votre nouvelle adresse au CSNJ"
+    assert not checklist.items[0].get("links")

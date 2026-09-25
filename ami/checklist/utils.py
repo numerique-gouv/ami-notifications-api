@@ -67,13 +67,15 @@ class CheckList:
     def __init__(self):
         self.items = []
 
-    def add_item(self, node, section=None, intertitle=None, condition=None):
+    def add_item(self, node, section=None, intertitle=None, fragment_condition=None):
         for item in node.findall("Item"):
             condition_elements = item.findall("Condition")
             conditions = []
             if condition_elements:
                 assert len(condition_elements) == 1
                 condition = condition_elements[0]
+            else:
+                condition = fragment_condition
             assert len([x for x in item if x.tag == "Paragraphe"]) == 1
             paragraph = item.findall("Paragraphe")[0]
             text = node_to_markdown(paragraph).strip()
@@ -85,6 +87,8 @@ class CheckList:
             links = []
             for link_node in paragraph.findall(".//*"):
                 if not link_node.text:
+                    continue
+                if link_node.attrib.get("type") == "Sigle":
                     continue
                 if link_node.tag == "LienInterne":
                     links.append(
@@ -176,7 +180,7 @@ class Document:
     def end_section(self):
         self.current_section_id = None
 
-    def build_checklist(self, parents, condition=None):
+    def build_checklist(self, parents, fragment_condition=None):
         parent = parents[-1]
         for child in parent:
             if child.tag == "Liste" and child.attrib.get("type") == "caseACocher":
@@ -192,15 +196,33 @@ class Document:
                             intertitle = self.get_clean_title(chapitre_title_element)
                 except IndexError:
                     pass
+                if not intertitle:
+                    # look for previous <TitreFlottant>
+                    if parent.tag == "FragmentConditionne":
+                        parent_with_list = parents[-2]
+                        child_position = list(parent_with_list).index(parent)
+                    else:
+                        parent_with_list = parents[-1]
+                        child_position = list(parent_with_list).index(child)
+                    try:
+                        last_floating_title = [
+                            x
+                            for i, x in enumerate(parent_with_list)
+                            if i < child_position and x.tag == "TitreFlottant"
+                        ][-1]
+                    except IndexError:
+                        pass
+                    else:
+                        intertitle = self.get_clean_title(last_floating_title)
                 self.checklist.add_item(
                     child,
                     section=self.current_section_id,
                     intertitle=intertitle,
-                    condition=condition,
+                    fragment_condition=fragment_condition,
                 )
                 continue
             elif child.tag == "FragmentConditionne" and child.findall("Liste"):
-                self.build_checklist(parents + [child], condition=child.find("Condition"))
+                self.build_checklist(parents + [child], fragment_condition=child.find("Condition"))
             elif child.tag == "Condition":
                 continue
             else:
