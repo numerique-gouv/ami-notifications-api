@@ -5,6 +5,7 @@ from .api_views import (
     _dev_utils_recipient_fc_hash,
     _dev_utils_review_apps,
     get_sector_identifier_url,
+    get_trusted_urls,
     ping,
 )
 
@@ -14,4 +15,5 @@ urlpatterns = [
     path("dev-utils/recipient-fc-hash", _dev_utils_recipient_fc_hash),
     path("dev-utils/review-apps", _dev_utils_review_apps),
     path("dev-utils/health/db-pool", _dev_health_db_pool),
+    path("api-utils/trusted_urls", get_trusted_urls),
 ]
