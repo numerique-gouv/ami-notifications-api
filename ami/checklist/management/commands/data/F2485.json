@@ -1,0 +1,448 @@
+{
+  "title": "Je pars vivre à l'étranger",
+  "description": "Si vous allez vous installer à l'étranger, vous devez faire de nombreuses démarches avant votre départ et dans les mois qui suivent votre arrivée à l'étranger.",
+  "sections": [
+    {
+      "title": "EEE ou Suisse",
+      "id": "eee-ou-suisse"
+    },
+    {
+      "title": "Ailleurs",
+      "id": "ailleurs"
+    }
+  ],
+  "items": [
+    {
+      "text": "Avoir une carte d'identité ou un passeport en cours de validité",
+      "id": "d0ea141b3fcb",
+      "section": "eee-ou-suisse",
+      "intertitle": "Dans tous les cas :"
+    },
+    {
+      "text": "Si des membres de votre famille qui ne sont pas de nationalité française ou d'un pays de l'EEE ou Suisse vous accompagnent, vérifier les conditions d'entrée et de séjour",
+      "id": "0ff6491c362e",
+      "section": "eee-ou-suisse",
+      "intertitle": "Dans tous les cas :"
+    },
+    {
+      "text": "Trouver un logement à l'étranger",
+      "id": "cae2e5de8f40",
+      "section": "eee-ou-suisse",
+      "intertitle": "Dans tous les cas :"
+    },
+    {
+      "text": "Si vous partez avec vos enfants, organiser la scolarité de vos enfants et/ou leur mode de garde",
+      "id": "c8b4208fe6fa",
+      "section": "eee-ou-suisse",
+      "intertitle": "Dans tous les cas :",
+      "conditions": [
+        {
+          "type": "estVrai",
+          "var": "T11199"
+        }
+      ]
+    },
+    {
+      "text": "Décider ce que vous faites de votre logement en France",
+      "id": "c7d88f276b5e",
+      "section": "eee-ou-suisse",
+      "intertitle": "Dans tous les cas :",
+      "conditions": [
+        {
+          "type": "estVrai",
+          "var": "T11422"
+        }
+      ]
+    },
+    {
+      "text": "Faire les démarches pour votre protection sociale à l'étranger",
+      "id": "bc25c037e988",
+      "section": "eee-ou-suisse",
+      "intertitle": "Dans tous les cas :"
+    },
+    {
+      "text": "Contacter votre centre des impôts",
+      "id": "b79cbccdeccd",
+      "section": "eee-ou-suisse",
+      "intertitle": "Dans tous les cas :",
+      "conditions": [
+        {
+          "type": "estVrai",
+          "var": "T12556"
+        }
+      ]
+    },
+    {
+      "text": "Si vous êtes allocataire, informer la Caf ou la MSA de votre départ",
+      "id": "8b5bf5bbfa60",
+      "section": "eee-ou-suisse",
+      "intertitle": "Dans tous les cas :",
+      "conditions": [
+        {
+          "type": "estVrai",
+          "var": "T16527"
+        }
+      ]
+    },
+    {
+      "text": "Si vous êtes inscrit à France Travail, informer de votre départ et obtenir les documents nécessaires",
+      "id": "a87a390ddab0",
+      "section": "eee-ou-suisse",
+      "intertitle": "Dans tous les cas :",
+      "conditions": [
+        {
+          "type": "estVrai",
+          "var": "T12724"
+        }
+      ]
+    },
+    {
+      "text": "Si vous êtes retraité, faire les démarches auprès de vos caisses de retraite",
+      "id": "f94a950ef870",
+      "section": "eee-ou-suisse",
+      "intertitle": "Dans tous les cas :",
+      "conditions": [
+        {
+          "type": "estVrai",
+          "var": "T10327"
+        }
+      ]
+    },
+    {
+      "text": "Décider du devenir de vos comptes bancaires en France et de vos abonnements (internet, salle de sport, etc.)",
+      "id": "67300e4aca2a",
+      "section": "eee-ou-suisse",
+      "intertitle": "Dans tous les cas :"
+    },
+    {
+      "text": "Si vous partez avec votre animal de compagnie, vérifier les conditions",
+      "id": "ee3a33d43f95",
+      "section": "eee-ou-suisse",
+      "intertitle": "Dans tous les cas :",
+      "conditions": [
+        {
+          "type": "estVrai",
+          "var": "T10790"
+        }
+      ]
+    },
+    {
+      "text": "Si vous avez fait votre recensement citoyen et si vous n'avez pas encore atteint l'âge de 25 ans, signaler votre nouvelle adresse au CSNJ",
+      "id": "d04be9b387b2",
+      "section": "eee-ou-suisse",
+      "intertitle": "Dans tous les cas :",
+      "conditions": [
+        {
+          "type": "estVrai",
+          "var": "T13114"
+        }
+      ]
+    },
+    {
+      "text": "Connaître les démarches à effectuer une fois arrivé à l'étranger",
+      "id": "da37180f6bf3",
+      "section": "eee-ou-suisse",
+      "intertitle": "Dans tous les cas :"
+    },
+    {
+      "text": "Si vous partez faire vos études à l'étranger, vous renseigner sur les aides dont vous pouvez bénéficier",
+      "id": "410325b945ea",
+      "section": "eee-ou-suisse",
+      "intertitle": "En fonction de la situation :",
+      "conditions": [
+        {
+          "type": "estVrai",
+          "var": "T14260"
+        }
+      ]
+    },
+    {
+      "text": "Si vous partez faire un stage à l'étranger dans le cadre de vos études, vous renseigner sur les aides dont vous pouvez bénéficier",
+      "id": "646bc599fb82",
+      "section": "eee-ou-suisse",
+      "intertitle": "En fonction de la situation :",
+      "conditions": [
+        {
+          "type": "estVrai",
+          "var": "T14238"
+        }
+      ]
+    },
+    {
+      "text": "Si vous avez le permis de conduire, vous renseigner sur vos droits à conduire un véhicule à l’étranger",
+      "id": "ae7a3d4b12c2",
+      "section": "eee-ou-suisse",
+      "intertitle": "En fonction de la situation :",
+      "conditions": [
+        {
+          "type": "estVrai",
+          "var": "T15770"
+        }
+      ]
+    },
+    {
+      "text": "Si vous avez un véhicule, décider ce que vous en faites",
+      "id": "87d7e1a7a997",
+      "section": "eee-ou-suisse",
+      "intertitle": "En fonction de la situation :"
+    },
+    {
+      "text": "Si vous faites appel à une entreprise de déménagement, organiser le déménagement",
+      "id": "1eaf54c10045",
+      "section": "eee-ou-suisse",
+      "intertitle": "En fonction de la situation :"
+    },
+    {
+      "text": "Si vous suivez un traitement médical que vous devez continuer à l'étranger, arrivé à l'étranger, vous renseigner auprès de votre médecin",
+      "id": "5454e16048ec",
+      "section": "eee-ou-suisse",
+      "intertitle": "En fonction de la situation :",
+      "conditions": [
+        {
+          "type": "estVrai",
+          "var": "T17199"
+        }
+      ]
+    },
+    {
+      "text": "Réfléchir à un contrat de réexpédition de votre courrier",
+      "id": "2d46e9f65586",
+      "section": "eee-ou-suisse",
+      "intertitle": "En fonction de la situation :"
+    },
+    {
+      "text": "Réfléchir à la souscription d'une assurance spécifique pour l'assistance et le rapatriement",
+      "id": "3b6414ecc87d",
+      "section": "eee-ou-suisse",
+      "intertitle": "En fonction de la situation :"
+    },
+    {
+      "text": "Vous informer sur les formalités douanières si vous partez avec au moins 10 000 € en argent liquide et si vous partez avec certains objets (armes, biens culturels)",
+      "id": "8d97e3fffa7e",
+      "section": "eee-ou-suisse",
+      "intertitle": "En fonction de la situation :"
+    },
+    {
+      "text": "Avoir un passeport en cours de validité et connaître la durée minimum de validité exigée après la date d’entrée dans le pays",
+      "id": "adc72e9b10e9",
+      "section": "ailleurs",
+      "intertitle": "Dans tous les cas :"
+    },
+    {
+      "text": "Vous renseigner sur l'obligation d'avoir un visa et faire la demande au plus tôt",
+      "id": "33d53ea0ca67",
+      "section": "ailleurs",
+      "intertitle": "Dans tous les cas :"
+    },
+    {
+      "text": "Si des membres de votre famille qui ne sont pas de nationalité française vous accompagnent, vérifier les conditions d'entrée et de séjour",
+      "id": "035287c9bbe3",
+      "section": "ailleurs",
+      "intertitle": "Dans tous les cas :"
+    },
+    {
+      "text": "Vous renseigner sur les vaccins obligatoires ou recommandés",
+      "id": "2dd2893ad05e",
+      "section": "ailleurs",
+      "intertitle": "Dans tous les cas :"
+    },
+    {
+      "text": "Si vous partez avec vos enfants, organiser la scolarité de vos enfants et/ou leur mode de garde",
+      "id": "c8b4208fe6fa",
+      "section": "ailleurs",
+      "intertitle": "Dans tous les cas :",
+      "conditions": [
+        {
+          "type": "estVrai",
+          "var": "T11199"
+        }
+      ]
+    },
+    {
+      "text": "Trouver un logement à l'étranger",
+      "id": "cae2e5de8f40",
+      "section": "ailleurs",
+      "intertitle": "Dans tous les cas :"
+    },
+    {
+      "text": "Décider ce que vous faites de votre logement en France",
+      "id": "c7d88f276b5e",
+      "section": "ailleurs",
+      "intertitle": "Dans tous les cas :",
+      "conditions": [
+        {
+          "type": "estVrai",
+          "var": "T11422"
+        }
+      ]
+    },
+    {
+      "text": "Faire les démarches pour votre protection sociale à l'étranger",
+      "id": "bc25c037e988",
+      "section": "ailleurs",
+      "intertitle": "Dans tous les cas :"
+    },
+    {
+      "text": "Contacter votre centre des impôts",
+      "id": "b79cbccdeccd",
+      "section": "ailleurs",
+      "intertitle": "Dans tous les cas :",
+      "conditions": [
+        {
+          "type": "estVrai",
+          "var": "T12556"
+        }
+      ]
+    },
+    {
+      "text": "Si vous êtes allocataire, informer la Caf ou la MSA de votre départ",
+      "id": "8b5bf5bbfa60",
+      "section": "ailleurs",
+      "intertitle": "Dans tous les cas :",
+      "conditions": [
+        {
+          "type": "estVrai",
+          "var": "T16527"
+        }
+      ]
+    },
+    {
+      "text": "Si vous êtes inscrit à France Travail, informer de votre départ et obtenir les documents nécessaires",
+      "id": "a87a390ddab0",
+      "section": "ailleurs",
+      "intertitle": "Dans tous les cas :",
+      "conditions": [
+        {
+          "type": "estVrai",
+          "var": "T12724"
+        }
+      ]
+    },
+    {
+      "text": "Si vous êtes retraité, faire les démarches auprès de vos caisses de retraite",
+      "id": "f94a950ef870",
+      "section": "ailleurs",
+      "intertitle": "Dans tous les cas :",
+      "conditions": [
+        {
+          "type": "estVrai",
+          "var": "T10327"
+        }
+      ]
+    },
+    {
+      "text": "Décider du devenir de vos comptes bancaires en France et de vos abonnements (internet, salle de sport, etc.)",
+      "id": "67300e4aca2a",
+      "section": "ailleurs",
+      "intertitle": "Dans tous les cas :"
+    },
+    {
+      "text": "Si vous partez avec votre animal de compagnie, vérifier les conditions",
+      "id": "ee3a33d43f95",
+      "section": "ailleurs",
+      "intertitle": "Dans tous les cas :",
+      "conditions": [
+        {
+          "type": "estVrai",
+          "var": "T10790"
+        }
+      ]
+    },
+    {
+      "text": "Si vous avez fait votre recensement citoyen et si vous n'avez pas encore atteint l'âge de 25 ans, signaler votre nouvelle adresse au CSNJ",
+      "id": "d04be9b387b2",
+      "section": "ailleurs",
+      "intertitle": "Dans tous les cas :",
+      "conditions": [
+        {
+          "type": "estVrai",
+          "var": "T13114"
+        }
+      ]
+    },
+    {
+      "text": "Vous informer sur les formalités douanières liées au déménagement et/ou si vous partez avec au moins 10 000 € en argent liquide et/ou si vous partez avec certains objets (armes, biens culturels)",
+      "id": "2397169f5ed9",
+      "section": "ailleurs",
+      "intertitle": "Dans tous les cas :"
+    },
+    {
+      "text": "Connaître les démarches à effectuer une fois arrivé à l'étranger",
+      "id": "da37180f6bf3",
+      "section": "ailleurs",
+      "intertitle": "Dans tous les cas :"
+    },
+    {
+      "text": "Si vous partez faire vos études à l'étranger, vous renseigner sur les aides dont vous pouvez bénéficier",
+      "id": "410325b945ea",
+      "section": "ailleurs",
+      "intertitle": "En fonction de la situation :",
+      "conditions": [
+        {
+          "type": "estVrai",
+          "var": "T14260"
+        }
+      ]
+    },
+    {
+      "text": "Si vous partez faire un stage à l'étranger dans le cadre de vos études, vous renseigner sur les aides dont vous pouvez bénéficier",
+      "id": "646bc599fb82",
+      "section": "ailleurs",
+      "intertitle": "En fonction de la situation :",
+      "conditions": [
+        {
+          "type": "estVrai",
+          "var": "T14238"
+        }
+      ]
+    },
+    {
+      "text": "Si vous avez le permis de conduire, vous renseigner sur vos droits à conduire un véhicule à l’étranger",
+      "id": "f26eccb49a64",
+      "section": "ailleurs",
+      "intertitle": "En fonction de la situation :"
+    },
+    {
+      "text": "Si vous avez un véhicule, décider ce que vous en faites",
+      "id": "74938abc3e88",
+      "section": "ailleurs",
+      "intertitle": "En fonction de la situation :",
+      "conditions": [
+        {
+          "type": "estVrai",
+          "var": "T15770"
+        }
+      ]
+    },
+    {
+      "text": "Si vous faites appel à une entreprise de déménagement, organiser le déménagement",
+      "id": "1eaf54c10045",
+      "section": "ailleurs",
+      "intertitle": "En fonction de la situation :"
+    },
+    {
+      "text": "Si vous suivez un traitement médical que vous devez continuer à l'étranger, vous renseigner auprès de votre médecin",
+      "id": "7f8c2dcbfec9",
+      "section": "ailleurs",
+      "intertitle": "En fonction de la situation :",
+      "conditions": [
+        {
+          "type": "estVrai",
+          "var": "T17199"
+        }
+      ]
+    },
+    {
+      "text": "Réfléchir à un contrat de réexpédition de votre courrier",
+      "id": "2d46e9f65586",
+      "section": "ailleurs",
+      "intertitle": "En fonction de la situation :"
+    },
+    {
+      "text": "Réfléchir à la souscription d'une assurance spécifique pour l'assistance et le rapatriement (elle est fortement recommandée)",
+      "id": "30d901057613",
+      "section": "ailleurs",
+      "intertitle": "En fonction de la situation :"
+    }
+  ]
+}
