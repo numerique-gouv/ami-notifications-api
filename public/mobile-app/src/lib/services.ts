@@ -21,7 +21,7 @@ export class ServicesItem {
     private _kind: string,
 
     private _title: string,
-    private _short_description: string,
+    private _service_name: string,
     private _description: string,
     private _link: string,
     private _icon: string,
@@ -60,8 +60,8 @@ export class ServicesItem {
     return this._description;
   }
 
-  get short_description(): string {
-    return this._short_description;
+  get service_name(): string {
+    return this._service_name;
   }
 
   get link(): string | null {
@@ -195,7 +195,7 @@ export class Services {
       item.item_type,
       item.kind,
       item.title,
-      item.short_description,
+      item.service_name,
       item.description,
       item.url,
       item.icon,

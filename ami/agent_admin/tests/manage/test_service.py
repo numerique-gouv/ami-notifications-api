@@ -50,7 +50,7 @@ def test_add_service(app, admin_agent: Agent) -> None:
     assert response.forms["service-form"]["partner"].value == ""
     assert response.forms["service-form"]["item_type"].value == ""
     assert response.forms["service-form"]["title"].value == ""
-    assert response.forms["service-form"]["short_description"].value == ""
+    assert response.forms["service-form"]["service_name"].value == ""
     assert response.forms["service-form"]["description"].value == ""
     assert response.forms["service-form"]["url"].value == ""
     assert response.forms["service-form"]["with_silent_login"].value is None
@@ -74,7 +74,7 @@ def test_add_service_submit_validation_errors(app, admin_agent: Agent) -> None:
         "partner": ["Ce champ est obligatoire."],
         "item_type": ["Ce champ est obligatoire."],
         "title": ["Ce champ est obligatoire."],
-        "short_description": ["Ce champ est obligatoire."],
+        "service_name": ["Ce champ est obligatoire."],
         "description": ["Ce champ est obligatoire."],
         "url": ["Ce champ est obligatoire."],
     }
@@ -85,7 +85,7 @@ def test_add_service_submit_validation_errors(app, admin_agent: Agent) -> None:
         "partner": ["Ce champ est obligatoire."],
         "item_type": ["Ce champ est obligatoire."],
         "title": ["Ce champ est obligatoire."],
-        "short_description": ["Ce champ est obligatoire."],
+        "service_name": ["Ce champ est obligatoire."],
         "description": ["Ce champ est obligatoire."],
         "url": ["Ce champ est obligatoire."],
     }
@@ -96,7 +96,7 @@ def test_add_service_submit_validation_errors(app, admin_agent: Agent) -> None:
         "partner": ["Ce champ est obligatoire."],
         "item_type": ["Ce champ est obligatoire."],
         "title": ["Ce champ est obligatoire."],
-        "short_description": ["Ce champ est obligatoire."],
+        "service_name": ["Ce champ est obligatoire."],
         "description": ["Ce champ est obligatoire."],
         "url": ["Ce champ est obligatoire."],
     }
@@ -111,7 +111,7 @@ def test_add_service_submit_success(app, admin_agent: Agent, partner: Partner) -
     response.forms["service-form"]["partner"] = partner.id
     response.forms["service-form"]["item_type"] = "JeDéménage"
     response.forms["service-form"]["title"] = "Je déménage"
-    response.forms["service-form"]["short_description"] = "Démarche de changement d'adresse"
+    response.forms["service-form"]["service_name"] = "Démarche de changement d'adresse"
     response.forms["service-form"]["description"] = "**Démarche de changement d'adresse**"
     response.forms["service-form"]["url"] = "http://demarche-demenagement"
     response.forms["service-form"]["with_silent_login"] = True
@@ -125,7 +125,7 @@ def test_add_service_submit_success(app, admin_agent: Agent, partner: Partner) -
     assert service.partner == partner
     assert service.item_type == "JeDéménage"
     assert service.title == "Je déménage"
-    assert service.short_description == "Démarche de changement d'adresse"
+    assert service.service_name == "Démarche de changement d'adresse"
     assert service.description == "**Démarche de changement d'adresse**"
     assert service.url == "http://demarche-demenagement"
     assert service.icon == ""
@@ -156,7 +156,7 @@ def test_add_service_submit_success(app, admin_agent: Agent, partner: Partner) -
     response.forms["service-form"]["partner"] = partner.id
     response.forms["service-form"]["item_type"] = "JeDéménage"
     response.forms["service-form"]["title"] = "Je déménage"
-    response.forms["service-form"]["short_description"] = "Démarche de changement d'adresse"
+    response.forms["service-form"]["service_name"] = "Démarche de changement d'adresse"
     response.forms["service-form"]["description"] = "**Démarche de changement d'adresse**"
     response.forms["service-form"]["url"] = "http://demarche-demenagement"
     response.forms["service-form"]["icon"] = "fr-icon-earth-line"
@@ -171,7 +171,7 @@ def test_add_service_submit_success(app, admin_agent: Agent, partner: Partner) -
     assert service.partner == partner
     assert service.item_type == "JeDéménage"
     assert service.title == "Je déménage"
-    assert service.short_description == "Démarche de changement d'adresse"
+    assert service.service_name == "Démarche de changement d'adresse"
     assert service.description == "**Démarche de changement d'adresse**"
     assert service.url == "http://demarche-demenagement"
     assert service.icon == "fr-icon-earth-line"
@@ -183,7 +183,7 @@ def test_add_service_submit_success(app, admin_agent: Agent, partner: Partner) -
     response.forms["service-form"]["partner"] = partner.id
     response.forms["service-form"]["item_type"] = "JeDéménage"
     response.forms["service-form"]["title"] = "Je déménage"
-    response.forms["service-form"]["short_description"] = "Démarche de changement d'adresse"
+    response.forms["service-form"]["service_name"] = "Démarche de changement d'adresse"
     response.forms["service-form"]["description"] = "**Démarche de changement d'adresse**"
     response.forms["service-form"]["url"] = "http://demarche-demenagement"
     response.forms["service-form"]["icon"] = "fr-icon-earth-line"
@@ -198,7 +198,7 @@ def test_add_service_submit_success(app, admin_agent: Agent, partner: Partner) -
     assert service.partner == partner
     assert service.item_type == "JeDéménage"
     assert service.title == "Je déménage"
-    assert service.short_description == "Démarche de changement d'adresse"
+    assert service.service_name == "Démarche de changement d'adresse"
     assert service.description == "**Démarche de changement d'adresse**"
     assert service.url == "http://demarche-demenagement"
     assert service.icon == "fr-icon-earth-line"
@@ -217,7 +217,7 @@ def test_add_service_submit_success_duplicated_restricted_to(
     response.forms["service-form"]["partner"] = partner.id
     response.forms["service-form"]["item_type"] = "JeDéménage"
     response.forms["service-form"]["title"] = "Je déménage"
-    response.forms["service-form"]["short_description"] = "Démarche de changement d'adresse"
+    response.forms["service-form"]["service_name"] = "Démarche de changement d'adresse"
     response.forms["service-form"]["description"] = "**Démarche de changement d'adresse**"
     response.forms["service-form"]["url"] = "http://demarche-demenagement"
     response.forms["service-form"]["with_silent_login"] = True
@@ -241,7 +241,7 @@ def test_add_service_submit_success_duplicated_service(
     response.forms["service-form"]["partner"] = service.partner.id
     response.forms["service-form"]["item_type"] = service.item_type
     response.forms["service-form"]["title"] = "Je déménage"
-    response.forms["service-form"]["short_description"] = "Démarche de changement d'adresse"
+    response.forms["service-form"]["service_name"] = "Démarche de changement d'adresse"
     response.forms["service-form"]["description"] = "**Démarche de changement d'adresse**"
     response.forms["service-form"]["url"] = "http://demarche-demenagement"
     response = response.forms["service-form"].submit()
@@ -254,7 +254,7 @@ def test_add_service_submit_success_duplicated_service(
     response.forms["service-form"]["partner"] = service.partner.id
     response.forms["service-form"]["item_type"] = service.item_type
     response.forms["service-form"]["title"] = "Je déménage"
-    response.forms["service-form"]["short_description"] = "Démarche de changement d'adresse"
+    response.forms["service-form"]["service_name"] = "Démarche de changement d'adresse"
     response.forms["service-form"]["description"] = "**Démarche de changement d'adresse**"
     response.forms["service-form"]["url"] = "http://demarche-demenagement"
     response = response.forms["service-form"].submit()
@@ -267,7 +267,7 @@ def test_add_service_submit_success_duplicated_service(
     response.forms["service-form"]["partner"] = service.partner.id
     response.forms["service-form"]["item_type"] = service.item_type
     response.forms["service-form"]["title"] = "Je déménage"
-    response.forms["service-form"]["short_description"] = "Démarche de changement d'adresse"
+    response.forms["service-form"]["service_name"] = "Démarche de changement d'adresse"
     response.forms["service-form"]["description"] = "**Démarche de changement d'adresse**"
     response.forms["service-form"]["url"] = "http://demarche-demenagement"
     response = response.forms["service-form"].submit()
@@ -310,7 +310,7 @@ def test_edit_service(
     assert response.forms["service-form"]["partner"].value == str(partner_dn.id)
     assert response.forms["service-form"]["item_type"].value == "ContacterAMI"
     assert response.forms["service-form"]["title"].value == "Contacter l'équipe AMI"
-    assert response.forms["service-form"]["short_description"].value == "Faites-nous votre retour"
+    assert response.forms["service-form"]["service_name"].value == "Faites-nous votre retour"
     assert (
         response.forms["service-form"]["description"].value
         == "Pour tout retour sur l'application AMI, vous pouvez nous contacter par le biais de ce formulaire"
@@ -346,7 +346,7 @@ def test_edit_service_submit_validation_errors(
     response.forms["service-form"]["partner"].value = ""
     response.forms["service-form"]["item_type"].value = ""
     response.forms["service-form"]["title"].value = ""
-    response.forms["service-form"]["short_description"].value = ""
+    response.forms["service-form"]["service_name"].value = ""
     response.forms["service-form"]["description"].value = ""
     response.forms["service-form"]["url"].value = ""
     response.forms["service-form"]["restricted_to"].value = ""
@@ -355,7 +355,7 @@ def test_edit_service_submit_validation_errors(
         "partner": ["Ce champ est obligatoire."],
         "item_type": ["Ce champ est obligatoire."],
         "title": ["Ce champ est obligatoire."],
-        "short_description": ["Ce champ est obligatoire."],
+        "service_name": ["Ce champ est obligatoire."],
         "description": ["Ce champ est obligatoire."],
         "url": ["Ce champ est obligatoire."],
     }
@@ -364,7 +364,7 @@ def test_edit_service_submit_validation_errors(
     response.forms["service-form"]["partner"].value = ""
     response.forms["service-form"]["item_type"].value = ""
     response.forms["service-form"]["title"].value = ""
-    response.forms["service-form"]["short_description"].value = ""
+    response.forms["service-form"]["service_name"].value = ""
     response.forms["service-form"]["description"].value = ""
     response.forms["service-form"]["url"].value = ""
     response.forms["service-form"]["icon"].value = ""
@@ -374,7 +374,7 @@ def test_edit_service_submit_validation_errors(
         "partner": ["Ce champ est obligatoire."],
         "item_type": ["Ce champ est obligatoire."],
         "title": ["Ce champ est obligatoire."],
-        "short_description": ["Ce champ est obligatoire."],
+        "service_name": ["Ce champ est obligatoire."],
         "description": ["Ce champ est obligatoire."],
         "url": ["Ce champ est obligatoire."],
     }
@@ -383,7 +383,7 @@ def test_edit_service_submit_validation_errors(
     response.forms["service-form"]["partner"].value = ""
     response.forms["service-form"]["item_type"].value = ""
     response.forms["service-form"]["title"].value = ""
-    response.forms["service-form"]["short_description"].value = ""
+    response.forms["service-form"]["service_name"].value = ""
     response.forms["service-form"]["description"].value = ""
     response.forms["service-form"]["url"].value = ""
     response.forms["service-form"]["icon"].value = ""
@@ -393,7 +393,7 @@ def test_edit_service_submit_validation_errors(
         "partner": ["Ce champ est obligatoire."],
         "item_type": ["Ce champ est obligatoire."],
         "title": ["Ce champ est obligatoire."],
-        "short_description": ["Ce champ est obligatoire."],
+        "service_name": ["Ce champ est obligatoire."],
         "description": ["Ce champ est obligatoire."],
         "url": ["Ce champ est obligatoire."],
     }
@@ -410,7 +410,7 @@ def test_edit_service_submit_success(
     response.forms["service-form"]["partner"] = partner.id
     response.forms["service-form"]["item_type"] = "JeDéménage"
     response.forms["service-form"]["title"] = "Je déménage"
-    response.forms["service-form"]["short_description"] = "Démarche de changement d'adresse"
+    response.forms["service-form"]["service_name"] = "Démarche de changement d'adresse"
     response.forms["service-form"]["description"] = "**Démarche de changement d'adresse**"
     response.forms["service-form"]["url"] = "http://demarche-demenagement"
     response.forms["service-form"]["with_silent_login"] = True
@@ -424,7 +424,7 @@ def test_edit_service_submit_success(
     assert service.partner == partner
     assert service.item_type == "JeDéménage"
     assert service.title == "Je déménage"
-    assert service.short_description == "Démarche de changement d'adresse"
+    assert service.service_name == "Démarche de changement d'adresse"
     assert service.description == "**Démarche de changement d'adresse**"
     assert service.url == "http://demarche-demenagement"
     assert service.icon == ""

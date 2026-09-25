@@ -24,7 +24,7 @@ class Service(models.Model):
     kind = models.CharField(max_length=10, choices=Kind, default=Kind.CATALOG)
 
     title = models.CharField()
-    short_description = models.CharField("Service")
+    service_name = models.CharField("Service", db_column="short_description")
     description = models.TextField()
     url = models.CharField()
 
@@ -56,7 +56,7 @@ class Service(models.Model):
             item_type=self.item_type,
             kind=self.kind,
             title=self.title,
-            short_description=self.short_description,
+            service_name=self.service_name,
             description=self.description,
             url=self.url,
             icon=self.icon,

@@ -196,7 +196,7 @@
                           <span class="services--item-details">
                             <span class="services--item-label">{item.title}</span>
                             <span class="services--item-description"
-                              >{item.short_description}</span
+                              >{item.service_name}</span
                             >
                           </span>
                           <span

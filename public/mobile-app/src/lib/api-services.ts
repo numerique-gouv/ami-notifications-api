@@ -5,7 +5,7 @@ export type APIServicesItem = {
   item_type: string;
   kind: string;
   title: string;
-  short_description: string;
+  service_name: string;
   description: string;
   url: string;
   icon: string;

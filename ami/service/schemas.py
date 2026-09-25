@@ -18,7 +18,7 @@ class ServicesItem:
     kind: str
 
     title: str
-    short_description: str
+    service_name: str
     description: str
     url: str
     icon: str
