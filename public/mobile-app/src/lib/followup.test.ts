@@ -1255,7 +1255,7 @@ describe('/followup.ts', () => {
           'id',
           'ref',
           'notifications',
-          null,
+          new Date(),
           null, // no end date
           [],
           'title',
@@ -1306,6 +1306,25 @@ describe('/followup.ts', () => {
           false,
           null
         );
+        const subitem4 = new SubItem(
+          'partner',
+          'type',
+          'id',
+          'ref',
+          'notifications',
+          null,
+          null, // no end date
+          [],
+          'title',
+          'subheading',
+          'description',
+          'icon',
+          new Date('2026-01-03T08:05:42Z'),
+          'new',
+          'New',
+          false,
+          null
+        );
         const item1 = new Item(
           'partner',
           'type',
@@ -1324,7 +1343,7 @@ describe('/followup.ts', () => {
           'New',
           false,
           null,
-          [subitem1, subitem2, subitem3]
+          [subitem1, subitem2, subitem3, subitem4]
         );
         const item2 = new Item(
           'partner',
