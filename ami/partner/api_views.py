@@ -34,6 +34,7 @@ def generate_partner_url(request):
     email = data.get("email", "")
     address_city = data.get("address_city", "")
     address_postcode = data.get("address_postcode", "")
+    address_citycode = data.get("address_citycode", "")
     address_name = data.get("address_name", "")
     current_user = request.ami_user
 
@@ -48,6 +49,7 @@ def generate_partner_url(request):
                 email or "",
                 address_city or "",
                 address_postcode or "",
+                address_citycode or "",
                 address_name or "",
                 current_user.fc_hash,
             )

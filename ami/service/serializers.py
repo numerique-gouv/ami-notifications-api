@@ -17,6 +17,7 @@ class OTVJWTTokenSerializer(serializers.Serializer):
     email = serializers.CharField(allow_blank=True, required=False, default="")
     address_city = serializers.CharField(allow_blank=True, required=False, default="")
     address_postcode = serializers.CharField(allow_blank=True, required=False, default="")
+    address_citycode = serializers.CharField(allow_blank=True, required=False, default="")
     address_name = serializers.CharField(allow_blank=True, required=False, default="")
 
     @classmethod
@@ -29,6 +30,7 @@ class OTVJWTTokenSerializer(serializers.Serializer):
                 validated_data["email"],
                 validated_data["address_city"],
                 validated_data["address_postcode"],
+                validated_data["address_citycode"],
                 validated_data["address_name"],
                 user.fc_hash,
             )

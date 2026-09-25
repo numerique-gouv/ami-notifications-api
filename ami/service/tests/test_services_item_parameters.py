@@ -49,6 +49,7 @@ def test_get_services_items_parameters_otv_jwt_token(
                     "email": "wossewodda-37228@yopmail.com",
                     "address_city": "Paris",
                     "address_postcode": "75007",
+                    "address_citycode": "75107",
                     "address_name": "20 Avenue de Ségur",
                 },
             }
@@ -119,6 +120,7 @@ def test_get_services_items_parameters_otv_jwt_token_empty_fields(
                     "email": "",
                     "address_city": "",
                     "address_postcode": "",
+                    "address_citycode": "",
                     "address_name": "",
                 },
             }
@@ -145,6 +147,7 @@ def test_get_services_items_parameters_otv_jwt_token_missing_otv_keys(
                     "email": "wossewodda-37228@yopmail.com",
                     "address_city": "Paris",
                     "address_postcode": "75007",
+                    "address_citycode": "75107",
                     "address_name": "20 Avenue de Ségur",
                 },
             }

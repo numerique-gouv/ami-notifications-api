@@ -22,7 +22,7 @@ def test_generate_partner_url_when_no_query_parameters(
 
     # When
     response = app.get(
-        "/api/v1/partner/otv/url?preferred_username=&email=&address_city=&address_postcode=&address_name="
+        "/api/v1/partner/otv/url?preferred_username=&email=&address_city=&address_postcode=&address_citycode=&address_name="
     )
 
     # Then
@@ -42,7 +42,7 @@ def test_generate_partner_url_when_url_has_no_template(
 
     # When
     response = app.get(
-        "/api/v1/partner/otv/url?preferred_username=Delaforêt&email=wossewodda-37228@yopmail.com&address_city=Paris&address_postcode=75007&address_name=20 Avenue de Ségur"
+        "/api/v1/partner/otv/url?preferred_username=Delaforêt&email=wossewodda-37228@yopmail.com&address_city=Paris&address_postcode=75007&address_citycode=75107&address_name=20 Avenue de Ségur"
     )
 
     # Then
@@ -59,7 +59,7 @@ def test_generate_partner_url_when_url_has_template(
 ) -> None:
     login(app, user)
 
-    url = "/api/v1/partner/otv/url?preferred_username=Delaforêt&email=wossewodda-37228@yopmail.com&address_city=Paris&address_postcode=75007&address_name=20 Avenue de Ségur"
+    url = "/api/v1/partner/otv/url?preferred_username=Delaforêt&email=wossewodda-37228@yopmail.com&address_city=Paris&address_postcode=75007&address_citycode=75107&address_name=20 Avenue de Ségur"
 
     def mock_generate_identity_token(*args: Any, **kwargs: Any):
         return "fake-identity-token"
