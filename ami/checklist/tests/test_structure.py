@@ -222,3 +222,19 @@ def test_item_with_condition():
             ],
         }
     ]
+
+
+def test_item_with_sigle_link():
+    checklist = CheckList()
+    checklist.add_item(
+        ET.fromstring("""\
+<Liste type="caseACocher">
+  <Item>
+    <Paragraphe>
+      signaler votre nouvelle adresse au <LienInterne LienPublication="R63347" type="Sigle">CSNJ</LienInterne>
+    </Paragraphe>
+  </Item>
+</Liste>""")
+    )
+    assert checklist.items[0]["text"] == "signaler votre nouvelle adresse au CSNJ"
+    assert not checklist.items[0].get("links")

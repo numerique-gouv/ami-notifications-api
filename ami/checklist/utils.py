@@ -86,6 +86,8 @@ class CheckList:
             for link_node in paragraph.findall(".//*"):
                 if not link_node.text:
                     continue
+                if link_node.attrib.get("type") == "Sigle":
+                    continue
                 if link_node.tag == "LienInterne":
                     links.append(
                         {
