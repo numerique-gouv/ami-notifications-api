@@ -296,6 +296,8 @@ class NotificationsItem(NotificationsSubItem):
 
     @property
     def reference(self):
+        if self.notifications and self.last_notification.content_subheading:
+            return ""
         return self.item_external_id
 
     @property
