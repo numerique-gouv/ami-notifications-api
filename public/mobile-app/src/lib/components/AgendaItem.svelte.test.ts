@@ -28,4 +28,23 @@ describe('/AgendaItem.svelte', () => {
     // Then
     expect(onOpen).toHaveBeenCalledTimes(1);
   });
+  test('should mark emojis', async () => {
+    // Given
+    const item = new Item(
+      'fake-id-election',
+      'election',
+      'Elections locales',
+      'Inscrivez-vous sur les listes électorales 📆',
+      null,
+      new Date('2025-12-05'),
+      null
+    );
+    const onOpen = vi.fn();
+
+    // When
+    render(AgendaItem, { props: { item: item, onOpen: onOpen } });
+
+    // Then
+    expect(document.querySelector('[aria-hidden]')).toBeInTheDocument();
+  });
 });

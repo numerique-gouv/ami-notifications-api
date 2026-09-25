@@ -89,7 +89,9 @@ export class Preferences {
       // add user address in corresponding zone
       if (userAddress !== undefined) {
         if (zone === userAddress.zone) {
-          zonesDict[zone].push(`${userAddress.city} (${userAddress.departement}) 🏠`);
+          zonesDict[zone].push(
+            `${userAddress.city} (${userAddress.departement})\u00A0🏠`
+          );
         }
       }
       // add cities in preferences in corresponding zones
@@ -175,7 +177,7 @@ export class Preferences {
       if (userAddress?.zone === zone.label) {
         tags.push({
           id: `user-address-${userAddress.idBAN}`,
-          label: `${userAddress.city} (${userAddress.departement}) 🏠`,
+          label: `${userAddress.city} (${userAddress.departement})\u00A0🏠`,
           removable: false,
         });
       }

@@ -1,5 +1,6 @@
 <script lang="ts">
   import DOMPurify from 'dompurify';
+  import { ariaHideDecorativeEmoji } from '$lib/emoji';
   import { type ToggleTag } from '$lib/types/components/toggletag';
 
   interface Props {
@@ -45,7 +46,7 @@
           {tag.label}
         </button>
       {:else}
-        <p class="fr-tag">{tag.label}</p>
+        <p class="fr-tag">{@html ariaHideDecorativeEmoji(tag.label)}</p>
       {/if}
     {/each}
   </div>

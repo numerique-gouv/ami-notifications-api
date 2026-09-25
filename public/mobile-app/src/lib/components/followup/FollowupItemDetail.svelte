@@ -4,6 +4,7 @@
   import FollowupItemComponent from '$lib/components/followup/FollowupItem.svelte';
   import FollowupItemDetailHeader from '$lib/components/followup/FollowupItemDetailHeader.svelte';
   import { getDSFRIcon } from '$lib/dsfr-icon';
+  import { ariaHideDecorativeEmoji } from '$lib/emoji';
   import { FollowupItem, FollowupSubItem } from '$lib/followup';
   import type { Services } from '$lib/services';
 
@@ -84,7 +85,9 @@
             >
               {event.formattedDate}
             </p>
-            <p class="fr-text--sm fr-m-0 fr-p-0">{event.description}</p>
+            <p class="fr-text--sm fr-m-0 fr-p-0">
+              {@html ariaHideDecorativeEmoji(event.description)}
+            </p>
           </li>
         {/each}
       </ul>
@@ -122,13 +125,13 @@
                 onclick={(e) => AMIGoto(sub_item.getItemDetailPageUrl(item as FollowupItem))}
                 data-testid="followup-subitem-link-{sub_item.id}"
               >
-                {sub_item.title}
+                {@html ariaHideDecorativeEmoji(sub_item.title)}
               </button>
               <p
                 class="fr-text--regular fr-text--xs fr-m-0"
                 data-testid="followup-subitem-detail-{sub_item.id}"
               >
-                {sub_item.description}
+                {@html ariaHideDecorativeEmoji(sub_item.description)}
               </p>
             </li>
           {/each}

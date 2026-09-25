@@ -790,7 +790,7 @@ describe('/agenda.ts', () => {
               'holiday',
               'Holiday 5',
               '',
-              'Zone C&nbsp;: <strong>Paris (75) 🏠</strong>',
+              'Zone C&nbsp;: <strong>Paris (75)\u00A0🏠</strong>',
               null,
               holiday5.start_date,
               holiday5.end_date

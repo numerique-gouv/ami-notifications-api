@@ -1,6 +1,7 @@
 <script lang="ts">
   import { AMIGoto } from '$lib/ami-navigation';
   import { getDSFRIcon } from '$lib/dsfr-icon';
+  import { ariaHideDecorativeEmoji } from '$lib/emoji';
   import { FollowupItem } from '$lib/followup';
 
   interface Props {
@@ -37,7 +38,7 @@
             onclick={(e) => AMIGoto(item.getItemDetailPageUrl())}
             data-testid="followup-item-link"
           >
-            {item.title}
+            {@html ariaHideDecorativeEmoji(item.title)}
           </button>
         </h3>
         <p
@@ -58,7 +59,7 @@
                 {item.closedSubItems.length === 1 ? 'service': 'services'}
               {/if}
             {:else}
-              {item.description}
+              {@html ariaHideDecorativeEmoji(item.description)}
             {/if}
           </span>
         </p>

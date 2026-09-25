@@ -1,6 +1,7 @@
 <script lang="ts">
   import { AMIGoto } from '$lib/ami-navigation';
   import { getDSFRIcon } from '$lib/dsfr-icon';
+  import { ariaHideDecorativeEmoji } from '$lib/emoji';
   import { FollowupSubItem } from '$lib/followup';
   import type { Services, ServicesItem } from '$lib/services';
 
@@ -33,7 +34,7 @@
   </p>
 
   <div class="fr-mb-1w">
-    <h1 class="fr-h3 fr-mb-3v">{item.title}</h1>
+    <h1 class="fr-h3 fr-mb-3v">{@html ariaHideDecorativeEmoji(item.title)}</h1>
   </div>
 
   {#if item.subheading}
@@ -41,7 +42,7 @@
       class="fr-text--sm am-text-mention-grey am-text--smbold demarche--subheading fr-mb-1w"
       data-testid="item-subheading"
     >
-      {item.subheading}
+      {@html ariaHideDecorativeEmoji(item.subheading)}
     </p>
   {/if}
   {#if item.reference}
