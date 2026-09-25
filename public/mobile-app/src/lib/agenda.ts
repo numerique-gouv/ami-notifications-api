@@ -225,18 +225,24 @@ export class Item {
     return this._subitems[0].period;
   }
 
-  private static readonly KindInfo: Record<Kind, { label: string; icon: string }> = {
+  private static readonly KindInfo: Record<
+    Kind,
+    { label: string; icon: string; badgeClassName: string }
+  > = {
     holiday: {
       label: 'Vacances et jours fériés',
       icon: 'fr-icon-calendar-event-fill',
+      badgeClassName: 'fr-badge--blue-cumulus',
     },
     election: {
       label: 'Élections',
       icon: 'fr-icon-chat-check-fill',
+      badgeClassName: 'fr-badge--green-tilleul-verveine',
     },
     personal: {
       label: 'Personnel',
       icon: 'fr-icon-user-fill',
+      badgeClassName: 'am-badge--user',
     },
   };
 
@@ -266,6 +272,14 @@ export class Item {
 
   get key(): string {
     return `ami-${this._kind}:${getTimestamp(this.date)}:${slugify(this._title)}`;
+  }
+
+  get badgeClassName(): string {
+    const info = Item.KindInfo[this._kind];
+    if (info === undefined) {
+      return '';
+    }
+    return info.badgeClassName;
   }
 }
 

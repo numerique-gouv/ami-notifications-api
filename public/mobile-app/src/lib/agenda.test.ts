@@ -459,16 +459,26 @@ describe('/agenda.ts', () => {
           'description',
           new Date('2025-12-20')
         );
+        const item4 = new Item(
+          'fake-id-personal-4',
+          'personal',
+          'title',
+          '',
+          'description',
+          new Date('2025-12-20')
+        );
 
         // When
         const label1 = item1.label;
         const label2 = item2.label;
         const label3 = item3.label;
+        const label4 = item4.label;
 
         // Then
         expect(label1).equal('');
         expect(label2).equal('Vacances et jours fériés');
         expect(label3).equal('Élections');
+        expect(label4).equal('Personnel');
       });
     });
     describe('icon', () => {
@@ -499,16 +509,26 @@ describe('/agenda.ts', () => {
           'description',
           new Date('2025-12-20')
         );
+        const item4 = new Item(
+          'fake-id-personal-4',
+          'personal',
+          'title',
+          '',
+          'description',
+          new Date('2025-12-20')
+        );
 
         // When
         const icon1 = item1.icon;
         const icon2 = item2.icon;
         const icon3 = item3.icon;
+        const icon4 = item4.icon;
 
         // Then
         expect(icon1).equal('');
         expect(icon2).equal('fr-icon-calendar-event-fill');
         expect(icon3).equal('fr-icon-chat-check-fill');
+        expect(icon4).equal('fr-icon-user-fill');
       });
     });
     describe('key', () => {
@@ -559,6 +579,56 @@ describe('/agenda.ts', () => {
         expect(key2).equal('ami-holiday:1766188800:title-2');
         expect(key3).equal('ami-election:1766188800:title-3');
         expect(key4).equal('ami-personal:1766188800:title-4');
+      });
+    });
+    describe('badgeClassName', () => {
+      test('should return an badgeClassName depending on kind', async () => {
+        // Given
+        const item1 = new Item(
+          'fake-id-item-1',
+          // @ts-expect-error: `'incorrect'` isn't a proper Kind, so typescript will complain
+          'incorrect',
+          'title',
+          '',
+          'description',
+          new Date('2025-12-20')
+        );
+        const item2 = new Item(
+          'fake-id-holiday-2',
+          'holiday',
+          'title',
+          '',
+          'description',
+          new Date('2025-12-20')
+        );
+        const item3 = new Item(
+          'fake-id-election-3',
+          'election',
+          'title',
+          '',
+          'description',
+          new Date('2025-12-20')
+        );
+        const item4 = new Item(
+          'fake-id-personal-4',
+          'personal',
+          'title',
+          '',
+          'description',
+          new Date('2025-12-20')
+        );
+
+        // When
+        const badgeClassName1 = item1.badgeClassName;
+        const badgeClassName2 = item2.badgeClassName;
+        const badgeClassName3 = item3.badgeClassName;
+        const badgeClassName4 = item4.badgeClassName;
+
+        // Then
+        expect(badgeClassName1).equal('');
+        expect(badgeClassName2).equal('fr-badge--blue-cumulus');
+        expect(badgeClassName3).equal('fr-badge--green-tilleul-verveine');
+        expect(badgeClassName4).equal('am-badge--user');
       });
     });
   });

@@ -12,12 +12,6 @@
     isPast?: boolean;
   }
   let { item, displayDate = true, onOpen = null, isPast = false }: Props = $props();
-
-  const badgeKinds = {
-    election: 'fr-badge--green-tilleul-verveine',
-    holiday: 'fr-badge--blue-cumulus',
-    personal: 'am-badge--user',
-  };
 </script>
 
 <div class="agenda--item">
@@ -65,7 +59,7 @@
             {/if}
             <div class="fr-tile__start fr-mb-3v">
               <p
-                class="fr-badge fr-badge--sm fr-badge--icon-left fr-mb-1w {item.icon} {badgeKinds[item.kind]}"
+                class="fr-badge fr-badge--sm fr-badge--icon-left fr-mb-1w {item.icon} {item.badgeClassName}"
               >
                 {item.label}
               </p>
@@ -74,7 +68,7 @@
           {:else}
             <div class="fr-tile__start fr-mb-3v">
               <p
-                class="fr-badge fr-badge--sm fr-badge--icon-left {item.icon} {badgeKinds[(item.kind)]} fr-mb-0"
+                class="fr-badge fr-badge--sm fr-badge--icon-left {item.icon} {item.badgeClassName} fr-mb-0"
               >
                 {item.label}
               </p>
