@@ -2,10 +2,11 @@ from typing import cast
 
 from django.conf import settings
 from django.db import connection
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from drf_spectacular.utils import extend_schema
 from github import Auth, GithubIntegration
 from rest_framework.decorators import api_view
+from rest_framework.request import Request
 from rest_framework.response import Response
 
 from ami.user.utils import build_fc_hash
@@ -114,3 +115,15 @@ def _dev_health_db_pool(request) -> Response | None:
                 "connections": [dict(zip(columns, row)) for row in cursor.fetchall()],
             }
         )
+
+
+@api_view(["GET"])
+def get_trusted_urls(request: Request) -> JsonResponse:
+    if not settings.TRUSTED_URLS:
+        return JsonResponse({"trusted_urls": []})
+
+    trusted_urls = settings.TRUSTED_URLS.split(",")
+    trusted_urls = [u.strip() for u in trusted_urls]
+    trusted_urls = [u for u in trusted_urls if u]
+
+    return JsonResponse({"trusted_urls": trusted_urls})
