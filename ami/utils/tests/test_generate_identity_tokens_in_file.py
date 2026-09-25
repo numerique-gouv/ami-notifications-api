@@ -18,9 +18,9 @@ def test_cli_generate_identity_tokens(
     tmp_path: Path,
 ) -> None:
     csv_content = (
-        "id,fc_hash,preferred_username,email,address_city,address_postcode,address_name\n"
+        "id,fc_hash,preferred_username,email,address_city,address_postcode,address_citycode,address_name\n"
         "1,4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060,,"
-        "wossewodda-3728@yopmail.com,Paris,75007,20 Avenue de Ségur\n"
+        "wossewodda-3728@yopmail.com,Paris,75007,75107,20 Avenue de Ségur\n"
     )
     input_csv_file_path = tmp_path / "input_file_test_cli.csv"
     input_csv_file_path.write_text(csv_content, encoding="utf-8")
@@ -43,6 +43,7 @@ def test_cli_generate_identity_tokens(
         "email",
         "address_city",
         "address_postcode",
+        "address_citycode",
         "address_name",
         "fc_hash",
     ]
@@ -56,6 +57,7 @@ def test_cli_generate_identity_tokens(
     assert input_data[0]["email"] == output_data[0]["email"]
     assert input_data[0]["address_city"] == output_data[0]["address_city"]
     assert input_data[0]["address_postcode"] == output_data[0]["address_postcode"]
+    assert input_data[0]["address_citycode"] == output_data[0]["address_citycode"]
     assert input_data[0]["address_name"] == output_data[0]["address_name"]
     assert input_data[0]["fc_hash"] == output_data[0]["fc_hash"]
     assert output_data[0]["identity_token"] is not None
@@ -89,6 +91,7 @@ def test_generate_identity_token(
     email: str = "wossewodda-37228@yopmail.com"
     address_city: str = "Paris"
     address_postcode: str = "75007"
+    address_citycode: str = "75107"
     address_name: str = "20 Avenue de Ségur"
     fc_hash: str = "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060"
 
@@ -131,7 +134,13 @@ def test_generate_identity_token(
 
     # When
     token = generate_identity_token(
-        preferred_username, email, address_city, address_postcode, address_name, fc_hash
+        preferred_username,
+        email,
+        address_city,
+        address_postcode,
+        address_citycode,
+        address_name,
+        fc_hash,
     )
 
     # Then
@@ -150,6 +159,7 @@ def test_generate_identity_token_with_decode(
     email: str = "wossewodda-37228@yopmail.com"
     address_city: str = "Paris"
     address_postcode: str = "75007"
+    address_citycode: str = "75107"
     address_name: str = "20 Avenue de Ségur"
     fc_hash: str = "4abd71ec1f581dce2ea2221cbeac7c973c6aea7bcb835acdfe7d6494f1528060"
 
@@ -172,7 +182,13 @@ def test_generate_identity_token_with_decode(
 
     # When
     token = generate_identity_token(
-        preferred_username, email, address_city, address_postcode, address_name, fc_hash
+        preferred_username,
+        email,
+        address_city,
+        address_postcode,
+        address_citycode,
+        address_name,
+        fc_hash,
     )
 
     decoded_result = decode_identity_token(token)
@@ -192,4 +208,5 @@ def test_generate_identity_token_with_decode(
     assert data_result["email"] == "wossewodda-37228@yopmail.com"
     assert data_result["commune_nom"] == "Paris"
     assert data_result["commune_cp"] == "75007"
+    assert data_result["commune_code_insee"] == "75107"
     assert data_result["commune_adresse"] == "20 Avenue de Ségur"
