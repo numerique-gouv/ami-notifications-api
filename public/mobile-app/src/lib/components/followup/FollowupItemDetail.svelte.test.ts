@@ -205,7 +205,7 @@ describe('/FollowupItemDetail.svelte', () => {
       );
       expect(screen.queryByTestId('followup-events')).not.toBeNull();
       expect(screen.queryByTestId('followup-events')).toHaveTextContent(
-        'Évènements attachés : title 2 Personnel Dimanche 11 octobre à 12h25 Passé : title 1 Personnel Samedi 10 octobre à 12h25'
+        'Évènements attachés : title 2 Dimanche 11 octobre à 12h25 Passé : title 1 Samedi 10 octobre à 12h25'
       );
     });
     test('should display links to subitems', async () => {
