@@ -389,7 +389,9 @@ export class FollowupItem extends FollowupSubItem {
     today.setHours(0, 0, 0, 0);
     return this.sub_items.filter(
       (sub_item) =>
-        sub_item.milestone_end_date === null || sub_item.milestone_end_date >= today
+        (sub_item.milestone_start_date !== null &&
+          sub_item.milestone_end_date === null) ||
+        (sub_item.milestone_end_date !== null && sub_item.milestone_end_date >= today)
     );
   }
 
