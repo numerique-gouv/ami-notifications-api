@@ -194,6 +194,24 @@ class Document:
                             intertitle = self.get_clean_title(chapitre_title_element)
                 except IndexError:
                     pass
+                if not intertitle:
+                    # look for previous <TitreFlottant>
+                    if parent.tag == "FragmentConditionne":
+                        parent_with_list = parents[-2]
+                        child_position = list(parent_with_list).index(parent)
+                    else:
+                        parent_with_list = parents[-1]
+                        child_position = list(parent_with_list).index(child)
+                    try:
+                        last_floating_title = [
+                            x
+                            for i, x in enumerate(parent_with_list)
+                            if i < child_position and x.tag == "TitreFlottant"
+                        ][-1]
+                    except IndexError:
+                        pass
+                    else:
+                        intertitle = self.get_clean_title(last_floating_title)
                 self.checklist.add_item(
                     child,
                     section=self.current_section_id,
