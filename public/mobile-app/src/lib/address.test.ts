@@ -13,7 +13,8 @@ describe('/address.ts', () => {
           'idban',
           'label',
           'name',
-          'postcode'
+          'postcode',
+          'citycode'
         );
 
         // When
@@ -27,6 +28,7 @@ describe('/address.ts', () => {
         expect(result.label).toEqual('label');
         expect(result.name).toEqual('name');
         expect(result.postcode).toEqual('postcode');
+        expect(result.citycode).toEqual('citycode');
       });
     });
 
@@ -34,14 +36,14 @@ describe('/address.ts', () => {
       test('should return departement code', async () => {
         // Given
         const addresses = [
-          new Address('', '', '', '', '', ''),
-          new Address('', '', '', '', '', '1'),
-          new Address('', '', '', '', '', '2B'),
-          new Address('', '', '', '', '', '301'),
-          new Address('', '', '', '', '', '975'),
-          new Address('', '', '', '', '', '97'),
-          new Address('', '', '', '', '', '986'),
-          new Address('', '', '', '', '', '98'),
+          new Address('', '', '', '', '', '', ''),
+          new Address('', '', '', '', '', '1', ''),
+          new Address('', '', '', '', '', '2B', ''),
+          new Address('', '', '', '', '', '301', ''),
+          new Address('', '', '', '', '', '975', ''),
+          new Address('', '', '', '', '', '97', ''),
+          new Address('', '', '', '', '', '986', ''),
+          new Address('', '', '', '', '', '98', ''),
         ];
         const results = ['', '', '2B', '30', '975', '', '986', ''];
 
@@ -59,25 +61,25 @@ describe('/address.ts', () => {
       test('should return zone', async () => {
         // Given
         const addresses = [
-          new Address('', '', '', '', '', ''),
-          new Address('', '', '', '', '', '1'),
-          new Address('', '', '', '', '', '24'),
-          new Address('', '', '', '', '', '301'),
-          new Address('', '', '', '', '', 'ABC'),
-          new Address('', '', '', '', '', '971'),
-          new Address('', '', '', '', '', '972'),
-          new Address('', '', '', '', '', '973'),
-          new Address('', '', '', '', '', '974'),
-          new Address('', '', '', '', '', '975'),
-          new Address('', '', '', '', '', '976'),
-          new Address('', '', '', '', '', '977'),
-          new Address('', '', '', '', '', '978'),
-          new Address('', '', '', '', '', '97'),
-          new Address('', '', '', '', '', '986'),
-          new Address('', '', '', '', '', '987'),
-          new Address('', '', '', '', '', '988'),
-          new Address('', '', '', '', '', '98'),
-          new Address('', '', '', '', '', '20'),
+          new Address('', '', '', '', '', '', ''),
+          new Address('', '', '', '', '', '1', ''),
+          new Address('', '', '', '', '', '24', ''),
+          new Address('', '', '', '', '', '301', ''),
+          new Address('', '', '', '', '', 'ABC', ''),
+          new Address('', '', '', '', '', '971', ''),
+          new Address('', '', '', '', '', '972', ''),
+          new Address('', '', '', '', '', '973', ''),
+          new Address('', '', '', '', '', '974', ''),
+          new Address('', '', '', '', '', '975', ''),
+          new Address('', '', '', '', '', '976', ''),
+          new Address('', '', '', '', '', '977', ''),
+          new Address('', '', '', '', '', '978', ''),
+          new Address('', '', '', '', '', '97', ''),
+          new Address('', '', '', '', '', '986', ''),
+          new Address('', '', '', '', '', '987', ''),
+          new Address('', '', '', '', '', '988', ''),
+          new Address('', '', '', '', '', '98', ''),
+          new Address('', '', '', '', '', '20', ''),
         ];
         const results = [
           '',

@@ -68,6 +68,7 @@ def generate_identity_token(
     email: str,
     address_city: str,
     address_postcode: str,
+    address_citycode: str,
     address_name: str,
     fc_hash: str,
 ) -> str:
@@ -76,6 +77,7 @@ def generate_identity_token(
         "email": email,
         "commune_nom": address_city,
         "commune_cp": address_postcode,
+        "commune_code_insee": address_citycode,
         "commune_adresse": address_name,
     }
     data_encrypted = encrypt_data(data, settings.PARTNERS_PSL_OTV_JWE_PUBLIC_KEY)
@@ -119,6 +121,7 @@ def generate_identity_tokens_in_file(
             email = row["email"]
             address_city = row["address_city"]
             address_postcode = row["address_postcode"]
+            address_citycode = row["address_citycode"]
             address_name = row["address_name"]
             fc_hash = row["fc_hash"]
             response = generate_identity_token(
@@ -126,6 +129,7 @@ def generate_identity_tokens_in_file(
                 email=email,
                 address_city=address_city,
                 address_postcode=address_postcode,
+                address_citycode=address_citycode,
                 address_name=address_name,
                 fc_hash=fc_hash,
             )
@@ -137,6 +141,7 @@ def generate_identity_tokens_in_file(
                     "email": row["email"],
                     "address_city": row["address_city"],
                     "address_postcode": row["address_postcode"],
+                    "address_citycode": row["address_citycode"],
                     "address_name": row["address_name"],
                     "fc_hash": row["fc_hash"],
                     "identity_token": response,
@@ -150,6 +155,7 @@ def generate_identity_tokens_in_file(
             "email",
             "address_city",
             "address_postcode",
+            "address_citycode",
             "address_name",
             "fc_hash",
             "identity_token",
@@ -165,6 +171,7 @@ def generate_identity_tokens_in_file(
                     "email": row["email"],
                     "address_city": row["address_city"],
                     "address_postcode": row["address_postcode"],
+                    "address_citycode": row["address_citycode"],
                     "address_name": row["address_name"],
                     "fc_hash": row["fc_hash"],
                     "identity_token": row["identity_token"],

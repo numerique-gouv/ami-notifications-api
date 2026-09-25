@@ -31,10 +31,12 @@
       let addressFromUserStore: Address | undefined = userIdentity.address;
       let addressCity = '';
       let addressPostcode = '';
+      let addressCitycode = '';
       let addressName = '';
       if (addressFromUserStore) {
         addressCity = addressFromUserStore.city;
         addressPostcode = addressFromUserStore.postcode;
+        addressCitycode = addressFromUserStore.citycode;
         addressName = addressFromUserStore.name;
       }
       procedureUrl = await retrieveProcedureUrl(
@@ -42,6 +44,7 @@
         email,
         addressCity,
         addressPostcode,
+        addressCitycode,
         addressName
       );
     }

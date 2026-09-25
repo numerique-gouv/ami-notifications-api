@@ -97,7 +97,8 @@ describe('citiesFromGeoAPIAndBAN.ts', () => {
         '91021',
         'Arpajon',
         'Arpajon',
-        '91290'
+        '91290',
+        '91021'
       );
 
       const responseFromBAN = {
@@ -112,6 +113,7 @@ describe('citiesFromGeoAPIAndBAN.ts', () => {
               name: 'Arpajon',
               postcode: '91290',
               city: 'Arpajon',
+              citycode: '91021',
               context: '91, Essonne, Île-de-France',
             },
           },

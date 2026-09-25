@@ -89,7 +89,8 @@
           const label = address.label;
           const name = address.name;
           const postcode = address.postcode;
-          return new Address(city, context, idBAN, label, name, postcode);
+          const citycode = address.citycode;
+          return new Address(city, context, idBAN, label, name, postcode, citycode);
         });
       } catch (error) {
         console.error(error);
