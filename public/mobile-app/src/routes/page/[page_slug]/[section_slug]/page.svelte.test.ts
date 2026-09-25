@@ -18,9 +18,9 @@ describe('/+page.svelte', () => {
   test('load page', async () => {
     // Given
     await userStore.login(mockUserInfo);
-    const spy = vi
-      .spyOn(apiContentPageMethods, 'retrieveContentPage')
-      .mockResolvedValue(contentPageData);
+    vi.spyOn(apiContentPageMethods, 'retrieveContentPage').mockResolvedValue(
+      contentPageData
+    );
 
     // When
     render(Page, {
