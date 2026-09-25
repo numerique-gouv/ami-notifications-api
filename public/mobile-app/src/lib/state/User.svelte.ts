@@ -75,6 +75,7 @@ export class UserStore {
     }
     this.connected = await this.buildConnectedAttribute(userinfo);
     await telemetry.setGlobalScope();
+    telemetry.trace('login');
     emit('user_logged_in', userinfo);
     return this.connected;
   }
@@ -97,6 +98,8 @@ export class UserStore {
 
   async logout() {
     const id_token_hint = localStorage.getItem('id_token') || '';
+
+    telemetry.trace('logout');
 
     await disableNotificationsAtLogout();
 

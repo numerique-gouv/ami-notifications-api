@@ -2,8 +2,10 @@ import { retrieveAgenda } from '$lib/api-agenda';
 import { retrieveConsents } from '$lib/api-consents';
 import { retrievePartners } from '$lib/api-partners';
 import { retrieveNotifications } from '$lib/notifications';
+import * as telemetry from '$lib/telemetry';
 
 export const initializeLocalStorage = (searchParams: URLSearchParams) => {
+  telemetry.trace('initializeLocalStorage');
   if (searchParams.get('id_token') !== '') {
     localStorage.setItem('id_token', searchParams.get('id_token') || '');
   }
