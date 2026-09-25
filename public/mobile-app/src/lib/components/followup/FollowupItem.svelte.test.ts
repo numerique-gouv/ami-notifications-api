@@ -41,6 +41,36 @@ describe('/FollowupItem.svelte', () => {
       expect(spy).toHaveBeenCalledWith('/#/followup/item/partner/type/id');
     });
   });
+  test('should mark emoji in title and description', async () => {
+    // Given
+    const item = new Item(
+      'partner',
+      'type',
+      'id',
+      'ref',
+      'notifications',
+      null,
+      null,
+      [],
+      'Opération Tranquillité Vacances 🏝️',
+      'subheading',
+      'Votre demande est terminée. 🏝️',
+      'icon',
+      new Date('2026-02-20T15:55:00.000Z'),
+      'closed',
+      'Terminée',
+      false,
+      'url',
+      []
+    );
+    const onOpen = vi.fn();
+
+    // When
+    render(FollowupItem, { props: { item: item, onOpen: onOpen } });
+
+    // Then
+    expect(document.querySelectorAll('[aria-hidden]').length).toEqual(2);
+  });
   describe('Description', () => {
     test('Should display item description if item has no sub items', async () => {
       const item = new Item(

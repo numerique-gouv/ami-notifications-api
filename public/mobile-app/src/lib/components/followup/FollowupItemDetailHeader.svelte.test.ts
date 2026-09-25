@@ -551,4 +551,35 @@ describe('/FollowupItemDetailHeader.svelte', () => {
       expect(screen.queryByTestId('external-item-button')).toBeNull();
     });
   });
+  test('Should mark emojis in title and subheading', async () => {
+    // Given
+    const item = new FollowupItem(
+      'partner',
+      'type',
+      'id1',
+      'ref1',
+      'notifications',
+      null,
+      null,
+      [],
+      'title 🫒',
+      'subheading 🌶️',
+      'description',
+      'icon',
+      new Date('2026-01-03T08:05:42Z'),
+      'new',
+      'New',
+      false,
+      'link1',
+      []
+    );
+
+    // When
+    render(FollowupItemDetailHeader, {
+      props: { item: item, services: new Services() },
+    });
+
+    // Then
+    expect(document.querySelectorAll('[aria-hidden]').length).toEqual(2);
+  });
 });

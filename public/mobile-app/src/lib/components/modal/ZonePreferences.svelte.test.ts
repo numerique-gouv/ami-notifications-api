@@ -97,7 +97,9 @@ describe('/ZonePreferences.svelte', () => {
 
     // Then
     await waitFor(async () => {
-      expect(screen.getByText('Paris (75) 🏠')).toBeInTheDocument();
+      expect(screen.getByText('Paris (75)')).toBeInTheDocument();
+      expect(screen.getByText('🏠')).toBeInTheDocument();
+      expect(document.querySelectorAll('[aria-hidden]').length).toEqual(1);
       expect(screen.getByText('Bastia (20)')).toBeInTheDocument();
       expect(spyGetZoneInfos).toHaveBeenCalledTimes(1);
       expect(spyGetZoneInfos).toHaveBeenCalledWith(

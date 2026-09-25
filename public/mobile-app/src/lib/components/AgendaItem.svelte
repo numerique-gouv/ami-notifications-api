@@ -3,6 +3,7 @@
   import { onMount } from 'svelte';
   import { Item } from '$lib/agenda';
   import { AMIGoto } from '$lib/ami-navigation';
+  import { ariaHideDecorativeEmoji } from '$lib/emoji';
 
   interface Props {
     item: Item;
@@ -54,13 +55,13 @@
               data-testid="agenda-item-link"
               class="{item.link ? '': 'no-link'}"
             >
-              {item.title}
+              {@html ariaHideDecorativeEmoji(item.title)}
             </button>
           </h4>
           {#if item.subitems.length == 1}
             {#if item.description}
               <p class="fr-tile__detail fr-text--sm fr-m-0 fr-pr-0">
-                {@html DOMPurify.sanitize(item.description)}
+                {@html ariaHideDecorativeEmoji(DOMPurify.sanitize(item.description), false)}
               </p>
             {/if}
             <div class="fr-tile__start fr-mb-3v">
@@ -91,7 +92,7 @@
           <div class="fr-tile__body">
             <div class="fr-tile__content  {item.link ? '': 'no-link'}">
               <p class="fr-tile__detail fr-text--sm fr-m-0">
-                {@html DOMPurify.sanitize(subitem.description || '')}
+                {@html ariaHideDecorativeEmoji(DOMPurify.sanitize(subitem.description || ''), false)}
               </p>
               <div class="fr-tile__start">
                 <p class="fr-tag">{subitem.period}</p>

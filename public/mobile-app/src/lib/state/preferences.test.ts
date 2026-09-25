@@ -331,7 +331,7 @@ describe('/preferences.ts', () => {
 
         // Then
         expect(result).toEqual(
-          'Zone A&nbsp;: <strong>Limoges (87), Périgueux (24)</strong>, Zone B, Zone C&nbsp;: <strong>Arpajon (91), Paris (75) 🏠</strong>, Corse&nbsp;: <strong>Bastia (20)</strong>'
+          'Zone A&nbsp;: <strong>Limoges (87), Périgueux (24)</strong>, Zone B, Zone C&nbsp;: <strong>Arpajon (91), Paris (75)\u00A0🏠</strong>, Corse&nbsp;: <strong>Bastia (20)</strong>'
         );
       });
       test('should return only user city as holiday zones match all zones of user preferences - with addresses in preferences', async () => {
@@ -957,7 +957,7 @@ describe('/preferences.ts', () => {
             tags: [
               {
                 id: 'user-address-97411_1060_00002',
-                label: 'Saint-Denis (974) 🏠',
+                label: 'Saint-Denis (974)\u00A0🏠',
                 removable: false,
               },
             ],
