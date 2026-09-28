@@ -46,6 +46,7 @@ def test_add_partner(app, admin_agent: Agent) -> None:
     assert response.forms["partner-form"]["name"].value == ""
     assert response.forms["partner-form"]["icon"].value == ""
     assert response.forms["partner-form"]["consent_is_enabled"].value is None
+    assert response.forms["partner-form"]["displayed_on_front"].value == "on"
 
 
 @pytest.mark.django_db
@@ -70,6 +71,7 @@ def test_add_partner_submit_success(app, admin_agent: Agent) -> None:
     response.forms["partner-form"]["name"] = "New Partner !"
     response.forms["partner-form"]["icon"] = "icon"
     response.forms["partner-form"]["consent_is_enabled"] = True
+    response.forms["partner-form"]["displayed_on_front"] = True
     response.forms["partner-form"]["ip_allow_list"] = "198.51.100.12"
 
     response = response.forms["partner-form"].submit()
@@ -80,6 +82,7 @@ def test_add_partner_submit_success(app, admin_agent: Agent) -> None:
     assert partner.name == "New Partner !"
     assert partner.icon == "icon"
     assert partner.consent_is_enabled is True
+    assert partner.displayed_on_front is True
     assert partner.ip_allow_list == "198.51.100.12"
 
     response = response.follow()
@@ -120,6 +123,7 @@ def test_edit_service(app, admin_agent: Agent, partner: Partner) -> None:
     assert response.forms["partner-form"]["name"].value == "AMI"
     assert response.forms["partner-form"]["icon"].value == "fr-icon-smartphone-line"
     assert response.forms["partner-form"]["consent_is_enabled"].value == "on"
+    assert response.forms["partner-form"]["displayed_on_front"].value == "on"
 
 
 @pytest.mark.django_db
@@ -135,6 +139,7 @@ def test_edit_partner_submit_validation_errors(app, admin_agent: Agent, partner:
     response.forms["partner-form"]["name"].value = ""
     response.forms["partner-form"]["icon"].value = ""
     response.forms["partner-form"]["consent_is_enabled"].value = ""
+    response.forms["partner-form"]["displayed_on_front"].value = ""
     response = response.forms["partner-form"].submit()
     assert response.context["form"].errors == {"name": ["Ce champ est obligatoire."]}
 
@@ -148,6 +153,7 @@ def test_edit_service_submit_success(app, admin_agent: Agent, partner: Partner) 
     response.forms["partner-form"]["name"] = "New AMI"
     response.forms["partner-form"]["icon"] = "icon"
     response.forms["partner-form"]["consent_is_enabled"] = False
+    response.forms["partner-form"]["displayed_on_front"] = False
 
     response = response.forms["partner-form"].submit()
     assert response.headers["location"] == "/agent-admin/manage/partner/"
@@ -156,6 +162,7 @@ def test_edit_service_submit_success(app, admin_agent: Agent, partner: Partner) 
     assert partner.name == "New AMI"
     assert partner.icon == "icon"
     assert partner.consent_is_enabled is False
+    assert partner.displayed_on_front is False
 
     response = response.follow()
     assert response.pyquery(".fr-notice.success").text() == "Le partenaire a bien été modifié."

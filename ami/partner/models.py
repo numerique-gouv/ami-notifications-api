@@ -15,6 +15,7 @@ class Partner(models.Model):
     icon = models.CharField(blank=True)
     link = models.CharField(blank=True, null=True)
     consent_is_enabled = models.BooleanField()
+    displayed_on_front = models.BooleanField(default=True)
     ip_allow_list = models.TextField(blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)

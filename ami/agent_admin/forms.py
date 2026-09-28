@@ -298,6 +298,7 @@ class PartnerForm(forms.ModelForm, AMIDsfrBaseForm):
         exclude = []
         widgets = {
             "consent_is_enabled": ToggleInput,
+            "displayed_on_front": ToggleInput,
         }
 
     def __init__(self, *args, **kwargs):

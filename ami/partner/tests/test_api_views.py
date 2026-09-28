@@ -42,7 +42,8 @@ def test_generate_partner_url_when_url_has_no_template(
 
     # When
     response = app.get(
-        "/api/v1/partner/otv/url?preferred_username=Delaforêt&email=wossewodda-37228@yopmail.com&address_city=Paris&address_postcode=75007&address_citycode=75107&address_name=20 Avenue de Ségur"
+        "/api/v1/partner/otv/url?preferred_username=Delaforêt&email=wossewodda-37228@yopmail.com"
+        "&address_city=Paris&address_postcode=75007&address_citycode=75107&address_name=20 Avenue de Ségur"
     )
 
     # Then
@@ -59,7 +60,8 @@ def test_generate_partner_url_when_url_has_template(
 ) -> None:
     login(app, user)
 
-    url = "/api/v1/partner/otv/url?preferred_username=Delaforêt&email=wossewodda-37228@yopmail.com&address_city=Paris&address_postcode=75007&address_citycode=75107&address_name=20 Avenue de Ségur"
+    url = "/api/v1/partner/otv/url?preferred_username=Delaforêt&email=wossewodda-37228@yopmail.com"
+    "&address_city=Paris&address_postcode=75007&address_citycode=75107&address_name=20 Avenue de Ségur"
 
     def mock_generate_identity_token(*args: Any, **kwargs: Any):
         return "fake-identity-token"
@@ -151,9 +153,15 @@ def test_get_partners(app, user: User, monkeypatch: pytest.MonkeyPatch) -> None:
     )
 
     Partner.objects.all().delete()
-    Partner.objects.create(slug="new-1", name="New-1", consent_is_enabled=False)
-    Partner.objects.create(slug="new-3", name="New-3", consent_is_enabled=True)
-    Partner.objects.create(slug="new-2", name="New-2", consent_is_enabled=True)
+    Partner.objects.create(
+        slug="new-1", name="New-1", consent_is_enabled=True, displayed_on_front=False
+    )
+    Partner.objects.create(
+        slug="new-3", name="New-3", consent_is_enabled=False, displayed_on_front=True
+    )
+    Partner.objects.create(
+        slug="new-2", name="New-2", consent_is_enabled=True, displayed_on_front=True
+    )
 
     response = app.get("/api/v1/users/data/partners", status=200)
     assert response.json == {
