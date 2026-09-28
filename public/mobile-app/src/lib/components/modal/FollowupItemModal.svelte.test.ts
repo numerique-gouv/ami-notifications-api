@@ -25,7 +25,7 @@ describe('/FollowupItemModal.svelte', () => {
       null,
       null,
       [],
-      'Opération Tranquillité Vacances 1',
+      'Opération Tranquillité Vacances 1 📆',
       'subheading',
       'Votre demande est en cours de traitement.',
       'icon',
@@ -70,6 +70,13 @@ describe('/FollowupItemModal.svelte', () => {
     // Then
     const title = screen.getByTestId('followup-item-modal-header');
     expect(title).toHaveTextContent('Opération Tranquillité Vacances 1');
+  });
+  test('should mark emojis', async () => {
+    // Given
+    render(FollowupItemModal, { props: { item, followup, isFollowupEmpty } });
+
+    // Then
+    expect(document.querySelector('[aria-hidden]')).toBeInTheDocument();
   });
   test('should add toast when user clicks on "Archiver" button - archive success', async () => {
     // Given

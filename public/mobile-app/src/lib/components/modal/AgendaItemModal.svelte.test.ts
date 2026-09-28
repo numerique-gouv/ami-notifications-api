@@ -30,6 +30,29 @@ describe('/AgendaItemModal.svelte', () => {
     expect(title).toHaveTextContent('Holiday 1');
   });
 
+  test('should mark emojis', async () => {
+    // Given
+    const item = new Item(
+      'fake-id-election',
+      'election',
+      'Elections locales 📆',
+      'Inscrivez-vous sur les listes électorales',
+      null,
+      new Date('2025-12-05'),
+      null
+    );
+    const agenda = new Agenda();
+    vi.spyOn(agenda, 'now', 'get').mockReturnValue([item]);
+    vi.spyOn(agenda, 'next', 'get').mockReturnValue([
+      new Item('fake-id-holiday-2', 'holiday', 'Holiday 2', '', null, in32days),
+    ]);
+    const spy2 = vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(new Agenda());
+    render(AgendaItemModal, { props: { item, agenda } });
+
+    // Then
+    expect(document.querySelector('[aria-hidden]')).toBeInTheDocument();
+  });
+
   test('should add toast when user clicks on "Supprimer" button', async () => {
     // Given
     const item = new Item('fake-id-holiday-1', 'holiday', 'Holiday 1', '', null, today);
