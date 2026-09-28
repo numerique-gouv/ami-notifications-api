@@ -7,9 +7,8 @@ import * as matomoMethods from '$lib/matomo';
 import { debug, error, info, setGlobalScope, trace, warn } from './telemetry';
 
 vi.mock('@sentry/svelte', () => ({
-  getGlobalScope: () => ({
-    setAttributes: vi.fn(),
-  }),
+  setAttribute: vi.fn(),
+  setUser: vi.fn(),
   logger: {
     trace: vi.fn(),
     debug: vi.fn(),
@@ -28,12 +27,21 @@ vi.mock('$env/static/public', async (importOriginal) => {
 
 describe('/telemetry.ts', () => {
   describe('setGlobalScope', () => {
-    test('should call getDeviceId', async () => {
+    test('should call getDeviceId and pass it to setAttribute', async () => {
       const spy = vi
         .spyOn(nativeInfosMethods, 'getDeviceId')
         .mockReturnValue('fake-device-id');
       await setGlobalScope();
       expect(spy).toHaveBeenCalled();
+      expect(sentryMethods.setAttribute).toHaveBeenCalledWith(
+        'device_id',
+        'fake-device-id'
+      );
+    });
+    test('should call setUser', async () => {
+      vi.spyOn(nativeInfosMethods, 'getDeviceId').mockReturnValue('fake-device-id');
+      await setGlobalScope();
+      expect(sentryMethods.setUser).toHaveBeenCalledWith({ id: '' });
     });
   });
   describe('trace', () => {

@@ -6,6 +6,7 @@ from django.conf import settings
 from ami.authentication.auth import decode_jwt_token
 from ami.authentication.models import RevokedAuthToken
 from ami.user.models import User
+from ami.utils.sentry import set_sentry_user
 
 
 class AMIJWTAuthCookieASGIMiddleware:
@@ -75,6 +76,7 @@ class AMIJWTAuthCookieMiddleware:
                     try:
                         request.ami_user = User.objects.get(id=payload["sub"])
                         request.ami_payload = payload
+                        set_sentry_user(request.ami_user)
                     except User.DoesNotExist:
                         pass
 
