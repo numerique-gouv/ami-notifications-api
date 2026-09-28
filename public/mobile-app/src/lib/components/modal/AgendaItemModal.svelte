@@ -39,7 +39,7 @@
     </h2>
     <ul class="agenda-item-modal-footer">
       <li>
-        <span class="fr-icon-delete-line"></span>
+        <span class="fr-icon-eye-off-line"></span>
         <button
           onclick={() => clickOnHideAgendaItem(item)}
           title="Cacher l’élément de l’agenda"
@@ -47,7 +47,7 @@
           data-testid="hide-agenda-item-button"
           class="hide-agenda-item"
         >
-          Supprimer
+          Masquer
         </button>
       </li>
     </ul>
