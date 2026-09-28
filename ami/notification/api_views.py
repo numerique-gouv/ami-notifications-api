@@ -8,7 +8,6 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.timezone import now
 from drf_spectacular.utils import extend_schema
-from rest_framework import serializers
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -144,11 +143,7 @@ def delete_scheduled_notifications(request: Request) -> Response:
 @permission_classes([IsPartnerAuthenticated])
 def partner_create_notification(request: Request) -> Response[NotificationResponseSerializer]:
     serializer = PartnerNotificationCreateSerializer(data=request.data)
-    try:
-        serializer.is_valid(raise_exception=True)
-    except serializers.ValidationError:
-        logger.exception("Partner create notification serialization error")
-        raise
+    serializer.is_valid(raise_exception=True)
     data: dict = cast(dict, serializer.validated_data)
 
     return _partner_create_event(request, data)

@@ -19,7 +19,6 @@ from django.http import (
     JsonResponse,
 )
 from django.shortcuts import redirect
-from rest_framework import serializers
 from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import FormParser
 from rest_framework.request import Request
@@ -66,11 +65,7 @@ def token(request: Request) -> Response:
     if not settings.FI_SILENT_LOGIN_ENABLED:
         raise Http404
     serializer = TokenSerializer(data=request.data)
-    try:
-        serializer.is_valid(raise_exception=True)
-    except serializers.ValidationError as e:
-        logging.exception(e)
-        raise
+    serializer.is_valid(raise_exception=True)
     data: dict = cast(dict, serializer.validated_data)
 
     try:

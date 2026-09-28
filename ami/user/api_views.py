@@ -7,7 +7,6 @@ from django.db.models import QuerySet
 from django.shortcuts import get_object_or_404
 from django.utils.timezone import now
 from drf_spectacular.utils import PolymorphicProxySerializer, extend_schema, inline_serializer
-from rest_framework import serializers
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -166,11 +165,7 @@ def consent(request: Request, fc_hash: str) -> Response:
         return Response(response_serializer.data, status=200 if consent_datetime else 404)
 
     serializer = ConsentPostSerializer(data=request.data)
-    try:
-        serializer.is_valid(raise_exception=True)
-    except serializers.ValidationError:
-        logger.exception("Partner post consent serialization error")
-        raise
+    serializer.is_valid(raise_exception=True)
     data: dict = cast(dict, serializer.validated_data)
 
     user, _ = User.objects.get_or_create(fc_hash=fc_hash)
@@ -202,11 +197,7 @@ def consents(request: Request) -> Response:
         return Response(ConsentSerializer(consents_qs, many=True).data)
 
     serializer = ConsentUpdateSerializer(data=request.data)
-    try:
-        serializer.is_valid(raise_exception=True)
-    except serializers.ValidationError:
-        logger.exception("Internal post consent serialization error")
-        raise
+    serializer.is_valid(raise_exception=True)
     data: dict = cast(dict, serializer.validated_data)
 
     consent_datetime = now() if data["consent"] else None
@@ -231,11 +222,7 @@ def consents(request: Request) -> Response:
 @ami_login_required
 def consents_all(request: Request) -> Response:
     serializer = ConsentsUpdateSerializer(data=request.data)
-    try:
-        serializer.is_valid(raise_exception=True)
-    except serializers.ValidationError:
-        logger.exception("Internal post consents serialization error")
-        raise
+    serializer.is_valid(raise_exception=True)
     data: dict = cast(dict, serializer.validated_data)
 
     consent_datetime = now() if data["consent"] else None
