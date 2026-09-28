@@ -2,6 +2,7 @@ import datetime
 from unittest import mock
 
 import pytest
+from django.utils.timezone import now
 
 from ami.followup.data.notification import get_notifications_data, get_notifications_source
 from ami.followup.schemas import (
@@ -1031,18 +1032,77 @@ def test_get_notifications_data_parent_status(
         item_parent_type="OperationTranquilliteVacances",
         item_parent_id="42",
     )
+    # but exclude subitem with milestone
+    Notification.objects.create(
+        user_id=user.id,
+        content_body="Sub notification body SousDémarcheBis 104 1",
+        content_title="Sub notification title",
+        content_subheading="Autre service",
+        content_link="http://bar.com",
+        item_generic_status="new",
+        item_status_label="Nouveau rendez-vous",
+        item_type="SousDémarcheTer",
+        item_id="105",
+        item_milestone_start_date=now(),
+        partner=partner,
+        item_parent_partner=partner_psl,
+        item_parent_type="OperationTranquilliteVacances",
+        item_parent_id="42",
+    )
+    Notification.objects.create(
+        user_id=user.id,
+        content_body="Sub notification body SousDémarcheBis 104 1",
+        content_title="Sub notification title",
+        content_subheading="Autre service",
+        content_link="http://bar.com",
+        item_generic_status="new",
+        item_status_label="Nouveau rendez-vous",
+        item_type="SousDémarcheTer",
+        item_id="106",
+        item_milestone_end_date=now(),
+        partner=partner,
+        item_parent_partner=partner_psl,
+        item_parent_type="OperationTranquilliteVacances",
+        item_parent_id="42",
+    )
+    Notification.objects.create(
+        user_id=user.id,
+        content_body="Sub notification body SousDémarcheBis 104 1",
+        content_title="Sub notification title",
+        content_subheading="Autre service",
+        content_link="http://bar.com",
+        item_generic_status="new",
+        item_status_label="Nouveau rendez-vous",
+        item_type="SousDémarcheTer",
+        item_id="107",
+        item_milestone_start_date=now(),
+        item_milestone_end_date=now(),
+        partner=partner,
+        item_parent_partner=partner_psl,
+        item_parent_type="OperationTranquilliteVacances",
+        item_parent_id="42",
+    )
 
     result = get_notifications_data(current_user=user)
 
     assert result[0].status_id == ItemGenericStatus.NEW
     assert result[0].status_label == "Brouillon"
-    assert len(result[0].sub_items) == 2
-    assert result[0].sub_items[0].item_external_id == "104"
+    assert len(result[0].sub_items) == 5
+    assert result[0].sub_items[0].item_external_id == "107"
     assert result[0].sub_items[0].status_id == ItemGenericStatus.NEW
-    assert result[0].sub_items[0].status_label == "Brouillon"
-    assert result[0].sub_items[1].item_external_id == "35"
+    assert result[0].sub_items[0].status_label == "Nouveau rendez-vous"
+    assert result[0].sub_items[1].item_external_id == "106"
     assert result[0].sub_items[1].status_id == ItemGenericStatus.NEW
-    assert result[0].sub_items[1].status_label == "Nouveau"
+    assert result[0].sub_items[1].status_label == "Nouveau rendez-vous"
+    assert result[0].sub_items[2].item_external_id == "105"
+    assert result[0].sub_items[2].status_id == ItemGenericStatus.NEW
+    assert result[0].sub_items[2].status_label == "Nouveau rendez-vous"
+    assert result[0].sub_items[3].item_external_id == "104"
+    assert result[0].sub_items[3].status_id == ItemGenericStatus.NEW
+    assert result[0].sub_items[3].status_label == "Brouillon"
+    assert result[0].sub_items[4].item_external_id == "35"
+    assert result[0].sub_items[4].status_id == ItemGenericStatus.NEW
+    assert result[0].sub_items[4].status_label == "Nouveau"
 
     # 2 sub items with different status, take the lowest
     Notification.objects.create(
@@ -1065,25 +1125,34 @@ def test_get_notifications_data_parent_status(
 
     assert result[0].status_id == ItemGenericStatus.NEW
     assert result[0].status_label == "Nouveau"
-    assert len(result[0].sub_items) == 2
+    assert len(result[0].sub_items) == 5
     assert result[0].sub_items[0].item_external_id == "104"
     assert result[0].sub_items[0].status_id == ItemGenericStatus.WIP
     assert result[0].sub_items[0].status_label == "En cours"
-    assert result[0].sub_items[1].item_external_id == "35"
+    assert result[0].sub_items[1].item_external_id == "107"
     assert result[0].sub_items[1].status_id == ItemGenericStatus.NEW
-    assert result[0].sub_items[1].status_label == "Nouveau"
+    assert result[0].sub_items[1].status_label == "Nouveau rendez-vous"
+    assert result[0].sub_items[2].item_external_id == "106"
+    assert result[0].sub_items[2].status_id == ItemGenericStatus.NEW
+    assert result[0].sub_items[2].status_label == "Nouveau rendez-vous"
+    assert result[0].sub_items[3].item_external_id == "105"
+    assert result[0].sub_items[3].status_id == ItemGenericStatus.NEW
+    assert result[0].sub_items[3].status_label == "Nouveau rendez-vous"
+    assert result[0].sub_items[4].item_external_id == "35"
+    assert result[0].sub_items[4].status_id == ItemGenericStatus.NEW
+    assert result[0].sub_items[4].status_label == "Nouveau"
 
     # 2 sub items with lowest status + another item in another status, take the last status label
     Notification.objects.create(
         user_id=user.id,
-        content_body="Sub notification body SousDémarcheBis 105 1",
+        content_body="Sub notification body SousDémarcheBis 108 1",
         content_title="Sub notification title",
         content_subheading="Autre service",
         content_link="http://bar.com",
         item_generic_status="new",
         item_status_label="Brouillon",
         item_type="SousDémarcheBis",
-        item_id="105",
+        item_id="108",
         partner=partner,
         item_parent_partner=partner_psl,
         item_parent_type="OperationTranquilliteVacances",
@@ -1094,16 +1163,25 @@ def test_get_notifications_data_parent_status(
 
     assert result[0].status_id == ItemGenericStatus.NEW
     assert result[0].status_label == "Brouillon"
-    assert len(result[0].sub_items) == 3
-    assert result[0].sub_items[0].item_external_id == "105"
+    assert len(result[0].sub_items) == 6
+    assert result[0].sub_items[0].item_external_id == "108"
     assert result[0].sub_items[0].status_id == ItemGenericStatus.NEW
     assert result[0].sub_items[0].status_label == "Brouillon"
     assert result[0].sub_items[1].item_external_id == "104"
     assert result[0].sub_items[1].status_id == ItemGenericStatus.WIP
     assert result[0].sub_items[1].status_label == "En cours"
-    assert result[0].sub_items[2].item_external_id == "35"
+    assert result[0].sub_items[2].item_external_id == "107"
     assert result[0].sub_items[2].status_id == ItemGenericStatus.NEW
-    assert result[0].sub_items[2].status_label == "Nouveau"
+    assert result[0].sub_items[2].status_label == "Nouveau rendez-vous"
+    assert result[0].sub_items[3].item_external_id == "106"
+    assert result[0].sub_items[3].status_id == ItemGenericStatus.NEW
+    assert result[0].sub_items[3].status_label == "Nouveau rendez-vous"
+    assert result[0].sub_items[4].item_external_id == "105"
+    assert result[0].sub_items[4].status_id == ItemGenericStatus.NEW
+    assert result[0].sub_items[4].status_label == "Nouveau rendez-vous"
+    assert result[0].sub_items[5].item_external_id == "35"
+    assert result[0].sub_items[5].status_id == ItemGenericStatus.NEW
+    assert result[0].sub_items[5].status_label == "Nouveau"
 
     # more recent notification for parent item, take this status
     Notification.objects.create(
@@ -1121,16 +1199,25 @@ def test_get_notifications_data_parent_status(
 
     assert result[0].status_id == ItemGenericStatus.CLOSED
     assert result[0].status_label == "Terminé"
-    assert len(result[0].sub_items) == 3
-    assert result[0].sub_items[0].item_external_id == "105"
+    assert len(result[0].sub_items) == 6
+    assert result[0].sub_items[0].item_external_id == "108"
     assert result[0].sub_items[0].status_id == ItemGenericStatus.NEW
     assert result[0].sub_items[0].status_label == "Brouillon"
     assert result[0].sub_items[1].item_external_id == "104"
     assert result[0].sub_items[1].status_id == ItemGenericStatus.WIP
     assert result[0].sub_items[1].status_label == "En cours"
-    assert result[0].sub_items[2].item_external_id == "35"
+    assert result[0].sub_items[2].item_external_id == "107"
     assert result[0].sub_items[2].status_id == ItemGenericStatus.NEW
-    assert result[0].sub_items[2].status_label == "Nouveau"
+    assert result[0].sub_items[2].status_label == "Nouveau rendez-vous"
+    assert result[0].sub_items[3].item_external_id == "106"
+    assert result[0].sub_items[3].status_id == ItemGenericStatus.NEW
+    assert result[0].sub_items[3].status_label == "Nouveau rendez-vous"
+    assert result[0].sub_items[4].item_external_id == "105"
+    assert result[0].sub_items[4].status_id == ItemGenericStatus.NEW
+    assert result[0].sub_items[4].status_label == "Nouveau rendez-vous"
+    assert result[0].sub_items[5].item_external_id == "35"
+    assert result[0].sub_items[5].status_id == ItemGenericStatus.NEW
+    assert result[0].sub_items[5].status_label == "Nouveau"
 
 
 @pytest.mark.django_db
