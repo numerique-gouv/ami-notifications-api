@@ -1,5 +1,6 @@
 <script lang="ts">
   import BottomModal from '$lib/components/modal/BottomModal.svelte';
+  import { ariaHideDecorativeEmoji } from '$lib/emoji';
   import {
     buildFollowup,
     type Followup,
@@ -49,7 +50,7 @@
 <BottomModal onClose={closeModal}>
   {#snippet modalContent()}
     <h2 class="followup-item-modal-header" data-testid="followup-item-modal-header">
-      {item?.title}
+      {@html ariaHideDecorativeEmoji(item?.title || '')}
     </h2>
     <ul class="followup-item-modal-footer">
       <li>
