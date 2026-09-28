@@ -3,7 +3,9 @@
   import { onMount } from 'svelte';
   import { Item } from '$lib/agenda';
   import { AMIGoto } from '$lib/ami-navigation';
+  import { getDSFRIcon } from '$lib/dsfr-icon';
   import { ariaHideDecorativeEmoji } from '$lib/emoji';
+  import { FollowupSubItem } from '$lib/followup';
 
   interface Props {
     item: Item;
@@ -13,6 +15,7 @@
     Date?: boolean;
     onOpen?: (() => void) | null;
     isPast?: boolean;
+    followupSubItem?: FollowupSubItem | null;
   }
   let {
     item,
@@ -20,7 +23,13 @@
     displayDay = true,
     onOpen = null,
     isPast = false,
+    followupSubItem = null,
   }: Props = $props();
+
+  let checkedIcon = '';
+  if (followupSubItem) {
+    checkedIcon = getDSFRIcon(followupSubItem.icon, 'fr-icon-information-fill');
+  }
 </script>
 
 <div class="agenda--item">
@@ -66,6 +75,13 @@
               </p>
             {/if}
             <div class="fr-tile__start fr-mb-3v">
+              {#if followupSubItem}
+                <p
+                  class="fr-badge fr-mb-1w fr-badge--icon-left {checkedIcon} {followupSubItem.status_id} {followupSubItem.badgeClassName}"
+                >
+                  {followupSubItem.status_label}
+                </p>
+              {/if}
               <p
                 class="fr-badge fr-badge--sm fr-badge--icon-left fr-mb-1w {item.icon} {item.badgeClassName}"
               >
@@ -206,6 +222,8 @@
         }
         .fr-tile__start {
           line-height: 1;
+          display: flex;
+          flex-direction: column;
         }
         .fr-tile__detail {
           display: block;
