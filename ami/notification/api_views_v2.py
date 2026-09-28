@@ -3,7 +3,6 @@ import os
 from typing import cast
 
 from drf_spectacular.utils import extend_schema
-from rest_framework import serializers
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -97,11 +96,7 @@ def _partner_create_event(request: Request, data: dict):
 @permission_classes([IsPartnerAuthenticated])
 def partner_create_event(request: Request) -> Response[NotificationResponseSerializer]:
     serializer = PartnerEventCreateSerializerV2(data=request.data, partner=request.ami_partner)
-    try:
-        serializer.is_valid(raise_exception=True)
-    except serializers.ValidationError:
-        logger.exception("Partner create event serialization error")
-        raise
+    serializer.is_valid(raise_exception=True)
     data: dict = cast(dict, serializer.validated_data)
 
     return _partner_create_event(request, data)

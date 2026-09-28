@@ -225,6 +225,7 @@ PUBLIC_APP_URL = CONFIG["PUBLIC_APP_URL"]
 # Django Rest Framework
 
 REST_FRAMEWORK = {
+    "EXCEPTION_HANDLER": "ami.utils.drf.custom_exception_handler",
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_PARSER_CLASSES": [
         # only allow JSON input (no form data)
