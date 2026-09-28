@@ -9,10 +9,18 @@
     item: Item;
     // Only display the date on the agenda's page, not on the homepage
     displayDate?: boolean;
+    displayDay?: boolean;
+    Date?: boolean;
     onOpen?: (() => void) | null;
     isPast?: boolean;
   }
-  let { item, displayDate = true, onOpen = null, isPast = false }: Props = $props();
+  let {
+    item,
+    displayDate = true,
+    displayDay = true,
+    onOpen = null,
+    isPast = false,
+  }: Props = $props();
 
   const badgeKinds = {
     election: 'fr-badge--green-tilleul-verveine',
@@ -24,12 +32,14 @@
 <div class="agenda--item">
   {#if displayDate}
     <div class="agenda--item--date">
-      <span class="day-name">
-        <span aria-hidden="true">{item.dayName}</span><span class="fr-sr-only"
-          >{item.fullDayName}</span
-        >
-      </span>
-      <span class="day-num">{item.dayNum}</span> 
+      {#if displayDay}
+        <span class="day-name">
+          <span aria-hidden="true">{item.dayName}</span><span class="fr-sr-only"
+            >{item.fullDayName}</span
+          >
+        </span>
+        <span class="day-num">{item.dayNum}</span> 
+      {/if}
     </div>
   {/if}
   <div class="agenda--item--container">

@@ -124,8 +124,8 @@ describe('/+page.svelte', () => {
       expect(screen.getByTestId('events-next')).toHaveTextContent(monthName(in32days));
       const in32days_month_occurrences = (
         screen
-          ?.getByTestId('events-now')
-          ?.textContent?.match(new RegExp(monthName(today), 'g')) || []
+          ?.getByTestId('events-next')
+          ?.textContent?.match(new RegExp(monthName(in32days), 'g')) || []
       ).length;
       expect(in32days_month_occurrences).toBe(1);
       expect(screen.getByTestId('events-next')).toHaveTextContent('Holiday 3');
@@ -193,6 +193,69 @@ describe('/+page.svelte', () => {
         monthName(start2)
       );
       expect(screen.getByTestId('events-next')).toHaveTextContent('Holiday 2');
+    });
+  });
+  test('Should not repeat day', async () => {
+    const agenda = new Agenda();
+    const item1 = new Item(
+      'fake-id-holiday-1',
+      'holiday',
+      'Holiday 1',
+      '',
+      null,
+      today
+    );
+    const item3 = new Item(
+      'fake-id-holiday-3',
+      'holiday',
+      'Holiday 3',
+      '',
+      null,
+      in32days
+    );
+    vi.spyOn(agenda, 'now', 'get').mockReturnValue([
+      item1,
+      new Item('fake-id-holiday-2', 'holiday', 'Holiday 2', '', null, today),
+    ]);
+    vi.spyOn(agenda, 'next', 'get').mockReturnValue([
+      item3,
+      new Item('fake-id-holiday-4', 'holiday', 'Holiday 4', '', null, in32days),
+    ]);
+    const spy = vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(agenda);
+
+    // When
+    render(Page);
+
+    // Then
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(agenda.now[0]).not.toBeNull();
+      expect(screen.getByTestId('events-now')).toHaveTextContent('Prochainement');
+      expect(item1.fullDayName).not.toBeNull();
+      expect(screen.getByTestId('events-now')).toHaveTextContent(
+        item1.fullDayName || ''
+      );
+      const today_day_name_occurrences = (
+        screen
+          ?.getByTestId('events-now')
+          ?.textContent?.match(new RegExp(item1.fullDayName || '', 'g')) || []
+      ).length;
+      expect(today_day_name_occurrences).toBe(1);
+      expect(screen.getByTestId('events-now')).toHaveTextContent('Holiday 1');
+      expect(screen.getByTestId('events-now')).toHaveTextContent('Holiday 2');
+      expect(screen.getByTestId('events-next')).toHaveTextContent('Les mois suivants');
+      expect(item3.fullDayName).not.toBeNull();
+      expect(screen.getByTestId('events-next')).toHaveTextContent(
+        item3.fullDayName || ''
+      );
+      const in32days_day_name_occurrences = (
+        screen
+          ?.getByTestId('events-next')
+          ?.textContent?.match(new RegExp(item3.fullDayName || '', 'g')) || []
+      ).length;
+      expect(in32days_day_name_occurrences).toBe(1);
+      expect(screen.getByTestId('events-next')).toHaveTextContent('Holiday 3');
+      expect(screen.getByTestId('events-next')).toHaveTextContent('Holiday 4');
     });
   });
 
