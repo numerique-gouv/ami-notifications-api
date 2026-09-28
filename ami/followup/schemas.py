@@ -327,7 +327,9 @@ class NotificationsItem(NotificationsSubItem):
             ItemGenericStatus.CLOSED.value: 0,
         }
         last_sub_item_notifications = [
-            sub_item.last_notification for sub_item in self.sub_items.values()
+            sub_item.last_notification
+            for sub_item in self.sub_items.values()
+            if sub_item.milestone_start_date is None and sub_item.milestone_end_date is None
         ]
         last_sub_item_notifications = sorted(
             last_sub_item_notifications,
