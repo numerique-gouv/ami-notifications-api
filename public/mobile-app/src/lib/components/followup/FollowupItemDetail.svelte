@@ -47,7 +47,11 @@
       {#each futureSubItemWithMilestone as sub_item}
         {@const agendaItem = sub_item.buildAgendaItem(item as FollowupItem)}
         {#if agendaItem}
-          <AgendaItem item={agendaItem} displayDate={false} />
+          <AgendaItem
+            item={agendaItem}
+            displayDate={false}
+            followupSubItem={sub_item}
+          />
         {/if}
       {/each}
       {#if pastSubItemWithMilestone.length}
@@ -61,7 +65,12 @@
         {#each pastSubItemWithMilestone as sub_item}
           {@const agendaItem = sub_item.buildAgendaItem(item as FollowupItem)}
           {#if agendaItem}
-            <AgendaItem item={agendaItem} displayDate={false} isPast={true} />
+            <AgendaItem
+              item={agendaItem}
+              displayDate={false}
+              isPast={true}
+              followupSubItem={sub_item}
+            />
           {/if}
         {/each}
       {/if}
