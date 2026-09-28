@@ -21,11 +21,11 @@ export const checkAccessKey = async () => {
         body: new URLSearchParams({ key: access_key }),
       });
       if (response.status !== 200) {
-        await cookieStore.delete('access_key');
+        await window.cookieStore.delete('access_key');
         (window as Window).location = '/';
       }
     } catch {
-      await cookieStore.delete('access_key');
+      await window.cookieStore.delete('access_key');
       (window as Window).location = '/';
     }
   }
