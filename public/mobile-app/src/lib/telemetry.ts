@@ -18,10 +18,8 @@ export const setGlobalScope = async () => {
   const deviceId = getDeviceId();
   const user_hash = localStorage.getItem('user_fc_hash');
   const hashed_user_hash = user_hash ? await shortDigest(user_hash) : '';
-  Sentry.getGlobalScope().setAttributes({
-    user_id: hashed_user_hash,
-    device_id: deviceId,
-  });
+  Sentry.setUser({ id: hashed_user_hash });
+  Sentry.setAttribute('device_id', deviceId);
 };
 
 export const trace = (message: string, options?: Record<string, unknown>) => {
