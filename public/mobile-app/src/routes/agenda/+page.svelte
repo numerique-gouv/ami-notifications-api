@@ -63,12 +63,18 @@
       </div>
       <div class="agenda--events--container">
         {#each agenda.now as item, i}
-          {#if i == 0 || i > 0 && item.date?.getMonth() !== agenda.now[i - 1].date?.getMonth()}
+          {@const displayMonth = (i == 0 || i > 0 && item.date?.getMonth() !== agenda.now[i - 1].date?.getMonth())}
+          {@const displayDay = (i == 0 || i > 0 && item.date?.toDateString() !== agenda.now[i - 1].date?.toDateString())}
+          {#if displayMonth}
             <h3 class="fr-text--sm fr-mb-1w am-text--smbold agenda--events--month">
               {item.monthName}
             </h3>
           {/if}
-          <AgendaItem item={item} onOpen={() => openAgendaItemModal(item)} />
+          <AgendaItem
+            item={item}
+            onOpen={() => openAgendaItemModal(item)}
+            displayDay={displayDay}
+          />
         {/each}
       </div>
     </div>
@@ -81,12 +87,18 @@
       </div>
       <div class="agenda--events--container">
         {#each agenda.next as item, i}
-          {#if i > 0 && item.date?.getMonth() !== agenda.next[i - 1].date?.getMonth() || i == 0 && (agenda.now.length && item.date?.getMonth() !== agenda.now[agenda.now.length - 1].date?.getMonth() || !agenda.now.length)}
+          {@const displayMonth = (i > 0 && item.date?.getMonth() !== agenda.next[i - 1].date?.getMonth() || i == 0 && (agenda.now.length && item.date?.getMonth() !== agenda.now[agenda.now.length - 1].date?.getMonth() || !agenda.now.length))}
+          {@const displayDay = (i == 0 || i > 0 && item.date?.toDateString() !== agenda.next[i - 1].date?.toDateString())}
+          {#if displayMonth}
             <h3 class="fr-text--sm fr-mb-1w am-text--smbold agenda--events--month">
               {item.monthName}
             </h3>
           {/if}
-          <AgendaItem item={item} onOpen={() => openAgendaItemModal(item)} />
+          <AgendaItem
+            item={item}
+            onOpen={() => openAgendaItemModal(item)}
+            displayDay={displayDay}
+          />
         {/each}
       </div>
     </div>
