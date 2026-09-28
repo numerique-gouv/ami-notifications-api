@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "widget_tweaks",
     "dsfr",
+    "letsencrypt",
     "ami.amidsfr",
     "django.forms",
     "sass_processor",
