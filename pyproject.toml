@@ -6,12 +6,14 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "asyncpg>=0.30.0",
+    "certbot>=5.8.0",
     "channels-postgres>=1.1.4",
     "django>=6.0.7",
     "django-compressor>=4.6.0",
     "django-cors-headers>=4.9.0",
     "django-database-url>=1.0.3",
     "django-dsfr>=3.3.1",
+    "django-letsencrypt>=6.0.2",
     "django-ratelimit>=4.1.0",
     "django-sass-processor>=1.4.2",
     "django-stubs[compatible-mypy]>=5.2.9",
