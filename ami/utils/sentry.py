@@ -1,6 +1,26 @@
 import hashlib
 
 import sentry_sdk
+from sentry_sdk.scrubber import DEFAULT_DENYLIST, EventScrubber
+
+
+class CustomEventScrubber(EventScrubber):
+    def __init__(self):
+        denylist = DEFAULT_DENYLIST + [
+            "birthcountry",
+            "birthdate",
+            "birthplace",
+            "client_secret",
+            "decoded_user_data",
+            "decoded_userinfo",
+            "family_name",
+            "fc_hash",
+            "gender",
+            "given_name",
+            "recipient_fc_hash",
+            "userinfo_jws",
+        ]
+        super().__init__(denylist=denylist)
 
 
 def add_counter(message_id: str):
