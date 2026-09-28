@@ -84,7 +84,7 @@ def get_partner_public_key(request) -> Response[dict[str, str]]:
 def get_partners(request: Request) -> Response:
     partners_source = PartnersSource()
 
-    partners_qs = Partner.objects.filter(consent_is_enabled=True).order_by("name")
+    partners_qs = Partner.objects.filter(displayed_on_front=True).order_by("name")
     result_items: list[PartnersItem] = [partner.to_partners_item() for partner in partners_qs]
 
     partners_source.items = result_items
