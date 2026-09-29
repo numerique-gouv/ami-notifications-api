@@ -135,7 +135,8 @@
               data-testid="accordion-button"
             >
               <span class="fr-pr-2v">
-                <span class="fr-icon-information-line" aria-hidden="true"> </span>
+                <span class="fr-icon-information-line" aria-hidden="true"></span>
+                <span class="fr-sr-only">Information</span>
               </span>
               Votre démarche n’apparaît pas&nbsp;?
             </button>

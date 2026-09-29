@@ -7,7 +7,8 @@
       aria-controls="accordion-1"
     >
       <span class="fr-pr-2v">
-        <span class="fr-icon-information-line" aria-hidden="true"> </span>
+        <span class="fr-icon-information-line" aria-hidden="true"></span>
+        <span class="fr-sr-only">Information</span>
       </span>
       Quelles sont les démarches que je peux suivre&nbsp;?
     </button>
