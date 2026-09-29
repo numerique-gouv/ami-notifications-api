@@ -85,3 +85,18 @@ class RegistrationRemoveFromDeviceIdSerializer(serializers.Serializer):
 
 class ConsentsUpdateSerializer(serializers.Serializer):
     consent = serializers.BooleanField()
+
+
+class PersonalDataConsentSerializer(serializers.Serializer):
+    id = serializers.UUIDField()
+    consent_datetime = serializers.DateTimeField()
+
+
+class PersonalDataConsentPostResponseSerializer(serializers.Serializer):
+    message = serializers.ChoiceField(
+        choices=["Personal data consent given", "Personal data consent withdrawn"]
+    )
+
+
+class PersonalDataConsentUpdateSerializer(serializers.Serializer):
+    consent = serializers.BooleanField()
