@@ -5,6 +5,7 @@ import type { APIAgenda } from '$lib/api-agenda';
 import * as apiAgendaMethods from '$lib/api-agenda';
 import * as apiConsentsMethods from '$lib/api-consents';
 import * as apiPartnersMethods from '$lib/api-partners';
+import * as apiPersonalDataConsentMethods from '$lib/api-personal-data-consent';
 import { initializeData, initializeLocalStorage } from '$lib/initializeDataFromAPI';
 import type { AppNotification } from '$lib/notifications';
 import * as notificationsMethods from '$lib/notifications';
@@ -124,6 +125,9 @@ describe('/initializeDataFromAPI.ts', () => {
       const retrievePartnersSpy = vi
         .spyOn(apiPartnersMethods, 'retrievePartners')
         .mockResolvedValue([]);
+      const retrievePersonalDataConsentSpy = vi
+        .spyOn(apiPersonalDataConsentMethods, 'retrievePersonalDataConsent')
+        .mockResolvedValue({ consent_datetime: null });
 
       // When
       await initializeData();
@@ -133,6 +137,7 @@ describe('/initializeDataFromAPI.ts', () => {
       expect(retrieveConsentsSpy).toHaveBeenCalledTimes(1);
       expect(retrieveNotificationsSpy).toHaveBeenCalledTimes(1);
       expect(retrievePartnersSpy).toHaveBeenCalledTimes(1);
+      expect(retrievePersonalDataConsentSpy).toHaveBeenCalledTimes(1);
     });
   });
 });
