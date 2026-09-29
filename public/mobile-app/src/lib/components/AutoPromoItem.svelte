@@ -1,12 +1,35 @@
 <script lang="ts">
+  import { type Component, onMount } from 'svelte';
   import { AMIGoto } from '$lib/ami-navigation';
   import { AutoPromoItem as Item } from '$lib/auto-promo';
 
   interface Props {
     item: Item;
     className: string;
+    index: number;
+    onClose?: (hasAccepted: boolean, index: number) => void | null;
   }
-  let { item, className }: Props = $props();
+  let { item, className, index, onClose }: Props = $props();
+
+  let displayModal = $state(false);
+  let ModalComponent: Component<Record<string, unknown>>;
+
+  onMount(async () => {
+    if (item.component_modal_name) {
+      const modalPath = `./modal/${item.component_modal_name}.svelte`;
+      ModalComponent = (await import(modalPath)).default;
+    }
+  });
+
+  const openModal = () => {
+    displayModal = true;
+  };
+
+  const onCloseModal = (hasAccepted: boolean) => {
+    if (onClose) {
+      onClose(hasAccepted, index);
+    }
+  };
 </script>
 
 <div
@@ -17,17 +40,36 @@
       <img class="am-icon" aria-hidden="true" src="/remixicons/{item.image}" alt="">
     </div>
     <h3 class="fr-mb-0 fr-text--md fr-text-label--blue-france">
-      <button
-        class="fr-text--bold fr-p-0 am-blue__btn"
-        type="button"
-        onclick={()=>AMIGoto(item.link)}
-      >
-        {item.title}
-      </button>
+      {#if item.link}
+        <button
+          class="fr-text--bold fr-p-0 am-blue__btn"
+          type="button"
+          onclick={()=>AMIGoto(item.link)}
+        >
+          {item.title}
+        </button>
+      {/if}
+      {#if item.component_modal_name}
+        <button
+          class="fr-text--bold fr-p-0 am-blue__btn"
+          type="button"
+          onclick={openModal}
+        >
+          {item.title}
+        </button>
+      {/if}
     </h3>
     <p class="fr-text--md fr-m-0">{item.description}</p>
   </div>
 </div>
+
+{#if displayModal}
+  <svelte:component
+    this={ModalComponent}
+    bind:displayModal={displayModal}
+    onClose={onCloseModal}
+  ></svelte:component>
+{/if}
 
 <style lang="scss">
 

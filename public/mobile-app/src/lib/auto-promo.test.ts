@@ -12,8 +12,38 @@ describe('/auto-promo.ts', () => {
   });
 
   describe('AutoPromo', () => {
+    test('user has not given personal data consent', async () => {
+      // Given
+      userStore.connected?.setPersonalDataConsentDatetime(null);
+
+      userStore.connected?.setAddress(mockAddress);
+      const agenda = new Agenda();
+
+      // When
+      const autoPromo = new AutoPromo(agenda);
+
+      // Then
+      expect(autoPromo.items.length).equal(1);
+      expect(
+        autoPromo.items[0].equals(
+          new AutoPromoItem(
+            'personal-data',
+            'Gagnez du temps',
+            'En utilisant vos données administratives',
+            '',
+            'system.svg',
+            'PersonalDataConsentModal'
+          )
+        )
+      ).toBe(true);
+    });
+
     test('user has no address (null) and no school holiday eligible for an otv', async () => {
       // Given
+      userStore.connected?.setPersonalDataConsentDatetime(
+        new Date('2026-02-20T15:55:00.000Z')
+      );
+
       delete userStore.connected?.identity?.address;
       const agenda = new Agenda();
       vi.spyOn(agenda, 'holidayForOTV', 'get').mockReturnValue(null);
@@ -30,7 +60,8 @@ describe('/auto-promo.ts', () => {
             'Renseignez votre adresse',
             'Gagnez du temps en la renseignant une seule fois',
             '/#/edit-address',
-            'house.svg'
+            'house.svg',
+            null
           )
         )
       ).toBe(true);
@@ -38,6 +69,10 @@ describe('/auto-promo.ts', () => {
 
     test('user has no address (empty) and a school holiday eligible for an otv', async () => {
       // Given
+      userStore.connected?.setPersonalDataConsentDatetime(
+        new Date('2026-02-20T15:55:00.000Z')
+      );
+
       const agenda = new Agenda();
       vi.spyOn(agenda, 'holidayForOTV', 'get').mockReturnValue({
         kind: 'holiday',
@@ -62,7 +97,8 @@ describe('/auto-promo.ts', () => {
             'Renseignez votre adresse',
             'Gagnez du temps en la renseignant une seule fois',
             '/#/edit-address',
-            'house.svg'
+            'house.svg',
+            null
           )
         )
       ).toBe(true);
@@ -73,7 +109,8 @@ describe('/auto-promo.ts', () => {
             'Opération Tranquillité Vacances',
             'Protégez votre domicile pendant votre absence',
             '/#/procedure?date=2026-01-17',
-            'house.svg'
+            'house.svg',
+            null
           )
         )
       ).toBe(true);
@@ -81,6 +118,10 @@ describe('/auto-promo.ts', () => {
 
     test('user has address and no school holiday eligible for an otv', async () => {
       // Given
+      userStore.connected?.setPersonalDataConsentDatetime(
+        new Date('2026-02-20T15:55:00.000Z')
+      );
+
       userStore.connected?.setAddress(mockAddress);
       const agenda = new Agenda();
       vi.spyOn(agenda, 'holidayForOTV', 'get').mockReturnValue(null);
@@ -94,6 +135,10 @@ describe('/auto-promo.ts', () => {
 
     test('user has address and a school holiday eligible for an otv', async () => {
       // Given
+      userStore.connected?.setPersonalDataConsentDatetime(
+        new Date('2026-02-20T15:55:00.000Z')
+      );
+
       userStore.connected?.setAddress(mockAddress);
       const agenda = new Agenda();
       vi.spyOn(agenda, 'holidayForOTV', 'get').mockReturnValue({
@@ -119,7 +164,8 @@ describe('/auto-promo.ts', () => {
             'Opération Tranquillité Vacances',
             'Protégez votre domicile pendant votre absence',
             '/#/procedure?date=2026-01-17',
-            'house.svg'
+            'house.svg',
+            null
           )
         )
       ).toBe(true);
