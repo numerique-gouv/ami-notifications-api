@@ -226,6 +226,10 @@ PUBLIC_APP_URL = CONFIG["PUBLIC_APP_URL"]
 
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_PARSER_CLASSES": [
+        # only allow JSON input (no form data)
+        "rest_framework.parsers.JSONParser",
+    ],
     "DEFAULT_AUTHENTICATION_CLASSES": [],  # Set it explicitely to empty, because by default it has basic auth and bypasses our own partner auth decorators.
 }
 

@@ -22,7 +22,7 @@ def test_create_scheduled_notification(app, user: User) -> None:
         "internal_url": "internal-url",
         "scheduled_at": scheduled_notification_date.isoformat(),
     }
-    response = app.post(
+    response = app.post_json(
         "/api/v1/users/scheduled-notifications", scheduled_notification_data, status=201
     )
 
@@ -62,7 +62,7 @@ def test_create_scheduled_notification_known_reference(app, user: User) -> None:
         "internal_url": "internal-url-updated",
         "scheduled_at": scheduled_notification_date.isoformat(),
     }
-    response = app.post(
+    response = app.post_json(
         "/api/v1/users/scheduled-notifications", scheduled_notification_data, status=200
     )
     assert ScheduledNotification.objects.count() == 1
@@ -89,7 +89,7 @@ def test_create_scheduled_notification_known_reference(app, user: User) -> None:
         "reference": "reference",
         "scheduled_at": scheduled_notification_date2.isoformat(),
     }
-    response = app.post(
+    response = app.post_json(
         "/api/v1/users/scheduled-notifications", scheduled_notification_data, status=200
     )
     assert ScheduledNotification.objects.count() == 1
@@ -123,7 +123,7 @@ def test_create_scheduled_notification_known_reference(app, user: User) -> None:
         "reference": "other-reference",
         "scheduled_at": scheduled_notification_date.isoformat(),
     }
-    response = app.post(
+    response = app.post_json(
         "/api/v1/users/scheduled-notifications", scheduled_notification_data, status=201
     )
     all_scheduled_notifications = ScheduledNotification.objects.all()
@@ -145,7 +145,7 @@ def test_create_scheduled_notification_test_fields(app, user: User) -> None:
     login(app, user)
 
     scheduled_notification_data: dict[str, str] = {}
-    response = app.post(
+    response = app.post_json(
         "/api/v1/users/scheduled-notifications", scheduled_notification_data, status=400
     )
     assert response.json == {
@@ -161,10 +161,9 @@ def test_create_scheduled_notification_test_fields(app, user: User) -> None:
         "content_title": "",
         "content_body": "",
         "content_icon": "",
-        "internal_url": "",
         "reference": "",
     }
-    response = app.post(
+    response = app.post_json(
         "/api/v1/users/scheduled-notifications", scheduled_notification_data, status=400
     )
     assert response.json == {
@@ -190,7 +189,7 @@ def test_create_scheduled_notification_test_fields(app, user: User) -> None:
         "user_id": str(uuid.uuid4()),
         "sent_at": scheduled_notification_date.isoformat(),
     }
-    response = app.post(
+    response = app.post_json(
         "/api/v1/users/scheduled-notifications", scheduled_notification_data, status=201
     )
 

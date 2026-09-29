@@ -39,7 +39,7 @@ def test_archive_notification_item(
     payload = {
         "is_archived": True,
     }
-    response = app.post(
+    response = app.post_json(
         "/api/v1/users/data/followup/item/notifications/psl:OperationTranquilliteVacances:42/archive",
         payload,
     )
@@ -57,7 +57,7 @@ def test_archive_notification_item(
     payload = {
         "is_archived": False,
     }
-    response = app.post(
+    response = app.post_json(
         "/api/v1/users/data/followup/item/notifications/psl:OperationTranquilliteVacances:42/archive",
         payload,
     )
@@ -81,7 +81,7 @@ def test_archive_notification_item_empty_payload(
 ) -> None:
     login(app, user)
 
-    response = app.post(
+    response = app.post_json(
         "/api/v1/users/data/followup/item/notifications/psl:OperationTranquilliteVacances:42/archive",
         status=400,
     )
@@ -98,16 +98,16 @@ def test_archive_notification_item_wrong_id(
 ) -> None:
     login(app, user)
 
-    app.post(
+    app.post_json(
         "/api/v1/users/data/followup/item/notifications/psl:OperationTranquilliteVacances:/archive",
         status=404,
     )
-    app.post(
+    app.post_json(
         "/api/v1/users/data/followup/item/notifications/psl:OperationTranquilliteVacances/archive",
         status=404,
     )
-    app.post("/api/v1/users/data/followup/item/notifications/psl:/archive", status=404)
-    app.post("/api/v1/users/data/followup/item/notifications/psl/archive", status=404)
+    app.post_json("/api/v1/users/data/followup/item/notifications/psl:/archive", status=404)
+    app.post_json("/api/v1/users/data/followup/item/notifications/psl/archive", status=404)
 
 
 @pytest.mark.django_db
@@ -121,7 +121,7 @@ def test_archive_notification_item_wrong_source(
     payload = {
         "is_archived": True,
     }
-    app.post(
+    app.post_json(
         "/api/v1/users/data/followup/item/other/psl:OperationTranquilliteVacances:42/archive",
         payload,
         status=404,
@@ -138,7 +138,7 @@ def test_archive_notification_item_unknown_partner_id(
     payload = {
         "is_archived": True,
     }
-    app.post(
+    app.post_json(
         "/api/v1/users/data/followup/item/notifications/unknown:OperationTranquilliteVacances:42/archive",
         payload,
         status=404,
@@ -243,7 +243,7 @@ def test_archive_notification_item_notification_not_found(
     payload = {
         "is_archived": True,
     }
-    app.post(
+    app.post_json(
         "/api/v1/users/data/followup/item/notifications/psl:OperationTranquilliteVacances:42/archive",
         payload,
         status=404,
@@ -278,7 +278,7 @@ def test_archive_notification_item_notification_not_found_has_sub_items(
     payload = {
         "is_archived": True,
     }
-    app.post(
+    app.post_json(
         "/api/v1/users/data/followup/item/notifications/dinum-ami:JeDemenage:40/archive",
         payload,
         status=404,
@@ -301,7 +301,7 @@ def test_archive_notification_item_notification_not_found_has_sub_items(
         item_id="44",
         partner=partner,
     )
-    app.post(
+    app.post_json(
         "/api/v1/users/data/followup/item/notifications/dinum-ami:JeDemenage:40/archive",
         payload,
         status=404,
@@ -326,7 +326,7 @@ def test_archive_notification_item_notification_not_found_has_sub_items(
         item_id="45",
         partner=partner,
     )
-    response = app.post(
+    response = app.post_json(
         "/api/v1/users/data/followup/item/notifications/dinum-ami:JeDemenage:40/archive",
         payload,
     )
