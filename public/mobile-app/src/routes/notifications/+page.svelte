@@ -93,9 +93,14 @@
       data-testid="notification-{notification.id}"
     >
       <div class="fr-tile__header fr-mr-3v">
-        <span class="notification__status" aria-hidden="true"
-          ><i class={notification.read ? 'fr-hidden': ''}>•</i></span
-        >
+        <span class="notification__status">
+          {#if notification.read}
+            <span class="fr-sr-only">Lu</span>
+          {:else}
+            <i>•</i>
+            <span class="fr-sr-only">Non lu</span>
+          {/if}
+        </span>
         <NotificationIcon
           icon={notification.content_icon}
           defaultIcon="fr-icon-information-line"
