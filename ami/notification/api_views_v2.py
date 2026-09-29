@@ -1,21 +1,18 @@
 import logging
 import os
-from functools import partial
 from typing import cast
 
-from django.db import transaction
 from drf_spectacular.utils import extend_schema
 from rest_framework import serializers
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from ami.notification.tasks import push_notification
 from ami.partner.auth import IsPartnerAuthenticated, PartnerBasicAuthentication
 from ami.user.models import Consent, User
 from ami.utils import sentry
 
-from .models import Notification
+from .models import Notification, NotificationEvent
 from .serializers import (
     NotificationResponseSerializer,
     PartnerEventCreateSerializerV2,
@@ -66,17 +63,14 @@ def _partner_create_event(request: Request, data: dict):
         try_push = False
 
     data.pop("recipient_fc_hash")
-    with transaction.atomic():
-        notification, created = Notification.objects.get_or_create(
-            user_id=user.id,
-            partner=current_partner,
-            defaults={"send_status": notification_send_status},
-            **data,
-        )
-        if created:
-            transaction.on_commit(
-                partial(push_notification.enqueue, str(notification.id), try_push)  # type: ignore[union-attr]
-            )
+    notification, created = Notification.objects.get_or_create(
+        user_id=user.id,
+        partner=current_partner,
+        defaults={"send_status": notification_send_status},
+        **data,
+    )
+    if created:
+        notification.push(event=NotificationEvent.CREATED, try_push=try_push)
 
     sentry.add_counter("notification.request.processed")
 

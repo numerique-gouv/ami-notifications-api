@@ -375,7 +375,7 @@ def test_read_notification_without_auth(
     )
 
 
-async def test_notification_key(
+def test_notification_key(
     app,
     settings,
 ) -> None:

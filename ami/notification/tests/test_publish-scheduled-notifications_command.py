@@ -1,7 +1,7 @@
+import asyncio
 import datetime
 
 import pytest
-from asgiref.sync import sync_to_async
 from channels.testing.websocket import WebsocketCommunicator
 from django.core.management import call_command
 from django.utils.timezone import now
@@ -13,8 +13,9 @@ from ami.tests.utils import get_from_stream
 from ami.user.models import Registration, User
 
 
-@pytest.mark.django_db(transaction=True)
-async def test_command_publish_scheduled_notifications(
+@pytest.mark.django_db
+def test_command_publish_scheduled_notifications(
+    app,
     websocket: WebsocketCommunicator,
     webpush_registration: Registration,
     partner: Partner,
@@ -24,11 +25,11 @@ async def test_command_publish_scheduled_notifications(
     httpx_mock.add_response(url=webpush_registration.subscription["endpoint"])
 
     # no scheduled notifications, no effects
-    assert await ScheduledNotification.objects.acount() == 0
-    assert await Notification.objects.acount() == 0
+    assert ScheduledNotification.objects.count() == 0
+    assert Notification.objects.count() == 0
 
     # create some scheduled notifications
-    scheduled_notification1 = await ScheduledNotification.objects.acreate(
+    scheduled_notification1 = ScheduledNotification.objects.create(
         user=user,
         content_title="title 1",
         content_body="body 1",
@@ -38,7 +39,7 @@ async def test_command_publish_scheduled_notifications(
         scheduled_at=now(),
         sent_at=now(),  # already sent
     )
-    scheduled_notification2 = await ScheduledNotification.objects.acreate(
+    scheduled_notification2 = ScheduledNotification.objects.create(
         user=user,
         content_title="title 2",
         content_body="body 2",
@@ -47,7 +48,7 @@ async def test_command_publish_scheduled_notifications(
         internal_url="internal-url-2",
         scheduled_at=now() + datetime.timedelta(minutes=2),  # too soon
     )
-    scheduled_notification3 = await ScheduledNotification.objects.acreate(
+    scheduled_notification3 = ScheduledNotification.objects.create(
         user=user,
         content_title="title 3",
         content_body="body 3",
@@ -57,19 +58,19 @@ async def test_command_publish_scheduled_notifications(
         scheduled_at=now(),
     )
 
-    await sync_to_async(call_command)("publish-scheduled-notifications")
+    call_command("publish-scheduled-notifications")
 
-    assert await ScheduledNotification.objects.acount() == 3
-    assert await Notification.objects.acount() == 1
+    assert ScheduledNotification.objects.count() == 3
+    assert Notification.objects.count() == 1
 
-    await scheduled_notification1.arefresh_from_db()
-    await scheduled_notification2.arefresh_from_db()
-    await scheduled_notification3.arefresh_from_db()
+    scheduled_notification1.refresh_from_db()
+    scheduled_notification2.refresh_from_db()
+    scheduled_notification3.refresh_from_db()
     assert scheduled_notification1.sent_at is not None
     assert scheduled_notification2.sent_at is None
     assert scheduled_notification3.sent_at is not None
 
-    notification = await Notification.objects.afirst()
+    notification = Notification.objects.first()
     assert notification is not None
     assert notification.user_id == user.id
     assert notification.content_title == "title 3"
@@ -95,7 +96,7 @@ async def test_command_publish_scheduled_notifications(
     assert notification.read is False
     assert notification.try_push is None
     assert notification.send_status is True
-    res = await get_from_stream(websocket, 1)
+    res = asyncio.get_event_loop().run_until_complete(get_from_stream(websocket, 1))
     assert res[0] == {
         "user_id": str(user.id),
         "id": str(notification.id),
@@ -106,6 +107,7 @@ async def test_command_publish_scheduled_notifications(
 
 @pytest.mark.django_db
 def test_command_publish_scheduled_notification_when_registration_gone(
+    app,
     webpush_registration: Registration,
     partner: Partner,
     httpx_mock: HTTPXMock,

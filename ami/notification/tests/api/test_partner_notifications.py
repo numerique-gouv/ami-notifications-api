@@ -1,10 +1,10 @@
+import asyncio
 import base64
 import datetime
 from unittest.mock import Mock
 
 import pytest
 import webpush as webpush_lib
-from asgiref.sync import sync_to_async
 from channels.testing.websocket import WebsocketCommunicator
 from django.test import TestCase
 from django.utils.timezone import now
@@ -17,8 +17,8 @@ from ami.tests.utils import get_from_stream
 from ami.user.models import Consent, Registration, User
 
 
-@pytest.mark.django_db(transaction=True)
-async def test_create_webpush_notification(
+@pytest.mark.django_db()
+def test_create_webpush_notification(
     app,
     webpush_notification: Notification,
     webpush_registration: Registration,
@@ -62,13 +62,11 @@ async def test_create_webpush_notification(
         "try_push": True,
     }
 
-    response = await sync_to_async(app.post_json)(
-        "/api/v1/notifications", notification_data, headers=partner_auth
-    )
+    response = app.post_json("/api/v1/notifications", notification_data, headers=partner_auth)
     assert response.status_code == HTTP_201_CREATED
-    notification_count = await sync_to_async(Notification.objects.count)()
+    notification_count = Notification.objects.count()
     assert notification_count == 2
-    notification2 = await sync_to_async(Notification.objects.select_related("user").get)(
+    notification2 = Notification.objects.select_related("user").get(
         id=response.json["notification_id"]
     )
     assert notification2.user.id == webpush_registration.user.id
@@ -105,7 +103,7 @@ async def test_create_webpush_notification(
         "notification_id": str(notification2.id),
         "notification_send_status": True,
     }
-    res = await get_from_stream(websocket, 1)
+    res = asyncio.get_event_loop().run_until_complete(get_from_stream(websocket, 1))
     assert res[0] == {
         "user_id": str(webpush_registration.user.id),
         "id": str(notification2.id),
@@ -146,8 +144,7 @@ def test_create_mobile_notification(
         "send_date": "2025-11-27T10:55:00.000Z",
         "try_push": True,
     }
-    with TestCase.captureOnCommitCallbacks(execute=True):
-        response = app.post_json("/api/v1/notifications", notification_data, headers=partner_auth)
+    response = app.post_json("/api/v1/notifications", notification_data, headers=partner_auth)
     assert response.status_code == HTTP_201_CREATED
     assert Notification.objects.count() == 2
     notification2 = Notification.objects.latest("created_at")
@@ -269,8 +266,8 @@ def test_create_notification_dont_try_push(
     assert not httpx_mock.get_request()
 
 
-@pytest.mark.django_db(transaction=True)
-async def test_create_webpush_notification_no_valid_until(
+@pytest.mark.django_db()
+def test_create_webpush_notification_no_valid_until(
     app,
     webpush_notification: Notification,
     webpush_registration: Registration,
@@ -292,13 +289,11 @@ async def test_create_webpush_notification_no_valid_until(
         "try_push": True,
     }
 
-    response = await sync_to_async(app.post_json)(
-        "/api/v1/notifications", notification_data, headers=partner_auth
-    )
+    response = app.post_json("/api/v1/notifications", notification_data, headers=partner_auth)
     assert response.status_code == HTTP_201_CREATED
-    notification_count = await sync_to_async(Notification.objects.count)()
+    notification_count = Notification.objects.count()
     assert notification_count == 2
-    notification2 = await sync_to_async(Notification.objects.select_related("user").get)(
+    notification2 = Notification.objects.select_related("user").get(
         id=response.json["notification_id"]
     )
     assert notification2.valid_until is None
@@ -306,7 +301,7 @@ async def test_create_webpush_notification_no_valid_until(
         "notification_id": str(notification2.id),
         "notification_send_status": True,
     }
-    res = await get_from_stream(websocket, 1)
+    res = asyncio.get_event_loop().run_until_complete(get_from_stream(websocket, 1))
     assert res[0] == {
         "user_id": str(webpush_registration.user.id),
         "id": str(notification2.id),
