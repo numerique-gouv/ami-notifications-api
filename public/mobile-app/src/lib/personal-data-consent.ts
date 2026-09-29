@@ -3,6 +3,7 @@ import {
   retrievePersonalDataConsent,
   updateApiPersonalDataConsent,
 } from '$lib/api-personal-data-consent';
+import { userStore } from '$lib/state/User.svelte';
 
 export class PersonalDataConsent {
   private _consent_datetime: Date | null = null;
@@ -20,7 +21,16 @@ export class PersonalDataConsent {
   }
 
   updateConsent = async (checked: boolean): Promise<boolean> => {
-    return await updateApiPersonalDataConsent(checked);
+    const result: boolean = await updateApiPersonalDataConsent(checked);
+
+    if (result) {
+      const apiPersonalDataConsent: APIPersonalDataConsent =
+        await retrievePersonalDataConsent();
+      userStore.connected?.setPersonalDataConsentDatetime(
+        apiPersonalDataConsent.consent_datetime
+      );
+    }
+    return result;
   };
 }
 
