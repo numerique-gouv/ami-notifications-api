@@ -5,8 +5,9 @@
   interface Props {
     item: Item;
     className: string;
+    modalId: string;
   }
-  let { item, className }: Props = $props();
+  let { item, className, modalId }: Props = $props();
 </script>
 
 <div
@@ -17,20 +18,30 @@
       <img class="am-icon" aria-hidden="true" src="/remixicons/{item.image}" alt="">
     </div>
     <h3 class="fr-mb-0 fr-text--md fr-text-label--blue-france">
-      <button
-        class="fr-text--bold fr-p-0 am-blue__btn"
-        type="button"
-        onclick={()=>AMIGoto(item.link)}
-      >
-        {item.title}
-      </button>
+      {#if item.link}
+        <button
+          class="fr-text--bold fr-p-0 am-blue__btn"
+          type="button"
+          onclick={() => AMIGoto(item.link)}
+        >
+          {item.title}
+        </button>
+      {:else if item.component_modal_name}
+        <button
+          data-fr-opened="false"
+          aria-controls="{modalId}"
+          type="button"
+          class="fr-text--bold fr-p-0 am-blue__btn"
+        >
+          {item.title}
+        </button>
+      {/if}
     </h3>
     <p class="fr-text--md fr-m-0">{item.description}</p>
   </div>
 </div>
 
 <style lang="scss">
-
   .am-blue {
     height: 100%;
     text-align: center;
@@ -52,7 +63,7 @@
       }
     }
     &.fr-enlarge-button .am-blue__btn:before {
-      outline-offset: -2px; 
+      outline-offset: -2px;
     }
     &.am-blue--arrow {
       .am-blue__btn {
