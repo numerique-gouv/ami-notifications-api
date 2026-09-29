@@ -297,16 +297,18 @@
 
 {#if zonesVisible}
   <div class="preferences-content-container" transition:slide>
-    {#each zoneInfos as zoneInfo}
-      <Toggle
-        id={zoneInfo.zone}
-        label={zoneInfo.zone}
-        isChecked={zoneInfo.selected}
-        onChangeAction={saveZones}
-        onRemoveAction={removeAddress}
-        tags={zoneInfo.tags}
-      />
-    {/each}
+    <div class="am-toggle-container">
+      {#each zoneInfos as zoneInfo}
+        <Toggle
+          id={zoneInfo.zone}
+          label={zoneInfo.zone}
+          isChecked={zoneInfo.selected}
+          onChangeAction={saveZones}
+          onRemoveAction={removeAddress}
+          tags={zoneInfo.tags}
+        />
+      {/each}
+    </div>
   </div>
 {/if}
 
