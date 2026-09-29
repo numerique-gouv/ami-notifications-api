@@ -99,6 +99,8 @@ class AnonymizedRegistration(AnonymizedModel):
 
     subscription = models.JSONField(blank=True, null=True)
 
+    deleted_at = models.DateTimeField(null=True)
+
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField()
 
