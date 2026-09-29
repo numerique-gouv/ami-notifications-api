@@ -33,12 +33,9 @@
   {#if displayDate}
     <div class="agenda--item--date">
       {#if displayDay}
-        <span class="day-name">
-          <span aria-hidden="true">{item.dayName}</span><span class="fr-sr-only"
-            >{item.fullDayName}</span
-          >
-        </span>
-        <span class="day-num">{item.dayNum}</span> 
+        <h3 class="fr-sr-only">{item.fullDayName} {item.dayNum} {item.monthName}</h3>
+        <span aria-hidden="true" class="day-name">{item.dayName}</span>
+        <span aria-hidden="true" class="day-num">{item.dayNum}</span>
       {/if}
     </div>
   {/if}

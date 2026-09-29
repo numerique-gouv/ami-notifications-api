@@ -66,9 +66,11 @@
           {@const displayMonth = (i == 0 || i > 0 && item.date?.getMonth() !== agenda.now[i - 1].date?.getMonth())}
           {@const displayDay = (i == 0 || i > 0 && item.date?.toDateString() !== agenda.now[i - 1].date?.toDateString())}
           {#if displayMonth}
-            <h3 class="fr-text--sm fr-mb-1w am-text--smbold agenda--events--month">
+            <p
+              class="fr-text--sm fr-mb-1w fr-text-title--grey am-text--smbold agenda--events--month"
+            >
               {item.monthName}
-            </h3>
+            </p>
           {/if}
           <AgendaItem
             item={item}
@@ -90,9 +92,11 @@
           {@const displayMonth = (i > 0 && item.date?.getMonth() !== agenda.next[i - 1].date?.getMonth() || i == 0 && (agenda.now.length && item.date?.getMonth() !== agenda.now[agenda.now.length - 1].date?.getMonth() || !agenda.now.length))}
           {@const displayDay = (i == 0 || i > 0 && item.date?.toDateString() !== agenda.next[i - 1].date?.toDateString())}
           {#if displayMonth}
-            <h3 class="fr-text--sm fr-mb-1w am-text--smbold agenda--events--month">
+            <p
+              class="fr-text--sm fr-mb-1w fr-text-title--grey am-text--smbold agenda--events--month"
+            >
               {item.monthName}
-            </h3>
+            </p>
           {/if}
           <AgendaItem
             item={item}

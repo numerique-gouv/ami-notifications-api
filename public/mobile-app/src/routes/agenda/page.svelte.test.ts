@@ -43,10 +43,14 @@ describe('/+page.svelte', () => {
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
       expect(screen.getByTestId('events-now')).toHaveTextContent('Prochainement');
-      expect(screen.getByTestId('events-now')).toHaveTextContent(monthName(today));
+      expect(
+        screen.getByTestId('events-now').querySelector('.agenda--events--month')
+      ).toHaveTextContent(monthName(today));
       expect(screen.getByTestId('events-now')).toHaveTextContent('Holiday 1');
       expect(screen.getByTestId('events-next')).toHaveTextContent('Les mois suivants');
-      expect(screen.getByTestId('events-next')).toHaveTextContent(monthName(in32days));
+      expect(
+        screen.getByTestId('events-next').querySelector('.agenda--events--month')
+      ).toHaveTextContent(monthName(in32days));
       expect(screen.getByTestId('events-next')).toHaveTextContent('Holiday 2');
     });
   });
@@ -67,7 +71,9 @@ describe('/+page.svelte', () => {
       expect(spy).toHaveBeenCalledTimes(1);
       expect(screen.queryByTestId('events-now')).toBeNull();
       expect(screen.getByTestId('events-next')).toHaveTextContent('Les mois suivants');
-      expect(screen.getByTestId('events-next')).toHaveTextContent(monthName(in32days));
+      expect(
+        screen.getByTestId('events-next').querySelector('.agenda--events--month')
+      ).toHaveTextContent(monthName(in32days));
       expect(screen.getByTestId('events-next')).toHaveTextContent('Holiday 2');
     });
   });
@@ -87,7 +93,9 @@ describe('/+page.svelte', () => {
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
       expect(screen.getByTestId('events-now')).toHaveTextContent('Prochainement');
-      expect(screen.getByTestId('events-now')).toHaveTextContent(monthName(today));
+      expect(
+        screen.getByTestId('events-now').querySelector('.agenda--events--month')
+      ).toHaveTextContent(monthName(today));
       expect(screen.getByTestId('events-now')).toHaveTextContent('Holiday 1');
       expect(screen.queryByTestId('events-next')).toBeNull();
     });
@@ -111,20 +119,26 @@ describe('/+page.svelte', () => {
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
       expect(screen.getByTestId('events-now')).toHaveTextContent('Prochainement');
-      expect(screen.getByTestId('events-now')).toHaveTextContent(monthName(today));
+      expect(
+        screen.getByTestId('events-now').querySelector('.agenda--events--month')
+      ).toHaveTextContent(monthName(today));
       const today_month_occurrences = (
         screen
           ?.getByTestId('events-now')
+          .querySelector('.agenda--events--month')
           ?.textContent?.match(new RegExp(monthName(today), 'g')) || []
       ).length;
       expect(today_month_occurrences).toBe(1);
       expect(screen.getByTestId('events-now')).toHaveTextContent('Holiday 1');
       expect(screen.getByTestId('events-now')).toHaveTextContent('Holiday 2');
       expect(screen.getByTestId('events-next')).toHaveTextContent('Les mois suivants');
-      expect(screen.getByTestId('events-next')).toHaveTextContent(monthName(in32days));
+      expect(
+        screen.getByTestId('events-next').querySelector('.agenda--events--month')
+      ).toHaveTextContent(monthName(in32days));
       const in32days_month_occurrences = (
         screen
           ?.getByTestId('events-next')
+          .querySelector('.agenda--events--month')
           ?.textContent?.match(new RegExp(monthName(in32days), 'g')) || []
       ).length;
       expect(in32days_month_occurrences).toBe(1);
@@ -150,10 +164,13 @@ describe('/+page.svelte', () => {
       expect(spy).toHaveBeenCalledTimes(1);
       expect(screen.queryByTestId('events-now')).toBeNull();
       expect(screen.getByTestId('events-next')).toHaveTextContent('Les mois suivants');
-      expect(screen.getByTestId('events-next')).toHaveTextContent(monthName(in32days));
+      expect(
+        screen.getByTestId('events-next').querySelector('.agenda--events--month')
+      ).toHaveTextContent(monthName(in32days));
       const in32days_month_occurrences = (
         screen
           ?.getByTestId('events-next')
+          .querySelector('.agenda--events--month')
           ?.textContent?.match(new RegExp(monthName(in32days), 'g')) || []
       ).length;
       expect(in32days_month_occurrences).toBe(1);
@@ -186,12 +203,14 @@ describe('/+page.svelte', () => {
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
       expect(screen.getByTestId('events-now')).toHaveTextContent('Prochainement');
-      expect(screen.getByTestId('events-now')).toHaveTextContent(monthName(start1));
+      expect(
+        screen.getByTestId('events-now').querySelector('.agenda--events--month')
+      ).toHaveTextContent(monthName(start1));
       expect(screen.getByTestId('events-now')).toHaveTextContent('Holiday 1');
       expect(screen.getByTestId('events-next')).toHaveTextContent('Les mois suivants');
-      expect(screen.getByTestId('events-next')).not.toHaveTextContent(
-        monthName(start2)
-      );
+      expect(
+        screen.getByTestId('events-next').querySelector('.agenda--events--month')
+      ).toBeNull();
       expect(screen.getByTestId('events-next')).toHaveTextContent('Holiday 2');
     });
   });
