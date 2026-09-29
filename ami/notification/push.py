@@ -1,16 +1,17 @@
+import logging
 from typing import cast
 
 import webpush
-from channels.layers import get_channel_layer
 from django.conf import settings
-from django.utils.timezone import now
 from firebase_admin import messaging
 from firebase_admin.messaging import UnregisteredError
 
-from ami.notification.models import Notification, NotificationEvent
+from ami.notification.models import Notification
 from ami.user.models import NotificationPush, Registration, WebPushSubscription
 from ami.utils import sentry
 from ami.utils.httpx import httpxClient
+
+logger = logging.getLogger(__name__)
 
 
 def provide_webpush() -> webpush.WebPush:
@@ -22,37 +23,14 @@ def provide_webpush() -> webpush.WebPush:
     return webpush_
 
 
-async def push(notification: Notification, try_push: bool) -> None:
-    import logging
-
-    logger = logging.getLogger(__name__)
-
-    if notification.valid_until is not None and notification.valid_until < now():
-        return
-
-    channel_layer = get_channel_layer()
-    assert channel_layer is not None
-    await channel_layer.group_send(
-        f"user_{notification.user_id}",
-        {
-            "type": "notification.event",  # maps to notification_event() on the consumer
-            "user_id": str(notification.user_id),
-            "id": str(notification.id),
-            "event": NotificationEvent.CREATED,
-        },
-    )
-
-    if not try_push:
-        return
-
+def push(notification: Notification) -> None:
     notification_data = NotificationPush(
         title=notification.content_title,
         message=notification.content_body,
         content_icon=notification.content_icon,
         sender="AMI",
     )
-    registrations = [r async for r in Registration.objects.filter(user_id=notification.user_id)]
-    for registration in registrations:
+    for registration in Registration.objects.filter(user_id=notification.user_id):
         if isinstance(registration.typed_subscription, WebPushSubscription):
             subscription = registration.typed_subscription
             message = provide_webpush().get(

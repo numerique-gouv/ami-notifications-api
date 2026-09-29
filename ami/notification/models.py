@@ -2,6 +2,7 @@ import uuid
 from enum import Enum
 
 from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 from django.db import models
 from django.utils import timezone
 
@@ -109,6 +110,27 @@ class Notification(models.Model):
             body += f" {self.content_private_body}"
         return body
 
+    def push(self, *, event, try_push=False):
+        from ami.notification.tasks import push_notification
+
+        if self.valid_until is not None and self.valid_until < timezone.now():
+            return
+
+        channel_layer = get_channel_layer()
+        assert channel_layer is not None
+        async_to_sync(channel_layer.group_send)(
+            f"user_{self.user_id}",
+            {
+                "type": "notification.event",  # maps to notification_event() on the consumer
+                "user_id": str(self.user_id),
+                "id": str(self.id),
+                "event": event,
+            },
+        )
+
+        if try_push and event == NotificationEvent.CREATED:
+            push_notification.enqueue(str(self.id))  # type: ignore[union-attr]
+
 
 class ScheduledNotification(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -142,8 +164,6 @@ class ScheduledNotification(models.Model):
         )
 
     def publish(self):
-        from ami.notification.push import push
-
         notification = self.build_notification()
         today = timezone.now()
         notification_qs = Notification.objects.filter(
@@ -159,7 +179,8 @@ class ScheduledNotification(models.Model):
         if notification_qs.exists():
             return
         notification.save()
-        async_to_sync(push)(notification, True)
+
+        notification.push(event=NotificationEvent.CREATED, try_push=True)
 
     @classmethod
     async def acreate_welcome_scheduled_notification(cls, user: User):
