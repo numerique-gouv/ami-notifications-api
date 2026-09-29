@@ -40,6 +40,19 @@ class Consent(models.Model):
         unique_together = [("user", "partner")]
 
 
+class PersonalDataConsent(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+    user = models.OneToOneField(User, on_delete=models.PROTECT)
+    consent_datetime = models.DateTimeField(blank=True, null=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "personal_data_consent"
+
+
 class MobileAppSubscription(BaseModel):
     app_version: str
     device_id: str
