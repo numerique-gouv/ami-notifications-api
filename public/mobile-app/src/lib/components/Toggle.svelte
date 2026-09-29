@@ -21,7 +21,7 @@
   }: Props = $props();
 </script>
 
-<div class="fr-toggle">
+<div class="fr-toggle fr-pt-2w fr-toggle--border-bottom">
   <input
     type="checkbox"
     class="fr-toggle__input"
@@ -31,12 +31,14 @@
     onchange={(e) => onChangeAction((e.target as HTMLInputElement).id, (e.target as HTMLInputElement).checked)}
     data-testid="{id}"
   >
-  <label class="fr-toggle__label" for={id}>{@html DOMPurify.sanitize(label)}</label>
+  <label class="fr-toggle__label fr-pr-4w" for={id}>
+    {@html DOMPurify.sanitize(label)}
+  </label>
   <div class="tags-container">
     {#each tags as tag (tag.id)}
       {#if tag.removable}
         <button
-          class="fr-tag fr-tag--dismiss"
+          class="fr-tag fr-mt-1w fr-tag--dismiss"
           type="button"
           aria-label="Retirer {tag.label}"
           id={tag.id}
@@ -46,23 +48,22 @@
           {tag.label}
         </button>
       {:else}
-        <p class="fr-tag">{@html ariaHideDecorativeEmoji(tag.label)}</p>
+        <p
+          class="fr-tag fr-mt-1w fr-background-action-low--blue-france fr-text-action-high--blue-france"
+        >
+          {@html ariaHideDecorativeEmoji(tag.label)}
+        </p>
       {/if}
     {/each}
   </div>
 </div>
 
-<style>
+<style lang="scss">
   .fr-toggle {
-    padding: 1rem 0;
     display: block;
-    &:has(.fr-tag) {
-      padding-bottom: 0;
-    }
     label.fr-toggle__label {
       display: block;
       position: relative;
-      padding-right: 2rem;
       &:before {
         display: flex;
         position: absolute;
@@ -78,12 +79,12 @@
     .tags-container {
       display: flex;
       flex-direction: column;
-      p.fr-tag {
-        background-color: var(--background-action-low-blue-france);
-        color: var(--text-action-high-blue-france);
-      }
-      .fr-tag {
-        margin-top: 0.5rem;
+    }
+  }
+  :global {
+    .am-toggle-container .fr-toggle {
+      &:last-child {
+        box-shadow: none;
       }
     }
   }

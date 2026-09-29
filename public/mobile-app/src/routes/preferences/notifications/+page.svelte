@@ -52,12 +52,14 @@
   <NavWithBackButton title="Notifications" {backUrl} />
 
   <div class="preferences-content-container fr-pt-14w">
-    <Toggle
-      id="notification-toggle"
-      label="Recevoir les notifications sur mon appareil mobile"
-      isChecked={isChecked}
-      onChangeAction={saveSettings}
-    />
+    <div class="am-toggle-container">
+      <Toggle
+        id="notification-toggle"
+        label="Recevoir les notifications sur mon appareil mobile"
+        isChecked={isChecked}
+        onChangeAction={saveSettings}
+      />
+    </div>
   </div>
 
   <button

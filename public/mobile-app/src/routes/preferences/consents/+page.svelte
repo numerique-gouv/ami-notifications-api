@@ -93,46 +93,48 @@
   </button>
 
   {#if consentItems && consentItems.length}
-    {#each consentItems as item}
-      <Toggle
-        id="{item.partner_id}"
-        label="Suivre mes démarches <strong>{item.partner_name}</strong> sur mon appareil mobile"
-        isChecked={hasConsentedFor(item.partner_id)}
-        onChangeAction={saveConsents}
-      />
-      {#if displayWarningBlocks.get(item.partner_id)}
-        <div
-          class="fr-notice fr-p-2w toast-wrapper warning"
-          data-testid="warning-{item.partner_id}"
-        >
-          <div class="toast-body">
-            <div class="toast-body-left-wrapper">
-              <div class="fr-mb-1v toast-title-container">
-                <span
-                  class="fr-icon-warning-fill fr-mr-1w warning"
-                  aria-hidden="true"
-                ></span>
-                <p class="fr-text--bold">Attention</p>
+    <div class="am-toggle-container">
+      {#each consentItems as item}
+        <Toggle
+          id="{item.partner_id}"
+          label="Suivre mes démarches <strong>{item.partner_name}</strong> sur mon appareil mobile"
+          isChecked={hasConsentedFor(item.partner_id)}
+          onChangeAction={saveConsents}
+        />
+        {#if displayWarningBlocks.get(item.partner_id)}
+          <div
+            class="fr-notice fr-p-2w toast-wrapper warning"
+            data-testid="warning-{item.partner_id}"
+          >
+            <div class="toast-body">
+              <div class="toast-body-left-wrapper">
+                <div class="fr-mb-1v toast-title-container">
+                  <span
+                    class="fr-icon-warning-fill fr-mr-1w warning"
+                    aria-hidden="true"
+                  ></span>
+                  <p class="fr-text--bold">Attention</p>
+                </div>
+                <p class="fr-text--sm">
+                  Si vous avez des démarches {item.partner_name} en cours ou à venir,
+                  vous ne pourrez plus les suivre dans l’application. L’historique de
+                  vos démarches est conservé.
+                </p>
               </div>
-              <p class="fr-text--sm">
-                Si vous avez des démarches {item.partner_name} en cours ou à venir, vous
-                ne pourrez plus les suivre dans l’application. L’historique de vos
-                démarches est conservé.
-              </p>
-            </div>
-            <div class="toast-body-right-wrapper">
-              <button
-                onclick={() => hideWarningBlock(item.partner_id)}
-                aria-label="Fermer le toast"
-                data-testid="close-button"
-              >
-                <span class="fr-icon-close-line" aria-hidden="true"></span>
-              </button>
+              <div class="toast-body-right-wrapper">
+                <button
+                  onclick={() => hideWarningBlock(item.partner_id)}
+                  aria-label="Fermer le toast"
+                  data-testid="close-button"
+                >
+                  <span class="fr-icon-close-line" aria-hidden="true"></span>
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      {/if}
-    {/each}
+        {/if}
+      {/each}
+    </div>
   {/if}
   <FollowupInformation />
 </div>
