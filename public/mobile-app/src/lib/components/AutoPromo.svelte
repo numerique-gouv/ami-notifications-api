@@ -1,51 +1,94 @@
 <script lang="ts">
-  import Splide from '@splidejs/splide';
+  import Splide, { type Options } from '@splidejs/splide';
   import { onMount } from 'svelte';
-  import { AutoPromoItem as Item } from '$lib/auto-promo';
+  import { AutoPromo, buildAutoPromo, AutoPromoItem as Item } from '$lib/auto-promo';
   import AutoPromoItem from '$lib/components/AutoPromoItem.svelte';
   import '@splidejs/splide/dist/css/splide.min.css';
   import '@splidejs/splide/dist/css/splide-core.min.css';
+  import { type Agenda, buildAgenda } from '$lib/agenda';
+  import AutoPromoItemModal from '$lib/components/modal/AutoPromoItemModal.svelte';
+  import { buildFollowup, type Followup } from '$lib/followup';
+  import {
+    buildPersonalDataConsent,
+    PersonalDataConsent,
+  } from '$lib/personal-data-consent';
 
   interface Props {
     items: Item[];
   }
   let { items }: Props = $props();
 
+  let followup: Followup | null = $state(null);
+  let agenda: Agenda | null = $state(null);
+  let autoPromo: AutoPromo | null = $state(null);
+  let splide: Splide | null = null;
   let carousel = $state<HTMLDivElement | null>(null);
+  const carouselOptions = {
+    type: 'loop',
+    perPage: 1,
+    arrows: true,
+    drag: true,
+    flickMaxPages: 1,
+    snap: true,
+    gap: '1rem',
+    i18n: {
+      prev: 'Diapositive précédente',
+      next: 'Diapositive suivante',
+      first: 'Aller à la première diapositive',
+      last: 'Aller à la dernière diapositive',
+      slideX: 'Aller à la diapositive %s',
+      pageX: 'Aller à la page %s',
+      play: 'Démarrer le défilement automatique',
+      pause: 'Mettre en pause le défilement automatique',
+      select: 'Sélectionner une diapositive à afficher',
+    },
+  } as Options;
   let slideText: string = $state('');
 
-  onMount(() => {
-    if (carousel !== null) {
-      const splide = new Splide(carousel, {
-        type: 'loop',
-        perPage: 1,
-        arrows: true,
-        drag: true,
-        flickMaxPages: 1,
-        snap: true,
-        gap: '1rem',
-        i18n: {
-          prev: 'Diapositive précédente',
-          next: 'Diapositive suivante',
-          first: 'Aller à la première diapositive',
-          last: 'Aller à la dernière diapositive',
-          slideX: 'Aller à la diapositive %s',
-          pageX: 'Aller à la page %s',
-          play: 'Démarrer le défilement automatique',
-          pause: 'Mettre en pause le défilement automatique',
-          select: 'Sélectionner une diapositive à afficher',
-        },
-      });
+  onMount(async () => {
+    buildCarousel();
+  });
+
+  const buildCarousel = () => {
+    if (carousel !== null && items) {
+      splide = new Splide(carousel, carouselOptions);
       splide.mount();
 
       splide.on('moved', (newIndex) => {
-        const slide = items[newIndex];
-        slideText = `Slide : ${slide.title}`;
+        if (items) {
+          const slide = items[newIndex];
+          slideText = `Slide : ${slide.title}`;
+        }
       });
-
-      return () => splide.destroy();
     }
-  });
+  };
+
+  const onCloseModal = (hasAccepted: boolean) => {
+    onCloseModalAsync(hasAccepted);
+  };
+
+  const onCloseModalAsync = async (hasAccepted: boolean) => {
+    if (hasAccepted === true) {
+      if (splide) {
+        followup = await buildFollowup();
+        agenda = await buildAgenda(followup);
+        const personalDataConsent: PersonalDataConsent =
+          await buildPersonalDataConsent();
+        autoPromo = buildAutoPromo(agenda, personalDataConsent);
+
+        if (autoPromo?.items) {
+          items = autoPromo.items;
+          buildCarousel();
+        }
+      } else {
+        const carouselContainer: HTMLElement | null =
+          document.querySelector<HTMLElement>('#carousel-container');
+        if (carouselContainer) {
+          carouselContainer.remove();
+        }
+      }
+    }
+  };
 </script>
 
 {#if items.length > 1}
@@ -57,19 +100,41 @@
   >
     <div class="splide__track">
       <ul class="fr-raw-list splide__list">
-        {#each items as item}
+        {#each items as item, i}
           <li aria-label={item.description} class="splide__slide">
-            <AutoPromoItem item={item} className="" />
+            <AutoPromoItem
+              item={item}
+              className=""
+              modalId="auto-promo-item-{i}-modal"
+            />
+            {#if item.component_modal_name}
+              <AutoPromoItemModal
+                item_component_modal_name="{item.component_modal_name}"
+                modalId="auto-promo-item-{i}-modal"
+                onClose={onCloseModal}
+              />
+            {/if}
           </li>
         {/each}
       </ul>
       <div class="fr-sr-only" aria-live="polite" aria-atomic="true">{slideText}</div>
     </div>
   </div>
-{:else if items.length == 1}
+{:else if items.length === 1}
   {@const firstItem = items[0]}
   <div class="auto-mea-container">
-    <AutoPromoItem item={firstItem} className="am-blue--arrow" />
+    <AutoPromoItem
+      item={firstItem}
+      className="am-blue--arrow"
+      modalId="auto-promo-item-0-modal"
+    />
+    {#if firstItem.component_modal_name}
+      <AutoPromoItemModal
+        item_component_modal_name="{firstItem.component_modal_name}"
+        modalId="auto-promo-item-0-modal"
+        onClose={onCloseModal}
+      />
+    {/if}
   </div>
 {/if}
 
