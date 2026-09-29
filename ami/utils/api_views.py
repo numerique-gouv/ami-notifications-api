@@ -2,7 +2,7 @@ from typing import cast
 
 from django.conf import settings
 from django.db import connection
-from django.http import HttpResponse, JsonResponse
+from django.http import Http404, HttpResponse, JsonResponse
 from drf_spectacular.utils import extend_schema
 from github import Auth, GithubIntegration
 from rest_framework.decorators import api_view
@@ -31,6 +31,9 @@ def get_sector_identifier_url(request):
 )
 @api_view(["GET"])
 def _dev_utils_recipient_fc_hash(request) -> HttpResponse:
+    if not settings.FEATURE_FLAG_DEV_UTILS_RECIPIENT_FC_HASH:
+        raise Http404
+
     serializer = RecipientFcHashSerializer(data=request.query_params)
     serializer.is_valid(raise_exception=True)
     data: dict = cast(dict, serializer.validated_data)
@@ -56,6 +59,9 @@ def _dev_utils_recipient_fc_hash(request) -> HttpResponse:
 @api_view(["GET"])
 def _dev_utils_review_apps(request) -> Response[list[dict[str, str | int]]]:
     """Returns a list of tuples: (review app url, pull request title)."""
+    if not settings.FEATURE_FLAG_DEV_UTILS_REVIEW_APPS:
+        raise Http404
+
     staging_app = {
         "url": settings.STAGING_URL,
         "title": "Staging",
@@ -91,6 +97,9 @@ def _dev_utils_review_apps(request) -> Response[list[dict[str, str | int]]]:
 @api_view(["GET"])
 def _dev_health_db_pool(request) -> Response | None:
     """Returns database connection pool statistics for monitoring."""
+    if not settings.FEATURE_FLAG_DEV_UTILS_HEALTH_DB_POOL:
+        raise Http404
+
     sql_query = """
           SELECT
               pid,
