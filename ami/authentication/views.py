@@ -239,7 +239,7 @@ async def login_callback(request):
                 max_age=365 * 10 * 24 * 3600,
                 secure=True,
                 httponly=True,
-                samesite="None",
+                samesite="Strict",
             )
             response.set_cookie(
                 key=settings.USERINFO_COOKIE_NAME,
@@ -247,7 +247,7 @@ async def login_callback(request):
                 max_age=365 * 10 * 24 * 3600,
                 secure=True,
                 httponly=True,
-                samesite="None",
+                samesite="Strict",
             )
             return response
 
