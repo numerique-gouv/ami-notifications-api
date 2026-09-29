@@ -8,7 +8,7 @@ from django.utils.timezone import now
 from ami.authentication.models import Nonce
 from ami.fi.models import FISession
 from ami.notification.models import ScheduledNotification
-from ami.user.models import User
+from ami.user.models import Registration, User
 
 
 @pytest.mark.django_db
@@ -90,3 +90,23 @@ def test_command_cleanup_expired_nonce() -> None:
     assert Nonce.objects.filter(id=nonce_1.id).exists() is True
     assert Nonce.objects.filter(id=nonce_2.id).exists() is True
     assert Nonce.objects.filter(id=nonce_3.id).exists() is False
+
+
+@pytest.mark.django_db
+def test_command_cleanup_expired_registration(user: User) -> None:
+    registration_1 = Registration.objects.create(user=user)
+
+    registration_2 = Registration.objects.create(user=user)
+    registration_2.deleted_at = now() - datetime.timedelta(days=30, seconds=-5)
+    registration_2.save()
+
+    registration_3 = Registration.objects.create(user=user)
+    registration_3.deleted_at = now() - datetime.timedelta(days=30, seconds=5)
+    registration_3.save()
+
+    call_command("cleanup-db")
+
+    assert Registration.all_objects.count() == 2
+    assert Registration.all_objects.filter(id=registration_1.id).exists() is True
+    assert Registration.all_objects.filter(id=registration_2.id).exists() is True
+    assert Registration.all_objects.filter(id=registration_3.id).exists() is False
