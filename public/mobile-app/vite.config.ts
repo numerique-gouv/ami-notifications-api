@@ -46,7 +46,7 @@ export default defineConfig({
         secure: false,
       },
       '/static': { target: 'https://localhost:8000', xfwd: true, secure: false },
-      '/api/v2/users/notification/events/stream': {
+      '/api/v1/users/notification/events/stream': {
         target: 'wss://localhost:8000',
         ws: true,
         secure: false,
