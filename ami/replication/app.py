@@ -49,7 +49,9 @@ def replicate_anonymized_notifications(chunk_size=1000):
 
 def replicate_anonymized_registrations(chunk_size=1000):
     count = 0
-    for registration in Registration.objects.order_by("created_at").iterator(chunk_size=chunk_size):
+    for registration in Registration.all_objects.order_by("created_at").iterator(
+        chunk_size=chunk_size
+    ):
         try:
             AnonymizedRegistration.from_registration(registration)
         except utils.DatabaseError as db_error:

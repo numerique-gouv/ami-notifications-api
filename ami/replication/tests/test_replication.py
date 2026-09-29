@@ -1,4 +1,5 @@
 import pytest
+from django.utils.timezone import now
 
 from ami.notification.models import Notification
 from ami.replication.app import (
@@ -107,7 +108,8 @@ def test_replicate_anonymized_registrations_processes_by_batch(
     webpush_registration: Registration,
     mobileAppSubscription: dict,  # noqa: ARG001
 ) -> None:
-    Registration.objects.create(user=user, subscription=mobileAppSubscription)
+    Registration.objects.create(user=user, subscription=mobileAppSubscription, deleted_at=now())
     replicate_anonymized_registrations(chunk_size=1)
 
     assert AnonymizedRegistration.objects.count() == 2
+    assert AnonymizedRegistration.objects.filter(deleted_at__isnull=True).count() == 1

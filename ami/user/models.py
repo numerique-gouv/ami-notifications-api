@@ -48,6 +48,12 @@ class MobileAppSubscription(BaseModel):
     platform: str
 
 
+class NotDeletedManager(models.Manager):
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        return queryset.filter(deleted_at__isnull=True)
+
+
 class Registration(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
@@ -57,8 +63,13 @@ class Registration(models.Model):
 
     subscription = models.JSONField(blank=True, null=True)
 
+    deleted_at = models.DateTimeField(null=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    objects = NotDeletedManager()
+    all_objects = models.Manager()
 
     @property
     def typed_subscription(self) -> WebPushSubscription | MobileAppSubscription:

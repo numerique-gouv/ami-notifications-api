@@ -79,7 +79,7 @@ def registrations(request: Request) -> Response:
         if not registrations.exists():
             logger.error("No registration for the device_id: %s", payload_data["device_id"])
             return Response(status=404)
-        registrations.delete()  # TODO: archive instead of delete?
+        registrations.update(deleted_at=now())
         return Response(status=200)
 
     serializer = RegistrationCreateSerializer(data=request.data)
@@ -128,7 +128,8 @@ def unregister_legacy(
     registration: Registration | None = get_object_or_404(
         Registration, id=registration_id, user=request.ami_user
     )
-    registration.delete()  # TODO: archive instead of delete?
+    registration.deleted_at = now()
+    registration.save()
     return Response(status=204)
 
 

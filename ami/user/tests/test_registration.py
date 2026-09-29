@@ -3,6 +3,7 @@ import uuid
 from typing import Any
 
 import pytest
+from django.utils.timezone import now
 
 from ami.tests.utils import assert_query_fails_without_auth, login
 from ami.user.models import Registration, User
@@ -142,10 +143,12 @@ def test_unregister_legacy(app, webpush_registration: Registration) -> None:
     login(app, webpush_registration.user)
 
     assert Registration.objects.count() == 1
+    assert Registration.all_objects.count() == 1
 
     app.delete(f"/api/v1/users/registrations/{webpush_registration.id}", status=204)
 
     assert Registration.objects.count() == 0
+    assert Registration.all_objects.count() == 1
 
     # registration does not exist
     app.delete(f"/api/v1/users/registrations/{webpush_registration.id}", status=404)
@@ -179,11 +182,13 @@ def test_unregister(app, user: User) -> None:
     Registration.objects.create(user_id=user_3.id, device_id=device_id_1)
 
     assert Registration.objects.count() == 3
+    assert Registration.all_objects.count() == 3
 
     payload = {"device_id": device_id_1}
     app.put_json("/api/v1/users/registrations?action=removeFromDeviceId", payload, status=200)
 
     assert Registration.objects.count() == 1
+    assert Registration.all_objects.count() == 3
     registration = Registration.objects.get()
     assert registration.user.fc_hash == "fc-hash-2"
     assert registration.device_id == "fake-device-id-2"
@@ -195,10 +200,12 @@ def test_unregister(app, user: User) -> None:
     # registration of another user than current user
     user_4 = User.objects.create(fc_hash="fc-hash-4")
     Registration.objects.create(user_id=user_4.id, device_id=device_id_1)
+    assert Registration.all_objects.count() == 4
     payload = {"device_id": device_id_1}
     app.put_json("/api/v1/users/registrations?action=removeFromDeviceId", payload, status=200)
 
     assert Registration.objects.count() == 1
+    assert Registration.all_objects.count() == 4
     registration = Registration.objects.get()
     assert registration.user.fc_hash == "fc-hash-2"
     assert registration.device_id == "fake-device-id-2"
@@ -219,6 +226,7 @@ def test_unregister_should_log_error_when_action_is_not_remove_from_device_id(
     Registration.objects.create(user_id=user.id, device_id=device_id)
 
     assert Registration.objects.count() == 1
+    assert Registration.all_objects.count() == 1
 
     payload = {"device_id": other_device_id}
     response = app.put_json("/api/v1/users/registrations?action=wrongAction", payload, status=400)
@@ -241,6 +249,7 @@ def test_unregister_should_log_error_when_no_registration_found(app, user: User,
     Registration.objects.create(user_id=user.id, device_id=device_id)
 
     assert Registration.objects.count() == 1
+    assert Registration.all_objects.count() == 1
 
     payload = {"device_id": other_device_id}
     app.put_json("/api/v1/users/registrations?action=removeFromDeviceId", payload, status=404)
@@ -260,6 +269,8 @@ def test_unregister_without_auth(app, user: User) -> None:
 @pytest.mark.django_db
 def test_list_registrations(app, webpush_registration: Registration) -> None:
     login(app, webpush_registration.user)
+
+    Registration.objects.create(user=webpush_registration.user, deleted_at=now())
 
     response = app.get("/api/v1/users/registrations", status=200)
     registrations = response.json
