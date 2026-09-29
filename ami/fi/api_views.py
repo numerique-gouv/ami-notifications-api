@@ -20,7 +20,8 @@ from django.http import (
 )
 from django.shortcuts import redirect
 from rest_framework import serializers
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, parser_classes
+from rest_framework.parsers import FormParser
 from rest_framework.request import Request
 from rest_framework.response import Response
 from webauthn import (
@@ -60,6 +61,7 @@ def get_passkey_expected_origins():
 
 
 @api_view(["POST"])
+@parser_classes([FormParser])
 def token(request: Request) -> Response:
     if not settings.FI_SILENT_LOGIN_ENABLED:
         raise Http404

@@ -67,7 +67,7 @@ async def test_create_webpush_event(
         "try_push": True,
     }
 
-    response = await sync_to_async(app.put)("/api/v2/event", event_data, headers=partner_auth)
+    response = await sync_to_async(app.put_json)("/api/v2/event", event_data, headers=partner_auth)
     assert response.status_code == HTTP_201_CREATED
     notification_count = await sync_to_async(Notification.objects.count)()
     assert notification_count == 2
@@ -154,7 +154,7 @@ def test_create_mobile_event(
         "try_push": True,
     }
     with TestCase.captureOnCommitCallbacks(execute=True):
-        response = app.put("/api/v2/event", event_data, headers=partner_auth)
+        response = app.put_json("/api/v2/event", event_data, headers=partner_auth)
     assert response.status_code == HTTP_201_CREATED
     assert Notification.objects.count() == 2
     notification2 = Notification.objects.latest("created_at")
@@ -226,7 +226,7 @@ def test_create_event_no_consent(
         "event_date": "2025-11-27T10:55:00.000Z",
         "try_push": False,
     }
-    response = app.put("/api/v2/event", notification_data, headers=partner_auth, status=404)
+    response = app.put_json("/api/v2/event", notification_data, headers=partner_auth, status=404)
     assert response.json == {"error": "Consent not found"}
     assert Notification.objects.count() == 0
 
@@ -234,7 +234,7 @@ def test_create_event_no_consent(
     Consent.objects.create(
         user=webpush_registration.user, partner=partner_dn, consent_datetime=now()
     )
-    response = app.put("/api/v2/event", notification_data, headers=partner_auth, status=404)
+    response = app.put_json("/api/v2/event", notification_data, headers=partner_auth, status=404)
     assert response.json == {"error": "Consent not given"}
     assert Notification.objects.count() == 0
 
@@ -263,7 +263,7 @@ def test_create_event_dont_try_push(
         "event_date": "2025-11-27T10:55:00.000Z",
         "try_push": False,
     }
-    response = app.put("/api/v2/event", event_data, headers=partner_auth)
+    response = app.put_json("/api/v2/event", event_data, headers=partner_auth)
     assert response.status_code == HTTP_201_CREATED
     assert Notification.objects.count() == 1
     notification = Notification.objects.get()
@@ -295,7 +295,7 @@ async def test_create_webpush_notification_no_valid_until(
         "try_push": True,
     }
 
-    response = await sync_to_async(app.put)("/api/v2/event", event_data, headers=partner_auth)
+    response = await sync_to_async(app.put_json)("/api/v2/event", event_data, headers=partner_auth)
     assert response.status_code == HTTP_201_CREATED
     notification_count = await sync_to_async(Notification.objects.count)()
     assert notification_count == 2
@@ -342,7 +342,7 @@ def test_create_event_outdated_valid_until(
         "valid_until": now().isoformat(),
         "try_push": True,
     }
-    response = app.put("/api/v2/event", event_data, headers=partner_auth)
+    response = app.put_json("/api/v2/event", event_data, headers=partner_auth)
     assert response.status_code == HTTP_201_CREATED
     assert Notification.objects.count() == 1
     notification = Notification.objects.get()
@@ -375,14 +375,14 @@ def test_create_event_user_does_not_exist_consent_disabled(
     }
 
     monkeypatch.setenv("IGNORE_NOTIFICATION_REQUESTS_FOR_UNREGISTERED_USER", "true")
-    response = app.put("/api/v2/event", event_data, headers=partner_auth, status=404)
+    response = app.put_json("/api/v2/event", event_data, headers=partner_auth, status=404)
     assert response.json == {"error": "User not found"}
     assert Notification.objects.count() == 0
     user_count = User.objects.count()
     assert user_count == 0
 
     monkeypatch.setenv("IGNORE_NOTIFICATION_REQUESTS_FOR_UNREGISTERED_USER", "")
-    response = app.put("/api/v2/event", event_data, headers=partner_auth)
+    response = app.put_json("/api/v2/event", event_data, headers=partner_auth)
     assert response.status_code == HTTP_201_CREATED
     assert User.objects.count() == 1
     user = User.objects.get()
@@ -442,7 +442,7 @@ def test_create_event_user_does_not_exist(
     }
 
     monkeypatch.setenv("IGNORE_NOTIFICATION_REQUESTS_FOR_UNREGISTERED_USER", "true")  # ignored
-    response = app.put("/api/v2/event", event_data, headers=partner_auth, status=404)
+    response = app.put_json("/api/v2/event", event_data, headers=partner_auth, status=404)
     assert response.json == {"error": "User not found"}
     assert Notification.objects.count() == 0
     user_count = User.objects.count()
@@ -475,7 +475,7 @@ def test_create_event_user_never_seen_consent_disabled(
     }
 
     monkeypatch.setenv("IGNORE_NOTIFICATION_REQUESTS_FOR_UNREGISTERED_USER", "true")
-    response = app.put("/api/v2/event", event_data, headers=partner_auth, status=404)
+    response = app.put_json("/api/v2/event", event_data, headers=partner_auth, status=404)
     assert response.json == {"error": "User never seen"}
     assert Notification.objects.count() == 0
     assert User.objects.count() == 1
@@ -484,7 +484,7 @@ def test_create_event_user_never_seen_consent_disabled(
     assert user.last_logged_in is None
 
     monkeypatch.setenv("IGNORE_NOTIFICATION_REQUESTS_FOR_UNREGISTERED_USER", "")
-    response = app.put("/api/v2/event", event_data, headers=partner_auth)
+    response = app.put_json("/api/v2/event", event_data, headers=partner_auth)
     assert response.status_code == HTTP_201_CREATED
     assert User.objects.count() == 1
     user = User.objects.get()
@@ -545,7 +545,7 @@ def test_create_event_user_never_seen(
     }
 
     monkeypatch.setenv("IGNORE_NOTIFICATION_REQUESTS_FOR_UNREGISTERED_USER", "true")  # ignored
-    response = app.put("/api/v2/event", event_data, headers=partner_auth, status=404)
+    response = app.put_json("/api/v2/event", event_data, headers=partner_auth, status=404)
     assert response.json == {"error": "Consent not found"}
     assert Notification.objects.count() == 0
     assert User.objects.count() == 1
@@ -555,7 +555,7 @@ def test_create_event_user_never_seen(
 
     consent = Consent.objects.create(user=never_seen_user, partner=partner)
     Consent.objects.create(user=never_seen_user, partner=partner_dn, consent_datetime=now())
-    response = app.put("/api/v2/event", event_data, headers=partner_auth, status=404)
+    response = app.put_json("/api/v2/event", event_data, headers=partner_auth, status=404)
     assert response.json == {"error": "Consent not given"}
     assert Notification.objects.count() == 0
     assert User.objects.count() == 1
@@ -565,7 +565,7 @@ def test_create_event_user_never_seen(
 
     consent.consent_datetime = now()
     consent.save()
-    response = app.put("/api/v2/event", event_data, headers=partner_auth)
+    response = app.put_json("/api/v2/event", event_data, headers=partner_auth)
     assert response.status_code == HTTP_201_CREATED
     assert User.objects.count() == 1
     user = User.objects.get()
@@ -628,7 +628,7 @@ def test_create_event_when_registration_gone(
         "content_body": "Merci d'avoir initié votre demande",
     }
     with TestCase.captureOnCommitCallbacks(execute=True):
-        response = app.put("/api/v2/event", event_data, headers=partner_auth)
+        response = app.put_json("/api/v2/event", event_data, headers=partner_auth)
     assert response.status_code == HTTP_201_CREATED
     assert Notification.objects.count() == 1
     assert httpx_mock.get_request()
@@ -652,7 +652,7 @@ def test_create_event_no_registration(
         "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
         "content_body": "Merci d'avoir initié votre demande",
     }
-    response = app.put("/api/v2/event", event_data, headers=partner_auth)
+    response = app.put_json("/api/v2/event", event_data, headers=partner_auth)
     assert response.status_code == HTTP_201_CREATED
     assert Notification.objects.count() == 1
     assert not httpx_mock.get_request()
@@ -686,7 +686,7 @@ def test_create_event_duplicated_payload(
         "try_push": True,
     }
 
-    response = app.put("/api/v2/event", event_data, headers=partner_auth)
+    response = app.put_json("/api/v2/event", event_data, headers=partner_auth)
     assert response.status_code == HTTP_201_CREATED
     assert Notification.objects.count() == 1
     notification = Notification.objects.get()
@@ -696,7 +696,7 @@ def test_create_event_duplicated_payload(
     }
 
     # again, same payload
-    response = app.put("/api/v2/event", event_data, headers=partner_auth)
+    response = app.put_json("/api/v2/event", event_data, headers=partner_auth)
     assert response.status_code == HTTP_200_OK
     assert Notification.objects.count() == 1
     assert response.json == {
@@ -706,7 +706,7 @@ def test_create_event_duplicated_payload(
 
     # same payload but notification payload exists for another partner
     Notification.objects.all().update(partner=partner_dn)
-    response = app.put("/api/v2/event", event_data, headers=partner_auth)
+    response = app.put_json("/api/v2/event", event_data, headers=partner_auth)
     assert response.status_code == HTTP_201_CREATED
     assert Notification.objects.count() == 2
     notification = Notification.objects.latest("created_at")
@@ -730,7 +730,7 @@ def test_create_event_duplicated_payload(
         send_status = True
         if key == "recipient_fc_hash":
             send_status = False
-        response = app.put("/api/v2/event", data, headers=partner_auth)
+        response = app.put_json("/api/v2/event", data, headers=partner_auth)
         assert response.status_code == HTTP_201_CREATED
         notification_count += 1
         assert Notification.objects.count() == notification_count
@@ -748,7 +748,7 @@ def test_create_event_duplicated_payload(
         ]:
             continue
         del data[key]
-        response = app.put("/api/v2/event", data, headers=partner_auth)
+        response = app.put_json("/api/v2/event", data, headers=partner_auth)
         assert response.status_code == HTTP_201_CREATED
         notification_count += 1
         assert Notification.objects.count() == notification_count
@@ -781,7 +781,7 @@ def test_create_event_duplicated_payload_with_push(
     }
 
     with TestCase.captureOnCommitCallbacks(execute=True):
-        response = app.put("/api/v2/event", event_data, headers=partner_auth)
+        response = app.put_json("/api/v2/event", event_data, headers=partner_auth)
     assert response.status_code == HTTP_201_CREATED
     assert Notification.objects.count() == 1
     notification = Notification.objects.get()
@@ -792,7 +792,7 @@ def test_create_event_duplicated_payload_with_push(
     send_mock.assert_called_once()
 
     # again, same payload
-    response = app.put("/api/v2/event", event_data, headers=partner_auth)
+    response = app.put_json("/api/v2/event", event_data, headers=partner_auth)
     assert response.status_code == HTTP_200_OK
     assert Notification.objects.count() == 1
     assert response.json == {
@@ -808,7 +808,7 @@ def test_create_event_send_ko_with_400_when_required_fields_are_missing(
     partner_auth: dict[str, str],
 ) -> None:
     event_data: dict[str, str] = {}
-    response = app.put("/api/v2/event", event_data, headers=partner_auth, status=400)
+    response = app.put_json("/api/v2/event", event_data, headers=partner_auth, status=400)
     assert response.json == {
         "content_body": ["Ce champ est obligatoire."],
         "content_title": ["Ce champ est obligatoire."],
@@ -826,20 +826,9 @@ def test_create_event_send_ko_with_400_when_required_fields_are_empty(
         "recipient_fc_hash": "",
         "content_title": "",
         "content_body": "",
-        "content_icon": "",
-        "content_link": "",
-        "item_type": "",
-        "item_id": "",
-        "item_status_label": "",
-        "item_generic_status": "",
-        "item_canal": "",
-        "item_milestone_start_date": "",
-        "item_milestone_end_date": "",
         "event_date": "",
-        "valid_until": "",
-        "try_push": "",
     }
-    response = app.put("/api/v2/event", event_data, headers=partner_auth, status=400)
+    response = app.put_json("/api/v2/event", event_data, headers=partner_auth, status=400)
     assert response.json == {
         "content_body": ["Ce champ ne peut être vide."],
         "content_title": ["Ce champ ne peut être vide."],
@@ -892,7 +881,7 @@ def test_create_event_send_ko_with_400_when_required_item_fields_are_missing(
                 field: item_field_values[field],
             }
         )
-        response = app.put("/api/v2/event", data, headers=partner_auth, status=400)
+        response = app.put_json("/api/v2/event", data, headers=partner_auth, status=400)
         assert response.json == {
             f: ["Ce champ est obligatoire pour une notification associée à un objet."]
             for f in item_fields
@@ -936,7 +925,7 @@ def test_create_event_send_ko_with_400_when_required_item_parent_fields_are_miss
                 field: item_parent_field_values[field],
             }
         )
-        response = app.put("/api/v2/event", data, headers=partner_auth, status=400)
+        response = app.put_json("/api/v2/event", data, headers=partner_auth, status=400)
         assert response.json == {
             f: ["Ce champ est obligatoire pour une notification associée à un objet parent."]
             for f in item_parent_fields
@@ -949,7 +938,7 @@ def test_create_event_send_ko_with_400_when_required_item_parent_fields_are_miss
             "item_parent_id": "B-7-CGFD6SVYT",
         }
     )
-    response = app.put("/api/v2/event", event_data, headers=partner_auth)
+    response = app.put_json("/api/v2/event", event_data, headers=partner_auth)
     assert response.status_code == HTTP_201_CREATED
     assert Notification.objects.count() == 1
     notification = Notification.objects.get()
@@ -975,7 +964,7 @@ def test_create_notification_check_item_parent_partner_id(
         "item_generic_status": "new",
         "item_milestone_start_date": "2025-12-26T23:00:00.000Z",
     }
-    response = app.put("/api/v2/event", event_data, headers=partner_auth, status=400)
+    response = app.put_json("/api/v2/event", event_data, headers=partner_auth, status=400)
     assert response.json == {"item_parent_partner_id": ["'item_parent_partner_id' inconnu."]}
 
 
@@ -999,7 +988,7 @@ def test_create_notification_check_item_parent_consistency(
         "item_generic_status": "new",
         "item_milestone_start_date": "2025-12-26T23:00:00.000Z",
     }
-    app.put("/api/v2/event", event_data, headers=partner_auth)
+    app.put_json("/api/v2/event", event_data, headers=partner_auth)
     assert Notification.objects.count() == 1
     notification = Notification.objects.get()
     assert notification.item_parent_partner is None
@@ -1020,7 +1009,7 @@ def test_create_notification_check_item_parent_consistency(
         "item_generic_status": "new",
         "item_milestone_start_date": "2025-12-26T23:00:00.000Z",
     }
-    response = app.put("/api/v2/event", event_data, headers=partner_auth, status=400)
+    response = app.put_json("/api/v2/event", event_data, headers=partner_auth, status=400)
     assert response.json == {
         "item_parent_partner_id": ["Cet item existe déjà avec un item parent différent."]
     }
@@ -1040,7 +1029,7 @@ def test_create_notification_check_item_parent_consistency(
         "item_generic_status": "new",
         "item_milestone_start_date": "2025-12-26T23:00:00.000Z",
     }
-    app.put("/api/v2/event", event_data, headers=partner_auth)
+    app.put_json("/api/v2/event", event_data, headers=partner_auth)
     assert Notification.objects.count() == 1
     notification = Notification.objects.get()
     assert notification.item_parent_partner == partner
@@ -1061,7 +1050,7 @@ def test_create_notification_check_item_parent_consistency(
         "item_generic_status": "new",
         "item_milestone_start_date": "2025-12-26T23:00:00.000Z",
     }
-    response = app.put("/api/v2/event", event_data, headers=partner_auth, status=400)
+    response = app.put_json("/api/v2/event", event_data, headers=partner_auth, status=400)
     assert response.json == {
         "item_parent_type": ["Cet item existe déjà avec un item parent différent."]
     }
@@ -1080,7 +1069,7 @@ def test_create_notification_check_item_parent_consistency(
         "item_generic_status": "new",
         "item_milestone_start_date": "2025-12-26T23:00:00.000Z",
     }
-    response = app.put("/api/v2/event", event_data, headers=partner_auth, status=400)
+    response = app.put_json("/api/v2/event", event_data, headers=partner_auth, status=400)
     assert response.json == {
         "item_parent_id": ["Cet item existe déjà avec un item parent différent."]
     }
@@ -1100,7 +1089,7 @@ def test_create_notification_check_item_parent_consistency(
         "item_generic_status": "new",
         "item_milestone_start_date": "2025-12-26T23:00:00.000Z",
     }
-    response = app.put("/api/v2/event", event_data, headers=partner_auth, status=400)
+    response = app.put_json("/api/v2/event", event_data, headers=partner_auth, status=400)
     assert response.json == {
         "item_parent_partner_id": ["Cet item existe déjà avec un item parent différent."]
     }
@@ -1117,7 +1106,7 @@ def test_create_notification_check_item_parent_consistency(
         "item_generic_status": "new",
         "item_milestone_start_date": "2025-12-26T23:00:00.000Z",
     }
-    response = app.put("/api/v2/event", event_data, headers=partner_auth, status=400)
+    response = app.put_json("/api/v2/event", event_data, headers=partner_auth, status=400)
     assert response.json == {
         "item_parent_partner_id": ["Cet item existe déjà avec un item parent différent."]
     }
@@ -1141,7 +1130,7 @@ def test_create_event_check_item_milestone_dates(
         "item_generic_status": "new",
         "item_milestone_start_date": "2025-12-26T23:00:00.000Z",
     }
-    response = app.put("/api/v2/event", event_data, headers=partner_auth)
+    response = app.put_json("/api/v2/event", event_data, headers=partner_auth)
     assert response.status_code == HTTP_201_CREATED
     assert Notification.objects.count() == 1
     notification = Notification.objects.get()
@@ -1159,7 +1148,7 @@ def test_create_event_check_item_milestone_dates(
         "item_generic_status": "new",
         "item_milestone_end_date": "2025-12-26T23:00:00.000Z",
     }
-    response = app.put("/api/v2/event", event_data, headers=partner_auth)
+    response = app.put_json("/api/v2/event", event_data, headers=partner_auth)
     assert response.status_code == HTTP_201_CREATED
     assert Notification.objects.count() == 2
     notification = Notification.objects.latest("created_at")
@@ -1178,7 +1167,7 @@ def test_create_event_check_item_milestone_dates(
         "item_milestone_start_date": "2025-12-26T23:00:00.001Z",
         "item_milestone_end_date": "2025-12-26T23:00:00.000Z",
     }
-    response = app.put("/api/v2/event", event_data, headers=partner_auth, status=400)
+    response = app.put_json("/api/v2/event", event_data, headers=partner_auth, status=400)
     assert response.json == {
         "item_milestone_end_date": ["La date de fin doit être supérieure à la date de début."]
     }
@@ -1195,7 +1184,7 @@ def test_create_event_check_item_milestone_dates(
         "item_milestone_start_date": "2025-12-26T23:00:00.000Z",
         "item_milestone_end_date": "2025-12-26T23:00:00.000Z",
     }
-    response = app.put("/api/v2/event", event_data, headers=partner_auth)
+    response = app.put_json("/api/v2/event", event_data, headers=partner_auth)
     assert response.status_code == HTTP_201_CREATED
     assert Notification.objects.count() == 3
     notification = Notification.objects.latest("created_at")
@@ -1205,7 +1194,7 @@ def test_create_event_check_item_milestone_dates(
 
 
 @pytest.mark.django_db
-def test_create_event_when_optional_fields_are_empty(
+def test_create_event_when_optional_fields_are_not_set(
     app,
     user: User,
     consent: Consent,
@@ -1216,24 +1205,9 @@ def test_create_event_when_optional_fields_are_empty(
         "recipient_fc_hash": user.fc_hash,
         "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
         "content_body": "Merci d'avoir initié votre demande",
-        "content_subheading": "",
-        "content_icon": "",
-        "content_link": "",
-        "item_type": "",
-        "item_id": "",
-        "item_parent_partner_id": "",
-        "item_parent_type": "",
-        "item_parent_id": "",
-        "item_status_label": "",
-        "item_generic_status": "",
-        "item_canal": "",
-        "item_milestone_start_date": "",
-        "item_milestone_end_date": "",
         "event_date": "2025-11-27T10:55:00.000Z",
-        "valid_until": "",
-        "try_push": "",
     }
-    response = app.put("/api/v2/event", event_data, headers=partner_auth)
+    response = app.put_json("/api/v2/event", event_data, headers=partner_auth)
     assert response.status_code == HTTP_201_CREATED
     assert Notification.objects.count() == 1
     notification = Notification.objects.get()
@@ -1268,24 +1242,24 @@ def test_create_event_when_optional_fields_are_empty(
 
 @pytest.mark.django_db
 def test_create_event_without_auth(app, settings, partner: Partner) -> None:
-    response = app.put("/api/v2/event", status=401)
+    response = app.put_json("/api/v2/event", status=401)
     assert response.json == {"detail": "Informations d'authentification non fournies."}
 
-    response = app.put("/api/v2/event", headers={"authorization": "foo"}, status=401)
+    response = app.put_json("/api/v2/event", headers={"authorization": "foo"}, status=401)
     assert response.json == {"detail": "Informations d'authentification non fournies."}
 
-    response = app.put("/api/v2/event", headers={"authorization": "Foo bar"}, status=401)
+    response = app.put_json("/api/v2/event", headers={"authorization": "Foo bar"}, status=401)
     assert response.json == {"detail": "Informations d'authentification non fournies."}
 
-    response = app.put("/api/v2/event", headers={"authorization": "Basic bar"}, status=401)
+    response = app.put_json("/api/v2/event", headers={"authorization": "Basic bar"}, status=401)
     assert response.json == {
         "detail": "En-tête « basic » non valide. Encodage base64 des informations d'identification incorrect."
     }
 
     b64 = base64.b64encode(f"foo:{partner.secret}".encode("utf8")).decode("utf8")
-    response = app.put("/api/v2/event", headers={"authorization": f"Basic {b64}"}, status=401)
+    response = app.put_json("/api/v2/event", headers={"authorization": f"Basic {b64}"}, status=401)
     assert response.json == {"detail": "Invalid username."}
 
     b64 = base64.b64encode("dinum-ami:foo".encode("utf8")).decode("utf8")
-    response = app.put("/api/v2/event", headers={"authorization": f"Basic {b64}"}, status=401)
+    response = app.put_json("/api/v2/event", headers={"authorization": f"Basic {b64}"}, status=401)
     assert response.json == {"detail": "Invalid username/password."}

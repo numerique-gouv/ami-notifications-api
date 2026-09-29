@@ -181,7 +181,7 @@ def test_unregister(app, user: User) -> None:
     assert Registration.objects.count() == 3
 
     payload = {"device_id": device_id_1}
-    app.put("/api/v1/users/registrations?action=removeFromDeviceId", payload, status=200)
+    app.put_json("/api/v1/users/registrations?action=removeFromDeviceId", payload, status=200)
 
     assert Registration.objects.count() == 1
     registration = Registration.objects.get()
@@ -190,13 +190,13 @@ def test_unregister(app, user: User) -> None:
 
     # registration does not exist
     payload = {"device_id": device_id_1}
-    app.put("/api/v1/users/registrations?action=removeFromDeviceId", payload, status=404)
+    app.put_json("/api/v1/users/registrations?action=removeFromDeviceId", payload, status=404)
 
     # registration of another user than current user
     user_4 = User.objects.create(fc_hash="fc-hash-4")
     Registration.objects.create(user_id=user_4.id, device_id=device_id_1)
     payload = {"device_id": device_id_1}
-    app.put("/api/v1/users/registrations?action=removeFromDeviceId", payload, status=200)
+    app.put_json("/api/v1/users/registrations?action=removeFromDeviceId", payload, status=200)
 
     assert Registration.objects.count() == 1
     registration = Registration.objects.get()
@@ -221,7 +221,7 @@ def test_unregister_should_log_error_when_action_is_not_remove_from_device_id(
     assert Registration.objects.count() == 1
 
     payload = {"device_id": other_device_id}
-    response = app.put("/api/v1/users/registrations?action=wrongAction", payload, status=400)
+    response = app.put_json("/api/v1/users/registrations?action=wrongAction", payload, status=400)
 
     assert response.json == {
         "action": ["«\xa0wrongAction\xa0» n'est pas un choix valide."],
@@ -243,7 +243,7 @@ def test_unregister_should_log_error_when_no_registration_found(app, user: User,
     assert Registration.objects.count() == 1
 
     payload = {"device_id": other_device_id}
-    app.put("/api/v1/users/registrations?action=removeFromDeviceId", payload, status=404)
+    app.put_json("/api/v1/users/registrations?action=removeFromDeviceId", payload, status=404)
 
     assert any("No registration for the device_id" in record.message for record in caplog.records)
 
