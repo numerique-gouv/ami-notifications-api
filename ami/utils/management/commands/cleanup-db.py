@@ -8,6 +8,7 @@ from django.utils.timezone import now
 from ami.authentication.models import Nonce
 from ami.fi.models import FISession
 from ami.notification.models import ScheduledNotification
+from ami.user.models import Registration
 
 
 class Command(BaseCommand):
@@ -34,3 +35,10 @@ class Command(BaseCommand):
         if verbosity:
             self.stdout.write(f"Deleting {nonces.count()} nonces")
         nonces.delete()
+
+        registrations = Registration.all_objects.filter(
+            deleted_at__lt=now() - datetime.timedelta(days=30)
+        )
+        if verbosity:
+            self.stdout.write(f"Deleting {registrations.count()} registrations")
+        registrations.delete()
