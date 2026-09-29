@@ -17,7 +17,9 @@ def test_get_sector_identifier_url(
     assert response.json == ["http://example.com", "http://foobar.com"]
 
 
-def test_recipient_fc_hash(app) -> None:
+def test_recipient_fc_hash(app, settings) -> None:
+    app.get("/dev-utils/recipient-fc-hash", status=404)
+    settings.FEATURE_FLAG_DEV_UTILS_RECIPIENT_FC_HASH = True
     params = {
         "given_name": "Angela Claire Louise",
         "family_name": "DUBOIS",
@@ -60,6 +62,8 @@ def _make_github_mock(pulls: list) -> Mock:
 
 
 def test_review_apps(app, monkeypatch, settings) -> None:
+    app.get("/dev-utils/review-apps", status=404)
+    settings.FEATURE_FLAG_DEV_UTILS_REVIEW_APPS = True
     settings.GITHUB_APP_ID = "123456"
     settings.GITHUB_APP_PRIVATE_KEY = "fake-key"
     settings.STAGING_URL = "https://fake-start.fake-end/"
@@ -83,6 +87,7 @@ def test_review_apps(app, monkeypatch, settings) -> None:
 
 
 def test_review_apps_github_failure(app, monkeypatch, settings) -> None:
+    settings.FEATURE_FLAG_DEV_UTILS_REVIEW_APPS = True
     settings.GITHUB_APP_ID = "123456"
     settings.GITHUB_APP_PRIVATE_KEY = "fake-key"
     settings.STAGING_URL = "https://fake-start.fake-end/"
