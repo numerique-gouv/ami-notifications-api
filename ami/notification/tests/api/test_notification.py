@@ -306,29 +306,29 @@ def test_read_notification(
     )
 
     # invalid, no payload
-    response = app.patch(f"/api/v1/users/notification/{uuid.uuid4()}/read", status=400)
+    response = app.patch_json(f"/api/v1/users/notification/{uuid.uuid4()}/read", status=400)
     assert response.status_code == HTTP_400_BAD_REQUEST
 
     # unknown notification
-    response = app.patch(
+    response = app.patch_json(
         f"/api/v1/users/notification/{uuid.uuid4()}/read", {"read": "True"}, status=404
     )
     assert response.status_code == HTTP_404_NOT_FOUND
 
     # can not patch notification of another user
-    response = app.patch(
+    response = app.patch_json(
         f"/api/v1/users/notification/{other_notification.id}/read", {"read": True}, status=404
     )
     assert response.status_code == HTTP_404_NOT_FOUND
 
     # invalid, read is required
-    response = app.patch(
+    response = app.patch_json(
         f"/api/v1/users/notification/{notification.id}/read", {"read": None}, status=400
     )
     assert response.status_code == HTTP_400_BAD_REQUEST
-    assert response.json == {"read": ["Doit être un booléen valide."]}
+    assert response.json == {"read": ["Ce champ ne peut être nul."]}
 
-    response = app.patch(
+    response = app.patch_json(
         f"/api/v1/users/notification/{notification.id}/read",
         {"read": True},
     )
@@ -355,7 +355,7 @@ def test_read_notification(
         "event": "updated",
     }
 
-    response = app.patch(
+    response = app.patch_json(
         f"/api/v1/users/notification/{notification.id}/read",
         {"read": False},
     )
