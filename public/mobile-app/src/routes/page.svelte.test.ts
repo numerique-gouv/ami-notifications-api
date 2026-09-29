@@ -14,6 +14,8 @@ import { Followup, FollowupItem } from '$lib/followup';
 import * as notificationsMethods from '$lib/notifications';
 import { PUBLIC_APP_WS_URL } from '$lib/notifications';
 import { Partners } from '$lib/partners';
+import * as personalDataConsentMethods from '$lib/personal-data-consent';
+import { PersonalDataConsent } from '$lib/personal-data-consent';
 import { toastStore } from '$lib/state/toast.svelte';
 import { userStore } from '$lib/state/User.svelte';
 import { mockUserInfo } from '$tests/utils';
@@ -45,8 +47,15 @@ describe('/+page.svelte', () => {
     });
 
     vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(new Agenda());
+    const apiPersonalDataConsent = {
+      consent_datetime: new Date('2026-02-21T15:50:00Z'),
+    };
+    const personalDataConsent = new PersonalDataConsent(apiPersonalDataConsent);
+    vi.spyOn(personalDataConsentMethods, 'buildPersonalDataConsent').mockResolvedValue(
+      personalDataConsent
+    );
     vi.spyOn(autoPromoMethods, 'buildAutoPromo').mockReturnValue(
-      new AutoPromo(new Agenda())
+      new AutoPromo(new Agenda(), personalDataConsent)
     );
     vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(new Followup());
     const consentsItem = {
@@ -185,7 +194,15 @@ describe('/+page.svelte', () => {
   describe('Auto-promo block', () => {
     test('should display nothing as AutoPromo is empty', async () => {
       // Given
-      const autoPromo = new AutoPromo(new Agenda());
+      const apiPersonalDataConsent = {
+        consent_datetime: new Date('2026-02-21T15:50:00Z'),
+      };
+      const personalDataConsent = new PersonalDataConsent(apiPersonalDataConsent);
+      vi.spyOn(
+        personalDataConsentMethods,
+        'buildPersonalDataConsent'
+      ).mockResolvedValue(personalDataConsent);
+      const autoPromo = new AutoPromo(new Agenda(), personalDataConsent);
       vi.spyOn(autoPromo, 'items', 'get').mockReturnValue([]);
       vi.spyOn(autoPromoMethods, 'buildAutoPromo').mockReturnValue(autoPromo);
 
@@ -209,21 +226,31 @@ describe('/+page.svelte', () => {
     });
     test('should display item as AutoPromo is not empty', async () => {
       // Given
-      const autoPromo = new AutoPromo(new Agenda());
+      const apiPersonalDataConsent = {
+        consent_datetime: new Date('2026-02-21T15:50:00Z'),
+      };
+      const personalDataConsent = new PersonalDataConsent(apiPersonalDataConsent);
+      vi.spyOn(
+        personalDataConsentMethods,
+        'buildPersonalDataConsent'
+      ).mockResolvedValue(personalDataConsent);
+      const autoPromo = new AutoPromo(new Agenda(), personalDataConsent);
       vi.spyOn(autoPromo, 'items', 'get').mockReturnValue([
         new AutoPromoItem(
           'address',
           'Blabla title Address',
           'Description Address',
           'url-to-address',
-          'image.svg'
+          'image.svg',
+          null
         ),
         new AutoPromoItem(
           'otv',
           'Blabla title OTV',
           'Description OTV',
           'url-to-otv',
-          'image.svg'
+          'image.svg',
+          null
         ),
       ]);
       vi.spyOn(autoPromoMethods, 'buildAutoPromo').mockReturnValue(autoPromo);
