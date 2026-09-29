@@ -20,6 +20,10 @@
     notificationEventsSocket,
   } from '$lib/notifications';
   import { buildPartners, type Partners } from '$lib/partners';
+  import {
+    buildPersonalDataConsent,
+    PersonalDataConsent,
+  } from '$lib/personal-data-consent';
   import { userStore } from '$lib/state/User.svelte';
   import { formatDate } from '$lib/utils';
   import type { PageProps } from './$types';
@@ -75,7 +79,8 @@
       agenda = await buildAgenda(followup);
       console.log($state.snapshot(agenda));
       isAgendaEmpty = !(agenda.now.length || agenda.next.length);
-      autoPromo = buildAutoPromo(agenda);
+      const personalDataConsent: PersonalDataConsent = await buildPersonalDataConsent();
+      autoPromo = buildAutoPromo(agenda, personalDataConsent);
     } catch (error) {
       console.error(error);
     }
@@ -119,7 +124,7 @@
     </div>
 
     {#if autoPromo && autoPromo.items.length}
-      <div class="rubrique-container">
+      <div id="carousel-container" class="rubrique-container">
         <AutoPromoCarousel items={autoPromo.items} />
       </div>
     {/if}
