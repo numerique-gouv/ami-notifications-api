@@ -75,9 +75,13 @@ def registrations(request: Request) -> Response:
         serializer.is_valid(raise_exception=True)
         payload_data: dict = cast(dict, serializer.validated_data)
 
-        registrations = Registration.objects.filter(device_id=payload_data["device_id"])
+        registrations = Registration.objects.filter(
+            device_id=payload_data["device_id"], user=request.ami_user
+        )
         if not registrations.exists():
-            logger.error("No registration for the device_id: %s", payload_data["device_id"])
+            logger.error(
+                "No registration for the user for the device_id: %s", payload_data["device_id"]
+            )
             return Response(status=404)
         registrations.delete()  # TODO: archive instead of delete?
         return Response(status=200)
@@ -89,14 +93,16 @@ def registrations(request: Request) -> Response:
 
     if "device_id" in subscription:
         with transaction.atomic():
-            # In case of a mobile app subscription, check if we already have registration(s) for this device.
+            # In case of a mobile app subscription, check if we already have registration(s)
+            # for this device and user.
             existing_registrations: QuerySet[Registration] = Registration.objects.filter(
-                subscription__device_id=subscription["device_id"],
+                subscription__device_id=subscription["device_id"], user=request.ami_user
             )
             registrations_exists = existing_registrations.exists()
             status = HTTP_200_OK if registrations_exists else HTTP_201_CREATED
             if registrations_exists:
-                # and if so, delete them: we only want to keep the latest registration for a given device.
+                # and if so, delete them: we only want to keep the latest registration
+                # of a user for a given device.
                 existing_registrations.delete()
             registration: Registration = Registration.objects.create(
                 user=request.ami_user,

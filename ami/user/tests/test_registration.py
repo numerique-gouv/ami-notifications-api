@@ -57,6 +57,16 @@ def test_register_mobile_app(app, user: User, mobileAppSubscription: dict[str, A
     registration = Registration.objects.get()
     assert registration.device_id == "some-id"
 
+    # Registration by other user for same device-id
+    user_2 = User.objects.create(fc_hash="fc-hash-2")
+    login(app, user_2)
+    app.post_json("/api/v1/users/registrations", register_data, status=201)
+
+    assert Registration.objects.count() == 2
+
+    # Second registration, we're expecting a 200 OK, not 201 CREATED.
+    app.post_json("/api/v1/users/registrations", register_data, status=200)
+
 
 @pytest.mark.django_db
 def test_register_mobile_app_existing_registration_different_device(
@@ -167,41 +177,34 @@ def test_unregister_legacy_without_auth(app, webpush_registration: Registration)
 
 @pytest.mark.django_db
 def test_unregister(app, user: User) -> None:
-    login(app, user)
-
     user_1 = User.objects.create(fc_hash="fc-hash-1")
     user_2 = User.objects.create(fc_hash="fc-hash-2")
-    user_3 = User.objects.create(fc_hash="fc-hash-3")
     device_id_1 = "fake-device-id-1"
     device_id_2 = "fake-device-id-2"
+    device_id_3 = "fake-device-id-3"
     Registration.objects.create(user_id=user_1.id, device_id=device_id_1)
+    Registration.objects.create(user_id=user_1.id, device_id=device_id_3)
     Registration.objects.create(user_id=user_2.id, device_id=device_id_2)
-    Registration.objects.create(user_id=user_3.id, device_id=device_id_1)
 
     assert Registration.objects.count() == 3
 
+    login(app, user_1)
     payload = {"device_id": device_id_1}
     app.put_json("/api/v1/users/registrations?action=removeFromDeviceId", payload, status=200)
 
-    assert Registration.objects.count() == 1
-    registration = Registration.objects.get()
-    assert registration.user.fc_hash == "fc-hash-2"
-    assert registration.device_id == "fake-device-id-2"
+    assert {(x.user.fc_hash, x.device_id) for x in Registration.objects.all()} == {
+        ("fc-hash-2", "fake-device-id-2"),
+        ("fc-hash-1", "fake-device-id-3"),
+    }
 
     # registration does not exist
     payload = {"device_id": device_id_1}
     app.put_json("/api/v1/users/registrations?action=removeFromDeviceId", payload, status=404)
 
     # registration of another user than current user
-    user_4 = User.objects.create(fc_hash="fc-hash-4")
-    Registration.objects.create(user_id=user_4.id, device_id=device_id_1)
-    payload = {"device_id": device_id_1}
-    app.put_json("/api/v1/users/registrations?action=removeFromDeviceId", payload, status=200)
-
-    assert Registration.objects.count() == 1
-    registration = Registration.objects.get()
-    assert registration.user.fc_hash == "fc-hash-2"
-    assert registration.device_id == "fake-device-id-2"
+    payload = {"device_id": device_id_2}
+    app.put_json("/api/v1/users/registrations?action=removeFromDeviceId", payload, status=404)
+    assert Registration.objects.count() == 2
 
 
 @pytest.mark.django_db
@@ -235,7 +238,6 @@ def test_unregister_should_log_error_when_no_registration_found(app, user: User,
     caplog.clear()
     caplog.set_level("ERROR")
 
-    user = User.objects.create(fc_hash="fc-hash")
     device_id = "fake-device-id"
     other_device_id = "fake-other-device-id"
     Registration.objects.create(user_id=user.id, device_id=device_id)
@@ -245,7 +247,10 @@ def test_unregister_should_log_error_when_no_registration_found(app, user: User,
     payload = {"device_id": other_device_id}
     app.put_json("/api/v1/users/registrations?action=removeFromDeviceId", payload, status=404)
 
-    assert any("No registration for the device_id" in record.message for record in caplog.records)
+    assert any(
+        "No registration for the user for the device_id" in record.message
+        for record in caplog.records
+    )
 
 
 @pytest.mark.django_db
