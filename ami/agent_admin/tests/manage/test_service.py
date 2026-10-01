@@ -62,6 +62,7 @@ def test_add_service(app, admin_agent: Agent) -> None:
 
     response = app.get("/agent-admin/manage/service/add/steps/")
     assert "kind" not in response.context["form"].fields
+    assert "with_silent_login" not in response.context["form"].fields
     assert response.forms["service-form"]["icon"].value == ""
 
 
@@ -187,7 +188,6 @@ def test_add_service_submit_success(app, admin_agent: Agent, partner: Partner) -
     response.forms["service-form"]["description"] = "**Démarche de changement d'adresse**"
     response.forms["service-form"]["url"] = "http://demarche-demenagement"
     response.forms["service-form"]["icon"] = "fr-icon-earth-line"
-    response.forms["service-form"]["with_silent_login"] = True
     response.forms["service-form"]["restricted_to"] = "fake-fc-hash another-fake-fc-hash"
 
     response = response.forms["service-form"].submit()
@@ -202,7 +202,7 @@ def test_add_service_submit_success(app, admin_agent: Agent, partner: Partner) -
     assert service.description == "**Démarche de changement d'adresse**"
     assert service.url == "http://demarche-demenagement"
     assert service.icon == "fr-icon-earth-line"
-    assert service.with_silent_login is True
+    assert service.with_silent_login is False
     assert service.restricted_to == "another-fake-fc-hash fake-fc-hash"
 
 
@@ -328,6 +328,7 @@ def test_edit_service(
 
     response = app.get(f"/agent-admin/manage/service/{services[3].id}/")
     assert "kind" not in response.context["form"].fields
+    assert "with_silent_login" not in response.context["form"].fields
     assert response.forms["service-form"]["icon"].value == ""
 
 
