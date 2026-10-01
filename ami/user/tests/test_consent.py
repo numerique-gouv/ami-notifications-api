@@ -282,10 +282,20 @@ def test_post_consents_user_consent_invalid(
 def test_post_consents_user_partner_id_unknown(
     app,
     user: User,
+    partner: Partner,
 ) -> None:
     login(app, user)
 
     data = {"partner_id": "unknown", "consent": True}
+    response = app.post_json("/api/v1/users/consents", data, status=400)
+    assert response.json == {"partner_id": ["'partner_id' inconnu."]}
+    assert Consent.objects.count() == 0
+    assert User.objects.count() == 1
+
+    partner.displayed_on_front = False
+    partner.save()
+
+    data = {"partner_id": partner.slug, "consent": True}
     response = app.post_json("/api/v1/users/consents", data, status=400)
     assert response.json == {"partner_id": ["'partner_id' inconnu."]}
     assert Consent.objects.count() == 0
@@ -305,9 +315,17 @@ def test_post_consents_all(
     login(app, two_users[0])
 
     Partner.objects.all().delete()
-    partner_ami = Partner.objects.create(slug="dinum-ami", name="AMI", consent_is_enabled=True)
+    partner_ami = Partner.objects.create(
+        slug="dinum-ami",
+        name="AMI",
+        displayed_on_front=True,
+        consent_is_enabled=False,
+    )
     partner_dn = Partner.objects.create(
-        slug="dinum-dn", name="Démarche Numérique", consent_is_enabled=True
+        slug="dinum-dn",
+        name="Démarche Numérique",
+        displayed_on_front=True,
+        consent_is_enabled=False,
     )
 
     Consent.objects.create(user_id=two_users[0].id, partner=partner_ami, consent_datetime=None)
