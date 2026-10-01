@@ -218,6 +218,8 @@ class ServiceForm(forms.ModelForm, AMIDsfrBaseForm):
         self.old_instance = copy.deepcopy(self.instance)
         if self.instance.kind == Service.Kind.CATALOG:
             self.fields.pop("icon")
+        if self.instance.kind == Service.Kind.STEPS:
+            self.fields.pop("with_silent_login")
 
     def clean_restricted_to(self):
         value = self.cleaned_data["restricted_to"] or ""
