@@ -43,18 +43,9 @@
     await updateAllConsents(true);
     const consents: Consents = await buildConsents(partners);
     consentItems = consents.items;
-  };
-
-  const hasConsentedFor = (id: string): boolean => {
-    if (consentItems) {
-      const consentItem: ConsentsItem = consentItems.filter(
-        (item) => item.partner_id === id
-      )[0];
-      if (consentItem) {
-        return consentItem.consent_datetime !== null;
-      }
-    }
-    return false;
+    consentItems.forEach((consentItem: ConsentsItem) => {
+      displayWarningBlocks.set(consentItem.partner_id, false);
+    });
   };
 
   const saveConsents = async (partnerId: string, checked: boolean) => {
@@ -98,7 +89,7 @@
         <Toggle
           id="{item.partner_id}"
           label="Suivre mes démarches <strong>{item.partner_name}</strong> sur mon appareil mobile"
-          isChecked={hasConsentedFor(item.partner_id)}
+          isChecked={item.consent_datetime !== null}
           onChangeAction={saveConsents}
         />
         {#if displayWarningBlocks.get(item.partner_id)}
