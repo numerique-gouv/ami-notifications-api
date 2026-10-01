@@ -4,8 +4,13 @@
   import { type AddressFromBAN, callBAN } from '$lib/addressesFromBAN';
   import { AMIBack, AMIGoto } from '$lib/ami-navigation';
   import Banner from '$lib/components/Banner.svelte';
+  import PersonalDataConsentModal from '$lib/components/modal/PersonalDataConsentModal.svelte';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import PageWrapper from '$lib/components/PageWrapper.svelte';
+  import {
+    buildPersonalDataConsent,
+    type PersonalDataConsent,
+  } from '$lib/personal-data-consent';
   import { toastStore } from '$lib/state/toast.svelte';
   import type { DataOrigin } from '$lib/state/User.svelte';
   import { userStore } from '$lib/state/User.svelte';
@@ -24,6 +29,8 @@
   let submittedAddress: Address | undefined = $state();
   let address_origin: DataOrigin | undefined = $state();
   let address_last_update: Date | undefined = $state();
+  let personalDataConsent: PersonalDataConsent | undefined = $state();
+  let hasPersonalDataConsent: boolean = $state(false);
 
   $effect(() => {
     // DO NOT REMOVE THE FOLLOWING LINE: we need to access `filteredAddresses` so the $effect
@@ -36,7 +43,7 @@
     }
   });
 
-  onMount(() => {
+  onMount(async () => {
     if (!userStore.connected) {
       AMIGoto('/#/login');
       return;
@@ -50,6 +57,11 @@
       }
       address_origin = identity.dataDetails.address.origin;
       address_last_update = identity.dataDetails.address.lastUpdate;
+
+      personalDataConsent = await buildPersonalDataConsent();
+      if (personalDataConsent && personalDataConsent.consent_datetime) {
+        hasPersonalDataConsent = true;
+      }
     }
   });
 
@@ -111,6 +123,18 @@
   };
 
   const submitAddress = async () => {
+    await saveAddress();
+  };
+
+  const onCloseModal = () => {
+    onCloseModalAsync();
+  };
+
+  const onCloseModalAsync = async () => {
+    await saveAddress();
+  };
+
+  const saveAddress = async () => {
     submittedAddress = selectedAddress;
     if (userStore.connected) {
       userStore.connected.setAddress(selectedAddress);
@@ -270,15 +294,32 @@
         </button>
       </li>
       <li>
-        <button
-          class="fr-btn submit-button"
-          type="button"
-          disabled="{disabledButton}"
-          onclick={submitAddress}
-          data-testid="submit-button"
-        >
-          Enregistrer
-        </button>
+        {#if hasPersonalDataConsent}
+          <button
+            class="fr-btn submit-button"
+            type="button"
+            disabled="{disabledButton}"
+            onclick={submitAddress}
+            data-testid="submit-button"
+          >
+            Enregistrer
+          </button>
+        {:else}
+          <button
+            data-fr-opened="false"
+            aria-controls="edit-address-personal-data-consent-modal"
+            type="button"
+            class="fr-btn submit-button"
+            disabled="{disabledButton}"
+            data-testid="submit-button"
+          >
+            Enregistrer
+          </button>
+          <PersonalDataConsentModal
+            modalId="edit-address-personal-data-consent-modal"
+            onClose={onCloseModal}
+          />
+        {/if}
       </li>
     </ul>
   {/snippet}
