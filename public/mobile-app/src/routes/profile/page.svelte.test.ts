@@ -2,6 +2,8 @@ import { render, screen, waitFor } from '@testing-library/svelte';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import * as AMINavigationMethods from '$lib/ami-navigation';
 import * as APIAnnuaireSPMethods from '$lib/api-annuaire-sp';
+import * as personalDataConsentMethods from '$lib/personal-data-consent';
+import { PersonalDataConsent } from '$lib/personal-data-consent';
 import { userStore } from '$lib/state/User.svelte';
 import {
   mockUserIdentity,
@@ -122,6 +124,52 @@ describe('/+page.svelte', () => {
       const item = screen.getByTestId('sidemenu-item-city');
       expect(item).not.toHaveClass('disabled');
       expect(spy).toHaveBeenCalledWith(userStore.connected?.identity.address?.citycode);
+    });
+  });
+
+  test('should display the personal-data-consent block when user has not given consent', async () => {
+    // Given
+    await userStore.login(mockUserInfo);
+
+    const apiPersonalDataConsent = { consent_datetime: null };
+    const personalDataConsent = new PersonalDataConsent(apiPersonalDataConsent);
+    vi.spyOn(personalDataConsentMethods, 'buildPersonalDataConsent').mockResolvedValue(
+      personalDataConsent
+    );
+
+    // When
+    render(Page);
+
+    // Then
+    await waitFor(() => {
+      const profile = screen.getByTestId('profile');
+      expect(profile).toHaveTextContent('Personnaliser votre profil');
+      const personalDataConsentBlock = screen.getByTestId(
+        'personal-data-consent-block'
+      );
+      expect(personalDataConsentBlock).toHaveTextContent('Personnaliser votre profil');
+    });
+  });
+
+  test('should not display the personal-data-consent block when user has given consent', async () => {
+    // Given
+    await userStore.login(mockUserInfo);
+
+    const apiPersonalDataConsent = {
+      consent_datetime: new Date('2026-02-02T14:54:28'),
+    };
+    const personalDataConsent = new PersonalDataConsent(apiPersonalDataConsent);
+    vi.spyOn(personalDataConsentMethods, 'buildPersonalDataConsent').mockResolvedValue(
+      personalDataConsent
+    );
+
+    // When
+    render(Page);
+
+    // Then
+    await waitFor(() => {
+      const profile = screen.getByTestId('profile');
+      expect(profile).not.toHaveTextContent('Personnaliser votre profil');
     });
   });
 });
