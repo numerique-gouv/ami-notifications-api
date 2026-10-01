@@ -239,7 +239,7 @@ def consents_all(request: Request) -> Response:
     data: dict = cast(dict, serializer.validated_data)
 
     consent_datetime = now() if data["consent"] else None
-    partners = Partner.objects.filter(consent_is_enabled=True)
+    partners = Partner.objects.filter(displayed_on_front=True)
     for partner in partners:
         Consent.objects.update_or_create(
             user=request.ami_user,

@@ -66,7 +66,7 @@ class ConsentUpdateSerializer(serializers.Serializer):
     def validate_partner_id(self, value):
         if value:
             try:
-                return Partner.objects.get(slug=value).id
+                return Partner.objects.get(slug=value, displayed_on_front=True).id
             except Partner.DoesNotExist:
                 raise serializers.ValidationError(
                     "'partner_id' inconnu.",
