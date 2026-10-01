@@ -193,8 +193,7 @@ describe('/+page.svelte', () => {
       // Then
       await waitFor(async () => {
         expect(spy).toHaveBeenCalledWith(false);
-        const warningBlock: HTMLElement = screen.getByTestId('warning-dinum-ami');
-        expect(warningBlock).toBeInTheDocument();
+        expect(screen.queryByTestId('warning-dinum-ami')).toBeInTheDocument();
       });
     });
 
@@ -268,59 +267,146 @@ describe('/+page.svelte', () => {
     });
   });
 
-  test('should enable all consents when user clicks on "Tout suivre" button', async () => {
-    // Given
-    await userStore.login(mockUserInfo);
+  describe('when user clicks on "Tout suivre" button', () => {
+    test('should enable all consents', async () => {
+      // Given
+      await userStore.login(mockUserInfo);
 
-    const spy = vi.spyOn(consentsMethods, 'updateAllConsents').mockResolvedValue();
+      const spy = vi.spyOn(consentsMethods, 'updateAllConsents').mockResolvedValue();
 
-    const apiPartnersItem1: APIPartnersItem = {
-      slug: 'dinum-ami',
-      name: 'AMI',
-      link: 'http://fake-link-1',
-    };
-    const apiPartnersItem2: APIPartnersItem = {
-      slug: 'dinum-dn',
-      name: 'Démarche Numérique',
-      link: 'http://fake-link-2',
-    };
-    const partners = new Partners([apiPartnersItem1, apiPartnersItem2]);
-    vi.spyOn(partnersMethods, 'buildPartners').mockResolvedValue(partners);
+      const apiPartnersItem1: APIPartnersItem = {
+        slug: 'dinum-ami',
+        name: 'AMI',
+        link: 'http://fake-link-1',
+      };
+      const apiPartnersItem2: APIPartnersItem = {
+        slug: 'dinum-dn',
+        name: 'Démarche Numérique',
+        link: 'http://fake-link-2',
+      };
+      const partners = new Partners([apiPartnersItem1, apiPartnersItem2]);
+      vi.spyOn(partnersMethods, 'buildPartners').mockResolvedValue(partners);
 
-    const consentsItem1 = new ConsentsItem('dinum-ami', 'AMI', null);
-    const consentsItem2 = new ConsentsItem('dinum-dn', 'Démarche Numérique', null);
-    const consents = new Consents(
-      { consents: [consentsItem1, consentsItem2] },
-      partners.items
-    );
-    vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
+      const consentsItem1 = new ConsentsItem('dinum-ami', 'AMI', null);
+      const consentsItem2 = new ConsentsItem('dinum-dn', 'Démarche Numérique', null);
+      const consents = new Consents(
+        { consents: [consentsItem1, consentsItem2] },
+        partners.items
+      );
+      vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
 
-    const followup = new Followup();
-    vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
+      const followup = new Followup();
+      vi.spyOn(followup, 'items', 'get').mockReturnValue([]);
+      vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
 
-    render(Page, {
-      props: {
-        data: {
-          consentItems: [consentsItem1, consentsItem2],
-          partners: partners,
-          followup: followup,
+      render(Page, {
+        props: {
+          data: {
+            consentItems: [consentsItem1, consentsItem2],
+            partners: partners,
+            followup: followup,
+          },
+          params: {},
         },
-        params: {},
-      },
+      });
+
+      // When
+      const toggleInput1: HTMLInputElement = screen.getByTestId('dinum-ami');
+      const toggleInput2: HTMLInputElement = screen.getByTestId('dinum-dn');
+      expect(toggleInput1.checked).toBeFalsy();
+      expect(toggleInput2.checked).toBeFalsy();
+
+      const selectAllButton = screen.getByTestId('select-all-button');
+      await fireEvent.click(selectAllButton);
+
+      // Then
+      await waitFor(async () => {
+        expect(spy).toHaveBeenCalledWith(true);
+      });
     });
 
-    // When
-    const toggleInput1: HTMLInputElement = screen.getByTestId('dinum-ami');
-    const toggleInput2: HTMLInputElement = screen.getByTestId('dinum-dn');
-    expect(toggleInput1.checked).toBeFalsy();
-    expect(toggleInput2.checked).toBeFalsy();
+    test('should hide warning block', async () => {
+      // Given
+      await userStore.login(mockUserInfo);
 
-    const selectAllButton = screen.getByTestId('select-all-button');
-    await fireEvent.click(selectAllButton);
+      const spy = vi.spyOn(consentsMethods, 'updateAllConsents').mockResolvedValue();
 
-    // Then
-    await waitFor(async () => {
-      expect(spy).toHaveBeenCalledWith(true);
+      const apiPartnersItem1: APIPartnersItem = {
+        slug: 'dinum-ami',
+        name: 'AMI',
+        link: 'http://fake-link-1',
+      };
+      const apiPartnersItem2: APIPartnersItem = {
+        slug: 'dinum-dn',
+        name: 'Démarche Numérique',
+        link: 'http://fake-link-2',
+      };
+      const partners = new Partners([apiPartnersItem1, apiPartnersItem2]);
+      vi.spyOn(partnersMethods, 'buildPartners').mockResolvedValue(partners);
+
+      const consentsItem1 = new ConsentsItem('dinum-ami', 'AMI', new Date());
+      const consentsItem2 = new ConsentsItem('dinum-dn', 'Démarche Numérique', null);
+      const consents = new Consents(
+        { consents: [consentsItem1, consentsItem2] },
+        partners.items
+      );
+      vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
+
+      const followup = new Followup();
+      vi.spyOn(followup, 'items', 'get').mockReturnValue([
+        new FollowupItem(
+          'dinum-ami',
+          'type',
+          'id1',
+          'ref1',
+          'notifications',
+          null,
+          null,
+          [],
+          'Opération Tranquillité Vacances',
+          'subheading',
+          'Votre demande est en cours de traitement 1.',
+          'icon',
+          new Date('2026-02-22T15:55:00.000Z'),
+          'wip',
+          'En cours',
+          false,
+          null,
+          []
+        ),
+      ]);
+      vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
+
+      render(Page, {
+        props: {
+          data: {
+            consentItems: [consentsItem1, consentsItem2],
+            partners: partners,
+            followup: followup,
+          },
+          params: {},
+        },
+      });
+
+      // When
+      const toggleInput1: HTMLInputElement = screen.getByTestId('dinum-ami');
+      const toggleInput2: HTMLInputElement = screen.getByTestId('dinum-dn');
+      expect(toggleInput1.checked).toBeTruthy();
+      expect(toggleInput2.checked).toBeFalsy();
+      await fireEvent.click(toggleInput1);
+
+      await waitFor(async () => {
+        expect(screen.queryByTestId('warning-dinum-ami')).toBeInTheDocument();
+      });
+
+      const selectAllButton = screen.getByTestId('select-all-button');
+      await fireEvent.click(selectAllButton);
+
+      // Then
+      await waitFor(async () => {
+        expect(spy).toHaveBeenCalledWith(true);
+        expect(screen.queryByTestId('warning-dinum-ami')).not.toBeInTheDocument();
+      });
     });
   });
 
