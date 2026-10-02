@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import * as apiCheckListMethods from '$lib/api-checklist';
 import { buildCheckList } from '$lib/checklist';
+import * as matomoMethods from '$lib/matomo';
 
 const checklistData = {
   icon: 'icon',
@@ -49,6 +50,11 @@ const checklistData = {
           },
         ],
       },
+      {
+        text: '**Organiser le fonctionnement**',
+        id: '92c69db61297',
+        section: 'cas-general',
+      },
     ],
   },
 };
@@ -64,7 +70,7 @@ describe('/checklist.ts', () => {
     const checklist = await buildCheckList('F3109');
     expect(checklist.title).toEqual('Je crée une association');
     expect(checklist.sections.length).toEqual(2);
-    expect(checklist.items.length).toEqual(2);
+    expect(checklist.items.length).toEqual(3);
     expect(checklist.items[0].text).toEqual(
       "**Choisir le nom** de l'association : vérifier que le nom est disponible, éventuellement protéger le nom"
     );
@@ -74,7 +80,7 @@ describe('/checklist.ts', () => {
 
     expect(checklist.hasSections()).toBe(true);
     const sectionId = checklist.sections[0].id;
-    expect(checklist.getItemsForSection(sectionId).length).toEqual(2);
+    expect(checklist.getItemsForSection(sectionId).length).toEqual(3);
 
     const itemId = checklist.items[0].id;
     const item = checklist.getItemById(itemId);
@@ -93,6 +99,43 @@ describe('/checklist.ts', () => {
     expect(item.checked).toBe(true);
     item.markAs(false);
     expect(item.checked).toBe(false);
+  });
+
+  test('should notify matomo on first check', async () => {
+    // Given
+    const checklist = await buildCheckList('F3109');
+    const itemId = checklist.items[0].id;
+    const item2Id = checklist.items[1].id;
+    const item = checklist.getItemById(itemId);
+    const item2 = checklist.getItemById(item2Id);
+    const trackChecklistSpy = vi
+      .spyOn(matomoMethods, 'trackChecklist')
+      .mockResolvedValue(undefined);
+
+    // When
+    item.markAs(true);
+    item2.markAs(true);
+
+    // Then
+    expect(trackChecklistSpy).toHaveBeenCalledTimes(1);
+    expect(trackChecklistSpy).toHaveBeenCalledWith('F3109', 'Start checklist');
+  });
+
+  test('should notify matomo when completed', async () => {
+    // Given
+    const checklist = await buildCheckList('F3109');
+    const trackChecklistSpy = vi
+      .spyOn(matomoMethods, 'trackChecklist')
+      .mockResolvedValue(undefined);
+
+    // When
+    checklist.items.forEach((x) => {
+      x.markAs(true);
+    });
+
+    // Then
+    expect(trackChecklistSpy).toHaveBeenCalledTimes(2);
+    expect(trackChecklistSpy).toHaveBeenCalledWith('F3109', 'Completed checklist');
   });
 
   test('should have url attributes', async () => {
