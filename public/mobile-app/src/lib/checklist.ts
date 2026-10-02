@@ -1,5 +1,6 @@
 import type { APICheckList, APICheckListLink } from '$lib/api-checklist';
 import { retrieveCheckList } from '$lib/api-checklist';
+import { trackChecklist } from '$lib/matomo';
 
 export class CheckListLink {
   constructor(
@@ -96,6 +97,9 @@ export class CheckListItem {
 
   markAs(checked: boolean) {
     const storedCheckedItems = JSON.parse(localStorage.getItem('checkedItems') || '{}');
+    if (checked && !this.checklist.hasCheckedItems()) {
+      this.checklist.trackStart();
+    }
     storedCheckedItems[this.unique_id] = checked;
     localStorage.setItem('checkedItems', JSON.stringify(storedCheckedItems));
   }
@@ -193,6 +197,14 @@ export class CheckList {
 
   getItemById(item_id: string): CheckListItem {
     return this._items.filter((x) => x.id === item_id)[0];
+  }
+
+  hasCheckedItems(): boolean {
+    return this._items.filter((x) => x.checked).length > 0;
+  }
+
+  trackStart() {
+    trackChecklist(this.id, 'start');
   }
 
   get url(): string {
