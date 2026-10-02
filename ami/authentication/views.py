@@ -34,6 +34,7 @@ FC_ERROR_DESCRIPTION_TRANSLATIONS = {
 
 
 def retry_fc_later(error_dict: dict | None = None):
+    logger.debug("retry_fc_later", extra=error_dict)
     error_dict = error_dict or {}
     params: dict[str, str] = {
         "error": "Erreur lors de la FranceConnexion, veuillez réessayer plus tard.",
