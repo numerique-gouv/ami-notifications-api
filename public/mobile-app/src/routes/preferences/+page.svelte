@@ -1,27 +1,16 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { AMIGoto } from '$lib/ami-navigation';
-  import Modal from '$lib/components/modal/Modal.svelte';
-  import ZonePreferences from '$lib/components/modal/ZonePreferences.svelte';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import { userStore } from '$lib/state/User.svelte';
 
-  type ModalInstance = {
-    open: () => Promise<void>;
-  };
-
   let backUrl: string = '/';
-  let zonePreferencesModal: ModalInstance;
 
   onMount(async () => {
     if (!userStore.connected) {
       AMIGoto('/#/login');
     }
   });
-
-  const openZonePreferencesModal = () => {
-    zonePreferencesModal.open();
-  };
 </script>
 
 <div class="preferences-page">
@@ -56,7 +45,7 @@
               <button
                 type="button"
                 class="fr-sidemenu__link"
-                onclick={openZonePreferencesModal}
+                onclick={()=>AMIGoto("/#/preferences/zones")}
               >
                 <span class="label">Zones scolaires</span>
                 <span aria-hidden="true" class="icon fr-icon-arrow-right-s-line"></span>
@@ -68,13 +57,6 @@
     </nav>
   </div>
 </div>
-
-<Modal
-  bind:this={zonePreferencesModal}
-  id="modal-zones-preferences"
-  title="Zones scolaires"
-  component={ZonePreferences}
-/>
 
 <style>
   .preferences-page {
