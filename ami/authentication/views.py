@@ -34,6 +34,7 @@ FC_ERROR_DESCRIPTION_TRANSLATIONS = {
 
 
 def retry_fc_later(error_dict: dict | None = None):
+    logger.debug("retry_fc_later", extra=error_dict)
     error_dict = error_dict or {}
     params: dict[str, str] = {
         "error": "Erreur lors de la FranceConnexion, veuillez réessayer plus tard.",
@@ -96,7 +97,7 @@ def login(request, login_type):
             )
         return redirect(login_url)
     except Exception as e:
-        logging.exception(e)
+        logger.exception(e)
         return redirect(f"{settings.PUBLIC_APP_URL}/#/technical-error")
 
 
@@ -258,7 +259,7 @@ async def login_callback(request):
             return retry_fc_later()
         return retry_fc_later({"error_code": e.code})
     except Exception as e:
-        logging.exception(e)
+        logger.exception(e)
         return redirect(f"{settings.PUBLIC_APP_URL}/#/technical-error")
 
 

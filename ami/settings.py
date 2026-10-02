@@ -8,6 +8,7 @@ import sentry_sdk
 from dotenv import dotenv_values
 from sentry_sdk.integrations.django import DjangoIntegration
 
+import ami.utils.sentry
 import vapid_keys
 
 CONFIG = {
@@ -225,6 +226,7 @@ PUBLIC_APP_URL = CONFIG["PUBLIC_APP_URL"]
 # Django Rest Framework
 
 REST_FRAMEWORK = {
+    "EXCEPTION_HANDLER": "ami.utils.drf.custom_exception_handler",
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_PARSER_CLASSES": [
         # only allow JSON input (no form data)
@@ -262,6 +264,7 @@ def before_send(event, hint):
 sentry_sdk.init(
     dsn=CONFIG.get("SENTRY_DSN", ""),
     environment=CONFIG.get("SENTRY_ENV", ""),
+    event_scrubber=ami.utils.sentry.CustomEventScrubber(),
     integrations=[DjangoIntegration()],
     traces_sample_rate=float(CONFIG.get("SENTRY_TRACES_SAMPLE_RATE") or 1.0),
     before_send=before_send,  # Filter the exceptions being reported to Sentry.

@@ -19,7 +19,6 @@ from django.http import (
     JsonResponse,
 )
 from django.shortcuts import redirect
-from rest_framework import serializers
 from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import FormParser
 from rest_framework.request import Request
@@ -66,11 +65,7 @@ def token(request: Request) -> Response:
     if not settings.FI_SILENT_LOGIN_ENABLED:
         raise Http404
     serializer = TokenSerializer(data=request.data)
-    try:
-        serializer.is_valid(raise_exception=True)
-    except serializers.ValidationError as e:
-        logging.exception(e)
-        raise
+    serializer.is_valid(raise_exception=True)
     data: dict = cast(dict, serializer.validated_data)
 
     try:
@@ -93,6 +88,7 @@ def token(request: Request) -> Response:
     fi_session.access_token = make_password(access_token, settings.FI_HASH_SALT)
     fi_session.save()
 
+    logger.debug("successful response of %s", "token endpoint")
     return Response(
         {
             "access_token": access_token,
@@ -132,6 +128,7 @@ def userinfo(request: Request) -> HttpResponse:
         key=settings.FI_PRIVATE_KEY_PEM,
         algorithm="ES256",
     )
+    logger.debug("successful response of %s", "userinfo endpoint")
     return HttpResponse(encoded_user_info, content_type="application/jwt")
 
 
@@ -145,6 +142,7 @@ def logout(request: Request) -> HttpResponseBadRequest | HttpResponseRedirect:
 
     redirect_uri = f"{redirect_uri}?state={request.GET.get('state')}"
 
+    logger.debug("successful response of %s", ("logout URL",))
     return redirect(redirect_uri)
 
 
@@ -166,6 +164,7 @@ def passkey_generate_registration_options(request):
     challenge = base64.urlsafe_b64encode(options.challenge).decode()
     request.session["passkey_registration_challenge"] = challenge
 
+    logger.debug("successful response of %s", "passkey/generate-registration-options endpoint")
     return Response(json.loads(options_to_json(options)))
 
 
@@ -197,6 +196,7 @@ def passkey_verify_registration(request):
     UserPasskey.objects.create(
         user=request.ami_user, credential_id=credential_id, credential_public_key=public_key
     )
+    logger.debug("successful response of %s", "passkey/verify-registration endpoint")
     return Response({"verified": registration_verification.user_verified})
 
 
@@ -207,6 +207,7 @@ def passkey_generate_authentication_options(request):
     )
     challenge = base64.urlsafe_b64encode(options.challenge).decode()
     request.session["passkey_authentication_challenge"] = challenge
+    logger.debug("successful response of %s", "passkey/generate-authentication-options endpoint")
     return Response(json.loads(options_to_json(options)))
 
 
@@ -301,6 +302,7 @@ def passkey_verify_authentication(request):
             f"{settings.PUBLIC_FC_PROXY_BASE_URL}/ami-fi-authorize-callback/?{urlencode(params)}"
         )
     request.session.pop("fi_session_id")
+    logger.debug("successful response of %s", "passkey/verify-authentication endpoint")
     return Response(
         {"verified": authentication_verification.user_verified, "redirect_uri": redirect_uri}
     )
@@ -308,4 +310,6 @@ def passkey_verify_authentication(request):
 
 def jwks(request):
     pem_public_key = settings.FI_PUBLIC_KEY_PEM.encode()
-    return JsonResponse({"keys": [generate_jwk(pem_public_key, kid=settings.FI_KEY_ID)]})
+    jwk = generate_jwk(pem_public_key, kid=settings.FI_KEY_ID)
+    logger.debug("successful response of %s", "jwks endpoint")
+    return JsonResponse({"keys": [jwk]})
