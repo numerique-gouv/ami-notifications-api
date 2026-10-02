@@ -20,6 +20,10 @@
     notificationEventsSocket,
   } from '$lib/notifications';
   import { buildPartners, type Partners } from '$lib/partners';
+  import {
+    buildPersonalDataConsent,
+    PersonalDataConsent,
+  } from '$lib/personal-data-consent';
   import { userStore } from '$lib/state/User.svelte';
   import { formatDate } from '$lib/utils';
   import type { PageProps } from './$types';
@@ -71,6 +75,7 @@
       const partners: Partners = await buildPartners();
       const consents: Consents = await buildConsents(partners);
       hasAnyConsents = consents.hasAnyConsents();
+      const personalDataConsent: PersonalDataConsent = await buildPersonalDataConsent();
 
       agenda = await buildAgenda(followup);
       console.log($state.snapshot(agenda));

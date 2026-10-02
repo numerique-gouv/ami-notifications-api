@@ -5,6 +5,8 @@ import type { MockInstance } from 'vitest';
 import { Address } from '$lib/address';
 import * as addressesFromBANMethods from '$lib/addressesFromBAN';
 import * as AMINavigationMethods from '$lib/ami-navigation';
+import * as personalDataConsentMethods from '$lib/personal-data-consent';
+import { PersonalDataConsent } from '$lib/personal-data-consent';
 import { toastStore } from '$lib/state/toast.svelte';
 import { User, userStore } from '$lib/state/User.svelte';
 import { expectBackButtonPresent, mockUserIdentity, mockUserInfo } from '$tests/utils';
@@ -72,6 +74,12 @@ describe('/+page.svelte', () => {
     newMockUserIdentity.dataDetails.address.lastUpdate = '2026-01-15';
     localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity));
     await userStore.login(mockUserInfo);
+
+    const apiPersonalDataConsent = { consent_datetime: null };
+    const personalDataConsent = new PersonalDataConsent(apiPersonalDataConsent);
+    vi.spyOn(personalDataConsentMethods, 'buildPersonalDataConsent').mockResolvedValue(
+      personalDataConsent
+    );
 
     // When
     render(Page);
@@ -177,6 +185,15 @@ describe('/+page.svelte', () => {
   test('should display selected address in page when user clicks on Save button, and remove it when clicking on the button', async () => {
     // Given
     expect(userStore.connected).not.toBeNull();
+
+    const apiPersonalDataConsent = {
+      consent_datetime: new Date('2026-02-20T15:55:00.000Z'),
+    };
+    const personalDataConsent = new PersonalDataConsent(apiPersonalDataConsent);
+    vi.spyOn(personalDataConsentMethods, 'buildPersonalDataConsent').mockResolvedValue(
+      personalDataConsent
+    );
+
     delete userStore.connected?.identity?.address;
     const spyDeleteScheduled = vi
       .spyOn(User.prototype, 'deleteScheduledNotifications')

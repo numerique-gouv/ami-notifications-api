@@ -17,7 +17,7 @@ from ami.authentication.decorators import ami_login_required
 
 from ..partner.auth import IsPartnerAuthenticated, PartnerBasicAuthentication
 from ..partner.models import Partner
-from .models import Consent, Registration, User
+from .models import Consent, PersonalDataConsent, Registration, User
 from .serializers import (
     ConsentPostResponseSerializer,
     ConsentPostSerializer,
@@ -26,6 +26,9 @@ from .serializers import (
     ConsentsUpdateSerializer,
     ConsentUpdateSerializer,
     MobileAppSubscriptionSerializer,
+    PersonalDataConsentPostResponseSerializer,
+    PersonalDataConsentSerializer,
+    PersonalDataConsentUpdateSerializer,
     RegistrationCreateSerializer,
     RegistrationPutActionSerializer,
     RegistrationRemoveFromDeviceIdSerializer,
@@ -250,5 +253,43 @@ def consents_all(request: Request) -> Response:
 
     response_serializer = ConsentPostResponseSerializer(
         {"message": "Consent given" if data["consent"] else "Consent withdrawn"}
+    )
+    return Response(response_serializer.data)
+
+
+@extend_schema(
+    methods=["POST"],
+    request=PersonalDataConsentUpdateSerializer,
+)
+@api_view(["GET", "POST"])
+@ami_login_required
+def personal_data_consent(request: Request) -> Response:
+    if request.method == "GET":
+        personal_data_consents_qs: QuerySet[PersonalDataConsent] = (
+            request.ami_user.personaldataconsent_set.first()
+        )
+        return Response(PersonalDataConsentSerializer(personal_data_consents_qs).data)
+
+    serializer = PersonalDataConsentUpdateSerializer(data=request.data)
+    try:
+        serializer.is_valid(raise_exception=True)
+    except serializers.ValidationError:
+        logger.exception("Internal post consent serialization error")
+        raise
+    data: dict = cast(dict, serializer.validated_data)
+
+    consent_datetime = now() if data["consent"] else None
+    PersonalDataConsent.objects.update_or_create(
+        user=request.ami_user,
+        defaults={"consent_datetime": consent_datetime},
+        create_defaults={"consent_datetime": consent_datetime},
+    )
+
+    response_serializer = PersonalDataConsentPostResponseSerializer(
+        {
+            "message": "Personal data consent given"
+            if data["consent"]
+            else "Personal data consent withdrawn"
+        }
     )
     return Response(response_serializer.data)

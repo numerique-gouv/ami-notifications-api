@@ -64,6 +64,7 @@ export type UserIdentity = {
   scheduledNotificationsCreatedKeys: string[];
   dataDetails: DataDetails;
   preferences: Preferences;
+  personalDataConsentDatetime: Date | null;
 };
 
 export class UserStore {
@@ -179,6 +180,7 @@ export class User {
         parsedIdentity?.scheduledNotificationsCreatedKeys || [],
       dataDetails: parsedIdentity?.dataDetails || {},
       preferences: parsedIdentity?.preferences,
+      personalDataConsentDatetime: parsedIdentity?.personalDataConsentDatetime,
     };
     if (this._identity.address) {
       this._identity.address = Address.fromJSON(this._identity.address);
@@ -337,6 +339,11 @@ export class User {
   async deleteScheduledNotifications() {
     await deleteScheduledNotificationsFunc();
     this.clearScheduledNotificationCreatedKey();
+  }
+
+  setPersonalDataConsentDatetime(personalDataConsentDatetime: Date | null) {
+    this._identity.personalDataConsentDatetime = personalDataConsentDatetime;
+    localStorage.setItem('user_identity', JSON.stringify(this.identity));
   }
 
   async updateIdentity() {

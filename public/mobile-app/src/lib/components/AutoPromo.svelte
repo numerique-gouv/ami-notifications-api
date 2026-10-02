@@ -11,12 +11,13 @@
   }
   let { items }: Props = $props();
 
+  let splide: Splide | null = null;
   let carousel = $state<HTMLDivElement | null>(null);
   let slideText: string = $state('');
 
   onMount(() => {
     if (carousel !== null) {
-      const splide = new Splide(carousel, {
+      splide = new Splide(carousel, {
         type: 'loop',
         perPage: 1,
         arrows: true,
@@ -42,10 +43,14 @@
         const slide = items[newIndex];
         slideText = `Slide : ${slide.title}`;
       });
-
-      return () => splide.destroy();
     }
   });
+
+  const onCloseModal = (hasAccepted: boolean, index: number) => {
+    if (splide && hasAccepted === true) {
+      splide.remove(index);
+    }
+  };
 </script>
 
 {#if items.length > 1}
@@ -57,9 +62,14 @@
   >
     <div class="splide__track">
       <ul class="fr-raw-list splide__list">
-        {#each items as item}
+        {#each items as item, index}
           <li aria-label={item.description} class="splide__slide">
-            <AutoPromoItem item={item} className="" />
+            <AutoPromoItem
+              item={item}
+              className=""
+              index={index}
+              onClose={onCloseModal}
+            />
           </li>
         {/each}
       </ul>
@@ -69,7 +79,12 @@
 {:else if items.length == 1}
   {@const firstItem = items[0]}
   <div class="auto-mea-container">
-    <AutoPromoItem item={firstItem} className="am-blue--arrow" />
+    <AutoPromoItem
+      item={firstItem}
+      className="am-blue--arrow"
+      index={0}
+      onClose={onCloseModal}
+    />
   </div>
 {/if}
 

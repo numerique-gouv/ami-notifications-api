@@ -62,6 +62,16 @@
                 <span aria-hidden="true" class="icon fr-icon-arrow-right-s-line"></span>
               </button>
             </li>
+            <li class="fr-sidemenu__item">
+              <button
+                type="button"
+                class="fr-sidemenu__link"
+                onclick={()=>AMIGoto("/#/preferences/personal-data-consent")}
+              >
+                <span class="label">Consentement données personnelles</span>
+                <span aria-hidden="true" class="icon fr-icon-arrow-right-s-line"></span>
+              </button>
+            </li>
           </ul>
         </div>
       </div>

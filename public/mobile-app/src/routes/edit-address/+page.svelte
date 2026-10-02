@@ -4,8 +4,13 @@
   import { type AddressFromBAN, callBAN } from '$lib/addressesFromBAN';
   import { AMIBack, AMIGoto } from '$lib/ami-navigation';
   import Banner from '$lib/components/Banner.svelte';
+  import PersonalDataConsentModal from '$lib/components/modal/PersonalDataConsentModal.svelte';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import PageWrapper from '$lib/components/PageWrapper.svelte';
+  import {
+    buildPersonalDataConsent,
+    type PersonalDataConsent,
+  } from '$lib/personal-data-consent';
   import { toastStore } from '$lib/state/toast.svelte';
   import type { DataOrigin } from '$lib/state/User.svelte';
   import { userStore } from '$lib/state/User.svelte';
@@ -24,6 +29,8 @@
   let submittedAddress: Address | undefined = $state();
   let address_origin: DataOrigin | undefined = $state();
   let address_last_update: Date | undefined = $state();
+  let personalDataConsent: PersonalDataConsent | undefined = $state();
+  let displayModal: boolean = $state(false);
 
   $effect(() => {
     // DO NOT REMOVE THE FOLLOWING LINE: we need to access `filteredAddresses` so the $effect
@@ -36,7 +43,7 @@
     }
   });
 
-  onMount(() => {
+  onMount(async () => {
     if (!userStore.connected) {
       AMIGoto('/#/login');
       return;
@@ -50,6 +57,8 @@
       }
       address_origin = identity.dataDetails.address.origin;
       address_last_update = identity.dataDetails.address.lastUpdate;
+
+      personalDataConsent = await buildPersonalDataConsent();
     }
   });
 
@@ -111,6 +120,22 @@
   };
 
   const submitAddress = async () => {
+    if (personalDataConsent && !personalDataConsent.consent_datetime) {
+      displayModal = true;
+    } else {
+      await saveAddress();
+    }
+  };
+
+  const onCloseModal = () => {
+    onCloseModalAsync();
+  };
+
+  const onCloseModalAsync = async () => {
+    await saveAddress();
+  };
+
+  const saveAddress = async () => {
     submittedAddress = selectedAddress;
     if (userStore.connected) {
       userStore.connected.setAddress(selectedAddress);
@@ -276,6 +301,10 @@
     </ul>
   {/snippet}
 </PageWrapper>
+
+{#if displayModal}
+  <PersonalDataConsentModal bind:displayModal={displayModal} onClose={onCloseModal} />
+{/if}
 
 <style>
   .action-buttons {

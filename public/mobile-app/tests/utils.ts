@@ -72,6 +72,7 @@ export const mockUserIdentity = {
     preferred_username: { origin: 'user' },
     email: { origin: 'user' },
   },
+  personalDataConsentDatetime: new Date('2026-02-02T14:54:28'),
 };
 
 export const mockUserIdentityWithPreferredUsername = {

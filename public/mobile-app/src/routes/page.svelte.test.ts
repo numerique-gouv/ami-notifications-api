@@ -216,14 +216,16 @@ describe('/+page.svelte', () => {
           'Blabla title Address',
           'Description Address',
           'url-to-address',
-          'image.svg'
+          'image.svg',
+          null
         ),
         new AutoPromoItem(
           'otv',
           'Blabla title OTV',
           'Description OTV',
           'url-to-otv',
-          'image.svg'
+          'image.svg',
+          null
         ),
       ]);
       vi.spyOn(autoPromoMethods, 'buildAutoPromo').mockReturnValue(autoPromo);
