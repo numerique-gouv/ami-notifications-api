@@ -1,3 +1,4 @@
+import logging
 from http.cookies import SimpleCookie
 
 from django.conf import settings
@@ -6,6 +7,8 @@ from ami.authentication.auth import decode_jwt_token
 from ami.authentication.models import RevokedAuthToken
 from ami.user.models import User
 from ami.utils.sentry import set_sentry_user
+
+logger = logging.getLogger(__name__)
 
 
 class AMIJWTAuthCookieASGIMiddleware:
@@ -35,6 +38,10 @@ class AMIJWTAuthCookieASGIMiddleware:
                     return None
                 jti = payload.get("jti")
                 if jti and await RevokedAuthToken.objects.filter(jti=jti).aexists():
+                    logger.debug(
+                        "request with revoked auth token",
+                        extra={"middleware": "AMIJWTAuthCookieASGIMiddleware"},
+                    )
                     return None
                 return payload.get("sub")
         return None
@@ -65,6 +72,10 @@ class AMIJWTAuthCookieMiddleware:
                 jti = payload.get("jti")
                 is_revoked = False
                 if jti and RevokedAuthToken.objects.filter(jti=jti).exists():
+                    logger.debug(
+                        "request with revoked auth token",
+                        extra={"middleware": "AMIJWTAuthCookieMiddleware"},
+                    )
                     is_revoked = True
                 if not is_revoked:
                     try:
@@ -72,6 +83,6 @@ class AMIJWTAuthCookieMiddleware:
                         request.ami_payload = payload
                         set_sentry_user(request.ami_user)
                     except User.DoesNotExist:
-                        pass
+                        logger.debug("request with payload of missing user")
 
         return self.get_response(request)
