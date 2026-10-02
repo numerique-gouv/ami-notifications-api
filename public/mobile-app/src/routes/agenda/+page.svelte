@@ -4,17 +4,10 @@
   import { AMIGoto } from '$lib/ami-navigation';
   import AgendaItem from '$lib/components/AgendaItem.svelte';
   import AgendaItemModal from '$lib/components/modal/AgendaItemModal.svelte';
-  import Modal from '$lib/components/modal/Modal.svelte';
-  import ZonePreferences from '$lib/components/modal/ZonePreferences.svelte';
   import Navigation from '$lib/components/Navigation.svelte';
   import { userStore } from '$lib/state/User.svelte';
 
-  type ModalInstance = {
-    open: () => Promise<void>;
-  };
-
   let agenda: Agenda | null = $state(null);
-  let zonePreferencesModal: ModalInstance;
   let selectedAgendaItem: Item | null = $state(null);
 
   onMount(async () => {
@@ -25,16 +18,6 @@
     agenda = await buildAgenda();
     console.log($state.snapshot(agenda));
   });
-
-  const openZonePreferencesModal = () => {
-    zonePreferencesModal.open();
-  };
-
-  const refreshAgenda = () => {
-    buildAgenda().then((result) => {
-      agenda = result;
-    });
-  };
 
   const openAgendaItemModal = (item: Item) => {
     selectedAgendaItem = item;
@@ -49,7 +32,7 @@
       <button
         class="fr-btn fr-icon-settings-5-line fr-btn--tertiary-no-outline"
         type="button"
-        onclick={openZonePreferencesModal}
+        onclick={()=>AMIGoto("/#/preferences/zones")}
       >
         Préférences
       </button>
@@ -108,14 +91,6 @@
     </div>
   {/if}
 </div>
-
-<Modal
-  bind:this={zonePreferencesModal}
-  id="modal-zones-preferences"
-  title="Zones scolaires"
-  onCloseCustom={refreshAgenda}
-  component={ZonePreferences}
-/>
 
 {#if selectedAgendaItem}
   <AgendaItemModal bind:item={selectedAgendaItem} bind:agenda={agenda} />
