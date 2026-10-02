@@ -196,19 +196,21 @@ async def login_callback(request):
                 }
                 redirect_url = f"{settings.PUBLIC_APP_URL}/?{urlencode(params)}#/login-callback"
 
-                if login_type == "relogin" and not request.ami_user:
-                    return redirect(f"{settings.PUBLIC_APP_URL}/#/technical-error")
-
-                if (
-                    login_type == "relogin"
-                    and request.ami_user.fc_hash != user_data["user_fc_hash"]
+                if login_type == "relogin" and (
+                    not request.ami_user or request.ami_user.fc_hash != user_data["user_fc_hash"]
                 ):
                     # initiate FC logout and redirect to logout callback
+
+                    redirect_to_hash = request.session.get("login_from_hash")
+                    if not request.ami_user:
+                        logging.error("relogin while not logged")
+                        redirect_to_hash = "technical-error"
+
                     nonce = await Nonce.objects.acreate(
                         nonce=generate_nonce,
                         context={
                             "user_does_not_match": True,
-                            "redirect_to_hash": request.session.get("login_from_hash"),
+                            "redirect_to_hash": redirect_to_hash,
                         },
                     )
                     redirect_uri = f"{settings.PUBLIC_APP_URL}{reverse('logout-callback')}"
