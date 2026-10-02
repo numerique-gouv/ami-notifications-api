@@ -1,5 +1,7 @@
+import logging
 import secrets
 
+import sentry_sdk
 from django.conf import settings
 from drf_spectacular.authentication import BasicScheme
 from rest_framework.authentication import BasicAuthentication
@@ -7,6 +9,8 @@ from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.permissions import IsAuthenticated
 
 from ami.partner.models import Partner
+
+logger = logging.getLogger(__name__)
 
 
 class PartnerBasicAuthentication(BasicAuthentication):
@@ -19,7 +23,14 @@ class PartnerBasicAuthentication(BasicAuthentication):
         if not secrets.compare_digest(partner.secret, password):
             raise AuthenticationFailed("Invalid username/password.")
 
-        if not partner.is_ip_allowed(request.META.get(settings.ORIGINATING_IP_ADDRESS_ENV)):
+        origin_ip = request.META.get(settings.ORIGINATING_IP_ADDRESS_ENV)
+
+        sentry_sdk.set_tag("ami.partner_id", str(partner.id))
+        sentry_sdk.set_tag("ami.partner_slug", partner.slug)
+        sentry_sdk.set_tag("ami.partner_ip", origin_ip)
+
+        if not partner.is_ip_allowed(origin_ip):
+            logger.error("Call from invalid IP")
             raise AuthenticationFailed("Invalid source IP")
 
         request.ami_partner = partner
