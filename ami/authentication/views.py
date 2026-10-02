@@ -241,7 +241,7 @@ async def login_callback(request):
                 max_age=365 * 10 * 24 * 3600,
                 secure=True,
                 httponly=True,
-                samesite="Strict",
+                samesite="Lax",  # required to be set on redirect from FC
             )
             response.set_cookie(
                 key=settings.USERINFO_COOKIE_NAME,
