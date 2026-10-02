@@ -17,9 +17,7 @@ import { load } from './+page';
 describe('/+page.ts', () => {
   test('should go to login page if ?is_logged_out is present', async () => {
     // Given
-    const { page } = await import('$app/state');
-    const mockSearchParams = new URLSearchParams('is_logged_out');
-    vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
+    vi.stubGlobal('location', { href: '/', search: '?is_logged_out' });
     const spy = vi
       .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
@@ -36,9 +34,7 @@ describe('/+page.ts', () => {
 
   test('should get out if user is not connected', async () => {
     // Given
-    const { page } = await import('$app/state');
-    const mockSearchParams = new URLSearchParams();
-    vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
+    vi.stubGlobal('location', { href: '/', search: '' });
     const spy = vi
       .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
@@ -56,9 +52,7 @@ describe('/+page.ts', () => {
   test('should add toast when user does not match after relogin - without redirect', async () => {
     // Given
     await userStore.login(mockUserInfo);
-    const { page } = await import('$app/state');
-    const mockSearchParams = new URLSearchParams('user_does_not_match');
-    vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
+    vi.stubGlobal('location', { href: '/', search: '?user_does_not_match' });
 
     const spy = vi.spyOn(toastStore, 'addToast');
     const spy2 = vi
@@ -85,10 +79,10 @@ describe('/+page.ts', () => {
   test('should add toast when user does not match after relogin - with redirect', async () => {
     // Given
     await userStore.login(mockUserInfo);
-    const { page } = await import('$app/state');
-    const mockSearchParams = new URLSearchParams('user_does_not_match');
-    mockSearchParams.set('redirect_to_hash', '/page');
-    vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
+    vi.stubGlobal('location', {
+      href: '/',
+      search: '?user_does_not_match&redirect_to_hash=/page',
+    });
 
     const spy = vi.spyOn(toastStore, 'addToast');
     const spy2 = vi
@@ -114,10 +108,7 @@ describe('/+page.ts', () => {
   test('load should call build consents and followup', async () => {
     // Given
     await userStore.login(mockUserInfo);
-    const { page } = await import('$app/state');
-    const mockSearchParams = new URLSearchParams();
-    mockSearchParams.set('redirect_to_hash', '/page');
-    vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
+    vi.stubGlobal('location', { href: '/', search: '?redirect_to_hash=/page' });
 
     const followup = new Followup();
     vi.spyOn(followup, 'items', 'get').mockReturnValue([]);
