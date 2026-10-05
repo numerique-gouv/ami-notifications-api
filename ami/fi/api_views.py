@@ -313,3 +313,9 @@ def passkey_verify_authentication(request):
     return Response(
         {"verified": authentication_verification.user_verified, "redirect_uri": redirect_uri}
     )
+
+
+@api_view(["GET"])
+@ami_login_required
+def passkey_status(request):
+    return Response({"has_passkey": request.ami_user.userpasskey_set.exists()})
