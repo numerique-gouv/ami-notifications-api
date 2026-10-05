@@ -1,11 +1,14 @@
 <script lang="ts">
-  import type { AuthenticationResponseJSON } from '@simplewebauthn/browser';
-  import { startAuthentication } from '@simplewebauthn/browser';
   import { page } from '$app/state';
   import { AMIGoto } from '$lib/ami-navigation';
-  import { apiFetch } from '$lib/auth';
   import BottomModal from '$lib/components/modal/BottomModal.svelte';
   import Toast from '$lib/components/Toast.svelte';
+  import {
+    authenticateWithPasskey,
+    PasskeyBreakingError,
+    PasskeyError,
+    PasskeyNetworkError,
+  } from '$lib/passkey';
   import { userStore } from '$lib/state/User.svelte';
   import * as telemetry from '$lib/telemetry';
 
@@ -34,95 +37,19 @@
 
   const authenticate = async () => {
     hasClickedOnPasskeyBtn = true;
-    let optionsResp: Response;
-    telemetry.info('Authenticating with passkey');
     try {
-      optionsResp = await fetch('/api/v1/fi/passkey/generate-authentication-options');
-      if (!optionsResp.ok) {
-        return passkeyError();
-      }
-    } catch (error) {
-      console.log('ERROR', `${error}`);
-      if (error instanceof TypeError) {
-        return networkError();
-      } else {
-        return passkeyError();
-      }
-    }
-
-    let attResp: AuthenticationResponseJSON;
-    try {
-      const opts = await optionsResp.json();
-
-      console.log('Authentication Options', JSON.stringify(opts, null, 2));
-      attResp = await startAuthentication({ optionsJSON: opts });
-      console.log('Authentication Response', JSON.stringify(attResp, null, 2));
-    } catch (error) {
-      telemetry.error('Error using passkey authentication', {
-        error: `${error}`,
-      });
-      console.log('ERROR', `${error}`);
-      return passkeyError();
-    }
-
-    let verificationResp: Response;
-    try {
-      verificationResp = await apiFetch('/api/v1/fi/passkey/verify-authentication', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(attResp),
-      });
-      if (!verificationResp.ok) {
-        if (verificationResp.status === 400) {
-          const verificationJSON = await verificationResp.json();
-          if (verificationJSON.retry === true) {
-            // 400 errors without retry are FISession errors
-            telemetry.warn('Non-fatal error verifiying passkey authentication');
-            return passkeyError();
-          }
-          telemetry.error('Error using passkey authentication', {
-            error: 'breakingPasskeyError',
-          });
-          return breakingPasskeyError();
-        }
-        telemetry.error('Error using passkey authentication', {
-          error: 'passkeyError',
-        });
-        return passkeyError();
-      }
-    } catch (error) {
-      console.log('ERROR', `${error}`);
-      if (error instanceof TypeError) {
-        telemetry.error('Error using passkey authentication', {
-          error: 'network error',
-        });
-        return networkError();
-      } else {
-        telemetry.error('Error using passkey authentication', {
-          error: `${error}`,
-        });
-        return passkeyError();
-      }
-    }
-
-    const verificationJSON = await verificationResp.json();
-    console.log('Server Response', JSON.stringify(verificationJSON, null, 2));
-
-    if (verificationJSON?.verified) {
-      console.log('User authenticated!');
+      const url: string = await authenticateWithPasskey();
       userStore.setHasWorkingPasskey();
       telemetry.info('User used a passkey successfully');
-      AMIGoto(verificationJSON?.redirect_uri);
-    } else {
-      telemetry.error('Error using passkey authentication', {
-        error: '!verified',
-      });
-      console.log(
-        `Oh no, something went wrong! Response: ${JSON.stringify(verificationJSON)}`
-      );
-      return passkeyError();
+      AMIGoto(url);
+    } catch (error) {
+      if (error instanceof PasskeyError) {
+        passkeyError();
+      } else if (error instanceof PasskeyBreakingError) {
+        breakingPasskeyError();
+      } else if (error instanceof PasskeyNetworkError) {
+        networkError();
+      }
     }
   };
 

@@ -1,14 +1,11 @@
 <script lang="ts">
-  import type { RegistrationResponseJSON } from '@simplewebauthn/browser';
-  import { startRegistration } from '@simplewebauthn/browser';
   import { onMount } from 'svelte';
   import { page } from '$app/state';
   import { PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED } from '$env/static/public';
   import { AMIGoto } from '$lib/ami-navigation';
-  import { apiFetch } from '$lib/auth';
   import { initializeData, initializeLocalStorage } from '$lib/initializeDataFromAPI';
+  import { PasskeyError, PasskeyNetworkError, registerPasskey } from '$lib/passkey';
   import { toastStore } from '$lib/state/toast.svelte';
-  import type { UserIdentity } from '$lib/state/User.svelte';
   import { userStore } from '$lib/state/User.svelte';
   import * as telemetry from '$lib/telemetry';
 
@@ -43,7 +40,6 @@
         telemetry.info('User has working passkey');
       }
       hasSuggestPasskeyCreationToday = userStore.getHasSuggestPasskeyCreationToday();
-      console.log(hasSuggestPasskeyCreationToday);
       if (!silent_fc_enabled || hasWorkingPassKey || hasSuggestPasskeyCreationToday) {
         // if silent fc is not enabled,
         // if user has a working pass key,
@@ -85,100 +81,17 @@
   };
 
   const createPasskey = async () => {
-    if (!userStore.connected) {
-      return;
-    }
-    let identity: UserIdentity = userStore.connected.identity;
-    let display_name = `${identity.given_name} ${identity.preferred_username || identity.family_name}`;
-    let optionsResp: Response;
-    telemetry.info('Generating passkey');
     try {
-      optionsResp = await apiFetch('/api/v1/fi/passkey/generate-registration-options', {
-        method: 'POST',
-        body: JSON.stringify({ displayName: display_name }),
-        headers: { 'Content-Type': 'application/json' },
-      });
-      if (!optionsResp.ok) {
-        telemetry.error('Error generating passkey', {
-          error: '!options resp.ok',
-        });
-        return passkeyError();
-      }
-    } catch (error) {
-      console.log('ERROR', `${error}`);
-      if (error instanceof TypeError) {
-        telemetry.error('Error generating passkey', {
-          error: 'network error',
-        });
-        return networkError();
-      } else {
-        telemetry.error('Error generating passkey', {
-          error: `${error}`,
-        });
-        return passkeyError();
-      }
-    }
-
-    let attResp: RegistrationResponseJSON;
-    try {
-      const opts = await optionsResp.json();
-
-      console.log('Registration Options', JSON.stringify(opts, null, 2));
-
-      attResp = await startRegistration({ optionsJSON: opts });
-      console.log('Registration Response', JSON.stringify(attResp, null, 2));
-    } catch (error) {
-      telemetry.error('Error generating passkey', { error: `${error}` });
-      console.log('ERROR', `${error}`);
-      return passkeyError();
-    }
-
-    let verificationResp: Response;
-    try {
-      verificationResp = await apiFetch('/api/v1/fi/passkey/verify-registration', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(attResp),
-      });
-      if (!verificationResp.ok) {
-        telemetry.error('Error generating passkey', {
-          error: '!verification resp.ok',
-        });
-        return passkeyError();
-      }
-    } catch (error) {
-      console.log('ERROR', `${error}`);
-      if (error instanceof TypeError) {
-        telemetry.error('Error generating passkey', {
-          error: 'network error',
-        });
-        return networkError();
-      } else {
-        telemetry.error('Error generating passkey', {
-          error: `${error}`,
-        });
-        return passkeyError();
-      }
-    }
-
-    const verificationJSON = await verificationResp.json();
-    console.log('Server Response', JSON.stringify(verificationJSON, null, 2));
-
-    if (verificationJSON?.verified) {
-      console.log('Authenticator registered!');
+      await registerPasskey();
       userStore.setHasWorkingPasskey();
       telemetry.info('User added a passkey');
       redirectLoggedInUser(true);
-    } else {
-      telemetry.error('Error generating passkey', {
-        error: '!verified',
-      });
-      console.log(
-        `Oh no, something went wrong! Response: ${JSON.stringify(verificationJSON)}`
-      );
-      return passkeyError();
+    } catch (error) {
+      if (error instanceof PasskeyError) {
+        passkeyError();
+      } else if (error instanceof PasskeyNetworkError) {
+        networkError();
+      }
     }
   };
 </script>
