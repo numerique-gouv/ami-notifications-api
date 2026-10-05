@@ -1,6 +1,5 @@
 from http.cookies import SimpleCookie
 
-from channels.db import database_sync_to_async
 from django.conf import settings
 
 from ami.authentication.auth import decode_jwt_token
@@ -35,12 +34,7 @@ class AMIJWTAuthCookieASGIMiddleware:
                 if not payload:
                     return None
                 jti = payload.get("jti")
-                if (
-                    jti
-                    and await database_sync_to_async(
-                        RevokedAuthToken.objects.filter(jti=jti).exists
-                    )()
-                ):
+                if jti and await RevokedAuthToken.objects.filter(jti=jti).aexists():
                     return None
                 return payload.get("sub")
         return None
