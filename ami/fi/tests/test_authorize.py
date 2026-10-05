@@ -4,6 +4,8 @@ from typing import Any
 import pytest
 
 from ami.fi.models import FISession
+from ami.tests.utils import login
+from ami.user.models import User
 
 
 @pytest.mark.django_db
@@ -298,6 +300,34 @@ def test_authorize_get_invalid_data_prompt(
     }
 
     app.get("/api/v1/fi/authorize/", params=authorize_data, status=400)
+
+
+@pytest.mark.django_db
+def test_authorize_relogin(
+    settings,
+    app,
+    user: User,
+) -> None:
+    login(app, user)
+
+    authorize_data = {
+        "state": "fake-state",
+        "nonce": "fake-nonce",
+        "response_type": "code",
+        "client_id": settings.FI_CLIENT_ID,
+        "redirect_uri": settings.FI_REDIRECT_URI,
+        "scope": "fake-scope",
+        "acr_values": "eidas1",
+        "claims": json.dumps(
+            {
+                "id_token": "fake-id-token",
+            }
+        ),
+        "prompt": "fake-prompt",
+    }
+
+    response = app.get("/api/v1/fi/authorize/", params=authorize_data)
+    assert response.location == "/#/relogin"
 
 
 def test_authorize_flag_disabled(
