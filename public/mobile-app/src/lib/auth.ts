@@ -1,7 +1,10 @@
+import { trackLogout } from '$lib/matomo';
 import { userStore } from '$lib/state/User.svelte';
 import * as telemetry from '$lib/telemetry';
 
-export const logout = async (): Promise<boolean> => {
+export const logout = async (onUserAction?: boolean): Promise<boolean> => {
+  trackLogout(onUserAction || false, userStore?.connected?.hasPersonalization || false);
+
   // delete auth cookie
   const response = await fetch('/logout', {
     method: 'POST',

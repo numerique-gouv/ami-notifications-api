@@ -110,7 +110,7 @@
   };
 
   const logoutUser = async () => {
-    await userStore.logout();
+    await userStore.logout(true);
   };
 </script>
 

@@ -68,6 +68,13 @@ export function trackChecklist(checklist: string, action: string) {
   window._paq.push(['trackEvent', 'Checklist', action, checklist]);
 }
 
+export function trackLogout(onUserAction: boolean, withPersonalization: boolean) {
+  trackTelemetryEvent(
+    onUserAction ? 'Explicit logout' : 'Automatic logout',
+    withPersonalization ? 'With personalization' : 'Without personalization'
+  );
+}
+
 export function trackTelemetryEvent(
   eventAction: string,
   eventName?: string,
