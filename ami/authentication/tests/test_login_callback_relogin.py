@@ -188,7 +188,7 @@ def test_relogin_france_connect_login_callback_not_logged_in(
         )
         nonce = Nonce.objects.get(id=parsed_proxy_state_url_query["state"][0])
 
-    assert nonce.context == {"redirect_to_hash": "technical-error", "user_does_not_match": True}
+    assert nonce.context == {"redirect_to_hash": "/technical-error", "user_does_not_match": True}
 
 
 @pytest.mark.parametrize("fc_mode", ["noproxy", "proxy"])

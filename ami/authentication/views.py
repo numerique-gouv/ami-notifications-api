@@ -206,7 +206,7 @@ async def login_callback(request):
                     redirect_to_hash = request.session.get("login_from_hash")
                     if not request.ami_user:
                         logging.error("relogin while not logged")
-                        redirect_to_hash = "technical-error"
+                        redirect_to_hash = "/technical-error"
 
                     nonce = await Nonce.objects.acreate(
                         nonce=generate_nonce,
