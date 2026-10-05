@@ -99,6 +99,13 @@ def token(request: Request) -> Response:
     )
 
 
+def jwks(request):
+    pem_public_key = settings.FI_PUBLIC_KEY_PEM.encode()
+    jwk = generate_jwk(pem_public_key, kid=settings.FI_KEY_ID)
+    logger.debug("successful response of %s", "jwks endpoint")
+    return JsonResponse({"keys": [jwk]})
+
+
 def userinfo(request: Request) -> HttpResponse:
     if not settings.FI_SILENT_LOGIN_ENABLED:
         raise Http404
@@ -306,10 +313,3 @@ def passkey_verify_authentication(request):
     return Response(
         {"verified": authentication_verification.user_verified, "redirect_uri": redirect_uri}
     )
-
-
-def jwks(request):
-    pem_public_key = settings.FI_PUBLIC_KEY_PEM.encode()
-    jwk = generate_jwk(pem_public_key, kid=settings.FI_KEY_ID)
-    logger.debug("successful response of %s", "jwks endpoint")
-    return JsonResponse({"keys": [jwk]})
