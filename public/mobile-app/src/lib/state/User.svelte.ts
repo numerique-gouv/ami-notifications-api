@@ -92,12 +92,12 @@ export class UserStore {
     this.connected = null;
   }
 
-  async cleanUser() {
+  async cleanUser(onUserAction?: boolean) {
     this.resetConnected();
-    await auth.logout();
+    await auth.logout(onUserAction);
   }
 
-  async logout() {
+  async logout(onUserAction?: boolean) {
     const id_token_hint = localStorage.getItem('id_token') || '';
 
     telemetry.trace('logout');
@@ -105,7 +105,7 @@ export class UserStore {
     await disableNotificationsAtLogout();
 
     // Logout from AMI first: https://github.com/numerique-gouv/ami-notifications-api/issues/132
-    await this.cleanUser();
+    await this.cleanUser(onUserAction);
 
     // And now logout from FC
     if (id_token_hint) {

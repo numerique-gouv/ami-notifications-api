@@ -1,6 +1,7 @@
 import { describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { apiFetch, logout } from '$lib/auth';
+import * as matomoMethods from '$lib/matomo';
 import { userStore } from '$lib/state/User.svelte';
 
 describe('/auth', () => {
@@ -28,6 +29,36 @@ describe('/auth', () => {
 
       // Then
       expect(responseStatus).toEqual(false);
+    });
+    test('should notify matomo on automatic logout', async () => {
+      // Given
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        new Response(JSON.stringify({}), { status: 200 })
+      );
+      const trackChecklistSpy = vi
+        .spyOn(matomoMethods, 'trackLogout')
+        .mockResolvedValue(undefined);
+
+      // When
+      const responseStatus = await logout();
+
+      // Then
+      expect(trackChecklistSpy).toHaveBeenCalledWith(false, false);
+    });
+    test('should notify matomo on explicit logout', async () => {
+      // Given
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        new Response(JSON.stringify({}), { status: 200 })
+      );
+      const trackChecklistSpy = vi
+        .spyOn(matomoMethods, 'trackLogout')
+        .mockResolvedValue(undefined);
+
+      // When
+      const responseStatus = await logout(true);
+
+      // Then
+      expect(trackChecklistSpy).toHaveBeenCalledWith(true, false);
     });
   });
 

@@ -3,6 +3,7 @@ import '@testing-library/jest-dom/vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import * as envModule from '$env/static/public';
 import * as AMINavigationMethods from '$lib/ami-navigation';
+import { userStore } from '$lib/state/User.svelte';
 import Navigation from './Navigation.svelte';
 
 describe('/Navigation.svelte', () => {
@@ -197,6 +198,31 @@ describe('/Navigation.svelte', () => {
     await waitFor(() => {
       expect(fetchSpy).toHaveBeenCalledWith('/logout', { method: 'POST' });
       expect(JSON.stringify(window.localStorage)).toEqual('{}');
+    });
+  });
+  test('should call logout with userAction flag when user clicks on Se déconnecter button', async () => {
+    // Given
+    HTMLDialogElement.prototype.showModal = vi.fn();
+    HTMLDialogElement.prototype.close = vi.fn();
+    HTMLDialogElement.prototype.show = vi.fn();
+
+    window.localStorage.setItem('user_fc_hash', 'fake-user-fc-hash');
+
+    const userStoreLogoutSpy = vi
+      .spyOn(userStore, 'logout')
+      .mockResolvedValue(undefined);
+    render(Navigation);
+
+    const logoutButton = screen.getByTestId('logout-button');
+    await fireEvent.click(logoutButton);
+
+    // When
+    const logoutSubmitButton = screen.getByTestId('logout-submit-button');
+    await fireEvent.click(logoutSubmitButton);
+
+    // Then
+    await waitFor(() => {
+      expect(userStoreLogoutSpy).toHaveBeenCalledWith(true);
     });
   });
 });
