@@ -38,10 +38,21 @@ describe('/telemetry.ts', () => {
         'fake-device-id'
       );
     });
-    test('should call setUser', async () => {
+    test('should not call setUser if no user', async () => {
       vi.spyOn(nativeInfosMethods, 'getDeviceId').mockReturnValue('fake-device-id');
       await setGlobalScope();
-      expect(sentryMethods.setUser).toHaveBeenCalledWith({ id: '' });
+      expect(sentryMethods.setUser).not.toHaveBeenCalled();
+    });
+    test('should call setUser if user', async () => {
+      localStorage.setItem(
+        'user_fc_hash',
+        '651d806d65788bc260faa89a555fdf89bd573a5c9a4d8bb897967e14951ab65d'
+      );
+      vi.spyOn(nativeInfosMethods, 'getDeviceId').mockReturnValue('fake-device-id');
+      await setGlobalScope();
+      expect(sentryMethods.setUser).toHaveBeenCalledWith({
+        id: '5c441b58f2ec32f182b9',
+      });
     });
   });
   describe('trace', () => {

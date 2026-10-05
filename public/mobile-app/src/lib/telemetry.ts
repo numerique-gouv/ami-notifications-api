@@ -5,20 +5,27 @@ import { trackTelemetryEvent } from '$lib/matomo';
 
 const LOG_LEVELS = ['trace', 'debug', 'info', 'warn', 'error', 'fatal'];
 
+function uint8ToHex(uint8: Uint8Array) {
+  return Array.from(uint8)
+    .map((i) => i.toString(16).padStart(2, '0'))
+    .join('');
+}
+
 const shortDigest = async (message: string) => {
   const encoder = new TextEncoder();
   const data = encoder.encode(message);
   const hashBuffer = await window.crypto.subtle.digest('SHA-1', data);
-  // @ts-expect-error: Property 'toHex' does not exist on type 'Uint8Array<ArrayBuffer>'
-  const hashHex = new Uint8Array(hashBuffer).toHex();
+  const hashHex = uint8ToHex(new Uint8Array(hashBuffer));
   return hashHex.substring(0, 20);
 };
 
 export const setGlobalScope = async () => {
   const deviceId = getDeviceId();
   const user_hash = localStorage.getItem('user_fc_hash');
-  const hashed_user_hash = user_hash ? await shortDigest(user_hash) : '';
-  Sentry.setUser({ id: hashed_user_hash });
+  if (user_hash) {
+    const hashed_user_hash = await shortDigest(user_hash);
+    Sentry.setUser({ id: hashed_user_hash });
+  }
   Sentry.setAttribute('device_id', deviceId);
 };
 
