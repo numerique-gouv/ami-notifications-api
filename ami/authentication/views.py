@@ -208,26 +208,11 @@ async def login_callback(request):
                         logging.error("relogin while not logged")
                         redirect_to_hash = "/technical-error"
 
-                    nonce = await Nonce.objects.acreate(
-                        nonce=generate_nonce,
-                        context={
-                            "user_does_not_match": True,
-                            "redirect_to_hash": redirect_to_hash,
-                        },
-                    )
-                    redirect_uri = f"{settings.PUBLIC_APP_URL}{reverse('logout-callback')}"
-                    params = {
-                        "id_token_hint": id_token,
-                        "post_logout_redirect_uri": redirect_uri,
-                        "state": str(nonce.id),
+                    context = {
+                        "user_does_not_match": True,
+                        "redirect_to_hash": redirect_to_hash,
                     }
-                    if settings.PUBLIC_FC_PROXY_BASE_URL:
-                        # overwrite parameters when using proxy
-                        params["state"] = f"{redirect_uri}?state={params['state']}"
-                        params["post_logout_redirect_uri"] = f"{settings.PUBLIC_FC_PROXY_BASE_URL}/"
-
-                    fc_logout_url = f"{settings.PUBLIC_FC_BASE_URL}{settings.FC_LOGOUT_ENDPOINT}?{urlencode(params)}"
-                    return redirect(fc_logout_url)
+                    return await logout(request, id_token, context=context)
 
                 return redirect(redirect_url)
 
@@ -264,6 +249,33 @@ async def login_callback(request):
         return redirect(f"{settings.PUBLIC_APP_URL}/#/technical-error")
 
 
+async def logout(request, id_token, context=None):
+    nonce = await Nonce.objects.acreate(
+        nonce=generate_nonce,
+        context=context,
+    )
+    redirect_uri = f"{settings.PUBLIC_APP_URL}{reverse('logout-callback')}"
+    params = {
+        "id_token_hint": id_token,
+        "post_logout_redirect_uri": redirect_uri,
+        "state": str(nonce.id),
+    }
+    if settings.PUBLIC_FC_PROXY_BASE_URL:
+        # overwrite parameters when using proxy
+        params["state"] = f"{redirect_uri}?state={params['state']}"
+        params["post_logout_redirect_uri"] = f"{settings.PUBLIC_FC_PROXY_BASE_URL}/"
+
+    fc_logout_url = (
+        f"{settings.PUBLIC_FC_BASE_URL}{settings.FC_LOGOUT_ENDPOINT}?{urlencode(params)}"
+    )
+    return redirect(fc_logout_url)
+
+
+@require_GET
+async def logout_france_connect(request):
+    return await logout(request, id_token=request.GET.get("id_token_hint"))
+
+
 @require_GET
 def logout_callback(request):
     try:
@@ -283,7 +295,7 @@ def logout_callback(request):
         }
         return redirect(f"{settings.PUBLIC_APP_URL}/?{urlencode(params)}")
 
-    return redirect(f"{settings.PUBLIC_APP_URL}/#/login")
+    return redirect(f"{settings.PUBLIC_APP_URL}/?is_logged_out#/login")
 
 
 async def get_user_data(

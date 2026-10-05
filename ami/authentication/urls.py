@@ -7,5 +7,6 @@ urlpatterns = [
     path("relogin-france-connect", views.relogin_france_connect),
     path("silent-login-ami-fi", views.silent_login_ami_fi),
     path("login-callback", views.login_callback),
+    path("logout-france-connect", views.logout_france_connect),
     path("logout-callback", views.logout_callback, name="logout-callback"),
 ]

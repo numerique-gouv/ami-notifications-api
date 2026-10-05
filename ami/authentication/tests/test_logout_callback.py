@@ -47,7 +47,7 @@ def test_logout_callback_bad_state(state, app):
         response = app.get(f"/logout-callback?state={state}")
     assert response.status_code == 302
     redirected_url = response.headers["location"]
-    assert redirected_url.endswith("#/login")
+    assert redirected_url == "https://localhost:5173/#/login"
 
 
 @pytest.mark.django_db
@@ -56,5 +56,5 @@ def test_logout_callback_empty_nonce(app):
     response = app.get(f"/logout-callback?state={nonce.id}")
     assert response.status_code == 302
     redirected_url = response.headers["location"]
-    assert redirected_url.endswith("#/login")
+    assert redirected_url == "https://localhost:5173/?is_logged_out#/login"
     assert Nonce.objects.count() == 0
