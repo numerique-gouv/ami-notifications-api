@@ -15,23 +15,6 @@ import { mockUserInfo } from '$tests/utils';
 import { load } from './+page';
 
 describe('/+page.ts', () => {
-  test('should go to login page if ?is_logged_out is present', async () => {
-    // Given
-    vi.stubGlobal('location', { href: '/', search: '?is_logged_out' });
-    const spy = vi
-      .spyOn(AMINavigationMethods, 'AMIGoto')
-      .mockImplementation(() => Promise.resolve());
-
-    // When
-    // @ts-expect-error
-    await load({});
-
-    // Then
-    await waitFor(() => {
-      expect(spy).toHaveBeenCalledWith('/?is_logged_out#/login');
-    });
-  });
-
   test('should get out if user is not connected', async () => {
     // Given
     vi.stubGlobal('location', { href: '/', search: '' });

@@ -10,10 +10,6 @@ import type { PageLoad } from './$types';
 
 export const load: PageLoad = async () => {
   const searchParams = new URLSearchParams(window?.location?.search || '');
-  if (searchParams.has('is_logged_out')) {
-    AMIGoto('/?is_logged_out#/login');
-    return;
-  }
 
   if (!userStore.connected) {
     AMIGoto('/#/login');
