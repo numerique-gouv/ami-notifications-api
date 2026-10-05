@@ -3,6 +3,8 @@ import '@testing-library/jest-dom/vitest';
 import * as apiCheckListMethods from '$lib/api-checklist';
 import { buildCheckList } from '$lib/checklist';
 import * as matomoMethods from '$lib/matomo';
+import { userStore } from '$lib/state/User.svelte';
+import { mockUserInfo } from '$tests/utils';
 
 const checklistData = {
   icon: 'icon',
@@ -136,6 +138,19 @@ describe('/checklist.ts', () => {
     // Then
     expect(trackChecklistSpy).toHaveBeenCalledTimes(2);
     expect(trackChecklistSpy).toHaveBeenCalledWith('F3109', 'Completed checklist');
+  });
+
+  test('should mark user has having personalization', async () => {
+    const checklist = await buildCheckList('F3109');
+    const itemId = checklist.items[0].id;
+    const item = checklist.getItemById(itemId);
+    await userStore.login(mockUserInfo);
+
+    expect(userStore?.connected?.hasPersonalization).toBe(false);
+    item.markAs(true);
+    expect(userStore?.connected?.hasPersonalization).toBe(true);
+    item.markAs(false);
+    expect(userStore?.connected?.hasPersonalization).toBe(true);
   });
 
   test('should have url attributes', async () => {

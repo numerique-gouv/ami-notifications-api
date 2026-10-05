@@ -37,6 +37,27 @@ describe('/agenda.ts', () => {
         expect(result.length).toBe(1);
         expect(result[0]).toBe('ami-holiday:1758409200:holiday-1');
       });
+      test('should mark user has having personnalization when hiding item', async () => {
+        // Given
+        const item = new Item(
+          'fake-id',
+          'holiday',
+          'Holiday 1',
+          '',
+          'Zone A',
+          null,
+          new Date('2025-09-20T23:00:00Z'),
+          new Date('2025-12-15T23:00:00Z')
+        );
+        await userStore.login(mockUserInfo);
+
+        // When
+        expect(userStore?.connected?.hasPersonalization).toBe(false);
+        item.hide();
+
+        // Then
+        expect(userStore?.connected?.hasPersonalization).toBe(true);
+      });
     });
     describe('isHidden', () => {
       let item1: Item;

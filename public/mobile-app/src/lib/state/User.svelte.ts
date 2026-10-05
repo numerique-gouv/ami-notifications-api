@@ -64,6 +64,7 @@ export type UserIdentity = {
   scheduledNotificationsCreatedKeys: string[];
   dataDetails: DataDetails;
   preferences: Preferences;
+  hasPersonalization: boolean;
 };
 
 export class UserStore {
@@ -179,6 +180,7 @@ export class User {
         parsedIdentity?.scheduledNotificationsCreatedKeys || [],
       dataDetails: parsedIdentity?.dataDetails || {},
       preferences: parsedIdentity?.preferences,
+      hasPersonalization: parsedIdentity?.hasPersonalization || false,
     };
     if (this._identity.address) {
       this._identity.address = Address.fromJSON(this._identity.address);
@@ -205,6 +207,7 @@ export class User {
     if (preferred_username) {
       this._identity.preferred_username = preferred_username;
       this._identity.dataDetails.preferred_username.origin = origin || 'user';
+      this._identity.hasPersonalization = true;
     } else {
       delete this._identity.preferred_username;
       this._identity.dataDetails.preferred_username.origin = 'cleared';
@@ -218,6 +221,7 @@ export class User {
       this._identity.email = email;
       this._identity.dataDetails.email.origin = 'user';
       this._identity.dataDetails.email.lastUpdate = new Date();
+      this._identity.hasPersonalization = true;
       localStorage.setItem('user_identity', JSON.stringify(this.identity));
     }
   }
@@ -226,6 +230,9 @@ export class User {
     if (address) {
       this._identity.address = address;
       this._identity.dataDetails.address.origin = origin || 'user';
+      if (origin !== 'api-particulier') {
+        this._identity.hasPersonalization = true;
+      }
     } else {
       delete this._identity.address;
       this._identity.dataDetails.address.origin = 'cleared';
@@ -283,8 +290,20 @@ export class User {
     }
   }
 
-  setPreferences(preferences: Preferences) {
+  setHasPersonalization() {
+    this._identity.hasPersonalization = true;
+    localStorage.setItem('user_identity', JSON.stringify(this.identity));
+  }
+
+  get hasPersonalization(): boolean {
+    return this._identity.hasPersonalization === true;
+  }
+
+  setPreferences(preferences: Preferences, isDefault?: boolean) {
     this._identity.preferences = preferences;
+    if (!isDefault) {
+      this._identity.hasPersonalization = true;
+    }
     localStorage.setItem('user_identity', JSON.stringify(this.identity));
   }
 
@@ -370,7 +389,7 @@ export class User {
       this._identity.dataDetails.email.origin = 'france-connect';
     }
     if (!this._identity.preferences) {
-      this.setPreferences(Preferences.getDefault(this._identity.address));
+      this.setPreferences(Preferences.getDefault(this._identity.address), true);
     }
   }
 
