@@ -1,10 +1,3 @@
-import {
-  PUBLIC_APP_URL,
-  PUBLIC_FC_BASE_URL,
-  PUBLIC_FC_LOGOUT_ENDPOINT,
-  PUBLIC_FC_POST_LOGOUT_REDIRECT_URI,
-  PUBLIC_FC_PROXY_BASE_URL,
-} from '$env/static/public';
 import { AMIGoto } from '$lib/ami-navigation';
 import type { UserInfo } from '$lib/state/User.svelte';
 
@@ -23,19 +16,5 @@ export function parseJwt(token: string): UserInfo {
 }
 
 export const franceConnectLogout = async (id_token_hint: string) => {
-  const redirect_uri = `${PUBLIC_APP_URL}${PUBLIC_FC_POST_LOGOUT_REDIRECT_URI}`;
-  let post_logout_redirect_uri = redirect_uri;
-  if (PUBLIC_FC_PROXY_BASE_URL) {
-    post_logout_redirect_uri = `${PUBLIC_FC_PROXY_BASE_URL}/`;
-  }
-  const params = new URLSearchParams({
-    id_token_hint,
-    state: redirect_uri,
-    post_logout_redirect_uri: post_logout_redirect_uri,
-  });
-  const url = new URL(`${PUBLIC_FC_BASE_URL}${PUBLIC_FC_LOGOUT_ENDPOINT}`);
-  url.search = params.toString();
-
-  // Now logout from FC.
-  AMIGoto(url.toString());
+  AMIGoto(`/logout-france-connect?id_token_hint=${id_token_hint}`);
 };
