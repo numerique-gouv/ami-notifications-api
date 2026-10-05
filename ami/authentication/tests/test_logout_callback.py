@@ -22,7 +22,7 @@ def test_logout_callback(app):
 
 @pytest.mark.django_db
 def test_logout_callback_redirect_to_hash(app):
-    nonce = Nonce.objects.create(context={"user_does_not_match": True, "login_from_hash": "/test"})
+    nonce = Nonce.objects.create(context={"user_does_not_match": True, "redirect_to_hash": "/test"})
     response = app.get(f"/logout-callback?state={nonce.id}")
     assert response.status_code == 302
     redirected_url = response.headers["location"]

@@ -275,10 +275,10 @@ def logout_callback(request):
     nonce.delete()
 
     if context.get("user_does_not_match"):
-        from_hash = context.get("login_from_hash") or ""
+        redirect_to_hash = context.get("redirect_to_hash") or ""
         params = {
             "user_does_not_match": "",
-            "redirect_to_hash": from_hash,
+            "redirect_to_hash": redirect_to_hash,
         }
         return redirect(f"{settings.PUBLIC_APP_URL}/?{urlencode(params)}")
 
