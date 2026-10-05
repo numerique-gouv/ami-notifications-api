@@ -29,7 +29,8 @@ FC_ERROR_TRANSLATIONS = {
 }
 
 FC_ERROR_DESCRIPTION_TRANSLATIONS = {
-    "authentication aborted due to a technical error on the authorization server": "La connexion a été interrompue à cause d’un problème technique sur le serveur d’autorisation.",
+    "authentication aborted due to a technical error on the authorization server": "La connexion "
+    "a été interrompue à cause d’un problème technique sur le serveur d’autorisation.",
 }
 
 
