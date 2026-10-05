@@ -374,6 +374,7 @@ describe('/lib/state/User.svelte.ts', () => {
 
         // When
         await userStore.login(mockUserInfo);
+        expect(userStore?.connected?.hasPersonalization).toBe(false);
         expect(userStore.connected).not.toBeNull();
         userStore.connected?.setEmail('foo@bar.com');
 
@@ -383,6 +384,7 @@ describe('/lib/state/User.svelte.ts', () => {
         expect(
           userStore.connected?.identity?.dataDetails.email.lastUpdate
         ).not.toBeUndefined();
+        expect(userStore?.connected?.hasPersonalization).toBe(true);
         const parsed = JSON.parse(localStorage.getItem('user_identity') || '{}');
         expect(parsed?.email).toEqual('foo@bar.com');
         expect(parsed?.dataDetails.email.origin).toEqual('user');
@@ -418,6 +420,7 @@ describe('/lib/state/User.svelte.ts', () => {
 
         // When
         await userStore.login(mockUserInfo);
+        expect(userStore?.connected?.hasPersonalization).toBe(false);
         expect(userStore.connected).not.toBeNull();
         userStore.connected?.setPreferredUsername('Dupont');
 
@@ -429,6 +432,7 @@ describe('/lib/state/User.svelte.ts', () => {
         expect(
           userStore.connected?.identity?.dataDetails.preferred_username.lastUpdate
         ).not.toBeUndefined();
+        expect(userStore?.connected?.hasPersonalization).toBe(true);
         const parsed = JSON.parse(localStorage.getItem('user_identity') || '{}');
         expect(parsed?.preferred_username).toEqual('Dupont');
         expect(parsed?.dataDetails.preferred_username.origin).toEqual('user');
@@ -463,6 +467,7 @@ describe('/lib/state/User.svelte.ts', () => {
         // When
         await userStore.login(mockUserInfo);
         expect(userStore.connected).not.toBeNull();
+        expect(userStore?.connected?.hasPersonalization).toBe(false);
         userStore.connected?.setAddress(otherAddress);
 
         // Then
@@ -475,6 +480,7 @@ describe('/lib/state/User.svelte.ts', () => {
         expect(
           userStore.connected?.identity?.dataDetails.address.lastUpdate
         ).not.toBeUndefined();
+        expect(userStore?.connected?.hasPersonalization).toBe(true);
         const parsed = JSON.parse(localStorage.getItem('user_identity') || '{}');
         expect(parsed?.address._city).toEqual('some random city');
         expect(parsed?.dataDetails.address.origin).toEqual('user');
@@ -491,6 +497,7 @@ describe('/lib/state/User.svelte.ts', () => {
         // When
         await userStore.login(mockUserInfo);
         expect(userStore.connected).not.toBeNull();
+        expect(userStore?.connected?.hasPersonalization).toBe(false);
         await userStore.connected?.setAddressFromAPIParticulier();
 
         // Then
@@ -524,6 +531,7 @@ describe('/lib/state/User.svelte.ts', () => {
         expect(
           userStore.connected?.identity?.dataDetails.address.lastUpdate
         ).toBeUndefined();
+        expect(userStore?.connected?.hasPersonalization).toBe(false);
       });
       test('should not call BAN if address from api-particulier is not a json base64 encoded', async () => {
         // Given
@@ -695,10 +703,12 @@ describe('/lib/state/User.svelte.ts', () => {
         // When
         await userStore.login(mockUserInfo);
         expect(userStore.connected).not.toBeNull();
+        expect(userStore?.connected?.hasPersonalization).toBe(false);
         userStore.connected?.setPreferences(preferences);
 
         // Then
         expect(userStore.connected?.identity?.preferences).toEqual(preferences);
+        expect(userStore?.connected?.hasPersonalization).toBe(true);
         const parsed = JSON.parse(localStorage.getItem('user_identity') || '{}');
         expect(parsed?.preferences).toEqual(preferences);
       });

@@ -1,6 +1,7 @@
 import type { APICheckList, APICheckListLink } from '$lib/api-checklist';
 import { retrieveCheckList } from '$lib/api-checklist';
 import { trackChecklist } from '$lib/matomo';
+import { userStore } from '$lib/state/User.svelte';
 
 export class CheckListLink {
   constructor(
@@ -105,6 +106,7 @@ export class CheckListItem {
     if (checked && this.checklist.isCompleted()) {
       this.checklist.trackCompleted();
     }
+    userStore?.connected?.setHasPersonalization();
   }
 }
 

@@ -575,6 +575,7 @@ const setAgendaHiddenItems = (item: Item, parsedAgendaHiddenItems: string[]) => 
     `hidden_agenda_items_${item.kind}`,
     JSON.stringify(parsedAgendaHiddenItems)
   );
+  userStore?.connected?.setHasPersonalization();
 };
 
 export const buildAgenda = async (
