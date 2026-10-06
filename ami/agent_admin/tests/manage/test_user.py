@@ -8,7 +8,7 @@ from ami.agent.models import Agent
 from ami.agent_admin.models import AuditEntry
 from ami.agent_admin.tests.utils import assert_query_fails_without_agent_admin_auth
 from ami.notification.models import Notification, ScheduledNotification
-from ami.user.models import Consent, Registration, User
+from ami.user.models import Consent, PersonalDataConsent, Registration, User
 
 
 @pytest.mark.django_db
@@ -114,6 +114,7 @@ def test_delete_user(
         partner=webpush_notification.partner,
         consent_datetime=None,
     )
+    personal_data_consent = PersonalDataConsent.objects.create(user=user, consent_datetime=None)
     response = app.post(f"/agent-admin/manage/user/{user.id}/delete/")
     assert "/agent-admin/manage/user/" in response.headers["location"]
 
@@ -126,6 +127,8 @@ def test_delete_user(
     assert ScheduledNotification.objects.filter(id=scheduled_notification.id).exists() is False
     assert Consent.objects.filter(user_id=user.id).exists() is False
     assert Consent.objects.filter(id=consent.id).exists() is False
+    assert PersonalDataConsent.objects.filter(user_id=user.id).exists() is False
+    assert PersonalDataConsent.objects.filter(id=personal_data_consent.id).exists() is False
 
     assert AuditEntry.objects.count() == 1
     (ae1,) = AuditEntry.objects.all().order_by("created_at")
