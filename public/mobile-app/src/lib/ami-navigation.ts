@@ -1,5 +1,10 @@
 import { goto } from '$app/navigation';
-import { PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED } from '$env/static/public';
+import {
+  PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED,
+  PUBLIC_TRUSTED_URLS,
+} from '$env/static/public';
+import { toastStore } from '$lib/state/toast.svelte';
+import * as telemetry from '$lib/telemetry';
 import { isPromotedUrl } from '$lib/urlAliases';
 import * as self from './ami-navigation';
 
@@ -54,4 +59,30 @@ export const AMIBack = (backUrl: string) => {
   } else {
     self.AMIGoto(backUrl);
   }
+};
+
+export const AMIGotoUntrustedUrl = (url: string) => {
+  const parsedUrl = new URL(url, window.location.origin);
+  if (parsedUrl.origin !== window.location.origin) {
+    const trustedDomains = (PUBLIC_TRUSTED_URLS || '')
+      .split(/\r?\n/)
+      .map((x) => x.trim())
+      .filter((x) => x);
+    if (trustedDomains.length) {
+      const matchingDomains = trustedDomains.filter(
+        (x) => parsedUrl.hostname.replace(new RegExp(x), '') === ''
+      );
+      if (matchingDomains.length === 0) {
+        telemetry.error('Untrusted URL', { url: url });
+        url = '/'; // redirect to home
+        toastStore.addToast(
+          'L’adresse de destination n’est pas autorisée.',
+          'error',
+          null,
+          true
+        );
+      }
+    }
+  }
+  return self.AMIGoto(url);
 };
