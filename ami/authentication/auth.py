@@ -48,7 +48,7 @@ def decode_jwt_token(token: str) -> dict | None:
             settings.AUTH_COOKIE_JWT_SECRET,
             algorithms=["HS256"],
         )
-    except jwt.DecodeError:
+    except jwt.PyJWTError:
         return None
 
 
