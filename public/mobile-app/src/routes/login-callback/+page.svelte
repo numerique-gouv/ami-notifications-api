@@ -4,7 +4,7 @@
   import { onMount } from 'svelte';
   import { page } from '$app/state';
   import { PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED } from '$env/static/public';
-  import { AMIGoto } from '$lib/ami-navigation';
+  import { AMIGoto, AMIGotoUntrustedUrl } from '$lib/ami-navigation';
   import { apiFetch } from '$lib/auth';
   import { initializeData, initializeLocalStorage } from '$lib/initializeDataFromAPI';
   import { toastStore } from '$lib/state/toast.svelte';
@@ -19,7 +19,7 @@
     const passKeyParam = createdPasskey ? '?passkey_toast=true' : '';
     const redirect_url = page.url.searchParams.get('login_redirect_url');
     if (redirect_url) {
-      AMIGoto(redirect_url);
+      AMIGotoUntrustedUrl(redirect_url);
     } else {
       AMIGoto(`/${passKeyParam}#/welcome/zones`);
     }
