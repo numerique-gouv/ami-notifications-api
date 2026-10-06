@@ -30,10 +30,14 @@ async def get_fc_userinfo(
         raise FCError(code=None)
 
     userinfo_jws = response.text
-    signing_key = get_jwks_client().get_signing_key_from_jwt(userinfo_jws)
-    decoded_userinfo = jwt.decode(
-        userinfo_jws, key=signing_key, options={"verify_aud": False}, algorithms=["ES256"]
-    )
+    try:
+        signing_key = get_jwks_client().get_signing_key_from_jwt(userinfo_jws)
+        decoded_userinfo = jwt.decode(
+            userinfo_jws, key=signing_key, options={"verify_aud": False}, algorithms=["ES256"]
+        )
+    except jwt.PyJWTError:
+        logger.exception("error decoding FC userinfo")
+        raise FCError(code=None)
 
     decoded_user_data = {
         k: v
