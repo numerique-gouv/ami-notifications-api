@@ -218,23 +218,24 @@ def passkey_generate_authentication_options(request):
     return Response(json.loads(options_to_json(options)))
 
 
-@api_view(["POST"])
-def passkey_verify_authentication(request):
-    fi_session_id = request.session.pop("fi_session_id", "")
+def _passkey_verify_authentication(request, with_fi_session=True):
     challenge = request.session.pop("passkey_authentication_challenge", "")
-    if not fi_session_id:
-        logger.error("Missing FI Session")
-        return Response({"error": "missing-fi-session"}, status=400)
-    try:
-        fi_session_id = uuid.UUID(fi_session_id)
-    except ValueError:
-        logger.error("Invalid FI Session")
-        return Response({"error": "invalid-fi-session"}, status=400)
-    try:
-        fi_session = FISession.objects.get(id=fi_session_id)
-    except FISession.DoesNotExist:
-        logger.error("Unknown FI Session")
-        return Response({"error": "unknown-fi-session"}, status=400)
+    fi_session, fi_session_id = None, None
+    if with_fi_session:
+        fi_session_id = request.session.pop("fi_session_id", "")
+        if not fi_session_id:
+            logger.error("Missing FI Session")
+            return Response({"error": "missing-fi-session"}, status=400)
+        try:
+            fi_session_id = uuid.UUID(fi_session_id)
+        except ValueError:
+            logger.error("Invalid FI Session")
+            return Response({"error": "invalid-fi-session"}, status=400)
+        try:
+            fi_session = FISession.objects.get(id=fi_session_id)
+        except FISession.DoesNotExist:
+            logger.error("Unknown FI Session")
+            return Response({"error": "unknown-fi-session"}, status=400)
     if settings.USERINFO_COOKIE_NAME not in request.COOKIES:
         logger.error("Missing cookie")
         return Response({"error": "missing-cookie"}, status=403)
@@ -244,9 +245,10 @@ def passkey_verify_authentication(request):
     except signing.BadSignature:
         return Response({"error": "invalid-signature"}, status=403)
 
-    # put fi_session_id back into session as further errors will be recoverable by user
-    # (selecting another passkey for example)
-    request.session["fi_session_id"] = str(fi_session_id)
+    if with_fi_session and fi_session_id:
+        # put fi_session_id back into session as further errors will be recoverable by user
+        # (selecting another passkey for example)
+        request.session["fi_session_id"] = str(fi_session_id)
 
     if not challenge:
         logger.error("Missing challenge")
@@ -297,22 +299,27 @@ def passkey_verify_authentication(request):
         # check if user associated with passkey is request.ami_user if not None
         logger.error("User is not AMI user'")
         return Response({"error": "user-is-not-ami-user", "retry": True}, status=403)
-    fi_session.user_data = decoded_user_data
-    fi_session.code = make_password(code, settings.FI_HASH_SALT)
-    fi_session.save()
-    redirect_uri = f"{settings.FI_REDIRECT_URI}?code={code}&state={fi_session.state}"
-    if settings.PUBLIC_FC_PROXY_BASE_URL:
-        params = {
-            "redirect_uri": redirect_uri,
-        }
-        redirect_uri = (
-            f"{settings.PUBLIC_FC_PROXY_BASE_URL}/ami-fi-authorize-callback/?{urlencode(params)}"
-        )
-    request.session.pop("fi_session_id")
+    redirect_uri = ""
+    if with_fi_session and fi_session:
+        fi_session.user_data = decoded_user_data
+        fi_session.code = make_password(code, settings.FI_HASH_SALT)
+        fi_session.save()
+        redirect_uri = f"{settings.FI_REDIRECT_URI}?code={code}&state={fi_session.state}"
+        if settings.PUBLIC_FC_PROXY_BASE_URL:
+            params = {
+                "redirect_uri": redirect_uri,
+            }
+            redirect_uri = f"{settings.PUBLIC_FC_PROXY_BASE_URL}/ami-fi-authorize-callback/?{urlencode(params)}"
+        request.session.pop("fi_session_id")
     logger.debug("successful response of %s", "passkey/verify-authentication endpoint")
     return Response(
         {"verified": authentication_verification.user_verified, "redirect_uri": redirect_uri}
     )
+
+
+@api_view(["POST"])
+def passkey_verify_authentication(request):
+    return _passkey_verify_authentication(request)
 
 
 @api_view(["GET"])
