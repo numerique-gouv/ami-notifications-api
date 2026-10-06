@@ -322,6 +322,11 @@ def passkey_verify_authentication(request):
     return _passkey_verify_authentication(request)
 
 
+@api_view(["POST"])
+def passkey_verify_authentication_check(request):
+    return _passkey_verify_authentication(request, with_fi_session=False)
+
+
 @api_view(["GET"])
 @ami_login_required
 def passkey_status(request):

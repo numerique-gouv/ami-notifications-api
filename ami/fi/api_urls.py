@@ -14,5 +14,6 @@ urlpatterns = [
         "passkey/generate-authentication-options", api_views.passkey_generate_authentication_options
     ),
     path("passkey/verify-authentication", api_views.passkey_verify_authentication),
+    path("passkey/verify-authentication-check", api_views.passkey_verify_authentication_check),
     path("passkey/status", api_views.passkey_status),
 ]
