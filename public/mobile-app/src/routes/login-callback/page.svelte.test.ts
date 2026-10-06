@@ -1,13 +1,13 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
-import type { RegistrationResponseJSON } from '@simplewebauthn/browser';
-import * as simplewebauthnMethods from '@simplewebauthn/browser';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import * as envModule from '$env/static/public';
 import * as AMINavigationMethods from '$lib/ami-navigation';
 import * as franceConnectHelpers from '$lib/france-connect';
 import * as initializeDataFromAPIMethods from '$lib/initializeDataFromAPI';
 import * as notificationsMethods from '$lib/notifications';
+import * as passkeyMethods from '$lib/passkey';
+import { PasskeyError, PasskeyNetworkError } from '$lib/passkey';
 import { toastStore } from '$lib/state/toast.svelte';
 import { userStore } from '$lib/state/User.svelte';
 import { mockUserInfo } from '$tests/utils';
@@ -123,535 +123,96 @@ describe('/+page.svelte - with passkey feature flag', () => {
     vi.mocked(envModule).PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED = 'true';
   });
 
-  test('should display passkey error toast on options response error', async () => {
-    // Given
-    const { page } = await import('$app/state');
-    const mockSearchParams = new URLSearchParams();
-    window.localStorage.setItem('user_data', 'fake-user-data');
-    vi.spyOn(franceConnectHelpers, 'parseJwt').mockReturnValue(mockUserInfo);
-    vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
+  describe('passkey creation', async () => {
+    test('should display passkey error toast on PasskeyError', async () => {
+      // Given
+      const { page } = await import('$app/state');
+      const mockSearchParams = new URLSearchParams();
+      window.localStorage.setItem('user_data', 'fake-user-data');
+      vi.spyOn(franceConnectHelpers, 'parseJwt').mockReturnValue(mockUserInfo);
+      vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
 
-    const spy = vi
-      .spyOn(AMINavigationMethods, 'AMIGoto')
-      .mockImplementation(() => Promise.resolve());
-    vi.spyOn(globalThis, 'fetch').mockImplementation((input: RequestInfo | URL) => {
-      const url =
-        typeof input === 'string'
-          ? input
-          : input instanceof URL
-            ? input.href
-            : input.url;
-      if (url.includes('generate-registration-options')) {
-        return Promise.resolve(
-          new Response('{}', {
-            status: 400,
-            headers: { 'Content-Type': 'application/json' },
-          })
-        );
-      }
-      // Default fallback
-      return Promise.resolve(
-        new Response(JSON.stringify({}), {
-          status: 404,
-          headers: { 'Content-Type': 'application/json' },
-        })
-      );
-    });
+      const spy = vi
+        .spyOn(AMINavigationMethods, 'AMIGoto')
+        .mockImplementation(() => Promise.resolve());
+      vi.spyOn(passkeyMethods, 'registerPasskey').mockRejectedValue(new PasskeyError());
 
-    const spyToast = vi.spyOn(toastStore, 'addToast');
+      const spyToast = vi.spyOn(toastStore, 'addToast');
 
-    // When
-    render(Page);
+      // When
+      render(Page);
 
-    // Then
-    await waitFor(async () => {
-      const createPasskeyButton = screen.getByTestId('create-passkey-button');
-      await fireEvent.click(createPasskeyButton);
-      expect(spy).not.toHaveBeenCalled();
-      expect(spyToast).toHaveBeenCalledWith(
-        'Erreur lors de l’ajout de votre clé d’accès',
-        'error',
-        3000,
-        false
-      );
-    });
-  });
-  test('should display network error toast on options TypeError', async () => {
-    // Given
-    const { page } = await import('$app/state');
-    const mockSearchParams = new URLSearchParams();
-    window.localStorage.setItem('user_data', 'fake-user-data');
-    vi.spyOn(franceConnectHelpers, 'parseJwt').mockReturnValue(mockUserInfo);
-    vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
-
-    const spy = vi
-      .spyOn(AMINavigationMethods, 'AMIGoto')
-      .mockImplementation(() => Promise.resolve());
-    vi.spyOn(globalThis, 'fetch').mockImplementation((input: RequestInfo | URL) => {
-      const url =
-        typeof input === 'string'
-          ? input
-          : input instanceof URL
-            ? input.href
-            : input.url;
-      if (url.includes('generate-registration-options')) {
-        return Promise.reject(new TypeError());
-      }
-      // Default fallback
-      return Promise.resolve(
-        new Response(JSON.stringify({}), {
-          status: 404,
-          headers: { 'Content-Type': 'application/json' },
-        })
-      );
-    });
-
-    const spyToast = vi.spyOn(toastStore, 'addToast');
-
-    // When
-    render(Page);
-
-    // Then
-    await waitFor(async () => {
-      const createPasskeyButton = screen.getByTestId('create-passkey-button');
-      await fireEvent.click(createPasskeyButton);
-      expect(spy).not.toHaveBeenCalled();
-      expect(spyToast).toHaveBeenCalledWith(
-        'Problème de connexion Internet, veuillez réessayer',
-        'error',
-        3000,
-        false
-      );
-    });
-  });
-  test('should display passkey error toast on options error', async () => {
-    // Given
-    const { page } = await import('$app/state');
-    const mockSearchParams = new URLSearchParams();
-    window.localStorage.setItem('user_data', 'fake-user-data');
-    vi.spyOn(franceConnectHelpers, 'parseJwt').mockReturnValue(mockUserInfo);
-    vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
-
-    const spy = vi
-      .spyOn(AMINavigationMethods, 'AMIGoto')
-      .mockImplementation(() => Promise.resolve());
-    vi.spyOn(globalThis, 'fetch').mockImplementation((input: RequestInfo | URL) => {
-      const url =
-        typeof input === 'string'
-          ? input
-          : input instanceof URL
-            ? input.href
-            : input.url;
-      if (url.includes('generate-registration-options')) {
-        return Promise.reject(new Error());
-      }
-      // Default fallback
-      return Promise.resolve(
-        new Response(JSON.stringify({}), {
-          status: 404,
-          headers: { 'Content-Type': 'application/json' },
-        })
-      );
-    });
-
-    const spyToast = vi.spyOn(toastStore, 'addToast');
-
-    // When
-    render(Page);
-
-    // Then
-    await waitFor(async () => {
-      const createPasskeyButton = screen.getByTestId('create-passkey-button');
-      await fireEvent.click(createPasskeyButton);
-      expect(spy).not.toHaveBeenCalled();
-      expect(spyToast).toHaveBeenCalledWith(
-        'Erreur lors de l’ajout de votre clé d’accès',
-        'error',
-        3000,
-        false
-      );
-    });
-  });
-  test('should display passkey error toast on startRegistration error', async () => {
-    // Given
-    const { page } = await import('$app/state');
-    const mockSearchParams = new URLSearchParams();
-    window.localStorage.setItem('user_data', 'fake-user-data');
-    vi.spyOn(franceConnectHelpers, 'parseJwt').mockReturnValue(mockUserInfo);
-    vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
-
-    const spy = vi
-      .spyOn(AMINavigationMethods, 'AMIGoto')
-      .mockImplementation(() => Promise.resolve());
-    vi.spyOn(globalThis, 'fetch').mockImplementation((input: RequestInfo | URL) => {
-      const url =
-        typeof input === 'string'
-          ? input
-          : input instanceof URL
-            ? input.href
-            : input.url;
-      if (url.includes('generate-registration-options')) {
-        return Promise.resolve(
-          new Response(JSON.stringify({ fake: 'option' }), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' },
-          })
-        );
-      }
-      // Default fallback
-      return Promise.resolve(
-        new Response(JSON.stringify({}), {
-          status: 404,
-          headers: { 'Content-Type': 'application/json' },
-        })
-      );
-    });
-
-    vi.mocked(simplewebauthnMethods.startRegistration).mockRejectedValue(new Error());
-
-    const spyToast = vi.spyOn(toastStore, 'addToast');
-
-    // When
-    render(Page);
-
-    // Then
-    await waitFor(async () => {
-      const createPasskeyButton = screen.getByTestId('create-passkey-button');
-      await fireEvent.click(createPasskeyButton);
-      expect(spy).not.toHaveBeenCalled();
-      expect(spyToast).toHaveBeenCalledWith(
-        'Erreur lors de l’ajout de votre clé d’accès',
-        'error',
-        3000,
-        false
-      );
-    });
-  });
-  test('should display passkey error toast on verify response error', async () => {
-    // Given
-    const { page } = await import('$app/state');
-    const mockSearchParams = new URLSearchParams();
-    window.localStorage.setItem('user_data', 'fake-user-data');
-    vi.spyOn(franceConnectHelpers, 'parseJwt').mockReturnValue(mockUserInfo);
-    vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
-
-    const spy = vi
-      .spyOn(AMINavigationMethods, 'AMIGoto')
-      .mockImplementation(() => Promise.resolve());
-    vi.spyOn(globalThis, 'fetch').mockImplementation((input: RequestInfo | URL) => {
-      const url =
-        typeof input === 'string'
-          ? input
-          : input instanceof URL
-            ? input.href
-            : input.url;
-      if (url.includes('generate-registration-options')) {
-        return Promise.resolve(
-          new Response(JSON.stringify({ fake: 'option' }), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' },
-          })
-        );
-      }
-      if (url.includes('verify-registration')) {
-        return Promise.resolve(
-          new Response('{}', {
-            status: 400,
-            headers: { 'Content-Type': 'application/json' },
-          })
-        );
-      }
-      // Default fallback
-      return Promise.resolve(
-        new Response(JSON.stringify({}), {
-          status: 404,
-          headers: { 'Content-Type': 'application/json' },
-        })
-      );
-    });
-
-    vi.mocked(simplewebauthnMethods.startRegistration).mockResolvedValue({
-      id: 'fake-id',
-    } as RegistrationResponseJSON);
-
-    const spyToast = vi.spyOn(toastStore, 'addToast');
-
-    // When
-    render(Page);
-
-    // Then
-    await waitFor(async () => {
-      const createPasskeyButton = screen.getByTestId('create-passkey-button');
-      await fireEvent.click(createPasskeyButton);
-      expect(spy).not.toHaveBeenCalled();
-      expect(spyToast).toHaveBeenCalledWith(
-        'Erreur lors de l’ajout de votre clé d’accès',
-        'error',
-        3000,
-        false
-      );
-    });
-  });
-  test('should display network error toast on verify TypeError', async () => {
-    // Given
-    const { page } = await import('$app/state');
-    const mockSearchParams = new URLSearchParams();
-    window.localStorage.setItem('user_data', 'fake-user-data');
-    vi.spyOn(franceConnectHelpers, 'parseJwt').mockReturnValue(mockUserInfo);
-    vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
-
-    const spy = vi
-      .spyOn(AMINavigationMethods, 'AMIGoto')
-      .mockImplementation(() => Promise.resolve());
-    vi.spyOn(globalThis, 'fetch').mockImplementation((input: RequestInfo | URL) => {
-      const url =
-        typeof input === 'string'
-          ? input
-          : input instanceof URL
-            ? input.href
-            : input.url;
-      if (url.includes('generate-registration-options')) {
-        return Promise.resolve(
-          new Response(JSON.stringify({ fake: 'option' }), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' },
-          })
-        );
-      }
-      if (url.includes('verify-registration')) {
-        return Promise.reject(new TypeError());
-      }
-      // Default fallback
-      return Promise.resolve(
-        new Response(JSON.stringify({}), {
-          status: 404,
-          headers: { 'Content-Type': 'application/json' },
-        })
-      );
-    });
-
-    vi.mocked(simplewebauthnMethods.startRegistration).mockResolvedValue({
-      id: 'fake-id',
-    } as RegistrationResponseJSON);
-
-    const spyToast = vi.spyOn(toastStore, 'addToast');
-
-    // When
-    render(Page);
-
-    // Then
-    await waitFor(async () => {
-      const createPasskeyButton = screen.getByTestId('create-passkey-button');
-      await fireEvent.click(createPasskeyButton);
-      expect(spy).not.toHaveBeenCalled();
-      expect(spyToast).toHaveBeenCalledWith(
-        'Problème de connexion Internet, veuillez réessayer',
-        'error',
-        3000,
-        false
-      );
-    });
-  });
-  test('should display passkey error toast on verify error', async () => {
-    // Given
-    const { page } = await import('$app/state');
-    const mockSearchParams = new URLSearchParams();
-    window.localStorage.setItem('user_data', 'fake-user-data');
-    vi.spyOn(franceConnectHelpers, 'parseJwt').mockReturnValue(mockUserInfo);
-    vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
-
-    const spy = vi
-      .spyOn(AMINavigationMethods, 'AMIGoto')
-      .mockImplementation(() => Promise.resolve());
-    vi.spyOn(globalThis, 'fetch').mockImplementation((input: RequestInfo | URL) => {
-      const url =
-        typeof input === 'string'
-          ? input
-          : input instanceof URL
-            ? input.href
-            : input.url;
-      if (url.includes('generate-registration-options')) {
-        return Promise.resolve(
-          new Response(JSON.stringify({ fake: 'option' }), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' },
-          })
-        );
-      }
-      if (url.includes('verify-registration')) {
-        return Promise.reject(new Error());
-      }
-      // Default fallback
-      return Promise.resolve(
-        new Response(JSON.stringify({}), {
-          status: 404,
-          headers: { 'Content-Type': 'application/json' },
-        })
-      );
-    });
-
-    vi.mocked(simplewebauthnMethods.startRegistration).mockResolvedValue({
-      id: 'fake-id',
-    } as RegistrationResponseJSON);
-
-    const spyToast = vi.spyOn(toastStore, 'addToast');
-
-    // When
-    render(Page);
-
-    // Then
-    await waitFor(async () => {
-      const createPasskeyButton = screen.getByTestId('create-passkey-button');
-      await fireEvent.click(createPasskeyButton);
-      expect(spy).not.toHaveBeenCalled();
-      expect(spyToast).toHaveBeenCalledWith(
-        'Erreur lors de l’ajout de votre clé d’accès',
-        'error',
-        3000,
-        false
-      );
-    });
-  });
-  test('should display passkey error toast when user is not registered', async () => {
-    // Given
-    const { page } = await import('$app/state');
-    const mockSearchParams = new URLSearchParams();
-    window.localStorage.setItem('user_data', 'fake-user-data');
-    vi.spyOn(franceConnectHelpers, 'parseJwt').mockReturnValue(mockUserInfo);
-    vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
-
-    const spy = vi
-      .spyOn(AMINavigationMethods, 'AMIGoto')
-      .mockImplementation(() => Promise.resolve());
-    vi.spyOn(globalThis, 'fetch').mockImplementation((input: RequestInfo | URL) => {
-      const url =
-        typeof input === 'string'
-          ? input
-          : input instanceof URL
-            ? input.href
-            : input.url;
-      if (url.includes('generate-registration-options')) {
-        return Promise.resolve(
-          new Response(JSON.stringify({ fake: 'option' }), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' },
-          })
-        );
-      }
-      if (url.includes('verify-registration')) {
-        return Promise.resolve(
-          new Response(JSON.stringify({ verified: false }), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' },
-          })
-        );
-      }
-      // Default fallback
-      return Promise.resolve(
-        new Response(JSON.stringify({}), {
-          status: 404,
-          headers: { 'Content-Type': 'application/json' },
-        })
-      );
-    });
-
-    vi.mocked(simplewebauthnMethods.startRegistration).mockResolvedValue({
-      id: 'fake-id',
-    } as RegistrationResponseJSON);
-
-    const spyToast = vi.spyOn(toastStore, 'addToast');
-
-    // When
-    render(Page);
-
-    // Then
-    await waitFor(async () => {
-      const createPasskeyButton = screen.getByTestId('create-passkey-button');
-      await fireEvent.click(createPasskeyButton);
-      expect(spy).not.toHaveBeenCalled();
-      expect(spyToast).toHaveBeenCalledWith(
-        'Erreur lors de l’ajout de votre clé d’accès',
-        'error',
-        3000,
-        false
-      );
-    });
-  });
-  test('should create a passkey when appropriate button is clicked', async () => {
-    // Given
-    const { page } = await import('$app/state');
-    const mockSearchParams = new URLSearchParams();
-    window.localStorage.setItem('user_data', 'fake-user-data');
-    vi.spyOn(franceConnectHelpers, 'parseJwt').mockReturnValue(mockUserInfo);
-    vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
-
-    const spy = vi
-      .spyOn(AMINavigationMethods, 'AMIGoto')
-      .mockImplementation(() => Promise.resolve());
-    const fetchSpy = vi
-      .spyOn(globalThis, 'fetch')
-      .mockImplementation((input: RequestInfo | URL) => {
-        const url =
-          typeof input === 'string'
-            ? input
-            : input instanceof URL
-              ? input.href
-              : input.url;
-        if (url.includes('generate-registration-options')) {
-          return Promise.resolve(
-            new Response(JSON.stringify({ fake: 'option' }), {
-              status: 200,
-              headers: { 'Content-Type': 'application/json' },
-            })
-          );
-        }
-        if (url.includes('verify-registration')) {
-          return Promise.resolve(
-            new Response(JSON.stringify({ verified: true }), {
-              status: 200,
-              headers: { 'Content-Type': 'application/json' },
-            })
-          );
-        }
-        // Default fallback
-        return Promise.resolve(
-          new Response(JSON.stringify({}), {
-            status: 404,
-            headers: { 'Content-Type': 'application/json' },
-          })
+      // Then
+      await waitFor(async () => {
+        const createPasskeyButton = screen.getByTestId('create-passkey-button');
+        await fireEvent.click(createPasskeyButton);
+        expect(spy).not.toHaveBeenCalled();
+        expect(spyToast).toHaveBeenCalledWith(
+          'Erreur lors de l’ajout de votre clé d’accès',
+          'error',
+          3000,
+          false
         );
       });
+    });
+    test('should display network error toast on PasskeyNetworkError', async () => {
+      // Given
+      const { page } = await import('$app/state');
+      const mockSearchParams = new URLSearchParams();
+      window.localStorage.setItem('user_data', 'fake-user-data');
+      vi.spyOn(franceConnectHelpers, 'parseJwt').mockReturnValue(mockUserInfo);
+      vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
 
-    vi.mocked(simplewebauthnMethods.startRegistration).mockResolvedValue({
-      id: 'fake-id',
-    } as RegistrationResponseJSON);
-
-    // When
-    render(Page);
-
-    // Then
-    await waitFor(async () => {
-      const createPasskeyButton = screen.getByTestId('create-passkey-button');
-      await fireEvent.click(createPasskeyButton);
-      // check call is made with connected user name
-      expect(fetchSpy).toHaveBeenCalledWith(
-        '/api/v1/fi/passkey/generate-registration-options',
-        {
-          body: '{"displayName":"Angela Claire Louise DUBOIS"}',
-          headers: { 'Content-Type': 'application/json' },
-          method: 'POST',
-        }
+      const spy = vi
+        .spyOn(AMINavigationMethods, 'AMIGoto')
+        .mockImplementation(() => Promise.resolve());
+      vi.spyOn(passkeyMethods, 'registerPasskey').mockRejectedValue(
+        new PasskeyNetworkError()
       );
-      // check call is made with options returned by mocked startRegistration
-      expect(fetchSpy).toHaveBeenCalledWith('/api/v1/fi/passkey/verify-registration', {
-        body: '{"id":"fake-id"}',
-        headers: { 'Content-Type': 'application/json' },
-        method: 'POST',
-      });
-      // check user store registered that the user has a passkey
-      expect(userStore.getHasWorkingPasskey()).toBe(true);
 
-      expect(spy).toHaveBeenCalledWith('/?passkey_toast=true#/welcome/zones');
+      const spyToast = vi.spyOn(toastStore, 'addToast');
+
+      // When
+      render(Page);
+
+      // Then
+      await waitFor(async () => {
+        const createPasskeyButton = screen.getByTestId('create-passkey-button');
+        await fireEvent.click(createPasskeyButton);
+        expect(spy).not.toHaveBeenCalled();
+        expect(spyToast).toHaveBeenCalledWith(
+          'Problème de connexion Internet, veuillez réessayer',
+          'error',
+          3000,
+          false
+        );
+      });
+    });
+    test('should create a passkey when appropriate button is clicked', async () => {
+      // Given
+      const { page } = await import('$app/state');
+      const mockSearchParams = new URLSearchParams();
+      window.localStorage.setItem('user_data', 'fake-user-data');
+      vi.spyOn(franceConnectHelpers, 'parseJwt').mockReturnValue(mockUserInfo);
+      vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
+
+      const spy = vi
+        .spyOn(AMINavigationMethods, 'AMIGoto')
+        .mockImplementation(() => Promise.resolve());
+      vi.spyOn(passkeyMethods, 'registerPasskey').mockResolvedValue(undefined);
+
+      // When
+      render(Page);
+
+      // Then
+      await waitFor(async () => {
+        const createPasskeyButton = screen.getByTestId('create-passkey-button');
+        await fireEvent.click(createPasskeyButton);
+        // check user store registered that the user has a passkey
+        expect(userStore.getHasWorkingPasskey()).toBe(true);
+
+        expect(spy).toHaveBeenCalledWith('/?passkey_toast=true#/welcome/zones');
+      });
     });
   });
 
