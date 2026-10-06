@@ -81,11 +81,4 @@
       flex-direction: column;
     }
   }
-  :global {
-    .am-toggle-container .fr-toggle {
-      &:last-child {
-        box-shadow: none;
-      }
-    }
-  }
 </style>

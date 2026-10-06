@@ -97,22 +97,22 @@
   };
 </script>
 
-<div class="zones">
+<div class="zones fr-px-2w">
   {#if fromPage === 'preferences'}
     <NavWithBackButton title="Zones scolaires" {backUrl} />
   {:else}
-    <h1 class="fr-h3">Zones scolaires</h1>
+    <h1 class="fr-h3 fr-pt-3w">Zones scolaires</h1>
   {/if}
-  <div class="zones-content {fromPage === 'preferences' ? 'with-back-button': ''}">
-    <div class="preferences-city-search-container">
-      <p>
+  <div class="zones-content fr-pb-9w {fromPage === 'preferences' ? 'fr-pt-14w': ''}">
+    <div class="preferences-city-search-container fr-mb-3w">
+      <p class="fr-mb-1w">
         Quelles zones scolaires et communes associées voulez-vous voir affichées dans
         votre agenda&nbsp;?
       </p>
       <div class="preferences-city-add">
         <button
           type="button"
-          class="fr-btn fr-btn--secondary"
+          class="fr-btn fr-btn--secondary am-btn-w100"
           onclick={() => AMIGoto('/#/preferences/zones/city')}
           data-testid="add-address"
         >
@@ -120,12 +120,13 @@
         </button>
       </div>
       {#if userHasAddresses}
-        <div class="preferences-city-clear">
+        <div class="preferences-city-clear fr-pt-2w">
           <button
             type="button"
-            class="fr-btn fr-btn--sm fr-btn--tertiary"
+            class="fr-btn fr-btn--tertiary"
             onclick={clearAddresses}
             data-testid="clear-addresses"
+            aria-label="Réinitialiser les communes"
           >
             Réinitialiser
           </button>
@@ -134,7 +135,7 @@
     </div>
 
     <div class="preferences-content-container">
-      <div class="am-toggle-container">
+      <div class="fr-pb-3w am-toggle-container">
         {#each zoneInfos as zoneInfo}
           <Toggle
             id={zoneInfo.zone}
@@ -148,10 +149,10 @@
       </div>
     </div>
   </div>
-  <div class="zones-footer">
+  <div class="fr-p-2w zones-footer">
     {#if fromPage === 'preferences'}
       <button
-        class="fr-btn fr-btn--secondary cancel-button"
+        class="fr-btn fr-btn--secondary cancel-button am-btn-w100"
         type="button"
         onclick={() => AMIBack(backUrl)}
         data-testid="close-button"
@@ -161,12 +162,11 @@
     {:else}
       <button
         type="button"
-        class="fr-btn fr-btn--tertiary-no-outline"
+        class="fr-btn fr-btn--tertiary-no-outline fr-icon-arrow-right-line fr-btn--icon-right am-btn-w100"
         onclick={goToNotificationsWelcomePage}
         data-testid="skip-button"
       >
         Passer
-        <span class="fr-icon-arrow-right-line" aria-hidden="true"></span>
       </button>
     {/if}
   </div>
@@ -174,42 +174,17 @@
 
 <style>
   .zones {
-    padding: 1.5rem 1rem 0 1rem;
-    button {
-      display: block;
-      width: 100%;
-      margin: 0;
-      span::before {
-        --icon-size: 1rem;
-      }
-    }
-    .zones-content {
-      &.with-back-button {
-        padding-top: 7rem;
-      }
-      .preferences-city-search-container {
-        p {
-          margin-bottom: 0.5rem;
-        }
-        .preferences-city-add:has(+ .preferences-city-clear) {
-          margin-bottom: 0.5rem;
-        }
-        .preferences-city-clear {
-          width: 100%;
-          button {
-            display: inherit;
-            width: auto;
-          }
-        }
-      }
-    }
     .zones-footer {
-      position: sticky;
+      z-index: 400;
+      position: fixed;
       bottom: 0;
+      left: 0;
+      width: 100%;
       background-color: var(--background-lifted-grey);
-      padding: 1rem;
+      border-top: 1px solid var(--border-default-grey);
       button.fr-btn--tertiary-no-outline {
         text-decoration: underline;
+        text-underline-offset: 0.125rem;
       }
     }
   }

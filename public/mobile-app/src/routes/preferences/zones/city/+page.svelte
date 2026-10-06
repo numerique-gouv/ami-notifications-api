@@ -83,14 +83,21 @@
   };
 </script>
 
-<div class="preferences-city-page">
-  <NavWithBackButton title="Commune" {backUrl} />
+<div class="preferences-city-page fr-px-2w">
+  <NavWithBackButton title="" {backUrl} />
 
-  <div class="preferences-city-search-container">
+  <div class="preferences-city-search-container fr-pt-8w">
+    <h1 class="fr-h3 fr-sr-only">Rechercher une commune</h1>
     <form class="city-form">
       <fieldset class="fr-fieldset">
         <div class="fr-fieldset__element preferences-city-input-wrapper">
           <div class="fr-input-group autocomplete">
+            <label class="fr-label fr-h3" for="city-input">
+              Commune
+              <span class="fr-hint-text fr-sr-only"
+                >Recherchez une commune pour afficher une zone</span
+              >
+            </label>
             <div class="fr-input-wrap fr-icon-search-line">
               <input
                 class="fr-input"
@@ -148,9 +155,7 @@
 
 <style>
   .preferences-city-page {
-    padding: 1.5rem 1rem 0 1rem;
     .preferences-city-search-container {
-      padding-top: 7rem;
       .city-input-empty {
         padding: 1.5rem;
         display: flex;
