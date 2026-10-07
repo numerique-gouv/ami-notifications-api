@@ -69,8 +69,10 @@
             <div
               class="fr-input-group autocomplete {usernameInputHasError ? 'fr-input-group--error' : ''}"
             >
-              <label class="fr-label" for="input">Nom d’usage</label>
-              <span class="fr-hint-text">Par exemple&nbsp;: Dupont</span>
+              <label class="fr-label" for="input">
+                Nom d’usage
+                <span class="fr-hint-text">Par exemple&nbsp;: Dupont</span>
+              </label>
               <input
                 class="fr-input"
                 id="input"
@@ -79,9 +81,14 @@
                 data-testid="preferred-username-input"
                 autocomplete="username"
                 onfocus={scrollToInput}
+                aria-describedby="username-error-message last-modif-username"
               >
-              {#if usernameInputHasError}
-                <div class="fr-messages-group" aria-live="polite">
+              <div
+                class="fr-messages-group"
+                id="username-error-message"
+                aria-live="polite"
+              >
+                {#if usernameInputHasError}
                   <p
                     id="preferred-username-error"
                     class="fr-message fr-message--error"
@@ -89,15 +96,15 @@
                   >
                     Le nom d’usage saisi n’est pas accepté.
                   </p>
-                </div>
-              {/if}
+                {/if}
+              </div>
             </div>
           </div>
         </fieldset>
       </form>
 
       {#if preferred_username_origin == 'user' && preferred_username_last_update}
-        <div class="data-update-info fr-mb-3w">
+        <div class="data-update-info fr-mb-3w" id="last-modif-username">
           Vous avez modifié cette information le
           {formatShortDate(preferred_username_last_update)}.
         </div>

@@ -63,8 +63,10 @@
             <div
               class="fr-input-group autocomplete {emailInputHasError ? 'fr-input-group--error' : ''}"
             >
-              <label class="fr-label" for="input">E-mail</label>
-              <span class="fr-hint-text">Par exemple&nbsp;: michel@dupont.com</span>
+              <label class="fr-label" for="input">
+                E-mail
+                <span class="fr-hint-text">Par exemple&nbsp;: michel@dupont.com</span>
+              </label>
               <input
                 class="fr-input"
                 id="input"
@@ -73,26 +75,31 @@
                 data-testid="email-input"
                 autocomplete="email"
                 onfocus={scrollToInput}
+                aria-describedby="email-error-message last-modif-email"
               >
-              {#if emailInputHasError}
-                <div class="fr-messages-group" aria-live="polite">
+              <div
+                class="fr-messages-group"
+                id="email-error-message"
+                aria-live="polite"
+              >
+                {#if emailInputHasError}
                   <p
                     id="email-error"
                     class="fr-message fr-message--error"
                     data-testid="email-error"
                   >
-                    Le format de l’adresse electronique saisie n’est pas valide. Le
-                    format attendu est : nom@example.com
+                    Le format de l’adresse electronique saisie n’est pas valide
+                    (exemple&nbsp;: michel.dupont@example.com)
                   </p>
-                </div>
-              {/if}
+                {/if}
+              </div>
             </div>
           </div>
         </fieldset>
       </form>
 
       {#if email_origin == 'user' && email_last_update}
-        <div class="data-update-info fr-mb-3w">
+        <div class="data-update-info fr-mb-3w" id="last-modif-email">
           Vous avez modifié cette information le
           {formatShortDate(email_last_update)}.
         </div>
