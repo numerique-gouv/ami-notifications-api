@@ -153,10 +153,12 @@
             <div
               class="fr-input-group autocomplete {addressInputHasError ? 'fr-input-group--error' : ''}"
             >
-              <label class="fr-label" for="address-input">Adresse</label>
-              <span class="fr-hint-text"
-                >Exemple&nbsp;: 23 rue des Aubépines, Poitiers</span
-              >
+              <label class="fr-label" for="address-input">
+                Adresse
+                <span class="fr-hint-text">
+                  Exemple&nbsp;: 23 rue des Aubépines, Poitiers
+                </span>
+              </label>
               <input
                 class="fr-input"
                 id="address-input"
@@ -166,9 +168,14 @@
                 autocomplete="address-line1"
                 oninput={addressInputHandler}
                 onfocus={scrollToInput}
+                aria-describedby="address-error-message last-modif-address"
               >
-              {#if addressInputHasError}
-                <div class="fr-messages-group" aria-live="polite">
+              <div
+                class="fr-messages-group"
+                id="address-error-message"
+                aria-live="polite"
+              >
+                {#if addressInputHasError}
                   <p
                     id="address-error"
                     class="fr-message fr-message--error"
@@ -177,8 +184,8 @@
                     Cette adresse est invalide. Conseil&nbsp;: saisissez entre 3 à 200
                     caractères et commencez par un nombre ou une lettre.
                   </p>
-                </div>
-              {/if}
+                {/if}
+              </div>
             </div>
 
             <div>
@@ -235,7 +242,7 @@
       {/if}
 
       {#if address_origin == 'user' && address_last_update}
-        <div class="data-update-info fr-mb-3w">
+        <div class="data-update-info fr-mb-3w" id="last-modif-address">
           Vous avez modifié cette information le
           {formatShortDate(address_last_update)}.
         </div>
