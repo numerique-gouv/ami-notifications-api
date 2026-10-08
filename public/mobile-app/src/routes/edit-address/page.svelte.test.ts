@@ -5,6 +5,8 @@ import type { MockInstance } from 'vitest';
 import { Address } from '$lib/address';
 import * as addressesFromBANMethods from '$lib/addressesFromBAN';
 import * as AMINavigationMethods from '$lib/ami-navigation';
+import * as personalDataConsentMethods from '$lib/personal-data-consent';
+import { PersonalDataConsent } from '$lib/personal-data-consent';
 import { toastStore } from '$lib/state/toast.svelte';
 import { User, userStore } from '$lib/state/User.svelte';
 import { expectBackButtonPresent, mockUserIdentity, mockUserInfo } from '$tests/utils';
@@ -14,6 +16,10 @@ describe('/+page.svelte', () => {
   let backSpy: MockInstance<typeof AMINavigationMethods.AMIGoto>;
 
   beforeEach(async () => {
+    HTMLDialogElement.prototype.showModal = vi.fn();
+    HTMLDialogElement.prototype.close = vi.fn();
+    HTMLDialogElement.prototype.show = vi.fn();
+
     backSpy = vi
       .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
@@ -72,6 +78,12 @@ describe('/+page.svelte', () => {
     newMockUserIdentity.dataDetails.address.lastUpdate = '2026-01-15';
     localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity));
     await userStore.login(mockUserInfo);
+
+    const apiPersonalDataConsent = { consent_datetime: null };
+    const personalDataConsent = new PersonalDataConsent(apiPersonalDataConsent);
+    vi.spyOn(personalDataConsentMethods, 'buildPersonalDataConsent').mockResolvedValue(
+      personalDataConsent
+    );
 
     // When
     render(Page);
@@ -174,56 +186,78 @@ describe('/+page.svelte', () => {
     });
   });
 
-  test('should display selected address in page when user clicks on Save button, and remove it when clicking on the button', async () => {
-    // Given
-    expect(userStore.connected).not.toBeNull();
-    delete userStore.connected?.identity?.address;
-    const spyDeleteScheduled = vi
-      .spyOn(User.prototype, 'deleteScheduledNotifications')
-      .mockResolvedValue();
-    const connectedUser = userStore.connected;
-    if (!connectedUser) {
-      throw new Error('User should be connected');
-    }
-    const setAddressSpy = vi.spyOn(connectedUser, 'setAddress');
-    const spy = vi.spyOn(toastStore, 'addToast');
+  describe('when personal-data-consent is not given', () => {
+    test('should display selected address in page when user clicks on Save button, and remove it when clicking on the button', async () => {
+      // Given
+      expect(userStore.connected).not.toBeNull();
 
-    // When
-    render(Page);
-    const addressInput = screen.getByTestId('address-input');
-    await fireEvent.input(addressInput, {
-      target: { value: '23 rue des aubépines orl' },
-    });
+      const apiPersonalDataConsent = {
+        consent_datetime: new Date('2026-02-02T14:54:28'),
+      };
+      const personalDataConsent = new PersonalDataConsent(apiPersonalDataConsent);
+      vi.spyOn(
+        personalDataConsentMethods,
+        'buildPersonalDataConsent'
+      ).mockResolvedValue(personalDataConsent);
 
-    vi.advanceTimersByTime(750);
-    await waitFor(() => {
-      const autocompleteListItem1 = screen.getByTestId('autocomplete-item-1');
-      expect(autocompleteListItem1).toHaveTextContent(
-        '23 Rue des Aubépines Orly (94, Val-de-Marne, Île-de-France)'
-      );
-    });
+      delete userStore.connected?.identity?.address;
+      const spyDeleteScheduled = vi
+        .spyOn(User.prototype, 'deleteScheduledNotifications')
+        .mockResolvedValue();
+      const connectedUser = userStore.connected;
+      if (!connectedUser) {
+        throw new Error('User should be connected');
+      }
+      const setAddressSpy = vi.spyOn(connectedUser, 'setAddress');
+      const spy = vi.spyOn(toastStore, 'addToast');
 
-    const button = screen.getByTestId('autocomplete-item-button-1');
-    await fireEvent.click(button);
+      // When
+      render(Page);
+      const addressInput = screen.getByTestId('address-input');
+      await fireEvent.input(addressInput, {
+        target: { value: '23 rue des aubépines orl' },
+      });
 
-    // Then
-    await waitFor(() => {
-      const updatedAddressInput: HTMLInputElement = screen.getByTestId('address-input');
-      expect(updatedAddressInput.value).equal('23 Rue des Aubépines 94310 Orly');
-    });
+      vi.advanceTimersByTime(750);
+      await waitFor(() => {
+        const autocompleteListItem1 = screen.getByTestId('autocomplete-item-1');
+        expect(autocompleteListItem1).toHaveTextContent(
+          '23 Rue des Aubépines Orly (94, Val-de-Marne, Île-de-France)'
+        );
+      });
 
-    // When
-    const submitButton = screen.getByTestId('submit-button');
-    await fireEvent.click(submitButton);
+      const button = screen.getByTestId('autocomplete-item-button-1');
+      await fireEvent.click(button);
 
-    // Then
-    await waitFor(() => {
-      const addressWrapper = screen.getByTestId('selected-address-wrapper');
-      expect(addressWrapper).toHaveTextContent(
-        'Votre résidence principale 23 Rue des Aubépines 94310 Orly'
-      );
-      expect(setAddressSpy).toHaveBeenCalledWith(
-        new Address(
+      // Then
+      await waitFor(() => {
+        const updatedAddressInput: HTMLInputElement =
+          screen.getByTestId('address-input');
+        expect(updatedAddressInput.value).equal('23 Rue des Aubépines 94310 Orly');
+      });
+
+      // When
+      const submitButton = screen.getByTestId('submit-button');
+      await fireEvent.click(submitButton);
+
+      // Then
+      await waitFor(() => {
+        const addressWrapper = screen.getByTestId('selected-address-wrapper');
+        expect(addressWrapper).toHaveTextContent(
+          'Votre résidence principale 23 Rue des Aubépines 94310 Orly'
+        );
+        expect(setAddressSpy).toHaveBeenCalledWith(
+          new Address(
+            'Orly',
+            '94, Val-de-Marne, Île-de-France',
+            '94054_0070_00023',
+            '23 Rue des Aubépines 94310 Orly',
+            '23 Rue des Aubépines',
+            '94310',
+            '94054'
+          )
+        );
+        const expectedAddress: Address = new Address(
           'Orly',
           '94, Val-de-Marne, Île-de-France',
           '94054_0070_00023',
@@ -231,48 +265,104 @@ describe('/+page.svelte', () => {
           '23 Rue des Aubépines',
           '94310',
           '94054'
-        )
-      );
-      const expectedAddress: Address = new Address(
-        'Orly',
-        '94, Val-de-Marne, Île-de-France',
-        '94054_0070_00023',
-        '23 Rue des Aubépines 94310 Orly',
-        '23 Rue des Aubépines',
-        '94310',
-        '94054'
-      );
-      expect(userStore.connected?.identity?.address).toEqual(expectedAddress);
-      expect(userStore.connected?.identity?.dataDetails.address.origin).toEqual('user');
-      expect(
-        userStore.connected?.identity?.dataDetails.address.lastUpdate
-      ).not.toBeUndefined();
-      expect(spyDeleteScheduled).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledWith(
-        'Information bien enregistrée !',
-        'success',
-        3000,
-        false
-      );
+        );
+        expect(userStore.connected?.identity?.address).toEqual(expectedAddress);
+        expect(userStore.connected?.identity?.dataDetails.address.origin).toEqual(
+          'user'
+        );
+        expect(
+          userStore.connected?.identity?.dataDetails.address.lastUpdate
+        ).not.toBeUndefined();
+        expect(spyDeleteScheduled).toHaveBeenCalledTimes(1);
+        expect(spy).toHaveBeenCalledWith(
+          'Information bien enregistrée !',
+          'success',
+          3000,
+          false
+        );
+      });
+
+      // When - user clicks the remove button
+      const removeButton = screen.getByRole('button', { name: /retirer l’adresse/i });
+      await fireEvent.click(removeButton);
+
+      // Then
+      await waitFor(() => {
+        // Address should no longer be visible
+        expect(
+          screen.queryByTestId('selected-address-wrapper')
+        ).not.toBeInTheDocument();
+        // Address should be removed from userStore
+        expect(userStore.connected?.identity?.address).toBeUndefined();
+        expect(userStore.connected?.identity?.dataDetails.address.origin).toEqual(
+          'cleared'
+        );
+        expect(
+          userStore.connected?.identity?.dataDetails.address.lastUpdate
+        ).not.toBeUndefined();
+        expect(spyDeleteScheduled).toHaveBeenCalledTimes(2);
+      });
     });
+  });
 
-    // When - user clicks the remove button
-    const removeButton = screen.getByRole('button', { name: /retirer l’adresse/i });
-    await fireEvent.click(removeButton);
+  describe('when personal-data-consent is given', () => {
+    test('should display personal-data-consent modal when user clicks on Save button', async () => {
+      // Given
+      expect(userStore.connected).not.toBeNull();
 
-    // Then
-    await waitFor(() => {
-      // Address should no longer be visible
-      expect(screen.queryByTestId('selected-address-wrapper')).not.toBeInTheDocument();
-      // Address should be removed from userStore
-      expect(userStore.connected?.identity?.address).toBeUndefined();
-      expect(userStore.connected?.identity?.dataDetails.address.origin).toEqual(
-        'cleared'
-      );
-      expect(
-        userStore.connected?.identity?.dataDetails.address.lastUpdate
-      ).not.toBeUndefined();
-      expect(spyDeleteScheduled).toHaveBeenCalledTimes(2);
+      const apiPersonalDataConsent = { consent_datetime: null };
+      const personalDataConsent = new PersonalDataConsent(apiPersonalDataConsent);
+      vi.spyOn(
+        personalDataConsentMethods,
+        'buildPersonalDataConsent'
+      ).mockResolvedValue(personalDataConsent);
+      vi.spyOn(personalDataConsent, 'updateConsent').mockResolvedValue(true);
+
+      delete userStore.connected?.identity?.address;
+      vi.spyOn(User.prototype, 'deleteScheduledNotifications').mockResolvedValue();
+      const connectedUser = userStore.connected;
+      if (!connectedUser) {
+        throw new Error('User should be connected');
+      }
+      vi.spyOn(connectedUser, 'setAddress');
+      vi.spyOn(toastStore, 'addToast');
+
+      // When
+      render(Page);
+      const addressInput = screen.getByTestId('address-input');
+      await fireEvent.input(addressInput, {
+        target: { value: '23 rue des aubépines orl' },
+      });
+
+      vi.advanceTimersByTime(750);
+      await waitFor(() => {
+        const autocompleteListItem1 = screen.getByTestId('autocomplete-item-1');
+        expect(autocompleteListItem1).toHaveTextContent(
+          '23 Rue des Aubépines Orly (94, Val-de-Marne, Île-de-France)'
+        );
+      });
+
+      const button = screen.getByTestId('autocomplete-item-button-1');
+      await fireEvent.click(button);
+
+      // Then
+      await waitFor(() => {
+        const updatedAddressInput: HTMLInputElement =
+          screen.getByTestId('address-input');
+        expect(updatedAddressInput.value).equal('23 Rue des Aubépines 94310 Orly');
+      });
+
+      // When
+      const submitButton = screen.getByTestId('submit-button');
+      await fireEvent.click(submitButton);
+
+      // Then
+      await waitFor(() => {
+        const personalDataConsentModal = screen.getByTestId(
+          'personal-data-consent-modal'
+        );
+        expect(personalDataConsentModal).toBeInTheDocument();
+      });
     });
   });
 

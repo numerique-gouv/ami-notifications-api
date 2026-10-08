@@ -3,7 +3,12 @@
   import type { Address } from '$lib/address';
   import { AMIGoto } from '$lib/ami-navigation';
   import Card from '$lib/components/Card.svelte';
+  import PersonalDataConsentModal from '$lib/components/modal/PersonalDataConsentModal.svelte';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
+  import {
+    buildPersonalDataConsent,
+    type PersonalDataConsent,
+  } from '$lib/personal-data-consent';
   import type { DataOrigin, UserIdentity } from '$lib/state/User.svelte';
   import { userStore } from '$lib/state/User.svelte';
 
@@ -12,6 +17,8 @@
   let address: Address | undefined = $state();
   let address_origin: DataOrigin | undefined = $state();
   let email_origin: DataOrigin | undefined = $state();
+  let displayPersonalDataConsentBlock: boolean = $state(false);
+  let displayModal: boolean = $state(false);
 
   onMount(async () => {
     if (!userStore.connected) {
@@ -22,6 +29,11 @@
       address = identity.address;
       address_origin = identity.dataDetails.address.origin;
       email_origin = identity.dataDetails.email.origin;
+
+      const personalDataConsent: PersonalDataConsent = await buildPersonalDataConsent();
+      if (!personalDataConsent.consent_datetime) {
+        displayPersonalDataConsentBlock = true;
+      }
     }
   });
 
@@ -35,6 +47,10 @@
 
   const goToEditAddress = async () => {
     AMIGoto('/#/edit-address');
+  };
+
+  const openPersonalDataConsentModal = () => {
+    displayModal = true;
   };
 </script>
 
@@ -142,5 +158,28 @@
         {/if}
       </button>
     </Card>
+
+    {#if displayPersonalDataConsentBlock}
+      <div
+        class="fr-p-2w fr-mb-2w fr-background-contrast--blue-france"
+        data-testid="personal-data-consent-block"
+      >
+        <h3 class="fr-h6 fr-mb-3w">Personnaliser votre profil</h3>
+        <button
+          type="button"
+          class="fr-btn fr-btn--lg am-btn-w100"
+          onclick={openPersonalDataConsentModal}
+        >
+          Je veux utiliser mes données
+        </button>
+      </div>
+    {/if}
   </div>
+{/if}
+
+{#if displayModal}
+  <PersonalDataConsentModal
+    bind:displayPersonalDataConsentBlock={displayPersonalDataConsentBlock}
+    bind:displayModal={displayModal}
+  />
 {/if}

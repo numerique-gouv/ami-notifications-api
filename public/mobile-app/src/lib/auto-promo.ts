@@ -1,4 +1,5 @@
 import type { Agenda } from '$lib/agenda';
+import type { PersonalDataConsent } from '$lib/personal-data-consent';
 import { type User, userStore } from '$lib/state/User.svelte';
 import { dateToISO } from '$lib/utils';
 
@@ -6,11 +7,12 @@ const oneday_in_ms = 24 * 60 * 60 * 1000;
 
 export class AutoPromoItem {
   constructor(
-    private _kind: 'address' | 'otv',
+    private _kind: 'personal-data' | 'address' | 'otv',
     private _title: string,
     private _description: string,
     private _link: string,
-    private _image: string
+    private _image: string,
+    private _component_modal_name: string | null
   ) {}
 
   equals(other: AutoPromoItem): boolean {
@@ -36,17 +38,27 @@ export class AutoPromoItem {
   get image(): string {
     return this._image;
   }
+
+  get component_modal_name(): string | null {
+    return this._component_modal_name;
+  }
 }
 
 export class AutoPromo {
   private _items: AutoPromoItem[] = [];
   private _connectedUser: User | null = null;
 
-  constructor(agenda: Agenda) {
+  constructor(agenda: Agenda, personalDataConsent: PersonalDataConsent) {
     this._connectedUser = userStore.connected;
     if (!this._connectedUser) {
       // user has to be connected
       return;
+    }
+
+    const personalDataConsentItem =
+      this.buildPersonalDataConsentItem(personalDataConsent);
+    if (personalDataConsentItem) {
+      this._items.push(personalDataConsentItem);
     }
 
     const addressItem = this.buildAddressItem();
@@ -60,6 +72,22 @@ export class AutoPromo {
     }
   }
 
+  private buildPersonalDataConsentItem(
+    personalDataConsent: PersonalDataConsent
+  ): AutoPromoItem | null {
+    if (personalDataConsent.consent_datetime) {
+      return null;
+    }
+    return new AutoPromoItem(
+      'personal-data',
+      'Gagnez du temps',
+      'En utilisant vos données administratives',
+      '',
+      'system.svg',
+      'PersonalDataConsentModal'
+    );
+  }
+
   private buildAddressItem(): AutoPromoItem | null {
     if (this._connectedUser?.identity?.address) {
       return null;
@@ -69,7 +97,8 @@ export class AutoPromo {
       'Renseignez votre adresse',
       'Gagnez du temps en la renseignant une seule fois',
       '/#/edit-address',
-      'house.svg'
+      'house.svg',
+      null
     );
   }
 
@@ -88,7 +117,8 @@ export class AutoPromo {
       'Opération Tranquillité Vacances',
       'Protégez votre domicile pendant votre absence',
       `/#/procedure?date=${dateToISO(startDate)}`,
-      'house.svg'
+      'house.svg',
+      null
     );
   }
 
@@ -97,6 +127,9 @@ export class AutoPromo {
   }
 }
 
-export const buildAutoPromo = (agenda: Agenda): AutoPromo => {
-  return new AutoPromo(agenda);
+export const buildAutoPromo = (
+  agenda: Agenda,
+  personalDataConsent: PersonalDataConsent
+): AutoPromo => {
+  return new AutoPromo(agenda, personalDataConsent);
 };

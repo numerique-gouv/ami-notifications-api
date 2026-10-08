@@ -7,7 +7,7 @@ from rest_framework.status import HTTP_200_OK
 
 from ami.partner.models import Partner
 from ami.tests.utils import assert_query_fails_without_auth, login
-from ami.user.models import User
+from ami.user.models import PersonalDataConsent, User
 
 
 @pytest.mark.django_db
@@ -42,8 +42,7 @@ def test_generate_partner_url_when_url_has_no_template(
 
     # When
     response = app.get(
-        "/api/v1/partner/otv/url?preferred_username=Delaforêt&email=wossewodda-37228@yopmail.com"
-        "&address_city=Paris&address_postcode=75007&address_citycode=75107&address_name=20 Avenue de Ségur"
+        "/api/v1/partner/otv/url?preferred_username=Delaforêt&email=wossewodda-37228@yopmail.com&address_city=Paris&address_postcode=75007&address_citycode=75107&address_name=20 Avenue de Ségur"
     )
 
     # Then
@@ -60,8 +59,7 @@ def test_generate_partner_url_when_url_has_template(
 ) -> None:
     login(app, user)
 
-    url = "/api/v1/partner/otv/url?preferred_username=Delaforêt&email=wossewodda-37228@yopmail.com"
-    "&address_city=Paris&address_postcode=75007&address_citycode=75107&address_name=20 Avenue de Ségur"
+    url = "/api/v1/partner/otv/url?preferred_username=Delaforêt&email=wossewodda-37228@yopmail.com&address_city=Paris&address_postcode=75007&address_citycode=75107&address_name=20 Avenue de Ségur"
 
     def mock_generate_identity_token(*args: Any, **kwargs: Any):
         return "fake-identity-token"
@@ -115,6 +113,126 @@ def test_generate_partner_url_when_url_has_template(
     # Then
     assert response.status_code == HTTP_200_OK
     assert response.json == {"partner_url": "fake-public-otv-url?caller=fake-identity-token"}
+
+
+@pytest.mark.django_db
+def test_generate_partner_url_when_url_has_template_and_personal_data_consent_is_given(
+    app,
+    user: User,
+    monkeypatch: pytest.MonkeyPatch,
+    settings,
+) -> None:
+    login(app, user)
+
+    url = "/api/v1/partner/otv/url?preferred_username=Delaforêt&email=wossewodda-37228@yopmail.com&address_city=Paris&address_postcode=75007&address_citycode=75107&address_name=20 Avenue de Ségur"
+
+    mock_generate_identity_token = mock.Mock(return_value="fake-identity-token")
+
+    monkeypatch.setattr(
+        "ami.partner.api_views.generate_identity_token",
+        mock_generate_identity_token,
+    )
+
+    # Given
+    consent_datetime = datetime.datetime(2020, 12, 25, 17, 5, 55, tzinfo=datetime.timezone.utc)
+    PersonalDataConsent.objects.create(user=user, consent_datetime=consent_datetime)
+    settings.PARTNERS_PSL_OTV_JWT_CERT_PFX_B64 = "foo"
+    settings.PARTNERS_PSL_OTV_JWE_PUBLIC_KEY = "bar"
+
+    # When
+    app.get(url)
+
+    # Then
+    assert mock_generate_identity_token.call_args_list == [
+        mock.call(
+            "Delaforêt",
+            "wossewodda-37228@yopmail.com",
+            "Paris",
+            "75007",
+            "75107",
+            "20 Avenue de Ségur",
+            "651d806d65788bc260faa89a555fdf89bd573a5c9a4d8bb897967e14951ab65d",
+        )
+    ]
+
+
+@pytest.mark.django_db
+def test_generate_partner_url_when_url_has_template_and_personal_data_consent_is_not_given(
+    app,
+    user: User,
+    monkeypatch: pytest.MonkeyPatch,
+    settings,
+) -> None:
+    login(app, user)
+
+    url = "/api/v1/partner/otv/url?preferred_username=Delaforêt&email=wossewodda-37228@yopmail.com&address_city=Paris&address_postcode=75007&address_citycode=75107&address_name=20 Avenue de Ségur"
+
+    mock_generate_identity_token = mock.Mock(return_value="fake-identity-token")
+
+    monkeypatch.setattr(
+        "ami.partner.api_views.generate_identity_token",
+        mock_generate_identity_token,
+    )
+
+    # Given
+    PersonalDataConsent.objects.create(user=user, consent_datetime=None)
+    settings.PARTNERS_PSL_OTV_JWT_CERT_PFX_B64 = "foo"
+    settings.PARTNERS_PSL_OTV_JWE_PUBLIC_KEY = "bar"
+
+    # When
+    app.get(url)
+
+    # Then
+    assert mock_generate_identity_token.call_args_list == [
+        mock.call(
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "651d806d65788bc260faa89a555fdf89bd573a5c9a4d8bb897967e14951ab65d",
+        )
+    ]
+
+
+@pytest.mark.django_db
+def test_generate_partner_url_when_url_has_template_and_personal_data_consent_does_not_exist(
+    app,
+    user: User,
+    monkeypatch: pytest.MonkeyPatch,
+    settings,
+) -> None:
+    login(app, user)
+
+    url = "/api/v1/partner/otv/url?preferred_username=Delaforêt&email=wossewodda-37228@yopmail.com&address_city=Paris&address_postcode=75007&address_citycode=75107&address_name=20 Avenue de Ségur"
+
+    mock_generate_identity_token = mock.Mock(return_value="fake-identity-token")
+
+    monkeypatch.setattr(
+        "ami.partner.api_views.generate_identity_token",
+        mock_generate_identity_token,
+    )
+
+    # Given
+    settings.PARTNERS_PSL_OTV_JWT_CERT_PFX_B64 = "foo"
+    settings.PARTNERS_PSL_OTV_JWE_PUBLIC_KEY = "bar"
+
+    # When
+    app.get(url)
+
+    # Then
+    assert mock_generate_identity_token.call_args_list == [
+        mock.call(
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "651d806d65788bc260faa89a555fdf89bd573a5c9a4d8bb897967e14951ab65d",
+        )
+    ]
 
 
 @pytest.mark.django_db
