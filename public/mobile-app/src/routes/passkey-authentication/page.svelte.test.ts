@@ -26,9 +26,9 @@ describe('/+page.svelte', () => {
     const unsetHasWorkingPasskeySpy = vi
       .spyOn(userStore, 'unsetHasWorkingPasskey')
       .mockResolvedValue();
-    vi.spyOn(passkeyMethods, 'authenticateWithPasskey').mockRejectedValue(
-      new PasskeyError()
-    );
+    const spyAuth = vi
+      .spyOn(passkeyMethods, 'authenticateWithPasskey')
+      .mockRejectedValue(new PasskeyError());
     render(Page);
 
     // When
@@ -53,6 +53,7 @@ describe('/+page.svelte', () => {
     });
     expect(spy).toHaveBeenCalledWith('/#/relogin');
     expect(unsetHasWorkingPasskeySpy).toHaveBeenCalled();
+    expect(spyAuth).toHaveBeenCalledExactlyOnceWith();
   });
   test('should display network error message and bypass button on PasskeyNetworkError', async () => {
     // Given
@@ -62,9 +63,9 @@ describe('/+page.svelte', () => {
     const unsetHasWorkingPasskeySpy = vi
       .spyOn(userStore, 'unsetHasWorkingPasskey')
       .mockResolvedValue();
-    vi.spyOn(passkeyMethods, 'authenticateWithPasskey').mockRejectedValue(
-      new PasskeyNetworkError()
-    );
+    const spyAuth = vi
+      .spyOn(passkeyMethods, 'authenticateWithPasskey')
+      .mockRejectedValue(new PasskeyNetworkError());
     render(Page);
 
     // When
@@ -89,6 +90,7 @@ describe('/+page.svelte', () => {
     });
     expect(spy).toHaveBeenCalledWith('/#/relogin');
     expect(unsetHasWorkingPasskeySpy).toHaveBeenCalled();
+    expect(spyAuth).toHaveBeenCalledExactlyOnceWith();
   });
   test('should display passkey error message and bypass button on PasskeyBreakingError', async () => {
     // Given
@@ -98,9 +100,9 @@ describe('/+page.svelte', () => {
     const unsetHasWorkingPasskeySpy = vi
       .spyOn(userStore, 'unsetHasWorkingPasskey')
       .mockResolvedValue();
-    vi.spyOn(passkeyMethods, 'authenticateWithPasskey').mockRejectedValue(
-      new PasskeyBreakingError()
-    );
+    const spyAuth = vi
+      .spyOn(passkeyMethods, 'authenticateWithPasskey')
+      .mockRejectedValue(new PasskeyBreakingError());
     render(Page);
 
     // When
@@ -127,6 +129,7 @@ describe('/+page.svelte', () => {
     });
     expect(spy).toHaveBeenCalledWith('/');
     expect(unsetHasWorkingPasskeySpy).not.toHaveBeenCalled();
+    expect(spyAuth).toHaveBeenCalledExactlyOnceWith();
   });
   test('should display passkey error message and bypass button on PasskeyBreakingError - with redirect_to_hash param', async () => {
     // Given
@@ -140,9 +143,9 @@ describe('/+page.svelte', () => {
     const unsetHasWorkingPasskeySpy = vi
       .spyOn(userStore, 'unsetHasWorkingPasskey')
       .mockResolvedValue();
-    vi.spyOn(passkeyMethods, 'authenticateWithPasskey').mockRejectedValue(
-      new PasskeyBreakingError()
-    );
+    const spyAuth = vi
+      .spyOn(passkeyMethods, 'authenticateWithPasskey')
+      .mockRejectedValue(new PasskeyBreakingError());
     render(Page);
 
     // When
@@ -169,15 +172,16 @@ describe('/+page.svelte', () => {
     });
     expect(spy).toHaveBeenCalledWith('/#/page');
     expect(unsetHasWorkingPasskeySpy).not.toHaveBeenCalled();
+    expect(spyAuth).toHaveBeenCalledExactlyOnceWith();
   });
   test('should redirect when user is authenticated', async () => {
     // Given
     const spy = vi
       .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
-    vi.spyOn(passkeyMethods, 'authenticateWithPasskey').mockResolvedValue(
-      'fake-redirect-uri'
-    );
+    const spyAuth = vi
+      .spyOn(passkeyMethods, 'authenticateWithPasskey')
+      .mockResolvedValue('fake-redirect-uri');
     render(Page);
 
     // When
@@ -198,6 +202,7 @@ describe('/+page.svelte', () => {
       expect(passkeyErrorMessage).toBeNull();
 
       expect(spy).toHaveBeenCalledWith('fake-redirect-uri');
+      expect(spyAuth).toHaveBeenCalledExactlyOnceWith();
     });
   });
 });
