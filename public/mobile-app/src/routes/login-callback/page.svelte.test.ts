@@ -7,7 +7,7 @@ import * as franceConnectHelpers from '$lib/france-connect';
 import * as initializeDataFromAPIMethods from '$lib/initializeDataFromAPI';
 import * as notificationsMethods from '$lib/notifications';
 import * as passkeyMethods from '$lib/passkey';
-import { PasskeyError, PasskeyNetworkError } from '$lib/passkey';
+import { PasskeyBreakingError, PasskeyError, PasskeyNetworkError } from '$lib/passkey';
 import { toastStore } from '$lib/state/toast.svelte';
 import { userStore } from '$lib/state/User.svelte';
 import { mockUserInfo } from '$tests/utils';
@@ -121,6 +121,9 @@ describe('/+page.svelte - with passkey feature flag', () => {
       });
     });
     vi.mocked(envModule).PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED = 'true';
+    vi.spyOn(passkeyMethods, 'getPasskeyStatus').mockResolvedValue({
+      has_passkey: false,
+    });
   });
 
   describe('passkey creation', async () => {
@@ -327,6 +330,207 @@ describe('/+page.svelte - with passkey feature flag', () => {
       // Then
       await waitFor(() => {
         expect(screen.queryByTestId('create-passkey-button')).not.toBeNull();
+      });
+    });
+  });
+
+  describe('use passkey', async () => {
+    test('should not display use passkey button if user has no passkey ', async () => {
+      // Given
+      const { page } = await import('$app/state');
+      const mockSearchParams = new URLSearchParams();
+      window.localStorage.setItem('user_data', 'fake-user-data');
+      vi.spyOn(franceConnectHelpers, 'parseJwt').mockReturnValue(mockUserInfo);
+      vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
+
+      const spy = vi
+        .spyOn(AMINavigationMethods, 'AMIGoto')
+        .mockImplementation(() => Promise.resolve());
+      vi.spyOn(passkeyMethods, 'getPasskeyStatus').mockResolvedValue({
+        has_passkey: false,
+      });
+
+      // When
+      render(Page);
+
+      // Then
+      await waitFor(async () => {
+        expect(screen.queryByTestId('use-passkey-button')).toBeNull();
+      });
+    });
+    test('should display use passkey button if user has passkey ', async () => {
+      // Given
+      const { page } = await import('$app/state');
+      const mockSearchParams = new URLSearchParams();
+      window.localStorage.setItem('user_data', 'fake-user-data');
+      vi.spyOn(franceConnectHelpers, 'parseJwt').mockReturnValue(mockUserInfo);
+      vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
+
+      const spy = vi
+        .spyOn(AMINavigationMethods, 'AMIGoto')
+        .mockImplementation(() => Promise.resolve());
+      vi.spyOn(passkeyMethods, 'getPasskeyStatus').mockResolvedValue({
+        has_passkey: true,
+      });
+
+      // When
+      render(Page);
+
+      // Then
+      await waitFor(async () => {
+        expect(screen.queryByTestId('use-passkey-button')).not.toBeNull();
+      });
+    });
+    describe('user clicks on use passkey button', async () => {
+      test('should display passkey error toast on PasskeyError', async () => {
+        // Given
+        const { page } = await import('$app/state');
+        const mockSearchParams = new URLSearchParams();
+        window.localStorage.setItem('user_data', 'fake-user-data');
+        vi.spyOn(franceConnectHelpers, 'parseJwt').mockReturnValue(mockUserInfo);
+        vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
+
+        vi.spyOn(passkeyMethods, 'getPasskeyStatus').mockResolvedValue({
+          has_passkey: true,
+        });
+        const spyAuth = vi
+          .spyOn(passkeyMethods, 'authenticateWithPasskey')
+          .mockRejectedValue(new PasskeyError());
+
+        const spy = vi
+          .spyOn(AMINavigationMethods, 'AMIGoto')
+          .mockImplementation(() => Promise.resolve());
+
+        const spyToast = vi.spyOn(toastStore, 'addToast');
+
+        // When
+        render(Page);
+
+        // Then
+        await waitFor(async () => {
+          const usePasskeyButton = screen.getByTestId('use-passkey-button');
+          await fireEvent.click(usePasskeyButton);
+          expect(spy).not.toHaveBeenCalled();
+          expect(spyToast).toHaveBeenCalledWith(
+            'Erreur lors de l’utilisation de votre clé d’accès',
+            'error',
+            3000,
+            false
+          );
+          expect(spyAuth).toHaveBeenCalledExactlyOnceWith(true);
+        });
+      });
+      test('should display passkey error toast on PasskeyNetworkError', async () => {
+        // Given
+        const { page } = await import('$app/state');
+        const mockSearchParams = new URLSearchParams();
+        window.localStorage.setItem('user_data', 'fake-user-data');
+        vi.spyOn(franceConnectHelpers, 'parseJwt').mockReturnValue(mockUserInfo);
+        vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
+
+        vi.spyOn(passkeyMethods, 'getPasskeyStatus').mockResolvedValue({
+          has_passkey: true,
+        });
+        const spyAuth = vi
+          .spyOn(passkeyMethods, 'authenticateWithPasskey')
+          .mockRejectedValue(new PasskeyNetworkError());
+
+        const spy = vi
+          .spyOn(AMINavigationMethods, 'AMIGoto')
+          .mockImplementation(() => Promise.resolve());
+
+        const spyToast = vi.spyOn(toastStore, 'addToast');
+
+        // When
+        render(Page);
+
+        // Then
+        await waitFor(async () => {
+          const usePasskeyButton = screen.getByTestId('use-passkey-button');
+          await fireEvent.click(usePasskeyButton);
+          expect(spy).not.toHaveBeenCalled();
+          expect(spyToast).toHaveBeenCalledWith(
+            'Problème de connexion Internet, veuillez réessayer',
+            'error',
+            3000,
+            false
+          );
+          expect(spyAuth).toHaveBeenCalledExactlyOnceWith(true);
+        });
+      });
+      test('should display passkey error toast on PasskeyBreakingError', async () => {
+        // Given
+        const { page } = await import('$app/state');
+        const mockSearchParams = new URLSearchParams();
+        window.localStorage.setItem('user_data', 'fake-user-data');
+        vi.spyOn(franceConnectHelpers, 'parseJwt').mockReturnValue(mockUserInfo);
+        vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
+
+        vi.spyOn(passkeyMethods, 'getPasskeyStatus').mockResolvedValue({
+          has_passkey: true,
+        });
+        const spyAuth = vi
+          .spyOn(passkeyMethods, 'authenticateWithPasskey')
+          .mockRejectedValue(
+            new PasskeyBreakingError() // should not happen in a non fi context
+          );
+
+        const spy = vi
+          .spyOn(AMINavigationMethods, 'AMIGoto')
+          .mockImplementation(() => Promise.resolve());
+
+        const spyToast = vi.spyOn(toastStore, 'addToast');
+
+        // When
+        render(Page);
+
+        // Then
+        await waitFor(async () => {
+          const usePasskeyButton = screen.getByTestId('use-passkey-button');
+          await fireEvent.click(usePasskeyButton);
+          expect(spy).not.toHaveBeenCalled();
+          expect(spyToast).toHaveBeenCalledWith(
+            'Erreur lors de l’utilisation de votre clé d’accès',
+            'error',
+            3000,
+            false
+          );
+          expect(spyAuth).toHaveBeenCalledExactlyOnceWith(true);
+        });
+      });
+      test('should redirect when user is authenticated', async () => {
+        // Given
+        const { page } = await import('$app/state');
+        const mockSearchParams = new URLSearchParams();
+        window.localStorage.setItem('user_data', 'fake-user-data');
+        vi.spyOn(franceConnectHelpers, 'parseJwt').mockReturnValue(mockUserInfo);
+        vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
+
+        vi.spyOn(passkeyMethods, 'getPasskeyStatus').mockResolvedValue({
+          has_passkey: true,
+        });
+        const spyAuth = vi
+          .spyOn(passkeyMethods, 'authenticateWithPasskey')
+          .mockResolvedValue(
+            'fake-redirect-uri' // not used: in a non fi context, the endpoint returns an empty url
+          );
+
+        const spy = vi
+          .spyOn(AMINavigationMethods, 'AMIGoto')
+          .mockImplementation(() => Promise.resolve());
+
+        // When
+        render(Page);
+
+        // Then
+        await waitFor(async () => {
+          const usePasskeyButton = screen.getByTestId('use-passkey-button');
+          await fireEvent.click(usePasskeyButton);
+          // check user store registered that the user has a passkey
+          expect(userStore.getHasWorkingPasskey()).toBe(true);
+          expect(spy).toHaveBeenCalledWith('/?passkey_toast=true#/welcome/zones');
+          expect(spyAuth).toHaveBeenCalledExactlyOnceWith(true);
+        });
       });
     });
   });
