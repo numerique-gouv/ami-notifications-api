@@ -111,7 +111,9 @@ export const registerPasskey = async () => {
   }
 };
 
-export const authenticateWithPasskey = async (): Promise<string> => {
+export const authenticateWithPasskey = async (
+  check: boolean = false
+): Promise<string> => {
   let optionsResp: Response;
   telemetry.info('Authenticating with passkey');
   try {
@@ -147,13 +149,16 @@ export const authenticateWithPasskey = async (): Promise<string> => {
 
   let verificationResp: Response;
   try {
-    verificationResp = await apiFetch('/api/v1/fi/passkey/verify-authentication', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(attResp),
-    });
+    verificationResp = await apiFetch(
+      `/api/v1/fi/passkey/verify-authentication${check ? '-check' : ''}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(attResp),
+      }
+    );
     if (!verificationResp.ok) {
       if (verificationResp.status === 400) {
         const verificationJSON = await verificationResp.json();
