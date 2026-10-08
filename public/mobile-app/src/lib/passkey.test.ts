@@ -7,6 +7,7 @@ import type {
 import * as simplewebauthnMethods from '@simplewebauthn/browser';
 import {
   authenticateWithPasskey,
+  getPasskeyStatus,
   PasskeyBreakingError,
   PasskeyError,
   PasskeyNetworkError,
@@ -340,6 +341,44 @@ describe('/passkey', () => {
 
       // Then
       await expect(promise).resolves.toEqual('fake-redirect-uri');
+    });
+  });
+  describe('getPasskeyStatus', () => {
+    test('should return false on response error', async () => {
+      // Given
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        new Response('{}', { status: 400 })
+      );
+
+      // When
+      const result = await getPasskeyStatus();
+
+      // Then
+      expect(result).toEqual({ has_passkey: false });
+    });
+    test('should return false', async () => {
+      // Given
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        new Response(JSON.stringify({ has_passkey: false }), { status: 200 })
+      );
+
+      // When
+      const result = await getPasskeyStatus();
+
+      // Then
+      expect(result).toEqual({ has_passkey: false });
+    });
+    test('should return true', async () => {
+      // Given
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        new Response(JSON.stringify({ has_passkey: true }), { status: 200 })
+      );
+
+      // When
+      const result = await getPasskeyStatus();
+
+      // Then
+      expect(result).toEqual({ has_passkey: true });
     });
   });
 });
