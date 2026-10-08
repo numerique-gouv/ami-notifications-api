@@ -203,10 +203,10 @@ export class User {
     return this._identity;
   }
 
-  setPreferredUsername(preferred_username: string, origin?: DataOrigin) {
+  setPreferredUsername(preferred_username: string) {
     if (preferred_username) {
       this._identity.preferred_username = preferred_username;
-      this._identity.dataDetails.preferred_username.origin = origin || 'user';
+      this._identity.dataDetails.preferred_username.origin = 'user';
       this._identity.hasPersonalization = true;
     } else {
       delete this._identity.preferred_username;
