@@ -3,8 +3,16 @@
   import { page } from '$app/state';
   import { PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED } from '$env/static/public';
   import { AMIGoto } from '$lib/ami-navigation';
+  import { apiFetch } from '$lib/auth';
   import { initializeData, initializeLocalStorage } from '$lib/initializeDataFromAPI';
-  import { PasskeyError, PasskeyNetworkError, registerPasskey } from '$lib/passkey';
+  import {
+    authenticateWithPasskey,
+    getPasskeyStatus,
+    PasskeyBreakingError,
+    PasskeyError,
+    PasskeyNetworkError,
+    registerPasskey,
+  } from '$lib/passkey';
   import { toastStore } from '$lib/state/toast.svelte';
   import { userStore } from '$lib/state/User.svelte';
   import * as telemetry from '$lib/telemetry';
@@ -25,6 +33,7 @@
   const silent_fc_enabled = PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED === 'true';
   let hasWorkingPassKey: boolean = $state(true);
   let hasSuggestPasskeyCreationToday: boolean = $state(false);
+  let alreadyHasPasskey: boolean = $state(false);
 
   onMount(async () => {
     try {
@@ -46,19 +55,31 @@
         // or is we already asked the user to create a passkey today,
         // we directly redirect to homepage
         redirectLoggedInUser(false);
+        return;
       }
+      const passkeyStatus = await getPasskeyStatus();
+      alreadyHasPasskey = passkeyStatus.has_passkey;
+
+      wrapperEl.style.height = `${window.innerHeight}px`;
+      console.log('innerHeight:', window.innerHeight);
     } catch (error) {
       console.error(error);
       AMIGoto('/#/login');
     }
-
-    wrapperEl.style.height = `${window.innerHeight}px`;
-    console.log('innerHeight:', window.innerHeight);
   });
 
   const passkeyError = () => {
     return toastStore.addToast(
       'Erreur lors de l’ajout de votre clé d’accès',
+      'error',
+      3000,
+      false
+    );
+  };
+
+  const usePasskeyError = () => {
+    return toastStore.addToast(
+      'Erreur lors de l’utilisation de votre clé d’accès',
       'error',
       3000,
       false
@@ -94,6 +115,21 @@
       }
     }
   };
+
+  const usePasskey = async () => {
+    try {
+      await authenticateWithPasskey(true);
+      userStore.setHasWorkingPasskey();
+      telemetry.info('User used an existing passkey successfully after login');
+      redirectLoggedInUser(true);
+    } catch (error) {
+      if (error instanceof PasskeyError || error instanceof PasskeyBreakingError) {
+        usePasskeyError();
+      } else if (error instanceof PasskeyNetworkError) {
+        networkError();
+      }
+    }
+  };
 </script>
 
 <div class="fr-container passkeys-full-page" bind:this={wrapperEl}>
@@ -123,6 +159,19 @@
               Ajouter une clé d’accès
             </button>
           </li>
+          {#if alreadyHasPasskey}
+            <li>
+              <button
+                onclick="{usePasskey}"
+                data-testid="use-passkey-button"
+                title="Utiliser une clé d’accès existante"
+                type="button"
+                class="fr-btn fr-btn--secondary"
+              >
+                Utiliser une clé d’accès existante
+              </button>
+            </li>
+          {/if}
           <li>
             <button
               onclick="{bypassPasskey}"
@@ -138,6 +187,7 @@
     </div>
   {/if}
 </div>
+
 <style>
   .passkeys-full-page {
     height: 100vh;
