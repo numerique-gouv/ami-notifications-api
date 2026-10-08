@@ -195,7 +195,10 @@ describe('/passkey', () => {
       });
     });
   });
-  describe('authenticateWithPasskey', () => {
+  describe.each([
+    true,
+    false,
+  ])('authenticateWithPasskey (check: $0)', (check: boolean) => {
     test('should throw PasskeyError on options response error', async () => {
       // Given
       vi.spyOn(globalThis, 'fetch').mockResolvedValue(
@@ -203,7 +206,7 @@ describe('/passkey', () => {
       );
 
       // When
-      const promise = authenticateWithPasskey();
+      const promise = authenticateWithPasskey(check);
 
       // Then
       await expect(promise).rejects.toThrow(PasskeyError);
@@ -223,7 +226,7 @@ describe('/passkey', () => {
       vi.spyOn(globalThis, 'fetch').mockRejectedValueOnce(new Error());
 
       // When
-      const promise = authenticateWithPasskey();
+      const promise = authenticateWithPasskey(check);
 
       // Then
       await expect(promise).rejects.toThrow(PasskeyError);
@@ -238,14 +241,15 @@ describe('/passkey', () => {
       );
 
       // When
-      const promise = authenticateWithPasskey();
+      const promise = authenticateWithPasskey(check);
 
       // Then
       await expect(promise).rejects.toThrow(PasskeyError);
     });
     test('should throw PasskeyError on verify response error with retry', async () => {
       // Given
-      vi.spyOn(globalThis, 'fetch')
+      const spy = vi
+        .spyOn(globalThis, 'fetch')
         .mockResolvedValueOnce(new Response('{}', { status: 200 }))
         .mockResolvedValueOnce(
           new Response(JSON.stringify({ retry: true }), { status: 400 })
@@ -255,10 +259,25 @@ describe('/passkey', () => {
       );
 
       // When
-      const promise = authenticateWithPasskey();
+      const promise = authenticateWithPasskey(check);
 
       // Then
       await expect(promise).rejects.toThrow(PasskeyError);
+      expect(spy).toHaveBeenNthCalledWith(
+        1,
+        '/api/v1/fi/passkey/generate-authentication-options'
+      );
+      let auth_url = '/api/v1/fi/passkey/verify-authentication';
+      if (check === true) {
+        auth_url = '/api/v1/fi/passkey/verify-authentication-check';
+      }
+      expect(spy).toHaveBeenNthCalledWith(2, auth_url, {
+        body: '{}',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        method: 'POST',
+      });
     });
     test('should throw PasskeyBreakingError on verify response error', async () => {
       // Given
@@ -270,7 +289,7 @@ describe('/passkey', () => {
       );
 
       // When
-      const promise = authenticateWithPasskey();
+      const promise = authenticateWithPasskey(check);
 
       // Then
       await expect(promise).rejects.toThrow(PasskeyBreakingError);
@@ -285,7 +304,7 @@ describe('/passkey', () => {
       );
 
       // When
-      const promise = authenticateWithPasskey();
+      const promise = authenticateWithPasskey(check);
 
       // Then
       await expect(promise).rejects.toThrow(PasskeyNetworkError);
@@ -300,7 +319,7 @@ describe('/passkey', () => {
       );
 
       // When
-      const promise = authenticateWithPasskey();
+      const promise = authenticateWithPasskey(check);
 
       // Then
       await expect(promise).rejects.toThrow(PasskeyError);
@@ -317,7 +336,7 @@ describe('/passkey', () => {
       );
 
       // When
-      const promise = authenticateWithPasskey();
+      const promise = authenticateWithPasskey(check);
 
       // Then
       await expect(promise).rejects.toThrow(PasskeyError);
@@ -337,7 +356,7 @@ describe('/passkey', () => {
       );
 
       // When
-      const promise = authenticateWithPasskey();
+      const promise = authenticateWithPasskey(check);
 
       // Then
       await expect(promise).resolves.toEqual('fake-redirect-uri');
