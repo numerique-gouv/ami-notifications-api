@@ -506,11 +506,15 @@ export class Followup {
   }
 
   get items(): FollowupItem[] {
-    return this._items.filter((item) => !item.is_archived);
+    return this._items.filter(
+      (item) => !item.is_archived && (item.sub_items.length > 0 || !item.hasMilestone())
+    );
   }
 
   get archived_items(): FollowupItem[] {
-    return this._items.filter((item) => item.is_archived);
+    return this._items.filter(
+      (item) => item.is_archived && (item.sub_items.length > 0 || !item.hasMilestone())
+    );
   }
 
   isEmpty(): boolean {
