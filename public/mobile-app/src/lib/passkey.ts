@@ -205,3 +205,16 @@ export const authenticateWithPasskey = async (): Promise<string> => {
     throw new PasskeyError();
   }
 };
+
+type PasskeyStatus = {
+  has_passkey: boolean;
+};
+
+export const getPasskeyStatus = async (): Promise<PasskeyStatus> => {
+  const response = await apiFetch('/api/v1/fi/passkey/status');
+  if (response.ok) {
+    return await response.json();
+  } else {
+    return { has_passkey: false };
+  }
+};
