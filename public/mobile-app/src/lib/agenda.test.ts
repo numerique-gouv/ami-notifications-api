@@ -2299,7 +2299,7 @@ describe('/agenda.ts', () => {
           null,
           []
         );
-        vi.spyOn(followup, 'items', 'get').mockReturnValue([
+        vi.spyOn(followup, 'all_items', 'get').mockReturnValue([
           followupItem1,
           followupItem2,
           followupItem3,
@@ -2567,7 +2567,7 @@ describe('/agenda.ts', () => {
           followupSubItem5,
           followupSubItem6,
         ]);
-        vi.spyOn(followup, 'items', 'get').mockReturnValue([followupItem]);
+        vi.spyOn(followup, 'all_items', 'get').mockReturnValue([followupItem]);
         vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
         vi.spyOn(followupSubItem1, 'buildAgendaItem').mockReturnValue(null);
         vi.spyOn(followupSubItem2, 'buildAgendaItem').mockReturnValue(
@@ -2726,7 +2726,7 @@ describe('/agenda.ts', () => {
           null,
           []
         );
-        vi.spyOn(followup, 'items', 'get').mockReturnValue([
+        vi.spyOn(followup, 'all_items', 'get').mockReturnValue([
           followupItem1,
           followupItem2,
         ]);
@@ -2836,7 +2836,7 @@ describe('/agenda.ts', () => {
           followupSubItem1,
           followupSubItem2,
         ]);
-        vi.spyOn(followup, 'items', 'get').mockReturnValue([followupItem]);
+        vi.spyOn(followup, 'all_items', 'get').mockReturnValue([followupItem]);
         const item1 = new Item(
           'fake-id-1',
           'personal',
@@ -2963,7 +2963,7 @@ describe('/agenda.ts', () => {
         null,
         []
       );
-      vi.spyOn(followup, 'items', 'get').mockReturnValue([
+      vi.spyOn(followup, 'all_items', 'get').mockReturnValue([
         followupItem1,
         followupItem2,
         followupItem3,
@@ -3230,7 +3230,7 @@ describe('/agenda.ts', () => {
         null,
         []
       );
-      vi.spyOn(followup, 'items', 'get').mockReturnValue([
+      vi.spyOn(followup, 'all_items', 'get').mockReturnValue([
         followupItem1,
         followupItem2,
         followupItem3,
