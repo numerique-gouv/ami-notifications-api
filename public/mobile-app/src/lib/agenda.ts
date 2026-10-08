@@ -294,7 +294,7 @@ export class Agenda {
     const school_holidays: APIAgendaItem[] = apiAgenda?.school_holidays || [];
     const public_holidays: APIAgendaItem[] = apiAgenda?.public_holidays || [];
     const elections: APIAgendaItem[] = apiAgenda?.elections || [];
-    const followupItems: FollowupItem[] = followup?.items || [];
+    const followupItems: FollowupItem[] = followup?.all_items || [];
 
     // build items from school_holidays
     this.createSchoolHolidayItems(items, school_holidays);
