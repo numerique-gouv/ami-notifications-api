@@ -133,15 +133,7 @@
         duration={null}
         hasCloseLink={false}
       />
-    {:else if hasBreakingPasskeyError}
-      <Toast
-        id="error"
-        title="Erreur lors de l’utilisation de votre clé d’accès"
-        toastType="error"
-        duration={null}
-        hasCloseLink={false}
-      />
-    {:else if hasPasskeyError}
+    {:else if hasBreakingPasskeyError || hasPasskeyError}
       <Toast
         id="error"
         title="Erreur lors de l’utilisation de votre clé d’accès"
