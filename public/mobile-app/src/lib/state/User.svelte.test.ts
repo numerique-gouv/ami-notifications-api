@@ -10,7 +10,12 @@ import * as notificationsMethods from '$lib/notifications';
 import * as scheduledNotificationsMethods from '$lib/scheduled-notifications';
 import { Preferences } from '$lib/state/preferences';
 import { User, userStore } from '$lib/state/User.svelte';
-import { mockUser, mockUserIdentity, mockUserInfo } from '$tests/utils';
+import {
+  mockUser,
+  mockUserIdentity,
+  mockUserInfo,
+  mockUserInfoWithPreferredUsername,
+} from '$tests/utils';
 
 describe('/lib/state/User.svelte.ts', () => {
   beforeEach(() => {
@@ -854,6 +859,26 @@ describe('/lib/state/User.svelte.ts', () => {
 
         // Then
         expect(firstName).toEqual('Angela');
+      });
+    });
+
+    describe('getFullName', () => {
+      test('should display full name', async () => {
+        // When
+        const fullName = mockUser.getFullName();
+
+        // Then
+        expect(fullName).toEqual('Angela Claire Louise DUBOIS');
+      });
+      test('should display full name with preferred username', async () => {
+        // Given
+        const user = new User(mockUserInfoWithPreferredUsername);
+
+        // When
+        const fullName = user.getFullName();
+
+        // Then
+        expect(fullName).toEqual('Pierre DUBOIS');
       });
     });
 

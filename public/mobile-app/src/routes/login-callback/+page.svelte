@@ -88,14 +88,12 @@
     if (!userStore.connected) {
       return;
     }
-    let identity: UserIdentity = userStore.connected.identity;
-    let display_name = `${identity.given_name} ${identity.preferred_username || identity.family_name}`;
     let optionsResp: Response;
     telemetry.info('Generating passkey');
     try {
       optionsResp = await apiFetch('/api/v1/fi/passkey/generate-registration-options', {
         method: 'POST',
-        body: JSON.stringify({ displayName: display_name }),
+        body: JSON.stringify({ displayName: userStore.connected.getFullName() }),
         headers: { 'Content-Type': 'application/json' },
       });
       if (!optionsResp.ok) {
