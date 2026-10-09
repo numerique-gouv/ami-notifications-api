@@ -37,6 +37,20 @@ def test_register_webpush(app, user: User, webpushsubscription: dict[str, Any]) 
 
 
 @pytest.mark.django_db
+def test_register_webpush_unknown_endpoint(
+    app, user: User, webpushsubscription: dict[str, Any]
+) -> None:
+    login(app, user)
+
+    webpushsubscription["endpoint"] = "https://www.example.com/"
+    register_data = {
+        "subscription": webpushsubscription,
+    }
+    response = app.post_json("/api/v1/users/registrations", register_data, status=400)
+    assert response.json == {"subscription": ["unknown push notification service"]}
+
+
+@pytest.mark.django_db
 def test_register_mobile_app(app, user: User, mobileAppSubscription: dict[str, Any]) -> None:
     login(app, user)
 
