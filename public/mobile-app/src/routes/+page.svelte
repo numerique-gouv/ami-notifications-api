@@ -33,7 +33,6 @@
   let agenda: Agenda | null = $state(null);
   let isFollowupEmpty: boolean = $state(data.isFollowupEmpty || false);
   let followup: Followup | null = $state(data.followup || null);
-  let selectedFollowupItem: FollowupItemType | null = $state(null);
   let autoPromo: AutoPromo | null = $state(null);
   let hasAnyConsents: boolean = $state(data.hasAnyConsents || false);
 
@@ -79,10 +78,6 @@
       console.error(error);
     }
   });
-
-  const openFollowupItemModal = (item: FollowupItemType) => {
-    selectedFollowupItem = item;
-  };
 </script>
 
 {#if userStore.connected}
@@ -185,9 +180,11 @@
           <div class="rubrique-content-container">
             {#if followup && followup.items.length}
               {@const firstItem = followup.items[0]}
-              <FollowupItem
-                item={firstItem}
-                onOpen={() => openFollowupItemModal(firstItem)}
+              <FollowupItem item={firstItem} hasModal={true} />
+              <FollowupItemModal
+                bind:item={followup.items[0]}
+                bind:followup={followup}
+                bind:isFollowupEmpty={isFollowupEmpty}
               />
             {/if}
           </div>
@@ -210,14 +207,6 @@
       </div>
     {/if}
   </div>
-
-  {#if selectedFollowupItem}
-    <FollowupItemModal
-      bind:item={selectedFollowupItem}
-      bind:followup={followup}
-      bind:isFollowupEmpty={isFollowupEmpty}
-    />
-  {/if}
 {/if}
 
 <style lang="scss">

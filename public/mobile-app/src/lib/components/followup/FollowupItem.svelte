@@ -6,9 +6,9 @@
 
   interface Props {
     item: FollowupItem;
-    onOpen?: (() => void) | null;
+    hasModal?: boolean;
   }
-  let { item, onOpen = null }: Props = $props();
+  let { item, hasModal = false }: Props = $props();
 
   let checkedIcon = $derived(getDSFRIcon(item.icon, 'fr-icon-information-fill'));
   let withDetailButton = $derived(
@@ -20,10 +20,12 @@
   <div
     class="followup--item--detail fr-tile fr-tile--sm fr-tile--horizontal fr-enlarge-button { withDetailButton  && 'fr-tile--no-icon' }"
   >
-    {#if onOpen && !item.is_archived}
+    {#if hasModal && !item.is_archived}
       <button
+        data-fr-opened="false"
+        aria-controls="followup-item-{item.id}-modal"
+        id="followup-item-{item.id}-button"
         type="button"
-        onclick={onOpen}
         data-testid="open-followup-item-modal-{item.id}"
         class="fr-btn fr-btn--icon fr-icon-more-2-fill fr-btn--tertiary-no-outline fr-pt-2w am-icon-20 am-btn-modal open-followup-item-modal fr-icon-more-2-fill"
       >

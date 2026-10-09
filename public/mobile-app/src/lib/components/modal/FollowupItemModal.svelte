@@ -18,10 +18,6 @@
     isFollowupEmpty = $bindable(),
   }: Props = $props();
 
-  const closeModal = () => {
-    item = null;
-  };
-
   const refreshFollowup = () => {
     buildFollowup().then((result) => {
       followup = result;
@@ -36,17 +32,15 @@
         if (followup) {
           refreshFollowup();
         }
-        closeModal();
         toastStore.addToast('L’élément a bien été archivé', 'success', 3000, true);
       } else {
-        closeModal();
         toastStore.addToast("L’élément n'a pas pu être archivé", 'error', 3000, true);
       }
     }
   };
 </script>
 
-<BottomModal onClose={closeModal}>
+<BottomModal modalId="followup-item-{item?.id}-modal">
   {#snippet modalContent()}
     <h2 class="followup-item-modal-header" data-testid="followup-item-modal-header">
       {item?.title}
@@ -56,9 +50,9 @@
         <span class="fr-icon-inbox-archive-line"></span>
         <button
           onclick={() => clickOnArchiveFollowupItem(item)}
-          title="Archiver l'élément"
-          aria-label="Archiver l'élément"
-          data-testid="archive-followup-item-button"
+          title="Archiver l'élément {item?.title}"
+          aria-label="Archiver l'élément {item?.title}"
+          data-testid="archive-followup-item-button-{item?.id}"
           class="archive-followup-item"
         >
           Archiver
