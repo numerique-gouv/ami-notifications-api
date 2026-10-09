@@ -128,7 +128,7 @@ describe('/+page.svelte', () => {
 
     // Then
     const connectionHelpButton = screen.getByTestId('connection-help-button');
-    expect(screen.queryByTestId('connection-help-link-url')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('connection-help-link-url')).not.toBeVisible();
     await waitFor(() => {
       connectionHelpButton.click();
       // now the popup is open
