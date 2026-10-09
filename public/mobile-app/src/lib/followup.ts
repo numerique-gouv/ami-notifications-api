@@ -433,30 +433,18 @@ export class FollowupItem extends FollowupSubItem {
 
 export class Followup {
   private _items: FollowupItem[] = [];
-  private _archived_items: FollowupItem[] = [];
 
   constructor(apiFollowup: APIFollowup | null = null) {
-    const followupItems: FollowupItem[] = [];
-
     const items: APIFollowupItem[] = apiFollowup?.notifications || [];
 
     // build items
     items.forEach((item) => {
       const followupItem = this.createFollowupItem(item);
-      followupItems.push(followupItem);
+      this._items.push(followupItem);
     });
 
     // sort items by date
-    followupItems.sort((a, b) => b.date.getTime() - a.date.getTime());
-
-    // organize items in _items or _archived_items arrays
-    followupItems.forEach((followupItem) => {
-      if (followupItem.is_archived) {
-        this._archived_items.push(followupItem);
-      } else {
-        this._items.push(followupItem);
-      }
-    });
+    this._items.sort((a, b) => b.date.getTime() - a.date.getTime());
   }
 
   private createFollowupItem(item: APIFollowupItem): FollowupItem {
@@ -513,12 +501,20 @@ export class Followup {
     );
   }
 
-  get items(): FollowupItem[] {
+  get all_items(): FollowupItem[] {
     return this._items;
   }
 
+  get items(): FollowupItem[] {
+    return this._items.filter(
+      (item) => !item.is_archived && (item.sub_items.length > 0 || !item.hasMilestone())
+    );
+  }
+
   get archived_items(): FollowupItem[] {
-    return this._archived_items;
+    return this._items.filter(
+      (item) => item.is_archived && (item.sub_items.length > 0 || !item.hasMilestone())
+    );
   }
 
   isEmpty(): boolean {
@@ -531,34 +527,19 @@ export class Followup {
     );
   }
 
-  private _findItem(
-    source: FollowupItem[],
+  findItem(
     partner_id: string,
     item_type: string,
     item_external_id: string
   ): FollowupItem | null {
     return (
-      source.find(
+      this.all_items.find(
         (item) =>
           item.partner_id === partner_id &&
           item.item_type === item_type &&
           item.item_external_id === item_external_id
       ) || null
     );
-  }
-
-  findItem(
-    partner_id: string,
-    item_type: string,
-    item_external_id: string
-  ): FollowupItem | null {
-    const item = this._findItem(this.items, partner_id, item_type, item_external_id);
-
-    if (item) {
-      return item;
-    }
-
-    return this._findItem(this.archived_items, partner_id, item_type, item_external_id);
   }
 }
 
