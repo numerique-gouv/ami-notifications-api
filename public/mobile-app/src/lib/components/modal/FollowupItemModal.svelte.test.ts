@@ -65,7 +65,9 @@ describe('/FollowupItemModal.svelte', () => {
 
   test('should display item title', async () => {
     // When
-    render(FollowupItemModal, { props: { item, followup, isFollowupEmpty } });
+    render(FollowupItemModal, {
+      props: { item, followup, isFollowupEmpty, index: '' },
+    });
 
     // Then
     const title = screen.getByTestId('followup-item-modal-header');
@@ -73,7 +75,9 @@ describe('/FollowupItemModal.svelte', () => {
   });
   test('should mark emojis', async () => {
     // Given
-    render(FollowupItemModal, { props: { item, followup, isFollowupEmpty } });
+    render(FollowupItemModal, {
+      props: { item, followup, isFollowupEmpty, index: '' },
+    });
 
     // Then
     expect(document.querySelector('[aria-hidden]')).toBeInTheDocument();
@@ -82,11 +86,15 @@ describe('/FollowupItemModal.svelte', () => {
     // Given
     const spy = vi.spyOn(FollowupItem.prototype, 'archive').mockResolvedValue(true);
     const spy2 = vi.spyOn(toastStore, 'addToast');
-    render(FollowupItemModal, { props: { item, followup, isFollowupEmpty } });
+    render(FollowupItemModal, {
+      props: { item, followup, isFollowupEmpty, index: '' },
+    });
 
     // When
     await waitFor(async () => {
-      const archiveButton = screen.getByTestId('archive-followup-item-button');
+      const archiveButton = screen.getByTestId(
+        'archive-followup-item-button-partner:type:id1'
+      );
       await fireEvent.click(archiveButton);
     });
 
@@ -105,11 +113,15 @@ describe('/FollowupItemModal.svelte', () => {
     // Given
     const spy = vi.spyOn(FollowupItem.prototype, 'archive').mockResolvedValue(false);
     const spy2 = vi.spyOn(toastStore, 'addToast');
-    render(FollowupItemModal, { props: { item, followup, isFollowupEmpty } });
+    render(FollowupItemModal, {
+      props: { item, followup, isFollowupEmpty, index: '' },
+    });
 
     // When
     await waitFor(async () => {
-      const archiveButton = screen.getByTestId('archive-followup-item-button');
+      const archiveButton = screen.getByTestId(
+        'archive-followup-item-button-partner:type:id1'
+      );
       await fireEvent.click(archiveButton);
     });
 
