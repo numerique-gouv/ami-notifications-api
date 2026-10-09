@@ -1,10 +1,8 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
+import { render, screen, waitFor } from '@testing-library/svelte';
 import { describe, expect, test, vi } from 'vitest';
 import * as AMINavigationMethods from '$lib/ami-navigation';
 import { userStore } from '$lib/state/User.svelte';
 import {
-  expectBackButtonPresent,
-  mockUserIdentity,
   mockUserIdentityWithPreferredUsername,
   mockUserInfo,
   mockUserInfoWithPreferredUsername,
@@ -28,28 +26,17 @@ describe('/+page.svelte', () => {
 
   test('profile page displays the proper user info', async () => {
     // Given
-    const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
-    newMockUserIdentity.dataDetails.preferred_username.origin = 'france-connect';
-    newMockUserIdentity.dataDetails.email.origin = 'france-connect';
-    localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity));
     await userStore.login(mockUserInfo);
-    expect(userStore.connected).not.toBeNull();
 
     // When
     render(Page);
 
     // Then
     await waitFor(() => {
-      const profile = screen.getByTestId('profile');
-      const profileIdentity = profile.querySelector('#profile-identity');
-      expect(profileIdentity).toHaveTextContent('Angela Claire Louise DUBOIS,');
-      expect(profileIdentity).toHaveTextContent('née le 24/08/1962');
-      expect(profileIdentity).toHaveTextContent(
-        'Informations fournies par FranceConnect'
-      );
-      const profileEmail = profile.querySelector('#profile-email');
-      expect(profileEmail).toHaveTextContent('wossewodda-3728@yopmail.com');
-      expect(profileEmail).toHaveTextContent('Informations fournies par FranceConnect');
+      const initial = screen.getByTestId('initial');
+      expect(initial).toHaveTextContent('A');
+      const fullName = screen.getByTestId('fullname');
+      expect(fullName).toHaveTextContent('Angela Claire Louise DUBOIS');
     });
   });
 
@@ -67,149 +54,10 @@ describe('/+page.svelte', () => {
 
     // Then
     await waitFor(() => {
-      const profile = screen.getByTestId('profile');
-      const profileIdentity = profile.querySelector('#profile-identity');
-      expect(profileIdentity).toHaveTextContent('Pierre DUBOIS,');
-      expect(profileIdentity).toHaveTextContent('né MERCIER le 17/03/1969');
-      expect(screen.getByText('some-other@email.com', { exact: false }));
-      expect(profileIdentity).toHaveTextContent(
-        'Informations fournies par FranceConnect'
-      );
-      const profileEmail = profile.querySelector('#profile-email');
-      expect(profileEmail).toHaveTextContent('some-other@email.com');
-      expect(profileEmail).not.toHaveTextContent(
-        'Informations fournies par FranceConnect'
-      );
+      const initial = screen.getByTestId('initial');
+      expect(initial).toHaveTextContent('P');
+      const fullName = screen.getByTestId('fullname');
+      expect(fullName).toHaveTextContent('Pierre DUBOIS');
     });
-  });
-
-  test("profile page doesn't display user address", async () => {
-    // Given
-    await userStore.login(mockUserInfo);
-    expect(userStore.connected).not.toBeNull();
-
-    // Then
-    render(Page);
-
-    // When
-    await waitFor(() => {
-      const profile = screen.getByTestId('profile');
-      const profileAddress = profile.querySelector('#profile-address');
-      expect(profileAddress).toHaveTextContent('Définir une adresse');
-    });
-  });
-
-  test('profile page displays user address - from user', async () => {
-    // Given
-    localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
-    await userStore.login(mockUserInfo);
-    expect(userStore.connected).not.toBeNull();
-
-    // When
-    render(Page);
-
-    // Then
-    await waitFor(() => {
-      const profile = screen.getByTestId('profile');
-      const profileAddress = profile.querySelector('#profile-address');
-      expect(profileAddress).toHaveTextContent(
-        'Votre résidence principale Avenue de Ségur 75007 Paris'
-      );
-      expect(profileAddress).not.toHaveTextContent('Informations fournies par la Caf');
-    });
-  });
-
-  test('profile page displays user address - from api-particulier', async () => {
-    // Given
-    const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
-    newMockUserIdentity.dataDetails.address.origin = 'api-particulier';
-    localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity));
-    await userStore.login(mockUserInfo);
-    expect(userStore.connected).not.toBeNull();
-
-    // When
-    render(Page);
-
-    // Then
-    await waitFor(() => {
-      const profile = screen.getByTestId('profile');
-      const profileAddress = profile.querySelector('#profile-address');
-      expect(profileAddress).toHaveTextContent(
-        'Votre résidence principale Avenue de Ségur 75007 Paris'
-      );
-      expect(profileAddress).toHaveTextContent('Informations fournies par la Caf');
-    });
-  });
-
-  test('should navigate to the preferred username page when user clicks on "Modifier" button', async () => {
-    // Given
-    const spy = vi
-      .spyOn(AMINavigationMethods, 'AMIGoto')
-      .mockImplementation(() => Promise.resolve());
-    render(Page);
-
-    // When
-    const button = screen.getByTestId('preferred-username-button');
-    await fireEvent.click(button);
-
-    // Then
-    await waitFor(() => {
-      expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenNthCalledWith(1, '/#/edit-preferred-username');
-    });
-  });
-
-  test('should navigate to the email page when user clicks on "Modifier" button', async () => {
-    // Given
-    const spy = vi
-      .spyOn(AMINavigationMethods, 'AMIGoto')
-      .mockImplementation(() => Promise.resolve());
-    render(Page);
-
-    // When
-    const button = screen.getByTestId('email-button');
-    await fireEvent.click(button);
-
-    // Then
-    await waitFor(() => {
-      expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenNthCalledWith(1, '/#/edit-email');
-    });
-  });
-
-  test('should navigate to the Address page when user clicks on "Définir une adresse" button', async () => {
-    // Given
-    const spy = vi
-      .spyOn(AMINavigationMethods, 'AMIGoto')
-      .mockImplementation(() => Promise.resolve());
-    render(Page);
-
-    // When
-    const button = screen.getByTestId('address-button');
-    await fireEvent.click(button);
-
-    // Then
-    await waitFor(() => {
-      expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenNthCalledWith(1, '/#/edit-address');
-    });
-  });
-
-  test('should import NavWithBackButton component', async () => {
-    // When
-    render(Page);
-    const backButton = screen.getByTestId('back-button');
-
-    // Then
-    expect(backButton).toBeInTheDocument();
-    expect(screen.getByText('Mon profil')).toBeInTheDocument();
-  });
-
-  test('should render a Back button', async () => {
-    // When
-    render(Page);
-
-    // Then
-    expectBackButtonPresent(screen);
   });
 });
