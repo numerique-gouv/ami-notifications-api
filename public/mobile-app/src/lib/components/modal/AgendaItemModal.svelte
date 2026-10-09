@@ -1,6 +1,7 @@
 <script lang="ts">
   import { type Agenda, buildAgenda, Item } from '$lib/agenda';
   import BottomModal from '$lib/components/modal/BottomModal.svelte';
+  import { ariaHideDecorativeEmoji } from '$lib/emoji';
   import { toastStore } from '$lib/state/toast.svelte';
 
   interface Props {
@@ -34,11 +35,11 @@
 <BottomModal onClose={closeModal}>
   {#snippet modalContent()}
     <h2 class="agenda-item-modal-header" data-testid="agenda-item-modal-header">
-      {item?.title}
+      {@html ariaHideDecorativeEmoji(item?.title || '')}
     </h2>
     <ul class="agenda-item-modal-footer">
       <li>
-        <span class="fr-icon-delete-line"></span>
+        <span class="fr-icon-eye-off-line"></span>
         <button
           onclick={() => clickOnHideAgendaItem(item)}
           title="Cacher l’élément de l’agenda"
@@ -46,7 +47,7 @@
           data-testid="hide-agenda-item-button"
           class="hide-agenda-item"
         >
-          Supprimer
+          Masquer
         </button>
       </li>
     </ul>
