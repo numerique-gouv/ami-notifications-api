@@ -132,8 +132,8 @@ describe('/+page.svelte', () => {
         });
 
         // Then
-        expect(screen.queryByTestId('service-button')).toBeNull();
-        expect(screen.queryByTestId('followup-button')).toBeNull();
+        expect(screen.queryByTestId('service-button')).not.toBeVisible();
+        expect(screen.queryByTestId('followup-button')).not.toBeVisible();
         expect(spyUrl).toHaveBeenCalledTimes(1);
         expect(spy).toHaveBeenCalledTimes(1);
         expect(spy).toHaveBeenCalledWith('http://external-url', false);
@@ -173,8 +173,8 @@ describe('/+page.svelte', () => {
         });
 
         // Then
-        expect(screen.queryByTestId('service-button')).toBeNull();
-        expect(screen.queryByTestId('followup-button')).toBeNull();
+        expect(screen.queryByTestId('service-button')).not.toBeVisible();
+        expect(screen.queryByTestId('followup-button')).not.toBeVisible();
         expect(spyUrl).toHaveBeenCalledTimes(1);
         expect(spy).toHaveBeenCalledTimes(1);
         expect(spy).toHaveBeenCalledWith('http://external-url', true);
