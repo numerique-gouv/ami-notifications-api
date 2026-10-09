@@ -84,7 +84,7 @@ describe('/FollowupItemModal.svelte', () => {
     // When
     await waitFor(async () => {
       const archiveButton = screen.getByTestId(
-        'archive-followup-item-button-partner:type:id1'
+        'followup-item-partner:type:id1-archive-button'
       );
       await fireEvent.click(archiveButton);
     });
@@ -111,7 +111,7 @@ describe('/FollowupItemModal.svelte', () => {
     // When
     await waitFor(async () => {
       const archiveButton = screen.getByTestId(
-        'archive-followup-item-button-partner:type:id1'
+        'followup-item-partner:type:id1-archive-button'
       );
       await fireEvent.click(archiveButton);
     });

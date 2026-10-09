@@ -52,7 +52,7 @@
           onclick={() => clickOnArchiveFollowupItem(item)}
           title="Archiver l'élément {item?.title}"
           aria-label="Archiver l'élément {item?.title}"
-          data-testid="archive-followup-item-button-{item?.id}"
+          data-testid="followup-item-{item?.id}-archive-button"
           class="archive-followup-item"
         >
           Archiver

@@ -784,7 +784,7 @@ describe('/+page.svelte', () => {
           );
           expect(followupItemModal).toBeInTheDocument();
           const archiveButton = screen.getByTestId(
-            'archive-followup-item-button-partner:type:id1'
+            'followup-item-partner:type:id1-archive-button'
           );
           await fireEvent.click(archiveButton);
         });
@@ -860,7 +860,7 @@ describe('/+page.svelte', () => {
           );
           await fireEvent.click(moreIcon);
           const archiveButton = screen.getByTestId(
-            'archive-followup-item-button-partner:type:id1'
+            'followup-item-partner:type:id1-archive-button'
           );
           await fireEvent.click(archiveButton);
         });
@@ -944,7 +944,7 @@ describe('/+page.svelte', () => {
           );
           await fireEvent.click(moreIcon);
           const archiveButton = screen.getByTestId(
-            'archive-followup-item-button-partner:type:id1'
+            'followup-item-partner:type:id1-archive-button'
           );
           await fireEvent.click(archiveButton);
         });
