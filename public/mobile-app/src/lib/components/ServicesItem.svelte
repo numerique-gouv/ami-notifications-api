@@ -30,7 +30,7 @@
       id="services-item-{item.id}-button"
       type="button"
       class="fr-sidemenu__link"
-      data-testid="service-catalog-{item.id}"
+      data-testid="services-item-{item.id}-open-modal-button"
     >
       <span class="services--item-details">
         <span class="services--item-label">{item.title}</span>
