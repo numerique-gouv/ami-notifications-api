@@ -21,12 +21,6 @@
     onOpen = null,
     isPast = false,
   }: Props = $props();
-
-  const badgeKinds = {
-    election: 'fr-badge--green-tilleul-verveine',
-    holiday: 'fr-badge--blue-cumulus',
-    personal: 'am-badge--user',
-  };
 </script>
 
 <div class="agenda--item">
@@ -73,18 +67,9 @@
             {/if}
             <div class="fr-tile__start fr-mb-3v">
               <p
-                class="fr-badge fr-badge--sm fr-badge--icon-left fr-mb-1w {item.icon} {badgeKinds[item.kind]}"
+                class="fr-badge fr-badge--sm fr-badge--icon-left fr-mb-1w {item.icon} {item.badgeClassName}"
               >
-                {item.label}
-              </p>
-              <p class="fr-tag fr-tag--sm">{item.period}</p>
-            </div>
-          {:else}
-            <div class="fr-tile__start fr-mb-3v">
-              <p
-                class="fr-badge fr-badge--sm fr-badge--icon-left {item.icon} {badgeKinds[(item.kind)]} fr-mb-0"
-              >
-                {item.label}
+                {item.period}
               </p>
             </div>
           {/if}
@@ -102,7 +87,16 @@
                 {@html ariaHideDecorativeEmoji(DOMPurify.sanitize(subitem.description || ''), false)}
               </p>
               <div class="fr-tile__start">
-                <p class="fr-tag">{subitem.period}</p>
+                <p
+                  class="fr-badge fr-badge--sm fr-badge--icon-left fr-mb-1w {item.icon} {item.badgeClassName}"
+                >
+                  {subitem.period}
+                </p>
+                {#if subitem.isPersonal}
+                  <p
+                    class="fr-badge fr-badge--sm fr-badge--icon-left fr-mb-1w fr-icon-user-fill am-badge--user"
+                  ></p>
+                {/if}
               </div>
             </div>
           </div>
@@ -208,9 +202,6 @@
                 }
               }
             }
-          }
-          .fr-tag {
-            display: block;
           }
         }
         .fr-tile__start {
