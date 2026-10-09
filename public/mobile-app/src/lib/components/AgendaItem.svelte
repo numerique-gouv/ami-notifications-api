@@ -13,19 +13,19 @@
     displayDate?: boolean;
     displayDay?: boolean;
     Date?: boolean;
-    onOpen?: (() => void) | null;
     isPast?: boolean;
     followupSubItem?: FollowupSubItem | null;
     useBackOrGoto?: boolean;
+    hasModal?: boolean;
   }
   let {
     item,
     displayDate = true,
     displayDay = true,
-    onOpen = null,
     isPast = false,
     followupSubItem = null,
     useBackOrGoto = false,
+    hasModal = false,
   }: Props = $props();
 
   let checkedIcon = '';
@@ -59,20 +59,22 @@
   <div class="agenda--item--container">
     <div
       class="fr-card fr-enlarge-button fr-card--sm fr-card--horizontal agenda--item--detail
-              {item.kind} 
-              {isPast ? 'past': ''} 
+              {item.kind}
+              {isPast ? 'past': ''}
               {item.link ? '': 'fr-card--no-icon no-link'}
-              {onOpen ? '': 'am-without-opt'}
+              {hasModal ? '': 'am-without-opt'}
       "
     >
-      {#if onOpen}
+      {#if hasModal}
         <button
+          data-fr-opened="false"
+          aria-controls="agenda-item-{item.key}-modal"
+          id="agenda-item-{item.key}-button"
           type="button"
-          onclick={onOpen}
-          data-testid="open-agenda-item-modal-{item.id}"
-          class="fr-btn fr-btn--icon fr-icon-more-2-fill fr-btn--tertiary-no-outline fr-pt-2w am-btn-modal open-agenda-item-modal"
+          data-testid="open-agenda-item-modal-{item.key}"
+          class="fr-btn fr-btn--icon fr-icon-more-2-fill fr-btn--tertiary-no-outline fr-pt-2w am-icon-20 am-btn-modal open-agenda-item-modal"
         >
-          Ouvrir la modale liée à l’élément de l’agenda
+          Ouvrir les options pour {item.title}
         </button>
       {/if}
       <div class="fr-card__body fr-p-0">

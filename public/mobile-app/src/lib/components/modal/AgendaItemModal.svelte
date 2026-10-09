@@ -5,14 +5,10 @@
   import { toastStore } from '$lib/state/toast.svelte';
 
   interface Props {
-    item: Item | null;
+    item: Item;
     agenda: Agenda | null;
   }
-  let { item = $bindable(), agenda = $bindable() }: Props = $props();
-
-  const closeModal = () => {
-    item = null;
-  };
+  let { item, agenda = $bindable() }: Props = $props();
 
   const refreshAgenda = () => {
     buildAgenda().then((result) => {
@@ -20,31 +16,32 @@
     });
   };
 
-  const clickOnHideAgendaItem = (item: Item | null) => {
-    if (item) {
-      item.hide();
-      if (agenda) {
-        refreshAgenda();
-      }
-      closeModal();
-      toastStore.addToast('L’élément a bien été supprimé', 'success', 3000, true);
+  const clickOnHideAgendaItem = (item: Item) => {
+    item.hide();
+    if (agenda) {
+      refreshAgenda();
     }
+    toastStore.addToast('L’élément a bien été supprimé', 'success', 3000, true);
   };
 </script>
 
-<BottomModal onClose={closeModal}>
+<BottomModal modalId="agenda-item-{item.key}-modal">
   {#snippet modalContent()}
-    <h2 class="agenda-item-modal-header" data-testid="agenda-item-modal-header">
-      {@html ariaHideDecorativeEmoji(item?.title || '')}
+    <h2
+      id="agenda-item-{item.key}-modal-title"
+      class="agenda-item-modal-header"
+      data-testid="agenda-item-modal-header"
+    >
+      {@html ariaHideDecorativeEmoji(item.title)}
     </h2>
     <ul class="agenda-item-modal-footer">
       <li>
-        <span class="fr-icon-eye-off-line"></span>
         <button
           onclick={() => clickOnHideAgendaItem(item)}
-          title="Cacher l’élément de l’agenda"
-          aria-label="Cacher l’élément de l’agenda"
-          data-testid="hide-agenda-item-button"
+          aria-controls="agenda-item-{item.key}-modal"
+          title="Cacher l’élément de l’agenda {item.title}"
+          aria-label="Cacher l’élément de l’agenda {item.title}"
+          data-testid="hide-agenda-item-button-{item.key}"
           class="hide-agenda-item"
         >
           Masquer

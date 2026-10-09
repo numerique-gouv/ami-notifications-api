@@ -4,6 +4,7 @@ import * as agendaMethods from '$lib/agenda';
 import { Agenda, Item, monthName } from '$lib/agenda';
 import * as AMINavigationMethods from '$lib/ami-navigation';
 import { toastStore } from '$lib/state/toast.svelte';
+import { getTimestamp } from '$lib/utils';
 import Page from './+page.svelte';
 
 const oneday_in_ms = 24 * 60 * 60 * 1000;
@@ -292,12 +293,16 @@ describe('/+page.svelte', () => {
 
       // When
       await waitFor(async () => {
-        const moreIcon = screen.getByTestId('open-agenda-item-modal-fake-id-holiday-1');
+        const moreIcon = screen.getByTestId(
+          `open-agenda-item-modal-ami-holiday:${getTimestamp(today)}:holiday-1`
+        );
         await fireEvent.click(moreIcon);
       });
 
       // Then
-      const agendaItemModal = screen.getByTestId('item-modal');
+      const agendaItemModal = screen.getByTestId(
+        `light-modal-agenda-item-ami-holiday:${getTimestamp(today)}:holiday-1-modal`
+      );
       expect(agendaItemModal).toBeInTheDocument();
     });
 
@@ -314,18 +319,28 @@ describe('/+page.svelte', () => {
 
       // When
       await waitFor(async () => {
-        const moreIcon = screen.getByTestId('open-agenda-item-modal-fake-id-holiday-1');
+        const moreIcon = screen.getByTestId(
+          `open-agenda-item-modal-ami-holiday:${getTimestamp(today)}:holiday-1`
+        );
         await fireEvent.click(moreIcon);
 
-        const agendaItemModal = screen.getByTestId('item-modal');
+        const agendaItemModal = screen.getByTestId(
+          `light-modal-agenda-item-ami-holiday:${getTimestamp(today)}:holiday-1-modal`
+        );
         expect(agendaItemModal).toBeInTheDocument();
 
-        const deleteButton = screen.getByTestId('hide-agenda-item-button');
+        const deleteButton = screen.getByTestId(
+          `hide-agenda-item-button-ami-holiday:${getTimestamp(today)}:holiday-1`
+        );
         await fireEvent.click(deleteButton);
       });
 
       // Then
-      expect(screen.queryByTestId('agenda-item-modal')).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId(
+          `light-modal-agenda-item-ami-holiday:${getTimestamp(today)}:holiday-1-modal`
+        )
+      ).not.toBeVisible();
     });
 
     test('should add toast when user clicks on "Supprimer" button', async () => {
@@ -342,10 +357,14 @@ describe('/+page.svelte', () => {
 
       // When
       await waitFor(async () => {
-        const moreIcon = screen.getByTestId('open-agenda-item-modal-fake-id-holiday-1');
+        const moreIcon = screen.getByTestId(
+          `open-agenda-item-modal-ami-holiday:${getTimestamp(today)}:holiday-1`
+        );
         await fireEvent.click(moreIcon);
 
-        const deleteButton = screen.getByTestId('hide-agenda-item-button');
+        const deleteButton = screen.getByTestId(
+          `hide-agenda-item-button-ami-holiday:${getTimestamp(today)}:holiday-1`
+        );
         await fireEvent.click(deleteButton);
       });
 
