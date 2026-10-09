@@ -47,7 +47,7 @@ describe('/+page.svelte', () => {
 
     // Then
     const contactUsButton = screen.getByTestId('contact-us-button');
-    expect(screen.queryByTestId('contact-us-link-url')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('contact-us-link-url')).not.toBeVisible();
     await waitFor(() => {
       contactUsButton.click();
       // now the popup is open
@@ -68,7 +68,7 @@ describe('/+page.svelte', () => {
 
     // Then
     const contactUsButton = screen.getByTestId('contact-us-button');
-    expect(screen.queryByTestId('contact-us-link-url')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('contact-us-link-url')).not.toBeVisible();
     await waitFor(() => {
       contactUsButton.click();
       // now the popup is open

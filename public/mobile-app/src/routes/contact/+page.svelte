@@ -20,14 +20,6 @@
       userFcHash = localStorage.getItem('user_fc_hash') || '<error>';
     }
   });
-
-  let contactUsModal = $state(false);
-  const openContactUsModal = () => {
-    contactUsModal = true;
-  };
-  const closeContactUsModal = () => {
-    contactUsModal = false;
-  };
 </script>
 
 <div class="fr-container contact-page">
@@ -45,50 +37,49 @@
 
     <div class="contact-us-wrapper fr-btns-group">
       <button
+        data-fr-opened="false"
+        aria-controls="contact-us-modal"
         id="contact-us-button"
         class="fr-btn"
-        onclick={openContactUsModal}
         data-testid="contact-us-button"
       >
         Contacter notre équipe
       </button>
     </div>
 
-    {#if contactUsModal}
-      <BottomModal onClose={closeContactUsModal}>
-        {#snippet modalContent()}
-          <div class="fr-sidemenu">
-            <ul class="fr-sidemenu__list contact-us-links">
-              <li>
-                <button
-                  type="button"
-                  class="fr-sidemenu__link fr-text--regular fr-icon-edit-fill"
-                  onclick={() => AMIGoto(getContactUrl(userFcHash))}
-                  data-testid="contact-us-link-url"
-                >
-                  Faire une demande en ligne
-                </button>
-              </li>
-              <li>
-                <button
-                  type="button"
-                  class="fr-sidemenu__link fr-text--regular fr-icon-mail-fill"
-                  onclick={() => window.location.href = getContactMailToUri(userFcHash)}
-                  data-testid="contact-us-link-email"
-                >
-                  Envoyer un mail
-                </button>
-              </li>
-            </ul>
-            {#if platform && version}
-              <p class="fr-m-4v am-text-mention-grey" data-testid="native-infos">
-                {getPlatform()} - {getVersion()}
-              </p>
-            {/if}
-          </div>
-        {/snippet}
-      </BottomModal>
-    {/if}
+    <BottomModal modalId="contact-us-modal">
+      {#snippet modalContent()}
+        <div class="fr-sidemenu">
+          <ul class="fr-sidemenu__list contact-us-links">
+            <li>
+              <button
+                type="button"
+                class="fr-sidemenu__link fr-text--regular fr-icon-edit-fill"
+                onclick={() => AMIGoto(getContactUrl(userFcHash))}
+                data-testid="contact-us-link-url"
+              >
+                Faire une demande en ligne
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
+                class="fr-sidemenu__link fr-text--regular fr-icon-mail-fill"
+                onclick={() => window.location.href = getContactMailToUri(userFcHash)}
+                data-testid="contact-us-link-email"
+              >
+                Envoyer un mail
+              </button>
+            </li>
+          </ul>
+          {#if platform && version}
+            <p class="fr-m-4v am-text-mention-grey" data-testid="native-infos">
+              {getPlatform()} - {getVersion()}
+            </p>
+          {/if}
+        </div>
+      {/snippet}
+    </BottomModal>
   </div>
 </div>
 
