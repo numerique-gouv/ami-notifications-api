@@ -60,14 +60,6 @@
     AMIGoto('/#/login');
   }
 
-  let connectionHelpModal = $state(false);
-  const onConnectionHelpOpen = () => {
-    connectionHelpModal = true;
-  };
-  const closeConnectionHelpModal = () => {
-    connectionHelpModal = false;
-  };
-
   if (userStore.connected) {
     AMIGoto('/');
   }
@@ -135,45 +127,44 @@
 
     <div class="connection-help-wrapper">
       <button
+        data-fr-opened="false"
+        aria-controls="connection-help-modal"
         id="connection-help-button"
         class="fr-link fr-px-4w fr-py-3v"
-        onclick={onConnectionHelpOpen}
         data-testid="connection-help-button"
       >
         Je n’arrive pas à me connecter
       </button>
     </div>
 
-    {#if connectionHelpModal}
-      <BottomModal onClose={closeConnectionHelpModal}>
-        {#snippet modalContent()}
-          <div class="fr-sidemenu">
-            <ul class="fr-sidemenu__list connection-help-links">
-              <li>
-                <button
-                  type="button"
-                  class="fr-sidemenu__link fr-text--regular fr-icon-edit-fill"
-                  onclick={() => AMIGoto(getContactUrl())}
-                  data-testid="connection-help-link-url"
-                >
-                  Faire une demande en ligne
-                </button>
-              </li>
-              <li>
-                <button
-                  type="button"
-                  class="fr-sidemenu__link fr-text--regular fr-icon-mail-fill"
-                  onclick={() => window.location.href = getContactMailToUri()}
-                  data-testid="connection-help-link-email"
-                >
-                  Envoyer un mail
-                </button>
-              </li>
-            </ul>
-          </div>
-        {/snippet}
-      </BottomModal>
-    {/if}
+    <BottomModal modalId="connection-help-modal">
+      {#snippet modalContent()}
+        <div class="fr-sidemenu">
+          <ul class="fr-sidemenu__list connection-help-links">
+            <li>
+              <button
+                type="button"
+                class="fr-sidemenu__link fr-text--regular fr-icon-edit-fill"
+                onclick={() => AMIGoto(getContactUrl())}
+                data-testid="connection-help-link-url"
+              >
+                Faire une demande en ligne
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
+                class="fr-sidemenu__link fr-text--regular fr-icon-mail-fill"
+                onclick={() => window.location.href = getContactMailToUri()}
+                data-testid="connection-help-link-email"
+              >
+                Envoyer un mail
+              </button>
+            </li>
+          </ul>
+        </div>
+      {/snippet}
+    </BottomModal>
   </div>
 </div>
 
