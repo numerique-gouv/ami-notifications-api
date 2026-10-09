@@ -8,15 +8,14 @@
   import { AMIGoto } from '$lib/ami-navigation';
   import ServicesItemModal from '$lib/components/modal/ServicesItemModal.svelte';
   import Navigation from '$lib/components/Navigation.svelte';
-  import SideMenu from '$lib/components/SideMenu.svelte';
+  import ServicesItem from '$lib/components/ServicesItem.svelte';
   import type { Followup } from '$lib/followup';
   import { buildFollowup } from '$lib/followup';
-  import type { Services, ServicesItem } from '$lib/services';
+  import type { ServicesItem as Item, Services } from '$lib/services';
   import { buildServices } from '$lib/services';
   import { userStore } from '$lib/state/User.svelte';
 
   let services: Services | null = $state(null);
-  let selectedServicesItem: ServicesItem | null = $state(null);
   let followup: Followup | null = $state(null);
 
   onMount(async () => {
@@ -30,23 +29,9 @@
     console.log($state.snapshot(services));
   });
 
-  const getServiceUrl = async (service: ServicesItem) => {
-    return await service.getServiceUrl();
-  };
-
-  const goToService = async (service: ServicesItem) => {
+  const goToService = async (service: Item) => {
     const url = await service.getServiceUrl();
     AMIGoto(url, service.with_silent_login);
-  };
-
-  const clickOnService = (service: ServicesItem) => {
-    const hasNonArchivedItems =
-      followup?.hasNonArchivedItems(service.partner_id, service.item_type) || false;
-    if (hasNonArchivedItems) {
-      selectedServicesItem = service;
-    } else {
-      goToService(service);
-    }
   };
 </script>
 
@@ -141,7 +126,7 @@
                     class="fr-sidemenu__btn fr-pl-0 fr-pr-4w am-text--smbold  {steps.icon} {steps.icon ? 'fr-tag--icon-left': ''}"
                     type="button"
                     data-testid="service-steps-{steps.id}"
-                    onclick={()=> goToService(steps)}
+                    onclick={() => goToService(steps)}
                   >
                     {steps.title}
                     <span
@@ -162,7 +147,7 @@
         <button
           type="button"
           class="fr-btn fr-btn--secondary am-btn-w100"
-          onclick={()=> AMIGoto(PUBLIC_SP_ANNUAIRE_URL)}
+          onclick={() => AMIGoto(PUBLIC_SP_ANNUAIRE_URL)}
         >
           Accéder à l’annuaire
         </button>
@@ -185,26 +170,13 @@
               <div id="fr-sidemenu-wrapper">
                 <ul class="fr-sidemenu__list">
                   {#if services && services.items.length}
-                    {#each services.items as item}
-                      <li class="fr-sidemenu__item">
-                        <button
-                          type="button"
-                          class="fr-sidemenu__link"
-                          onclick={() => clickOnService(item)}
-                          data-testid="service-catalog-{item.id}"
-                        >
-                          <span class="services--item-details">
-                            <span class="services--item-label">{item.title}</span>
-                            <span class="services--item-description"
-                              >{item.service_name}</span
-                            >
-                          </span>
-                          <span
-                            aria-hidden="true"
-                            class="icon fr-icon-arrow-right-s-line"
-                          ></span>
-                        </button>
-                      </li>
+                    {#each services.items as item, i}
+                      <ServicesItem
+                        item={item}
+                        hasNonArchivedItems={followup?.hasNonArchivedItems(item.partner_id, item.item_type) || false}
+                        goToService={(item) => goToService(item)}
+                      />
+                      <ServicesItemModal bind:item={services.items[i]} />
                     {/each}
                   {/if}
                 </ul>
@@ -226,53 +198,12 @@
   </div>
 </div>
 
-{#if selectedServicesItem}
-  <ServicesItemModal bind:item={selectedServicesItem} />
-{/if}
-
 <style>
   .services {
     margin-bottom: 68px;
     .fr-sidemenu.services-sidemenu {
       box-shadow: none;
       margin: 0 0 2rem;
-      .fr-sidemenu__item {
-        button.fr-sidemenu__link {
-          background: none;
-          border: none;
-          width: 100%;
-          text-align: left;
-          font: inherit;
-          cursor: pointer;
-          padding: 1.5rem 0;
-          color: #000;
-          --hover-tint: none;
-          --active-tint: none;
-          justify-content: space-between;
-          span.services--item-details {
-            display: flex;
-            flex-direction: column;
-            span.services--item-label {
-              font-weight: 700;
-              font-size: 16px;
-            }
-            span.services--item-description {
-              font-weight: 400;
-              font-size: 14px;
-              line-height: 20px;
-              color: var(--text-mention-grey);
-            }
-          }
-          span.icon {
-            color: var(--text-active-blue-france);
-          }
-        }
-        &:last-child::before {
-          box-shadow:
-            0 -1px 0 0 var(--border-default-grey),
-            inset 0 -1px 0 0 var(--border-default-grey);
-        }
-      }
     }
 
     .am-tabs {

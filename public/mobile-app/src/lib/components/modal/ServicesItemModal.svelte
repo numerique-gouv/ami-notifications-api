@@ -8,10 +8,6 @@
   }
   let { item = $bindable() }: Props = $props();
 
-  const closeModal = () => {
-    item = null;
-  };
-
   const goToService = async (item: ServicesItemType | null) => {
     if (item) {
       const url = await item.getServiceUrl();
@@ -24,7 +20,7 @@
   };
 </script>
 
-<CenteredModal onClose={closeModal}>
+<CenteredModal modalId="services-item-{item?.id}-modal">
   {#snippet modalContent()}
     <h4 class="services-item-modal-header" data-testid="services-item-modal-header">
       Que voulez-vous faire&nbsp;?
