@@ -399,6 +399,14 @@ export class User {
     }
     return '';
   }
+
+  getInitial(): string {
+    const firstName = this.getFirstName();
+    if (firstName.length) {
+      return firstName.substring(0, 1);
+    }
+    return '';
+  }
 }
 
 export const userStore = new UserStore();
