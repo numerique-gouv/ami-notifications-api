@@ -1,3 +1,6 @@
+import urllib.parse
+
+from django.conf import settings
 from rest_framework import serializers
 
 from ami.partner.models import Partner
@@ -32,6 +35,14 @@ class RegistrationCreateSerializer(serializers.Serializer):
     subscription = serializers.DictField()
 
     def validate_subscription(self, value):
+        endpoint = value.get("endpoint")
+        if endpoint:
+            endpoint_hostname = urllib.parse.urlparse(endpoint).hostname
+            if endpoint_hostname not in settings.PUSH_NOTIFICATIONS_ALLOWED_SERVICES:
+                raise serializers.ValidationError(
+                    "unknown push notification service",
+                    "invalid",
+                )
         if "fcm_token" in value:
             s = MobileAppSubscriptionSerializer(data=value)
         else:
