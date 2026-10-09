@@ -1,46 +1,24 @@
 import base64
 import json
-import uuid
 from typing import Any
 from unittest import mock
 
 import pytest
-from django.contrib.auth.hashers import make_password
 from django.core import signing
 from webauthn.helpers.exceptions import InvalidAuthenticationResponse
 
-from ami.fi.models import FISession, UserPasskey
-from ami.tests.utils import login, url_contains_param
+from ami.fi.models import UserPasskey
+from ami.tests.utils import login
 from ami.user.models import User
 
 
 @pytest.fixture
-def fi_session_id(settings, app, monkeypatch, user, decoded_user_data):
-    settings.PUBLIC_FC_PROXY_BASE_URL = ""
+def cookie(settings, app, monkeypatch, user, decoded_user_data):
     app.set_cookie(settings.USERINFO_COOKIE_NAME, signing.dumps(decoded_user_data))
-    authorize_data = {
-        "state": "fake-state",
-        "nonce": "fake-nonce",
-        "response_type": "code",
-        "client_id": settings.FI_CLIENT_ID,
-        "redirect_uri": settings.FI_REDIRECT_URI,
-        "scope": "fake-scope",
-        "acr_values": "eidas1",
-        "claims": json.dumps(
-            {
-                "id_token": "fake-id-token",
-            }
-        ),
-        "prompt": "fake-prompt",
-    }
-    app.get("/api/v1/fi/authorize/", params=authorize_data)
-    assert app.session["fi_session_id"]
 
 
-@pytest.mark.parametrize("fc_mode", ["noproxy", "proxy"])
 @pytest.mark.django_db
-def test_passkey_authentication(
-    fc_mode,
+def test_passkey_authentication_check(
     settings,
     app,
     monkeypatch: pytest.MonkeyPatch,
@@ -48,18 +26,12 @@ def test_passkey_authentication(
     decoded_user_data: dict[str, Any],
     user: User,
 ) -> None:
-    if fc_mode == "noproxy":
-        settings.PUBLIC_FC_PROXY_BASE_URL = ""
-    else:
-        settings.PUBLIC_FC_PROXY_BASE_URL = "https://fake-fc-proxy"
-
     def fake_jwt_decode(*args: Any, **params: Any):
         return userinfo
 
     monkeypatch.setattr("jwt.decode", fake_jwt_decode)
 
     monkeypatch.setattr("ami.fi.api_views.token_urlsafe", lambda a: "fake-code")
-    expected_code = make_password("fake-code", settings.FI_HASH_SALT)
 
     app.set_cookie(settings.USERINFO_COOKIE_NAME, signing.dumps(decoded_user_data))
 
@@ -97,107 +69,16 @@ def test_passkey_authentication(
     }
 
     response = app.get("/api/v1/fi/authorize/", params=authorize_data)
-    assert app.session["fi_session_id"]
     assert response.location == "/?redirect_to_hash=#/passkey-authentication"
 
     response = app.post_json(
-        "/api/v1/fi/passkey/verify-authentication", {"id": "fake-credential-id"}
+        "/api/v1/fi/passkey/verify-authentication-check", {"id": "fake-credential-id"}
     )
-
-    fi_session = FISession.objects.get()
-    assert fi_session.user_data == decoded_user_data
-    assert fi_session.state == "fake-state"
-    assert fi_session.nonce == "fake-nonce"
-    assert fi_session.code == expected_code
-    assert fi_session.access_token == ""
-    redirected_url = response.json["redirect_uri"]
-    if fc_mode == "noproxy":
-        assert redirected_url.startswith(settings.FI_REDIRECT_URI)
-        assert url_contains_param(
-            "code",
-            "fake-code",
-            redirected_url,
-        )
-        assert url_contains_param(
-            "state",
-            "fake-state",
-            redirected_url,
-        )
-    else:
-        assert redirected_url.startswith(
-            f"{settings.PUBLIC_FC_PROXY_BASE_URL}/ami-fi-authorize-callback/"
-        )
-        redirect_uri = f"{settings.FI_REDIRECT_URI}?code=fake-code&state=fake-state"
-        assert url_contains_param(
-            "redirect_uri",
-            redirect_uri,
-            redirected_url,
-        )
-    assert response.json["verified"] is True
-
-    assert app.session.get("fi_session_id") is None
-    assert app.session.get("passkey_authentication_challenge") is None
+    assert response.json == {"verified": True, "redirect_uri": ""}
 
 
 @pytest.mark.django_db
-def test_passkey_authentication_missing_fi_session_id(
-    settings,
-    app,
-    user: User,
-) -> None:
-    response = app.post_json(
-        "/api/v1/fi/passkey/verify-authentication", {"id": "fake-credential-id"}, status=400
-    )
-    assert response.json == {"error": "missing-fi-session"}
-
-    assert app.session.get("fi_session_id") is None
-    assert app.session.get("passkey_authentication_challenge") is None
-
-
-@pytest.mark.django_db
-def test_passkey_authentication_invalid_fi_session_id(
-    settings,
-    app,
-    user: User,
-) -> None:
-    app.set_cookie("sessionid", "initial")
-    session = app.session
-    session["fi_session_id"] = "not-a-uuid"
-    session.save()
-    app.set_cookie("sessionid", session.session_key)
-
-    response = app.post_json(
-        "/api/v1/fi/passkey/verify-authentication", {"id": "fake-credential-id"}, status=400
-    )
-    assert response.json == {"error": "invalid-fi-session"}
-
-    assert app.session.get("fi_session_id") is None
-    assert app.session.get("passkey_authentication_challenge") is None
-
-
-@pytest.mark.django_db
-def test_passkey_authentication_unknown_fi_session_id(
-    settings,
-    app,
-    user: User,
-) -> None:
-    app.set_cookie("sessionid", "initial")
-    session = app.session
-    session["fi_session_id"] = str(uuid.uuid4())
-    session.save()
-    app.set_cookie("sessionid", session.session_key)
-
-    response = app.post_json(
-        "/api/v1/fi/passkey/verify-authentication", {"id": "fake-credential-id"}, status=400
-    )
-    assert response.json == {"error": "unknown-fi-session"}
-
-    assert app.session.get("fi_session_id") is None
-    assert app.session.get("passkey_authentication_challenge") is None
-
-
-@pytest.mark.django_db
-def test_passkey_authentication_missing_cookie(
+def test_passkey_authentication_check_missing_cookie(
     settings,
     app,
     monkeypatch: pytest.MonkeyPatch,
@@ -230,50 +111,46 @@ def test_passkey_authentication_missing_cookie(
     }
 
     app.get("/api/v1/fi/authorize/", params=authorize_data)
-    assert app.session["fi_session_id"]
 
     response = app.post_json(
-        "/api/v1/fi/passkey/verify-authentication", {"id": "fake-credential-id"}, status=403
+        "/api/v1/fi/passkey/verify-authentication-check", {"id": "fake-credential-id"}, status=403
     )
     assert response.json == {"error": "missing-cookie"}
 
-    assert app.session.get("fi_session_id") is None
     assert app.session.get("passkey_authentication_challenge") is None
 
 
 @pytest.mark.django_db
-def test_passkey_authentication_missing_challenge(
+def test_passkey_authentication_check_missing_challenge(
     app,
-    fi_session_id,
+    cookie,
 ) -> None:
-    response = app.post_json("/api/v1/fi/passkey/verify-authentication", status=400)
+    response = app.post_json("/api/v1/fi/passkey/verify-authentication-check", status=400)
     assert response.json == {"error": "missing-challenge", "retry": True}
 
-    assert app.session.get("fi_session_id") is not None
     assert app.session.get("passkey_authentication_challenge") is None
 
 
 @pytest.mark.django_db
-def test_passkey_authentication_missing_credential_id(
+def test_passkey_authentication_check_missing_credential_id(
     app,
-    fi_session_id,
+    cookie,
 ) -> None:
     app.get(
         "/api/v1/fi/passkey/generate-authentication-options",
     )
     assert app.session.get("passkey_authentication_challenge") is not None
 
-    response = app.post_json("/api/v1/fi/passkey/verify-authentication", {}, status=400)
+    response = app.post_json("/api/v1/fi/passkey/verify-authentication-check", {}, status=400)
     assert response.json == {"error": "missing-credential-id", "retry": True}
 
-    assert app.session.get("fi_session_id") is not None
     assert app.session.get("passkey_authentication_challenge") is None
 
 
 @pytest.mark.django_db
-def test_passkey_authentication_user_passkey_not_found(
+def test_passkey_authentication_check_user_passkey_not_found(
     app,
-    fi_session_id,
+    cookie,
 ) -> None:
     app.get(
         "/api/v1/fi/passkey/generate-authentication-options",
@@ -281,20 +158,21 @@ def test_passkey_authentication_user_passkey_not_found(
     assert app.session.get("passkey_authentication_challenge") is not None
 
     response = app.post_json(
-        "/api/v1/fi/passkey/verify-authentication", {"id": "missing-credential-id"}, status=400
+        "/api/v1/fi/passkey/verify-authentication-check",
+        {"id": "missing-credential-id"},
+        status=400,
     )
     assert response.json == {"error": "unknown-credential-id", "retry": True}
 
-    assert app.session.get("fi_session_id") is not None
     assert app.session.get("passkey_authentication_challenge") is None
 
 
 @pytest.mark.django_db
-def test_passkey_authentication_verify_failed(
+def test_passkey_authentication_check_verify_failed(
     app,
     monkeypatch: pytest.MonkeyPatch,
     user: User,
-    fi_session_id,
+    cookie,
 ) -> None:
     UserPasskey.objects.create(
         user=user,
@@ -315,7 +193,7 @@ def test_passkey_authentication_verify_failed(
     )
 
     response = app.post_json(
-        "/api/v1/fi/passkey/verify-authentication", {"id": "fake-credential-id"}, status=400
+        "/api/v1/fi/passkey/verify-authentication-check", {"id": "fake-credential-id"}, status=400
     )
     assert response.json == {
         "error": "invalid-authentication-response",
@@ -323,31 +201,26 @@ def test_passkey_authentication_verify_failed(
         "retry": True,
     }
 
-    assert app.session.get("fi_session_id") is not None
     assert app.session.get("passkey_authentication_challenge") is None
 
 
 @pytest.mark.django_db
-def test_passkey_authentication_fc_hash_mismatch(
+def test_passkey_authentication_check_fc_hash_mismatch(
     settings,
     app,
     monkeypatch: pytest.MonkeyPatch,
     userinfo: dict[str, Any],
-    decoded_user_data: dict[str, Any],
     two_users: list[User],
+    cookie,
 ) -> None:
     def fake_jwt_decode(*args: Any, **params: Any):
         return userinfo
 
     user, second_user = two_users
 
-    settings.PUBLIC_FC_PROXY_BASE_URL = ""
-
     monkeypatch.setattr("jwt.decode", fake_jwt_decode)
 
     monkeypatch.setattr("ami.fi.api_views.token_urlsafe", lambda a: "fake-code")
-
-    app.set_cookie(settings.USERINFO_COOKIE_NAME, signing.dumps(decoded_user_data))
 
     UserPasskey.objects.create(
         user=second_user,
@@ -383,19 +256,17 @@ def test_passkey_authentication_fc_hash_mismatch(
     }
 
     app.get("/api/v1/fi/authorize/", params=authorize_data)
-    assert app.session["fi_session_id"]
 
     response = app.post_json(
-        "/api/v1/fi/passkey/verify-authentication", {"id": "fake-credential-id"}, status=403
+        "/api/v1/fi/passkey/verify-authentication-check", {"id": "fake-credential-id"}, status=403
     )
     assert response.json == {"error": "difference-in-fc-hash", "retry": True}
 
-    assert app.session.get("fi_session_id") is not None
     assert app.session.get("passkey_authentication_challenge") is None
 
 
 @pytest.mark.django_db
-def test_passkey_authentication_ami_user_mismatch(
+def test_passkey_authentication_check_ami_user_mismatch(
     settings,
     app,
     monkeypatch: pytest.MonkeyPatch,
@@ -409,8 +280,6 @@ def test_passkey_authentication_ami_user_mismatch(
 
     def fake_jwt_decode(*args: Any, **params: Any):
         return userinfo
-
-    settings.PUBLIC_FC_PROXY_BASE_URL = ""
 
     monkeypatch.setattr("jwt.decode", fake_jwt_decode)
 
@@ -457,14 +326,12 @@ def test_passkey_authentication_ami_user_mismatch(
     }
 
     app.get("/api/v1/fi/authorize/", params=authorize_data)
-    assert app.session["fi_session_id"]
 
     response = app.post_json(
-        "/api/v1/fi/passkey/verify-authentication",
+        "/api/v1/fi/passkey/verify-authentication-check",
         {"id": "second-fake-credential-id"},
         status=403,
     )
     assert response.json == {"error": "user-is-not-ami-user", "retry": True}
 
-    assert app.session.get("fi_session_id") is not None
     assert app.session.get("passkey_authentication_challenge") is None

@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
-import type { AuthenticationResponseJSON } from '@simplewebauthn/browser';
-import * as simplewebauthnMethods from '@simplewebauthn/browser';
 import { render, screen, waitFor } from '@testing-library/svelte';
 import * as AMINavigationMethods from '$lib/ami-navigation';
+import * as passkeyMethods from '$lib/passkey';
+import { PasskeyBreakingError, PasskeyError, PasskeyNetworkError } from '$lib/passkey';
 import { userStore } from '$lib/state/User.svelte';
 import Page from './+page.svelte';
 
@@ -18,17 +18,17 @@ describe('/+page.svelte', () => {
     HTMLDialogElement.prototype.show = vi.fn();
   });
 
-  test('should display passkey error message and bypass button on options response error', async () => {
+  test('should display passkey error message and bypass button on PasskeyError', async () => {
     // Given
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-      new Response('{}', { status: 400 })
-    );
     const spy = vi
       .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
     const unsetHasWorkingPasskeySpy = vi
       .spyOn(userStore, 'unsetHasWorkingPasskey')
       .mockResolvedValue();
+    const spyAuth = vi
+      .spyOn(passkeyMethods, 'authenticateWithPasskey')
+      .mockRejectedValue(new PasskeyError());
     render(Page);
 
     // When
@@ -53,16 +53,19 @@ describe('/+page.svelte', () => {
     });
     expect(spy).toHaveBeenCalledWith('/#/relogin');
     expect(unsetHasWorkingPasskeySpy).toHaveBeenCalled();
+    expect(spyAuth).toHaveBeenCalledExactlyOnceWith();
   });
-  test('should display network error message and bypass button on options TypeError', async () => {
+  test('should display network error message and bypass button on PasskeyNetworkError', async () => {
     // Given
-    vi.spyOn(globalThis, 'fetch').mockRejectedValue(new TypeError());
     const spy = vi
       .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
     const unsetHasWorkingPasskeySpy = vi
       .spyOn(userStore, 'unsetHasWorkingPasskey')
       .mockResolvedValue();
+    const spyAuth = vi
+      .spyOn(passkeyMethods, 'authenticateWithPasskey')
+      .mockRejectedValue(new PasskeyNetworkError());
     render(Page);
 
     // When
@@ -87,137 +90,19 @@ describe('/+page.svelte', () => {
     });
     expect(spy).toHaveBeenCalledWith('/#/relogin');
     expect(unsetHasWorkingPasskeySpy).toHaveBeenCalled();
+    expect(spyAuth).toHaveBeenCalledExactlyOnceWith();
   });
-  test('should display passkey error message and bypass button on options error', async () => {
+  test('should display passkey error message and bypass button on PasskeyBreakingError', async () => {
     // Given
-    vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error());
     const spy = vi
       .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
     const unsetHasWorkingPasskeySpy = vi
       .spyOn(userStore, 'unsetHasWorkingPasskey')
       .mockResolvedValue();
-    render(Page);
-
-    // When
-    await waitFor(() => {
-      const button = screen.getByTestId('use-passkey');
-      button.click();
-    });
-
-    // Then
-    const networkErrorMessage = await screen.queryByText(
-      'Problème de connexion Internet, veuillez réessayer'
-    );
-    expect(networkErrorMessage).toBeNull();
-    const passkeyErrorMessage = await screen.queryByText(
-      'Erreur lors de l’utilisation de votre clé d’accès'
-    );
-    expect(passkeyErrorMessage).not.toBeNull();
-
-    await waitFor(() => {
-      const bypass = screen.getByTestId('bypass-passkey');
-      bypass.click();
-    });
-    expect(spy).toHaveBeenCalledWith('/#/relogin');
-    expect(unsetHasWorkingPasskeySpy).toHaveBeenCalled();
-  });
-  test('should display passkey error message and bypass button on startAuthentication error', async () => {
-    // Given
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-      new Response('{}', { status: 200 })
-    );
-    vi.mocked(simplewebauthnMethods.startAuthentication).mockRejectedValue(new Error());
-    const spy = vi
-      .spyOn(AMINavigationMethods, 'AMIGoto')
-      .mockImplementation(() => Promise.resolve());
-    const unsetHasWorkingPasskeySpy = vi
-      .spyOn(userStore, 'unsetHasWorkingPasskey')
-      .mockResolvedValue();
-    render(Page);
-
-    // When
-    await waitFor(() => {
-      const button = screen.getByTestId('use-passkey');
-      button.click();
-    });
-
-    // Then
-    await waitFor(async () => {
-      const networkErrorMessage = await screen.queryByText(
-        'Problème de connexion Internet, veuillez réessayer'
-      );
-      expect(networkErrorMessage).toBeNull();
-      const passkeyErrorMessage = await screen.queryByText(
-        'Erreur lors de l’utilisation de votre clé d’accès'
-      );
-      expect(passkeyErrorMessage).not.toBeNull();
-    });
-
-    await waitFor(() => {
-      const bypass = screen.getByTestId('bypass-passkey');
-      bypass.click();
-    });
-    expect(spy).toHaveBeenCalledWith('/#/relogin');
-    expect(unsetHasWorkingPasskeySpy).toHaveBeenCalled();
-  });
-  test('should display passkey error message and bypass button on verify response error with retry', async () => {
-    // Given
-    vi.spyOn(globalThis, 'fetch')
-      .mockResolvedValueOnce(new Response('{}', { status: 200 }))
-      .mockResolvedValueOnce(
-        new Response(JSON.stringify({ retry: true }), { status: 400 })
-      );
-    vi.mocked(simplewebauthnMethods.startAuthentication).mockResolvedValue(
-      {} as AuthenticationResponseJSON
-    );
-    const spy = vi
-      .spyOn(AMINavigationMethods, 'AMIGoto')
-      .mockImplementation(() => Promise.resolve());
-    const unsetHasWorkingPasskeySpy = vi
-      .spyOn(userStore, 'unsetHasWorkingPasskey')
-      .mockResolvedValue();
-    render(Page);
-
-    // When
-    await waitFor(() => {
-      const button = screen.getByTestId('use-passkey');
-      button.click();
-    });
-
-    // Then
-    await waitFor(async () => {
-      const networkErrorMessage = await screen.queryByText(
-        'Problème de connexion Internet, veuillez réessayer'
-      );
-      expect(networkErrorMessage).toBeNull();
-      const passkeyErrorMessage = await screen.queryByText(
-        'Erreur lors de l’utilisation de votre clé d’accès'
-      );
-      expect(passkeyErrorMessage).not.toBeNull();
-    });
-
-    await waitFor(() => {
-      const bypass = screen.getByTestId('bypass-passkey');
-      bypass.click();
-    });
-    expect(spy).toHaveBeenCalledWith('/#/relogin');
-    expect(unsetHasWorkingPasskeySpy).toHaveBeenCalled();
-  });
-  test('should display passkey error message and bypass button on verify response error', async () => {
-    // Given
-    vi.spyOn(globalThis, 'fetch')
-      .mockResolvedValueOnce(new Response('{}', { status: 200 }))
-      .mockResolvedValueOnce(new Response('{}', { status: 400 }));
-    vi.mocked(simplewebauthnMethods.startAuthentication).mockResolvedValue(
-      {} as AuthenticationResponseJSON
-    );
-    const spy = vi
-      .spyOn(AMINavigationMethods, 'AMIGoto')
-      .mockImplementation(() => Promise.resolve());
-    const unsetHasWorkingPasskeySpy = vi
-      .spyOn(userStore, 'unsetHasWorkingPasskey')
-      .mockResolvedValue();
+    const spyAuth = vi
+      .spyOn(passkeyMethods, 'authenticateWithPasskey')
+      .mockRejectedValue(new PasskeyBreakingError());
     render(Page);
 
     // When
@@ -244,25 +129,23 @@ describe('/+page.svelte', () => {
     });
     expect(spy).toHaveBeenCalledWith('/');
     expect(unsetHasWorkingPasskeySpy).not.toHaveBeenCalled();
+    expect(spyAuth).toHaveBeenCalledExactlyOnceWith();
   });
-  test('should display passkey error message and bypass button on verify response error - with redirect_to_hash param', async () => {
+  test('should display passkey error message and bypass button on PasskeyBreakingError - with redirect_to_hash param', async () => {
     // Given
     const { page } = await import('$app/state');
     const mockSearchParams = new URLSearchParams('user_does_not_match');
     mockSearchParams.set('redirect_to_hash', '/page');
     vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
-    vi.spyOn(globalThis, 'fetch')
-      .mockResolvedValueOnce(new Response('{}', { status: 200 }))
-      .mockResolvedValueOnce(new Response('{}', { status: 400 }));
-    vi.mocked(simplewebauthnMethods.startAuthentication).mockResolvedValue(
-      {} as AuthenticationResponseJSON
-    );
     const spy = vi
       .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
     const unsetHasWorkingPasskeySpy = vi
       .spyOn(userStore, 'unsetHasWorkingPasskey')
       .mockResolvedValue();
+    const spyAuth = vi
+      .spyOn(passkeyMethods, 'authenticateWithPasskey')
+      .mockRejectedValue(new PasskeyBreakingError());
     render(Page);
 
     // When
@@ -289,148 +172,16 @@ describe('/+page.svelte', () => {
     });
     expect(spy).toHaveBeenCalledWith('/#/page');
     expect(unsetHasWorkingPasskeySpy).not.toHaveBeenCalled();
-  });
-  test('should display network error message and bypass button on verify Type', async () => {
-    // Given
-    vi.spyOn(globalThis, 'fetch')
-      .mockResolvedValueOnce(new Response('{}', { status: 200 }))
-      .mockRejectedValueOnce(new TypeError());
-    vi.mocked(simplewebauthnMethods.startAuthentication).mockResolvedValue(
-      {} as AuthenticationResponseJSON
-    );
-    const spy = vi
-      .spyOn(AMINavigationMethods, 'AMIGoto')
-      .mockImplementation(() => Promise.resolve());
-    const unsetHasWorkingPasskeySpy = vi
-      .spyOn(userStore, 'unsetHasWorkingPasskey')
-      .mockResolvedValue();
-    render(Page);
-
-    // When
-    await waitFor(() => {
-      const button = screen.getByTestId('use-passkey');
-      button.click();
-    });
-
-    // Then
-    await waitFor(async () => {
-      const networkErrorMessage = await screen.queryByText(
-        'Problème de connexion Internet, veuillez réessayer'
-      );
-      expect(networkErrorMessage).not.toBeNull();
-      const passkeyErrorMessage = await screen.queryByText(
-        'Erreur lors de l’utilisation de votre clé d’accès'
-      );
-      expect(passkeyErrorMessage).toBeNull();
-    });
-
-    await waitFor(() => {
-      const bypass = screen.getByTestId('bypass-passkey');
-      bypass.click();
-    });
-    expect(spy).toHaveBeenCalledWith('/#/relogin');
-    expect(unsetHasWorkingPasskeySpy).toHaveBeenCalled();
-  });
-  test('should display passkey error message and bypass button on verify error', async () => {
-    // Given
-    vi.spyOn(globalThis, 'fetch')
-      .mockResolvedValueOnce(new Response('{}', { status: 200 }))
-      .mockRejectedValueOnce(new Error());
-    vi.mocked(simplewebauthnMethods.startAuthentication).mockResolvedValue(
-      {} as AuthenticationResponseJSON
-    );
-    const spy = vi
-      .spyOn(AMINavigationMethods, 'AMIGoto')
-      .mockImplementation(() => Promise.resolve());
-    const unsetHasWorkingPasskeySpy = vi
-      .spyOn(userStore, 'unsetHasWorkingPasskey')
-      .mockResolvedValue();
-    render(Page);
-
-    // When
-    await waitFor(() => {
-      const button = screen.getByTestId('use-passkey');
-      button.click();
-    });
-
-    // Then
-    await waitFor(async () => {
-      const networkErrorMessage = await screen.queryByText(
-        'Problème de connexion Internet, veuillez réessayer'
-      );
-      expect(networkErrorMessage).toBeNull();
-      const passkeyErrorMessage = await screen.queryByText(
-        'Erreur lors de l’utilisation de votre clé d’accès'
-      );
-      expect(passkeyErrorMessage).not.toBeNull();
-    });
-
-    await waitFor(() => {
-      const bypass = screen.getByTestId('bypass-passkey');
-      bypass.click();
-    });
-    expect(spy).toHaveBeenCalledWith('/#/relogin');
-    expect(unsetHasWorkingPasskeySpy).toHaveBeenCalled();
-  });
-  test('should display passkey error message and bypass button when user is not authenticated', async () => {
-    // Given
-    vi.spyOn(globalThis, 'fetch')
-      .mockResolvedValueOnce(new Response('{}', { status: 200 }))
-      .mockResolvedValueOnce(
-        new Response(JSON.stringify({ verified: false }), { status: 200 })
-      );
-    vi.mocked(simplewebauthnMethods.startAuthentication).mockResolvedValue(
-      {} as AuthenticationResponseJSON
-    );
-    const spy = vi
-      .spyOn(AMINavigationMethods, 'AMIGoto')
-      .mockImplementation(() => Promise.resolve());
-    const unsetHasWorkingPasskeySpy = vi
-      .spyOn(userStore, 'unsetHasWorkingPasskey')
-      .mockResolvedValue();
-    render(Page);
-
-    // When
-    await waitFor(() => {
-      const button = screen.getByTestId('use-passkey');
-      button.click();
-    });
-
-    // Then
-    await waitFor(async () => {
-      const networkErrorMessage = await screen.queryByText(
-        'Problème de connexion Internet, veuillez réessayer'
-      );
-      expect(networkErrorMessage).toBeNull();
-      const passkeyErrorMessage = await screen.queryByText(
-        'Erreur lors de l’utilisation de votre clé d’accès'
-      );
-      expect(passkeyErrorMessage).not.toBeNull();
-    });
-
-    await waitFor(() => {
-      const bypass = screen.getByTestId('bypass-passkey');
-      bypass.click();
-    });
-    expect(spy).toHaveBeenCalledWith('/#/relogin');
-    expect(unsetHasWorkingPasskeySpy).toHaveBeenCalled();
+    expect(spyAuth).toHaveBeenCalledExactlyOnceWith();
   });
   test('should redirect when user is authenticated', async () => {
     // Given
-    vi.spyOn(globalThis, 'fetch')
-      .mockResolvedValueOnce(new Response('{}', { status: 200 }))
-      .mockResolvedValueOnce(
-        new Response(
-          JSON.stringify({ verified: true, redirect_uri: 'fake-redirect-uri' }),
-          { status: 200 }
-        )
-      );
-    vi.mocked(simplewebauthnMethods.startAuthentication).mockResolvedValue(
-      {} as AuthenticationResponseJSON
-    );
     const spy = vi
       .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
+    const spyAuth = vi
+      .spyOn(passkeyMethods, 'authenticateWithPasskey')
+      .mockResolvedValue('fake-redirect-uri');
     render(Page);
 
     // When
@@ -451,6 +202,7 @@ describe('/+page.svelte', () => {
       expect(passkeyErrorMessage).toBeNull();
 
       expect(spy).toHaveBeenCalledWith('fake-redirect-uri');
+      expect(spyAuth).toHaveBeenCalledExactlyOnceWith();
     });
   });
 });

@@ -1,14 +1,19 @@
 <script lang="ts">
-  import type { RegistrationResponseJSON } from '@simplewebauthn/browser';
-  import { startRegistration } from '@simplewebauthn/browser';
   import { onMount } from 'svelte';
   import { page } from '$app/state';
   import { PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED } from '$env/static/public';
   import { AMIGoto } from '$lib/ami-navigation';
   import { apiFetch } from '$lib/auth';
   import { initializeData, initializeLocalStorage } from '$lib/initializeDataFromAPI';
+  import {
+    authenticateWithPasskey,
+    getPasskeyStatus,
+    PasskeyBreakingError,
+    PasskeyError,
+    PasskeyNetworkError,
+    registerPasskey,
+  } from '$lib/passkey';
   import { toastStore } from '$lib/state/toast.svelte';
-  import type { UserIdentity } from '$lib/state/User.svelte';
   import { userStore } from '$lib/state/User.svelte';
   import * as telemetry from '$lib/telemetry';
 
@@ -28,6 +33,7 @@
   const silent_fc_enabled = PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED === 'true';
   let hasWorkingPassKey: boolean = $state(true);
   let hasSuggestPasskeyCreationToday: boolean = $state(false);
+  let alreadyHasPasskey: boolean = $state(false);
 
   onMount(async () => {
     try {
@@ -43,26 +49,37 @@
         telemetry.info('User has working passkey');
       }
       hasSuggestPasskeyCreationToday = userStore.getHasSuggestPasskeyCreationToday();
-      console.log(hasSuggestPasskeyCreationToday);
       if (!silent_fc_enabled || hasWorkingPassKey || hasSuggestPasskeyCreationToday) {
         // if silent fc is not enabled,
         // if user has a working pass key,
         // or is we already asked the user to create a passkey today,
         // we directly redirect to homepage
         redirectLoggedInUser(false);
+        return;
       }
+      const passkeyStatus = await getPasskeyStatus();
+      alreadyHasPasskey = passkeyStatus.has_passkey;
+
+      wrapperEl.style.height = `${window.innerHeight}px`;
+      console.log('innerHeight:', window.innerHeight);
     } catch (error) {
       console.error(error);
       AMIGoto('/#/login');
     }
-
-    wrapperEl.style.height = `${window.innerHeight}px`;
-    console.log('innerHeight:', window.innerHeight);
   });
 
   const passkeyError = () => {
     return toastStore.addToast(
       'Erreur lors de l’ajout de votre clé d’accès',
+      'error',
+      3000,
+      false
+    );
+  };
+
+  const usePasskeyError = () => {
+    return toastStore.addToast(
+      'Erreur lors de l’utilisation de votre clé d’accès',
       'error',
       3000,
       false
@@ -85,100 +102,32 @@
   };
 
   const createPasskey = async () => {
-    if (!userStore.connected) {
-      return;
-    }
-    let identity: UserIdentity = userStore.connected.identity;
-    let display_name = `${identity.given_name} ${identity.preferred_username || identity.family_name}`;
-    let optionsResp: Response;
-    telemetry.info('Generating passkey');
     try {
-      optionsResp = await apiFetch('/api/v1/fi/passkey/generate-registration-options', {
-        method: 'POST',
-        body: JSON.stringify({ displayName: display_name }),
-        headers: { 'Content-Type': 'application/json' },
-      });
-      if (!optionsResp.ok) {
-        telemetry.error('Error generating passkey', {
-          error: '!options resp.ok',
-        });
-        return passkeyError();
-      }
-    } catch (error) {
-      console.log('ERROR', `${error}`);
-      if (error instanceof TypeError) {
-        telemetry.error('Error generating passkey', {
-          error: 'network error',
-        });
-        return networkError();
-      } else {
-        telemetry.error('Error generating passkey', {
-          error: `${error}`,
-        });
-        return passkeyError();
-      }
-    }
-
-    let attResp: RegistrationResponseJSON;
-    try {
-      const opts = await optionsResp.json();
-
-      console.log('Registration Options', JSON.stringify(opts, null, 2));
-
-      attResp = await startRegistration({ optionsJSON: opts });
-      console.log('Registration Response', JSON.stringify(attResp, null, 2));
-    } catch (error) {
-      telemetry.error('Error generating passkey', { error: `${error}` });
-      console.log('ERROR', `${error}`);
-      return passkeyError();
-    }
-
-    let verificationResp: Response;
-    try {
-      verificationResp = await apiFetch('/api/v1/fi/passkey/verify-registration', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(attResp),
-      });
-      if (!verificationResp.ok) {
-        telemetry.error('Error generating passkey', {
-          error: '!verification resp.ok',
-        });
-        return passkeyError();
-      }
-    } catch (error) {
-      console.log('ERROR', `${error}`);
-      if (error instanceof TypeError) {
-        telemetry.error('Error generating passkey', {
-          error: 'network error',
-        });
-        return networkError();
-      } else {
-        telemetry.error('Error generating passkey', {
-          error: `${error}`,
-        });
-        return passkeyError();
-      }
-    }
-
-    const verificationJSON = await verificationResp.json();
-    console.log('Server Response', JSON.stringify(verificationJSON, null, 2));
-
-    if (verificationJSON?.verified) {
-      console.log('Authenticator registered!');
+      await registerPasskey();
       userStore.setHasWorkingPasskey();
       telemetry.info('User added a passkey');
       redirectLoggedInUser(true);
-    } else {
-      telemetry.error('Error generating passkey', {
-        error: '!verified',
-      });
-      console.log(
-        `Oh no, something went wrong! Response: ${JSON.stringify(verificationJSON)}`
-      );
-      return passkeyError();
+    } catch (error) {
+      if (error instanceof PasskeyError) {
+        passkeyError();
+      } else if (error instanceof PasskeyNetworkError) {
+        networkError();
+      }
+    }
+  };
+
+  const usePasskey = async () => {
+    try {
+      await authenticateWithPasskey(true);
+      userStore.setHasWorkingPasskey();
+      telemetry.info('User used an existing passkey successfully after login');
+      redirectLoggedInUser(true);
+    } catch (error) {
+      if (error instanceof PasskeyError || error instanceof PasskeyBreakingError) {
+        usePasskeyError();
+      } else if (error instanceof PasskeyNetworkError) {
+        networkError();
+      }
     }
   };
 </script>
@@ -210,6 +159,19 @@
               Ajouter une clé d’accès
             </button>
           </li>
+          {#if alreadyHasPasskey}
+            <li>
+              <button
+                onclick="{usePasskey}"
+                data-testid="use-passkey-button"
+                title="Utiliser une clé d’accès existante"
+                type="button"
+                class="fr-btn fr-btn--secondary"
+              >
+                Utiliser une clé d’accès existante
+              </button>
+            </li>
+          {/if}
           <li>
             <button
               onclick="{bypassPasskey}"
@@ -225,6 +187,7 @@
     </div>
   {/if}
 </div>
+
 <style>
   .passkeys-full-page {
     height: 100vh;
