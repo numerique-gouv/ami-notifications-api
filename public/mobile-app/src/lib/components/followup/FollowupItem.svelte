@@ -26,7 +26,7 @@
         aria-controls="followup-item-{item.id}-modal"
         id="followup-item-{item.id}-button"
         type="button"
-        data-testid="open-followup-item-modal-{item.id}"
+        data-testid="followup-item-{item.id}-open-modal-button"
         class="fr-btn fr-btn--icon fr-icon-more-2-fill fr-btn--tertiary-no-outline fr-pt-2w am-icon-20 am-btn-modal open-followup-item-modal fr-icon-more-2-fill"
       >
         Ouvrir la modale liée à l'élément du suivi
