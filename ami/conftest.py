@@ -179,6 +179,7 @@ def partner():
         slug="dinum-ami",
         defaults={
             "name": "AMI",
+            "authentication_identifier": "dinum-ami",
             "consent_is_enabled": True,
         },
     )[0]
@@ -187,14 +188,24 @@ def partner():
 @pytest.fixture
 def partner_dn():
     return Partner.objects.get_or_create(
-        slug="dinum-dn", defaults={"name": "Démarche Numérique", "consent_is_enabled": True}
+        slug="dinum-dn",
+        defaults={
+            "name": "Démarche Numérique",
+            "consent_is_enabled": True,
+            "authentication_identifier": "dinum-dn",
+        },
     )[0]
 
 
 @pytest.fixture
 def partner_psl():
     return Partner.objects.get_or_create(
-        slug="psl", defaults={"name": "Service Public", "consent_is_enabled": False}
+        slug="psl",
+        defaults={
+            "name": "Service Public",
+            "consent_is_enabled": False,
+            "authentication_identifier": "psl",
+        },
     )[0]
 
 

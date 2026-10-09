@@ -1258,8 +1258,8 @@ def test_create_event_without_auth(app, settings, partner: Partner) -> None:
 
     b64 = base64.b64encode(f"foo:{partner.secret}".encode("utf8")).decode("utf8")
     response = app.put_json("/api/v2/event", headers={"authorization": f"Basic {b64}"}, status=401)
-    assert response.json == {"detail": "Invalid username."}
+    assert response.json == {"detail": "Invalid authentication credentials"}
 
     b64 = base64.b64encode("dinum-ami:foo".encode("utf8")).decode("utf8")
     response = app.put_json("/api/v2/event", headers={"authorization": f"Basic {b64}"}, status=401)
-    assert response.json == {"detail": "Invalid username/password."}
+    assert response.json == {"detail": "Invalid authentication credentials"}
