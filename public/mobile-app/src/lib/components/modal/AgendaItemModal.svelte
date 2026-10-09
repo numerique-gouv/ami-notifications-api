@@ -9,10 +9,6 @@
   }
   let { item = $bindable(), agenda = $bindable() }: Props = $props();
 
-  const closeModal = () => {
-    item = null;
-  };
-
   const refreshAgenda = () => {
     buildAgenda().then((result) => {
       agenda = result;
@@ -25,13 +21,12 @@
       if (agenda) {
         refreshAgenda();
       }
-      closeModal();
       toastStore.addToast('L’élément a bien été supprimé', 'success', 3000, true);
     }
   };
 </script>
 
-<BottomModal onClose={closeModal}>
+<BottomModal modalId="agenda-item-modal-{item?.id}">
   {#snippet modalContent()}
     <h2 class="agenda-item-modal-header" data-testid="agenda-item-modal-header">
       {item?.title}
@@ -41,9 +36,9 @@
         <span class="fr-icon-delete-line"></span>
         <button
           onclick={() => clickOnHideAgendaItem(item)}
-          title="Cacher l’élément de l’agenda"
-          aria-label="Cacher l’élément de l’agenda"
-          data-testid="hide-agenda-item-button"
+          title="Cacher l’élément de l’agenda {item?.title}"
+          aria-label="Cacher l’élément de l’agenda {item?.title}"
+          data-testid="hide-agenda-item-button-{item?.id}"
           class="hide-agenda-item"
         >
           Supprimer

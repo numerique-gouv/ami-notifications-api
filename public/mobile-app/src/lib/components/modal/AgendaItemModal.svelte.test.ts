@@ -44,7 +44,9 @@ describe('/AgendaItemModal.svelte', () => {
 
     // When
     await waitFor(async () => {
-      const deleteButton = screen.getByTestId('hide-agenda-item-button');
+      const deleteButton = screen.getByTestId(
+        'hide-agenda-item-button-fake-id-holiday-1'
+      );
       await fireEvent.click(deleteButton);
     });
 

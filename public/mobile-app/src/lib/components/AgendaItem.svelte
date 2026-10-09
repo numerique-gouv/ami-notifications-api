@@ -13,6 +13,7 @@
     Date?: boolean;
     onOpen?: (() => void) | null;
     isPast?: boolean;
+    hasModal?: boolean;
   }
   let {
     item,
@@ -20,6 +21,7 @@
     displayDay = true,
     onOpen = null,
     isPast = false,
+    hasModal = false,
   }: Props = $props();
 
   const badgeKinds = {
@@ -43,10 +45,12 @@
     <div
       class="agenda--item--detail {item.kind} {isPast ? 'past': ''} fr-tile fr-tile--sm fr-tile--horizontal fr-enlarge-button {item.link ? '': 'no-link'}"
     >
-      {#if onOpen}
+      {#if hasModal}
         <button
+          data-fr-opened="false"
+          aria-controls="agenda-item-modal-{item.id}"
+          id="button-agenda-item-modal-{item.id}"
           type="button"
-          onclick={onOpen}
           data-testid="open-agenda-item-modal-{item.id}"
           class="fr-btn fr-btn--icon fr-icon-more-2-fill fr-btn--tertiary-no-outline fr-pt-2w am-icon-20 am-btn-modal open-agenda-item-modal"
         >

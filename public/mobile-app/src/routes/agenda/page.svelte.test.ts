@@ -297,7 +297,9 @@ describe('/+page.svelte', () => {
       });
 
       // Then
-      const agendaItemModal = screen.getByTestId('item-modal');
+      const agendaItemModal = screen.getByTestId(
+        'light-modal-agenda-item-modal-fake-id-holiday-1'
+      );
       expect(agendaItemModal).toBeInTheDocument();
     });
 
@@ -317,15 +319,21 @@ describe('/+page.svelte', () => {
         const moreIcon = screen.getByTestId('open-agenda-item-modal-fake-id-holiday-1');
         await fireEvent.click(moreIcon);
 
-        const agendaItemModal = screen.getByTestId('item-modal');
+        const agendaItemModal = screen.getByTestId(
+          'light-modal-agenda-item-modal-fake-id-holiday-1'
+        );
         expect(agendaItemModal).toBeInTheDocument();
 
-        const deleteButton = screen.getByTestId('hide-agenda-item-button');
+        const deleteButton = screen.getByTestId(
+          'hide-agenda-item-button-fake-id-holiday-1'
+        );
         await fireEvent.click(deleteButton);
       });
 
       // Then
-      expect(screen.queryByTestId('agenda-item-modal')).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId('light-modal-agenda-item-modal-fake-id-holiday-1')
+      ).not.toBeVisible();
     });
 
     test('should add toast when user clicks on "Supprimer" button', async () => {
@@ -345,7 +353,9 @@ describe('/+page.svelte', () => {
         const moreIcon = screen.getByTestId('open-agenda-item-modal-fake-id-holiday-1');
         await fireEvent.click(moreIcon);
 
-        const deleteButton = screen.getByTestId('hide-agenda-item-button');
+        const deleteButton = screen.getByTestId(
+          'hide-agenda-item-button-fake-id-holiday-1'
+        );
         await fireEvent.click(deleteButton);
       });
 

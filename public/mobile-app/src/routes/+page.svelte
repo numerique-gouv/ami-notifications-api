@@ -33,7 +33,6 @@
   let agenda: Agenda | null = $state(null);
   let isFollowupEmpty: boolean = $state(data.isFollowupEmpty || false);
   let followup: Followup | null = $state(data.followup || null);
-  let selectedAgendaItem: AgendaItemType | null = $state(null);
   let selectedFollowupItem: FollowupItemType | null = $state(null);
   let autoPromo: AutoPromo | null = $state(null);
   let hasAnyConsents: boolean = $state(data.hasAnyConsents || false);
@@ -80,10 +79,6 @@
       console.error(error);
     }
   });
-
-  const openAgendaItemModal = (item: AgendaItemType) => {
-    selectedAgendaItem = item;
-  };
 
   const openFollowupItemModal = (item: FollowupItemType) => {
     selectedFollowupItem = item;
@@ -152,18 +147,12 @@
         <div class="rubrique-content-container">
           {#if agenda && agenda.now.length}
             {@const firstItem = agenda.now[0]}
-            <AgendaItem
-              item={firstItem}
-              onOpen={() => openAgendaItemModal(firstItem)}
-              displayDate={false}
-            />
+            <AgendaItem item={firstItem} displayDate={false} hasModal={true} />
+            <AgendaItemModal bind:item={agenda.now[0]} bind:agenda={agenda} />
           {:else if agenda && agenda.next.length}
             {@const firstItem = agenda.next[0]}
-            <AgendaItem
-              item={firstItem}
-              onOpen={() => openAgendaItemModal(firstItem)}
-              displayDate={false}
-            />
+            <AgendaItem item={firstItem} displayDate={false} hasModal={true} />
+            <AgendaItemModal bind:item={agenda.next[0]} bind:agenda={agenda} />
           {/if}
         </div>
       {/if}
@@ -221,10 +210,6 @@
       </div>
     {/if}
   </div>
-
-  {#if selectedAgendaItem}
-    <AgendaItemModal bind:item={selectedAgendaItem} bind:agenda={agenda} />
-  {/if}
 
   {#if selectedFollowupItem}
     <FollowupItemModal

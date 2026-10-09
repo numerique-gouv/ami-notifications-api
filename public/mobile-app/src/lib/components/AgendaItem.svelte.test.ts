@@ -1,11 +1,11 @@
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import '@testing-library/jest-dom/vitest';
-import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
+import { render, screen } from '@testing-library/svelte';
 import { Item } from '$lib/agenda';
 import AgendaItem from './AgendaItem.svelte';
 
 describe('/AgendaItem.svelte', () => {
-  test('should call onOpen when clicks on more icon', async () => {
+  test('should have more-icon when agenda item has modal', async () => {
     // Given
     const item = new Item(
       'fake-id-election',
@@ -16,17 +16,13 @@ describe('/AgendaItem.svelte', () => {
       new Date('2025-12-05'),
       null
     );
-    const onOpen = vi.fn();
-    render(AgendaItem, { props: { item: item, onOpen: onOpen } });
 
     // When
-    await waitFor(async () => {
-      const moreIcon = screen.getByTestId('open-agenda-item-modal-fake-id-election');
-      await fireEvent.click(moreIcon);
-    });
+    render(AgendaItem, { props: { item: item, hasModal: true } });
 
     // Then
-    expect(onOpen).toHaveBeenCalledTimes(1);
+    const moreIcon = screen.getByTestId('open-agenda-item-modal-fake-id-election');
+    expect(moreIcon).toBeInTheDocument();
   });
   test('should mark emojis', async () => {
     // Given
@@ -39,10 +35,9 @@ describe('/AgendaItem.svelte', () => {
       new Date('2025-12-05'),
       null
     );
-    const onOpen = vi.fn();
 
     // When
-    render(AgendaItem, { props: { item: item, onOpen: onOpen } });
+    render(AgendaItem, { props: { item: item } });
 
     // Then
     expect(document.querySelector('[aria-hidden]')).toBeInTheDocument();
