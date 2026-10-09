@@ -848,12 +848,22 @@ describe('/lib/state/User.svelte.ts', () => {
     });
 
     describe('getFirstName', () => {
-      test('should display firt given name element', async () => {
+      test('should display first given name element', async () => {
         // When
         const firstName = mockUser.getFirstName();
 
         // Then
         expect(firstName).toEqual('Angela');
+      });
+    });
+
+    describe('getInitial', () => {
+      test('should display first letter of first name', async () => {
+        // When
+        const initial = mockUser.getInitial();
+
+        // Then
+        expect(initial).toEqual('A');
       });
     });
   });
