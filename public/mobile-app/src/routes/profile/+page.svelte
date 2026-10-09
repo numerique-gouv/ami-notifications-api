@@ -9,6 +9,7 @@
 
   let backUrl: string = '/';
   let identity: UserIdentity = $state() as UserIdentity;
+  let fullName: string = $state('');
   let address: Address | undefined = $state();
   let address_origin: DataOrigin | undefined = $state();
   let email_origin: DataOrigin | undefined = $state();
@@ -19,6 +20,7 @@
       return;
     } else {
       identity = userStore.connected.identity;
+      fullName = userStore.connected.getFullName();
       address = identity.address;
       address_origin = identity.dataDetails.address.origin;
       email_origin = identity.dataDetails.email.origin;
@@ -50,9 +52,7 @@
       <p class="paragraph-wrapper fr-mb-2w">
         Vous êtes&nbsp;:
         <br>
-        <b
-          >{identity.given_name} {identity.preferred_username || identity.family_name},</b
-        >
+        <b>{fullName},</b>
         <br>
         {#if identity.gender == "female"}
           née

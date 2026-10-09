@@ -47,7 +47,7 @@
   <div class="relogin-page">
     <Banner
       id="relogin"
-      title="Vous devez vous connecter en tant que {identity.given_name} {identity.preferred_username || identity.family_name} pour pouvoir continuer ce parcours."
+      title="Vous devez vous connecter en tant que {userStore.connected.getFullName()} pour pouvoir continuer ce parcours."
       bannerType="info"
       closeButton="false"
     />
