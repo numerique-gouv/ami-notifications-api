@@ -28,12 +28,11 @@ describe('/FollowupItem.svelte', () => {
       'url',
       []
     );
-    const onOpen = vi.fn();
     const spy1 = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
     const spy2 = vi.spyOn(AMINavigationMethods, 'AMIBackOrGoto').mockResolvedValue();
 
     // When
-    render(FollowupItem, { props: { item: item, onOpen: onOpen } });
+    render(FollowupItem, { props: { item: item } });
 
     // Then
     const button = screen.getByTestId('followup-item-link');
@@ -65,13 +64,10 @@ describe('/FollowupItem.svelte', () => {
       'url',
       []
     );
-    const onOpen = vi.fn();
     const spy = vi.spyOn(AMINavigationMethods, 'AMIBackOrGoto').mockResolvedValue();
 
     // When
-    render(FollowupItem, {
-      props: { item: item, onOpen: onOpen, useBackOrGoto: true },
-    });
+    render(FollowupItem, { props: { item: item, useBackOrGoto: true } });
 
     // Then
     const button = screen.getByTestId('followup-item-link');
@@ -102,10 +98,9 @@ describe('/FollowupItem.svelte', () => {
       'url',
       []
     );
-    const onOpen = vi.fn();
 
     // When
-    render(FollowupItem, { props: { item: item, onOpen: onOpen } });
+    render(FollowupItem, { props: { item: item } });
 
     // Then
     expect(document.querySelectorAll('[aria-hidden]').length).toEqual(2);
@@ -132,10 +127,9 @@ describe('/FollowupItem.svelte', () => {
         'link1',
         []
       );
-      const onOpen = vi.fn();
 
       // When
-      render(FollowupItem, { props: { item: item, onOpen: onOpen } });
+      render(FollowupItem, { props: { item: item } });
 
       // Then
       await waitFor(async () => {
@@ -186,10 +180,9 @@ describe('/FollowupItem.svelte', () => {
           ),
         ]
       );
-      const onOpen = vi.fn();
 
       // When
-      render(FollowupItem, { props: { item: item, onOpen: onOpen } });
+      render(FollowupItem, { props: { item: item } });
 
       // Then
       await waitFor(async () => {
@@ -240,10 +233,9 @@ describe('/FollowupItem.svelte', () => {
           ),
         ]
       );
-      const onOpen = vi.fn();
 
       // When
-      render(FollowupItem, { props: { item: item, onOpen: onOpen } });
+      render(FollowupItem, { props: { item: item } });
 
       // Then
       await waitFor(async () => {
@@ -313,10 +305,9 @@ describe('/FollowupItem.svelte', () => {
           ),
         ]
       );
-      const onOpen = vi.fn();
 
       // When
-      render(FollowupItem, { props: { item: item, onOpen: onOpen } });
+      render(FollowupItem, { props: { item: item } });
 
       // Then
       await waitFor(async () => {
@@ -349,12 +340,11 @@ describe('/FollowupItem.svelte', () => {
         'link1',
         []
       );
-      const onOpen = vi.fn();
       const spy1 = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
       const spy2 = vi.spyOn(AMINavigationMethods, 'AMIBackOrGoto').mockResolvedValue();
 
       // When
-      render(FollowupItem, { props: { item: item, onOpen: onOpen } });
+      render(FollowupItem, { props: { item: item } });
 
       // Then
       await waitFor(async () => {
@@ -395,15 +385,12 @@ describe('/FollowupItem.svelte', () => {
         'link1',
         []
       );
-      const onOpen = vi.fn();
       const spy = vi
         .spyOn(AMINavigationMethods, 'AMIBackOrGoto')
         .mockImplementation(() => Promise.resolve());
 
       // When
-      render(FollowupItem, {
-        props: { item: item, onOpen: onOpen, useBackOrGoto: true },
-      });
+      render(FollowupItem, { props: { item: item, useBackOrGoto: true } });
 
       // Then
       await waitFor(async () => {
@@ -443,10 +430,9 @@ describe('/FollowupItem.svelte', () => {
         null,
         []
       );
-      const onOpen = vi.fn();
 
       // When
-      render(FollowupItem, { props: { item: item, onOpen: onOpen } });
+      render(FollowupItem, { props: { item: item } });
 
       // Then
       await waitFor(async () => {
@@ -477,10 +463,9 @@ describe('/FollowupItem.svelte', () => {
         'link1',
         []
       );
-      const onOpen = vi.fn();
 
       // When
-      render(FollowupItem, { props: { item: item, onOpen: onOpen } });
+      render(FollowupItem, { props: { item: item } });
 
       // Then
       await waitFor(async () => {
@@ -531,10 +516,9 @@ describe('/FollowupItem.svelte', () => {
           ),
         ]
       );
-      const onOpen = vi.fn();
 
       // When
-      render(FollowupItem, { props: { item: item, onOpen: onOpen } });
+      render(FollowupItem, { props: { item: item } });
 
       // Then
       await waitFor(async () => {
