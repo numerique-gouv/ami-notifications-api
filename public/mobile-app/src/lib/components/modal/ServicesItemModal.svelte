@@ -4,15 +4,12 @@
   import { type ServicesItem as ServicesItemType } from '$lib/services';
 
   interface Props {
-    item: ServicesItemType | null;
+    item: ServicesItemType;
+    index: string;
   }
-  let { item = $bindable() }: Props = $props();
+  let { item, index }: Props = $props();
 
-  const closeModal = () => {
-    item = null;
-  };
-
-  const goToService = async (item: ServicesItemType | null) => {
+  const goToService = async (item: ServicesItemType) => {
     if (item) {
       const url = await item.getServiceUrl();
       AMIGoto(url, item.with_silent_login);
@@ -24,12 +21,16 @@
   };
 </script>
 
-<CenteredModal onClose={closeModal}>
+<CenteredModal modalId="services-item-{index}-modal">
   {#snippet modalContent()}
-    <h4 class="services-item-modal-header" data-testid="services-item-modal-header">
+    <h4
+      id="services-item-{item.id}-modal-title"
+      class="services-item-modal-header"
+      data-testid="services-item-modal-header"
+    >
       Que voulez-vous faire&nbsp;?
     </h4>
-    <p>Vous avez commencé ou réalisé une ou plusieurs {item?.title}</p>
+    <p>Vous avez commencé ou réalisé une ou plusieurs {item.title}</p>
     <div class="service-action-buttons">
       <button
         class="fr-btn fr-btn--lg"
