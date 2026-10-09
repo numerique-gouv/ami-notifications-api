@@ -9,19 +9,17 @@
   import { toastStore } from '$lib/state/toast.svelte';
 
   interface Props {
-    item: FollowupItemType | null;
+    item: FollowupItemType;
     followup: Followup | null;
     isFollowupEmpty: boolean;
+    index: string;
   }
   let {
-    item = $bindable(),
+    item,
     followup = $bindable(),
     isFollowupEmpty = $bindable(),
+    index,
   }: Props = $props();
-
-  const closeModal = () => {
-    item = null;
-  };
 
   const refreshFollowup = () => {
     buildFollowup().then((result) => {
@@ -30,36 +28,37 @@
     });
   };
 
-  const clickOnArchiveFollowupItem = async (item: FollowupItemType | null) => {
-    if (item) {
-      const result = await item.archive();
-      if (result === true) {
-        if (followup) {
-          refreshFollowup();
-        }
-        closeModal();
-        toastStore.addToast('L’élément a bien été archivé', 'success', 3000, true);
-      } else {
-        closeModal();
-        toastStore.addToast("L’élément n'a pas pu être archivé", 'error', 3000, true);
+  const clickOnArchiveFollowupItem = async (item: FollowupItemType) => {
+    const result = await item.archive();
+    if (result === true) {
+      if (followup) {
+        refreshFollowup();
       }
+      toastStore.addToast('L’élément a bien été archivé', 'success', 3000, true);
+    } else {
+      toastStore.addToast("L’élément n'a pas pu être archivé", 'error', 3000, true);
     }
   };
 </script>
 
-<BottomModal onClose={closeModal}>
+<BottomModal modalId="followup-item-{index}-modal">
   {#snippet modalContent()}
-    <h2 class="followup-item-modal-header" data-testid="followup-item-modal-header">
-      {@html ariaHideDecorativeEmoji(item?.title || '')}
+    <h2
+      id="followup-item-{item.id}-modal-title"
+      class="followup-item-modal-header"
+      data-testid="followup-item-modal-header"
+    >
+      {@html ariaHideDecorativeEmoji(item.title)}
     </h2>
     <ul class="followup-item-modal-footer">
       <li>
         <span class="fr-icon-inbox-archive-line"></span>
         <button
           onclick={() => clickOnArchiveFollowupItem(item)}
-          title="Archiver l'élément"
-          aria-label="Archiver l'élément"
-          data-testid="archive-followup-item-button"
+          aria-controls="followup-item-{index}-modal"
+          title="Archiver l'élément {item.title}"
+          aria-label="Archiver l'élément {item.title}"
+          data-testid="archive-followup-item-button-{item.id}"
           class="archive-followup-item"
         >
           Archiver

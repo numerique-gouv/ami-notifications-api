@@ -711,7 +711,9 @@ describe('/+page.svelte', () => {
         });
 
         // Then
-        const followupItemModal = screen.getByTestId('light-modal-');
+        const followupItemModal = screen.getByTestId(
+          'light-modal-followup-item-home-items-0-modal'
+        );
         expect(followupItemModal).toBeInTheDocument();
       });
       test('Should close followup item modal when clicks on "Archiver" button', async () => {
@@ -778,14 +780,20 @@ describe('/+page.svelte', () => {
             'open-followup-item-modal-partner:type:id1'
           );
           await fireEvent.click(moreIcon);
-          const followupItemModal = screen.getByTestId('light-modal-');
+          const followupItemModal = screen.getByTestId(
+            'light-modal-followup-item-home-items-0-modal'
+          );
           expect(followupItemModal).toBeInTheDocument();
-          const archiveButton = screen.getByTestId('archive-followup-item-button');
+          const archiveButton = screen.getByTestId(
+            'archive-followup-item-button-partner:type:id1'
+          );
           await fireEvent.click(archiveButton);
         });
 
         // Then
-        expect(screen.queryByTestId('light-modal-')).not.toBeInTheDocument();
+        expect(
+          screen.queryByTestId('light-modal-followup-item-home-items-0-modal')
+        ).not.toBeVisible();
       });
       test('should add toast when user clicks on "Archiver" button - archive success', async () => {
         // Given
@@ -852,7 +860,9 @@ describe('/+page.svelte', () => {
             'open-followup-item-modal-partner:type:id1'
           );
           await fireEvent.click(moreIcon);
-          const archiveButton = screen.getByTestId('archive-followup-item-button');
+          const archiveButton = screen.getByTestId(
+            'archive-followup-item-button-partner:type:id1'
+          );
           await fireEvent.click(archiveButton);
         });
 
@@ -934,7 +944,9 @@ describe('/+page.svelte', () => {
             'open-followup-item-modal-partner:type:id1'
           );
           await fireEvent.click(moreIcon);
-          const archiveButton = screen.getByTestId('archive-followup-item-button');
+          const archiveButton = screen.getByTestId(
+            'archive-followup-item-button-partner:type:id1'
+          );
           await fireEvent.click(archiveButton);
         });
 
