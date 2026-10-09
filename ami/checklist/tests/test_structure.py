@@ -222,7 +222,7 @@ def test_checklist_with_floating_titles():
     )
 
 
-def test_item_with_links():
+def test_item_with_inline_links():
     checklist = CheckList()
     checklist.add_item(
         ET.fromstring("""\
@@ -247,6 +247,29 @@ def test_item_with_links():
             "external": True,
             "text": "external link",
             "url": "https://associations.gouv.fr/guid-asso",
+        },
+    ]
+
+
+def test_item_with_extra_links_node():
+    checklist = CheckList()
+    checklist.add_item(
+        ET.fromstring("""\
+<Liste type="caseACocher">
+  <Item>
+    <Paragraphe>paragraph with text</Paragraphe>
+    <Liens>
+      <LienExterne URL="https://example.net/">Consulter le Guide</LienExterne>
+    </Liens>
+  </Item>
+</Liste>""")
+    )
+    assert checklist.items[0]["text"] == "paragraph with text"
+    assert checklist.items[0]["links"] == [
+        {
+            "external": True,
+            "text": "Consulter le Guide",
+            "url": "https://example.net/",
         },
     ]
 

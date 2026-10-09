@@ -85,7 +85,7 @@ class CheckList:
             if id is None:
                 id = hashlib.md5(ET.tostring(item)).hexdigest()[:12]
             links = []
-            for link_node in paragraph.findall(".//*"):
+            for link_node in item.findall(".//*"):
                 if not link_node.text:
                     continue
                 if link_node.attrib.get("type") == "Sigle":
