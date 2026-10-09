@@ -400,6 +400,10 @@ export class User {
     return '';
   }
 
+  getFullName(): string {
+    return `${this._pivot.given_name} ${this._pivot.preferred_username || this._pivot.family_name}`;
+  }
+
   getInitial(): string {
     const firstName = this.getFirstName();
     if (firstName.length) {
