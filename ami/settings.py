@@ -8,6 +8,7 @@ import sentry_sdk
 from dotenv import dotenv_values
 from sentry_sdk.integrations.django import DjangoIntegration
 
+import ami.utils.csp
 import ami.utils.sentry
 import vapid_keys
 
@@ -93,6 +94,7 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.csp.ContentSecurityPolicyMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "ami.authentication.middleware.AMIJWTAuthCookieMiddleware",
     "ami.utils.middleware.TimezoneMiddleware",
@@ -435,6 +437,13 @@ GOOGLE_APPLICATION_CREDENTIALS = CONFIG.get("GOOGLE_APPLICATION_CREDENTIALS", ""
 # Forms & DSFR
 FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
 DSFR_USE_INTEGRITY_CHECKSUMS = False
+
+# CSP headers
+CSP_SETTINGS = ami.utils.csp.create_settings_from_env(CONFIG)
+if "report-uri" in CSP_SETTINGS:
+    SECURE_CSP_REPORT_ONLY = CSP_SETTINGS
+else:
+    SECURE_CSP = CSP_SETTINGS
 
 if DEBUG:
     ALLOWED_HOSTS += [
