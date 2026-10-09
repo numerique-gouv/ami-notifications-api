@@ -2,7 +2,12 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 import * as navigationMethods from '$app/navigation';
 import * as envModule from '$env/static/public';
 import * as AMINavigationMethods from '$lib/ami-navigation';
-import { AMIBack, AMIGoto, AMIGotoUntrustedUrl } from '$lib/ami-navigation';
+import {
+  AMIBack,
+  AMIBackToLastKnownURL,
+  AMIGoto,
+  AMIGotoUntrustedUrl,
+} from '$lib/ami-navigation';
 import { toastStore } from '$lib/state/toast.svelte';
 import * as telemetryModule from '$lib/telemetry';
 import * as urlAliasesMethods from '$lib/urlAliases';
@@ -286,39 +291,77 @@ describe('/ami-navigation', () => {
         expect(window.location.href).toBe('fake-link');
       });
     });
-  });
 
-  describe('AMIBack', () => {
-    test('Should call history.back if history', () => {
-      // Given
-      const spyBack = vi.spyOn(window.history, 'back').mockImplementation(() => {});
-      const spyAMIGoto = vi
-        .spyOn(AMINavigationMethods, 'AMIGoto')
-        .mockImplementation(() => {});
-      Object.defineProperty(window.history, 'length', { value: 2, configurable: true });
+    describe('history', () => {
+      test('should register internal url in localstorage', async () => {
+        // When
+        AMIGoto('/#/page');
 
-      // When
-      AMIBack('/#/page');
+        // Then
+        expect(localStorage.getItem('last_visited_internal_url')).toEqual('/#/page');
+      });
+      test('should register promoted internal url in localstorage', async () => {
+        // Given
+        vi.spyOn(urlAliasesMethods, 'isPromotedUrl').mockReturnValue(true);
 
-      // Then
-      expect(spyBack).toHaveBeenCalled();
-      expect(spyAMIGoto).not.toHaveBeenCalled();
-    });
+        // When
+        AMIGoto('/#/page');
 
-    test('Should call AMIGoto if no history', () => {
-      // Given
-      const spyBack = vi.spyOn(window.history, 'back').mockImplementation(() => {});
-      const spyAMIGoto = vi
-        .spyOn(AMINavigationMethods, 'AMIGoto')
-        .mockImplementation(() => {});
-      Object.defineProperty(window.history, 'length', { value: 1, configurable: true });
+        // Then
+        expect(localStorage.getItem('last_visited_internal_url')).toEqual('/#/page');
+      });
+      test('should not register internal url in localstorage as url is excluded from history', async () => {
+        // When
+        AMIGoto('/#/login');
 
-      // When
-      AMIBack('/#/page');
+        // Then
+        expect(localStorage.getItem('last_visited_internal_url')).toEqual(null);
+      });
+      test('should not register external url in localstorage', async () => {
+        // When
+        AMIGoto('http://external-url');
 
-      // Then
-      expect(spyBack).not.toHaveBeenCalled();
-      expect(spyAMIGoto).toHaveBeenCalledWith('/#/page');
+        // Then
+        expect(localStorage.getItem('last_visited_internal_url')).toEqual(null);
+      });
+      test('should register last visited url as target in localstorage when redirecting to an external url', async () => {
+        // Given
+        localStorage.setItem('last_visited_internal_url', '/#/page');
+
+        // When
+        AMIGoto('http://external-url');
+
+        // Then
+        expect(localStorage.getItem('webview_back_target')).toEqual(
+          JSON.stringify({ url: '/#/page', historyLength: 1 })
+        );
+      });
+      test('should register / as target in localstorage when redirecting to an external url, as last visited url is unknown', async () => {
+        // When
+        AMIGoto('http://external-url');
+
+        // Then
+        expect(localStorage.getItem('webview_back_target')).toEqual(
+          JSON.stringify({ url: '/', historyLength: 1 })
+        );
+      });
+      test('should not register target in localstorage when redirecting to an internal url', async () => {
+        // When
+        AMIGoto('/#/page');
+
+        // Then
+        expect(localStorage.getItem('webview_back_target')).toEqual(null);
+      });
+      test('should not register target in localstorage when redirecting to a promoted internal url', async () => {
+        // Given
+        vi.spyOn(urlAliasesMethods, 'isPromotedUrl').mockReturnValue(true);
+
+        // When
+        AMIGoto('/#/page');
+
+        // Then
+        expect(localStorage.getItem('webview_back_target')).toEqual(null);
+      });
     });
   });
 
@@ -399,6 +442,113 @@ describe('/ami-navigation', () => {
       expect(spyAMIGoto).toHaveBeenCalledWith('/');
       expect(spyToast).toHaveBeenCalled();
       expect(spyTelemetryError).toHaveBeenCalled();
+    });
+  });
+
+  describe('AMIBack', () => {
+    test('Should call history.back if history', () => {
+      // Given
+      const spyBack = vi.spyOn(window.history, 'back').mockImplementation(() => {});
+      const spyAMIGoto = vi
+        .spyOn(AMINavigationMethods, 'AMIGoto')
+        .mockImplementation(() => {});
+      Object.defineProperty(window.history, 'length', { value: 2, configurable: true });
+
+      // When
+      AMIBack('/#/page');
+
+      // Then
+      expect(spyBack).toHaveBeenCalled();
+      expect(spyAMIGoto).not.toHaveBeenCalled();
+    });
+
+    test('Should call AMIGoto if no history', () => {
+      // Given
+      const spyBack = vi.spyOn(window.history, 'back').mockImplementation(() => {});
+      const spyAMIGoto = vi
+        .spyOn(AMINavigationMethods, 'AMIGoto')
+        .mockImplementation(() => {});
+      Object.defineProperty(window.history, 'length', { value: 1, configurable: true });
+
+      // When
+      AMIBack('/#/page');
+
+      // Then
+      expect(spyBack).not.toHaveBeenCalled();
+      expect(spyAMIGoto).toHaveBeenCalledWith('/#/page');
+    });
+  });
+
+  describe('AMIBackToLastKnownURL', () => {
+    test('Should go to home if not target in localstorage', () => {
+      // Given
+      const spyGo = vi.spyOn(window.history, 'back').mockImplementation(() => {});
+      const spyAMIGoto = vi
+        .spyOn(AMINavigationMethods, 'AMIGoto')
+        .mockImplementation(() => {});
+
+      // When
+      AMIBackToLastKnownURL();
+
+      // Then
+      expect(spyGo).not.toHaveBeenCalled();
+      expect(spyAMIGoto).toHaveBeenCalledWith('/', false, { replaceState: true });
+    });
+    test('Should go to home if target is invalid', () => {
+      // Given
+      localStorage.setItem('webview_back_target', 'invalid');
+      const spyGo = vi.spyOn(window.history, 'back').mockImplementation(() => {});
+      const spyAMIGoto = vi
+        .spyOn(AMINavigationMethods, 'AMIGoto')
+        .mockImplementation(() => {});
+
+      // When
+      AMIBackToLastKnownURL();
+
+      // Then
+      expect(spyGo).not.toHaveBeenCalled();
+      expect(spyAMIGoto).toHaveBeenCalledWith('/', false, { replaceState: true });
+      expect(localStorage.getItem('webview_back_target')).toEqual(null);
+    });
+    test('Should go to last visited url if history step is wrong', () => {
+      // Given
+      localStorage.setItem(
+        'webview_back_target',
+        JSON.stringify({ url: '/#/page', historyLength: 2 })
+      );
+      const spyGo = vi.spyOn(window.history, 'go').mockImplementation(() => {});
+      const spyAMIGoto = vi
+        .spyOn(AMINavigationMethods, 'AMIGoto')
+        .mockImplementation(() => {});
+      Object.defineProperty(window.history, 'length', { value: 2, configurable: true });
+
+      // When
+      AMIBackToLastKnownURL();
+
+      // Then
+      expect(spyGo).not.toHaveBeenCalled();
+      expect(spyAMIGoto).toHaveBeenCalledWith('/#/page', false, { replaceState: true });
+      expect(localStorage.getItem('webview_back_target')).toEqual(null);
+    });
+    test('Should call history.go', () => {
+      // Given
+      localStorage.setItem(
+        'webview_back_target',
+        JSON.stringify({ url: '/#/page', historyLength: 2 })
+      );
+      const spyGo = vi.spyOn(window.history, 'go').mockImplementation(() => {});
+      const spyAMIGoto = vi
+        .spyOn(AMINavigationMethods, 'AMIGoto')
+        .mockImplementation(() => {});
+      Object.defineProperty(window.history, 'length', { value: 3, configurable: true });
+
+      // When
+      AMIBackToLastKnownURL();
+
+      // Then
+      expect(spyGo).toHaveBeenCalledWith(-1);
+      expect(spyAMIGoto).not.toHaveBeenCalled();
+      expect(localStorage.getItem('webview_back_target')).toEqual(null);
     });
   });
 });
