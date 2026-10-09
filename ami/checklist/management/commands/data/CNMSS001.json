@@ -18,12 +18,12 @@
   "items": [
     {
       "text": "**Déclarer mon affectation auprès de la CNMSS** : Compléter le formulaire d'affectation. Envoyer le formulaire à la CNMSS",
-      "id": "d4e0d91a205e",
+      "id": "95d0ae0b8cdb",
       "section": "avant-mon-depart",
       "intertitle": "Pour tous les militaires",
       "links": [
         {
-          "url": "https://www.cnmss.fr/document/questionnaire-avant-votre-affectation-hors-de-france-dans-une-com-ou-mayotte ",
+          "url": "https://www.cnmss.fr/document/questionnaire-avant-votre-affectation-hors-de-france-dans-une-com-ou-mayotte",
           "text": "Compléter le formulaire d'affectation",
           "external": true
         },
@@ -36,7 +36,7 @@
     },
     {
       "text": "Vérifier ma couverture santé selon mon lieu d'affectation.\n\nConsulter le Guide du départ en outre-mer ou à l’étranger pour vérifier la marche à suivre selon mon lieu d’affectation.",
-      "id": "cd5e9c19b1e9",
+      "id": "0db8741f4983",
       "section": "avant-mon-depart",
       "intertitle": "Pour tous les militaires",
       "links": [
@@ -73,12 +73,12 @@
     },
     {
       "text": "**Vérifier les droits de mon conjoint.** Compléter le formulaire d’étude des droits du conjoint hors de France. Envoyer le formulaire à la CNMSS.",
-      "id": "8fc8eaac01c5",
+      "id": "aaec15e30654",
       "section": "avant-mon-depart",
       "intertitle": "Si le conjoint m'accompagne",
       "links": [
         {
-          "url": "https://www.cnmss.fr/document/cerfa-15529-etude-de-droits-aux-prestations-hors-de-france ",
+          "url": "https://www.cnmss.fr/document/cerfa-15529-etude-de-droits-aux-prestations-hors-de-france",
           "text": "Compléter le formulaire d’étude des droits du conjoint hors de France",
           "external": true
         },
@@ -97,7 +97,7 @@
     },
     {
       "text": "Demander le rattachement des enfants à la CNMSS.",
-      "id": "ddcf35cc2508",
+      "id": "cf5265a10aa5",
       "section": "avant-mon-depart",
       "intertitle": "Si mes enfants m'accompagnent",
       "links": [
@@ -110,21 +110,15 @@
     },
     {
       "text": "Préparer les vaccins avant le départ. Pour les membres de la famille rattachés à la CNMSS, demander la prise en charge des vaccins et traitements antipaludiques. Pour les membres de la famille non rattachés à la CNMSS, demander le remboursement des vaccins et traitements antipaludiques par le CIMOB (Comité Interarmées des Mobilités)",
-      "id": "7264347c701e",
+      "id": "be49fb102de1",
       "section": "avant-mon-depart",
       "intertitle": "Pour les membres de ma famille"
     },
     {
       "text": "Demander le remboursement de mes soins et de l’ensemble de ma famille. Utiliser le service en ligne sur Mon Compte CNMSS.",
-      "id": "7b2dfae4407a",
+      "id": "4ec7e7a2a0a9",
       "section": "pendant-mon-affectation",
       "intertitle": "Pour tous les militaires",
-      "conditions": [
-        {
-          "type": "estIndefini",
-          "var": "affectation"
-        }
-      ],
       "links": [
         {
           "url": "https://portailassures.cnmss.fr/teleservice-eshf/refund-care-abroad",
@@ -135,27 +129,15 @@
     },
     {
       "text": "Utiliser ma carte Vitale lors de mes séjours en France.",
-      "id": "12c937b23538",
+      "id": "db004a0b4209",
       "section": "pendant-mon-affectation",
-      "intertitle": "Pour tous les militaires",
-      "conditions": [
-        {
-          "type": "estIndefini",
-          "var": "affectation"
-        }
-      ]
+      "intertitle": "Pour tous les militaires"
     },
     {
       "text": "Demander une aide financière si certains frais de santé restent à ma charge (optique, dentaire...).",
-      "id": "62611bfd030a",
+      "id": "5eb080e0ed41",
       "section": "pendant-mon-affectation",
       "intertitle": "Pour tous les militaires",
-      "conditions": [
-        {
-          "type": "estIndefini",
-          "var": "affectation"
-        }
-      ],
       "links": [
         {
           "url": "https://portailassures.cnmss.fr/teleservice-ass/refund-care-ass",
@@ -166,15 +148,9 @@
     },
     {
       "text": "Consulter le Guide du départ en outre-mer ou à l’étranger",
-      "id": "e29ddb42c70f",
+      "id": "00b9a85df35a",
       "section": "pendant-mon-affectation",
       "intertitle": "Pour tous les militaires",
-      "conditions": [
-        {
-          "type": "estIndefini",
-          "var": "affectation"
-        }
-      ],
       "links": [
         {
           "url": "(https://guide-depart.cnmss.fr/guide-du-depart-132.html",
@@ -185,7 +161,7 @@
     },
     {
       "text": "Bénéficier, si nécessaire, de la téléorthophonie",
-      "id": "1496ac53ca4f",
+      "id": "3602bf04d109",
       "section": "pendant-mon-affectation",
       "intertitle": "Pour les enfants",
       "links": [
@@ -198,7 +174,7 @@
     },
     {
       "text": "Bénéficier, si nécessaire, de la télépsychothérapie",
-      "id": "89b936702e51",
+      "id": "a447b7fcaac9",
       "section": "pendant-mon-affectation",
       "intertitle": "Pour les enfants",
       "links": [
@@ -211,7 +187,7 @@
     },
     {
       "text": "**Déclarer mon retour à la CNMSS :** Compléter le formulaire de retour. Envoyer le formulaire à la CNMSS.",
-      "id": "308ceaa72a8a",
+      "id": "02402f17dcfd",
       "section": "a-mon-retour",
       "intertitle": "Pour tous les militaires",
       "links": [
@@ -229,7 +205,7 @@
     },
     {
       "text": "Signaler tout changement de situation familiale survenu pendant le séjour (mariage, divorce, naissance, etc.).",
-      "id": "91b55af49846",
+      "id": "58c783c61791",
       "section": "a-mon-retour",
       "intertitle": "Pour tous les militaires",
       "links": [
