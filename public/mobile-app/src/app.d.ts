@@ -25,7 +25,7 @@ declare global {
     environment: string;
     mode: string;
     device_id: string;
-    promoted_url_aliases: string;
+    promoted_url_aliases: string[];
   }
 
   interface Window {
