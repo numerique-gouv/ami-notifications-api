@@ -40,7 +40,7 @@ describe('/auth', () => {
         .mockResolvedValue(undefined);
 
       // When
-      const responseStatus = await logout();
+      await logout();
 
       // Then
       expect(trackChecklistSpy).toHaveBeenCalledWith(false, false);
@@ -55,7 +55,7 @@ describe('/auth', () => {
         .mockResolvedValue(undefined);
 
       // When
-      const responseStatus = await logout(true);
+      await logout(true);
 
       // Then
       expect(trackChecklistSpy).toHaveBeenCalledWith(true, false);
