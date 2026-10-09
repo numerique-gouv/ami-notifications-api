@@ -4,6 +4,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import * as agendaMethods from '$lib/agenda';
 import { Agenda, Item } from '$lib/agenda';
 import { toastStore } from '$lib/state/toast.svelte';
+import { getTimestamp } from '$lib/utils';
 import AgendaItemModal from './AgendaItemModal.svelte';
 
 const oneday_in_ms = 24 * 60 * 60 * 1000;
@@ -23,7 +24,7 @@ describe('/AgendaItemModal.svelte', () => {
     const agenda = new Agenda();
 
     // When
-    render(AgendaItemModal, { props: { item, agenda } });
+    render(AgendaItemModal, { props: { item, agenda, index: '' } });
 
     // Then
     const title = screen.getByTestId('agenda-item-modal-header');
@@ -47,7 +48,7 @@ describe('/AgendaItemModal.svelte', () => {
       new Item('fake-id-holiday-2', 'holiday', 'Holiday 2', '', null, in32days),
     ]);
     const spy2 = vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(new Agenda());
-    render(AgendaItemModal, { props: { item, agenda } });
+    render(AgendaItemModal, { props: { item, agenda, index: '' } });
 
     // Then
     expect(document.querySelector('[aria-hidden]')).toBeInTheDocument();
@@ -63,11 +64,13 @@ describe('/AgendaItemModal.svelte', () => {
     ]);
     const spy = vi.spyOn(toastStore, 'addToast');
     const spy2 = vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(new Agenda());
-    render(AgendaItemModal, { props: { item, agenda } });
+    render(AgendaItemModal, { props: { item, agenda, index: '' } });
 
     // When
     await waitFor(async () => {
-      const deleteButton = screen.getByTestId('hide-agenda-item-button');
+      const deleteButton = screen.getByTestId(
+        `hide-agenda-item-button-ami-holiday:${getTimestamp(today)}:holiday-1`
+      );
       await fireEvent.click(deleteButton);
     });
 
