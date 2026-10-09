@@ -270,8 +270,7 @@ export class Item {
 }
 
 export class Agenda {
-  private _now: Item[] = [];
-  private _next: Item[] = [];
+  private _items: Item[] = [];
   private _connectedUser: User | null = null;
   private _today: Date = new Date();
   private _holidayForOTV: APIAgendaItem | null = null;
@@ -289,7 +288,6 @@ export class Agenda {
 
     this._today = date || new Date();
     this._today.setHours(0, 0, 0, 0);
-    const items: Item[] = [];
 
     const school_holidays: APIAgendaItem[] = apiAgenda?.school_holidays || [];
     const public_holidays: APIAgendaItem[] = apiAgenda?.public_holidays || [];
@@ -297,38 +295,25 @@ export class Agenda {
     const followupItems: FollowupItem[] = followup?.all_items || [];
 
     // build items from school_holidays
-    this.createSchoolHolidayItems(items, school_holidays);
+    this.createSchoolHolidayItems(school_holidays);
 
     // build items from public_holidays
-    this.createPublicHolidayItems(items, public_holidays);
+    this.createPublicHolidayItems(public_holidays);
 
     // build items from elections
-    this.createElectionItems(items, elections);
+    this.createElectionItems(elections);
 
     // build items from followup
-    this.createPersonalItems(items, followupItems);
+    this.createPersonalItems(followupItems);
 
     // do something with school holidays for OTVs
     this.processOTVs(school_holidays);
 
     // sort items by date
-    items.sort((a, b) => (a.date?.getTime() || 0) - (b.date?.getTime() || 0));
-
-    // organize items in _now or _next arrays
-    items.forEach((item) => {
-      if (
-        item.date &&
-        (item.date <= this._today ||
-          item.date < new Date(this._today.getTime() + 30 * oneday_in_ms))
-      ) {
-        this._now.push(item);
-      } else {
-        this._next.push(item);
-      }
-    });
+    this._items.sort((a, b) => (a.date?.getTime() || 0) - (b.date?.getTime() || 0));
   }
 
-  private createSchoolHolidayItems(items: Item[], school_holidays: APIAgendaItem[]) {
+  private createSchoolHolidayItems(school_holidays: APIAgendaItem[]) {
     const result: Item[] = [];
     school_holidays.forEach((holiday) => {
       if (!holiday.start_date || !holiday.end_date) {
@@ -381,7 +366,7 @@ export class Agenda {
     result.forEach((item) => {
       if (item.endDate !== null && item.endDate >= this._today) {
         // exclude past school holiday
-        items.push(item);
+        this._items.push(item);
       }
     });
   }
@@ -416,11 +401,11 @@ export class Agenda {
     );
   }
 
-  private createPublicHolidayItems(items: Item[], public_holidays: APIAgendaItem[]) {
+  private createPublicHolidayItems(public_holidays: APIAgendaItem[]) {
     public_holidays.forEach((holiday) => {
       const item = this.createPublicHolidayItem(holiday);
       if (item !== null && !item.isHidden()) {
-        items.push(item);
+        this._items.push(item);
       }
     });
   }
@@ -492,11 +477,11 @@ export class Agenda {
     this._connectedUser?.createScheduledNotification(scheduledNotification);
   }
 
-  private createElectionItems(items: Item[], elections: APIAgendaItem[]) {
+  private createElectionItems(elections: APIAgendaItem[]) {
     elections.forEach((election) => {
       const item = this.createElectionItem(election);
       if (item !== null && !item.isHidden()) {
-        items.push(item);
+        this._items.push(item);
       }
     });
   }
@@ -526,7 +511,7 @@ export class Agenda {
     );
   }
 
-  private createPersonalItems(items: Item[], followupItems: FollowupItem[]) {
+  private createPersonalItems(followupItems: FollowupItem[]) {
     const agendaItems: Item[] = [];
     followupItems.forEach((followupItem) => {
       const agendaItem = followupItem.buildAgendaItem();
@@ -548,16 +533,20 @@ export class Agenda {
         // exclude past personal items
         return;
       }
-      items.push(item);
+      this._items.push(item);
     });
   }
 
+  get in30days(): Date {
+    return new Date(this._today.getTime() + 30 * oneday_in_ms);
+  }
+
   get now(): Item[] {
-    return this._now;
+    return this._items.filter((item) => item.date && item.date < this.in30days);
   }
 
   get next(): Item[] {
-    return this._next;
+    return this._items.filter((item) => item.date && item.date >= this.in30days);
   }
 
   get holidayForOTV(): APIAgendaItem | null {
