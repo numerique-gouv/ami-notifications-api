@@ -72,6 +72,7 @@ def test_add_partner_submit_success(app, admin_agent: Agent) -> None:
     response.forms["partner-form"]["icon"] = "icon"
     response.forms["partner-form"]["consent_is_enabled"] = True
     response.forms["partner-form"]["displayed_on_front"] = True
+    response.forms["partner-form"]["authentication_identifier"] = "auth-id"
     response.forms["partner-form"]["ip_allow_list"] = "198.51.100.12"
 
     response = response.forms["partner-form"].submit()
@@ -103,6 +104,7 @@ def test_add_partner_submit_success(app, admin_agent: Agent) -> None:
         "partner_slug": "new-partner",
         "partner_consent_is_enabled": True,
         "partner_ip_allow_list": "198.51.100.12",
+        "partner_authentication_identifier": "auth-id",
     }
 
 
@@ -181,9 +183,11 @@ def test_edit_service_submit_success(app, admin_agent: Agent, partner: Partner) 
         "partner_name": "New AMI",
         "partner_slug": "dinum-ami",
         "partner_consent_is_enabled": False,
+        "partner_authentication_identifier": "dinum-ami",
         "partner_ip_allow_list": "",
         "old_partner_values_name": "AMI",
         "old_partner_values_slug": "dinum-ami",
         "old_partner_values_consent_is_enabled": True,
+        "old_partner_values_authentication_identifier": "dinum-ami",
         "old_partner_values_ip_allow_list": None,
     }

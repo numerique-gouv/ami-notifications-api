@@ -36,6 +36,9 @@ def audit(action, author, extra_data):
             extra_data[f"{key}_slug"] = extra_data[key].slug
             extra_data[f"{key}_name"] = extra_data[key].name
             extra_data[f"{key}_consent_is_enabled"] = extra_data[key].consent_is_enabled
+            extra_data[f"{key}_authentication_identifier"] = extra_data[
+                key
+            ].authentication_identifier
             extra_data[f"{key}_ip_allow_list"] = extra_data[key].ip_allow_list
             del extra_data[key]
 

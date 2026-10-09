@@ -85,13 +85,13 @@ def test_get_consent_without_auth(app, settings, partner: Partner) -> None:
     response = app.get(
         "/api/v1/consent/fake-fc-hash", headers={"authorization": f"Basic {b64}"}, status=401
     )
-    assert response.json == {"detail": "Invalid username."}
+    assert response.json == {"detail": "Invalid authentication credentials"}
 
     b64 = base64.b64encode("dinum-ami:foo".encode("utf8")).decode("utf8")
     response = app.get(
         "/api/v1/consent/fake-fc-hash", headers={"authorization": f"Basic {b64}"}, status=401
     )
-    assert response.json == {"detail": "Invalid username/password."}
+    assert response.json == {"detail": "Invalid authentication credentials"}
 
 
 @pytest.mark.django_db
@@ -193,13 +193,13 @@ def test_post_consent_without_auth(app, settings, partner: Partner) -> None:
     response = app.post(
         "/api/v1/consent/fake-fc-hash", headers={"authorization": f"Basic {b64}"}, status=401
     )
-    assert response.json == {"detail": "Invalid username."}
+    assert response.json == {"detail": "Invalid authentication credentials"}
 
     b64 = base64.b64encode("dinum-ami:foo".encode("utf8")).decode("utf8")
     response = app.post(
         "/api/v1/consent/fake-fc-hash", headers={"authorization": f"Basic {b64}"}, status=401
     )
-    assert response.json == {"detail": "Invalid username/password."}
+    assert response.json == {"detail": "Invalid authentication credentials"}
 
 
 @pytest.mark.django_db

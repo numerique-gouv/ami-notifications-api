@@ -1085,10 +1085,10 @@ def test_create_notification_without_auth(app, settings, partner: Partner) -> No
     response = app.post_json(
         "/api/v1/notifications", headers={"authorization": f"Basic {b64}"}, status=401
     )
-    assert response.json == {"detail": "Invalid username."}
+    assert response.json == {"detail": "Invalid authentication credentials"}
 
     b64 = base64.b64encode("dinum-ami:foo".encode("utf8")).decode("utf8")
     response = app.post_json(
         "/api/v1/notifications", headers={"authorization": f"Basic {b64}"}, status=401
     )
-    assert response.json == {"detail": "Invalid username/password."}
+    assert response.json == {"detail": "Invalid authentication credentials"}
