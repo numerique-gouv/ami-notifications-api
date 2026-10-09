@@ -229,7 +229,7 @@ def webpush_registration(user: User, webpushsubscription: dict[str, Any]) -> Reg
 @pytest.fixture
 async def webpushsubscription() -> dict[str, Any]:
     subscription = {
-        "endpoint": "https://example.com/",
+        "endpoint": "https://fcm.googleapis.com/foobar",
         "keys": {
             "auth": "ribfIxhEOtCZ0lkcbB4yCg",
             "p256dh": "BGsTJAJDhGijvPLi0DVPHB86MGLmW1Y6VzjX-FpTlKbhhOtCmU0Vffaj1djCXzR6vkUYrwkOTmh1dgbIQHEyy1k",
