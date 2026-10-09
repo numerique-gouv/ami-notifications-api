@@ -206,7 +206,7 @@ describe('/+page.svelte', () => {
         // When
         await waitFor(async () => {
           const link = screen.getByTestId(
-            'service-catalog-psl:OperationTranquilliteVacances'
+            'services-item-psl:OperationTranquilliteVacances-open-modal-button'
           );
           await fireEvent.click(link);
         });
@@ -241,7 +241,7 @@ describe('/+page.svelte', () => {
 
             await waitFor(async () => {
               const link = screen.getByTestId(
-                'service-catalog-psl:OperationTranquilliteVacances'
+                'services-item-psl:OperationTranquilliteVacances-open-modal-button'
               );
               await fireEvent.click(link);
             });
@@ -286,7 +286,7 @@ describe('/+page.svelte', () => {
 
             await waitFor(async () => {
               const link = screen.getByTestId(
-                'service-catalog-psl:OperationTranquilliteVacances'
+                'services-item-psl:OperationTranquilliteVacances-open-modal-button'
               );
               await fireEvent.click(link);
             });
@@ -330,7 +330,7 @@ describe('/+page.svelte', () => {
 
             await waitFor(async () => {
               const link = screen.getByTestId(
-                'service-catalog-psl:OperationTranquilliteVacances'
+                'services-item-psl:OperationTranquilliteVacances-open-modal-button'
               );
               await fireEvent.click(link);
             });
