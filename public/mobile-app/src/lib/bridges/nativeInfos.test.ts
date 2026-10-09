@@ -118,7 +118,7 @@ describe('/nativeEvents.ts', () => {
       // Given
       window.NativeInfos = {
         getInfos: vi.fn().mockReturnValue({
-          promoted_url_aliases: JSON.stringify(['alias1', 'alias2']),
+          promoted_url_aliases: ['alias1', 'alias2'],
         }),
       };
 
@@ -153,7 +153,7 @@ describe('/nativeEvents.ts', () => {
     test('should return empty list if promoted_url_aliases is empty list', async () => {
       // Given
       globalThis.window.NativeInfos = {
-        getInfos: vi.fn().mockReturnValue({ promoted_url_aliases: JSON.stringify([]) }),
+        getInfos: vi.fn().mockReturnValue({ promoted_url_aliases: [] }),
       };
 
       // When

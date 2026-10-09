@@ -25,7 +25,7 @@ export const getVersion = () => {
   return infos?.version || '';
 };
 
-export const getPromotedUrlAliases = () => {
+export const getPromotedUrlAliases = (): string[] => {
   const infos = getNativeInfos();
-  return JSON.parse(infos?.promoted_url_aliases || '[]');
+  return infos?.promoted_url_aliases || [];
 };
