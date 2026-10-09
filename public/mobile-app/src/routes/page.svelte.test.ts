@@ -705,7 +705,7 @@ describe('/+page.svelte', () => {
         // When
         await waitFor(async () => {
           const moreIcon = screen.getByTestId(
-            'open-followup-item-modal-partner:type:id1'
+            'followup-item-partner:type:id1-open-modal-button'
           );
           await fireEvent.click(moreIcon);
         });
@@ -777,7 +777,7 @@ describe('/+page.svelte', () => {
         // When
         await waitFor(async () => {
           const moreIcon = screen.getByTestId(
-            'open-followup-item-modal-partner:type:id1'
+            'followup-item-partner:type:id1-open-modal-button'
           );
           await fireEvent.click(moreIcon);
           const followupItemModal = screen.getByTestId(
@@ -857,7 +857,7 @@ describe('/+page.svelte', () => {
         // When
         await waitFor(async () => {
           const moreIcon = screen.getByTestId(
-            'open-followup-item-modal-partner:type:id1'
+            'followup-item-partner:type:id1-open-modal-button'
           );
           await fireEvent.click(moreIcon);
           const archiveButton = screen.getByTestId(
@@ -941,7 +941,7 @@ describe('/+page.svelte', () => {
         // When
         await waitFor(async () => {
           const moreIcon = screen.getByTestId(
-            'open-followup-item-modal-partner:type:id1'
+            'followup-item-partner:type:id1-open-modal-button'
           );
           await fireEvent.click(moreIcon);
           const archiveButton = screen.getByTestId(
