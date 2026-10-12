@@ -187,7 +187,11 @@ LOGIN_REDIRECT_URL = "/agent-admin/"
 LOGOUT_REDIRECT_URL = "/agent-admin/"
 
 # Emails
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+MAILERS = {
+    "default": {
+        "BACKEND": "django.core.mail.backends.console.EmailBackend",
+    },
+}
 
 # Tasks
 TASKS = {"default": {"BACKEND": "django_tasks_db.DatabaseBackend"}}
