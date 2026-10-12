@@ -73,7 +73,7 @@
           aria-controls="agenda-item-{index}-modal"
           id="agenda-item-{item.key}-button"
           type="button"
-          data-testid="open-agenda-item-modal-{item.key}"
+          data-testid="agenda-item-{item.key}-open-modal-button"
           class="fr-btn fr-btn--icon fr-icon-more-2-fill fr-btn--tertiary-no-outline fr-pt-2w am-icon-20 am-btn-modal open-agenda-item-modal"
         >
           Ouvrir les options pour {item.title}
