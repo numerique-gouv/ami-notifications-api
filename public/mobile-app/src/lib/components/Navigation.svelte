@@ -99,16 +99,6 @@
     },
   ];
 
-  let logoutModal = $state(false);
-
-  const openLogoutModal = () => {
-    logoutModal = true;
-  };
-
-  const closeLogoutModal = () => {
-    logoutModal = false;
-  };
-
   const logoutUser = async () => {
     await userStore.logout(true);
   };
@@ -197,9 +187,11 @@
               {/each}
               <li class="fr-sidemenu__item">
                 <button
+                  data-fr-opened="false"
+                  aria-controls="logout-modal"
+                  id="logout-button"
                   type="button"
                   class="fr-sidemenu__btn fr-text--regular fr-connect-logout"
-                  onclick={openLogoutModal}
                   data-testid="logout-button"
                 >
                   <Icon
@@ -216,40 +208,38 @@
   </div>
 </dialog>
 
-{#if logoutModal}
-  <CenteredModal onClose={closeLogoutModal}>
-    {#snippet modalContent()}
-      <h2 class="fr-h4">Suppression de vos données</h2>
-      <p>
-        En vous déconnectant, toutes les données enregistrées localement sur cet
-        appareil (informations saisies, modifications et paramètres de personnalisation)
-        seront supprimées.
-      </p>
-      <ul class="fr-btns-group logout-modal-action-buttons">
-        <li>
-          <button
-            type="button"
-            class="fr-btn fr-btn--secondary cancel-button"
-            onclick={closeLogoutModal}
-            data-testid="logout-cancel-button"
-          >
-            Annuler
-          </button>
-        </li>
-        <li>
-          <button
-            type="button"
-            class="fr-btn submit-button"
-            onclick={logoutUser}
-            data-testid="logout-submit-button"
-          >
-            Confirmer
-          </button>
-        </li>
-      </ul>
-    {/snippet}
-  </CenteredModal>
-{/if}
+<CenteredModal modalId="logout-modal">
+  {#snippet modalContent()}
+    <h2 id="logout-modal-title" class="fr-h4">Suppression de vos données</h2>
+    <p>
+      En vous déconnectant, toutes les données enregistrées localement sur cet appareil
+      (informations saisies, modifications et paramètres de personnalisation) seront
+      supprimées.
+    </p>
+    <ul class="fr-btns-group logout-modal-action-buttons">
+      <li>
+        <button
+          aria-controls="logout-modal"
+          type="button"
+          class="fr-btn fr-btn--secondary cancel-button"
+          data-testid="logout-cancel-button"
+        >
+          Annuler
+        </button>
+      </li>
+      <li>
+        <button
+          type="button"
+          class="fr-btn submit-button"
+          onclick={logoutUser}
+          data-testid="logout-submit-button"
+        >
+          Confirmer
+        </button>
+      </li>
+    </ul>
+  {/snippet}
+</CenteredModal>
 
 <style>
   nav.menu-footer {
