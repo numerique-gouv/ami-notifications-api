@@ -42,7 +42,7 @@
           </button>
         </h3>
         <p
-          class="fr-tile__detail fr-text--sm fr-m-0 fr-pr-0"
+          class="fr-tile__desc fr-text--sm fr-m-0 fr-pr-0"
           data-testid="followup-item-detail-{item.id}"
         >
           <span>
