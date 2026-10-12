@@ -330,7 +330,7 @@ describe('/+page.svelte', () => {
         expect(agendaItemModal).toBeInTheDocument();
 
         const deleteButton = screen.getByTestId(
-          `hide-agenda-item-button-ami-holiday:${getTimestamp(today)}:holiday-1`
+          `agenda-item-ami-holiday:${getTimestamp(today)}:holiday-1-hide-button`
         );
         await fireEvent.click(deleteButton);
       });
@@ -363,7 +363,7 @@ describe('/+page.svelte', () => {
         await fireEvent.click(moreIcon);
 
         const deleteButton = screen.getByTestId(
-          `hide-agenda-item-button-ami-holiday:${getTimestamp(today)}:holiday-1`
+          `agenda-item-ami-holiday:${getTimestamp(today)}:holiday-1-hide-button`
         );
         await fireEvent.click(deleteButton);
       });

@@ -69,7 +69,7 @@ describe('/AgendaItemModal.svelte', () => {
     // When
     await waitFor(async () => {
       const deleteButton = screen.getByTestId(
-        `hide-agenda-item-button-ami-holiday:${getTimestamp(today)}:holiday-1`
+        `agenda-item-ami-holiday:${getTimestamp(today)}:holiday-1-hide-button`
       );
       await fireEvent.click(deleteButton);
     });
