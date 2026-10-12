@@ -35,7 +35,7 @@
   {/if}
   <div class="agenda--item--container">
     <div
-      class="agenda--item--detail {item.kind} {isPast ? 'past': ''} fr-tile fr-tile--sm fr-tile--horizontal fr-enlarge-button {item.link ? '': 'no-link'}"
+      class="fr-card fr-enlarge-button fr-card--sm fr-card--horizontal agenda--item--detail {item.kind} {isPast ? 'past': ''} {item.link ? '': 'fr-card--no-icon no-link'}"
     >
       {#if onOpen}
         <button
@@ -47,25 +47,24 @@
           Ouvrir la modale liée à l’élément de l’agenda
         </button>
       {/if}
-      <div class="fr-tile__body">
-        <div class="fr-tile__content fr-pb-0 {item.link ? '': 'no-link'}">
-          <h4 class="fr-tile__title">
+      <div class="fr-card__body fr-p-0">
+        <div class="fr-card__content fr-m-0 fr-pb-3v">
+          <h4 class="fr-card__title fr-text--md">
             <button
               type="button"
               onclick={(e) => {if (item.link) { AMIGoto(item.link) } else {e.preventDefault();} }}
               data-testid="agenda-item-link"
-              class="{item.link ? '': 'no-link'}"
             >
               {@html ariaHideDecorativeEmoji(item.title)}
             </button>
           </h4>
           {#if item.subitems.length == 1}
             {#if item.description}
-              <p class="fr-tile__detail fr-text--sm fr-m-0 fr-pr-0">
+              <p class="fr-card__desc fr-text--sm fr-mt-1w">
                 {@html ariaHideDecorativeEmoji(DOMPurify.sanitize(item.description), false)}
               </p>
             {/if}
-            <div class="fr-tile__start fr-mb-3v">
+            <div class="fr-card__start fr-mb-0">
               <p
                 class="fr-badge fr-badge--sm fr-badge--icon-left fr-mb-1w {item.icon} {item.badgeClassName}"
               >
@@ -77,31 +76,38 @@
       </div>
     </div>
     {#if item.subitems.length > 1}
-      {#each item.subitems as subitem}
-        <div
-          class="agenda--item--detail fr-tile fr-tile--sm fr-tile--horizontal fr-tile--no-icon {item.link ? '': 'no-link'}"
-        >
-          <div class="fr-tile__body">
-            <div class="fr-tile__content  {item.link ? '': 'no-link'}">
-              <p class="fr-tile__detail fr-text--sm fr-m-0">
-                {@html ariaHideDecorativeEmoji(DOMPurify.sanitize(subitem.description || ''), false)}
-              </p>
-              <div class="fr-tile__start">
-                <p
-                  class="fr-badge fr-badge--sm fr-badge--icon-left fr-mb-1w {item.icon} {item.badgeClassName}"
-                >
-                  {subitem.period}
+      <div class="agenda--subitems">
+        {#each item.subitems as subitem}
+          <div
+            class="fr-card fr-card--sm fr-card--horizontal fr-card--no-icon agenda--item--detail {item.link ? '': 'no-link'} "
+          >
+            <div class="fr-card__body fr-p-0">
+              <div class="fr-card__content fr-m-0 fr-pb-3v fr-pr-2w">
+                <p class="fr-card__desc fr-text--sm fr-m-0">
+                  {@html ariaHideDecorativeEmoji(DOMPurify.sanitize(subitem.description || ''), false)}
                 </p>
-                {#if subitem.isPersonal}
+                <div
+                  class="fr-card__start fr-mb-0"
+                  class:with-personal-icon={subitem.isPersonal}
+                >
                   <p
-                    class="fr-badge fr-badge--sm fr-badge--icon-left fr-mb-1w fr-icon-user-fill am-badge--user"
-                  ></p>
-                {/if}
+                    class="fr-badge fr-badge--sm fr-badge--icon-left fr-mb-1w {item.icon} {item.badgeClassName}"
+                  >
+                    {subitem.period}
+                  </p>
+                  {#if subitem.isPersonal}
+                    <p
+                      class="fr-badge fr-badge--sm fr-badge--icon-left fr-mb-1w fr-icon-user-fill am-badge--user"
+                    >
+                      <span class="fr-sr-only">Personel</span>
+                    </p>
+                  {/if}
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      {/each}
+        {/each}
+      </div>
     {/if}
   </div>
 </div>
@@ -147,69 +153,59 @@
           height: var(--icon-size);
         }
       }
-      .agenda--item--detail {
-        padding: 1rem 2rem 0.5rem 1rem;
-        width: 100%;
-        &.personal:not(.past) {
-          background-image:
-            linear-gradient(0deg, var(--am-blue--1), var(--am-blue--1)),
-            linear-gradient(0deg, var(--am-blue--1), var(--am-blue--1)),
-            linear-gradient(0deg, var(--am-blue--1), var(--am-blue--1)),
-            linear-gradient(0deg, var(--am-blue--1), var(--am-blue--1));
+    }
+    .fr-card {
+      width: 100%;
+      &.personal:not(.past) {
+        background-image:
+          linear-gradient(0deg, var(--am-blue--1), var(--am-blue--1)),
+          linear-gradient(0deg, var(--am-blue--1), var(--am-blue--1)),
+          linear-gradient(0deg, var(--am-blue--1), var(--am-blue--1)),
+          linear-gradient(0deg, var(--am-blue--1), var(--am-blue--1));
+      }
+      &.no-link {
+        --hover: transparent;
+        --active: transparent;
+      }
+      .fr-card__content {
+        padding: 0.75rem 2rem 0.75rem 1rem;
+      }
+    }
+    .fr-card--sm.fr-enlarge-button:not(.fr-card--no-icon) .fr-card__title button:after {
+      bottom: 0.5rem;
+      right: 0.75rem;
+      --icon-size: 1.25rem;
+      -webkit-mask-image: url("@gouvfr/dsfr/dist/icons/arrows/arrow-right-s-line.svg");
+      mask-image: url("@gouvfr/dsfr/dist/icons/arrows/arrow-right-s-line.svg");
+    }
+
+    .fr-card__start.with-personal-icon {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.5rem;
+      width: 100%;
+
+      .fr-icon-user-fill.am-badge--user {
+        max-height: 1.25rem;
+        padding: 0 0.25rem;
+        &::before {
+          margin: 0;
         }
-        &:not(:first-child) {
-          background-image:
-            linear-gradient(
-              0deg,
-              var(--border-default-grey),
-              var(--border-default-grey)
-            ),
-            linear-gradient(
-              0deg,
-              var(--border-default-grey),
-              var(--border-default-grey)
-            ),
-            linear-gradient(
-              0deg,
-              var(--border-default-grey),
-              var(--border-default-grey)
-            ),
-            none;
-        }
-        &.no-link {
-          --hover: transparent;
-        }
-        .fr-tile__content {
-          .fr-tile__title {
-            &::before {
-              background: none;
-            }
-            button {
-              &:before {
-                background: none;
-              }
-              &:after {
-                bottom: 0.5rem;
-                right: 0.75rem;
-                --icon-size: 1.25rem;
-                -webkit-mask-image: url("@gouvfr/dsfr/dist/icons/arrows/arrow-right-s-line.svg");
-                mask-image: url("@gouvfr/dsfr/dist/icons/arrows/arrow-right-s-line.svg");
-              }
-              &.no-link {
-                cursor: default;
-                &::after {
-                  display: none;
-                }
-              }
-            }
-          }
-        }
-        .fr-tile__start {
-          line-height: 1;
-        }
-        .fr-tile__detail {
-          display: block;
-        }
+      }
+    }
+  }
+  .agenda--subitems {
+    border-left: solid 1px var(--border-default-grey);
+    border-right: solid 1px var(--border-default-grey);
+    .fr-card {
+      z-index: 1;
+      background-image: none;
+      width: calc(100% + 2px);
+      margin: 0 -1px;
+      border: solid 1px var(--border-default-grey);
+      border-top: none;
+      &:not(:last-child) {
+        border-radius: 0 0 0.5rem 0.5rem;
       }
     }
   }
