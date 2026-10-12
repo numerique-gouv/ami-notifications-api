@@ -97,7 +97,7 @@ describe('/AgendaItem.svelte', () => {
 
     // Then
     const moreIcon = screen.getByTestId(
-      'open-agenda-item-modal-ami-election:1764892800:elections-locales'
+      'agenda-item-ami-election:1764892800:elections-locales-open-modal-button'
     );
     expect(moreIcon).toBeInTheDocument();
   });

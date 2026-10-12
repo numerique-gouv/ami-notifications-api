@@ -294,7 +294,7 @@ describe('/+page.svelte', () => {
       // When
       await waitFor(async () => {
         const moreIcon = screen.getByTestId(
-          `open-agenda-item-modal-ami-holiday:${getTimestamp(today)}:holiday-1`
+          `agenda-item-ami-holiday:${getTimestamp(today)}:holiday-1-open-modal-button`
         );
         await fireEvent.click(moreIcon);
       });
@@ -320,7 +320,7 @@ describe('/+page.svelte', () => {
       // When
       await waitFor(async () => {
         const moreIcon = screen.getByTestId(
-          `open-agenda-item-modal-ami-holiday:${getTimestamp(today)}:holiday-1`
+          `agenda-item-ami-holiday:${getTimestamp(today)}:holiday-1-open-modal-button`
         );
         await fireEvent.click(moreIcon);
 
@@ -356,7 +356,7 @@ describe('/+page.svelte', () => {
       // When
       await waitFor(async () => {
         const moreIcon = screen.getByTestId(
-          `open-agenda-item-modal-ami-holiday:${getTimestamp(today)}:holiday-1`
+          `agenda-item-ami-holiday:${getTimestamp(today)}:holiday-1-open-modal-button`
         );
         await fireEvent.click(moreIcon);
 
