@@ -4,15 +4,9 @@
   export interface LightModalProps {
     modalContent: Snippet;
     centered?: boolean;
-    onClose?: (() => void) | null;
     modalId?: string;
   }
-  let {
-    modalContent,
-    centered = false,
-    onClose = null,
-    modalId,
-  }: LightModalProps = $props();
+  let { modalContent, centered = false, modalId }: LightModalProps = $props();
   let dialog: HTMLDialogElement | null = null;
   let modalClass = $derived(centered ? 'dialog--centered' : '');
 </script>
