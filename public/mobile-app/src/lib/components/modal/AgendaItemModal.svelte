@@ -42,7 +42,7 @@
           aria-controls="agenda-item-{index}-modal"
           title="Cacher l’élément de l’agenda {item.title}"
           aria-label="Cacher l’élément de l’agenda {item.title}"
-          data-testid="hide-agenda-item-button-{item.key}"
+          data-testid="agenda-item-{item.key}-hide-button"
           class="hide-agenda-item"
         >
           Masquer
