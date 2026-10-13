@@ -1,5 +1,6 @@
 <script lang="ts">
   import BottomModal from '$lib/components/modal/BottomModal.svelte';
+  import { trackPersonalDataConsent } from '$lib/matomo';
   import {
     buildPersonalDataConsent,
     PersonalDataConsent,
@@ -10,11 +11,13 @@
     displayPersonalDataConsentBlock?: boolean;
     displayModal: boolean;
     onClose?: (hasAccepted: boolean) => void | null;
+    pageOrigin: string;
   }
   let {
     displayPersonalDataConsentBlock = $bindable(),
     displayModal = $bindable(),
     onClose,
+    pageOrigin,
   }: Props = $props();
 
   const acceptAndCloseModal = async () => {
@@ -23,6 +26,7 @@
     });
     await personalDataConsent.updateConsent(true);
     displayPersonalDataConsentBlock = false;
+    trackPersonalDataConsent(pageOrigin);
     toastStore.addToast(
       'Vos données administratives sont à présent utilisées dans l’application',
       'success',

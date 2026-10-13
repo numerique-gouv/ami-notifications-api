@@ -122,6 +122,7 @@
   <PersonalDataConsentModal
     bind:displayPersonalDataConsentBlock={displayPersonalDataConsentBlock}
     bind:displayModal={displayModal}
+    pageOrigin="profile"
   />
 {/if}
 

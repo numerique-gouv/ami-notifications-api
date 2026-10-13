@@ -60,6 +60,7 @@
     this={ModalComponent}
     bind:displayModal={displayModal}
     onClose={onCloseModal}
+    pageOrigin="homepage-autopromo"
   ></svelte:component>
 {/if}
 

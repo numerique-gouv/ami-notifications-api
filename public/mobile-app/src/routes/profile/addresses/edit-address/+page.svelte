@@ -310,7 +310,11 @@
 </PageWrapper>
 
 {#if displayModal}
-  <PersonalDataConsentModal bind:displayModal={displayModal} onClose={onCloseModal} />
+  <PersonalDataConsentModal
+    bind:displayModal={displayModal}
+    onClose={onCloseModal}
+    pageOrigin="edit-address"
+  />
 {/if}
 
 <style>
