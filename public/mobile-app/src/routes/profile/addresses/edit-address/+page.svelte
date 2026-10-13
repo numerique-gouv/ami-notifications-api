@@ -318,6 +318,7 @@
           <PersonalDataConsentModal
             modalId="edit-address-personal-data-consent-modal"
             onClose={onCloseModal}
+            pageOrigin="edit-address"
           />
         {/if}
       </li>

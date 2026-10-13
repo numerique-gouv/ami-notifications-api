@@ -26,4 +26,5 @@
   this={ModalComponent}
   modalId="{modalId}"
   onClose={onCloseModal}
+  pageOrigin="homepage-autopromo"
 ></svelte:component>

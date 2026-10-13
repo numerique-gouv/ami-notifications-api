@@ -1,19 +1,22 @@
 <script lang="ts">
   import BottomModal from '$lib/components/modal/BottomModal.svelte';
+  import { trackPersonalDataConsent } from '$lib/matomo';
   import { PersonalDataConsent } from '$lib/personal-data-consent';
   import { toastStore } from '$lib/state/toast.svelte.js';
 
   interface Props {
     modalId: string;
     onClose?: (hasAccepted: boolean) => void | null;
+    pageOrigin: string;
   }
-  let { modalId, onClose }: Props = $props();
+  let { modalId, onClose, pageOrigin }: Props = $props();
 
   const acceptAndCloseModal = async () => {
     const personalDataConsent: PersonalDataConsent = new PersonalDataConsent({
       consent_datetime: null,
     });
     await personalDataConsent.updateConsent(true);
+    trackPersonalDataConsent(pageOrigin);
     toastStore.addToast(
       'Vos données administratives sont à présent utilisées dans l’application',
       'success',

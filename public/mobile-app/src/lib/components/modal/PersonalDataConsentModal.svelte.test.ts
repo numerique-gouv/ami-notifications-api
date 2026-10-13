@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
+import * as matomoMethods from '$lib/matomo';
 import { PersonalDataConsent } from '$lib/personal-data-consent';
 import { toastStore } from '$lib/state/toast.svelte';
 import PersonalDataConsentModal from './PersonalDataConsentModal.svelte';
@@ -20,7 +21,9 @@ describe('/PersonalDataConsentModal.svelte', () => {
     const spy = vi.spyOn(toastStore, 'addToast');
 
     const onClose = vi.fn();
-    render(PersonalDataConsentModal, { props: { modalId: '', onClose } });
+    render(PersonalDataConsentModal, {
+      props: { modalId: '', onClose, pageOrigin: '' },
+    });
 
     // When
     await waitFor(async () => {
@@ -40,6 +43,34 @@ describe('/PersonalDataConsentModal.svelte', () => {
     });
   });
 
+  test('should notify matomo when user clicks on "Accepter" button', async () => {
+    // Given
+    const apiPersonalDataConsent = { consent_datetime: null };
+    const personalDataConsent = new PersonalDataConsent(apiPersonalDataConsent);
+    vi.spyOn(personalDataConsent, 'updateConsent').mockResolvedValue(true);
+
+    const onClose = vi.fn();
+    const trackPersonalDataConsentSpy = vi
+      .spyOn(matomoMethods, 'trackPersonalDataConsent')
+      .mockResolvedValue(undefined);
+    render(PersonalDataConsentModal, {
+      props: {
+        modalId: '',
+        onClose,
+        pageOrigin: 'fake-page',
+      },
+    });
+
+    // When
+    await waitFor(async () => {
+      const acceptButton = screen.getByTestId('accept-button');
+      await fireEvent.click(acceptButton);
+    });
+
+    // Then
+    expect(trackPersonalDataConsentSpy).toHaveBeenCalledWith('fake-page');
+  });
+
   test('should call callback close function with false when user clicks on "Accepter plus tard" button', async () => {
     // Given
     const apiPersonalDataConsent = { consent_datetime: null };
@@ -48,7 +79,9 @@ describe('/PersonalDataConsentModal.svelte', () => {
     const spy = vi.spyOn(toastStore, 'addToast');
 
     const onClose = vi.fn();
-    render(PersonalDataConsentModal, { props: { modalId: '', onClose } });
+    render(PersonalDataConsentModal, {
+      props: { modalId: '', onClose, pageOrigin: '' },
+    });
 
     // When
     await waitFor(async () => {
