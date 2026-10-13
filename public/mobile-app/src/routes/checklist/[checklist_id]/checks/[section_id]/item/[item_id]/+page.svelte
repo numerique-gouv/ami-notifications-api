@@ -34,6 +34,7 @@
       tabLinks.push({
         url: link.url,
         title: link.text,
+        isEnabled: true,
       });
     });
   });

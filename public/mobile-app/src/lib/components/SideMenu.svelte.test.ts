@@ -1,6 +1,7 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
-import { render, screen } from '@testing-library/svelte';
+import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
+import * as AMINavigationMethods from '$lib/ami-navigation';
 import SideMenu from './SideMenu.svelte';
 
 describe('/SideMenu.svelte', () => {
@@ -11,11 +12,13 @@ describe('/SideMenu.svelte', () => {
         url: '/#/checklist',
         title: 'Pendant la grossesse',
         id: 'during-pregnancy',
+        isEnabled: true,
       },
       {
         url: '/#/checklist',
         title: 'Après la naissance',
         id: 'after-birth',
+        isEnabled: true,
       },
     ];
 
@@ -35,6 +38,7 @@ describe('/SideMenu.svelte', () => {
         title: 'Pendant la grossesse',
         id: 'during-pregnancy',
         iconClass: 'fr-icon-user-line',
+        isEnabled: true,
       },
     ];
 
@@ -55,6 +59,7 @@ describe('/SideMenu.svelte', () => {
         title: 'Pendant la grossesse',
         id: 'during-pregnancy',
         tag: '2/8',
+        isEnabled: true,
       },
     ];
 
@@ -65,5 +70,52 @@ describe('/SideMenu.svelte', () => {
     expect(screen.queryByTestId('sidemenu-button-during-pregnancy')).toHaveTextContent(
       '2/8'
     );
+  });
+
+  test('should redirect on click on button', async () => {
+    // Given
+    const spy = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
+    const entries = [
+      {
+        url: '/#/checklist',
+        title: 'Pendant la grossesse',
+        id: 'during-pregnancy',
+        isEnabled: true,
+      },
+    ];
+    render(SideMenu, { sideMenus: entries });
+
+    // When
+    await waitFor(async () => {
+      const button = screen.getByTestId('sidemenu-button-during-pregnancy');
+      await fireEvent.click(button);
+    });
+
+    // Then
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledWith('/#/checklist');
+  });
+
+  test('should not redirect on click on button as item is not enabled', async () => {
+    // Given
+    const spy = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
+    const entries = [
+      {
+        url: '/#/checklist',
+        title: 'Pendant la grossesse',
+        id: 'during-pregnancy',
+        isEnabled: false,
+      },
+    ];
+    render(SideMenu, { sideMenus: entries });
+
+    // When
+    await waitFor(async () => {
+      const button = screen.getByTestId('sidemenu-button-during-pregnancy');
+      await fireEvent.click(button);
+    });
+
+    // Then
+    expect(spy).toHaveBeenCalledTimes(0);
   });
 });
