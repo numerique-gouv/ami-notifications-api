@@ -33,10 +33,10 @@
   };
 </script>
 
-<NavWithBackButton title="Mes coordonnées" {backUrl} />
+<NavWithBackButton className="small-header" title="Mes coordonnées" {backUrl} />
 
 {#if identity}
-  <div class="fr-container profile-content-container fr-pt-14w" data-testid="profile">
+  <div class="fr-container profile-content-container fr-pt-10w" data-testid="profile">
     <Card
       id="profile-email"
       iconClassName="fr-icon-mail-line fr-mr-1w am-icon-20"
