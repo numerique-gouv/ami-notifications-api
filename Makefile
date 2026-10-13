@@ -69,3 +69,7 @@ db-worker:
 .PHONY: init-checklists
 init-checklists:
 	$(RUN) python manage.py init_checklists
+
+.PHONY: init-annuaire
+init-annuaire:
+	$(RUN) python manage.py init_annuaire

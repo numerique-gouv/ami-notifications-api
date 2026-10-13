@@ -348,7 +348,7 @@ OIDC_OP_LOGOUT_URL_METHOD = "ami.agent.auth.provider_logout"
 OIDC_OP_LOGOUT_ENDPOINT = CONFIG["PRO_CONNECT_BASE_URL"] + "/api/v2/session/end"
 OIDC_STORE_ID_TOKEN = True
 
-# APi particulier
+# API particulier
 API_PARTICULIER_BASE_URL = CONFIG["API_PARTICULIER_BASE_URL"]
 API_PARTICULIER_RECIPIENT_ID = CONFIG["API_PARTICULIER_RECIPIENT_ID"]
 API_PARTICULIER_QUOTIENT_ENDPOINT = (
@@ -364,6 +364,11 @@ API_DATA_EDUCATION_HOLIDAYS_ENDPOINT = (
     "/api/explore/v2.1/catalog/datasets/fr-en-calendrier-scolaire/exports/json"
 )
 
+# API api-lannuaire.service-public.gouv.fr
+API_ANNUNAIRE_SP_BASE_URL = CONFIG["API_ANNUNAIRE_SP_BASE_URL"]
+API_ANNUNAIRE_SP_ENDPOINT = (
+    "/api/explore/v2.1/catalog/datasets/api-lannuaire-administration/exports/json"
+)
 
 # Partners
 PARTNERS_SECRETS = {}
