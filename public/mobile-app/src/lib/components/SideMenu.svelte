@@ -15,7 +15,10 @@
       <ul class="fr-sidemenu__list" data-testid="sidemenu">
         {#if sideMenus}
           {#each sideMenus as item}
-            <li class="fr-sidemenu__item {item.isEnabled ? '': 'disabled'}">
+            <li
+              class="fr-sidemenu__item {item.isEnabled ? '': 'disabled'}"
+              data-testid="sidemenu-item-{item.id}"
+            >
               <button
                 class="
                   fr-sidemenu__btn fr-pl-0 am-text--smbold
