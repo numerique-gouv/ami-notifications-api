@@ -68,6 +68,7 @@ INSTALLED_APPS = [
     "django_tasks_db",
     "ami.authentication",
     "ami.checklist",
+    "ami.annuaire_sp",
     "ami.fi",
     "ami.user",
     "ami.notification",
