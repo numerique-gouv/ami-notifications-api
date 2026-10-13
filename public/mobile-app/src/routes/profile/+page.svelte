@@ -1,26 +1,23 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import type { Address } from '$lib/address';
   import { AMIGoto } from '$lib/ami-navigation';
+  import type { APIMairie } from '$lib/api-annuaire-sp';
+  import { retrieveMairie } from '$lib/api-annuaire-sp';
   import Card from '$lib/components/Card.svelte';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import SideMenu from '$lib/components/SideMenu.svelte';
+  import type { SideMenuItem } from '$lib/side-menu';
   import type { UserIdentity } from '$lib/state/User.svelte';
   import { userStore } from '$lib/state/User.svelte';
 
   let backUrl: string = '/';
   let initial: string = $state('');
   let fullName: string = $state('');
+  let address: Address | undefined = $state();
+  let mairie: APIMairie | null = $state(null);
 
-  onMount(async () => {
-    if (!userStore.connected) {
-      AMIGoto('/#/login');
-      return;
-    }
-    initial = userStore.connected.getInitial();
-    fullName = userStore.connected.getFullName();
-  });
-
-  let sideMenuEntries = [
+  let sideMenuEntries: SideMenuItem[] = $state([
     {
       isEnabled: true,
       url: '/#/profile/identity/',
@@ -35,7 +32,31 @@
       iconClass: 'fr-icon-map-pin-user-line',
       id: 'addresses',
     },
-  ];
+    {
+      isEnabled: false,
+      url: '',
+      title: 'Ma commune',
+      iconClass: 'fr-icon-school-line',
+      id: 'city',
+    },
+  ]);
+
+  onMount(async () => {
+    if (!userStore.connected) {
+      AMIGoto('/#/login');
+      return;
+    }
+    initial = userStore.connected.getInitial();
+    fullName = userStore.connected.getFullName();
+    address = userStore.connected.identity.address;
+    if (address) {
+      mairie = await retrieveMairie(address.citycode);
+      if (mairie) {
+        sideMenuEntries[2].url = mairie.url_service_public;
+        sideMenuEntries[2].isEnabled = true;
+      }
+    }
+  });
 </script>
 
 <NavWithBackButton title="" {backUrl} />
