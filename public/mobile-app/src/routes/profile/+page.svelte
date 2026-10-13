@@ -115,6 +115,7 @@
       <PersonalDataConsentModal
         modalId="profile-personal-data-consent-modal"
         onClose={onCloseModal}
+        pageOrigin="profile"
       />
     </div>
   {/if}
