@@ -44,14 +44,19 @@
   {/if}
   <div class="agenda--item--container">
     <div
-      class="fr-card fr-enlarge-button fr-card--sm fr-card--horizontal agenda--item--detail {item.kind} {isPast ? 'past': ''} {item.link ? '': 'fr-card--no-icon no-link'}"
+      class="fr-card fr-enlarge-button fr-card--sm fr-card--horizontal agenda--item--detail
+              {item.kind} 
+              {isPast ? 'past': ''} 
+              {item.link ? '': 'fr-card--no-icon no-link'}
+              {onOpen ? '': 'am-without-opt'}
+      "
     >
       {#if onOpen}
         <button
           type="button"
           onclick={onOpen}
           data-testid="open-agenda-item-modal-{item.id}"
-          class="fr-btn fr-btn--icon fr-icon-more-2-fill fr-btn--tertiary-no-outline fr-pt-2w am-icon-20 am-btn-modal open-agenda-item-modal"
+          class="fr-btn fr-btn--icon fr-icon-more-2-fill fr-btn--tertiary-no-outline fr-pt-2w am-btn-modal open-agenda-item-modal"
         >
           Ouvrir la modale liée à l’élément de l’agenda
         </button>
@@ -75,14 +80,16 @@
             {/if}
             <div class="fr-card__start fr-mb-0">
               {#if followupSubItem}
-                <p
-                  class="fr-badge fr-mb-1w fr-badge--icon-left {checkedIcon} {followupSubItem.status_id} {followupSubItem.badgeClassName}"
-                >
-                  {followupSubItem.status_label}
-                </p>
+                <div>
+                  <p
+                    class="fr-badge fr-mb-1w fr-badge--icon-left {checkedIcon} {followupSubItem.status_id} {followupSubItem.badgeClassName}"
+                  >
+                    {followupSubItem.status_label}
+                  </p>
+                </div>
               {/if}
               <p
-                class="fr-badge fr-badge--sm fr-badge--icon-left fr-mb-1w {item.icon} {item.badgeClassName}"
+                class="fr-badge fr-badge--sm fr-badge--icon-left fr-mb-1w fr-mr-1v {item.icon} {item.badgeClassName}"
               >
                 {item.period}
               </p>
@@ -165,8 +172,7 @@
 
         &:before {
           position: relative;
-          width: var(--icon-size);
-          height: var(--icon-size);
+          height: 1.25rem;
         }
       }
     }
@@ -179,12 +185,36 @@
           linear-gradient(0deg, var(--am-blue--1), var(--am-blue--1)),
           linear-gradient(0deg, var(--am-blue--1), var(--am-blue--1));
       }
+      &.past {
+        background-color: var(--grey-975-75);
+        background-image:
+          linear-gradient(
+            0deg,
+            var(--border-contrast-grey),
+            var(--border-contrast-grey)
+          ),
+          linear-gradient(
+            0deg,
+            var(--border-contrast-grey),
+            var(--border-contrast-grey)
+          ),
+          linear-gradient(
+            0deg,
+            var(--border-contrast-grey),
+            var(--border-contrast-grey)
+          ),
+          linear-gradient(
+            0deg,
+            var(--border-contrast-grey),
+            var(--border-contrast-grey)
+          );
+      }
       &.no-link {
         --hover: transparent;
         --active: transparent;
       }
       .fr-card__content {
-        padding: 0.75rem 2rem 0.75rem 1rem;
+        padding: 0.875rem 2rem 0.875rem 1rem;
       }
     }
     .fr-card--sm.fr-enlarge-button:not(.fr-card--no-icon) .fr-card__title button:after {
@@ -195,6 +225,12 @@
       mask-image: url("@gouvfr/dsfr/dist/icons/arrows/arrow-right-s-line.svg");
     }
 
+    .fr-card--sm.am-without-opt.fr-enlarge-button:not(.fr-card--no-icon)
+      .fr-card__title
+      button:after {
+      bottom: 50%;
+      transform: translateY(50%);
+    }
     .fr-card__start.with-personal-icon {
       display: flex;
       justify-content: space-between;

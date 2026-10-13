@@ -114,8 +114,7 @@
         outline-width: 2px;
         &:before {
           position: relative;
-          width: var(--icon-size);
-          height: var(--icon-size);
+          height: 1.25rem;
         }
       }
       .fr-tile__content {

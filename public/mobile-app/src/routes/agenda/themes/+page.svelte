@@ -20,15 +20,19 @@
   <h1 class="fr-h2 fr-mb-4w">Thèmes</h1>
   <ul class="fr-raw-list">
     <li class="fr-mb-3w">
-      <p
-        class="fr-badge fr-badge--sm fr-badge--icon-left fr-mr-1w {Item.KindInfo['personal'].icon} {Item.KindInfo['personal'].badgeClassName}"
-      ></p>
+      <div aria-hidden="true">
+        <p
+          class="fr-badge fr-badge--sm fr-badge--icon-left {Item.KindInfo['personal'].icon} {Item.KindInfo['personal'].badgeClassName}"
+        ></p>
+      </div>
       Échéance personnelle (rendez-vous, date de renouvellement etc.)
     </li>
     <li class="fr-mb-3w">
-      <p
-        class="fr-badge fr-badge--sm fr-badge--icon-left fr-mr-1w {Item.KindInfo['holiday'].icon} {Item.KindInfo['holiday'].badgeClassName}"
-      ></p>
+      <div aria-hidden="true">
+        <p
+          class="fr-badge fr-badge--sm fr-badge--icon-left {Item.KindInfo['holiday'].icon} {Item.KindInfo['holiday'].badgeClassName}"
+        ></p>
+      </div>
       Vacances et jours fériés
     </li>
   </ul>
@@ -37,6 +41,11 @@
 <style>
   .themes-container {
     ul {
+      li {
+        align-items: center;
+        display: flex;
+        gap: 1rem;
+      }
       .fr-badge {
         min-height: 1.5rem;
         &::before {
