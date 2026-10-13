@@ -4,6 +4,7 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 from ami.access_key import api_urls as access_key_api_urls
 from ami.agenda import api_urls as agenda_api_urls
+from ami.annuaire_sp import api_urls as annuaire_sp_api_urls
 from ami.authentication import api_urls as authentication_api_urls
 from ami.checklist import api_urls as checklist_api_urls
 from ami.fi import api_urls as fi_api_urls
@@ -26,6 +27,7 @@ urlpatterns = [
     path("api/v1/", include(followup_api_urls.root_urlpatterns)),
     path("api/v1/", include(service_api_urls.root_urlpatterns)),
     path("api/v1/", include(checklist_api_urls.root_urlpatterns)),
+    path("api/v1/", include(annuaire_sp_api_urls.root_urlpatterns)),
     path("api/v1/", include(notification_api_urls)),
     path("api/v1/", include(page_api_urls)),
     path("api/v1/", include(partner_api_urls)),
