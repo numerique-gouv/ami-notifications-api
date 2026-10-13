@@ -203,15 +203,13 @@ async def login_callback(request):
                 ):
                     # initiate FC logout and redirect to logout callback
 
-                    redirect_to_hash = request.session.get("login_from_hash")
-                    if not request.ami_user:
+                    context = {"redirect_to_hash": request.session.get("login_from_hash")}
+                    if request.ami_user:
+                        context["user_does_not_match"] = True
+                    else:
                         logging.error("relogin while not logged")
-                        redirect_to_hash = "/technical-error"
+                        context["redirect_to_hash"] = "/technical-error"
 
-                    context = {
-                        "user_does_not_match": True,
-                        "redirect_to_hash": redirect_to_hash,
-                    }
                     return await logout(request, id_token, context=context)
 
                 return redirect(redirect_url)
