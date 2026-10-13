@@ -24,6 +24,7 @@
         url: section.url,
         title: section.title,
         id: `page-section-${section.slug}`,
+        isEnabled: true,
       });
     });
   });
