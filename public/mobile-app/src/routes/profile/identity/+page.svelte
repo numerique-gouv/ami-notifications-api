@@ -25,10 +25,10 @@
   };
 </script>
 
-<NavWithBackButton title="Mon identité" {backUrl} />
+<NavWithBackButton className="small-header" title="Mon identité" {backUrl} />
 
 {#if identity}
-  <div class="fr-container profile-content-container fr-pt-14w" data-testid="profile">
+  <div class="fr-container profile-content-container fr-pt-10w" data-testid="profile">
     <Card
       id="profile-identity"
       iconClassName="fr-icon-account-circle-line fr-mr-1w am-icon-20"
