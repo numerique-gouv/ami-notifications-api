@@ -26,7 +26,7 @@
 
 <Navigation currentItem="agenda" />
 <div class="agenda">
-  <div class="agenda--title fr-mb-1w">
+  <div class="agenda--title fr-mb-0">
     <h1 class="fr-h2 fr-mb-0">Mon agenda</h1>
     <div class="agenda--title--icon">
       <button
@@ -49,7 +49,7 @@
   {#if agenda && agenda.now.length}
     <div class="agenda--events fr-mb-3w" data-testid="events-now">
       <div class="agenda--events--header">
-        <h2 class="fr-h6 fr-mb-3v am-text--smbold">Prochainement</h2>
+        <h2 class="fr-h6 fr-mb-0 am-text--smbold">Prochainement</h2>
       </div>
       <div class="agenda--events--container">
         {#each agenda.now as item, i}
@@ -57,7 +57,7 @@
           {@const displayDay = (i == 0 || i > 0 && item.date?.toDateString() !== agenda.now[i - 1].date?.toDateString())}
           {#if displayMonth}
             <p
-              class="fr-text--sm fr-mb-1w fr-text-title--grey am-text--smbold agenda--events--month"
+              class="fr-text--sm fr-mb-0 fr-text-title--grey am-text--smbold agenda--events--month"
             >
               {item.monthName}
             </p>
@@ -75,7 +75,7 @@
   {#if agenda && agenda.next.length}
     <div class="agenda--events" data-testid="events-next">
       <div class="agenda--events--header">
-        <h2 class="fr-h6 fr-mb-3v am-text--smbold">Les mois suivants</h2>
+        <h2 class="fr-h6 fr-mb-0 am-text--smbold">Les mois suivants</h2>
       </div>
       <div class="agenda--events--container">
         {#each agenda.next as item, i}
@@ -83,7 +83,7 @@
           {@const displayDay = (i == 0 || i > 0 && item.date?.toDateString() !== agenda.next[i - 1].date?.toDateString())}
           {#if displayMonth}
             <p
-              class="fr-text--sm fr-mb-1w fr-text-title--grey am-text--smbold agenda--events--month"
+              class="fr-text--sm fr-mb-0 fr-text-title--grey am-text--smbold agenda--events--month"
             >
               {item.monthName}
             </p>
@@ -112,6 +112,21 @@
       h1 {
         flex-grow: 1;
       }
+    }
+    /* titles stikcy */
+    .agenda--events--month,
+    .agenda--events--header {
+      position: sticky;
+      top: 0;
+      padding: 0.5rem 1rem 0.25rem;
+      margin: 0 -1rem;
+      background-color: var(--background-default-grey);
+      z-index: 10;
+    }
+
+    .agenda--events--month {
+      top: 2.25rem;
+      padding-bottom: 0.5rem;
     }
   }
 </style>
