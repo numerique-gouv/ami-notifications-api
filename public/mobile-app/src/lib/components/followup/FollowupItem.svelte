@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { AMIGoto } from '$lib/ami-navigation';
+  import { AMIBackOrGoto, AMIGoto } from '$lib/ami-navigation';
   import { getDSFRIcon } from '$lib/dsfr-icon';
   import { ariaHideDecorativeEmoji } from '$lib/emoji';
   import { FollowupItem } from '$lib/followup';
@@ -7,13 +7,22 @@
   interface Props {
     item: FollowupItem;
     onOpen?: (() => void) | null;
+    useBackOrGoto?: boolean;
   }
-  let { item, onOpen = null }: Props = $props();
+  let { item, onOpen = null, useBackOrGoto = false }: Props = $props();
 
   let checkedIcon = $derived(getDSFRIcon(item.icon, 'fr-icon-information-fill'));
   let withDetailButton = $derived(
     !item.sub_items.length && !item.is_archived && item.status_id === 'new' && item.link
   );
+
+  const goToItem = () => {
+    if (useBackOrGoto) {
+      AMIBackOrGoto(item.getItemDetailPageUrl());
+      return;
+    }
+    AMIGoto(item.getItemDetailPageUrl());
+  };
 </script>
 
 <div class="followup--item">
@@ -33,11 +42,7 @@
     <div class="fr-tile__body">
       <div class="fr-tile__content fr-pb-0">
         <h3 class="fr-tile__title">
-          <button
-            type="button"
-            onclick={(e) => AMIGoto(item.getItemDetailPageUrl())}
-            data-testid="followup-item-link"
-          >
+          <button type="button" onclick={goToItem} data-testid="followup-item-link">
             {@html ariaHideDecorativeEmoji(item.title)}
           </button>
         </h3>
@@ -82,7 +87,7 @@
             <button
               type="button"
               class="fr-btn fr-mb-0"
-              onclick={(e) => AMIGoto(item.getItemDetailPageUrl())}
+              onclick={goToItem}
               data-testid="external-item-button-{item.id}"
             >
               Reprendre ma démarche

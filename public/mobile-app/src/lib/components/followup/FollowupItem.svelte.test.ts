@@ -29,10 +29,49 @@ describe('/FollowupItem.svelte', () => {
       []
     );
     const onOpen = vi.fn();
-    const spy = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
+    const spy1 = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
+    const spy2 = vi.spyOn(AMINavigationMethods, 'AMIBackOrGoto').mockResolvedValue();
 
     // When
     render(FollowupItem, { props: { item: item, onOpen: onOpen } });
+
+    // Then
+    const button = screen.getByTestId('followup-item-link');
+    await fireEvent.click(button);
+    await waitFor(() => {
+      expect(spy1).toHaveBeenCalledWith('/#/followup/item/partner/type/id');
+      expect(spy2).not.toHaveBeenCalled();
+    });
+  });
+  test('should display a link - from sub item', async () => {
+    // Given
+    const item = new Item(
+      'partner',
+      'type',
+      'id',
+      'ref',
+      'notifications',
+      null,
+      null,
+      [],
+      'Opération Tranquillité Vacances',
+      'subheading',
+      'Votre demande est terminée.',
+      'icon',
+      new Date('2026-02-20T15:55:00.000Z'),
+      'closed',
+      'Terminée',
+      false,
+      'url',
+      []
+    );
+    const onOpen = vi.fn();
+    const spy = vi.spyOn(AMINavigationMethods, 'AMIBackOrGoto').mockResolvedValue();
+
+    // When
+    render(FollowupItem, {
+      props: { item: item, onOpen: onOpen, useBackOrGoto: true },
+    });
 
     // Then
     const button = screen.getByTestId('followup-item-link');
@@ -311,12 +350,60 @@ describe('/FollowupItem.svelte', () => {
         []
       );
       const onOpen = vi.fn();
-      const spy = vi
-        .spyOn(AMINavigationMethods, 'AMIGoto')
-        .mockImplementation(() => Promise.resolve());
+      const spy1 = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
+      const spy2 = vi.spyOn(AMINavigationMethods, 'AMIBackOrGoto').mockResolvedValue();
 
       // When
       render(FollowupItem, { props: { item: item, onOpen: onOpen } });
+
+      // Then
+      await waitFor(async () => {
+        expect(
+          screen.queryByTestId('external-item-button-partner:type:id1')
+        ).not.toBeNull();
+      });
+
+      // When
+      const button = screen.getByTestId('external-item-button-partner:type:id1');
+      await fireEvent.click(button);
+
+      // Then
+      await waitFor(() => {
+        expect(spy1).toHaveBeenCalledWith('/#/followup/item/partner/type/id1');
+        expect(spy2).not.toHaveBeenCalled();
+      });
+    });
+    test('Should display "Reprendre ma démarche" button only if item is "new" - from sub item', async () => {
+      // Given
+      const item = new Item(
+        'partner',
+        'type',
+        'id1',
+        'ref1',
+        'notifications',
+        null,
+        null,
+        [],
+        'Opération Tranquillité Vacances',
+        'subheading',
+        'Votre demande est terminée.',
+        'icon',
+        new Date('2026-02-20T15:55:00.000Z'),
+        'new',
+        'Terminée',
+        false,
+        'link1',
+        []
+      );
+      const onOpen = vi.fn();
+      const spy = vi
+        .spyOn(AMINavigationMethods, 'AMIBackOrGoto')
+        .mockImplementation(() => Promise.resolve());
+
+      // When
+      render(FollowupItem, {
+        props: { item: item, onOpen: onOpen, useBackOrGoto: true },
+      });
 
       // Then
       await waitFor(async () => {
