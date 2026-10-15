@@ -90,7 +90,7 @@ def registrations(request: Request) -> Response:
         with transaction.atomic():
             # In case of a mobile app subscription, check if we already have registration(s) for this device.
             existing_registrations: QuerySet[Registration] = Registration.objects.filter(
-                subscription__device_id=subscription["device_id"],
+                device_id=subscription["device_id"],
             )
             registrations_exists = existing_registrations.exists()
             status = HTTP_200_OK if registrations_exists else HTTP_201_CREATED
