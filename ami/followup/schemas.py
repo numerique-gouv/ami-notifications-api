@@ -25,7 +25,7 @@ class FollowupSourceStatus(Enum):
 class FollowupItemEvent:
     id: str
     created_at: datetime.datetime
-    description: str
+    title: str
 
 
 @dataclass
@@ -135,13 +135,12 @@ class NotificationsSubItem:
     def events(self):
         events = []
         for notification in self.notifications:
-            if not notification.content_title and not notification.content_body:
+            if not notification.content_title:
                 continue
-            event_description = notification.content_body
-            if notification.content_private_body:
-                event_description += f"\n\n{notification.content_private_body}"
             events.append(
-                FollowupItemEvent(notification.id, notification.created_at, event_description)
+                FollowupItemEvent(
+                    notification.id, notification.created_at, notification.content_title
+                )
             )
         return events
 
