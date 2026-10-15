@@ -69,6 +69,7 @@ def test_register_mobile_app(app, user: User, mobileAppSubscription: dict[str, A
     app.post_json("/api/v1/users/registrations", register_data, status=200)
 
     assert Registration.objects.count() == 1
+    assert Registration.all_objects.count() == 2  # old registration was marked as deleted
     registration = Registration.objects.get()
     assert registration.device_id == "some-id"
 
@@ -119,6 +120,7 @@ def test_register_mobile_app_different_registration_same_device(
     app.post_json("/api/v1/users/registrations", register_data, status=200)
 
     assert Registration.objects.count() == 1
+    assert Registration.all_objects.count() == 2  # old registration was marked as deleted
     registration = Registration.objects.get()
     assert registration.subscription["fcm_token"] == "some other token"
 

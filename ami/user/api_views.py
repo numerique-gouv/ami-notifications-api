@@ -95,8 +95,9 @@ def registrations(request: Request) -> Response:
             registrations_exists = existing_registrations.exists()
             status = HTTP_200_OK if registrations_exists else HTTP_201_CREATED
             if registrations_exists:
-                # and if so, delete them: we only want to keep the latest registration for a given device.
-                existing_registrations.delete()
+                # and if so, mark them as deleted: we only want to keep
+                # the latest registration for a given device.
+                existing_registrations.update(deleted_at=now())
             registration: Registration = Registration.objects.create(
                 user=request.ami_user,
                 subscription=subscription,
