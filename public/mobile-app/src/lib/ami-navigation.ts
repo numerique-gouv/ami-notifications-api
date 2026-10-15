@@ -134,6 +134,26 @@ export const AMIBack = (backUrl: string) => {
   }
 };
 
+export const AMIBackOrGoto = (url: string) => {
+  const last_visited_internal_urls = getLastVisitedInternalUrls();
+  if (last_visited_internal_urls.length <= 1) {
+    self.AMIGoto(url);
+    return;
+  }
+  const previous = last_visited_internal_urls[1];
+  if (previous !== url) {
+    self.AMIGoto(url);
+    return;
+  }
+  if (history.length > 1) {
+    history.back();
+    localStorage.removeItem('last_visited_internal_urls');
+    addLastVisitedInternalUrl(url);
+    return;
+  }
+  self.AMIGoto(url);
+};
+
 export const AMIBackToLastKnownURL = () => {
   const target = localStorage.getItem('webview_back_target');
 

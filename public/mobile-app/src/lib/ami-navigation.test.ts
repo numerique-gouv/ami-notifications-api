@@ -4,6 +4,7 @@ import * as envModule from '$env/static/public';
 import * as AMINavigationMethods from '$lib/ami-navigation';
 import {
   AMIBack,
+  AMIBackOrGoto,
   AMIBackToLastKnownURL,
   AMIGoto,
   AMIGotoUntrustedUrl,
@@ -587,6 +588,89 @@ describe('/ami-navigation', () => {
 
       // When
       AMIBack('/#/page');
+
+      // Then
+      expect(spyBack).not.toHaveBeenCalled();
+      expect(spyAMIGoto).toHaveBeenCalledWith('/#/page');
+    });
+  });
+
+  describe('AMIBackOrGoto', () => {
+    test('Should call AMIGoto if last_visited_internal_urls is empty', () => {
+      // Given
+      const spyBack = vi.spyOn(window.history, 'back').mockImplementation(() => {});
+      const spyAMIGoto = vi
+        .spyOn(AMINavigationMethods, 'AMIGoto')
+        .mockImplementation(() => {});
+
+      // When
+      AMIBackOrGoto('/#/page');
+
+      // Then
+      expect(spyBack).not.toHaveBeenCalled();
+      expect(spyAMIGoto).toHaveBeenCalledWith('/#/page');
+    });
+    test('Should call AMIGoto if last_visited_internal_urls contains only one url', () => {
+      // Given
+      const spyBack = vi.spyOn(window.history, 'back').mockImplementation(() => {});
+      const spyAMIGoto = vi
+        .spyOn(AMINavigationMethods, 'AMIGoto')
+        .mockImplementation(() => {});
+      addLastVisitedInternalUrl('/#/page');
+
+      // When
+      AMIBackOrGoto('/#/page');
+
+      // Then
+      expect(spyBack).not.toHaveBeenCalled();
+      expect(spyAMIGoto).toHaveBeenCalledWith('/#/page');
+    });
+    test('Should call AMIGoto if last_visited_internal_url is different than target url', () => {
+      // Given
+      const spyBack = vi.spyOn(window.history, 'back').mockImplementation(() => {});
+      const spyAMIGoto = vi
+        .spyOn(AMINavigationMethods, 'AMIGoto')
+        .mockImplementation(() => {});
+      addLastVisitedInternalUrl('/#/page1');
+      addLastVisitedInternalUrl('/#/page2');
+
+      // When
+      AMIBackOrGoto('/#/page');
+
+      // Then
+      expect(spyBack).not.toHaveBeenCalled();
+      expect(spyAMIGoto).toHaveBeenCalledWith('/#/page');
+    });
+    test('Should call history.back if history', () => {
+      // Given
+      const spyBack = vi.spyOn(window.history, 'back').mockImplementation(() => {});
+      const spyAMIGoto = vi
+        .spyOn(AMINavigationMethods, 'AMIGoto')
+        .mockImplementation(() => {});
+      addLastVisitedInternalUrl('/#/page');
+      addLastVisitedInternalUrl('/#/other-page');
+      Object.defineProperty(window.history, 'length', { value: 2, configurable: true });
+
+      // When
+      AMIBackOrGoto('/#/page');
+
+      // Then
+      expect(spyBack).toHaveBeenCalled();
+      expect(spyAMIGoto).not.toHaveBeenCalled();
+      expect(getLastVisitedInternalUrls()).toEqual(['/#/page']);
+    });
+    test('Should call AMIGoto if no history', () => {
+      // Given
+      const spyBack = vi.spyOn(window.history, 'back').mockImplementation(() => {});
+      const spyAMIGoto = vi
+        .spyOn(AMINavigationMethods, 'AMIGoto')
+        .mockImplementation(() => {});
+      addLastVisitedInternalUrl('/#/page');
+      addLastVisitedInternalUrl('/#/other-page');
+      Object.defineProperty(window.history, 'length', { value: 1, configurable: true });
+
+      // When
+      AMIBackOrGoto('/#/page');
 
       // Then
       expect(spyBack).not.toHaveBeenCalled();
