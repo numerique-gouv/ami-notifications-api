@@ -77,7 +77,7 @@ export class FollowupItemEvent {
   constructor(
     private _id: string,
     private _created_at: Date,
-    private _description: string
+    private _title: string
   ) {}
 
   get id(): string {
@@ -88,8 +88,8 @@ export class FollowupItemEvent {
     return this._created_at;
   }
 
-  get description(): string {
-    return this._description;
+  get title(): string {
+    return this._title;
   }
 
   get formattedDate(): string {
@@ -441,13 +441,13 @@ export class Followup {
   private createFollowupItem(item: APIFollowupItem): FollowupItem {
     const events: FollowupItemEvent[] = item.events.map(
       (event) =>
-        new FollowupItemEvent(event.id, new Date(event.created_at), event.description)
+        new FollowupItemEvent(event.id, new Date(event.created_at), event.title)
     );
 
     const sub_items: FollowupSubItem[] = item.sub_items.map((sub_item) => {
       const sub_item_events: FollowupItemEvent[] = sub_item.events.map(
         (event) =>
-          new FollowupItemEvent(event.id, new Date(event.created_at), event.description)
+          new FollowupItemEvent(event.id, new Date(event.created_at), event.title)
       );
       return new FollowupSubItem(
         sub_item.partner_id,
