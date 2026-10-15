@@ -45,7 +45,7 @@ def test_get_followup(
                         created_at=datetime.datetime(
                             2026, 2, 23, 17, 24, tzinfo=datetime.timezone.utc
                         ),
-                        description="Evénement lié à l'item",
+                        title="Evénement lié à l'item",
                     ),
                 ],
                 title="Notification title 6",
@@ -76,7 +76,7 @@ def test_get_followup(
                                 created_at=datetime.datetime(
                                     2026, 2, 23, 17, 24, tzinfo=datetime.timezone.utc
                                 ),
-                                description="Evénement lié au sub-item",
+                                title="Evénement lié au sub-item",
                             ),
                         ],
                         title="Notification title 6",
@@ -135,7 +135,7 @@ def test_get_followup(
                     "milestone_end_date": "2026-03-26T17:24:00Z",
                     "events": [
                         {
-                            "description": "Evénement lié à l'item",
+                            "title": "Evénement lié à l'item",
                             "created_at": "2026-02-23T17:24:00Z",
                             "id": "fake-followup-id",
                         },
@@ -162,7 +162,7 @@ def test_get_followup(
                                 {
                                     "id": "fake-followup-id",
                                     "created_at": "2026-02-23T17:24:00Z",
-                                    "description": "Evénement lié au sub-item",
+                                    "title": "Evénement lié au sub-item",
                                 }
                             ],
                             "title": "Notification title 6",
