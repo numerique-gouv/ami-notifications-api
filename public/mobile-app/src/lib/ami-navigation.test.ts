@@ -7,6 +7,8 @@ import {
   AMIBackToLastKnownURL,
   AMIGoto,
   AMIGotoUntrustedUrl,
+  addLastVisitedInternalUrl,
+  getLastVisitedInternalUrls,
 } from '$lib/ami-navigation';
 import { toastStore } from '$lib/state/toast.svelte';
 import * as telemetryModule from '$lib/telemetry';
@@ -23,6 +25,91 @@ describe('/ami-navigation', () => {
     });
     vi.mocked(envModule).PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED = 'true';
     vi.spyOn(urlAliasesMethods, 'isPromotedUrl').mockReturnValue(false);
+  });
+
+  describe('addLastVisitedInternalUrl', () => {
+    test('should store url in localstorage - localstorage empty', async () => {
+      // When
+      addLastVisitedInternalUrl('url1');
+
+      // Then
+      expect(localStorage.getItem('last_visited_internal_urls')).toEqual(
+        JSON.stringify(['url1'])
+      );
+    });
+    test('should store url in localstorage - localstorage not empty - 1 element', async () => {
+      // Given
+      localStorage.setItem('last_visited_internal_urls', JSON.stringify(['url1']));
+
+      // When
+      addLastVisitedInternalUrl('url2');
+
+      // Then
+      expect(localStorage.getItem('last_visited_internal_urls')).toEqual(
+        JSON.stringify(['url2', 'url1'])
+      );
+    });
+    test('should store url in localstorage - localstorage not empty - 2 elements', async () => {
+      // Given
+      localStorage.setItem(
+        'last_visited_internal_urls',
+        JSON.stringify(['url2', 'url1'])
+      );
+
+      // When
+      addLastVisitedInternalUrl('url3');
+
+      // Then
+      expect(localStorage.getItem('last_visited_internal_urls')).toEqual(
+        JSON.stringify(['url3', 'url2'])
+      );
+    });
+    test('should store url in localstorage - localstorage has wrong data', async () => {
+      // Given
+      localStorage.setItem('last_visited_internal_urls', 'wrong');
+
+      // When
+      addLastVisitedInternalUrl('url1');
+
+      // Then
+      expect(localStorage.getItem('last_visited_internal_urls')).toEqual(
+        JSON.stringify(['url1'])
+      );
+    });
+  });
+
+  describe('getLastVisitedInternalUrls', () => {
+    test('should get last visited internal urls - localstorage empty', async () => {
+      // When
+      const result = getLastVisitedInternalUrls();
+
+      // Then
+      expect(result).toEqual([]);
+    });
+    test('should get last visited internal urls - localstorage is not empty', async () => {
+      // Given
+      localStorage.setItem(
+        'last_visited_internal_urls',
+        JSON.stringify(['url2', 'url1'])
+      );
+
+      // When
+      const result = getLastVisitedInternalUrls();
+
+      // Then
+      expect(result).toEqual(['url2', 'url1']);
+    });
+    test('should get last visited internal urls - localstorage has wrong data', async () => {
+      // Given
+      localStorage.setItem('last_visited_internal_urls', 'wrong');
+
+      // When
+      const result = getLastVisitedInternalUrls();
+
+      // Then
+      expect(result).toEqual([]);
+      expect(localStorage.getItem('last_visited_internal_urls')).toEqual(null);
+    });
   });
 
   describe('AMIGoto', () => {
@@ -293,40 +380,68 @@ describe('/ami-navigation', () => {
     });
 
     describe('history', () => {
-      test('should register internal url in localstorage', async () => {
-        // When
-        AMIGoto('/#/page');
+      describe('last_visited_internal_urls is empty', () => {
+        test('should register internal url in localstorage', async () => {
+          // When
+          AMIGoto('/#/page');
 
-        // Then
-        expect(localStorage.getItem('last_visited_internal_url')).toEqual('/#/page');
+          // Then
+          expect(getLastVisitedInternalUrls()).toEqual(['/#/page']);
+        });
+        test('should register promoted internal url in localstorage', async () => {
+          // Given
+          vi.spyOn(urlAliasesMethods, 'isPromotedUrl').mockReturnValue(true);
+
+          // When
+          AMIGoto('/#/page');
+
+          // Then
+          expect(getLastVisitedInternalUrls()).toEqual(['/#/page']);
+        });
+        test('should not register internal url in localstorage as url is excluded from history', async () => {
+          // When
+          AMIGoto('/#/login');
+
+          // Then
+          expect(getLastVisitedInternalUrls()).toEqual([]);
+        });
+        test('should not register external url in localstorage', async () => {
+          // When
+          AMIGoto('http://external-url');
+
+          // Then
+          expect(getLastVisitedInternalUrls()).toEqual([]);
+        });
       });
-      test('should register promoted internal url in localstorage', async () => {
-        // Given
-        vi.spyOn(urlAliasesMethods, 'isPromotedUrl').mockReturnValue(true);
+      describe('last_visited_internal_urls is not empty', () => {
+        test('should register internal url in localstorage (append)', async () => {
+          // Given
+          addLastVisitedInternalUrl('/#/previous-page');
 
-        // When
-        AMIGoto('/#/page');
+          // When
+          AMIGoto('/#/page');
 
-        // Then
-        expect(localStorage.getItem('last_visited_internal_url')).toEqual('/#/page');
-      });
-      test('should not register internal url in localstorage as url is excluded from history', async () => {
-        // When
-        AMIGoto('/#/login');
+          // Then
+          expect(getLastVisitedInternalUrls()).toEqual(['/#/page', '/#/previous-page']);
+        });
+        test('should register internal url in localstorage (append & pop)', async () => {
+          // Given
+          addLastVisitedInternalUrl('/#/previous-page1');
+          addLastVisitedInternalUrl('/#/previous-page2');
 
-        // Then
-        expect(localStorage.getItem('last_visited_internal_url')).toEqual(null);
-      });
-      test('should not register external url in localstorage', async () => {
-        // When
-        AMIGoto('http://external-url');
+          // When
+          AMIGoto('/#/page');
 
-        // Then
-        expect(localStorage.getItem('last_visited_internal_url')).toEqual(null);
+          // Then
+          expect(getLastVisitedInternalUrls()).toEqual([
+            '/#/page',
+            '/#/previous-page2',
+          ]);
+        });
       });
       test('should register last visited url as target in localstorage when redirecting to an external url', async () => {
         // Given
-        localStorage.setItem('last_visited_internal_url', '/#/page');
+        addLastVisitedInternalUrl('/#/page');
 
         // When
         AMIGoto('http://external-url');
