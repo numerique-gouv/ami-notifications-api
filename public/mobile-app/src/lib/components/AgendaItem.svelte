@@ -2,7 +2,7 @@
   import DOMPurify from 'dompurify';
   import { onMount } from 'svelte';
   import { Item } from '$lib/agenda';
-  import { AMIGoto } from '$lib/ami-navigation';
+  import { AMIBackOrGoto, AMIGoto } from '$lib/ami-navigation';
   import { getDSFRIcon } from '$lib/dsfr-icon';
   import { ariaHideDecorativeEmoji } from '$lib/emoji';
   import { FollowupSubItem } from '$lib/followup';
@@ -16,6 +16,7 @@
     onOpen?: (() => void) | null;
     isPast?: boolean;
     followupSubItem?: FollowupSubItem | null;
+    useBackOrGoto?: boolean;
   }
   let {
     item,
@@ -24,12 +25,25 @@
     onOpen = null,
     isPast = false,
     followupSubItem = null,
+    useBackOrGoto = false,
   }: Props = $props();
 
   let checkedIcon = '';
   if (followupSubItem) {
     checkedIcon = getDSFRIcon(followupSubItem.icon, 'fr-icon-information-fill');
   }
+
+  const goToItem = (event: Event) => {
+    if (item.link) {
+      if (useBackOrGoto) {
+        AMIBackOrGoto(item.link);
+        return;
+      }
+      AMIGoto(item.link);
+      return;
+    }
+    event.preventDefault();
+  };
 </script>
 
 <div class="agenda--item">
@@ -64,11 +78,7 @@
       <div class="fr-card__body fr-p-0">
         <div class="fr-card__content fr-m-0 fr-pb-3v">
           <h4 class="fr-card__title fr-text--md">
-            <button
-              type="button"
-              onclick={(e) => {if (item.link) { AMIGoto(item.link) } else {e.preventDefault();} }}
-              data-testid="agenda-item-link"
-            >
+            <button type="button" onclick={goToItem} data-testid="agenda-item-link">
               {@html ariaHideDecorativeEmoji(item.title)}
             </button>
           </h4>
