@@ -25,15 +25,15 @@
   {#snippet modalContent()}
     <h4
       id="services-item-{item.id}-modal-title"
-      class="services-item-modal-header"
+      class="fr-h4 fr-mb-2w services-item-modal-header"
       data-testid="services-item-modal-header"
     >
       Que voulez-vous faire&nbsp;?
     </h4>
-    <p>Vous avez commencé ou réalisé une ou plusieurs {item.title}</p>
-    <div class="service-action-buttons">
+    <p class="fr-mb-2w">Vous avez commencé ou réalisé une ou plusieurs {item.title}</p>
+    <div class="fr-pb-1w service-action-buttons">
       <button
-        class="fr-btn fr-btn--lg"
+        class="fr-btn fr-btn--lg fr-px-3v fr-mb-2w am-btn-w100"
         type="button"
         onclick={goToFollowup}
         data-testid="followup-button"
@@ -41,7 +41,7 @@
         Voir les démarches en cours
       </button>
       <button
-        class="fr-btn fr-btn--lg fr-btn--tertiary"
+        class="fr-btn fr-btn--lg fr-px-3v fr-btn--tertiary am-btn-w100"
         type="button"
         onclick={() => goToService(item)}
         data-testid="service-button"
@@ -51,16 +51,3 @@
     </div>
   {/snippet}
 </CenteredModal>
-
-<style>
-  .service-action-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    button {
-      display: flex;
-      justify-content: center;
-      width: 100%;
-    }
-  }
-</style>

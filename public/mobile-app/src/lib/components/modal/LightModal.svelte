@@ -8,20 +8,20 @@
   }
   let { modalContent, centered = false, modalId }: LightModalProps = $props();
   let dialog: HTMLDialogElement | null = null;
-  let modalClass = $derived(centered ? 'dialog--centered' : '');
+  let modalClass = $derived(centered ? 'am-modal--centered' : '');
 </script>
 <dialog
   bind:this={dialog}
   id={modalId}
   aria-labelledby="{modalId}-title"
-  class="modal fr-modal {modalClass}"
+  class="fr-modal am-modal modal {modalClass}"
   data-testid="light-modal-{modalId}"
 >
   <div class="fr-container fr-container--fluid fr-container-md">
     <div class="fr-grid-row fr-grid-row--center">
       <div class="fr-col-12 fr-col-md-8 fr-col-lg-6">
         <div class="fr-modal__body">
-          <div class="drag-handle"></div>
+          <div class=""></div>
           <div class="fr-modal__header">
             <button
               aria-controls="{modalId}"
@@ -31,28 +31,43 @@
               class="fr-btn--close fr-btn"
             ></button>
           </div>
-          <div class="fr-modal__content">{@render modalContent?.()}</div>
+          <div class="fr-modal__content fr-mb-3v">{@render modalContent?.()}</div>
         </div>
       </div>
     </div>
   </div>
 </dialog>
 <style>
-  dialog {
-    .drag-handle {
-      width: 2rem;
-      height: 0.25rem;
-      border-radius: 100px;
-      background-color: #79747e;
-      margin: 0 auto 1.75rem;
+  .fr-modal.am-modal {
+    .fr-modal__header {
+      padding-top: 0.5rem;
+      padding-bottom: 0;
+    }
+    .fr-btn--close {
+      min-height: 2.5rem;
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
+      &:after {
+        margin: 0;
+        --icon-size: 1.5rem;
+      }
     }
     .fr-modal__body {
       border-radius: 1.75rem 1.75rem 0 0;
     }
-    &.dialog--centered {
-      /* todo */
-      .drag-handle {
-        display: none;
+    &.am-modal--centered {
+      &:after {
+        content: "";
+        width: 0;
+        height: 10%;
+        flex: 1 0 10%;
+      }
+      .fr-modal__body {
+        max-width: calc(100% - 3rem);
+        margin: 0 auto;
+        border-radius: 1.75rem;
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
       }
     }
   }
