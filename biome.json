@@ -79,7 +79,8 @@
       "!**/*.min.*",
       "!.venv",
       "**/*.svelte",
-      "**/*.ts"
+      "**/*.ts",
+      "!ami/api/static/rapidoc-min.js"
     ]
   }
 }
