@@ -4,7 +4,7 @@
   import { Item } from '$lib/agenda';
   import { AMIBackOrGoto, AMIGoto } from '$lib/ami-navigation';
   import { getDSFRIcon } from '$lib/dsfr-icon';
-  import { ariaHideDecorativeEmoji } from '$lib/emoji';
+  import { ariaHideDecorativeEmoji, removeDecorativeEmoji } from '$lib/emoji';
   import { FollowupSubItem } from '$lib/followup';
 
   interface Props {
@@ -74,7 +74,7 @@
           data-testid="agenda-item-{item.key}-open-modal-button"
           class="fr-btn fr-btn--icon fr-icon-more-2-fill fr-btn--tertiary-no-outline fr-pt-2w am-icon-20 am-btn-modal open-agenda-item-modal"
         >
-          Ouvrir les options pour {item.title}
+          Ouvrir les options pour {removeDecorativeEmoji(item.title)}
         </button>
       {/if}
       <div class="fr-card__body fr-p-0">

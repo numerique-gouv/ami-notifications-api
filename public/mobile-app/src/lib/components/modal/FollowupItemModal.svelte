@@ -1,6 +1,6 @@
 <script lang="ts">
   import BottomModal from '$lib/components/modal/BottomModal.svelte';
-  import { ariaHideDecorativeEmoji } from '$lib/emoji';
+  import { ariaHideDecorativeEmoji, removeDecorativeEmoji } from '$lib/emoji';
   import {
     buildFollowup,
     type Followup,
@@ -39,21 +39,19 @@
   {#snippet modalContent()}
     <h2
       id="followup-item-{item.id}-modal-title"
-      class="followup-item-modal-header"
+      class="fr-h5 fr-mb-3v followup-item-modal-header"
       data-testid="followup-item-modal-header"
     >
       {@html ariaHideDecorativeEmoji(item.title)}
     </h2>
-    <ul class="followup-item-modal-footer">
+    <ul class="fr-raw-list followup-item-modal-footer">
       <li>
-        <span class="fr-icon-inbox-archive-line"></span>
         <button
           onclick={() => clickOnArchiveFollowupItem(item)}
           aria-controls="followup-item-{item.id}-modal"
-          title="Archiver l'élément {item.title}"
-          aria-label="Archiver l'élément {item.title}"
+          aria-label="Archiver l'élément {removeDecorativeEmoji(item.title)}"
           data-testid="followup-item-{item.id}-archive-button"
-          class="archive-followup-item"
+          class="fr-btn fr-btn--lg fr-p-0 fr-btn--tertiary-no-outline fr-icon-inbox-archive-line fr-btn--icon-left fr-text--md fr-text-title--grey archive-followup-item"
         >
           Archiver
         </button>
@@ -61,16 +59,3 @@
     </ul>
   {/snippet}
 </BottomModal>
-
-<style>
-  h2.followup-item-modal-header {
-    font-size: 1.25rem;
-  }
-  ul.followup-item-modal-footer {
-    padding: 0 0 1rem 0;
-    margin: 0;
-    li {
-      list-style: none;
-    }
-  }
-</style>
