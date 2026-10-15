@@ -39,7 +39,7 @@
         data-testid="followup-item-{item.id}-open-modal-button"
         class="fr-btn fr-btn--icon fr-icon-more-2-fill fr-btn--tertiary-no-outline fr-pt-2w am-icon-20 am-btn-modal open-followup-item-modal fr-icon-more-2-fill"
       >
-        Ouvrir les options pour {item.title}
+        Ouvrir les options pour {ariaHideDecorativeEmoji(item.title)}
       </button>
     {/if}
     <div class="fr-tile__body">

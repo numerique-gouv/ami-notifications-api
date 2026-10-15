@@ -2,6 +2,7 @@
   import { PUBLIC_FEATURE_FLAG_SERVICES_ENABLED } from '$env/static/public';
   import { AMIGoto } from '$lib/ami-navigation';
   import Icon from '$lib/components/Icon.svelte';
+  import BottomModal from '$lib/components/modal/BottomModal.svelte';
   import CenteredModal from '$lib/components/modal/CenteredModal.svelte';
   import { userStore } from '$lib/state/User.svelte';
 
@@ -144,69 +145,51 @@
   </ul>
 </nav>
 
-<dialog
-  id="modal-main-nav-plus-6655"
-  class="fr-modal am-modal-nav-plus"
-  aria-labelledby="modal-main-nav-plus-6655-title"
->
-  <div class="fr-container fr-container--fluid fr-container-md">
-    <div class="fr-modal__body">
-      <div class="fr-modal__header fr-py-1v">
-        <button
-          type="button"
-          aria-label="Fermer"
-          aria-controls="modal-main-nav-plus-6655"
-          id="button-6045"
-          class="fr-btn--close fr-btn fr-icon-close-line fr-btn--tertiary-no-outline"
-        ></button>
-      </div>
-      <div class="fr-modal__content">
-        <h2 id="modal-main-nav-plus-6655-title" class="fr-modal__title fr-sr-only">
-          La suite de la navigation
-        </h2>
-
-        <nav class="fr-sidemenu">
-          <div class="fr-sidemenu__inner">
-            <ul class="fr-sidemenu__list">
-              {#each menuPlus as menuPlusItem}
-                {#if menuPlusItem.isEnabled}
-                  <li class="fr-sidemenu__item">
-                    <button
-                      type="button"
-                      class="fr-sidemenu__btn fr-text--regular"
-                      onclick={() => AMIGoto(menuPlusItem.url)}
-                      data-testid="{menuPlusItem.id}-button"
-                    >
-                      <Icon
-                        className="{menuPlusItem.iconClassName} am-color-blue am-icon-20 fr-mr-1w"
-                      />
-                      {menuPlusItem.label}
-                    </button>
-                  </li>
-                {/if}
-              {/each}
+<BottomModal modalId="modal-main-nav-plus-6655">
+  {#snippet modalContent()}
+    <h2 id="modal-main-nav-plus-6655-title" class="fr-modal__title fr-sr-only">
+      La suite de la navigation
+    </h2>
+    <nav class="fr-sidemenu am-nav-plus">
+      <div class="fr-sidemenu__inner">
+        <ul class="fr-sidemenu__list">
+          {#each menuPlus as menuPlusItem}
+            {#if menuPlusItem.isEnabled}
               <li class="fr-sidemenu__item">
                 <button
-                  data-fr-opened="false"
-                  aria-controls="logout-modal"
-                  id="logout-button"
                   type="button"
-                  class="fr-sidemenu__btn fr-text--regular fr-connect-logout"
-                  data-testid="logout-button"
+                  class="fr-sidemenu__btn fr-text--regular"
+                  onclick={() => AMIGoto(menuPlusItem.url)}
+                  data-testid="{menuPlusItem.id}-button"
                 >
                   <Icon
-                    className="fr-icon-shut-down-line am-color-blue am-icon-20 fr-mr-1w"
+                    className="{menuPlusItem.iconClassName} am-color-blue am-icon-20 fr-mr-1w"
                   />
-                  Me déconnecter
+                  {menuPlusItem.label}
                 </button>
               </li>
-            </ul>
-          </div>
-        </nav>
+            {/if}
+          {/each}
+          <li class="fr-sidemenu__item">
+            <button
+              data-fr-opened="false"
+              aria-controls="logout-modal"
+              id="logout-button"
+              type="button"
+              class="fr-sidemenu__btn fr-text--regular fr-connect-logout"
+              data-testid="logout-button"
+            >
+              <Icon
+                className="fr-icon-shut-down-line am-color-blue am-icon-20 fr-mr-1w"
+              />
+              Me déconnecter
+            </button>
+          </li>
+        </ul>
       </div>
-    </div>
-  </div>
-</dialog>
+    </nav>
+  {/snippet}
+</BottomModal>
 
 <CenteredModal modalId="logout-modal">
   {#snippet modalContent()}
@@ -216,7 +199,7 @@
       (informations saisies, modifications et paramètres de personnalisation) seront
       supprimées.
     </p>
-    <ul class="fr-btns-group logout-modal-action-buttons">
+    <ul class="fr-btns-group fr-pb-3v logout-modal-action-buttons">
       <li>
         <button
           aria-controls="logout-modal"
@@ -290,35 +273,14 @@
       }
     }
   }
-
-  .am-modal-nav-plus {
-    .fr-btn--close {
-      min-width: 2.5rem;
-      min-height: 2.5rem;
-      &:after {
-        --icon-size: 1.5rem;
-        margin-left: 0;
-      }
-    }
-
-    > .fr-container {
-      border-radius: 1.75rem 1.75rem 0 0;
-    }
-
+  .fr-sidemenu.am-nav-plus {
+    box-shadow: none;
     .fr-sidemenu__item:before {
       display: none;
     }
-
-    .fr-sidemenu {
-      box-shadow: none;
-    }
   }
-
   .logout-modal-action-buttons {
-    background-color: var(--background-default-grey);
-    display: flex;
     gap: 1rem;
-    margin: 0;
     li {
       flex: 1;
       button {
