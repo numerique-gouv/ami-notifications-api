@@ -3,7 +3,7 @@ import { apiFetch } from '$lib/auth';
 export type APIFollowupItemEvent = {
   id: string;
   created_at: Date;
-  description: string;
+  title: string;
 };
 
 export type APIFollowupSubItem = {
