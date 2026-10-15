@@ -97,7 +97,7 @@
               {event.formattedDate}
             </p>
             <p class="fr-text--sm fr-m-0 fr-p-0">
-              {@html ariaHideDecorativeEmoji(event.description)}
+              {@html ariaHideDecorativeEmoji(event.title)}
             </p>
           </li>
         {/each}
