@@ -242,7 +242,7 @@ def test_get_notifications_data(
                 FollowupItemEvent(
                     notification8.id,
                     notification8.created_at,
-                    "other notification\n\nsome private body content",
+                    "Other Notification title",
                 ),
             ],
             title="Other Notification title",
@@ -268,7 +268,7 @@ def test_get_notifications_data(
                 FollowupItemEvent(
                     notification7.id,
                     notification7.created_at,
-                    "other notification",
+                    "Other Notification title",
                 ),
             ],
             title="Other Notification title",
@@ -294,12 +294,12 @@ def test_get_notifications_data(
                 FollowupItemEvent(
                     notification5.id,
                     notification5.created_at,
-                    "notification 5",
+                    "Notification title 5",
                 ),
                 FollowupItemEvent(
                     notification6.id,
                     notification6.created_at,
-                    "notification 6",
+                    "Notification title 6",
                 ),
             ],
             title="Opération Tranquillité Vacances",
@@ -325,7 +325,7 @@ def test_get_notifications_data(
                 FollowupItemEvent(
                     notification4.id,
                     notification4.created_at,
-                    "notification 4",
+                    "Notification title 4",
                 ),
             ],
             title="Notification title 4",
@@ -351,17 +351,17 @@ def test_get_notifications_data(
                 FollowupItemEvent(
                     notification1.id,
                     notification1.created_at,
-                    "notification 1\n\nwith private body",
+                    "Notification title 1",
                 ),
                 FollowupItemEvent(
                     notification2.id,
                     notification2.created_at,
-                    "notification 2",
+                    "Notification title 2",
                 ),
                 FollowupItemEvent(
                     notification3.id,
                     notification3.created_at,
-                    "notification 3",
+                    "Notification title 3",
                 ),
             ],
             title="Opération Tranquillité Vacances",
@@ -386,7 +386,7 @@ def test_get_notifications_data(
                         FollowupItemEvent(
                             sub_notification31.id,
                             sub_notification31.created_at,
-                            "Sub notification body",
+                            "Sub notification title",
                         ),
                     ],
                     title="Autre service",
@@ -475,7 +475,7 @@ def test_get_notifications_data_parent_and_sub_items(
                 FollowupItemEvent(
                     id=notification.id,
                     created_at=notification.created_at,
-                    description="notification",
+                    title="Notification title",
                 )
             ],
             title="Notification title",
@@ -500,7 +500,7 @@ def test_get_notifications_data_parent_and_sub_items(
                         FollowupItemEvent(
                             id=sub_notification3.id,
                             created_at=sub_notification3.created_at,
-                            description="Sub notification body 3",
+                            title="Sub notification title 3",
                         )
                     ],
                     title="Autre service",
@@ -525,12 +525,12 @@ def test_get_notifications_data_parent_and_sub_items(
                         FollowupItemEvent(
                             id=sub_notification1.id,
                             created_at=sub_notification1.created_at,
-                            description="Sub notification body 1",
+                            title="Sub notification title 1",
                         ),
                         FollowupItemEvent(
                             id=sub_notification2.id,
                             created_at=sub_notification2.created_at,
-                            description="Sub notification body 2",
+                            title="Sub notification title 2",
                         ),
                     ],
                     title="35",
@@ -610,7 +610,7 @@ def test_get_notifications_data_archived_parent_with_sub_item(
                         FollowupItemEvent(
                             id=sub_notification1.id,
                             created_at=sub_notification1.created_at,
-                            description="Sub notification body 1",
+                            title="Sub notification title 1",
                         ),
                     ],
                     title="35",
@@ -767,7 +767,7 @@ def test_get_notifications_data_unknown_parent(
                         FollowupItemEvent(
                             id=sub_notification2.id,
                             created_at=sub_notification2.created_at,
-                            description="Sub notification body 2",
+                            title="Sub notification title 2",
                         )
                     ],
                     title="Autre Sub Service",
@@ -792,7 +792,7 @@ def test_get_notifications_data_unknown_parent(
                         FollowupItemEvent(
                             id=sub_notification1.id,
                             created_at=sub_notification1.created_at,
-                            description="Sub notification body 1",
+                            title="Sub notification title 1",
                         )
                     ],
                     title="Sub Service",
@@ -854,7 +854,7 @@ def test_get_notifications_data_unknown_parent(
                         FollowupItemEvent(
                             id=sub_notification2.id,
                             created_at=sub_notification2.created_at,
-                            description="Sub notification body 2",
+                            title="Sub notification title 2",
                         )
                     ],
                     title="Autre Sub Service",
@@ -879,7 +879,7 @@ def test_get_notifications_data_unknown_parent(
                         FollowupItemEvent(
                             id=sub_notification1.id,
                             created_at=sub_notification1.created_at,
-                            description="Sub notification body 1",
+                            title="Sub notification title 1",
                         )
                     ],
                     title="Sub Service",
@@ -931,7 +931,7 @@ def test_get_notifications_data_unknown_parent_but_only_one_sub_item(
                 FollowupItemEvent(
                     id=sub_notification.id,
                     created_at=sub_notification.created_at,
-                    description="Sub notification body",
+                    title="Sub notification title",
                 )
             ],
             title="Sub notification title",
@@ -973,7 +973,7 @@ def test_get_notifications_data_unknown_parent_but_only_one_sub_item(
                 FollowupItemEvent(
                     id=sub_notification.id,
                     created_at=sub_notification.created_at,
-                    description="Sub notification body",
+                    title="Sub notification title",
                 )
             ],
             title="Sous-démarche",
@@ -1282,7 +1282,7 @@ def test_get_notifications_data_parent_and_sub_sub_items(
                 FollowupItemEvent(
                     id=sub_notification.id,
                     created_at=sub_notification.created_at,
-                    description="Sub notification body",
+                    title="Sub notification title",
                 )
             ],
             title="Sub notification title",
@@ -1307,7 +1307,7 @@ def test_get_notifications_data_parent_and_sub_sub_items(
                         FollowupItemEvent(
                             id=sub_sub_notification.id,
                             created_at=sub_sub_notification.created_at,
-                            description="Sub sub notification body",
+                            title="Sub sub notification title",
                         )
                     ],
                     title="350",
@@ -1334,7 +1334,7 @@ def test_get_notifications_data_parent_and_sub_sub_items(
                 FollowupItemEvent(
                     id=notification.id,
                     created_at=notification.created_at,
-                    description="notification",
+                    title="Notification title",
                 )
             ],
             title="Notification title",
@@ -1359,7 +1359,7 @@ def test_get_notifications_data_parent_and_sub_sub_items(
                         FollowupItemEvent(
                             id=sub_notification.id,
                             created_at=sub_notification.created_at,
-                            description="Sub notification body",
+                            title="Sub notification title",
                         )
                     ],
                     title="35",
