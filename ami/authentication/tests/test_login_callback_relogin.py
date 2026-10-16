@@ -89,12 +89,7 @@ def test_relogin_france_connect_login_callback(
         "fake id token",
         redirected_url,
     )
-    assert url_contains_param(
-        "redirect_url",
-        "",
-        redirected_url,
-    )
-    assert "?login_redirect_url=&id_token=fake+id+token#/login-callback" in redirected_url
+    assert "?id_token=fake+id+token#/login-callback" in redirected_url
     assert "user_data" not in redirected_url
     assert "user_first_login" not in redirected_url
     assert "user_fc_hash" not in redirected_url

@@ -9,4 +9,5 @@ urlpatterns = [
     path("login-callback", views.login_callback),
     path("logout-france-connect", views.logout_france_connect),
     path("logout-callback", views.logout_callback, name="logout-callback"),
+    path("goto-redirect-url", views.goto_redirect_url),
 ]
