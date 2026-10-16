@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import type { MockInstance } from 'vitest';
+import * as envModule from '$env/static/public';
 import { Address } from '$lib/address';
 import * as addressesFromBANMethods from '$lib/addressesFromBAN';
 import * as AMINavigationMethods from '$lib/ami-navigation';
@@ -10,10 +11,25 @@ import { User, userStore } from '$lib/state/User.svelte';
 import { expectBackButtonPresent, mockUserIdentity, mockUserInfo } from '$tests/utils';
 import Page from './+page.svelte';
 
+vi.mock('$lib/components/Banner.svelte', () => ({
+  default: vi.fn(() => ({})),
+}));
+
+import Banner from '$lib/components/Banner.svelte';
+
 describe('/+page.svelte', () => {
   let backSpy: MockInstance<typeof AMINavigationMethods.AMIGoto>;
 
   beforeEach(async () => {
+    vi.mock('$env/static/public', async (importOriginal) => {
+      const original = (await importOriginal()) as Record<string, unknown>;
+      return Promise.resolve({
+        ...original,
+        PUBLIC_SP_JCC_URL: 'http://jcc',
+      });
+    });
+    vi.mocked(envModule).PUBLIC_SP_JCC_URL = 'http://jcc';
+
     backSpy = vi
       .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
@@ -58,6 +74,7 @@ describe('/+page.svelte', () => {
         callBAN: vi.fn(() => response),
       };
     });
+    vi.mocked(Banner).mockClear();
     vi.useFakeTimers();
   });
 
@@ -343,6 +360,45 @@ describe('/+page.svelte', () => {
       expect(addressWarning).toHaveTextContent(
         'Nous rencontrons des difficultés à trouver votre adresse dans notre répertoire. Merci de réessayer plus tard.'
       );
+    });
+  });
+
+  test('should display an information banner', async () => {
+    // When
+    render(Page);
+
+    // Then
+    expect(Banner).toHaveBeenCalled();
+    expect(Banner).toHaveBeenCalledWith(expect.anything(), {
+      id: 'edit-address-change-not-submitted-info',
+      title: 'Modification non transmise',
+      description:
+        'La modification de la donnée ne sera pas transmise aux différentes administrations. Vous pouvez néanmoins déclarer un changement d’adresse en ligne.',
+      link: 'http://jcc',
+      linkLabel: 'Déclarer un changement d’adresse',
+      linkSilentLogin: true,
+      bannerType: 'info',
+    });
+  });
+
+  test('should display an information banner - no jcc link', async () => {
+    // Given
+    vi.mocked(envModule).PUBLIC_SP_JCC_URL = '';
+
+    // When
+    render(Page);
+
+    // Then
+    expect(Banner).toHaveBeenCalled();
+    expect(Banner).toHaveBeenCalledWith(expect.anything(), {
+      id: 'edit-address-change-not-submitted-info',
+      title: 'Modification non transmise',
+      description:
+        'La modification de la donnée ne sera pas transmise aux différentes administrations. Vous pouvez néanmoins déclarer un changement d’adresse en ligne.',
+      link: '',
+      linkLabel: '',
+      linkSilentLogin: true,
+      bannerType: 'info',
     });
   });
 
