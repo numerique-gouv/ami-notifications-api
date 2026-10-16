@@ -32,3 +32,13 @@ def test_get_fc_scope(settings) -> None:
         get_fc_scope(["api_particulier_quotient"])
         == f"{settings.FC_SCOPE} {settings.API_PARTICULIER_QUOTIENT_SCOPE}"
     )
+
+
+def test_goto_unsigned_url(app):
+    resp = app.get("/goto-redirect-url", params={"url": "https://example.com"})
+    assert resp.location == "/#/technical-error"
+
+
+def test_goto_invalid_signed_url(app):
+    resp = app.get("/goto-redirect-url", params={"url": "https://example.com:xtz"})
+    assert resp.location == "/#/technical-error"
