@@ -1,3 +1,4 @@
+import urllib.parse
 from typing import Any
 
 import jwt
@@ -61,12 +62,7 @@ def test_login_callback_silent_ami_fi(
         "fake id token",
         redirected_url,
     )
-    assert url_contains_param(
-        "redirect_url",
-        "",
-        redirected_url,
-    )
-    assert "?login_redirect_url=&id_token=fake+id+token#/login-callback" in redirected_url
+    assert "?id_token=fake+id+token#/login-callback" in redirected_url
     assert "user_data" not in redirected_url
     assert "user_fc_hash" not in redirected_url
     assert "address" not in redirected_url
@@ -134,14 +130,20 @@ def test_login_callback_silent_ami_fi_with_redirect_url(
         "fake id token",
         redirected_url,
     )
-    assert url_contains_param(
-        "redirect_url",
-        "http://foo?bar",
-        redirected_url,
+    login_redirect_param = (
+        dict(urllib.parse.parse_qsl(urllib.parse.urlparse(redirected_url).query)).get(
+            "login_redirect"
+        )
+        or ""
     )
+    assert login_redirect_param.startswith("http://foo?bar:")
     assert "user_data" not in redirected_url
     assert "user_fc_hash" not in redirected_url
     assert "address" not in redirected_url
     assert "api_particulier_quotient" not in redirected_url
 
     assert Nonce.objects.count() == 0
+
+    # redirect
+    resp = app.get("/goto-redirect-url", params={"url": login_redirect_param})
+    assert resp.location == "http://foo?bar"

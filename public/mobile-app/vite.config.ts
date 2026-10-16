@@ -22,6 +22,11 @@ export default defineConfig({
         xfwd: true,
         secure: false,
       },
+      '/goto-redirect-url': {
+        target: 'https://localhost:8000',
+        xfwd: true,
+        secure: false,
+      },
       '/relogin-france-connect': {
         target: 'https://localhost:8000',
         xfwd: true,
