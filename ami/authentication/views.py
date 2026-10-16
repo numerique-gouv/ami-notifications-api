@@ -202,9 +202,11 @@ async def login_callback(request):
             # build redirect_url, depending on kind of login (fc, silent-ami-fi, relogin)
             if login_type in ("silent-ami-fi", "relogin"):
                 params = {
-                    "login_redirect_url": request.session.get("login_redirect_url") or "",
                     "id_token": id_token,
                 }
+                login_redirect_url = request.session.get("login_redirect_url")
+                if login_redirect_url:
+                    params["login_redirect"] = signing.Signer().sign(login_redirect_url)
                 redirect_url = f"{settings.PUBLIC_APP_URL}/?{urlencode(params)}#/login-callback"
 
                 if login_type == "relogin" and (
@@ -337,3 +339,11 @@ async def get_user_data(
             )
 
     return tasks
+
+
+def goto_redirect_url(request):
+    try:
+        url = signing.Signer().unsign(request.GET["url"])
+    except (KeyError, signing.BadSignature):
+        return redirect("/#/technical-error")
+    return redirect(url)

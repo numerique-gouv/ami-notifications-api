@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { page } from '$app/state';
   import { PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED } from '$env/static/public';
-  import { AMIGoto, AMIGotoUntrustedUrl } from '$lib/ami-navigation';
+  import { AMIGoto } from '$lib/ami-navigation';
   import { initializeData, initializeLocalStorage } from '$lib/initializeDataFromAPI';
   import {
     authenticateWithPasskey,
@@ -21,9 +21,9 @@
   const redirectLoggedInUser = (createdPasskey: boolean) => {
     initializeData();
     const passKeyParam = createdPasskey ? '?passkey_toast=true' : '';
-    const redirect_url = page.url.searchParams.get('login_redirect_url');
-    if (redirect_url) {
-      AMIGotoUntrustedUrl(redirect_url);
+    const redirect_param = page.url.searchParams.get('login_redirect');
+    if (redirect_param) {
+      AMIGoto(`/goto-redirect-url?url=${encodeURIComponent(redirect_param)}`);
     } else {
       AMIGoto(`/${passKeyParam}#/welcome/zones`);
     }
