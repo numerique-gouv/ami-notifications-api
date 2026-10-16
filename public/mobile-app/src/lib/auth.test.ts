@@ -35,7 +35,7 @@ describe('/auth', () => {
       vi.spyOn(globalThis, 'fetch').mockResolvedValue(
         new Response(JSON.stringify({}), { status: 200 })
       );
-      const trackChecklistSpy = vi
+      const trackLogoutSpy = vi
         .spyOn(matomoMethods, 'trackLogout')
         .mockResolvedValue(undefined);
 
@@ -43,14 +43,14 @@ describe('/auth', () => {
       await logout();
 
       // Then
-      expect(trackChecklistSpy).toHaveBeenCalledWith(false, false);
+      expect(trackLogoutSpy).toHaveBeenCalledWith(false, false);
     });
     test('should notify matomo on explicit logout', async () => {
       // Given
       vi.spyOn(globalThis, 'fetch').mockResolvedValue(
         new Response(JSON.stringify({}), { status: 200 })
       );
-      const trackChecklistSpy = vi
+      const trackLogoutSpy = vi
         .spyOn(matomoMethods, 'trackLogout')
         .mockResolvedValue(undefined);
 
@@ -58,7 +58,7 @@ describe('/auth', () => {
       await logout(true);
 
       // Then
-      expect(trackChecklistSpy).toHaveBeenCalledWith(true, false);
+      expect(trackLogoutSpy).toHaveBeenCalledWith(true, false);
     });
   });
 

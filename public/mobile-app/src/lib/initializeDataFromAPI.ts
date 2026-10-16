@@ -1,6 +1,7 @@
 import { retrieveAgenda } from '$lib/api-agenda';
 import { retrieveConsents } from '$lib/api-consents';
 import { retrievePartners } from '$lib/api-partners';
+import { retrievePersonalDataConsent } from '$lib/api-personal-data-consent';
 import { retrieveNotifications } from '$lib/notifications';
 import * as telemetry from '$lib/telemetry';
 
@@ -38,5 +39,6 @@ export const initializeData = async () => {
     retrieveConsents(),
     retrieveNotifications(),
     retrievePartners(),
+    retrievePersonalDataConsent(),
   ]);
 };

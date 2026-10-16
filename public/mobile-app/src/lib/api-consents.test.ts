@@ -133,7 +133,6 @@ describe('/api-consents', () => {
       const result = await retrieveConsents();
 
       // Then
-      console.log(result);
       expect(result.consents.length).toEqual(2);
       expect(result.consents[0].partner_id).toEqual(apiConsents.consents[0].partner_id);
       expect(result.consents[0].partner_name).toEqual(

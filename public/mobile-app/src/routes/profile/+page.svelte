@@ -5,8 +5,13 @@
   import type { APIMairie } from '$lib/api-annuaire-sp';
   import { retrieveMairie } from '$lib/api-annuaire-sp';
   import Card from '$lib/components/Card.svelte';
+  import PersonalDataConsentModal from '$lib/components/modal/PersonalDataConsentModal.svelte';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import SideMenu from '$lib/components/SideMenu.svelte';
+  import {
+    buildPersonalDataConsent,
+    type PersonalDataConsent,
+  } from '$lib/personal-data-consent';
   import type { SideMenuItem } from '$lib/side-menu';
   import type { UserIdentity } from '$lib/state/User.svelte';
   import { userStore } from '$lib/state/User.svelte';
@@ -16,6 +21,8 @@
   let fullName: string = $state('');
   let address: Address | undefined = $state();
   let mairie: APIMairie | null = $state(null);
+  let displayPersonalDataConsentBlock: boolean = $state(false);
+  let displayModal: boolean = $state(false);
 
   let sideMenuEntries: SideMenuItem[] = $state([
     {
@@ -56,7 +63,15 @@
         sideMenuEntries[2].isEnabled = true;
       }
     }
+    const personalDataConsent: PersonalDataConsent = await buildPersonalDataConsent();
+    if (!personalDataConsent.consent_datetime) {
+      displayPersonalDataConsentBlock = true;
+    }
   });
+
+  const openPersonalDataConsentModal = () => {
+    displayModal = true;
+  };
 </script>
 
 <NavWithBackButton title="" {backUrl} />
@@ -85,7 +100,31 @@
   </div>
 
   <SideMenu sideMenus={sideMenuEntries} />
+
+  {#if displayPersonalDataConsentBlock}
+    <div
+      class="fr-p-2w fr-mb-2w fr-background-contrast--blue-france"
+      data-testid="personal-data-consent-block"
+    >
+      <h3 class="fr-h6 fr-mb-3w">Personnaliser votre profil</h3>
+      <button
+        type="button"
+        class="fr-btn fr-btn--lg am-btn-w100"
+        onclick={openPersonalDataConsentModal}
+      >
+        Je veux utiliser mes données
+      </button>
+    </div>
+  {/if}
 </div>
+
+{#if displayModal}
+  <PersonalDataConsentModal
+    bind:displayPersonalDataConsentBlock={displayPersonalDataConsentBlock}
+    bind:displayModal={displayModal}
+    pageOrigin="profile"
+  />
+{/if}
 
 <style>
   .am-profile-tile {

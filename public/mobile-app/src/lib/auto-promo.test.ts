@@ -3,6 +3,8 @@ import '@testing-library/jest-dom/vitest';
 import { Agenda } from '$lib/agenda';
 import type { APIAgendaItem } from '$lib/api-agenda';
 import { AutoPromo, AutoPromoItem } from '$lib/auto-promo';
+import * as personalDataConsentMethods from '$lib/personal-data-consent';
+import { PersonalDataConsent } from '$lib/personal-data-consent';
 import { userStore } from '$lib/state/User.svelte';
 import { mockAddress, mockUserInfo } from '$tests/utils';
 
@@ -12,14 +14,54 @@ describe('/auto-promo.ts', () => {
   });
 
   describe('AutoPromo', () => {
+    test('user has not given personal data consent', async () => {
+      // Given
+      userStore.connected?.setAddress(mockAddress);
+      const agenda = new Agenda();
+
+      const apiPersonalDataConsent = { consent_datetime: null };
+      const personalDataConsent = new PersonalDataConsent(apiPersonalDataConsent);
+      vi.spyOn(
+        personalDataConsentMethods,
+        'buildPersonalDataConsent'
+      ).mockResolvedValue(personalDataConsent);
+
+      // When
+      const autoPromo = new AutoPromo(agenda, personalDataConsent);
+
+      // Then
+      expect(autoPromo.items.length).equal(1);
+      expect(
+        autoPromo.items[0].equals(
+          new AutoPromoItem(
+            'personal-data',
+            'Gagnez du temps',
+            'En utilisant vos données administratives',
+            '',
+            'system.svg',
+            'PersonalDataConsentModal'
+          )
+        )
+      ).toBe(true);
+    });
+
     test('user has no address (null) and no school holiday eligible for an otv', async () => {
       // Given
       delete userStore.connected?.identity?.address;
       const agenda = new Agenda();
       vi.spyOn(agenda, 'holidayForOTV', 'get').mockReturnValue(null);
 
+      const apiPersonalDataConsent = {
+        consent_datetime: new Date('2026-02-21T15:50:00Z'),
+      };
+      const personalDataConsent = new PersonalDataConsent(apiPersonalDataConsent);
+      vi.spyOn(
+        personalDataConsentMethods,
+        'buildPersonalDataConsent'
+      ).mockResolvedValue(personalDataConsent);
+
       // When
-      const autoPromo = new AutoPromo(agenda);
+      const autoPromo = new AutoPromo(agenda, personalDataConsent);
 
       // Then
       expect(autoPromo.items.length).equal(1);
@@ -30,7 +72,8 @@ describe('/auto-promo.ts', () => {
             'Renseignez votre adresse',
             'Gagnez du temps en la renseignant une seule fois',
             '/#/edit-address',
-            'house.svg'
+            'house.svg',
+            null
           )
         )
       ).toBe(true);
@@ -50,8 +93,17 @@ describe('/auto-promo.ts', () => {
         emoji: 'foo',
       } as APIAgendaItem);
 
+      const apiPersonalDataConsent = {
+        consent_datetime: new Date('2026-02-21T15:50:00Z'),
+      };
+      const personalDataConsent = new PersonalDataConsent(apiPersonalDataConsent);
+      vi.spyOn(
+        personalDataConsentMethods,
+        'buildPersonalDataConsent'
+      ).mockResolvedValue(personalDataConsent);
+
       // When
-      const autoPromo = new AutoPromo(agenda);
+      const autoPromo = new AutoPromo(agenda, personalDataConsent);
 
       // Then
       expect(autoPromo.items.length).equal(2);
@@ -62,7 +114,8 @@ describe('/auto-promo.ts', () => {
             'Renseignez votre adresse',
             'Gagnez du temps en la renseignant une seule fois',
             '/#/edit-address',
-            'house.svg'
+            'house.svg',
+            null
           )
         )
       ).toBe(true);
@@ -73,7 +126,8 @@ describe('/auto-promo.ts', () => {
             'Opération Tranquillité Vacances',
             'Protégez votre domicile pendant votre absence',
             '/#/procedure?date=2026-01-17',
-            'house.svg'
+            'house.svg',
+            null
           )
         )
       ).toBe(true);
@@ -85,8 +139,17 @@ describe('/auto-promo.ts', () => {
       const agenda = new Agenda();
       vi.spyOn(agenda, 'holidayForOTV', 'get').mockReturnValue(null);
 
+      const apiPersonalDataConsent = {
+        consent_datetime: new Date('2026-02-21T15:50:00Z'),
+      };
+      const personalDataConsent = new PersonalDataConsent(apiPersonalDataConsent);
+      vi.spyOn(
+        personalDataConsentMethods,
+        'buildPersonalDataConsent'
+      ).mockResolvedValue(personalDataConsent);
+
       // When
-      const autoPromo = new AutoPromo(agenda);
+      const autoPromo = new AutoPromo(agenda, personalDataConsent);
 
       // Then
       expect(autoPromo.items.length).equal(0);
@@ -107,8 +170,17 @@ describe('/auto-promo.ts', () => {
         emoji: 'foo',
       } as APIAgendaItem);
 
+      const apiPersonalDataConsent = {
+        consent_datetime: new Date('2026-02-21T15:50:00Z'),
+      };
+      const personalDataConsent = new PersonalDataConsent(apiPersonalDataConsent);
+      vi.spyOn(
+        personalDataConsentMethods,
+        'buildPersonalDataConsent'
+      ).mockResolvedValue(personalDataConsent);
+
       // When
-      const autoPromo = new AutoPromo(agenda);
+      const autoPromo = new AutoPromo(agenda, personalDataConsent);
 
       // Then
       expect(autoPromo.items.length).equal(1);
@@ -119,7 +191,8 @@ describe('/auto-promo.ts', () => {
             'Opération Tranquillité Vacances',
             'Protégez votre domicile pendant votre absence',
             '/#/procedure?date=2026-01-17',
-            'house.svg'
+            'house.svg',
+            null
           )
         )
       ).toBe(true);

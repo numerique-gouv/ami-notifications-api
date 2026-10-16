@@ -15,6 +15,7 @@ from ami.partner.serializers import (
     PartnerGenerateUrlSerializer,
     PartnersSerializer,
 )
+from ami.user.models import PersonalDataConsent
 from ami.utils import generate_identity_token
 from ami.utils.schemas import DurationExpiration, TimeUnit
 
@@ -30,13 +31,26 @@ def generate_partner_url(request):
     serializer.is_valid(raise_exception=True)
     data: dict = cast(dict, serializer.validated_data)
 
-    preferred_username = data.get("preferred_username", "")
-    email = data.get("email", "")
-    address_city = data.get("address_city", "")
-    address_postcode = data.get("address_postcode", "")
-    address_citycode = data.get("address_citycode", "")
-    address_name = data.get("address_name", "")
+    preferred_username = ""
+    email = ""
+    address_city = ""
+    address_postcode = ""
+    address_citycode = ""
+    address_name = ""
     current_user = request.ami_user
+
+    try:
+        personal_data_consent: PersonalDataConsent = request.ami_user.personaldataconsent
+    except PersonalDataConsent.DoesNotExist:
+        personal_data_consent: PersonalDataConsent = PersonalDataConsent()
+
+    if personal_data_consent.consent_datetime:
+        preferred_username = data.get("preferred_username", "")
+        email = data.get("email", "")
+        address_city = data.get("address_city", "")
+        address_postcode = data.get("address_postcode", "")
+        address_citycode = data.get("address_citycode", "")
+        address_name = data.get("address_name", "")
 
     partner_url = settings.PARTNERS_PSL_OTV_REQUEST_URL
 
