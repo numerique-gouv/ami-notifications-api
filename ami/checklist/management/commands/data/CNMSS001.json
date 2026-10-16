@@ -17,8 +17,8 @@
   ],
   "items": [
     {
-      "text": "**Déclarer mon affectation auprès de la CNMSS** : Compléter le formulaire d'affectation. Envoyer le formulaire à la CNMSS",
-      "id": "95d0ae0b8cdb",
+      "text": "Déclarer mon affectation auprès de la CNMSS",
+      "id": "dd1b04ab35b7",
       "section": "avant-mon-depart",
       "intertitle": "Pour tous les militaires",
       "links": [
@@ -36,7 +36,7 @@
     },
     {
       "text": "Vérifier ma couverture santé selon mon lieu d'affectation.\n\nConsulter le Guide du départ en outre-mer ou à l’étranger pour vérifier la marche à suivre selon mon lieu d’affectation.",
-      "id": "0db8741f4983",
+      "id": "eecb80b7f070",
       "section": "avant-mon-depart",
       "intertitle": "Pour tous les militaires",
       "links": [
@@ -72,8 +72,8 @@
       "intertitle": "Pour tous les militaires"
     },
     {
-      "text": "**Vérifier les droits de mon conjoint.** Compléter le formulaire d’étude des droits du conjoint hors de France. Envoyer le formulaire à la CNMSS.",
-      "id": "aaec15e30654",
+      "text": "Vérifier les droits de mon conjoint.",
+      "id": "d5647f98c11c",
       "section": "avant-mon-depart",
       "intertitle": "Si le conjoint m'accompagne",
       "links": [
@@ -148,12 +148,12 @@
     },
     {
       "text": "Consulter le Guide du départ en outre-mer ou à l’étranger",
-      "id": "00b9a85df35a",
+      "id": "6141bdf96a88",
       "section": "pendant-mon-affectation",
       "intertitle": "Pour tous les militaires",
       "links": [
         {
-          "url": "(https://guide-depart.cnmss.fr/guide-du-depart-132.html",
+          "url": "https://guide-depart.cnmss.fr/guide-du-depart-132.html",
           "text": "Guide du départ en outre-mer ou à l’étranger",
           "external": true
         }
@@ -186,8 +186,8 @@
       ]
     },
     {
-      "text": "**Déclarer mon retour à la CNMSS :** Compléter le formulaire de retour. Envoyer le formulaire à la CNMSS.",
-      "id": "02402f17dcfd",
+      "text": "Déclarer mon retour à la CNMSS.",
+      "id": "bd216729175f",
       "section": "a-mon-retour",
       "intertitle": "Pour tous les militaires",
       "links": [
