@@ -1,11 +1,15 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { AMIGoto } from '$lib/ami-navigation';
   import { hideBanner, isBannerHidden } from '$lib/banner';
 
   interface Props {
     id: string;
     title: string;
     description?: string;
+    link?: string;
+    linkLabel?: string;
+    linkSilentLogin?: boolean;
     bannerType: 'success' | 'info' | 'warning' | 'error';
     closeButton?: 'true' | 'false';
   }
@@ -17,7 +21,16 @@
     error: 'fr-icon-close-circle-fill',
   };
 
-  let { id, title, description, bannerType, closeButton = 'true' }: Props = $props();
+  let {
+    id,
+    title,
+    description,
+    link = '',
+    linkLabel = '',
+    linkSilentLogin = false,
+    bannerType,
+    closeButton = 'true',
+  }: Props = $props();
 
   let isHidden: boolean = $state(true);
 
@@ -47,7 +60,20 @@
             <span>{title}</span>
           </span>
           {#if description}
-            <span class="fr-notice__desc"> {description} </span>
+            <span class="fr-notice__desc">
+              {description}
+              {#if link}
+                <br>
+                <button
+                  type="button"
+                  class="fr-link am-link-bordered fr-mt-2v fr-text--sm"
+                  onclick={()=> AMIGoto(link, linkSilentLogin)}
+                  data-testid="banner-{id}-link-button"
+                >
+                  {linkLabel || link}
+                </button>
+              {/if}
+            </span>
           {/if}
         </p>
         {#if closeButton === "true"}
@@ -55,7 +81,7 @@
             onclick={() => closeBanner(id)}
             type="button"
             class="fr-btn--close fr-btn"
-            data-testid="close-button"
+            data-testid="banner-{id}-close-button"
           >
             Masquer le message
           </button>
