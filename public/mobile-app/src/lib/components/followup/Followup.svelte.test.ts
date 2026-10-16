@@ -775,7 +775,7 @@ describe('/Followup.svelte', () => {
       // Then
       await waitFor(async () => {
         const moreIcon = screen.queryByTestId(
-          'open-followup-item-modal-partner:type:id1'
+          'followup-item-partner:type:id1-open-modal-button'
         );
         expect(moreIcon).toBeNull();
       });
@@ -830,13 +830,15 @@ describe('/Followup.svelte', () => {
       // When
       await waitFor(async () => {
         const moreIcon = screen.getByTestId(
-          'open-followup-item-modal-partner:type:id1'
+          'followup-item-partner:type:id1-open-modal-button'
         );
         await fireEvent.click(moreIcon);
       });
 
       // Then
-      const followupItemModal = screen.getByTestId('item-modal');
+      const followupItemModal = screen.getByTestId(
+        'light-modal-followup-item-partner:type:id1-modal'
+      );
       expect(followupItemModal).toBeInTheDocument();
     });
     test('Should close followup item modal when clicks on "Archiver" button', async () => {
@@ -891,17 +893,23 @@ describe('/Followup.svelte', () => {
       // When
       await waitFor(async () => {
         const moreIcon = screen.getByTestId(
-          'open-followup-item-modal-partner:type:id1'
+          'followup-item-partner:type:id1-open-modal-button'
         );
         await fireEvent.click(moreIcon);
-        const followupItemModal = screen.getByTestId('item-modal');
+        const followupItemModal = screen.getByTestId(
+          'light-modal-followup-item-partner:type:id1-modal'
+        );
         expect(followupItemModal).toBeInTheDocument();
-        const archiveButton = screen.getByTestId('archive-followup-item-button');
+        const archiveButton = screen.getByTestId(
+          'followup-item-partner:type:id1-archive-button'
+        );
         await fireEvent.click(archiveButton);
       });
 
       // Then
-      expect(screen.queryByTestId('item-modal')).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId('light-modal-followup-item-partner:type:id1-modal')
+      ).not.toBeVisible();
     });
     test('should add toast when user clicks on "Archiver" button - archive success', async () => {
       // Given
@@ -956,10 +964,12 @@ describe('/Followup.svelte', () => {
       // When
       await waitFor(async () => {
         const moreIcon = screen.getByTestId(
-          'open-followup-item-modal-partner:type:id1'
+          'followup-item-partner:type:id1-open-modal-button'
         );
         await fireEvent.click(moreIcon);
-        const archiveButton = screen.getByTestId('archive-followup-item-button');
+        const archiveButton = screen.getByTestId(
+          'followup-item-partner:type:id1-archive-button'
+        );
         await fireEvent.click(archiveButton);
       });
 
@@ -1027,10 +1037,12 @@ describe('/Followup.svelte', () => {
       // When
       await waitFor(async () => {
         const moreIcon = screen.getByTestId(
-          'open-followup-item-modal-partner:type:id1'
+          'followup-item-partner:type:id1-open-modal-button'
         );
         await fireEvent.click(moreIcon);
-        const archiveButton = screen.getByTestId('archive-followup-item-button');
+        const archiveButton = screen.getByTestId(
+          'followup-item-partner:type:id1-archive-button'
+        );
         await fireEvent.click(archiveButton);
       });
 

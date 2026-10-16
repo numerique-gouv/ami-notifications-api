@@ -16,6 +16,7 @@ import { PUBLIC_APP_WS_URL } from '$lib/notifications';
 import { Partners } from '$lib/partners';
 import { toastStore } from '$lib/state/toast.svelte';
 import { userStore } from '$lib/state/User.svelte';
+import { getTimestamp } from '$lib/utils';
 import { mockUserInfo } from '$tests/utils';
 import Page from './+page.svelte';
 
@@ -373,13 +374,15 @@ describe('/+page.svelte', () => {
         // When
         await waitFor(async () => {
           const moreIcon = screen.getByTestId(
-            'open-agenda-item-modal-fake-id-holiday-1'
+            `agenda-item-ami-holiday:${getTimestamp(today)}:holiday-1-open-modal-button`
           );
           await fireEvent.click(moreIcon);
         });
 
         // Then
-        const agendaItemModal = screen.getByTestId('item-modal');
+        const agendaItemModal = screen.getByTestId(
+          `light-modal-agenda-item-ami-holiday:${getTimestamp(today)}:holiday-1-modal`
+        );
         expect(agendaItemModal).toBeInTheDocument();
       });
 
@@ -407,19 +410,27 @@ describe('/+page.svelte', () => {
         // When
         await waitFor(async () => {
           const moreIcon = screen.getByTestId(
-            'open-agenda-item-modal-fake-id-holiday-1'
+            `agenda-item-ami-holiday:${getTimestamp(today)}:holiday-1-open-modal-button`
           );
           await fireEvent.click(moreIcon);
 
-          const agendaItemModal = screen.getByTestId('item-modal');
+          const agendaItemModal = screen.getByTestId(
+            `light-modal-agenda-item-ami-holiday:${getTimestamp(today)}:holiday-1-modal`
+          );
           expect(agendaItemModal).toBeInTheDocument();
 
-          const deleteButton = screen.getByTestId('hide-agenda-item-button');
+          const deleteButton = screen.getByTestId(
+            `agenda-item-ami-holiday:${getTimestamp(today)}:holiday-1-hide-button`
+          );
           await fireEvent.click(deleteButton);
         });
 
         // Then
-        expect(screen.queryByTestId('agenda-item-modal')).not.toBeInTheDocument();
+        expect(
+          screen.queryByTestId(
+            `light-modal-agenda-item-ami-holiday:${getTimestamp(today)}:holiday-1-modal`
+          )
+        ).not.toBeVisible();
       });
 
       test('should add toast when user clicks on "Supprimer" button', async () => {
@@ -447,11 +458,13 @@ describe('/+page.svelte', () => {
         // When
         await waitFor(async () => {
           const moreIcon = screen.getByTestId(
-            'open-agenda-item-modal-fake-id-holiday-1'
+            `agenda-item-ami-holiday:${getTimestamp(today)}:holiday-1-open-modal-button`
           );
           await fireEvent.click(moreIcon);
 
-          const deleteButton = screen.getByTestId('hide-agenda-item-button');
+          const deleteButton = screen.getByTestId(
+            `agenda-item-ami-holiday:${getTimestamp(today)}:holiday-1-hide-button`
+          );
           await fireEvent.click(deleteButton);
         });
 
@@ -694,13 +707,15 @@ describe('/+page.svelte', () => {
         // When
         await waitFor(async () => {
           const moreIcon = screen.getByTestId(
-            'open-followup-item-modal-partner:type:id1'
+            'followup-item-partner:type:id1-open-modal-button'
           );
           await fireEvent.click(moreIcon);
         });
 
         // Then
-        const followupItemModal = screen.getByTestId('item-modal');
+        const followupItemModal = screen.getByTestId(
+          'light-modal-followup-item-partner:type:id1-modal'
+        );
         expect(followupItemModal).toBeInTheDocument();
       });
       test('Should close followup item modal when clicks on "Archiver" button', async () => {
@@ -764,17 +779,23 @@ describe('/+page.svelte', () => {
         // When
         await waitFor(async () => {
           const moreIcon = screen.getByTestId(
-            'open-followup-item-modal-partner:type:id1'
+            'followup-item-partner:type:id1-open-modal-button'
           );
           await fireEvent.click(moreIcon);
-          const followupItemModal = screen.getByTestId('item-modal');
+          const followupItemModal = screen.getByTestId(
+            'light-modal-followup-item-partner:type:id1-modal'
+          );
           expect(followupItemModal).toBeInTheDocument();
-          const archiveButton = screen.getByTestId('archive-followup-item-button');
+          const archiveButton = screen.getByTestId(
+            'followup-item-partner:type:id1-archive-button'
+          );
           await fireEvent.click(archiveButton);
         });
 
         // Then
-        expect(screen.queryByTestId('item-modal')).not.toBeInTheDocument();
+        expect(
+          screen.queryByTestId('light-modal-followup-item-partner:type:id1-modal')
+        ).not.toBeVisible();
       });
       test('should add toast when user clicks on "Archiver" button - archive success', async () => {
         // Given
@@ -838,10 +859,12 @@ describe('/+page.svelte', () => {
         // When
         await waitFor(async () => {
           const moreIcon = screen.getByTestId(
-            'open-followup-item-modal-partner:type:id1'
+            'followup-item-partner:type:id1-open-modal-button'
           );
           await fireEvent.click(moreIcon);
-          const archiveButton = screen.getByTestId('archive-followup-item-button');
+          const archiveButton = screen.getByTestId(
+            'followup-item-partner:type:id1-archive-button'
+          );
           await fireEvent.click(archiveButton);
         });
 
@@ -920,10 +943,12 @@ describe('/+page.svelte', () => {
         // When
         await waitFor(async () => {
           const moreIcon = screen.getByTestId(
-            'open-followup-item-modal-partner:type:id1'
+            'followup-item-partner:type:id1-open-modal-button'
           );
           await fireEvent.click(moreIcon);
-          const archiveButton = screen.getByTestId('archive-followup-item-button');
+          const archiveButton = screen.getByTestId(
+            'followup-item-partner:type:id1-archive-button'
+          );
           await fireEvent.click(archiveButton);
         });
 

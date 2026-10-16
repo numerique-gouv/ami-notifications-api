@@ -18,12 +18,11 @@ describe('/AgendaItem.svelte', () => {
       new Date('2025-12-05'),
       null
     );
-    const onOpen = vi.fn();
     const spy1 = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
     const spy2 = vi.spyOn(AMINavigationMethods, 'AMIBackOrGoto').mockResolvedValue();
 
     // When
-    render(AgendaItem, { props: { item: item, onOpen: onOpen } });
+    render(AgendaItem, { props: { item: item } });
 
     // Then
     const button = screen.getByTestId('agenda-item-link');
@@ -63,14 +62,12 @@ describe('/AgendaItem.svelte', () => {
       false,
       'url'
     );
-    const onOpen = vi.fn();
     const spy = vi.spyOn(AMINavigationMethods, 'AMIBackOrGoto').mockResolvedValue();
 
     // When
     render(AgendaItem, {
       props: {
         item: item,
-        onOpen: onOpen,
         followupSubItem: followupSubItem,
         useBackOrGoto: true,
       },
@@ -83,7 +80,7 @@ describe('/AgendaItem.svelte', () => {
       expect(spy).toHaveBeenCalledWith('link');
     });
   });
-  test('should call onOpen when clicks on more icon', async () => {
+  test('should have more-icon when agenda item has modal', async () => {
     // Given
     const item = new Item(
       'fake-id-election',
@@ -94,17 +91,15 @@ describe('/AgendaItem.svelte', () => {
       new Date('2025-12-05'),
       null
     );
-    const onOpen = vi.fn();
-    render(AgendaItem, { props: { item: item, onOpen: onOpen } });
 
     // When
-    await waitFor(async () => {
-      const moreIcon = screen.getByTestId('open-agenda-item-modal-fake-id-election');
-      await fireEvent.click(moreIcon);
-    });
+    render(AgendaItem, { props: { item: item, hasModal: true } });
 
     // Then
-    expect(onOpen).toHaveBeenCalledTimes(1);
+    const moreIcon = screen.getByTestId(
+      'agenda-item-ami-election:1764892800:elections-locales-open-modal-button'
+    );
+    expect(moreIcon).toBeInTheDocument();
   });
   test('should mark emojis', async () => {
     // Given
@@ -117,10 +112,9 @@ describe('/AgendaItem.svelte', () => {
       new Date('2025-12-05'),
       null
     );
-    const onOpen = vi.fn();
 
     // When
-    render(AgendaItem, { props: { item: item, onOpen: onOpen } });
+    render(AgendaItem, { props: { item: item } });
 
     // Then
     expect(document.querySelector('[aria-hidden]')).toBeInTheDocument();

@@ -4,6 +4,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import * as agendaMethods from '$lib/agenda';
 import { Agenda, Item } from '$lib/agenda';
 import { toastStore } from '$lib/state/toast.svelte';
+import { getTimestamp } from '$lib/utils';
 import AgendaItemModal from './AgendaItemModal.svelte';
 
 const oneday_in_ms = 24 * 60 * 60 * 1000;
@@ -67,7 +68,9 @@ describe('/AgendaItemModal.svelte', () => {
 
     // When
     await waitFor(async () => {
-      const deleteButton = screen.getByTestId('hide-agenda-item-button');
+      const deleteButton = screen.getByTestId(
+        `agenda-item-ami-holiday:${getTimestamp(today)}:holiday-1-hide-button`
+      );
       await fireEvent.click(deleteButton);
     });
 
