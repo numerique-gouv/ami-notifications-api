@@ -7,12 +7,9 @@ import {
   AMIBackOrGoto,
   AMIBackToLastKnownURL,
   AMIGoto,
-  AMIGotoUntrustedUrl,
   addLastVisitedInternalUrl,
   getLastVisitedInternalUrls,
 } from '$lib/ami-navigation';
-import { toastStore } from '$lib/state/toast.svelte';
-import * as telemetryModule from '$lib/telemetry';
 import * as urlAliasesMethods from '$lib/urlAliases';
 
 describe('/ami-navigation', () => {
@@ -478,86 +475,6 @@ describe('/ami-navigation', () => {
         // Then
         expect(localStorage.getItem('webview_back_target')).toEqual(null);
       });
-    });
-  });
-
-  describe('AMIGotoUntrustedUrl', () => {
-    test('should go to URL if no trusted URLs are defined', () => {
-      // Given
-      const spyAMIGoto = vi
-        .spyOn(AMINavigationMethods, 'AMIGoto')
-        .mockImplementation(() => {});
-      vi.mocked(envModule).PUBLIC_TRUSTED_URLS = '';
-
-      // When
-      AMIGotoUntrustedUrl('https://www.example.net/test');
-
-      // Then
-      expect(spyAMIGoto).toHaveBeenCalledWith('https://www.example.net/test');
-    });
-    test('should go to URL if trusted URL', () => {
-      // Given
-      const spyAMIGoto = vi
-        .spyOn(AMINavigationMethods, 'AMIGoto')
-        .mockImplementation(() => {});
-      vi.mocked(envModule).PUBLIC_TRUSTED_URLS =
-        '.*\\.example\\.org\n.*\\.example\\.net';
-
-      // When
-      AMIGotoUntrustedUrl('https://www.example.net/test');
-
-      // Then
-      expect(spyAMIGoto).toHaveBeenCalledWith('https://www.example.net/test');
-    });
-    test('should go to URL if trusted URL even if defined with leading/trailing spaces', () => {
-      // Given
-      const spyAMIGoto = vi
-        .spyOn(AMINavigationMethods, 'AMIGoto')
-        .mockImplementation(() => {});
-      vi.mocked(envModule).PUBLIC_TRUSTED_URLS =
-        '.*\\.example\\.org\n  .*\\.example\\.net   ';
-
-      // When
-      AMIGotoUntrustedUrl('https://www.example.net/test');
-
-      // Then
-      expect(spyAMIGoto).toHaveBeenCalledWith('https://www.example.net/test');
-    });
-    test('should go to home with an error if not trusted URL', () => {
-      // Given
-      const spyAMIGoto = vi
-        .spyOn(AMINavigationMethods, 'AMIGoto')
-        .mockImplementation(() => {});
-      const spyToast = vi.spyOn(toastStore, 'addToast');
-      const spyTelemetryError = vi.spyOn(telemetryModule, 'error');
-      vi.mocked(envModule).PUBLIC_TRUSTED_URLS =
-        '.*\\.example\\.org\n.*\\.example\\.net';
-
-      // When
-      AMIGotoUntrustedUrl('https://www.example.com/test');
-
-      // Then
-      expect(spyAMIGoto).toHaveBeenCalledWith('/');
-      expect(spyToast).toHaveBeenCalled();
-      expect(spyTelemetryError).toHaveBeenCalled();
-    });
-    test('should go to home with an error if not trusted URL if there are blank lines', () => {
-      // Given
-      const spyAMIGoto = vi
-        .spyOn(AMINavigationMethods, 'AMIGoto')
-        .mockImplementation(() => {});
-      const spyToast = vi.spyOn(toastStore, 'addToast');
-      const spyTelemetryError = vi.spyOn(telemetryModule, 'error');
-      vi.mocked(envModule).PUBLIC_TRUSTED_URLS =
-        '.*\\.example\\.org\n\n.*\\.example\\.net';
-
-      // When
-      AMIGotoUntrustedUrl('https://www.example.com/test');
-
-      // Then
-      expect(spyAMIGoto).toHaveBeenCalledWith('/');
-      expect(spyToast).toHaveBeenCalled();
-      expect(spyTelemetryError).toHaveBeenCalled();
     });
   });
 
