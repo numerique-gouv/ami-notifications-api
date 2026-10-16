@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { PUBLIC_SP_JCC_URL } from '$env/static/public';
   import { Address } from '$lib/address';
   import { type AddressFromBAN, callBAN } from '$lib/addressesFromBAN';
   import { AMIBack, AMIGoto } from '$lib/ami-navigation';
@@ -24,6 +25,8 @@
   let submittedAddress: Address | undefined = $state();
   let address_origin: DataOrigin | undefined = $state();
   let address_last_update: Date | undefined = $state();
+  let bannerLink: string = $state('');
+  let bannerLinkLabel: string = $state('');
 
   $effect(() => {
     // DO NOT REMOVE THE FOLLOWING LINE: we need to access `filteredAddresses` so the $effect
@@ -50,6 +53,8 @@
       }
       address_origin = identity.dataDetails.address.origin;
       address_last_update = identity.dataDetails.address.lastUpdate;
+      bannerLink = PUBLIC_SP_JCC_URL || '';
+      bannerLinkLabel = bannerLink ? 'Déclarer un changement d’adresse' : '';
     }
   });
 
@@ -252,6 +257,9 @@
         id="edit-address-change-not-submitted-info"
         title="Modification non transmise"
         description="La modification de la donnée ne sera pas transmise aux différentes administrations. Vous pouvez néanmoins déclarer un changement d’adresse en ligne."
+        link={bannerLink}
+        linkLabel={bannerLinkLabel}
+        linkSilentLogin={true}
         bannerType="info"
       />
     </div>
