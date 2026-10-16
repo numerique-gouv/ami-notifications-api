@@ -1,6 +1,7 @@
 import { describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
+import * as AMINavigationMethods from '$lib/ami-navigation';
 import * as bannerMethods from '$lib/banner';
 import Banner from './Banner.svelte';
 
@@ -52,7 +53,7 @@ describe('/Banner.svelte', () => {
 
     // When
     await waitFor(async () => {
-      const closeButton = screen.getByTestId('close-button');
+      const closeButton = screen.getByTestId('banner-id1-close-button');
       await fireEvent.click(closeButton);
     });
 
@@ -70,6 +71,97 @@ describe('/Banner.svelte', () => {
     });
 
     // Then
-    expect(screen.queryByTestId('close-button')).toBeNull();
+    expect(screen.queryByTestId('banner-id1-close-button')).toBeNull();
+  });
+  test('should not have a link button when link is not set', async () => {
+    // Given
+    render(Banner, {
+      id: 'id1',
+      title: 'Modification non transmise',
+      description: 'La modification ne sera pas transmise',
+      bannerType: 'info',
+      closeButton: 'false',
+    });
+
+    // Then
+    expect(screen.queryByTestId('banner-id1-link-button')).toBeNull();
+  });
+  test('should have a link button when link is set', async () => {
+    // Given
+    render(Banner, {
+      id: 'id1',
+      title: 'Modification non transmise',
+      description: 'La modification ne sera pas transmise',
+      bannerType: 'info',
+      closeButton: 'false',
+      link: 'url1',
+    });
+
+    // Then
+    const linkButton = screen.getByTestId('banner-id1-link-button');
+    expect(linkButton).toHaveTextContent('url');
+  });
+  test('should have a link button when link is set - with a label', async () => {
+    // Given
+    render(Banner, {
+      id: 'id1',
+      title: 'Modification non transmise',
+      description: 'La modification ne sera pas transmise',
+      bannerType: 'info',
+      closeButton: 'false',
+      link: 'url1',
+      linkLabel: 'label1',
+    });
+
+    // Then
+    const linkButton = screen.getByTestId('banner-id1-link-button');
+    expect(linkButton).toHaveTextContent('label1');
+  });
+  test('should call AMIGoto on link button click', async () => {
+    // Given
+    const spy = vi
+      .spyOn(AMINavigationMethods, 'AMIGoto')
+      .mockImplementation(() => Promise.resolve());
+    render(Banner, {
+      id: 'id1',
+      title: 'Modification non transmise',
+      description: 'La modification ne sera pas transmise',
+      bannerType: 'info',
+      closeButton: 'false',
+      link: 'url1',
+    });
+
+    // When
+    await waitFor(async () => {
+      const linkButton = screen.getByTestId('banner-id1-link-button');
+      await fireEvent.click(linkButton);
+    });
+
+    // Then
+    expect(spy).toHaveBeenCalledWith('url1', false);
+  });
+  test('should call AMIGoto on link button click - with silent login', async () => {
+    // Given
+    const spy = vi
+      .spyOn(AMINavigationMethods, 'AMIGoto')
+      .mockImplementation(() => Promise.resolve());
+    render(Banner, {
+      id: 'id1',
+      title: 'Modification non transmise',
+      description: 'La modification ne sera pas transmise',
+      bannerType: 'info',
+      closeButton: 'false',
+      link: 'url1',
+      linkSilentLogin: true,
+    });
+
+    // When
+    await waitFor(async () => {
+      const linkButton = screen.getByTestId('banner-id1-link-button');
+      await fireEvent.click(linkButton);
+    });
+
+    // Then
+    expect(spy).toHaveBeenCalledWith('url1', true);
   });
 });
