@@ -87,11 +87,11 @@ describe('/+page.svelte', () => {
     });
   });
 
-  test('should navigate to URL in login_redirect_url parameter if given', async () => {
+  test('should navigate to URL in login_redirect parameter if given', async () => {
     // Given
     const { page } = await import('$app/state');
     const mockSearchParams = new URLSearchParams();
-    mockSearchParams.set('login_redirect_url', 'https://www.example.org');
+    mockSearchParams.set('login_redirect', 'https://www.example.org:signature');
     window.localStorage.setItem('user_data', 'fake-user-data');
     vi.spyOn(franceConnectHelpers, 'parseJwt').mockReturnValue(mockUserInfo);
     vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
@@ -105,7 +105,9 @@ describe('/+page.svelte', () => {
 
     // Then
     await waitFor(() => {
-      expect(spy).toHaveBeenCalledWith('https://www.example.org');
+      expect(spy).toHaveBeenCalledWith(
+        '/goto-redirect-url?url=https%3A%2F%2Fwww.example.org%3Asignature'
+      );
     });
   });
 });
