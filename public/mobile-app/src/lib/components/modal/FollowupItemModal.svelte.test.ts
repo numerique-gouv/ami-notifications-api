@@ -65,7 +65,9 @@ describe('/FollowupItemModal.svelte', () => {
 
   test('should display item title', async () => {
     // When
-    render(FollowupItemModal, { props: { item, followup, isFollowupEmpty } });
+    render(FollowupItemModal, {
+      props: { item, followup, isFollowupEmpty },
+    });
 
     // Then
     const title = screen.getByTestId('followup-item-modal-header');
@@ -82,11 +84,15 @@ describe('/FollowupItemModal.svelte', () => {
     // Given
     const spy = vi.spyOn(FollowupItem.prototype, 'archive').mockResolvedValue(true);
     const spy2 = vi.spyOn(toastStore, 'addToast');
-    render(FollowupItemModal, { props: { item, followup, isFollowupEmpty } });
+    render(FollowupItemModal, {
+      props: { item, followup, isFollowupEmpty },
+    });
 
     // When
     await waitFor(async () => {
-      const archiveButton = screen.getByTestId('archive-followup-item-button');
+      const archiveButton = screen.getByTestId(
+        'followup-item-partner:type:id1-archive-button'
+      );
       await fireEvent.click(archiveButton);
     });
 
@@ -105,11 +111,15 @@ describe('/FollowupItemModal.svelte', () => {
     // Given
     const spy = vi.spyOn(FollowupItem.prototype, 'archive').mockResolvedValue(false);
     const spy2 = vi.spyOn(toastStore, 'addToast');
-    render(FollowupItemModal, { props: { item, followup, isFollowupEmpty } });
+    render(FollowupItemModal, {
+      props: { item, followup, isFollowupEmpty },
+    });
 
     // When
     await waitFor(async () => {
-      const archiveButton = screen.getByTestId('archive-followup-item-button');
+      const archiveButton = screen.getByTestId(
+        'followup-item-partner:type:id1-archive-button'
+      );
       await fireEvent.click(archiveButton);
     });
 

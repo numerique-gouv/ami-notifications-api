@@ -1,6 +1,6 @@
 import DOMPurify from 'dompurify';
 import { describe, expect, test } from 'vitest';
-import { ariaHideDecorativeEmoji } from '$lib/emoji';
+import { ariaHideDecorativeEmoji, removeDecorativeEmoji } from '$lib/emoji';
 
 describe('/emoji.ts', () => {
   describe('ariaHideDecorativeEmoji', () => {
@@ -24,6 +24,25 @@ describe('/emoji.ts', () => {
           false
         )
       ).toEqual('text with  <b>cherries <span aria-hidden="true">🍒</span></b>');
+    });
+    test('undefined string', () => {
+      expect(ariaHideDecorativeEmoji(undefined)).toEqual('');
+    });
+  });
+
+  describe('removeDecorativeEmoji', () => {
+    test('digits, no emoji', () => {
+      expect(removeDecorativeEmoji('test - 42')).toEqual('test - 42');
+    });
+    test('multiple emojis', () => {
+      expect(removeDecorativeEmoji('tangerine 🍊 and lemon 🍋')).toEqual(
+        'tangerine and lemon'
+      );
+    });
+    test('emoji and markup', () => {
+      expect(
+        removeDecorativeEmoji('<script>alert()</script> <b>cherries</b> ok 🍒')
+      ).toEqual('alert() cherries ok');
     });
   });
 });

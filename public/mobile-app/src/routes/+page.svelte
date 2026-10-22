@@ -33,8 +33,6 @@
   let agenda: Agenda | null = $state(null);
   let isFollowupEmpty: boolean = $state(data.isFollowupEmpty || false);
   let followup: Followup | null = $state(data.followup || null);
-  let selectedAgendaItem: AgendaItemType | null = $state(null);
-  let selectedFollowupItem: FollowupItemType | null = $state(null);
   let autoPromo: AutoPromo | null = $state(null);
   let hasAnyConsents: boolean = $state(data.hasAnyConsents || false);
 
@@ -80,14 +78,6 @@
       console.error(error);
     }
   });
-
-  const openAgendaItemModal = (item: AgendaItemType) => {
-    selectedAgendaItem = item;
-  };
-
-  const openFollowupItemModal = (item: FollowupItemType) => {
-    selectedFollowupItem = item;
-  };
 </script>
 
 {#if userStore.connected}
@@ -154,15 +144,23 @@
             {@const firstItem = agenda.now[0]}
             <AgendaItem
               item={firstItem}
-              onOpen={() => openAgendaItemModal(firstItem)}
               displayDate={false}
+              hasModal={true}
+              index="home-now-0"
             />
+            <AgendaItemModal item={firstItem} bind:agenda={agenda} index="home-now-0" />
           {:else if agenda && agenda.next.length}
             {@const firstItem = agenda.next[0]}
             <AgendaItem
               item={firstItem}
-              onOpen={() => openAgendaItemModal(firstItem)}
               displayDate={false}
+              hasModal={true}
+              index="home-next-0"
+            />
+            <AgendaItemModal
+              item={firstItem}
+              bind:agenda={agenda}
+              index="home-next-0"
             />
           {/if}
         </div>
@@ -196,9 +194,11 @@
           <div class="rubrique-content-container">
             {#if followup && followup.items.length}
               {@const firstItem = followup.items[0]}
-              <FollowupItem
+              <FollowupItem item={firstItem} hasModal={true} />
+              <FollowupItemModal
                 item={firstItem}
-                onOpen={() => openFollowupItemModal(firstItem)}
+                bind:followup={followup}
+                bind:isFollowupEmpty={isFollowupEmpty}
               />
             {/if}
           </div>
@@ -221,18 +221,6 @@
       </div>
     {/if}
   </div>
-
-  {#if selectedAgendaItem}
-    <AgendaItemModal bind:item={selectedAgendaItem} bind:agenda={agenda} />
-  {/if}
-
-  {#if selectedFollowupItem}
-    <FollowupItemModal
-      bind:item={selectedFollowupItem}
-      bind:followup={followup}
-      bind:isFollowupEmpty={isFollowupEmpty}
-    />
-  {/if}
 {/if}
 
 <style lang="scss">

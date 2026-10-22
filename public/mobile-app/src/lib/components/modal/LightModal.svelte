@@ -1,98 +1,74 @@
 <script lang="ts">
-  import { onMount, type Snippet } from 'svelte';
+  import { type Snippet } from 'svelte';
 
   export interface LightModalProps {
     modalContent: Snippet;
     centered?: boolean;
-    onClose: () => void;
+    modalId?: string;
   }
-  let { modalContent, centered = false, onClose }: LightModalProps = $props();
+  let { modalContent, centered = false, modalId }: LightModalProps = $props();
   let dialog: HTMLDialogElement | null = null;
-  let modalClass = $derived(centered ? 'dialog--centered' : '');
-  const handleClose = () => {
-    onClose();
-  };
-  onMount(() => {
-    if (dialog && !dialog.open) {
-      dialog.showModal();
-    }
-    dialog?.addEventListener('close', handleClose);
-    return () => {
-      dialog?.removeEventListener('close', handleClose);
-    };
-  });
-  const closeDialog = () => {
-    dialog?.close();
-  };
-  const handleBackdropClick = (event: MouseEvent) => {
-    if (event.target === dialog) {
-      closeDialog();
-    }
-  };
+  let modalClass = $derived(centered ? 'am-modal--centered' : '');
 </script>
 <dialog
   bind:this={dialog}
-  class="modal {modalClass}"
-  onclick={handleBackdropClick}
-  data-testid="item-modal"
+  id={modalId}
+  aria-labelledby="{modalId}-title"
+  class="fr-modal am-modal modal {modalClass}"
+  data-testid="light-modal-{modalId}"
 >
-  <div>
-    <button
-      onclick={closeDialog}
-      title="Fermer la modale"
-      class="close-button fr-icon-close-line"
-    ></button>
-    <div class="drag-handle"></div>
-    {@render modalContent?.()}
+  <div class="fr-container fr-container--fluid fr-container-md">
+    <div class="fr-grid-row fr-grid-row--center">
+      <div class="fr-col-12 fr-col-md-8 fr-col-lg-6">
+        <div class="fr-modal__body">
+          <div class=""></div>
+          <div class="fr-modal__header">
+            <button
+              aria-controls="{modalId}"
+              aria-label="Fermer"
+              type="button"
+              id="button-6080"
+              class="fr-btn--close fr-btn"
+            ></button>
+          </div>
+          <div class="fr-modal__content fr-mb-3v">{@render modalContent?.()}</div>
+        </div>
+      </div>
+    </div>
   </div>
 </dialog>
 <style>
-  dialog {
-    position: fixed;
-    top: auto;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    margin: 0;
-    width: 100%;
-    max-width: 100%;
-    transform: none;
-    border-radius: 1.75rem 1.75rem 0 0;
-    border: none;
-    padding: 1rem;
-    .close-button {
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-      padding: 0;
-      color: var(--text-active-blue-france);
+  .fr-modal.am-modal {
+    .fr-modal__header {
+      padding-top: 0.5rem;
+      padding-bottom: 0;
     }
-    .drag-handle {
-      width: 2rem;
-      height: 0.25rem;
-      border-radius: 100px;
-      background-color: #79747e;
-      margin: 0 auto 1.75rem;
-    }
-    &.dialog--centered {
-      top: 50%;
-      bottom: auto;
-      left: 50%;
-      right: auto;
-      transform: translate(-50%, -50%);
-      width: 92%;
-      border-radius: 1.75rem;
-      padding: 1.5rem;
-      .close-button {
-        display: none;
-      }
-      .drag-handle {
-        display: none;
+    .fr-btn--close {
+      min-height: 2.5rem;
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
+      &:after {
+        margin: 0;
+        --icon-size: 1.5rem;
       }
     }
-  }
-  dialog::backdrop {
-    background: var(--grey-50-1000);
-    opacity: 64%;
+    .fr-modal__body {
+      border-radius: 1.75rem 1.75rem 0 0;
+    }
+    &.am-modal--centered {
+      &:after {
+        content: "";
+        width: 0;
+        height: 10%;
+        flex: 1 0 10%;
+      }
+      .fr-modal__body {
+        max-width: calc(100% - 3rem);
+        margin: 0 auto;
+        border-radius: 1.75rem;
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+      }
+    }
   }
 </style>

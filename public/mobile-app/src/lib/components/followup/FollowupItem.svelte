@@ -6,10 +6,10 @@
 
   interface Props {
     item: FollowupItem;
-    onOpen?: (() => void) | null;
     useBackOrGoto?: boolean;
+    hasModal?: boolean;
   }
-  let { item, onOpen = null, useBackOrGoto = false }: Props = $props();
+  let { item, useBackOrGoto = false, hasModal = false }: Props = $props();
 
   let checkedIcon = $derived(getDSFRIcon(item.icon, 'fr-icon-information-fill'));
   let withDetailButton = $derived(
@@ -29,14 +29,16 @@
   <div
     class="followup--item--detail fr-tile fr-tile--sm fr-tile--horizontal fr-enlarge-button { withDetailButton  && 'fr-tile--no-icon' }"
   >
-    {#if onOpen && !item.is_archived}
+    {#if hasModal && !item.is_archived}
       <button
+        data-fr-opened="false"
+        aria-controls="followup-item-{item.id}-modal"
+        id="followup-item-{item.id}-button"
         type="button"
-        onclick={onOpen}
-        data-testid="open-followup-item-modal-{item.id}"
+        data-testid="followup-item-{item.id}-open-modal-button"
         class="fr-btn fr-btn--icon fr-icon-more-2-fill fr-btn--tertiary-no-outline fr-pt-2w am-icon-20 am-btn-modal open-followup-item-modal fr-icon-more-2-fill"
       >
-        Ouvrir la modale liée à l'élément du suivi
+        Ouvrir les options pour {ariaHideDecorativeEmoji(item.title)}
       </button>
     {/if}
     <div class="fr-tile__body">
