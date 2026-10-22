@@ -17,11 +17,16 @@
   };
 
   const clickOnHideAgendaItem = (item: Item) => {
-    item.hide();
-    if (agenda) {
-      refreshAgenda();
-    }
-    toastStore.addToast('L’élément a bien été supprimé', 'success', 3000, true);
+    const modal = document.getElementById(`agenda-item-${item.key}-modal`);
+    modal?.addEventListener('dsfr.conceal', (event) => {
+      console.log('La modale DSFR a été fermée', event);
+      item.hide();
+      if (agenda) {
+        refreshAgenda();
+      }
+      toastStore.addToast('L’élément a bien été supprimé', 'success', 3000, true);
+    });
+    window.dsfr(modal).modal.conceal();
   };
 </script>
 
@@ -38,7 +43,6 @@
       <li>
         <button
           onclick={() => clickOnHideAgendaItem(item)}
-          aria-controls="agenda-item-{item.key}-modal"
           aria-label="Masquer l’élément de l’agenda { removeDecorativeEmoji(item.title)}"
           data-testid="agenda-item-{item.key}-hide-button"
           class="fr-btn fr-btn--lg fr-p-0 fr-btn--tertiary-no-outline fr-icon-eye-off-line fr-btn--icon-left fr-text--md fr-text-title--grey hide-agenda-item"

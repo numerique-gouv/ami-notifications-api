@@ -44,6 +44,11 @@
     }
     event.preventDefault();
   };
+
+  const openAgendaItemModal = async (item: Item) => {
+    const modal = document.getElementById(`agenda-item-${item.key}-modal`);
+    window.dsfr(modal).modal.disclose();
+  };
 </script>
 
 <div class="agenda--item">
@@ -68,7 +73,7 @@
       {#if hasModal}
         <button
           data-fr-opened="false"
-          aria-controls="agenda-item-{item.key}-modal"
+          onclick={() => openAgendaItemModal(item)}
           id="agenda-item-{item.key}-button"
           type="button"
           data-testid="agenda-item-{item.key}-open-modal-button"
