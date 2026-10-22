@@ -17,6 +17,7 @@
     followupSubItem?: FollowupSubItem | null;
     useBackOrGoto?: boolean;
     hasModal?: boolean;
+    index?: string;
   }
   let {
     item,
@@ -26,6 +27,7 @@
     followupSubItem = null,
     useBackOrGoto = false,
     hasModal = false,
+    index = '',
   }: Props = $props();
 
   let checkedIcon = '';
@@ -68,7 +70,7 @@
       {#if hasModal}
         <button
           data-fr-opened="false"
-          aria-controls="agenda-item-{item.key}-modal"
+          aria-controls="agenda-item-{index}-modal"
           id="agenda-item-{item.key}-button"
           type="button"
           data-testid="agenda-item-{item.key}-open-modal-button"

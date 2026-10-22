@@ -142,12 +142,26 @@
         <div class="rubrique-content-container">
           {#if agenda && agenda.now.length}
             {@const firstItem = agenda.now[0]}
-            <AgendaItem item={firstItem} displayDate={false} hasModal={true} />
-            <AgendaItemModal item={firstItem} bind:agenda={agenda} />
+            <AgendaItem
+              item={firstItem}
+              displayDate={false}
+              hasModal={true}
+              index="home-now-0"
+            />
+            <AgendaItemModal item={firstItem} bind:agenda={agenda} index="home-now-0" />
           {:else if agenda && agenda.next.length}
             {@const firstItem = agenda.next[0]}
-            <AgendaItem item={firstItem} displayDate={false} hasModal={true} />
-            <AgendaItemModal item={firstItem} bind:agenda={agenda} />
+            <AgendaItem
+              item={firstItem}
+              displayDate={false}
+              hasModal={true}
+              index="home-next-0"
+            />
+            <AgendaItemModal
+              item={firstItem}
+              bind:agenda={agenda}
+              index="home-next-0"
+            />
           {/if}
         </div>
       {/if}

@@ -57,8 +57,13 @@
               {item.monthName}
             </p>
           {/if}
-          <AgendaItem item={item} displayDay={displayDay} hasModal={true} />
-          <AgendaItemModal item={item} bind:agenda={agenda} />
+          <AgendaItem
+            item={item}
+            displayDay={displayDay}
+            hasModal={true}
+            index="agenda-now-{i}"
+          />
+          <AgendaItemModal item={item} bind:agenda={agenda} index="agenda-now-{i}" />
         {/each}
       </div>
     </div>
@@ -80,8 +85,13 @@
               {item.monthName}
             </p>
           {/if}
-          <AgendaItem item={item} displayDay={displayDay} hasModal={true} />
-          <AgendaItemModal item={item} bind:agenda={agenda} />
+          <AgendaItem
+            item={item}
+            displayDay={displayDay}
+            hasModal={true}
+            index="agenda-next-{i}"
+          />
+          <AgendaItemModal item={item} bind:agenda={agenda} index="agenda-next-{i}" />
         {/each}
       </div>
     </div>

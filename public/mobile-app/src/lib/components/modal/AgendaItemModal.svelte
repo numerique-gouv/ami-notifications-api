@@ -7,8 +7,9 @@
   interface Props {
     item: Item;
     agenda: Agenda | null;
+    index: string;
   }
-  let { item, agenda = $bindable() }: Props = $props();
+  let { item, agenda = $bindable(), index }: Props = $props();
 
   const refreshAgenda = () => {
     buildAgenda().then((result) => {
@@ -25,7 +26,7 @@
   };
 </script>
 
-<BottomModal modalId="agenda-item-{item.key}-modal">
+<BottomModal modalId="agenda-item-{index}-modal">
   {#snippet modalContent()}
     <h2
       id="agenda-item-{item.key}-modal-title"
@@ -38,7 +39,7 @@
       <li>
         <button
           onclick={() => clickOnHideAgendaItem(item)}
-          aria-controls="agenda-item-{item.key}-modal"
+          aria-controls="agenda-item-{index}-modal"
           aria-label="Masquer l’élément de l’agenda { removeDecorativeEmoji(item.title)}"
           data-testid="agenda-item-{item.key}-hide-button"
           class="fr-btn fr-btn--lg fr-p-0 fr-btn--tertiary-no-outline fr-icon-eye-off-line fr-btn--icon-left fr-text--md fr-text-title--grey hide-agenda-item"
