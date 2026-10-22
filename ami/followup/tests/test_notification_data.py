@@ -1377,6 +1377,155 @@ def test_get_notifications_data_parent_and_sub_sub_items(
 
 
 @pytest.mark.django_db
+def test_get_notifications_data_parent_and_sub_items_with_event_for_external_url(
+    user: User, partner: Partner, partner_psl: Partner, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    start_date = datetime.datetime(2026, 2, 14, 11, 16, tzinfo=datetime.timezone.utc)
+    end_date = datetime.datetime(2026, 2, 14, 11, 18, tzinfo=datetime.timezone.utc)
+
+    notification = Notification.objects.create(
+        user_id=user.id,
+        content_body="notification",
+        content_title="Notification title",
+        item_generic_status="wip",
+        item_status_label="En cours",
+        item_type="OperationTranquilliteVacances",
+        item_id="42",
+        partner=partner_psl,
+    )
+    sub_notification1 = Notification.objects.create(
+        user_id=user.id,
+        content_body="Sub notification body 1",
+        content_title="Sub notification title 1",
+        item_generic_status="new",
+        item_status_label="Nouveau",
+        item_type="SousDémarche",
+        item_id="35",
+        partner=partner,
+        item_parent_partner=partner_psl,
+        item_parent_type="OperationTranquilliteVacances",
+        item_parent_id="42",
+    )
+    sub_notification2 = Notification.objects.create(
+        user_id=user.id,
+        content_body="Sub notification body 2",
+        content_title="Sub notification title 2",
+        item_generic_status="wip",
+        item_status_label="En cours",
+        item_type="SousDémarche",
+        item_id="35",
+        partner=partner,
+        item_parent_partner=partner_psl,
+        item_parent_type="OperationTranquilliteVacances",
+        item_parent_id="42",
+    )
+    sub_notification3 = Notification.objects.create(
+        user_id=user.id,
+        content_body="Sub notification body 3",
+        content_title="Sub notification title 3",
+        content_subheading="Autre service",
+        content_link="http://bar.com",
+        item_generic_status="new",
+        item_status_label="Nouveau",
+        item_type="SousDémarcheBis",
+        item_id="104",
+        partner=partner,
+        item_parent_partner=partner_psl,
+        item_parent_type="OperationTranquilliteVacances",
+        item_parent_id="42",
+        item_milestone_start_date=start_date,
+        item_milestone_end_date=end_date,
+    )
+
+    result = get_notifications_data(current_user=user)
+
+    assert result == [
+        FollowupItem(
+            partner_id="psl",
+            item_type="OperationTranquilliteVacances",
+            item_external_id="42",
+            reference="42",
+            status_id=ItemGenericStatus.WIP,  # pourquoi pas NEW ?
+            status_label="En cours",  # pourquoi pas Nouveau ?
+            milestone_start_date=None,
+            milestone_end_date=None,
+            events=[
+                FollowupItemEvent(
+                    id=notification.id,
+                    created_at=notification.created_at,
+                    title="Notification title",
+                )
+            ],
+            title="Notification title",
+            subheading="Service Public",
+            description="notification",
+            icon="fr-icon-mail-fill",
+            external_url="http://bar.com",
+            is_archived=False,
+            created_at=notification.event_date,
+            updated_at=sub_notification3.event_date,
+            sub_items=[
+                FollowupSubItem(
+                    partner_id="dinum-ami",
+                    item_type="SousDémarcheBis",
+                    item_external_id="104",
+                    reference="",
+                    status_id=ItemGenericStatus.NEW,
+                    status_label="Nouveau",
+                    milestone_start_date=start_date,
+                    milestone_end_date=end_date,
+                    events=[
+                        FollowupItemEvent(
+                            id=sub_notification3.id,
+                            created_at=sub_notification3.created_at,
+                            title="Sub notification title 3",
+                        )
+                    ],
+                    title="Autre service",
+                    subheading="",
+                    description="Sub notification body 3",
+                    icon="fr-icon-mail-fill",
+                    external_url="http://bar.com",
+                    is_archived=False,
+                    created_at=sub_notification3.event_date,
+                    updated_at=sub_notification3.event_date,
+                ),
+                FollowupSubItem(
+                    partner_id="dinum-ami",
+                    item_type="SousDémarche",
+                    item_external_id="35",
+                    reference="",
+                    status_id=ItemGenericStatus.WIP,
+                    status_label="En cours",
+                    milestone_start_date=None,
+                    milestone_end_date=None,
+                    events=[
+                        FollowupItemEvent(
+                            id=sub_notification1.id,
+                            created_at=sub_notification1.created_at,
+                            title="Sub notification title 1",
+                        ),
+                        FollowupItemEvent(
+                            id=sub_notification2.id,
+                            created_at=sub_notification2.created_at,
+                            title="Sub notification title 2",
+                        ),
+                    ],
+                    title="35",
+                    subheading="",
+                    description="Sub notification body 2",
+                    icon="fr-icon-eye-fill",
+                    external_url=None,
+                    is_archived=False,
+                    created_at=sub_notification1.event_date,
+                    updated_at=sub_notification2.event_date,
+                ),
+            ],
+        ),
+    ]
+
+
+@pytest.mark.django_db
 def test_get_notifications_source(user: User, monkeypatch: pytest.MonkeyPatch) -> None:
     items = [
         FollowupItem(

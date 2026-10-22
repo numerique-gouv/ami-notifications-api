@@ -167,7 +167,15 @@ class NotificationsSubItem:
 
     @property
     def external_url(self):
-        # sub item has no external_url
+        # if sub item is an event
+        if (
+            self.last_notification.item_milestone_start_date
+            or self.last_notification.item_milestone_end_date
+        ):
+            return (
+                self.last_notification.content_link if self.last_notification.content_link else None
+            )
+        # else, sub item has no external_url
         return None
 
     @property
