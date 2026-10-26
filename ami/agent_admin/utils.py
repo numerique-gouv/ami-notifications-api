@@ -40,6 +40,7 @@ def audit(action, author, extra_data):
                 key
             ].authentication_identifier
             extra_data[f"{key}_ip_allow_list"] = extra_data[key].ip_allow_list
+            extra_data[f"{key}_trusted_base_uris"] = extra_data[key].trusted_base_uris
             del extra_data[key]
 
     for key in ["page", "old_page_values"]:
