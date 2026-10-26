@@ -3,6 +3,7 @@ from urllib.parse import parse_qs, urlparse
 import pytest
 
 from ami.authentication.models import Nonce
+from ami.partner.models import Partner
 from ami.tests.utils import url_contains_param
 
 
@@ -110,6 +111,49 @@ def test_silent_login_ami_fi_with_redirect_url_and_from_hash(
     fc_url_query = parse_qs(parsed.query)
     state = fc_url_query["state"][0]
     state = state.replace(f"{settings.FC_AMI_REDIRECT_URL}?state=", "")
+
+
+@pytest.mark.django_db
+def test_silent_login_ami_fi_with_trusted_redirect_url_and_from_hash(
+    settings,
+    app,
+    monkeypatch: pytest.MonkeyPatch,
+    partner,
+) -> None:
+    partner.trusted_base_uris = "http://foo"
+    partner.save()
+    settings.PUBLIC_FC_PROXY_BASE_URL = "https://fake-fc-proxy"
+    FAKE_NONCE = "some-random-nonce"
+    monkeypatch.setattr("ami.authentication.views.generate_nonce", lambda: FAKE_NONCE)
+    response = app.get(
+        "/silent-login-ami-fi", {"redirect_url": "http://foo?bar", "from_hash": "page"}
+    )
+    assert response.status_code == 302
+    redirected_url = response.headers["location"]
+    assert redirected_url.startswith(
+        f"{settings.PUBLIC_FC_PROXY_BASE_URL}/ami-fi-authorize-request/"
+    )
+
+
+@pytest.mark.django_db
+def test_silent_login_ami_fi_with_untrusted_redirect_url_and_from_hash(
+    settings,
+    app,
+    monkeypatch: pytest.MonkeyPatch,
+    partner,
+    caplog,
+) -> None:
+    caplog.set_level("ERROR")
+    Partner.objects.exclude(slug=partner.slug).delete()
+    partner.trusted_base_uris = "http://bar"
+    partner.save()
+    settings.PUBLIC_FC_PROXY_BASE_URL = "https://fake-fc-proxy"
+    response = app.get(
+        "/silent-login-ami-fi", {"redirect_url": "http://foo?bar", "from_hash": "page"}
+    )
+    redirected_url = response.headers["location"]
+    assert redirected_url == "https://localhost:5173/#/technical-error"
+    assert caplog.messages == ["silent-ami-fi to disallowed URL"]
 
 
 @pytest.mark.django_db

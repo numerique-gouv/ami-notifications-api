@@ -15,6 +15,7 @@ from ami.authentication.auth import create_jwt_token, generate_nonce, get_fc_sco
 from ami.authentication.exception import FCError
 from ami.authentication.models import Nonce
 from ami.authentication.schemas import data_providers
+from ami.partner.utils import is_allowed_url
 from ami.user.data import (
     get_address_from_api_particulier_quotient,
     get_fc_userinfo,
@@ -53,6 +54,14 @@ def login(request, login_type):
             context = {"idp": login_type}
             request.session["login_from_hash"] = request.GET.get("from_hash") or ""
             request.session["login_redirect_url"] = request.GET.get("redirect_url") or ""
+            if request.session["login_redirect_url"] and not is_allowed_url(
+                request.session["login_redirect_url"]
+            ):
+                logger.error(
+                    "silent-ami-fi to disallowed URL",
+                    extra={"url": request.session["login_redirect_url"]},
+                )
+                return redirect(f"{settings.PUBLIC_APP_URL}/#/technical-error")
         elif login_type == "relogin":
             scope = get_fc_scope([])
             context = {"idp": login_type}
