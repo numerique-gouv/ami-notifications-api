@@ -4,6 +4,8 @@ import json
 
 from django import forms
 from django.conf import settings
+from django.core import validators
+from django.core.exceptions import ValidationError
 from django.urls import reverse
 from django.utils.timezone import now
 from rest_framework.renderers import JSONRenderer
@@ -320,6 +322,20 @@ class PartnerForm(forms.ModelForm, AMIDsfrBaseForm):
                 ipaddress.ip_network(line_value)
             except ValueError as e:
                 errors.append(f"Valeur invalide ligne {i + 1} ({e})")
+        if errors:
+            raise forms.ValidationError(", ".join(errors))
+        return value
+
+    def clean_trusted_base_uris(self):
+        value = self.cleaned_data["trusted_base_uris"]
+        errors = []
+        for i, line_value in enumerate(value.splitlines()):
+            if not line_value.strip() or line_value.startswith("#"):
+                continue
+            try:
+                validators.URLValidator()(line_value)
+            except ValidationError:
+                errors.append(f"URL invalide ligne {i + 1}")
         if errors:
             raise forms.ValidationError(", ".join(errors))
         return value
