@@ -18,6 +18,7 @@ class Partner(models.Model):
     displayed_on_front = models.BooleanField(default=True)
     authentication_identifier = models.CharField(blank=True, null=True)
     ip_allow_list = models.TextField(blank=True, null=True)
+    trusted_base_uris = models.TextField(blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -41,6 +42,16 @@ class Partner(models.Model):
                 continue
             allowed_ip_network = ipaddress.ip_network(line_value)
             if ip_address in allowed_ip_network:
+                return True
+        return False
+
+    def is_url_allowed(self, url):
+        if not self.trusted_base_uris:
+            return True
+        for line_value in self.trusted_base_uris.splitlines():
+            if not line_value.strip() or line_value.startswith("#"):
+                continue
+            if url.startswith(line_value):
                 return True
         return False
 
