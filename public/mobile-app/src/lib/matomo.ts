@@ -93,3 +93,12 @@ export function trackTelemetryEvent(
     eventValue || '',
   ]);
 }
+
+export function trackPersonalDataConsent(pageOrigin: string) {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  window._paq = window._paq || [];
+  window._paq.push(['trackEvent', 'Personal data consent', pageOrigin, 'given']);
+}
