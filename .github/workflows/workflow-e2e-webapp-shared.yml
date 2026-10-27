@@ -25,6 +25,14 @@ on:
         description: "AVD Android au format pixel_<profil>_api<niveau> (pixel_2_api30 = ancien appareil, pixel_8_api36 = récent) ; ne sert que si run_android est renseigné"
         type: string
         default: pixel_2_api30
+      apk_source:
+        description: "origine de l'APK Android : latest-tag = APK du dernier tag d'ami-app-android (artefact privé app-staging-debug-<tag>, secret AMI_APP_ANDROID_TOKEN requis) ; build = artefact buildé par l'appelant (pas le cas ici : l'API ne build pas d'APK)"
+        type: string
+        default: latest-tag
+      report_label:
+        description: "étiquette (lettres, chiffres, - _) quand plusieurs runs e2e rapportent sur la même PR (ex. old-device) : un check et un commentaire par étiquette"
+        type: string
+        default: ''
       pr_number:
         description: "0 = pas de PR associée (push/tag) → pas de commentaire de PR"
         type: number
@@ -36,14 +44,14 @@ on:
       checkout_ref:
         description: "ref (branche/tag/sha) d'ami-system-tests à checkout — doit être égal à la ref de jobs.e2e-launch.uses: [...]@ref"
         type: string
-        default: main
+        default: 10-ci-api-ios-android-wip # provisoire, à repasser sur main à la fusion
 
 jobs:
   e2e-launch:
     name: trigger an e2e run in ami-system-tests
-    # TANT QUE les changements d'ami-system-tests (job report, suites webapp_*, sorties) ne sont pas fusionnés dans main, cette ref doit
-    # pointer vers la branche qui les porte (et checkout_ref doit lui être égal) : sinon l'appel échoue (entrées inconnues).
-    uses: numerique-gouv/ami-system-tests/.github/workflows/workflow-e2e-main.yml@main
+    # PROVISOIRE, le temps de la mise au point : la branche 10-ci-api-ios-android-wip d'ami-system-tests porte le job report, les suites
+    # webapp_*/mobile_* et les sorties. À repasser sur @main à la fusion (checkout_ref doit rester égal à cette ref).
+    uses: numerique-gouv/ami-system-tests/.github/workflows/workflow-e2e-main.yml@10-ci-api-ios-android-wip
     # Le workflow appelé ne peut pas dépasser ces permissions : checks (check du commit testé) et pull-requests (commentaire unique).
     permissions:
       contents: read
@@ -54,6 +62,8 @@ jobs:
       run_android: ${{ inputs.run_android }}
       run_ios: ${{ inputs.run_ios }}
       android_device: ${{ inputs.android_device }}
+      apk_source: ${{ inputs.apk_source }}
+      report_label: ${{ inputs.report_label }}
       source_repo: ${{ github.repository }}
       source_sha: ${{ inputs.source_sha }}
       pr_number: ${{ inputs.pr_number }}
