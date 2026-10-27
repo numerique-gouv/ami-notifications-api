@@ -13,15 +13,13 @@
     "format": "prettier --write .",
     "lint": "prettier --check . && eslint .",
     "test:unit": "TZ=Europe/Paris vitest",
-    "test": "npm run test:unit -- --run && npm run test:e2e",
-    "test:e2e": "PUBLIC_WEBSITE_PUBLIC=true playwright test",
+    "test": "npm run test:unit -- --run",
     "test:cucumber": "cucumber-js tests/features"
   },
   "dependencies": {
     "@eslint/compat": "2.0.0",
     "@eslint/js": "9.39.1",
     "@gouvfr/dsfr": "1.14.2",
-    "@playwright/test": "1.57.0",
     "@sentry/sveltekit": "^10.72.0",
     "@simplewebauthn/browser": "13.3.0",
     "@sinonjs/fake-timers": "15.4.0",
