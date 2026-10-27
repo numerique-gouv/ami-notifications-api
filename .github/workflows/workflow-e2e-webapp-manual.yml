@@ -15,22 +15,18 @@ on:
         description: "suite de test (test-suites.ts : mobile_ci, mobile_short…) à lancer sur l'apk Android — vide = ne pas lancer"
         type: string
         default: ''
-      run_ios:
-        description: "suite de test (test-suites.ts) à lancer sur l'app iOS — vide = ne pas lancer"
-        type: string
-        default: ''
       android_device:
         description: "AVD Android au format pixel_<profil>_api<niveau> (pixel_2_api30 = ancien appareil, pixel_8_api36 = récent) ; ne sert que si une suite Android est lancée"
         type: string
         default: pixel_2_api30
       apk_source:
-        description: "origine de l'APK Android : latest-tag (dernier tag d'ami-app-android, secret AMI_APP_ANDROID_TOKEN requis)"
+        description: "origine de l'APK Android : latest-tag (dernier tag d'ami-app-android, variable AMI_REVIEWAPPS_APP_ID et secret AMI_REVIEWAPPS_PRIVATE_KEY requis)"
         type: string
         default: latest-tag
       checkout_ref:
         description: "ref (branche/tag/sha) d'ami-system-tests à checkout — doit être égal à la ref de jobs.e2e-launch.uses: [...]@ref"
         type: string
-        default: 10-ci-api-ios-android-wip
+        default: 77-migre-vers-wdio-10
 
 permissions:
   contents: read
@@ -44,7 +40,6 @@ jobs:
     with:
       run_webapp: ${{ inputs.run_webapp }}
       run_android: ${{ inputs.run_android }}
-      run_ios: ${{ inputs.run_ios }}
       android_device: ${{ inputs.android_device }}
       apk_source: ${{ inputs.apk_source }}
       pr_number: ${{ fromJSON(inputs.pr_number) }}

@@ -91,7 +91,7 @@ jobs:
           fi
 
   # PR : non-régression fonctionnelle des actions usagers, webapp (Chrome) + Android sur appareil RÉCENT. L'API ne build pas d'APK : elle utilise
-  # celui du dernier tag d'ami-app-android (apk_source: latest-tag, secret AMI_APP_ANDROID_TOKEN).
+  # celui du dernier tag d'ami-app-android (apk_source: latest-tag, GitHub App ami-reviewapps : variable AMI_REVIEWAPPS_APP_ID, secret AMI_REVIEWAPPS_PRIVATE_KEY).
   call-pr:
     needs: guard
     if: ${{ needs.guard.outputs.case == 'pr' }}
@@ -110,7 +110,7 @@ jobs:
       checkout_ref: ${{ needs.guard.outputs.checkout_ref }}
     secrets: inherit
 
-  # Merge : les mêmes tests de non-régression (webapp + Android récent)…
+  # Merge : non-régression webapp, et UN SEUL passage Android sur le VIEIL appareil (pixel_2_api30) — pas de passage sur appareil récent.
   call-merge:
     needs: guard
     if: ${{ needs.guard.outputs.case == 'merge' }}
@@ -123,31 +123,11 @@ jobs:
     with:
       run_webapp: webapp_nonreg
       run_android: mobile_nonreg
-      android_device: pixel_8_api36
+      android_device: pixel_2_api30
       apk_source: latest-tag
       pr_number: ${{ fromJSON(needs.guard.outputs.pr_number) }}
       source_sha: ${{ github.event.sha }}
       # checkout_ref: laissé au défaut de workflow-e2e-webapp-shared.yml
-    secrets: inherit
-
-  # … ET les tests Android sur un VIEIL appareil (pixel_2_api30), en plus. Rapport distinct (étiquette old-device) : un second check et un second
-  # commentaire, sinon il écraserait celui du run précédent. Sérialisé avec call-merge par le groupe de concurrence du workflow appelé.
-  call-merge-old-android:
-    needs: guard
-    if: ${{ needs.guard.outputs.case == 'merge' }}
-    name: run e2e Android ancien (PR merged)
-    uses: ./.github/workflows/workflow-e2e-webapp-shared.yml
-    permissions:
-      contents: read
-      checks: write
-      pull-requests: write
-    with:
-      run_android: mobile_nonreg
-      android_device: pixel_2_api30
-      apk_source: latest-tag
-      report_label: old-device
-      pr_number: ${{ fromJSON(needs.guard.outputs.pr_number) }}
-      source_sha: ${{ github.event.sha }}
     secrets: inherit
 
   call-tag:

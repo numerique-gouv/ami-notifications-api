@@ -17,16 +17,12 @@ on:
         description: "nom de la suite android à lancer (test-suites.ts : mobile_ci, mobile_short…) — vide = ne pas lancer"
         type: string
         default: ''
-      run_ios:
-        description: "nom de la suite ios à lancer (test-suites.ts : mobile_*) — vide = ne pas lancer (job iOS encore factice)"
-        type: string
-        default: ''
       android_device:
         description: "AVD Android au format pixel_<profil>_api<niveau> (pixel_2_api30 = ancien appareil, pixel_8_api36 = récent) ; ne sert que si run_android est renseigné"
         type: string
         default: pixel_2_api30
       apk_source:
-        description: "origine de l'APK Android : latest-tag = APK du dernier tag d'ami-app-android (artefact privé app-staging-debug-<tag>, secret AMI_APP_ANDROID_TOKEN requis) ; build = artefact buildé par l'appelant (pas le cas ici : l'API ne build pas d'APK)"
+        description: "origine de l'APK Android : latest-tag = APK du dernier tag d'ami-app-android (artefact privé app-staging-debug-<tag>, variable AMI_REVIEWAPPS_APP_ID et secret AMI_REVIEWAPPS_PRIVATE_KEY requis, GitHub App ami-reviewapps) ; build = artefact buildé par l'appelant (pas le cas ici : l'API ne build pas d'APK)"
         type: string
         default: latest-tag
       report_label:
@@ -44,14 +40,14 @@ on:
       checkout_ref:
         description: "ref (branche/tag/sha) d'ami-system-tests à checkout — doit être égal à la ref de jobs.e2e-launch.uses: [...]@ref"
         type: string
-        default: 10-ci-api-ios-android-wip # provisoire, à repasser sur main à la fusion
+        default: 77-migre-vers-wdio-10 # provisoire, à repasser sur main à la fusion
 
 jobs:
   e2e-launch:
     name: trigger an e2e run in ami-system-tests
-    # PROVISOIRE, le temps de la mise au point : la branche 10-ci-api-ios-android-wip d'ami-system-tests porte le job report, les suites
+    # PROVISOIRE, le temps de la mise au point : la branche 77-migre-vers-wdio-10 d'ami-system-tests porte le job report, les suites
     # webapp_*/mobile_* et les sorties. À repasser sur @main à la fusion (checkout_ref doit rester égal à cette ref).
-    uses: numerique-gouv/ami-system-tests/.github/workflows/workflow-e2e-main.yml@10-ci-api-ios-android-wip
+    uses: numerique-gouv/ami-system-tests/.github/workflows/workflow-e2e-main.yml@77-migre-vers-wdio-10
     # Le workflow appelé ne peut pas dépasser ces permissions : checks (check du commit testé) et pull-requests (commentaire unique).
     permissions:
       contents: read
@@ -60,7 +56,6 @@ jobs:
     with:
       run_webapp: ${{ inputs.run_webapp }}
       run_android: ${{ inputs.run_android }}
-      run_ios: ${{ inputs.run_ios }}
       android_device: ${{ inputs.android_device }}
       apk_source: ${{ inputs.apk_source }}
       report_label: ${{ inputs.report_label }}
