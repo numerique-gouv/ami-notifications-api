@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { afterNavigate } from '$app/navigation';
   import { page } from '$app/state';
   import { AMIGoto } from '$lib/ami-navigation';
   import BottomModal from '$lib/components/modal/BottomModal.svelte';
@@ -75,6 +76,13 @@
   onMount(() => {
     const modal = document.getElementById('passkey-authentication-modal');
     modal?.addEventListener('dsfr.conceal', closeModal);
+  });
+
+  afterNavigate(({ type }) => {
+    if (type === 'popstate') {
+      // do not allow native/browser back to this page, redirect to home
+      AMIGoto('/');
+    }
   });
 </script>
 
