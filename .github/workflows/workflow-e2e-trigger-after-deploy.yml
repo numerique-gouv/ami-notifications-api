@@ -6,7 +6,7 @@ name: e2e after scalingo deploy
 #
 # Résout ensuite lui-même le "cas" (pr/merge/tag) et délègue au workflow réutilisable
 # correspondant (workflow-e2e-webapp-{pr,merge,tag}.yml), qui porte la config e2e propre à son cas
-# (suite CI vs short, run_old_device, etc.) — ce fichier ne fait que router + résoudre les
+# (suite webapp_smoke vs webapp_short, etc.) — ce fichier ne fait que router + résoudre les
 # variables nécessaires (pr_number, checkout_ref).
 #
 # Contrainte GitHub : `on: status` ne se déclenche que si ce fichier existe sur la branche par
@@ -14,15 +14,12 @@ name: e2e after scalingo deploy
 # concerné par le status. Tout doit donc passer explicitement par github.event.sha.
 on: status
 
+# Permissions minimales par défaut ; chaque job déclare les siennes (le garde lit l'API, les appels e2e écrivent le check et le commentaire).
 permissions:
   contents: read
-  checks: write
-  pull-requests: write
-  actions: read
 
 # Scalingo poste plusieurs statuses par SHA (pending, puis success/failure) : un seul run e2e par
-# commit à la fois (la restauration d'historique Allure côté ami-system-tests n'est pas
-# concurrent-safe, cf. son ADR CI).
+# commit à la fois.
 concurrency:
   group: e2e-status-${{ github.event.sha }}
   cancel-in-progress: false
@@ -30,6 +27,9 @@ concurrency:
 jobs:
   guard:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
     outputs:
       case: ${{ steps.check.outputs.case }} # pr | merge | tag | none
       pr_number: ${{ steps.check.outputs.pr_number }}
@@ -94,8 +94,13 @@ jobs:
     needs: guard
     if: ${{ needs.guard.outputs.case == 'pr' }}
     uses: ./.github/workflows/workflow-e2e-webapp-shared.yml
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
     with:
-      run_webapp: CI
+      # webapp_smoke : authentification + aucun lien cassé dans le catalogue (suite webapp la plus courte, cf. ami-system-tests/test-suites.ts)
+      run_webapp: webapp_smoke
       pr_number: ${{ fromJSON(needs.guard.outputs.pr_number) }}
       source_sha: ${{ github.event.sha }}
       checkout_ref: ${{ needs.guard.outputs.checkout_ref }}
@@ -106,8 +111,12 @@ jobs:
     if: ${{ needs.guard.outputs.case == 'merge' }}
     name: run e2e (PR merged)
     uses: ./.github/workflows/workflow-e2e-webapp-shared.yml
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
     with:
-      run_webapp: short
+      run_webapp: webapp_short
       pr_number: ${{ fromJSON(needs.guard.outputs.pr_number) }}
       source_sha: ${{ github.event.sha }}
       # checkout_ref: laissé au défaut 'main' de workflow-e2e-webapp-shared.yml
@@ -117,9 +126,12 @@ jobs:
     needs: guard
     if: ${{ needs.guard.outputs.case == 'tag' }}
     uses: ./.github/workflows/workflow-e2e-webapp-shared.yml
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
     with:
-      run_webapp: short
-      run_old_device: false
+      run_webapp: webapp_short
       source_sha: ${{ github.event.sha }}
       # pr_number: laissé au défaut 0 — pas de PR associée à un tag
     secrets: inherit

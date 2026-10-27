@@ -1,27 +1,30 @@
 name: e2e shared
 # Logique commune, appelée par les workflows trigger after deploy (automatique) et le manuel :
-# lance l'e2e sur ami-system-tests puis, si pr_number != 0, commente la PR d'origine avec le
-# rapport Allure. le rapport étant toujours conservé dans les artefacts du run de la CI.
+# lance l'e2e sur ami-system-tests (workflow-e2e-main.yml), qui publie les résultats (artefacts JUnit + dumps d'échec par
+# plateforme), crée le check « e2e (ami-system-tests) » sur le commit testé et, si pr_number != 0, tient à jour UN commentaire
+# sur la PR d'origine (tableau test | résultat | durée | lien Sentry, marqueur `<!-- e2e-report:<dépôt>:pr-<N> -->`).
+# Tout le reporting est dans workflow-e2e-main.yml (job `report`) : ce fichier n'a plus de job de rapport.
+# Les jobs restent verts même si des tests échouent : le résultat se lit dans le check et le commentaire.
 # https://github.com/numerique-gouv/ami-notifications-api/actions/runs
 on:
   workflow_call:
     inputs:
       run_webapp:
-        description: "nom de la suite webapp à lancer (test-suites.ts, ex: short, CI, all) — vide = ne pas lancer"
+        description: "nom de la suite webapp à lancer (test-suites.ts : webapp_smoke, webapp_short, webapp_all, webapp_nonreg…) — vide = ne pas lancer"
         type: string
         default: ''
       run_android:
-        description: "nom de la suite android à lancer (test-suites.ts) — vide = ne pas lancer"
+        description: "nom de la suite android à lancer (test-suites.ts : mobile_ci, mobile_short…) — vide = ne pas lancer"
         type: string
         default: ''
       run_ios:
-        description: "nom de la suite ios à lancer (test-suites.ts) — vide = ne pas lancer"
+        description: "nom de la suite ios à lancer (test-suites.ts : mobile_*) — vide = ne pas lancer (job iOS encore factice)"
         type: string
         default: ''
-      run_old_device:
-        description: "les applications mobile si utilisées doivent être d'anciens appareils (android, ios) avec un ancien os (android)"
-        type: boolean
-        default: true
+      android_device:
+        description: "AVD Android au format pixel_<profil>_api<niveau> (pixel_2_api30 = ancien appareil, pixel_8_api36 = récent) ; ne sert que si run_android est renseigné"
+        type: string
+        default: pixel_2_api30
       pr_number:
         description: "0 = pas de PR associée (push/tag) → pas de commentaire de PR"
         type: number
@@ -38,113 +41,21 @@ on:
 jobs:
   e2e-launch:
     name: trigger an e2e run in ami-system-tests
+    # TANT QUE les changements d'ami-system-tests (job report, suites webapp_*, sorties) ne sont pas fusionnés dans main, cette ref doit
+    # pointer vers la branche qui les porte (et checkout_ref doit lui être égal) : sinon l'appel échoue (entrées inconnues).
     uses: numerique-gouv/ami-system-tests/.github/workflows/workflow-e2e-main.yml@main
+    # Le workflow appelé ne peut pas dépasser ces permissions : checks (check du commit testé) et pull-requests (commentaire unique).
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
     with:
       run_webapp: ${{ inputs.run_webapp }}
       run_android: ${{ inputs.run_android }}
       run_ios: ${{ inputs.run_ios }}
-      run_old_device: ${{ inputs.run_old_device }}
+      android_device: ${{ inputs.android_device }}
       source_repo: ${{ github.repository }}
       source_sha: ${{ inputs.source_sha }}
       pr_number: ${{ inputs.pr_number }}
       checkout_ref: ${{ inputs.checkout_ref }} # la même branche/ref que uses de préférence
     secrets: inherit
-    
-  e2e-report:
-    name: uses output of e2e run in ami-system-tests to report in pr
-    needs: e2e-launch
-    runs-on: ubuntu-latest
-    if: ${{ always() && inputs.pr_number != 0 }}
-    permissions:
-      pull-requests: write
-      checks: write
-    steps:
-      - name: Charger le rapport de test pour le mettre dans la PR
-        continue-on-error: true
-        uses: actions/download-artifact@v4
-        with:
-          name: ${{ needs.e2e-launch.outputs.allure_report }}
-          path: allure-report
-
-      # "on status" se déclenche depuis le HEAD de main et pas depuis le commit qui les déclenche
-      # Il faut donc l'associer aux check de la branche "à la main"
-      - name: Publier un check-run explicite sur le commit de la PR
-        if: always()
-        env:
-          GH_TOKEN: ${{ github.token }}
-          REPO: ${{ github.repository }}
-          SHA: ${{ inputs.source_sha }}
-          RESULT: ${{ needs.e2e-launch.result }}
-          RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        run: |
-          set -euo pipefail
-          conclusion="failure"
-          case "$RESULT" in
-            success) conclusion="success" ;;
-            skipped) conclusion="neutral" ;;
-            cancelled) conclusion="cancelled" ;;
-          esac
-
-          if [ -f allure-report/summary.json ]; then
-            status=$(jq -r '.status' allure-report/summary.json)
-            total=$(jq -r '.stats.total // 0' allure-report/summary.json)
-            passed=$(jq -r '.stats.passed // 0' allure-report/summary.json)
-            broken=$(jq -r '.stats.broken // 0' allure-report/summary.json)
-            summary="Rapport Allure : **$status** — $passed passed / $broken broken / $total total."
-          else
-            summary="Pas de rapport Allure disponible (résultat du job e2e-launch : \`$RESULT\`)."
-          fi
-
-          gh api "repos/$REPO/check-runs" \
-            -f name="e2e (ami-system-tests)" \
-            -f head_sha="$SHA" \
-            -f status="completed" \
-            -f conclusion="$conclusion" \
-            -f details_url="$RUN_URL" \
-            -f "output[title]=e2e (ami-system-tests)" \
-            -f "output[summary]=$summary"
-
-      # "on status" se déclenche depuis le HEAD de main et pas depuis le commit qui les déclenche
-      # allure-framework/allure-action@v0 s'en rend compte même en forgeant un input pointant la bonne PR
-      # On commente la PR nous-même
-      - name: Commenter la PR d'origine
-        if: always()
-        env:
-          GH_TOKEN: ${{ github.token }}
-          REPO: ${{ github.repository }}
-          PR: ${{ inputs.pr_number }}
-          RESULT: ${{ needs.e2e-launch.result }}
-          RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        run: |
-          set -euo pipefail
-          marker="<!-- e2e-report:pr-$PR -->"
-
-          if [ -f allure-report/summary.json ]; then
-            status=$(jq -r '.status' allure-report/summary.json)
-            total=$(jq -r '.stats.total // 0' allure-report/summary.json)
-            passed=$(jq -r '.stats.passed // 0' allure-report/summary.json)
-            broken=$(jq -r '.stats.broken // 0' allure-report/summary.json)
-            table=$(printf '| Résultat | Total | Passed | Broken |\n|---|---|---|---|\n| %s | %s | %s | %s |' "$status" "$total" "$passed" "$broken")
-          else
-            table="Pas de rapport Allure disponible (résultat du job e2e-launch : \`$RESULT\`)."
-          fi
-
-          body_file="${RUNNER_TEMP}/pr-comment-body.md"
-          {
-            echo "$marker"
-            echo "### Rapport e2e (ami-system-tests)"
-            echo
-            echo "$table"
-            echo
-            echo "[Voir le run et ses artefacts]($RUN_URL#artifacts)"
-          } > "$body_file"
-
-          existing=$(gh api "repos/$REPO/issues/$PR/comments" --paginate \
-            --jq "[.[] | select(.body | startswith(\"$marker\"))] | last | .id // empty")
-
-          if [ -n "$existing" ]; then
-            gh api "repos/$REPO/issues/comments/$existing" -X PATCH -F body=@"$body_file"
-          else
-            gh api "repos/$REPO/issues/$PR/comments" -X POST -F body=@"$body_file"
-          fi
-

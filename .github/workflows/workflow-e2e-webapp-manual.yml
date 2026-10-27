@@ -8,21 +8,21 @@ on:
         type: number
         default: 0
       run_webapp:
-        description: "suite de test (test-suites.ts) à lancer sur la Webapp Scalingo — vide = ne pas lancer"
+        description: "suite de test (test-suites.ts : webapp_smoke, webapp_short, webapp_all, webapp_nonreg…) à lancer sur la Webapp Scalingo — vide = ne pas lancer"
         type: string
-        default: short
+        default: webapp_short
       run_android:
-        description: "suite de test (test-suites.ts) à lancer sur l'apk Android — vide = ne pas lancer"
+        description: "suite de test (test-suites.ts : mobile_ci, mobile_short…) à lancer sur l'apk Android — vide = ne pas lancer"
         type: string
         default: ''
       run_ios:
         description: "suite de test (test-suites.ts) à lancer sur l'app iOS — vide = ne pas lancer"
         type: string
         default: ''
-      run_old_device:
-        description: "demande à lancer une suite de test mobile avec la configuration la plus ancienne disponible"
-        type: boolean
-        default: true
+      android_device:
+        description: "AVD Android au format pixel_<profil>_api<niveau> (pixel_2_api30 = ancien appareil, pixel_8_api36 = récent) ; ne sert que si une suite Android est lancée"
+        type: string
+        default: pixel_2_api30
       checkout_ref:
         description: "ref (branche/tag/sha) d'ami-system-tests à checkout — doit être égal à la ref de jobs.e2e-launch.uses: [...]@ref"
         type: string
@@ -32,8 +32,7 @@ permissions:
   contents: read
   checks: write
   pull-requests: write
-  actions: read
-  
+
 jobs:
   e2e:
     name: run e2e (manual)
@@ -42,7 +41,7 @@ jobs:
       run_webapp: ${{ inputs.run_webapp }}
       run_android: ${{ inputs.run_android }}
       run_ios: ${{ inputs.run_ios }}
-      run_old_device: ${{ inputs.run_old_device }}
+      android_device: ${{ inputs.android_device }}
       pr_number: ${{ fromJSON(inputs.pr_number) }}
       source_sha: ${{ github.sha }}
       checkout_ref: ${{ inputs.checkout_ref }}
