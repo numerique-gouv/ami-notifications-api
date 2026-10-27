@@ -13,13 +13,14 @@ import * as followupMethods from '$lib/followup';
 import { Followup, FollowupItem } from '$lib/followup';
 import * as notificationsMethods from '$lib/notifications';
 import { PUBLIC_APP_WS_URL } from '$lib/notifications';
+import * as partnersMethods from '$lib/partners';
 import { Partners } from '$lib/partners';
 import * as personalDataConsentMethods from '$lib/personal-data-consent';
 import { PersonalDataConsent } from '$lib/personal-data-consent';
 import { toastStore } from '$lib/state/toast.svelte';
 import { userStore } from '$lib/state/User.svelte';
 import { getTimestamp } from '$lib/utils';
-import { mockUserInfo } from '$tests/utils';
+import { mockUserInfo, waitAfterSkeleton } from '$tests/utils';
 import Page from './+page.svelte';
 
 let wss: WSType;
@@ -71,6 +72,7 @@ describe('/+page.svelte', () => {
     };
     const partners = new Partners([partnersItem]);
     const consents = new Consents({ consents: [consentsItem] }, partners.items);
+    vi.spyOn(partnersMethods, 'buildPartners').mockResolvedValue(partners);
     vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
 
     window.localStorage.setItem('notifications_enabled', 'false');
@@ -88,18 +90,20 @@ describe('/+page.svelte', () => {
     vi.useRealTimers();
   });
 
+  test('should display skeleton', async () => {
+    // Given
+    await userStore.login(mockUserInfo);
+
+    // When
+    render(Page);
+
+    // Then
+    expect(document.querySelector('.skeleton')).not.toBeNull();
+  });
+
   test("should display user's first name on top of the page", async () => {
     // When
-    const { container } = render(Page, {
-      props: {
-        data: {
-          followup: new Followup(),
-          isFollowupEmpty: true,
-          hasAnyConsents: true,
-        },
-        params: {},
-      },
-    });
+    const { container } = render(Page);
 
     // Then
     await waitFor(() => {
@@ -115,16 +119,7 @@ describe('/+page.svelte', () => {
     vi.setSystemTime(date);
 
     // When
-    const { container } = render(Page, {
-      props: {
-        data: {
-          followup: new Followup(),
-          isFollowupEmpty: true,
-          hasAnyConsents: true,
-        },
-        params: {},
-      },
-    });
+    const { container } = render(Page);
 
     // Then
     await waitFor(() => {
@@ -140,16 +135,7 @@ describe('/+page.svelte', () => {
       .mockResolvedValue(3);
 
     // When
-    const { container } = render(Page, {
-      props: {
-        data: {
-          followup: new Followup(),
-          isFollowupEmpty: true,
-          hasAnyConsents: true,
-        },
-        params: {},
-      },
-    });
+    const { container } = render(Page);
 
     // Then
     await waitFor(() => {
@@ -166,16 +152,7 @@ describe('/+page.svelte', () => {
       .mockResolvedValueOnce(3)
       .mockResolvedValueOnce(4);
 
-    const { container } = render(Page, {
-      props: {
-        data: {
-          followup: new Followup(),
-          isFollowupEmpty: true,
-          hasAnyConsents: true,
-        },
-        params: {},
-      },
-    });
+    const { container } = render(Page);
     await waitFor(() => {
       const icon = container.querySelector('#notification-icon');
       expect(icon).toHaveTextContent('3');
@@ -208,16 +185,8 @@ describe('/+page.svelte', () => {
       vi.spyOn(autoPromoMethods, 'buildAutoPromo').mockReturnValue(autoPromo);
 
       // When
-      const { container } = render(Page, {
-        props: {
-          data: {
-            followup: new Followup(),
-            isFollowupEmpty: true,
-            hasAnyConsents: true,
-          },
-          params: {},
-        },
-      });
+      const { container } = render(Page);
+      await waitAfterSkeleton();
 
       // Then
       await waitFor(() => {
@@ -257,16 +226,8 @@ describe('/+page.svelte', () => {
       vi.spyOn(autoPromoMethods, 'buildAutoPromo').mockReturnValue(autoPromo);
 
       // When
-      const { container } = render(Page, {
-        props: {
-          data: {
-            followup: new Followup(),
-            isFollowupEmpty: true,
-            hasAnyConsents: true,
-          },
-          params: {},
-        },
-      });
+      const { container } = render(Page);
+      await waitAfterSkeleton();
 
       // Then
       await waitFor(() => {
@@ -291,16 +252,8 @@ describe('/+page.svelte', () => {
       const spy = vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(agenda);
 
       // When
-      const { container } = render(Page, {
-        props: {
-          data: {
-            followup: new Followup(),
-            isFollowupEmpty: true,
-            hasAnyConsents: true,
-          },
-          params: {},
-        },
-      });
+      const { container } = render(Page);
+      await waitAfterSkeleton();
 
       // Then
       await waitFor(() => {
@@ -327,16 +280,8 @@ describe('/+page.svelte', () => {
       const spy = vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(agenda);
 
       // When
-      const { container } = render(Page, {
-        props: {
-          data: {
-            followup: new Followup(),
-            isFollowupEmpty: true,
-            hasAnyConsents: true,
-          },
-          params: {},
-        },
-      });
+      const { container } = render(Page);
+      await waitAfterSkeleton();
 
       // Then
       await waitFor(() => {
@@ -352,16 +297,8 @@ describe('/+page.svelte', () => {
 
     test('should display calendar block if agenda is empty', async () => {
       // When
-      const { container } = render(Page, {
-        props: {
-          data: {
-            followup: new Followup(),
-            isFollowupEmpty: true,
-            hasAnyConsents: true,
-          },
-          params: {},
-        },
-      });
+      const { container } = render(Page);
+      await waitAfterSkeleton();
 
       // Then
       await waitFor(() => {
@@ -387,16 +324,8 @@ describe('/+page.svelte', () => {
           new Item('fake-id-holiday-2', 'holiday', 'Holiday 2', '', null, in32days),
         ]);
         vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(agenda);
-        render(Page, {
-          props: {
-            data: {
-              followup: new Followup(),
-              isFollowupEmpty: true,
-              hasAnyConsents: true,
-            },
-            params: {},
-          },
-        });
+        render(Page);
+        await waitAfterSkeleton();
 
         // When
         await waitFor(async () => {
@@ -423,16 +352,8 @@ describe('/+page.svelte', () => {
           new Item('fake-id-holiday-2', 'holiday', 'Holiday 2', '', null, in32days),
         ]);
         vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(agenda);
-        render(Page, {
-          props: {
-            data: {
-              followup: new Followup(),
-              isFollowupEmpty: true,
-              hasAnyConsents: true,
-            },
-            params: {},
-          },
-        });
+        render(Page);
+        await waitAfterSkeleton();
 
         // When
         await waitFor(async () => {
@@ -469,16 +390,8 @@ describe('/+page.svelte', () => {
         ]);
         vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(agenda);
         const spy = vi.spyOn(toastStore, 'addToast');
-        render(Page, {
-          props: {
-            data: {
-              followup: new Followup(),
-              isFollowupEmpty: true,
-              hasAnyConsents: true,
-            },
-            params: {},
-          },
-        });
+        render(Page);
+        await waitAfterSkeleton();
 
         // When
         await waitFor(async () => {
@@ -613,16 +526,8 @@ describe('/+page.svelte', () => {
         .spyOn(followupMethods, 'buildFollowup')
         .mockResolvedValue(followup);
       // When
-      const { container } = render(Page, {
-        props: {
-          data: {
-            followup: followup,
-            isFollowupEmpty: false,
-            hasAnyConsents: true,
-          },
-          params: {},
-        },
-      });
+      const { container } = render(Page);
+      await waitAfterSkeleton();
 
       // Then
       await waitFor(() => {
@@ -653,16 +558,8 @@ describe('/+page.svelte', () => {
         .mockResolvedValue(followup);
 
       // When
-      const { container } = render(Page, {
-        props: {
-          data: {
-            followup: followup,
-            isFollowupEmpty: true,
-            hasAnyConsents: true,
-          },
-          params: {},
-        },
-      });
+      const { container } = render(Page);
+      await waitAfterSkeleton();
 
       // Then
       await waitFor(() => {
@@ -718,16 +615,8 @@ describe('/+page.svelte', () => {
           ),
         ]);
         vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
-        render(Page, {
-          props: {
-            data: {
-              followup: followup,
-              isFollowupEmpty: false,
-              hasAnyConsents: true,
-            },
-            params: {},
-          },
-        });
+        render(Page);
+        await waitAfterSkeleton();
 
         // When
         await waitFor(async () => {
@@ -790,16 +679,8 @@ describe('/+page.svelte', () => {
         ]);
         vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
         vi.spyOn(FollowupItem.prototype, 'archive').mockResolvedValue(true);
-        render(Page, {
-          props: {
-            data: {
-              followup: followup,
-              isFollowupEmpty: false,
-              hasAnyConsents: true,
-            },
-            params: {},
-          },
-        });
+        render(Page);
+        await waitAfterSkeleton();
 
         // When
         await waitFor(async () => {
@@ -870,16 +751,8 @@ describe('/+page.svelte', () => {
         vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
         const spy = vi.spyOn(FollowupItem.prototype, 'archive').mockResolvedValue(true);
         const spy2 = vi.spyOn(toastStore, 'addToast');
-        render(Page, {
-          props: {
-            data: {
-              followup: followup,
-              isFollowupEmpty: false,
-              hasAnyConsents: true,
-            },
-            params: {},
-          },
-        });
+        render(Page);
+        await waitAfterSkeleton();
 
         // When
         await waitFor(async () => {
@@ -954,16 +827,8 @@ describe('/+page.svelte', () => {
           .spyOn(FollowupItem.prototype, 'archive')
           .mockResolvedValue(false);
         const spy2 = vi.spyOn(toastStore, 'addToast');
-        render(Page, {
-          props: {
-            data: {
-              followup: followup,
-              isFollowupEmpty: false,
-              hasAnyConsents: true,
-            },
-            params: {},
-          },
-        });
+        render(Page);
+        await waitAfterSkeleton();
 
         // When
         await waitFor(async () => {
@@ -1010,17 +875,20 @@ describe('/+page.svelte', () => {
     });
 
     test('should display followup no consent block', async () => {
+      // Given
+      const partnersItem = {
+        slug: 'dinum-ami',
+        name: 'AMI',
+        link: 'https://fake-link-1',
+      };
+      const partners = new Partners([partnersItem]);
+
+      const consents = new Consents({ consents: [] }, partners.items);
+      vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
+
       // When
-      const { container } = render(Page, {
-        props: {
-          data: {
-            followup: new Followup(),
-            isFollowupEmpty: true,
-            hasAnyConsents: false,
-          },
-          params: {},
-        },
-      });
+      const { container } = render(Page);
+      await waitAfterSkeleton();
 
       // Then
       await waitFor(() => {
