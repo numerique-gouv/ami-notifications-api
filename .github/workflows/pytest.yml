@@ -95,10 +95,6 @@ jobs:
         working-directory: ./public/mobile-app
         run: npm ci
 
-      - name: Install Playwright Browsers
-        working-directory: ./public/mobile-app
-        run: npx playwright install --with-deps
-
       - name: Run tests
         working-directory: ./public/mobile-app
         env:
