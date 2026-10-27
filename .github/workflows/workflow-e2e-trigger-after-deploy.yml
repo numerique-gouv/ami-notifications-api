@@ -107,7 +107,9 @@ jobs:
       apk_source: latest-tag
       pr_number: ${{ fromJSON(needs.guard.outputs.pr_number) }}
       source_sha: ${{ github.event.sha }}
-      checkout_ref: ${{ needs.guard.outputs.checkout_ref }}
+      # PROVISOIRE, le temps de la mise au point : même ref que `uses` dans workflow-e2e-webapp-shared.yml (77-migre-vers-wdio-10).
+      # À terme : ${{ needs.guard.outputs.checkout_ref }} (branche de la PR, main sinon).
+      checkout_ref: 77-migre-vers-wdio-10
     secrets: inherit
 
   # Merge : non-régression webapp, et UN SEUL passage Android sur l'appareil RÉCENT (pixel_8_api36).
