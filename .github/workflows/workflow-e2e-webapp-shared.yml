@@ -10,11 +10,11 @@ on:
   workflow_call:
     inputs:
       run_webapp:
-        description: "nom de la suite webapp à lancer (test-suites.ts : webapp_smoke, webapp_short, webapp_all, webapp_nonreg…) — vide = ne pas lancer"
+        description: "nom de la suite webapp à lancer (test-suites.ts : webapp_short = mise au point, webapp_usage = PR/merge/tag, webapp_smoke, webapp_all…) — vide = ne pas lancer"
         type: string
         default: ''
       run_android:
-        description: "nom de la suite android à lancer (test-suites.ts : mobile_ci, mobile_short…) — vide = ne pas lancer"
+        description: "nom de la suite android à lancer (test-suites.ts : mobile_short = mise au point, mobile_all = PR/merge/tag, mobile_smoke…) — vide = ne pas lancer"
         type: string
         default: ''
       android_device:
