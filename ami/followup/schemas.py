@@ -146,6 +146,20 @@ class NotificationsSubItem:
 
     @property
     def title(self):
+        # if sub item is an event
+        if (
+            self.last_notification.item_milestone_start_date
+            or self.last_notification.item_milestone_end_date
+        ):
+            print("---- title ----")
+            print(vars(self.notifications[0]))
+            if self.service is not None:
+                # take service title if exists
+                return self.service.title
+            # last title seen
+            titles = [n.content_title for n in self.notifications if n.content_title]
+            print(titles)
+            return titles[-1] if titles else ""
         # get sub item title from subheading and item_id
         return self.last_notification.content_subheading or self.last_notification.item_id
 
@@ -349,8 +363,6 @@ class NotificationsItem(NotificationsSubItem):
         if self.service is not None:
             # take service title if exists
             return self.service.title
-        if self.last_notification.content_title:
-            return self.last_notification.content_title
         # last title seen
         titles = [n.content_title for n in self.all_notifications if n.content_title]
         return titles[-1] if titles else ""

@@ -478,7 +478,7 @@ def test_get_notifications_data_parent_and_sub_items(
                     title="Notification title",
                 )
             ],
-            title="Notification title",
+            title="Sub notification title 3",
             subheading="Service Public",
             description="notification",
             icon="fr-icon-mail-fill",
@@ -1285,7 +1285,7 @@ def test_get_notifications_data_parent_and_sub_sub_items(
                     title="Sub notification title",
                 )
             ],
-            title="Sub notification title",
+            title="Sub sub notification title",
             subheading="AMI",
             description="Sub notification body",
             icon="fr-icon-mail-fill",
@@ -1337,7 +1337,7 @@ def test_get_notifications_data_parent_and_sub_sub_items(
                     title="Notification title",
                 )
             ],
-            title="Notification title",
+            title="Sub notification title",
             subheading="Service Public",
             description="notification",
             icon="fr-icon-mail-fill",
@@ -1456,7 +1456,7 @@ def test_get_notifications_data_parent_and_sub_items_with_event_for_external_url
                     title="Notification title",
                 )
             ],
-            title="Notification title",
+            title="Sub notification title 3",
             subheading="Service Public",
             description="notification",
             icon="fr-icon-mail-fill",
@@ -1481,7 +1481,7 @@ def test_get_notifications_data_parent_and_sub_items_with_event_for_external_url
                             title="Sub notification title 3",
                         )
                     ],
-                    title="Autre service",
+                    title="Sub notification title 3",
                     subheading="",
                     description="Sub notification body 3",
                     icon="fr-icon-mail-fill",
@@ -1519,6 +1519,737 @@ def test_get_notifications_data_parent_and_sub_items_with_event_for_external_url
                     is_archived=False,
                     created_at=sub_notification1.event_date,
                     updated_at=sub_notification2.event_date,
+                ),
+            ],
+        ),
+    ]
+
+
+@pytest.mark.django_db
+def test_get_notifications_data__followup_item__title__is_service_title(
+    user: User, partner: Partner, partner_psl: Partner, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    expect_result = "Opération Tranquillité Vacances"
+
+    Service.objects.create(
+        partner=partner_psl,
+        item_type="OperationTranquilliteVacances",
+        title=expect_result,
+        service_name="Service instructeur",
+        description="Pendant toute absence prolongée de votre domicile, vous pouvez vous inscrire à l'**opération tranquillité vacances**.",
+        url="https://localhost:8000/mademarche/demarcheGenerique/?codeDemarche=OperationTranquilliteVacances&caller={back_param_token_jwt}",
+        with_silent_login=True,
+    )
+
+    notification1 = Notification.objects.create(
+        user_id=user.id,
+        content_body="notification 1",
+        content_title="Notification title 1",
+        item_generic_status="new",
+        item_status_label="Nouveau",
+        item_type="OperationTranquilliteVacances",
+        item_id="42",
+        partner=partner_psl,
+    )
+
+    result = get_notifications_data(current_user=user)
+
+    assert result == [
+        FollowupItem(
+            partner_id="psl",
+            item_type="OperationTranquilliteVacances",
+            item_external_id="42",
+            reference="42",
+            status_id=ItemGenericStatus.NEW,
+            status_label="Nouveau",
+            milestone_start_date=None,
+            milestone_end_date=None,
+            events=[
+                FollowupItemEvent(
+                    notification1.id,
+                    notification1.created_at,
+                    "Notification title 1",
+                ),
+            ],
+            title=expect_result,
+            subheading="Service Public",
+            description="notification 1",
+            icon="fr-icon-mail-fill",
+            external_url=None,
+            is_archived=False,
+            created_at=notification1.event_date,
+            updated_at=notification1.event_date,
+            sub_items=[],
+        ),
+    ]
+
+
+@pytest.mark.django_db
+def test_get_notifications_data__followup_item__title__is_last_followup_item_title__when_no_sub_item(
+    user: User, partner: Partner, partner_psl: Partner, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    expect_result = "Notification title 2 updated"
+
+    notification1 = Notification.objects.create(
+        user_id=user.id,
+        content_body="notification 1",
+        content_title="Notification title 1",
+        item_generic_status="new",
+        item_status_label="Nouveau",
+        item_type="OperationTranquilliteVacances",
+        item_id="42",
+        partner=partner_psl,
+    )
+
+    notification2 = Notification.objects.create(
+        user_id=user.id,
+        content_body="notification 2",
+        content_title=expect_result,
+        item_generic_status="new",
+        item_status_label="Nouveau",
+        item_type="OperationTranquilliteVacances",
+        item_id="42",
+        item_is_archived=False,
+        partner=partner_psl,
+    )
+
+    result = get_notifications_data(current_user=user)
+
+    assert result == [
+        FollowupItem(
+            partner_id="psl",
+            item_type="OperationTranquilliteVacances",
+            item_external_id="42",
+            reference="42",
+            status_id=ItemGenericStatus.NEW,
+            status_label="Nouveau",
+            milestone_start_date=None,
+            milestone_end_date=None,
+            events=[
+                FollowupItemEvent(
+                    notification1.id,
+                    notification1.created_at,
+                    "Notification title 1",
+                ),
+                FollowupItemEvent(
+                    notification2.id,
+                    notification2.created_at,
+                    "Notification title 2 updated",
+                ),
+            ],
+            title=expect_result,
+            subheading="Service Public",
+            description="notification 2",
+            icon="fr-icon-mail-fill",
+            external_url=None,
+            is_archived=False,
+            created_at=notification1.event_date,
+            updated_at=notification2.event_date,
+            sub_items=[],
+        ),
+    ]
+
+
+@pytest.mark.django_db
+def test_get_notifications_data__followup_item__title__is_last_item_title__when_sub_items(
+    user: User, partner: Partner, partner_psl: Partner, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    expected_result = "Sub notification title"
+
+    notification1 = Notification.objects.create(
+        user_id=user.id,
+        content_body="notification 1",
+        content_title="Notification title 1",
+        item_generic_status="new",
+        item_status_label="Nouveau",
+        item_type="OperationTranquilliteVacances",
+        item_id="42",
+        partner=partner_psl,
+    )
+    notification3 = Notification.objects.create(
+        user_id=user.id,
+        content_body="notification 3",
+        content_title="Notification title 3",
+        item_generic_status="wip",
+        item_status_label="En cours",
+        item_type="OperationTranquilliteVacances",
+        item_id="42",
+        partner=partner_psl,
+    )
+    sub_notification31 = Notification.objects.create(
+        user_id=user.id,
+        content_body="Sub notification body",
+        content_title=expected_result,
+        content_subheading="Autre service",
+        item_generic_status="wip",
+        item_status_label="En cours",
+        item_type="SousDémarche",
+        item_id="35",
+        partner=partner,
+        item_parent_partner=partner_psl,
+        item_parent_type="OperationTranquilliteVacances",
+        item_parent_id="42",
+    )
+
+    result = get_notifications_data(current_user=user)
+
+    assert result == [
+        FollowupItem(
+            partner_id="psl",
+            item_type="OperationTranquilliteVacances",
+            item_external_id="42",
+            reference="42",
+            status_id=ItemGenericStatus.WIP,
+            status_label="En cours",
+            milestone_start_date=None,
+            milestone_end_date=None,
+            events=[
+                FollowupItemEvent(
+                    notification1.id,
+                    notification1.created_at,
+                    "Notification title 1",
+                ),
+                FollowupItemEvent(
+                    notification3.id,
+                    notification3.created_at,
+                    "Notification title 3",
+                ),
+            ],
+            title=expected_result,
+            subheading="Service Public",
+            description="notification 3",
+            icon="fr-icon-eye-fill",
+            external_url=None,
+            is_archived=False,
+            created_at=notification1.event_date,
+            updated_at=sub_notification31.event_date,
+            sub_items=[
+                FollowupSubItem(
+                    partner_id="dinum-ami",
+                    item_type="SousDémarche",
+                    item_external_id="35",
+                    reference="",
+                    status_id=ItemGenericStatus.WIP,
+                    status_label="En cours",
+                    milestone_start_date=None,
+                    milestone_end_date=None,
+                    events=[
+                        FollowupItemEvent(
+                            sub_notification31.id,
+                            sub_notification31.created_at,
+                            "Sub notification title",
+                        ),
+                    ],
+                    title="Autre service",
+                    subheading="",
+                    description="Sub notification body",
+                    icon="fr-icon-eye-fill",
+                    external_url=None,
+                    is_archived=False,
+                    created_at=sub_notification31.event_date,
+                    updated_at=sub_notification31.event_date,
+                ),
+            ],
+        ),
+    ]
+
+
+@pytest.mark.django_db
+def test_get_notifications_data__followup_sub_item__title__is_subheading(
+    user: User, partner: Partner, partner_psl: Partner, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    expected_result = "Autre service"
+
+    notification1 = Notification.objects.create(
+        user_id=user.id,
+        content_body="notification 1",
+        content_title="Notification title 1",
+        item_generic_status="new",
+        item_status_label="Nouveau",
+        item_type="OperationTranquilliteVacances",
+        item_id="42",
+        partner=partner_psl,
+    )
+    notification3 = Notification.objects.create(
+        user_id=user.id,
+        content_body="notification 3",
+        content_title="Notification title 3",
+        item_generic_status="wip",
+        item_status_label="En cours",
+        item_type="OperationTranquilliteVacances",
+        item_id="42",
+        partner=partner_psl,
+    )
+    sub_notification31 = Notification.objects.create(
+        user_id=user.id,
+        content_body="Sub notification body",
+        content_title="Sub notification title",
+        content_subheading=expected_result,
+        item_generic_status="wip",
+        item_status_label="En cours",
+        item_type="SousDémarche",
+        item_id="35",
+        partner=partner,
+        item_parent_partner=partner_psl,
+        item_parent_type="OperationTranquilliteVacances",
+        item_parent_id="42",
+    )
+
+    result = get_notifications_data(current_user=user)
+
+    assert result == [
+        FollowupItem(
+            partner_id="psl",
+            item_type="OperationTranquilliteVacances",
+            item_external_id="42",
+            reference="42",
+            status_id=ItemGenericStatus.WIP,
+            status_label="En cours",
+            milestone_start_date=None,
+            milestone_end_date=None,
+            events=[
+                FollowupItemEvent(
+                    notification1.id,
+                    notification1.created_at,
+                    "Notification title 1",
+                ),
+                FollowupItemEvent(
+                    notification3.id,
+                    notification3.created_at,
+                    "Notification title 3",
+                ),
+            ],
+            title="Sub notification title",
+            subheading="Service Public",
+            description="notification 3",
+            icon="fr-icon-eye-fill",
+            external_url=None,
+            is_archived=False,
+            created_at=notification1.event_date,
+            updated_at=sub_notification31.event_date,
+            sub_items=[
+                FollowupSubItem(
+                    partner_id="dinum-ami",
+                    item_type="SousDémarche",
+                    item_external_id="35",
+                    reference="",
+                    status_id=ItemGenericStatus.WIP,
+                    status_label="En cours",
+                    milestone_start_date=None,
+                    milestone_end_date=None,
+                    events=[
+                        FollowupItemEvent(
+                            sub_notification31.id,
+                            sub_notification31.created_at,
+                            "Sub notification title",
+                        ),
+                    ],
+                    title=expected_result,
+                    subheading="",
+                    description="Sub notification body",
+                    icon="fr-icon-eye-fill",
+                    external_url=None,
+                    is_archived=False,
+                    created_at=sub_notification31.event_date,
+                    updated_at=sub_notification31.event_date,
+                ),
+            ],
+        ),
+    ]
+
+
+@pytest.mark.django_db
+def test_get_notifications_data__followup_sub_item__title__is_id(
+    user: User, partner: Partner, partner_psl: Partner, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    expected_result = "35"
+
+    notification1 = Notification.objects.create(
+        user_id=user.id,
+        content_body="notification 1",
+        content_title="Notification title 1",
+        item_generic_status="new",
+        item_status_label="Nouveau",
+        item_type="OperationTranquilliteVacances",
+        item_id="42",
+        partner=partner_psl,
+    )
+    notification3 = Notification.objects.create(
+        user_id=user.id,
+        content_body="notification 3",
+        content_title="Notification title 3",
+        item_generic_status="wip",
+        item_status_label="En cours",
+        item_type="OperationTranquilliteVacances",
+        item_id="42",
+        partner=partner_psl,
+    )
+    sub_notification31 = Notification.objects.create(
+        user_id=user.id,
+        content_body="Sub notification body",
+        content_title="Sub notification title",
+        item_generic_status="wip",
+        item_status_label="En cours",
+        item_type="SousDémarche",
+        item_id=expected_result,
+        partner=partner,
+        item_parent_partner=partner_psl,
+        item_parent_type="OperationTranquilliteVacances",
+        item_parent_id="42",
+    )
+
+    result = get_notifications_data(current_user=user)
+
+    assert result == [
+        FollowupItem(
+            partner_id="psl",
+            item_type="OperationTranquilliteVacances",
+            item_external_id="42",
+            reference="42",
+            status_id=ItemGenericStatus.WIP,
+            status_label="En cours",
+            milestone_start_date=None,
+            milestone_end_date=None,
+            events=[
+                FollowupItemEvent(
+                    notification1.id,
+                    notification1.created_at,
+                    "Notification title 1",
+                ),
+                FollowupItemEvent(
+                    notification3.id,
+                    notification3.created_at,
+                    "Notification title 3",
+                ),
+            ],
+            title="Sub notification title",
+            subheading="Service Public",
+            description="notification 3",
+            icon="fr-icon-eye-fill",
+            external_url=None,
+            is_archived=False,
+            created_at=notification1.event_date,
+            updated_at=sub_notification31.event_date,
+            sub_items=[
+                FollowupSubItem(
+                    partner_id="dinum-ami",
+                    item_type="SousDémarche",
+                    item_external_id="35",
+                    reference="",
+                    status_id=ItemGenericStatus.WIP,
+                    status_label="En cours",
+                    milestone_start_date=None,
+                    milestone_end_date=None,
+                    events=[
+                        FollowupItemEvent(
+                            sub_notification31.id,
+                            sub_notification31.created_at,
+                            "Sub notification title",
+                        ),
+                    ],
+                    title=expected_result,
+                    subheading="",
+                    description="Sub notification body",
+                    icon="fr-icon-eye-fill",
+                    external_url=None,
+                    is_archived=False,
+                    created_at=sub_notification31.event_date,
+                    updated_at=sub_notification31.event_date,
+                ),
+            ],
+        ),
+    ]
+
+
+@pytest.mark.django_db
+def test_get_notifications_data__event__title__is_service_title(
+    user: User, partner: Partner, partner_psl: Partner, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    expected_result = "Sous-démarche"
+
+    start_date = datetime.datetime(2026, 2, 14, 11, 16, tzinfo=datetime.timezone.utc)
+    end_date = datetime.datetime(2026, 2, 14, 11, 18, tzinfo=datetime.timezone.utc)
+
+    Service.objects.create(
+        partner=partner_psl,
+        item_type="OperationTranquilliteVacances",
+        title="Opération Tranquillité Vacances",
+        service_name="Service instructeur",
+        description="Pendant toute absence prolongée de votre domicile, vous pouvez vous inscrire à l'**opération tranquillité vacances**.",
+        url="https://localhost:8000/mademarche/demarcheGenerique/?codeDemarche=OperationTranquilliteVacances&caller={back_param_token_jwt}",
+        with_silent_login=True,
+    )
+    Service.objects.create(
+        partner=partner,
+        item_type="SousDémarche",
+        title=expected_result,
+        service_name="Sous service instructeur",
+        description="Sous-démarche d'une autre démarche d'un autre service.",
+        url="https://localhost:8000/",
+        with_silent_login=True,
+    )
+
+    notification = Notification.objects.create(
+        user_id=user.id,
+        content_body="notification 1",
+        content_title="Notification title 1",
+        item_generic_status="new",
+        item_status_label="Nouveau",
+        item_type="OperationTranquilliteVacances",
+        item_id="42",
+        partner=partner_psl,
+    )
+    sub_notification = Notification.objects.create(
+        user_id=user.id,
+        content_body="Sub notification body 1",
+        content_title="Sub notification title 1",
+        item_generic_status="new",
+        item_status_label="Nouveau",
+        item_type="SousDémarche",
+        item_id="35",
+        partner=partner,
+        item_parent_partner=partner_psl,
+        item_parent_type="OperationTranquilliteVacances",
+        item_parent_id="42",
+    )
+    sub_notification_event = Notification.objects.create(
+        user_id=user.id,
+        content_body="Sub notification body 3",
+        content_title="Sub notification title 3",
+        content_subheading="Autre service",
+        content_link="http://bar.com",
+        item_generic_status="new",
+        item_status_label="Nouveau",
+        item_type="SousDémarche",
+        item_id="104",
+        partner=partner,
+        item_parent_partner=partner_psl,
+        item_parent_type="OperationTranquilliteVacances",
+        item_parent_id="42",
+        item_milestone_start_date=start_date,
+        item_milestone_end_date=end_date,
+    )
+
+    result = get_notifications_data(current_user=user)
+
+    assert result == [
+        FollowupItem(
+            partner_id="psl",
+            item_type="OperationTranquilliteVacances",
+            item_external_id="42",
+            reference="42",
+            status_id=ItemGenericStatus.NEW,
+            status_label="Nouveau",
+            milestone_start_date=None,
+            milestone_end_date=None,
+            events=[
+                FollowupItemEvent(
+                    id=notification.id,
+                    created_at=notification.created_at,
+                    title="Notification title 1",
+                )
+            ],
+            title="Opération Tranquillité Vacances",
+            subheading="Service Public",
+            description="notification 1",
+            icon="fr-icon-mail-fill",
+            external_url="http://bar.com",
+            is_archived=False,
+            created_at=notification.event_date,
+            updated_at=sub_notification_event.event_date,
+            sub_items=[
+                FollowupSubItem(
+                    partner_id="dinum-ami",
+                    item_type="SousDémarche",
+                    item_external_id="104",
+                    reference="",
+                    status_id=ItemGenericStatus.NEW,
+                    status_label="Nouveau",
+                    milestone_start_date=start_date,
+                    milestone_end_date=end_date,
+                    events=[
+                        FollowupItemEvent(
+                            id=sub_notification_event.id,
+                            created_at=sub_notification_event.created_at,
+                            title="Sub notification title 3",
+                        )
+                    ],
+                    title=expected_result,
+                    subheading="",
+                    description="Sub notification body 3",
+                    icon="fr-icon-mail-fill",
+                    external_url="http://bar.com",
+                    is_archived=False,
+                    created_at=sub_notification_event.event_date,
+                    updated_at=sub_notification_event.event_date,
+                ),
+                FollowupSubItem(
+                    partner_id="dinum-ami",
+                    item_type="SousDémarche",
+                    item_external_id="35",
+                    reference="",
+                    status_id=ItemGenericStatus.NEW,
+                    status_label="Nouveau",
+                    milestone_start_date=None,
+                    milestone_end_date=None,
+                    events=[
+                        FollowupItemEvent(
+                            id=sub_notification.id,
+                            created_at=sub_notification.created_at,
+                            title="Sub notification title 1",
+                        ),
+                    ],
+                    title="35",
+                    subheading="",
+                    description="Sub notification body 1",
+                    icon="fr-icon-mail-fill",
+                    external_url=None,
+                    is_archived=False,
+                    created_at=sub_notification.event_date,
+                    updated_at=sub_notification.event_date,
+                ),
+            ],
+        ),
+    ]
+
+
+@pytest.mark.django_db
+def test_get_notifications_data__event__title__is_last_item_title__when_no_service(
+    user: User, partner: Partner, partner_psl: Partner, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    expected_result = "Sub notification title 3"
+
+    start_date = datetime.datetime(2026, 2, 14, 11, 16, tzinfo=datetime.timezone.utc)
+    end_date = datetime.datetime(2026, 2, 14, 11, 18, tzinfo=datetime.timezone.utc)
+
+    Service.objects.create(
+        partner=partner_psl,
+        item_type="OperationTranquilliteVacances",
+        title="Opération Tranquillité Vacances",
+        service_name="Service instructeur",
+        description="Pendant toute absence prolongée de votre domicile, vous pouvez vous inscrire à l'**opération tranquillité vacances**.",
+        url="https://localhost:8000/mademarche/demarcheGenerique/?codeDemarche=OperationTranquilliteVacances&caller={back_param_token_jwt}",
+        with_silent_login=True,
+    )
+
+    notification = Notification.objects.create(
+        user_id=user.id,
+        content_body="notification 1",
+        content_title="Notification title 1",
+        item_generic_status="new",
+        item_status_label="Nouveau",
+        item_type="OperationTranquilliteVacances",
+        item_id="42",
+        partner=partner_psl,
+    )
+    sub_notification = Notification.objects.create(
+        user_id=user.id,
+        content_body="Sub notification body 1",
+        content_title="Sub notification title 1",
+        item_generic_status="new",
+        item_status_label="Nouveau",
+        item_type="SousDémarche",
+        item_id="35",
+        partner=partner,
+        item_parent_partner=partner_psl,
+        item_parent_type="OperationTranquilliteVacances",
+        item_parent_id="42",
+    )
+    sub_notification_event = Notification.objects.create(
+        user_id=user.id,
+        content_body="Sub notification body 3",
+        content_title=expected_result,
+        content_subheading="Autre service",
+        content_link="http://bar.com",
+        item_generic_status="new",
+        item_status_label="Nouveau",
+        item_type="SousDémarche",
+        item_id="104",
+        partner=partner,
+        item_parent_partner=partner_psl,
+        item_parent_type="OperationTranquilliteVacances",
+        item_parent_id="42",
+        item_milestone_start_date=start_date,
+        item_milestone_end_date=end_date,
+    )
+
+    result = get_notifications_data(current_user=user)
+
+    assert result == [
+        FollowupItem(
+            partner_id="psl",
+            item_type="OperationTranquilliteVacances",
+            item_external_id="42",
+            reference="42",
+            status_id=ItemGenericStatus.NEW,
+            status_label="Nouveau",
+            milestone_start_date=None,
+            milestone_end_date=None,
+            events=[
+                FollowupItemEvent(
+                    id=notification.id,
+                    created_at=notification.created_at,
+                    title="Notification title 1",
+                )
+            ],
+            title="Opération Tranquillité Vacances",
+            subheading="Service Public",
+            description="notification 1",
+            icon="fr-icon-mail-fill",
+            external_url="http://bar.com",
+            is_archived=False,
+            created_at=notification.event_date,
+            updated_at=sub_notification_event.event_date,
+            sub_items=[
+                FollowupSubItem(
+                    partner_id="dinum-ami",
+                    item_type="SousDémarche",
+                    item_external_id="104",
+                    reference="",
+                    status_id=ItemGenericStatus.NEW,
+                    status_label="Nouveau",
+                    milestone_start_date=start_date,
+                    milestone_end_date=end_date,
+                    events=[
+                        FollowupItemEvent(
+                            id=sub_notification_event.id,
+                            created_at=sub_notification_event.created_at,
+                            title="Sub notification title 3",
+                        )
+                    ],
+                    title=expected_result,
+                    subheading="",
+                    description="Sub notification body 3",
+                    icon="fr-icon-mail-fill",
+                    external_url="http://bar.com",
+                    is_archived=False,
+                    created_at=sub_notification_event.event_date,
+                    updated_at=sub_notification_event.event_date,
+                ),
+                FollowupSubItem(
+                    partner_id="dinum-ami",
+                    item_type="SousDémarche",
+                    item_external_id="35",
+                    reference="",
+                    status_id=ItemGenericStatus.NEW,
+                    status_label="Nouveau",
+                    milestone_start_date=None,
+                    milestone_end_date=None,
+                    events=[
+                        FollowupItemEvent(
+                            id=sub_notification.id,
+                            created_at=sub_notification.created_at,
+                            title="Sub notification title 1",
+                        ),
+                    ],
+                    title="35",
+                    subheading="",
+                    description="Sub notification body 1",
+                    icon="fr-icon-mail-fill",
+                    external_url=None,
+                    is_archived=False,
+                    created_at=sub_notification.event_date,
+                    updated_at=sub_notification.event_date,
                 ),
             ],
         ),
