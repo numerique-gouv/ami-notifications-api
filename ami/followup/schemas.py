@@ -168,8 +168,9 @@ class NotificationsSubItem:
 
     @property
     def external_url(self):
-        # sub item has no external_url
-        return None
+        # last external_url seen
+        external_urls = [n.content_link for n in self.notifications if n.content_link]
+        return external_urls[-1] if external_urls else None
 
     @property
     def is_archived(self):
