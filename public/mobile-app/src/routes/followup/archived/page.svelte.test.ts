@@ -5,7 +5,10 @@ import * as consentsMethods from '$lib/consents';
 import { Consents } from '$lib/consents';
 import * as followupMethods from '$lib/followup';
 import { Followup, FollowupItem } from '$lib/followup';
+import * as partnersMethods from '$lib/partners';
 import { Partners } from '$lib/partners';
+import { userStore } from '$lib/state/User.svelte';
+import { mockUserInfo, waitAfterSkeleton } from '$tests/utils';
 import Page from './+page.svelte';
 
 describe('/+page.svelte', () => {
@@ -16,18 +19,7 @@ describe('/+page.svelte', () => {
     const spy = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
 
     // When
-    render(Page, {
-      props: {
-        data: {
-          followup,
-          isFollowupEmpty: true,
-          hasAnyConsents: true,
-          hasAllConsents: false,
-          partners: new Partners(),
-        },
-        params: {},
-      },
-    });
+    render(Page);
 
     // Then
     await waitFor(() => {
@@ -37,6 +29,7 @@ describe('/+page.svelte', () => {
   });
   test('Should display archived followup', async () => {
     // Given
+    await userStore.login(mockUserInfo);
     const consentsItem = {
       partner_id: 'dinum-ami',
       partner_name: 'AMI',
@@ -50,6 +43,7 @@ describe('/+page.svelte', () => {
     const partners = new Partners([partnersItem]);
     const consents = new Consents({ consents: [consentsItem] }, partners.items);
     vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
+    vi.spyOn(partnersMethods, 'buildPartners').mockResolvedValue(partners);
 
     const followup = new Followup();
     vi.spyOn(followup, 'items', 'get').mockReturnValue([
@@ -99,18 +93,8 @@ describe('/+page.svelte', () => {
     const spy = vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
 
     // When
-    render(Page, {
-      props: {
-        data: {
-          followup,
-          isFollowupEmpty: false,
-          hasAnyConsents: true,
-          hasAllConsents: false,
-          partners: new Partners(),
-        },
-        params: {},
-      },
-    });
+    render(Page);
+    await waitAfterSkeleton();
 
     // Then
     await waitFor(() => {
