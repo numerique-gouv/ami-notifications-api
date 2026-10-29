@@ -3,7 +3,7 @@ name = "ami-notifications-api"
 version = "0.1.0"
 description = "AMI notifications API"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.14"
 dependencies = [
     "asyncpg>=0.30.0",
     "certbot>=5.8.0",
@@ -63,7 +63,7 @@ dev = [
 
 [tool.pyright]
 # Python version and environment
-pythonVersion = "3.13"
+pythonVersion = "3.14"
 include = ["app", "tests"]
 exclude = [".venv", "node_modules", "public/mobile-app"]
 
