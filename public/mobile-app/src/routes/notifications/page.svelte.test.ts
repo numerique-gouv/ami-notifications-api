@@ -8,7 +8,7 @@ import { Followup, FollowupItem } from '$lib/followup';
 import * as notificationsMethods from '$lib/notifications';
 import { type AppNotification, PUBLIC_APP_WS_URL } from '$lib/notifications';
 import { userStore } from '$lib/state/User.svelte';
-import { expectBackButtonPresent, mockUserInfo } from '$tests/utils';
+import { expectBackButtonPresent, mockUserInfo, waitAfterSkeleton } from '$tests/utils';
 import Page from './+page.svelte';
 
 let wss: WSType;
@@ -44,7 +44,21 @@ describe('/+page.svelte', () => {
     });
   });
 
+  test('should display skeleton', async () => {
+    // Given
+    await userStore.login(mockUserInfo);
+
+    // When
+    render(Page);
+
+    // Then
+    expect(document.querySelector('.skeleton')).not.toBeNull();
+  });
+
   test('should render a Back button', async () => {
+    // Given
+    await userStore.login(mockUserInfo);
+
     // When
     render(Page);
 
@@ -73,6 +87,7 @@ describe('/+page.svelte', () => {
 
   test('notification display', async () => {
     // Given
+    await userStore.login(mockUserInfo);
     const spy = vi
       .spyOn(notificationsMethods, 'retrieveNotifications')
       .mockImplementation(async () => [
@@ -110,6 +125,7 @@ describe('/+page.svelte', () => {
 
     // When
     render(Page);
+    await waitAfterSkeleton();
 
     // Then
     await waitFor(() => {
@@ -128,6 +144,7 @@ describe('/+page.svelte', () => {
   describe('click on notification', async () => {
     test('mark notification as read', async () => {
       // Given
+      await userStore.login(mockUserInfo);
       const spy = vi
         .spyOn(notificationsMethods, 'retrieveNotifications')
         .mockImplementationOnce(async () => [
@@ -215,6 +232,7 @@ describe('/+page.svelte', () => {
         });
 
       render(Page);
+      await waitAfterSkeleton();
       const notificationLink = await waitFor(() =>
         screen.getByTestId('notification-link-f62c66b2-7bd5-4696-8383-2d40c08a1')
       );
@@ -251,6 +269,7 @@ describe('/+page.svelte', () => {
 
     test('should redirect to parent item page when found', async () => {
       // Given
+      await userStore.login(mockUserInfo);
       vi.spyOn(notificationsMethods, 'retrieveNotifications').mockImplementationOnce(
         async () => [
           {
@@ -299,6 +318,7 @@ describe('/+page.svelte', () => {
         );
 
       render(Page);
+      await waitAfterSkeleton();
       const notificationLink = await waitFor(() =>
         screen.getByTestId('notification-link-f62c66b2-7bd5-4696-8383-2d40c08a1')
       );
@@ -313,6 +333,7 @@ describe('/+page.svelte', () => {
 
     test('should redirect to item page when parent is not found and item is found', async () => {
       // Given
+      await userStore.login(mockUserInfo);
       vi.spyOn(notificationsMethods, 'retrieveNotifications').mockImplementationOnce(
         async () => [
           {
@@ -362,6 +383,7 @@ describe('/+page.svelte', () => {
         );
 
       render(Page);
+      await waitAfterSkeleton();
       const notificationLink = await waitFor(() =>
         screen.getByTestId('notification-link-f62c66b2-7bd5-4696-8383-2d40c08a1')
       );
@@ -377,6 +399,7 @@ describe('/+page.svelte', () => {
 
     test('should redirect to item page when found', async () => {
       // Given
+      await userStore.login(mockUserInfo);
       vi.spyOn(notificationsMethods, 'retrieveNotifications').mockImplementationOnce(
         async () => [
           {
@@ -425,6 +448,7 @@ describe('/+page.svelte', () => {
         );
 
       render(Page);
+      await waitAfterSkeleton();
       const notificationLink = await waitFor(() =>
         screen.getByTestId('notification-link-f62c66b2-7bd5-4696-8383-2d40c08a1')
       );
@@ -439,6 +463,7 @@ describe('/+page.svelte', () => {
 
     test('should redirect to url when url is set and item is not found', async () => {
       // Given
+      await userStore.login(mockUserInfo);
       vi.spyOn(notificationsMethods, 'retrieveNotifications').mockImplementationOnce(
         async () => [
           {
@@ -464,6 +489,7 @@ describe('/+page.svelte', () => {
       const spyFind = vi.spyOn(followup, 'findItem').mockReturnValue(null);
 
       render(Page);
+      await waitAfterSkeleton();
       const notificationLink = await waitFor(() =>
         screen.getByTestId('notification-link-f62c66b2-7bd5-4696-8383-2d40c08a1')
       );
@@ -478,6 +504,7 @@ describe('/+page.svelte', () => {
 
     test('should redirect to url when is set', async () => {
       // Given
+      await userStore.login(mockUserInfo);
       vi.spyOn(notificationsMethods, 'retrieveNotifications').mockImplementationOnce(
         async () => [
           {
@@ -503,6 +530,7 @@ describe('/+page.svelte', () => {
       const spyFind = vi.spyOn(followup, 'findItem').mockReturnValue(null);
 
       render(Page);
+      await waitAfterSkeleton();
       const notificationLink = await waitFor(() =>
         screen.getByTestId('notification-link-f62c66b2-7bd5-4696-8383-2d40c08a1')
       );
@@ -517,6 +545,7 @@ describe('/+page.svelte', () => {
 
     test('should not redirect when url is not set', async () => {
       // Given
+      await userStore.login(mockUserInfo);
       vi.spyOn(notificationsMethods, 'retrieveNotifications').mockImplementationOnce(
         async () => [
           {
@@ -542,6 +571,7 @@ describe('/+page.svelte', () => {
       const spyFind = vi.spyOn(followup, 'findItem').mockReturnValue(null);
 
       render(Page);
+      await waitAfterSkeleton();
       const notificationLink = await waitFor(() =>
         screen.getByTestId('notification-link-f62c66b2-7bd5-4696-8383-2d40c08a1')
       );
