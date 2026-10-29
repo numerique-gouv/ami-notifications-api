@@ -1,21 +1,26 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { PUBLIC_SKELETON_DEBUG_DELAY } from '$env/static/public';
   import { type Agenda, buildAgenda, Item } from '$lib/agenda';
   import { AMIGoto } from '$lib/ami-navigation';
   import AgendaItem from '$lib/components/AgendaItem.svelte';
   import AgendaItemModal from '$lib/components/modal/AgendaItemModal.svelte';
   import Navigation from '$lib/components/Navigation.svelte';
+  import AgendaSkeleton from '$lib/components/skeletons/AgendaSkeleton.svelte';
+  import { skeletonDebugDelay } from '$lib/skeleton';
   import { userStore } from '$lib/state/User.svelte';
 
   let agenda: Agenda | null = $state(null);
+
+  const waitForPageData = async () => {
+    await skeletonDebugDelay();
+    agenda = await buildAgenda();
+  };
 
   onMount(async () => {
     if (!userStore.connected) {
       AMIGoto('/#/login');
     }
-
-    agenda = await buildAgenda();
-    console.log($state.snapshot(agenda));
   });
 </script>
 
@@ -41,61 +46,65 @@
     </div>
   </div>
 
-  {#if agenda && agenda.now.length}
-    <div class="agenda--events fr-mb-3w" data-testid="events-now">
-      <div class="agenda--events--header">
-        <h2 class="fr-h6 fr-mb-0 am-text--smbold">Prochainement</h2>
+  {#await waitForPageData()}
+    <AgendaSkeleton />
+  {:then pageDataLoaded}
+    {#if agenda && agenda.now.length}
+      <div class="agenda--events fr-mb-3w" data-testid="events-now">
+        <div class="agenda--events--header">
+          <h2 class="fr-h6 fr-mb-0 am-text--smbold">Prochainement</h2>
+        </div>
+        <div class="agenda--events--container">
+          {#each agenda.now as item, i}
+            {@const displayMonth = (i == 0 || i > 0 && item.date?.getMonth() !== agenda.now[i - 1].date?.getMonth())}
+            {@const displayDay = (i == 0 || i > 0 && item.date?.toDateString() !== agenda.now[i - 1].date?.toDateString())}
+            {#if displayMonth}
+              <p
+                class="fr-text--sm fr-mb-0 fr-text-title--grey am-text--smbold agenda--events--month"
+              >
+                {item.monthName}
+              </p>
+            {/if}
+            <AgendaItem
+              item={item}
+              displayDay={displayDay}
+              hasModal={true}
+              index="agenda-now-{i}"
+            />
+            <AgendaItemModal item={item} bind:agenda={agenda} index="agenda-now-{i}" />
+          {/each}
+        </div>
       </div>
-      <div class="agenda--events--container">
-        {#each agenda.now as item, i}
-          {@const displayMonth = (i == 0 || i > 0 && item.date?.getMonth() !== agenda.now[i - 1].date?.getMonth())}
-          {@const displayDay = (i == 0 || i > 0 && item.date?.toDateString() !== agenda.now[i - 1].date?.toDateString())}
-          {#if displayMonth}
-            <p
-              class="fr-text--sm fr-mb-0 fr-text-title--grey am-text--smbold agenda--events--month"
-            >
-              {item.monthName}
-            </p>
-          {/if}
-          <AgendaItem
-            item={item}
-            displayDay={displayDay}
-            hasModal={true}
-            index="agenda-now-{i}"
-          />
-          <AgendaItemModal item={item} bind:agenda={agenda} index="agenda-now-{i}" />
-        {/each}
-      </div>
-    </div>
-  {/if}
+    {/if}
 
-  {#if agenda && agenda.next.length}
-    <div class="agenda--events" data-testid="events-next">
-      <div class="agenda--events--header">
-        <h2 class="fr-h6 fr-mb-0 am-text--smbold">Les mois suivants</h2>
+    {#if agenda && agenda.next.length}
+      <div class="agenda--events" data-testid="events-next">
+        <div class="agenda--events--header">
+          <h2 class="fr-h6 fr-mb-0 am-text--smbold">Les mois suivants</h2>
+        </div>
+        <div class="agenda--events--container">
+          {#each agenda.next as item, i}
+            {@const displayMonth = (i > 0 && item.date?.getMonth() !== agenda.next[i - 1].date?.getMonth() || i == 0 && (agenda.now.length && item.date?.getMonth() !== agenda.now[agenda.now.length - 1].date?.getMonth() || !agenda.now.length))}
+            {@const displayDay = (i == 0 || i > 0 && item.date?.toDateString() !== agenda.next[i - 1].date?.toDateString())}
+            {#if displayMonth}
+              <p
+                class="fr-text--sm fr-mb-0 fr-text-title--grey am-text--smbold agenda--events--month"
+              >
+                {item.monthName}
+              </p>
+            {/if}
+            <AgendaItem
+              item={item}
+              displayDay={displayDay}
+              hasModal={true}
+              index="agenda-next-{i}"
+            />
+            <AgendaItemModal item={item} bind:agenda={agenda} index="agenda-next-{i}" />
+          {/each}
+        </div>
       </div>
-      <div class="agenda--events--container">
-        {#each agenda.next as item, i}
-          {@const displayMonth = (i > 0 && item.date?.getMonth() !== agenda.next[i - 1].date?.getMonth() || i == 0 && (agenda.now.length && item.date?.getMonth() !== agenda.now[agenda.now.length - 1].date?.getMonth() || !agenda.now.length))}
-          {@const displayDay = (i == 0 || i > 0 && item.date?.toDateString() !== agenda.next[i - 1].date?.toDateString())}
-          {#if displayMonth}
-            <p
-              class="fr-text--sm fr-mb-0 fr-text-title--grey am-text--smbold agenda--events--month"
-            >
-              {item.monthName}
-            </p>
-          {/if}
-          <AgendaItem
-            item={item}
-            displayDay={displayDay}
-            hasModal={true}
-            index="agenda-next-{i}"
-          />
-          <AgendaItemModal item={item} bind:agenda={agenda} index="agenda-next-{i}" />
-        {/each}
-      </div>
-    </div>
-  {/if}
+    {/if}
+  {/await}
 </div>
 
 <style>
