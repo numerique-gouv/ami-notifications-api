@@ -3,6 +3,7 @@
   import { AMIGoto } from '$lib/ami-navigation';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import NotificationIcon from '$lib/components/NotificationIcon.svelte';
+  import NotificationsSkeleton from '$lib/components/skeletons/NotificationsSkeleton.svelte';
   import { buildFollowup, Followup, FollowupItem } from '$lib/followup';
   import type { AppNotification } from '$lib/notifications';
   import {
@@ -11,25 +12,32 @@
     retrieveNotifications,
   } from '$lib/notifications';
   import { prettyDate } from '$lib/prettyDate';
+  import { skeletonDebugDelay } from '$lib/skeleton';
   import { userStore } from '$lib/state/User.svelte';
 
   let backUrl: string = '/';
   let notifications: AppNotification[] = $state([]);
   let followup: Followup | null = $state(null);
 
-  onMount(async () => {
-    if (!userStore.connected) {
-      AMIGoto('/#/login');
-      return;
-    }
-    followup = await buildFollowup();
+  const waitForPageData = async () => {
+    await skeletonDebugDelay();
+    [followup, notifications] = await Promise.all([
+      buildFollowup(),
+      retrieveNotifications(),
+    ]);
 
-    notifications = await retrieveNotifications();
     notificationEventsSocket(async () => {
       console.log('New message received from the websocket, retrieving notifications');
       notifications = await retrieveNotifications();
       followup = await buildFollowup();
     });
+  };
+
+  onMount(async () => {
+    if (!userStore.connected) {
+      AMIGoto('/#/login');
+      return;
+    }
   });
 
   const redirectToLink = (notification: AppNotification) => {
@@ -86,49 +94,55 @@
   </div>
 </NavWithBackButton>
 
-<div class="notifications-content-container fr-pt-14w">
-  {#each notifications as notification}
-    <div
-      class="fr-tile fr-tile--sm fr-tile--horizontal fr-tile--no-border fr-tile--no-icon fr-enlarge-button fr-p-3v notification {notification.read ? 'read': 'fr-background-contrast--blue-france'}"
-      data-testid="notification-{notification.id}"
-    >
-      <div class="fr-tile__header fr-mr-3v">
-        <span class="notification__status">
-          {#if notification.read}
-            <span class="fr-sr-only">Lu</span>
-          {:else}
-            <i aria-hidden="true">•</i>
-            <span class="fr-sr-only">Non lu</span>
-          {/if}
-        </span>
-        <NotificationIcon
-          icon={notification.content_icon}
-          defaultIcon="fr-icon-information-line"
-        />
-      </div>
-      <div class="fr-tile__body">
-        <div class="fr-tile__content fr-pb-0">
-          <div class="notification__title">
-            <h3 class="fr-tile__title fr-mb-0">
-              <button
-                type="button"
-                class="fr-text--sm fr-text-title--grey"
-                onclick={(event) => clickOnNotification(event, notification)}
-                data-testid="notification-link-{notification.id}"
-              >
-                {notification.content_title}
-              </button>
-            </h3>
-            <span class="notification__age fr-text-mention--grey fr-text--xs">
-              {prettyDate(notification.created_at)}
+{#if userStore.connected}
+  <div class="notifications-content-container fr-pt-14w">
+    {#await waitForPageData()}
+      <NotificationsSkeleton />
+    {:then pageDataLoaded}
+      {#each notifications as notification}
+        <div
+          class="fr-tile fr-tile--sm fr-tile--horizontal fr-tile--no-border fr-tile--no-icon fr-enlarge-button fr-p-3v notification {notification.read ? 'read': 'fr-background-contrast--blue-france'}"
+          data-testid="notification-{notification.id}"
+        >
+          <div class="fr-tile__header fr-mr-3v">
+            <span class="notification__status">
+              {#if notification.read}
+                <span class="fr-sr-only">Lu</span>
+              {:else}
+                <i aria-hidden="true">•</i>
+                <span class="fr-sr-only">Non lu</span>
+              {/if}
             </span>
+            <NotificationIcon
+              icon={notification.content_icon}
+              defaultIcon="fr-icon-information-line"
+            />
           </div>
-          <p class="fr-tile__desc fr-text--xs">{notification.content_body}</p>
+          <div class="fr-tile__body">
+            <div class="fr-tile__content fr-pb-0">
+              <div class="notification__title">
+                <h3 class="fr-tile__title fr-mb-0">
+                  <button
+                    type="button"
+                    class="fr-text--sm fr-text-title--grey"
+                    onclick={(event) => clickOnNotification(event, notification)}
+                    data-testid="notification-link-{notification.id}"
+                  >
+                    {notification.content_title}
+                  </button>
+                </h3>
+                <span class="notification__age fr-text-mention--grey fr-text--xs">
+                  {prettyDate(notification.created_at)}
+                </span>
+              </div>
+              <p class="fr-tile__desc fr-text--xs">{notification.content_body}</p>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-  {/each}
-</div>
+      {/each}
+    {/await}
+  </div>
+{/if}
 
 <style>
   .notifications-content-container {
