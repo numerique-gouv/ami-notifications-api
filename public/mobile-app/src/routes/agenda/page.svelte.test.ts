@@ -5,6 +5,7 @@ import { Agenda, Item, monthName } from '$lib/agenda';
 import * as AMINavigationMethods from '$lib/ami-navigation';
 import { toastStore } from '$lib/state/toast.svelte';
 import { getTimestamp } from '$lib/utils';
+import { waitAfterSkeleton } from '$tests/utils';
 import Page from './+page.svelte';
 
 const oneday_in_ms = 24 * 60 * 60 * 1000;
@@ -39,6 +40,7 @@ describe('/+page.svelte', () => {
 
     // When
     render(Page);
+    await waitAfterSkeleton();
 
     // Then
     await waitFor(() => {
@@ -66,6 +68,7 @@ describe('/+page.svelte', () => {
 
     // When
     render(Page);
+    await waitAfterSkeleton();
 
     // Then
     await waitFor(() => {
@@ -89,6 +92,7 @@ describe('/+page.svelte', () => {
 
     // When
     render(Page);
+    await waitAfterSkeleton();
 
     // Then
     await waitFor(() => {
@@ -115,6 +119,7 @@ describe('/+page.svelte', () => {
 
     // When
     render(Page);
+    await waitAfterSkeleton();
 
     // Then
     await waitFor(() => {
@@ -159,6 +164,7 @@ describe('/+page.svelte', () => {
 
     // When
     render(Page);
+    await waitAfterSkeleton();
 
     // Then
     await waitFor(() => {
@@ -198,6 +204,7 @@ describe('/+page.svelte', () => {
 
     // When
     render(Page);
+    await waitAfterSkeleton();
 
     // Then
     expect(monthName(start1)).toEqual(monthName(start2));
@@ -245,6 +252,7 @@ describe('/+page.svelte', () => {
 
     // When
     render(Page);
+    await waitAfterSkeleton();
 
     // Then
     await waitFor(() => {
@@ -290,6 +298,7 @@ describe('/+page.svelte', () => {
         new Item('fake-id-holiday-2', 'holiday', 'Holiday 2', '', null, in32days),
       ]);
       render(Page);
+      await waitAfterSkeleton();
 
       // When
       await waitFor(async () => {
@@ -316,6 +325,7 @@ describe('/+page.svelte', () => {
         new Item('fake-id-holiday-2', 'holiday', 'Holiday 2', '', null, in32days),
       ]);
       render(Page);
+      await waitAfterSkeleton();
 
       // When
       await waitFor(async () => {
@@ -352,6 +362,7 @@ describe('/+page.svelte', () => {
       ]);
       const spy = vi.spyOn(toastStore, 'addToast');
       render(Page);
+      await waitAfterSkeleton();
 
       // When
       await waitFor(async () => {
