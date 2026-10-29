@@ -5,46 +5,44 @@
   import FollowupNoConsent from '$lib/components/followup/FollowupNoConsent.svelte';
   import FollowupItemModal from '$lib/components/modal/FollowupItemModal.svelte';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
-  import { buildConsents } from '$lib/consents';
-  import type { Followup, FollowupItem as FollowupItemType } from '$lib/followup';
+  import FollowupSkeleton from '$lib/components/skeletons/FollowupSkeleton.svelte';
+  import { buildConsents, type Consents } from '$lib/consents';
+  import type {
+    FollowupItem as FollowupItemType,
+    Followup as FollowupType,
+  } from '$lib/followup';
   import { buildFollowup } from '$lib/followup';
   import { buildPartners, type Partners } from '$lib/partners';
+  import { skeletonDebugDelay } from '$lib/skeleton';
 
   interface Props {
     archived?: boolean;
-    followupProp: Followup;
-    isFollowupEmptyProp: boolean;
-    hasAnyConsentsProp: boolean;
-    hasAllConsentsProp: boolean;
-    partnersProp: Partners;
   }
-  let {
-    archived = false,
-    followupProp,
-    isFollowupEmptyProp,
-    hasAnyConsentsProp,
-    hasAllConsentsProp,
-    partnersProp,
-  }: Props = $props();
+  let { archived = false }: Props = $props();
 
   const backUrl = '/#/followup';
-  let isFollowupEmpty: boolean = $state(isFollowupEmptyProp);
-  let followup: Followup | null = $state(followupProp);
   let menuOpened: boolean = $state(false);
-  let hasAnyConsents: boolean = $state(hasAnyConsentsProp);
-  let hasAllConsents: boolean = $state(hasAllConsentsProp);
-  let isExpanded: boolean = $state(isFollowupEmptyProp);
-  let partners: Partners | null = $state(partnersProp);
+  let isExpanded: boolean = $state(false);
 
-  onMount(async () => {
-    followup = await buildFollowup();
-    console.log($state.snapshot(followup));
-    partners = await buildPartners();
-    const consents = await buildConsents(partners);
-    hasAnyConsents = consents.hasAnyConsents();
-    hasAllConsents = consents.hasAllConsents();
+  let followup: FollowupType = $state() as FollowupType;
+  let consents: Consents = $state() as Consents;
+  let partners: Partners = $state() as Partners;
+  let isFollowupEmpty: boolean = $state(false);
+
+  const buildConsentsAndPartners = async () => {
+    partners = await buildPartners(); // expected side-effect
+    return await buildConsents(partners);
+  };
+
+  const waitForPageData = async () => {
+    await skeletonDebugDelay();
+    [followup, consents] = await Promise.all([
+      buildFollowup(),
+      buildConsentsAndPartners(),
+    ]);
+    isFollowupEmpty = followup.isEmpty();
     isExpanded = expandAccordion();
-  });
+  };
 
   const expandAccordion = (): boolean => {
     if (followup && !archived) {
@@ -72,116 +70,120 @@
   <NavWithBackButton title="Démarches archivées" {backUrl} />
 {/if}
 
-<div class="followup {archived ? 'archived': ''}">
-  {#if !archived}
-    <div class="followup--title">
-      <h1 class="fr-h2">Mes démarches</h1>
-      {#if hasAnyConsents}
-        <div class="followup--title--icon">
-          <button
-            class="more"
-            type="button"
-            data-testid="more-button"
-            onclick={toggleMoreMenu}
-          >
-            <span class="fr-icon-more-2-fill" aria-hidden="true"></span><span
-              class="fr-sr-only"
-              >Sous-menu</span
-            >
-          </button>
-        </div>
-      {/if}
-      {#if menuOpened}
-        <ul id="more-menu" data-testid="more-menu">
-          <li>
-            <span class="fr-icon-inbox-archive-line" aria-hidden="true"></span>
+{#await waitForPageData()}
+  <FollowupSkeleton archived={archived} />
+{:then pageDataLoaded}
+  <div class="followup {archived ? 'archived': ''}">
+    {#if !archived}
+      <div class="followup--title">
+        <h1 class="fr-h2">Mes démarches</h1>
+        {#if consents.hasAnyConsents()}
+          <div class="followup--title--icon">
             <button
+              class="more"
               type="button"
-              onclick={goToArchivedFollowup}
-              data-testid="archived-followup-button"
+              data-testid="more-button"
+              onclick={toggleMoreMenu}
             >
-              Démarches archivées
+              <span class="fr-icon-more-2-fill" aria-hidden="true"></span><span
+                class="fr-sr-only"
+                >Sous-menu</span
+              >
             </button>
-          </li>
-        </ul>
+          </div>
+        {/if}
+        {#if menuOpened}
+          <ul id="more-menu" data-testid="more-menu">
+            <li>
+              <span class="fr-icon-inbox-archive-line" aria-hidden="true"></span>
+              <button
+                type="button"
+                onclick={goToArchivedFollowup}
+                data-testid="archived-followup-button"
+              >
+                Démarches archivées
+              </button>
+            </li>
+          </ul>
+        {/if}
+      </div>
+    {/if}
+
+    <div class="followup--container" data-testid="followup">
+      {#if consents.hasAnyConsents()}
+        {#if archived && followup && followup.archived_items.length}
+          {#each followup.archived_items as item, i}
+            <FollowupItem item={item} hasModal={false} />
+          {/each}
+        {:else if !archived && followup && followup.items.length}
+          {#each followup.items as item, i}
+            <FollowupItem item={item} hasModal={true} index="followup-items-{i}" />
+            <FollowupItemModal
+              item={item}
+              followup={followup}
+              isFollowupEmpty={isFollowupEmpty}
+              index="followup-items-{i}"
+            />
+          {/each}
+        {/if}
+        <div class="no-followup">
+          <section class="fr-accordion fr-mt-4v">
+            <h3 class="fr-accordion__title">
+              <button
+                type="button"
+                class="fr-accordion__btn"
+                aria-expanded="{isExpanded}"
+                aria-controls="accordion-1"
+                data-testid="accordion-button"
+              >
+                <span class="fr-pr-2v">
+                  <span class="fr-icon-information-line" aria-hidden="true"></span>
+                  <span class="fr-sr-only">Information</span>
+                </span>
+                Votre démarche n’apparaît pas&nbsp;?
+              </button>
+            </h3>
+            <div id="accordion-1" class="fr-collapse fr-p-0">
+              <div class="fr-m-4v">
+                <p>Consultez votre compte</p>
+                <ul class="fr-p-0">
+                  {#if partners && partners.items.length}
+                    {#each partners.items as item}
+                      <li class="account fr-pb-4v">
+                        <button
+                          type="button"
+                          class="fr-btn fr-btn--secondary am-btn-w100"
+                          onclick={()=> AMIGoto(item.link)}
+                        >
+                          {item.name}
+                        </button>
+                      </li>
+                    {/each}
+                  {/if}
+                </ul>
+                {#if !consents.hasAllConsents()}
+                  <p>Vérifiez que vous suivez bien toutes vos démarches</p>
+                  <div class="consent-action-button">
+                    <button
+                      class="fr-btn fr-btn--lg"
+                      type="button"
+                      onclick={goToConsents}
+                      data-testid="consent-button"
+                    >
+                      Je veux suivre mes démarches
+                    </button>
+                  </div>
+                {/if}
+              </div>
+            </div>
+          </section>
+        </div>
+      {:else}
+        <FollowupNoConsent />
       {/if}
     </div>
-  {/if}
-
-  <div class="followup--container" data-testid="followup">
-    {#if hasAnyConsents}
-      {#if archived && followup && followup.archived_items.length}
-        {#each followup.archived_items as item, i}
-          <FollowupItem item={item} hasModal={false} />
-        {/each}
-      {:else if !archived && followup && followup.items.length}
-        {#each followup.items as item, i}
-          <FollowupItem item={item} hasModal={true} index="followup-items-{i}" />
-          <FollowupItemModal
-            item={item}
-            bind:followup={followup}
-            bind:isFollowupEmpty={isFollowupEmpty}
-            index="followup-items-{i}"
-          />
-        {/each}
-      {/if}
-      <div class="no-followup">
-        <section class="fr-accordion fr-mt-4v">
-          <h3 class="fr-accordion__title">
-            <button
-              type="button"
-              class="fr-accordion__btn"
-              aria-expanded="{isExpanded}"
-              aria-controls="accordion-1"
-              data-testid="accordion-button"
-            >
-              <span class="fr-pr-2v">
-                <span class="fr-icon-information-line" aria-hidden="true"></span>
-                <span class="fr-sr-only">Information</span>
-              </span>
-              Votre démarche n’apparaît pas&nbsp;?
-            </button>
-          </h3>
-          <div id="accordion-1" class="fr-collapse fr-p-0">
-            <div class="fr-m-4v">
-              <p>Consultez votre compte</p>
-              <ul class="fr-p-0">
-                {#if partners && partners.items.length}
-                  {#each partners.items as item}
-                    <li class="account fr-pb-4v">
-                      <button
-                        type="button"
-                        class="fr-btn fr-btn--secondary am-btn-w100"
-                        onclick={()=> AMIGoto(item.link)}
-                      >
-                        {item.name}
-                      </button>
-                    </li>
-                  {/each}
-                {/if}
-              </ul>
-              {#if !hasAllConsents}
-                <p>Vérifiez que vous suivez bien toutes vos démarches</p>
-                <div class="consent-action-button">
-                  <button
-                    class="fr-btn fr-btn--lg"
-                    type="button"
-                    onclick={goToConsents}
-                    data-testid="consent-button"
-                  >
-                    Je veux suivre mes démarches
-                  </button>
-                </div>
-              {/if}
-            </div>
-          </div>
-        </section>
-      </div>
-    {:else}
-      <FollowupNoConsent />
-    {/if}
   </div>
-</div>
+{/await}
 
 <style>
   .followup {
