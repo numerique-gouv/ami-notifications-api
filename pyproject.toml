@@ -5,7 +5,7 @@ description = "AMI notifications API"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
-    "asyncpg>=0.30.0",
+    "asyncpg>=0.32.0",
     "certbot>=5.8.0",
     "channels-postgres>=1.1.4",
     "django>=6.1.2",
