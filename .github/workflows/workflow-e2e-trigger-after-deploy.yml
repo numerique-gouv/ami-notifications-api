@@ -6,7 +6,7 @@ name: e2e after scalingo deploy
 #
 # Résout ensuite lui-même le "cas" (pr/merge/tag) et délègue au workflow réutilisable
 # correspondant (workflow-e2e-webapp-{pr,merge,tag}.yml), qui porte la config e2e propre à son cas
-# (suite CI vs short, run_old_device, etc.) — ce fichier ne fait que router + résoudre les
+# (suites webapp_usage / mobile_all, appareil pixel_8_api36) — ce fichier ne fait que router + résoudre les
 # variables nécessaires (pr_number, checkout_ref).
 #
 # Contrainte GitHub : `on: status` ne se déclenche que si ce fichier existe sur la branche par
@@ -14,15 +14,12 @@ name: e2e after scalingo deploy
 # concerné par le status. Tout doit donc passer explicitement par github.event.sha.
 on: status
 
+# Permissions minimales par défaut ; chaque job déclare les siennes (le garde lit l'API, les appels e2e écrivent le check et le commentaire).
 permissions:
   contents: read
-  checks: write
-  pull-requests: write
-  actions: read
 
 # Scalingo poste plusieurs statuses par SHA (pending, puis success/failure) : un seul run e2e par
-# commit à la fois (la restauration d'historique Allure côté ami-system-tests n'est pas
-# concurrent-safe, cf. son ADR CI).
+# commit à la fois.
 concurrency:
   group: e2e-status-${{ github.event.sha }}
   cancel-in-progress: false
@@ -30,6 +27,9 @@ concurrency:
 jobs:
   guard:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
     outputs:
       case: ${{ steps.check.outputs.case }} # pr | merge | tag | none
       pr_number: ${{ steps.check.outputs.pr_number }}
@@ -90,36 +90,61 @@ jobs:
             esac
           fi
 
+  # PR : webapp_usage (smoke + usage) + mobile_all, webapp (Chrome) + Android sur pixel_8_api36. L'API ne build pas d'APK : elle utilise
+  # celui du dernier tag d'ami-app-android (apk_source: latest-tag, GitHub App ami-reviewapps : secrets AMI_REVIEWAPPS_APP_ID et AMI_REVIEWAPPS_PRIVATE_KEY).
   call-pr:
     needs: guard
     if: ${{ needs.guard.outputs.case == 'pr' }}
     uses: ./.github/workflows/workflow-e2e-webapp-shared.yml
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
     with:
-      run_webapp: CI
+      run_webapp: webapp_usage
+      run_android: mobile_all
+      android_device: pixel_8_api36
+      apk_source: latest-tag
       pr_number: ${{ fromJSON(needs.guard.outputs.pr_number) }}
       source_sha: ${{ github.event.sha }}
-      checkout_ref: ${{ needs.guard.outputs.checkout_ref }}
+      # `main` suit la CI d'ami-system-tests tant qu'elle évolue ; à remplacer par un SHA (dans `uses` et `checkout_ref`, identiques) quand elle sera stable (VULN16, issue #78).
+      checkout_ref: main
     secrets: inherit
 
+  # Merge : mêmes suites que la PR (webapp_usage + mobile_all), UN SEUL passage Android, sur pixel_8_api36.
   call-merge:
     needs: guard
     if: ${{ needs.guard.outputs.case == 'merge' }}
     name: run e2e (PR merged)
     uses: ./.github/workflows/workflow-e2e-webapp-shared.yml
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
     with:
-      run_webapp: short
+      run_webapp: webapp_usage
+      run_android: mobile_all
+      android_device: pixel_8_api36
+      apk_source: latest-tag
       pr_number: ${{ fromJSON(needs.guard.outputs.pr_number) }}
       source_sha: ${{ github.event.sha }}
-      # checkout_ref: laissé au défaut 'main' de workflow-e2e-webapp-shared.yml
+      # checkout_ref: laissé au défaut de workflow-e2e-webapp-shared.yml
     secrets: inherit
 
+  # Tag : mêmes suites que la PR (webapp_usage + mobile_all). Appareil : pixel_8_api36.
   call-tag:
     needs: guard
     if: ${{ needs.guard.outputs.case == 'tag' }}
     uses: ./.github/workflows/workflow-e2e-webapp-shared.yml
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
     with:
-      run_webapp: short
-      run_old_device: false
+      run_webapp: webapp_usage
+      run_android: mobile_all
+      android_device: pixel_8_api36
+      apk_source: latest-tag
       source_sha: ${{ github.event.sha }}
       # pr_number: laissé au défaut 0 — pas de PR associée à un tag
     secrets: inherit
