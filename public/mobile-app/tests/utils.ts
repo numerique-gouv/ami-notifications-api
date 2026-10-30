@@ -1,4 +1,5 @@
 import type { Screen } from '@testing-library/svelte';
+import { waitFor } from '@testing-library/svelte';
 import { expect, vi } from 'vitest';
 import { Address } from '$lib/address';
 import { User } from '$lib/state/User.svelte';
@@ -98,4 +99,10 @@ export const expectBackButtonPresent = (screen: Screen) => {
 
   // Then
   expect(backButton).toBeInTheDocument();
+};
+
+export const waitAfterSkeleton = async () => {
+  await waitFor(async () => {
+    expect(document.querySelector('.skeleton')).toBeNull();
+  });
 };
