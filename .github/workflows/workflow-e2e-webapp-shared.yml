@@ -18,9 +18,9 @@ on:
         type: string
         default: ''
       android_device:
-        description: "AVD Android au format pixel_<profil>_api<niveau> (pixel_6_api31 = ancien appareil, pixel_8_api36 = récent) ; ne sert que si run_android est renseigné"
+        description: "AVD Android au format pixel_<profil>_api<niveau> (ex. pixel_8_api36) ; ne sert que si run_android est renseigné"
         type: string
-        default: pixel_6_api31
+        default: pixel_8_api36
       apk_source:
         description: "origine de l'APK Android : latest-tag = APK du dernier tag d'ami-app-android (artefact privé app-staging-debug-<tag>, variable AMI_REVIEWAPPS_APP_ID et secret AMI_REVIEWAPPS_PRIVATE_KEY requis, GitHub App ami-reviewapps) ; build = artefact buildé par l'appelant (pas le cas ici : l'API ne build pas d'APK)"
         type: string
