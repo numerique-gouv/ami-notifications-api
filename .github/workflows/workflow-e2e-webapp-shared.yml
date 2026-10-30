@@ -63,4 +63,12 @@ jobs:
       source_sha: ${{ inputs.source_sha }}
       pr_number: ${{ inputs.pr_number }}
       checkout_ref: ${{ inputs.checkout_ref }} # la même branche/ref que uses de préférence
-    secrets: inherit
+    # Secrets passés un par un (pas « inherit ») : le workflow appelé ne reçoit que ce qu'il déclare. Les quatre premiers servent aux tests
+    # (API partenaire, second partenaire à consentement activé), les deux derniers à la webapp de staging et à l'APK du dernier tag.
+    secrets:
+      NOTIF_PARTNER_ID: ${{ secrets.NOTIF_PARTNER_ID }}
+      NOTIF_PARTNER_SECRET: ${{ secrets.NOTIF_PARTNER_SECRET }}
+      NOTIF_PARTNER_DINUM_DN_ID: ${{ secrets.NOTIF_PARTNER_DINUM_DN_ID }}
+      NOTIF_PARTNER_DINUM_DN_SECRET: ${{ secrets.NOTIF_PARTNER_DINUM_DN_SECRET }}
+      WEB_APP_ACCESS_KEYS: ${{ secrets.WEB_APP_ACCESS_KEYS }}
+      AMI_REVIEWAPPS_PRIVATE_KEY: ${{ secrets.AMI_REVIEWAPPS_PRIVATE_KEY }}
