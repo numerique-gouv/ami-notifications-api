@@ -4,9 +4,6 @@
   import Followup from '$lib/components/followup/Followup.svelte';
   import Navigation from '$lib/components/Navigation.svelte';
   import { userStore } from '$lib/state/User.svelte';
-  import type { PageProps } from './$types';
-
-  let { data }: PageProps = $props();
 
   onMount(async () => {
     if (!userStore.connected) {
@@ -16,10 +13,7 @@
 </script>
 
 <Navigation currentItem="followup" />
-<Followup
-  followupProp="{data.followup}"
-  isFollowupEmptyProp="{data.isFollowupEmpty}"
-  hasAnyConsentsProp="{data.hasAnyConsents}"
-  hasAllConsentsProp="{data.hasAllConsents}"
-  partnersProp="{data.partners}"
-/>
+
+{#if userStore.connected}
+  <Followup />
+{/if}

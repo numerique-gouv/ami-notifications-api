@@ -1,10 +1,12 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
-import { describe, expect, test, vi } from 'vitest';
+import { afterEach, describe, expect, test, vi } from 'vitest';
 import * as agendaMethods from '$lib/agenda';
 import { Agenda, Item, monthName } from '$lib/agenda';
 import * as AMINavigationMethods from '$lib/ami-navigation';
 import { toastStore } from '$lib/state/toast.svelte';
+import { userStore } from '$lib/state/User.svelte';
 import { getTimestamp } from '$lib/utils';
+import { mockUserInfo, waitAfterSkeleton } from '$tests/utils';
 import Page from './+page.svelte';
 
 const oneday_in_ms = 24 * 60 * 60 * 1000;
@@ -12,6 +14,11 @@ const today = new Date();
 const in32days = new Date(today.getTime() + 32 * oneday_in_ms); // 32 days, so we are sure that month is different than today's
 
 describe('/+page.svelte', () => {
+  afterEach(() => {
+    // restoring date after each test run
+    vi.useRealTimers();
+  });
+
   test('user has to be connected', async () => {
     // Given
     vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(new Agenda());
@@ -26,6 +33,57 @@ describe('/+page.svelte', () => {
       expect(spy).toHaveBeenCalledWith('/#/login');
     });
   });
+  test('should display skeleton', async () => {
+    // Given
+    await userStore.login(mockUserInfo);
+    const agenda = new Agenda();
+    vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(agenda);
+    const date = new Date(2026, 9, 13, 13); // (9 = October)
+    vi.setSystemTime(date);
+
+    // When
+    render(Page);
+
+    // Then
+    expect(document.querySelector('.skeleton')).not.toBeNull();
+
+    expect(
+      [...document.querySelectorAll('.current .agenda--events--month')].map(
+        (e) => e.textContent
+      )
+    ).toEqual(['Octobre', 'Novembre']);
+    expect(
+      [...document.querySelectorAll('.future .agenda--events--month')].map(
+        (e) => e.textContent
+      )
+    ).toEqual(['Décembre', 'Janvier', 'Février', 'Mars', 'Avril', 'Mai']);
+  });
+  test('should display skeleton with a single current month on 1st', async () => {
+    // Given
+    await userStore.login(mockUserInfo);
+    const agenda = new Agenda();
+    vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(agenda);
+    const date = new Date(2026, 9, 1, 13); // (9 = October)
+    vi.setSystemTime(date);
+
+    // When
+    render(Page);
+
+    // Then
+    expect(document.querySelector('.skeleton')).not.toBeNull();
+
+    expect(
+      [...document.querySelectorAll('.current .agenda--events--month')].map(
+        (e) => e.textContent
+      )
+    ).toEqual(['Octobre']);
+    expect(
+      [...document.querySelectorAll('.future .agenda--events--month')].map(
+        (e) => e.textContent
+      )
+    ).toEqual(['Novembre', 'Décembre', 'Janvier', 'Février', 'Mars', 'Avril']);
+  });
+
   test('Should display holidays from API', async () => {
     // Given
     const agenda = new Agenda();
@@ -39,6 +97,7 @@ describe('/+page.svelte', () => {
 
     // When
     render(Page);
+    await waitAfterSkeleton();
 
     // Then
     await waitFor(() => {
@@ -66,6 +125,7 @@ describe('/+page.svelte', () => {
 
     // When
     render(Page);
+    await waitAfterSkeleton();
 
     // Then
     await waitFor(() => {
@@ -89,6 +149,7 @@ describe('/+page.svelte', () => {
 
     // When
     render(Page);
+    await waitAfterSkeleton();
 
     // Then
     await waitFor(() => {
@@ -115,6 +176,7 @@ describe('/+page.svelte', () => {
 
     // When
     render(Page);
+    await waitAfterSkeleton();
 
     // Then
     await waitFor(() => {
@@ -159,6 +221,7 @@ describe('/+page.svelte', () => {
 
     // When
     render(Page);
+    await waitAfterSkeleton();
 
     // Then
     await waitFor(() => {
@@ -198,6 +261,7 @@ describe('/+page.svelte', () => {
 
     // When
     render(Page);
+    await waitAfterSkeleton();
 
     // Then
     expect(monthName(start1)).toEqual(monthName(start2));
@@ -245,6 +309,7 @@ describe('/+page.svelte', () => {
 
     // When
     render(Page);
+    await waitAfterSkeleton();
 
     // Then
     await waitFor(() => {
@@ -290,6 +355,7 @@ describe('/+page.svelte', () => {
         new Item('fake-id-holiday-2', 'holiday', 'Holiday 2', '', null, in32days),
       ]);
       render(Page);
+      await waitAfterSkeleton();
 
       // When
       await waitFor(async () => {
@@ -316,6 +382,7 @@ describe('/+page.svelte', () => {
         new Item('fake-id-holiday-2', 'holiday', 'Holiday 2', '', null, in32days),
       ]);
       render(Page);
+      await waitAfterSkeleton();
 
       // When
       await waitFor(async () => {
@@ -352,6 +419,7 @@ describe('/+page.svelte', () => {
       ]);
       const spy = vi.spyOn(toastStore, 'addToast');
       render(Page);
+      await waitAfterSkeleton();
 
       // When
       await waitFor(async () => {

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { page } from '$app/state';
+  import { PUBLIC_SKELETON_DEBUG_DELAY } from '$env/static/public';
   import { type Agenda, Item as AgendaItemType, buildAgenda } from '$lib/agenda';
   import { AMIGoto } from '$lib/ami-navigation';
   import { AutoPromo, buildAutoPromo } from '$lib/auto-promo';
@@ -31,17 +32,42 @@
   let today: Date | null = $state(null);
   let isAgendaEmpty: boolean = $state(true);
   let agenda: Agenda | null = $state(null);
-  let isFollowupEmpty: boolean = $state(data.isFollowupEmpty || false);
-  let followup: Followup | null = $state(data.followup || null);
+  let isFollowupEmpty: boolean = $state(false);
+  let followup: Followup | null = $state(null);
   let autoPromo: AutoPromo | null = $state(null);
-  let hasAnyConsents: boolean = $state(data.hasAnyConsents || false);
+  let consents: Consents | null = $state(null);
+  let hasAnyConsents: boolean = $state(false);
+
+  const waitUnreadNotifications = async () => {
+    unreadNotificationsCount = await countUnreadNotifications();
+  };
+
+  const buildConsentsAndPartners = async () => {
+    const partners: Partners = await buildPartners();
+    return await buildConsents(partners);
+  };
+
+  const waitForPageData = async () => {
+    if (PUBLIC_SKELETON_DEBUG_DELAY) {
+      await new Promise((resolve) => {
+        setTimeout(() => resolve(0), parseFloat(PUBLIC_SKELETON_DEBUG_DELAY));
+      });
+    }
+    [agenda, followup, consents] = await Promise.all([
+      buildAgenda(),
+      buildFollowup(),
+      buildConsentsAndPartners(),
+    ]);
+    autoPromo = buildAutoPromo(agenda);
+    isAgendaEmpty = !(agenda.now.length || agenda.next.length);
+    hasAnyConsents = consents.hasAnyConsents();
+    isFollowupEmpty = !followup.items.length;
+  };
 
   onMount(async () => {
     try {
       firstName = userStore.connected?.getFirstName() || '';
       today = new Date();
-
-      unreadNotificationsCount = await countUnreadNotifications();
 
       const onMessage = async () => {
         console.log(
@@ -62,18 +88,6 @@
         }
       };
       document.addEventListener('visibilitychange', handleVisibility);
-
-      followup = await buildFollowup();
-      console.log($state.snapshot(followup));
-      isFollowupEmpty = followup.isEmpty();
-      const partners: Partners = await buildPartners();
-      const consents: Consents = await buildConsents(partners);
-      hasAnyConsents = consents.hasAnyConsents();
-
-      agenda = await buildAgenda(followup);
-      console.log($state.snapshot(agenda));
-      isAgendaEmpty = !(agenda.now.length || agenda.next.length);
-      autoPromo = buildAutoPromo(agenda);
     } catch (error) {
       console.error(error);
     }
@@ -96,92 +110,169 @@
             class="fr-btn fr-icon-notification-3-line fr-btn--tertiary-no-outline"
             onclick={() => AMIGoto("/#/notifications")}
           >
-            Voir les notifications({unreadNotificationsCount})
-            <div
-              class="fr-text--bold count-number-wrapper"
-              data-content="{unreadNotificationsCount}"
-            >
-              {unreadNotificationsCount}
-            </div>
+            Voir les notifications
+            {#await waitUnreadNotifications() then gotUnreadNotifications}
+              ({unreadNotificationsCount})
+              <div
+                class="fr-text--bold count-number-wrapper"
+                data-content="{unreadNotificationsCount}"
+              >
+                {unreadNotificationsCount}
+              </div>
+            {/await}
           </button>
         </div>
       </div>
     </div>
 
-    {#if autoPromo && autoPromo.items.length}
-      <div class="rubrique-container">
-        <AutoPromoCarousel items={autoPromo.items} />
-      </div>
-    {/if}
-
-    <div class="rubrique-container agenda-container">
-      {#if isAgendaEmpty}
-        <div class="header-container fr-mb-1w">
-          <h2 class="fr-h6 fr-mb-0 am-text--smbold title">Mon agenda</h2>
-        </div>
-        <div class="rubrique-content-container">
-          <div class="no-agenda rubrique-content-container--empty">
-            <div class="no-agenda--icon">
-              <img src="/remixicons/calendar.svg" alt="">
-            </div>
-            <div class="no-agenda--title">
-              Retrouvez les temps importants de votre vie administrative ici
-            </div>
+    {#await waitForPageData()}
+      <div class="skeleton">
+        <div class="rubrique-container">
+          <div class="autopromo fr-p-2w">
+            <div class="icon"></div>
+            <div class="line"></div>
+            <div class="line"></div>
           </div>
         </div>
-      {:else}
-        <div class="header-container fr-mb-1w">
-          <h2 class="fr-h6 fr-mb-0 am-text--smbold title">Mon agenda</h2>
-          <button
-            type="button"
-            class="fr-link fr-icon-arrow-right-line fr-link--icon-right am-link-icon-xl"
-            aria-label="Voir tous mes évènements"
-            onclick={() => AMIGoto("/#/agenda")}
-          ></button>
+        <div class="rubrique-container agenda-container">
+          <div class="header-container fr-mb-1w">
+            <h2 class="fr-h6 fr-mb-0 am-text--smbold title">Mon agenda</h2>
+            <button
+              type="button"
+              class="fr-link fr-icon-arrow-right-line fr-link--icon-right am-link-icon-xl"
+              aria-label="Voir tous mes évènements"
+              onclick={() => AMIGoto("/#/agenda")}
+            ></button>
+          </div>
+          <div class="fr-card agenda">
+            <div class="tag"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+          </div>
         </div>
-        <div class="rubrique-content-container">
-          {#if agenda && agenda.now.length}
-            {@const firstItem = agenda.now[0]}
-            <AgendaItem
-              item={firstItem}
-              displayDate={false}
-              hasModal={true}
-              index="home-now-0"
-            />
-            <AgendaItemModal item={firstItem} bind:agenda={agenda} index="home-now-0" />
-          {:else if agenda && agenda.next.length}
-            {@const firstItem = agenda.next[0]}
-            <AgendaItem
-              item={firstItem}
-              displayDate={false}
-              hasModal={true}
-              index="home-next-0"
-            />
-            <AgendaItemModal
-              item={firstItem}
-              bind:agenda={agenda}
-              index="home-next-0"
-            />
-          {/if}
-        </div>
-      {/if}
-    </div>
-
-    {#if hasAnyConsents}
-      <div class="rubrique-container followup-container">
-        {#if isFollowupEmpty}
+        <div class="rubrique-container followup-container">
           <div class="header-container fr-mb-1w">
             <h2 class="fr-h6 fr-mb-0 am-text--smbold title">Mes démarches</h2>
+            <button
+              type="button"
+              class="fr-link fr-icon-arrow-right-line fr-link--icon-right am-link-icon-xl"
+              aria-label="Voir toutes mes démarches"
+              onclick={() => AMIGoto("/#/followup")}
+            ></button>
+          </div>
+          <div class="fr-card followup">
+            <div class="tag"></div>
+            <div class="date"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line short"></div>
+          </div>
+        </div>
+      </div>
+    {:then pageDataLoaded}
+      {#if autoPromo && autoPromo.items.length}
+        <div class="rubrique-container">
+          <AutoPromoCarousel items={autoPromo.items} />
+        </div>
+      {/if}
+
+      <div class="rubrique-container agenda-container">
+        {#if isAgendaEmpty}
+          <div class="header-container fr-mb-1w">
+            <h2 class="fr-h6 fr-mb-0 am-text--smbold title">Mon agenda</h2>
           </div>
           <div class="rubrique-content-container">
-            <div class="no-followup rubrique-content-container--empty">
-              <div class="no-followup--icon">
-                <img src="/remixicons/tracking.svg" alt="">
+            <div class="no-agenda rubrique-content-container--empty">
+              <div class="no-agenda--icon">
+                <img src="/remixicons/calendar.svg" alt="">
               </div>
-              <div class="no-followup--title">Suivez vos démarches ici.</div>
+              <div class="no-agenda--title">
+                Retrouvez les temps importants de votre vie administrative ici
+              </div>
             </div>
           </div>
         {:else}
+          <div class="header-container fr-mb-1w">
+            <h2 class="fr-h6 fr-mb-0 am-text--smbold title">Mon agenda</h2>
+            <button
+              type="button"
+              class="fr-link fr-icon-arrow-right-line fr-link--icon-right am-link-icon-xl"
+              aria-label="Voir tous mes évènements"
+              onclick={() => AMIGoto("/#/agenda")}
+            ></button>
+          </div>
+          <div class="rubrique-content-container">
+            {#if agenda && agenda.now.length}
+              {@const firstItem = agenda.now[0]}
+              <AgendaItem
+                item={firstItem}
+                displayDate={false}
+                hasModal={true}
+                index="home-now-0"
+              />
+              <AgendaItemModal
+                item={firstItem}
+                bind:agenda={agenda}
+                index="home-now-0"
+              />
+            {:else if agenda && agenda.next.length}
+              {@const firstItem = agenda.next[0]}
+              <AgendaItem
+                item={firstItem}
+                displayDate={false}
+                hasModal={true}
+                index="home-next-0"
+              />
+              <AgendaItemModal
+                item={firstItem}
+                bind:agenda={agenda}
+                index="home-next-0"
+              />
+            {/if}
+          </div>
+        {/if}
+      </div>
+
+      {#if hasAnyConsents}
+        <div class="rubrique-container followup-container">
+          {#if isFollowupEmpty}
+            <div class="header-container fr-mb-1w">
+              <h2 class="fr-h6 fr-mb-0 am-text--smbold title">Mes démarches</h2>
+            </div>
+            <div class="rubrique-content-container">
+              <div class="no-followup rubrique-content-container--empty">
+                <div class="no-followup--icon">
+                  <img src="/remixicons/tracking.svg" alt="">
+                </div>
+                <div class="no-followup--title">Suivez vos démarches ici.</div>
+              </div>
+            </div>
+          {:else}
+            <div class="header-container fr-mb-1w">
+              <h2 class="fr-h6 fr-mb-0 am-text--smbold title">Mes démarches</h2>
+              <button
+                type="button"
+                class="fr-link fr-icon-arrow-right-line fr-link--icon-right am-link-icon-xl"
+                aria-label="Voir toutes mes démarches"
+                onclick={() => AMIGoto("/#/followup")}
+              ></button>
+            </div>
+            <div class="rubrique-content-container">
+              {#if followup && followup.items.length}
+                {@const firstItem = followup.items[0]}
+                <FollowupItem item={firstItem} hasModal={true} index="home-items-0" />
+                <FollowupItemModal
+                  item={firstItem}
+                  bind:followup={followup}
+                  bind:isFollowupEmpty={isFollowupEmpty}
+                  index="home-items-0"
+                />
+              {/if}
+            </div>
+          {/if}
+        </div>
+      {:else}
+        <div class="rubrique-container followup-container">
           <div class="header-container fr-mb-1w">
             <h2 class="fr-h6 fr-mb-0 am-text--smbold title">Mes démarches</h2>
             <button
@@ -192,35 +283,11 @@
             ></button>
           </div>
           <div class="rubrique-content-container">
-            {#if followup && followup.items.length}
-              {@const firstItem = followup.items[0]}
-              <FollowupItem item={firstItem} hasModal={true} index="home-items-0" />
-              <FollowupItemModal
-                item={firstItem}
-                bind:followup={followup}
-                bind:isFollowupEmpty={isFollowupEmpty}
-                index="home-items-0"
-              />
-            {/if}
+            <FollowupNoConsent />
           </div>
-        {/if}
-      </div>
-    {:else}
-      <div class="rubrique-container followup-container">
-        <div class="header-container fr-mb-1w">
-          <h2 class="fr-h6 fr-mb-0 am-text--smbold title">Mes démarches</h2>
-          <button
-            type="button"
-            class="fr-link fr-icon-arrow-right-line fr-link--icon-right am-link-icon-xl"
-            aria-label="Voir toutes mes démarches"
-            onclick={() => AMIGoto("/#/followup")}
-          ></button>
         </div>
-        <div class="rubrique-content-container">
-          <FollowupNoConsent />
-        </div>
-      </div>
-    {/if}
+      {/if}
+    {/await}
   </div>
 {/if}
 
@@ -277,6 +344,65 @@
         img {
           height: 5rem;
           width: 5rem;
+        }
+      }
+    }
+  }
+
+  .skeleton {
+    --border-default-grey: #e5e5e5;
+    .autopromo {
+      background: #ececfe;
+      height: 10rem;
+      .icon {
+        margin: 0 auto;
+        height: 3rem;
+        width: 3rem;
+        border-radius: 100%;
+        background: #e3e3fd;
+      }
+      .line {
+        background: #e3e3fd;
+        margin: 0.5rem 0;
+        height: 1.2rem;
+      }
+    }
+    .agenda {
+      padding: .875rem 1rem;
+      .tag {
+        background: #ececfe;
+        height: 1.2rem;
+        width: 50%;
+      }
+      .line {
+        background: #f5f5fe;
+        margin-top: 0.5rem;
+        height: 1.2rem;
+      }
+    }
+    .followup {
+      position: relative;
+      padding: .875rem 1rem;
+      border-bottom: .25rem solid var(--border-active-blue-france);
+      .tag {
+        background: #ececfe;
+        height: 1.2rem;
+        width: 50%;
+      }
+      .date {
+        background: #f5f5fe;
+        height: 0.8rem;
+        width: 30%;
+        position: absolute;
+        top: .875rem;
+        right: 1rem;
+      }
+      .line {
+        background: #f5f5fe;
+        margin-top: 0.5rem;
+        height: 1.2rem;
+        &.short {
+          width: 70%;
         }
       }
     }

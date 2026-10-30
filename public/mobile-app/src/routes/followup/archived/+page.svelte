@@ -2,10 +2,10 @@
   import { onMount } from 'svelte';
   import { AMIGoto } from '$lib/ami-navigation';
   import Followup from '$lib/components/followup/Followup.svelte';
+  import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import { userStore } from '$lib/state/User.svelte';
-  import type { PageProps } from './$types';
 
-  let { data }: PageProps = $props();
+  const backUrl = '/#/followup';
 
   onMount(async () => {
     if (!userStore.connected) {
@@ -14,11 +14,7 @@
   });
 </script>
 
-<Followup
-  archived={true}
-  followupProp="{data.followup}"
-  isFollowupEmptyProp="{data.isFollowupEmpty}"
-  hasAnyConsentsProp="{data.hasAnyConsents}"
-  hasAllConsentsProp="{data.hasAllConsents}"
-  partnersProp="{data.partners}"
-/>
+<NavWithBackButton title="Démarches archivées" {backUrl} />
+{#if userStore.connected}
+  <Followup archived={true} />
+{/if}
