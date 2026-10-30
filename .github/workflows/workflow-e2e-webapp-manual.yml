@@ -16,9 +16,9 @@ on:
         type: string
         default: ''
       android_device:
-        description: "AVD Android au format pixel_<profil>_api<niveau> (pixel_2_api30 = ancien appareil, pixel_8_api36 = récent) ; ne sert que si une suite Android est lancée"
+        description: "AVD Android au format pixel_<profil>_api<niveau> (pixel_6_api31 = ancien appareil, pixel_8_api36 = récent) ; ne sert que si une suite Android est lancée"
         type: string
-        default: pixel_2_api30
+        default: pixel_6_api31
       apk_source:
         description: "origine de l'APK Android : latest-tag (dernier tag d'ami-app-android, variable AMI_REVIEWAPPS_APP_ID et secret AMI_REVIEWAPPS_PRIVATE_KEY requis)"
         type: string

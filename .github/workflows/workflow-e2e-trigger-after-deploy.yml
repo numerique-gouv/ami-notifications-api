@@ -90,7 +90,7 @@ jobs:
             esac
           fi
 
-  # PR : webapp_usage (smoke + usage) + mobile_all, webapp (Chrome) + Android sur appareil ANCIEN (pixel_2_api30). L'API ne build pas d'APK : elle utilise
+  # PR : webapp_usage (smoke + usage) + mobile_all, webapp (Chrome) + Android sur appareil ANCIEN (pixel_6_api31). L'API ne build pas d'APK : elle utilise
   # celui du dernier tag d'ami-app-android (apk_source: latest-tag, GitHub App ami-reviewapps : variable AMI_REVIEWAPPS_APP_ID, secret AMI_REVIEWAPPS_PRIVATE_KEY).
   call-pr:
     needs: guard
@@ -103,7 +103,7 @@ jobs:
     with:
       run_webapp: webapp_usage
       run_android: mobile_all
-      android_device: pixel_2_api30
+      android_device: pixel_6_api31
       apk_source: latest-tag
       pr_number: ${{ fromJSON(needs.guard.outputs.pr_number) }}
       source_sha: ${{ github.event.sha }}
@@ -132,7 +132,7 @@ jobs:
       # checkout_ref: laissé au défaut de workflow-e2e-webapp-shared.yml
     secrets: inherit
 
-  # Tag : mêmes suites que la PR (webapp_usage + mobile_all). Appareil ANCIEN (pixel_2_api30) : HYPOTHÈSE, la demande ne précisait pas l'appareil du tag.
+  # Tag : mêmes suites que la PR (webapp_usage + mobile_all). Appareil ANCIEN (pixel_6_api31) : HYPOTHÈSE, la demande ne précisait pas l'appareil du tag.
   call-tag:
     needs: guard
     if: ${{ needs.guard.outputs.case == 'tag' }}
@@ -144,7 +144,7 @@ jobs:
     with:
       run_webapp: webapp_usage
       run_android: mobile_all
-      android_device: pixel_2_api30
+      android_device: pixel_6_api31
       apk_source: latest-tag
       source_sha: ${{ github.event.sha }}
       # pr_number: laissé au défaut 0 — pas de PR associée à un tag
