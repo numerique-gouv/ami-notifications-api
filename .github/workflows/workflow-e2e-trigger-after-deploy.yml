@@ -91,7 +91,7 @@ jobs:
           fi
 
   # PR : webapp_usage (smoke + usage) + mobile_all, webapp (Chrome) + Android sur pixel_8_api36. L'API ne build pas d'APK : elle utilise
-  # celui du dernier tag d'ami-app-android (apk_source: latest-tag, GitHub App ami-reviewapps : variable AMI_REVIEWAPPS_APP_ID, secret AMI_REVIEWAPPS_PRIVATE_KEY).
+  # celui du dernier tag d'ami-app-android (apk_source: latest-tag, GitHub App ami-reviewapps : secrets AMI_REVIEWAPPS_APP_ID et AMI_REVIEWAPPS_PRIVATE_KEY).
   call-pr:
     needs: guard
     if: ${{ needs.guard.outputs.case == 'pr' }}

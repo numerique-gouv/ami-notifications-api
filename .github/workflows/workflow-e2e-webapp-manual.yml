@@ -20,7 +20,7 @@ on:
         type: string
         default: pixel_8_api36
       apk_source:
-        description: "origine de l'APK Android : latest-tag (dernier tag d'ami-app-android, variable AMI_REVIEWAPPS_APP_ID et secret AMI_REVIEWAPPS_PRIVATE_KEY requis)"
+        description: "origine de l'APK Android : latest-tag (dernier tag d'ami-app-android, secrets AMI_REVIEWAPPS_APP_ID et AMI_REVIEWAPPS_PRIVATE_KEY requis)"
         type: string
         default: latest-tag
       checkout_ref:

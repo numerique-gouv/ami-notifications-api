@@ -22,7 +22,7 @@ on:
         type: string
         default: pixel_8_api36
       apk_source:
-        description: "origine de l'APK Android : latest-tag = APK du dernier tag d'ami-app-android (artefact privé app-staging-debug-<tag>, variable AMI_REVIEWAPPS_APP_ID et secret AMI_REVIEWAPPS_PRIVATE_KEY requis, GitHub App ami-reviewapps) ; build = artefact buildé par l'appelant (pas le cas ici : l'API ne build pas d'APK)"
+        description: "origine de l'APK Android : latest-tag = APK du dernier tag d'ami-app-android (artefact privé app-staging-debug-<tag>, secrets AMI_REVIEWAPPS_APP_ID et AMI_REVIEWAPPS_PRIVATE_KEY requis, GitHub App ami-reviewapps) ; build = artefact buildé par l'appelant (pas le cas ici : l'API ne build pas d'APK)"
         type: string
         default: latest-tag
       report_label:
@@ -71,4 +71,5 @@ jobs:
       NOTIF_PARTNER_DINUM_DN_ID: ${{ secrets.NOTIF_PARTNER_DINUM_DN_ID }}
       NOTIF_PARTNER_DINUM_DN_SECRET: ${{ secrets.NOTIF_PARTNER_DINUM_DN_SECRET }}
       WEB_APP_ACCESS_KEYS: ${{ secrets.WEB_APP_ACCESS_KEYS }}
+      AMI_REVIEWAPPS_APP_ID: ${{ secrets.AMI_REVIEWAPPS_APP_ID }}
       AMI_REVIEWAPPS_PRIVATE_KEY: ${{ secrets.AMI_REVIEWAPPS_PRIVATE_KEY }}
