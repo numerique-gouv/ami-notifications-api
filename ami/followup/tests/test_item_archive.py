@@ -74,6 +74,41 @@ def test_archive_notification_item(
 
 
 @pytest.mark.django_db
+def test_archive_notification_item_id_with_colon(
+    user: User,
+    partner_psl: Partner,
+    app,
+) -> None:
+    login(app, user)
+
+    notification1 = Notification.objects.create(
+        user_id=user.id,
+        content_body="notification 1",
+        content_title="Notification title 1",
+        item_generic_status="new",
+        item_status_label="Nouveau",
+        item_type="OperationTranquilliteVacances",
+        item_id="42:test",
+        partner=partner_psl,
+    )
+    payload = {
+        "is_archived": True,
+    }
+    response = app.post_json(
+        "/api/v1/users/data/followup/item/notifications/psl:OperationTranquilliteVacances:42:test/archive",
+        payload,
+    )
+    assert response.json == {
+        "source": "notifications",
+        "item_external_id": "psl:OperationTranquilliteVacances:42:test",
+        "is_archived": True,
+    }
+
+    notification1.refresh_from_db()
+    assert notification1.item_is_archived is True
+
+
+@pytest.mark.django_db
 def test_archive_notification_item_empty_payload(
     user: User,
     partner_psl: Partner,
