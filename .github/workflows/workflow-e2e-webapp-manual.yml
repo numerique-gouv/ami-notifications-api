@@ -14,7 +14,7 @@ on:
       run_android:
         description: "suite de test (test-suites.ts : mobile_short = mise au point, mobile_all = PR/merge/tag, mobile_smoke…) à lancer sur l'apk Android — vide = ne pas lancer"
         type: string
-        default: mobile_short
+        default: ''
       android_device:
         description: "AVD Android au format pixel_<profil>_api<niveau> (pixel_2_api30 = ancien appareil, pixel_8_api36 = récent) ; ne sert que si une suite Android est lancée"
         type: string
