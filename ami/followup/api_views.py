@@ -44,12 +44,12 @@ def get_followup(request: Request) -> Response[Followup]:
 def archive_followup_item(
     request: Request, source: str, item_external_id: str
 ) -> Response[FollowupItemArchiveResponse]:
-    parts = item_external_id.split(":")
-    if len(parts) != 3:
+    try:
+        partner_slug, item_type, item_id = item_external_id.split(":", 2)
+    except ValueError:
         raise Http404
-    if not all(parts):
+    if not all((partner_slug, item_type, item_id)):
         raise Http404
-    partner_slug, item_type, item_id = parts
 
     partner = get_object_or_404(Partner, slug=partner_slug)
 
