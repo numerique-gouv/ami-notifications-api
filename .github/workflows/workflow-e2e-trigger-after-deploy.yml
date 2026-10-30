@@ -107,9 +107,8 @@ jobs:
       apk_source: latest-tag
       pr_number: ${{ fromJSON(needs.guard.outputs.pr_number) }}
       source_sha: ${{ github.event.sha }}
-      # PROVISOIRE, le temps de la mise au point : même ref que `uses` dans workflow-e2e-webapp-shared.yml (77-migre-vers-wdio-10).
-      # À terme : ${{ needs.guard.outputs.checkout_ref }} (branche de la PR, main sinon).
-      checkout_ref: 77-migre-vers-wdio-10
+      # `main` suit la CI d'ami-system-tests tant qu'elle évolue ; à remplacer par un SHA (dans `uses` et `checkout_ref`, identiques) quand elle sera stable (VULN16, issue #78).
+      checkout_ref: main
     secrets: inherit
 
   # Merge : mêmes suites que la PR (webapp_usage + mobile_all), UN SEUL passage Android, sur pixel_8_api36.

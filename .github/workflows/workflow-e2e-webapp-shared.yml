@@ -40,14 +40,13 @@ on:
       checkout_ref:
         description: "ref (branche/tag/sha) d'ami-system-tests à checkout — doit être égal à la ref de jobs.e2e-launch.uses: [...]@ref"
         type: string
-        default: 77-migre-vers-wdio-10 # provisoire, à repasser sur main à la fusion
+        default: main
 
 jobs:
   e2e-launch:
     name: trigger an e2e run in ami-system-tests
-    # PROVISOIRE, le temps de la mise au point : la branche 77-migre-vers-wdio-10 d'ami-system-tests porte le job report, les suites
-    # webapp_*/mobile_* et les sorties. À repasser sur @main à la fusion (checkout_ref doit rester égal à cette ref).
-    uses: numerique-gouv/ami-system-tests/.github/workflows/workflow-e2e-main.yml@77-migre-vers-wdio-10
+    # `main` suit la CI d'ami-system-tests tant qu'elle évolue ; à remplacer par un SHA (dans `uses` et `checkout_ref`, identiques) quand elle sera stable (VULN16, issue #78).
+    uses: numerique-gouv/ami-system-tests/.github/workflows/workflow-e2e-main.yml@main
     # Le workflow appelé ne peut pas dépasser ces permissions : checks (check du commit testé) et pull-requests (commentaire unique).
     permissions:
       contents: read

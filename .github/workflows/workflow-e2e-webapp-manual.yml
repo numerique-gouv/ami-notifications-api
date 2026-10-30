@@ -26,7 +26,7 @@ on:
       checkout_ref:
         description: "ref (branche/tag/sha) d'ami-system-tests à checkout — doit être égal à la ref de jobs.e2e-launch.uses: [...]@ref"
         type: string
-        default: 77-migre-vers-wdio-10
+        default: main
 
 permissions:
   contents: read
