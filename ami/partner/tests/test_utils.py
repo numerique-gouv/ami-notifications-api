@@ -1,4 +1,5 @@
 import pytest
+from django.conf import settings
 
 from ami.partner.models import Partner
 from ami.partner.utils import is_allowed_url
@@ -27,3 +28,12 @@ def test_is_allowed_url_empty(partner, partner_dn):
 @pytest.mark.django_db
 def test_is_allowed_url_when_no_partner():
     assert is_allowed_url("https://example.org")
+
+
+@pytest.mark.django_db
+def test_is_allowed_url_local(partner):
+    Partner.objects.exclude(slug__in=[partner.slug]).delete()
+    partner.trusted_base_uris = "https://example.org/test/"
+    partner.save()
+    assert is_allowed_url("/test")
+    assert is_allowed_url(f"{settings.PUBLIC_APP_URL}/test")
