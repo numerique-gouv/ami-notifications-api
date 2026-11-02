@@ -33,6 +33,10 @@
     const url = await service.getServiceUrl();
     AMIGoto(url, service.with_silent_login);
   };
+
+  const goToSearch = async () => {
+    AMIGoto('/#/services/search');
+  };
 </script>
 
 <Navigation currentItem="services" />
@@ -41,6 +45,21 @@
   <div class="fr-pt-3w fr-px-2w services--title">
     <h2>Services</h2>
   </div>
+
+  <form class="search-form">
+    <div class="fr-fieldset__element">
+      <div class="fr-input-wrap fr-icon-search-line">
+        <input
+          class="fr-input"
+          id="search-input"
+          type="text"
+          placeholder="Rechercher un service"
+          data-testid="search-input"
+          onfocus={goToSearch}
+        >
+      </div>
+    </div>
+  </form>
 
   <div class="fr-tabs fr-tabs--viewport-width am-tabs">
     <ul
