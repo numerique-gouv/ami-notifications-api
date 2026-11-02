@@ -30,7 +30,6 @@
   const backUrl = '/#/followup';
   let isFollowupEmpty: boolean = $state(isFollowupEmptyProp);
   let followup: Followup | null = $state(followupProp);
-  let selectedFollowupItem: FollowupItemType | null = $state(null);
   let menuOpened: boolean = $state(false);
   let hasAnyConsents: boolean = $state(hasAnyConsentsProp);
   let hasAllConsents: boolean = $state(hasAllConsentsProp);
@@ -54,10 +53,6 @@
       return followup.archived_items?.length === 0;
     }
     return false;
-  };
-
-  const openFollowupItemModal = (item: FollowupItemType) => {
-    selectedFollowupItem = item;
   };
 
   const toggleMoreMenu = () => {
@@ -116,12 +111,18 @@
   <div class="followup--container" data-testid="followup">
     {#if hasAnyConsents}
       {#if archived && followup && followup.archived_items.length}
-        {#each followup.archived_items as item}
-          <FollowupItem item={item} onOpen={() => openFollowupItemModal(item)} />
+        {#each followup.archived_items as item, i}
+          <FollowupItem item={item} hasModal={false} />
         {/each}
       {:else if !archived && followup && followup.items.length}
-        {#each followup.items as item}
-          <FollowupItem item={item} onOpen={() => openFollowupItemModal(item)} />
+        {#each followup.items as item, i}
+          <FollowupItem item={item} hasModal={true} index="followup-items-{i}" />
+          <FollowupItemModal
+            item={item}
+            bind:followup={followup}
+            bind:isFollowupEmpty={isFollowupEmpty}
+            index="followup-items-{i}"
+          />
         {/each}
       {/if}
       <div class="no-followup">
@@ -181,14 +182,6 @@
     {/if}
   </div>
 </div>
-
-{#if selectedFollowupItem}
-  <FollowupItemModal
-    bind:item={selectedFollowupItem}
-    bind:followup={followup}
-    bind:isFollowupEmpty={isFollowupEmpty}
-  />
-{/if}
 
 <style>
   .followup {

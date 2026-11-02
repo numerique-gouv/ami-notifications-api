@@ -2,9 +2,9 @@
   import DOMPurify from 'dompurify';
   import { onMount } from 'svelte';
   import { Item } from '$lib/agenda';
-  import { AMIGoto } from '$lib/ami-navigation';
+  import { AMIBackOrGoto, AMIGoto } from '$lib/ami-navigation';
   import { getDSFRIcon } from '$lib/dsfr-icon';
-  import { ariaHideDecorativeEmoji } from '$lib/emoji';
+  import { ariaHideDecorativeEmoji, removeDecorativeEmoji } from '$lib/emoji';
   import { FollowupSubItem } from '$lib/followup';
 
   interface Props {
@@ -13,23 +13,39 @@
     displayDate?: boolean;
     displayDay?: boolean;
     Date?: boolean;
-    onOpen?: (() => void) | null;
     isPast?: boolean;
     followupSubItem?: FollowupSubItem | null;
+    useBackOrGoto?: boolean;
+    hasModal?: boolean;
+    index?: string;
   }
   let {
     item,
     displayDate = true,
     displayDay = true,
-    onOpen = null,
     isPast = false,
     followupSubItem = null,
+    useBackOrGoto = false,
+    hasModal = false,
+    index = '',
   }: Props = $props();
 
   let checkedIcon = '';
   if (followupSubItem) {
     checkedIcon = getDSFRIcon(followupSubItem.icon, 'fr-icon-information-fill');
   }
+
+  const goToItem = (event: Event) => {
+    if (item.link) {
+      if (useBackOrGoto) {
+        AMIBackOrGoto(item.link);
+        return;
+      }
+      AMIGoto(item.link);
+      return;
+    }
+    event.preventDefault();
+  };
 </script>
 
 <div class="agenda--item">
@@ -45,30 +61,28 @@
   <div class="agenda--item--container">
     <div
       class="fr-card fr-enlarge-button fr-card--sm fr-card--horizontal agenda--item--detail
-              {item.kind} 
-              {isPast ? 'past': ''} 
+              {item.kind}
+              {isPast ? 'past': ''}
               {item.link ? '': 'fr-card--no-icon no-link'}
-              {onOpen ? '': 'am-without-opt'}
+              {hasModal ? '': 'am-without-opt'}
       "
     >
-      {#if onOpen}
+      {#if hasModal}
         <button
+          data-fr-opened="false"
+          aria-controls="agenda-item-{index}-modal"
+          id="agenda-item-{item.key}-button"
           type="button"
-          onclick={onOpen}
-          data-testid="open-agenda-item-modal-{item.id}"
-          class="fr-btn fr-btn--icon fr-icon-more-2-fill fr-btn--tertiary-no-outline fr-pt-2w am-btn-modal open-agenda-item-modal"
+          data-testid="agenda-item-{item.key}-open-modal-button"
+          class="fr-btn fr-btn--icon fr-icon-more-2-fill fr-btn--tertiary-no-outline fr-pt-2w am-icon-20 am-btn-modal open-agenda-item-modal"
         >
-          Ouvrir la modale liée à l’élément de l’agenda
+          Ouvrir les options pour {removeDecorativeEmoji(item.title)}
         </button>
       {/if}
       <div class="fr-card__body fr-p-0">
         <div class="fr-card__content fr-m-0 fr-pb-3v">
           <h4 class="fr-card__title fr-text--md">
-            <button
-              type="button"
-              onclick={(e) => {if (item.link) { AMIGoto(item.link) } else {e.preventDefault();} }}
-              data-testid="agenda-item-link"
-            >
+            <button type="button" onclick={goToItem} data-testid="agenda-item-link">
               {@html ariaHideDecorativeEmoji(item.title)}
             </button>
           </h4>

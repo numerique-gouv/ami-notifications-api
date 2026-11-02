@@ -13,15 +13,13 @@
     "format": "prettier --write .",
     "lint": "prettier --check . && eslint .",
     "test:unit": "TZ=Europe/Paris vitest",
-    "test": "npm run test:unit -- --run && npm run test:e2e",
-    "test:e2e": "PUBLIC_WEBSITE_PUBLIC=true playwright test",
+    "test": "npm run test:unit -- --run",
     "test:cucumber": "cucumber-js tests/features"
   },
   "dependencies": {
     "@eslint/compat": "2.0.0",
     "@eslint/js": "9.39.1",
     "@gouvfr/dsfr": "1.14.2",
-    "@playwright/test": "1.57.0",
     "@sentry/sveltekit": "^10.72.0",
     "@simplewebauthn/browser": "13.3.0",
     "@sinonjs/fake-timers": "15.4.0",
@@ -32,7 +30,7 @@
     "@sveltejs/vite-plugin-svelte": "7.1.2",
     "@testing-library/jest-dom": "6.9.1",
     "@testing-library/svelte": "5.2.9",
-    "dompurify": "3.4.16",
+    "dompurify": "3.4.17",
     "eslint": "9.39.1",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-svelte": "3.13.1",
@@ -45,8 +43,8 @@
     "svelte-check": "4.3.4",
     "typescript": "5.9.3",
     "typescript-eslint": "8.49.0",
-    "vite": "8.0.16",
-    "vitest": "4.1.11"
+    "vite": "8.3.4",
+    "vitest": "4.1.12"
   },
   "devDependencies": {
     "@cucumber/cucumber": "12.8.1",

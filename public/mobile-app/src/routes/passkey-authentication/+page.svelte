@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
+  import { afterNavigate } from '$app/navigation';
   import { page } from '$app/state';
   import { AMIGoto } from '$lib/ami-navigation';
   import BottomModal from '$lib/components/modal/BottomModal.svelte';
@@ -70,10 +72,35 @@
     userStore.unsetHasWorkingPasskey();
     AMIGoto('/#/relogin');
   };
+
+  onMount(() => {
+    const modal = document.getElementById('passkey-authentication-modal');
+    modal?.addEventListener('dsfr.conceal', closeModal);
+  });
+
+  afterNavigate(({ type }) => {
+    if (type === 'popstate') {
+      // do not allow native/browser back to this page, redirect to home
+      AMIGoto('/');
+    }
+  });
 </script>
 
-<BottomModal onClose={closeModal}>
+<button
+  data-fr-opened="true"
+  aria-controls="passkey-authentication-modal"
+  id="passkey-authentication-button"
+  class="fr-link fr-px-4w fr-py-3v fr-sr-only"
+  data-testid="passkey-authentication-button"
+>
+  Ouvrir la modale pour utiliser une clé d’accès
+</button>
+
+<BottomModal modalId="passkey-authentication-modal">
   {#snippet modalContent()}
+    <h2 id="passkey-authentication-modal-title" class="fr-sr-only">
+      Connexion via une clé d’accès
+    </h2>
     <div class="fr-container">
       <div class="fr-grid-row fr-grid-row--center">
         <div class="image-wrapper">

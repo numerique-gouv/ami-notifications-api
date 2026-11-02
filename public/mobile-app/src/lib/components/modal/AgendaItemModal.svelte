@@ -1,18 +1,15 @@
 <script lang="ts">
   import { type Agenda, buildAgenda, Item } from '$lib/agenda';
   import BottomModal from '$lib/components/modal/BottomModal.svelte';
-  import { ariaHideDecorativeEmoji } from '$lib/emoji';
+  import { ariaHideDecorativeEmoji, removeDecorativeEmoji } from '$lib/emoji';
   import { toastStore } from '$lib/state/toast.svelte';
 
   interface Props {
-    item: Item | null;
+    item: Item;
     agenda: Agenda | null;
+    index: string;
   }
-  let { item = $bindable(), agenda = $bindable() }: Props = $props();
-
-  const closeModal = () => {
-    item = null;
-  };
+  let { item, agenda = $bindable(), index }: Props = $props();
 
   const refreshAgenda = () => {
     buildAgenda().then((result) => {
@@ -20,32 +17,32 @@
     });
   };
 
-  const clickOnHideAgendaItem = (item: Item | null) => {
-    if (item) {
-      item.hide();
-      if (agenda) {
-        refreshAgenda();
-      }
-      closeModal();
-      toastStore.addToast('L’élément a bien été supprimé', 'success', 3000, true);
+  const clickOnHideAgendaItem = (item: Item) => {
+    item.hide();
+    if (agenda) {
+      refreshAgenda();
     }
+    toastStore.addToast('L’élément a bien été supprimé', 'success', 3000, true);
   };
 </script>
 
-<BottomModal onClose={closeModal}>
+<BottomModal modalId="agenda-item-{index}-modal">
   {#snippet modalContent()}
-    <h2 class="agenda-item-modal-header" data-testid="agenda-item-modal-header">
-      {@html ariaHideDecorativeEmoji(item?.title || '')}
+    <h2
+      id="agenda-item-{item.key}-modal-title"
+      class="fr-h5 fr-mb-3v agenda-item-modal-header"
+      data-testid="agenda-item-modal-header"
+    >
+      {@html ariaHideDecorativeEmoji(item.title)}
     </h2>
-    <ul class="agenda-item-modal-footer">
+    <ul class="fr-raw-list agenda-item-modal-footer">
       <li>
-        <span class="fr-icon-eye-off-line"></span>
         <button
           onclick={() => clickOnHideAgendaItem(item)}
-          title="Cacher l’élément de l’agenda"
-          aria-label="Cacher l’élément de l’agenda"
-          data-testid="hide-agenda-item-button"
-          class="hide-agenda-item"
+          aria-controls="agenda-item-{index}-modal"
+          aria-label="Masquer l’élément de l’agenda { removeDecorativeEmoji(item.title)}"
+          data-testid="agenda-item-{item.key}-hide-button"
+          class="fr-btn fr-btn--lg fr-p-0 fr-btn--tertiary-no-outline fr-icon-eye-off-line fr-btn--icon-left fr-text--md fr-text-title--grey hide-agenda-item"
         >
           Masquer
         </button>
@@ -53,16 +50,3 @@
     </ul>
   {/snippet}
 </BottomModal>
-
-<style>
-  h2.agenda-item-modal-header {
-    font-size: 1.25rem;
-  }
-  ul.agenda-item-modal-footer {
-    padding: 0 0 1rem 0;
-    margin: 0;
-    li {
-      list-style: none;
-    }
-  }
-</style>

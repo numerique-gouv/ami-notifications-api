@@ -31,7 +31,7 @@
   {#if parentItem !== null && displayParent}
     <div class="demarche-content-parent-link fr-mb-3w" data-testid="followup-parent">
       <h2 class="fr-h6 fr-mb-2w">Démarche attachée&nbsp;:</h2>
-      <FollowupItemComponent item={parentItem} />
+      <FollowupItemComponent item={parentItem} useBackOrGoto={true} />
     </div>
   {/if}
 
@@ -51,6 +51,7 @@
             item={agendaItem}
             displayDate={false}
             followupSubItem={sub_item}
+            useBackOrGoto={true}
           />
         {/if}
       {/each}
@@ -70,6 +71,7 @@
               displayDate={false}
               isPast={true}
               followupSubItem={sub_item}
+              useBackOrGoto={true}
             />
           {/if}
         {/each}

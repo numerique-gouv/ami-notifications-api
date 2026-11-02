@@ -17,6 +17,28 @@ export const EXCLUDED_URLS_FROM_HISTORY = [
   '/#/back',
 ];
 
+export const addLastVisitedInternalUrl = (url: string) => {
+  const last_visited_internal_urls = getLastVisitedInternalUrls();
+  last_visited_internal_urls.unshift(url);
+  localStorage.setItem(
+    'last_visited_internal_urls',
+    JSON.stringify(last_visited_internal_urls.slice(0, 2))
+  );
+};
+
+export const getLastVisitedInternalUrls = () => {
+  try {
+    return JSON.parse(localStorage.getItem('last_visited_internal_urls') || '[]');
+  } catch {
+    console.warn(
+      'wrong last_visited_internal_urls',
+      localStorage.getItem('last_visited_internal_urls')
+    );
+    localStorage.removeItem('last_visited_internal_urls');
+    return [];
+  }
+};
+
 const AMIFILogin = (url: string) => {
   window.location.href = `/silent-login-ami-fi?redirect_url=${encodeURIComponent(url)}&from_hash=${window.location.hash.substring(1)}`;
 };
@@ -40,7 +62,7 @@ export const AMIGoto = (
   }
 
   if (isInternal && !EXCLUDED_URLS_FROM_HISTORY.includes(link)) {
-    localStorage.setItem('last_visited_internal_url', link);
+    addLastVisitedInternalUrl(link);
   }
   if (isInternal && !isPromoted) {
     if (opts !== undefined) {
@@ -58,10 +80,16 @@ export const AMIGoto = (
         console.warn('Protocol not allowed', url.protocol);
         return;
       }
+      const last_visited_internal_urls = getLastVisitedInternalUrls();
+      let last_visited_internal_url = '/';
+      if (last_visited_internal_urls) {
+        last_visited_internal_url = last_visited_internal_urls[0];
+      }
+
       localStorage.setItem(
         'webview_back_target',
         JSON.stringify({
-          url: localStorage.getItem('last_visited_internal_url') || '/',
+          url: last_visited_internal_url || '/',
           historyLength: history.length,
         })
       );
@@ -104,6 +132,26 @@ export const AMIBack = (backUrl: string) => {
   } else {
     self.AMIGoto(backUrl);
   }
+};
+
+export const AMIBackOrGoto = (url: string) => {
+  const last_visited_internal_urls = getLastVisitedInternalUrls();
+  if (last_visited_internal_urls.length <= 1) {
+    self.AMIGoto(url);
+    return;
+  }
+  const previous = last_visited_internal_urls[1];
+  if (previous !== url) {
+    self.AMIGoto(url);
+    return;
+  }
+  if (history.length > 1) {
+    history.back();
+    localStorage.removeItem('last_visited_internal_urls');
+    addLastVisitedInternalUrl(url);
+    return;
+  }
+  self.AMIGoto(url);
 };
 
 export const AMIBackToLastKnownURL = () => {

@@ -1,43 +1,51 @@
 <script lang="ts">
-  import { AMIGoto } from '$lib/ami-navigation';
+  import { AMIBackOrGoto, AMIGoto } from '$lib/ami-navigation';
   import { getDSFRIcon } from '$lib/dsfr-icon';
   import { ariaHideDecorativeEmoji } from '$lib/emoji';
   import { FollowupItem } from '$lib/followup';
 
   interface Props {
     item: FollowupItem;
-    onOpen?: (() => void) | null;
+    useBackOrGoto?: boolean;
+    hasModal?: boolean;
+    index?: string;
   }
-  let { item, onOpen = null }: Props = $props();
+  let { item, useBackOrGoto = false, hasModal = false, index = '' }: Props = $props();
 
   let checkedIcon = $derived(getDSFRIcon(item.icon, 'fr-icon-information-fill'));
   let withDetailButton = $derived(
     !item.sub_items.length && !item.is_archived && item.status_id === 'new' && item.link
   );
+
+  const goToItem = () => {
+    if (useBackOrGoto) {
+      AMIBackOrGoto(item.getItemDetailPageUrl());
+      return;
+    }
+    AMIGoto(item.getItemDetailPageUrl());
+  };
 </script>
 
 <div class="followup--item">
   <div
     class="followup--item--detail fr-tile fr-tile--sm fr-tile--horizontal fr-enlarge-button { withDetailButton  && 'fr-tile--no-icon' }"
   >
-    {#if onOpen && !item.is_archived}
+    {#if hasModal && !item.is_archived}
       <button
+        data-fr-opened="false"
+        aria-controls="followup-item-{index}-modal"
+        id="followup-item-{item.id}-button"
         type="button"
-        onclick={onOpen}
-        data-testid="open-followup-item-modal-{item.id}"
+        data-testid="followup-item-{item.id}-open-modal-button"
         class="fr-btn fr-btn--icon fr-icon-more-2-fill fr-btn--tertiary-no-outline fr-pt-2w am-icon-20 am-btn-modal open-followup-item-modal fr-icon-more-2-fill"
       >
-        Ouvrir la modale liée à l'élément du suivi
+        Ouvrir les options pour {ariaHideDecorativeEmoji(item.title)}
       </button>
     {/if}
     <div class="fr-tile__body">
       <div class="fr-tile__content fr-pb-0">
         <h3 class="fr-tile__title">
-          <button
-            type="button"
-            onclick={(e) => AMIGoto(item.getItemDetailPageUrl())}
-            data-testid="followup-item-link"
-          >
+          <button type="button" onclick={goToItem} data-testid="followup-item-link">
             {@html ariaHideDecorativeEmoji(item.title)}
           </button>
         </h3>
@@ -82,7 +90,7 @@
             <button
               type="button"
               class="fr-btn fr-mb-0"
-              onclick={(e) => AMIGoto(item.getItemDetailPageUrl())}
+              onclick={goToItem}
               data-testid="external-item-button-{item.id}"
             >
               Reprendre ma démarche

@@ -576,6 +576,7 @@ describe('/FollowupItemDetail.svelte', () => {
       expect(FollowupItemComponent).toHaveBeenCalled();
       expect(FollowupItemComponent).toHaveBeenCalledWith(expect.anything(), {
         item: item,
+        useBackOrGoto: true,
       });
     });
     test('Should not display sub items with milestone', async () => {

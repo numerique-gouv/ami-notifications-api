@@ -89,14 +89,17 @@ def registrations(request: Request) -> Response:
     if "device_id" in subscription:
         with transaction.atomic():
             # In case of a mobile app subscription, check if we already have registration(s) for this device.
-            existing_registrations: QuerySet[Registration] = Registration.objects.filter(
-                subscription__device_id=subscription["device_id"],
+            existing_registrations: QuerySet[Registration] = (
+                Registration.objects.select_for_update().filter(
+                    device_id=subscription["device_id"],
+                )
             )
             registrations_exists = existing_registrations.exists()
             status = HTTP_200_OK if registrations_exists else HTTP_201_CREATED
             if registrations_exists:
-                # and if so, delete them: we only want to keep the latest registration for a given device.
-                existing_registrations.delete()
+                # and if so, mark them as deleted: we only want to keep
+                # the latest registration for a given device.
+                existing_registrations.update(deleted_at=now())
             registration: Registration = Registration.objects.create(
                 user=request.ami_user,
                 subscription=subscription,

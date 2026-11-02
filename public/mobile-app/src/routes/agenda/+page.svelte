@@ -8,7 +8,6 @@
   import { userStore } from '$lib/state/User.svelte';
 
   let agenda: Agenda | null = $state(null);
-  let selectedAgendaItem: Item | null = $state(null);
 
   onMount(async () => {
     if (!userStore.connected) {
@@ -18,10 +17,6 @@
     agenda = await buildAgenda();
     console.log($state.snapshot(agenda));
   });
-
-  const openAgendaItemModal = (item: Item) => {
-    selectedAgendaItem = item;
-  };
 </script>
 
 <Navigation currentItem="agenda" />
@@ -64,9 +59,11 @@
           {/if}
           <AgendaItem
             item={item}
-            onOpen={() => openAgendaItemModal(item)}
             displayDay={displayDay}
+            hasModal={true}
+            index="agenda-now-{i}"
           />
+          <AgendaItemModal item={item} bind:agenda={agenda} index="agenda-now-{i}" />
         {/each}
       </div>
     </div>
@@ -90,18 +87,16 @@
           {/if}
           <AgendaItem
             item={item}
-            onOpen={() => openAgendaItemModal(item)}
             displayDay={displayDay}
+            hasModal={true}
+            index="agenda-next-{i}"
           />
+          <AgendaItemModal item={item} bind:agenda={agenda} index="agenda-next-{i}" />
         {/each}
       </div>
     </div>
   {/if}
 </div>
-
-{#if selectedAgendaItem}
-  <AgendaItemModal bind:item={selectedAgendaItem} bind:agenda={agenda} />
-{/if}
 
 <style>
   .agenda {
