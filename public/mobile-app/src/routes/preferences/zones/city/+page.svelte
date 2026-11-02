@@ -111,11 +111,7 @@
             {#if !inputValue}
               <div class="city-input-empty">
                 <div class="no-agenda--icon">
-                  <img
-                    class="city-input-empty--icon"
-                    src="/icons/city-search.svg"
-                    alt=""
-                  >
+                  <img class="city-input-empty--icon" src="/icons/search.svg" alt="">
                 </div>
                 <div class="city-input-empty--title">
                   Recherchez une commune pour afficher une zone
