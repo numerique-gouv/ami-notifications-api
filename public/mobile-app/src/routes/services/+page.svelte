@@ -37,14 +37,40 @@
     const url = await service.getServiceUrl();
     AMIGoto(url, service.with_silent_login);
   };
+
+  const goToSearch = async () => {
+    AMIGoto('/#/services/search');
+  };
 </script>
 
 <Navigation currentItem="services" />
 
 <div class="services">
   <div class="fr-pt-3w fr-px-2w services--title">
-    <h2>Services</h2>
+    <h2 class="fr-mb-1w">Services</h2>
   </div>
+
+  <form class="search-form fr-px-2w">
+    <div class="fr-fieldset__element fr-p-0 fr-mb-1w">
+      <button
+        type="button"
+        class="fr-btn fr-btn--tertiary-no-outline am-btn-search"
+        onclick={goToSearch}
+        data-testid="add-address"
+      >
+        Rechercher un service
+      </button>
+      <div inert class="fr-input-wrap fr-icon-search-line">
+        <input
+          class="fr-input"
+          id="search-input"
+          type="text"
+          data-testid="search-input"
+          onfocus={goToSearch}
+        >
+      </div>
+    </div>
+  </form>
 
   {#await waitForPageData()}
     <ServicesSkeleton />
@@ -256,6 +282,7 @@
         inset 0 0 0 0 var(--border-default-grey);
       .fr-sidemenu__btn {
         min-height: 4.5rem;
+        padding: 1rem 0;
 
         &:before {
           margin-right: 0.5rem;
@@ -267,6 +294,23 @@
         right: 0;
         top: 50%;
         transform: translateY(-50%);
+      }
+    }
+    .search-form {
+      position: relative;
+      .fr-input {
+        min-height: 3rem;
+        box-shadow: inset 0 -3px 0 0 var(--border-action-high-blue-france);
+      }
+      .am-btn-search {
+        position: absolute;
+        top: 0;
+        left: 1rem;
+        width: calc(100% - 2rem);
+        height: 100%;
+        overflow: hidden;
+        z-index: 5;
+        color: var(--text-default-grey);
       }
     }
   }
