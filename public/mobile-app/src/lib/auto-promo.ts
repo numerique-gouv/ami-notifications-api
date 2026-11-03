@@ -96,7 +96,7 @@ export class AutoPromo {
       'address',
       'Renseignez votre adresse',
       'Gagnez du temps en la renseignant une seule fois',
-      '/#/edit-address',
+      '/#/profile/addresses/edit-address',
       'house.svg',
       null
     );

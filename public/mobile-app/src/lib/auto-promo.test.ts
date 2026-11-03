@@ -71,7 +71,7 @@ describe('/auto-promo.ts', () => {
             'address',
             'Renseignez votre adresse',
             'Gagnez du temps en la renseignant une seule fois',
-            '/#/edit-address',
+            '/#/profile/addresses/edit-address',
             'house.svg',
             null
           )
@@ -113,7 +113,7 @@ describe('/auto-promo.ts', () => {
             'address',
             'Renseignez votre adresse',
             'Gagnez du temps en la renseignant une seule fois',
-            '/#/edit-address',
+            '/#/profile/addresses/edit-address',
             'house.svg',
             null
           )
