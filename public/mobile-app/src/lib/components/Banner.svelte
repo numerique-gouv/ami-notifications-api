@@ -51,31 +51,33 @@
   >
     <div class="fr-container">
       <div class="fr-notice__body">
-        <p>
-          <span class="fr-notice__title fr-mb-1v fr-text--md">
+        <div>
+          <h2 class="fr-notice__title fr-mb-1v fr-text--md">
             <span
               class="banner-icon fr-mr-1w {tabTypeIcon[bannerType]}"
               aria-hidden="true"
             ></span>
             <span>{title}</span>
-          </span>
+          </h2>
           {#if description}
-            <span class="fr-notice__desc">
-              {description}
-              {#if link}
-                <br>
-                <button
-                  type="button"
-                  class="fr-link am-link-bordered fr-mt-2v fr-text--sm"
-                  onclick={()=> AMIGoto(link, linkSilentLogin)}
-                  data-testid="banner-{id}-link-button"
-                >
-                  {linkLabel || link}
-                </button>
-              {/if}
-            </span>
+            <div>
+              <p class="fr-notice__desc">
+                {description}
+                {#if link}
+                  <br>
+                  <button
+                    type="button"
+                    class="fr-link am-link-bordered fr-mt-2v fr-text--sm"
+                    onclick={()=> AMIGoto(link, linkSilentLogin)}
+                    data-testid="banner-{id}-link-button"
+                  >
+                    {linkLabel || link}
+                  </button>
+                {/if}
+              </p>
+            </div>
           {/if}
-        </p>
+        </div>
         {#if closeButton === "true"}
           <button
             onclick={() => closeBanner(id)}
