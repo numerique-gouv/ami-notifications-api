@@ -331,6 +331,10 @@ class NotificationsItem(NotificationsSubItem):
             for sub_item in self.sub_items.values()
             if sub_item.milestone_start_date is None and sub_item.milestone_end_date is None
         ]
+
+        if len(last_sub_item_notifications) == 0:
+            return self.last_notification
+
         last_sub_item_notifications = sorted(
             last_sub_item_notifications,
             key=lambda a: (status_priority[a.item_generic_status], a.event_date, a.created_at),
