@@ -1916,6 +1916,93 @@ def test_get_notifications_data__event__title__is_last_item_title__when_no_servi
 
 
 @pytest.mark.django_db
+def test_get_notifications_data__followup_item__subheading__is_last_subheading(
+    user: User, partner: Partner, partner_psl: Partner, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    expected_result = "Autre service mis à jour"
+
+    Service.objects.create(
+        partner=partner_psl,
+        item_type="OperationTranquilliteVacances",
+        title="Opération Tranquillité Vacances",
+        service_name="Service instructeur",
+        description="Pendant toute absence prolongée de votre domicile, vous pouvez vous inscrire à l'**opération tranquillité vacances**.",
+        url="https://localhost:8000/mademarche/demarcheGenerique/?codeDemarche=OperationTranquilliteVacances&caller={back_param_token_jwt}",
+        with_silent_login=True,
+    )
+
+    Notification.objects.create(
+        user_id=user.id,
+        content_body="notification 1",
+        content_title="Notification title 1",
+        content_subheading="Autre service",
+        item_generic_status="new",
+        item_status_label="Nouveau",
+        item_type="OperationTranquilliteVacances",
+        item_id="42",
+        partner=partner_psl,
+    )
+    Notification.objects.create(
+        user_id=user.id,
+        content_body="notification 1",
+        content_title="Notification title 1",
+        content_subheading=expected_result,
+        item_generic_status="new",
+        item_status_label="Nouveau",
+        item_type="OperationTranquilliteVacances",
+        item_id="42",
+        partner=partner_psl,
+    )
+
+    result = get_notifications_data(current_user=user)
+
+    assert result[0].subheading == expected_result
+
+
+@pytest.mark.django_db
+def test_get_notifications_data__followup_item__subheading__is_item_id(
+    user: User, partner: Partner, partner_psl: Partner, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    expected_result = "42"
+
+    Service.objects.create(
+        partner=partner_psl,
+        item_type="OperationTranquilliteVacances",
+        title="Opération Tranquillité Vacances",
+        service_name="Service instructeur",
+        description="Pendant toute absence prolongée de votre domicile, vous pouvez vous inscrire à l'**opération tranquillité vacances**.",
+        url="https://localhost:8000/mademarche/demarcheGenerique/?codeDemarche=OperationTranquilliteVacances&caller={back_param_token_jwt}",
+        with_silent_login=True,
+    )
+
+    Notification.objects.create(
+        user_id=user.id,
+        content_body="notification 1",
+        content_title="Notification title 1",
+        item_generic_status="new",
+        item_status_label="Nouveau",
+        item_type="OperationTranquilliteVacances",
+        item_id="42",
+        partner=partner_psl,
+    )
+    # Notification.objects.create(
+    #     user_id=user.id,
+    #     content_body="notification 1",
+    #     content_title="Notification title 1",
+    #     content_subheading=expected_result,
+    #     item_generic_status="new",
+    #     item_status_label="Nouveau",
+    #     item_type="OperationTranquilliteVacances",
+    #     item_id="42",
+    #     partner=partner_psl,
+    # )
+
+    result = get_notifications_data(current_user=user)
+
+    assert result[0].subheading == expected_result
+
+
+@pytest.mark.django_db
 def test_get_notifications_source(user: User, monkeypatch: pytest.MonkeyPatch) -> None:
     items = [
         FollowupItem(
