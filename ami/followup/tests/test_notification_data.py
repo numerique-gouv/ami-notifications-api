@@ -1399,6 +1399,51 @@ def test_get_notifications_data__followup_item_event__title(
 
 
 @pytest.mark.django_db
+def test_get_notifications_data__followup_item__status__with_events(
+    user: User, partner: Partner, partner_psl: Partner, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    expected_generic_status_result = "wip"
+    expected_status_label_result = "En cours"
+
+    Notification.objects.create(
+        user_id=user.id,
+        content_body="notification",
+        content_title="Notification title",
+        item_generic_status=expected_generic_status_result,
+        item_status_label=expected_status_label_result,
+        item_type="OperationTranquilliteVacances",
+        item_id="42",
+        partner=partner_psl,
+    )
+    Notification.objects.create(
+        user_id=user.id,
+        content_body="Sub notification body",
+        content_title="Sub notification title",
+        content_subheading="Autre service",
+        content_link="http://bar.com",
+        item_generic_status="new",
+        item_status_label="Nouveau",
+        item_type="SousDémarcheBis",
+        item_id="104",
+        partner=partner,
+        item_parent_partner=partner_psl,
+        item_parent_type="OperationTranquilliteVacances",
+        item_parent_id="42",
+        item_milestone_start_date=datetime.datetime(
+            2026, 2, 14, 11, 16, tzinfo=datetime.timezone.utc
+        ),
+        item_milestone_end_date=datetime.datetime(
+            2026, 2, 14, 11, 18, tzinfo=datetime.timezone.utc
+        ),
+    )
+
+    result = get_notifications_data(current_user=user)
+
+    assert result[0].status_id == ItemGenericStatus.WIP
+    assert result[0].status_label == expected_status_label_result
+
+
+@pytest.mark.django_db
 def test_get_notifications_source(user: User, monkeypatch: pytest.MonkeyPatch) -> None:
     items = [
         FollowupItem(
