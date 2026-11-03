@@ -64,7 +64,7 @@
       bannerLinkLabel = bannerLink ? 'Déclarer un changement d’adresse' : '';
 
       personalDataConsent = await buildPersonalDataConsent();
-      if (personalDataConsent && personalDataConsent.consent_datetime) {
+      if (personalDataConsent?.consent_datetime) {
         hasPersonalDataConsent = true;
       }
     }
