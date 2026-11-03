@@ -5,6 +5,7 @@ import type { WS as WSType } from 'vitest-websocket-mock';
 import WS from 'vitest-websocket-mock';
 import * as agendaMethods from '$lib/agenda';
 import { Agenda, Item } from '$lib/agenda';
+import * as AMINavigationMethods from '$lib/ami-navigation';
 import * as autoPromoMethods from '$lib/auto-promo';
 import { AutoPromo, AutoPromoItem } from '$lib/auto-promo';
 import * as consentsMethods from '$lib/consents';
@@ -88,6 +89,74 @@ describe('/+page.svelte', () => {
   afterEach(() => {
     wss.close();
     vi.useRealTimers();
+    vi.resetAllMocks();
+  });
+
+  test('should get out if user is not connected', async () => {
+    // Given
+    userStore.connected = null;
+    const spy = vi
+      .spyOn(AMINavigationMethods, 'AMIGoto')
+      .mockImplementation(() => Promise.resolve());
+
+    // When
+    render(Page);
+
+    // Then
+    expect(spy).toHaveBeenCalledWith('/#/login');
+  });
+
+  test('should add toast when user does not match after relogin - without redirect', async () => {
+    // Given
+    const { page } = await import('$app/state');
+    const mockSearchParams = new URLSearchParams('?user_does_not_match');
+    vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
+    const spy = vi.spyOn(toastStore, 'addToast');
+    const spy2 = vi
+      .spyOn(AMINavigationMethods, 'AMIGoto')
+      .mockImplementation(() => Promise.resolve());
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('', { status: 400 }));
+
+    // When
+    render(Page);
+
+    // Then
+    await waitFor(async () => {
+      expect(spy).toHaveBeenCalledWith(
+        'Vous ne pouvez pas continuer la démarche sous le compte d’un autre usager',
+        'warning',
+        null,
+        true
+      );
+      expect(spy2).not.toHaveBeenCalled();
+    });
+  });
+
+  test('should add toast when user does not match after relogin - with redirect', async () => {
+    // Given
+    const { page } = await import('$app/state');
+    const mockSearchParams = new URLSearchParams(
+      '?user_does_not_match&redirect_to_hash=/page'
+    );
+    vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
+    const spy = vi.spyOn(toastStore, 'addToast');
+    const spy2 = vi
+      .spyOn(AMINavigationMethods, 'AMIGoto')
+      .mockImplementation(() => Promise.resolve());
+
+    // When
+    render(Page);
+
+    // Then
+    await waitFor(async () => {
+      expect(spy).toHaveBeenCalledWith(
+        'Vous ne pouvez pas continuer la démarche sous le compte d’un autre usager',
+        'warning',
+        null,
+        true
+      );
+      expect(spy2).toHaveBeenCalledWith('/#/page');
+    });
   });
 
   test('should display skeleton', async () => {
