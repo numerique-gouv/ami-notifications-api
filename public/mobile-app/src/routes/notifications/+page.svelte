@@ -97,7 +97,7 @@
           {#if notification.read}
             <span class="fr-sr-only">Lu</span>
           {:else}
-            <i>•</i>
+            <i aria-hidden="true">•</i>
             <span class="fr-sr-only">Non lu</span>
           {/if}
         </span>
