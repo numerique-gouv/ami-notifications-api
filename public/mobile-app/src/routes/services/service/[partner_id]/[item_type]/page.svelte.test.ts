@@ -43,7 +43,7 @@ describe('/+page.svelte', () => {
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).toHaveBeenCalledWith('/#/services');
       expect(spyFind).toHaveBeenCalledTimes(1);
-      expect(spyFind).toHaveBeenCalledWith('foo', 'bar');
+      expect(spyFind).toHaveBeenCalledWith('catalog', 'foo', 'bar');
     });
   });
   test('should display service title and description', async () => {
