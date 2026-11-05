@@ -27,6 +27,16 @@ describe('/+page.svelte', () => {
       expect(spy).toHaveBeenCalledWith('/#/login');
     });
   });
+  test('should display skeleton', async () => {
+    // Given
+    await userStore.login(mockUserInfo);
+
+    // When
+    render(Page);
+
+    // Then
+    expect(document.querySelector('.skeleton')).not.toBeNull();
+  });
   test('Should display services', async () => {
     // Given
     await userStore.login(mockUserInfo);

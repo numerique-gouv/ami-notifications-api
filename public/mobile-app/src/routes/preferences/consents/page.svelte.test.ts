@@ -9,7 +9,7 @@ import { Followup, FollowupItem } from '$lib/followup';
 import * as partnersMethods from '$lib/partners';
 import { Partners } from '$lib/partners';
 import { userStore } from '$lib/state/User.svelte';
-import { expectBackButtonPresent, mockUserInfo } from '$tests/utils';
+import { expectBackButtonPresent, mockUserInfo, waitAfterSkeleton } from '$tests/utils';
 import Page from './+page.svelte';
 
 describe('/+page.svelte', () => {
@@ -20,22 +20,30 @@ describe('/+page.svelte', () => {
     const spy = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
 
     // When
-    render(Page, {
-      props: {
-        data: {
-          consentItems: [],
-          partners: partners,
-          followup: followup,
-        },
-        params: {},
-      },
-    });
+    render(Page);
 
     // Then
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).toHaveBeenCalledWith('/#/login');
     });
+  });
+
+  test('should display skeleton', async () => {
+    // Given
+    await userStore.login(mockUserInfo);
+    const followup = new Followup();
+    vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
+    const partners = new Partners([]);
+    vi.spyOn(partnersMethods, 'buildPartners').mockResolvedValue(partners);
+    const consents = new Consents({ consents: [] }, partners.items);
+    vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
+
+    // When
+    render(Page);
+
+    // Then
+    expect(document.querySelector('.skeleton')).not.toBeNull();
   });
 
   describe('When user toggles on', () => {
@@ -54,21 +62,13 @@ describe('/+page.svelte', () => {
       const consentsItem = new ConsentsItem('dinum-ami', 'AMI', null);
       const consents = new Consents({ consents: [consentsItem] }, partners.items);
       vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
-      const spy = vi.spyOn(consentsItem, 'updateConsent').mockResolvedValue(true);
+      const spy = vi.spyOn(consents.items[0], 'updateConsent').mockResolvedValue(true);
 
       const followup = new Followup();
       vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
 
-      render(Page, {
-        props: {
-          data: {
-            consentItems: [consentsItem],
-            partners: partners,
-            followup: followup,
-          },
-          params: {},
-        },
-      });
+      render(Page);
+      await waitAfterSkeleton();
 
       // When
       const toggleInput: HTMLInputElement = screen.getByTestId('dinum-ami');
@@ -104,18 +104,10 @@ describe('/+page.svelte', () => {
       );
       const consents = new Consents({ consents: [consentsItem] }, partners.items);
       vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
-      const spy = vi.spyOn(consentsItem, 'updateConsent').mockResolvedValue(true);
+      const spy = vi.spyOn(consents.items[0], 'updateConsent').mockResolvedValue(true);
 
-      render(Page, {
-        props: {
-          data: {
-            consentItems: [consentsItem],
-            partners: partners,
-            followup: followup,
-          },
-          params: {},
-        },
-      });
+      render(Page);
+      await waitAfterSkeleton();
 
       // When
       const toggleInput: HTMLInputElement = screen.getByTestId('dinum-ami');
@@ -172,18 +164,10 @@ describe('/+page.svelte', () => {
       );
       const consents = new Consents({ consents: [consentsItem] }, partners.items);
       vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
-      const spy = vi.spyOn(consentsItem, 'updateConsent').mockResolvedValue(true);
+      const spy = vi.spyOn(consents.items[0], 'updateConsent').mockResolvedValue(true);
 
-      render(Page, {
-        props: {
-          data: {
-            consentItems: [consentsItem],
-            partners: partners,
-            followup: followup,
-          },
-          params: {},
-        },
-      });
+      render(Page);
+      await waitAfterSkeleton();
 
       // When
       const toggleInput: HTMLInputElement = screen.getByTestId('dinum-ami');
@@ -241,18 +225,10 @@ describe('/+page.svelte', () => {
       );
       const consents = new Consents({ consents: [consentsItem] }, partners.items);
       vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
-      const spy = vi.spyOn(consentsItem, 'updateConsent').mockResolvedValue(true);
+      const spy = vi.spyOn(consents.items[0], 'updateConsent').mockResolvedValue(true);
 
-      render(Page, {
-        props: {
-          data: {
-            consentItems: [consentsItem],
-            partners: partners,
-            followup: followup,
-          },
-          params: {},
-        },
-      });
+      render(Page);
+      await waitAfterSkeleton();
 
       // When
       const toggleInput: HTMLInputElement = screen.getByTestId('dinum-ami');
@@ -299,16 +275,8 @@ describe('/+page.svelte', () => {
       vi.spyOn(followup, 'items', 'get').mockReturnValue([]);
       vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
 
-      render(Page, {
-        props: {
-          data: {
-            consentItems: [consentsItem1, consentsItem2],
-            partners: partners,
-            followup: followup,
-          },
-          params: {},
-        },
-      });
+      render(Page);
+      await waitAfterSkeleton();
 
       // When
       const toggleInput1: HTMLInputElement = screen.getByTestId('dinum-ami');
@@ -351,6 +319,7 @@ describe('/+page.svelte', () => {
         partners.items
       );
       vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
+      vi.spyOn(consents.items[0], 'updateConsent').mockResolvedValue(true);
 
       const followup = new Followup();
       vi.spyOn(followup, 'items', 'get').mockReturnValue([
@@ -377,16 +346,8 @@ describe('/+page.svelte', () => {
       ]);
       vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(followup);
 
-      render(Page, {
-        props: {
-          data: {
-            consentItems: [consentsItem1, consentsItem2],
-            partners: partners,
-            followup: followup,
-          },
-          params: {},
-        },
-      });
+      render(Page);
+      await waitAfterSkeleton();
 
       // When
       const toggleInput1: HTMLInputElement = screen.getByTestId('dinum-ami');
@@ -411,21 +372,8 @@ describe('/+page.svelte', () => {
   });
 
   test('should import NavWithBackButton component', async () => {
-    // Given
-    const partners = new Partners();
-    const followup = new Followup();
-
     // When
-    render(Page, {
-      props: {
-        data: {
-          consentItems: [],
-          partners: partners,
-          followup: followup,
-        },
-        params: {},
-      },
-    });
+    render(Page);
     const backButton = screen.getByTestId('back-button');
 
     // Then
@@ -434,21 +382,8 @@ describe('/+page.svelte', () => {
   });
 
   test('should render a Back button', async () => {
-    // Given
-    const partners = new Partners();
-    const followup = new Followup();
-
     // When
-    render(Page, {
-      props: {
-        data: {
-          consentItems: [],
-          partners: partners,
-          followup: followup,
-        },
-        params: {},
-      },
-    });
+    render(Page);
 
     // Then
     expectBackButtonPresent(screen);
