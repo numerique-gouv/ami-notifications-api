@@ -151,43 +151,18 @@ export class ServicesItem {
 
 export class Services {
   private _items: ServicesItem[] = [];
-  private _sos: ServicesItem[] = [];
-  private _steps: ServicesItem[] = [];
 
   constructor(apiServices: APIServices | null = null) {
-    const servicesItems: ServicesItem[] = [];
-
-    const items: APIServicesItem[] = apiServices?.internal || [];
+    const internal: APIServicesItem[] = apiServices?.internal || [];
 
     // build items
-    items.forEach((item) => {
+    internal.forEach((item) => {
       const servicesItem = this.createServicesItem(item);
-      servicesItems.push(servicesItem);
+      this._items.push(servicesItem);
     });
 
     // sort items by title
-    servicesItems.sort((a, b) => a.title.localeCompare(b.title, 'fr'));
-
-    // organize items in _items or
-    servicesItems.forEach((servicesItem) => {
-      switch (servicesItem.kind) {
-        case 'catalog': {
-          this._items.push(servicesItem);
-          break;
-        }
-        case 'sos': {
-          this._sos.push(servicesItem);
-          break;
-        }
-        case 'steps': {
-          this._steps.push(servicesItem);
-          break;
-        }
-        default: {
-          console.log(`unknown kind ${servicesItem.kind}`);
-        }
-      }
-    });
+    this._items.sort((a, b) => a.title.localeCompare(b.title, 'fr'));
   }
 
   private createServicesItem(item: APIServicesItem): ServicesItem {
@@ -208,25 +183,34 @@ export class Services {
     return this._items;
   }
 
+  get catalog(): ServicesItem[] {
+    return this.items.filter((item) => item.kind === 'catalog');
+  }
+
   get sos(): ServicesItem[] {
-    return this._sos;
+    return this.items.filter((item) => item.kind === 'sos');
   }
 
   get steps(): ServicesItem[] {
-    return this._steps;
+    return this.items.filter((item) => item.kind === 'steps');
   }
 
-  find(partner_id: string, item_type: string): ServicesItem | null {
+  find(kind: string, partner_id: string, item_type: string): ServicesItem | null {
     const found = this.items.filter(
-      (item) => item.partner_id === partner_id && item.item_type === item_type
+      (item) =>
+        item.kind === kind &&
+        item.partner_id === partner_id &&
+        item.item_type === item_type
     );
     if (found.length === 0) {
-      console.log(`Can not find ServicesItem ${partner_id}, ${item_type}: no result`);
+      console.log(
+        `Can not find ServicesItem ${kind}, ${partner_id}, ${item_type}: no result`
+      );
       return null;
     }
     if (found.length > 1) {
       console.log(
-        `Can not find ServicesItem ${partner_id}, ${item_type}: many results`
+        `Can not find ServicesItem ${kind}, ${partner_id}, ${item_type}: many results`
       );
       return null;
     }
