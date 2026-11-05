@@ -16,7 +16,11 @@
 
   const goToExternalItem = () => {
     let silentLogin: boolean = true;
-    const service: ServicesItem | null = services.find(item.partner_id, item.item_type);
+    const service: ServicesItem | null = services.find(
+      'catalog',
+      item.partner_id,
+      item.item_type
+    );
     if (service !== null) {
       silentLogin = service.with_silent_login;
     }

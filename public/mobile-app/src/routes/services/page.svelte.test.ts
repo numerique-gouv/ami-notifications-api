@@ -31,7 +31,7 @@ describe('/+page.svelte', () => {
     // Given
     await userStore.login(mockUserInfo);
     const services = new Services();
-    vi.spyOn(services, 'items', 'get').mockReturnValue([
+    vi.spyOn(services, 'catalog', 'get').mockReturnValue([
       new ServicesItem(
         'psl',
         'OperationTranquilliteVacances',
@@ -101,7 +101,7 @@ describe('/+page.svelte', () => {
         // Given
         await userStore.login(mockUserInfo);
         const services = new Services();
-        vi.spyOn(services, 'items', 'get').mockReturnValue([
+        vi.spyOn(services, 'catalog', 'get').mockReturnValue([
           new ServicesItem(
             'psl',
             'OperationTranquilliteVacances',
@@ -142,7 +142,7 @@ describe('/+page.svelte', () => {
         // Given
         await userStore.login(mockUserInfo);
         const services = new Services();
-        vi.spyOn(services, 'items', 'get').mockReturnValue([
+        vi.spyOn(services, 'catalog', 'get').mockReturnValue([
           new ServicesItem(
             'psl',
             'OperationTranquilliteVacances',
@@ -185,7 +185,7 @@ describe('/+page.svelte', () => {
         // Given
         await userStore.login(mockUserInfo);
         const services = new Services();
-        vi.spyOn(services, 'items', 'get').mockReturnValue([
+        vi.spyOn(services, 'catalog', 'get').mockReturnValue([
           new ServicesItem(
             'psl',
             'OperationTranquilliteVacances',
@@ -220,7 +220,7 @@ describe('/+page.svelte', () => {
             // Given
             await userStore.login(mockUserInfo);
             const services = new Services();
-            vi.spyOn(services, 'items', 'get').mockReturnValue([
+            vi.spyOn(services, 'catalog', 'get').mockReturnValue([
               new ServicesItem(
                 'psl',
                 'OperationTranquilliteVacances',
@@ -262,7 +262,7 @@ describe('/+page.svelte', () => {
             // Given
             await userStore.login(mockUserInfo);
             const services = new Services();
-            vi.spyOn(services, 'items', 'get').mockReturnValue([
+            vi.spyOn(services, 'catalog', 'get').mockReturnValue([
               new ServicesItem(
                 'psl',
                 'OperationTranquilliteVacances',
@@ -306,7 +306,7 @@ describe('/+page.svelte', () => {
             // Given
             await userStore.login(mockUserInfo);
             const services = new Services();
-            vi.spyOn(services, 'items', 'get').mockReturnValue([
+            vi.spyOn(services, 'catalog', 'get').mockReturnValue([
               new ServicesItem(
                 'psl',
                 'OperationTranquilliteVacances',

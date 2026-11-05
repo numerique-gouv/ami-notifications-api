@@ -110,8 +110,8 @@
             <div class="fr-sidemenu__inner">
               <div id="fr-sidemenu-wrapper">
                 <ul class="fr-sidemenu__list">
-                  {#if services && services.items.length}
-                    {#each services.items as item, i}
+                  {#if services && services.catalog.length}
+                    {#each services.catalog as item, i}
                       <ServicesItem
                         item={item}
                         hasNonArchivedItems={followup?.hasNonArchivedItems(item.partner_id, item.item_type) || false}
@@ -187,7 +187,7 @@
                     {steps.title}
                     <span
                       aria-hidden="true"
-                      class="icon fr-icon-arrow-right-s-line am-color-blue    "
+                      class="icon fr-icon-arrow-right-s-line am-color-blue"
                     ></span>
                   </button>
                 </li>

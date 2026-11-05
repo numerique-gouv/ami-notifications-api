@@ -28,7 +28,7 @@
     }
 
     const services: Services = await buildServices();
-    const _service = services.find(params.partner_id, params.item_type);
+    const _service = services.find('catalog', params.partner_id, params.item_type);
     console.log($state.snapshot(_service));
     if (!_service) {
       AMIGoto('/#/services');

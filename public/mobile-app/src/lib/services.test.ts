@@ -381,9 +381,9 @@ describe('/services.ts', () => {
       });
 
       // Then
-      expect(services.items.length).equal(2);
+      expect(services.catalog.length).equal(2);
       expect(
-        services.items[0].equals(
+        services.catalog[0].equals(
           new ServicesItem(
             'dinum-dn',
             'JeDéménage',
@@ -398,7 +398,7 @@ describe('/services.ts', () => {
         )
       ).toBe(true);
       expect(
-        services.items[1].equals(
+        services.catalog[1].equals(
           new ServicesItem(
             'psl',
             'OperationTranquilliteVacances',
@@ -533,6 +533,17 @@ describe('/services.ts', () => {
           icon: 'icon',
           with_silent_login: true,
         };
+        const servicesItem6 = {
+          partner_id: 'psl',
+          item_type: 'OperationTranquilliteVacances',
+          kind: 'steps',
+          title: 'Opération Tranquillité Vacances',
+          service_name: 'Sécurisez votre logement',
+          description: 'Vous partez en vacances ? **Securisez votre logement.**',
+          url: 'http://external-url',
+          icon: 'icon',
+          with_silent_login: true,
+        };
         const services = new Services({
           internal: [
             servicesItem1,
@@ -540,13 +551,17 @@ describe('/services.ts', () => {
             servicesItem3,
             servicesItem4,
             servicesItem5,
+            servicesItem6,
           ],
         });
 
         // When
-        const find1 = services.find('psl', 'OperationTranquilliteVacances');
-        const find2 = services.find('dinum-dn', 'JeDéménage');
-        const find3 = services.find('unknown', 'unknown');
+        const find1 = services.find('catalog', 'psl', 'OperationTranquilliteVacances');
+        const find2 = services.find('catalog', 'dinum-dn', 'JeDéménage');
+        const find3 = services.find('catalog', 'unknown', 'unknown');
+        const find4 = services.find('unknown', 'psl', 'OperationTranquilliteVacances');
+        const find5 = services.find('sos', 'psl', 'OperationTranquilliteVacances');
+        const find6 = services.find('steps', 'psl', 'OperationTranquilliteVacances');
 
         // Then
         expect(find1).not.toBeNull();
@@ -567,6 +582,24 @@ describe('/services.ts', () => {
         ).toBe(true);
         expect(find2).toBeNull();
         expect(find3).toBeNull();
+        expect(find4).toBeNull();
+        expect(find5).toBeNull();
+        expect(find6).not.toBeNull();
+        expect(
+          find6?.equals(
+            new ServicesItem(
+              'psl',
+              'OperationTranquilliteVacances',
+              'steps',
+              'Opération Tranquillité Vacances',
+              'Sécurisez votre logement',
+              'Vous partez en vacances ? **Securisez votre logement.**',
+              'http://external-url',
+              'icon',
+              true
+            )
+          )
+        ).toBe(true);
       });
     });
   });
@@ -616,9 +649,9 @@ describe('/services.ts', () => {
       // Then
       expect(spy).toHaveBeenCalledTimes(1);
       expect(services).toBeInstanceOf(Services);
-      expect(services.items.length).equal(1);
+      expect(services.catalog.length).equal(1);
       expect(
-        services.items[0].equals(
+        services.catalog[0].equals(
           new ServicesItem(
             'psl',
             'OperationTranquilliteVacances',
