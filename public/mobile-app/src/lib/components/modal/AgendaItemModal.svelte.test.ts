@@ -47,7 +47,7 @@ describe('/AgendaItemModal.svelte', () => {
     vi.spyOn(agenda, 'next', 'get').mockReturnValue([
       new Item('fake-id-holiday-2', 'holiday', 'Holiday 2', '', null, in32days),
     ]);
-    const spy2 = vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(new Agenda());
+    vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(new Agenda());
     render(AgendaItemModal, { props: { item, agenda, index: '' } });
 
     // Then
