@@ -107,18 +107,6 @@ async def call_api_particulier_quotient(
     return response
 
 
-async def get_api_particulier_quotient_raw_data(
-    *,
-    token_type: str,
-    access_token: str,
-    httpx_async_client: AsyncClient,
-) -> str | None:
-    response = await call_api_particulier_quotient(
-        token_type=token_type, access_token=access_token, httpx_async_client=httpx_async_client
-    )
-    return urlsafe_b64encode(json.dumps(response.json()).encode()).decode()
-
-
 async def get_address_from_api_particulier_quotient(
     *,
     token_type: str,
