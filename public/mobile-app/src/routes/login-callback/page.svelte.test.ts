@@ -393,9 +393,9 @@ describe('/+page.svelte - with passkey feature flag', () => {
       vi.spyOn(franceConnectHelpers, 'parseJwt').mockReturnValue(mockUserInfo);
       vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
 
-      const spy = vi
-        .spyOn(AMINavigationMethods, 'AMIGoto')
-        .mockImplementation(() => Promise.resolve());
+      vi.spyOn(AMINavigationMethods, 'AMIGoto').mockImplementation(() =>
+        Promise.resolve()
+      );
       vi.spyOn(passkeyMethods, 'getPasskeyStatus').mockResolvedValue({
         has_passkey: false,
       });
