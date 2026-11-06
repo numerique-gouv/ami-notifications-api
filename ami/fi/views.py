@@ -22,7 +22,10 @@ def authorize(request):
         return HttpResponseBadRequest("wrong-parameters")
 
     if request.ami_user and not request.ami_user.userpasskey_set.exists():
-        return redirect("/#/relogin")
+        params = {}
+        if "data-mode" in request.session:
+            params["data-mode"] = request.session["data-mode"]
+        return redirect(f"/{'?' if params else ''}{urlencode(params)}#/relogin")
 
     data: dict = cast(dict, form.cleaned_data)
 

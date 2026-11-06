@@ -37,6 +37,13 @@
       id: 'addresses',
     },
     {
+      isEnabled: true, // TODO:  feature flag
+      url: '/#/profile/foyer/',
+      title: 'Mon foyer',
+      iconClass: '', // TODO
+      id: 'foyer',
+    },
+    {
       isEnabled: false,
       url: '',
       title: 'Ma commune',

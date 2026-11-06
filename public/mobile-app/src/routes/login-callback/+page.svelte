@@ -3,6 +3,7 @@
   import { page } from '$app/state';
   import { PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED } from '$env/static/public';
   import { AMIGoto } from '$lib/ami-navigation';
+  import { apiFetch } from '$lib/auth';
   import { initializeData, initializeLocalStorage } from '$lib/initializeDataFromAPI';
   import {
     authenticateWithPasskey,
@@ -24,9 +25,14 @@
     const redirect_param = page.url.searchParams.get('login_redirect');
     if (redirect_param) {
       AMIGoto(`/goto-redirect-url?url=${encodeURIComponent(redirect_param)}`);
-    } else {
-      AMIGoto(`/${passKeyParam}#/welcome/zones`);
+      return;
     }
+    const hash = page.url.searchParams.get('redirect_to_hash') || '';
+    if (hash !== '') {
+      AMIGoto(`/#${hash}`);
+      return;
+    }
+    AMIGoto(`/${passKeyParam}#/welcome/zones`);
   };
 
   const silent_fc_enabled = PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED === 'true';
@@ -42,11 +48,25 @@
         AMIGoto('/#/login');
         return;
       }
+
+      const dataNonce = page.url.searchParams.get('data-nonce');
+      if (dataNonce) {
+        console.log('dataNonce', dataNonce);
+        const response = await apiFetch(`/api/internal/user-data?nonce=${dataNonce}`);
+        const responseData = await response.json();
+        if (Object.hasOwn(responseData, 'foyer')) {
+          userStore.connected.setFoyer(responseData.foyer);
+        }
+        redirectLoggedInUser(false);
+        return;
+      }
+
       telemetry.info('User logged in');
       hasWorkingPassKey = userStore.getHasWorkingPasskey();
       if (hasWorkingPassKey) {
         telemetry.info('User has working passkey');
       }
+
       hasSuggestPasskeyCreationToday = userStore.getHasSuggestPasskeyCreationToday();
       if (!silent_fc_enabled || hasWorkingPassKey || hasSuggestPasskeyCreationToday) {
         // if silent fc is not enabled,
