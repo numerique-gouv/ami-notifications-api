@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { PUBLIC_FEATURE_FLAG_MON_FOYER_ENABLED } from '$env/static/public';
   import type { Address } from '$lib/address';
   import { AMIGoto } from '$lib/ami-navigation';
   import type { APIMairie } from '$lib/api-annuaire-sp';
@@ -35,6 +36,14 @@
       title: 'Mes coordonnées',
       iconClass: 'fr-icon-map-pin-user-line',
       id: 'addresses',
+    },
+    {
+      isEnabled: true,
+      isVisible: PUBLIC_FEATURE_FLAG_MON_FOYER_ENABLED === 'true',
+      url: '/#/profile/foyer/',
+      title: 'Mon foyer',
+      iconClass: 'fr-icon-parent-line',
+      id: 'foyer',
     },
     {
       isEnabled: false,

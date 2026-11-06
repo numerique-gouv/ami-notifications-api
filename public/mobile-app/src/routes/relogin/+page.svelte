@@ -22,7 +22,12 @@
         cache: 'no-store',
       });
       telemetry.info('User started FC relogin');
-      AMIGoto('/relogin-france-connect');
+      let url = '/relogin-france-connect';
+      const data_mode = page.url.searchParams.get('data-mode');
+      if (data_mode) {
+        url = `${url}?data-mode=${data_mode}`;
+      }
+      AMIGoto(url);
     } catch {
       AMIGoto('/#/network-error');
     }
