@@ -1444,6 +1444,125 @@ def test_get_notifications_data__followup_item__status__with_events(
 
 
 @pytest.mark.django_db
+def test_get_notifications_data__followup_item__status__unknown_parent_with_events(
+    user: User,
+    partner: Partner,
+    partner_psl: Partner,
+    partner_dn: Partner,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    sub_notification1 = Notification.objects.create(
+        user_id=user.id,
+        content_body="Sub notification body 1",
+        content_title="Sub notification title 1",
+        content_subheading="Sub Service",
+        item_generic_status="new",
+        item_status_label="Nouveau",
+        item_type="SousDémarche",
+        item_id="35",
+        partner=partner,
+        item_parent_partner=partner_psl,
+        item_parent_type="OperationTranquilliteVacances",
+        item_parent_id="42",
+        item_milestone_start_date=datetime.datetime.now(datetime.timezone.utc),
+        item_milestone_end_date=datetime.datetime.now(datetime.timezone.utc),
+    )
+    sub_notification2 = Notification.objects.create(
+        user_id=user.id,
+        content_body="Sub notification body 2",
+        content_title="Sub notification title 2",
+        content_link="http://bar.com",
+        content_subheading="Autre Sub Service",
+        item_generic_status="wip",
+        item_status_label="En cours",
+        item_type="AutreSousDémarche",
+        item_id="36",
+        partner=partner_dn,
+        item_parent_partner=partner_psl,
+        item_parent_type="OperationTranquilliteVacances",
+        item_parent_id="42",
+        item_milestone_start_date=datetime.datetime.now(datetime.timezone.utc),
+        item_milestone_end_date=datetime.datetime.now(datetime.timezone.utc),
+    )
+
+    result = get_notifications_data(current_user=user)
+
+    assert result == [
+        FollowupItem(
+            partner_id="psl",
+            item_type="OperationTranquilliteVacances",
+            item_external_id="42",
+            reference="42",
+            status_id=ItemGenericStatus.NEW,
+            status_label="Nouveau",
+            milestone_start_date=sub_notification2.item_milestone_start_date,
+            milestone_end_date=sub_notification2.item_milestone_end_date,
+            events=[],
+            title="Sub notification title 2",
+            subheading="Service Public",
+            description="Sub notification body 2",
+            icon="fr-icon-eye-fill",
+            external_url="http://bar.com",
+            is_archived=False,
+            created_at=sub_notification1.event_date,
+            updated_at=sub_notification2.event_date,
+            sub_items=[
+                FollowupSubItem(
+                    partner_id="dinum-dn",
+                    item_type="AutreSousDémarche",
+                    item_external_id="36",
+                    reference="",
+                    status_id=ItemGenericStatus.WIP,
+                    status_label="En cours",
+                    milestone_start_date=sub_notification2.item_milestone_start_date,
+                    milestone_end_date=sub_notification2.item_milestone_end_date,
+                    events=[
+                        FollowupItemEvent(
+                            id=sub_notification2.id,
+                            created_at=sub_notification2.created_at,
+                            title="Sub notification title 2",
+                        )
+                    ],
+                    title="Autre Sub Service",
+                    subheading="",
+                    description="Sub notification body 2",
+                    icon="fr-icon-eye-fill",
+                    external_url="http://bar.com",
+                    is_archived=False,
+                    created_at=sub_notification2.event_date,
+                    updated_at=sub_notification2.event_date,
+                ),
+                FollowupSubItem(
+                    partner_id="dinum-ami",
+                    item_type="SousDémarche",
+                    item_external_id="35",
+                    reference="",
+                    status_id=ItemGenericStatus.NEW,
+                    status_label="Nouveau",
+                    milestone_start_date=sub_notification1.item_milestone_start_date,
+                    milestone_end_date=sub_notification1.item_milestone_end_date,
+                    events=[
+                        FollowupItemEvent(
+                            id=sub_notification1.id,
+                            created_at=sub_notification1.created_at,
+                            title="Sub notification title 1",
+                        )
+                    ],
+                    title="Sub Service",
+                    subheading="",
+                    description="Sub notification body 1",
+                    icon="fr-icon-mail-fill",
+                    external_url=None,
+                    is_archived=False,
+                    created_at=sub_notification1.event_date,
+                    updated_at=sub_notification1.event_date,
+                ),
+            ],
+        )
+    ]
+
+
+@pytest.mark.django_db
 def test_get_notifications_source(user: User, monkeypatch: pytest.MonkeyPatch) -> None:
     items = [
         FollowupItem(
