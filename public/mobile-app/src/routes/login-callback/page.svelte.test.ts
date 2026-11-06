@@ -122,6 +122,40 @@ describe('/+page.svelte', () => {
       });
     });
   });
+
+  test('should grab data (and navigate to "foyer") if data-nonce is given', async () => {
+    // Given
+    const { page } = await import('$app/state');
+    await userStore.login(mockUserInfo);
+    const mockSearchParams = new URLSearchParams();
+    mockSearchParams.set('redirect_to_hash', '/profile/foyer');
+    mockSearchParams.set('data-nonce', 'fake-foyer-nonce');
+    window.localStorage.setItem('user_data', 'fake-user-data');
+    window.localStorage.removeItem('user_data_foyer');
+    vi.spyOn(franceConnectHelpers, 'parseJwt').mockReturnValue(mockUserInfo);
+    vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
+    vi.spyOn(initializeDataFromAPIMethods, 'initializeData').mockResolvedValue();
+    const spy = vi
+      .spyOn(AMINavigationMethods, 'AMIGoto')
+      .mockImplementation(() => Promise.resolve());
+    const spyEmit = vi.spyOn(NativeBridgeMethods, 'emit').mockResolvedValue();
+
+    // When
+    render(Page);
+
+    // Then
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledWith('/#/profile/foyer');
+      // @ts-expect-error
+      expect(globalThis.fetchSpy).toHaveBeenCalledWith(
+        '/api/v1/users/login-data?nonce=fake-foyer-nonce'
+      );
+      expect(spyEmit).toHaveBeenCalledWith('user_authentication_phase_completed', {
+        goto_url: 'https://localhost:5173/#/profile/foyer',
+      });
+      expect(window.localStorage.getItem('user_data_foyer'));
+    });
+  });
 });
 
 // tests with passkeys enabled

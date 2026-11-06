@@ -110,3 +110,37 @@ class PersonalDataConsentPostResponseSerializer(serializers.Serializer):
 
 class PersonalDataConsentUpdateSerializer(serializers.Serializer):
     consent = serializers.BooleanField()
+
+
+class ApiParticulierCafAdresseSerializer(serializers.Serializer):
+    code_postal_ville = serializers.CharField()
+    complement_information = serializers.CharField(allow_null=True)
+    complement_information_geographique = serializers.CharField(allow_null=True)
+    destinataire = serializers.CharField(allow_null=True)
+    lieu_dit = serializers.CharField(allow_null=True)
+    numero_libelle_voie = serializers.CharField()
+    pays = serializers.CharField()
+
+
+class ApiParticulierCafPersonSerializer(serializers.Serializer):
+    date_naissance = serializers.CharField()
+    nom_naissance = serializers.CharField()
+    nom_usage = serializers.CharField(allow_null=True)
+    prenoms = serializers.CharField()
+    sexe = serializers.CharField()
+
+
+class ApiParticulierCafQuotientFamilialSerializer(serializers.Serializer):
+    annee = serializers.IntegerField()
+    annee_calcul = serializers.IntegerField()
+    fournisseur = serializers.CharField()
+    mois = serializers.IntegerField()
+    mois_calcul = serializers.IntegerField()
+    valeur = serializers.IntegerField()
+
+
+class ApiParticulierCafSerializer(serializers.Serializer):
+    adresse = ApiParticulierCafAdresseSerializer(many=False)
+    allocataires = serializers.ListField(child=ApiParticulierCafPersonSerializer())
+    enfants = serializers.ListField(child=ApiParticulierCafPersonSerializer())
+    quotient_familial = ApiParticulierCafQuotientFamilialSerializer()

@@ -17,7 +17,7 @@ def test_login_france_connect(
     assert Nonce.objects.count() == 1
     nonce = Nonce.objects.get()
     assert nonce.nonce == FAKE_NONCE
-    assert nonce.context is None
+    assert not nonce.context
     assert response.status_code == 302
     redirected_url = response.headers["location"]
     assert redirected_url.startswith(

@@ -13,12 +13,13 @@ from django.views.decorators.http import require_GET
 
 from ami.authentication.auth import create_jwt_token, generate_nonce, get_fc_scope, get_fc_token
 from ami.authentication.exception import FCError
-from ami.authentication.models import Nonce
+from ami.authentication.models import DataNonce, Nonce
 from ami.authentication.schemas import data_providers
 from ami.partner.utils import is_allowed_url
 from ami.user.data import (
     get_address_from_api_particulier_quotient,
     get_fc_userinfo,
+    get_infos_foyer_from_api_particulier_quotient,
 )
 from ami.utils.httpx import httpxAsyncClient
 
@@ -67,6 +68,15 @@ def login(request, login_type):
             context = {"idp": login_type}
         else:
             scope = get_fc_scope(["api_particulier_quotient"])
+            context = {}
+
+        if "data-mode" in request.GET:
+            data_mode = request.session["data-mode"] = context["data-mode"] = request.GET[
+                "data-mode"
+            ]
+            if data_mode == "foyer":
+                scope = "openid cnaf_enfants cnaf_quotient_familial"
+
         NONCE = generate_nonce()
         nonce = Nonce.objects.create(
             nonce=NONCE,
@@ -171,15 +181,23 @@ async def login_callback(request):
                 raise FCError("missing_access_token")
             login_type = nonce_context.get("idp") or "fc"
 
-            # get user data: userinfo, data from providers, ...
+            user_data_types = []
+            if nonce_context.get("data-mode") == "foyer":
+                user_data_types.append("foyer")
+            if login_type in ("fc", "relogin"):
+                # required on relogin to check identity did not change
+                user_data_types.append("userinfo")
+            if login_type == "fc":
+                # legacy data retrieval
+                user_data_types.append("address")
+
             try:
                 tasks = await get_user_data(
                     token_type=token_type,
                     access_token=access_token,
                     httpx_async_client=httpx_async_client,
                     create_user=bool(login_type == "fc"),
-                    userinfo=bool(login_type in ("fc", "relogin")),
-                    api_particulier=bool(login_type == "fc"),
+                    user_data_types=user_data_types,
                 )
             except* FCError as e:
                 raise e.exceptions[0]
@@ -199,6 +217,16 @@ async def login_callback(request):
                     if result:
                         user_data[key] = result
 
+            data_nonce = None
+            if nonce_context.get("data-mode") == "foyer":
+                data_nonce = await DataNonce.objects.acreate(
+                    nonce=generate_nonce(),
+                    user=request.ami_user,
+                    context={"foyer": tasks["foyer"].result()},
+                )
+
+            request.session.pop("data-mode", "")
+
             # build redirect_url, depending on kind of login (fc, silent-ami-fi, relogin)
             if login_type in ("silent-ami-fi", "relogin"):
                 params = {
@@ -207,12 +235,21 @@ async def login_callback(request):
                 login_redirect_url = request.session.get("login_redirect_url")
                 if login_redirect_url:
                     params["login_redirect"] = signing.Signer().sign(login_redirect_url)
+                if data_nonce:
+                    params["data-nonce"] = str(data_nonce.id)
+
+                if nonce_context.get("data-mode") == "foyer":
+                    params["redirect_to_hash"] = "/profile/foyer"
+
                 redirect_url = f"{settings.PUBLIC_APP_URL}/?{urlencode(params)}#/login-callback"
 
                 if login_type == "relogin" and (
                     not request.ami_user or request.ami_user.fc_hash != user_data["user_fc_hash"]
                 ):
                     # initiate FC logout and redirect to logout callback
+
+                    if data_nonce:
+                        await data_nonce.adelete()
 
                     context = {"redirect_to_hash": request.session.get("login_from_hash")}
                     if request.ami_user:
@@ -313,28 +350,36 @@ async def get_user_data(
     access_token,
     httpx_async_client,
     create_user=True,
-    userinfo=True,
-    api_particulier=True,
+    user_data_types=None,
 ):
     tasks = {}
 
+    task_kwargs = {"create_user": create_user}
+
+    USER_DATA_TYPES = {
+        "userinfo": {
+            "func": get_fc_userinfo,
+        },
+        "address": {
+            "func": get_address_from_api_particulier_quotient,
+            "enabled": data_providers["api_particulier_quotient"].is_enabled(),
+        },
+        "foyer": {
+            "func": get_infos_foyer_from_api_particulier_quotient,
+        },
+    }
+
     async with asyncio.TaskGroup() as task_group:
-        if userinfo:
-            tasks["userinfo"] = task_group.create_task(
-                get_fc_userinfo(
+        for user_data_type in user_data_types or []:
+            user_data_type_info = USER_DATA_TYPES[user_data_type]
+            if user_data_type_info.get("enabled") is False:
+                continue
+            tasks[user_data_type] = task_group.create_task(
+                user_data_type_info["func"](
                     token_type=token_type,
                     access_token=access_token,
                     httpx_async_client=httpx_async_client,
-                    create_user=create_user,
-                )
-            )
-        if api_particulier and data_providers["api_particulier_quotient"].is_enabled():
-            # call api_particulier_quotient if enabled
-            tasks["address"] = task_group.create_task(
-                get_address_from_api_particulier_quotient(
-                    token_type=token_type,
-                    access_token=access_token,
-                    httpx_async_client=httpx_async_client,
+                    **task_kwargs,
                 )
             )
 
