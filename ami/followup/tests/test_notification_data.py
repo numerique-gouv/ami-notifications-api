@@ -1380,12 +1380,12 @@ def test_get_notifications_data_parent_and_sub_sub_items(
 def test_get_notifications_data__followup_item_event__title(
     user: User, partner: Partner, partner_psl: Partner, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    expect_result = "Notification title"
+    expected_result = "Notification title"
 
     Notification.objects.create(
         user_id=user.id,
         content_body="notification",
-        content_title=expect_result,
+        content_title=expected_result,
         item_generic_status="wip",
         item_status_label="En cours",
         item_type="OperationTranquilliteVacances",
@@ -1395,7 +1395,7 @@ def test_get_notifications_data__followup_item_event__title(
 
     result = get_notifications_data(current_user=user)
 
-    assert result[0].events[0].title == expect_result
+    assert result[0].events[0].title == expected_result
 
 
 @pytest.mark.django_db
