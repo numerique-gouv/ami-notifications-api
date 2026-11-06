@@ -3,13 +3,14 @@
 
   interface Props {
     backUrl: string;
+    allowHistoryBack?: boolean;
   }
-  let { backUrl }: Props = $props();
+  let { backUrl, allowHistoryBack }: Props = $props();
 </script>
 
 <div class="back-button-wrapper">
   <button
-    onclick={() => AMIBack(backUrl)}
+    onclick={() => AMIBack(backUrl, allowHistoryBack)}
     data-testid="back-button"
     class="fr-btn fr-icon-arrow-left-line fr-btn--tertiary-no-outline"
   >
