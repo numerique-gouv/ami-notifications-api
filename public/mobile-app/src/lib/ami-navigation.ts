@@ -95,10 +95,12 @@ export const AMIGoto = (
   }
 };
 
-export const AMIBack = (backUrl: string) => {
-  if (history.length > 1) {
+export const AMIBack = (backUrl: string, allowHistoryBack?: boolean) => {
+  console.log('allowHistoryBack:', allowHistoryBack);
+  if (history.length > 1 && allowHistoryBack !== false) {
     history.back();
   } else {
+    console.log('goto', backUrl);
     self.AMIGoto(backUrl);
   }
 };

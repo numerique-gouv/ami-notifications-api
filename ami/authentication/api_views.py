@@ -3,7 +3,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from ami.authentication.decorators import ami_login_required
-from ami.authentication.models import RevokedAuthToken
+from ami.authentication.models import Nonce, RevokedAuthToken
 
 
 @api_view(["GET"])
@@ -21,3 +21,14 @@ def logout(request):
     response.delete_cookie(settings.AUTH_COOKIE_JWT_NAME)
     response.delete_cookie(settings.USERINFO_COOKIE_NAME)
     return response
+
+
+@api_view(["GET"])
+@ami_login_required
+def user_data(request):
+    try:
+        nonce = Nonce.objects.get(id=request.GET["nonce"])
+    except (Nonce.DoesNotExist, KeyError):
+        return Response({})
+    nonce.delete()
+    return Response(nonce.context)

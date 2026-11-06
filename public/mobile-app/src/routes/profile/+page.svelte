@@ -37,6 +37,13 @@
       id: 'addresses',
     },
     {
+      isEnabled: true, // TODO:  feature flag
+      url: '/#/profile/foyer/',
+      title: 'Mon foyer',
+      iconClass: '', // TODO
+      id: 'foyer',
+    },
+    {
       isEnabled: false,
       url: '',
       title: 'Ma commune',
@@ -71,7 +78,7 @@
   };
 </script>
 
-<NavWithBackButton title="" {backUrl} />
+<NavWithBackButton title="" {backUrl} allowHistoryBack={false} />
 
 <div class="fr-container profile-content-container fr-pt-8w" data-testid="profile">
   <h1 class="fr-h2 fr-mb-2w">Mon profil</h1>
