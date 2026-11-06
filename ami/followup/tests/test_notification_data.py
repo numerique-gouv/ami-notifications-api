@@ -1444,6 +1444,57 @@ def test_get_notifications_data__followup_item__status__with_sous_echeances(
 
 
 @pytest.mark.django_db
+def test_get_notifications_data__followup_item__status__unknown_parent_with_sous_echeances(
+    user: User,
+    partner: Partner,
+    partner_psl: Partner,
+    partner_dn: Partner,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    expected_generic_status_result = "wip"
+    expected_status_label_result = "En cours"
+
+    Notification.objects.create(
+        user_id=user.id,
+        content_body="Sub notification body 1",
+        content_title="Sub notification title 1",
+        content_subheading="Sub Service",
+        item_generic_status="new",
+        item_status_label="Nouveau",
+        item_type="SousDémarche",
+        item_id="35",
+        partner=partner,
+        item_parent_partner=partner_psl,
+        item_parent_type="OperationTranquilliteVacances",
+        item_parent_id="42",
+        item_milestone_start_date=datetime.datetime.now(datetime.timezone.utc),
+        item_milestone_end_date=datetime.datetime.now(datetime.timezone.utc),
+    )
+    Notification.objects.create(
+        user_id=user.id,
+        content_body="Sub notification body 2",
+        content_title="Sub notification title 2",
+        content_link="http://bar.com",
+        content_subheading="Autre Sub Service",
+        item_generic_status=expected_generic_status_result,
+        item_status_label=expected_status_label_result,
+        item_type="AutreSousDémarche",
+        item_id="36",
+        partner=partner_dn,
+        item_parent_partner=partner_psl,
+        item_parent_type="OperationTranquilliteVacances",
+        item_parent_id="42",
+        item_milestone_start_date=datetime.datetime.now(datetime.timezone.utc),
+        item_milestone_end_date=datetime.datetime.now(datetime.timezone.utc),
+    )
+
+    result = get_notifications_data(current_user=user)
+
+    assert result[0].status_id == ItemGenericStatus.WIP
+    assert result[0].status_label == expected_status_label_result
+
+
+@pytest.mark.django_db
 def test_get_notifications_source(user: User, monkeypatch: pytest.MonkeyPatch) -> None:
     items = [
         FollowupItem(
