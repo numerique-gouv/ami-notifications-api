@@ -151,7 +151,7 @@
           <button
             type="button"
             class="fr-tag fr-mb-2w fr-mr-1w {sos.icon} {sos.icon ? 'fr-tag--icon-left': ''}"
-            data-testid="service-sos-{sos.id}"
+            data-testid="service-{sos.id}"
             onclick={()=> goToService(sos)}
           >
             {sos.title}
@@ -181,7 +181,7 @@
                   <button
                     class="fr-sidemenu__btn fr-pl-0 fr-pr-4w am-text--smbold  {steps.icon} {steps.icon ? 'fr-tag--icon-left': ''}"
                     type="button"
-                    data-testid="service-steps-{steps.id}"
+                    data-testid="service-{steps.id}"
                     onclick={() => goToService(steps)}
                   >
                     {steps.title}

@@ -9,7 +9,7 @@ import { mockAddress, mockUserInfo } from '$tests/utils';
 describe('/services.ts', () => {
   describe('ServicesItem', () => {
     describe('id', () => {
-      test('should return an id from partner_id and item_type', async () => {
+      test('should return an id from kind, partner_id and item_type', async () => {
         // Given
         const item = new ServicesItem(
           'partner',
@@ -27,7 +27,7 @@ describe('/services.ts', () => {
         const id = item.id;
 
         // Then
-        expect(id).equal('partner:type');
+        expect(id).equal('catalog:partner:type');
       });
     });
     describe('formatDescription', () => {

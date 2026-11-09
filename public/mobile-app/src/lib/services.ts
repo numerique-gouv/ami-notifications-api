@@ -37,7 +37,7 @@ export class ServicesItem {
   }
 
   get id(): string {
-    return `${this.partner_id}:${this.item_type}`;
+    return `${this.kind}:${this.partner_id}:${this.item_type}`;
   }
 
   get partner_id(): string {
