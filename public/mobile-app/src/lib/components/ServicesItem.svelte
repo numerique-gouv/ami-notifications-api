@@ -21,7 +21,7 @@
       type="button"
       class="fr-sidemenu__link"
       onclick={() => goToService(item)}
-      data-testid="service-catalog-{item.id}"
+      data-testid="service-{item.id}"
     >
       <span class="services--item-details">
         <span class="services--item-label">{item.title}</span>
