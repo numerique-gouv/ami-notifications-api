@@ -303,7 +303,7 @@ def test_get_notifications_data(
                 ),
             ],
             title="Opération Tranquillité Vacances",
-            subheading="Service Public",
+            subheading="Service instructeur",
             last_message_title="Notification title 6",
             icon="fr-icon-flag-fill",
             external_url="http://bar.com",
@@ -365,7 +365,7 @@ def test_get_notifications_data(
                 ),
             ],
             title="Opération Tranquillité Vacances",
-            subheading="Service Public",
+            subheading="Service instructeur",
             last_message_title="Notification title 3",
             icon="fr-icon-eye-fill",
             external_url=None,
@@ -746,7 +746,7 @@ def test_get_notifications_data_unknown_parent(
             milestone_end_date=None,
             events=[],
             title="Sub notification title 2",
-            subheading="Service Public",
+            subheading="Autre Sub Service",
             last_message_title="Sub notification title 2",
             icon="fr-icon-eye-fill",
             external_url="http://bar.com",
@@ -833,7 +833,7 @@ def test_get_notifications_data_unknown_parent(
             milestone_end_date=None,
             events=[],
             title="Opération Tranquillité Vacances",
-            subheading="Service Public",
+            subheading="Autre Sub Service",
             last_message_title="Sub notification title 2",
             icon="fr-icon-eye-fill",
             external_url="http://bar.com",
@@ -977,7 +977,7 @@ def test_get_notifications_data_unknown_parent_but_only_one_sub_item(
                 )
             ],
             title="Sous-démarche",
-            subheading="AMI",
+            subheading="Sous service instructeur",
             last_message_title="Sub notification title",
             icon="fr-icon-mail-fill",
             external_url="http://bar.com",
@@ -1864,6 +1864,173 @@ def test_get_notifications_data__followup_sub_item__last_message_title(
     assert result[0].title == "Notification title"
     assert result[0].sub_items[0].title == "35"
     assert result[0].sub_items[0].last_message_title == expected_result
+
+
+@pytest.mark.django_db
+def test_get_notifications_data__followup_item__subheading__is_last_subheading(
+    user: User, partner: Partner, partner_psl: Partner, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    expected_result = "Autre service mis à jour"
+
+    Notification.objects.create(
+        user_id=user.id,
+        content_body="notification",
+        content_title="Notification title",
+        content_subheading="Autre service",
+        item_generic_status="new",
+        item_status_label="Nouveau",
+        item_type="OperationTranquilliteVacances",
+        item_id="42",
+        partner=partner_psl,
+    )
+    Notification.objects.create(
+        user_id=user.id,
+        content_body="notification",
+        content_title="Notification title",
+        content_subheading=expected_result,
+        item_generic_status="new",
+        item_status_label="Nouveau",
+        item_type="OperationTranquilliteVacances",
+        item_id="42",
+        partner=partner_psl,
+    )
+
+    result = get_notifications_data(current_user=user)
+
+    assert result[0].subheading == expected_result
+    assert result[0].reference == ""
+
+
+@pytest.mark.django_db
+def test_get_notifications_data__followup_item__subheading__is_short_description(
+    user: User, partner: Partner, partner_psl: Partner, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    expected_result = "Service instructeur"
+
+    Service.objects.create(
+        partner=partner_psl,
+        item_type="OperationTranquilliteVacances",
+        title="Opération Tranquillité Vacances",
+        service_name=expected_result,
+        description="Pendant toute absence prolongée de votre domicile, vous pouvez vous inscrire à l'**opération tranquillité vacances**.",
+        url="https://localhost:8000/mademarche/demarcheGenerique/?codeDemarche=OperationTranquilliteVacances&caller={back_param_token_jwt}",
+        with_silent_login=True,
+    )
+    Service.objects.create(
+        partner=partner,
+        item_type="SousDémarche",
+        title="Sous-démarche",
+        service_name="Sous service instructeur",
+        description="Sous-démarche d'une autre démarche d'un autre service.",
+        url="https://localhost:8000/",
+        with_silent_login=True,
+    )
+
+    Notification.objects.create(
+        user_id=user.id,
+        content_body="notification",
+        content_title="Notification title",
+        item_generic_status="new",
+        item_status_label="Nouveau",
+        item_type="OperationTranquilliteVacances",
+        item_id="42",
+        partner=partner_psl,
+    )
+    Notification.objects.create(
+        user_id=user.id,
+        content_body="notification",
+        content_title="Notification title",
+        item_generic_status="new",
+        item_status_label="Nouveau",
+        item_type="OperationTranquilliteVacances",
+        item_id="42",
+        partner=partner_psl,
+    )
+
+    result = get_notifications_data(current_user=user)
+
+    assert result[0].subheading == expected_result
+    assert result[0].reference == "42"
+
+
+@pytest.mark.django_db
+def test_get_notifications_data__followup_item__subheading__is_partner_name(
+    user: User, partner: Partner, partner_psl: Partner, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    expected_result = "Service Public"
+
+    Notification.objects.create(
+        user_id=user.id,
+        content_body="notification",
+        content_title="Notification title",
+        item_generic_status="new",
+        item_status_label="Nouveau",
+        item_type="OperationTranquilliteVacances",
+        item_id="42",
+        partner=partner_psl,
+    )
+    Notification.objects.create(
+        user_id=user.id,
+        content_body="notification 1",
+        content_title="Notification title 1",
+        item_generic_status="new",
+        item_status_label="Nouveau",
+        item_type="OperationTranquilliteVacances",
+        item_id="42",
+        partner=partner_psl,
+    )
+
+    result = get_notifications_data(current_user=user)
+
+    assert result[0].subheading == expected_result
+    assert result[0].reference == "42"
+
+
+@pytest.mark.django_db
+def test_get_notifications_data__followup_item__reference__is_empty__when_subheading(
+    user: User, partner: Partner, partner_psl: Partner, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    expected_result = ""
+
+    Notification.objects.create(
+        user_id=user.id,
+        content_body="notification",
+        content_title="Notification title",
+        content_subheading="Autre service",
+        item_generic_status="new",
+        item_status_label="Nouveau",
+        item_type="OperationTranquilliteVacances",
+        item_id="42",
+        partner=partner_psl,
+    )
+
+    result = get_notifications_data(current_user=user)
+
+    assert result[0].subheading == "Autre service"
+    assert result[0].reference == expected_result
+
+
+@pytest.mark.django_db
+def test_get_notifications_data__followup_item__reference__is_item_id__when_no_subheading(
+    user: User, partner: Partner, partner_psl: Partner, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    expected_result = "42"
+
+    Notification.objects.create(
+        user_id=user.id,
+        content_body="notification",
+        content_title="Notification title",
+        item_generic_status="new",
+        item_status_label="Nouveau",
+        item_type="OperationTranquilliteVacances",
+        item_id=expected_result,
+        partner=partner_psl,
+    )
+
+    result = get_notifications_data(current_user=user)
+
+    assert result[0].subheading == "Service Public"
+    assert result[0].reference == expected_result
 
 
 @pytest.mark.django_db
