@@ -364,13 +364,10 @@ class NotificationsItem(NotificationsSubItem):
 
     @property
     def subheading(self):
-        if not self.notifications and self.sub_items:
-            # take partner name if found, else item_parent_type
-            if self.partner:
-                return self.partner.name
-            return self.item_type
         if self.last_notification.content_subheading:
             return self.last_notification.content_subheading
+        if self.service is not None:
+            return self.service.service_name
         if self.partner:
             return self.partner.name
         return ""
