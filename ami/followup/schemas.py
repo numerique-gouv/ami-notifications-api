@@ -403,7 +403,9 @@ class NotificationsFollowup:
                 services_by_id=self.services_by_id, partners_by_slug=self.partners_by_slug
             )
         if item_id not in self.items[item_parent_id].sub_items:
-            self.items[item_parent_id].sub_items[item_id] = NotificationsSubItem()
+            self.items[item_parent_id].sub_items[item_id] = NotificationsSubItem(
+                services_by_id=self.services_by_id, partners_by_slug=self.partners_by_slug
+            )
         self.items[item_parent_id].sub_items[item_id].notifications.append(notification)
 
     def complete_notifications(self):

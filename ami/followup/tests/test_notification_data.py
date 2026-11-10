@@ -1721,6 +1721,93 @@ def test_get_notifications_data__followup_sub_item__title__is_id(
 
 
 @pytest.mark.django_db
+def test_get_notifications_data__sous_echeance__title__is_subheading(
+    user: User, partner: Partner, partner_psl: Partner, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    expected_result = "Autre service"
+
+    Notification.objects.create(
+        user_id=user.id,
+        content_body="notification",
+        content_title="Notification title",
+        item_generic_status="new",
+        item_status_label="Nouveau",
+        item_type="OperationTranquilliteVacances",
+        item_id="42",
+        partner=partner_psl,
+    )
+    Notification.objects.create(
+        user_id=user.id,
+        content_body="Sub notification body",
+        content_title="Sub notification title",
+        content_subheading=expected_result,
+        item_generic_status="wip",
+        item_status_label="En cours",
+        item_type="SousDémarche",
+        item_id="35",
+        partner=partner,
+        item_parent_partner=partner_psl,
+        item_parent_type="OperationTranquilliteVacances",
+        item_parent_id="42",
+        item_milestone_start_date=datetime.datetime(
+            2026, 2, 14, 11, 16, tzinfo=datetime.timezone.utc
+        ),
+        item_milestone_end_date=datetime.datetime(
+            2026, 2, 14, 11, 18, tzinfo=datetime.timezone.utc
+        ),
+    )
+
+    result = get_notifications_data(current_user=user)
+
+    assert result[0].title == "Notification title"
+    assert result[0].sub_items[0].title == expected_result
+    assert result[0].sub_items[0].events[0].title == "Sub notification title"
+
+
+@pytest.mark.django_db
+def test_get_notifications_data__sous_echeance__title__is_id(
+    user: User, partner: Partner, partner_psl: Partner
+) -> None:
+    expected_result = "35"
+
+    Notification.objects.create(
+        user_id=user.id,
+        content_body="notification",
+        content_title="Notification title",
+        item_generic_status="new",
+        item_status_label="Nouveau",
+        item_type="OperationTranquilliteVacances",
+        item_id="42",
+        partner=partner_psl,
+    )
+    Notification.objects.create(
+        user_id=user.id,
+        content_body="Sub notification body",
+        content_title="Sub notification title",
+        item_generic_status="wip",
+        item_status_label="En cours",
+        item_type="SousDémarche",
+        item_id=expected_result,
+        partner=partner,
+        item_parent_partner=partner_psl,
+        item_parent_type="OperationTranquilliteVacances",
+        item_parent_id="42",
+        item_milestone_start_date=datetime.datetime(
+            2026, 2, 14, 11, 16, tzinfo=datetime.timezone.utc
+        ),
+        item_milestone_end_date=datetime.datetime(
+            2026, 2, 14, 11, 18, tzinfo=datetime.timezone.utc
+        ),
+    )
+
+    result = get_notifications_data(current_user=user)
+
+    assert result[0].title == "Notification title"
+    assert result[0].sub_items[0].title == expected_result
+    assert result[0].sub_items[0].events[0].title == "Sub notification title"
+
+
+@pytest.mark.django_db
 def test_get_notifications_source(user: User, monkeypatch: pytest.MonkeyPatch) -> None:
     items = [
         FollowupItem(
