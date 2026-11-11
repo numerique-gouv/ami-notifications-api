@@ -8,32 +8,31 @@ on:
         type: number
         default: 0
       run_webapp:
-        description: "suite de test (test-suites.ts) à lancer sur la Webapp Scalingo — vide = ne pas lancer"
+        description: "suite de test (test-suites.ts : webapp_short = mise au point, webapp_usage = PR/merge/tag, webapp_smoke, webapp_all…) à lancer sur la Webapp Scalingo — vide = ne pas lancer"
         type: string
-        default: short
+        default: webapp_short
       run_android:
-        description: "suite de test (test-suites.ts) à lancer sur l'apk Android — vide = ne pas lancer"
+        description: "suite de test (test-suites.ts : mobile_short = mise au point, mobile_all = PR/merge/tag, mobile_smoke…) à lancer sur l'apk Android — vide = ne pas lancer"
         type: string
         default: ''
-      run_ios:
-        description: "suite de test (test-suites.ts) à lancer sur l'app iOS — vide = ne pas lancer"
+      android_device:
+        description: "AVD Android au format pixel_<profil>_api<niveau> (ex. pixel_8_api36) ; ne sert que si une suite Android est lancée"
         type: string
-        default: ''
-      run_old_device:
-        description: "demande à lancer une suite de test mobile avec la configuration la plus ancienne disponible"
-        type: boolean
-        default: true
+        default: pixel_8_api36
+      apk_source:
+        description: "origine de l'APK Android : latest-tag (dernier tag d'ami-app-android, secrets AMI_REVIEWAPPS_APP_ID et AMI_REVIEWAPPS_PRIVATE_KEY requis)"
+        type: string
+        default: latest-tag
       checkout_ref:
         description: "ref (branche/tag/sha) d'ami-system-tests à checkout — doit être égal à la ref de jobs.e2e-launch.uses: [...]@ref"
         type: string
-        default: 10-ci-api-ios-android-wip
+        default: main
 
 permissions:
   contents: read
   checks: write
   pull-requests: write
-  actions: read
-  
+
 jobs:
   e2e:
     name: run e2e (manual)
@@ -41,8 +40,8 @@ jobs:
     with:
       run_webapp: ${{ inputs.run_webapp }}
       run_android: ${{ inputs.run_android }}
-      run_ios: ${{ inputs.run_ios }}
-      run_old_device: ${{ inputs.run_old_device }}
+      android_device: ${{ inputs.android_device }}
+      apk_source: ${{ inputs.apk_source }}
       pr_number: ${{ fromJSON(inputs.pr_number) }}
       source_sha: ${{ github.sha }}
       checkout_ref: ${{ inputs.checkout_ref }}
