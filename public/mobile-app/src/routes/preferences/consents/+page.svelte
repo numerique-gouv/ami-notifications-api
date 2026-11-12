@@ -87,7 +87,7 @@
     <div class="am-toggle-container">
       {#each consentItems as item}
         <Toggle
-          id="{item.partner_id}"
+          id={item.partner_id}
           label="Suivre mes démarches <strong>{item.partner_name}</strong> sur mon appareil mobile"
           isChecked={item.consent_datetime !== null}
           onChangeAction={saveConsents}

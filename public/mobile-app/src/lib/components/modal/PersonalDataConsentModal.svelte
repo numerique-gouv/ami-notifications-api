@@ -37,7 +37,7 @@
   };
 </script>
 
-<BottomModal modalId="{modalId}">
+<BottomModal modalId={modalId}>
   {#snippet modalContent()}
     <div data-testid="personal-data-consent-modal">
       <h2 class="fr-h4 fr-mb-2w">Utiliser mes données administratives</h2>
