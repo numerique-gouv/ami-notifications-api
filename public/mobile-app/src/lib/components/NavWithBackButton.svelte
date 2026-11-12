@@ -18,7 +18,7 @@
   };
 </script>
 
-<nav class={["fr-p-2w", {scrolled}, className]}>
+<nav class={[{scrolled}, className]}>
   <div class="backbutton-wrapper">
     <BackButton {backUrl} />
   </div>
@@ -43,14 +43,21 @@
 
 <style>
   nav {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    min-height: 4rem;
+    &:not(.not-sticky) {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      min-height: 4rem;
+      padding: 1rem;
+    }
     background-color: var(--background-default-grey);
     transition: 0.4s;
     z-index: 1000;
+
+    &.not-sticky {
+      padding-top: 1rem;
+    }
     .backbutton-wrapper {
       position: absolute;
       left: 0.5rem;
