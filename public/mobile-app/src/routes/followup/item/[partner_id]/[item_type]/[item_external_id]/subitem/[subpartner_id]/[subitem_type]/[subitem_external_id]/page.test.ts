@@ -19,7 +19,7 @@ describe('/+page.ts', () => {
       [],
       'title',
       'subheading',
-      'description',
+      'last message title',
       'icon',
       new Date('2026-01-03T08:05:42Z'),
       'new',
