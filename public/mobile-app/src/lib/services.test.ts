@@ -1,5 +1,6 @@
 import { describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
+import MiniSearch from 'minisearch';
 import * as apiServicesMethods from '$lib/api-services';
 import * as nativeInfosMethods from '$lib/bridges/nativeInfos';
 import { buildServices, Services, ServicesItem } from '$lib/services';
@@ -299,181 +300,338 @@ describe('/services.ts', () => {
     });
   });
   describe('Services', () => {
-    test('should order items', async () => {
-      // Given
-      const servicesItem1 = {
-        partner_id: 'psl',
-        item_type: 'OperationTranquilliteVacances',
-        kind: 'catalog',
-        title: 'Opération Tranquillité Vacances',
-        service_name: 'Sécurisez votre logement',
-        description: 'Vous partez en vacances ? **Securisez votre logement.**',
-        url: 'http://external-url',
-        icon: 'icon',
-        with_silent_login: true,
-      };
-      const servicesItem2 = {
-        partner_id: 'dinum-dn',
-        item_type: 'JeDéménage',
-        kind: 'catalog',
-        title: 'Je déménage',
-        service_name: 'Indiquez votre nouvelle adresse',
-        description: 'Vous déménagez ? **Indiquez votre nouvelle adresse.**',
-        url: 'http://external-url',
-        icon: 'icon',
-        with_silent_login: false,
-      };
-      const servicesItem3 = {
-        partner_id: 'psl',
-        item_type: 'OperationTranquilliteVacances',
-        kind: 'sos',
-        title: 'Opération Tranquillité Vacances',
-        service_name: 'Sécurisez votre logement',
-        description: 'Vous partez en vacances ? **Securisez votre logement.**',
-        url: 'http://external-url',
-        icon: 'icon',
-        with_silent_login: true,
-      };
-      const servicesItem4 = {
-        partner_id: 'dinum-dn',
-        item_type: 'JeDéménage',
-        kind: 'sos',
-        title: 'Je déménage',
-        service_name: 'Indiquez votre nouvelle adresse',
-        description: 'Vous déménagez ? **Indiquez votre nouvelle adresse.**',
-        url: 'http://external-url',
-        icon: 'icon',
-        with_silent_login: false,
-      };
-      const servicesItem5 = {
-        partner_id: 'psl',
-        item_type: 'OperationTranquilliteVacances',
-        kind: 'steps',
-        title: 'Opération Tranquillité Vacances',
-        service_name: 'Sécurisez votre logement',
-        description: 'Vous partez en vacances ? **Securisez votre logement.**',
-        url: 'http://external-url',
-        icon: 'icon',
-        with_silent_login: true,
-      };
-      const servicesItem6 = {
-        partner_id: 'dinum-dn',
-        item_type: 'JeDéménage',
-        kind: 'steps',
-        title: 'Je déménage',
-        service_name: 'Indiquez votre nouvelle adresse',
-        description: 'Vous déménagez ? **Indiquez votre nouvelle adresse.**',
-        url: 'http://external-url',
-        icon: 'icon',
-        with_silent_login: false,
-      };
+    describe('constructor', () => {
+      test('should order items', async () => {
+        // Given
+        const servicesItem1 = {
+          partner_id: 'psl',
+          item_type: 'OperationTranquilliteVacances',
+          kind: 'catalog',
+          title: 'Opération Tranquillité Vacances',
+          service_name: 'Sécurisez votre logement',
+          description: 'Vous partez en vacances ? **Securisez votre logement.**',
+          url: 'http://external-url',
+          icon: 'icon',
+          with_silent_login: true,
+        };
+        const servicesItem2 = {
+          partner_id: 'dinum-dn',
+          item_type: 'JeDéménage',
+          kind: 'catalog',
+          title: 'Je déménage',
+          service_name: 'Indiquez votre nouvelle adresse',
+          description: 'Vous déménagez ? **Indiquez votre nouvelle adresse.**',
+          url: 'http://external-url',
+          icon: 'icon',
+          with_silent_login: false,
+        };
+        const servicesItem3 = {
+          partner_id: 'psl',
+          item_type: 'OperationTranquilliteVacances',
+          kind: 'sos',
+          title: 'Opération Tranquillité Vacances',
+          service_name: 'Sécurisez votre logement',
+          description: 'Vous partez en vacances ? **Securisez votre logement.**',
+          url: 'http://external-url',
+          icon: 'icon',
+          with_silent_login: true,
+        };
+        const servicesItem4 = {
+          partner_id: 'dinum-dn',
+          item_type: 'JeDéménage',
+          kind: 'sos',
+          title: 'Je déménage',
+          service_name: 'Indiquez votre nouvelle adresse',
+          description: 'Vous déménagez ? **Indiquez votre nouvelle adresse.**',
+          url: 'http://external-url',
+          icon: 'icon',
+          with_silent_login: false,
+        };
+        const servicesItem5 = {
+          partner_id: 'psl',
+          item_type: 'OperationTranquilliteVacances',
+          kind: 'steps',
+          title: 'Opération Tranquillité Vacances',
+          service_name: 'Sécurisez votre logement',
+          description: 'Vous partez en vacances ? **Securisez votre logement.**',
+          url: 'http://external-url',
+          icon: 'icon',
+          with_silent_login: true,
+        };
+        const servicesItem6 = {
+          partner_id: 'dinum-dn',
+          item_type: 'JeDéménage',
+          kind: 'steps',
+          title: 'Je déménage',
+          service_name: 'Indiquez votre nouvelle adresse',
+          description: 'Vous déménagez ? **Indiquez votre nouvelle adresse.**',
+          url: 'http://external-url',
+          icon: 'icon',
+          with_silent_login: false,
+        };
 
-      // When
-      const services = new Services({
-        internal: [
-          servicesItem1,
-          servicesItem2,
-          servicesItem3,
-          servicesItem4,
-          servicesItem5,
-          servicesItem6,
-        ],
+        // When
+        const services = new Services({
+          internal: [
+            servicesItem1,
+            servicesItem2,
+            servicesItem3,
+            servicesItem4,
+            servicesItem5,
+            servicesItem6,
+          ],
+        });
+
+        // Then
+        expect(services.catalog.length).equal(2);
+        expect(
+          services.catalog[0].equals(
+            new ServicesItem(
+              'dinum-dn',
+              'JeDéménage',
+              'catalog',
+              'Je déménage',
+              'Indiquez votre nouvelle adresse',
+              'Vous déménagez ? **Indiquez votre nouvelle adresse.**',
+              'http://external-url',
+              'icon',
+              false
+            )
+          )
+        ).toBe(true);
+        expect(
+          services.catalog[1].equals(
+            new ServicesItem(
+              'psl',
+              'OperationTranquilliteVacances',
+              'catalog',
+              'Opération Tranquillité Vacances',
+              'Sécurisez votre logement',
+              'Vous partez en vacances ? **Securisez votre logement.**',
+              'http://external-url',
+              'icon',
+              true
+            )
+          )
+        ).toBe(true);
+        expect(services.sos.length).equal(2);
+        expect(
+          services.sos[0].equals(
+            new ServicesItem(
+              'dinum-dn',
+              'JeDéménage',
+              'sos',
+              'Je déménage',
+              'Indiquez votre nouvelle adresse',
+              'Vous déménagez ? **Indiquez votre nouvelle adresse.**',
+              'http://external-url',
+              'icon',
+              false
+            )
+          )
+        ).toBe(true);
+        expect(
+          services.sos[1].equals(
+            new ServicesItem(
+              'psl',
+              'OperationTranquilliteVacances',
+              'sos',
+              'Opération Tranquillité Vacances',
+              'Sécurisez votre logement',
+              'Vous partez en vacances ? **Securisez votre logement.**',
+              'http://external-url',
+              'icon',
+              true
+            )
+          )
+        ).toBe(true);
+        expect(services.steps.length).equal(2);
+        expect(
+          services.steps[0].equals(
+            new ServicesItem(
+              'dinum-dn',
+              'JeDéménage',
+              'steps',
+              'Je déménage',
+              'Indiquez votre nouvelle adresse',
+              'Vous déménagez ? **Indiquez votre nouvelle adresse.**',
+              'http://external-url',
+              'icon',
+              false
+            )
+          )
+        ).toBe(true);
+        expect(
+          services.steps[1].equals(
+            new ServicesItem(
+              'psl',
+              'OperationTranquilliteVacances',
+              'steps',
+              'Opération Tranquillité Vacances',
+              'Sécurisez votre logement',
+              'Vous partez en vacances ? **Securisez votre logement.**',
+              'http://external-url',
+              'icon',
+              true
+            )
+          )
+        ).toBe(true);
       });
+    });
+    describe('minisearch', () => {
+      test('should populate cache', async () => {
+        // Given
+        const servicesItem = {
+          partner_id: 'psl',
+          item_type: 'OperationTranquilliteVacances',
+          kind: 'catalog',
+          title: 'Opération Tranquillité Vacances',
+          service_name: 'Sécurisez votre logement',
+          description: 'Vous partez en vacances ? **Securisez votre logement.**',
+          url: 'http://external-url',
+          icon: 'icon',
+          with_silent_login: true,
+        };
+        const addAll = vi.spyOn(MiniSearch.prototype, 'addAll');
 
-      // Then
-      expect(services.catalog.length).equal(2);
-      expect(
-        services.catalog[0].equals(
-          new ServicesItem(
-            'dinum-dn',
-            'JeDéménage',
-            'catalog',
-            'Je déménage',
-            'Indiquez votre nouvelle adresse',
-            'Vous déménagez ? **Indiquez votre nouvelle adresse.**',
-            'http://external-url',
-            'icon',
-            false
+        // When
+        const services = new Services({
+          internal: [servicesItem],
+        });
+        const result = services.search('Opération');
+
+        // Then
+        expect(addAll).toHaveBeenCalled();
+        expect(localStorage.getItem('services_minisearch')).not.toBeNull();
+        expect(result?.terms).toEqual('Opération');
+        expect(result?.services.length).equals(1);
+        expect(
+          result?.services[0].equals(
+            new ServicesItem(
+              'psl',
+              'OperationTranquilliteVacances',
+              'catalog',
+              'Opération Tranquillité Vacances',
+              'Sécurisez votre logement',
+              'Vous partez en vacances ? **Securisez votre logement.**',
+              'http://external-url',
+              'icon',
+              true
+            )
           )
-        )
-      ).toBe(true);
-      expect(
-        services.catalog[1].equals(
-          new ServicesItem(
-            'psl',
-            'OperationTranquilliteVacances',
-            'catalog',
-            'Opération Tranquillité Vacances',
-            'Sécurisez votre logement',
-            'Vous partez en vacances ? **Securisez votre logement.**',
-            'http://external-url',
-            'icon',
-            true
+        ).toBe(true);
+      });
+      test('should log error on indexation failure', async () => {
+        // Given
+        const spy = vi.spyOn(MiniSearch.prototype, 'addAll').mockImplementation(() => {
+          throw new Error();
+        });
+        const servicesItem = {
+          partner_id: 'psl',
+          item_type: 'OperationTranquilliteVacances',
+          kind: 'catalog',
+          title: 'Opération Tranquillité Vacances',
+          service_name: 'Sécurisez votre logement',
+          description: 'Vous partez en vacances ? **Securisez votre logement.**',
+          url: 'http://external-url',
+          icon: 'icon',
+          with_silent_login: true,
+        };
+
+        // When
+        new Services({
+          internal: [servicesItem],
+        }); // no error
+        spy.mockRestore();
+      });
+      test('should load minisearch from cache', async () => {
+        // Given
+        const servicesItem = {
+          partner_id: 'psl',
+          item_type: 'OperationTranquilliteVacances',
+          kind: 'catalog',
+          title: 'Opération Tranquillité Vacances',
+          service_name: 'Sécurisez votre logement',
+          description: 'Vous partez en vacances ? **Securisez votre logement.**',
+          url: 'http://external-url',
+          icon: 'icon',
+          with_silent_login: true,
+        };
+        new Services({
+          internal: [servicesItem],
+        }); // populate cache
+        const addAll = vi.spyOn(MiniSearch.prototype, 'addAll');
+
+        // When
+        const services = new Services({
+          internal: [servicesItem],
+        });
+        const result = services.search('Opération');
+
+        // Then
+        expect(addAll).not.toHaveBeenCalled();
+        expect(localStorage.getItem('services_minisearch')).not.toBeNull();
+        expect(result?.terms).toEqual('Opération');
+        expect(result?.services.length).equals(1);
+        expect(
+          result?.services[0].equals(
+            new ServicesItem(
+              'psl',
+              'OperationTranquilliteVacances',
+              'catalog',
+              'Opération Tranquillité Vacances',
+              'Sécurisez votre logement',
+              'Vous partez en vacances ? **Securisez votre logement.**',
+              'http://external-url',
+              'icon',
+              true
+            )
           )
-        )
-      ).toBe(true);
-      expect(services.sos.length).equal(2);
-      expect(
-        services.sos[0].equals(
-          new ServicesItem(
-            'dinum-dn',
-            'JeDéménage',
-            'sos',
-            'Je déménage',
-            'Indiquez votre nouvelle adresse',
-            'Vous déménagez ? **Indiquez votre nouvelle adresse.**',
-            'http://external-url',
-            'icon',
-            false
+        ).toBe(true);
+      });
+      test('should not load minisearch from cache if cache is corrupted', async () => {
+        // Given
+        localStorage.setItem('services_minisearch', 'invalid');
+        const servicesItem = {
+          partner_id: 'psl',
+          item_type: 'OperationTranquilliteVacances',
+          kind: 'catalog',
+          title: 'Opération Tranquillité Vacances',
+          service_name: 'Sécurisez votre logement',
+          description: 'Vous partez en vacances ? **Securisez votre logement.**',
+          url: 'http://external-url',
+          icon: 'icon',
+          with_silent_login: true,
+        };
+        const addAll = vi.spyOn(MiniSearch.prototype, 'addAll');
+
+        // When
+        const services = new Services({
+          internal: [servicesItem],
+        });
+        const result = services.search('Opération');
+
+        // Then
+        expect(addAll).toHaveBeenCalled();
+        expect(localStorage.getItem('services_minisearch')).not.toBeNull();
+        expect(result?.terms).toEqual('Opération');
+        expect(result?.services.length).equals(1);
+        expect(
+          result?.services[0].equals(
+            new ServicesItem(
+              'psl',
+              'OperationTranquilliteVacances',
+              'catalog',
+              'Opération Tranquillité Vacances',
+              'Sécurisez votre logement',
+              'Vous partez en vacances ? **Securisez votre logement.**',
+              'http://external-url',
+              'icon',
+              true
+            )
           )
-        )
-      ).toBe(true);
-      expect(
-        services.sos[1].equals(
-          new ServicesItem(
-            'psl',
-            'OperationTranquilliteVacances',
-            'sos',
-            'Opération Tranquillité Vacances',
-            'Sécurisez votre logement',
-            'Vous partez en vacances ? **Securisez votre logement.**',
-            'http://external-url',
-            'icon',
-            true
-          )
-        )
-      ).toBe(true);
-      expect(services.steps.length).equal(2);
-      expect(
-        services.steps[0].equals(
-          new ServicesItem(
-            'dinum-dn',
-            'JeDéménage',
-            'steps',
-            'Je déménage',
-            'Indiquez votre nouvelle adresse',
-            'Vous déménagez ? **Indiquez votre nouvelle adresse.**',
-            'http://external-url',
-            'icon',
-            false
-          )
-        )
-      ).toBe(true);
-      expect(
-        services.steps[1].equals(
-          new ServicesItem(
-            'psl',
-            'OperationTranquilliteVacances',
-            'steps',
-            'Opération Tranquillité Vacances',
-            'Sécurisez votre logement',
-            'Vous partez en vacances ? **Securisez votre logement.**',
-            'http://external-url',
-            'icon',
-            true
-          )
-        )
-      ).toBe(true);
+        ).toBe(true);
+      });
     });
     describe('find', () => {
       test('should return only one matching service', async () => {
