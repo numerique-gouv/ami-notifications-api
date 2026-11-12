@@ -3,6 +3,7 @@
   import { page } from '$app/state';
   import { PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED } from '$env/static/public';
   import { AMIGoto } from '$lib/ami-navigation';
+  import { emit } from '$lib/bridges/nativeBridge';
   import { initializeData, initializeLocalStorage } from '$lib/initializeDataFromAPI';
   import {
     authenticateWithPasskey,
@@ -20,6 +21,7 @@
 
   const redirectLoggedInUser = (createdPasskey: boolean) => {
     initializeData();
+    emit('user_authentication_phase_completed');
     const passKeyParam = createdPasskey ? '?passkey_toast=true' : '';
     const redirect_param = page.url.searchParams.get('login_redirect');
     if (redirect_param) {
