@@ -323,14 +323,19 @@
           >
             Enregistrer
           </button>
-          <PersonalDataConsentModal
-            modalId="edit-address-personal-data-consent-modal"
-            onClose={onCloseModal}
-            pageOrigin="edit-address"
-          />
         {/if}
       </li>
     </ul>
+  {/snippet}
+
+  {#snippet bottomAnnex()}
+    {#if !hasPersonalDataConsent}
+      <PersonalDataConsentModal
+        modalId="edit-address-personal-data-consent-modal"
+        onClose={onCloseModal}
+        pageOrigin="edit-address"
+      />
+    {/if}
   {/snippet}
 </PageWrapper>
 

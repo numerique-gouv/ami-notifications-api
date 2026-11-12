@@ -10,8 +10,7 @@
   onMount(async () => {
     if (document.getElementById('menu-footer')) {
       aboveMenu = true;
-    }
-    if (document.querySelector('.zones-welcome-page-footer')) {
+    } else if (document.querySelector('.zones-welcome-page-footer')) {
       aboveWelcomePageFooter = true;
     }
   });
@@ -42,11 +41,11 @@
     z-index: 3;
     margin: 0 1rem;
     width: calc(100% - 2rem);
-  }
-  .above-menu {
-    bottom: calc(68px + 1rem);
-  }
-  .above-welcome-page-footer {
-    bottom: 3.5rem;
+    &.above-menu {
+      bottom: 5.25rem;
+    }
+    &.above-welcome-page-footer {
+      bottom: 3.5rem;
+    }
   }
 </style>
