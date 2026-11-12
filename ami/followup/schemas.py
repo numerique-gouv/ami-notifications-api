@@ -44,6 +44,7 @@ class FollowupSubItem:
     title: str
     subheading: str
     description: str
+    last_message_title: str
     icon: str
     external_url: str | None
     is_archived: bool
@@ -162,6 +163,14 @@ class NotificationsSubItem:
         return description
 
     @property
+    def last_message_title(self):
+        if self.last_notification.content_title:
+            return self.last_notification.content_title
+        # last title seen
+        titles = [n.content_title for n in self.notifications if n.content_title]
+        return titles[-1] if titles else ""
+
+    @property
     def icon(self):
         return self.last_notification.icon or ""
 
@@ -201,6 +210,7 @@ class NotificationsSubItem:
             "title": self.title,
             "subheading": self.subheading,
             "description": self.description,
+            "last_message_title": self.last_message_title,
             "icon": self.icon,
             "external_url": self.external_url,
             "is_archived": self.is_archived,
