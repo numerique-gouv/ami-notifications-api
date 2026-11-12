@@ -58,6 +58,9 @@ export const retrieveServices = async (
           const new_data = JSON.stringify(apiServices[key]);
           apiServicesData[key] = new_data;
           localStorage.setItem(`${key}_services_source`, new_data);
+
+          // clear minisearch cache
+          localStorage.removeItem(`services_minisearch`);
         }
       }
     }

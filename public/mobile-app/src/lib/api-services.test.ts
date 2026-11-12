@@ -59,6 +59,7 @@ describe('/api-services', () => {
         .mockResolvedValue(
           new Response(JSON.stringify(apiServicesData), { status: 200 })
         );
+      window.localStorage.setItem('services_minisearch', 'some data');
 
       // When
       const result = await retrieveServices(new Date('2025-11-01T12:00:00Z'));
@@ -73,6 +74,7 @@ describe('/api-services', () => {
       expect(window.localStorage.getItem('internal_services_source')).toEqual(
         JSON.stringify(apiServicesData.internal)
       );
+      expect(window.localStorage.getItem('services_minisearch')).toBeNull();
     });
 
     test('should get services items from API - with error', async () => {
@@ -80,6 +82,7 @@ describe('/api-services', () => {
       const spy = vi
         .spyOn(globalThis, 'fetch')
         .mockResolvedValue(new Response('error', { status: 400 }));
+      window.localStorage.setItem('services_minisearch', 'some data');
 
       // When
       const result = await retrieveServices(new Date('2025-11-01T12:00:00Z'));
@@ -92,6 +95,7 @@ describe('/api-services', () => {
         internal: [],
       });
       expect(window.localStorage.getItem('internal_services_source')).toBeNull();
+      expect(window.localStorage.getItem('services_minisearch')).not.toBeNull();
     });
 
     test('should get services items from localstorage', async () => {
@@ -100,6 +104,7 @@ describe('/api-services', () => {
         'internal_services_source',
         JSON.stringify(apiServicesData.internal)
       );
+      window.localStorage.setItem('services_minisearch', 'some data');
 
       // When
       const result = await retrieveServices(new Date('2025-11-01T12:00:00Z'));
@@ -108,6 +113,7 @@ describe('/api-services', () => {
       expect(result).toEqual({
         internal: apiServicesData.internal.items,
       });
+      expect(window.localStorage.getItem('services_minisearch')).not.toBeNull();
     });
 
     test('should get services items from API - no date param', async () => {
@@ -121,6 +127,7 @@ describe('/api-services', () => {
         .mockResolvedValue(
           new Response(JSON.stringify(apiServicesData), { status: 200 })
         );
+      window.localStorage.setItem('services_minisearch', 'some data');
 
       // When
       const result = await retrieveServices();
@@ -135,6 +142,7 @@ describe('/api-services', () => {
       expect(window.localStorage.getItem('internal_services_source')).toEqual(
         JSON.stringify(apiServicesData.internal)
       );
+      expect(window.localStorage.getItem('services_minisearch')).toBeNull();
     });
 
     test.each(
@@ -157,6 +165,7 @@ describe('/api-services', () => {
       const spy = vi
         .spyOn(globalThis, 'fetch')
         .mockResolvedValue(new Response(JSON.stringify(responseData), { status: 200 }));
+      window.localStorage.setItem('services_minisearch', 'some data');
 
       // When
       const result = await retrieveServices(new Date('2025-11-01T12:00:00Z'));
@@ -171,6 +180,7 @@ describe('/api-services', () => {
       expect(window.localStorage.getItem(`${key}_services_source`)).toEqual(
         JSON.stringify(apiServicesData[key])
       );
+      expect(window.localStorage.getItem('services_minisearch')).toBeNull();
     });
 
     test.each(
@@ -194,6 +204,7 @@ describe('/api-services', () => {
       const spy = vi
         .spyOn(globalThis, 'fetch')
         .mockResolvedValue(new Response(JSON.stringify(responseData), { status: 200 }));
+      window.localStorage.setItem('services_minisearch', 'some data');
 
       // When
       const result = await retrieveServices(new Date('2025-11-01T12:00:00Z'));
@@ -208,6 +219,7 @@ describe('/api-services', () => {
       expect(window.localStorage.getItem(`${key}_services_source`)).toEqual(
         JSON.stringify(apiServicesData[key])
       );
+      expect(window.localStorage.getItem('services_minisearch')).toBeNull();
     });
 
     test.each(
@@ -234,6 +246,7 @@ describe('/api-services', () => {
       const spy = vi
         .spyOn(globalThis, 'fetch')
         .mockResolvedValue(new Response(JSON.stringify(responseData), { status: 200 }));
+      window.localStorage.setItem('services_minisearch', 'some data');
 
       // When
       const result = await retrieveServices(new Date('2025-11-01T12:00:00Z'));
@@ -248,6 +261,7 @@ describe('/api-services', () => {
       expect(window.localStorage.getItem(`${key}_services_source`)).toEqual(
         JSON.stringify(apiServicesData[key])
       );
+      expect(window.localStorage.getItem('services_minisearch')).toBeNull();
     });
 
     test.each(
@@ -272,6 +286,7 @@ describe('/api-services', () => {
       const spy = vi
         .spyOn(globalThis, 'fetch')
         .mockResolvedValue(new Response(JSON.stringify(responseData), { status: 200 }));
+      window.localStorage.setItem('services_minisearch', 'some data');
 
       // When
       const result = await retrieveServices(new Date('2025-11-01T12:00:00Z'));
@@ -286,6 +301,7 @@ describe('/api-services', () => {
       expect(window.localStorage.getItem(`${key}_services_source`)).toEqual(
         JSON.stringify(apiServicesData[key])
       );
+      expect(window.localStorage.getItem('services_minisearch')).toBeNull();
     });
 
     test.each(
@@ -320,6 +336,7 @@ describe('/api-services', () => {
       const spy = vi
         .spyOn(globalThis, 'fetch')
         .mockResolvedValue(new Response(JSON.stringify(responseData), { status: 200 }));
+      window.localStorage.setItem('services_minisearch', 'some data');
 
       // When
       const result = await retrieveServices(new Date('2025-11-01T12:00:00Z'));
@@ -334,6 +351,7 @@ describe('/api-services', () => {
       expect(window.localStorage.getItem(`${key}_services_source`)).toEqual(
         JSON.stringify(apiServicesData2[key])
       );
+      expect(window.localStorage.getItem('services_minisearch')).not.toBeNull();
     });
 
     test.each(
@@ -359,6 +377,7 @@ describe('/api-services', () => {
       const spy = vi
         .spyOn(globalThis, 'fetch')
         .mockResolvedValue(new Response(JSON.stringify(responseData), { status: 200 }));
+      window.localStorage.setItem('services_minisearch', 'some data');
 
       // When
       const result = await retrieveServices(new Date('2025-11-01T12:00:00Z'));
@@ -373,6 +392,7 @@ describe('/api-services', () => {
       expect(window.localStorage.getItem(`${key}_services_source`)).toEqual(
         JSON.stringify(apiServicesData[key])
       );
+      expect(window.localStorage.getItem('services_minisearch')).toBeNull();
     });
 
     test.each(
@@ -391,6 +411,7 @@ describe('/api-services', () => {
           JSON.stringify(apiServicesData[key2])
         );
       }
+      window.localStorage.setItem('services_minisearch', 'some data');
 
       // When
       const result = await retrieveServices(new Date('2025-11-01T12:00:00Z'));
@@ -399,6 +420,7 @@ describe('/api-services', () => {
       expect(result).toEqual({
         internal: apiServicesData.internal.items,
       });
+      expect(window.localStorage.getItem('services_minisearch')).not.toBeNull();
     });
   });
 
