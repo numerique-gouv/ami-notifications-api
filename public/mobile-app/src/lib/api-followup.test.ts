@@ -25,6 +25,8 @@ const followupItemsData = {
         title: 'Opération Tranquillité Vacances',
         subheading: 'PSL',
         description: 'Votre demande est en brouillon.',
+        last_message_title:
+          'Votre demande est en brouillon. (titre du dernier message)',
         icon: 'icon',
         external_url: null,
         is_archived: true,
@@ -45,11 +47,15 @@ const followupItemsData = {
                 id: 'uuid',
                 created_at: new Date('2026-02-23T15:50:00Z'),
                 description: 'Votre demande est en brouillon.',
+                last_message_title:
+                  'Votre demande est en brouillon. (titre du dernier message)',
               },
             ],
             title: 'Sous démarche',
             subheading: 'PSL',
             description: 'Votre demande est en brouillon.',
+            last_message_title:
+              'Votre demande est en brouillon. (titre du dernier message)',
             icon: 'icon',
             external_url: null,
             is_archived: false,
@@ -71,6 +77,8 @@ const followupItemsData = {
         title: 'Opération Tranquillité Vacances',
         subheading: 'PSL',
         description: 'Votre demande est en cours de traitement.',
+        last_message_title:
+          'Votre demande est en cours de traitement. (titre du dernier message)',
         icon: 'icon',
         external_url: 'http://otv.fr',
         is_archived: false,
