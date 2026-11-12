@@ -55,6 +55,7 @@ describe('/AgendaItem.svelte', () => {
       'Opération Tranquillité Vacances',
       'subheading',
       'Votre demande est terminée.',
+      'Votre demande est terminée. (titre du dernier message)',
       'icon',
       new Date('2026-02-20T15:55:00.000Z'),
       'closed',

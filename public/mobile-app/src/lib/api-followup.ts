@@ -20,6 +20,7 @@ export type APIFollowupSubItem = {
   title: string;
   subheading: string;
   description: string;
+  last_message_title: string;
   icon: string;
   external_url: string | null;
   is_archived: boolean;
