@@ -112,7 +112,7 @@ export class FollowupSubItem {
 
     private _title: string,
     private _subheading: string,
-    private _description: string,
+    private _last_message_title: string,
     private _icon: string,
 
     private _date: Date,
@@ -219,8 +219,8 @@ export class FollowupSubItem {
     return this._subheading;
   }
 
-  get description(): string {
-    return this._description;
+  get last_message_title(): string {
+    return this._last_message_title;
   }
 
   get date(): Date {
@@ -309,7 +309,7 @@ export class FollowupItem extends FollowupSubItem {
 
     _title: string,
     _subheading: string,
-    _description: string,
+    _last_message_title: string,
     _icon: string,
 
     _date: Date,
@@ -333,7 +333,7 @@ export class FollowupItem extends FollowupSubItem {
       _events,
       _title,
       _subheading,
-      _description,
+      _last_message_title,
       _icon,
       _date,
       _status_id,
@@ -460,7 +460,7 @@ export class Followup {
         sub_item_events,
         sub_item.title,
         sub_item.subheading,
-        sub_item.description,
+        sub_item.last_message_title,
         sub_item.icon,
         sub_item.updated_at,
         sub_item.status_id as Status,
@@ -481,7 +481,7 @@ export class Followup {
       events,
       item.title,
       item.subheading,
-      item.description,
+      item.last_message_title,
       item.icon,
       item.updated_at,
       item.status_id as Status,
