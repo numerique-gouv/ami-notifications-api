@@ -123,7 +123,7 @@
 {#each items as item, i}
   {#if item.component_modal_name}
     <AutoPromoItemModal
-      item_component_modal_name="{item.component_modal_name}"
+      item_component_modal_name={item.component_modal_name}
       modalId="auto-mea-item-{i}-modal"
       onClose={onCloseModal}
     />
