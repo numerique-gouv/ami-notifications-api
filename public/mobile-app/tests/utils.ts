@@ -1,20 +1,8 @@
 import type { Screen } from '@testing-library/svelte';
 import { waitFor } from '@testing-library/svelte';
-import { expect, vi } from 'vitest';
+import { expect } from 'vitest';
 import { Address } from '$lib/address';
 import { User } from '$lib/state/User.svelte';
-
-export const mockPushSubscription = {
-  unsubscribe: () => Promise.resolve(true),
-  endpoint: '',
-  expirationTime: 0,
-  options: {
-    applicationServerKey: null,
-    userVisibleOnly: true,
-  },
-  getKey: vi.fn(),
-  toJSON: vi.fn(),
-};
 
 export const mockUserInfo = {
   sub: 'fake sub',
