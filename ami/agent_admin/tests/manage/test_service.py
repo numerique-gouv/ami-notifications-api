@@ -54,15 +54,18 @@ def test_add_service(app, admin_agent: Agent) -> None:
     assert response.forms["service-form"]["description"].value == ""
     assert response.forms["service-form"]["url"].value == ""
     assert response.forms["service-form"]["with_silent_login"].value is None
+    assert response.forms["service-form"]["with_followup_integration"].value is None
     assert response.forms["service-form"]["restricted_to"].value == ""
 
     response = app.get("/agent-admin/manage/service/add/sos/")
     assert "kind" not in response.context["form"].fields
+    assert "with_followup_integration" not in response.context["form"].fields
     assert response.forms["service-form"]["icon"].value == ""
 
     response = app.get("/agent-admin/manage/service/add/steps/")
     assert "kind" not in response.context["form"].fields
     assert "with_silent_login" not in response.context["form"].fields
+    assert "with_followup_integration" not in response.context["form"].fields
     assert response.forms["service-form"]["icon"].value == ""
 
 
@@ -116,6 +119,7 @@ def test_add_service_submit_success(app, admin_agent: Agent, partner: Partner) -
     response.forms["service-form"]["description"] = "**Démarche de changement d'adresse**"
     response.forms["service-form"]["url"] = "http://demarche-demenagement"
     response.forms["service-form"]["with_silent_login"] = True
+    response.forms["service-form"]["with_followup_integration"] = True
     response.forms["service-form"]["restricted_to"] = "fake-fc-hash another-fake-fc-hash"
 
     response = response.forms["service-form"].submit()
@@ -131,6 +135,7 @@ def test_add_service_submit_success(app, admin_agent: Agent, partner: Partner) -
     assert service.url == "http://demarche-demenagement"
     assert service.icon == ""
     assert service.with_silent_login is True
+    assert service.with_followup_integration is True
     assert service.restricted_to == "another-fake-fc-hash fake-fc-hash"
 
     response = response.follow()
@@ -177,6 +182,7 @@ def test_add_service_submit_success(app, admin_agent: Agent, partner: Partner) -
     assert service.url == "http://demarche-demenagement"
     assert service.icon == "fr-icon-earth-line"
     assert service.with_silent_login is True
+    assert service.with_followup_integration is False
     assert service.restricted_to == "another-fake-fc-hash fake-fc-hash"
 
     response = app.get("/agent-admin/manage/service/add/steps/")
@@ -203,6 +209,7 @@ def test_add_service_submit_success(app, admin_agent: Agent, partner: Partner) -
     assert service.url == "http://demarche-demenagement"
     assert service.icon == "fr-icon-earth-line"
     assert service.with_silent_login is False
+    assert service.with_followup_integration is False
     assert service.restricted_to == "another-fake-fc-hash fake-fc-hash"
 
 
@@ -220,7 +227,6 @@ def test_add_service_submit_success_duplicated_restricted_to(
     response.forms["service-form"]["service_name"] = "Démarche de changement d'adresse"
     response.forms["service-form"]["description"] = "**Démarche de changement d'adresse**"
     response.forms["service-form"]["url"] = "http://demarche-demenagement"
-    response.forms["service-form"]["with_silent_login"] = True
     response.forms["service-form"]["restricted_to"] = "duplicated-value duplicated-value"
 
     response = response.forms["service-form"].submit()
@@ -320,15 +326,18 @@ def test_edit_service(
         == "https://localhost:8000/commencer/todo?id_hash_fc={fc_hash}&id_version={app_version_id}"
     )
     assert response.forms["service-form"]["with_silent_login"].value is None
+    assert response.forms["service-form"]["with_followup_integration"].value is None
     assert response.forms["service-form"]["restricted_to"].value == "fake-fc-hash"
 
     response = app.get(f"/agent-admin/manage/service/{services[2].id}/")
     assert "kind" not in response.context["form"].fields
+    assert "with_followup_integration" not in response.context["form"].fields
     assert response.forms["service-form"]["icon"].value == ""
 
     response = app.get(f"/agent-admin/manage/service/{services[3].id}/")
     assert "kind" not in response.context["form"].fields
     assert "with_silent_login" not in response.context["form"].fields
+    assert "with_followup_integration" not in response.context["form"].fields
     assert response.forms["service-form"]["icon"].value == ""
 
 
@@ -415,6 +424,7 @@ def test_edit_service_submit_success(
     response.forms["service-form"]["description"] = "**Démarche de changement d'adresse**"
     response.forms["service-form"]["url"] = "http://demarche-demenagement"
     response.forms["service-form"]["with_silent_login"] = True
+    response.forms["service-form"]["with_followup_integration"] = True
     response.forms["service-form"]["restricted_to"] = "fake-fc-hash another-fake-fc-hash"
 
     response = response.forms["service-form"].submit()
@@ -430,6 +440,7 @@ def test_edit_service_submit_success(
     assert service.url == "http://demarche-demenagement"
     assert service.icon == ""
     assert service.with_silent_login is True
+    assert service.with_followup_integration is True
     assert service.restricted_to == "another-fake-fc-hash fake-fc-hash"
 
     response = response.follow()
