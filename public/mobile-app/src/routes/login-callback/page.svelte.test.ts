@@ -75,7 +75,9 @@ describe('/+page.svelte', () => {
     render(Page);
     await waitFor(() => {
       expect(spy).toHaveBeenCalledWith('/#/welcome/zones');
-      expect(spyEmit).toHaveBeenCalledWith('user_authentication_phase_completed');
+      expect(spyEmit).toHaveBeenCalledWith('user_authentication_phase_completed', {
+        goto_url: 'https://localhost:5173/#/welcome/zones',
+      });
     });
   });
 
@@ -114,7 +116,10 @@ describe('/+page.svelte', () => {
       expect(spy).toHaveBeenCalledWith(
         '/goto-redirect-url?url=https%3A%2F%2Fwww.example.org%3Asignature'
       );
-      expect(spyEmit).toHaveBeenCalledWith('user_authentication_phase_completed');
+      expect(spyEmit).toHaveBeenCalledWith('user_authentication_phase_completed', {
+        goto_url:
+          'https://localhost:5173/goto-redirect-url?url=https%3A%2F%2Fwww.example.org%3Asignature',
+      });
     });
   });
 });
@@ -166,7 +171,10 @@ describe('/+page.svelte - with passkey feature flag', () => {
           3000,
           false
         );
-        expect(spyEmit).not.toHaveBeenCalledWith('user_authentication_phase_completed');
+        expect(spyEmit).not.toHaveBeenCalledWith(
+          'user_authentication_phase_completed',
+          expect.anything()
+        );
       });
     });
     test('should display network error toast on PasskeyNetworkError', async () => {
@@ -201,7 +209,10 @@ describe('/+page.svelte - with passkey feature flag', () => {
           3000,
           false
         );
-        expect(spyEmit).not.toHaveBeenCalledWith('user_authentication_phase_completed');
+        expect(spyEmit).not.toHaveBeenCalledWith(
+          'user_authentication_phase_completed',
+          expect.anything()
+        );
       });
     });
     test('should create a passkey when appropriate button is clicked', async () => {
@@ -229,7 +240,9 @@ describe('/+page.svelte - with passkey feature flag', () => {
         expect(userStore.getHasWorkingPasskey()).toBe(true);
 
         expect(spy).toHaveBeenCalledWith('/?passkey_toast=true#/welcome/zones');
-        expect(spyEmit).toHaveBeenCalledWith('user_authentication_phase_completed');
+        expect(spyEmit).toHaveBeenCalledWith('user_authentication_phase_completed', {
+          goto_url: 'https://localhost:5173/?passkey_toast=true#/welcome/zones',
+        });
       });
     });
   });
@@ -259,7 +272,9 @@ describe('/+page.svelte - with passkey feature flag', () => {
         await fireEvent.click(bypassPasskeyButton);
         expect(spy).toHaveBeenCalledWith('/#/welcome/zones');
         expect(userStore.getHasSuggestPasskeyCreationToday()).toBe(true);
-        expect(spyEmit).toHaveBeenCalledWith('user_authentication_phase_completed');
+        expect(spyEmit).toHaveBeenCalledWith('user_authentication_phase_completed', {
+          goto_url: 'https://localhost:5173/#/welcome/zones',
+        });
       });
     });
 
@@ -285,7 +300,9 @@ describe('/+page.svelte - with passkey feature flag', () => {
       await waitFor(() => {
         expect(spy).toHaveBeenCalledWith('/#/welcome/zones');
         expect(screen.queryByTestId('create-passkey-button')).toBeNull();
-        expect(spyEmit).toHaveBeenCalledWith('user_authentication_phase_completed');
+        expect(spyEmit).toHaveBeenCalledWith('user_authentication_phase_completed', {
+          goto_url: 'https://localhost:5173/#/welcome/zones',
+        });
       });
     });
 
@@ -312,7 +329,9 @@ describe('/+page.svelte - with passkey feature flag', () => {
       await waitFor(() => {
         expect(spy).toHaveBeenCalledWith('/#/welcome/zones');
         expect(screen.queryByTestId('create-passkey-button')).toBeNull();
-        expect(spyEmit).toHaveBeenCalledWith('user_authentication_phase_completed');
+        expect(spyEmit).toHaveBeenCalledWith('user_authentication_phase_completed', {
+          goto_url: 'https://localhost:5173/#/welcome/zones',
+        });
       });
     });
 
@@ -332,7 +351,10 @@ describe('/+page.svelte - with passkey feature flag', () => {
       // Then
       await waitFor(() => {
         expect(screen.queryByTestId('create-passkey-button')).not.toBeNull();
-        expect(spyEmit).not.toHaveBeenCalledWith('user_authentication_phase_completed');
+        expect(spyEmit).not.toHaveBeenCalledWith(
+          'user_authentication_phase_completed',
+          expect.anything()
+        );
       });
     });
 
@@ -354,7 +376,10 @@ describe('/+page.svelte - with passkey feature flag', () => {
       // Then
       await waitFor(() => {
         expect(screen.queryByTestId('create-passkey-button')).not.toBeNull();
-        expect(spyEmit).not.toHaveBeenCalledWith('user_authentication_phase_completed');
+        expect(spyEmit).not.toHaveBeenCalledWith(
+          'user_authentication_phase_completed',
+          expect.anything()
+        );
       });
     });
   });
@@ -382,7 +407,10 @@ describe('/+page.svelte - with passkey feature flag', () => {
       // Then
       await waitFor(async () => {
         expect(screen.queryByTestId('use-passkey-button')).toBeNull();
-        expect(spyEmit).not.toHaveBeenCalledWith('user_authentication_phase_completed');
+        expect(spyEmit).not.toHaveBeenCalledWith(
+          'user_authentication_phase_completed',
+          expect.anything()
+        );
       });
     });
     test('should display use passkey button if user has passkey ', async () => {
@@ -408,7 +436,10 @@ describe('/+page.svelte - with passkey feature flag', () => {
       await waitFor(async () => {
         expect(screen.queryByTestId('use-passkey-button')).not.toBeNull();
         expect(spy).not.toHaveBeenCalled();
-        expect(spyEmit).not.toHaveBeenCalledWith('user_authentication_phase_completed');
+        expect(spyEmit).not.toHaveBeenCalledWith(
+          'user_authentication_phase_completed',
+          expect.anything()
+        );
       });
     });
     describe('user clicks on use passkey button', async () => {
@@ -450,7 +481,8 @@ describe('/+page.svelte - with passkey feature flag', () => {
           );
           expect(spyAuth).toHaveBeenCalledExactlyOnceWith(true);
           expect(spyEmit).not.toHaveBeenCalledWith(
-            'user_authentication_phase_completed'
+            'user_authentication_phase_completed',
+            expect.anything()
           );
         });
       });
@@ -492,7 +524,8 @@ describe('/+page.svelte - with passkey feature flag', () => {
           );
           expect(spyAuth).toHaveBeenCalledExactlyOnceWith(true);
           expect(spyEmit).not.toHaveBeenCalledWith(
-            'user_authentication_phase_completed'
+            'user_authentication_phase_completed',
+            expect.anything()
           );
         });
       });
@@ -536,7 +569,8 @@ describe('/+page.svelte - with passkey feature flag', () => {
           );
           expect(spyAuth).toHaveBeenCalledExactlyOnceWith(true);
           expect(spyEmit).not.toHaveBeenCalledWith(
-            'user_authentication_phase_completed'
+            'user_authentication_phase_completed',
+            expect.anything()
           );
         });
       });
@@ -573,7 +607,9 @@ describe('/+page.svelte - with passkey feature flag', () => {
           expect(userStore.getHasWorkingPasskey()).toBe(true);
           expect(spy).toHaveBeenCalledWith('/?passkey_toast=true#/welcome/zones');
           expect(spyAuth).toHaveBeenCalledExactlyOnceWith(true);
-          expect(spyEmit).toHaveBeenCalledWith('user_authentication_phase_completed');
+          expect(spyEmit).toHaveBeenCalledWith('user_authentication_phase_completed', {
+            goto_url: 'https://localhost:5173/?passkey_toast=true#/welcome/zones',
+          });
         });
       });
     });
