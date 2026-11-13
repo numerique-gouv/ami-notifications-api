@@ -1,66 +1,20 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { AMIBack, AMIGoto } from '$lib/ami-navigation';
-  import { runOrNativeEvent } from '$lib/bridges/nativeBridge';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
-  import Toggle from '$lib/components/Toggle.svelte';
-  import {
-    disableNotificationsForDesktop,
-    enableNotifications,
-  } from '$lib/notifications';
   import { userStore } from '$lib/state/User.svelte';
 
   let backUrl: string = '/#/preferences';
-  let isChecked = $state(false);
 
   onMount(async () => {
     if (!userStore.connected) {
       AMIGoto('/#/login');
     }
-
-    isChecked = localStorage.getItem('notifications_enabled') === 'true';
   });
-
-  const enableNotificationsFunc = async () => {
-    await enableNotifications();
-  };
-
-  const disableNotificationsFunc = async () => {
-    let registrationId: string | null = null;
-    if (localStorage.getItem('registration_id')) {
-      registrationId = localStorage.getItem('registration_id');
-    } else {
-      console.log('no registration');
-    }
-
-    if (registrationId) {
-      await disableNotificationsForDesktop(registrationId);
-      localStorage.setItem('registration_id', '');
-      localStorage.setItem('notifications_enabled', 'false');
-    }
-  };
-  const saveSettings = async (_id: string, checked: boolean) => {
-    if (checked) {
-      runOrNativeEvent(enableNotificationsFunc, 'notification_permission_requested');
-    } else {
-      runOrNativeEvent(disableNotificationsFunc, 'notification_permission_removed');
-    }
-  };
 </script>
 
 <div class="preferences-page">
   <NavWithBackButton title="Notifications" {backUrl} />
-
-  <div class="preferences-content-container fr-pt-14w">
-    <div class="am-toggle-container">
-      <Toggle
-        id="notification-toggle"
-        label="Recevoir les notifications sur mon appareil mobile"
-        isChecked={isChecked}
-        onChangeAction={saveSettings}
-      />
-    </div>
-  </div>
 
   <button
     class="fr-btn fr-btn--secondary fr-btn--lg save-preferences-button"
