@@ -138,7 +138,7 @@
         <img src="/icons/passkeys.svg" alt="">
       </div>
 
-      <h1 class="fr-h4 fr-mb-1w">Une connexion simplifée et sécurisée</h1>
+      <h1 class="fr-h4 fr-mb-1w">Une connexion simplifiée et sécurisée</h1>
 
       <p>
         Utiliser une clé d’accès pour vous connecter plus rapidement et de manière plus
