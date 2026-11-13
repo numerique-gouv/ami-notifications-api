@@ -3,6 +3,7 @@ import '@testing-library/jest-dom/vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import * as envModule from '$env/static/public';
 import * as AMINavigationMethods from '$lib/ami-navigation';
+import * as NativeBridgeMethods from '$lib/bridges/nativeBridge';
 import * as franceConnectHelpers from '$lib/france-connect';
 import * as initializeDataFromAPIMethods from '$lib/initializeDataFromAPI';
 import * as notificationsMethods from '$lib/notifications';
@@ -69,10 +70,14 @@ describe('/+page.svelte', () => {
     const spy = vi
       .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
+    const spyEmit = vi.spyOn(NativeBridgeMethods, 'emit').mockResolvedValue();
 
     render(Page);
     await waitFor(() => {
       expect(spy).toHaveBeenCalledWith('/#/welcome/zones');
+      expect(spyEmit).toHaveBeenCalledWith('user_authentication_phase_completed', {
+        goto_url: 'https://localhost:5173/#/welcome/zones',
+      });
     });
   });
 
@@ -80,10 +85,12 @@ describe('/+page.svelte', () => {
     const spy = vi
       .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
+    const spyEmit = vi.spyOn(NativeBridgeMethods, 'emit').mockResolvedValue();
 
     render(Page);
     await waitFor(() => {
       expect(spy).toHaveBeenCalledWith('/#/login');
+      expect(spyEmit).not.toHaveBeenCalled();
     });
   });
 
@@ -99,6 +106,7 @@ describe('/+page.svelte', () => {
     const spy = vi
       .spyOn(AMINavigationMethods, 'AMIGoto')
       .mockImplementation(() => Promise.resolve());
+    const spyEmit = vi.spyOn(NativeBridgeMethods, 'emit').mockResolvedValue();
 
     // When
     render(Page);
@@ -108,6 +116,10 @@ describe('/+page.svelte', () => {
       expect(spy).toHaveBeenCalledWith(
         '/goto-redirect-url?url=https%3A%2F%2Fwww.example.org%3Asignature'
       );
+      expect(spyEmit).toHaveBeenCalledWith('user_authentication_phase_completed', {
+        goto_url:
+          'https://localhost:5173/goto-redirect-url?url=https%3A%2F%2Fwww.example.org%3Asignature',
+      });
     });
   });
 });
@@ -141,6 +153,7 @@ describe('/+page.svelte - with passkey feature flag', () => {
         .spyOn(AMINavigationMethods, 'AMIGoto')
         .mockImplementation(() => Promise.resolve());
       vi.spyOn(passkeyMethods, 'registerPasskey').mockRejectedValue(new PasskeyError());
+      const spyEmit = vi.spyOn(NativeBridgeMethods, 'emit').mockResolvedValue();
 
       const spyToast = vi.spyOn(toastStore, 'addToast');
 
@@ -158,6 +171,10 @@ describe('/+page.svelte - with passkey feature flag', () => {
           3000,
           false
         );
+        expect(spyEmit).not.toHaveBeenCalledWith(
+          'user_authentication_phase_completed',
+          expect.anything()
+        );
       });
     });
     test('should display network error toast on PasskeyNetworkError', async () => {
@@ -174,6 +191,7 @@ describe('/+page.svelte - with passkey feature flag', () => {
       vi.spyOn(passkeyMethods, 'registerPasskey').mockRejectedValue(
         new PasskeyNetworkError()
       );
+      const spyEmit = vi.spyOn(NativeBridgeMethods, 'emit').mockResolvedValue();
 
       const spyToast = vi.spyOn(toastStore, 'addToast');
 
@@ -191,6 +209,10 @@ describe('/+page.svelte - with passkey feature flag', () => {
           3000,
           false
         );
+        expect(spyEmit).not.toHaveBeenCalledWith(
+          'user_authentication_phase_completed',
+          expect.anything()
+        );
       });
     });
     test('should create a passkey when appropriate button is clicked', async () => {
@@ -205,6 +227,7 @@ describe('/+page.svelte - with passkey feature flag', () => {
         .spyOn(AMINavigationMethods, 'AMIGoto')
         .mockImplementation(() => Promise.resolve());
       vi.spyOn(passkeyMethods, 'registerPasskey').mockResolvedValue(undefined);
+      const spyEmit = vi.spyOn(NativeBridgeMethods, 'emit').mockResolvedValue();
 
       // When
       render(Page);
@@ -217,6 +240,9 @@ describe('/+page.svelte - with passkey feature flag', () => {
         expect(userStore.getHasWorkingPasskey()).toBe(true);
 
         expect(spy).toHaveBeenCalledWith('/?passkey_toast=true#/welcome/zones');
+        expect(spyEmit).toHaveBeenCalledWith('user_authentication_phase_completed', {
+          goto_url: 'https://localhost:5173/?passkey_toast=true#/welcome/zones',
+        });
       });
     });
   });
@@ -235,6 +261,7 @@ describe('/+page.svelte - with passkey feature flag', () => {
       const spy = vi
         .spyOn(AMINavigationMethods, 'AMIGoto')
         .mockImplementation(() => Promise.resolve());
+      const spyEmit = vi.spyOn(NativeBridgeMethods, 'emit').mockResolvedValue();
 
       // When
       render(Page);
@@ -245,6 +272,9 @@ describe('/+page.svelte - with passkey feature flag', () => {
         await fireEvent.click(bypassPasskeyButton);
         expect(spy).toHaveBeenCalledWith('/#/welcome/zones');
         expect(userStore.getHasSuggestPasskeyCreationToday()).toBe(true);
+        expect(spyEmit).toHaveBeenCalledWith('user_authentication_phase_completed', {
+          goto_url: 'https://localhost:5173/#/welcome/zones',
+        });
       });
     });
 
@@ -261,6 +291,7 @@ describe('/+page.svelte - with passkey feature flag', () => {
       const spy = vi
         .spyOn(AMINavigationMethods, 'AMIGoto')
         .mockImplementation(() => Promise.resolve());
+      const spyEmit = vi.spyOn(NativeBridgeMethods, 'emit').mockResolvedValue();
 
       // When
       render(Page);
@@ -269,6 +300,9 @@ describe('/+page.svelte - with passkey feature flag', () => {
       await waitFor(() => {
         expect(spy).toHaveBeenCalledWith('/#/welcome/zones');
         expect(screen.queryByTestId('create-passkey-button')).toBeNull();
+        expect(spyEmit).toHaveBeenCalledWith('user_authentication_phase_completed', {
+          goto_url: 'https://localhost:5173/#/welcome/zones',
+        });
       });
     });
 
@@ -286,6 +320,7 @@ describe('/+page.svelte - with passkey feature flag', () => {
       const spy = vi
         .spyOn(AMINavigationMethods, 'AMIGoto')
         .mockImplementation(() => Promise.resolve());
+      const spyEmit = vi.spyOn(NativeBridgeMethods, 'emit').mockResolvedValue();
 
       // When
       render(Page);
@@ -294,6 +329,9 @@ describe('/+page.svelte - with passkey feature flag', () => {
       await waitFor(() => {
         expect(spy).toHaveBeenCalledWith('/#/welcome/zones');
         expect(screen.queryByTestId('create-passkey-button')).toBeNull();
+        expect(spyEmit).toHaveBeenCalledWith('user_authentication_phase_completed', {
+          goto_url: 'https://localhost:5173/#/welcome/zones',
+        });
       });
     });
 
@@ -305,6 +343,7 @@ describe('/+page.svelte - with passkey feature flag', () => {
       window.localStorage.setItem('user_data', 'fake-user-data');
       vi.spyOn(franceConnectHelpers, 'parseJwt').mockReturnValue(mockUserInfo);
       vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
+      const spyEmit = vi.spyOn(NativeBridgeMethods, 'emit').mockResolvedValue();
 
       // When
       render(Page);
@@ -312,6 +351,10 @@ describe('/+page.svelte - with passkey feature flag', () => {
       // Then
       await waitFor(() => {
         expect(screen.queryByTestId('create-passkey-button')).not.toBeNull();
+        expect(spyEmit).not.toHaveBeenCalledWith(
+          'user_authentication_phase_completed',
+          expect.anything()
+        );
       });
     });
 
@@ -325,6 +368,7 @@ describe('/+page.svelte - with passkey feature flag', () => {
       vi.spyOn(page.url, 'searchParams', 'get').mockReturnValue(mockSearchParams);
       const yesterday = new Date(Date.now() - 86400000);
       localStorage.setItem('user_last_passkey_suggestion', yesterday.toString());
+      const spyEmit = vi.spyOn(NativeBridgeMethods, 'emit').mockResolvedValue();
 
       // When
       render(Page);
@@ -332,6 +376,10 @@ describe('/+page.svelte - with passkey feature flag', () => {
       // Then
       await waitFor(() => {
         expect(screen.queryByTestId('create-passkey-button')).not.toBeNull();
+        expect(spyEmit).not.toHaveBeenCalledWith(
+          'user_authentication_phase_completed',
+          expect.anything()
+        );
       });
     });
   });
@@ -351,6 +399,7 @@ describe('/+page.svelte - with passkey feature flag', () => {
       vi.spyOn(passkeyMethods, 'getPasskeyStatus').mockResolvedValue({
         has_passkey: false,
       });
+      const spyEmit = vi.spyOn(NativeBridgeMethods, 'emit').mockResolvedValue();
 
       // When
       render(Page);
@@ -358,6 +407,10 @@ describe('/+page.svelte - with passkey feature flag', () => {
       // Then
       await waitFor(async () => {
         expect(screen.queryByTestId('use-passkey-button')).toBeNull();
+        expect(spyEmit).not.toHaveBeenCalledWith(
+          'user_authentication_phase_completed',
+          expect.anything()
+        );
       });
     });
     test('should display use passkey button if user has passkey ', async () => {
@@ -374,6 +427,7 @@ describe('/+page.svelte - with passkey feature flag', () => {
       vi.spyOn(passkeyMethods, 'getPasskeyStatus').mockResolvedValue({
         has_passkey: true,
       });
+      const spyEmit = vi.spyOn(NativeBridgeMethods, 'emit').mockResolvedValue();
 
       // When
       render(Page);
@@ -381,6 +435,11 @@ describe('/+page.svelte - with passkey feature flag', () => {
       // Then
       await waitFor(async () => {
         expect(screen.queryByTestId('use-passkey-button')).not.toBeNull();
+        expect(spy).not.toHaveBeenCalled();
+        expect(spyEmit).not.toHaveBeenCalledWith(
+          'user_authentication_phase_completed',
+          expect.anything()
+        );
       });
     });
     describe('user clicks on use passkey button', async () => {
@@ -402,6 +461,7 @@ describe('/+page.svelte - with passkey feature flag', () => {
         const spy = vi
           .spyOn(AMINavigationMethods, 'AMIGoto')
           .mockImplementation(() => Promise.resolve());
+        const spyEmit = vi.spyOn(NativeBridgeMethods, 'emit').mockResolvedValue();
 
         const spyToast = vi.spyOn(toastStore, 'addToast');
 
@@ -420,6 +480,10 @@ describe('/+page.svelte - with passkey feature flag', () => {
             false
           );
           expect(spyAuth).toHaveBeenCalledExactlyOnceWith(true);
+          expect(spyEmit).not.toHaveBeenCalledWith(
+            'user_authentication_phase_completed',
+            expect.anything()
+          );
         });
       });
       test('should display passkey error toast on PasskeyNetworkError', async () => {
@@ -440,6 +504,7 @@ describe('/+page.svelte - with passkey feature flag', () => {
         const spy = vi
           .spyOn(AMINavigationMethods, 'AMIGoto')
           .mockImplementation(() => Promise.resolve());
+        const spyEmit = vi.spyOn(NativeBridgeMethods, 'emit').mockResolvedValue();
 
         const spyToast = vi.spyOn(toastStore, 'addToast');
 
@@ -458,6 +523,10 @@ describe('/+page.svelte - with passkey feature flag', () => {
             false
           );
           expect(spyAuth).toHaveBeenCalledExactlyOnceWith(true);
+          expect(spyEmit).not.toHaveBeenCalledWith(
+            'user_authentication_phase_completed',
+            expect.anything()
+          );
         });
       });
       test('should display passkey error toast on PasskeyBreakingError', async () => {
@@ -480,6 +549,7 @@ describe('/+page.svelte - with passkey feature flag', () => {
         const spy = vi
           .spyOn(AMINavigationMethods, 'AMIGoto')
           .mockImplementation(() => Promise.resolve());
+        const spyEmit = vi.spyOn(NativeBridgeMethods, 'emit').mockResolvedValue();
 
         const spyToast = vi.spyOn(toastStore, 'addToast');
 
@@ -498,6 +568,10 @@ describe('/+page.svelte - with passkey feature flag', () => {
             false
           );
           expect(spyAuth).toHaveBeenCalledExactlyOnceWith(true);
+          expect(spyEmit).not.toHaveBeenCalledWith(
+            'user_authentication_phase_completed',
+            expect.anything()
+          );
         });
       });
       test('should redirect when user is authenticated', async () => {
@@ -520,6 +594,7 @@ describe('/+page.svelte - with passkey feature flag', () => {
         const spy = vi
           .spyOn(AMINavigationMethods, 'AMIGoto')
           .mockImplementation(() => Promise.resolve());
+        const spyEmit = vi.spyOn(NativeBridgeMethods, 'emit').mockResolvedValue();
 
         // When
         render(Page);
@@ -532,6 +607,9 @@ describe('/+page.svelte - with passkey feature flag', () => {
           expect(userStore.getHasWorkingPasskey()).toBe(true);
           expect(spy).toHaveBeenCalledWith('/?passkey_toast=true#/welcome/zones');
           expect(spyAuth).toHaveBeenCalledExactlyOnceWith(true);
+          expect(spyEmit).toHaveBeenCalledWith('user_authentication_phase_completed', {
+            goto_url: 'https://localhost:5173/?passkey_toast=true#/welcome/zones',
+          });
         });
       });
     });
