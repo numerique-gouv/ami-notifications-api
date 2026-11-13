@@ -32,11 +32,8 @@ describe('/+page.svelte', () => {
 
     vi.mock('$lib/notifications', async (importOriginal) => {
       const original = (await importOriginal()) as Record<string, unknown>;
-      const registration = { id: 'fake-registration-id' };
       return {
         ...original,
-        enableNotifications: vi.fn(() => Promise.resolve(registration)),
-        disableNotifications: vi.fn(() => Promise.resolve()),
         countUnreadNotifications: vi.fn(() => 3),
       };
     });

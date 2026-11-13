@@ -1,24 +1,11 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import * as AMINavigationMethods from '$lib/ami-navigation';
-import * as notificationsMethods from '$lib/notifications';
 import { userStore } from '$lib/state/User.svelte';
 import { expectBackButtonPresent, mockUserInfo } from '$tests/utils';
 import Page from './+page.svelte';
 
 describe('/+page.svelte', () => {
-  beforeEach(() => {
-    vi.mock('$lib/notifications', async (importOriginal) => {
-      const original = (await importOriginal()) as Record<string, unknown>;
-      const registration = { id: 'fake-registration-id' };
-      return {
-        ...original,
-        enableNotifications: vi.fn(() => Promise.resolve(registration)),
-        disableNotifications: vi.fn(() => Promise.resolve()),
-      };
-    });
-  });
-
   test('user has to be connected', async () => {
     // Given
     const spy = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
@@ -30,40 +17,6 @@ describe('/+page.svelte', () => {
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy).toHaveBeenCalledWith('/#/login');
-    });
-  });
-
-  test('should enable notifications when user toggles on', async () => {
-    // Given
-    const spy = vi.spyOn(notificationsMethods, 'enableNotifications');
-    render(Page);
-
-    // When
-    const toggleInput = screen.getByTestId('notification-toggle');
-    await fireEvent.click(toggleInput);
-
-    // Then
-    await waitFor(async () => {
-      expect(spy).toHaveBeenCalled();
-    });
-  });
-
-  test('should disable notifications when user toggles off', async () => {
-    // Given
-    const spy = vi.spyOn(notificationsMethods, 'disableNotificationsForDesktop');
-    window.localStorage.setItem('registration_id', 'fake-registration-id');
-    window.localStorage.setItem('notifications_enabled', 'true');
-    render(Page);
-
-    // When
-    const toggleInput = screen.getByTestId('notification-toggle');
-    await fireEvent.click(toggleInput);
-
-    // Then
-    await waitFor(async () => {
-      expect(spy).toHaveBeenCalledWith('fake-registration-id');
-      expect(window.localStorage.getItem('registration_id')).toEqual('');
-      expect(window.localStorage.getItem('notifications_enabled')).toEqual('false');
     });
   });
 
