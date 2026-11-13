@@ -1525,7 +1525,7 @@ describe('/followup.ts', () => {
               'personal',
               'title',
               '/#/followup/item/partner/type/id',
-              null,
+              'subheading',
               null,
               item.milestone_start_date,
               item.milestone_end_date
