@@ -9,6 +9,7 @@ from rest_framework.decorators import api_view
 from rest_framework.request import Request
 from rest_framework.response import Response
 
+from ami.service.models import Service
 from ami.user.utils import build_fc_hash
 from ami.utils.serializers import RecipientFcHashSerializer
 
@@ -136,3 +137,16 @@ def get_trusted_urls(request: Request) -> JsonResponse:
     trusted_urls = [u for u in trusted_urls if u]
 
     return JsonResponse({"trusted_urls": trusted_urls})
+
+
+@api_view(["GET"])
+def get_service_urls_without_followup(request: Request) -> JsonResponse:
+    urls = (
+        Service.objects.filter(
+            kind=Service.Kind.CATALOG,
+            with_followup_integration=False,
+        )
+        .values_list("url", flat=True)
+        .order_by("url")
+    )
+    return JsonResponse({"service_urls_without_followup": list(urls)})
