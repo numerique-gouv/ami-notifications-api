@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
-import { emit, isNative, runOrNativeEvent } from '$lib/bridges/nativeBridge';
+import { emit, isNative } from '$lib/bridges/nativeBridge';
 
 describe('/nativeEvents.ts', () => {
   afterEach(() => {
@@ -44,33 +44,6 @@ describe('/nativeEvents.ts', () => {
 
       // Then
       expect(onEventSpy).toHaveBeenCalledWith('some_event', '"some data"');
-    });
-  });
-
-  describe('runOrNativeEvent', () => {
-    test('should emit an native event if isNative() == true', async () => {
-      // Given
-      const onEventSpy = vi.fn();
-      const funcSpy = vi.fn();
-      globalThis.window.NativeBridge = { onEvent: onEventSpy };
-
-      // When
-      runOrNativeEvent(funcSpy, 'some_event', 'some data');
-
-      // Then
-      expect(onEventSpy).toHaveBeenCalledWith('some_event', '"some data"');
-      expect(funcSpy).not.toHaveBeenCalled();
-    });
-
-    test('should run the function if isNative() == false', async () => {
-      // Given
-      const funcSpy = vi.fn();
-
-      // When
-      runOrNativeEvent(funcSpy, 'some_event', 'some data');
-
-      // Then
-      expect(funcSpy).toHaveBeenCalled();
     });
   });
 });

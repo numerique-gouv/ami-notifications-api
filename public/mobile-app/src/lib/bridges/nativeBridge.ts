@@ -21,17 +21,3 @@ export const emit = (eventName: string, data?: unknown) => {
 export const isNative = (): boolean => {
   return !!window.NativeBridge;
 };
-
-export const runOrNativeEvent = (
-  func: () => unknown,
-  eventName: string,
-  data?: unknown
-) => {
-  if (isNative()) {
-    console.log("We're in a native WebView, send an event");
-    emit(eventName, data);
-  } else {
-    console.log("We're not in a native WebView, run a function");
-    return func();
-  }
-};
