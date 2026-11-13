@@ -67,7 +67,7 @@
                 {item.closedSubItems.length === 1 ? 'service': 'services'}
               {/if}
             {:else}
-              {@html ariaHideDecorativeEmoji(item.description)}
+              {@html ariaHideDecorativeEmoji(item.subheading)}
             {/if}
           </span>
         </p>
