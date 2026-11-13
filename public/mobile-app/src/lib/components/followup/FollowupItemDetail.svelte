@@ -142,7 +142,7 @@
                 class="fr-text--regular fr-text--xs fr-m-0"
                 data-testid="followup-subitem-detail-{sub_item.id}"
               >
-                {@html ariaHideDecorativeEmoji(sub_item.description)}
+                {@html ariaHideDecorativeEmoji(sub_item.last_message_title)}
               </p>
             </li>
           {/each}

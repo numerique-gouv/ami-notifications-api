@@ -65,8 +65,9 @@ describe('/+page.svelte', () => {
         null,
         [],
         'Opération Tranquillité Vacances',
-        'subheading',
+        'subheading id1',
         'Votre demande est en cours de traitement.',
+        'Votre demande est en cours de traitement. (titre du dernier message)',
         'icon',
         new Date('2026-02-22T15:55:00.000Z'),
         'wip',
@@ -87,8 +88,9 @@ describe('/+page.svelte', () => {
         null,
         [],
         'Opération Tranquillité Vacances',
-        'subheading',
+        'subheading id2',
         'Votre demande est terminée.',
+        'Votre demande est terminée. (titre du dernier message)',
         'icon',
         new Date('2026-02-20T15:55:00.000Z'),
         'closed',
@@ -117,12 +119,8 @@ describe('/+page.svelte', () => {
     // Then
     await waitFor(() => {
       expect(spy).toHaveBeenCalledTimes(1);
-      expect(screen.getByTestId('followup')).toHaveTextContent(
-        'Votre demande est en cours de traitement.'
-      );
-      expect(screen.getByTestId('followup')).not.toHaveTextContent(
-        'Votre demande est terminée.'
-      );
+      expect(screen.getByTestId('followup')).toHaveTextContent('subheading id1');
+      expect(screen.getByTestId('followup')).not.toHaveTextContent('subheading id2');
     });
   });
 });

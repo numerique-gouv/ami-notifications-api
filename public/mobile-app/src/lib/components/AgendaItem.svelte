@@ -136,7 +136,7 @@
                     <p
                       class="fr-badge fr-badge--sm fr-badge--icon-left fr-mb-1w fr-icon-user-fill am-badge--user"
                     >
-                      <span class="fr-sr-only">Personel</span>
+                      <span class="fr-sr-only">Personnel</span>
                     </p>
                   {/if}
                 </div>

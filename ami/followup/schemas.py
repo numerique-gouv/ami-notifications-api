@@ -44,6 +44,7 @@ class FollowupSubItem:
     title: str
     subheading: str
     description: str
+    last_message_title: str
     icon: str
     external_url: str | None
     is_archived: bool
@@ -162,6 +163,14 @@ class NotificationsSubItem:
         return description
 
     @property
+    def last_message_title(self):
+        if self.last_notification.content_title:
+            return self.last_notification.content_title
+        # last title seen
+        titles = [n.content_title for n in self.notifications if n.content_title]
+        return titles[-1] if titles else ""
+
+    @property
     def icon(self):
         return self.last_notification.icon or ""
 
@@ -201,6 +210,7 @@ class NotificationsSubItem:
             "title": self.title,
             "subheading": self.subheading,
             "description": self.description,
+            "last_message_title": self.last_message_title,
             "icon": self.icon,
             "external_url": self.external_url,
             "is_archived": self.is_archived,
@@ -354,13 +364,10 @@ class NotificationsItem(NotificationsSubItem):
 
     @property
     def subheading(self):
-        if not self.notifications and self.sub_items:
-            # take partner name if found, else item_parent_type
-            if self.partner:
-                return self.partner.name
-            return self.item_type
         if self.last_notification.content_subheading:
             return self.last_notification.content_subheading
+        if self.service is not None:
+            return self.service.service_name
         if self.partner:
             return self.partner.name
         return ""
@@ -403,7 +410,9 @@ class NotificationsFollowup:
                 services_by_id=self.services_by_id, partners_by_slug=self.partners_by_slug
             )
         if item_id not in self.items[item_parent_id].sub_items:
-            self.items[item_parent_id].sub_items[item_id] = NotificationsSubItem()
+            self.items[item_parent_id].sub_items[item_id] = NotificationsSubItem(
+                services_by_id=self.services_by_id, partners_by_slug=self.partners_by_slug
+            )
         self.items[item_parent_id].sub_items[item_id].notifications.append(notification)
 
     def complete_notifications(self):

@@ -46,6 +46,7 @@ describe('/Followup.svelte', () => {
           'Opération Tranquillité Vacances',
           'subheading',
           'Votre demande est en cours de traitement 1.',
+          'Votre demande est en cours de traitement 1. (titre du dernier message)',
           'icon',
           new Date('2026-02-22T15:55:00.000Z'),
           'wip',
@@ -129,8 +130,9 @@ describe('/Followup.svelte', () => {
               null,
               [],
               'Opération Tranquillité Vacances',
-              'subheading',
+              'subheading id1',
               'Votre demande est en cours de traitement 1.',
+              'Votre demande est en cours de traitement 1. (titre du dernier message)',
               'icon',
               new Date('2026-02-22T15:55:00.000Z'),
               'wip',
@@ -149,8 +151,9 @@ describe('/Followup.svelte', () => {
               null,
               [],
               'Opération Tranquillité Vacances',
-              'subheading',
+              'subheading id2',
               'Votre demande est terminée 2.',
+              'Votre demande est terminée 2. (titre du dernier message)',
               'icon',
               new Date('2026-02-20T15:55:00.000Z'),
               'closed',
@@ -171,8 +174,9 @@ describe('/Followup.svelte', () => {
               null,
               [],
               'Opération Tranquillité Vacances',
-              'subheading',
+              'subheading id3',
               'Votre demande est en cours de traitement 3.',
+              'Votre demande est en cours de traitement 3. (titre du dernier message)',
               'icon',
               new Date('2026-02-22T15:55:00.000Z'),
               'wip',
@@ -191,8 +195,9 @@ describe('/Followup.svelte', () => {
               null,
               [],
               'Opération Tranquillité Vacances',
-              'subheading',
+              'subheading id4',
               'Votre demande est terminée 4.',
+              'Votre demande est terminée 4. (titre du dernier message)',
               'icon',
               new Date('2026-02-20T15:55:00.000Z'),
               'closed',
@@ -212,17 +217,13 @@ describe('/Followup.svelte', () => {
           // Then
           await waitFor(() => {
             expect(spyFollowup).toHaveBeenCalledTimes(1);
-            expect(screen.getByTestId('followup')).toHaveTextContent(
-              'Votre demande est en cours de traitement 1.'
-            );
-            expect(screen.getByTestId('followup')).toHaveTextContent(
-              'Votre demande est terminée 2.'
+            expect(screen.getByTestId('followup')).toHaveTextContent('subheading id1');
+            expect(screen.getByTestId('followup')).toHaveTextContent('subheading id2');
+            expect(screen.getByTestId('followup')).not.toHaveTextContent(
+              'subheading id3'
             );
             expect(screen.getByTestId('followup')).not.toHaveTextContent(
-              'Votre demande est en cours de traitement 3.'
-            );
-            expect(screen.getByTestId('followup')).not.toHaveTextContent(
-              'Votre demande est terminée 4.'
+              'subheading id4'
             );
           });
         });
@@ -243,6 +244,7 @@ describe('/Followup.svelte', () => {
               'Opération Tranquillité Vacances',
               'subheading',
               'Votre demande est en cours de traitement 1.',
+              'Votre demande est en cours de traitement 1. (titre du dernier message)',
               'icon',
               new Date('2026-02-22T15:55:00.000Z'),
               'wip',
@@ -394,8 +396,9 @@ describe('/Followup.svelte', () => {
               null,
               [],
               'Opération Tranquillité Vacances',
-              'subheading',
+              'subheading id1',
               'Votre demande est en cours de traitement 1.',
+              'Votre demande est en cours de traitement 1. (titre du dernier message)',
               'icon',
               new Date('2026-02-22T15:55:00.000Z'),
               'wip',
@@ -414,8 +417,9 @@ describe('/Followup.svelte', () => {
               null,
               [],
               'Opération Tranquillité Vacances',
-              'subheading',
+              'subheading id2',
               'Votre demande est terminée 2.',
+              'Votre demande est terminée 2. (titre du dernier message)',
               'icon',
               new Date('2026-02-20T15:55:00.000Z'),
               'closed',
@@ -436,8 +440,9 @@ describe('/Followup.svelte', () => {
               null,
               [],
               'Opération Tranquillité Vacances',
-              'subheading',
+              'subheading id3',
               'Votre demande est en cours de traitement 3.',
+              'Votre demande est en cours de traitement 3. (titre du dernier message)',
               'icon',
               new Date('2026-02-22T15:55:00.000Z'),
               'wip',
@@ -456,8 +461,9 @@ describe('/Followup.svelte', () => {
               null,
               [],
               'Opération Tranquillité Vacances',
-              'subheading',
+              'subheading id4',
               'Votre demande est terminée 4.',
+              'Votre demande est terminée 4. (titre du dernier message)',
               'icon',
               new Date('2026-02-20T15:55:00.000Z'),
               'closed',
@@ -485,17 +491,13 @@ describe('/Followup.svelte', () => {
           await waitFor(() => {
             expect(spy).toHaveBeenCalledTimes(1);
             expect(screen.getByTestId('followup')).not.toHaveTextContent(
-              'Votre demande est en cours de traitement 1.'
+              'subheading id1'
             );
             expect(screen.getByTestId('followup')).not.toHaveTextContent(
-              'Votre demande est terminée 2.'
+              'subheading id2'
             );
-            expect(screen.getByTestId('followup')).toHaveTextContent(
-              'Votre demande est en cours de traitement 3.'
-            );
-            expect(screen.getByTestId('followup')).toHaveTextContent(
-              'Votre demande est terminée 4.'
-            );
+            expect(screen.getByTestId('followup')).toHaveTextContent('subheading id3');
+            expect(screen.getByTestId('followup')).toHaveTextContent('subheading id4');
           });
         });
         test('Should display consent block with accordion not expanded', async () => {
@@ -515,6 +517,7 @@ describe('/Followup.svelte', () => {
               'Opération Tranquillité Vacances',
               'subheading',
               'Votre demande est en cours de traitement 3.',
+              'Votre demande est en cours de traitement 3. (titre du dernier message)',
               'icon',
               new Date('2026-02-22T15:55:00.000Z'),
               'wip',
@@ -731,6 +734,7 @@ describe('/Followup.svelte', () => {
           'Opération Tranquillité Vacances 1',
           'subheading',
           'Votre demande est en cours de traitement.',
+          'Votre demande est en cours de traitement. (titre du dernier message)',
           'icon',
           new Date('2026-02-22T15:55:00.000Z'),
           'wip',
@@ -751,6 +755,7 @@ describe('/Followup.svelte', () => {
           'Opération Tranquillité Vacances 2',
           'subheading',
           'Votre demande est en cours de traitement.',
+          'Votre demande est en cours de traitement. (titre du dernier message)',
           'icon',
           new Date('2026-02-22T15:55:00.000Z'),
           'wip',
@@ -795,6 +800,7 @@ describe('/Followup.svelte', () => {
           'Opération Tranquillité Vacances 1',
           'subheading',
           'Votre demande est en cours de traitement.',
+          'Votre demande est en cours de traitement. (titre du dernier message)',
           'icon',
           new Date('2026-02-22T15:55:00.000Z'),
           'wip',
@@ -815,6 +821,7 @@ describe('/Followup.svelte', () => {
           'Opération Tranquillité Vacances 2',
           'subheading',
           'Votre demande est en cours de traitement.',
+          'Votre demande est en cours de traitement. (titre du dernier message)',
           'icon',
           new Date('2026-02-22T15:55:00.000Z'),
           'wip',
@@ -857,6 +864,7 @@ describe('/Followup.svelte', () => {
           'Opération Tranquillité Vacances 1',
           'subheading',
           'Votre demande est en cours de traitement.',
+          'Votre demande est en cours de traitement. (titre du dernier message)',
           'icon',
           new Date('2026-02-22T15:55:00.000Z'),
           'wip',
@@ -877,6 +885,7 @@ describe('/Followup.svelte', () => {
           'Opération Tranquillité Vacances 2',
           'subheading',
           'Votre demande est en cours de traitement.',
+          'Votre demande est en cours de traitement. (titre du dernier message)',
           'icon',
           new Date('2026-02-22T15:55:00.000Z'),
           'wip',
@@ -927,6 +936,7 @@ describe('/Followup.svelte', () => {
           'Opération Tranquillité Vacances 1',
           'subheading',
           'Votre demande est en cours de traitement.',
+          'Votre demande est en cours de traitement. (titre du dernier message)',
           'icon',
           new Date('2026-02-22T15:55:00.000Z'),
           'wip',
@@ -947,6 +957,7 @@ describe('/Followup.svelte', () => {
           'Opération Tranquillité Vacances 2',
           'subheading',
           'Votre demande est en cours de traitement.',
+          'Votre demande est en cours de traitement. (titre du dernier message)',
           'icon',
           new Date('2026-02-22T15:55:00.000Z'),
           'wip',
@@ -1000,6 +1011,7 @@ describe('/Followup.svelte', () => {
           'Opération Tranquillité Vacances 1',
           'subheading',
           'Votre demande est en cours de traitement.',
+          'Votre demande est en cours de traitement. (titre du dernier message)',
           'icon',
           new Date('2026-02-22T15:55:00.000Z'),
           'wip',
@@ -1020,6 +1032,7 @@ describe('/Followup.svelte', () => {
           'Opération Tranquillité Vacances 2',
           'subheading',
           'Votre demande est en cours de traitement.',
+          'Votre demande est en cours de traitement. (titre du dernier message)',
           'icon',
           new Date('2026-02-22T15:55:00.000Z'),
           'wip',
