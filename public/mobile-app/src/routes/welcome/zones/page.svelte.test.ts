@@ -32,7 +32,7 @@ describe('/+page.svelte', () => {
 
     // Then
     await waitFor(() => {
-      expect(spy).toHaveBeenCalledWith('/#/notifications-welcome-page');
+      expect(spy).toHaveBeenCalledWith('/');
     });
   });
 });
