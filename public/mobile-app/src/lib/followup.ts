@@ -414,7 +414,7 @@ export class FollowupItem extends FollowupSubItem {
       'personal',
       this.title,
       this.getItemDetailPageUrl(),
-      null,
+      this.subheading,
       null,
       this.milestone_start_date,
       this.milestone_end_date
