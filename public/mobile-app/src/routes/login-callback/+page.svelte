@@ -1,7 +1,10 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { page } from '$app/state';
-  import { PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED } from '$env/static/public';
+  import {
+    PUBLIC_APP_URL,
+    PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED,
+  } from '$env/static/public';
   import { AMIGoto } from '$lib/ami-navigation';
   import { emit } from '$lib/bridges/nativeBridge';
   import { initializeData, initializeLocalStorage } from '$lib/initializeDataFromAPI';
@@ -21,14 +24,18 @@
 
   const redirectLoggedInUser = (createdPasskey: boolean) => {
     initializeData();
-    emit('user_authentication_phase_completed');
     const passKeyParam = createdPasskey ? '?passkey_toast=true' : '';
     const redirect_param = page.url.searchParams.get('login_redirect');
+    let url: string;
     if (redirect_param) {
-      AMIGoto(`/goto-redirect-url?url=${encodeURIComponent(redirect_param)}`);
+      url = `/goto-redirect-url?url=${encodeURIComponent(redirect_param)}`;
     } else {
-      AMIGoto(`/${passKeyParam}#/welcome/zones`);
+      url = `/${passKeyParam}#/welcome/zones`;
     }
+    emit('user_authentication_phase_completed', {
+      goto_url: `${PUBLIC_APP_URL}${url}`,
+    });
+    AMIGoto(url);
   };
 
   const silent_fc_enabled = PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED === 'true';
