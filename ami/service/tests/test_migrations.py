@@ -22,11 +22,12 @@ def test_partner_uuid_migration(app, partner: Partner, partner_psl: Partner):
       url,
       icon,
       with_silent_login,
+      with_followup_integration,
       restricted_to,
       created_at,
       updated_at,
       {field}
-    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
+    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
             [
                 service_id,
                 str(service_id),
@@ -36,6 +37,7 @@ def test_partner_uuid_migration(app, partner: Partner, partner_psl: Partner):
                 "",
                 "",
                 "",
+                False,
                 False,
                 "",
                 now(),

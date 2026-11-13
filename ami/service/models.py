@@ -31,6 +31,7 @@ class Service(models.Model):
     icon = models.CharField(blank=True)
 
     with_silent_login = models.BooleanField(default=False)
+    with_followup_integration = models.BooleanField(default=False)
 
     restricted_to = models.CharField(
         null=True,
