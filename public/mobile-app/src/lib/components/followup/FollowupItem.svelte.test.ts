@@ -76,7 +76,7 @@ describe('/FollowupItem.svelte', () => {
       expect(spy).toHaveBeenCalledWith('/#/followup/item/partner/type/id');
     });
   });
-  test('should mark emoji in title and description', async () => {
+  test('should mark emoji in title and subheading', async () => {
     // Given
     const item = new Item(
       'partner',
@@ -88,7 +88,7 @@ describe('/FollowupItem.svelte', () => {
       null,
       [],
       'Opération Tranquillité Vacances 🏝️',
-      'subheading',
+      'subheading 🏝️',
       'Votre demande est terminée. 🏝️',
       'icon',
       new Date('2026-02-20T15:55:00.000Z'),
@@ -105,8 +105,8 @@ describe('/FollowupItem.svelte', () => {
     // Then
     expect(document.querySelectorAll('[aria-hidden]').length).toEqual(2);
   });
-  describe('Description', () => {
-    test('Should display item description if item has no sub items', async () => {
+  describe('Subheading', () => {
+    test('Should display item subheading if item has no sub items', async () => {
       const item = new Item(
         'partner',
         'type',
@@ -135,7 +135,7 @@ describe('/FollowupItem.svelte', () => {
       await waitFor(async () => {
         expect(
           screen.queryByTestId('followup-item-detail-partner:type:id1')
-        ).toHaveTextContent('Votre demande est terminée.');
+        ).toHaveTextContent('subheading');
       });
     });
     test('Should display sub items progression if item has sub items - wip items', async () => {
