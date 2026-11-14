@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
   import {
     type DurationType,
     Toast,
@@ -18,6 +19,16 @@
 
   $effect(() => {
     toast = new Toast(id, title, toastType, duration, hasCloseLink);
+  });
+
+  onMount(() => {
+    const div = document.getElementById('toasts-container-a11y');
+    if (div && title) {
+      setTimeout(() => {
+        div.innerHTML = `<p>${title}</p>`;
+        div.focus();
+      }, 50);
+    }
   });
 </script>
 
