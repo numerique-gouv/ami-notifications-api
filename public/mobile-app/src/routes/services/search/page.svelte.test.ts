@@ -1,0 +1,633 @@
+import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import * as AMINavigationMethods from '$lib/ami-navigation';
+import * as followupMethods from '$lib/followup';
+import { Followup } from '$lib/followup';
+import * as servicesMethods from '$lib/services';
+import { Services, ServicesItem } from '$lib/services';
+import { userStore } from '$lib/state/User.svelte';
+import { mockUserInfo } from '$tests/utils';
+import Page from './+page.svelte';
+
+describe('/+page.svelte', () => {
+  beforeEach(async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(new Followup());
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  test('user has to be connected', async () => {
+    // Given
+    vi.spyOn(servicesMethods, 'buildServices').mockResolvedValue(new Services());
+    const spy = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
+
+    // When
+    render(Page);
+
+    // Then
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith('/#/login');
+    });
+  });
+  test('Should search services', async () => {
+    // Given
+    await userStore.login(mockUserInfo);
+    const services = new Services();
+    vi.spyOn(services, 'search').mockReturnValue({
+      terms: 'Opération',
+      services: [
+        new ServicesItem(
+          'psl',
+          'OperationTranquilliteVacances',
+          'catalog',
+          'Opération Tranquillité Vacances',
+          'Sécurisez votre logement',
+          'Vous partez en vacances ? **Securisez votre logement.**',
+          'http://external-url',
+          'icon',
+          true
+        ),
+        new ServicesItem(
+          'psl',
+          'OperationTranquilliteVacances',
+          'sos',
+          'Opération Tranquillité Vacances SOS',
+          'Sécurisez votre logement',
+          'Vous partez en vacances ? **Securisez votre logement.**',
+          'http://external-url',
+          'icon',
+          true
+        ),
+        new ServicesItem(
+          'psl',
+          'OperationTranquilliteVacances',
+          'steps',
+          'Opération Tranquillité Vacances STEPS',
+          'Sécurisez votre logement',
+          'Vous partez en vacances ? **Securisez votre logement.**',
+          'http://external-url',
+          'icon',
+          true
+        ),
+      ],
+    });
+    vi.spyOn(servicesMethods, 'buildServices').mockResolvedValue(services);
+    render(Page);
+
+    // When
+    const searchInput = screen.getByTestId('search-input');
+    await fireEvent.focus(searchInput);
+    await fireEvent.input(searchInput, {
+      target: { value: 'Opération' },
+    });
+
+    // Then
+    vi.advanceTimersByTime(750);
+    await waitFor(() => {
+      const result = screen.getByTestId('search-result');
+      expect(result).toHaveTextContent(
+        'Opération Tranquillité Vacances Sécurisez votre logement Que voulez-vous faire ? Vous avez commencé ou réalisé une ou plusieurs Opération Tranquillité Vacances Voir les démarches en cours Faire une nouvelle démarcheOpération Tranquillité Vacances SOS Opération Tranquillité Vacances STEPS'
+      );
+    });
+  });
+  test('Should display not found message if no result', async () => {
+    // Given
+    await userStore.login(mockUserInfo);
+    const services = new Services();
+    vi.spyOn(services, 'search').mockReturnValue({ terms: 'Opération', services: [] });
+    vi.spyOn(servicesMethods, 'buildServices').mockResolvedValue(services);
+    render(Page);
+
+    // When
+    const searchInput = screen.getByTestId('search-input');
+    await fireEvent.focus(searchInput);
+    await fireEvent.input(searchInput, {
+      target: { value: 'Opération' },
+    });
+
+    // Then
+    vi.advanceTimersByTime(750);
+    await waitFor(() => {
+      const result = screen.getByTestId('no-result');
+      expect(result).toHaveTextContent('Aucun résultat pour « Opération »');
+    });
+  });
+  describe('click on service', () => {
+    describe('no non archived items', async () => {
+      test('should redirect to service link - without silent-login', async () => {
+        // Given
+        await userStore.login(mockUserInfo);
+        const services = new Services();
+        vi.spyOn(services, 'search').mockReturnValue({
+          terms: 'Opération',
+          services: [
+            new ServicesItem(
+              'psl',
+              'OperationTranquilliteVacances',
+              'catalog',
+              'Opération Tranquillité Vacances',
+              'Sécurisez votre logement',
+              'Vous partez en vacances ? **Securisez votre logement.**',
+              'http://external-url',
+              'icon',
+              false
+            ),
+          ],
+        });
+        vi.spyOn(servicesMethods, 'buildServices').mockResolvedValue(services);
+        const spyUrl = vi
+          .spyOn(ServicesItem.prototype, 'getServiceUrl')
+          .mockResolvedValue('http://external-url');
+        vi.spyOn(Followup.prototype, 'hasNonArchivedItems').mockReturnValue(false);
+        const spy = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
+
+        render(Page);
+
+        // When
+        const searchInput = screen.getByTestId('search-input');
+        await fireEvent.focus(searchInput);
+        await fireEvent.input(searchInput, {
+          target: { value: 'Opération' },
+        });
+        vi.advanceTimersByTime(750);
+        await waitFor(async () => {
+          const link = screen.getByTestId(
+            'service-catalog:psl:OperationTranquilliteVacances'
+          );
+          await fireEvent.click(link);
+        });
+
+        // Then
+        screen.debug();
+        expect(screen.queryByTestId('service-button')).not.toBeVisible();
+        expect(screen.queryByTestId('followup-button')).not.toBeVisible();
+        expect(spyUrl).toHaveBeenCalledTimes(1);
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(spy).toHaveBeenCalledWith('http://external-url', false);
+      });
+      test('should redirect to service link - with silent-login', async () => {
+        // Given
+        await userStore.login(mockUserInfo);
+        const services = new Services();
+        vi.spyOn(services, 'search').mockReturnValue({
+          terms: 'Opération',
+          services: [
+            new ServicesItem(
+              'psl',
+              'OperationTranquilliteVacances',
+              'catalog',
+              'Opération Tranquillité Vacances',
+              'Sécurisez votre logement',
+              'Vous partez en vacances ? **Securisez votre logement.**',
+              'http://external-url',
+              'icon',
+              true
+            ),
+          ],
+        });
+        vi.spyOn(servicesMethods, 'buildServices').mockResolvedValue(services);
+        const spyUrl = vi
+          .spyOn(ServicesItem.prototype, 'getServiceUrl')
+          .mockResolvedValue('http://external-url');
+        vi.spyOn(Followup.prototype, 'hasNonArchivedItems').mockReturnValue(false);
+        const spy = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
+
+        render(Page);
+
+        // When
+        const searchInput = screen.getByTestId('search-input');
+        await fireEvent.focus(searchInput);
+        await fireEvent.input(searchInput, {
+          target: { value: 'Opération' },
+        });
+        vi.advanceTimersByTime(750);
+        await waitFor(async () => {
+          const link = screen.getByTestId(
+            'service-catalog:psl:OperationTranquilliteVacances'
+          );
+          await fireEvent.click(link);
+        });
+
+        // Then
+        expect(screen.queryByTestId('service-button')).not.toBeVisible();
+        expect(screen.queryByTestId('followup-button')).not.toBeVisible();
+        expect(spyUrl).toHaveBeenCalledTimes(1);
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(spy).toHaveBeenCalledWith('http://external-url', true);
+      });
+    });
+    describe('with non archived items', () => {
+      test('buttons display', async () => {
+        // Given
+        await userStore.login(mockUserInfo);
+        const services = new Services();
+        vi.spyOn(services, 'search').mockReturnValue({
+          terms: 'Opération',
+          services: [
+            new ServicesItem(
+              'psl',
+              'OperationTranquilliteVacances',
+              'catalog',
+              'Opération Tranquillité Vacances',
+              'Sécurisez votre logement',
+              'Vous partez en vacances ? **Securisez votre logement.**',
+              'http://external-url',
+              'icon',
+              true
+            ),
+          ],
+        });
+        vi.spyOn(servicesMethods, 'buildServices').mockResolvedValue(services);
+        vi.spyOn(Followup.prototype, 'hasNonArchivedItems').mockReturnValue(true);
+
+        render(Page);
+
+        // When
+        const searchInput = screen.getByTestId('search-input');
+        await fireEvent.focus(searchInput);
+        await fireEvent.input(searchInput, {
+          target: { value: 'Opération' },
+        });
+        vi.advanceTimersByTime(750);
+        await waitFor(async () => {
+          const link = screen.getByTestId(
+            'services-item-catalog:psl:OperationTranquilliteVacances-open-modal-button'
+          );
+          await fireEvent.click(link);
+        });
+
+        expect(screen.queryByTestId('service-button')).not.toBeNull();
+        expect(screen.queryByTestId('followup-button')).not.toBeNull();
+      });
+      describe('buttons onclick', () => {
+        describe('followup button', () => {
+          test('should redirect to followup', async () => {
+            // Given
+            await userStore.login(mockUserInfo);
+            const services = new Services();
+            vi.spyOn(services, 'search').mockReturnValue({
+              terms: 'Opération',
+              services: [
+                new ServicesItem(
+                  'psl',
+                  'OperationTranquilliteVacances',
+                  'catalog',
+                  'Opération Tranquillité Vacances',
+                  'Sécurisez votre logement',
+                  'Vous partez en vacances ? **Securisez votre logement.**',
+                  'http://external-url',
+                  'icon',
+                  true
+                ),
+              ],
+            });
+            vi.spyOn(servicesMethods, 'buildServices').mockResolvedValue(services);
+            vi.spyOn(Followup.prototype, 'hasNonArchivedItems').mockReturnValue(true);
+            const spy = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
+
+            render(Page);
+
+            const searchInput = screen.getByTestId('search-input');
+            await fireEvent.focus(searchInput);
+            await fireEvent.input(searchInput, {
+              target: { value: 'Opération' },
+            });
+            vi.advanceTimersByTime(750);
+            await waitFor(async () => {
+              const link = screen.getByTestId(
+                'services-item-catalog:psl:OperationTranquilliteVacances-open-modal-button'
+              );
+              await fireEvent.click(link);
+            });
+
+            // When
+            await waitFor(async () => {
+              const followupButton = screen.getByTestId('followup-button');
+              await fireEvent.click(followupButton);
+            });
+
+            // Then
+            expect(spy).toHaveBeenCalledTimes(1);
+            expect(spy).toHaveBeenCalledWith('/#/followup');
+          });
+        });
+        describe('service button', () => {
+          test('should redirect to service link - without silent-login', async () => {
+            // Given
+            await userStore.login(mockUserInfo);
+            const services = new Services();
+            vi.spyOn(services, 'search').mockReturnValue({
+              terms: 'Opération',
+              services: [
+                new ServicesItem(
+                  'psl',
+                  'OperationTranquilliteVacances',
+                  'catalog',
+                  'Opération Tranquillité Vacances',
+                  'Sécurisez votre logement',
+                  'Vous partez en vacances ? **Securisez votre logement.**',
+                  'http://external-url',
+                  'icon',
+                  false
+                ),
+              ],
+            });
+            vi.spyOn(servicesMethods, 'buildServices').mockResolvedValue(services);
+            const spyUrl = vi
+              .spyOn(ServicesItem.prototype, 'getServiceUrl')
+              .mockResolvedValue('http://external-url');
+            vi.spyOn(Followup.prototype, 'hasNonArchivedItems').mockReturnValue(true);
+            const spy = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
+
+            render(Page);
+
+            const searchInput = screen.getByTestId('search-input');
+            await fireEvent.focus(searchInput);
+            await fireEvent.input(searchInput, {
+              target: { value: 'Opération' },
+            });
+            vi.advanceTimersByTime(750);
+            await waitFor(async () => {
+              const link = screen.getByTestId(
+                'services-item-catalog:psl:OperationTranquilliteVacances-open-modal-button'
+              );
+              await fireEvent.click(link);
+            });
+
+            // When
+            await waitFor(async () => {
+              const serviceButton = screen.getByTestId('service-button');
+              await fireEvent.click(serviceButton);
+            });
+
+            // Then
+            expect(spyUrl).toHaveBeenCalledTimes(1);
+            expect(spy).toHaveBeenCalledTimes(1);
+            expect(spy).toHaveBeenCalledWith('http://external-url', false);
+          });
+          test('should redirect to service link - with silent-login', async () => {
+            // Given
+            await userStore.login(mockUserInfo);
+            const services = new Services();
+            vi.spyOn(services, 'search').mockReturnValue({
+              terms: 'Opération',
+              services: [
+                new ServicesItem(
+                  'psl',
+                  'OperationTranquilliteVacances',
+                  'catalog',
+                  'Opération Tranquillité Vacances',
+                  'Sécurisez votre logement',
+                  'Vous partez en vacances ? **Securisez votre logement.**',
+                  'http://external-url',
+                  'icon',
+                  true
+                ),
+              ],
+            });
+            vi.spyOn(servicesMethods, 'buildServices').mockResolvedValue(services);
+            const spyUrl = vi
+              .spyOn(ServicesItem.prototype, 'getServiceUrl')
+              .mockResolvedValue('http://external-url');
+            vi.spyOn(Followup.prototype, 'hasNonArchivedItems').mockReturnValue(true);
+            const spy = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
+
+            render(Page);
+
+            const searchInput = screen.getByTestId('search-input');
+            await fireEvent.focus(searchInput);
+            await fireEvent.input(searchInput, {
+              target: { value: 'Opération' },
+            });
+            vi.advanceTimersByTime(750);
+            await waitFor(async () => {
+              const link = screen.getByTestId(
+                'services-item-catalog:psl:OperationTranquilliteVacances-open-modal-button'
+              );
+              await fireEvent.click(link);
+            });
+
+            // When
+            await waitFor(async () => {
+              const serviceButton = screen.getByTestId('service-button');
+              await fireEvent.click(serviceButton);
+            });
+
+            // Then
+            expect(spyUrl).toHaveBeenCalledTimes(1);
+            expect(spy).toHaveBeenCalledTimes(1);
+            expect(spy).toHaveBeenCalledWith('http://external-url', true);
+          });
+        });
+      });
+    });
+  });
+  describe('click on sos', () => {
+    test('should redirect to service link - without silent-login', async () => {
+      // Given
+      await userStore.login(mockUserInfo);
+      const services = new Services();
+      vi.spyOn(services, 'search').mockReturnValue({
+        terms: 'Opération',
+        services: [
+          new ServicesItem(
+            'psl',
+            'OperationTranquilliteVacances',
+            'sos',
+            'Opération Tranquillité Vacances',
+            'Sécurisez votre logement',
+            'Vous partez en vacances ? **Securisez votre logement.**',
+            'http://external-url',
+            'icon',
+            false
+          ),
+        ],
+      });
+      vi.spyOn(servicesMethods, 'buildServices').mockResolvedValue(services);
+      const spyUrl = vi
+        .spyOn(ServicesItem.prototype, 'getServiceUrl')
+        .mockResolvedValue('http://external-url');
+      vi.spyOn(Followup.prototype, 'hasNonArchivedItems').mockReturnValue(false);
+      const spy = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
+
+      render(Page);
+
+      // When
+      const searchInput = screen.getByTestId('search-input');
+      await fireEvent.focus(searchInput);
+      await fireEvent.input(searchInput, {
+        target: { value: 'Opération' },
+      });
+      vi.advanceTimersByTime(750);
+      await waitFor(async () => {
+        const link = screen.getByTestId(
+          'service-sos:psl:OperationTranquilliteVacances'
+        );
+        await fireEvent.click(link);
+      });
+
+      // Then
+      expect(screen.queryByTestId('service-button')).toBeNull();
+      expect(screen.queryByTestId('followup-button')).toBeNull();
+      expect(spyUrl).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith('http://external-url', false);
+    });
+    test('should redirect to service link - with silent-login', async () => {
+      // Given
+      await userStore.login(mockUserInfo);
+      const services = new Services();
+      vi.spyOn(services, 'search').mockReturnValue({
+        terms: 'Opération',
+        services: [
+          new ServicesItem(
+            'psl',
+            'OperationTranquilliteVacances',
+            'sos',
+            'Opération Tranquillité Vacances',
+            'Sécurisez votre logement',
+            'Vous partez en vacances ? **Securisez votre logement.**',
+            'http://external-url',
+            'icon',
+            true
+          ),
+        ],
+      });
+      vi.spyOn(servicesMethods, 'buildServices').mockResolvedValue(services);
+      const spyUrl = vi
+        .spyOn(ServicesItem.prototype, 'getServiceUrl')
+        .mockResolvedValue('http://external-url');
+      vi.spyOn(Followup.prototype, 'hasNonArchivedItems').mockReturnValue(false);
+      const spy = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
+
+      render(Page);
+
+      // When
+      const searchInput = screen.getByTestId('search-input');
+      await fireEvent.focus(searchInput);
+      await fireEvent.input(searchInput, {
+        target: { value: 'Opération' },
+      });
+      vi.advanceTimersByTime(750);
+      await waitFor(async () => {
+        const link = screen.getByTestId(
+          'service-sos:psl:OperationTranquilliteVacances'
+        );
+        await fireEvent.click(link);
+      });
+
+      // Then
+      expect(screen.queryByTestId('service-button')).toBeNull();
+      expect(screen.queryByTestId('followup-button')).toBeNull();
+      expect(spyUrl).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith('http://external-url', true);
+    });
+  });
+  describe('click on steps', () => {
+    test('should redirect to service link - without silent-login', async () => {
+      // Given
+      await userStore.login(mockUserInfo);
+      const services = new Services();
+      vi.spyOn(services, 'search').mockReturnValue({
+        terms: 'Opération',
+        services: [
+          new ServicesItem(
+            'psl',
+            'OperationTranquilliteVacances',
+            'steps',
+            'Opération Tranquillité Vacances',
+            'Sécurisez votre logement',
+            'Vous partez en vacances ? **Securisez votre logement.**',
+            'http://external-url',
+            'icon',
+            false
+          ),
+        ],
+      });
+      vi.spyOn(servicesMethods, 'buildServices').mockResolvedValue(services);
+      const spyUrl = vi
+        .spyOn(ServicesItem.prototype, 'getServiceUrl')
+        .mockResolvedValue('http://external-url');
+      vi.spyOn(Followup.prototype, 'hasNonArchivedItems').mockReturnValue(false);
+      const spy = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
+
+      render(Page);
+
+      // When
+      const searchInput = screen.getByTestId('search-input');
+      await fireEvent.focus(searchInput);
+      await fireEvent.input(searchInput, {
+        target: { value: 'Opération' },
+      });
+      vi.advanceTimersByTime(750);
+      await waitFor(async () => {
+        const link = screen.getByTestId(
+          'service-steps:psl:OperationTranquilliteVacances'
+        );
+        await fireEvent.click(link);
+      });
+
+      // Then
+      expect(screen.queryByTestId('service-button')).toBeNull();
+      expect(screen.queryByTestId('followup-button')).toBeNull();
+      expect(spyUrl).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith('http://external-url', false);
+    });
+    test('should redirect to service link - with silent-login', async () => {
+      // Given
+      await userStore.login(mockUserInfo);
+      const services = new Services();
+      vi.spyOn(services, 'search').mockReturnValue({
+        terms: 'Opération',
+        services: [
+          new ServicesItem(
+            'psl',
+            'OperationTranquilliteVacances',
+            'steps',
+            'Opération Tranquillité Vacances',
+            'Sécurisez votre logement',
+            'Vous partez en vacances ? **Securisez votre logement.**',
+            'http://external-url',
+            'icon',
+            true
+          ),
+        ],
+      });
+      vi.spyOn(servicesMethods, 'buildServices').mockResolvedValue(services);
+      const spyUrl = vi
+        .spyOn(ServicesItem.prototype, 'getServiceUrl')
+        .mockResolvedValue('http://external-url');
+      vi.spyOn(Followup.prototype, 'hasNonArchivedItems').mockReturnValue(false);
+      const spy = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
+
+      render(Page);
+
+      // When
+      const searchInput = screen.getByTestId('search-input');
+      await fireEvent.focus(searchInput);
+      await fireEvent.input(searchInput, {
+        target: { value: 'Opération' },
+      });
+      vi.advanceTimersByTime(750);
+      await waitFor(async () => {
+        const link = screen.getByTestId(
+          'service-steps:psl:OperationTranquilliteVacances'
+        );
+        await fireEvent.click(link);
+      });
+
+      // Then
+      expect(screen.queryByTestId('service-button')).toBeNull();
+      expect(screen.queryByTestId('followup-button')).toBeNull();
+      expect(spyUrl).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith('http://external-url', true);
+    });
+  });
+});

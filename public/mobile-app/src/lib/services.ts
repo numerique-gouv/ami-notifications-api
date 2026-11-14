@@ -1,3 +1,7 @@
+import MiniSearch, {
+  type SearchResult as MiniSearchResult,
+  type Options,
+} from 'minisearch';
 import type {
   APIServices,
   APIServicesItem,
@@ -13,6 +17,120 @@ import {
 } from '$lib/api-services';
 import { getVersion } from '$lib/bridges/nativeInfos';
 import { userStore } from '$lib/state/User.svelte';
+import * as telemetry from '$lib/telemetry';
+
+export type ServicesItemSearchResult = {
+  terms: string;
+  services: ServicesItem[];
+};
+
+const normalize = (term: string) =>
+  term
+    .toLowerCase()
+    .replace(/œ/g, 'oe')
+    .replace(/æ/g, 'ae')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+
+const STOP_WORDS = new Set(
+  [
+    'le',
+    'la',
+    'les',
+    'un',
+    'une',
+    'des',
+    'du',
+    'de',
+    'd',
+    'l',
+    'au',
+    'aux',
+    'et',
+    'ou',
+    'a',
+    'à',
+    'en',
+    'dans',
+    'sur',
+    'sous',
+    'par',
+    'pour',
+    'avec',
+    'sans',
+    'ce',
+    'cet',
+    'cette',
+    'ces',
+    'se',
+    's',
+    'sa',
+    'son',
+    'ses',
+    'qui',
+    'que',
+    'qu',
+    'quoi',
+    'dont',
+    'ne',
+    'n',
+    'pas',
+    'y',
+    'je',
+    'j',
+    'tu',
+    'il',
+    'elle',
+    'on',
+    'nous',
+    'vous',
+    'ils',
+    'elles',
+    'me',
+    'm',
+    'te',
+    't',
+    'mon',
+    'ma',
+    'mes',
+    'ton',
+    'ta',
+    'tes',
+    'est',
+    'sont',
+    'été',
+    'être',
+    'avoir',
+    'ai',
+    'as',
+    'ont',
+    'c',
+  ].map(normalize)
+);
+
+const processTerm = (term: string): string | null => {
+  const t = normalize(term);
+  return STOP_WORDS.has(t) ? null : t;
+};
+
+interface IndexedServicesItem {
+  id: string;
+  kind: string;
+  partner_id: string;
+  item_type: string;
+  title: string;
+}
+
+const searchOptions: Options<IndexedServicesItem> = {
+  fields: ['title'],
+  storeFields: ['kind', 'partner_id', 'item_type'],
+  processTerm: processTerm,
+  searchOptions: {
+    prefix: true,
+    fuzzy: (term) => (term.length > 4 ? 0.2 : false),
+    combineWith: 'AND',
+  },
+};
 
 export class ServicesItem {
   constructor(
@@ -37,7 +155,7 @@ export class ServicesItem {
   }
 
   get id(): string {
-    return `${this.partner_id}:${this.item_type}`;
+    return `${this.kind}:${this.partner_id}:${this.item_type}`;
   }
 
   get partner_id(): string {
@@ -151,43 +269,22 @@ export class ServicesItem {
 
 export class Services {
   private _items: ServicesItem[] = [];
-  private _sos: ServicesItem[] = [];
-  private _steps: ServicesItem[] = [];
+  private _miniSearch: MiniSearch<IndexedServicesItem> | null = null;
 
   constructor(apiServices: APIServices | null = null) {
-    const servicesItems: ServicesItem[] = [];
-
-    const items: APIServicesItem[] = apiServices?.internal || [];
+    const internal: APIServicesItem[] = apiServices?.internal || [];
 
     // build items
-    items.forEach((item) => {
+    internal.forEach((item) => {
       const servicesItem = this.createServicesItem(item);
-      servicesItems.push(servicesItem);
+      this._items.push(servicesItem);
     });
 
     // sort items by title
-    servicesItems.sort((a, b) => a.title.localeCompare(b.title, 'fr'));
+    this._items.sort((a, b) => a.title.localeCompare(b.title, 'fr'));
 
-    // organize items in _items or
-    servicesItems.forEach((servicesItem) => {
-      switch (servicesItem.kind) {
-        case 'catalog': {
-          this._items.push(servicesItem);
-          break;
-        }
-        case 'sos': {
-          this._sos.push(servicesItem);
-          break;
-        }
-        case 'steps': {
-          this._steps.push(servicesItem);
-          break;
-        }
-        default: {
-          console.log(`unknown kind ${servicesItem.kind}`);
-        }
-      }
-    });
+    // load miniSearch
+    this.loadMiniSeach();
   }
 
   private createServicesItem(item: APIServicesItem): ServicesItem {
@@ -204,33 +301,90 @@ export class Services {
     );
   }
 
+  private loadMiniSeach() {
+    const data = localStorage.getItem(`services_minisearch`);
+    if (data !== null) {
+      try {
+        this._miniSearch = MiniSearch.loadJSON<IndexedServicesItem>(
+          data,
+          searchOptions
+        );
+        return;
+      } catch (error) {
+        telemetry.error('Error loading services indexation', {
+          error: `${error}`,
+        });
+        localStorage.removeItem(`services_minisearch`);
+      }
+    }
+    this._miniSearch = this.createMiniSearch();
+  }
+
+  private createMiniSearch(): MiniSearch<IndexedServicesItem> | null {
+    const miniSearch = new MiniSearch(searchOptions);
+    try {
+      miniSearch.addAll(this.items);
+    } catch (error) {
+      telemetry.error('Error indexing services', {
+        error: `${error}`,
+      });
+      return null;
+    }
+    localStorage.setItem(`services_minisearch`, JSON.stringify(miniSearch));
+    return miniSearch;
+  }
+
   get items(): ServicesItem[] {
     return this._items;
   }
 
+  get catalog(): ServicesItem[] {
+    return this.items.filter((item) => item.kind === 'catalog');
+  }
+
   get sos(): ServicesItem[] {
-    return this._sos;
+    return this.items.filter((item) => item.kind === 'sos');
   }
 
   get steps(): ServicesItem[] {
-    return this._steps;
+    return this.items.filter((item) => item.kind === 'steps');
   }
 
-  find(partner_id: string, item_type: string): ServicesItem | null {
+  find(kind: string, partner_id: string, item_type: string): ServicesItem | null {
     const found = this.items.filter(
-      (item) => item.partner_id === partner_id && item.item_type === item_type
+      (item) =>
+        item.kind === kind &&
+        item.partner_id === partner_id &&
+        item.item_type === item_type
     );
     if (found.length === 0) {
-      console.log(`Can not find ServicesItem ${partner_id}, ${item_type}: no result`);
+      console.log(
+        `Can not find ServicesItem ${kind}, ${partner_id}, ${item_type}: no result`
+      );
       return null;
     }
     if (found.length > 1) {
       console.log(
-        `Can not find ServicesItem ${partner_id}, ${item_type}: many results`
+        `Can not find ServicesItem ${kind}, ${partner_id}, ${item_type}: many results`
       );
       return null;
     }
     return found[0];
+  }
+
+  search(terms: string): ServicesItemSearchResult | null {
+    if (this._miniSearch === null) {
+      return null;
+    }
+    const results: MiniSearchResult[] = this._miniSearch.search(terms);
+    const filteredServices = results
+      .slice(0, 10)
+      .map((item) => this.find(item.kind, item.partner_id, item.item_type))
+      .filter((item): item is ServicesItem => item !== null);
+    return {
+      terms: terms,
+      services: filteredServices,
+    };
   }
 }
 

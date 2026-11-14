@@ -109,7 +109,7 @@
             />
             {#if item.component_modal_name}
               <AutoPromoItemModal
-                item_component_modal_name="{item.component_modal_name}"
+                item_component_modal_name={item.component_modal_name}
                 modalId="auto-promo-item-{i}-modal"
                 onClose={onCloseModal}
               />
@@ -130,7 +130,7 @@
     />
     {#if firstItem.component_modal_name}
       <AutoPromoItemModal
-        item_component_modal_name="{firstItem.component_modal_name}"
+        item_component_modal_name={firstItem.component_modal_name}
         modalId="auto-promo-item-0-modal"
         onClose={onCloseModal}
       />

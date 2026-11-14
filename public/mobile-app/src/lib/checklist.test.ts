@@ -63,9 +63,7 @@ const checklistData = {
 
 describe('/checklist.ts', () => {
   beforeEach(() => {
-    const spy = vi
-      .spyOn(apiCheckListMethods, 'retrieveCheckList')
-      .mockResolvedValue(checklistData);
+    vi.spyOn(apiCheckListMethods, 'retrieveCheckList').mockResolvedValue(checklistData);
   });
 
   test('should build checklist from JSON', async () => {

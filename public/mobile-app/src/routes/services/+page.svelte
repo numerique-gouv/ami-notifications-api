@@ -33,6 +33,10 @@
     const url = await service.getServiceUrl();
     AMIGoto(url, service.with_silent_login);
   };
+
+  const goToSearch = async () => {
+    AMIGoto('/#/services/search');
+  };
 </script>
 
 <Navigation currentItem="services" />
@@ -41,6 +45,21 @@
   <div class="fr-pt-3w fr-px-2w services--title">
     <h2>Services</h2>
   </div>
+
+  <form class="search-form">
+    <div class="fr-fieldset__element">
+      <div class="fr-input-wrap fr-icon-search-line">
+        <input
+          class="fr-input"
+          id="search-input"
+          type="text"
+          placeholder="Rechercher un service"
+          data-testid="search-input"
+          onfocus={goToSearch}
+        >
+      </div>
+    </div>
+  </form>
 
   <div class="fr-tabs fr-tabs--viewport-width am-tabs">
     <ul
@@ -51,108 +70,30 @@
       <li role="presentation">
         <button
           type="button"
-          id="tab-6496"
+          id="tab-6497"
           class="fr-tabs__tab fr-m-0 fr-text--sm fr-text--regular"
           tabindex="0"
           role="tab"
           aria-selected="true"
-          aria-controls="tab-6496-panel"
+          aria-controls="tab-6497-panel"
         >
-          Trouver de l’aide
+          Faire une démarche
         </button>
       </li>
       <li role="presentation">
         <button
           type="button"
-          id="tab-6497"
+          id="tab-6496"
           class="fr-tabs__tab fr-m-0 fr-text--sm fr-text--regular"
           tabindex="-1"
           role="tab"
           aria-selected="false"
-          aria-controls="tab-6497-panel"
+          aria-controls="tab-6496-panel"
         >
-          Démarches et outils
+          Trouver de l’aide
         </button>
       </li>
     </ul>
-    <div
-      id="tab-6496-panel"
-      class="fr-tabs__panel fr-tabs__panel--selected"
-      role="tabpanel"
-      aria-labelledby="tab-6496"
-      tabindex="0"
-      data-testid="sos"
-    >
-      <h2 class="fr-h5 fr-mb-2w fr-pt-1w">SOS, j’ai un problème !</h2>
-      {#if services && services.sos.length}
-        {#each services.sos as sos}
-          <button
-            type="button"
-            class="fr-tag fr-mb-2w fr-mr-1w {sos.icon} {sos.icon ? 'fr-tag--icon-left': ''}"
-            data-testid="service-sos-{sos.id}"
-            onclick={()=> goToService(sos)}
-          >
-            {sos.title}
-          </button>
-        {/each}
-      {/if}
-      {#if PUBLIC_SP_ORIENTEUR_URL}
-        <p class="fr-mb-4w">
-          <button
-            type="button"
-            class="fr-link fr-icon-arrow-right-line fr-link--icon-right am-link-bordered"
-            onclick={()=> AMIGoto(PUBLIC_SP_ORIENTEUR_URL)}
-          >
-            J’ai besoin d’aide sur un autre sujet
-          </button>
-        </p>
-      {/if}
-
-      <h2 class="fr-h5 fr-mb-1w">Comment faire si ... ?</h2>
-
-      <!--
-      {#if services && services.steps.length }
-        <SideMenu sideMenus={services.steps} />
-      {/if}
-      -->
-
-      <nav class="fr-sidemenu cfsi-sidemenu fr-mb-3w fr-mx-0">
-        <div class="fr-sidemenu__inner">
-          <ul class="fr-sidemenu__list" data-testid="steps">
-            {#if services && services.steps.length}
-              {#each services.steps as steps}
-                <li class="fr-sidemenu__item">
-                  <button
-                    class="fr-sidemenu__btn fr-pl-0 fr-pr-4w am-text--smbold  {steps.icon} {steps.icon ? 'fr-tag--icon-left': ''}"
-                    type="button"
-                    data-testid="service-steps-{steps.id}"
-                    onclick={() => goToService(steps)}
-                  >
-                    {steps.title}
-                    <span
-                      aria-hidden="true"
-                      class="icon fr-icon-arrow-right-s-line am-color-blue    "
-                    ></span>
-                  </button>
-                </li>
-              {/each}
-            {/if}
-          </ul>
-        </div>
-      </nav>
-
-      {#if PUBLIC_SP_ANNUAIRE_URL}
-        <h2 class="fr-h5">Je recherche un service public, une administration </h2>
-
-        <button
-          type="button"
-          class="fr-btn fr-btn--secondary am-btn-w100"
-          onclick={() => AMIGoto(PUBLIC_SP_ANNUAIRE_URL)}
-        >
-          Accéder à l’annuaire
-        </button>
-      {/if}
-    </div>
     <div
       id="tab-6497-panel"
       class="fr-tabs__panel"
@@ -169,8 +110,8 @@
             <div class="fr-sidemenu__inner">
               <div id="fr-sidemenu-wrapper">
                 <ul class="fr-sidemenu__list">
-                  {#if services && services.items.length}
-                    {#each services.items as item, i}
+                  {#if services && services.catalog.length}
+                    {#each services.catalog as item, i}
                       <ServicesItem
                         item={item}
                         hasNonArchivedItems={followup?.hasNonArchivedItems(item.partner_id, item.item_type) || false}
@@ -195,6 +136,78 @@
           {/if}
         </div>
       </div>
+    </div>
+    <div
+      id="tab-6496-panel"
+      class="fr-tabs__panel fr-tabs__panel--selected"
+      role="tabpanel"
+      aria-labelledby="tab-6496"
+      tabindex="0"
+      data-testid="sos"
+    >
+      <h2 class="fr-h5 fr-mb-2w fr-pt-1w">SOS, j’ai un problème !</h2>
+      {#if services && services.sos.length}
+        {#each services.sos as sos}
+          <button
+            type="button"
+            class="fr-tag fr-mb-2w fr-mr-1w {sos.icon} {sos.icon ? 'fr-tag--icon-left': ''}"
+            data-testid="service-{sos.id}"
+            onclick={()=> goToService(sos)}
+          >
+            {sos.title}
+          </button>
+        {/each}
+      {/if}
+      {#if PUBLIC_SP_ORIENTEUR_URL}
+        <p class="fr-mb-4w">
+          <button
+            type="button"
+            class="fr-link fr-icon-arrow-right-line fr-link--icon-right am-link-bordered"
+            onclick={()=> AMIGoto(PUBLIC_SP_ORIENTEUR_URL)}
+          >
+            J’ai besoin d’aide sur un autre sujet
+          </button>
+        </p>
+      {/if}
+
+      <h2 class="fr-h5 fr-mb-1w">Comment faire si ... ?</h2>
+
+      <nav class="fr-sidemenu cfsi-sidemenu fr-mb-3w fr-mx-0">
+        <div class="fr-sidemenu__inner">
+          <ul class="fr-sidemenu__list" data-testid="steps">
+            {#if services && services.steps.length}
+              {#each services.steps as steps}
+                <li class="fr-sidemenu__item">
+                  <button
+                    class="fr-sidemenu__btn fr-pl-0 fr-pr-4w am-text--smbold  {steps.icon} {steps.icon ? 'fr-tag--icon-left': ''}"
+                    type="button"
+                    data-testid="service-{steps.id}"
+                    onclick={() => goToService(steps)}
+                  >
+                    {steps.title}
+                    <span
+                      aria-hidden="true"
+                      class="icon fr-icon-arrow-right-s-line am-color-blue"
+                    ></span>
+                  </button>
+                </li>
+              {/each}
+            {/if}
+          </ul>
+        </div>
+      </nav>
+
+      {#if PUBLIC_SP_ANNUAIRE_URL}
+        <h2 class="fr-h5">Je recherche un service public, une administration </h2>
+
+        <button
+          type="button"
+          class="fr-btn fr-btn--secondary am-btn-w100"
+          onclick={() => AMIGoto(PUBLIC_SP_ANNUAIRE_URL)}
+        >
+          Accéder à l’annuaire
+        </button>
+      {/if}
     </div>
   </div>
 </div>

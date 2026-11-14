@@ -59,6 +59,7 @@ describe('/api-services', () => {
         .mockResolvedValue(
           new Response(JSON.stringify(apiServicesData), { status: 200 })
         );
+      window.localStorage.setItem('services_minisearch', 'some data');
 
       // When
       const result = await retrieveServices(new Date('2025-11-01T12:00:00Z'));
@@ -73,6 +74,7 @@ describe('/api-services', () => {
       expect(window.localStorage.getItem('internal_services_source')).toEqual(
         JSON.stringify(apiServicesData.internal)
       );
+      expect(window.localStorage.getItem('services_minisearch')).toBeNull();
     });
 
     test('should get services items from API - with error', async () => {
@@ -80,6 +82,7 @@ describe('/api-services', () => {
       const spy = vi
         .spyOn(globalThis, 'fetch')
         .mockResolvedValue(new Response('error', { status: 400 }));
+      window.localStorage.setItem('services_minisearch', 'some data');
 
       // When
       const result = await retrieveServices(new Date('2025-11-01T12:00:00Z'));
@@ -91,7 +94,8 @@ describe('/api-services', () => {
       expect(result).toEqual({
         internal: [],
       });
-      expect(window.localStorage.getItem('internal_services_source')).toEqual(null);
+      expect(window.localStorage.getItem('internal_services_source')).toBeNull();
+      expect(window.localStorage.getItem('services_minisearch')).not.toBeNull();
     });
 
     test('should get services items from localstorage', async () => {
@@ -100,6 +104,7 @@ describe('/api-services', () => {
         'internal_services_source',
         JSON.stringify(apiServicesData.internal)
       );
+      window.localStorage.setItem('services_minisearch', 'some data');
 
       // When
       const result = await retrieveServices(new Date('2025-11-01T12:00:00Z'));
@@ -108,6 +113,7 @@ describe('/api-services', () => {
       expect(result).toEqual({
         internal: apiServicesData.internal.items,
       });
+      expect(window.localStorage.getItem('services_minisearch')).not.toBeNull();
     });
 
     test('should get services items from API - no date param', async () => {
@@ -121,6 +127,7 @@ describe('/api-services', () => {
         .mockResolvedValue(
           new Response(JSON.stringify(apiServicesData), { status: 200 })
         );
+      window.localStorage.setItem('services_minisearch', 'some data');
 
       // When
       const result = await retrieveServices();
@@ -135,291 +142,285 @@ describe('/api-services', () => {
       expect(window.localStorage.getItem('internal_services_source')).toEqual(
         JSON.stringify(apiServicesData.internal)
       );
+      expect(window.localStorage.getItem('services_minisearch')).toBeNull();
     });
 
-    test('should get services items from API - services items entry is missing in localstorage', async () => {
-      for (const key of Object.keys(apiServicesData) as APIServicesItemsKey[]) {
-        // Given
-        for (const key2 of Object.keys(apiServicesData) as APIServicesItemsKey[]) {
-          if (key2 === key) {
-            continue;
-          }
-          window.localStorage.setItem(
-            `${key2}_services_source`,
-            JSON.stringify(apiServicesData[key2])
-          );
+    test.each(
+      Object.keys(apiServicesData) as APIServicesItemsKey[]
+    )('should get services items from API - services items entry is missing in localstorage ($0)', async (key: APIServicesItemsKey) => {
+      // Given
+      for (const key2 of Object.keys(apiServicesData) as APIServicesItemsKey[]) {
+        if (key2 === key) {
+          continue;
         }
-        const responseData: NullableAPIServicesItems = {
-          internal: null,
-        };
-        responseData[key] = apiServicesData[key];
-        const spy = vi
-          .spyOn(globalThis, 'fetch')
-          .mockResolvedValue(
-            new Response(JSON.stringify(responseData), { status: 200 })
-          );
-
-        // When
-        const result = await retrieveServices(new Date('2025-11-01T12:00:00Z'));
-
-        // Then
-        expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `/api/v1/users/data/services?filter-items=${key}`
-        );
-        expect(result).toEqual({
-          internal: apiServicesData.internal.items,
-        });
-        expect(window.localStorage.getItem(`${key}_services_source`)).toEqual(
-          JSON.stringify(apiServicesData[key])
+        window.localStorage.setItem(
+          `${key2}_services_source`,
+          JSON.stringify(apiServicesData[key2])
         );
       }
+      const responseData: NullableAPIServicesItems = {
+        internal: null,
+      };
+      responseData[key] = apiServicesData[key];
+      const spy = vi
+        .spyOn(globalThis, 'fetch')
+        .mockResolvedValue(new Response(JSON.stringify(responseData), { status: 200 }));
+      window.localStorage.setItem('services_minisearch', 'some data');
+
+      // When
+      const result = await retrieveServices(new Date('2025-11-01T12:00:00Z'));
+
+      // Then
+      expect(spy).toHaveBeenCalledExactlyOnceWith(
+        `/api/v1/users/data/services?filter-items=${key}`
+      );
+      expect(result).toEqual({
+        internal: apiServicesData.internal.items,
+      });
+      expect(window.localStorage.getItem(`${key}_services_source`)).toEqual(
+        JSON.stringify(apiServicesData[key])
+      );
+      expect(window.localStorage.getItem('services_minisearch')).toBeNull();
     });
 
-    test('should get services items from API - services items entry is wrong in localstorage', async () => {
-      for (const key of Object.keys(apiServicesData) as APIServicesItemsKey[]) {
-        // Given
-        for (const key2 of Object.keys(apiServicesData) as APIServicesItemsKey[]) {
-          if (key2 === key) {
-            window.localStorage.setItem(`${key2}_services_source`, 'wrong');
-            continue;
-          }
-          window.localStorage.setItem(
-            `${key2}_services_source`,
-            JSON.stringify(apiServicesData[key2])
-          );
+    test.each(
+      Object.keys(apiServicesData) as APIServicesItemsKey[]
+    )('should get services items from API - services items entry is wrong in localstorage ($0)', async (key: APIServicesItemsKey) => {
+      // Given
+      for (const key2 of Object.keys(apiServicesData) as APIServicesItemsKey[]) {
+        if (key2 === key) {
+          window.localStorage.setItem(`${key2}_services_source`, 'wrong');
+          continue;
         }
-        const responseData: NullableAPIServicesItems = {
-          internal: null,
-        };
-        responseData[key] = apiServicesData[key];
-        const spy = vi
-          .spyOn(globalThis, 'fetch')
-          .mockResolvedValue(
-            new Response(JSON.stringify(responseData), { status: 200 })
-          );
-
-        // When
-        const result = await retrieveServices(new Date('2025-11-01T12:00:00Z'));
-
-        // Then
-        expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `/api/v1/users/data/services?filter-items=${key}`
-        );
-        expect(result).toEqual({
-          internal: apiServicesData.internal.items,
-        });
-        expect(window.localStorage.getItem(`${key}_services_source`)).toEqual(
-          JSON.stringify(apiServicesData[key])
+        window.localStorage.setItem(
+          `${key2}_services_source`,
+          JSON.stringify(apiServicesData[key2])
         );
       }
+      const responseData: NullableAPIServicesItems = {
+        internal: null,
+      };
+      responseData[key] = apiServicesData[key];
+      const spy = vi
+        .spyOn(globalThis, 'fetch')
+        .mockResolvedValue(new Response(JSON.stringify(responseData), { status: 200 }));
+      window.localStorage.setItem('services_minisearch', 'some data');
+
+      // When
+      const result = await retrieveServices(new Date('2025-11-01T12:00:00Z'));
+
+      // Then
+      expect(spy).toHaveBeenCalledExactlyOnceWith(
+        `/api/v1/users/data/services?filter-items=${key}`
+      );
+      expect(result).toEqual({
+        internal: apiServicesData.internal.items,
+      });
+      expect(window.localStorage.getItem(`${key}_services_source`)).toEqual(
+        JSON.stringify(apiServicesData[key])
+      );
+      expect(window.localStorage.getItem('services_minisearch')).toBeNull();
     });
 
-    test('should get services items from API - services items entry is in failed status in localstorage', async () => {
-      for (const key of Object.keys(apiServicesData) as APIServicesItemsKey[]) {
-        // Given
-        for (const key2 of Object.keys(apiServicesData) as APIServicesItemsKey[]) {
-          if (key2 === key) {
-            window.localStorage.setItem(
-              `${key2}_services_source`,
-              JSON.stringify({ status: 'failed' })
-            );
-            continue;
-          }
+    test.each(
+      Object.keys(apiServicesData) as APIServicesItemsKey[]
+    )('should get services items from API - services items entry is in failed status in localstorage ($0)', async (key: APIServicesItemsKey) => {
+      // Given
+      for (const key2 of Object.keys(apiServicesData) as APIServicesItemsKey[]) {
+        if (key2 === key) {
           window.localStorage.setItem(
             `${key2}_services_source`,
-            JSON.stringify(apiServicesData[key2])
+            JSON.stringify({ status: 'failed' })
           );
+          continue;
         }
-        const responseData: NullableAPIServicesItems = {
-          internal: null,
-        };
-        responseData[key] = apiServicesData[key];
-        const spy = vi
-          .spyOn(globalThis, 'fetch')
-          .mockResolvedValue(
-            new Response(JSON.stringify(responseData), { status: 200 })
-          );
-
-        // When
-        const result = await retrieveServices(new Date('2025-11-01T12:00:00Z'));
-
-        // Then
-        expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `/api/v1/users/data/services?filter-items=${key}`
-        );
-        expect(result).toEqual({
-          internal: apiServicesData.internal.items,
-        });
-        expect(window.localStorage.getItem(`${key}_services_source`)).toEqual(
-          JSON.stringify(apiServicesData[key])
+        window.localStorage.setItem(
+          `${key2}_services_source`,
+          JSON.stringify(apiServicesData[key2])
         );
       }
+      const responseData: NullableAPIServicesItems = {
+        internal: null,
+      };
+      responseData[key] = apiServicesData[key];
+      const spy = vi
+        .spyOn(globalThis, 'fetch')
+        .mockResolvedValue(new Response(JSON.stringify(responseData), { status: 200 }));
+      window.localStorage.setItem('services_minisearch', 'some data');
+
+      // When
+      const result = await retrieveServices(new Date('2025-11-01T12:00:00Z'));
+
+      // Then
+      expect(spy).toHaveBeenCalledExactlyOnceWith(
+        `/api/v1/users/data/services?filter-items=${key}`
+      );
+      expect(result).toEqual({
+        internal: apiServicesData.internal.items,
+      });
+      expect(window.localStorage.getItem(`${key}_services_source`)).toEqual(
+        JSON.stringify(apiServicesData[key])
+      );
+      expect(window.localStorage.getItem('services_minisearch')).toBeNull();
     });
 
-    test('should get services items from API - services items entry has no expiration in localstorage', async () => {
-      for (const key of Object.keys(apiServicesData) as APIServicesItemsKey[]) {
-        // Given
-        for (const key2 of Object.keys(apiServicesData) as APIServicesItemsKey[]) {
-          if (key2 === key) {
-            const { expires_at, ...entry } = { ...apiServicesData[key2] }; // old entry, no expiration date
-            window.localStorage.setItem(
-              `${key2}_services_source`,
-              JSON.stringify(entry)
-            );
-            continue;
-          }
-          window.localStorage.setItem(
-            `${key2}_services_source`,
-            JSON.stringify(apiServicesData[key2])
-          );
+    test.each(
+      Object.keys(apiServicesData) as APIServicesItemsKey[]
+    )('should get services items from API - services items entry has no expiration in localstorage ($0)', async (key: APIServicesItemsKey) => {
+      // Given
+      for (const key2 of Object.keys(apiServicesData) as APIServicesItemsKey[]) {
+        if (key2 === key) {
+          const { expires_at, ...entry } = { ...apiServicesData[key2] }; // old entry, no expiration date
+          window.localStorage.setItem(`${key2}_services_source`, JSON.stringify(entry));
+          continue;
         }
-        const responseData: NullableAPIServicesItems = {
-          internal: null,
-        };
-        responseData[key] = apiServicesData[key];
-        const spy = vi
-          .spyOn(globalThis, 'fetch')
-          .mockResolvedValue(
-            new Response(JSON.stringify(responseData), { status: 200 })
-          );
-
-        // When
-        const result = await retrieveServices(new Date('2025-11-01T12:00:00Z'));
-
-        // Then
-        expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `/api/v1/users/data/services?filter-items=${key}`
-        );
-        expect(result).toEqual({
-          internal: apiServicesData.internal.items,
-        });
-        expect(window.localStorage.getItem(`${key}_services_source`)).toEqual(
-          JSON.stringify(apiServicesData[key])
+        window.localStorage.setItem(
+          `${key2}_services_source`,
+          JSON.stringify(apiServicesData[key2])
         );
       }
+      const responseData: NullableAPIServicesItems = {
+        internal: null,
+      };
+      responseData[key] = apiServicesData[key];
+      const spy = vi
+        .spyOn(globalThis, 'fetch')
+        .mockResolvedValue(new Response(JSON.stringify(responseData), { status: 200 }));
+      window.localStorage.setItem('services_minisearch', 'some data');
+
+      // When
+      const result = await retrieveServices(new Date('2025-11-01T12:00:00Z'));
+
+      // Then
+      expect(spy).toHaveBeenCalledExactlyOnceWith(
+        `/api/v1/users/data/services?filter-items=${key}`
+      );
+      expect(result).toEqual({
+        internal: apiServicesData.internal.items,
+      });
+      expect(window.localStorage.getItem(`${key}_services_source`)).toEqual(
+        JSON.stringify(apiServicesData[key])
+      );
+      expect(window.localStorage.getItem('services_minisearch')).toBeNull();
     });
 
-    test('should get services items from API - services items entry has no expiration in localstorage - with error', async () => {
-      for (const key of Object.keys(apiServicesData) as APIServicesItemsKey[]) {
-        // Given
-        const apiServicesData2: NullableAPIServicesItems = {
-          internal: null,
-        };
-        for (const key2 of Object.keys(apiServicesData) as APIServicesItemsKey[]) {
-          if (key2 === key) {
-            const { expires_at, ...entry } = { ...apiServicesData[key2] }; // old entry, no expiration date
-            apiServicesData2[key2] = entry as (typeof apiServicesData)[typeof key2];
-            window.localStorage.setItem(
-              `${key2}_services_source`,
-              JSON.stringify(apiServicesData2[key2])
-            );
-            continue;
-          }
-          apiServicesData2[key2] = apiServicesData[key2];
+    test.each(
+      Object.keys(apiServicesData) as APIServicesItemsKey[]
+    )('should get services items from API - services items entry has no expiration in localstorage - with error ($0)', async (key: APIServicesItemsKey) => {
+      // Given
+      const apiServicesData2: NullableAPIServicesItems = {
+        internal: null,
+      };
+      for (const key2 of Object.keys(apiServicesData) as APIServicesItemsKey[]) {
+        if (key2 === key) {
+          const { expires_at, ...entry } = { ...apiServicesData[key2] }; // old entry, no expiration date
+          apiServicesData2[key2] = entry as (typeof apiServicesData)[typeof key2];
           window.localStorage.setItem(
             `${key2}_services_source`,
             JSON.stringify(apiServicesData2[key2])
           );
+          continue;
         }
-        const responseData: NullableAPIServicesItems = {
-          internal: null,
-        };
-        const { ...entry } = apiServicesData[key];
-        entry.status = 'failed';
-        responseData[key] = entry;
-        const spy = vi
-          .spyOn(globalThis, 'fetch')
-          .mockResolvedValue(
-            new Response(JSON.stringify(responseData), { status: 200 })
-          );
-
-        // When
-        const result = await retrieveServices(new Date('2025-11-01T12:00:00Z'));
-
-        // Then
-        expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `/api/v1/users/data/services?filter-items=${key}`
-        );
-        expect(result).toEqual({
-          internal: apiServicesData2.internal?.items,
-        });
-        expect(window.localStorage.getItem(`${key}_services_source`)).toEqual(
-          JSON.stringify(apiServicesData2[key])
+        apiServicesData2[key2] = apiServicesData[key2];
+        window.localStorage.setItem(
+          `${key2}_services_source`,
+          JSON.stringify(apiServicesData2[key2])
         );
       }
+      const responseData: NullableAPIServicesItems = {
+        internal: null,
+      };
+      const { ...entry } = apiServicesData[key];
+      entry.status = 'failed';
+      responseData[key] = entry;
+      const spy = vi
+        .spyOn(globalThis, 'fetch')
+        .mockResolvedValue(new Response(JSON.stringify(responseData), { status: 200 }));
+      window.localStorage.setItem('services_minisearch', 'some data');
+
+      // When
+      const result = await retrieveServices(new Date('2025-11-01T12:00:00Z'));
+
+      // Then
+      expect(spy).toHaveBeenCalledExactlyOnceWith(
+        `/api/v1/users/data/services?filter-items=${key}`
+      );
+      expect(result).toEqual({
+        internal: apiServicesData2.internal?.items,
+      });
+      expect(window.localStorage.getItem(`${key}_services_source`)).toEqual(
+        JSON.stringify(apiServicesData2[key])
+      );
+      expect(window.localStorage.getItem('services_minisearch')).not.toBeNull();
     });
 
-    test('should get services items from API - services items entry is expired in localstorage', async () => {
-      for (const key of Object.keys(apiServicesData) as APIServicesItemsKey[]) {
-        // Given
-        for (const key2 of Object.keys(apiServicesData) as APIServicesItemsKey[]) {
-          if (key2 === key) {
-            const entry = { ...apiServicesData[key2] };
-            entry.expires_at = new Date('2025-11-01T11:59:59Z'); // expired
-            window.localStorage.setItem(
-              `${key2}_services_source`,
-              JSON.stringify(entry)
-            );
-            continue;
-          }
-          window.localStorage.setItem(
-            `${key2}_services_source`,
-            JSON.stringify(apiServicesData[key2])
-          );
+    test.each(
+      Object.keys(apiServicesData) as APIServicesItemsKey[]
+    )('should get services items from API - services items entry is expired in localstorage ($0)', async (key: APIServicesItemsKey) => {
+      // Given
+      for (const key2 of Object.keys(apiServicesData) as APIServicesItemsKey[]) {
+        if (key2 === key) {
+          const entry = { ...apiServicesData[key2] };
+          entry.expires_at = new Date('2025-11-01T11:59:59Z'); // expired
+          window.localStorage.setItem(`${key2}_services_source`, JSON.stringify(entry));
+          continue;
         }
-        const responseData: NullableAPIServicesItems = {
-          internal: null,
-        };
-        responseData[key] = apiServicesData[key];
-        const spy = vi
-          .spyOn(globalThis, 'fetch')
-          .mockResolvedValue(
-            new Response(JSON.stringify(responseData), { status: 200 })
-          );
-
-        // When
-        const result = await retrieveServices(new Date('2025-11-01T12:00:00Z'));
-
-        // Then
-        expect(spy).toHaveBeenCalledExactlyOnceWith(
-          `/api/v1/users/data/services?filter-items=${key}`
-        );
-        expect(result).toEqual({
-          internal: apiServicesData.internal.items,
-        });
-        expect(window.localStorage.getItem(`${key}_services_source`)).toEqual(
-          JSON.stringify(apiServicesData[key])
+        window.localStorage.setItem(
+          `${key2}_services_source`,
+          JSON.stringify(apiServicesData[key2])
         );
       }
+      const responseData: NullableAPIServicesItems = {
+        internal: null,
+      };
+      responseData[key] = apiServicesData[key];
+      const spy = vi
+        .spyOn(globalThis, 'fetch')
+        .mockResolvedValue(new Response(JSON.stringify(responseData), { status: 200 }));
+      window.localStorage.setItem('services_minisearch', 'some data');
+
+      // When
+      const result = await retrieveServices(new Date('2025-11-01T12:00:00Z'));
+
+      // Then
+      expect(spy).toHaveBeenCalledExactlyOnceWith(
+        `/api/v1/users/data/services?filter-items=${key}`
+      );
+      expect(result).toEqual({
+        internal: apiServicesData.internal.items,
+      });
+      expect(window.localStorage.getItem(`${key}_services_source`)).toEqual(
+        JSON.stringify(apiServicesData[key])
+      );
+      expect(window.localStorage.getItem('services_minisearch')).toBeNull();
     });
 
-    test('should get services items from API - services items entry is not expired in localstorage', async () => {
-      for (const key of Object.keys(apiServicesData) as APIServicesItemsKey[]) {
-        // Given
-        for (const key2 of Object.keys(apiServicesData) as APIServicesItemsKey[]) {
-          if (key2 === key) {
-            const entry = { ...apiServicesData[key2] };
-            entry.expires_at = new Date('2025-11-01T12:00:00Z'); // not yet expired
-            window.localStorage.setItem(
-              `${key2}_services_source`,
-              JSON.stringify(entry)
-            );
-            continue;
-          }
-          window.localStorage.setItem(
-            `${key2}_services_source`,
-            JSON.stringify(apiServicesData[key2])
-          );
+    test.each(
+      Object.keys(apiServicesData) as APIServicesItemsKey[]
+    )('should get services items from API - services items entry is not expired in localstorage ($0)', async (key: APIServicesItemsKey) => {
+      // Given
+      for (const key2 of Object.keys(apiServicesData) as APIServicesItemsKey[]) {
+        if (key2 === key) {
+          const entry = { ...apiServicesData[key2] };
+          entry.expires_at = new Date('2025-11-01T12:00:00Z'); // not yet expired
+          window.localStorage.setItem(`${key2}_services_source`, JSON.stringify(entry));
+          continue;
         }
-
-        // When
-        const result = await retrieveServices(new Date('2025-11-01T12:00:00Z'));
-
-        // Then
-        expect(result).toEqual({
-          internal: apiServicesData.internal.items,
-        });
+        window.localStorage.setItem(
+          `${key2}_services_source`,
+          JSON.stringify(apiServicesData[key2])
+        );
       }
+      window.localStorage.setItem('services_minisearch', 'some data');
+
+      // When
+      const result = await retrieveServices(new Date('2025-11-01T12:00:00Z'));
+
+      // Then
+      expect(result).toEqual({
+        internal: apiServicesData.internal.items,
+      });
+      expect(window.localStorage.getItem('services_minisearch')).not.toBeNull();
     });
   });
 
