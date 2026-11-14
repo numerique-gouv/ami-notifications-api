@@ -43,7 +43,6 @@ class FollowupSubItem:
 
     title: str
     subheading: str
-    description: str
     last_message_title: str
     icon: str
     external_url: str | None
@@ -156,13 +155,6 @@ class NotificationsSubItem:
         return ""
 
     @property
-    def description(self):
-        description = self.last_notification.content_body
-        if self.last_notification.content_private_body:
-            description += f"\n\n{self.last_notification.content_private_body}"
-        return description
-
-    @property
     def last_message_title(self):
         if self.last_notification.content_title:
             return self.last_notification.content_title
@@ -209,7 +201,6 @@ class NotificationsSubItem:
             "events": self.events,
             "title": self.title,
             "subheading": self.subheading,
-            "description": self.description,
             "last_message_title": self.last_message_title,
             "icon": self.icon,
             "external_url": self.external_url,
