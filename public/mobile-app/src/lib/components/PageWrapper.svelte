@@ -10,9 +10,10 @@
     content: Snippet;
     footer: Snippet;
     header?: Snippet;
+    bottomAnnex?: Snippet;
     className?: string;
   }
-  let { content, footer, header, className = '' }: Props = $props();
+  let { content, footer, header, bottomAnnex, className = '' }: Props = $props();
 </script>
 
 <div class="wrapper content-header-fixe fr-container fr-pb-14w { className }">
@@ -21,6 +22,9 @@
   {/if}
   <div class="content">{@render content()}</div>
   <div class="footer fr-p-2w">{@render footer()}</div>
+  {#if bottomAnnex}
+    {@render bottomAnnex()}
+  {/if}
 </div>
 
 <style>

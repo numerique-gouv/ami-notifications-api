@@ -102,18 +102,7 @@
       <ul class="fr-raw-list splide__list">
         {#each items as item, i}
           <li aria-label={item.description} class="splide__slide">
-            <AutoPromoItem
-              item={item}
-              className=""
-              modalId="auto-promo-item-{i}-modal"
-            />
-            {#if item.component_modal_name}
-              <AutoPromoItemModal
-                item_component_modal_name="{item.component_modal_name}"
-                modalId="auto-promo-item-{i}-modal"
-                onClose={onCloseModal}
-              />
-            {/if}
+            <AutoPromoItem item={item} className="" modalId="auto-mea-item-{i}-modal" />
           </li>
         {/each}
       </ul>
@@ -126,17 +115,20 @@
     <AutoPromoItem
       item={firstItem}
       className="am-blue--arrow"
-      modalId="auto-promo-item-0-modal"
+      modalId="auto-mea-item-0-modal"
     />
-    {#if firstItem.component_modal_name}
-      <AutoPromoItemModal
-        item_component_modal_name="{firstItem.component_modal_name}"
-        modalId="auto-promo-item-0-modal"
-        onClose={onCloseModal}
-      />
-    {/if}
   </div>
 {/if}
+
+{#each items as item, i}
+  {#if item.component_modal_name}
+    <AutoPromoItemModal
+      item_component_modal_name="{item.component_modal_name}"
+      modalId="auto-mea-item-{i}-modal"
+      onClose={onCloseModal}
+    />
+  {/if}
+{/each}
 
 <style lang="scss">
   .auto-mea-container {
