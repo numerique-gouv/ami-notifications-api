@@ -18,9 +18,7 @@
 
   let { fromPage }: Props = $props();
 
-  let backUrl: string = $derived(
-    fromPage === 'welcome' ? '/#/welcome/zones' : '/#/preferences'
-  );
+  let backUrl: string = '/#/preferences';
 
   const refreshPreferences = () => {
     if (!userStore.connected) {
@@ -88,12 +86,8 @@
     refreshPreferences();
   };
 
-  const goToNotificationsWelcomePage = () => {
-    AMIGoto('/#/notifications-welcome-page');
-    /* to be replaced by:
-     * AMIGoto('/#/welcome/notifications')
-     * when app mobile is ready to intercept this new url
-     */
+  const goToHome = () => {
+    AMIGoto('/');
   };
 </script>
 
@@ -163,7 +157,7 @@
       <button
         type="button"
         class="fr-btn fr-btn--tertiary-no-outline fr-icon-arrow-right-line fr-btn--icon-right am-btn-w100"
-        onclick={goToNotificationsWelcomePage}
+        onclick={goToHome}
         data-testid="skip-button"
       >
         Passer
