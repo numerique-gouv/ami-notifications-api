@@ -408,12 +408,3 @@ def test_read_notification_without_auth(
         f"/api/v1/users/notification/{notification.id}/read",
         method="patch",
     )
-
-
-def test_notification_key(
-    app,
-    settings,
-) -> None:
-    settings.VAPID_APPLICATION_SERVER_KEY = "some-application-key"
-    response = app.get("/notification-key", status=200)
-    assert response.text == "some-application-key"

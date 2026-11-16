@@ -4,115 +4,15 @@ import datetime
 from unittest.mock import Mock
 
 import pytest
-import webpush as webpush_lib
 from channels.testing.websocket import WebsocketCommunicator
 from django.test import TestCase
 from django.utils.timezone import now
-from pytest_httpx import HTTPXMock
 from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED
 
 from ami.notification.models import Notification
 from ami.partner.models import Partner
 from ami.tests.utils import get_from_stream
 from ami.user.models import Consent, Registration, User
-
-
-@pytest.mark.django_db()
-def test_create_webpush_notification(
-    app,
-    webpush_notification: Notification,
-    webpush_registration: Registration,
-    consent: Consent,
-    partner: Partner,
-    partner_auth: dict[str, str],
-    httpx_mock: HTTPXMock,
-    websocket: WebsocketCommunicator,
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    # Make sure we don't even try sending a notification to a push server.
-    httpx_mock.add_response(url=webpush_registration.subscription["endpoint"])
-
-    # Capture the plaintext message passed to the webpush provider before encryption.
-    captured_push_messages: list[str] = []
-    original_webpush_get = webpush_lib.WebPush.get
-
-    def capturing_webpush_get(self, message, **kwargs):
-        captured_push_messages.append(message)
-        return original_webpush_get(self, message=message, **kwargs)
-
-    monkeypatch.setattr(webpush_lib.WebPush, "get", capturing_webpush_get)
-
-    valid_until = now() + datetime.timedelta(seconds=1)
-    notification_data = {
-        "recipient_fc_hash": webpush_registration.user.fc_hash,
-        "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
-        "content_body": "Merci d'avoir initié votre demande",
-        "content_private_body": "Ceci est privé et ne devrait jamais être `push`é",
-        "content_icon": "foo",
-        "item_type": "OTV",
-        "item_id": "A-5-JGBJ5VMOY",
-        "item_status_label": "Brouillon",
-        "item_generic_status": "new",
-        "item_milestone_start_date": "2025-12-26T23:00:00.000Z",
-        "item_milestone_end_date": "2026-01-02T23:00:00.000Z",
-        "item_external_url": "http://otv/a-5-jgbj5vmoy",
-        "item_canal": "ami",
-        "send_date": "2025-11-27T10:55:00.000Z",
-        "valid_until": valid_until.isoformat(),
-        "try_push": True,
-    }
-
-    response = app.post_json("/api/v1/notifications", notification_data, headers=partner_auth)
-    assert response.status_code == HTTP_201_CREATED
-    notification_count = Notification.objects.count()
-    assert notification_count == 2
-    notification2 = Notification.objects.select_related("user").get(
-        id=response.json["notification_id"]
-    )
-    assert notification2.user.id == webpush_registration.user.id
-    assert notification2.content_body == "Merci d'avoir initié votre demande"
-    assert notification2.content_private_body == "Ceci est privé et ne devrait jamais être `push`é"
-    assert notification2.content_title == "Brouillon de nouvelle demande de démarche d'OTV"
-    assert notification2.content_subheading is None
-    assert notification2.content_icon == "foo"
-    assert notification2.content_link == "http://otv/a-5-jgbj5vmoy"
-    assert notification2.item_type == "OTV"
-    assert notification2.item_id == "A-5-JGBJ5VMOY"
-    assert notification2.item_parent_partner is None
-    assert notification2.item_parent_type is None
-    assert notification2.item_parent_id is None
-    assert notification2.item_status_label == "Brouillon"
-    assert notification2.item_generic_status == "new"
-    assert notification2.item_milestone_start_date == datetime.datetime(
-        2025, 12, 26, 23, 0, tzinfo=datetime.timezone.utc
-    )
-    assert notification2.item_milestone_end_date == datetime.datetime(
-        2026, 1, 2, 23, 0, tzinfo=datetime.timezone.utc
-    )
-    assert notification2.item_canal == "ami"
-    assert notification2.item_is_archived is None
-    assert notification2.event_date == datetime.datetime(
-        2025, 11, 27, 10, 55, tzinfo=datetime.timezone.utc
-    )
-    assert notification2.valid_until == valid_until
-    assert notification2.partner_id == partner.id
-    assert notification2.try_push is True
-    assert notification2.send_status is True
-    assert notification2.read is False
-    assert response.json == {
-        "notification_id": str(notification2.id),
-        "notification_send_status": True,
-    }
-    res = asyncio.get_event_loop().run_until_complete(get_from_stream(websocket, 1))
-    assert res[0] == {
-        "user_id": str(webpush_registration.user.id),
-        "id": str(notification2.id),
-        "event": "created",
-    }
-    request = httpx_mock.get_request()
-    assert request is not None
-    assert len(captured_push_messages) == 1
-    assert notification_data["content_private_body"] not in captured_push_messages[0]
 
 
 @pytest.mark.django_db
@@ -128,6 +28,7 @@ def test_create_mobile_notification(
 ) -> None:
     send_mock = Mock()
     monkeypatch.setattr("firebase_admin.messaging.send", send_mock)
+
     notification_data = {
         "recipient_fc_hash": mobile_registration.user.fc_hash,
         "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
@@ -194,14 +95,13 @@ def test_create_mobile_notification(
 @pytest.mark.django_db
 def test_create_notification_no_consent(
     app,
-    webpush_registration: Registration,
+    mobile_registration: Registration,
     partner: Partner,
     partner_dn: Partner,
     partner_auth: dict[str, str],
-    httpx_mock: HTTPXMock,
 ) -> None:
     notification_data = {
-        "recipient_fc_hash": webpush_registration.user.fc_hash,
+        "recipient_fc_hash": mobile_registration.user.fc_hash,
         "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
         "content_body": "Merci d'avoir initié votre demande",
         "content_icon": "foo",
@@ -222,9 +122,9 @@ def test_create_notification_no_consent(
     assert response.json == {"error": "Consent not found"}
     assert Notification.objects.count() == 0
 
-    Consent.objects.create(user=webpush_registration.user, partner=partner)
+    Consent.objects.create(user=mobile_registration.user, partner=partner)
     Consent.objects.create(
-        user=webpush_registration.user, partner=partner_dn, consent_datetime=now()
+        user=mobile_registration.user, partner=partner_dn, consent_datetime=now()
     )
     response = app.post_json(
         "/api/v1/notifications", notification_data, headers=partner_auth, status=404
@@ -236,13 +136,16 @@ def test_create_notification_no_consent(
 @pytest.mark.django_db
 def test_create_notification_dont_try_push(
     app,
-    webpush_registration: Registration,
+    mobile_registration: Registration,
     consent: Consent,
     partner_auth: dict[str, str],
-    httpx_mock: HTTPXMock,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    send_mock = Mock()
+    monkeypatch.setattr("firebase_admin.messaging.send", send_mock)
+
     notification_data = {
-        "recipient_fc_hash": webpush_registration.user.fc_hash,
+        "recipient_fc_hash": mobile_registration.user.fc_hash,
         "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
         "content_body": "Merci d'avoir initié votre demande",
         "content_icon": "foo",
@@ -263,25 +166,24 @@ def test_create_notification_dont_try_push(
     notification = Notification.objects.get()
     assert notification.try_push is False
     assert notification.send_status is True
-    assert not httpx_mock.get_request()
+    assert not send_mock.called
 
 
 @pytest.mark.django_db()
-def test_create_webpush_notification_no_valid_until(
+def test_create_mobile_notification_no_valid_until(
     app,
-    webpush_notification: Notification,
-    webpush_registration: Registration,
+    mobile_notification: Notification,
+    mobile_registration: Registration,
     consent: Consent,
     partner_auth: dict[str, str],
-    httpx_mock: HTTPXMock,
     websocket: WebsocketCommunicator,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    # Make sure we don't even try sending a notification to a push server.
-    httpx_mock.add_response(url=webpush_registration.subscription["endpoint"])
+    send_mock = Mock()
+    monkeypatch.setattr("firebase_admin.messaging.send", send_mock)
 
     notification_data = {
-        "recipient_fc_hash": webpush_registration.user.fc_hash,
+        "recipient_fc_hash": mobile_registration.user.fc_hash,
         "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
         "content_body": "Merci d'avoir initié votre demande",
         "content_private_body": "Ceci est privé et ne devrait jamais être `push`é",
@@ -303,24 +205,26 @@ def test_create_webpush_notification_no_valid_until(
     }
     res = asyncio.get_event_loop().run_until_complete(get_from_stream(websocket, 1))
     assert res[0] == {
-        "user_id": str(webpush_registration.user.id),
+        "user_id": str(mobile_registration.user.id),
         "id": str(notification2.id),
         "event": "created",
     }
-    request = httpx_mock.get_request()
-    assert request is not None
+    assert send_mock.called
 
 
 @pytest.mark.django_db
 def test_create_notification_outdated_valid_until(
     app,
-    webpush_registration: Registration,
+    mobile_registration: Registration,
     consent: Consent,
     partner_auth: dict[str, str],
-    httpx_mock: HTTPXMock,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    send_mock = Mock()
+    monkeypatch.setattr("firebase_admin.messaging.send", send_mock)
+
     notification_data = {
-        "recipient_fc_hash": webpush_registration.user.fc_hash,
+        "recipient_fc_hash": mobile_registration.user.fc_hash,
         "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
         "content_body": "Merci d'avoir initié votre demande",
         "content_icon": "foo",
@@ -342,7 +246,7 @@ def test_create_notification_outdated_valid_until(
     notification = Notification.objects.get()
     assert notification.try_push is True
     assert notification.send_status is True
-    assert not httpx_mock.get_request()
+    assert not send_mock.called
 
 
 @pytest.mark.django_db
@@ -350,9 +254,11 @@ def test_create_notification_user_does_not_exist_consent_disabled(
     app,
     partner: Partner,
     partner_auth: dict[str, str],
-    httpx_mock: HTTPXMock,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    send_mock = Mock()
+    monkeypatch.setattr("firebase_admin.messaging.send", send_mock)
+
     partner.consent_is_enabled = False
     partner.save()
 
@@ -415,14 +321,13 @@ def test_create_notification_user_does_not_exist_consent_disabled(
         "notification_id": str(notification.id),
         "notification_send_status": False,
     }
-    assert not httpx_mock.get_request()
+    assert not send_mock.called
 
 
 @pytest.mark.django_db
 def test_create_notification_user_does_not_exist(
     app,
     partner_auth: dict[str, str],
-    httpx_mock: HTTPXMock,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     notification_data = {
@@ -451,12 +356,14 @@ def test_create_notification_user_does_not_exist(
 def test_create_notification_user_never_seen_consent_disabled(
     app,
     never_seen_user: User,
-    webpush_registration: Registration,
+    mobile_registration: Registration,
     partner: Partner,
     partner_auth: dict[str, str],
-    httpx_mock: HTTPXMock,
     monkeypatch,
 ) -> None:
+    send_mock = Mock()
+    monkeypatch.setattr("firebase_admin.messaging.send", send_mock)
+
     partner.consent_is_enabled = False
     partner.save()
 
@@ -518,20 +425,22 @@ def test_create_notification_user_never_seen_consent_disabled(
         "notification_id": str(notification.id),
         "notification_send_status": False,
     }
-    assert not httpx_mock.get_request()
+    assert not send_mock.called
 
 
 @pytest.mark.django_db
 def test_create_notification_user_never_seen(
     app,
     never_seen_user: User,
-    webpush_registration: Registration,
+    mobile_registration: Registration,
     partner: Partner,
     partner_dn: Partner,
     partner_auth: dict[str, str],
-    httpx_mock: HTTPXMock,
     monkeypatch,
 ) -> None:
+    send_mock = Mock()
+    monkeypatch.setattr("firebase_admin.messaging.send", send_mock)
+
     notification_data = {
         "recipient_fc_hash": never_seen_user.fc_hash,
         "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
@@ -603,39 +512,7 @@ def test_create_notification_user_never_seen(
         "notification_id": str(notification.id),
         "notification_send_status": False,
     }
-    assert not httpx_mock.get_request()
-
-
-@pytest.mark.django_db
-def test_create_notification_when_registration_gone(
-    app,
-    webpush_registration: Registration,
-    consent: Consent,
-    partner_auth: dict[str, str],
-    httpx_mock: HTTPXMock,
-) -> None:
-    """When somebody revokes a PUSH authorization (a push registration), then trying to
-    push on this registration will be answered with a status 410 GONE.
-
-    This shouldn't fail the notification process.
-    """
-    # Make sure we don't even try sending a notification to a push server.
-    httpx_mock.add_response(url=webpush_registration.subscription["endpoint"], status_code=410)
-    notification_data = {
-        "recipient_fc_hash": webpush_registration.user.fc_hash,
-        "item_type": "OTV",
-        "item_id": "A-5-JGBJ5VMOY",
-        "item_status_label": "Brouillon",
-        "item_generic_status": "new",
-        "send_date": "2025-11-27T10:55:00.000Z",
-        "content_title": "Brouillon de nouvelle demande de démarche d'OTV",
-        "content_body": "Merci d'avoir initié votre demande",
-    }
-    with TestCase.captureOnCommitCallbacks(execute=True):
-        response = app.post_json("/api/v1/notifications", notification_data, headers=partner_auth)
-    assert response.status_code == HTTP_201_CREATED
-    assert Notification.objects.count() == 1
-    assert httpx_mock.get_request()
+    assert not send_mock.called
 
 
 @pytest.mark.django_db
@@ -644,8 +521,11 @@ def test_create_notification_no_registration(
     user: User,
     consent: Consent,
     partner_auth: dict[str, str],
-    httpx_mock: HTTPXMock,
+    monkeypatch,
 ) -> None:
+    send_mock = Mock()
+    monkeypatch.setattr("firebase_admin.messaging.send", send_mock)
+
     notification_data = {
         "recipient_fc_hash": user.fc_hash,
         "item_type": "OTV",
@@ -659,7 +539,7 @@ def test_create_notification_no_registration(
     response = app.post_json("/api/v1/notifications", notification_data, headers=partner_auth)
     assert response.status_code == HTTP_201_CREATED
     assert Notification.objects.count() == 1
-    assert not httpx_mock.get_request()
+    assert not send_mock.called
 
 
 @pytest.mark.django_db
@@ -773,6 +653,7 @@ def test_create_notification_duplicated_payload_with_push(
 ) -> None:
     send_mock = Mock()
     monkeypatch.setattr("ami.notification.push.messaging.send", send_mock)
+
     notification_data = {
         "recipient_fc_hash": mobile_registration.user.fc_hash,
         "item_type": "OTV",

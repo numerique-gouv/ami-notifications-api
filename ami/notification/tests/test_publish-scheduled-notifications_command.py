@@ -1,5 +1,6 @@
 import asyncio
 import datetime
+from unittest.mock import Mock
 
 import pytest
 from channels.testing.websocket import WebsocketCommunicator
@@ -16,13 +17,16 @@ from ami.user.models import Registration, User
 @pytest.mark.django_db
 def test_command_publish_scheduled_notifications(
     app,
+    settings,
     websocket: WebsocketCommunicator,
-    webpush_registration: Registration,
+    mobile_registration: Registration,
     partner: Partner,
-    httpx_mock: HTTPXMock,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    user = webpush_registration.user
-    httpx_mock.add_response(url=webpush_registration.subscription["endpoint"])
+    send_mock = Mock()
+    monkeypatch.setattr("firebase_admin.messaging.send", send_mock)
+
+    user = mobile_registration.user
 
     # no scheduled notifications, no effects
     assert ScheduledNotification.objects.count() == 0
@@ -102,33 +106,14 @@ def test_command_publish_scheduled_notifications(
         "id": str(notification.id),
         "event": "created",
     }
-    assert httpx_mock.get_request()
 
-
-@pytest.mark.django_db
-def test_command_publish_scheduled_notification_when_registration_gone(
-    app,
-    webpush_registration: Registration,
-    partner: Partner,
-    httpx_mock: HTTPXMock,
-) -> None:
-    user = webpush_registration.user
-    # Make sure we don't even try sending a notification to a push server.
-    httpx_mock.add_response(url=webpush_registration.subscription["endpoint"], status_code=410)
-
-    ScheduledNotification.objects.create(
-        user=user,
-        content_title="title",
-        content_body="body",
-        content_icon="icon",
-        reference="reference",
-        scheduled_at=now(),
-    )
-
-    call_command("publish-scheduled-notifications")
-
-    assert Notification.objects.count() == 1
-    assert httpx_mock.get_request()
+    send_mock.assert_called_once()
+    call_args = send_mock.call_args
+    message = call_args[0][0]  # First positional argument
+    assert message.notification.title == "title 3"
+    assert message.notification.body == "body 3"
+    assert message.token == mobile_registration.subscription["fcm_token"]
+    assert message.data["app_url"] == settings.PUBLIC_APP_URL
 
 
 @pytest.mark.django_db

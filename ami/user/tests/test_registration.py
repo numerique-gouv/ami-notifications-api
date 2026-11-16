@@ -212,19 +212,19 @@ def test_unregister_without_auth(app, user: User) -> None:
 
 
 @pytest.mark.django_db
-def test_list_registrations(app, webpush_registration: Registration) -> None:
-    login(app, webpush_registration.user)
+def test_list_registrations(app, mobile_registration: Registration) -> None:
+    login(app, mobile_registration.user)
 
-    Registration.objects.create(user=webpush_registration.user, deleted_at=now())
+    Registration.objects.create(user=mobile_registration.user, deleted_at=now())
 
     response = app.get("/api/v1/users/registrations", status=200)
     registrations = response.json
     assert len(registrations) == 1
     assert set(response.json[0].keys()) == {"id", "user_id", "subscription", "created_at"}
-    assert response.json[0]["id"] == str(webpush_registration.id)
-    assert response.json[0]["user_id"] == str(webpush_registration.user.id)
-    assert response.json[0]["subscription"] == webpush_registration.subscription
-    assert response.json[0]["created_at"] == webpush_registration.created_at.isoformat().replace(
+    assert response.json[0]["id"] == str(mobile_registration.id)
+    assert response.json[0]["user_id"] == str(mobile_registration.user.id)
+    assert response.json[0]["subscription"] == mobile_registration.subscription
+    assert response.json[0]["created_at"] == mobile_registration.created_at.isoformat().replace(
         "+00:00", "Z"
     )
 

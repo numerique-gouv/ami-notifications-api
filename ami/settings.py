@@ -10,7 +10,6 @@ from sentry_sdk.integrations.django import DjangoIntegration
 
 import ami.utils.csp
 import ami.utils.sentry
-import vapid_keys
 
 CONFIG = {
     **dotenv_values(".env"),
@@ -28,9 +27,6 @@ CONFIG = {
     **dev_env_vars,
     **os.environ,  # override loaded values with environment variables
 }
-
-# Generate VAPID keys for Webpush if absent
-CONFIG = vapid_keys.initialize(CONFIG)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -446,11 +442,6 @@ CHANNEL_LAYERS = {
         "CONFIG": postgres_database,
     }
 }
-
-# VAPID keys for webpush
-VAPID_APPLICATION_SERVER_KEY = CONFIG["VAPID_APPLICATION_SERVER_KEY"]
-VAPID_PUBLIC_KEY = CONFIG["VAPID_PUBLIC_KEY"]
-VAPID_PRIVATE_KEY = CONFIG["VAPID_PRIVATE_KEY"]
 
 # AppIDs for iOS
 IOS_APP_IDS = CONFIG["IOS_APP_IDS"].split(",") if CONFIG.get("IOS_APP_IDS") else []
