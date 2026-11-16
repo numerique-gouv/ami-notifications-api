@@ -18,6 +18,7 @@
   import { buildFollowup } from '$lib/followup';
   import {
     countUnreadNotifications,
+    countUnreadNotificationsFromStore,
     notificationEventsSocket,
   } from '$lib/notifications';
   import { buildPartners, type Partners } from '$lib/partners';
@@ -45,8 +46,9 @@
   let personalDataConsent: PersonalDataConsent = $state() as PersonalDataConsent;
   let hasAnyConsents: boolean = $state(false);
 
-  const waitUnreadNotifications = async () => {
-    unreadNotificationsCount = await countUnreadNotifications();
+  const updateUnreadNotificationsCount = async () => {
+    const count = await countUnreadNotifications();
+    unreadNotificationsCount = count;
   };
 
   const buildConsentsAndPartners = async () => {
@@ -95,6 +97,9 @@
       firstName = userStore.connected?.getFirstName() || '';
       today = new Date();
 
+      unreadNotificationsCount = countUnreadNotificationsFromStore();
+      updateUnreadNotificationsCount();
+
       const onMessage = async () => {
         console.log(
           'New message received from the websocket, counting unread notifications'
@@ -136,16 +141,13 @@
             class="fr-btn fr-icon-notification-3-line fr-btn--tertiary-no-outline"
             onclick={() => AMIGoto("/#/notifications")}
           >
-            Voir les notifications
-            {#await waitUnreadNotifications() then gotUnreadNotifications}
-              ({unreadNotificationsCount})
-              <div
-                class="fr-text--bold count-number-wrapper"
-                data-content="{unreadNotificationsCount}"
-              >
-                {unreadNotificationsCount}
-              </div>
-            {/await}
+            Voir les notifications ({unreadNotificationsCount})
+            <div
+              class="fr-text--bold count-number-wrapper"
+              data-content="{unreadNotificationsCount}"
+            >
+              {unreadNotificationsCount}
+            </div>
           </button>
         </div>
       </div>

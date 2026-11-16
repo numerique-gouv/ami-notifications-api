@@ -6,6 +6,7 @@ import type { AppNotification } from '$lib/notifications';
 import * as notificationMethods from '$lib/notifications';
 import {
   countUnreadNotifications,
+  countUnreadNotificationsFromStore,
   disableNotificationsAtLogout,
   disableNotificationsForDesktop,
   enableNotifications,
@@ -128,6 +129,20 @@ describe('/notifications', () => {
       expect(result).toEqual(expectedNotifications);
       expect(spy).not.toHaveBeenCalled();
     });
+
+    test('should return empty list if localStorage is empty', async () => {
+      // Given
+      const expectedNotifications: AppNotification[] = [];
+      window.localStorage.removeItem('notifications');
+      const spy = vi.spyOn(globalThis, 'fetch');
+
+      // When
+      const result = await getNotificationsFromStore();
+
+      // Then
+      expect(result).toEqual(expectedNotifications);
+      expect(spy).not.toHaveBeenCalled();
+    });
   });
 
   describe('getNotifications', () => {
@@ -199,7 +214,25 @@ describe('/notifications', () => {
   });
 
   describe('countUnreadNotifications', () => {
-    test('should call getNotifications and filter unread notifications', async () => {
+    test('should call fetchAndStoreNotifications and return unread notifications', async () => {
+      // Given
+      const spy = vi.spyOn(notificationMethods, 'fetchAndStoreNotifications');
+      vi.spyOn(
+        notificationMethods,
+        'countUnreadNotificationsFromStore'
+      ).mockReturnValue(1);
+
+      // When
+      const result = await countUnreadNotifications();
+
+      // Then
+      expect(result).toEqual(1);
+      expect(spy).toHaveBeenCalled();
+    });
+  });
+
+  describe('countUnreadNotificationsFromStore', () => {
+    test('should call getNotificationsFromStore and filter unread notifications', async () => {
       // Given
       const notifications: AppNotification[] = [
         {
@@ -233,12 +266,12 @@ describe('/notifications', () => {
           read: true,
         },
       ];
-      vi.spyOn(notificationMethods, 'getNotifications').mockResolvedValue(
+      vi.spyOn(notificationMethods, 'getNotificationsFromStore').mockReturnValue(
         notifications
       );
 
       // When
-      const result = await countUnreadNotifications();
+      const result = countUnreadNotificationsFromStore();
 
       // Then
       expect(result).toEqual(1);
