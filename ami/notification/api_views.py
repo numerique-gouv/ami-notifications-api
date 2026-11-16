@@ -2,9 +2,7 @@ import logging
 import uuid
 from typing import cast
 
-from django.conf import settings
 from django.db.models import QuerySet
-from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.timezone import now
 from drf_spectacular.utils import extend_schema
@@ -65,11 +63,6 @@ def read_notification(
     notification.push(event=NotificationEvent.UPDATED)
 
     return Response(NotificationSerializer(notification).data)
-
-
-@api_view(["GET"])
-def get_notification_key(request: Request) -> HttpResponse:
-    return HttpResponse(settings.VAPID_APPLICATION_SERVER_KEY)
 
 
 @extend_schema(

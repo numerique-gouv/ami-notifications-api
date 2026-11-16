@@ -1,6 +1,3 @@
-import urllib.parse
-
-from django.conf import settings
 from rest_framework import serializers
 
 from ami.partner.models import Partner
@@ -17,38 +14,12 @@ class MobileAppSubscriptionSerializer(serializers.Serializer):
 class RegistrationSerializer(serializers.Serializer):
     id = serializers.UUIDField()
     user_id = serializers.UUIDField()
-    subscription = serializers.DictField()
+    subscription = MobileAppSubscriptionSerializer()
     created_at = serializers.DateTimeField()
 
 
-class WebPushKeysSerializer(serializers.Serializer):
-    auth = serializers.CharField()
-    p256dh = serializers.CharField()
-
-
-class WebPushSubscriptionSerializer(serializers.Serializer):
-    endpoint = serializers.URLField()
-    keys = WebPushKeysSerializer()
-
-
 class RegistrationCreateSerializer(serializers.Serializer):
-    subscription = serializers.DictField()
-
-    def validate_subscription(self, value):
-        endpoint = value.get("endpoint")
-        if endpoint:
-            endpoint_hostname = urllib.parse.urlparse(endpoint).hostname
-            if endpoint_hostname not in settings.PUSH_NOTIFICATIONS_ALLOWED_SERVICES:
-                raise serializers.ValidationError(
-                    "unknown push notification service",
-                    "invalid",
-                )
-        if "fcm_token" in value:
-            s = MobileAppSubscriptionSerializer(data=value)
-        else:
-            s = WebPushSubscriptionSerializer(data=value)
-        s.is_valid(raise_exception=True)
-        return s.validated_data
+    subscription = MobileAppSubscriptionSerializer()
 
 
 class ConsentResponseSerializer(serializers.Serializer):

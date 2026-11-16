@@ -72,9 +72,9 @@ def test_replicate_anonymized_notifications_processes_by_batch(notification: Not
 
 
 def test_anonymized_registration_does_not_have_user(
-    webpush_registration: Registration,
+    mobile_registration: Registration,
 ) -> None:
-    anonymized = AnonymizedRegistration.from_registration(webpush_registration)
+    anonymized = AnonymizedRegistration.from_registration(mobile_registration)
     assert hasattr(anonymized, "user_id")
     assert hasattr(anonymized, "created_at")
     assert hasattr(anonymized, "updated_at")
@@ -96,16 +96,9 @@ def test_replicate_anonymized_registrations(mobile_registration: Registration) -
     assert anonymized.subscription["fcm_token"] != mobile_registration.subscription["fcm_token"]
 
 
-def test_replicate_webapp_subscription(webpush_registration: Registration) -> None:
-    replicate_anonymized_registrations()
-
-    anonymized = AnonymizedRegistration.objects.get(id=webpush_registration.id)
-    assert anonymized.subscription == dict()
-
-
 def test_replicate_anonymized_registrations_processes_by_batch(
     user: User,
-    webpush_registration: Registration,
+    mobile_registration: Registration,
     mobileAppSubscription: dict,  # noqa: ARG001
 ) -> None:
     Registration.objects.create(user=user, subscription=mobileAppSubscription, deleted_at=now())

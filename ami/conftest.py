@@ -13,7 +13,6 @@ from cryptography.x509.oid import NameOID
 from django.contrib.auth.models import User as DjangoUser
 from django.core.cache import cache
 from django.utils.timezone import now
-from webpush.vapid import VAPID
 
 from ami.agent.models import Agent
 from ami.asgi import application
@@ -213,40 +212,6 @@ def partner_psl():
 def partner_auth(partner, settings) -> dict[str, str]:
     b64 = base64.b64encode(f"{partner.slug}:{partner.secret}".encode()).decode()
     return {"authorization": f"Basic {b64}"}
-
-
-@pytest.fixture(autouse=True)
-def patch_webpush(settings) -> None:
-    private_key, public_key, _ = VAPID.generate_keys()
-    settings.VAPID_PRIVATE_KEY = private_key.decode()
-    settings.VAPID_PUBLIC_KEY = public_key.decode()
-
-
-@pytest.fixture
-def webpush_notification(webpush_registration: Registration, partner: Partner) -> Notification:
-    return Notification.objects.create(
-        user_id=webpush_registration.user.id,
-        content_body="Hello notification",
-        content_title="Notification title",
-        partner=partner,
-    )
-
-
-@pytest.fixture
-def webpush_registration(user: User, webpushsubscription: dict[str, Any]) -> Registration:
-    return Registration.objects.create(user=user, subscription=webpushsubscription)
-
-
-@pytest.fixture
-async def webpushsubscription() -> dict[str, Any]:
-    subscription = {
-        "endpoint": "https://fcm.googleapis.com/foobar",
-        "keys": {
-            "auth": "ribfIxhEOtCZ0lkcbB4yCg",
-            "p256dh": "BGsTJAJDhGijvPLi0DVPHB86MGLmW1Y6VzjX-FpTlKbhhOtCmU0Vffaj1djCXzR6vkUYrwkOTmh1dgbIQHEyy1k",
-        },
-    }
-    return subscription
 
 
 @pytest.fixture
