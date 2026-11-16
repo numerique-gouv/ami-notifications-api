@@ -197,8 +197,30 @@ describe('/+page.svelte', () => {
     });
   });
 
+  test("should display user's notification count from store", async () => {
+    // Given
+    const spy = vi
+      .spyOn(notificationsMethods, 'countUnreadNotificationsFromStore')
+      .mockReturnValue(3);
+    vi.spyOn(notificationsMethods, 'countUnreadNotifications').mockResolvedValue(5);
+
+    // When
+    const { container } = render(Page);
+
+    // Then
+    await waitFor(() => {
+      expect(spy).toHaveBeenCalledTimes(1);
+      const icon = container.querySelector('#notification-icon');
+      expect(icon).toHaveTextContent('3');
+    });
+  });
+
   test("should display user's notification count", async () => {
     // Given
+    vi.spyOn(
+      notificationsMethods,
+      'countUnreadNotificationsFromStore'
+    ).mockResolvedValue(2);
     const spy = vi
       .spyOn(notificationsMethods, 'countUnreadNotifications')
       .mockResolvedValue(3);

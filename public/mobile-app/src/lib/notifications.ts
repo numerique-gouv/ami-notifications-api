@@ -45,26 +45,31 @@ export const fetchAndStoreNotifications = async () => {
   }
 };
 
-export const getNotificationsFromStore = async (): Promise<AppNotification[]> => {
-  const notificationsString: string = localStorage.getItem('notifications') || '';
+export const getNotificationsFromStore = (): AppNotification[] => {
+  const notificationsString: string = localStorage.getItem('notifications') || '[]';
   return JSON.parse(notificationsString);
 };
 
 export const getNotifications = async (): Promise<AppNotification[]> => {
   await self.fetchAndStoreNotifications();
-  return await self.getNotificationsFromStore();
+  return self.getNotificationsFromStore();
 };
 
 export const retrieveNotifications = async (): Promise<AppNotification[]> => {
   return await self.getNotifications();
 };
 
-export const countUnreadNotifications = async (): Promise<number> => {
-  const notifications: AppNotification[] = await self.getNotifications();
+export const countUnreadNotificationsFromStore = (): number => {
+  const notifications: AppNotification[] = self.getNotificationsFromStore();
   const unreadNotifications: AppNotification[] = notifications.filter(
     (notification) => !notification.read
   );
   return unreadNotifications.length;
+};
+
+export const countUnreadNotifications = async (): Promise<number> => {
+  await self.fetchAndStoreNotifications();
+  return self.countUnreadNotificationsFromStore();
 };
 
 export const readNotification = async (
