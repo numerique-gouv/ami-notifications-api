@@ -4,13 +4,15 @@
 
   interface Props {
     backUrl: string;
+    allowHistoryBack?: boolean;
     logo?: string;
     logoAlt?: string;
     title?: string;
     children?: Snippet;
     className?: string;
   }
-  let { backUrl, logo, logoAlt, children, title, className }: Props = $props();
+  let { backUrl, allowHistoryBack, logo, logoAlt, children, title, className }: Props =
+    $props();
   let scrolled = $state(false);
 
   window.onscroll = () => {
@@ -20,7 +22,7 @@
 
 <nav class={["fr-p-2w", {scrolled}, className]}>
   <div class="backbutton-wrapper">
-    <BackButton {backUrl} />
+    <BackButton {backUrl} {allowHistoryBack} />
   </div>
   {#if logo}
     <div class="logo">

@@ -5,4 +5,5 @@ from ami.authentication import api_views
 urlpatterns = [
     path("check-auth", api_views.check_auth),
     path("logout", api_views.logout),
+    path("api/internal/user-data", api_views.user_data),
 ]

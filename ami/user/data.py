@@ -12,6 +12,7 @@ from ami.authentication.exception import FCError
 from ami.authentication.schemas import data_providers
 from ami.notification.models import ScheduledNotification
 from ami.user.models import User
+from ami.user.serializers import ApiParticulierCafSerializer
 from ami.user.utils import build_fc_hash
 from ami.utils.httpx import AsyncClient, Response
 from ami.utils.jwks_client import get_jwks_client
@@ -107,35 +108,52 @@ async def call_api_particulier_quotient(
     return response
 
 
-async def get_api_particulier_quotient_raw_data(
-    *,
-    token_type: str,
-    access_token: str,
-    httpx_async_client: AsyncClient,
-) -> str | None:
-    response = await call_api_particulier_quotient(
-        token_type=token_type, access_token=access_token, httpx_async_client=httpx_async_client
-    )
-    return urlsafe_b64encode(json.dumps(response.json()).encode()).decode()
-
-
-async def get_address_from_api_particulier_quotient(
-    *,
-    token_type: str,
-    access_token: str,
-    httpx_async_client: AsyncClient,
-) -> str | None:
+async def get_data_from_api_particulier_quotient(
+    *, token_type: str, access_token: str, httpx_async_client: AsyncClient, **kwargs
+):
     response = await call_api_particulier_quotient(
         token_type=token_type, access_token=access_token, httpx_async_client=httpx_async_client
     )
     if response.status_code != 200:
         log_error_to_sentry(response)
         return None
-    data = response.json()
+    return response.json()
+
+
+async def get_address_from_api_particulier_quotient(
+    *, token_type: str, access_token: str, httpx_async_client: AsyncClient, **kwargs
+) -> str | None:
+    data = await get_data_from_api_particulier_quotient(
+        token_type=token_type, access_token=access_token, httpx_async_client=httpx_async_client
+    )
+    if data is None:
+        return None
     if data.get("data", {}).get("adresse", {}):
         address_fields = ["numero_libelle_voie", "lieu_dit", "code_postal_ville", "pays"]
         address = {k: v or "" for k, v in data["data"]["adresse"].items() if k in address_fields}
         return urlsafe_b64encode(json.dumps(address).encode()).decode()
+
+
+async def get_infos_foyer_from_api_particulier_quotient(
+    *, token_type: str, access_token: str, httpx_async_client: AsyncClient, **kwargs
+) -> str | None:
+    raw_data = await get_data_from_api_particulier_quotient(
+        token_type=token_type, access_token=access_token, httpx_async_client=httpx_async_client
+    )
+    if raw_data is None:
+        return None
+    data = raw_data["data"]
+    serializer = ApiParticulierCafSerializer(data=data)
+    if not serializer.is_valid():
+        logger.error(
+            "Invalid data in API Particulier CAF response", extra={"errors": serializer.errors}
+        )
+        return None
+    # adjust data format
+    data["timestamp"] = now().isoformat()
+    if data["quotient_familial"]["fournisseur"] == "CNAF":
+        data["quotient_familial"]["fournisseur"] == "CAF"
+    return data
 
 
 def log_error_to_sentry(response):

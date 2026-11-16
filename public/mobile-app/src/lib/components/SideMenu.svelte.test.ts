@@ -118,4 +118,30 @@ describe('/SideMenu.svelte', () => {
     // Then
     expect(spy).toHaveBeenCalledTimes(0);
   });
+
+  test('should not display hidden items', async () => {
+    // Given
+    const entries = [
+      {
+        url: '/#/checklist',
+        title: 'Pendant la grossesse',
+        id: 'during-pregnancy',
+        isEnabled: true,
+      },
+      {
+        url: '/#/checklist',
+        title: 'Après la naissance',
+        id: 'after-birth',
+        isEnabled: true,
+        isVisible: false,
+      },
+    ];
+
+    // When
+    render(SideMenu, { sideMenus: entries });
+
+    // Then
+    expect(screen.queryByTestId('sidemenu-button-during-pregnancy')).not.toBeNull();
+    expect(screen.queryByTestId('sidemenu-button-after-birth')).toBeNull();
+  });
 });
