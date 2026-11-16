@@ -58,33 +58,6 @@ accesses will go through the Svelte/Mobile app local server. (see below)
 For any specific env variables, create (or edit) a `.env.local` file. Anything in here
 will overload what's in the `.env` file.
 
-### Webpush
-
-Web push is the technology/protocol used to send notifications to a web browser,
-and to the tab or pwa associated.
-
-We use the [webpush python library](https://pypi.org/project/webpush/) to deal with the
-[VAPID encryption](https://blog.mozilla.org/services/2016/08/23/sending-vapid-identified-webpush-notifications-via-mozillas-push-service/)
-for us.
-
-This needs three keys to be generated and loaded when the server start, or have their content loaded in environment variables.
-- `public_key.pem`
-- `private_key.pem`
-- `applicationServerKey`
-
-If those aren't present on the disk at the root of this project, and are not set using
-env variables (to be used during the scalingo deployment), then running `make dev`
-or any variant that uses the `settings.py` file will automatically provision them.
-
-To generate them manually:
-```sh
-uv run vapid-gen
-```
-
-**WARNING**: generating keys will overwrite the existing ones that were used
-when storing the user registrations in the database. Changing the keys means the
-existing registrations are now obsolete, and can't be used anymore.
-
 ### Database: postgresql
 
 [postgresql](https://www.postgresql.org/) with

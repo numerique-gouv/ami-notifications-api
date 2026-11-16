@@ -1,5 +1,5 @@
 version = 1
-revision = 5
+revision = 3
 requires-python = ">=3.14"
 
 [[package]]
@@ -54,7 +54,6 @@ dependencies = [
     { name = "types-requests" },
     { name = "uvicorn", extra = ["standard"] },
     { name = "webauthn" },
-    { name = "webpush" },
     { name = "whitenoise" },
     { name = "workalendar" },
 ]
@@ -113,7 +112,6 @@ requires-dist = [
     { name = "types-requests", specifier = ">=2.32.0.20250328" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.34.0" },
     { name = "webauthn", specifier = ">=3.0.0" },
-    { name = "webpush", specifier = ">=1.0.5" },
     { name = "whitenoise", specifier = ">=6.12.0" },
     { name = "workalendar", specifier = ">=17.0.0" },
 ]
@@ -840,15 +838,6 @@ wheels = [
 ]
 
 [[package]]
-name = "dnspython"
-version = "2.9.2"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/76/49/900383b471c645a3c397f47b3211d1fcecb3a540c98f683494cdf86b33de/dnspython-2.9.2.tar.gz", hash = "sha256:8d4d39a513e649d634004ce4d39ade2352efcea472a0247535a5c2d18a9d7ba9", size = 455484, upload-time = "2026-11-03T23:56:53.601Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/1e/0c/5346358b3a20275d256978c35203ddc2c8617f78c1b23795b79ba22ced6d/dnspython-2.9.2-py3-none-any.whl", hash = "sha256:af15f7d385a6ae2fb35a796fde2138004c8c42c7389090e2addc83e3b3340fd8", size = 360455, upload-time = "2026-11-03T23:56:52.088Z" },
-]
-
-[[package]]
 name = "drf-spectacular"
 version = "0.29.0"
 source = { registry = "https://pypi.org/simple" }
@@ -863,19 +852,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/5e/0e/a4f50d83e76cbe797eda88fc0083c8ca970cfa362b5586359ef06ec6f70a/drf_spectacular-0.29.0.tar.gz", hash = "sha256:0a069339ea390ce7f14a75e8b5af4a0860a46e833fd4af027411a3e94fc1a0cc", size = 241722, upload-time = "2025-11-02T03:40:26.348Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/32/d9/502c56fc3ca960075d00956283f1c44e8cafe433dada03f9ed2821f3073b/drf_spectacular-0.29.0-py3-none-any.whl", hash = "sha256:d1ee7c9535d89848affb4427347f7c4a22c5d22530b8842ef133d7b72e19b41a", size = 105433, upload-time = "2025-11-02T03:40:24.823Z" },
-]
-
-[[package]]
-name = "email-validator"
-version = "2.2.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "dnspython" },
-    { name = "idna" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/48/ce/13508a1ec3f8bb981ae4ca79ea40384becc868bfae97fd1c942bb3a001b1/email_validator-2.2.0.tar.gz", hash = "sha256:cb690f344c617a714f22e66ae771445a1ceb46821152df8e165c5f9a364582b7", size = 48967, upload-time = "2024-06-20T11:30:30.034Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/d7/ee/bf0adb559ad3c786f12bcbc9296b3f5675f529199bef03e2df281fa1fadb/email_validator-2.2.0-py3-none-any.whl", hash = "sha256:561977c2d73ce3611850a06fa56b414621e0c8faa9d66f2611407d87465da631", size = 33521, upload-time = "2024-06-20T11:30:28.248Z" },
 ]
 
 [[package]]
@@ -2710,21 +2686,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/e6/92/9329872e36be90e25ba616ac6e9ee8c1be4326a1ea3fdffcdabd0eb48efb/webob-1.8.11.tar.gz", hash = "sha256:aa8c27231070b135c025e567a9cd7eda03f4df71352ffaac740cb6a75f0f81a5", size = 286047, upload-time = "2026-08-02T06:26:26.063Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/c1/71/370a65bc7726a1cbf478445c898c7affe907aa42e2e9e5bb38319db74115/webob-1.8.11-py2.py3-none-any.whl", hash = "sha256:4addd1d38d6a7fbe0eda22d45f25a40d74c8b290f3a99c0ac3d4023cf21f2da2", size = 118319, upload-time = "2026-08-02T06:26:24.765Z" },
-]
-
-[[package]]
-name = "webpush"
-version = "1.0.5"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "cryptography" },
-    { name = "email-validator" },
-    { name = "pydantic" },
-    { name = "pyjwt" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/e8/c6/9120d7d59fd86a66598af3fd32d2eba558f376d6f95fc73dd46bc7cb78d0/webpush-1.0.5.tar.gz", hash = "sha256:c87541dbe98fec593eb17a2153febaefa1e57b641fa5060bdc7254a8e54d7edc", size = 36178, upload-time = "2025-01-17T10:24:02.033Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/92/e6/7a1ac668c697d4bfedad80e2de553d1e724e5d09d8d1dfbc255dda9f7747/webpush-1.0.5-py3-none-any.whl", hash = "sha256:2eb4ccb8582731c37347ac05296110e4e9db0dc3de2cc56f4cebd45274e2a6af", size = 7419, upload-time = "2025-01-17T10:24:00.828Z" },
 ]
 
 [[package]]

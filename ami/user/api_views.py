@@ -4,7 +4,7 @@ from typing import cast
 from django.db import transaction
 from django.db.models import QuerySet
 from django.utils.timezone import now
-from drf_spectacular.utils import PolymorphicProxySerializer, extend_schema, inline_serializer
+from drf_spectacular.utils import extend_schema
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -22,7 +22,6 @@ from .serializers import (
     ConsentSerializer,
     ConsentsUpdateSerializer,
     ConsentUpdateSerializer,
-    MobileAppSubscriptionSerializer,
     PersonalDataConsentPostResponseSerializer,
     PersonalDataConsentSerializer,
     PersonalDataConsentUpdateSerializer,
@@ -30,7 +29,6 @@ from .serializers import (
     RegistrationPutActionSerializer,
     RegistrationRemoveFromDeviceIdSerializer,
     RegistrationSerializer,
-    WebPushSubscriptionSerializer,
 )
 
 logger = logging.getLogger(__name__)
@@ -39,18 +37,7 @@ logger = logging.getLogger(__name__)
 @extend_schema(methods=["GET"], responses=RegistrationSerializer(many=True))
 @extend_schema(
     methods=["POST"],
-    request=PolymorphicProxySerializer(
-        component_name="RegistrationCreate",
-        serializers=[
-            inline_serializer(
-                "WebPushRegistrationCreate", {"subscription": WebPushSubscriptionSerializer()}
-            ),
-            inline_serializer(
-                "MobileRegistrationCreate", {"subscription": MobileAppSubscriptionSerializer()}
-            ),
-        ],
-        resource_type_field_name=None,
-    ),
+    request=RegistrationCreateSerializer,
     responses={200: RegistrationSerializer, 201: RegistrationSerializer},
 )
 @extend_schema(
