@@ -1,0 +1,6 @@
+#!/bin/bash
+
+HASH=$(echo $SOURCE_VERSION | head -c8)
+
+echo "Writing down commit id ($SOURCE_VERSION / $HASH)"
+sed -i "s/PUBLIC_CURRENT_COMMIT_ID=.*/PUBLIC_CURRENT_COMMIT_ID=$HASH/" .env
