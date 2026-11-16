@@ -15,49 +15,51 @@
       <ul class="fr-sidemenu__list" data-testid="sidemenu">
         {#if sideMenus}
           {#each sideMenus as item}
-            <li
-              class="fr-sidemenu__item {item.isEnabled ? '': 'disabled'}"
-              data-testid="sidemenu-item-{item.id}"
-            >
-              <button
-                class="
+            {#if item.isVisible !== false}
+              <li
+                class="fr-sidemenu__item {item.isEnabled ? '': 'disabled'}"
+                data-testid="sidemenu-item-{item.id}"
+              >
+                <button
+                  class="
                   fr-sidemenu__btn fr-pl-0 am-text--smbold
                   {item.iconClass}
                   {item.iconClass && 'fr-tag--icon-left'}
                   {item.tag ? 'fr-pr-9w': 'fr-pr-4w'} "
-                type="button"
-                data-testid="sidemenu-button-{item.id}"
-                disabled={!item.isEnabled}
-                onclick={(e) => {if (item.isEnabled) { AMIGoto(item.url) } else {e.preventDefault();} }}
-              >
-                <span class="am-sidemenu-details">
-                  {#if item.date}
-                    <span
-                      class="am-sidemenu-date fr-text--xs fr-text--regular fr-text-mention--grey"
-                      >{item.date}
-                    </span>
+                  type="button"
+                  data-testid="sidemenu-button-{item.id}"
+                  disabled={!item.isEnabled}
+                  onclick={(e) => {if (item.isEnabled) { AMIGoto(item.url) } else {e.preventDefault();} }}
+                >
+                  <span class="am-sidemenu-details">
+                    {#if item.date}
+                      <span
+                        class="am-sidemenu-date fr-text--xs fr-text--regular fr-text-mention--grey"
+                        >{item.date}
+                      </span>
+                    {/if}
+                    <span class="am-sidemenu-label">{item.title}</span>
+                    {#if item.desc}
+                      <span
+                        class="am-sidemenu-description fr-text--sm fr-text--regular fr-text-mention--grey"
+                        >{item.desc}
+                      </span>
+                    {/if}
+                  </span>
+                  {#if item.tag}
+                    <p
+                      class="fr-tag fr-tag--sm fr-background-action-low--blue-france am-text--smbold"
+                    >
+                      {item.tag}
+                    </p>
                   {/if}
-                  <span class="am-sidemenu-label">{item.title}</span>
-                  {#if item.desc}
-                    <span
-                      class="am-sidemenu-description fr-text--sm fr-text--regular fr-text-mention--grey"
-                      >{item.desc}
-                    </span>
-                  {/if}
-                </span>
-                {#if item.tag}
-                  <p
-                    class="fr-tag fr-tag--sm fr-background-action-low--blue-france am-text--smbold"
-                  >
-                    {item.tag}
-                  </p>
-                {/if}
-                <span
-                  aria-hidden="true"
-                  class="icon fr-icon-arrow-right-s-line am-color-blue"
-                ></span>
-              </button>
-            </li>
+                  <span
+                    aria-hidden="true"
+                    class="icon fr-icon-arrow-right-s-line am-color-blue"
+                  ></span>
+                </button>
+              </li>
+            {/if}
           {/each}
         {/if}
       </ul>

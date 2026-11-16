@@ -7,4 +7,5 @@ export type SideMenuItem = {
   id?: string;
   date?: string;
   isEnabled: boolean;
+  isVisible?: boolean;
 };
