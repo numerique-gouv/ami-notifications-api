@@ -72,9 +72,9 @@ class Registration(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.PROTECT)
 
-    device_id = models.CharField(blank=True, null=True)
+    device_id = models.CharField(blank=True)
 
-    subscription = models.JSONField(blank=True, null=True)
+    subscription = models.JSONField(blank=True, default=dict)
 
     deleted_at = models.DateTimeField(null=True)
 
