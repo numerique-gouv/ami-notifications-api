@@ -95,11 +95,11 @@ def test_detail_user_without_agent_admin_auth(app) -> None:
 def test_delete_user(
     app,
     admin_agent: Agent,
-    webpush_notification: Notification,
-    webpush_registration: Registration,
+    mobile_notification: Notification,
+    mobile_registration: Registration,
 ):
     app.set_user(admin_agent.user)
-    user = webpush_notification.user
+    user = mobile_notification.user
     scheduled_notification = ScheduledNotification.objects.create(
         user=user,
         content_title="title",
@@ -111,7 +111,7 @@ def test_delete_user(
     )
     consent = Consent.objects.create(
         user=user,
-        partner=webpush_notification.partner,
+        partner=mobile_notification.partner,
         consent_datetime=None,
     )
     personal_data_consent = PersonalDataConsent.objects.create(user=user, consent_datetime=None)
@@ -120,9 +120,9 @@ def test_delete_user(
 
     assert User.objects.filter(id=user.id).exists() is False
     assert Registration.objects.filter(user_id=user.id).exists() is False
-    assert Registration.objects.filter(id=webpush_registration.id).exists() is False
+    assert Registration.objects.filter(id=mobile_registration.id).exists() is False
     assert Notification.objects.filter(user_id=user.id).exists() is False
-    assert Notification.objects.filter(id=webpush_notification.id).exists() is False
+    assert Notification.objects.filter(id=mobile_notification.id).exists() is False
     assert ScheduledNotification.objects.filter(user_id=user.id).exists() is False
     assert ScheduledNotification.objects.filter(id=scheduled_notification.id).exists() is False
     assert Consent.objects.filter(user_id=user.id).exists() is False
