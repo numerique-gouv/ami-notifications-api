@@ -54,6 +54,8 @@ AgentFormSet = forms.modelformset_factory(Agent, extra=0, form=AgentForm)
 
 
 class NotificationForm(AMIDsfrBaseForm):
+    ami_partner_password = forms.CharField()
+
     recipient_fc_hash = forms.CharField()
 
     content_title = forms.CharField()
@@ -142,14 +144,19 @@ class NotificationForm(AMIDsfrBaseForm):
 
         # send notification as AMI partner
         partner = Partner.objects.get(slug="dinum-ami")
+        partner_secret = payload.pop("ami_partner_password")
 
-        auth = BasicAuth(username=partner.slug, password=partner.secret)
+        auth = BasicAuth(username=partner.slug, password=partner_secret)
         with httpxLaxClient() as httpx_client:
             response = httpx_client.put(
                 f"{settings.PUBLIC_APP_URL}/api/v2/event",
                 auth=auth,
                 json=payload,
             )
+
+        if response.status_code == 401:
+            self.add_error(None, "Invalid authentication credentials")
+            return
 
         if response.status_code == 404:
             try:

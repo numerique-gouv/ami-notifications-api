@@ -42,6 +42,7 @@ def test_send_notification(app, notifications_agent: Agent) -> None:
 def test_send_notification_submit_validation_errors(app, notifications_agent: Agent) -> None:
     app.set_user(notifications_agent.user)
     response = app.get("/agent-admin/manage/notification/")
+    response.forms["send-notification"]["ami_partner_password"] = "password"
     response = response.forms["send-notification"].submit()
     assert response.context["form"].errors == {
         "recipient_fc_hash": ["Ce champ est obligatoire."],
@@ -60,6 +61,7 @@ def test_send_notification_submit_with_400(
     app.set_user(notifications_agent.user)
     response = app.get("/agent-admin/manage/notification/")
 
+    response.forms["send-notification"]["ami_partner_password"] = "password"
     response.forms["send-notification"]["recipient_fc_hash"] = "a-recipient"
     response.forms["send-notification"]["content_title"] = "a-title"
     response.forms["send-notification"]["content_body"] = "a-body"
@@ -94,6 +96,44 @@ def test_send_notification_submit_with_400(
 
 
 @pytest.mark.django_db
+def test_send_notification_submit_with_401(
+    app,
+    notifications_agent: Agent,
+    partner: Partner,
+    httpx_mock: HTTPXMock,
+) -> None:
+    app.set_user(notifications_agent.user)
+    response = app.get("/agent-admin/manage/notification/")
+
+    response.forms["send-notification"]["ami_partner_password"] = "invalid-password"
+    response.forms["send-notification"]["recipient_fc_hash"] = "a-recipient"
+    response.forms["send-notification"]["content_title"] = "a-title"
+    response.forms["send-notification"]["content_body"] = "a-body"
+    response.forms["send-notification"]["item_generic_status"] = ""
+    response.forms["send-notification"]["item_canal"] = ""
+    response.forms["send-notification"]["event_date"] = "2026-04-21T16:24:00.000"
+
+    httpx_mock.add_response(
+        url=f"{settings.PUBLIC_APP_URL}/api/v2/event",
+        json={"detail": "Invalid authentication credentials"},
+        match_json={
+            "recipient_fc_hash": "a-recipient",
+            "content_title": "a-title",
+            "content_body": "a-body",
+            "event_date": "2026-04-21T16:24:00Z",
+            "try_push": False,
+        },
+        status_code=401,
+    )
+
+    response = response.forms["send-notification"].submit()
+    assert response.context["form"].errors == {
+        "__all__": ["Invalid authentication credentials"],
+    }
+    assert response.pyquery(".fr-notice.success").text() == ""
+
+
+@pytest.mark.django_db
 def test_send_notification_submit_with_404(
     app,
     notifications_agent: Agent,
@@ -103,6 +143,7 @@ def test_send_notification_submit_with_404(
     app.set_user(notifications_agent.user)
     response = app.get("/agent-admin/manage/notification/")
 
+    response.forms["send-notification"]["ami_partner_password"] = "password"
     response.forms["send-notification"]["recipient_fc_hash"] = "a-recipient"
     response.forms["send-notification"]["content_title"] = "a-title"
     response.forms["send-notification"]["content_body"] = "a-body"
@@ -127,6 +168,7 @@ def test_send_notification_submit_with_404_and_message(
     app.set_user(notifications_agent.user)
     response = app.get("/agent-admin/manage/notification/")
 
+    response.forms["send-notification"]["ami_partner_password"] = "password"
     response.forms["send-notification"]["recipient_fc_hash"] = "a-recipient"
     response.forms["send-notification"]["content_title"] = "a-title"
     response.forms["send-notification"]["content_body"] = "a-body"
@@ -161,6 +203,7 @@ def test_send_notification_submit_success(
     app.set_user(notifications_agent.user)
     response = app.get("/agent-admin/manage/notification/")
 
+    response.forms["send-notification"]["ami_partner_password"] = "password"
     response.forms["send-notification"]["recipient_fc_hash"] = "a-recipient"
     response.forms["send-notification"]["content_title"] = "a-title"
     response.forms["send-notification"]["content_body"] = "a-body"
