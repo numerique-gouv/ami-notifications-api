@@ -10,7 +10,6 @@ import {
 describe('/nativeEvents.ts', () => {
   afterEach(() => {
     delete globalThis.window.NativeInfos;
-    vi.resetAllMocks();
   });
 
   describe('isNative', () => {
