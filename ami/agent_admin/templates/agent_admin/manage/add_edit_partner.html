@@ -10,6 +10,11 @@
   <form method="post" id="partner-form" class="form-disable-on-submit" novalidate>
     {% csrf_token %}
     {{ form }}
+    {% if not for_update %}
+      <div class="fr-mb-4w">
+        {% dsfr_accordion password_accordion %}
+      </div>
+    {% endif %}
     {% dsfr_button_group btn_group %}
   </form>
 {% endblock %}
