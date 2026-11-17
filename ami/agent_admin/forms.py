@@ -1,9 +1,9 @@
 import copy
 import ipaddress
 import json
+from typing import cast
 
 from django import forms
-from django.conf import settings
 from django.core import validators
 from django.core.exceptions import ValidationError
 from django.urls import reverse
@@ -19,7 +19,6 @@ from ami.page.models import Page, Section
 from ami.partner.models import Partner
 from ami.service.models import Service
 from ami.user.models import User
-from ami.utils.httpx import BasicAuth, httpxLaxClient
 
 
 class AgentForm(forms.ModelForm, AMIDsfrBaseForm):
@@ -51,6 +50,27 @@ class AgentForm(forms.ModelForm, AMIDsfrBaseForm):
 
 
 AgentFormSet = forms.modelformset_factory(Agent, extra=0, form=AgentForm)
+
+
+def simulate_event_call(partner, payload):
+    from ami.notification.api_views_v2 import (
+        PartnerCreateEventNotFoundException,
+        partner_process_create_event_message,
+    )
+    from ami.notification.serializers import PartnerEventCreateSerializerV2
+
+    serializer = PartnerEventCreateSerializerV2(data=payload, partner=partner)
+    if serializer.is_valid(raise_exception=False):
+        try:
+            _, response_data = partner_process_create_event_message(
+                partner, serializer.validated_data
+            )
+        except PartnerCreateEventNotFoundException as e:
+            errors = {None: [str(e)]}
+            return None, errors
+    else:
+        return None, cast(dict, serializer.errors)
+    return cast(dict, response_data), None
 
 
 class NotificationForm(AMIDsfrBaseForm):
@@ -143,35 +163,19 @@ class NotificationForm(AMIDsfrBaseForm):
         # send notification as AMI partner
         partner = Partner.objects.get(slug="dinum-ami")
 
-        auth = BasicAuth(username=partner.slug, password=partner.secret)
-        with httpxLaxClient() as httpx_client:
-            response = httpx_client.put(
-                f"{settings.PUBLIC_APP_URL}/api/v2/event",
-                auth=auth,
-                json=payload,
-            )
+        response_data, errors = simulate_event_call(partner, payload)
 
-        if response.status_code == 404:
-            try:
-                self.add_error(None, response.json()["error"])
-            except (KeyError, json.JSONDecodeError):
-                self.add_error(None, "Not found error")
-            return
-
-        if response.is_client_error:
-            # notification request error
-            for key, values in response.json().items():
+        if errors:
+            for key, values in cast(dict, errors).items():
                 for value in values:
                     if key in self.fields:
                         self.add_error(key, value)
                     else:
                         self.add_error(None, value)
-            return
-
-        if response.is_success:
+        elif response_data:
             # notification request accepted
             message_content = []
-            for key, value in response.json().items():
+            for key, value in response_data.items():
                 message_content.append(f"{key}: {value}")
             return "<br />".join(message_content)
 
