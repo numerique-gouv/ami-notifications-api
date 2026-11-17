@@ -121,9 +121,9 @@
                       <p class="fr-text--bold">Attention</p>
                     </div>
                     <p class="fr-text--sm">
-                      Si vous avez des démarches {item.partner_name} en cours ou à
-                      venir, vous ne pourrez plus les suivre dans l’application.
-                      L’historique de vos démarches est conservé.
+                      Attention si vous avez des démarches {item.partner_name} en cours,
+                      passées ou à venir, vous ne pourrez plus les suivre dans
+                      l’application.
                     </p>
                   </div>
                   <div class="toast-body-right-wrapper">
