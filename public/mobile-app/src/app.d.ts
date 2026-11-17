@@ -38,6 +38,7 @@ declare global {
     };
     WebAppBridge: {
       getUrlAliases(): string;
+      getAuthenticationUrls(): string[];
     };
     dsfr: (element: Element | null) => DSFRInstance;
   }

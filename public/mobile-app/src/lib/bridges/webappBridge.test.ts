@@ -20,4 +20,23 @@ describe('/webappBridge.ts', () => {
       expect(result).toBe(JSON.stringify(aliases));
     });
   });
+  describe('getAuthenticationUrls', () => {
+    test('should return the list of authentication urls', async () => {
+      // When
+      const result = window.WebAppBridge.getAuthenticationUrls();
+
+      // Then
+      expect(result).toEqual([
+        'https://localhost:5173/login-france-connect',
+        'https://localhost:5173/relogin-france-connect',
+        'https://localhost:5173/silent-login-ami-fi',
+        'https://localhost:5173/login-callback',
+        'https://localhost:5173/api/v1/fi/authorize/',
+        'https://localhost:5173/#/relogin',
+        'https://localhost:5173/#/silent-login',
+        'https://localhost:5173/#/login-callback',
+        'https://localhost:5173/#/passkey-authentication',
+      ]);
+    });
+  });
 });
