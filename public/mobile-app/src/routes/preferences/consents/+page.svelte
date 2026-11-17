@@ -56,12 +56,8 @@
   };
 
   const saveConsents = async (partnerId: string, checked: boolean) => {
-    const consentsItems: ConsentsItem[] | undefined = consents?.items.filter(
-      (item) => item.partner_id === partnerId
-    );
-
-    if (consentsItems) {
-      const consentsItem: ConsentsItem = consentsItems[0];
+    const consentsItem = consents.findItem(partnerId);
+    if (consentsItem) {
       await consentsItem.updateConsent(checked);
       consents = await buildConsents(partners);
 

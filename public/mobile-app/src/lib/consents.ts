@@ -108,6 +108,10 @@ export class Consents {
     }
     return false;
   }
+
+  findItem(partner_id: string): ConsentsItem | null {
+    return this.items.find((item) => item.partner_id === partner_id) || null;
+  }
 }
 
 export const buildConsents = async (partners: Partners | null): Promise<Consents> => {
