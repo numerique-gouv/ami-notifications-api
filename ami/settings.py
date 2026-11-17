@@ -381,6 +381,18 @@ for k, v in CONFIG.items():
     slug = slug.replace("_", "-")
     slug = slug.lower()
     PARTNERS_SECRETS[slug] = v
+
+PARTNERS_SECRET_HASHS = {}
+for k, v in CONFIG.items():
+    if not k.startswith("PARTNERS_") or not k.endswith("_SECRET_HASH"):
+        continue
+    slug = k
+    slug = slug.replace("PARTNERS_", "")
+    slug = slug.replace("_SECRET_HASH", "")
+    slug = slug.replace("_", "-")
+    slug = slug.lower()
+    PARTNERS_SECRET_HASHS[slug] = v
+
 # Consent
 CONSENT_PSL_ENABLED = CONFIG.get("FEATURE_FLAG_CONSENT_PSL_ENABLED") == "true"
 CONSENT_DINUM_DN_ENABLED = CONFIG.get("FEATURE_FLAG_CONSENT_DINUM_DN_ENABLED") == "true"
