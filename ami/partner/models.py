@@ -1,7 +1,9 @@
 import ipaddress
+import secrets
 import uuid
 
 from django.conf import settings
+from django.contrib.auth.hashers import check_password
 from django.db import models
 
 from ami.partner.schemas import PartnersItem
@@ -27,8 +29,23 @@ class Partner(models.Model):
         return self.name
 
     @property
-    def secret(self):
-        return settings.PARTNERS_SECRETS.get(self.slug.replace("_", "-")) or ""
+    def dash_slug(self):
+        return self.slug.replace("_", "-") or ""
+
+    def has_password(self):
+        return (
+            self.dash_slug in settings.PARTNERS_SECRETS
+            or self.dash_slug in settings.PARTNERS_SECRET_HASHS
+        )
+
+    def check_password(self, password):
+        if self.dash_slug in settings.PARTNERS_SECRET_HASHS:
+            encoded = settings.PARTNERS_SECRET_HASHS[self.dash_slug]
+            return check_password(password, encoded)
+        elif self.dash_slug in settings.PARTNERS_SECRETS:
+            secret = settings.PARTNERS_SECRETS[self.dash_slug]
+            return secrets.compare_digest(secret, password)
+        return False
 
     def is_ip_allowed(self, ip_address_str):
         if not self.ip_allow_list:
