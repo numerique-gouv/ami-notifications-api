@@ -1,6 +1,7 @@
-import { render, screen } from '@testing-library/svelte';
+import { fireEvent, render, screen } from '@testing-library/svelte';
 import { createRawSnippet } from 'svelte';
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
+import * as AMINavigationMethods from '$lib/ami-navigation';
 import { expectBackButtonPresent } from '$tests/utils';
 import Page from './NavWithBackButton.svelte';
 
@@ -45,5 +46,21 @@ describe('/NavWithBackButton.svelte', () => {
     // Then
     expect(screen.queryByText('some title')).toBeNull();
     expect(screen.getByTestId('child-content')).toBeInTheDocument();
+  });
+  test('should navigate to previous page when user clicks on Back button', async () => {
+    // Given
+    const backSpy = vi
+      .spyOn(AMINavigationMethods, 'AMIGoto')
+      .mockImplementation(() => Promise.resolve());
+
+    // When
+    render(Page, { backUrl: '/foobar' });
+    const backButton = screen.getByTestId('back-button');
+    await fireEvent.click(backButton);
+
+    // Then
+    expect(backSpy).toHaveBeenCalledTimes(1);
+    expect(backSpy).toHaveBeenCalledWith('/foobar');
+    backSpy.mockRestore();
   });
 });
