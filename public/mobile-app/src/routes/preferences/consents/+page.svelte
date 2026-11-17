@@ -35,9 +35,7 @@
       buildFollowup(),
       buildConsentsAndPartners(),
     ]);
-    consents.items.forEach((consentItem: ConsentsItem) => {
-      displayWarningBlocks.set(consentItem.partner_id, false);
-    });
+    updateWarningBlock();
   };
 
   onMount(async () => {
@@ -50,9 +48,7 @@
   const selectAll = async () => {
     await updateAllConsents(true);
     consents = await buildConsents(partners);
-    consents.items.forEach((consentItem: ConsentsItem) => {
-      displayWarningBlocks.set(consentItem.partner_id, false);
-    });
+    updateWarningBlock();
   };
 
   const saveConsents = async (partnerId: string, checked: boolean) => {
@@ -60,15 +56,19 @@
     if (consentsItem) {
       await consentsItem.updateConsent(checked);
       consents = await buildConsents(partners);
-
-      if (consentsItem.hasFollowupItem(followup)) {
-        displayWarningBlocks.set(consentsItem.partner_id, !checked);
-      }
+      updateWarningBlock();
     }
   };
 
-  const hideWarningBlock = (partnerId: string) => {
-    displayWarningBlocks.set(partnerId, false);
+  const updateWarningBlock = () => {
+    consents.items.forEach((consentItem: ConsentsItem) => {
+      if (consentItem.hasFollowupItem(followup)) {
+        const checked = consentItem.consent_datetime !== null;
+        displayWarningBlocks.set(consentItem.partner_id, !checked);
+      } else {
+        displayWarningBlocks.set(consentItem.partner_id, false);
+      }
+    });
   };
 </script>
 
@@ -117,15 +117,6 @@
                       passées ou à venir, vous ne pourrez plus les suivre dans
                       l’application.
                     </p>
-                  </div>
-                  <div class="toast-body-right-wrapper">
-                    <button
-                      onclick={() => hideWarningBlock(item.partner_id)}
-                      aria-label="Fermer le toast"
-                      data-testid="close-button"
-                    >
-                      <span class="fr-icon-close-line" aria-hidden="true"></span>
-                    </button>
                   </div>
                 </div>
               </div>
