@@ -1081,13 +1081,13 @@ def test_create_notification_without_auth(app, settings, partner: Partner) -> No
         "detail": "En-tête « basic » non valide. Encodage base64 des informations d'identification incorrect."
     }
 
-    b64 = base64.b64encode("foo:password".encode("utf8")).decode("utf8")
+    b64 = base64.b64encode(b"foo:password").decode()
     response = app.post_json(
         "/api/v1/notifications", headers={"authorization": f"Basic {b64}"}, status=401
     )
     assert response.json == {"detail": "Invalid authentication credentials"}
 
-    b64 = base64.b64encode("dinum-ami:foo".encode("utf8")).decode("utf8")
+    b64 = base64.b64encode(b"dinum-ami:foo").decode()
     response = app.post_json(
         "/api/v1/notifications", headers={"authorization": f"Basic {b64}"}, status=401
     )
