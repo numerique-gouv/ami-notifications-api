@@ -2,7 +2,8 @@ import { render, screen, waitFor } from '@testing-library/svelte';
 import { describe, expect, test, vi } from 'vitest';
 import * as AMINavigationMethods from '$lib/ami-navigation';
 import * as nativeInfosMethods from '$lib/bridges/nativeInfos';
-import { expectBackButtonPresent } from '$tests/utils';
+import { userStore } from '$lib/state/User.svelte';
+import { expectBackButtonPresent, mockUserInfo } from '$tests/utils';
 import Page from './+page.svelte';
 
 describe('/+page.svelte', () => {
@@ -56,7 +57,7 @@ describe('/+page.svelte', () => {
     });
   });
 
-  test('should display plateform infos', async () => {
+  test('should display debug infos', async () => {
     vi.spyOn(nativeInfosMethods, 'getPlatform').mockReturnValue('android');
     vi.spyOn(nativeInfosMethods, 'getVersion').mockReturnValue('0.5');
     HTMLDialogElement.prototype.showModal = vi.fn();
@@ -72,7 +73,33 @@ describe('/+page.svelte', () => {
     await waitFor(() => {
       contactUsButton.click();
       // now the popup is open
-      expect(screen.queryByTestId('native-infos')).toHaveTextContent('android - 0.5');
+      expect(screen.queryByTestId('debug-infos')).toHaveTextContent(
+        'version : android 0.5 · ##hash## <non connecté>'
+      );
+    });
+  });
+
+  test('should display short fc hash in debug infos', async () => {
+    await userStore.login(mockUserInfo);
+    window.localStorage.setItem('user_fc_hash', 'fake-user-fc-hash');
+    vi.spyOn(nativeInfosMethods, 'getPlatform').mockReturnValue('android');
+    vi.spyOn(nativeInfosMethods, 'getVersion').mockReturnValue('0.5');
+    HTMLDialogElement.prototype.showModal = vi.fn();
+    HTMLDialogElement.prototype.close = vi.fn();
+    HTMLDialogElement.prototype.show = vi.fn();
+
+    // When
+    render(Page);
+
+    // Then
+    const contactUsButton = screen.getByTestId('contact-us-button');
+    expect(screen.queryByTestId('contact-us-link-url')).not.toBeVisible();
+    await waitFor(() => {
+      contactUsButton.click();
+      // now the popup is open
+      expect(screen.queryByTestId('debug-infos')).toHaveTextContent(
+        'version : android 0.5 · ##hash## fake-use'
+      );
     });
   });
 });
