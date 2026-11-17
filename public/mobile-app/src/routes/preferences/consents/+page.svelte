@@ -20,7 +20,6 @@
 
   let backUrl: string = '/';
   let consents: Consents = $state() as Consents;
-  let consentItems: ConsentsItem[] = $state() as ConsentsItem[];
   let partners: Partners = $state() as Partners;
   let followup: Followup = $state() as Followup;
   let displayWarningBlocks: SvelteMap<string, boolean> = new SvelteMap();
@@ -36,8 +35,7 @@
       buildFollowup(),
       buildConsentsAndPartners(),
     ]);
-    consentItems = consents.items;
-    consentItems.forEach((consentItem: ConsentsItem) => {
+    consents.items.forEach((consentItem: ConsentsItem) => {
       displayWarningBlocks.set(consentItem.partner_id, false);
     });
   };
@@ -51,23 +49,21 @@
 
   const selectAll = async () => {
     await updateAllConsents(true);
-    const consents: Consents = await buildConsents(partners);
-    consentItems = consents.items;
-    consentItems.forEach((consentItem: ConsentsItem) => {
+    consents = await buildConsents(partners);
+    consents.items.forEach((consentItem: ConsentsItem) => {
       displayWarningBlocks.set(consentItem.partner_id, false);
     });
   };
 
   const saveConsents = async (partnerId: string, checked: boolean) => {
-    const consentsItems: ConsentsItem[] | undefined = consentItems?.filter(
+    const consentsItems: ConsentsItem[] | undefined = consents?.items.filter(
       (item) => item.partner_id === partnerId
     );
 
     if (consentsItems) {
       const consentsItem: ConsentsItem = consentsItems[0];
       await consentsItem.updateConsent(checked);
-      const consents: Consents = await buildConsents(partners);
-      consentItems = consents.items;
+      consents = await buildConsents(partners);
 
       if (consentsItem.hasFollowupItem(followup)) {
         displayWarningBlocks.set(consentsItem.partner_id, !checked);
@@ -97,9 +93,9 @@
         Tout suivre
       </button>
 
-      {#if consentItems && consentItems.length}
+      {#if consents && consents.items.length}
         <div class="am-toggle-container">
-          {#each consentItems as item}
+          {#each consents.items as item}
             <Toggle
               id="{item.partner_id}"
               label="Suivre mes démarches <strong>{item.partner_name}</strong> sur mon appareil mobile"
