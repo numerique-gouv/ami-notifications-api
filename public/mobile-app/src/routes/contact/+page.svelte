@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { PUBLIC_CURRENT_COMMIT_ID } from '$env/static/public';
   import { AMIGoto } from '$lib/ami-navigation';
   import { getPlatform, getVersion } from '$lib/bridges/nativeInfos';
   import BottomModal from '$lib/components/modal/BottomModal.svelte';
@@ -10,14 +11,17 @@
 
   let backUrl: string = '/#/help-center';
   let userFcHash: string = '';
+  let userDebugFcHash: string = '';
   let platform = getPlatform();
   let version = getVersion();
 
   onMount(async () => {
     if (!userStore.connected) {
-      userFcHash = '<absent>';
+      userFcHash = '<non connecté>';
+      userDebugFcHash = userFcHash;
     } else {
       userFcHash = localStorage.getItem('user_fc_hash') || '<error>';
+      userDebugFcHash = userFcHash.substring(0, 9);
     }
   });
 </script>
@@ -73,20 +77,29 @@
               </button>
             </li>
           </ul>
-          {#if platform && version}
-            <p class="fr-m-4v am-text-mention-grey" data-testid="native-infos">
-              {getPlatform()} - {getVersion()}
-            </p>
-          {/if}
         </div>
       {/snippet}
     </BottomModal>
   </div>
+
+  <p class="fr-m-4v am-text-mention-grey debug-infos" data-testid="debug-infos">
+    version :
+    {#if platform && version}
+      {platform} {version} ·
+    {/if}
+    {PUBLIC_CURRENT_COMMIT_ID}
+    <br>
+    {userDebugFcHash}
+  </p>
 </div>
 
 <style>
   .contact-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
     .contact-page-wrapper {
+      flex: 1;
       padding-top: 7rem;
       .image-wrapper {
         display: flex;
@@ -105,6 +118,9 @@
     }
     .fr-sidemenu {
       box-shadow: none;
+    }
+    .debug-infos {
+      text-align: center;
     }
   }
 </style>
