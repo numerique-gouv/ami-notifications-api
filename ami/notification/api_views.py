@@ -16,7 +16,7 @@ from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED
 from ami.authentication.decorators import ami_login_required
 from ami.partner.auth import IsPartnerAuthenticated, PartnerBasicAuthentication
 
-from .api_views_v2 import _partner_create_event
+from .api_views_v2 import PartnerCreateEventNotFoundException, partner_process_create_event_message
 from .models import Notification, NotificationEvent, ScheduledNotification
 from .serializers import (
     NotificationReadSerializer,
@@ -146,4 +146,11 @@ def partner_create_notification(request: Request) -> Response[NotificationRespon
     serializer.is_valid(raise_exception=True)
     data: dict = cast(dict, serializer.validated_data)
 
-    return _partner_create_event(request, data)
+    try:
+        created, response_data = partner_process_create_event_message(request.ami_partner, data)
+    except PartnerCreateEventNotFoundException as e:
+        return Response({"error": str(e)}, status=404)
+
+    return Response(
+        NotificationResponseSerializer(response_data).data, status=201 if created else 200
+    )
