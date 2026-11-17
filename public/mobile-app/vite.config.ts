@@ -11,18 +11,7 @@ export default defineConfig({
       '/api': { target: 'https://localhost:8000', xfwd: true, secure: false },
       '/check-auth': { target: 'https://localhost:8000', xfwd: true, secure: false },
       '/dev-utils': { target: 'https://localhost:8000', xfwd: true, secure: false },
-      '/login-ami-fi': { target: 'https://localhost:8000', xfwd: true, secure: false },
-      '/login-callback': {
-        target: 'https://localhost:8000',
-        xfwd: true,
-        secure: false,
-      },
       '/login-france-connect': {
-        target: 'https://localhost:8000',
-        xfwd: true,
-        secure: false,
-      },
-      '/goto-redirect-url': {
         target: 'https://localhost:8000',
         xfwd: true,
         secure: false,
@@ -32,7 +21,22 @@ export default defineConfig({
         xfwd: true,
         secure: false,
       },
+      '/silent-login-ami-fi': {
+        target: 'https://localhost:8000',
+        xfwd: true,
+        secure: false,
+      },
+      '/login-callback': {
+        target: 'https://localhost:8000',
+        xfwd: true,
+        secure: false,
+      },
       '/logout': { target: 'https://localhost:8000', xfwd: true, secure: false },
+      '/goto-redirect-url': {
+        target: 'https://localhost:8000',
+        xfwd: true,
+        secure: false,
+      },
       '/notification-key': {
         target: 'https://localhost:8000',
         xfwd: true,
@@ -41,11 +45,6 @@ export default defineConfig({
       '/ping': { target: 'https://localhost:8000', xfwd: true, secure: false },
       '/schema': { target: 'https://localhost:8000', xfwd: true, secure: false },
       '/sector_identifier_url ': {
-        target: 'https://localhost:8000',
-        xfwd: true,
-        secure: false,
-      },
-      '/silent-login-ami-fi': {
         target: 'https://localhost:8000',
         xfwd: true,
         secure: false,
