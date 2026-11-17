@@ -404,6 +404,47 @@ describe('/consents.ts', () => {
         expect(result).toBeTruthy();
       });
     });
+    describe('findItem', () => {
+      test('should return item is exists', async () => {
+        // Given
+        const consentsItem1 = {
+          partner_id: 'dinum-ami',
+          partner_name: 'AMI',
+          consent_datetime: new Date('2026-01-23T15:50:00Z'),
+        };
+        const consentsItem2 = {
+          partner_id: 'dinum-dn',
+          partner_name: 'Démarche Numérique',
+          consent_datetime: new Date('2026-02-22T15:50:00Z'),
+        };
+        const partnersItem1 = {
+          slug: 'dinum-ami',
+          name: 'AMI',
+          link: 'https://fake-link-1',
+        };
+        const partnersItem2 = {
+          slug: 'dinum-dn',
+          name: 'Démarche Numérique',
+          link: 'https://fake-link-2',
+        };
+        const partners = new Partners([partnersItem1, partnersItem2]);
+        const consents = new Consents(
+          { consents: [consentsItem1, consentsItem2] },
+          partners.items
+        );
+
+        // When
+        const result1 = consents.findItem('dinum-dn');
+        const result2 = consents.findItem('unknown');
+
+        // Then
+        expect(result1).toBeInstanceOf(ConsentsItem);
+        expect(result1?.partner_id).toEqual('dinum-dn');
+        expect(result1?.partner_name).toEqual('Démarche Numérique');
+        expect(result1?.consent_datetime).toEqual(new Date('2026-02-22T15:50:00Z'));
+        expect(result2).toBeNull();
+      });
+    });
   });
   describe('buildConsents', () => {
     test('should retrieve inventory and init consents with them', async () => {
