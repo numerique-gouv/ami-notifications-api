@@ -50,6 +50,22 @@ describe('/contact.ts', () => {
       // Then
       expect(url).toEqual('https://test@example.org/?h=fchash&p=android&v=0.5');
     });
+
+    test('with commit id', async () => {
+      // Given
+      vi.mocked(envModule).PUBLIC_CONTACT_URL =
+        'https://test@example.org/?h={fc_hash}&p={platform}&v={version}&c={commit_id}';
+      vi.spyOn(nativeInfosMethods, 'getPlatform').mockReturnValue('android');
+      vi.spyOn(nativeInfosMethods, 'getVersion').mockReturnValue('0.5');
+
+      // When
+      const url = getContactUrl();
+
+      // Then
+      expect(url).toEqual(
+        'https://test@example.org/?h=%3Cabsent%3E&p=android&v=0.5&c=%23%23hash%23%23'
+      );
+    });
   });
 
   describe('getContactMailToUri', () => {
