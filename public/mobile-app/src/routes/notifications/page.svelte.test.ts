@@ -15,6 +15,7 @@ let wss: WSType;
 
 describe('/+page.svelte', () => {
   beforeEach(() => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
     wss = new WS(`${PUBLIC_APP_WS_URL}/api/v1/users/notification/events/stream`);
 
     const notifications: AppNotification[] = [];
@@ -26,6 +27,7 @@ describe('/+page.svelte', () => {
 
   afterEach(() => {
     wss.close();
+    vi.useRealTimers();
   });
 
   test('user has to be connected', async () => {
