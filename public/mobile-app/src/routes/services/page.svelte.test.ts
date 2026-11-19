@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import * as AMINavigationMethods from '$lib/ami-navigation';
 import * as followupMethods from '$lib/followup';
 import { Followup } from '$lib/followup';
@@ -11,7 +11,11 @@ import Page from './+page.svelte';
 
 describe('/+page.svelte', () => {
   beforeEach(async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
     vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(new Followup());
+  });
+  afterEach(() => {
+    vi.useRealTimers();
   });
   test('user has to be connected', async () => {
     // Given
@@ -41,7 +45,7 @@ describe('/+page.svelte', () => {
     // Given
     await userStore.login(mockUserInfo);
     const services = new Services();
-    vi.spyOn(services, 'items', 'get').mockReturnValue([
+    vi.spyOn(services, 'catalog', 'get').mockReturnValue([
       new ServicesItem(
         'psl',
         'OperationTranquilliteVacances',
@@ -111,7 +115,7 @@ describe('/+page.svelte', () => {
         // Given
         await userStore.login(mockUserInfo);
         const services = new Services();
-        vi.spyOn(services, 'items', 'get').mockReturnValue([
+        vi.spyOn(services, 'catalog', 'get').mockReturnValue([
           new ServicesItem(
             'psl',
             'OperationTranquilliteVacances',
@@ -136,7 +140,7 @@ describe('/+page.svelte', () => {
         // When
         await waitFor(async () => {
           const link = screen.getByTestId(
-            'service-catalog-psl:OperationTranquilliteVacances'
+            'service-catalog:psl:OperationTranquilliteVacances'
           );
           await fireEvent.click(link);
         });
@@ -152,7 +156,7 @@ describe('/+page.svelte', () => {
         // Given
         await userStore.login(mockUserInfo);
         const services = new Services();
-        vi.spyOn(services, 'items', 'get').mockReturnValue([
+        vi.spyOn(services, 'catalog', 'get').mockReturnValue([
           new ServicesItem(
             'psl',
             'OperationTranquilliteVacances',
@@ -177,7 +181,7 @@ describe('/+page.svelte', () => {
         // When
         await waitFor(async () => {
           const link = screen.getByTestId(
-            'service-catalog-psl:OperationTranquilliteVacances'
+            'service-catalog:psl:OperationTranquilliteVacances'
           );
           await fireEvent.click(link);
         });
@@ -195,7 +199,7 @@ describe('/+page.svelte', () => {
         // Given
         await userStore.login(mockUserInfo);
         const services = new Services();
-        vi.spyOn(services, 'items', 'get').mockReturnValue([
+        vi.spyOn(services, 'catalog', 'get').mockReturnValue([
           new ServicesItem(
             'psl',
             'OperationTranquilliteVacances',
@@ -216,7 +220,7 @@ describe('/+page.svelte', () => {
         // When
         await waitFor(async () => {
           const link = screen.getByTestId(
-            'services-item-psl:OperationTranquilliteVacances-open-modal-button'
+            'services-item-catalog:psl:OperationTranquilliteVacances-open-modal-button'
           );
           await fireEvent.click(link);
         });
@@ -230,7 +234,7 @@ describe('/+page.svelte', () => {
             // Given
             await userStore.login(mockUserInfo);
             const services = new Services();
-            vi.spyOn(services, 'items', 'get').mockReturnValue([
+            vi.spyOn(services, 'catalog', 'get').mockReturnValue([
               new ServicesItem(
                 'psl',
                 'OperationTranquilliteVacances',
@@ -251,7 +255,7 @@ describe('/+page.svelte', () => {
 
             await waitFor(async () => {
               const link = screen.getByTestId(
-                'services-item-psl:OperationTranquilliteVacances-open-modal-button'
+                'services-item-catalog:psl:OperationTranquilliteVacances-open-modal-button'
               );
               await fireEvent.click(link);
             });
@@ -272,7 +276,7 @@ describe('/+page.svelte', () => {
             // Given
             await userStore.login(mockUserInfo);
             const services = new Services();
-            vi.spyOn(services, 'items', 'get').mockReturnValue([
+            vi.spyOn(services, 'catalog', 'get').mockReturnValue([
               new ServicesItem(
                 'psl',
                 'OperationTranquilliteVacances',
@@ -296,7 +300,7 @@ describe('/+page.svelte', () => {
 
             await waitFor(async () => {
               const link = screen.getByTestId(
-                'services-item-psl:OperationTranquilliteVacances-open-modal-button'
+                'services-item-catalog:psl:OperationTranquilliteVacances-open-modal-button'
               );
               await fireEvent.click(link);
             });
@@ -316,7 +320,7 @@ describe('/+page.svelte', () => {
             // Given
             await userStore.login(mockUserInfo);
             const services = new Services();
-            vi.spyOn(services, 'items', 'get').mockReturnValue([
+            vi.spyOn(services, 'catalog', 'get').mockReturnValue([
               new ServicesItem(
                 'psl',
                 'OperationTranquilliteVacances',
@@ -340,7 +344,7 @@ describe('/+page.svelte', () => {
 
             await waitFor(async () => {
               const link = screen.getByTestId(
-                'services-item-psl:OperationTranquilliteVacances-open-modal-button'
+                'services-item-catalog:psl:OperationTranquilliteVacances-open-modal-button'
               );
               await fireEvent.click(link);
             });
@@ -390,7 +394,7 @@ describe('/+page.svelte', () => {
       // When
       await waitFor(async () => {
         const link = screen.getByTestId(
-          'service-sos-psl:OperationTranquilliteVacances'
+          'service-sos:psl:OperationTranquilliteVacances'
         );
         await fireEvent.click(link);
       });
@@ -431,7 +435,7 @@ describe('/+page.svelte', () => {
       // When
       await waitFor(async () => {
         const link = screen.getByTestId(
-          'service-sos-psl:OperationTranquilliteVacances'
+          'service-sos:psl:OperationTranquilliteVacances'
         );
         await fireEvent.click(link);
       });
@@ -474,7 +478,7 @@ describe('/+page.svelte', () => {
       // When
       await waitFor(async () => {
         const link = screen.getByTestId(
-          'service-steps-psl:OperationTranquilliteVacances'
+          'service-steps:psl:OperationTranquilliteVacances'
         );
         await fireEvent.click(link);
       });
@@ -515,7 +519,7 @@ describe('/+page.svelte', () => {
       // When
       await waitFor(async () => {
         const link = screen.getByTestId(
-          'service-steps-psl:OperationTranquilliteVacances'
+          'service-steps:psl:OperationTranquilliteVacances'
         );
         await fireEvent.click(link);
       });

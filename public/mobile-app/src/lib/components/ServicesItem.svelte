@@ -21,7 +21,7 @@
       type="button"
       class="fr-sidemenu__link"
       onclick={() => goToService(item)}
-      data-testid="service-catalog-{item.id}"
+      data-testid="service-{item.id}"
     >
       <span class="services--item-details">
         <span class="services--item-label">{item.title}</span>
@@ -56,8 +56,9 @@
       text-align: left;
       font: inherit;
       cursor: pointer;
-      padding: 1.5rem 0;
-      color: #000;
+      padding: 1rem 0;
+      color: var(--text-title-grey);
+      min-height: 4.5rem;
       --hover-tint: none;
       --active-tint: none;
       justify-content: space-between;

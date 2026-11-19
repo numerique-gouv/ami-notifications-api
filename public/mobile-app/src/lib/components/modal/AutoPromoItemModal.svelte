@@ -17,7 +17,7 @@
 
 {#if item_component_modal_name === "PersonalDataConsentModal"}
   <PersonalDataConsentModal
-    modalId="{modalId}"
+    modalId={modalId}
     onClose={onCloseModal}
     pageOrigin="homepage-autopromo"
   />
