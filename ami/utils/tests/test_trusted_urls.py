@@ -1,13 +1,8 @@
 import pytest
 
-from ami.tests.utils import login
-from ami.user.models import User
-
 
 @pytest.mark.django_db
-def test_get_trusted_urls(user: User, app, settings):
-    login(app, user)
-
+def test_get_trusted_urls(app, settings):
     settings.TRUSTED_URLS = ""
     response = app.get("/api-utils/trusted_urls", status=200)
     assert response.json == {"trusted_urls": []}

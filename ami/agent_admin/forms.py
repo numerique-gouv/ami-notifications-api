@@ -206,6 +206,7 @@ class ServiceForm(forms.ModelForm, AMIDsfrBaseForm):
         exclude = ["kind"]
         widgets = {
             "with_silent_login": ToggleInput,
+            "with_followup_integration": ToggleInput,
             "restricted_to": forms.Textarea(),
         }
 
@@ -222,6 +223,8 @@ class ServiceForm(forms.ModelForm, AMIDsfrBaseForm):
             self.fields.pop("icon")
         if self.instance.kind == Service.Kind.STEPS:
             self.fields.pop("with_silent_login")
+        if self.instance.kind != Service.Kind.CATALOG:
+            self.fields.pop("with_followup_integration")
 
     def clean_restricted_to(self):
         value = self.cleaned_data["restricted_to"] or ""
