@@ -1,12 +1,10 @@
 import logging
-import uuid
 from typing import cast
 
 from django.db import transaction
 from django.db.models import QuerySet
-from django.shortcuts import get_object_or_404
 from django.utils.timezone import now
-from drf_spectacular.utils import PolymorphicProxySerializer, extend_schema, inline_serializer
+from drf_spectacular.utils import extend_schema
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -24,7 +22,6 @@ from .serializers import (
     ConsentSerializer,
     ConsentsUpdateSerializer,
     ConsentUpdateSerializer,
-    MobileAppSubscriptionSerializer,
     PersonalDataConsentPostResponseSerializer,
     PersonalDataConsentSerializer,
     PersonalDataConsentUpdateSerializer,
@@ -32,7 +29,6 @@ from .serializers import (
     RegistrationPutActionSerializer,
     RegistrationRemoveFromDeviceIdSerializer,
     RegistrationSerializer,
-    WebPushSubscriptionSerializer,
 )
 
 logger = logging.getLogger(__name__)
@@ -41,18 +37,7 @@ logger = logging.getLogger(__name__)
 @extend_schema(methods=["GET"], responses=RegistrationSerializer(many=True))
 @extend_schema(
     methods=["POST"],
-    request=PolymorphicProxySerializer(
-        component_name="RegistrationCreate",
-        serializers=[
-            inline_serializer(
-                "WebPushRegistrationCreate", {"subscription": WebPushSubscriptionSerializer()}
-            ),
-            inline_serializer(
-                "MobileRegistrationCreate", {"subscription": MobileAppSubscriptionSerializer()}
-            ),
-        ],
-        resource_type_field_name=None,
-    ),
+    request=RegistrationCreateSerializer,
     responses={200: RegistrationSerializer, 201: RegistrationSerializer},
 )
 @extend_schema(
@@ -89,53 +74,25 @@ def registrations(request: Request) -> Response:
     data: dict = cast(dict, serializer.validated_data)
     subscription: dict = data["subscription"]
 
-    if "device_id" in subscription:
-        with transaction.atomic():
-            # In case of a mobile app subscription, check if we already have registration(s) for this device.
-            existing_registrations: QuerySet[Registration] = (
-                Registration.objects.select_for_update().filter(
-                    device_id=subscription["device_id"],
-                )
-            )
-            registrations_exists = existing_registrations.exists()
-            status = HTTP_200_OK if registrations_exists else HTTP_201_CREATED
-            if registrations_exists:
-                # and if so, mark them as deleted: we only want to keep
-                # the latest registration for a given device.
-                existing_registrations.update(deleted_at=now())
-            registration: Registration = Registration.objects.create(
-                user=request.ami_user,
-                subscription=subscription,
+    with transaction.atomic():
+        # In case of a mobile app subscription, check if we already have registration(s) for this device.
+        existing_registrations: QuerySet[Registration] = (
+            Registration.objects.select_for_update().filter(
                 device_id=subscription["device_id"],
             )
-        return Response(RegistrationSerializer(registration).data, status=status)
-
-    try:
-        existing_registration: Registration = Registration.objects.get(
-            subscription=subscription, user=request.ami_user
         )
-        return Response(RegistrationSerializer(existing_registration).data)
-    except Registration.DoesNotExist:
-        pass
-
-    registration: Registration = Registration.objects.create(
-        user=request.ami_user, subscription=subscription
-    )
-    return Response(RegistrationSerializer(registration).data, status=HTTP_201_CREATED)
-
-
-@api_view(["DELETE"])
-@ami_login_required
-def unregister_legacy(
-    request: Request,
-    registration_id: uuid.UUID,
-) -> Response:
-    registration: Registration | None = get_object_or_404(
-        Registration, id=registration_id, user=request.ami_user
-    )
-    registration.deleted_at = now()
-    registration.save()
-    return Response(status=204)
+        registrations_exists = existing_registrations.exists()
+        status = HTTP_200_OK if registrations_exists else HTTP_201_CREATED
+        if registrations_exists:
+            # and if so, mark them as deleted: we only want to keep
+            # the latest registration for a given device.
+            existing_registrations.update(deleted_at=now())
+        registration: Registration = Registration.objects.create(
+            user=request.ami_user,
+            subscription=subscription,
+            device_id=subscription["device_id"],
+        )
+    return Response(RegistrationSerializer(registration).data, status=status)
 
 
 @extend_schema(

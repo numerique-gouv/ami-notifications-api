@@ -8,43 +8,6 @@ export type Registration = {
   created_at: Date | string;
 };
 
-export const registerDevice = async (
-  pushSubscription: PushSubscription
-): Promise<Registration | null> => {
-  const pushSubURL = pushSubscription.endpoint;
-  const pushSubAuth = pushSubscription.toJSON().keys?.auth;
-  const pushSubP256DH = pushSubscription.toJSON().keys?.p256dh;
-
-  const payload = {
-    subscription: {
-      endpoint: pushSubURL,
-      keys: {
-        auth: pushSubAuth,
-        p256dh: pushSubP256DH,
-      },
-    },
-  };
-  console.log('payload:', payload);
-
-  const headers = {
-    'Content-Type': 'application/json',
-  };
-  const response = await apiFetch('/api/v1/users/registrations', {
-    method: 'POST',
-    headers: headers,
-    body: JSON.stringify(payload),
-  });
-  console.log('response:', response);
-  if (response.status < 400) {
-    const registration = await response.json();
-    console.log('registration', registration);
-    return registration;
-  } else {
-    console.log(`error ${response.status}: ${response.statusText}, ${response.body}`);
-    return null;
-  }
-};
-
 export const unregisterRegistrationsForNative = async (deviceId: string) => {
   const payload = {
     device_id: deviceId,
@@ -62,23 +25,6 @@ export const unregisterRegistrationsForNative = async (deviceId: string) => {
   );
   console.log('response:', response);
   if (response.status < 400) {
-    console.log('The device has been deleted successfully');
-  } else {
-    console.log(`error ${response.status}: ${response.statusText}, ${response.body}`);
-  }
-  return response.status;
-};
-
-export const unregisterRegistrationsForDesktop = async (registrationId: string) => {
-  const headers = {
-    'Content-Type': 'application/json',
-  };
-  const response = await apiFetch(`/api/v1/users/registrations/${registrationId}`, {
-    method: 'DELETE',
-    headers: headers,
-  });
-  console.log('response:', response);
-  if (response.status === 204) {
     console.log('The device has been deleted successfully');
   } else {
     console.log(`error ${response.status}: ${response.statusText}, ${response.body}`);
