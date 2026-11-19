@@ -3,6 +3,7 @@
   import { SvelteMap } from 'svelte/reactivity';
   import { AMIGoto } from '$lib/ami-navigation';
   import { isPushNotificationEnabled } from '$lib/bridges/nativeAppState';
+  import { emit } from '$lib/bridges/nativeBridge';
   import FollowupInformation from '$lib/components/followup/FollowupInformation.svelte';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import ConsentsSkeleton from '$lib/components/skeletons/ConsentsSkeleton.svelte';
@@ -72,9 +73,15 @@
       }
     });
   };
+
+  const onBack = () => {
+    if (!pushNotificationEnabled && consents.hasAnyConsents()) {
+      emit('show_push_notification_consent_dialog');
+    }
+  };
 </script>
 
-<NavWithBackButton title="Suivi des démarches" {backUrl} />
+<NavWithBackButton title="Suivi des démarches" {backUrl} onBack={onBack} />
 
 {#if userStore.connected}
   {#await waitForPageData()}
