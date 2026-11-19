@@ -31,6 +31,8 @@ describe('/webappBridge.ts', () => {
         'https://localhost:5173/relogin-france-connect',
         'https://localhost:5173/silent-login-ami-fi',
         'https://localhost:5173/login-callback',
+        'https://localhost:5173/goto-redirect-url',
+        'https://localhost:5173/logout-france-connect',
         'https://localhost:5173/api/v1/fi/authorize/',
         'https://localhost:5173/#/relogin',
         'https://localhost:5173/#/silent-login',
