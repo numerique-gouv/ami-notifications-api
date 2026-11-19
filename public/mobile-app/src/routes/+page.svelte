@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onDestroy, onMount } from 'svelte';
   import { page } from '$app/state';
   import { type Agenda, Item as AgendaItemType, buildAgenda } from '$lib/agenda';
   import { AMIGoto } from '$lib/ami-navigation';
@@ -45,6 +45,7 @@
   let consents: Consents | null = $state(null);
   let personalDataConsent: PersonalDataConsent = $state() as PersonalDataConsent;
   let hasAnyConsents: boolean = $state(false);
+  let websocket: WebSocket | null = null;
 
   const updateUnreadNotificationsCount = async () => {
     const count = await countUnreadNotifications();
@@ -68,6 +69,20 @@
     isAgendaEmpty = !(agenda.now.length || agenda.next.length);
     hasAnyConsents = consents.hasAnyConsents();
     isFollowupEmpty = !followup.items.length;
+  };
+
+  const generateWebsocket = async () => {
+    console.log('generateWebsocket for home page');
+    if (websocket && websocket.readyState === WebSocket.OPEN) {
+      websocket.close();
+    }
+
+    websocket = notificationEventsSocket(async () => {
+      console.log(
+        'New message received from the websocket, counting unread notifications'
+      );
+      unreadNotificationsCount = await countUnreadNotifications();
+    });
   };
 
   onMount(async () => {
@@ -99,28 +114,29 @@
 
       unreadNotificationsCount = countUnreadNotificationsFromStore();
       updateUnreadNotificationsCount();
-
-      const onMessage = async () => {
-        console.log(
-          'New message received from the websocket, counting unread notifications'
-        );
-        unreadNotificationsCount = await countUnreadNotifications();
-      };
-      let ws = notificationEventsSocket(onMessage);
-
+      await generateWebsocket();
       const handleVisibility = async () => {
+        console.log('visibility event');
         if (
           document.visibilityState === 'visible' &&
-          ws.readyState !== WebSocket.OPEN
+          (websocket === null || websocket.readyState !== WebSocket.OPEN)
         ) {
-          console.log('Reconnecting the websocket');
-          ws = notificationEventsSocket(onMessage);
           unreadNotificationsCount = await countUnreadNotifications();
+          await generateWebsocket();
         }
       };
       document.addEventListener('visibilitychange', handleVisibility);
+      window.addEventListener('ami:regenerate-websocket', generateWebsocket);
     } catch (error) {
       console.error(error);
+    }
+  });
+
+  onDestroy(async () => {
+    window.removeEventListener('ami:regenerate-websocket', generateWebsocket);
+    if (websocket) {
+      websocket.close();
+      websocket = null;
     }
   });
 </script>
