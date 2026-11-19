@@ -2,6 +2,8 @@
   import { onMount } from 'svelte';
   import { SvelteMap } from 'svelte/reactivity';
   import { AMIGoto } from '$lib/ami-navigation';
+  import { isPushNotificationEnabled } from '$lib/bridges/nativeAppState';
+  import { emit } from '$lib/bridges/nativeBridge';
   import FollowupInformation from '$lib/components/followup/FollowupInformation.svelte';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import ConsentsSkeleton from '$lib/components/skeletons/ConsentsSkeleton.svelte';
@@ -23,6 +25,7 @@
   let partners: Partners = $state() as Partners;
   let followup: Followup = $state() as Followup;
   let displayWarningBlocks: SvelteMap<string, boolean> = new SvelteMap();
+  let pushNotificationEnabled = isPushNotificationEnabled();
 
   const buildConsentsAndPartners = async () => {
     partners = await buildPartners(); // expected side-effect
@@ -70,15 +73,21 @@
       }
     });
   };
+
+  const onBack = () => {
+    if (!pushNotificationEnabled && consents.hasAnyConsents()) {
+      emit('show_push_notification_consent_dialog');
+    }
+  };
 </script>
 
-<NavWithBackButton title="Suivi des démarches" {backUrl} />
+<NavWithBackButton title="Suivi des démarches" {backUrl} onBack={onBack} />
 
 {#if userStore.connected}
   {#await waitForPageData()}
     <ConsentsSkeleton />
   {:then pageDataLoaded}
-    <div class="fr-container consents-content-container fr-pt-14w">
+    <div class="fr-container consents-content-container fr-pt-14w fr-pb-2w">
       <button
         id="select-all-button"
         class="fr-btn fr-btn--secondary fr-mb-2v"
@@ -125,6 +134,21 @@
         </div>
       {/if}
       <FollowupInformation />
+      {#if !pushNotificationEnabled && consents.hasAnyConsents()}
+        <div
+          class="am-blue fr-background-contrast--blue-france fr-mt-4v fr-p-4v fr-pb-3w"
+        >
+          <h6>Ne manquez rien de votre vie administrative !</h6>
+          <button
+            type="button"
+            class="fr-btn am-btn-w100 fr-icon-notification-3-line fr-btn--icon-left"
+            onclick={() => AMIGoto('/#/preferences/notifications')}
+            data-testid="push-notification-btn"
+          >
+            Activer les notifications
+          </button>
+        </div>
+      {/if}
     </div>
   {/await}
 {/if}

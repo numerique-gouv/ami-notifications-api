@@ -5,8 +5,6 @@ export const isNative = (): boolean => {
 const getNativeInfos = (): NativeInfosData | undefined => {
   if (isNative()) {
     return window.NativeInfos?.getInfos();
-  } else {
-    console.log("We're not in a native WebView");
   }
 };
 

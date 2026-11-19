@@ -2,7 +2,6 @@ import uuid
 
 from django.db import models
 from pydantic import BaseModel
-from webpush import WebPushSubscription
 
 from ami.partner.models import Partner
 
@@ -72,9 +71,9 @@ class Registration(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.PROTECT)
 
-    device_id = models.CharField(blank=True, null=True)
+    device_id = models.CharField(blank=True)
 
-    subscription = models.JSONField(blank=True, null=True)
+    subscription = models.JSONField(blank=True, default=dict)
 
     deleted_at = models.DateTimeField(null=True)
 
@@ -85,12 +84,9 @@ class Registration(models.Model):
     all_objects = models.Manager()
 
     @property
-    def typed_subscription(self) -> WebPushSubscription | MobileAppSubscription:
+    def typed_subscription(self) -> MobileAppSubscription:
         """Convert the stored dict to the proper subscription type."""
-        try:
-            return WebPushSubscription.model_validate(self.subscription)
-        except Exception:
-            return MobileAppSubscription.model_validate(self.subscription)
+        return MobileAppSubscription.model_validate(self.subscription)
 
     class Meta:
         db_table = "registration"

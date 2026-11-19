@@ -107,10 +107,6 @@ class AnonymizedRegistration(AnonymizedModel):
     class Meta(AnonymizedModel.Meta):
         db_table = "ami_registration_anonymized"
 
-    @staticmethod
-    def _is_mobile_subscription(subscription: dict) -> bool:
-        return "app_version" in subscription
-
     @classmethod
     def from_source(cls, source):
         defaults = {
@@ -120,12 +116,9 @@ class AnonymizedRegistration(AnonymizedModel):
         }
         if defaults.get("subscription"):
             sub = dict(defaults["subscription"])
-            if cls._is_mobile_subscription(sub):
-                for field in ("device_id", "fcm_token"):
-                    if field in sub:
-                        sub[field] = hashlib.sha256(sub[field].encode()).hexdigest()
-            else:
-                sub = dict()
+            for field in ("device_id", "fcm_token"):
+                if field in sub:
+                    sub[field] = hashlib.sha256(sub[field].encode()).hexdigest()
             defaults["subscription"] = sub
         instance, _ = cls.objects.update_or_create(
             id=source.id,

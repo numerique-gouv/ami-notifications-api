@@ -36,6 +36,9 @@ declare global {
     NativeInfos?: {
       getInfos(): NativeInfosData;
     };
+    NativeAppState?: {
+      isPushNotificationEnabled(): boolean;
+    };
     WebAppBridge: {
       getUrlAliases(): string;
       getAuthenticationUrls(): string[];
