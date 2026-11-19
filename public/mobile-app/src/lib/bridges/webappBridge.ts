@@ -16,6 +16,7 @@ const authenticationUrls: string[] = [
   `${PUBLIC_APP_URL}/relogin-france-connect`,
   `${PUBLIC_APP_URL}/silent-login-ami-fi`,
   `${PUBLIC_APP_URL}/login-callback`,
+  `${PUBLIC_APP_URL}/goto-redirect-url`,
   `${PUBLIC_APP_URL}/api/v1/fi/authorize/`,
   `${PUBLIC_APP_URL}/#/relogin`,
   `${PUBLIC_APP_URL}/#/silent-login`,
