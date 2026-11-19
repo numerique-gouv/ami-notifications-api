@@ -7,7 +7,7 @@ import {
   getPeriod,
 } from '$lib/followup';
 import { type User, userStore } from '$lib/state/User.svelte';
-import { dateToISO, getTimestamp, uniqueId } from '$lib/utils';
+import { dateToISO, getTimestamp, slugify, uniqueId } from '$lib/utils';
 
 export type Kind = 'holiday' | 'election' | 'personal';
 
@@ -17,17 +17,6 @@ const capitalizeFirstLetter = (val: string) => {
 
 export const monthName = (date: Date) => {
   return capitalizeFirstLetter(date.toLocaleDateString('fr-FR', { month: 'long' }));
-};
-
-export const slugify = (str: string): string => {
-  return str
-    .replace(/\s+/g, '-') // replace spaces with hyphens
-    .replace(/-+/g, '-') // remove consecutive hyphens
-    .trim() // trim leading or trailing whitespace
-    .normalize('NFKD') // split accented characters into their base characters and diacritical marks
-    .replace(/[\u0300-\u036f]/g, '') // remove all the accents, which happen to be all in the \u03xx UNICODE block.
-    .toLowerCase() // convert to lowercase
-    .replace(/[^a-z0-9 -]/g, ''); // remove non-alphanumeric characters
 };
 
 const oneday_in_ms = 24 * 60 * 60 * 1000;
