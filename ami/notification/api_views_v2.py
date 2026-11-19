@@ -20,8 +20,12 @@ from .serializers import (
 logger = logging.getLogger(__name__)
 
 
-def _partner_create_event(request: Request, data: dict):
-    current_partner = request.ami_partner
+class PartnerCreateEventNotFoundException(Exception):
+    pass
+
+
+def partner_process_create_event_message(partner, data):
+    current_partner = partner
     ignore_unknown_user = os.getenv(
         "IGNORE_NOTIFICATION_REQUESTS_FOR_UNREGISTERED_USER", "False"
     ).lower() in ("true", "1", "t")  # legacy, ignored when consent is enabled
@@ -34,26 +38,26 @@ def _partner_create_event(request: Request, data: dict):
     if current_partner.consent_is_enabled:
         if user is None:
             logger.info(f"User not found (partner {current_partner.id})")
-            return Response({"error": "User not found"}, status=404)
+            raise PartnerCreateEventNotFoundException("User not found")
         try:
             consent = Consent.objects.get(user=user, partner=current_partner)
         except Consent.DoesNotExist:
             logger.info(f"Consent not found (partner {current_partner.id})")
-            return Response({"error": "Consent not found"}, status=404)
+            raise PartnerCreateEventNotFoundException("Consent not found")
         if consent.consent_datetime is None:
             logger.info(f"Consent not given (partner {current_partner.id})")
-            return Response({"error": "Consent not given"}, status=404)
+            raise PartnerCreateEventNotFoundException("Consent not given")
     else:
         # legacy, will be removed when all partners are consent-ready
         if user is None:
             if ignore_unknown_user:
                 logger.info("User not found")
-                return Response({"error": "User not found"}, status=404)
+                raise PartnerCreateEventNotFoundException("User not found")
             user = User.objects.create(fc_hash=data["recipient_fc_hash"])
         else:
             if ignore_unknown_user and user.last_logged_in is None:
                 logger.info("User never seen")
-                return Response({"error": "User never seen"}, status=404)
+                raise PartnerCreateEventNotFoundException("User never seen")
 
     notification_send_status = user.last_logged_in is not None
     try_push = True
@@ -77,9 +81,7 @@ def _partner_create_event(request: Request, data: dict):
         "notification_id": notification.id,
         "notification_send_status": notification_send_status,
     }
-    return Response(
-        NotificationResponseSerializer(response_data).data, status=201 if created else 200
-    )
+    return created, response_data
 
 
 @extend_schema(
@@ -99,4 +101,11 @@ def partner_create_event(request: Request) -> Response[NotificationResponseSeria
     serializer.is_valid(raise_exception=True)
     data: dict = cast(dict, serializer.validated_data)
 
-    return _partner_create_event(request, data)
+    try:
+        created, response_data = partner_process_create_event_message(request.ami_partner, data)
+    except PartnerCreateEventNotFoundException as e:
+        return Response({"error": str(e)}, status=404)
+
+    return Response(
+        NotificationResponseSerializer(response_data).data, status=201 if created else 200
+    )

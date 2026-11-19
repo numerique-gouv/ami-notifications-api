@@ -211,7 +211,8 @@ def partner_psl():
 
 @pytest.fixture
 def partner_auth(partner, settings) -> dict[str, str]:
-    b64 = base64.b64encode(f"{partner.slug}:{partner.secret}".encode()).decode()
+    secret = settings.PARTNERS_SECRETS[partner.slug]
+    b64 = base64.b64encode(f"{partner.slug}:{secret}".encode()).decode()
     return {"authorization": f"Basic {b64}"}
 
 

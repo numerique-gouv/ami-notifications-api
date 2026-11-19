@@ -20,6 +20,16 @@ document.addEventListener('DOMContentLoaded', () => {
     initSelectChange(select);
     select.addEventListener('change', handleSelectChange);
   });
+
+  document.querySelectorAll('.select-on-click').forEach((el) => {
+    el.addEventListener('click', () => {
+      const sel = window.getSelection();
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      sel.removeAllRanges();
+      sel.addRange(range);
+    });
+  });
 });
 
 document.addEventListener('DOMContentLoaded', () => {

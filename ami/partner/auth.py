@@ -1,5 +1,4 @@
 import logging
-import secrets
 
 import sentry_sdk
 from django.conf import settings
@@ -28,11 +27,11 @@ class PartnerBasicAuthentication(BasicAuthentication):
                 partner = Partner()
                 bad_auth = True
             else:
-                if not partner.secret:
+                if not partner.has_password():
                     bad_auth = True
                     logger.error("API call to unconfigured partner")
                 else:
-                    bad_auth = not secrets.compare_digest(partner.secret, password)
+                    bad_auth = not partner.check_password(password)
                     if bad_auth:
                         logger.error("API call with invalid partner authentication password")
 

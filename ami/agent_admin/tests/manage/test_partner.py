@@ -1,6 +1,7 @@
 import uuid
 
 import pytest
+from django.contrib.auth.hashers import check_password
 
 from ami.agent.models import Agent
 from ami.agent_admin.models import AuditEntry
@@ -47,6 +48,11 @@ def test_add_partner(app, admin_agent: Agent) -> None:
     assert response.forms["partner-form"]["icon"].value == ""
     assert response.forms["partner-form"]["consent_is_enabled"].value is None
     assert response.forms["partner-form"]["displayed_on_front"].value == "on"
+
+    assert response.pyquery("#password-accordion")
+    password = response.pyquery(".select-on-click")[0].text
+    password_hash = response.pyquery(".select-on-click")[1].text
+    assert check_password(password, password_hash)
 
 
 @pytest.mark.django_db
@@ -141,6 +147,7 @@ def test_edit_partner_unknown_id(app, admin_agent: Agent) -> None:
 def test_edit_partner_submit_validation_errors(app, admin_agent: Agent, partner: Partner) -> None:
     app.set_user(admin_agent.user)
     response = app.get(f"/agent-admin/manage/partner/{partner.id}/")
+    assert not response.pyquery("#password-accordion")
     response.forms["partner-form"]["name"].value = ""
     response.forms["partner-form"]["icon"].value = ""
     response.forms["partner-form"]["consent_is_enabled"].value = ""

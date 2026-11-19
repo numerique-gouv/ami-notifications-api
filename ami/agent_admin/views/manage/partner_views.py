@@ -1,7 +1,10 @@
 from django.contrib import messages
+from django.contrib.auth.hashers import make_password
+from django.core.management.utils import get_random_secret_key
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils.safestring import mark_safe
 
 from ami.agent.decorators import (
     agent_login_required,
@@ -64,6 +67,17 @@ def add_edit_partner(partner: Partner | None, request, for_update=True):
             "extra_classes": "fr-btns-group--inline fr-btns-group--form-actions",
         },
     }
+    if not for_update:
+        password = get_random_secret_key()
+        hashed_password = make_password(password)
+        context["password_accordion"] = {
+            "id": "password-accordion",
+            "title": "Mot de passe",
+            "content": mark_safe(f"""
+            <p>Proposition (à communiquer) : <span class="select-on-click">{password}</span><br>
+            Hash (à renseigner dans la configuration) : <span class="select-on-click">{hashed_password}</span></p>
+            """),
+        }
     return render(request, "agent_admin/manage/add_edit_partner.html", context)
 
 
