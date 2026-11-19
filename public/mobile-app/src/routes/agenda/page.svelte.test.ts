@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
-import { describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import * as agendaMethods from '$lib/agenda';
 import { Agenda, Item, monthName } from '$lib/agenda';
 import * as AMINavigationMethods from '$lib/ami-navigation';
@@ -13,6 +13,14 @@ const today = new Date();
 const in32days = new Date(today.getTime() + 32 * oneday_in_ms); // 32 days, so we are sure that month is different than today's
 
 describe('/+page.svelte', () => {
+  beforeEach(async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   test('user has to be connected', async () => {
     // Given
     vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(new Agenda());

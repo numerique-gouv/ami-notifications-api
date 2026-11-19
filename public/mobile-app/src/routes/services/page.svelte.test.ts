@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import * as AMINavigationMethods from '$lib/ami-navigation';
 import * as followupMethods from '$lib/followup';
 import { Followup } from '$lib/followup';
@@ -11,7 +11,11 @@ import Page from './+page.svelte';
 
 describe('/+page.svelte', () => {
   beforeEach(async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
     vi.spyOn(followupMethods, 'buildFollowup').mockResolvedValue(new Followup());
+  });
+  afterEach(() => {
+    vi.useRealTimers();
   });
   test('user has to be connected', async () => {
     // Given
