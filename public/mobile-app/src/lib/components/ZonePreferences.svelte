@@ -1,11 +1,13 @@
 <script lang="ts">
+  import DOMPurify from 'dompurify';
   import { onDestroy, onMount } from 'svelte';
   import { AMIBack, AMIGoto } from '$lib/ami-navigation';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
-  import Toggle from '$lib/components/Toggle.svelte';
+  import { ariaHideDecorativeEmoji } from '$lib/emoji';
   import { trackZoneCount } from '$lib/matomo';
   import { Preferences, type ZoneInfo } from '$lib/state/preferences';
   import { userStore } from '$lib/state/User.svelte';
+  import { slugify } from '$lib/utils';
 
   let zoneInfos: ZoneInfo[] = $state([]);
   let userHasAddresses: boolean = $state(false);
@@ -48,15 +50,15 @@
     }
   });
 
-  const saveZones = async (id: string, checked: boolean) => {
+  const saveZones = async (zoneInfo: ZoneInfo, checked: boolean) => {
     if (!userStore.connected) {
       return;
     }
     const preferences = userStore.connected.identity.preferences;
     if (checked) {
-      preferences.addZone(id);
+      preferences.addZone(zoneInfo.zone);
     } else {
-      preferences.removeZone(id);
+      preferences.removeZone(zoneInfo.zone);
     }
     userStore.connected.setPreferences(preferences);
     refreshPreferences();
@@ -135,16 +137,45 @@
     </div>
 
     <div class="preferences-content-container">
-      <div class="fr-pb-3w am-toggle-container">
+      <div class="fr-pb-3w am-zone-checkbox-container">
         {#each zoneInfos as zoneInfo}
-          <Toggle
-            id={zoneInfo.zone}
-            label={zoneInfo.zone}
-            isChecked={zoneInfo.selected}
-            onChangeAction={saveZones}
-            onRemoveAction={removeAddress}
-            tags={zoneInfo.tags}
-          />
+          <div class="fr-pt-2w">
+            <div class="fr-checkbox-group">
+              <input
+                name="checkbox"
+                id={slugify(zoneInfo.zone)}
+                type="checkbox"
+                checked={zoneInfo.selected}
+                onchange={(e) => saveZones(zoneInfo, (e.target as HTMLInputElement).checked)}
+                data-testid={slugify(zoneInfo.zone)}
+              >
+              <label class="fr-label" for={slugify(zoneInfo.zone)}>
+                {@html DOMPurify.sanitize(zoneInfo.zone)}
+              </label>
+            </div>
+            <div class="tags-container">
+              {#each zoneInfo.tags as tag (tag.id)}
+                {#if tag.removable}
+                  <button
+                    class="fr-tag fr-mt-1w fr-tag--dismiss"
+                    type="button"
+                    aria-label="Retirer {tag.label}"
+                    id={tag.id}
+                    onclick={(e) => removeAddress((e.target as HTMLInputElement).id)}
+                    data-testid={tag.id}
+                  >
+                    {tag.label}
+                  </button>
+                {:else}
+                  <p
+                    class="fr-tag fr-mt-1w fr-background-action-low--blue-france fr-text-action-high--blue-france"
+                  >
+                    {@html ariaHideDecorativeEmoji(tag.label)}
+                  </p>
+                {/if}
+              {/each}
+            </div>
+          </div>
         {/each}
       </div>
     </div>

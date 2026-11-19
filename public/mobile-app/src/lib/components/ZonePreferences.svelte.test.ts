@@ -104,7 +104,7 @@ describe('/ZonePreferences.svelte', () => {
       });
 
       // When
-      const toggleInput = screen.getByTestId('Martinique');
+      const toggleInput = screen.getByTestId('martinique');
       await fireEvent.click(toggleInput);
 
       // Then
@@ -136,7 +136,7 @@ describe('/ZonePreferences.svelte', () => {
       });
 
       // When
-      const toggleInput = screen.getByTestId('Zone C');
+      const toggleInput = screen.getByTestId('zone-c');
       await fireEvent.click(toggleInput);
 
       // Then
@@ -271,9 +271,9 @@ describe('/ZonePreferences.svelte', () => {
       });
 
       // When
-      const toggleInputMartinique = screen.getByTestId('Martinique');
+      const toggleInputMartinique = screen.getByTestId('martinique');
       await fireEvent.click(toggleInputMartinique); // add
-      const toggleInputZoneC = screen.getByTestId('Zone C');
+      const toggleInputZoneC = screen.getByTestId('zone-c');
       await fireEvent.click(toggleInputZoneC); // remove
 
       unmount();
