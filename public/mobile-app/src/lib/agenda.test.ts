@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
-import { Agenda, buildAgenda, Item, slugify } from '$lib/agenda';
+import { Agenda, buildAgenda, Item } from '$lib/agenda';
 import * as apiAgendaMethods from '$lib/api-agenda';
 import * as followupMethods from '$lib/followup';
 import { Followup, FollowupItem, FollowupSubItem } from '$lib/followup';
@@ -8,7 +8,7 @@ import * as scheduledNotificationsMethods from '$lib/scheduled-notifications';
 import { Preferences } from '$lib/state/preferences';
 import { User, userStore } from '$lib/state/User.svelte';
 import * as utilsMethods from '$lib/utils';
-import { getTimestamp, parseISODate } from '$lib/utils';
+import { getTimestamp, parseISODate, slugify } from '$lib/utils';
 import { mockUserIdentity, mockUserInfo } from '$tests/utils';
 
 describe('/agenda.ts', () => {
