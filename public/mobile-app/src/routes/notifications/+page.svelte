@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onDestroy, onMount } from 'svelte';
   import { AMIGoto } from '$lib/ami-navigation';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import NotificationIcon from '$lib/components/NotificationIcon.svelte';
@@ -18,6 +18,7 @@
   let backUrl: string = '/';
   let notifications: AppNotification[] = $state([]);
   let followup: Followup | null = $state(null);
+  let websocket: WebSocket | null = null;
 
   const waitForPageData = async () => {
     await skeletonDebugDelay();
@@ -25,8 +26,16 @@
       buildFollowup(),
       retrieveNotifications(),
     ]);
+    await generateWebsocket();
+    window.addEventListener('ami:regenerate-websocket', generateWebsocket);
+  };
 
-    notificationEventsSocket(async () => {
+  const generateWebsocket = async () => {
+    if (websocket && websocket.readyState === WebSocket.OPEN) {
+      websocket.close();
+    }
+
+    websocket = notificationEventsSocket(async () => {
       console.log('New message received from the websocket, retrieving notifications');
       notifications = await retrieveNotifications();
       followup = await buildFollowup();
@@ -37,6 +46,14 @@
     if (!userStore.connected) {
       AMIGoto('/#/login');
       return;
+    }
+  });
+
+  onDestroy(async () => {
+    window.removeEventListener('ami:regenerate-websocket', generateWebsocket);
+    if (websocket) {
+      websocket.close();
+      websocket = null;
     }
   });
 
