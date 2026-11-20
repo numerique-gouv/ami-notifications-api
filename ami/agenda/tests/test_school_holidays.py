@@ -263,7 +263,7 @@ def test_get_school_holidays_source(
     )
     items = [
         AgendaItem(
-            kind=AgendaItemKind.HOLIDAY,
+            kinds=[AgendaItemKind.SCHOOL_HOLIDAY],
             title="Vacances de Noël",
             start_date=datetime.date(2025, 12, 20),
             end_date=datetime.date(2026, 1, 5),
@@ -271,7 +271,7 @@ def test_get_school_holidays_source(
             emoji="🎄",
         ),
         AgendaItem(
-            kind=AgendaItemKind.HOLIDAY,
+            kinds=[AgendaItemKind.SCHOOL_HOLIDAY],
             title="Vacances d'Hiver",
             start_date=datetime.date(2026, 2, 7),
             end_date=datetime.date(2026, 2, 23),

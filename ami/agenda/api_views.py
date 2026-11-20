@@ -11,7 +11,7 @@ from ami.agenda.data.holidays import (
     get_public_holidays_source,
     get_school_holidays_source,
 )
-from ami.agenda.data.internal import get_elections_source
+from ami.agenda.data.marronniers import get_marronniers_source
 from ami.agenda.schemas import Agenda, AgendaSourceStatus
 from ami.agenda.serializers import AgendaQueryParamsSerializer, AgendaSerializer
 from ami.authentication.decorators import ami_login_required
@@ -20,7 +20,7 @@ from ami.utils.schemas import DurationExpiration, MonthlyExpiration, TimeUnit
 SOURCE_EXPIRATION_RULES = {
     "school_holidays": MonthlyExpiration(),
     "public_holidays": MonthlyExpiration(),
-    "elections": DurationExpiration(amount=1, unit=TimeUnit.DAYS),
+    "marronniers": DurationExpiration(amount=1, unit=TimeUnit.DAYS),
 }
 
 
@@ -42,7 +42,7 @@ def get_agenda(
     sources_mapping = {
         "school_holidays": get_school_holidays_source,
         "public_holidays": get_public_holidays_source,
-        "elections": get_elections_source,
+        "marronniers": get_marronniers_source,
     }
 
     item_keys = filter_items or []

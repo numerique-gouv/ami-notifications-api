@@ -2,6 +2,7 @@ import datetime
 from dataclasses import dataclass, fields
 from typing import Any
 
+from ami.agenda.models import SpActuItem
 from ami.agenda.schemas import AgendaItem, AgendaItemKind
 
 
@@ -45,7 +46,7 @@ class SchoolHoliday:
 
     def to_agenda_item(self):
         return AgendaItem(
-            kind=AgendaItemKind.HOLIDAY,
+            kinds=[AgendaItemKind.SCHOOL_HOLIDAY],
             title=self.description,
             zones=self.zones,
             start_date=self.start_date,
@@ -93,7 +94,7 @@ class PublicHoliday:
 
     def to_agenda_item(self):
         return AgendaItem(
-            kind=AgendaItemKind.HOLIDAY,
+            kinds=[AgendaItemKind.PUBLIC_HOLIDAY],
             title=self.description,
             date=self.date,
             emoji=self.emoji,
@@ -101,26 +102,50 @@ class PublicHoliday:
 
 
 @dataclass
-class Election:
+class Marronnier:
+    kinds: list[AgendaItemKind]
     title: str
-    description: str
-    date: datetime.date
-    emoji: str
+    date: datetime.date | None = None
+    start_date: datetime.date | None = None
+    end_date: datetime.date | None = None
+    url: str | None = None
 
-    default_emoji = "🗳️"
+    theme_mapping = {
+        "Argent - Impôts - Consommation": AgendaItemKind.MONEY,
+        "Étranger - Europe": AgendaItemKind.ABROAD,
+        "Environnement": AgendaItemKind.ENVIRONMENT,
+        "Famille - Scolarité": AgendaItemKind.FAMILY,
+        "Travail - Formation": AgendaItemKind.WORK,
+        "Justice": AgendaItemKind.JUSTICE,
+        "Logement": AgendaItemKind.HOUSING,
+        "Loisirs - Sports - Culture": AgendaItemKind.LEISURE,
+        "Papiers - Citoyenneté - Élections": AgendaItemKind.CITIZENSHIP,
+        "Social - Santé": AgendaItemKind.CARE,
+        "Transports - Mobilité": AgendaItemKind.TRANSPORT,
+    }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "Election":
-        cls_fields = {f.name for f in fields(cls)}
-        filtered = {k: v for k, v in data.items() if k in cls_fields}
-        filtered["emoji"] = cls.default_emoji
-        return cls(**filtered)
+    def from_sp_actu_item(cls, item: SpActuItem) -> "Marronnier":
+        kinds = []
+        for theme in item.themes:
+            kind = cls.theme_mapping.get(theme)
+            if kind:
+                kinds.append(kind)
+        return cls(
+            kinds=kinds or [AgendaItemKind.OTHER],
+            title=item.title,
+            date=item.date,
+            start_date=item.start_date,
+            end_date=item.end_date,
+            url=item.url or None,
+        )
 
     def to_agenda_item(self):
         return AgendaItem(
-            kind=AgendaItemKind.ELECTION,
+            kinds=self.kinds,
             title=self.title,
-            description=self.description,
             date=self.date,
-            emoji=self.emoji,
+            start_date=self.start_date,
+            end_date=self.end_date,
+            url=self.url,
         )
