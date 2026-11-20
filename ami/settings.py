@@ -370,6 +370,11 @@ API_ANNUNAIRE_SP_ENDPOINT = (
     "/api/explore/v2.1/catalog/datasets/api-lannuaire-administration/exports/json"
 )
 
+# Comarquage URLs
+COMARQUAGE_ACTUS_URL = CONFIG["COMARQUAGE_ACTUS_URL"]
+COMARQUAGE_THEMES_BASE_URL = CONFIG["COMARQUAGE_THEMES_BASE_URL"]
+SP_ACTU_BASE_URL = CONFIG["SP_ACTU_BASE_URL"]
+
 # Partners
 PARTNERS_SECRETS = {}
 for k, v in CONFIG.items():
