@@ -21,12 +21,11 @@ def node_to_markdown_parts(node, mode):
         yield node.text
     for child in node:
         markers = MARKDOWN_MARKERS[mode].get(child.tag)
-        if markers:
+        if markers and child.text:
             yield markers[0]
             yield from node_to_markdown(child, mode=mode).strip()
             yield markers[1]
-            if child.tail and child.tail.startswith("("):
-                # force space to get correct markdown
+            if child.text.endswith(" "):  # get space out of markup
                 yield " "
         else:
             yield from node_to_markdown(child, mode=mode).strip()
