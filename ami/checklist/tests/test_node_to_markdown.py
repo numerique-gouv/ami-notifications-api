@@ -27,12 +27,18 @@ def test_node_to_markdown():
     )
 
 
-def test_node_to_markdown_space_before_parenthesis():
+def test_node_to_markdown_trailing_space():
     assert (
         node_to_markdown(
             ET.fromstring("<Paragraphe><MiseEnEvidence>test </MiseEnEvidence>(or not)</Paragraphe>")
         )
         == "**test** (or not)"
+    )
+    assert (
+        node_to_markdown(
+            ET.fromstring("<Paragraphe><Expression>test </Expression>this</Paragraphe>")
+        )
+        == "*test* this"
     )
 
 
@@ -49,4 +55,15 @@ def test_node_to_markdown_stripped():
             ET.fromstring("<Paragraphe>1<Exposant>er</Exposant> test</Paragraphe>"), mode="stripped"
         )
         == "1er test"
+    )
+
+
+def test_node_to_markdown_empty_expressin():
+    assert (
+        node_to_markdown(
+            ET.fromstring(
+                "<Paragraphe>test <Expression>in fine</Expression>.<Expression/></Paragraphe>"
+            ),
+        )
+        == "test *in fine*."
     )
