@@ -5,7 +5,7 @@
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import { userStore } from '$lib/state/User.svelte';
 
-  let backUrl: string = $state('/#/agenda');
+  let backUrl: string = $state('/#/agenda/filters');
 
   onMount(async () => {
     if (!userStore.connected) {

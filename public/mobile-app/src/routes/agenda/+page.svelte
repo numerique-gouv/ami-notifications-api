@@ -34,16 +34,9 @@
     <h1 class="fr-h2 fr-mb-0">Mon agenda</h1>
     <div class="agenda--title--icon">
       <button
-        class="fr-btn fr-icon-information-line fr-btn--tertiary-no-outline"
+        class="fr-btn fr-icon-equalizer-line fr-btn--tertiary-no-outline"
         type="button"
-        onclick={() => AMIGoto('/#/agenda/themes')}
-      >
-        Information
-      </button>
-      <button
-        class="fr-btn fr-icon-settings-5-line fr-btn--tertiary-no-outline"
-        type="button"
-        onclick={()=>AMIGoto("/#/preferences/zones")}
+        onclick={()=>AMIGoto("/#/agenda/filters")}
       >
         Préférences
       </button>
