@@ -2,9 +2,38 @@
   import { onMount } from 'svelte';
   import { AMIGoto } from '$lib/ami-navigation';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
+  import SideMenu from '$lib/components/SideMenu.svelte';
+  import type { SideMenuItem } from '$lib/side-menu';
   import { userStore } from '$lib/state/User.svelte';
 
   let backUrl: string = '/';
+
+  let sideMenuEntries: SideMenuItem[] = $state([
+    {
+      isEnabled: true,
+      url: '/#/preferences/consents',
+      title: 'Suivi des démarches',
+      id: 'consents',
+    },
+    {
+      isEnabled: true,
+      url: '/#/preferences/notifications',
+      title: 'Notifications',
+      id: 'notifications',
+    },
+    {
+      isEnabled: true,
+      url: '/#/preferences/zones',
+      title: 'Zones scolaires',
+      id: 'zones',
+    },
+    {
+      isEnabled: true,
+      url: '/#/preferences/personal-data-consent',
+      title: 'Consentement données personnelles',
+      id: 'personal-data-consent',
+    },
+  ]);
 
   onMount(async () => {
     if (!userStore.connected) {
@@ -17,85 +46,9 @@
   <title>Préférences</title>
 </svelte:head>
 
-<div class="preferences-page">
-  <NavWithBackButton title="Préférences" {backUrl} />
-
+<div class="fr-container preferences-content-container" data-testid="preferences">
   <div class="preferences-content-container fr-pt-14w">
-    <nav class="fr-sidemenu" aria-labelledby="fr-sidemenu-title">
-      <div class="fr-sidemenu__inner">
-        <div id="fr-sidemenu-wrapper">
-          <ul class="fr-sidemenu__list">
-            <li class="fr-sidemenu__item">
-              <button
-                type="button"
-                class="fr-sidemenu__link"
-                onclick={()=>AMIGoto("/#/preferences/consents")}
-              >
-                <span class="label">Suivi des démarches</span>
-                <span aria-hidden="true" class="icon fr-icon-arrow-right-s-line"></span>
-              </button>
-            </li>
-            <li class="fr-sidemenu__item">
-              <button
-                type="button"
-                class="fr-sidemenu__link"
-                onclick={()=>AMIGoto("/#/preferences/notifications")}
-              >
-                <span class="label">Notifications</span>
-                <span aria-hidden="true" class="icon fr-icon-arrow-right-s-line"></span>
-              </button>
-            </li>
-            <li class="fr-sidemenu__item">
-              <button
-                type="button"
-                class="fr-sidemenu__link"
-                onclick={()=>AMIGoto("/#/preferences/zones")}
-              >
-                <span class="label">Zones scolaires</span>
-                <span aria-hidden="true" class="icon fr-icon-arrow-right-s-line"></span>
-              </button>
-            </li>
-            <li class="fr-sidemenu__item">
-              <button
-                type="button"
-                class="fr-sidemenu__link"
-                onclick={()=>AMIGoto("/#/preferences/personal-data-consent")}
-              >
-                <span class="label">Consentement données personnelles</span>
-                <span aria-hidden="true" class="icon fr-icon-arrow-right-s-line"></span>
-              </button>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </nav>
+    <NavWithBackButton title="Préférences" {backUrl} />
+    <SideMenu sideMenus={sideMenuEntries} />
   </div>
 </div>
-
-<style>
-  .preferences-page {
-    .fr-sidemenu {
-      padding: 1rem;
-      box-shadow: none;
-      margin: 0;
-      .fr-sidemenu__item {
-        .fr-sidemenu__link {
-          padding: 1.5rem 0;
-          font-weight: 500;
-          color: var(--text-default-grey);
-          --hover-tint: none;
-          --active-tint: none;
-          justify-content: space-between;
-          span.icon {
-            color: var(--text-active-blue-france);
-          }
-        }
-        &:last-child::before {
-          box-shadow:
-            0 -1px 0 0 var(--border-default-grey),
-            inset 0 -1px 0 0 var(--border-default-grey);
-        }
-      }
-    }
-  }
-</style>
