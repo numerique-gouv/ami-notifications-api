@@ -9,7 +9,122 @@ import {
 import { type User, userStore } from '$lib/state/User.svelte';
 import { dateToISO, getTimestamp, uniqueId } from '$lib/utils';
 
-export type Kind = 'holiday' | 'election' | 'personal';
+export type Kind =
+  | 'personal'
+  | 'money'
+  | 'abroad'
+  | 'environment'
+  | 'family'
+  | 'work'
+  | 'justice'
+  | 'public-holiday'
+  | 'housing'
+  | 'leisure'
+  | 'citizenship'
+  | 'care'
+  | 'transport'
+  | 'school-holiday'
+  | 'other';
+
+type Theme = {
+  id: Kind;
+  label: string;
+  icon: string;
+  badgeClassName: string;
+};
+
+export const THEMES: Theme[] = [
+  {
+    id: 'personal',
+    label: 'Échéance personnelle (rendez-vous, date de renouvellement etc.)',
+    icon: 'fr-icon-calendar-event-fill',
+    badgeClassName: 'am-badge--user',
+  },
+  {
+    id: 'money',
+    label: 'Argent',
+    icon: 'fr-icon-money-euro-circle-fill',
+    badgeClassName: 'fr-badge--purple-glycine',
+  },
+  {
+    id: 'abroad',
+    label: 'Étranger - Europe',
+    icon: 'fr-icon-calendar-check-fill',
+    badgeClassName: 'fr-badge--brown-opera',
+  },
+  {
+    id: 'environment',
+    label: 'Environnement',
+    icon: 'fr-icon-leaf-fill',
+    badgeClassName: 'fr-badge--green-bourgeon',
+  },
+  {
+    id: 'family',
+    label: 'Famille',
+    icon: 'fr-icon-parent-fill',
+    badgeClassName: 'fr-badge--green-menthe',
+  },
+  {
+    id: 'work',
+    label: 'Formation - Travail',
+    icon: 'fr-icon-briefcase-fill',
+    badgeClassName: 'fr-badge--yellow-tournesol',
+  },
+  {
+    id: 'justice',
+    label: 'Justice',
+    icon: 'fr-icon-scales-3-fill',
+    badgeClassName: 'fr-badge--green-tilleul-verveine',
+  },
+  {
+    id: 'public-holiday',
+    label: 'Jours fériés',
+    icon: 'fr-icon-calendar-check-fill',
+    badgeClassName: 'fr-badge--blue-ecume',
+  },
+  {
+    id: 'housing',
+    label: 'Logement',
+    icon: 'fr-icon-home-4-fill',
+    badgeClassName: 'fr-badge--brown-cafe-creme',
+  },
+  {
+    id: 'leisure',
+    label: 'Loisirs',
+    icon: 'fr-icon-music-2-fill',
+    badgeClassName: 'fr-badge--green-emeraude',
+  },
+  {
+    id: 'citizenship',
+    label: 'Papiers - Citoyenneté',
+    icon: 'fr-icon-pass-valid-fill',
+    badgeClassName: 'fr-badge--green-tilleul-verveine',
+  },
+  {
+    id: 'care',
+    label: 'Social - Santé',
+    icon: 'fr-icon-medicine-bottle-fill',
+    badgeClassName: 'fr-badge--pink-macaron',
+  },
+  {
+    id: 'transport',
+    label: 'Transport',
+    icon: 'fr-icon-car-fill',
+    badgeClassName: 'fr-badge--beige-gris-galet',
+  },
+  {
+    id: 'school-holiday',
+    label: 'Vacances',
+    icon: 'fr-icon-suitcase-2-fill',
+    badgeClassName: 'fr-badge--blue-ecume',
+  },
+  {
+    id: 'other',
+    label: 'Autre sujet',
+    icon: 'fr-icon-lightbulb-fill',
+    badgeClassName: '',
+  },
+];
 
 const capitalizeFirstLetter = (val: string) => {
   return String(val).charAt(0).toUpperCase() + String(val).slice(1);
@@ -118,7 +233,7 @@ export class Item {
 
   constructor(
     private _id: string,
-    private _kind: Kind,
+    private _kinds: Kind[],
     private _title: string,
     private _link: string,
     _description: string | null,
@@ -156,7 +271,8 @@ export class Item {
   }
 
   get hiddenListName(): string {
-    return `hidden_agenda_items_${this._kind}`;
+    const kinds = this.kinds.sort();
+    return `hidden_agenda_items_${slugify(kinds.join('-'))}`;
   }
 
   getAgendaHiddenItems(): string[] {
@@ -237,67 +353,51 @@ export class Item {
   }
 
   get period(): string | undefined {
-    if (this.kind === 'personal') {
+    if (this.kinds.includes('personal')) {
       return getPeriod(this.startDate, this.endDate);
     }
     return this._subitems[0].period;
   }
 
-  static readonly KindInfo: Record<
-    Kind,
-    { label: string; icon: string; badgeClassName: string }
-  > = {
-    holiday: {
-      label: 'Vacances et jours fériés',
-      icon: 'fr-icon-suitcase-2-fill',
-      badgeClassName: 'fr-badge--blue-cumulus',
-    },
-    election: {
-      label: 'Élections',
-      icon: 'fr-icon-chat-check-fill',
-      badgeClassName: 'fr-badge--green-tilleul-verveine',
-    },
-    personal: {
-      label: 'Personnel',
-      icon: 'fr-icon-calendar-event-fill',
-      badgeClassName: 'am-badge--user',
-    },
-  };
-
   get id(): string {
     return this._id;
   }
 
-  get kind(): Kind {
-    return this._kind;
+  get kinds(): Kind[] {
+    return this._kinds;
+  }
+
+  get theme(): Theme | null {
+    // return first theme found
+    return THEMES.find((t) => this.kinds.includes(t.id)) || null;
   }
 
   get label(): string {
-    const info = Item.KindInfo[this._kind];
-    if (info === undefined) {
+    const theme = this.theme;
+    if (!theme) {
       return '';
     }
-    return info.label;
+    return theme.label;
   }
 
   get icon(): string {
-    const info = Item.KindInfo[this._kind];
-    if (info === undefined) {
+    const theme = this.theme;
+    if (!theme) {
       return '';
     }
-    return info.icon;
+    return theme.icon;
   }
 
   get key(): string {
-    return `ami-${this._kind}:${getTimestamp(this.date)}:${slugify(this._title)}`;
+    return `ami-${slugify(this.kinds.join('-'))}:${getTimestamp(this.date)}:${slugify(this._title)}`;
   }
 
   get badgeClassName(): string {
-    const info = Item.KindInfo[this._kind];
-    if (info === undefined) {
+    const theme = this.theme;
+    if (!theme) {
       return '';
     }
-    return info.badgeClassName;
+    return theme.badgeClassName;
   }
 }
 
@@ -323,7 +423,7 @@ export class Agenda {
 
     const school_holidays: APIAgendaItem[] = apiAgenda?.school_holidays || [];
     const public_holidays: APIAgendaItem[] = apiAgenda?.public_holidays || [];
-    const elections: APIAgendaItem[] = apiAgenda?.elections || [];
+    const marronniers: APIAgendaItem[] = apiAgenda?.marronniers || [];
     const followupItems: FollowupItem[] = followup?.all_items || [];
 
     // build items from school_holidays
@@ -332,8 +432,8 @@ export class Agenda {
     // build items from public_holidays
     this.createPublicHolidayItems(public_holidays);
 
-    // build items from elections
-    this.createElectionItems(elections);
+    // build items from marronniers
+    this.createMarronnierItems(marronniers);
 
     // build items from followup
     this.createPersonalItems(followupItems);
@@ -424,7 +524,7 @@ export class Agenda {
     }
     const item = new Item(
       uniqueId(),
-      'holiday',
+      holiday.kinds as Kind[],
       title,
       '',
       this.getSchoolHolidayItemDescription(holiday),
@@ -461,7 +561,16 @@ export class Agenda {
     if (holiday.emoji) {
       title += ` ${holiday.emoji}`;
     }
-    return new Item(uniqueId(), 'holiday', title, '', null, holiday.date, null, null);
+    return new Item(
+      uniqueId(),
+      holiday.kinds as Kind[],
+      title,
+      '',
+      null,
+      holiday.date,
+      null,
+      null
+    );
   }
 
   private processOTVs(school_holidays: APIAgendaItem[]) {
@@ -515,37 +624,41 @@ export class Agenda {
     this._connectedUser?.createScheduledNotification(scheduledNotification);
   }
 
-  private createElectionItems(elections: APIAgendaItem[]) {
-    elections.forEach((election) => {
-      const item = this.createElectionItem(election);
+  private createMarronnierItems(marronniers: APIAgendaItem[]) {
+    marronniers.forEach((marronnier) => {
+      const item = this.createMarronnierItem(marronnier);
       if (item !== null && !item.isHidden()) {
         this._items.push(item);
       }
     });
   }
 
-  private createElectionItem(election: APIAgendaItem): Item | null {
-    if (!election.date) {
-      // should not happen for election
+  private createMarronnierItem(marronnier: APIAgendaItem): Item | null {
+    if (!marronnier.date && !marronnier.start_date && !marronnier.end_date) {
+      // should not happen
       return null;
     }
-    if (election.date < this._today) {
-      // exclude past election
+    if (marronnier.date && marronnier.date < this._today) {
+      // exclude past items
       return null;
     }
-    let title = election.title;
-    if (election.emoji) {
-      title += ` ${election.emoji}`;
+    if (marronnier.start_date && marronnier.start_date < this._today) {
+      // exclude past items
+      return null;
+    }
+    if (marronnier.end_date && marronnier.end_date < this._today) {
+      // exclude past items
+      return null;
     }
     return new Item(
       uniqueId(),
-      'election',
-      title,
+      marronnier.kinds as Kind[],
+      marronnier.title,
       '',
-      election.description,
-      election.date,
-      null,
-      null
+      marronnier.description,
+      marronnier.date,
+      marronnier.start_date,
+      marronnier.end_date
     );
   }
 

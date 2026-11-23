@@ -83,7 +83,7 @@ describe('/auto-promo.ts', () => {
       // Given
       const agenda = new Agenda();
       vi.spyOn(agenda, 'holidayForOTV', 'get').mockReturnValue({
-        kind: 'holiday',
+        kinds: ['school-holiday'],
         title: 'Holiday',
         description: '',
         date: null,
@@ -160,7 +160,7 @@ describe('/auto-promo.ts', () => {
       userStore.connected?.setAddress(mockAddress);
       const agenda = new Agenda();
       vi.spyOn(agenda, 'holidayForOTV', 'get').mockReturnValue({
-        kind: 'holiday',
+        kinds: ['school-holiday'],
         title: 'Holiday',
         description: '',
         date: null,
