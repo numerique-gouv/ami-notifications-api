@@ -113,7 +113,7 @@ describe('/preferences.ts', () => {
       test('should return true as holiday zones match user preferences', async () => {
         // Given
         const item = {
-          kind: 'holiday',
+          kinds: ['school-holiday'],
           title: 'Holiday',
           description: '',
           date: null,
@@ -133,7 +133,7 @@ describe('/preferences.ts', () => {
       test('should return false as holiday zones do not match user preferences', async () => {
         // Given
         const item = {
-          kind: 'holiday',
+          kinds: ['school-holiday'],
           title: 'Holiday',
           description: '',
           date: null,
@@ -153,7 +153,7 @@ describe('/preferences.ts', () => {
       test('should return false as user preferences zones are empty', async () => {
         // Given
         const item = {
-          kind: 'holiday',
+          kinds: ['school-holiday'],
           title: 'Holiday',
           description: '',
           date: null,
@@ -173,7 +173,7 @@ describe('/preferences.ts', () => {
       test('should return false as holiday zones are empty', async () => {
         // Given
         const item = {
-          kind: 'holiday',
+          kinds: ['school-holiday'],
           title: 'Holiday',
           description: '',
           date: null,
@@ -196,7 +196,7 @@ describe('/preferences.ts', () => {
       test('should return "Zone A" as holiday zones match user preferences', async () => {
         // Given
         const item = {
-          kind: 'holiday',
+          kinds: ['school-holiday'],
           title: 'Holiday',
           description: '',
           date: null,
@@ -216,7 +216,7 @@ describe('/preferences.ts', () => {
       test('should return empty string as holiday zones match all zones of user preferences', async () => {
         // Given
         const item = {
-          kind: 'holiday',
+          kinds: ['school-holiday'],
           title: 'Holiday',
           description: '',
           date: null,
@@ -236,7 +236,7 @@ describe('/preferences.ts', () => {
       test('should return only user city as holiday zones match all zones of user preferences', async () => {
         // Given
         const item = {
-          kind: 'holiday',
+          kinds: ['school-holiday'],
           title: 'Holiday',
           description: '',
           date: null,
@@ -257,7 +257,7 @@ describe('/preferences.ts', () => {
       test('should return "Zone A" and city as holiday zones match user preferences - with city preferences', async () => {
         // Given
         const item = {
-          kind: 'holiday',
+          kinds: ['school-holiday'],
           title: 'Holiday',
           description: '',
           date: null,
@@ -293,7 +293,7 @@ describe('/preferences.ts', () => {
       test('should mention cities from user address and preferences', async () => {
         // Given
         const item = {
-          kind: 'holiday',
+          kinds: ['school-holiday'],
           title: 'Holiday',
           description: '',
           date: null,
@@ -337,7 +337,7 @@ describe('/preferences.ts', () => {
       test('should return only user city as holiday zones match all zones of user preferences - with addresses in preferences', async () => {
         // Given
         const item = {
-          kind: 'holiday',
+          kinds: ['school-holiday'],
           title: 'Holiday',
           description: '',
           date: null,
@@ -379,7 +379,7 @@ describe('/preferences.ts', () => {
       test('should return empty string as holiday zones do not match user preferences', async () => {
         // Given
         const item = {
-          kind: 'holiday',
+          kinds: ['school-holiday'],
           title: 'Holiday',
           description: '',
           date: null,
@@ -399,7 +399,7 @@ describe('/preferences.ts', () => {
       test('should return empty string as user preferences zones are empty', async () => {
         // Given
         const item = {
-          kind: 'holiday',
+          kinds: ['school-holiday'],
           title: 'Holiday',
           description: '',
           date: null,
@@ -419,7 +419,7 @@ describe('/preferences.ts', () => {
       test('should return empty string as holiday zones are empty', async () => {
         // Given
         const item = {
-          kind: 'holiday',
+          kinds: ['school-holiday'],
           title: 'Holiday',
           description: '',
           date: null,

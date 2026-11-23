@@ -2,7 +2,7 @@ import { apiFetch } from '$lib/auth';
 import { dateToISO, parseISODate } from '$lib/utils';
 
 export type APIAgendaItem = {
-  kind: string;
+  kinds: string[];
   title: string;
   description: string;
   date: Date | null;
@@ -15,7 +15,7 @@ export type APIAgendaItem = {
 export type APIAgenda = {
   school_holidays: APIAgendaItem[];
   public_holidays: APIAgendaItem[];
-  elections: APIAgendaItem[];
+  marronniers: APIAgendaItem[];
 };
 
 export const retrieveAgenda = async (date: Date | null = null): Promise<APIAgenda> => {
@@ -27,7 +27,7 @@ export const retrieveAgenda = async (date: Date | null = null): Promise<APIAgend
   const apiAgendaData = {
     school_holidays: localStorage.getItem('school_holidays_agenda_source') || '{}',
     public_holidays: localStorage.getItem('public_holidays_agenda_source') || '{}',
-    elections: localStorage.getItem('elections_agenda_source') || '{}',
+    marronniers: localStorage.getItem('marronniers_agenda_source') || '{}',
   };
   type APIAgendaKey = keyof typeof apiAgendaData;
   for (const key of Object.keys(apiAgendaData) as APIAgendaKey[]) {
@@ -74,7 +74,7 @@ export const retrieveAgenda = async (date: Date | null = null): Promise<APIAgend
       JSON.parse(apiAgendaData.school_holidays).items || ([] as APIAgendaItem[]),
     public_holidays:
       JSON.parse(apiAgendaData.public_holidays).items || ([] as APIAgendaItem[]),
-    elections: JSON.parse(apiAgendaData.elections).items || ([] as APIAgendaItem[]),
+    marronniers: JSON.parse(apiAgendaData.marronniers).items || ([] as APIAgendaItem[]),
   } as APIAgenda;
   for (const items of Object.values(apiAgenda)) {
     items.forEach((item) => {

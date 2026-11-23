@@ -8,7 +8,7 @@ const apiAgendaData = {
     status: 'success',
     items: [
       {
-        kind: 'holiday',
+        kinds: ['school-holiday'],
         title: 'Holiday 1',
         description: '',
         date: null as Date | null,
@@ -18,7 +18,7 @@ const apiAgendaData = {
         emoji: '',
       },
       {
-        kind: 'holiday',
+        kinds: ['school-holiday'],
         title: 'Holiday 2',
         description: '',
         date: null as Date | null,
@@ -34,7 +34,7 @@ const apiAgendaData = {
     status: 'success',
     items: [
       {
-        kind: 'holiday',
+        kinds: ['public-holiday'],
         title: 'Holiday 3',
         description: '',
         date: parseISODate('2025-09-21') as Date | null,
@@ -44,7 +44,7 @@ const apiAgendaData = {
         emoji: '',
       },
       {
-        kind: 'holiday',
+        kinds: ['public-holiday'],
         title: 'Holiday 4',
         description: '',
         date: parseISODate('2025-10-21') as Date | null,
@@ -56,12 +56,12 @@ const apiAgendaData = {
     ],
     expires_at: new Date('2025-11-02T12:00:00Z'),
   },
-  elections: {
+  marronniers: {
     status: 'success',
     items: [
       {
-        kind: 'election',
-        title: 'Election 1',
+        kinds: ['marronnier'],
+        title: 'Marronnier 1',
         description: '',
         date: parseISODate('2025-09-21') as Date | null,
         start_date: null as Date | null,
@@ -94,12 +94,12 @@ describe('/api-agenda', () => {
 
       // Then
       expect(spy).toHaveBeenCalledExactlyOnceWith(
-        '/api/v1/users/data/agenda?current_date=2025-11-01&filter-items=school_holidays&filter-items=public_holidays&filter-items=elections'
+        '/api/v1/users/data/agenda?current_date=2025-11-01&filter-items=school_holidays&filter-items=public_holidays&filter-items=marronniers'
       );
       expect(result).toEqual({
         school_holidays: apiAgendaData.school_holidays.items,
         public_holidays: apiAgendaData.public_holidays.items,
-        elections: apiAgendaData.elections.items,
+        marronniers: apiAgendaData.marronniers.items,
       });
       expect(window.localStorage.getItem('school_holidays_agenda_source')).toEqual(
         JSON.stringify(apiAgendaData.school_holidays)
@@ -107,8 +107,8 @@ describe('/api-agenda', () => {
       expect(window.localStorage.getItem('public_holidays_agenda_source')).toEqual(
         JSON.stringify(apiAgendaData.public_holidays)
       );
-      expect(window.localStorage.getItem('elections_agenda_source')).toEqual(
-        JSON.stringify(apiAgendaData.elections)
+      expect(window.localStorage.getItem('marronniers_agenda_source')).toEqual(
+        JSON.stringify(apiAgendaData.marronniers)
       );
     });
 
@@ -123,12 +123,12 @@ describe('/api-agenda', () => {
 
       // Then
       expect(spy).toHaveBeenCalledExactlyOnceWith(
-        '/api/v1/users/data/agenda?current_date=2025-11-01&filter-items=school_holidays&filter-items=public_holidays&filter-items=elections'
+        '/api/v1/users/data/agenda?current_date=2025-11-01&filter-items=school_holidays&filter-items=public_holidays&filter-items=marronniers'
       );
       expect(result).toEqual({
         school_holidays: [],
         public_holidays: [],
-        elections: [],
+        marronniers: [],
       });
       expect(window.localStorage.getItem('school_holidays_agenda_source')).toEqual(
         null
@@ -136,7 +136,7 @@ describe('/api-agenda', () => {
       expect(window.localStorage.getItem('public_holidays_agenda_source')).toEqual(
         null
       );
-      expect(window.localStorage.getItem('elections_agenda_source')).toEqual(null);
+      expect(window.localStorage.getItem('marronniers_agenda_source')).toEqual(null);
     });
 
     test('should get agenda items from localstorage', async () => {
@@ -150,8 +150,8 @@ describe('/api-agenda', () => {
         JSON.stringify(apiAgendaData.public_holidays)
       );
       window.localStorage.setItem(
-        'elections_agenda_source',
-        JSON.stringify(apiAgendaData.elections)
+        'marronniers_agenda_source',
+        JSON.stringify(apiAgendaData.marronniers)
       );
 
       // When
@@ -161,7 +161,7 @@ describe('/api-agenda', () => {
       expect(result).toEqual({
         school_holidays: apiAgendaData.school_holidays.items,
         public_holidays: apiAgendaData.public_holidays.items,
-        elections: apiAgendaData.elections.items,
+        marronniers: apiAgendaData.marronniers.items,
       });
     });
 
@@ -176,8 +176,8 @@ describe('/api-agenda', () => {
         JSON.stringify(apiAgendaData.public_holidays)
       );
       window.localStorage.setItem(
-        'elections_agenda_source',
-        JSON.stringify(apiAgendaData.elections)
+        'marronniers_agenda_source',
+        JSON.stringify(apiAgendaData.marronniers)
       );
       const spy = vi
         .spyOn(globalThis, 'fetch')
@@ -190,12 +190,12 @@ describe('/api-agenda', () => {
 
       // Then
       expect(spy).toHaveBeenCalledExactlyOnceWith(
-        `/api/v1/users/data/agenda?current_date=${dateToISO(new Date())}&filter-items=school_holidays&filter-items=public_holidays&filter-items=elections`
+        `/api/v1/users/data/agenda?current_date=${dateToISO(new Date())}&filter-items=school_holidays&filter-items=public_holidays&filter-items=marronniers`
       );
       expect(result).toEqual({
         school_holidays: apiAgendaData.school_holidays.items,
         public_holidays: apiAgendaData.public_holidays.items,
-        elections: apiAgendaData.elections.items,
+        marronniers: apiAgendaData.marronniers.items,
       });
       expect(window.localStorage.getItem('school_holidays_agenda_source')).toEqual(
         JSON.stringify(apiAgendaData.school_holidays)
@@ -203,8 +203,8 @@ describe('/api-agenda', () => {
       expect(window.localStorage.getItem('public_holidays_agenda_source')).toEqual(
         JSON.stringify(apiAgendaData.public_holidays)
       );
-      expect(window.localStorage.getItem('elections_agenda_source')).toEqual(
-        JSON.stringify(apiAgendaData.elections)
+      expect(window.localStorage.getItem('marronniers_agenda_source')).toEqual(
+        JSON.stringify(apiAgendaData.marronniers)
       );
     });
 
@@ -224,7 +224,7 @@ describe('/api-agenda', () => {
       const responseData: NullableAgendaSource = {
         school_holidays: null,
         public_holidays: null,
-        elections: null,
+        marronniers: null,
       };
       responseData[key] = apiAgendaData[key];
       const spy = vi
@@ -241,7 +241,7 @@ describe('/api-agenda', () => {
       expect(result).toEqual({
         school_holidays: apiAgendaData.school_holidays.items,
         public_holidays: apiAgendaData.public_holidays.items,
-        elections: apiAgendaData.elections.items,
+        marronniers: apiAgendaData.marronniers.items,
       });
       expect(window.localStorage.getItem(`${key}_agenda_source`)).toEqual(
         JSON.stringify(apiAgendaData[key])
@@ -265,7 +265,7 @@ describe('/api-agenda', () => {
       const responseData: NullableAgendaSource = {
         school_holidays: null,
         public_holidays: null,
-        elections: null,
+        marronniers: null,
       };
       responseData[key] = apiAgendaData[key];
       const spy = vi
@@ -282,7 +282,7 @@ describe('/api-agenda', () => {
       expect(result).toEqual({
         school_holidays: apiAgendaData.school_holidays.items,
         public_holidays: apiAgendaData.public_holidays.items,
-        elections: apiAgendaData.elections.items,
+        marronniers: apiAgendaData.marronniers.items,
       });
       expect(window.localStorage.getItem(`${key}_agenda_source`)).toEqual(
         JSON.stringify(apiAgendaData[key])
@@ -309,7 +309,7 @@ describe('/api-agenda', () => {
       const responseData: NullableAgendaSource = {
         school_holidays: null,
         public_holidays: null,
-        elections: null,
+        marronniers: null,
       };
       responseData[key] = apiAgendaData[key];
       const spy = vi
@@ -326,7 +326,7 @@ describe('/api-agenda', () => {
       expect(result).toEqual({
         school_holidays: apiAgendaData.school_holidays.items,
         public_holidays: apiAgendaData.public_holidays.items,
-        elections: apiAgendaData.elections.items,
+        marronniers: apiAgendaData.marronniers.items,
       });
       expect(window.localStorage.getItem(`${key}_agenda_source`)).toEqual(
         JSON.stringify(apiAgendaData[key])
@@ -351,7 +351,7 @@ describe('/api-agenda', () => {
       const responseData: NullableAgendaSource = {
         school_holidays: null,
         public_holidays: null,
-        elections: null,
+        marronniers: null,
       };
       responseData[key] = apiAgendaData[key];
       const spy = vi
@@ -368,7 +368,7 @@ describe('/api-agenda', () => {
       expect(result).toEqual({
         school_holidays: apiAgendaData.school_holidays.items,
         public_holidays: apiAgendaData.public_holidays.items,
-        elections: apiAgendaData.elections.items,
+        marronniers: apiAgendaData.marronniers.items,
       });
       expect(window.localStorage.getItem(`${key}_agenda_source`)).toEqual(
         JSON.stringify(apiAgendaData[key])
@@ -382,7 +382,7 @@ describe('/api-agenda', () => {
       const apiAgendaData2: NullableAgendaSource = {
         school_holidays: null,
         public_holidays: null,
-        elections: null,
+        marronniers: null,
       };
       for (const key2 of Object.keys(apiAgendaData) as AgendaSourceKey[]) {
         if (key2 === key) {
@@ -403,7 +403,7 @@ describe('/api-agenda', () => {
       const responseData: NullableAgendaSource = {
         school_holidays: null,
         public_holidays: null,
-        elections: null,
+        marronniers: null,
       };
       const { ...entry } = apiAgendaData[key];
       entry.status = 'failed';
@@ -422,7 +422,7 @@ describe('/api-agenda', () => {
       expect(result).toEqual({
         school_holidays: apiAgendaData2.school_holidays?.items,
         public_holidays: apiAgendaData2.public_holidays?.items,
-        elections: apiAgendaData2.elections?.items,
+        marronniers: apiAgendaData2.marronniers?.items,
       });
       expect(window.localStorage.getItem(`${key}_agenda_source`)).toEqual(
         JSON.stringify(apiAgendaData2[key])
@@ -448,7 +448,7 @@ describe('/api-agenda', () => {
       const responseData: NullableAgendaSource = {
         school_holidays: null,
         public_holidays: null,
-        elections: null,
+        marronniers: null,
       };
       responseData[key] = apiAgendaData[key];
       const spy = vi
@@ -465,7 +465,7 @@ describe('/api-agenda', () => {
       expect(result).toEqual({
         school_holidays: apiAgendaData.school_holidays.items,
         public_holidays: apiAgendaData.public_holidays.items,
-        elections: apiAgendaData.elections.items,
+        marronniers: apiAgendaData.marronniers.items,
       });
       expect(window.localStorage.getItem(`${key}_agenda_source`)).toEqual(
         JSON.stringify(apiAgendaData[key])
@@ -496,7 +496,7 @@ describe('/api-agenda', () => {
       expect(result).toEqual({
         school_holidays: apiAgendaData.school_holidays.items,
         public_holidays: apiAgendaData.public_holidays.items,
-        elections: apiAgendaData.elections.items,
+        marronniers: apiAgendaData.marronniers.items,
       });
     });
   });

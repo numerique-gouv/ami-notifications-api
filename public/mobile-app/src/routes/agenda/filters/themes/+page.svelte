@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { Item } from '$lib/agenda';
+  import { Item, THEMES } from '$lib/agenda';
   import { AMIGoto } from '$lib/ami-navigation';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import { userStore } from '$lib/state/User.svelte';
@@ -23,22 +23,16 @@
 <div class="themes-container fr-pt-8w fr-px-2w">
   <h1 class="fr-h2 fr-mb-4w">Thèmes</h1>
   <ul class="fr-raw-list">
-    <li class="fr-mb-3w">
-      <div aria-hidden="true">
-        <p
-          class="fr-badge fr-badge--sm fr-badge--icon-left {Item.KindInfo['personal'].icon} {Item.KindInfo['personal'].badgeClassName}"
-        ></p>
-      </div>
-      Échéance personnelle (rendez-vous, date de renouvellement etc.)
-    </li>
-    <li class="fr-mb-3w">
-      <div aria-hidden="true">
-        <p
-          class="fr-badge fr-badge--sm fr-badge--icon-left {Item.KindInfo['holiday'].icon} {Item.KindInfo['holiday'].badgeClassName}"
-        ></p>
-      </div>
-      Vacances et jours fériés
-    </li>
+    {#each THEMES as theme}
+      <li class="fr-mb-3w">
+        <div aria-hidden="true">
+          <p
+            class="fr-badge fr-badge--sm fr-badge--icon-left {theme.icon} {theme.badgeClassName}"
+          ></p>
+        </div>
+        {theme.label}
+      </li>
+    {/each}
   </ul>
 </div>
 
