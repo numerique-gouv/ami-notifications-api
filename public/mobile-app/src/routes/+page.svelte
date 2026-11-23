@@ -115,17 +115,6 @@
       unreadNotificationsCount = countUnreadNotificationsFromStore();
       updateUnreadNotificationsCount();
       await generateWebsocket();
-      const handleVisibility = async () => {
-        console.log('visibility event');
-        if (
-          document.visibilityState === 'visible' &&
-          (websocket === null || websocket.readyState !== WebSocket.OPEN)
-        ) {
-          unreadNotificationsCount = await countUnreadNotifications();
-          await generateWebsocket();
-        }
-      };
-      document.addEventListener('visibilitychange', handleVisibility);
       window.addEventListener('ami:regenerate-websocket', generateWebsocket);
     } catch (error) {
       console.error(error);
