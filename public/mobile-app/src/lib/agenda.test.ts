@@ -427,6 +427,29 @@ describe('/agenda.ts', () => {
           expect(period).equal('À partir du 20 décembre 2025');
           expect(spy).not.toHaveBeenCalled();
         });
+        test('should mention "Avant le"', async () => {
+          // Given
+          const spy = vi
+            .spyOn(followupMethods, 'getPeriod')
+            .mockReturnValue('A Period');
+          const item = new Item(
+            'fake-id-holiday',
+            'holiday',
+            'title',
+            '',
+            'description',
+            null,
+            null,
+            new Date('2025-12-20')
+          );
+
+          // When
+          const period = item.period;
+
+          // Then
+          expect(period).equal('Avant le 20 décembre 2025');
+          expect(spy).not.toHaveBeenCalled();
+        });
         test('should mention only the date', async () => {
           // Given
           const spy = vi

@@ -73,27 +73,36 @@ export class SubItem {
       day: 'numeric',
     };
     const dateFormat: Intl.DateTimeFormatOptions = startFormat;
-    if (this._start_date) {
-      let start = this._start_date.toLocaleDateString(locale, startFormat);
-      if (this._end_date) {
-        if (this._end_date.getTime() === this._start_date.getTime()) {
-          return start;
-        }
-        const endFormat = startFormat;
-        if (this._start_date.getFullYear() === this._end_date.getFullYear()) {
-          startFormat = { month: 'long', day: 'numeric' };
-          if (this._start_date.getMonth() === this._end_date.getMonth()) {
-            startFormat = { day: 'numeric' };
-          }
-        }
-        start = this._start_date.toLocaleDateString(locale, startFormat);
-        const end = this._end_date.toLocaleDateString(locale, endFormat);
-        return `Du ${start} au ${end}`;
-      }
+
+    if (this._date) {
+      const date = this._date.toLocaleDateString(locale, dateFormat);
+      return date;
+    }
+
+    if (this._end_date === null) {
+      const start = this._start_date?.toLocaleDateString(locale, dateFormat);
       return `À partir du ${start}`;
     }
-    const date = this._date?.toLocaleDateString(locale, dateFormat);
-    return date;
+
+    if (this._start_date == null) {
+      const end = this._end_date.toLocaleDateString(locale, dateFormat);
+      return `Avant le ${end}`;
+    }
+
+    let start = this._start_date.toLocaleDateString(locale, startFormat);
+    if (this._end_date.getTime() === this._start_date.getTime()) {
+      return start;
+    }
+    const endFormat = startFormat;
+    if (this._start_date.getFullYear() === this._end_date.getFullYear()) {
+      startFormat = { month: 'long', day: 'numeric' };
+      if (this._start_date.getMonth() === this._end_date.getMonth()) {
+        startFormat = { day: 'numeric' };
+      }
+    }
+    start = this._start_date.toLocaleDateString(locale, startFormat);
+    const end = this._end_date.toLocaleDateString(locale, endFormat);
+    return `Du ${start} au ${end}`;
   }
 
   set isPersonal(is_personal: boolean) {
