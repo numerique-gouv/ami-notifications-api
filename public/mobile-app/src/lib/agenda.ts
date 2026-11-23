@@ -155,27 +155,25 @@ export class Item {
     return JSON.stringify(this) === JSON.stringify(other);
   }
 
+  get hiddenListName(): string {
+    return `hidden_agenda_items_${this._kind}`;
+  }
+
+  getAgendaHiddenItems(): string[] {
+    const storedAgendaHiddenItems: string =
+      localStorage.getItem(this.hiddenListName) || '[]';
+    return JSON.parse(storedAgendaHiddenItems);
+  }
+
   hide() {
-    const agendaHiddenItems: string[] = getAgendaHiddenItems(
-      `hidden_agenda_items_${this._kind}`
-    );
+    const agendaHiddenItems = this.getAgendaHiddenItems();
     agendaHiddenItems.push(this.key);
-    setAgendaHiddenItems(this, agendaHiddenItems);
+    localStorage.setItem(this.hiddenListName, JSON.stringify(agendaHiddenItems));
+    userStore?.connected?.setHasPersonalization();
   }
 
   isHidden(): boolean {
-    const agendaHiddenItems: [] = getAgendaHiddenItems(
-      `hidden_agenda_items_${this._kind}`
-    );
-
-    let isInHiddenList = false;
-    agendaHiddenItems.forEach((_itemKey) => {
-      if (this.key === _itemKey) {
-        isInHiddenList = true;
-      }
-    });
-
-    return isInHiddenList;
+    return this.getAgendaHiddenItems().includes(this.key);
   }
 
   get title(): string {
@@ -593,19 +591,6 @@ export class Agenda {
     return this._holidayForOTV;
   }
 }
-
-const getAgendaHiddenItems = (listName: string): [] => {
-  const storedAgendaHiddenItems: string = localStorage.getItem(listName) || '[]';
-  return JSON.parse(storedAgendaHiddenItems);
-};
-
-const setAgendaHiddenItems = (item: Item, parsedAgendaHiddenItems: string[]) => {
-  localStorage.setItem(
-    `hidden_agenda_items_${item.kind}`,
-    JSON.stringify(parsedAgendaHiddenItems)
-  );
-  userStore?.connected?.setHasPersonalization();
-};
 
 export const buildAgenda = async (
   followup: Followup | null = null,
