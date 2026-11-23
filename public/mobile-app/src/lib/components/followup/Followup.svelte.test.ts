@@ -308,8 +308,8 @@ describe('/Followup.svelte', () => {
         });
       });
 
-      describe('More menu', () => {
-        test('Should open more menu when user clicks on "more" button', async () => {
+      describe('Followup page options', () => {
+        test('Should open followup page options modal when user clicks on "followup page options" button', async () => {
           // Given
           const followup = new Followup();
           vi.spyOn(followup, 'items', 'get').mockReturnValue([]);
@@ -318,13 +318,17 @@ describe('/Followup.svelte', () => {
 
           // When
           await waitFor(async () => {
-            const button = screen.getByTestId('more-button');
+            const button = screen.getByTestId(
+              'followup-page-options-open-modal-button'
+            );
             await fireEvent.click(button);
           });
 
           // Then
-          const moreMenu = screen.getByTestId('more-menu');
-          expect(moreMenu).toBeInTheDocument();
+          const followupPageOption = screen.getByTestId(
+            'light-modal-followup-page-options-modal'
+          );
+          expect(followupPageOption).toBeInTheDocument();
         });
         test('Should redirect to archived followup page when user clicks on "Démarches archivées" button', async () => {
           // Given
@@ -334,7 +338,9 @@ describe('/Followup.svelte', () => {
           render(FollowupComponent);
           const spy = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
           await waitFor(async () => {
-            const button = screen.getByTestId('more-button');
+            const button = screen.getByTestId(
+              'followup-page-options-open-modal-button'
+            );
             await fireEvent.click(button);
           });
 
@@ -554,8 +560,8 @@ describe('/Followup.svelte', () => {
         });
       });
 
-      describe('More menu', () => {
-        test('No "more" button for archived followup items', async () => {
+      describe('Followup page options', () => {
+        test('No "followup page options" button for archived followup items', async () => {
           // Given
           const followup = new Followup();
           vi.spyOn(followup, 'items', 'get').mockReturnValue([]);
@@ -566,7 +572,9 @@ describe('/Followup.svelte', () => {
 
           // Then
           await waitFor(async () => {
-            const button = screen.queryByTestId('more-button');
+            const button = screen.queryByTestId(
+              'followup-page-options-open-modal-button'
+            );
             expect(button).toBeNull();
           });
         });
@@ -611,7 +619,7 @@ describe('/Followup.svelte', () => {
       });
     });
 
-    test('No "more" button when user has not consented', async () => {
+    test('No "followup page options" button when user has not consented', async () => {
       // Given
       const followup = new Followup();
       vi.spyOn(followup, 'items', 'get').mockReturnValue([]);
@@ -622,7 +630,7 @@ describe('/Followup.svelte', () => {
 
       // Then
       await waitFor(async () => {
-        const button = screen.queryByTestId('more-button');
+        const button = screen.queryByTestId('followup-page-options-open-modal-button');
         expect(button).toBeNull();
       });
     });

@@ -82,9 +82,15 @@
       <div class="fr-card__body fr-p-0">
         <div class="fr-card__content fr-m-0 fr-pb-3v">
           <h4 class="fr-card__title fr-text--md">
-            <button type="button" onclick={goToItem} data-testid="agenda-item-link">
-              {@html ariaHideDecorativeEmoji(item.title)}
-            </button>
+            {#if item.link}
+              <button type="button" onclick={goToItem} data-testid="agenda-item-link">
+                {@html ariaHideDecorativeEmoji(item.title)}
+              </button>
+            {:else}
+              <span class="fr-text-title--blue-france"
+                >{@html ariaHideDecorativeEmoji(item.title)}</span
+              >
+            {/if}
           </h4>
           {#if item.subitems.length == 1}
             {#if item.description}
