@@ -11,6 +11,7 @@ class User(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     fc_hash = models.CharField(unique=True)
+    fc_sub = models.CharField(null=True)
     last_logged_in = models.DateTimeField(blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)

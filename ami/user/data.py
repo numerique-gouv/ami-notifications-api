@@ -58,13 +58,15 @@ async def get_fc_userinfo(
     user = None
     if create_user:
         user, created = await User.objects.aget_or_create(
-            fc_hash=fc_hash, defaults={"last_logged_in": now()}
+            fc_hash=fc_hash, defaults={"last_logged_in": now(), "fc_sub": decoded_userinfo["sub"]}
         )
         if created:
             create_welcome = True
         else:
             create_welcome = user.last_logged_in is None
-            await User.objects.filter(pk=user.pk).aupdate(last_logged_in=now())
+            await User.objects.filter(pk=user.pk).aupdate(
+                last_logged_in=now(), fc_sub=decoded_userinfo["sub"]
+            )
 
         if create_welcome:
             await ScheduledNotification.acreate_welcome_scheduled_notification(user)
