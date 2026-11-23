@@ -39,7 +39,8 @@
         data-testid="followup-item-{item.id}-open-modal-button"
         class="fr-btn fr-btn--icon fr-icon-more-2-fill fr-btn--tertiary-no-outline fr-pt-2w am-icon-20 am-btn-modal open-followup-item-modal fr-icon-more-2-fill"
       >
-        Ouvrir les options pour {ariaHideDecorativeEmoji(item.title)}
+        Ouvrir les options pour {ariaHideDecorativeEmoji(item.title)} -
+        {item.formattedDate}
       </button>
     {/if}
     <div class="fr-tile__body">
@@ -47,6 +48,7 @@
         <h3 class="fr-tile__title">
           <button type="button" onclick={goToItem} data-testid="followup-item-link">
             {@html ariaHideDecorativeEmoji(item.title)}
+            <span class="fr-sr-only"> - {item.formattedDate}</span>
           </button>
         </h3>
         <p
@@ -85,7 +87,7 @@
         </div>
       </div>
       {#if withDetailButton}
-        <div class="am-tile__footer fr-pt-1w fr-mr-n2w">
+        <div inert class="am-tile__footer fr-pt-1w fr-mr-n2w">
           <div class="fr-btns-group">
             <button
               type="button"

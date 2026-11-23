@@ -3,6 +3,7 @@
   import { AMIGoto } from '$lib/ami-navigation';
   import FollowupItem from '$lib/components/followup/FollowupItem.svelte';
   import FollowupNoConsent from '$lib/components/followup/FollowupNoConsent.svelte';
+  import BottomModal from '$lib/components/modal/BottomModal.svelte';
   import FollowupItemModal from '$lib/components/modal/FollowupItemModal.svelte';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import FollowupSkeleton from '$lib/components/skeletons/FollowupSkeleton.svelte';
@@ -21,7 +22,6 @@
   let { archived = false }: Props = $props();
 
   const backUrl = '/#/followup';
-  let menuOpened: boolean = $state(false);
   let isExpanded: boolean = $state(false);
 
   let followup: FollowupType = $state() as FollowupType;
@@ -53,10 +53,6 @@
     return false;
   };
 
-  const toggleMoreMenu = () => {
-    menuOpened = !menuOpened;
-  };
-
   const goToArchivedFollowup = () => {
     AMIGoto('/#/followup/archived');
   };
@@ -78,33 +74,41 @@
       <div class="followup--title">
         <h1 class="fr-h2">Mes démarches</h1>
         {#if consents.hasAnyConsents()}
-          <div class="followup--title--icon">
+          <div>
             <button
-              class="more"
+              id="followup-page-options-button"
+              aria-controls="followup-page-options-modal"
+              aria-expanded="false"
               type="button"
-              data-testid="more-button"
-              onclick={toggleMoreMenu}
+              data-fr-opened="false"
+              class="fr-btn fr-icon-more-2-fill fr-btn--tertiary-no-outline am-followup-page-options"
+              data-testid="followup-page-options-open-modal-button"
             >
-              <span class="fr-icon-more-2-fill" aria-hidden="true"></span><span
-                class="fr-sr-only"
-                >Sous-menu</span
-              >
+              Sous menu de mes démarches
             </button>
+
+            <BottomModal modalId="followup-page-options-modal">
+              {#snippet modalContent()}
+                <h2
+                  id="followup-page-options-modal-title"
+                  class="fr-h5 fr-mb-3v fr-sr-only"
+                >
+                  Sous menu de mes démarches
+                </h2>
+                <ul class="fr-raw-list followup-item-modal-footer">
+                  <li>
+                    <button
+                      onclick={goToArchivedFollowup}
+                      data-testid="archived-followup-button"
+                      class="fr-btn fr-btn--lg fr-p-0 fr-btn--tertiary-no-outline fr-icon-inbox-archive-line fr-btn--icon-left fr-text--md fr-text-title--grey archive-followup-item"
+                    >
+                      Démarches archivées
+                    </button>
+                  </li>
+                </ul>
+              {/snippet}
+            </BottomModal>
           </div>
-        {/if}
-        {#if menuOpened}
-          <ul id="more-menu" data-testid="more-menu">
-            <li>
-              <span class="fr-icon-inbox-archive-line" aria-hidden="true"></span>
-              <button
-                type="button"
-                onclick={goToArchivedFollowup}
-                data-testid="archived-followup-button"
-              >
-                Démarches archivées
-              </button>
-            </li>
-          </ul>
         {/if}
       </div>
     {/if}
@@ -199,35 +203,6 @@
       h1 {
         flex-grow: 1;
       }
-      .followup--title--icon {
-        padding-top: 0.25rem;
-        color: var(--text-active-blue-france);
-      }
-      #more-menu {
-        position: absolute;
-        margin: 0;
-        padding: 0.5rem 0;
-        top: 2.5rem;
-        right: 0.25rem;
-        border: 1px solid var(--grey-950-100);
-        border-radius: 0.25rem;
-        z-index: 500;
-        background-color: var(--background-default-grey);
-        box-shadow: 0px 1px 2px 0px #0000004d;
-        li {
-          list-style: none;
-          padding: 0.5rem 1rem;
-          background-color: var(--background-default-grey);
-          font-size: 14px;
-          line-height: 24px;
-          span {
-            color: var(--text-active-blue-france);
-            &::before {
-              --icon-size: 1.25rem;
-            }
-          }
-        }
-      }
     }
     .followup--container {
       display: flex;
@@ -256,6 +231,14 @@
             }
           }
         }
+      }
+    }
+
+    .am-followup-page-options {
+      &.fr-btn:before {
+        --icon-size: 1.25rem;
+        margin-left: 0.125rem;
+        margin-right: 0.625rem;
       }
     }
   }

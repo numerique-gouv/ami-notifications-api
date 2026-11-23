@@ -64,7 +64,7 @@
             {@const displayDay = (i == 0 || i > 0 && item.date?.toDateString() !== agenda.now[i - 1].date?.toDateString())}
             {#if displayMonth}
               <p
-                class="fr-text--sm fr-mb-0 fr-text-title--grey am-text--smbold agenda--events--month"
+                class="fr-text--sm fr-text-title--grey am-text--smbold agenda--events--month"
               >
                 {item.monthName}
               </p>
@@ -92,7 +92,7 @@
             {@const displayDay = (i == 0 || i > 0 && item.date?.toDateString() !== agenda.next[i - 1].date?.toDateString())}
             {#if displayMonth}
               <p
-                class="fr-text--sm fr-mb-0 fr-text-title--grey am-text--smbold agenda--events--month"
+                class="fr-text--sm fr-text-title--grey am-text--smbold agenda--events--month"
               >
                 {item.monthName}
               </p>
@@ -126,15 +126,16 @@
     .agenda--events--header {
       position: sticky;
       top: 0;
-      padding: 0.5rem 1rem 0.25rem;
-      margin: 0 -1rem;
+      padding: 0.25rem 1rem;
+      margin: 0.25rem -1rem 0;
       background-color: var(--background-default-grey);
       z-index: 10;
     }
 
     .agenda--events--month {
-      top: 2.25rem;
-      padding-bottom: 0.5rem;
+      top: 2rem;
+      padding: 0.5rem 1rem 0.25rem;
+      margin: 0 -1rem 0.25rem;
     }
   }
 </style>
