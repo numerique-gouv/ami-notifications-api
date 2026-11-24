@@ -1,3 +1,5 @@
+import html
+
 from django.contrib import messages
 from django.contrib.auth.hashers import make_password
 from django.core.management.utils import get_random_secret_key
@@ -74,7 +76,7 @@ def add_edit_partner(partner: Partner | None, request, for_update=True):
             "id": "password-accordion",
             "title": "Mot de passe",
             "content": mark_safe(f"""
-            <p>Proposition (à communiquer) : <span class="select-on-click">{password}</span><br>
+            <p>Proposition (à communiquer) : <span class="select-on-click">{html.escape(password)}</span><br>
             Hash (à renseigner dans la configuration) : <span class="select-on-click">{hashed_password}</span></p>
             """),
         }
