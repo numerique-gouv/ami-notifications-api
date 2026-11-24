@@ -8,7 +8,7 @@
   import { toastStore } from '$lib/state/toast.svelte';
   import type { DataOrigin } from '$lib/state/User.svelte';
   import { userStore } from '$lib/state/User.svelte';
-  import { formatShortDate, scrollToInput } from '$lib/utils';
+  import { formatShortDate, scrollToInput, scrollToLabel } from '$lib/utils';
 
   let backUrl: string = '/#/profile';
   let inputValue: string = $state('');
@@ -50,12 +50,12 @@
 
 <PageWrapper>
   {#snippet header()}
-    <NavWithBackButton title="Contact" {backUrl} />
+    <NavWithBackButton className="small-header" title="Contact" {backUrl} />
   {/snippet}
 
   {#snippet content()}
     <div class="content-container" data-testid="container">
-      <p>Vous pouvez modifier uniquement les champs ci-dessous.</p>
+      <p class="fr-mb-2w">Vous pouvez modifier uniquement les champs ci-dessous.</p>
 
       <form autocomplete="on" novalidate onsubmit={submit}>
         <fieldset class="fr-fieldset fr-mb-3w">
@@ -74,7 +74,7 @@
                 bind:value={inputValue}
                 data-testid="email-input"
                 autocomplete="email"
-                onfocus={scrollToInput}
+                onfocus={scrollToLabel}
                 aria-describedby="email-error-message last-modif-email"
               >
               <div
@@ -99,7 +99,7 @@
       </form>
 
       {#if email_origin == 'user' && email_last_update}
-        <div class="data-update-info fr-mb-3w" id="last-modif-email">
+        <div class="fr-hint-text data-update-info fr-mb-3w" id="last-modif-email">
           Vous avez modifié cette information le
           {formatShortDate(email_last_update)}.
         </div>
@@ -142,31 +142,6 @@
 </PageWrapper>
 
 <style>
-  .content-container {
-    form {
-      div.autocomplete {
-        position: relative;
-        display: inline-block;
-        width: 100%;
-        span.fr-hint-text {
-          margin-bottom: 0.25rem;
-        }
-        #input {
-          max-height: 3.25rem;
-          padding: 1rem;
-          font-size: 1rem;
-          line-height: 1.5rem;
-          margin: 0;
-        }
-      }
-    }
-    .data-update-info {
-      font-size: 0.75rem;
-      line-height: 1.25rem;
-      color: var(--text-mention-grey);
-    }
-  }
-
   .action-buttons {
     background-color: var(--background-default-grey);
     display: flex;

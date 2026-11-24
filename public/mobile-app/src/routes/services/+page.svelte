@@ -299,7 +299,6 @@
     .search-form {
       position: relative;
       .fr-input {
-        min-height: 3rem;
         box-shadow: inset 0 -3px 0 0 var(--border-action-high-blue-france);
       }
       .am-btn-search {

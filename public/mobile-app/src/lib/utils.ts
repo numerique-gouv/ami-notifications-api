@@ -105,3 +105,19 @@ export const scrollToInput = (event: FocusEvent & { currentTarget: HTMLElement }
 export const uniqueId = (): string => {
   return crypto.randomUUID();
 };
+
+export const scrollToLabel = (event: FocusEvent & { currentTarget: HTMLElement }) => {
+  const input = event.currentTarget || event.target;
+  //const label = document.querySelector(`label[for="${input.id}"]`);
+  if (input) {
+    setTimeout(() => {
+      const offset =
+        4 * parseFloat(getComputedStyle(document.documentElement).fontSize);
+      const top = input.getBoundingClientRect().top + window.scrollY - offset - 4;
+      window.scrollTo({
+        top,
+        behavior: 'smooth',
+      });
+    }, 500);
+  }
+};

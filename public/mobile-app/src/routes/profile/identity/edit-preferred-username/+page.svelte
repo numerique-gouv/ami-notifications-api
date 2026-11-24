@@ -7,7 +7,7 @@
   import { toastStore } from '$lib/state/toast.svelte';
   import type { DataOrigin } from '$lib/state/User.svelte';
   import { userStore } from '$lib/state/User.svelte';
-  import { formatShortDate, scrollToInput } from '$lib/utils';
+  import { formatShortDate, scrollToInput, scrollToLabel } from '$lib/utils';
 
   let backUrl: string = '/#/profile';
   let inputValue: string = $state('');
@@ -56,7 +56,7 @@
 
 <PageWrapper>
   {#snippet header()}
-    <NavWithBackButton title="Mon identité" {backUrl} />
+    <NavWithBackButton className="small-header" title="Mon identité" {backUrl} />
   {/snippet}
 
   {#snippet content()}
@@ -80,7 +80,7 @@
                 bind:value={inputValue}
                 data-testid="preferred-username-input"
                 autocomplete="username"
-                onfocus={scrollToInput}
+                onfocus={scrollToLabel}
                 aria-describedby="username-error-message last-modif-username"
               >
               <div
@@ -104,7 +104,7 @@
       </form>
 
       {#if preferred_username_origin == 'user' && preferred_username_last_update}
-        <div class="data-update-info fr-mb-3w" id="last-modif-username">
+        <div class="fr-hint-text data-update-info fr-mb-3w" id="last-modif-username">
           Vous avez modifié cette information le
           {formatShortDate(preferred_username_last_update)}.
         </div>
@@ -146,31 +146,6 @@
 </PageWrapper>
 
 <style>
-  .content-container {
-    form {
-      div.autocomplete {
-        position: relative;
-        display: inline-block;
-        width: 100%;
-        span.fr-hint-text {
-          margin-bottom: 0.25rem;
-        }
-        #input {
-          max-height: 3.25rem;
-          padding: 1rem;
-          font-size: 1rem;
-          line-height: 1.5rem;
-          margin: 0;
-        }
-      }
-    }
-    .data-update-info {
-      font-size: 0.75rem;
-      line-height: 1.25rem;
-      color: var(--text-mention-grey);
-    }
-  }
-
   .action-buttons {
     background-color: var(--background-default-grey);
     display: flex;

@@ -71,11 +71,9 @@
   };
 </script>
 
-<NavWithBackButton title="" {backUrl} />
+<NavWithBackButton title="Mon profil" {backUrl} />
 
-<div class="fr-container profile-content-container fr-pt-8w" data-testid="profile">
-  <h1 class="fr-h2 fr-mb-2w">Mon profil</h1>
-
+<div class="fr-container profile-content-container fr-pt-14w" data-testid="profile">
   <div class="fr-tile fr-p-3w fr-mb-2w am-profile-tile" id="tile-7519">
     <div class="fr-tile__body">
       <div class="fr-tile__content">

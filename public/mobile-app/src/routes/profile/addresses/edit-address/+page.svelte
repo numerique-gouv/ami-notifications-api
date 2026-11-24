@@ -15,7 +15,12 @@
   import { toastStore } from '$lib/state/toast.svelte';
   import type { DataOrigin } from '$lib/state/User.svelte';
   import { userStore } from '$lib/state/User.svelte';
-  import { formatShortDate, scrollToInput, scrollToNode } from '$lib/utils';
+  import {
+    formatShortDate,
+    scrollToInput,
+    scrollToLabel,
+    scrollToNode,
+  } from '$lib/utils';
 
   let backUrl: string = '/#/profile';
   let addressFromUserStore: Address | undefined = $state();
@@ -166,12 +171,16 @@
 
 <PageWrapper>
   {#snippet header()}
-    <NavWithBackButton title="Où habitez-vous&nbsp;?" {backUrl} />
+    <NavWithBackButton
+      className="small-header"
+      title="Où habitez-vous&nbsp;?"
+      {backUrl}
+    />
   {/snippet}
 
   {#snippet content()}
     <div class="address-content-container" data-testid="container">
-      <p>
+      <p class="fr-mb-2w">
         L’adresse de votre <strong>résidence principale</strong> permet de
         <strong>faciliter la communication</strong> avec les administrations.
       </p>
@@ -180,7 +189,7 @@
         <fieldset class="fr-fieldset fr-mb-3w">
           <div class="fr-fieldset__element fr-mb-0">
             <div
-              class="fr-input-group autocomplete {addressInputHasError ? 'fr-input-group--error' : ''}"
+              class="fr-input-group fr-mb-0 autocomplete {addressInputHasError ? 'fr-input-group--error' : ''}"
             >
               <label class="fr-label" for="address-input">
                 Adresse
@@ -196,7 +205,7 @@
                 data-testid="address-input"
                 autocomplete="address-line1"
                 oninput={addressInputHandler}
-                onfocus={scrollToInput}
+                onfocus={scrollToLabel}
                 aria-describedby="address-error-message last-modif-address"
               >
               <div
@@ -218,9 +227,13 @@
             </div>
 
             <div>
+              <p aria-atomic="true" aria-live="polite" class="fr-sr-only">
+                {#if filteredAddresses.length > 0}
+                  {filteredAddresses.length} résultat(s) trouvés
+                {/if}
+              </p>
               {#if filteredAddresses.length > 0}
-                <ul id="autocomplete-items-list">
-                  <p class="autocomplete-title">Adresse</p>
+                <ul class="fr-raw-list" id="autocomplete-items-list">
                   {#each filteredAddresses as address, index}
                     <li
                       class="autocomplete-item"
@@ -228,11 +241,12 @@
                     >
                       <button
                         type="button"
+                        class="fr-btn fr-btn--tertiary-no-outline fr-p-3v"
                         onclick={() => setInputVal(address)}
                         data-testid="autocomplete-item-button-{index}"
                       >
-                        <p><strong>{address.name}</strong></p>
-                        <p>{address.city} ({address.context})</p>
+                        <span class="fr-text--bold">{address.name}</span>
+                        <span>{address.city} ({address.context})</span>
                       </button>
                     </li>
                   {/each}
@@ -358,62 +372,25 @@
   }
 
   .address-form {
-    div.autocomplete {
-      position: relative;
-      display: inline-block;
-      width: 100%;
-      span.fr-hint-text {
-        margin-bottom: 0.25rem;
-      }
-      input#address-input {
-        max-height: 3.25rem;
-        padding: 1rem;
-        font-size: 1rem;
-        line-height: 1.5rem;
-        margin: 0;
-      }
-    }
-
-    .fr-input-group:not(:last-child) {
-      margin-bottom: 0;
-    }
-
-    ul#autocomplete-items-list {
-      position: relative;
-      margin: 0;
-      padding: 0;
-      top: 0;
-      border: 1px solid var(--grey-950-100);
+    p.autocomplete-title {
       background-color: var(--grey-975-75);
-
-      p.autocomplete-title {
-        padding: 0.25rem 0.75rem;
-        margin: 0;
-        font-weight: 700;
-        color: var(--text-active-blue-france);
-      }
+    }
+    ul#autocomplete-items-list {
+      border: 1px solid var(--grey-950-100);
+      border-bottom: none;
 
       li.autocomplete-item {
-        list-style: none;
-        padding: 0;
-        background-color: var(--background-default-grey);
-
+        border-bottom: 1px solid var(--grey-950-100);
         button {
-          padding: 0.75rem;
+          display: block;
           width: 100%;
           text-align: left;
-          --hover-tint: var(--text-action-high-blue-france);
-          --active-tint: var(--text-action-high-blue-france);
-
-          p {
-            margin: 0;
+          color: var(--text-default-grey);
+          font-weight: 400;
+          span {
+            display: block;
           }
         }
-      }
-
-      li.autocomplete-item:hover {
-        background-color: var(--text-action-high-blue-france);
-        color: var(--text-inverted-blue-france);
       }
     }
   }

@@ -29,7 +29,7 @@
 
 <style>
   .content-header-fixe {
-    padding-top: 7rem;
+    padding-top: 4rem;
 
     &.header-fix-with-logo {
       padding-top: 12rem;

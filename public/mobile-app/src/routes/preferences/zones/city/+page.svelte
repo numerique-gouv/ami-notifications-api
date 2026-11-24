@@ -84,15 +84,18 @@
 </script>
 
 <div class="preferences-city-page fr-px-2w">
-  <NavWithBackButton title="" {backUrl} />
+  <NavWithBackButton
+    className="small-header"
+    title="Rechercher une commune"
+    {backUrl}
+  />
 
   <div class="preferences-city-search-container fr-pt-8w">
-    <h1 class="fr-h3 fr-sr-only">Rechercher une commune</h1>
     <form class="city-form">
       <fieldset class="fr-fieldset">
         <div class="fr-fieldset__element preferences-city-input-wrapper">
           <div class="fr-input-group autocomplete">
-            <label class="fr-label fr-h3" for="city-input">
+            <label class="fr-label fr-sr-only fr-h3" for="city-input">
               Commune
               <span class="fr-hint-text fr-sr-only"
                 >Recherchez une commune pour afficher une zone</span
@@ -118,21 +121,32 @@
                 </div>
               </div>
             {/if}
-            {#if filteredCities.length > 0}
-              <ul id="autocomplete-items-list">
-                {#each filteredCities as city, index}
-                  <li class="autocomplete-item" data-testid="autocomplete-item-{index}">
-                    <button
-                      type="button"
-                      onclick={() => setInputVal(city)}
-                      data-testid="autocomplete-item-button-{index}"
+            <div>
+              <p aria-atomic="true" aria-live="polite" class="fr-sr-only">
+                {#if filteredCities.length > 0}
+                  {filteredCities.length} résultat(s) trouvés
+                {/if}
+              </p>
+              {#if filteredCities.length > 0}
+                <ul class="fr-raw-list" id="autocomplete-items-list">
+                  {#each filteredCities as city, index}
+                    <li
+                      class="autocomplete-item"
+                      data-testid="autocomplete-item-{index}"
                     >
-                      <p>{city.nom} ({city.departement.code})</p>
-                    </button>
-                  </li>
-                {/each}
-              </ul>
-            {/if}
+                      <button
+                        type="button"
+                        class="fr-btn fr-btn--tertiary-no-outline fr-p-3v"
+                        onclick={() => setInputVal(city)}
+                        data-testid="autocomplete-item-button-{index}"
+                      >
+                        <p>{city.nom} ({city.departement.code})</p>
+                      </button>
+                    </li>
+                  {/each}
+                </ul>
+              {/if}
+            </div>
             {#if cityApiHasError}
               <div class="fr-alert fr-alert--warning" data-testid="city-warning">
                 <h3 class="fr-alert__title">Récupération de la commune indisponible</h3>
@@ -166,30 +180,18 @@
         }
       }
       ul#autocomplete-items-list {
-        position: relative;
-        margin: 0;
-        padding: 0;
-        top: 0;
-        border: 1px solid var(--grey-950-100);
-        background-color: var(--grey-975-75);
         li.autocomplete-item {
-          list-style: none;
-          padding: 0;
-          background-color: var(--background-default-grey);
+          border-bottom: 1px solid var(--grey-950-100);
           button {
-            padding: 0.75rem;
+            display: block;
             width: 100%;
             text-align: left;
-            --hover-tint: var(--text-action-high-blue-france);
-            --active-tint: var(--text-action-high-blue-france);
+            font-weight: 400;
+            color: var(--text-default-grey);
             p {
               margin: 0;
             }
           }
-        }
-        li.autocomplete-item:hover {
-          background-color: var(--text-action-high-blue-france);
-          color: var(--text-inverted-blue-france);
         }
       }
     }
