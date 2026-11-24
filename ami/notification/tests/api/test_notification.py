@@ -14,7 +14,7 @@ from ami.user.models import User
 
 
 @pytest.mark.django_db
-def test_get_notifications_should_return_empty_list_by_default(
+def test_list_notifications_should_return_empty_list_by_default(
     app,
     user: User,
 ) -> None:
@@ -26,7 +26,7 @@ def test_get_notifications_should_return_empty_list_by_default(
 
 
 @pytest.mark.django_db
-def test_get_notifications(
+def test_list_notifications(
     app,
     settings,
     notification: Notification,
@@ -139,7 +139,7 @@ def test_get_notifications(
 
 
 @pytest.mark.django_db
-def test_get_notifications_icon(
+def test_list_notifications_icon(
     app,
     settings,
     notification: Notification,
@@ -281,7 +281,42 @@ def test_get_notifications_icon(
 
 
 @pytest.mark.django_db
-def test_get_notifications_without_auth(app) -> None:
+def test_list_notifications__should_not_query_partner_table(
+    app,
+    notification: Notification,
+    partner: Partner,
+    django_assert_num_queries,
+) -> None:
+    login(app, notification.user)
+
+    Notification.objects.create(
+        user=notification.user,
+        content_body="Notification body",
+        content_title="Notification title",
+        item_generic_status="new",
+        item_status_label="Nouveau",
+        item_type="OperationTranquilliteVacances",
+        item_id="42",
+        item_parent_partner=partner,
+        item_parent_type="OTV",
+        item_parent_id="35",
+        partner=partner,
+    )
+
+    with django_assert_num_queries(3) as captured:
+        app.get("/api/v1/users/notifications")
+
+        assert 'FROM "revoked_auth_token"' in captured.captured_queries[0]["sql"]
+        assert 'FROM "ami_user"' in captured.captured_queries[1]["sql"]
+        assert 'FROM "notification"' in captured.captured_queries[2]["sql"]
+
+        assert 'FROM "partner_partner"' not in captured.captured_queries[0]["sql"]
+        assert 'FROM "partner_partner"' not in captured.captured_queries[1]["sql"]
+        assert 'FROM "partner_partner"' not in captured.captured_queries[2]["sql"]
+
+
+@pytest.mark.django_db
+def test_list_notifications_without_auth(app) -> None:
     assert_query_fails_without_auth(app, "/api/v1/users/notifications")
 
 
