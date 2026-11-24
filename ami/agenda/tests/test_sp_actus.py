@@ -21,7 +21,7 @@ EXAMPLE_RESPONSE = """<?xml version="1.0" encoding="UTF-8"?>
       </Texte>
     </Introduction>
   </RefActualite>
-  <RefActualite LienPublication="A18451" type="bref" audience="Particuliers" aLaUne="oui" focus="non" themes="N19803,N19805" sujets="conso" datePremiereMiseEnLigne="2025-09-17" dateMaj="2026-11-17">
+  <RefActualite LienPublication="A18451" type="bref" audience="Particuliers" aLaUne="oui" focus="non" themes="N19803,N19805,environnement,inconnu" sujets="conso" datePremiereMiseEnLigne="2025-09-17" dateMaj="2026-11-17">
     <Date>Publié le 17 novembre 2026</Date>
     <Echeance misEnAvant="non">À partir du 20 nov. 2026</Echeance>
     <SurTitre>Emprunts</SurTitre>
@@ -71,7 +71,11 @@ def test_management_command_import_sp_actus(db, httpx_mock):
 
     sp_actu = SpActuItem.objects.all().first()
     assert sp_actu
-    assert set(sp_actu.themes) == {"Argent - Impôts - Consommation", "Famille - Scolarité"}
+    assert set(sp_actu.themes) == {
+        "Argent - Impôts - Consommation",
+        "Famille - Scolarité",
+        "Environnement",
+    }
     assert (
         sp_actu.title
         == "Crédits à la consommation : les règles évoluent pour prévenir le surendettement"
