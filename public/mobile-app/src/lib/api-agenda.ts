@@ -10,6 +10,7 @@ export type APIAgendaItem = {
   end_date: Date | null;
   zones: string[];
   emoji: string;
+  url: string | null;
 };
 
 export type APIAgenda = {

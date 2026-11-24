@@ -765,6 +765,7 @@ describe('/agenda.ts', () => {
           end_date: parseISODate('2025-12-16'),
           zones: ['Zone A'],
           emoji: 'foo',
+          url: null,
         };
         const holiday2 = {
           kinds: ['school-holiday'],
@@ -775,6 +776,7 @@ describe('/agenda.ts', () => {
           end_date: parseISODate('2025-11-16'),
           zones: ['Zone B'],
           emoji: '',
+          url: null,
         };
         const holiday3 = {
           kinds: ['school-holiday'],
@@ -785,6 +787,7 @@ describe('/agenda.ts', () => {
           end_date: parseISODate('2025-12-16'),
           zones: ['Corse'],
           emoji: 'foo',
+          url: null,
         };
         const holiday4 = {
           kinds: ['school-holiday'],
@@ -795,6 +798,7 @@ describe('/agenda.ts', () => {
           end_date: parseISODate('2025-12-17'),
           zones: ['Zone A'],
           emoji: '',
+          url: null,
         };
         const holiday5 = {
           kinds: ['school-holiday'],
@@ -805,6 +809,7 @@ describe('/agenda.ts', () => {
           end_date: parseISODate('2025-12-25'),
           zones: ['Zone C'],
           emoji: '',
+          url: null,
         };
         const holiday6 = {
           kinds: ['public-holiday'],
@@ -815,6 +820,7 @@ describe('/agenda.ts', () => {
           end_date: null,
           zones: [],
           emoji: 'bar',
+          url: null,
         };
         const holiday7 = {
           kinds: ['public-holiday'],
@@ -825,6 +831,7 @@ describe('/agenda.ts', () => {
           end_date: null,
           zones: [],
           emoji: '',
+          url: null,
         };
         const marronnier1 = {
           kinds: ['citizenship'],
@@ -835,6 +842,7 @@ describe('/agenda.ts', () => {
           end_date: null,
           zones: [],
           emoji: '',
+          url: null,
         };
         const marronnier2 = {
           kinds: ['citizenship'],
@@ -845,6 +853,7 @@ describe('/agenda.ts', () => {
           end_date: null,
           zones: [],
           emoji: '',
+          url: null,
         };
         await userStore.login(mockUserInfo);
         vi.spyOn(utilsMethods, 'uniqueId').mockReturnValue('fake-id');
@@ -1002,6 +1011,7 @@ describe('/agenda.ts', () => {
           end_date: parseISODate('2026-02-23'),
           zones: ['Zone A', 'Zone foo'],
           emoji: 'foo',
+          url: null,
         };
         const holiday2 = {
           kinds: ['school-holiday'],
@@ -1012,6 +1022,7 @@ describe('/agenda.ts', () => {
           end_date: parseISODate('2026-03-02'),
           zones: ['Zone foo'],
           emoji: 'foo',
+          url: null,
         };
         await userStore.login(mockUserInfo);
         const spyIsConcerned = vi
@@ -1078,6 +1089,7 @@ describe('/agenda.ts', () => {
           end_date: parseISODate('2026-02-23'),
           zones: ['Zone A'],
           emoji: 'foo',
+          url: null,
         };
         const holiday2 = {
           kinds: ['school-holiday'],
@@ -1088,6 +1100,7 @@ describe('/agenda.ts', () => {
           end_date: parseISODate('2026-03-02'),
           zones: ['Zone B'],
           emoji: 'foo',
+          url: null,
         };
         const holiday3 = {
           kinds: ['school-holiday'],
@@ -1098,6 +1111,7 @@ describe('/agenda.ts', () => {
           end_date: parseISODate('2027-02-23'),
           zones: ['Zone A'],
           emoji: 'foo',
+          url: null,
         };
         const holiday4 = {
           kinds: ['school-holiday'],
@@ -1108,6 +1122,7 @@ describe('/agenda.ts', () => {
           end_date: parseISODate('2027-03-02'),
           zones: ['Zone B'],
           emoji: 'foo',
+          url: null,
         };
         await userStore.login(mockUserInfo);
         vi.spyOn(utilsMethods, 'uniqueId').mockReturnValue('fake-id');
@@ -1170,6 +1185,7 @@ describe('/agenda.ts', () => {
           end_date: parseISODate('2026-02-23'),
           zones: ['Zone C'],
           emoji: 'foo',
+          url: null,
         };
         const holiday2 = {
           kinds: ['school-holiday'],
@@ -1180,6 +1196,7 @@ describe('/agenda.ts', () => {
           end_date: parseISODate('2026-03-02'),
           zones: ['Zone B'],
           emoji: 'foo',
+          url: null,
         };
         const holiday3 = {
           kinds: ['school-holiday'],
@@ -1190,6 +1207,7 @@ describe('/agenda.ts', () => {
           end_date: parseISODate('2027-02-23'),
           zones: ['Zone A'],
           emoji: 'foo',
+          url: null,
         };
         const holiday4 = {
           kinds: ['school-holiday'],
@@ -1200,6 +1218,7 @@ describe('/agenda.ts', () => {
           end_date: parseISODate('2027-03-02'),
           zones: ['Zone C'],
           emoji: 'foo',
+          url: null,
         };
         await userStore.login(mockUserInfo);
         vi.spyOn(utilsMethods, 'uniqueId').mockReturnValue('fake-id');
@@ -1272,6 +1291,7 @@ describe('/agenda.ts', () => {
           end_date: parseISODate('2025-12-16'),
           zones: ['Zone A'],
           emoji: 'foo',
+          url: null,
         };
         const holiday2 = {
           kinds: ['school-holiday'],
@@ -1282,6 +1302,7 @@ describe('/agenda.ts', () => {
           end_date: parseISODate('2025-11-16'),
           zones: ['Zone B'],
           emoji: '',
+          url: null,
         };
         await userStore.login(mockUserInfo);
         vi.spyOn(utilsMethods, 'uniqueId').mockReturnValue('fake-id');
@@ -1340,6 +1361,7 @@ describe('/agenda.ts', () => {
           end_date: parseISODate('2025-12-16'),
           zones: ['Zone A'],
           emoji: 'foo',
+          url: null,
         };
         const holiday2 = {
           kinds: ['school-holiday'],
@@ -1350,6 +1372,7 @@ describe('/agenda.ts', () => {
           end_date: parseISODate('2025-11-16'),
           zones: ['Zone B'],
           emoji: '',
+          url: null,
         };
         await userStore.login(mockUserInfo);
 
@@ -1406,6 +1429,7 @@ describe('/agenda.ts', () => {
           end_date: null,
           zones: [],
           emoji: 'bar',
+          url: null,
         };
         const holiday7 = {
           kinds: ['public-holiday'],
@@ -1416,6 +1440,7 @@ describe('/agenda.ts', () => {
           end_date: null,
           zones: [],
           emoji: '',
+          url: null,
         };
         await userStore.login(mockUserInfo);
         vi.spyOn(utilsMethods, 'uniqueId').mockReturnValue('fake-id');
@@ -1475,6 +1500,7 @@ describe('/agenda.ts', () => {
           end_date: null,
           zones: [],
           emoji: 'bar',
+          url: null,
         };
         const holiday7 = {
           kinds: ['public-holiday'],
@@ -1485,6 +1511,7 @@ describe('/agenda.ts', () => {
           end_date: null,
           zones: [],
           emoji: '',
+          url: null,
         };
         const itemHoliday6 = new Item(
           'fake-id-6',
@@ -1552,6 +1579,7 @@ describe('/agenda.ts', () => {
             end_date: parseISODate('2026-02-23'),
             zones: ['Zone A'], // first date
             emoji: 'foo',
+            url: null,
           };
           const holiday2 = {
             kinds: ['school-holiday'],
@@ -1562,6 +1590,7 @@ describe('/agenda.ts', () => {
             end_date: parseISODate('2026-03-02'),
             zones: ['Zone C'],
             emoji: 'foo',
+            url: null,
           };
           const holiday3 = {
             kinds: ['school-holiday'],
@@ -1572,6 +1601,7 @@ describe('/agenda.ts', () => {
             end_date: parseISODate('2026-09-01'),
             zones: ['Zone A', 'Zone B', 'Zone C'],
             emoji: 'bar',
+            url: null,
           };
           const holiday4 = {
             kinds: ['school-holiday'],
@@ -1582,6 +1612,7 @@ describe('/agenda.ts', () => {
             end_date: parseISODate('2025-09-01'), // past holiday
             zones: ['Zone A', 'Zone B', 'Zone C'],
             emoji: 'bar',
+            url: null,
           };
           await userStore.login(mockUserInfo);
 
@@ -1618,6 +1649,7 @@ describe('/agenda.ts', () => {
             end_date: parseISODate('2026-02-23'),
             zones: ['Zone A'],
             emoji: 'foo',
+            url: null,
           };
           const holiday2 = {
             kinds: ['school-holiday'],
@@ -1628,6 +1660,7 @@ describe('/agenda.ts', () => {
             end_date: parseISODate('2026-03-02'),
             zones: ['Zone C'], // matches user's zone
             emoji: 'foo',
+            url: null,
           };
           const holiday3 = {
             kinds: ['school-holiday'],
@@ -1638,6 +1671,7 @@ describe('/agenda.ts', () => {
             end_date: parseISODate('2026-09-01'),
             zones: ['Zone A', 'Zone B', 'Zone C'],
             emoji: 'bar',
+            url: null,
           };
           const holiday4 = {
             kinds: ['school-holiday'],
@@ -1648,6 +1682,7 @@ describe('/agenda.ts', () => {
             end_date: parseISODate('2025-09-01'), // past holiday
             zones: ['Zone A', 'Zone B', 'Zone C'],
             emoji: 'bar',
+            url: null,
           };
           await userStore.login(mockUserInfo);
 
@@ -1703,6 +1738,7 @@ describe('/agenda.ts', () => {
             end_date: parseISODate('2026-02-23'),
             zones: ['Zone A'],
             emoji: 'foo',
+            url: null,
           };
           const holiday2 = {
             kinds: ['school-holiday'],
@@ -1713,6 +1749,7 @@ describe('/agenda.ts', () => {
             end_date: parseISODate('2026-03-02'),
             zones: ['Zone C'], // matches user's zone
             emoji: 'foo',
+            url: null,
           };
           const holiday3 = {
             kinds: ['school-holiday'],
@@ -1723,6 +1760,7 @@ describe('/agenda.ts', () => {
             end_date: parseISODate('2026-09-01'),
             zones: ['Zone A', 'Zone B', 'Zone C'],
             emoji: 'bar',
+            url: null,
           };
           const holiday4 = {
             kinds: ['school-holiday'],
@@ -1733,6 +1771,7 @@ describe('/agenda.ts', () => {
             end_date: parseISODate('2025-09-01'), // past holiday
             zones: ['Zone A', 'Zone B', 'Zone C'],
             emoji: 'bar',
+            url: null,
           };
           await userStore.login(mockUserInfo);
 
@@ -1796,6 +1835,7 @@ describe('/agenda.ts', () => {
             end_date: parseISODate('2026-02-23'),
             zones: ['Zone A'], // first date
             emoji: 'foo',
+            url: null,
           };
           const holiday2 = {
             kinds: ['school-holiday'],
@@ -1806,6 +1846,7 @@ describe('/agenda.ts', () => {
             end_date: parseISODate('2026-03-02'),
             zones: ['Zone C'],
             emoji: 'foo',
+            url: null,
           };
           const holiday3 = {
             kinds: ['school-holiday'],
@@ -1816,6 +1857,7 @@ describe('/agenda.ts', () => {
             end_date: parseISODate('2026-09-01'),
             zones: ['Zone A', 'Zone B', 'Zone C'],
             emoji: 'bar',
+            url: null,
           };
           const holiday4 = {
             kinds: ['school-holiday'],
@@ -1826,6 +1868,7 @@ describe('/agenda.ts', () => {
             end_date: parseISODate('2025-09-01'), // past holiday
             zones: ['Zone A', 'Zone B', 'Zone C'],
             emoji: 'bar',
+            url: null,
           };
           await userStore.login(mockUserInfo);
 
@@ -1859,6 +1902,7 @@ describe('/agenda.ts', () => {
             end_date: parseISODate('2026-02-23'),
             zones: ['Zone A'], // first date
             emoji: 'foo',
+            url: null,
           };
           const holiday2 = {
             kinds: ['school-holiday'],
@@ -1869,6 +1913,7 @@ describe('/agenda.ts', () => {
             end_date: parseISODate('2026-03-02'),
             zones: ['Zone C'],
             emoji: 'foo',
+            url: null,
           };
           const holiday3 = {
             kinds: ['school-holiday'],
@@ -1879,6 +1924,7 @@ describe('/agenda.ts', () => {
             end_date: parseISODate('2026-09-01'),
             zones: ['Zone A', 'Zone B', 'Zone C'],
             emoji: 'bar',
+            url: null,
           };
           const holiday4 = {
             kinds: ['school-holiday'],
@@ -1889,6 +1935,7 @@ describe('/agenda.ts', () => {
             end_date: parseISODate('2025-09-01'), // past holiday
             zones: ['Zone A', 'Zone B', 'Zone C'],
             emoji: 'bar',
+            url: null,
           };
           await userStore.login(mockUserInfo);
 
@@ -1922,6 +1969,7 @@ describe('/agenda.ts', () => {
             end_date: parseISODate('2026-02-23'),
             zones: ['Zone A'], // first date
             emoji: 'foo',
+            url: null,
           };
           const holiday2 = {
             kinds: ['school-holiday'],
@@ -1932,6 +1980,7 @@ describe('/agenda.ts', () => {
             end_date: parseISODate('2026-03-02'),
             zones: ['Zone C'],
             emoji: 'foo',
+            url: null,
           };
           const holiday3 = {
             kinds: ['school-holiday'],
@@ -1942,6 +1991,7 @@ describe('/agenda.ts', () => {
             end_date: parseISODate('2026-09-01'),
             zones: ['Zone A', 'Zone B', 'Zone C'],
             emoji: 'bar',
+            url: null,
           };
           const holiday4 = {
             kinds: ['school-holiday'],
@@ -1952,6 +2002,7 @@ describe('/agenda.ts', () => {
             end_date: parseISODate('2025-09-01'), // past holiday
             zones: ['Zone A', 'Zone B', 'Zone C'],
             emoji: 'bar',
+            url: null,
           };
           await userStore.login(mockUserInfo);
 
@@ -1983,6 +2034,7 @@ describe('/agenda.ts', () => {
             end_date: parseISODate('2026-02-23'),
             zones: ['Zone A'], // first date
             emoji: 'foo',
+            url: null,
           };
           const holiday2 = {
             kinds: ['school-holiday'],
@@ -1993,6 +2045,7 @@ describe('/agenda.ts', () => {
             end_date: parseISODate('2026-03-02'),
             zones: ['Zone C'],
             emoji: 'foo',
+            url: null,
           };
           const holiday3 = {
             kinds: ['school-holiday'],
@@ -2003,6 +2056,7 @@ describe('/agenda.ts', () => {
             end_date: parseISODate('2026-09-01'),
             zones: ['Zone A', 'Zone B', 'Zone C'],
             emoji: 'bar',
+            url: null,
           };
           const holiday4 = {
             kinds: ['school-holiday'],
@@ -2013,6 +2067,7 @@ describe('/agenda.ts', () => {
             end_date: parseISODate('2025-09-01'), // past holiday
             zones: ['Zone A', 'Zone B', 'Zone C'],
             emoji: 'bar',
+            url: null,
           };
           await userStore.login(mockUserInfo);
 
@@ -2045,6 +2100,7 @@ describe('/agenda.ts', () => {
             end_date: parseISODate('2026-02-23'),
             zones: ['Zone A'], // first date
             emoji: 'foo',
+            url: null,
           };
           const holiday2 = {
             kinds: ['school-holiday'],
@@ -2055,6 +2111,7 @@ describe('/agenda.ts', () => {
             end_date: parseISODate('2026-03-02'),
             zones: ['Zone C'],
             emoji: 'foo',
+            url: null,
           };
           const holiday3 = {
             kinds: ['school-holiday'],
@@ -2065,6 +2122,7 @@ describe('/agenda.ts', () => {
             end_date: parseISODate('2026-09-01'),
             zones: ['Zone A', 'Zone B', 'Zone C'],
             emoji: 'bar',
+            url: null,
           };
           const holiday4 = {
             kinds: ['school-holiday'],
@@ -2075,6 +2133,7 @@ describe('/agenda.ts', () => {
             end_date: parseISODate('2025-09-01'), // past holiday
             zones: ['Zone A', 'Zone B', 'Zone C'],
             emoji: 'bar',
+            url: null,
           };
           await userStore.login(mockUserInfo);
 
@@ -2104,6 +2163,7 @@ describe('/agenda.ts', () => {
             end_date: parseISODate('2026-02-23'),
             zones: ['Zone A'], // first date
             emoji: 'foo',
+            url: null,
           };
           const holiday2 = {
             kinds: ['school-holiday'],
@@ -2114,6 +2174,7 @@ describe('/agenda.ts', () => {
             end_date: parseISODate('2026-03-02'),
             zones: ['Zone C'],
             emoji: 'foo',
+            url: null,
           };
           const holiday3 = {
             kinds: ['school-holiday'],
@@ -2124,6 +2185,7 @@ describe('/agenda.ts', () => {
             end_date: parseISODate('2026-09-01'),
             zones: ['Zone A', 'Zone B', 'Zone C'],
             emoji: 'bar',
+            url: null,
           };
           const holiday4 = {
             kinds: ['school-holiday'],
@@ -2134,6 +2196,7 @@ describe('/agenda.ts', () => {
             end_date: parseISODate('2025-09-01'), // past holiday
             zones: ['Zone A', 'Zone B', 'Zone C'],
             emoji: 'bar',
+            url: null,
           };
           await userStore.login(mockUserInfo);
 
@@ -2165,6 +2228,7 @@ describe('/agenda.ts', () => {
           end_date: null,
           zones: [],
           emoji: '',
+          url: null,
         };
         const marronnier2 = {
           kinds: ['citizenship'],
@@ -2175,6 +2239,7 @@ describe('/agenda.ts', () => {
           end_date: null,
           zones: [],
           emoji: '',
+          url: null,
         };
         const marronnier3 = {
           kinds: ['citizenship'],
@@ -2284,6 +2349,7 @@ describe('/agenda.ts', () => {
           end_date: null,
           zones: [],
           emoji: '',
+          url: null,
         };
         const marronnier2 = {
           kinds: ['citizenship'],
@@ -2294,6 +2360,7 @@ describe('/agenda.ts', () => {
           end_date: null,
           zones: [],
           emoji: '',
+          url: null,
         };
         const itemMarronnier1 = new Item(
           'fake-id-1',
@@ -3189,6 +3256,7 @@ describe('/agenda.ts', () => {
         end_date: parseISODate('2025-12-16'),
         zones: ['Zone A'],
         emoji: '',
+        url: null,
       };
       const holiday2 = {
         kinds: ['school-holiday'],
@@ -3199,6 +3267,7 @@ describe('/agenda.ts', () => {
         end_date: parseISODate('2025-12-17'),
         zones: ['Corse'],
         emoji: '',
+        url: null,
       };
       const holiday3 = {
         kinds: ['public-holiday'],
@@ -3209,6 +3278,7 @@ describe('/agenda.ts', () => {
         end_date: null,
         zones: [],
         emoji: '',
+        url: null,
       };
       const holiday4 = {
         kinds: ['public-holiday'],
@@ -3219,6 +3289,7 @@ describe('/agenda.ts', () => {
         end_date: null,
         zones: [],
         emoji: '',
+        url: null,
       };
       const spy = vi.spyOn(apiAgendaMethods, 'retrieveAgenda').mockResolvedValue({
         school_holidays: [holiday1, holiday2],
@@ -3474,6 +3545,7 @@ describe('/agenda.ts', () => {
         end_date: parseISODate('2025-12-16'),
         zones: ['Zone A'],
         emoji: '',
+        url: null,
       };
       const holiday2 = {
         kinds: ['school-holiday'],
@@ -3484,6 +3556,7 @@ describe('/agenda.ts', () => {
         end_date: parseISODate('2025-12-17'),
         zones: ['Corse'],
         emoji: '',
+        url: null,
       };
       const holiday3 = {
         kinds: ['public-holiday'],
@@ -3494,6 +3567,7 @@ describe('/agenda.ts', () => {
         end_date: null,
         zones: [],
         emoji: '',
+        url: null,
       };
       const holiday4 = {
         kinds: ['public-holiday'],
@@ -3504,6 +3578,7 @@ describe('/agenda.ts', () => {
         end_date: null,
         zones: [],
         emoji: '',
+        url: null,
       };
       const spy = vi.spyOn(apiAgendaMethods, 'retrieveAgenda').mockResolvedValue({
         school_holidays: [holiday1, holiday2],
