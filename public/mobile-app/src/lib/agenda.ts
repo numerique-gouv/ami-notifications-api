@@ -654,7 +654,7 @@ export class Agenda {
       uniqueId(),
       marronnier.kinds as Kind[],
       marronnier.title,
-      '',
+      marronnier.url || '',
       marronnier.description,
       marronnier.date,
       marronnier.start_date,

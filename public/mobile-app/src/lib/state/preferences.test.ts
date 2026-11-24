@@ -121,6 +121,7 @@ describe('/preferences.ts', () => {
           end_date: parseISODate('2026-02-23'),
           zones: ['Zone A', 'Zone B', 'Martinique'],
           emoji: 'foo',
+          url: null,
         } as APIAgendaItem;
         const preferences = new Preferences(['Zone A', 'Zone C'], []);
 
@@ -141,6 +142,7 @@ describe('/preferences.ts', () => {
           end_date: parseISODate('2026-02-23'),
           zones: ['Zone A', 'Zone B', 'Martinique'],
           emoji: 'foo',
+          url: null,
         } as APIAgendaItem;
         const preferences = new Preferences(['Zone C', 'Corse'], []);
 
@@ -161,6 +163,7 @@ describe('/preferences.ts', () => {
           end_date: parseISODate('2026-02-23'),
           zones: ['Zone A', 'Zone B', 'Martinique'],
           emoji: 'foo',
+          url: null,
         } as APIAgendaItem;
         const preferences = new Preferences([], []);
 
@@ -181,6 +184,7 @@ describe('/preferences.ts', () => {
           end_date: parseISODate('2026-02-23'),
           zones: [],
           emoji: 'foo',
+          url: null,
         } as APIAgendaItem;
         const preferences = new Preferences(['Zone C', 'Corse'], []);
 
@@ -204,6 +208,7 @@ describe('/preferences.ts', () => {
           end_date: parseISODate('2026-02-23'),
           zones: ['Zone A', 'Zone B', 'Martinique'],
           emoji: 'foo',
+          url: null,
         } as APIAgendaItem;
         const preferences = new Preferences(['Zone A', 'Zone C'], []);
 
@@ -224,6 +229,7 @@ describe('/preferences.ts', () => {
           end_date: parseISODate('2026-02-23'),
           zones: ['Zone A', 'Zone B', 'Zone C'],
           emoji: 'foo',
+          url: null,
         } as APIAgendaItem;
         const preferences = new Preferences(['Zone A', 'Zone C'], []);
 
@@ -244,6 +250,7 @@ describe('/preferences.ts', () => {
           end_date: parseISODate('2026-02-23'),
           zones: ['Zone A', 'Zone B', 'Zone C'],
           emoji: 'foo',
+          url: null,
         } as APIAgendaItem;
         const preferences = new Preferences(['Zone A', 'Zone C'], []);
         const userAddress = new Address('Paris', '', '', 'Paris', 'Paris', '75000');
@@ -265,6 +272,7 @@ describe('/preferences.ts', () => {
           end_date: parseISODate('2026-02-23'),
           zones: ['Zone A', 'Zone B', 'Martinique'],
           emoji: 'foo',
+          url: null,
         } as APIAgendaItem;
         const address1 = new Address(
           'Périgueux',
@@ -301,6 +309,7 @@ describe('/preferences.ts', () => {
           end_date: parseISODate('2026-02-23'),
           zones: ['Zone A', 'Zone B', 'Zone C', 'Corse', 'Martinique'],
           emoji: 'foo',
+          url: null,
         } as APIAgendaItem;
         const address1 = new Address(
           'Périgueux',
@@ -345,6 +354,7 @@ describe('/preferences.ts', () => {
           end_date: parseISODate('2026-02-23'),
           zones: ['Zone A', 'Zone B', 'Zone C', 'Corse', 'Martinique'],
           emoji: 'foo',
+          url: null,
         } as APIAgendaItem;
         const address1 = new Address(
           'Périgueux',
@@ -387,6 +397,7 @@ describe('/preferences.ts', () => {
           end_date: parseISODate('2026-02-23'),
           zones: ['Zone A', 'Zone B', 'Martinique'],
           emoji: 'foo',
+          url: null,
         } as APIAgendaItem;
         const preferences = new Preferences(['Zone C', 'Corse'], []);
 
@@ -407,6 +418,7 @@ describe('/preferences.ts', () => {
           end_date: parseISODate('2026-02-23'),
           zones: ['Zone A', 'Zone B', 'Martinique'],
           emoji: 'foo',
+          url: null,
         } as APIAgendaItem;
         const preferences = new Preferences([], []);
 
@@ -427,6 +439,7 @@ describe('/preferences.ts', () => {
           end_date: parseISODate('2026-02-23'),
           zones: [],
           emoji: 'foo',
+          url: null,
         } as APIAgendaItem;
         const preferences = new Preferences(['Zone C', 'Corse'], []);
 
