@@ -35,7 +35,7 @@ logger = logging.getLogger(__name__)
 def list_notifications(request: Request) -> Response[QuerySet[Notification]]:
     notifications: QuerySet[Notification] = (
         Notification.objects.filter(user=request.ami_user)
-        .select_related("user", "partner")
+        .select_related("user", "partner", "item_parent_partner")
         .exclude(valid_until__lt=now())
         .order_by("-created_at")
     )
