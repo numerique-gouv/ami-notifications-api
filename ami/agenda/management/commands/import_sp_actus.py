@@ -142,6 +142,8 @@ class Command(BaseCommand):
             self.stdout.write("\n".join(f"- {k}: {v}" for k, v in self.theme_codes.items()))
 
     def get_theme_label(self, code):
+        if code == "environnement":  # temporary hack for theme without page
+            return "Environnement"
         if not code or not code.startswith("N"):
             return None
         if code in self.theme_codes:
