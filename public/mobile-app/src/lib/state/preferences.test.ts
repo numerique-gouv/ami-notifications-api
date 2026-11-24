@@ -11,7 +11,7 @@ describe('/preferences.ts', () => {
     describe('fromJSON', () => {
       test('should init with values - empty values', async () => {
         // Given
-        const preferences_data = { _zones: [], _addresses: [] };
+        const preferences_data = { _zones: [], _addresses: [], _themes: [] };
 
         // When
         const preferences = Preferences.fromJSON(preferences_data);
@@ -20,6 +20,7 @@ describe('/preferences.ts', () => {
         expect(preferences instanceof Preferences).toBe(true);
         expect(preferences.zones).toEqual([]);
         expect(preferences.addresses).toEqual([]);
+        expect(preferences.themes).toEqual([]);
       });
       test('should init with values - not empty values', async () => {
         // Given
@@ -28,6 +29,7 @@ describe('/preferences.ts', () => {
         const preferences_data = {
           _zones: ['Zone A', 'Martinique'],
           _addresses: [address1, address2],
+          _themes: ['school-holidays', 'other'],
         };
 
         // When
@@ -37,6 +39,7 @@ describe('/preferences.ts', () => {
         expect(preferences instanceof Preferences).toBe(true);
         expect(preferences.zones).toEqual(['Zone A', 'Martinique']);
         expect(preferences.addresses).toEqual([address1, address2]);
+        expect(preferences.themes).toEqual(['school-holidays', 'other']);
       });
     });
 
@@ -49,6 +52,7 @@ describe('/preferences.ts', () => {
         expect(preferences instanceof Preferences).toBe(true);
         expect(preferences.zones).toEqual(['Zone A', 'Zone B', 'Zone C', 'Corse']);
         expect(preferences.addresses).toEqual([]);
+        expect(preferences.themes).toEqual([]);
       });
       test('with address in hexagone: should init zones with A, B, C and Corse', async () => {
         // Given
@@ -68,6 +72,7 @@ describe('/preferences.ts', () => {
         expect(preferences instanceof Preferences).toBe(true);
         expect(preferences.zones).toEqual(['Zone A', 'Zone B', 'Zone C', 'Corse']);
         expect(preferences.addresses).toEqual([]);
+        expect(preferences.themes).toEqual([]);
       });
       test('with address in Corse: should init zones with A, B, C and Corse', async () => {
         // Given
@@ -87,6 +92,7 @@ describe('/preferences.ts', () => {
         expect(preferences instanceof Preferences).toBe(true);
         expect(preferences.zones).toEqual(['Zone A', 'Zone B', 'Zone C', 'Corse']);
         expect(preferences.addresses).toEqual([]);
+        expect(preferences.themes).toEqual([]);
       });
       test('with address out of hexagone and Corse: should init zones with the corresponding zone', async () => {
         // Given
@@ -106,6 +112,7 @@ describe('/preferences.ts', () => {
         expect(preferences instanceof Preferences).toBe(true);
         expect(preferences.zones).toEqual(['Réunion']);
         expect(preferences.addresses).toEqual([]);
+        expect(preferences.themes).toEqual([]);
       });
     });
 
@@ -123,7 +130,7 @@ describe('/preferences.ts', () => {
           emoji: 'foo',
           url: null,
         } as APIAgendaItem;
-        const preferences = new Preferences(['Zone A', 'Zone C'], []);
+        const preferences = new Preferences(['Zone A', 'Zone C'], [], []);
 
         // When
         const result = preferences.isSchoolHolidayConcerned(item);
@@ -144,7 +151,7 @@ describe('/preferences.ts', () => {
           emoji: 'foo',
           url: null,
         } as APIAgendaItem;
-        const preferences = new Preferences(['Zone C', 'Corse'], []);
+        const preferences = new Preferences(['Zone C', 'Corse'], [], []);
 
         // When
         const result = preferences.isSchoolHolidayConcerned(item);
@@ -165,7 +172,7 @@ describe('/preferences.ts', () => {
           emoji: 'foo',
           url: null,
         } as APIAgendaItem;
-        const preferences = new Preferences([], []);
+        const preferences = new Preferences([], [], []);
 
         // When
         const result = preferences.isSchoolHolidayConcerned(item);
@@ -186,7 +193,7 @@ describe('/preferences.ts', () => {
           emoji: 'foo',
           url: null,
         } as APIAgendaItem;
-        const preferences = new Preferences(['Zone C', 'Corse'], []);
+        const preferences = new Preferences(['Zone C', 'Corse'], [], []);
 
         // When
         const result = preferences.isSchoolHolidayConcerned(item);
@@ -210,7 +217,7 @@ describe('/preferences.ts', () => {
           emoji: 'foo',
           url: null,
         } as APIAgendaItem;
-        const preferences = new Preferences(['Zone A', 'Zone C'], []);
+        const preferences = new Preferences(['Zone A', 'Zone C'], [], []);
 
         // When
         const result = preferences.getSchoolHolidayDescription(item, undefined);
@@ -231,7 +238,7 @@ describe('/preferences.ts', () => {
           emoji: 'foo',
           url: null,
         } as APIAgendaItem;
-        const preferences = new Preferences(['Zone A', 'Zone C'], []);
+        const preferences = new Preferences(['Zone A', 'Zone C'], [], []);
 
         // When
         const result = preferences.getSchoolHolidayDescription(item, undefined);
@@ -252,7 +259,7 @@ describe('/preferences.ts', () => {
           emoji: 'foo',
           url: null,
         } as APIAgendaItem;
-        const preferences = new Preferences(['Zone A', 'Zone C'], []);
+        const preferences = new Preferences(['Zone A', 'Zone C'], [], []);
         const userAddress = new Address('Paris', '', '', 'Paris', 'Paris', '75000');
 
         // When
@@ -290,7 +297,11 @@ describe('/preferences.ts', () => {
           'Bastia',
           '20200'
         );
-        const preferences = new Preferences(['Zone A', 'Zone C'], [address1, address2]);
+        const preferences = new Preferences(
+          ['Zone A', 'Zone C'],
+          [address1, address2],
+          []
+        );
 
         // When
         const result = preferences.getSchoolHolidayDescription(item, undefined);
@@ -331,7 +342,8 @@ describe('/preferences.ts', () => {
         const address4 = new Address('Arpajon', '', '', 'Arpajon', 'Arpajon', '91290');
         const preferences = new Preferences(
           ['Zone A', 'Zone B', 'Zone C', 'Corse', 'Réunion'],
-          [address1, address2, address3, address4]
+          [address1, address2, address3, address4],
+          []
         );
         const userAddress = new Address('Paris', '', '', 'Paris', 'Paris', '75000');
 
@@ -376,7 +388,8 @@ describe('/preferences.ts', () => {
         const address4 = new Address('Arpajon', '', '', 'Arpajon', 'Arpajon', '91290');
         const preferences = new Preferences(
           ['Zone A', 'Zone B', 'Zone C', 'Corse'],
-          [address1, address2, address3, address4]
+          [address1, address2, address3, address4],
+          []
         );
         const userAddress = new Address('Paris', '', '', 'Paris', 'Paris', '75000');
 
@@ -399,7 +412,7 @@ describe('/preferences.ts', () => {
           emoji: 'foo',
           url: null,
         } as APIAgendaItem;
-        const preferences = new Preferences(['Zone C', 'Corse'], []);
+        const preferences = new Preferences(['Zone C', 'Corse'], [], []);
 
         // When
         const result = preferences.getSchoolHolidayDescription(item, undefined);
@@ -420,7 +433,7 @@ describe('/preferences.ts', () => {
           emoji: 'foo',
           url: null,
         } as APIAgendaItem;
-        const preferences = new Preferences([], []);
+        const preferences = new Preferences([], [], []);
 
         // When
         const result = preferences.getSchoolHolidayDescription(item, undefined);
@@ -441,7 +454,7 @@ describe('/preferences.ts', () => {
           emoji: 'foo',
           url: null,
         } as APIAgendaItem;
-        const preferences = new Preferences(['Zone C', 'Corse'], []);
+        const preferences = new Preferences(['Zone C', 'Corse'], [], []);
 
         // When
         const result = preferences.getSchoolHolidayDescription(item, undefined);
@@ -454,9 +467,9 @@ describe('/preferences.ts', () => {
     describe('addZone', () => {
       test('should add zone', async () => {
         // Given
-        const preferences1 = new Preferences([], []);
-        const preferences2 = new Preferences(['Foo'], []);
-        const preferences3 = new Preferences(['Foo', 'Bar'], []);
+        const preferences1 = new Preferences([], [], []);
+        const preferences2 = new Preferences(['Foo'], [], []);
+        const preferences3 = new Preferences(['Foo', 'Bar'], [], []);
         const trackZoneSpy = vi
           .spyOn(matomoMethods, 'trackZone')
           .mockResolvedValue(undefined);
@@ -479,9 +492,9 @@ describe('/preferences.ts', () => {
     describe('removeZone', () => {
       test('should remove zone', async () => {
         // Given
-        const preferences1 = new Preferences([], []);
-        const preferences2 = new Preferences(['Foo'], []);
-        const preferences3 = new Preferences(['Foo', 'Bar'], []);
+        const preferences1 = new Preferences([], [], []);
+        const preferences2 = new Preferences(['Foo'], [], []);
+        const preferences3 = new Preferences(['Foo', 'Bar'], [], []);
         const trackZoneSpy = vi
           .spyOn(matomoMethods, 'trackZone')
           .mockResolvedValue(undefined);
@@ -535,18 +548,21 @@ describe('/preferences.ts', () => {
           '3 Rue de Paris',
           '97400'
         );
-        const preferences1 = new Preferences([], []);
+        const preferences1 = new Preferences([], [], []);
         const preferences2 = new Preferences(
           ['Zone A', 'Zone B', 'Zone C'],
-          [address1, address2]
+          [address1, address2],
+          []
         );
         const preferences3 = new Preferences(
           ['Zone A', 'Zone B', 'Zone C', 'Réunion'],
-          [address1, address2]
+          [address1, address2],
+          []
         );
         const preferences4 = new Preferences(
           ['Zone A', 'Zone B', 'Zone C', 'Réunion'],
-          [address1, address2, address3bis]
+          [address1, address2, address3bis],
+          []
         );
         const trackZoneSpy = vi
           .spyOn(matomoMethods, 'trackZone')
@@ -616,22 +632,26 @@ describe('/preferences.ts', () => {
           '',
           '97460'
         );
-        const preferences1 = new Preferences([], []);
+        const preferences1 = new Preferences([], [], []);
         const preferences2 = new Preferences(
           ['Zone A', 'Zone B', 'Zone C'],
-          [address1, address2]
+          [address1, address2],
+          []
         );
         const preferences3 = new Preferences(
           ['Zone A', 'Zone B', 'Zone C', 'Réunion'],
-          [address1, address2]
+          [address1, address2],
+          []
         );
         const preferences4 = new Preferences(
           ['Zone A', 'Zone B', 'Zone C', 'Réunion'],
-          [address1, address2, address3bis]
+          [address1, address2, address3bis],
+          []
         );
         const preferences5 = new Preferences(
           ['Zone A', 'Zone B', 'Zone C', 'Réunion'],
-          [address1, address2, address3bis, address4]
+          [address1, address2, address3bis, address4],
+          []
         );
         const trackZoneSpy = vi
           .spyOn(matomoMethods, 'trackZone')
@@ -678,10 +698,11 @@ describe('/preferences.ts', () => {
           'Bastia',
           '20200'
         );
-        const preferences1 = new Preferences([], []);
+        const preferences1 = new Preferences([], [], []);
         const preferences2 = new Preferences(
           ['Zone A', 'Zone B', 'Zone C'],
-          [address1, address2]
+          [address1, address2],
+          []
         );
 
         const trackZoneSpy = vi
@@ -701,10 +722,64 @@ describe('/preferences.ts', () => {
       });
     });
 
+    describe('addTheme', () => {
+      test('should add thele', async () => {
+        // Given
+        const preferences1 = new Preferences([], [], []);
+        const preferences2 = new Preferences([], [], ['other']);
+        const preferences3 = new Preferences([], [], ['other', 'citizenship']);
+
+        // When
+        preferences1.addTheme('citizenship');
+        preferences2.addTheme('citizenship');
+        preferences3.addTheme('citizenship');
+
+        // Then
+        expect(preferences1.themes).toEqual(['citizenship']);
+        expect(preferences2.themes).toEqual(['other', 'citizenship']);
+        expect(preferences3.themes).toEqual(['other', 'citizenship']);
+      });
+    });
+
+    describe('removeTheme', () => {
+      test('should remove theme', async () => {
+        // Given
+        const preferences1 = new Preferences([], [], []);
+        const preferences2 = new Preferences([], [], ['other']);
+        const preferences3 = new Preferences([], [], ['other', 'citizenship']);
+
+        // When
+        preferences1.removeTheme('citizenship');
+        preferences2.removeTheme('citizenship');
+        preferences3.removeTheme('citizenship');
+
+        // Then
+        expect(preferences1.themes).toEqual([]);
+        expect(preferences2.themes).toEqual(['other']);
+        expect(preferences3.themes).toEqual(['other']);
+      });
+    });
+
+    describe('clearThemes', () => {
+      test('should clear themes', async () => {
+        // Given
+        const preferences1 = new Preferences([], [], []);
+        const preferences2 = new Preferences([], [], ['other', 'citizenship']);
+
+        // When
+        preferences1.clearThemes();
+        preferences2.clearThemes();
+
+        // Then
+        expect(preferences1.themes).toEqual([]);
+        expect(preferences2.themes).toEqual([]);
+      });
+    });
+
     describe('getZoneInfos', () => {
       test('user has no address and no preferences', async () => {
         // Given
-        const preferences = new Preferences([], []);
+        const preferences = new Preferences([], [], []);
 
         // When
         const result = preferences.getZoneInfos(undefined);
@@ -780,7 +855,7 @@ describe('/preferences.ts', () => {
       });
       test('user has preferences but no address', async () => {
         // Given
-        const preferences = new Preferences(['Zone A', 'Zone B'], []);
+        const preferences = new Preferences(['Zone A', 'Zone B'], [], []);
 
         // When
         const result = preferences.getZoneInfos(undefined);
@@ -890,7 +965,8 @@ describe('/preferences.ts', () => {
         );
         const preferences = new Preferences(
           ['Zone A', 'Zone B', 'Zone C'],
-          [address1, address2, address4]
+          [address1, address2, address4],
+          []
         );
 
         // When

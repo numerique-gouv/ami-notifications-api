@@ -28,7 +28,7 @@ describe('/ZonePreferences.svelte', () => {
 
   test('should display zones according to user preferences', async () => {
     // Given
-    const preferences = new Preferences([], []);
+    const preferences = new Preferences([], [], []);
     const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
     newMockUserIdentity.preferences = preferences;
     localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity));
@@ -92,7 +92,11 @@ describe('/ZonePreferences.svelte', () => {
   describe('Zone toggle', () => {
     test('should enable zone when user toggles on', async () => {
       // Given
-      const preferences = new Preferences(['Zone A', 'Zone B', 'Zone C', 'Corse'], []);
+      const preferences = new Preferences(
+        ['Zone A', 'Zone B', 'Zone C', 'Corse'],
+        [],
+        []
+      );
       const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
       newMockUserIdentity.preferences = preferences;
       localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity));
@@ -124,7 +128,11 @@ describe('/ZonePreferences.svelte', () => {
 
     test('should disable zone when user toggles off', async () => {
       // Given
-      const preferences = new Preferences(['Zone A', 'Zone B', 'Zone C', 'Corse'], []);
+      const preferences = new Preferences(
+        ['Zone A', 'Zone B', 'Zone C', 'Corse'],
+        [],
+        []
+      );
       const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
       newMockUserIdentity.preferences = preferences;
       localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity));
@@ -162,7 +170,7 @@ describe('/ZonePreferences.svelte', () => {
         'Arpajon',
         '91290'
       );
-      const preferences = new Preferences(['Zone C'], [address]);
+      const preferences = new Preferences(['Zone C'], [address], []);
       const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
       newMockUserIdentity.preferences = preferences;
       localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity));
@@ -203,7 +211,7 @@ describe('/ZonePreferences.svelte', () => {
         'Arpajon',
         '91290'
       );
-      const preferences = new Preferences(['Zone C'], [address]);
+      const preferences = new Preferences(['Zone C'], [address], []);
       const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
       newMockUserIdentity.preferences = preferences;
       localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity));
@@ -236,7 +244,11 @@ describe('/ZonePreferences.svelte', () => {
   describe('Zones tracking on unmount', () => {
     test('should not track zones count has there is no change', async () => {
       // Given
-      const preferences = new Preferences(['Zone A', 'Zone B', 'Zone C', 'Corse'], []);
+      const preferences = new Preferences(
+        ['Zone A', 'Zone B', 'Zone C', 'Corse'],
+        [],
+        []
+      );
       const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
       newMockUserIdentity.preferences = preferences;
       localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity));
@@ -257,7 +269,11 @@ describe('/ZonePreferences.svelte', () => {
     });
     test('should not track zones count', async () => {
       // Given
-      const preferences = new Preferences(['Zone A', 'Zone B', 'Zone C', 'Corse'], []);
+      const preferences = new Preferences(
+        ['Zone A', 'Zone B', 'Zone C', 'Corse'],
+        [],
+        []
+      );
       const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
       newMockUserIdentity.preferences = preferences;
       localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity));

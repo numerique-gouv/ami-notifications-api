@@ -173,6 +173,7 @@ describe('/lib/state/User.svelte.ts', () => {
         expect(userStore.connected?.identity?.preferences).toEqual({
           _zones: ['Zone A', 'Zone B', 'Zone C', 'Corse'],
           _addresses: [],
+          _themes: [],
         });
         expect(userStore.connected?.identity?.preferences instanceof Preferences).toBe(
           true
@@ -200,6 +201,7 @@ describe('/lib/state/User.svelte.ts', () => {
         expect(userStore.connected?.identity?.preferences).toEqual({
           _zones: ['Zone A', 'Zone B', 'Zone C', 'Corse'],
           _addresses: [],
+          _themes: [],
         });
         expect(userStore.connected?.identity?.preferences instanceof Preferences).toBe(
           true
@@ -227,6 +229,7 @@ describe('/lib/state/User.svelte.ts', () => {
         expect(userStore.connected?.identity?.preferences).toEqual({
           _zones: ['Réunion'],
           _addresses: [],
+          _themes: [],
         });
         expect(userStore.connected?.identity?.preferences instanceof Preferences).toBe(
           true
@@ -243,7 +246,11 @@ describe('/lib/state/User.svelte.ts', () => {
           '94310',
           '94054'
         );
-        const preferences = new Preferences(['Zone C', 'Réunion'], [address]);
+        const preferences = new Preferences(
+          ['Zone C', 'Réunion'],
+          [address],
+          ['school-holidays', 'other']
+        );
         const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
         newMockUserIdentity.preferences = preferences;
         localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity));
@@ -703,7 +710,11 @@ describe('/lib/state/User.svelte.ts', () => {
           '94310',
           '94054'
         );
-        const preferences = new Preferences(['Zone C', 'Réunion'], [address]);
+        const preferences = new Preferences(
+          ['Zone C', 'Réunion'],
+          [address],
+          ['school-holidays', 'other']
+        );
 
         // When
         await userStore.login(mockUserInfo);

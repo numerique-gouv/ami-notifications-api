@@ -13,12 +13,14 @@ export type ZoneInfo = {
 type PreferencesJSON = {
   _zones: string[];
   _addresses: AddressType[];
+  _themes: string[];
 };
 
 export class Preferences {
   constructor(
     private _zones: string[],
-    private _addresses: AddressType[]
+    private _addresses: AddressType[],
+    private _themes: string[]
   ) {}
 
   static fromJSON(json: Preferences | PreferencesJSON): Preferences {
@@ -27,7 +29,8 @@ export class Preferences {
     }
     return new Preferences(
       json._zones || [],
-      json._addresses.map((address) => Address.fromJSON(address)) || []
+      json._addresses.map((address) => Address.fromJSON(address)) || [],
+      json._themes || []
     );
   }
 
@@ -39,9 +42,13 @@ export class Preferences {
     return this._addresses;
   }
 
+  get themes(): string[] {
+    return this._themes;
+  }
+
   static getDefault(userAddress: AddressType | undefined): Preferences {
     const defaultZones = ['Zone A', 'Zone B', 'Zone C', 'Corse'];
-    const defaultPreferences = new Preferences(defaultZones, []);
+    const defaultPreferences = new Preferences(defaultZones, [], []);
 
     if (userAddress === undefined) {
       return defaultPreferences;
@@ -53,7 +60,7 @@ export class Preferences {
       return defaultPreferences;
     }
 
-    return new Preferences([userZone], []);
+    return new Preferences([userZone], [], []);
   }
 
   isSchoolHolidayConcerned(holiday: APIAgendaItem): boolean {
@@ -159,6 +166,24 @@ export class Preferences {
 
   clearAddresses() {
     this._addresses = [];
+  }
+
+  addTheme(theme: string) {
+    if (this._themes.includes(theme)) {
+      return;
+    }
+    this._themes.push(theme);
+  }
+
+  removeTheme(theme: string) {
+    if (!this._themes.includes(theme)) {
+      return;
+    }
+    this._themes = this._themes.filter((value) => theme !== value);
+  }
+
+  clearThemes() {
+    this._themes = [];
   }
 
   getZoneInfos(userAddress: AddressType | undefined): ZoneInfo[] {

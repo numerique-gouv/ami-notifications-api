@@ -1725,7 +1725,7 @@ describe('/agenda.ts', () => {
           const spy = vi
             .spyOn(User.prototype, 'createScheduledNotification')
             .mockResolvedValue();
-          const preferences = new Preferences(['Réunion'], []); // preferences are not matching holidays
+          const preferences = new Preferences(['Réunion'], [], []); // preferences are not matching holidays
           const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
           newMockUserIdentity.preferences = preferences;
           localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity));
@@ -1821,7 +1821,7 @@ describe('/agenda.ts', () => {
       describe('User has no address', () => {
         test('should be defined to first school holiday matching user zone', async () => {
           // Given
-          const preferences = new Preferences(['Zone A', 'Zone B', 'Zone C'], []);
+          const preferences = new Preferences(['Zone A', 'Zone B', 'Zone C'], [], []);
           const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
           newMockUserIdentity.preferences = preferences;
           newMockUserIdentity.address = undefined;
@@ -1888,7 +1888,7 @@ describe('/agenda.ts', () => {
         });
         test('should be null as there is no holiday displayed', async () => {
           // Given
-          const preferences = new Preferences(['Réunion'], []);
+          const preferences = new Preferences(['Réunion'], [], []);
           const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
           newMockUserIdentity.preferences = preferences;
           newMockUserIdentity.address = undefined;
@@ -1955,7 +1955,7 @@ describe('/agenda.ts', () => {
         });
         test('should be null as first school holiday is in more than 3 weeks', async () => {
           // Given
-          const preferences = new Preferences(['Zone A', 'Zone B', 'Zone C'], []);
+          const preferences = new Preferences(['Zone A', 'Zone B', 'Zone C'], [], []);
           const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
           newMockUserIdentity.preferences = preferences;
           newMockUserIdentity.address = undefined;
@@ -2087,7 +2087,7 @@ describe('/agenda.ts', () => {
         });
         test('should be null as there is no holiday displayed', async () => {
           // Given
-          const preferences = new Preferences(['Réunion'], []);
+          const preferences = new Preferences(['Réunion'], [], []);
           const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
           newMockUserIdentity.preferences = preferences;
           localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity));
