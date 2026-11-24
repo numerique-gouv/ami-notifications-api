@@ -1,10 +1,11 @@
-import json
+import datetime
 
 import pytest
 from django.conf import settings
 from django.core.management import call_command
 
 from ami.agenda.management.commands.import_sp_actus import EcheanceParseException, parse_echeance
+from ami.agenda.models import SpActuItem
 from ami.utils.httpx import URL
 
 EXAMPLE_RESPONSE = """<?xml version="1.0" encoding="UTF-8"?>
@@ -44,32 +45,41 @@ N19805_RESPONSE = """<?xml version="1.0" encoding="UTF-8"?>
 </Publication>"""
 
 
-def test_management_command_import_sp_actus(httpx_mock, tmpdir):
-    httpx_mock.add_response(url=URL(settings.COMARQUAGE_ACTUS_URL), text=EXAMPLE_RESPONSE)
+def test_management_command_import_sp_actus(db, httpx_mock):
     httpx_mock.add_response(
-        url=URL(f"{settings.COMARQUAGE_THEMES_BASE_URL}N19803.xml"), text=N19803_RESPONSE
+        url=URL(settings.COMARQUAGE_ACTUS_URL), text=EXAMPLE_RESPONSE, is_reusable=True
     )
     httpx_mock.add_response(
-        url=URL(f"{settings.COMARQUAGE_THEMES_BASE_URL}N19805.xml"), text=N19805_RESPONSE
+        url=URL(f"{settings.COMARQUAGE_THEMES_BASE_URL}N19803.xml"),
+        text=N19803_RESPONSE,
+        is_reusable=True,
+    )
+    httpx_mock.add_response(
+        url=URL(f"{settings.COMARQUAGE_THEMES_BASE_URL}N19805.xml"),
+        text=N19805_RESPONSE,
+        is_reusable=True,
     )
 
-    call_command("import_sp_actus", "--output", tmpdir / "test.json")
-    with open(tmpdir / "test.json") as fd:
-        data = json.load(fd)
-        assert data == {
-            "items": [
-                {
-                    "date": None,
-                    "end_date": None,
-                    "last_update_date": "2026-11-17",
-                    "publication_date": "2025-09-17",
-                    "start_date": "2026-11-20",
-                    "themes": ["Argent - Impôts - Consommation", "Famille - Scolarité"],
-                    "title": "Crédits à la consommation : les règles évoluent pour "
-                    "prévenir le surendettement",
-                }
-            ]
-        }
+    call_command("import_sp_actus", "--simulate", "--verbosity", "2")
+    assert SpActuItem.objects.all().count() == 0
+
+    call_command("import_sp_actus")
+    assert SpActuItem.objects.all().count() == 1
+
+    call_command("import_sp_actus")
+    assert SpActuItem.objects.all().count() == 1
+
+    sp_actu = SpActuItem.objects.all().first()
+    assert sp_actu
+    assert set(sp_actu.themes) == {"Argent - Impôts - Consommation", "Famille - Scolarité"}
+    assert (
+        sp_actu.title
+        == "Crédits à la consommation : les règles évoluent pour prévenir le surendettement"
+    )
+    assert sp_actu.last_update_date == datetime.date(2026, 11, 17)
+    assert sp_actu.initial_publication_date == datetime.date(2025, 9, 17)
+    assert sp_actu.start_date == datetime.date(2026, 11, 20)
+    assert sp_actu.url == "https://www.service-public.gouv.fr/particuliers/actualites/A18451"
 
 
 def test_parse_echeance():
