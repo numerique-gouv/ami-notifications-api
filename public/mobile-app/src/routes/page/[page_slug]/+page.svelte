@@ -30,6 +30,10 @@
   });
 </script>
 
+<svelte:head>
+  <title>{`${page ? page.title : "Chargement"}`}</title>
+</svelte:head>
+
 <div class="fr-container content-page">
   {#if page}
     <NavWithBackButton title={page.title} {backUrl} />

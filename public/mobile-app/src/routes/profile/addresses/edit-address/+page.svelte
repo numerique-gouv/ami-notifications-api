@@ -164,6 +164,10 @@
   };
 </script>
 
+<svelte:head>
+  <title>Mon profil - Mes coordonnées</title>
+</svelte:head>
+
 <PageWrapper>
   {#snippet header()}
     <NavWithBackButton title="Où habitez-vous&nbsp;?" {backUrl} />

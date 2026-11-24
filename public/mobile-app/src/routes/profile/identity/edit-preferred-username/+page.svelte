@@ -54,6 +54,10 @@
   };
 </script>
 
+<svelte:head>
+  <title>Mon profil - Mon identité</title>
+</svelte:head>
+
 <PageWrapper>
   {#snippet header()}
     <NavWithBackButton title="Mon identité" {backUrl} />

@@ -98,6 +98,10 @@
   };
 </script>
 
+<svelte:head>
+  <title>Notifications</title>
+</svelte:head>
+
 <NavWithBackButton title="Notifications" {backUrl}>
   <div class="settings-svg-icon">
     <button

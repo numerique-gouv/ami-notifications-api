@@ -74,6 +74,10 @@
   };
 </script>
 
+<svelte:head>
+  <title>Services{service ? ` - ${service.title}` : ''}</title>
+</svelte:head>
+
 <PageWrapper>
   {#snippet header()}
     {#if service}

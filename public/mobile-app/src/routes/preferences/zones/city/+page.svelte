@@ -83,6 +83,10 @@
   };
 </script>
 
+<svelte:head>
+  <title>Préférences - Zones scolaires</title>
+</svelte:head>
+
 <div class="preferences-city-page fr-px-2w">
   <NavWithBackButton title="" {backUrl} />
 

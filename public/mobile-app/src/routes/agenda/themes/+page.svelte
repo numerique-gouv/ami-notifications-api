@@ -14,6 +14,10 @@
   });
 </script>
 
+<svelte:head>
+  <title>Thèmes</title>
+</svelte:head>
+
 <NavWithBackButton title="" {backUrl} />
 
 <div class="themes-container fr-pt-8w fr-px-2w">

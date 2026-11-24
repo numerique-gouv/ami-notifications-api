@@ -60,6 +60,10 @@
   });
 </script>
 
+<svelte:head>
+  <title>17Cyber</title>
+</svelte:head>
+
 {#if PUBLIC_PARTNERS_17CYBER_MODE == "page"}
   <div class="am-widget-iframe-container" bind:this={wrapperEl}>
     <div id="widgetIframe"></div>

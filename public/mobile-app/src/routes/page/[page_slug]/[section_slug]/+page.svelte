@@ -25,6 +25,10 @@
   });
 </script>
 
+<svelte:head>
+  <title>{(page && section) ? `${page.title} - ${section.title}` : 'Chargement'}</title>
+</svelte:head>
+
 <div class="fr-container content-page">
   {#if section}
     <NavWithBackButton title={section.title} {backUrl} />

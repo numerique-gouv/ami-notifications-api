@@ -13,6 +13,10 @@
   });
 </script>
 
+<svelte:head>
+  <title>Préférences - Notifications</title>
+</svelte:head>
+
 <div class="preferences-page">
   <NavWithBackButton title="Notifications" {backUrl} />
 

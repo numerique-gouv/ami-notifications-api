@@ -6,6 +6,10 @@
   };
 </script>
 
+<svelte:head>
+  <title>Problème de connexion Internet</title>
+</svelte:head>
+
 <div class="network-error">
   <div class="image-wrapper">
     <img class="error-icon" src="/remixicons/connection-lost.svg" alt="">

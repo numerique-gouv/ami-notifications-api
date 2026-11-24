@@ -69,6 +69,10 @@
   };
 </script>
 
+<svelte:head>
+  <title>Services - Rechercher un service</title>
+</svelte:head>
+
 <div class="services-search-page fr-px-2w">
   <NavWithBackButton
     className="not-sticky small-header"

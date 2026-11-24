@@ -6,6 +6,10 @@
   };
 </script>
 
+<svelte:head>
+  <title>Erreur technique</title>
+</svelte:head>
+
 <div class="technical-error">
   <div class="image-wrapper">
     <img class="error-icon" src="/remixicons/technical-error.svg" alt="">

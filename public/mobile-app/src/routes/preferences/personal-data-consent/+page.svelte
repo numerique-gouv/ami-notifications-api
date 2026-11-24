@@ -32,6 +32,10 @@
   };
 </script>
 
+<svelte:head>
+  <title>Préférences - Consentement données personnelles</title>
+</svelte:head>
+
 <NavWithBackButton title="Consentement données personnelles" {backUrl} />
 
 <div class="fr-container consents-content-container fr-pt-14w">

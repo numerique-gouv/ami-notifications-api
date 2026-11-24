@@ -43,6 +43,10 @@
   };
 </script>
 
+<svelte:head>
+  <title>Services</title>
+</svelte:head>
+
 <Navigation currentItem="services" />
 
 <div class="services">
