@@ -32,6 +32,10 @@
   ];
 </script>
 
+<svelte:head>
+  <title>Aide et contact</title>
+</svelte:head>
+
 <div class="fr-container help-page">
   <NavWithBackButton title="Aide et contact" {backUrl} />
 

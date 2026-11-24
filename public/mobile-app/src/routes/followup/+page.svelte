@@ -12,6 +12,10 @@
   });
 </script>
 
+<svelte:head>
+  <title>Mes démarches</title>
+</svelte:head>
+
 <Navigation currentItem="followup" />
 
 {#if userStore.connected}

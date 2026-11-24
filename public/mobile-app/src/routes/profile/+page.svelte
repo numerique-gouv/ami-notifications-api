@@ -71,6 +71,10 @@
   };
 </script>
 
+<svelte:head>
+  <title>Mon profil</title>
+</svelte:head>
+
 <NavWithBackButton title="" {backUrl} />
 
 <div class="fr-container profile-content-container fr-pt-8w" data-testid="profile">

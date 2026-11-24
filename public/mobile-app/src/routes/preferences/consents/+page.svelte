@@ -72,6 +72,10 @@
   };
 </script>
 
+<svelte:head>
+  <title>Préférences - Suivi des démarches</title>
+</svelte:head>
+
 <NavWithBackButton title="Suivi des démarches" {backUrl} />
 
 {#if userStore.connected}

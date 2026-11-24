@@ -100,6 +100,10 @@
   };
 </script>
 
+<svelte:head>
+  <title>Opération Tranquillité Vacances</title>
+</svelte:head>
+
 <PageWrapper className="header-fix-with-logo">
   {#snippet header()}
     <div class="nav">

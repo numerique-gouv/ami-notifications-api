@@ -14,6 +14,10 @@
   });
 </script>
 
+<svelte:head>
+  <title>Démarches archivées</title>
+</svelte:head>
+
 <NavWithBackButton title="Démarches archivées" {backUrl} />
 {#if userStore.connected}
   <Followup archived={true} />

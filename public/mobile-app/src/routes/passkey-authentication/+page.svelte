@@ -86,6 +86,10 @@
   });
 </script>
 
+<svelte:head>
+  <title>Connexion</title>
+</svelte:head>
+
 <button
   data-fr-opened="true"
   aria-controls="passkey-authentication-modal"

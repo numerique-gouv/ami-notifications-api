@@ -26,6 +26,10 @@
   });
 </script>
 
+<svelte:head>
+  <title>Contact</title>
+</svelte:head>
+
 <div class="fr-container contact-page">
   <NavWithBackButton title="Nous contacter" {backUrl} />
 

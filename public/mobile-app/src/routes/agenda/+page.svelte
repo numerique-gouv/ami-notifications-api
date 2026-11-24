@@ -24,6 +24,10 @@
   });
 </script>
 
+<svelte:head>
+  <title>Agenda</title>
+</svelte:head>
+
 <Navigation currentItem="agenda" />
 <div class="agenda">
   <div class="agenda--title fr-mb-0">

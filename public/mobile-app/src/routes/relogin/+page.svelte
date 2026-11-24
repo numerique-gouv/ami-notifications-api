@@ -35,6 +35,10 @@
   }
 </script>
 
+<svelte:head>
+  <title>Reconnexion</title>
+</svelte:head>
+
 {#if userStore.connected}
   <div class="relogin-page">
     <Banner

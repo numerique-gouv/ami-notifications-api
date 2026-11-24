@@ -65,6 +65,10 @@
   }
 </script>
 
+<svelte:head>
+  <title>Connexion</title>
+</svelte:head>
+
 <div class="homepage">
   <div class="fr-px-2w fr-py-3w homepage-not-connected">
     {#if error}

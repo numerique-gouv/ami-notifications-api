@@ -130,6 +130,10 @@
   });
 </script>
 
+<svelte:head>
+  <title>Accueil</title>
+</svelte:head>
+
 {#if userStore.connected}
   <Navigation currentItem="home" />
   <div class="fr-container fr-py-3w fr-mb-17v homepage-connected">

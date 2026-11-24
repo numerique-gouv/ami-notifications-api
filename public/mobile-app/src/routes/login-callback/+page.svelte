@@ -140,6 +140,10 @@
   };
 </script>
 
+<svelte:head>
+  <title>Connexion</title>
+</svelte:head>
+
 <div class="fr-container passkeys-full-page" bind:this={wrapperEl}>
   {#if silent_fc_enabled && !hasWorkingPassKey && !hasSuggestPasskeyCreationToday}
     <div class="fr-grid-row fr-grid-row--middle fr-grid-row--center">

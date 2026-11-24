@@ -28,6 +28,10 @@
   });
 </script>
 
+<svelte:head>
+  <title>Suivi{item ? ` - ${item.title}` : ''}</title>
+</svelte:head>
+
 <NavWithBackButton {backUrl} />
 
 {#if item && services}

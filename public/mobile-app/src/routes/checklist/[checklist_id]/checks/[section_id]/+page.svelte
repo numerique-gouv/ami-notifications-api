@@ -38,6 +38,13 @@
   });
 </script>
 
+<svelte:head>
+  <title>
+    Liste d’étapes
+    {checklist && section ? ` - ${checklist?.title} - ${section.title}` : ''}
+  </title>
+</svelte:head>
+
 <div class="fr-container checklist-section-page">
   {#if checklist && section}
     <NavWithBackButton title={section.title} {backUrl} />

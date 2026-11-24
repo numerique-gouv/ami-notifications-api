@@ -25,6 +25,10 @@
   };
 </script>
 
+<svelte:head>
+  <title>Mon profil - Mon identité</title>
+</svelte:head>
+
 <NavWithBackButton className="small-header" title="Mon identité" {backUrl} />
 
 {#if identity}

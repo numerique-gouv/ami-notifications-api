@@ -8,4 +8,8 @@
   }
 </script>
 
+<svelte:head>
+  <title>Bienvenue - zones scolaires</title>
+</svelte:head>
+
 <ZonePreferences fromPage="welcome" />

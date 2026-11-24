@@ -33,6 +33,10 @@
   };
 </script>
 
+<svelte:head>
+  <title>Mon profil - Mes coordonnées</title>
+</svelte:head>
+
 <NavWithBackButton className="small-header" title="Mes coordonnées" {backUrl} />
 
 {#if identity}
