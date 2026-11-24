@@ -1,5 +1,4 @@
 import datetime
-import json
 import logging
 import re
 import xml.etree.ElementTree as ET
@@ -7,6 +6,7 @@ import xml.etree.ElementTree as ET
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
+from ami.agenda.models import SpActuItem
 from ami.checklist.utils import node_to_markdown
 from ami.utils.httpx import httpxClient
 
@@ -66,7 +66,7 @@ def parse_echeance(string):
 
 class Command(BaseCommand):
     def add_arguments(self, parser):
-        parser.add_argument("-o", "--output", metavar="FILENAME")
+        parser.add_argument("-s", "--simulate", action="store_true")
 
     def handle(self, **kwargs):
         self.theme_codes = {}
@@ -75,8 +75,6 @@ class Command(BaseCommand):
             response = httpx_client.get(settings.COMARQUAGE_ACTUS_URL)
         if response.status_code != 200:
             raise CommandError(f"failed: response status code: {response.status_code}")
-
-        actus = []
 
         root = ET.fromstring(response.text)
         for actu in root.findall("RefActualite"):
@@ -92,47 +90,56 @@ class Command(BaseCommand):
                 )
                 continue
 
-            title = get_text(actu, "Titre")
-            initial_publication_date = actu.attrib["datePremiereMiseEnLigne"]
-            last_update_date = actu.attrib.get("dateMaj")
-            url = f"{settings.SP_ACTU_BASE_URL}{actu.attrib['LienPublication']}"
+            external_id = actu.attrib["LienPublication"]
+
             introduction = "\n\n".join([node_to_markdown(x) for x in actu.findall(".//Paragraphe")])
             themes = [self.get_theme_label(x) for x in actu.attrib.get("themes", "").split(",")]
             themes = [x for x in themes if x]
 
-            actus.append(
-                {
-                    "title": title,
-                    "date": unique_date,
-                    "start_date": start_date,
-                    "end_date": end_date,
-                    "themes": themes,
-                    "publication_date": initial_publication_date,
-                    "last_update_date": last_update_date,
-                }
-            )
+            actu_data = {
+                "title": get_text(actu, "Titre"),
+                "initial_publication_date": actu.attrib["datePremiereMiseEnLigne"],
+                "last_update_date": actu.attrib.get("dateMaj"),
+                "themes": themes,
+                "date": unique_date,
+                "start_date": start_date,
+                "end_date": end_date,
+                "url": f"{settings.SP_ACTU_BASE_URL}{actu.attrib['LienPublication']}",
+            }
 
             if kwargs["verbosity"] > 1:
-                self.stdout.write(f"# {title}\n")
-                if unique_date:
-                    self.stdout.write(f"- date : {unique_date}\n")
+                self.stdout.write(f"# {actu_data['title']}\n")
+                if actu_data["date"]:
+                    self.stdout.write(f"- date : {actu_data['unique_date']}\n")
                 else:
-                    self.stdout.write(f"- dates : {start_date or ''} → {end_date or ''}")
+                    self.stdout.write(
+                        f"- dates : {actu_data['start_date'] or ''} → {actu_data['end_date'] or ''}"
+                    )
                 if themes:
                     self.stdout.write(f"- thèmes : {' · '.join(themes)}\n")
-                self.stdout.write(f"- publication: {initial_publication_date}\n")
-                if last_update_date:
-                    self.stdout.write(f"- mise à jour : {last_update_date}\n")
-                self.stdout.write(f"\n{introduction}\n\n→ {url}\n\n\n")
+                self.stdout.write(f"- publication: {actu_data['initial_publication_date']}\n")
+                if actu_data["last_update_date"]:
+                    self.stdout.write(f"- mise à jour : {actu_data['last_update_date']}\n")
+                self.stdout.write(f"\n{introduction}\n\n→ {actu_data['url']}\n\n\n")
+
+            if kwargs.get("simulate"):
+                continue
+
+            actu, created = SpActuItem.objects.get_or_create(
+                external_id=external_id, defaults=actu_data
+            )
+            if not created:
+                changed = False
+                for attr, value in actu_data.items():
+                    if getattr(actu, attr, None) != value:
+                        setattr(actu, attr, value)
+                        changed = True
+                if changed:
+                    actu.save()
 
         if kwargs["verbosity"] > 1:
             self.stdout.write("## Themes\n")
             self.stdout.write("\n".join(f"- {k}: {v}" for k, v in self.theme_codes.items()))
-
-        output_file = kwargs.get("output")
-        if output_file:
-            with open(output_file, "w") as fd:
-                fd.write(json.dumps({"items": actus}, indent=2, ensure_ascii=False))
 
     def get_theme_label(self, code):
         if not code or not code.startswith("N"):
