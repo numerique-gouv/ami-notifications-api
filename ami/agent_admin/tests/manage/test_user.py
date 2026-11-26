@@ -92,7 +92,7 @@ def test_detail_user_without_agent_admin_auth(app) -> None:
 
 
 @pytest.mark.django_db
-def test_delete_user(
+def test_delete_user__should_add_audit_entry(
     app,
     admin_agent: Agent,
     webpush_notification: Notification,
@@ -100,35 +100,8 @@ def test_delete_user(
 ):
     app.set_user(admin_agent.user)
     user = webpush_notification.user
-    scheduled_notification = ScheduledNotification.objects.create(
-        user=user,
-        content_title="title",
-        content_body="body",
-        content_icon="icon",
-        reference="reference",
-        internal_url="internal-url",
-        scheduled_at=now(),
-    )
-    consent = Consent.objects.create(
-        user=user,
-        partner=webpush_notification.partner,
-        consent_datetime=None,
-    )
-    personal_data_consent = PersonalDataConsent.objects.create(user=user, consent_datetime=None)
-    response = app.post(f"/agent-admin/manage/user/{user.id}/delete/")
-    assert "/agent-admin/manage/user/" in response.headers["location"]
 
-    assert User.objects.filter(id=user.id).exists() is False
-    assert Registration.objects.filter(user_id=user.id).exists() is False
-    assert Registration.objects.filter(id=webpush_registration.id).exists() is False
-    assert Notification.objects.filter(user_id=user.id).exists() is False
-    assert Notification.objects.filter(id=webpush_notification.id).exists() is False
-    assert ScheduledNotification.objects.filter(user_id=user.id).exists() is False
-    assert ScheduledNotification.objects.filter(id=scheduled_notification.id).exists() is False
-    assert Consent.objects.filter(user_id=user.id).exists() is False
-    assert Consent.objects.filter(id=consent.id).exists() is False
-    assert PersonalDataConsent.objects.filter(user_id=user.id).exists() is False
-    assert PersonalDataConsent.objects.filter(id=personal_data_consent.id).exists() is False
+    app.post(f"/agent-admin/manage/user/{user.id}/delete/")
 
     assert AuditEntry.objects.count() == 1
     (ae1,) = AuditEntry.objects.all().order_by("created_at")
@@ -145,8 +118,149 @@ def test_delete_user(
         "user_fc_hash": "651d806d65788bc260faa89a555fdf89bd573a5c9a4d8bb897967e14951ab65d",
     }
 
+
+@pytest.mark.django_db
+def test_delete_user__should_delete_all_registrations(
+    app,
+    admin_agent: Agent,
+    webpush_notification: Notification,
+    webpush_registration: Registration,
+):
+    app.set_user(admin_agent.user)
+    user = webpush_notification.user
+    webpush_registration_with_deleted_at = Registration.objects.create(user=user, deleted_at=now())
+
+    app.post(f"/agent-admin/manage/user/{user.id}/delete/")
+
+    assert User.objects.filter(id=user.id).exists() is False
+    assert Registration.objects.filter(user_id=user.id).exists() is False
+    assert Registration.objects.filter(id=webpush_registration.id).exists() is False
+    assert Registration.objects.filter(id=webpush_registration_with_deleted_at.id).exists() is False
+
+
+@pytest.mark.django_db
+def test_delete_user__should_delete_notifications(
+    app,
+    admin_agent: Agent,
+    webpush_notification: Notification,
+    webpush_registration: Registration,
+):
+    app.set_user(admin_agent.user)
+    user = webpush_notification.user
+
+    app.post(f"/agent-admin/manage/user/{user.id}/delete/")
+
+    assert Notification.objects.filter(user_id=user.id).exists() is False
+    assert Notification.objects.filter(id=webpush_notification.id).exists() is False
+
+
+@pytest.mark.django_db
+def test_delete_user__should_delete_scheduled_notifications(
+    app,
+    admin_agent: Agent,
+    webpush_notification: Notification,
+    webpush_registration: Registration,
+):
+    app.set_user(admin_agent.user)
+    user = webpush_notification.user
+    scheduled_notification = ScheduledNotification.objects.create(
+        user=user,
+        content_title="title",
+        content_body="body",
+        content_icon="icon",
+        reference="reference",
+        internal_url="internal-url",
+        scheduled_at=now(),
+    )
+
+    app.post(f"/agent-admin/manage/user/{user.id}/delete/")
+
+    assert ScheduledNotification.objects.filter(user_id=user.id).exists() is False
+    assert ScheduledNotification.objects.filter(id=scheduled_notification.id).exists() is False
+
+
+@pytest.mark.django_db
+def test_delete_user__should_delete_consents(
+    app,
+    admin_agent: Agent,
+    webpush_notification: Notification,
+    webpush_registration: Registration,
+):
+    app.set_user(admin_agent.user)
+    user = webpush_notification.user
+    consent = Consent.objects.create(
+        user=user,
+        partner=webpush_notification.partner,
+        consent_datetime=None,
+    )
+
+    app.post(f"/agent-admin/manage/user/{user.id}/delete/")
+
+    assert Consent.objects.filter(user_id=user.id).exists() is False
+    assert Consent.objects.filter(id=consent.id).exists() is False
+
+
+@pytest.mark.django_db
+def test_delete_user__should_delete_personal_data_consents(
+    app,
+    admin_agent: Agent,
+    webpush_notification: Notification,
+    webpush_registration: Registration,
+):
+    app.set_user(admin_agent.user)
+    user = webpush_notification.user
+    personal_data_consent = PersonalDataConsent.objects.create(user=user, consent_datetime=None)
+
+    app.post(f"/agent-admin/manage/user/{user.id}/delete/")
+
+    assert PersonalDataConsent.objects.filter(user_id=user.id).exists() is False
+    assert PersonalDataConsent.objects.filter(id=personal_data_consent.id).exists() is False
+
+
+@pytest.mark.django_db
+def test_delete_user__should_delete_user(
+    app,
+    admin_agent: Agent,
+    webpush_notification: Notification,
+    webpush_registration: Registration,
+):
+    app.set_user(admin_agent.user)
+    user = webpush_notification.user
+
+    app.post(f"/agent-admin/manage/user/{user.id}/delete/")
+
+    assert User.objects.filter(id=user.id).exists() is False
+
+
+@pytest.mark.django_db
+def test_delete_user__should_display_success_message(
+    app,
+    admin_agent: Agent,
+    webpush_notification: Notification,
+    webpush_registration: Registration,
+):
+    app.set_user(admin_agent.user)
+    user = webpush_notification.user
+
+    response = app.post(f"/agent-admin/manage/user/{user.id}/delete/")
+
     response = response.follow()
     assert response.pyquery(".fr-notice.success").text() == "Les données ont bien été supprimées."
+
+
+@pytest.mark.django_db
+def test_delete_user__should_redirect_to_search_user(
+    app,
+    admin_agent: Agent,
+    webpush_notification: Notification,
+    webpush_registration: Registration,
+):
+    app.set_user(admin_agent.user)
+    user = webpush_notification.user
+
+    response = app.post(f"/agent-admin/manage/user/{user.id}/delete/")
+
+    assert "/agent-admin/manage/user/" in response.headers["location"]
 
 
 @pytest.mark.django_db
