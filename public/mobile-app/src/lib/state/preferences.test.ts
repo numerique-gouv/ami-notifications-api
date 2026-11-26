@@ -1,6 +1,7 @@
 import { describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { Address } from '$lib/address';
+import { Item as AgendaItem } from '$lib/agenda';
 import type { APIAgendaItem } from '$lib/api-agenda';
 import * as matomoMethods from '$lib/matomo';
 import { Preferences } from '$lib/state/preferences';
@@ -461,6 +462,74 @@ describe('/preferences.ts', () => {
 
         // Then
         expect(result).toEqual('');
+      });
+    });
+
+    describe('isAgendaItemConcernedByThemes', () => {
+      test('should return true as item kinds match user preferences', async () => {
+        // Given
+        const item = new AgendaItem(
+          'fake-id',
+          ['school-holiday'],
+          'Holiday foo',
+          '',
+          '',
+          new Date()
+        );
+        const preferences = new Preferences([], [], ['school-holiday', 'other']);
+
+        // When
+        const result = preferences.isAgendaItemConcernedByThemes(item);
+
+        // Then
+        expect(result).toEqual(true);
+      });
+      test('should return false as item kinds do not match user preferences', async () => {
+        // Given
+        const item = new AgendaItem(
+          'fake-id',
+          ['school-holiday'],
+          'Holiday foo',
+          '',
+          '',
+          new Date()
+        );
+        const preferences = new Preferences([], [], ['public-holiday', 'other']);
+
+        // When
+        const result = preferences.isAgendaItemConcernedByThemes(item);
+
+        // Then
+        expect(result).toEqual(false);
+      });
+      test('should return true as user preferences themes are empty', async () => {
+        // Given
+        const item = new AgendaItem(
+          'fake-id',
+          ['school-holiday'],
+          'Holiday foo',
+          '',
+          '',
+          new Date()
+        );
+        const preferences = new Preferences([], [], []);
+
+        // When
+        const result = preferences.isAgendaItemConcernedByThemes(item);
+
+        // Then
+        expect(result).toEqual(true);
+      });
+      test('should return false as item kinds are empty', async () => {
+        // Given
+        const item = new AgendaItem('fake-id', [], 'Holiday foo', '', '', new Date());
+        const preferences = new Preferences([], [], ['other']);
+
+        // When
+        const result = preferences.isAgendaItemConcernedByThemes(item);
+
+        // Then
+        expect(result).toEqual(false);
       });
     });
 

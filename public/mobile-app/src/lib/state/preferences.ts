@@ -1,5 +1,6 @@
 import type { Address as AddressType } from '$lib/address';
 import { Address, zones } from '$lib/address';
+import type { Item as AgendaItem } from '$lib/agenda';
 import type { APIAgendaItem } from '$lib/api-agenda';
 import { trackZone } from '$lib/matomo';
 import type { ToggleTag } from '$lib/types/components/toggletag';
@@ -124,6 +125,21 @@ export class Preferences {
       result.push(zoneInfo.join('&nbsp;: '));
     });
     return result.join(', ');
+  }
+
+  isAgendaItemConcernedByThemes(item: AgendaItem): boolean {
+    if (!item.kinds.length) {
+      return false;
+    }
+    if (!this._themes.length) {
+      return true;
+    }
+    if (
+      !this._themes.filter((value) => (item.kinds as string[]).includes(value)).length
+    ) {
+      return false;
+    }
+    return true;
   }
 
   addZone(zone: string) {
