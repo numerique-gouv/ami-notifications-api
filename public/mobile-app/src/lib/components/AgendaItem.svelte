@@ -61,7 +61,7 @@
   <div class="agenda--item--container">
     <div
       class="fr-card fr-enlarge-button fr-card--sm fr-card--horizontal agenda--item--detail
-              {item.kind}
+              {item.kinds.join(' ')}
               {isPast ? 'past': ''}
               {item.link ? '': 'fr-card--no-icon no-link'}
               {hasModal ? '': 'am-without-opt'}

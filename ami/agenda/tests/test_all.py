@@ -28,7 +28,7 @@ def test_get_agenda_items(
         status=AgendaSourceStatus.SUCCESS,
         items=[
             AgendaItem(
-                kind=AgendaItemKind.HOLIDAY,
+                kinds=[AgendaItemKind.SCHOOL_HOLIDAY],
                 title="Vacances de Noël",
                 start_date=datetime.date(2025, 12, 20),
                 end_date=datetime.date(2026, 1, 5),
@@ -36,7 +36,7 @@ def test_get_agenda_items(
                 emoji="🎄",
             ),
             AgendaItem(
-                kind=AgendaItemKind.HOLIDAY,
+                kinds=[AgendaItemKind.SCHOOL_HOLIDAY],
                 title="Vacances d'Hiver",
                 start_date=datetime.date(2026, 2, 7),
                 end_date=datetime.date(2026, 2, 23),
@@ -51,13 +51,13 @@ def test_get_agenda_items(
         status=AgendaSourceStatus.SUCCESS,
         items=[
             AgendaItem(
-                kind=AgendaItemKind.HOLIDAY,
+                kinds=[AgendaItemKind.PUBLIC_HOLIDAY],
                 title="Noël",
                 date=datetime.date(2025, 12, 25),
                 emoji="📅",
             ),
             AgendaItem(
-                kind=AgendaItemKind.HOLIDAY,
+                kinds=[AgendaItemKind.PUBLIC_HOLIDAY],
                 title="Jour de l’An",
                 date=datetime.date(2026, 1, 1),
                 emoji="🎉",
@@ -66,27 +66,24 @@ def test_get_agenda_items(
     )
     public_data_mock = mock.Mock(return_value=public_source)
     monkeypatch.setattr("ami.agenda.api_views.get_public_holidays_source", public_data_mock)
-    election_source = AgendaSource(
+    marronniers_source = AgendaSource(
         status=AgendaSourceStatus.SUCCESS,
         items=[
             AgendaItem(
-                kind=AgendaItemKind.ELECTION,
-                title="Foo",
-                description="Votez au premier tour des municipales",
+                kinds=[AgendaItemKind.CITIZENSHIP],
+                title="Votez au premier tour des municipales",
                 date=datetime.date(2026, 3, 15),
-                emoji="🗳️",
+                url="url",
             ),
             AgendaItem(
-                kind=AgendaItemKind.ELECTION,
-                title="Foo",
-                description="Votez au second tour des municipales",
+                kinds=[AgendaItemKind.CARE, AgendaItemKind.FAMILY],
+                title="Campagne de vaccination contre la grippe saisonnière",
                 date=datetime.date(2026, 3, 22),
-                emoji="🗳️",
             ),
         ],
     )
-    election_data_mock = mock.Mock(return_value=election_source)
-    monkeypatch.setattr("ami.agenda.api_views.get_elections_source", election_data_mock)
+    marronniers_data_mock = mock.Mock(return_value=marronniers_source)
+    monkeypatch.setattr("ami.agenda.api_views.get_marronniers_source", marronniers_data_mock)
 
     duration_mock = mock.Mock(
         return_value=datetime.datetime(2026, 2, 14, 11, 16, tzinfo=datetime.timezone.utc)
@@ -103,7 +100,7 @@ def test_get_agenda_items(
             "status": "success",
             "items": [
                 {
-                    "kind": "holiday",
+                    "kinds": ["school-holiday"],
                     "title": "Vacances de Noël",
                     "description": "",
                     "date": None,
@@ -111,9 +108,10 @@ def test_get_agenda_items(
                     "end_date": "2026-01-05",
                     "zones": ["Zone A", "Zone B"],
                     "emoji": "🎄",
+                    "url": None,
                 },
                 {
-                    "kind": "holiday",
+                    "kinds": ["school-holiday"],
                     "title": "Vacances d'Hiver",
                     "description": "",
                     "date": None,
@@ -121,6 +119,7 @@ def test_get_agenda_items(
                     "end_date": "2026-02-23",
                     "zones": ["Zone A"],
                     "emoji": "❄️",
+                    "url": None,
                 },
             ],
             "expires_at": "2026-03-01T00:00:00Z",
@@ -129,7 +128,7 @@ def test_get_agenda_items(
             "status": "success",
             "items": [
                 {
-                    "kind": "holiday",
+                    "kinds": ["public-holiday"],
                     "title": "Noël",
                     "description": "",
                     "date": "2025-12-25",
@@ -137,9 +136,10 @@ def test_get_agenda_items(
                     "end_date": None,
                     "zones": [],
                     "emoji": "📅",
+                    "url": None,
                 },
                 {
-                    "kind": "holiday",
+                    "kinds": ["public-holiday"],
                     "title": "Jour de l’An",
                     "description": "",
                     "date": "2026-01-01",
@@ -147,32 +147,35 @@ def test_get_agenda_items(
                     "end_date": None,
                     "zones": [],
                     "emoji": "🎉",
+                    "url": None,
                 },
             ],
             "expires_at": "2026-03-01T00:00:00Z",
         },
-        "elections": {
+        "marronniers": {
             "status": "success",
             "items": [
                 {
-                    "kind": "election",
-                    "title": "Foo",
-                    "description": "Votez au premier tour des municipales",
+                    "kinds": ["citizenship"],
+                    "title": "Votez au premier tour des municipales",
+                    "description": "",
                     "date": "2026-03-15",
                     "start_date": None,
                     "end_date": None,
                     "zones": [],
-                    "emoji": "🗳️",
+                    "emoji": "",
+                    "url": "url",
                 },
                 {
-                    "kind": "election",
-                    "title": "Foo",
-                    "description": "Votez au second tour des municipales",
+                    "kinds": ["care", "family"],
+                    "title": "Campagne de vaccination contre la grippe saisonnière",
+                    "description": "",
                     "date": "2026-03-22",
                     "start_date": None,
                     "end_date": None,
                     "zones": [],
-                    "emoji": "🗳️",
+                    "emoji": "",
+                    "url": None,
                 },
             ],
             "expires_at": "2026-02-14T11:16:00Z",
@@ -192,7 +195,7 @@ def test_get_agenda_items(
             end_date=today + datetime.timedelta(days=2),
         )
     ]
-    assert election_data_mock.call_args_list == [
+    assert marronniers_data_mock.call_args_list == [
         mock.call(
             start_date=today,
             end_date=today + datetime.timedelta(days=2),
@@ -201,75 +204,75 @@ def test_get_agenda_items(
 
     school_data_mock.reset_mock()
     public_data_mock.reset_mock()
-    election_data_mock.reset_mock()
+    marronniers_data_mock.reset_mock()
     response = app.get(
         "/api/v1/users/data/agenda", params={"current_date": "2025-12-12", "filter-items": []}
     )
     assert response.json["school_holidays"] is not None
     assert response.json["public_holidays"] is not None
-    assert response.json["elections"] is not None
+    assert response.json["marronniers"] is not None
     assert len(school_data_mock.call_args_list) == 1
     assert len(public_data_mock.call_args_list) == 1
-    assert len(election_data_mock.call_args_list) == 1
+    assert len(marronniers_data_mock.call_args_list) == 1
 
     school_data_mock.reset_mock()
     public_data_mock.reset_mock()
-    election_data_mock.reset_mock()
+    marronniers_data_mock.reset_mock()
     response = app.get(
         "/api/v1/users/data/agenda",
         params={"current_date": "2025-12-12", "filter-items": ["unknown"]},
     )
     assert response.json["school_holidays"] is not None
     assert response.json["public_holidays"] is not None
-    assert response.json["elections"] is not None
+    assert response.json["marronniers"] is not None
     assert len(school_data_mock.call_args_list) == 1
     assert len(public_data_mock.call_args_list) == 1
-    assert len(election_data_mock.call_args_list) == 1
+    assert len(marronniers_data_mock.call_args_list) == 1
 
     school_data_mock.reset_mock()
     public_data_mock.reset_mock()
-    election_data_mock.reset_mock()
+    marronniers_data_mock.reset_mock()
     response = app.get(
         "/api/v1/users/data/agenda",
         params={
             "current_date": "2025-12-12",
-            "filter-items": ["school_holidays", "public_holidays", "elections", "unknown"],
+            "filter-items": ["school_holidays", "public_holidays", "marronniers", "unknown"],
         },
     )
     assert response.json["school_holidays"] is not None
     assert response.json["public_holidays"] is not None
-    assert response.json["elections"] is not None
+    assert response.json["marronniers"] is not None
     assert len(school_data_mock.call_args_list) == 1
     assert len(public_data_mock.call_args_list) == 1
-    assert len(election_data_mock.call_args_list) == 1
+    assert len(marronniers_data_mock.call_args_list) == 1
 
     school_data_mock.reset_mock()
     public_data_mock.reset_mock()
-    election_data_mock.reset_mock()
+    marronniers_data_mock.reset_mock()
     response = app.get(
         "/api/v1/users/data/agenda",
-        params={"current_date": "2025-12-12", "filter-items": ["elections"]},
+        params={"current_date": "2025-12-12", "filter-items": ["marronniers"]},
     )
     assert response.json["school_holidays"] is None
     assert response.json["public_holidays"] is None
-    assert response.json["elections"] is not None
+    assert response.json["marronniers"] is not None
     assert len(school_data_mock.call_args_list) == 0
     assert len(public_data_mock.call_args_list) == 0
-    assert len(election_data_mock.call_args_list) == 1
+    assert len(marronniers_data_mock.call_args_list) == 1
 
     school_data_mock.reset_mock()
     public_data_mock.reset_mock()
-    election_data_mock.reset_mock()
+    marronniers_data_mock.reset_mock()
     response = app.get(
         "/api/v1/users/data/agenda",
-        params={"current_date": "2025-12-12", "filter-items": ["elections", "public_holidays"]},
+        params={"current_date": "2025-12-12", "filter-items": ["marronniers", "public_holidays"]},
     )
     assert response.json["school_holidays"] is None
     assert response.json["public_holidays"] is not None
-    assert response.json["elections"] is not None
+    assert response.json["marronniers"] is not None
     assert len(school_data_mock.call_args_list) == 0
     assert len(public_data_mock.call_args_list) == 1
-    assert len(election_data_mock.call_args_list) == 1
+    assert len(marronniers_data_mock.call_args_list) == 1
 
 
 @pytest.mark.django_db

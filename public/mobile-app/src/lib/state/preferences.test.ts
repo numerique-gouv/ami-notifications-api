@@ -113,7 +113,7 @@ describe('/preferences.ts', () => {
       test('should return true as holiday zones match user preferences', async () => {
         // Given
         const item = {
-          kind: 'holiday',
+          kinds: ['school-holiday'],
           title: 'Holiday',
           description: '',
           date: null,
@@ -121,6 +121,7 @@ describe('/preferences.ts', () => {
           end_date: parseISODate('2026-02-23'),
           zones: ['Zone A', 'Zone B', 'Martinique'],
           emoji: 'foo',
+          url: null,
         } as APIAgendaItem;
         const preferences = new Preferences(['Zone A', 'Zone C'], []);
 
@@ -133,7 +134,7 @@ describe('/preferences.ts', () => {
       test('should return false as holiday zones do not match user preferences', async () => {
         // Given
         const item = {
-          kind: 'holiday',
+          kinds: ['school-holiday'],
           title: 'Holiday',
           description: '',
           date: null,
@@ -141,6 +142,7 @@ describe('/preferences.ts', () => {
           end_date: parseISODate('2026-02-23'),
           zones: ['Zone A', 'Zone B', 'Martinique'],
           emoji: 'foo',
+          url: null,
         } as APIAgendaItem;
         const preferences = new Preferences(['Zone C', 'Corse'], []);
 
@@ -153,7 +155,7 @@ describe('/preferences.ts', () => {
       test('should return false as user preferences zones are empty', async () => {
         // Given
         const item = {
-          kind: 'holiday',
+          kinds: ['school-holiday'],
           title: 'Holiday',
           description: '',
           date: null,
@@ -161,6 +163,7 @@ describe('/preferences.ts', () => {
           end_date: parseISODate('2026-02-23'),
           zones: ['Zone A', 'Zone B', 'Martinique'],
           emoji: 'foo',
+          url: null,
         } as APIAgendaItem;
         const preferences = new Preferences([], []);
 
@@ -173,7 +176,7 @@ describe('/preferences.ts', () => {
       test('should return false as holiday zones are empty', async () => {
         // Given
         const item = {
-          kind: 'holiday',
+          kinds: ['school-holiday'],
           title: 'Holiday',
           description: '',
           date: null,
@@ -181,6 +184,7 @@ describe('/preferences.ts', () => {
           end_date: parseISODate('2026-02-23'),
           zones: [],
           emoji: 'foo',
+          url: null,
         } as APIAgendaItem;
         const preferences = new Preferences(['Zone C', 'Corse'], []);
 
@@ -196,7 +200,7 @@ describe('/preferences.ts', () => {
       test('should return "Zone A" as holiday zones match user preferences', async () => {
         // Given
         const item = {
-          kind: 'holiday',
+          kinds: ['school-holiday'],
           title: 'Holiday',
           description: '',
           date: null,
@@ -204,6 +208,7 @@ describe('/preferences.ts', () => {
           end_date: parseISODate('2026-02-23'),
           zones: ['Zone A', 'Zone B', 'Martinique'],
           emoji: 'foo',
+          url: null,
         } as APIAgendaItem;
         const preferences = new Preferences(['Zone A', 'Zone C'], []);
 
@@ -216,7 +221,7 @@ describe('/preferences.ts', () => {
       test('should return empty string as holiday zones match all zones of user preferences', async () => {
         // Given
         const item = {
-          kind: 'holiday',
+          kinds: ['school-holiday'],
           title: 'Holiday',
           description: '',
           date: null,
@@ -224,6 +229,7 @@ describe('/preferences.ts', () => {
           end_date: parseISODate('2026-02-23'),
           zones: ['Zone A', 'Zone B', 'Zone C'],
           emoji: 'foo',
+          url: null,
         } as APIAgendaItem;
         const preferences = new Preferences(['Zone A', 'Zone C'], []);
 
@@ -236,7 +242,7 @@ describe('/preferences.ts', () => {
       test('should return only user city as holiday zones match all zones of user preferences', async () => {
         // Given
         const item = {
-          kind: 'holiday',
+          kinds: ['school-holiday'],
           title: 'Holiday',
           description: '',
           date: null,
@@ -244,6 +250,7 @@ describe('/preferences.ts', () => {
           end_date: parseISODate('2026-02-23'),
           zones: ['Zone A', 'Zone B', 'Zone C'],
           emoji: 'foo',
+          url: null,
         } as APIAgendaItem;
         const preferences = new Preferences(['Zone A', 'Zone C'], []);
         const userAddress = new Address('Paris', '', '', 'Paris', 'Paris', '75000');
@@ -257,7 +264,7 @@ describe('/preferences.ts', () => {
       test('should return "Zone A" and city as holiday zones match user preferences - with city preferences', async () => {
         // Given
         const item = {
-          kind: 'holiday',
+          kinds: ['school-holiday'],
           title: 'Holiday',
           description: '',
           date: null,
@@ -265,6 +272,7 @@ describe('/preferences.ts', () => {
           end_date: parseISODate('2026-02-23'),
           zones: ['Zone A', 'Zone B', 'Martinique'],
           emoji: 'foo',
+          url: null,
         } as APIAgendaItem;
         const address1 = new Address(
           'Périgueux',
@@ -293,7 +301,7 @@ describe('/preferences.ts', () => {
       test('should mention cities from user address and preferences', async () => {
         // Given
         const item = {
-          kind: 'holiday',
+          kinds: ['school-holiday'],
           title: 'Holiday',
           description: '',
           date: null,
@@ -301,6 +309,7 @@ describe('/preferences.ts', () => {
           end_date: parseISODate('2026-02-23'),
           zones: ['Zone A', 'Zone B', 'Zone C', 'Corse', 'Martinique'],
           emoji: 'foo',
+          url: null,
         } as APIAgendaItem;
         const address1 = new Address(
           'Périgueux',
@@ -337,7 +346,7 @@ describe('/preferences.ts', () => {
       test('should return only user city as holiday zones match all zones of user preferences - with addresses in preferences', async () => {
         // Given
         const item = {
-          kind: 'holiday',
+          kinds: ['school-holiday'],
           title: 'Holiday',
           description: '',
           date: null,
@@ -345,6 +354,7 @@ describe('/preferences.ts', () => {
           end_date: parseISODate('2026-02-23'),
           zones: ['Zone A', 'Zone B', 'Zone C', 'Corse', 'Martinique'],
           emoji: 'foo',
+          url: null,
         } as APIAgendaItem;
         const address1 = new Address(
           'Périgueux',
@@ -379,7 +389,7 @@ describe('/preferences.ts', () => {
       test('should return empty string as holiday zones do not match user preferences', async () => {
         // Given
         const item = {
-          kind: 'holiday',
+          kinds: ['school-holiday'],
           title: 'Holiday',
           description: '',
           date: null,
@@ -387,6 +397,7 @@ describe('/preferences.ts', () => {
           end_date: parseISODate('2026-02-23'),
           zones: ['Zone A', 'Zone B', 'Martinique'],
           emoji: 'foo',
+          url: null,
         } as APIAgendaItem;
         const preferences = new Preferences(['Zone C', 'Corse'], []);
 
@@ -399,7 +410,7 @@ describe('/preferences.ts', () => {
       test('should return empty string as user preferences zones are empty', async () => {
         // Given
         const item = {
-          kind: 'holiday',
+          kinds: ['school-holiday'],
           title: 'Holiday',
           description: '',
           date: null,
@@ -407,6 +418,7 @@ describe('/preferences.ts', () => {
           end_date: parseISODate('2026-02-23'),
           zones: ['Zone A', 'Zone B', 'Martinique'],
           emoji: 'foo',
+          url: null,
         } as APIAgendaItem;
         const preferences = new Preferences([], []);
 
@@ -419,7 +431,7 @@ describe('/preferences.ts', () => {
       test('should return empty string as holiday zones are empty', async () => {
         // Given
         const item = {
-          kind: 'holiday',
+          kinds: ['school-holiday'],
           title: 'Holiday',
           description: '',
           date: null,
@@ -427,6 +439,7 @@ describe('/preferences.ts', () => {
           end_date: parseISODate('2026-02-23'),
           zones: [],
           emoji: 'foo',
+          url: null,
         } as APIAgendaItem;
         const preferences = new Preferences(['Zone C', 'Corse'], []);
 

@@ -28,15 +28,14 @@ export const getPeriod = (
   }
 
   const locale = 'fr-FR';
-  let startFormat: Intl.DateTimeFormatOptions = {
+  const dateFormat: Intl.DateTimeFormatOptions = {
     month: 'long',
     day: 'numeric',
     weekday: 'long',
   };
-  const dateFormat: Intl.DateTimeFormatOptions = startFormat;
 
   if (end_date === null) {
-    const start = start_date?.toLocaleDateString(locale, startFormat);
+    const start = start_date?.toLocaleDateString(locale, dateFormat);
     return `À partir du ${start}`;
   }
 
@@ -49,7 +48,7 @@ export const getPeriod = (
     end_date.getTime() === start_date.getTime() ||
     start_date.toLocaleDateString() === end_date.toLocaleDateString()
   ) {
-    startFormat = {
+    const startFormat: Intl.DateTimeFormatOptions = {
       month: 'long',
       day: 'numeric',
       weekday: 'long',
@@ -60,7 +59,12 @@ export const getPeriod = (
     return capitalizeFirstLetter(start.replace(':', 'h'));
   }
 
-  startFormat = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+  let startFormat: Intl.DateTimeFormatOptions = {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    weekday: 'long',
+  };
   const endFormat = startFormat;
   if (start_date.getFullYear() === end_date.getFullYear()) {
     startFormat = { month: 'long', day: 'numeric', weekday: 'long' };
@@ -274,7 +278,7 @@ export class FollowupSubItem {
     }
     return new AgendaItem(
       uniqueId(),
-      'personal',
+      ['personal'],
       this.title,
       this.getItemDetailPageUrl(item),
       null,
@@ -411,7 +415,7 @@ export class FollowupItem extends FollowupSubItem {
     }
     return new AgendaItem(
       uniqueId(),
-      'personal',
+      ['personal'],
       this.title,
       this.getItemDetailPageUrl(),
       this.subheading,

@@ -12,13 +12,25 @@ class AgendaSourceStatus(Enum):
 
 
 class AgendaItemKind(Enum):
-    HOLIDAY = "holiday"
-    ELECTION = "election"
+    MONEY = "money"
+    ABROAD = "abroad"
+    ENVIRONMENT = "environment"
+    FAMILY = "family"
+    WORK = "work"
+    JUSTICE = "justice"
+    PUBLIC_HOLIDAY = "public-holiday"
+    HOUSING = "housing"
+    LEISURE = "leisure"
+    CITIZENSHIP = "citizenship"
+    CARE = "care"
+    TRANSPORT = "transport"
+    SCHOOL_HOLIDAY = "school-holiday"
+    OTHER = "other"
 
 
 @dataclass
 class AgendaItem:
-    kind: AgendaItemKind
+    kinds: list[AgendaItemKind]
     title: str
     description: str = field(default="")
     date: datetime.date | None = field(default=None)
@@ -26,6 +38,7 @@ class AgendaItem:
     end_date: datetime.date | None = field(default=None)
     zones: list[str] = field(default_factory=list)
     emoji: str = field(default="")
+    url: str | None = field(default=None)
 
 
 @dataclass
@@ -42,4 +55,4 @@ class AgendaSource:
 class Agenda:
     school_holidays: AgendaSource | None = field(default_factory=AgendaSource)
     public_holidays: AgendaSource | None = field(default_factory=AgendaSource)
-    elections: AgendaSource | None = field(default_factory=AgendaSource)
+    marronniers: AgendaSource | None = field(default_factory=AgendaSource)

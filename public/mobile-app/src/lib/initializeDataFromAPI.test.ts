@@ -13,7 +13,7 @@ import * as notificationsMethods from '$lib/notifications';
 const apiAgendaData = {
   school_holidays: [],
   public_holidays: [],
-  elections: [],
+  marronniers: [],
 } as APIAgenda;
 
 const buildNotifications = (): AppNotification[] => {

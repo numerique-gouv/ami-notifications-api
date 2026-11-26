@@ -13,7 +13,7 @@
       "command": "0 3 * * * make replicate-anonymized-data"
     },
     {
-      "command": "1 1 * * * make init-annuaire"
+      "command": "1 1 * * * make init-data"
     }
   ]
 }
