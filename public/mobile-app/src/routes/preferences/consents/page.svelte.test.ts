@@ -2,6 +2,8 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { describe, expect, test, vi } from 'vitest';
 import * as AMINavigationMethods from '$lib/ami-navigation';
 import type { APIPartnersItem } from '$lib/api-partners';
+import * as nativeAppStateMethods from '$lib/bridges/nativeAppState';
+import * as NativeBridgeMethods from '$lib/bridges/nativeBridge';
 import * as consentsMethods from '$lib/consents';
 import { Consents, ConsentsItem } from '$lib/consents';
 import * as followupMethods from '$lib/followup';
@@ -344,21 +346,257 @@ describe('/+page.svelte', () => {
     });
   });
 
-  test('should import NavWithBackButton component', async () => {
-    // When
-    render(Page);
-    const backButton = screen.getByTestId('back-button');
+  describe('push notification block', () => {
+    test('should display block as push notification is not enabled and at least one consent is given', async () => {
+      // Given
+      await userStore.login(mockUserInfo);
 
-    // Then
-    expect(backButton).toBeInTheDocument();
-    expect(screen.getByText('Suivi des démarches')).toBeInTheDocument();
+      vi.spyOn(nativeAppStateMethods, 'isPushNotificationEnabled').mockReturnValue(
+        false
+      );
+
+      const apiPartnersItem1: APIPartnersItem = {
+        slug: 'dinum-ami',
+        name: 'AMI',
+        link: 'http://fake-link-1',
+      };
+      const apiPartnersItem2: APIPartnersItem = {
+        slug: 'dinum-dn',
+        name: 'Démarche Numérique',
+        link: 'http://fake-link-2',
+      };
+      const partners = new Partners([apiPartnersItem1, apiPartnersItem2]);
+      vi.spyOn(partnersMethods, 'buildPartners').mockResolvedValue(partners);
+
+      const consentsItem1 = new ConsentsItem('dinum-ami', 'AMI', new Date());
+      const consentsItem2 = new ConsentsItem('dinum-dn', 'Démarche Numérique', null);
+      const consents = new Consents(
+        { consents: [consentsItem1, consentsItem2] },
+        partners.items
+      );
+      vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
+
+      // When
+      render(Page);
+      await waitAfterSkeleton();
+
+      // Then
+      expect(screen.queryByTestId('push-notification-btn')).toBeInTheDocument();
+    });
+    test('should not display block as push notification is enabled', async () => {
+      // Given
+      await userStore.login(mockUserInfo);
+
+      vi.spyOn(nativeAppStateMethods, 'isPushNotificationEnabled').mockReturnValue(
+        true
+      );
+
+      const apiPartnersItem1: APIPartnersItem = {
+        slug: 'dinum-ami',
+        name: 'AMI',
+        link: 'http://fake-link-1',
+      };
+      const apiPartnersItem2: APIPartnersItem = {
+        slug: 'dinum-dn',
+        name: 'Démarche Numérique',
+        link: 'http://fake-link-2',
+      };
+      const partners = new Partners([apiPartnersItem1, apiPartnersItem2]);
+      vi.spyOn(partnersMethods, 'buildPartners').mockResolvedValue(partners);
+
+      const consentsItem1 = new ConsentsItem('dinum-ami', 'AMI', new Date());
+      const consentsItem2 = new ConsentsItem('dinum-dn', 'Démarche Numérique', null);
+      const consents = new Consents(
+        { consents: [consentsItem1, consentsItem2] },
+        partners.items
+      );
+      vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
+
+      // When
+      render(Page);
+      await waitAfterSkeleton();
+
+      // Then
+      expect(screen.queryByTestId('push-notification-btn')).not.toBeInTheDocument();
+    });
+    test('should not display block as no consent is given', async () => {
+      // Given
+      await userStore.login(mockUserInfo);
+
+      vi.spyOn(nativeAppStateMethods, 'isPushNotificationEnabled').mockReturnValue(
+        false
+      );
+
+      const apiPartnersItem1: APIPartnersItem = {
+        slug: 'dinum-ami',
+        name: 'AMI',
+        link: 'http://fake-link-1',
+      };
+      const apiPartnersItem2: APIPartnersItem = {
+        slug: 'dinum-dn',
+        name: 'Démarche Numérique',
+        link: 'http://fake-link-2',
+      };
+      const partners = new Partners([apiPartnersItem1, apiPartnersItem2]);
+      vi.spyOn(partnersMethods, 'buildPartners').mockResolvedValue(partners);
+
+      const consentsItem1 = new ConsentsItem('dinum-ami', 'AMI', null);
+      const consentsItem2 = new ConsentsItem('dinum-dn', 'Démarche Numérique', null);
+      const consents = new Consents(
+        { consents: [consentsItem1, consentsItem2] },
+        partners.items
+      );
+      vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
+
+      // When
+      render(Page);
+      await waitAfterSkeleton();
+
+      // Then
+      expect(screen.queryByTestId('push-notification-btn')).not.toBeInTheDocument();
+    });
   });
 
-  test('should render a Back button', async () => {
-    // When
-    render(Page);
+  describe('back button', async () => {
+    test('should import NavWithBackButton component', async () => {
+      // When
+      render(Page);
+      const backButton = screen.getByTestId('back-button');
 
-    // Then
-    expectBackButtonPresent(screen);
+      // Then
+      expect(backButton).toBeInTheDocument();
+      expect(screen.getByText('Suivi des démarches')).toBeInTheDocument();
+    });
+
+    test('should render a Back button', async () => {
+      // When
+      render(Page);
+
+      // Then
+      expectBackButtonPresent(screen);
+    });
+    describe('push notification event', async () => {
+      test('should emit event as push notification is not enabled and at least one consent is given', async () => {
+        // Given
+        await userStore.login(mockUserInfo);
+
+        vi.spyOn(nativeAppStateMethods, 'isPushNotificationEnabled').mockReturnValue(
+          false
+        );
+
+        const apiPartnersItem1: APIPartnersItem = {
+          slug: 'dinum-ami',
+          name: 'AMI',
+          link: 'http://fake-link-1',
+        };
+        const apiPartnersItem2: APIPartnersItem = {
+          slug: 'dinum-dn',
+          name: 'Démarche Numérique',
+          link: 'http://fake-link-2',
+        };
+        const partners = new Partners([apiPartnersItem1, apiPartnersItem2]);
+        vi.spyOn(partnersMethods, 'buildPartners').mockResolvedValue(partners);
+
+        const consentsItem1 = new ConsentsItem('dinum-ami', 'AMI', new Date());
+        const consentsItem2 = new ConsentsItem('dinum-dn', 'Démarche Numérique', null);
+        const consents = new Consents(
+          { consents: [consentsItem1, consentsItem2] },
+          partners.items
+        );
+        vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
+        const spyEmit = vi.spyOn(NativeBridgeMethods, 'emit').mockResolvedValue();
+
+        // When
+        render(Page);
+        await waitAfterSkeleton();
+        const backButton = screen.getByTestId('back-button');
+        await fireEvent.click(backButton);
+
+        // Then
+        expect(spyEmit).toHaveBeenCalledWith('show_push_notification_consent_dialog');
+      });
+      test('should not emit event as push notification is enabled', async () => {
+        // Given
+        await userStore.login(mockUserInfo);
+
+        vi.spyOn(nativeAppStateMethods, 'isPushNotificationEnabled').mockReturnValue(
+          true
+        );
+
+        const apiPartnersItem1: APIPartnersItem = {
+          slug: 'dinum-ami',
+          name: 'AMI',
+          link: 'http://fake-link-1',
+        };
+        const apiPartnersItem2: APIPartnersItem = {
+          slug: 'dinum-dn',
+          name: 'Démarche Numérique',
+          link: 'http://fake-link-2',
+        };
+        const partners = new Partners([apiPartnersItem1, apiPartnersItem2]);
+        vi.spyOn(partnersMethods, 'buildPartners').mockResolvedValue(partners);
+
+        const consentsItem1 = new ConsentsItem('dinum-ami', 'AMI', new Date());
+        const consentsItem2 = new ConsentsItem('dinum-dn', 'Démarche Numérique', null);
+        const consents = new Consents(
+          { consents: [consentsItem1, consentsItem2] },
+          partners.items
+        );
+        vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
+        const spyEmit = vi.spyOn(NativeBridgeMethods, 'emit').mockResolvedValue();
+
+        // When
+        render(Page);
+        await waitAfterSkeleton();
+        const backButton = screen.getByTestId('back-button');
+        await fireEvent.click(backButton);
+
+        // Then
+        expect(spyEmit).not.toHaveBeenCalledWith(
+          'show_push_notification_consent_dialog'
+        );
+      });
+      test('should not emit event as push notification as no consent is given', async () => {
+        // Given
+        await userStore.login(mockUserInfo);
+
+        vi.spyOn(nativeAppStateMethods, 'isPushNotificationEnabled').mockReturnValue(
+          false
+        );
+
+        const apiPartnersItem1: APIPartnersItem = {
+          slug: 'dinum-ami',
+          name: 'AMI',
+          link: 'http://fake-link-1',
+        };
+        const apiPartnersItem2: APIPartnersItem = {
+          slug: 'dinum-dn',
+          name: 'Démarche Numérique',
+          link: 'http://fake-link-2',
+        };
+        const partners = new Partners([apiPartnersItem1, apiPartnersItem2]);
+        vi.spyOn(partnersMethods, 'buildPartners').mockResolvedValue(partners);
+
+        const consentsItem1 = new ConsentsItem('dinum-ami', 'AMI', null);
+        const consentsItem2 = new ConsentsItem('dinum-dn', 'Démarche Numérique', null);
+        const consents = new Consents(
+          { consents: [consentsItem1, consentsItem2] },
+          partners.items
+        );
+        vi.spyOn(consentsMethods, 'buildConsents').mockResolvedValue(consents);
+        const spyEmit = vi.spyOn(NativeBridgeMethods, 'emit').mockResolvedValue();
+
+        // When
+        render(Page);
+        await waitAfterSkeleton();
+        const backButton = screen.getByTestId('back-button');
+        await fireEvent.click(backButton);
+
+        // Then
+        expect(spyEmit).not.toHaveBeenCalledWith(
+          'show_push_notification_consent_dialog'
+        );
+      });
+    });
   });
 });

@@ -6,7 +6,7 @@
 
   interface Props {
     modalId: string;
-    onClose?: (hasAccepted: boolean) => void | null;
+    onClose?: ((hasAccepted: boolean) => void) | null;
     pageOrigin: string;
   }
   let { modalId, onClose, pageOrigin }: Props = $props();

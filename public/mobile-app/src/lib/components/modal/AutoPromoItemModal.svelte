@@ -4,7 +4,7 @@
   interface Props {
     item_component_modal_name: string;
     modalId: string;
-    onClose?: (hasAccepted: boolean) => void | null;
+    onClose?: ((hasAccepted: boolean) => void) | null;
   }
   let { item_component_modal_name, modalId, onClose }: Props = $props();
 

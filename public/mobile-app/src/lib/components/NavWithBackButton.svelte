@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import BackButton from '$lib/components/BackButton.svelte';
+  import { AMIBack } from '$lib/ami-navigation';
 
   interface Props {
     backUrl: string;
@@ -9,18 +9,32 @@
     title?: string;
     children?: Snippet;
     className?: string;
+    onBack?: (() => void) | null;
   }
-  let { backUrl, logo, logoAlt, children, title, className }: Props = $props();
+  let { backUrl, logo, logoAlt, children, title, className, onBack }: Props = $props();
   let scrolled = $state(false);
 
   window.onscroll = () => {
     scrolled = document.body.scrollTop > 20 || document.documentElement.scrollTop > 20;
   };
+
+  const back = () => {
+    if (onBack) {
+      onBack();
+    }
+    AMIBack(backUrl);
+  };
 </script>
 
 <nav class={[{scrolled}, className]}>
   <div class="backbutton-wrapper">
-    <BackButton {backUrl} />
+    <button
+      onclick={back}
+      data-testid="back-button"
+      class="fr-btn fr-icon-arrow-left-line fr-btn--tertiary-no-outline"
+    >
+      Retour à la page précédente
+    </button>
   </div>
   {#if logo}
     <div class="logo">
