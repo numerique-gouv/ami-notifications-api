@@ -69,7 +69,7 @@ def delete_user(request, user_id):
     with transaction.atomic():
         audit("user:deleted", request.user.agent, {"user": user})
 
-        Registration.objects.filter(user=user).delete()
+        Registration.all_objects.filter(user=user).delete()
         Notification.objects.filter(user=user).delete()
         ScheduledNotification.objects.filter(user=user).delete()
         Consent.objects.filter(user=user).delete()
