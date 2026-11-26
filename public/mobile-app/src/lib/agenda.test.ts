@@ -542,9 +542,114 @@ describe('/agenda.ts', () => {
         });
       });
     });
+    describe('theme', () => {
+      test('should return a theme depending on kinds', async () => {
+        // Given
+        const item1 = new Item(
+          'fake-id-item-1',
+          // @ts-expect-error: `'incorrect'` isn't a proper Kind, so typescript will complain
+          'incorrect',
+          'title',
+          '',
+          'description',
+          new Date('2025-12-20')
+        );
+        const item2 = new Item(
+          'fake-id-holiday-2',
+          ['public-holiday'],
+          'title',
+          '',
+          'description',
+          new Date('2025-12-20')
+        );
+        const item3 = new Item(
+          'fake-id-marronnier-3',
+          ['citizenship', 'family'],
+          'title',
+          '',
+          'description',
+          new Date('2025-12-20')
+        );
+        const item4 = new Item(
+          'fake-id-personal-4',
+          ['personal'],
+          'title',
+          '',
+          'description',
+          new Date('2025-12-20')
+        );
+
+        // When
+        const theme1 = item1.theme;
+        const theme2 = item2.theme;
+        const theme3 = item3.theme;
+        const theme4 = item4.theme;
+
+        // Then
+        expect(theme1).equal(null);
+        expect(theme2?.id).equal('public-holiday');
+        expect(theme3?.id).equal('family');
+        expect(theme4?.id).equal('personal');
+      });
+      test('should return a theme depending on kinds and user preferences', async () => {
+        // Given
+        const preferences = new Preferences([], [], ['public-holiday', 'citizenship']);
+        const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
+        newMockUserIdentity.preferences = preferences;
+        localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity));
+        await userStore.login(newMockUserIdentity);
+
+        const item1 = new Item(
+          'fake-id-item-1',
+          // @ts-expect-error: `'incorrect'` isn't a proper Kind, so typescript will complain
+          'incorrect',
+          'title',
+          '',
+          'description',
+          new Date('2025-12-20')
+        );
+        const item2 = new Item(
+          'fake-id-holiday-2',
+          ['public-holiday'],
+          'title',
+          '',
+          'description',
+          new Date('2025-12-20')
+        );
+        const item3 = new Item(
+          'fake-id-marronnier-3',
+          ['citizenship', 'family'],
+          'title',
+          '',
+          'description',
+          new Date('2025-12-20')
+        );
+        const item4 = new Item(
+          'fake-id-personal-4',
+          ['personal'],
+          'title',
+          '',
+          'description',
+          new Date('2025-12-20')
+        );
+
+        // When
+        const theme1 = item1.theme;
+        const theme2 = item2.theme;
+        const theme3 = item3.theme;
+        const theme4 = item4.theme;
+
+        // Then
+        expect(theme1).equal(null);
+        expect(theme2?.id).equal('public-holiday');
+        expect(theme3?.id).equal('citizenship');
+        expect(theme4?.id).equal('personal');
+      });
+    });
     describe('label', () => {
       test('should return a label depending on kinds', async () => {
         // Given
+        await userStore.login(mockUserInfo);
         const item1 = new Item(
           'fake-id-item-1',
           // @ts-expect-error: `'incorrect'` isn't a proper Kind, so typescript will complain
@@ -597,6 +702,7 @@ describe('/agenda.ts', () => {
     describe('icon', () => {
       test('should return an icon depending on kinds', async () => {
         // Given
+        await userStore.login(mockUserInfo);
         const item1 = new Item(
           'fake-id-item-1',
           // @ts-expect-error: `'incorrect'` isn't a proper Kind, so typescript will complain
@@ -642,6 +748,57 @@ describe('/agenda.ts', () => {
         expect(icon2).equal('fr-icon-calendar-check-fill');
         expect(icon3).equal('fr-icon-parent-fill');
         expect(icon4).equal('fr-icon-calendar-event-fill');
+      });
+    });
+    describe('badgeClassName', () => {
+      test('should return an badgeClassName depending on kinds', async () => {
+        // Given
+        await userStore.login(mockUserInfo);
+        const item1 = new Item(
+          'fake-id-item-1',
+          // @ts-expect-error: `'incorrect'` isn't a proper Kind, so typescript will complain
+          'incorrect',
+          'title',
+          '',
+          'description',
+          new Date('2025-12-20')
+        );
+        const item2 = new Item(
+          'fake-id-holiday-2',
+          ['public-holiday'],
+          'title',
+          '',
+          'description',
+          new Date('2025-12-20')
+        );
+        const item3 = new Item(
+          'fake-id-marronnier-3',
+          ['citizenship', 'family'],
+          'title',
+          '',
+          'description',
+          new Date('2025-12-20')
+        );
+        const item4 = new Item(
+          'fake-id-personal-4',
+          ['personal'],
+          'title',
+          '',
+          'description',
+          new Date('2025-12-20')
+        );
+
+        // When
+        const badgeClassName1 = item1.badgeClassName;
+        const badgeClassName2 = item2.badgeClassName;
+        const badgeClassName3 = item3.badgeClassName;
+        const badgeClassName4 = item4.badgeClassName;
+
+        // Then
+        expect(badgeClassName1).equal('');
+        expect(badgeClassName2).equal('fr-badge--blue-ecume');
+        expect(badgeClassName3).equal('fr-badge--green-menthe');
+        expect(badgeClassName4).equal('am-badge--user');
       });
     });
     describe('key', () => {
@@ -692,56 +849,6 @@ describe('/agenda.ts', () => {
         expect(key2).equal('ami-public-holiday:1766188800:title-2');
         expect(key3).equal('ami-citizenship-family:1766188800:title-3');
         expect(key4).equal('ami-personal:1766188800:title-4');
-      });
-    });
-    describe('badgeClassName', () => {
-      test('should return an badgeClassName depending on kinds', async () => {
-        // Given
-        const item1 = new Item(
-          'fake-id-item-1',
-          // @ts-expect-error: `'incorrect'` isn't a proper Kind, so typescript will complain
-          'incorrect',
-          'title',
-          '',
-          'description',
-          new Date('2025-12-20')
-        );
-        const item2 = new Item(
-          'fake-id-holiday-2',
-          ['public-holiday'],
-          'title',
-          '',
-          'description',
-          new Date('2025-12-20')
-        );
-        const item3 = new Item(
-          'fake-id-marronnier-3',
-          ['citizenship', 'family'],
-          'title',
-          '',
-          'description',
-          new Date('2025-12-20')
-        );
-        const item4 = new Item(
-          'fake-id-personal-4',
-          ['personal'],
-          'title',
-          '',
-          'description',
-          new Date('2025-12-20')
-        );
-
-        // When
-        const badgeClassName1 = item1.badgeClassName;
-        const badgeClassName2 = item2.badgeClassName;
-        const badgeClassName3 = item3.badgeClassName;
-        const badgeClassName4 = item4.badgeClassName;
-
-        // Then
-        expect(badgeClassName1).equal('');
-        expect(badgeClassName2).equal('fr-badge--blue-ecume');
-        expect(badgeClassName3).equal('fr-badge--green-menthe');
-        expect(badgeClassName4).equal('am-badge--user');
       });
     });
   });

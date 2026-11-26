@@ -368,6 +368,27 @@ export class Item {
   }
 
   get theme(): Theme | null {
+    const connectedUser = userStore.connected;
+    if (!connectedUser) {
+      // should not happen
+      return null;
+    }
+
+    const preferences = connectedUser.identity.preferences;
+    if (!preferences.themes.length) {
+      // no themes in preferences, return first theme found
+      return THEMES.find((t) => this.kinds.includes(t.id)) || null;
+    }
+
+    // return first selected theme found
+    const theme =
+      THEMES.find(
+        (t) => this.kinds.includes(t.id) && preferences.themes.includes(t.id)
+      ) || null;
+    if (theme !== null) {
+      return theme;
+    }
+
     // return first theme found
     return THEMES.find((t) => this.kinds.includes(t.id)) || null;
   }
