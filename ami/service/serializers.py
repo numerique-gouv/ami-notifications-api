@@ -4,6 +4,7 @@ from rest_framework_dataclasses.serializers import DataclassSerializer
 
 from ami.utils import generate_identity_token
 
+from ..user.models import PersonalDataConsent
 from .schemas import Services
 
 
@@ -22,16 +23,36 @@ class OTVJWTTokenSerializer(serializers.Serializer):
 
     @classmethod
     def get_parameter_value(cls, *, validated_data, user):
+        preferred_username = ""
+        email = ""
+        address_city = ""
+        address_postcode = ""
+        address_citycode = ""
+        address_name = ""
+
+        try:
+            personal_data_consent: PersonalDataConsent = user.personaldataconsent
+        except PersonalDataConsent.DoesNotExist:
+            personal_data_consent: PersonalDataConsent = PersonalDataConsent()
+
+        if personal_data_consent.consent_datetime:
+            preferred_username = validated_data["preferred_username"]
+            email = validated_data["email"]
+            address_city = validated_data["address_city"]
+            address_postcode = validated_data["address_postcode"]
+            address_citycode = validated_data["address_citycode"]
+            address_name = validated_data["address_name"]
+
         otv_private_key = settings.PARTNERS_PSL_OTV_JWT_CERT_PFX_B64
         psl_otv_public_key = settings.PARTNERS_PSL_OTV_JWE_PUBLIC_KEY
         if otv_private_key and psl_otv_public_key:
             return generate_identity_token(
-                validated_data["preferred_username"],
-                validated_data["email"],
-                validated_data["address_city"],
-                validated_data["address_postcode"],
-                validated_data["address_citycode"],
-                validated_data["address_name"],
+                preferred_username,
+                email,
+                address_city,
+                address_postcode,
+                address_citycode,
+                address_name,
                 user.fc_hash,
             )
         return ""
