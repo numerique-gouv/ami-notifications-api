@@ -441,8 +441,18 @@ export class Agenda {
     // do something with school holidays for OTVs
     this.processOTVs(school_holidays);
 
+    // filter items according to user preferences
+    this.filterItemsByThemes();
+
     // sort items by date
     this._items.sort((a, b) => (a.date?.getTime() || 0) - (b.date?.getTime() || 0));
+  }
+
+  private filterItemsByThemes() {
+    this._items = this._items.filter(
+      (item) =>
+        this._connectedUser?.isAgendaItemConcernedByPreferencesThemes(item) || false
+    );
   }
 
   private createSchoolHolidayItems(school_holidays: APIAgendaItem[]) {

@@ -1070,10 +1070,173 @@ describe('/agenda.ts', () => {
           holiday1,
           userStore.connected?.identity.address
         );
+      });
+    });
+    describe('Themes', () => {
+      test('should ignore some themes', async () => {
+        // Given
+        localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
+        const holiday1 = {
+          kinds: ['school-holiday'],
+          title: 'Holiday 1',
+          description: '',
+          date: null,
+          start_date: parseISODate('2026-02-07'),
+          end_date: parseISODate('2026-02-23'),
+          zones: ['Zone A', 'Zone foo'],
+          emoji: '',
+          url: null,
+        };
+        const holiday2 = {
+          kinds: ['school-holiday'],
+          title: 'Holiday 2',
+          description: '',
+          date: null,
+          start_date: parseISODate('2026-02-08'),
+          end_date: parseISODate('2026-02-23'),
+          zones: ['Zone A', 'Zone foo'],
+          emoji: '',
+          url: null,
+        };
+        const holiday3 = {
+          kinds: ['public-holiday'],
+          title: 'Jour férié 1',
+          description: '',
+          date: parseISODate('2026-02-13'),
+          start_date: null,
+          end_date: null,
+          zones: [],
+          emoji: '',
+          url: null,
+        };
+        const holiday4 = {
+          kinds: ['public-holiday'],
+          title: 'Jour férié 2',
+          description: '',
+          date: parseISODate('2026-02-14'),
+          start_date: null,
+          end_date: null,
+          zones: [],
+          emoji: '',
+          url: null,
+        };
+        const marronnier1 = {
+          kinds: ['citizenship'],
+          title: 'Marronnier 1',
+          description: '',
+          date: parseISODate('2026-02-15'),
+          start_date: null,
+          end_date: null,
+          zones: [],
+          emoji: '',
+          url: null,
+        };
+        const marronnier2 = {
+          kinds: ['other'],
+          title: 'Marronnier 2',
+          description: '',
+          date: parseISODate('2026-02-16'),
+          start_date: null,
+          end_date: null,
+          zones: [],
+          emoji: '',
+          url: null,
+        };
+        const item1 = new Item(
+          'fake-id',
+          ['school-holiday'],
+          'Holiday 1',
+          '',
+          'Zone A',
+          null,
+          holiday1.start_date,
+          holiday1.end_date
+        );
+        const item2 = new Item(
+          'fake-id',
+          ['school-holiday'],
+          'Holiday 2',
+          '',
+          'Zone A',
+          null,
+          holiday2.start_date,
+          holiday2.end_date
+        );
+        const item3 = new Item(
+          'fake-id',
+          ['public-holiday'],
+          'Jour férié 1',
+          '',
+          null,
+          holiday3.date,
+          null,
+          null
+        );
+        const item4 = new Item(
+          'fake-id',
+          ['public-holiday'],
+          'Jour férié 2',
+          '',
+          null,
+          holiday4.date,
+          null,
+          null
+        );
+        const item5 = new Item(
+          'fake-id',
+          ['citizenship'],
+          'Marronnier 1',
+          '',
+          '',
+          marronnier1.date,
+          null,
+          null
+        );
+        const item6 = new Item(
+          'fake-id',
+          ['other'],
+          'Marronnier 2',
+          '',
+          '',
+          marronnier2.date,
+          null,
+          null
+        );
+        await userStore.login(mockUserInfo);
+        const spyIsConcerned = vi
+          .spyOn(Preferences.prototype, 'isAgendaItemConcernedByThemes')
+          .mockReturnValueOnce(true)
+          .mockReturnValueOnce(false)
+          .mockReturnValueOnce(true)
+          .mockReturnValueOnce(false)
+          .mockReturnValueOnce(true)
+          .mockReturnValueOnce(false);
+        vi.spyOn(utilsMethods, 'uniqueId').mockReturnValue('fake-id');
 
-        // Cleanup
-        spyIsConcerned.mockRestore();
-        spyGetDescription.mockRestore();
+        // When
+        const agenda = new Agenda(
+          {
+            school_holidays: [holiday1, holiday2],
+            public_holidays: [holiday3, holiday4],
+            marronniers: [marronnier1, marronnier2],
+          },
+          null,
+          new Date('2026-02-01T12:00:00Z')
+        );
+
+        // Then
+        expect(agenda.now.length).equal(3);
+        expect(agenda.now[0].equals(item1)).toBe(true);
+        expect(agenda.now[1].equals(item3)).toBe(true);
+        expect(agenda.now[2].equals(item5)).toBe(true);
+        expect(agenda.next.length).equal(0);
+        expect(spyIsConcerned).toHaveBeenCalledTimes(6);
+        expect(spyIsConcerned).toHaveBeenNthCalledWith(1, item1);
+        expect(spyIsConcerned).toHaveBeenNthCalledWith(2, item2);
+        expect(spyIsConcerned).toHaveBeenNthCalledWith(3, item3);
+        expect(spyIsConcerned).toHaveBeenNthCalledWith(4, item4);
+        expect(spyIsConcerned).toHaveBeenNthCalledWith(5, item5);
+        expect(spyIsConcerned).toHaveBeenNthCalledWith(6, item6);
       });
     });
     describe('Multitiles', () => {
