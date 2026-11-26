@@ -63,8 +63,8 @@ export class Preferences {
     return new Preferences([userZone], [], []);
   }
 
-  isSchoolHolidayConcerned(holiday: APIAgendaItem): boolean {
-    if (!holiday.zones.length || !this._zones) {
+  isSchoolHolidayConcernedByZones(holiday: APIAgendaItem): boolean {
+    if (!holiday.zones.length || !this._zones.length) {
       return false;
     }
     if (!this._zones.filter((value) => holiday.zones.includes(value)).length) {

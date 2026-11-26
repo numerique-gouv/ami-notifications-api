@@ -1026,7 +1026,7 @@ describe('/agenda.ts', () => {
         };
         await userStore.login(mockUserInfo);
         const spyIsConcerned = vi
-          .spyOn(Preferences.prototype, 'isSchoolHolidayConcerned')
+          .spyOn(Preferences.prototype, 'isSchoolHolidayConcernedByZones')
           .mockReturnValueOnce(true)
           .mockReturnValueOnce(false);
         const spyGetDescription = vi

@@ -116,7 +116,7 @@ describe('/preferences.ts', () => {
       });
     });
 
-    describe('isSchoolHolidayConcerned', () => {
+    describe('isSchoolHolidayConcernedByZones', () => {
       test('should return true as holiday zones match user preferences', async () => {
         // Given
         const item = {
@@ -133,7 +133,7 @@ describe('/preferences.ts', () => {
         const preferences = new Preferences(['Zone A', 'Zone C'], [], []);
 
         // When
-        const result = preferences.isSchoolHolidayConcerned(item);
+        const result = preferences.isSchoolHolidayConcernedByZones(item);
 
         // Then
         expect(result).toEqual(true);
@@ -154,7 +154,7 @@ describe('/preferences.ts', () => {
         const preferences = new Preferences(['Zone C', 'Corse'], [], []);
 
         // When
-        const result = preferences.isSchoolHolidayConcerned(item);
+        const result = preferences.isSchoolHolidayConcernedByZones(item);
 
         // Then
         expect(result).toEqual(false);
@@ -175,7 +175,7 @@ describe('/preferences.ts', () => {
         const preferences = new Preferences([], [], []);
 
         // When
-        const result = preferences.isSchoolHolidayConcerned(item);
+        const result = preferences.isSchoolHolidayConcernedByZones(item);
 
         // Then
         expect(result).toEqual(false);
@@ -196,7 +196,7 @@ describe('/preferences.ts', () => {
         const preferences = new Preferences(['Zone C', 'Corse'], [], []);
 
         // When
-        const result = preferences.isSchoolHolidayConcerned(item);
+        const result = preferences.isSchoolHolidayConcernedByZones(item);
 
         // Then
         expect(result).toEqual(false);

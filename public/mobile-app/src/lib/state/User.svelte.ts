@@ -307,8 +307,8 @@ export class User {
     localStorage.setItem('user_identity', JSON.stringify(this.identity));
   }
 
-  isSchoolHolidayConcernedByPreferences(holiday: APIAgendaItem): boolean {
-    return this._identity.preferences.isSchoolHolidayConcerned(holiday);
+  isSchoolHolidayConcernedByPreferencesZones(holiday: APIAgendaItem): boolean {
+    return this._identity.preferences.isSchoolHolidayConcernedByZones(holiday);
   }
 
   getSchoolHolidayDescriptionFromPreferences(holiday: APIAgendaItem): string {

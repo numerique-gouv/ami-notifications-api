@@ -519,7 +519,7 @@ export class Agenda {
     if (holiday.emoji) {
       title += ` ${holiday.emoji}`;
     }
-    if (!this._connectedUser?.isSchoolHolidayConcernedByPreferences(holiday)) {
+    if (!this._connectedUser?.isSchoolHolidayConcernedByPreferencesZones(holiday)) {
       return null;
     }
     const item = new Item(
