@@ -13,8 +13,30 @@
     } else if (document.querySelector('.zones-welcome-page-footer')) {
       aboveWelcomePageFooter = true;
     }
+
+    const div = document.getElementById('toasts-container-a11y');
+    div?.addEventListener('focusout', clearVocalMessages);
   });
+
+  const clearVocalMessages = async () => {
+    toastStore.vocalMessages = [];
+  };
 </script>
+
+<div
+  aria-atomic="true"
+  aria-live="polite"
+  id="toasts-container-a11y"
+  class="fr-sr-only"
+  tabindex="-1"
+  data-testid="toasts-container-a11y"
+>
+  {#if toastStore.vocalMessages}
+    {#each toastStore.vocalMessages as vocalMessage}
+      <p>{vocalMessage}</p>
+    {/each}
+  {/if}
+</div>
 
 {#if toastStore.toasts.length}
   <div

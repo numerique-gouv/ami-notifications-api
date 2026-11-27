@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { Toast, toastStore } from '$lib/state/toast.svelte.js';
 
@@ -27,6 +27,44 @@ describe('/lib/state/toast.svelte.ts', () => {
       expect(toastStore.toasts[2].toastType).toBe('success');
       expect(toastStore.toasts[2].duration).toBe(null);
       expect(toastStore.toasts[2].hasCloseLink).toBe(false);
+    });
+
+    test('should add toasts titles to vocal messages', async () => {
+      // Given
+      toastStore.toasts = [];
+      toastStore.vocalMessages = [];
+
+      // When
+      toastStore.addToast('Code d’identification copié !', 'info', 5000, true);
+      toastStore.addToast('Information bien enregistrée !', 'success', 5000, false);
+      toastStore.addToast('Les notifications ont été activées', 'success', null, false);
+
+      // Then
+      expect(toastStore.vocalMessages).toHaveLength(3);
+      expect(toastStore.vocalMessages[0]).toBe('Code d’identification copié !');
+      expect(toastStore.vocalMessages[1]).toBe('Information bien enregistrée !');
+      expect(toastStore.vocalMessages[2]).toBe('Les notifications ont été activées');
+    });
+
+    test('should focus vocal messages container after 50ms', async () => {
+      // Given
+      vi.useFakeTimers({ shouldAdvanceTime: true });
+      const focusMock = vi.fn();
+      const toastsContainerA11yMock = { focus: focusMock };
+      const getElementById = vi.fn(() => toastsContainerA11yMock);
+      vi.stubGlobal('document', { getElementById });
+      toastStore.toasts = [];
+
+      // When
+      toastStore.addToast('Code d’identification copié !', 'info', 5000, true);
+      vi.advanceTimersByTime(50);
+
+      // Then
+      expect(focusMock).toHaveBeenCalled();
+
+      // After
+      vi.useRealTimers();
+      vi.unstubAllGlobals();
     });
   });
 

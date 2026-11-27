@@ -33,6 +33,7 @@ export class Toast {
 
 class ToastStore {
   toasts: Toast[] = $state<Toast[]>([]);
+  vocalMessages: string[] = $state<string[]>([]);
 
   private uniqueId = (): string => {
     return Date.now().toString(36) + Math.random().toString(36).substring(2, 10);
@@ -66,7 +67,20 @@ class ToastStore {
     if (duration) {
       setTimeout(() => this.removeToast(id), duration);
     }
+
+    this.vocalMessages.push(newToast.title);
+    this.focusToastsContainerA11y();
   };
+
+  private focusToastsContainerA11y() {
+    const div = document.getElementById('toasts-container-a11y');
+    if (div) {
+      // timeout necessary for screen readers
+      setTimeout(() => {
+        div.focus();
+      }, 50);
+    }
+  }
 
   removeToast = (id: string) => {
     this.toasts = this.toasts.filter((toast) => toast.id !== id);
