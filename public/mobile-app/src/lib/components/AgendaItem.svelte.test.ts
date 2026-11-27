@@ -10,8 +10,8 @@ describe('/AgendaItem.svelte', () => {
   test('should display a link', async () => {
     // Given
     const item = new Item(
-      'fake-id-election',
-      'election',
+      'fake-id-marronnier',
+      ['citizenship'],
       'Elections locales',
       'link',
       'Inscrivez-vous sur les listes électorales',
@@ -35,8 +35,8 @@ describe('/AgendaItem.svelte', () => {
   test('should display a link - with followup sub item', async () => {
     // Given
     const item = new Item(
-      'fake-id-election',
-      'election',
+      'fake-id-marronnier',
+      ['citizenship'],
       'Elections locales',
       'link',
       'Inscrivez-vous sur les listes électorales',
@@ -83,8 +83,8 @@ describe('/AgendaItem.svelte', () => {
   test('should have more-icon when agenda item has modal', async () => {
     // Given
     const item = new Item(
-      'fake-id-election',
-      'election',
+      'fake-id-marronnier',
+      ['citizenship'],
       'Elections locales',
       'Inscrivez-vous sur les listes électorales',
       null,
@@ -97,15 +97,15 @@ describe('/AgendaItem.svelte', () => {
 
     // Then
     const moreIcon = screen.getByTestId(
-      'agenda-item-ami-election:1764892800:elections-locales-open-modal-button'
+      'agenda-item-ami-citizenship:1764892800:elections-locales-open-modal-button'
     );
     expect(moreIcon).toBeInTheDocument();
   });
   test('should mark emojis', async () => {
     // Given
     const item = new Item(
-      'fake-id-election',
-      'election',
+      'fake-id-marronnier',
+      ['citizenship'],
       'Elections locales',
       'Inscrivez-vous sur les listes électorales 📆',
       null,

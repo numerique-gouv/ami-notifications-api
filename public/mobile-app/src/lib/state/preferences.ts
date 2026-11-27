@@ -1,5 +1,6 @@
 import type { Address as AddressType } from '$lib/address';
 import { Address, zones } from '$lib/address';
+import type { Item as AgendaItem } from '$lib/agenda';
 import type { APIAgendaItem } from '$lib/api-agenda';
 import { trackZone } from '$lib/matomo';
 import type { ToggleTag } from '$lib/types/components/toggletag';
@@ -13,12 +14,14 @@ export type ZoneInfo = {
 type PreferencesJSON = {
   _zones: string[];
   _addresses: AddressType[];
+  _themes: string[];
 };
 
 export class Preferences {
   constructor(
     private _zones: string[],
-    private _addresses: AddressType[]
+    private _addresses: AddressType[],
+    private _themes: string[]
   ) {}
 
   static fromJSON(json: Preferences | PreferencesJSON): Preferences {
@@ -27,7 +30,8 @@ export class Preferences {
     }
     return new Preferences(
       json._zones || [],
-      json._addresses.map((address) => Address.fromJSON(address)) || []
+      json._addresses.map((address) => Address.fromJSON(address)) || [],
+      json._themes || []
     );
   }
 
@@ -39,9 +43,13 @@ export class Preferences {
     return this._addresses;
   }
 
+  get themes(): string[] {
+    return this._themes;
+  }
+
   static getDefault(userAddress: AddressType | undefined): Preferences {
     const defaultZones = ['Zone A', 'Zone B', 'Zone C', 'Corse'];
-    const defaultPreferences = new Preferences(defaultZones, []);
+    const defaultPreferences = new Preferences(defaultZones, [], []);
 
     if (userAddress === undefined) {
       return defaultPreferences;
@@ -53,11 +61,11 @@ export class Preferences {
       return defaultPreferences;
     }
 
-    return new Preferences([userZone], []);
+    return new Preferences([userZone], [], []);
   }
 
-  isSchoolHolidayConcerned(holiday: APIAgendaItem): boolean {
-    if (!holiday.zones.length || !this._zones) {
+  isSchoolHolidayConcernedByZones(holiday: APIAgendaItem): boolean {
+    if (!holiday.zones.length || !this._zones.length) {
       return false;
     }
     if (!this._zones.filter((value) => holiday.zones.includes(value)).length) {
@@ -119,6 +127,21 @@ export class Preferences {
     return result.join(', ');
   }
 
+  isAgendaItemConcernedByThemes(item: AgendaItem): boolean {
+    if (!item.kinds.length) {
+      return false;
+    }
+    if (!this._themes.length) {
+      return true;
+    }
+    if (
+      !this._themes.filter((value) => (item.kinds as string[]).includes(value)).length
+    ) {
+      return false;
+    }
+    return true;
+  }
+
   addZone(zone: string) {
     if (this._zones.includes(zone)) {
       return;
@@ -159,6 +182,24 @@ export class Preferences {
 
   clearAddresses() {
     this._addresses = [];
+  }
+
+  addTheme(theme: string) {
+    if (this._themes.includes(theme)) {
+      return;
+    }
+    this._themes.push(theme);
+  }
+
+  removeTheme(theme: string) {
+    if (!this._themes.includes(theme)) {
+      return;
+    }
+    this._themes = this._themes.filter((value) => theme !== value);
+  }
+
+  clearThemes() {
+    this._themes = [];
   }
 
   getZoneInfos(userAddress: AddressType | undefined): ZoneInfo[] {

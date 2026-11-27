@@ -44,13 +44,13 @@ def test_get_public_holidays_source(
     )
     items = [
         AgendaItem(
-            kind=AgendaItemKind.HOLIDAY,
+            kinds=[AgendaItemKind.PUBLIC_HOLIDAY],
             title="Noël",
             date=datetime.date(2025, 12, 25),
             emoji="📅",
         ),
         AgendaItem(
-            kind=AgendaItemKind.HOLIDAY,
+            kinds=[AgendaItemKind.PUBLIC_HOLIDAY],
             title="Jour de l’An",
             date=datetime.date(2026, 1, 1),
             emoji="🎉",

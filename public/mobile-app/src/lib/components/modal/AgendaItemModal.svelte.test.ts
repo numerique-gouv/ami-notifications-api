@@ -7,9 +7,7 @@ import { toastStore } from '$lib/state/toast.svelte';
 import { getTimestamp } from '$lib/utils';
 import AgendaItemModal from './AgendaItemModal.svelte';
 
-const oneday_in_ms = 24 * 60 * 60 * 1000;
 const today = new Date();
-const in32days = new Date(today.getTime() + 32 * oneday_in_ms); // 32 days, so we are sure that month is different than today's
 
 describe('/AgendaItemModal.svelte', () => {
   beforeEach(() => {
@@ -20,7 +18,14 @@ describe('/AgendaItemModal.svelte', () => {
 
   test('should display item title', async () => {
     // Given
-    const item = new Item('fake-id-holiday-1', 'holiday', 'Holiday 1', '', null, today);
+    const item = new Item(
+      'fake-id-holiday-1',
+      ['public-holiday'],
+      'Holiday 1',
+      '',
+      null,
+      today
+    );
     const agenda = new Agenda();
 
     // When
@@ -34,8 +39,8 @@ describe('/AgendaItemModal.svelte', () => {
   test('should mark emojis', async () => {
     // Given
     const item = new Item(
-      'fake-id-election',
-      'election',
+      'fake-id-marronnier',
+      ['citizenship'],
       'Elections locales 📆',
       'Inscrivez-vous sur les listes électorales',
       null,
@@ -44,9 +49,6 @@ describe('/AgendaItemModal.svelte', () => {
     );
     const agenda = new Agenda();
     vi.spyOn(agenda, 'now', 'get').mockReturnValue([item]);
-    vi.spyOn(agenda, 'next', 'get').mockReturnValue([
-      new Item('fake-id-holiday-2', 'holiday', 'Holiday 2', '', null, in32days),
-    ]);
     vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(new Agenda());
     render(AgendaItemModal, { props: { item, agenda, index: '' } });
 
@@ -56,12 +58,17 @@ describe('/AgendaItemModal.svelte', () => {
 
   test('should add toast when user clicks on "Supprimer" button', async () => {
     // Given
-    const item = new Item('fake-id-holiday-1', 'holiday', 'Holiday 1', '', null, today);
+    const item = new Item(
+      'fake-id-holiday-1',
+      ['public-holiday'],
+      'Holiday 1',
+      '',
+      null,
+      today
+    );
     const agenda = new Agenda();
     vi.spyOn(agenda, 'now', 'get').mockReturnValue([item]);
-    vi.spyOn(agenda, 'next', 'get').mockReturnValue([
-      new Item('fake-id-holiday-2', 'holiday', 'Holiday 2', '', null, in32days),
-    ]);
+    vi.spyOn(agenda, 'next', 'get').mockReturnValue([]);
     const spy = vi.spyOn(toastStore, 'addToast');
     const spy2 = vi.spyOn(agendaMethods, 'buildAgenda').mockResolvedValue(new Agenda());
     render(AgendaItemModal, { props: { item, agenda, index: '' } });
@@ -69,7 +76,7 @@ describe('/AgendaItemModal.svelte', () => {
     // When
     await waitFor(async () => {
       const deleteButton = screen.getByTestId(
-        `agenda-item-ami-holiday:${getTimestamp(today)}:holiday-1-hide-button`
+        `agenda-item-ami-public-holiday:${getTimestamp(today)}:holiday-1-hide-button`
       );
       await fireEvent.click(deleteButton);
     });

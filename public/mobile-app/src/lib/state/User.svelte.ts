@@ -7,6 +7,7 @@ import {
 import type { Address as AddressType } from '$lib/address';
 import { Address } from '$lib/address';
 import { callBAN } from '$lib/addressesFromBAN';
+import type { Item as AgendaItem } from '$lib/agenda';
 import type { APIAgendaItem } from '$lib/api-agenda';
 import * as auth from '$lib/auth';
 import { emit } from '$lib/bridges/nativeBridge';
@@ -307,8 +308,8 @@ export class User {
     localStorage.setItem('user_identity', JSON.stringify(this.identity));
   }
 
-  isSchoolHolidayConcernedByPreferences(holiday: APIAgendaItem): boolean {
-    return this._identity.preferences.isSchoolHolidayConcerned(holiday);
+  isSchoolHolidayConcernedByPreferencesZones(holiday: APIAgendaItem): boolean {
+    return this._identity.preferences.isSchoolHolidayConcernedByZones(holiday);
   }
 
   getSchoolHolidayDescriptionFromPreferences(holiday: APIAgendaItem): string {
@@ -320,6 +321,10 @@ export class User {
 
   getZoneInfosFromPreferences(): ZoneInfo[] {
     return this._identity.preferences.getZoneInfos(this._identity.address);
+  }
+
+  isAgendaItemConcernedByPreferencesThemes(item: AgendaItem): boolean {
+    return this._identity.preferences.isAgendaItemConcernedByThemes(item);
   }
 
   formatBirthdate(birthdate: string) {

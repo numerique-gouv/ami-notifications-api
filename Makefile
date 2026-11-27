@@ -73,3 +73,11 @@ init-checklists:
 .PHONY: init-annuaire
 init-annuaire:
 	$(RUN) python manage.py init_annuaire
+
+.PHONY: init-sp-actus
+init-sp-actus:
+	$(RUN) python manage.py import_sp_actus
+
+.PHONY: init-data
+init-data:
+	$(RUN) python manage.py init-data

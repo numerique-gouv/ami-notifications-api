@@ -34,7 +34,11 @@ describe('/+page.svelte', () => {
   describe('City selection', () => {
     test('should display results when user enters a city', async () => {
       // Given
-      const preferences = new Preferences(['Zone A', 'Zone B', 'Zone C', 'Corse'], []);
+      const preferences = new Preferences(
+        ['Zone A', 'Zone B', 'Zone C', 'Corse'],
+        [],
+        []
+      );
       const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
       newMockUserIdentity.preferences = preferences;
       localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity));
@@ -105,7 +109,7 @@ describe('/+page.svelte', () => {
 
     test('should update preferences when user clicks on a result', async () => {
       // Given
-      const preferences = new Preferences(['Zone A'], []);
+      const preferences = new Preferences(['Zone A'], [], []);
       const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
       newMockUserIdentity.preferences = preferences;
       localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity));
@@ -170,7 +174,11 @@ describe('/+page.svelte', () => {
 
     test('should display warning block when Geo API is unavailable', async () => {
       // Given
-      const preferences = new Preferences(['Zone A', 'Zone B', 'Zone C', 'Corse'], []);
+      const preferences = new Preferences(
+        ['Zone A', 'Zone B', 'Zone C', 'Corse'],
+        [],
+        []
+      );
       const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
       newMockUserIdentity.preferences = preferences;
       localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity));
@@ -207,7 +215,11 @@ describe('/+page.svelte', () => {
 
     test('should display warning block when BAN is unavailable', async () => {
       // Given
-      const preferences = new Preferences(['Zone A', 'Zone B', 'Zone C', 'Corse'], []);
+      const preferences = new Preferences(
+        ['Zone A', 'Zone B', 'Zone C', 'Corse'],
+        [],
+        []
+      );
       const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
       newMockUserIdentity.preferences = preferences;
       localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity));
