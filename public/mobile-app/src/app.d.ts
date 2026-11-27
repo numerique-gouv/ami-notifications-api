@@ -19,11 +19,7 @@ declare global {
 
   interface NativeInfosData {
     platform: 'android' | 'ios';
-    app_name: string;
     version: string;
-    build: number;
-    environment: string;
-    mode: string;
     device_id: string;
     promoted_url_aliases: string[];
   }
