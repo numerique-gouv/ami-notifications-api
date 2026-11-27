@@ -7,7 +7,7 @@ import { FollowupSubItem } from '$lib/followup';
 import AgendaItem from './AgendaItem.svelte';
 
 describe('/AgendaItem.svelte', () => {
-  test('should display a link', async () => {
+  test('should display a link when item has a link', async () => {
     // Given
     const item = new Item(
       'fake-id-election',
@@ -30,6 +30,8 @@ describe('/AgendaItem.svelte', () => {
     await waitFor(() => {
       expect(spy1).toHaveBeenCalledWith('link');
       expect(spy2).not.toHaveBeenCalled();
+      const title = screen.getByTestId('agenda-item-title');
+      expect(title).toHaveTextContent('Elections locales');
     });
   });
   test('should display a link - with followup sub item', async () => {
@@ -78,7 +80,29 @@ describe('/AgendaItem.svelte', () => {
     await fireEvent.click(button);
     await waitFor(() => {
       expect(spy).toHaveBeenCalledWith('link');
+      const title = screen.getByTestId('agenda-item-title');
+      expect(title).toHaveTextContent('Elections locales');
     });
+  });
+  test('should display title without link when item has no link', async () => {
+    // Given
+    const item = new Item(
+      'fake-id-election',
+      'election',
+      'Elections locales',
+      '',
+      'Inscrivez-vous sur les listes électorales',
+      new Date('2025-12-05'),
+      null
+    );
+
+    // When
+    render(AgendaItem, { props: { item: item } });
+
+    // Then
+    expect(screen.queryByTestId('agenda-item-link')).not.toBeInTheDocument();
+    const title = screen.getByTestId('agenda-item-title');
+    expect(title).toHaveTextContent('Elections locales');
   });
   test('should have more-icon when agenda item has modal', async () => {
     // Given

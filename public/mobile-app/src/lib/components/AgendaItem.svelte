@@ -81,7 +81,7 @@
       {/if}
       <div class="fr-card__body fr-p-0">
         <div class="fr-card__content fr-m-0 fr-pb-3v">
-          <h4 class="fr-card__title fr-text--md">
+          <h4 class="fr-card__title fr-text--md" data-testid="agenda-item-title">
             {#if item.link}
               <button type="button" onclick={goToItem} data-testid="agenda-item-link">
                 {@html ariaHideDecorativeEmoji(item.title)}
