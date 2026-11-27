@@ -88,21 +88,22 @@ describe('/+page.svelte', () => {
     vi.spyOn(servicesMethods, 'buildServices').mockResolvedValue(services);
     render(Page);
     await waitAfterSkeleton();
+    await waitFor(async () => {
+      // When
+      const searchInput = screen.getByTestId('search-input');
+      await fireEvent.focus(searchInput);
+      await fireEvent.input(searchInput, {
+        target: { value: 'Opération' },
+      });
 
-    // When
-    const searchInput = screen.getByTestId('search-input');
-    await fireEvent.focus(searchInput);
-    await fireEvent.input(searchInput, {
-      target: { value: 'Opération' },
-    });
-
-    // Then
-    vi.advanceTimersByTime(750);
-    await waitFor(() => {
-      const result = screen.getByTestId('search-result');
-      expect(result).toHaveTextContent(
-        'Opération Tranquillité Vacances Sécurisez votre logement Opération Tranquillité Vacances SOS Opération Tranquillité Vacances STEPS'
-      );
+      // Then
+      vi.advanceTimersByTime(750);
+      await waitFor(() => {
+        const result = screen.getByTestId('search-result');
+        expect(result).toHaveTextContent(
+          'Opération Tranquillité Vacances Sécurisez votre logement Opération Tranquillité Vacances SOS Opération Tranquillité Vacances STEPS'
+        );
+      });
     });
   });
   test('Should display not found message if no result', async () => {
@@ -114,18 +115,20 @@ describe('/+page.svelte', () => {
     render(Page);
     await waitAfterSkeleton();
 
-    // When
-    const searchInput = screen.getByTestId('search-input');
-    await fireEvent.focus(searchInput);
-    await fireEvent.input(searchInput, {
-      target: { value: 'Opération' },
-    });
+    await waitFor(async () => {
+      // When
+      const searchInput = screen.getByTestId('search-input');
+      await fireEvent.focus(searchInput);
+      await fireEvent.input(searchInput, {
+        target: { value: 'Opération' },
+      });
 
-    // Then
-    vi.advanceTimersByTime(750);
-    await waitFor(() => {
-      const result = screen.getByTestId('no-result');
-      expect(result).toHaveTextContent('Aucun résultat pour « Opération »');
+      // Then
+      vi.advanceTimersByTime(750);
+      await waitFor(() => {
+        const result = screen.getByTestId('no-result');
+        expect(result).toHaveTextContent('Aucun résultat pour « Opération »');
+      });
     });
   });
   describe('click on service', () => {
@@ -160,27 +163,29 @@ describe('/+page.svelte', () => {
         render(Page);
         await waitAfterSkeleton();
 
-        // When
-        const searchInput = screen.getByTestId('search-input');
-        await fireEvent.focus(searchInput);
-        await fireEvent.input(searchInput, {
-          target: { value: 'Opération' },
-        });
-        vi.advanceTimersByTime(750);
         await waitFor(async () => {
-          const link = screen.getByTestId(
-            'service-catalog:psl:OperationTranquilliteVacances'
-          );
-          await fireEvent.click(link);
-        });
+          // When
+          const searchInput = screen.getByTestId('search-input');
+          await fireEvent.focus(searchInput);
+          await fireEvent.input(searchInput, {
+            target: { value: 'Opération' },
+          });
+          vi.advanceTimersByTime(750);
+          await waitFor(async () => {
+            const link = screen.getByTestId(
+              'service-catalog:psl:OperationTranquilliteVacances'
+            );
+            await fireEvent.click(link);
+          });
 
-        // Then
-        screen.debug();
-        expect(screen.queryByTestId('service-button')).not.toBeVisible();
-        expect(screen.queryByTestId('followup-button')).not.toBeVisible();
-        expect(spyUrl).toHaveBeenCalledTimes(1);
-        expect(spy).toHaveBeenCalledTimes(1);
-        expect(spy).toHaveBeenCalledWith('http://external-url', false);
+          // Then
+          screen.debug();
+          expect(screen.queryByTestId('service-button')).not.toBeVisible();
+          expect(screen.queryByTestId('followup-button')).not.toBeVisible();
+          expect(spyUrl).toHaveBeenCalledTimes(1);
+          expect(spy).toHaveBeenCalledTimes(1);
+          expect(spy).toHaveBeenCalledWith('http://external-url', false);
+        });
       });
       test('should redirect to service link - with silent-login', async () => {
         // Given
@@ -212,26 +217,28 @@ describe('/+page.svelte', () => {
         render(Page);
         await waitAfterSkeleton();
 
-        // When
-        const searchInput = screen.getByTestId('search-input');
-        await fireEvent.focus(searchInput);
-        await fireEvent.input(searchInput, {
-          target: { value: 'Opération' },
-        });
-        vi.advanceTimersByTime(750);
         await waitFor(async () => {
-          const link = screen.getByTestId(
-            'service-catalog:psl:OperationTranquilliteVacances'
-          );
-          await fireEvent.click(link);
-        });
+          // When
+          const searchInput = screen.getByTestId('search-input');
+          await fireEvent.focus(searchInput);
+          await fireEvent.input(searchInput, {
+            target: { value: 'Opération' },
+          });
+          vi.advanceTimersByTime(750);
+          await waitFor(async () => {
+            const link = screen.getByTestId(
+              'service-catalog:psl:OperationTranquilliteVacances'
+            );
+            await fireEvent.click(link);
+          });
 
-        // Then
-        expect(screen.queryByTestId('service-button')).not.toBeVisible();
-        expect(screen.queryByTestId('followup-button')).not.toBeVisible();
-        expect(spyUrl).toHaveBeenCalledTimes(1);
-        expect(spy).toHaveBeenCalledTimes(1);
-        expect(spy).toHaveBeenCalledWith('http://external-url', true);
+          // Then
+          expect(screen.queryByTestId('service-button')).not.toBeVisible();
+          expect(screen.queryByTestId('followup-button')).not.toBeVisible();
+          expect(spyUrl).toHaveBeenCalledTimes(1);
+          expect(spy).toHaveBeenCalledTimes(1);
+          expect(spy).toHaveBeenCalledWith('http://external-url', true);
+        });
       });
     });
     describe('with non archived items', () => {
@@ -261,22 +268,24 @@ describe('/+page.svelte', () => {
         render(Page);
         await waitAfterSkeleton();
 
-        // When
-        const searchInput = screen.getByTestId('search-input');
-        await fireEvent.focus(searchInput);
-        await fireEvent.input(searchInput, {
-          target: { value: 'Opération' },
-        });
-        vi.advanceTimersByTime(750);
         await waitFor(async () => {
-          const link = screen.getByTestId(
-            'services-item-catalog:psl:OperationTranquilliteVacances-open-modal-button'
-          );
-          await fireEvent.click(link);
-        });
+          // When
+          const searchInput = screen.getByTestId('search-input');
+          await fireEvent.focus(searchInput);
+          await fireEvent.input(searchInput, {
+            target: { value: 'Opération' },
+          });
+          vi.advanceTimersByTime(750);
+          await waitFor(async () => {
+            const link = screen.getByTestId(
+              'services-item-catalog:psl:OperationTranquilliteVacances-open-modal-button'
+            );
+            await fireEvent.click(link);
+          });
 
-        expect(screen.queryByTestId('service-button')).not.toBeNull();
-        expect(screen.queryByTestId('followup-button')).not.toBeNull();
+          expect(screen.queryByTestId('service-button')).not.toBeNull();
+          expect(screen.queryByTestId('followup-button')).not.toBeNull();
+        });
       });
       describe('buttons onclick', () => {
         describe('followup button', () => {
@@ -307,28 +316,30 @@ describe('/+page.svelte', () => {
             render(Page);
             await waitAfterSkeleton();
 
-            const searchInput = screen.getByTestId('search-input');
-            await fireEvent.focus(searchInput);
-            await fireEvent.input(searchInput, {
-              target: { value: 'Opération' },
-            });
-            vi.advanceTimersByTime(750);
             await waitFor(async () => {
-              const link = screen.getByTestId(
-                'services-item-catalog:psl:OperationTranquilliteVacances-open-modal-button'
-              );
-              await fireEvent.click(link);
-            });
+              const searchInput = screen.getByTestId('search-input');
+              await fireEvent.focus(searchInput);
+              await fireEvent.input(searchInput, {
+                target: { value: 'Opération' },
+              });
+              vi.advanceTimersByTime(750);
+              await waitFor(async () => {
+                const link = screen.getByTestId(
+                  'services-item-catalog:psl:OperationTranquilliteVacances-open-modal-button'
+                );
+                await fireEvent.click(link);
+              });
 
-            // When
-            await waitFor(async () => {
-              const followupButton = screen.getByTestId('followup-button');
-              await fireEvent.click(followupButton);
-            });
+              // When
+              await waitFor(async () => {
+                const followupButton = screen.getByTestId('followup-button');
+                await fireEvent.click(followupButton);
+              });
 
-            // Then
-            expect(spy).toHaveBeenCalledTimes(1);
-            expect(spy).toHaveBeenCalledWith('/#/followup');
+              // Then
+              expect(spy).toHaveBeenCalledTimes(1);
+              expect(spy).toHaveBeenCalledWith('/#/followup');
+            });
           });
         });
         describe('service button', () => {
@@ -362,29 +373,31 @@ describe('/+page.svelte', () => {
             render(Page);
             await waitAfterSkeleton();
 
-            const searchInput = screen.getByTestId('search-input');
-            await fireEvent.focus(searchInput);
-            await fireEvent.input(searchInput, {
-              target: { value: 'Opération' },
-            });
-            vi.advanceTimersByTime(750);
             await waitFor(async () => {
-              const link = screen.getByTestId(
-                'services-item-catalog:psl:OperationTranquilliteVacances-open-modal-button'
-              );
-              await fireEvent.click(link);
-            });
+              const searchInput = screen.getByTestId('search-input');
+              await fireEvent.focus(searchInput);
+              await fireEvent.input(searchInput, {
+                target: { value: 'Opération' },
+              });
+              vi.advanceTimersByTime(750);
+              await waitFor(async () => {
+                const link = screen.getByTestId(
+                  'services-item-catalog:psl:OperationTranquilliteVacances-open-modal-button'
+                );
+                await fireEvent.click(link);
+              });
 
-            // When
-            await waitFor(async () => {
-              const serviceButton = screen.getByTestId('service-button');
-              await fireEvent.click(serviceButton);
-            });
+              // When
+              await waitFor(async () => {
+                const serviceButton = screen.getByTestId('service-button');
+                await fireEvent.click(serviceButton);
+              });
 
-            // Then
-            expect(spyUrl).toHaveBeenCalledTimes(1);
-            expect(spy).toHaveBeenCalledTimes(1);
-            expect(spy).toHaveBeenCalledWith('http://external-url', false);
+              // Then
+              expect(spyUrl).toHaveBeenCalledTimes(1);
+              expect(spy).toHaveBeenCalledTimes(1);
+              expect(spy).toHaveBeenCalledWith('http://external-url', false);
+            });
           });
           test('should redirect to service link - with silent-login', async () => {
             // Given
@@ -416,29 +429,31 @@ describe('/+page.svelte', () => {
             render(Page);
             await waitAfterSkeleton();
 
-            const searchInput = screen.getByTestId('search-input');
-            await fireEvent.focus(searchInput);
-            await fireEvent.input(searchInput, {
-              target: { value: 'Opération' },
-            });
-            vi.advanceTimersByTime(750);
             await waitFor(async () => {
-              const link = screen.getByTestId(
-                'services-item-catalog:psl:OperationTranquilliteVacances-open-modal-button'
-              );
-              await fireEvent.click(link);
-            });
+              const searchInput = screen.getByTestId('search-input');
+              await fireEvent.focus(searchInput);
+              await fireEvent.input(searchInput, {
+                target: { value: 'Opération' },
+              });
+              vi.advanceTimersByTime(750);
+              await waitFor(async () => {
+                const link = screen.getByTestId(
+                  'services-item-catalog:psl:OperationTranquilliteVacances-open-modal-button'
+                );
+                await fireEvent.click(link);
+              });
 
-            // When
-            await waitFor(async () => {
-              const serviceButton = screen.getByTestId('service-button');
-              await fireEvent.click(serviceButton);
-            });
+              // When
+              await waitFor(async () => {
+                const serviceButton = screen.getByTestId('service-button');
+                await fireEvent.click(serviceButton);
+              });
 
-            // Then
-            expect(spyUrl).toHaveBeenCalledTimes(1);
-            expect(spy).toHaveBeenCalledTimes(1);
-            expect(spy).toHaveBeenCalledWith('http://external-url', true);
+              // Then
+              expect(spyUrl).toHaveBeenCalledTimes(1);
+              expect(spy).toHaveBeenCalledTimes(1);
+              expect(spy).toHaveBeenCalledWith('http://external-url', true);
+            });
           });
         });
       });
@@ -475,26 +490,28 @@ describe('/+page.svelte', () => {
       render(Page);
       await waitAfterSkeleton();
 
-      // When
-      const searchInput = screen.getByTestId('search-input');
-      await fireEvent.focus(searchInput);
-      await fireEvent.input(searchInput, {
-        target: { value: 'Opération' },
-      });
-      vi.advanceTimersByTime(750);
       await waitFor(async () => {
-        const link = screen.getByTestId(
-          'service-sos:psl:OperationTranquilliteVacances'
-        );
-        await fireEvent.click(link);
-      });
+        // When
+        const searchInput = screen.getByTestId('search-input');
+        await fireEvent.focus(searchInput);
+        await fireEvent.input(searchInput, {
+          target: { value: 'Opération' },
+        });
+        vi.advanceTimersByTime(750);
+        await waitFor(async () => {
+          const link = screen.getByTestId(
+            'service-sos:psl:OperationTranquilliteVacances'
+          );
+          await fireEvent.click(link);
+        });
 
-      // Then
-      expect(screen.queryByTestId('service-button')).toBeNull();
-      expect(screen.queryByTestId('followup-button')).toBeNull();
-      expect(spyUrl).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledWith('http://external-url', false);
+        // Then
+        expect(screen.queryByTestId('service-button')).toBeNull();
+        expect(screen.queryByTestId('followup-button')).toBeNull();
+        expect(spyUrl).toHaveBeenCalledTimes(1);
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(spy).toHaveBeenCalledWith('http://external-url', false);
+      });
     });
     test('should redirect to service link - with silent-login', async () => {
       // Given
@@ -526,26 +543,28 @@ describe('/+page.svelte', () => {
       render(Page);
       await waitAfterSkeleton();
 
-      // When
-      const searchInput = screen.getByTestId('search-input');
-      await fireEvent.focus(searchInput);
-      await fireEvent.input(searchInput, {
-        target: { value: 'Opération' },
-      });
-      vi.advanceTimersByTime(750);
       await waitFor(async () => {
-        const link = screen.getByTestId(
-          'service-sos:psl:OperationTranquilliteVacances'
-        );
-        await fireEvent.click(link);
-      });
+        // When
+        const searchInput = screen.getByTestId('search-input');
+        await fireEvent.focus(searchInput);
+        await fireEvent.input(searchInput, {
+          target: { value: 'Opération' },
+        });
+        vi.advanceTimersByTime(750);
+        await waitFor(async () => {
+          const link = screen.getByTestId(
+            'service-sos:psl:OperationTranquilliteVacances'
+          );
+          await fireEvent.click(link);
+        });
 
-      // Then
-      expect(screen.queryByTestId('service-button')).toBeNull();
-      expect(screen.queryByTestId('followup-button')).toBeNull();
-      expect(spyUrl).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledWith('http://external-url', true);
+        // Then
+        expect(screen.queryByTestId('service-button')).toBeNull();
+        expect(screen.queryByTestId('followup-button')).toBeNull();
+        expect(spyUrl).toHaveBeenCalledTimes(1);
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(spy).toHaveBeenCalledWith('http://external-url', true);
+      });
     });
   });
   describe('click on steps', () => {
@@ -579,26 +598,28 @@ describe('/+page.svelte', () => {
       render(Page);
       await waitAfterSkeleton();
 
-      // When
-      const searchInput = screen.getByTestId('search-input');
-      await fireEvent.focus(searchInput);
-      await fireEvent.input(searchInput, {
-        target: { value: 'Opération' },
-      });
-      vi.advanceTimersByTime(750);
       await waitFor(async () => {
-        const link = screen.getByTestId(
-          'service-steps:psl:OperationTranquilliteVacances'
-        );
-        await fireEvent.click(link);
-      });
+        // When
+        const searchInput = screen.getByTestId('search-input');
+        await fireEvent.focus(searchInput);
+        await fireEvent.input(searchInput, {
+          target: { value: 'Opération' },
+        });
+        vi.advanceTimersByTime(750);
+        await waitFor(async () => {
+          const link = screen.getByTestId(
+            'service-steps:psl:OperationTranquilliteVacances'
+          );
+          await fireEvent.click(link);
+        });
 
-      // Then
-      expect(screen.queryByTestId('service-button')).toBeNull();
-      expect(screen.queryByTestId('followup-button')).toBeNull();
-      expect(spyUrl).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledWith('http://external-url', false);
+        // Then
+        expect(screen.queryByTestId('service-button')).toBeNull();
+        expect(screen.queryByTestId('followup-button')).toBeNull();
+        expect(spyUrl).toHaveBeenCalledTimes(1);
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(spy).toHaveBeenCalledWith('http://external-url', false);
+      });
     });
     test('should redirect to service link - with silent-login', async () => {
       // Given
@@ -630,26 +651,28 @@ describe('/+page.svelte', () => {
       render(Page);
       await waitAfterSkeleton();
 
-      // When
-      const searchInput = screen.getByTestId('search-input');
-      await fireEvent.focus(searchInput);
-      await fireEvent.input(searchInput, {
-        target: { value: 'Opération' },
-      });
-      vi.advanceTimersByTime(750);
       await waitFor(async () => {
-        const link = screen.getByTestId(
-          'service-steps:psl:OperationTranquilliteVacances'
-        );
-        await fireEvent.click(link);
-      });
+        // When
+        const searchInput = screen.getByTestId('search-input');
+        await fireEvent.focus(searchInput);
+        await fireEvent.input(searchInput, {
+          target: { value: 'Opération' },
+        });
+        vi.advanceTimersByTime(750);
+        await waitFor(async () => {
+          const link = screen.getByTestId(
+            'service-steps:psl:OperationTranquilliteVacances'
+          );
+          await fireEvent.click(link);
+        });
 
-      // Then
-      expect(screen.queryByTestId('service-button')).toBeNull();
-      expect(screen.queryByTestId('followup-button')).toBeNull();
-      expect(spyUrl).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledWith('http://external-url', true);
+        // Then
+        expect(screen.queryByTestId('service-button')).toBeNull();
+        expect(screen.queryByTestId('followup-button')).toBeNull();
+        expect(spyUrl).toHaveBeenCalledTimes(1);
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(spy).toHaveBeenCalledWith('http://external-url', true);
+      });
     });
   });
 });
