@@ -3,11 +3,13 @@ import '@testing-library/jest-dom/vitest';
 import { retrieveMairie } from '$lib/api-annuaire-sp';
 
 const apiMairieData = {
+  nom: 'mairie 1',
   url_service_public: 'url1',
   expires_at: new Date('2025-11-02T12:00:00Z'),
 };
 
 const mairieData = {
+  nom: 'mairie 1',
   url_service_public: 'url1',
 };
 
