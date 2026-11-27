@@ -6,6 +6,7 @@
     PUBLIC_FEATURE_FLAG_SILENT_FC_ENABLED,
   } from '$env/static/public';
   import { AMIGoto } from '$lib/ami-navigation';
+  import { apiFetch } from '$lib/auth';
   import { emit } from '$lib/bridges/nativeBridge';
   import { initializeData, initializeLocalStorage } from '$lib/initializeDataFromAPI';
   import {
@@ -30,7 +31,12 @@
     if (redirect_param) {
       url = `/goto-redirect-url?url=${encodeURIComponent(redirect_param)}`;
     } else {
-      url = `/${passKeyParam}#/welcome/zones`;
+      const hash = page.url.searchParams.get('redirect_to_hash') || '';
+      if (hash !== '') {
+        url = `/#${hash}`;
+      } else {
+        url = `/${passKeyParam}#/welcome/zones`;
+      }
     }
     emit('user_authentication_phase_completed', {
       goto_url: `${PUBLIC_APP_URL}${url}`,
@@ -51,11 +57,24 @@
         AMIGoto('/#/login');
         return;
       }
+
+      const dataNonce = page.url.searchParams.get('data-nonce');
+      if (dataNonce) {
+        const response = await apiFetch(`/api/v1/users/login-data?nonce=${dataNonce}`);
+        const responseData = await response.json();
+        if (Object.hasOwn(responseData, 'foyer')) {
+          userStore.connected.setFoyer(responseData.foyer);
+        }
+        redirectLoggedInUser(false);
+        return;
+      }
+
       telemetry.info('User logged in');
       hasWorkingPassKey = userStore.getHasWorkingPasskey();
       if (hasWorkingPassKey) {
         telemetry.info('User has working passkey');
       }
+
       hasSuggestPasskeyCreationToday = userStore.getHasSuggestPasskeyCreationToday();
       if (!silent_fc_enabled || hasWorkingPassKey || hasSuggestPasskeyCreationToday) {
         // if silent fc is not enabled,

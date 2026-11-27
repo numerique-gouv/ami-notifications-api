@@ -10,6 +10,7 @@ import * as notificationsMethods from '$lib/notifications';
 import * as scheduledNotificationsMethods from '$lib/scheduled-notifications';
 import { Preferences } from '$lib/state/preferences';
 import { User, userStore } from '$lib/state/User.svelte';
+import type { FoyerData as FoyerDataType } from '$lib/user-data';
 import {
   mockUser,
   mockUserIdentity,
@@ -889,6 +890,81 @@ describe('/lib/state/User.svelte.ts', () => {
 
         // Then
         expect(initial).toEqual('A');
+      });
+    });
+
+    describe('setFoyer', () => {
+      test('should save null values to local storage', async () => {
+        // Given
+        localStorage.removeItem('user_data_foyer');
+
+        // When
+        await userStore.login(mockUserInfo);
+        userStore.connected?.setFoyer(null);
+
+        // Then
+        expect(window.localStorage['user_data_foyer']).toEqual('null');
+      });
+      test('should save actual values to local storage', async () => {
+        // Given
+        localStorage.removeItem('user_data_foyer');
+
+        // When
+        await userStore.login(mockUserInfo);
+        userStore.connected?.setFoyer(<FoyerDataType>{
+          enfants: [],
+          quotient_familial: {
+            fournisseur: 'CAF',
+            valeur: 2550,
+            annee: 2024,
+            mois: 2,
+            annee_calcul: 2024,
+            mois_calcul: 12,
+          },
+        });
+
+        // Then
+        expect(window.localStorage['user_data_foyer']).toEqual(
+          '{"enfants":[],"quotient_familial":{"fournisseur":"CAF","valeur":2550,"annee":2024,"mois":2,"annee_calcul":2024,"mois_calcul":12}}'
+        );
+      });
+    });
+
+    describe('getFoyer', () => {
+      test('should return undefined on missing data', async () => {
+        // Given
+        localStorage.removeItem('user_data_foyer');
+
+        // When
+        await userStore.login(mockUserInfo);
+
+        // Then
+        expect(userStore.connected?.getFoyer()).toEqual(undefined);
+      });
+      test('should return null on null on empty data', async () => {
+        // Given
+        localStorage.setItem('user_data_foyer', 'null');
+
+        // When
+        await userStore.login(mockUserInfo);
+
+        // Then
+        expect(userStore.connected?.getFoyer()).toEqual(null);
+      });
+      test('should return data where there is actual data', async () => {
+        // Given
+        localStorage.setItem(
+          'user_data_foyer',
+          '{"enfants":[],"quotient_familial":{"fournisseur":"CAF","valeur":2550,"annee":2024,"mois":2,"annee_calcul":2024,"mois_calcul":12}}'
+        );
+
+        // When
+        await userStore.login(mockUserInfo);
+
+        // Then
+        expect(userStore.connected?.getFoyer()?.quotient_familial?.fournisseur).toEqual(
+          'CAF'
+        );
       });
     });
   });

@@ -19,6 +19,7 @@ import {
 } from '$lib/scheduled-notifications';
 import { Preferences, type ZoneInfo } from '$lib/state/preferences';
 import * as telemetry from '$lib/telemetry';
+import type { FoyerData as FoyerDataType } from '$lib/user-data';
 import { formatShortDate } from '$lib/utils';
 
 export type DataOrigin = 'user' | 'france-connect' | 'api-particulier' | 'cleared';
@@ -410,6 +411,21 @@ export class User {
       return firstName.substring(0, 1);
     }
     return '';
+  }
+
+  setFoyer(data: FoyerDataType | null) {
+    localStorage.setItem('user_data_foyer', JSON.stringify(data));
+  }
+
+  getFoyer(): FoyerDataType | null | undefined {
+    const storedFoyer = localStorage.getItem('user_data_foyer') || '';
+    if (storedFoyer === '') {
+      return undefined;
+    }
+    if (storedFoyer === 'null') {
+      return null;
+    }
+    return <FoyerDataType>JSON.parse(storedFoyer);
   }
 }
 

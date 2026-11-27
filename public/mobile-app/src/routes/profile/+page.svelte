@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { PUBLIC_FEATURE_FLAG_MON_FOYER_ENABLED } from '$env/static/public';
   import type { Address } from '$lib/address';
   import { AMIGoto } from '$lib/ami-navigation';
   import type { APIMairie } from '$lib/api-annuaire-sp';
@@ -37,6 +38,14 @@
       id: 'addresses',
     },
     {
+      isEnabled: true,
+      isVisible: PUBLIC_FEATURE_FLAG_MON_FOYER_ENABLED === 'true',
+      url: '/#/profile/foyer/',
+      title: 'Mon foyer',
+      iconClass: 'fr-icon-parent-line',
+      id: 'foyer',
+    },
+    {
       isEnabled: false,
       url: '',
       title: 'Ma commune',
@@ -56,8 +65,8 @@
     if (address) {
       mairie = await retrieveMairie(address.citycode);
       if (mairie) {
-        sideMenuEntries[2].url = mairie.url_service_public;
-        sideMenuEntries[2].isEnabled = true;
+        sideMenuEntries[3].url = mairie.url_service_public;
+        sideMenuEntries[3].isEnabled = true;
       }
     }
     const personalDataConsent: PersonalDataConsent = await buildPersonalDataConsent();

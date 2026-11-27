@@ -36,6 +36,15 @@ const fetchSpy = (): Mock => {
         );
       }
 
+      if (url.includes('/api/v1/users/login-data?nonce=fake-foyer-nonce')) {
+        return Promise.resolve(
+          new Response(JSON.stringify({ foyer: { foo: 'bar' } }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+          })
+        );
+      }
+
       throw new Error(`Unmocked fetch call detected: ${input}`);
     });
 };
