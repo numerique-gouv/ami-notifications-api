@@ -1,9 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import type { Address } from '$lib/address';
   import { AMIGoto } from '$lib/ami-navigation';
-  import type { APIMairie } from '$lib/api-annuaire-sp';
-  import { retrieveMairie } from '$lib/api-annuaire-sp';
   import PersonalDataConsentModal from '$lib/components/modal/PersonalDataConsentModal.svelte';
   import NavWithBackButton from '$lib/components/NavWithBackButton.svelte';
   import SideMenu from '$lib/components/SideMenu.svelte';
@@ -17,28 +14,23 @@
   let backUrl: string = '/';
   let initial: string = $state('');
   let fullName: string = $state('');
-  let address: Address | undefined = $state();
-  let mairie: APIMairie | null = $state(null);
   let displayPersonalDataConsentBlock: boolean = $state(false);
 
   let sideMenuEntries: SideMenuItem[] = $state([
     {
-      isEnabled: true,
       url: '/#/profile/identity/',
       title: 'Mon identité',
       iconClass: 'fr-icon-account-line',
       id: 'identity',
     },
     {
-      isEnabled: true,
       url: '/#/profile/addresses/',
       title: 'Mes coordonnées',
       iconClass: 'fr-icon-map-pin-user-line',
       id: 'addresses',
     },
     {
-      isEnabled: false,
-      url: '',
+      url: '/#/profile/city/',
       title: 'Ma commune',
       iconClass: 'fr-icon-school-line',
       id: 'city',
@@ -52,14 +44,6 @@
     }
     initial = userStore.connected.getInitial();
     fullName = userStore.connected.getFullName();
-    address = userStore.connected.identity.address;
-    if (address) {
-      mairie = await retrieveMairie(address.citycode);
-      if (mairie) {
-        sideMenuEntries[2].url = mairie.url_service_public;
-        sideMenuEntries[2].isEnabled = true;
-      }
-    }
     const personalDataConsent: PersonalDataConsent = await buildPersonalDataConsent();
     if (!personalDataConsent.consent_datetime) {
       displayPersonalDataConsentBlock = true;

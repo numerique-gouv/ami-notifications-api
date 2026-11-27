@@ -12,13 +12,11 @@ describe('/SideMenu.svelte', () => {
         url: '/#/checklist',
         title: 'Pendant la grossesse',
         id: 'during-pregnancy',
-        isEnabled: true,
       },
       {
         url: '/#/checklist',
         title: 'Après la naissance',
         id: 'after-birth',
-        isEnabled: true,
       },
     ];
 
@@ -38,7 +36,6 @@ describe('/SideMenu.svelte', () => {
         title: 'Pendant la grossesse',
         id: 'during-pregnancy',
         iconClass: 'fr-icon-user-line',
-        isEnabled: true,
       },
     ];
 
@@ -59,7 +56,6 @@ describe('/SideMenu.svelte', () => {
         title: 'Pendant la grossesse',
         id: 'during-pregnancy',
         tag: '2/8',
-        isEnabled: true,
       },
     ];
 
@@ -80,7 +76,6 @@ describe('/SideMenu.svelte', () => {
         url: '/#/checklist',
         title: 'Pendant la grossesse',
         id: 'during-pregnancy',
-        isEnabled: true,
       },
     ];
     render(SideMenu, { sideMenus: entries });
@@ -94,28 +89,5 @@ describe('/SideMenu.svelte', () => {
     // Then
     expect(spy).toHaveBeenCalledTimes(1);
     expect(spy).toHaveBeenCalledWith('/#/checklist');
-  });
-
-  test('should not redirect on click on button as item is not enabled', async () => {
-    // Given
-    const spy = vi.spyOn(AMINavigationMethods, 'AMIGoto').mockResolvedValue();
-    const entries = [
-      {
-        url: '/#/checklist',
-        title: 'Pendant la grossesse',
-        id: 'during-pregnancy',
-        isEnabled: false,
-      },
-    ];
-    render(SideMenu, { sideMenus: entries });
-
-    // When
-    await waitFor(async () => {
-      const button = screen.getByTestId('sidemenu-button-during-pregnancy');
-      await fireEvent.click(button);
-    });
-
-    // Then
-    expect(spy).toHaveBeenCalledTimes(0);
   });
 });

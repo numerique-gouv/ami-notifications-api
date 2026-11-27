@@ -1,6 +1,7 @@
 import { apiFetch } from '$lib/auth';
 
 export type APIMairie = {
+  nom: string;
   url_service_public: string;
 };
 
@@ -38,7 +39,7 @@ export const retrieveMairie = async (
   }
   if (apiData) {
     const data = JSON.parse(apiData);
-    return { url_service_public: data.url_service_public };
+    return { nom: data.nom, url_service_public: data.url_service_public };
   }
   return null;
 };
