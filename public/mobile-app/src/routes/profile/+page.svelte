@@ -43,6 +43,13 @@
       iconClass: 'fr-icon-school-line',
       id: 'city',
     },
+    {
+      isEnabled: true,
+      url: '/#/profile/vote/',
+      title: 'Ma situation électorale',
+      iconClass: 'fr-icon-inbox-unarchive-line',
+      id: 'vote',
+    },
   ]);
 
   onMount(async () => {
