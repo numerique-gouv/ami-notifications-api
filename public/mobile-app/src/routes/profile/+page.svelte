@@ -23,21 +23,18 @@
 
   let sideMenuEntries: SideMenuItem[] = $state([
     {
-      isEnabled: true,
       url: '/#/profile/identity/',
       title: 'Mon identité',
       iconClass: 'fr-icon-account-line',
       id: 'identity',
     },
     {
-      isEnabled: true,
       url: '/#/profile/addresses/',
       title: 'Mes coordonnées',
       iconClass: 'fr-icon-map-pin-user-line',
       id: 'addresses',
     },
     {
-      isEnabled: false,
       url: '',
       title: 'Ma commune',
       iconClass: 'fr-icon-school-line',
@@ -57,7 +54,6 @@
       mairie = await retrieveMairie(address.citycode);
       if (mairie) {
         sideMenuEntries[2].url = mairie.url_service_public;
-        sideMenuEntries[2].isEnabled = true;
       }
     }
     const personalDataConsent: PersonalDataConsent = await buildPersonalDataConsent();

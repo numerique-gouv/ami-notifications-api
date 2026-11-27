@@ -28,7 +28,6 @@
         tag: `${checkedItems.length}/${items.length}`,
         iconClass: 'fr-icon-calendar-check-line',
         id: `checklist-section-${section.id}`,
-        isEnabled: true,
       });
     });
   });

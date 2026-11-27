@@ -6,7 +6,6 @@ import * as personalDataConsentMethods from '$lib/personal-data-consent';
 import { PersonalDataConsent } from '$lib/personal-data-consent';
 import { userStore } from '$lib/state/User.svelte';
 import {
-  mockUserIdentity,
   mockUserIdentityWithPreferredUsername,
   mockUserInfo,
   mockUserInfoWithPreferredUsername,
@@ -65,65 +64,6 @@ describe('/+page.svelte', () => {
       expect(initial).toHaveTextContent('P');
       const fullName = screen.getByTestId('fullname');
       expect(fullName).toHaveTextContent('Pierre DUBOIS');
-    });
-  });
-
-  test('mairie entry is disabled as user has no address', async () => {
-    // Given
-    const newMockUserIdentity = JSON.parse(JSON.stringify(mockUserIdentity));
-    newMockUserIdentity.address = undefined;
-    localStorage.setItem('user_identity', JSON.stringify(newMockUserIdentity));
-    await userStore.login(mockUserInfo);
-    const spy = vi
-      .spyOn(APIAnnuaireSPMethods, 'retrieveMairie')
-      .mockResolvedValue(null);
-
-    // When
-    render(Page);
-
-    // Then
-    await waitFor(() => {
-      const item = screen.getByTestId('sidemenu-item-city');
-      expect(item).toHaveClass('disabled');
-      expect(spy).not.toHaveBeenCalled();
-    });
-  });
-
-  test('mairie entry is disabled as user has address but mairie is not found', async () => {
-    // Given
-    localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
-    await userStore.login(mockUserInfo);
-    const spy = vi
-      .spyOn(APIAnnuaireSPMethods, 'retrieveMairie')
-      .mockResolvedValue(null);
-
-    // When
-    render(Page);
-
-    // Then
-    await waitFor(() => {
-      const item = screen.getByTestId('sidemenu-item-city');
-      expect(item).toHaveClass('disabled');
-      expect(spy).toHaveBeenCalledWith(userStore.connected?.identity.address?.citycode);
-    });
-  });
-
-  test('mairie entry is enabled as user has address and mairie is found', async () => {
-    // Given
-    localStorage.setItem('user_identity', JSON.stringify(mockUserIdentity));
-    await userStore.login(mockUserInfo);
-    const spy = vi
-      .spyOn(APIAnnuaireSPMethods, 'retrieveMairie')
-      .mockResolvedValue({ url_service_public: 'url1' });
-
-    // When
-    render(Page);
-
-    // Then
-    await waitFor(() => {
-      const item = screen.getByTestId('sidemenu-item-city');
-      expect(item).not.toHaveClass('disabled');
-      expect(spy).toHaveBeenCalledWith(userStore.connected?.identity.address?.citycode);
     });
   });
 

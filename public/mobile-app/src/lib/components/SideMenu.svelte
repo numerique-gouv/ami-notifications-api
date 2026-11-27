@@ -15,10 +15,7 @@
       <ul class="fr-sidemenu__list" data-testid="sidemenu">
         {#if sideMenus}
           {#each sideMenus as item}
-            <li
-              class="fr-sidemenu__item {item.isEnabled ? '': 'disabled'}"
-              data-testid="sidemenu-item-{item.id}"
-            >
+            <li class="fr-sidemenu__item" data-testid="sidemenu-item-{item.id}">
               <button
                 class="
                   fr-sidemenu__btn fr-pl-0 am-text--smbold
@@ -27,8 +24,7 @@
                   {item.tag ? 'fr-pr-9w': 'fr-pr-4w'} "
                 type="button"
                 data-testid="sidemenu-button-{item.id}"
-                disabled={!item.isEnabled}
-                onclick={(e) => {if (item.isEnabled) { AMIGoto(item.url) } else {e.preventDefault();} }}
+                onclick={() => AMIGoto(item.url)}
               >
                 <span class="am-sidemenu-details">
                   {#if item.date}
@@ -85,10 +81,6 @@
         right: 0;
         top: 50%;
         transform: translateY(-50%);
-      }
-
-      .fr-sidemenu__item.disabled button {
-        color: var(--text-disabled-grey);
       }
 
       .am-sidemenu-details {
