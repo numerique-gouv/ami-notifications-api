@@ -4,7 +4,16 @@ from contextlib import asynccontextmanager, contextmanager
 
 from django.core.cache import cache
 from django.utils.encoding import smart_bytes
-from httpx import URL, AsyncClient, BasicAuth, Client, Response  # noqa
+from httpx import (  # noqa
+    URL,
+    AsyncClient,
+    BasicAuth,
+    Client,
+    HTTPError,
+    HTTPStatusError,
+    ReadTimeout,
+    Response,
+)
 
 
 def get_cache_key(url: str):
